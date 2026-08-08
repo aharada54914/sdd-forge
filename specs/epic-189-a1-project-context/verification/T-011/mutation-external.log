@@ -1,0 +1,56 @@
+T-011 out-of-suite mutation evidence
+Harness: builds a scratch root from the live documents + the real
+approval scripts, asserts the UNMUTATED scratch root is 0-FAIL, then
+applies one mutation and re-runs the WHOLE suite. This exercises the
+TEST-039/TEST-026 routing assertions (doc_resolution), which the
+in-suite TEST-MUT lane does not reach.
+
+================ EXT-1 ================
+baseline(unmutated scratch root): exit=0  56 / FAIL: 0
+mutated  [EXT-1 PLUGIN-CONTRACTS.md routes C2 to the compatibility fallback (B5 fail-open)]: exit=1
+--- routing/distinctness assertions that went RED ---
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID (expected [PROJECT_CONTEXT_INVALID], got [COMPATIBILITY_FALLBACK])
+FAIL: TEST-026 [PLUGIN-CONTRACTS.md] the absent route and the present-but-invalid route must resolve DIFFERENTLY (C1=[COMPATIBILITY_FALLBACK] C2=[COMPATIBILITY_FALLBACK])
+--- document-conformance assertions that went RED ---
+FAIL: PLUGIN-CONTRACTS.md: contract-table-exact (row C2: got ('C2', 'physically present, REQ-005 validation fails', '--full, --lite, or none', 'COMPATIBILITY_FALLBACK'), expected ('C2', 'physically present, REQ-005 validation fails', '--full, --lite, or none', 'PROJECT_CONTEXT_INVALID'))
+--- total newly-red assertions ---
+17
+
+================ EXT-2 ================
+baseline(unmutated scratch root): exit=0  56 / FAIL: 0
+mutated  [EXT-2 lite-gate silently honours --lite against a full profile]: exit=1
+--- routing/distinctness assertions that went RED ---
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade) (expected [ERROR_STOP], got [NO_OP_LITE])
+--- document-conformance assertions that went RED ---
+FAIL: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-table-exact (row C5: got ('C5', 'physically present and valid, spec_profile: full', '--lite', 'NO_OP_LITE'), expected ('C5', 'physically present and valid, spec_profile: full', '--lite', 'ERROR_STOP'))
+--- total newly-red assertions ---
+16
+
+================ EXT-3 ================
+baseline(unmutated scratch root): exit=0  56 / FAIL: 0
+mutated  [EXT-3 interviewer drops the present-but-invalid case entirely]: exit=1
+--- routing/distinctness assertions that went RED ---
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID (expected [PROJECT_CONTEXT_INVALID], got [])
+FAIL: TEST-026 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] the absent route and the present-but-invalid route must resolve DIFFERENTLY (C1=[COMPATIBILITY_FALLBACK] C2=[])
+--- document-conformance assertions that went RED ---
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-table-exact (5 rows, expected 6)
+--- total newly-red assertions ---
+17
+
+================ EXT-4 ================
+baseline(unmutated scratch root): exit=0  56 / FAIL: 0
+mutated  [EXT-4 bootstrap handshake loses its fail-closed stop token]: exit=1
+--- routing/distinctness assertions that went RED ---
+--- document-conformance assertions that went RED ---
+FAIL: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-tokens (missing token(s): CAPABILITY_RUNTIME_UNAVAILABLE)
+--- total newly-red assertions ---
+15
+
+================ EXT-5 ================
+baseline(unmutated scratch root): exit=0  56 / FAIL: 0
+mutated  [EXT-5 impl-review gate stops consuming the resolved track]: exit=1
+--- routing/distinctness assertions that went RED ---
+--- document-conformance assertions that went RED ---
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: gates-migrated (gate(s) not gating on the resolved track: ## Implementation Policy Review Gate)
+--- total newly-red assertions ---
+15

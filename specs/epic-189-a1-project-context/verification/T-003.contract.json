@@ -1,0 +1,164 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-189-a1-project-context",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-07-30T15:04:32Z",
+  "comment": "Default-FAIL verification contract for T-003 (high, tdd). Populated after the quality gate reran the signer suite in BOTH lanes (bash 57/57, pwsh 55/55, 0 failed; specs/epic-189-a1-project-context/verification/qg/T-003/focused-tests.log), the full epic-189-a1 cross-suite regression set INCLUDING the signer suites (project-context-schema 41/41 x2, approver-registry-schema 8/8 x2, canonicalizer 80/80 + 77/77, signer 57/57 + 55/55; specs/epic-189-a1-project-context/verification/qg/T-003/regression.log), the placeholder scan over the six landed artifacts (specs/epic-189-a1-project-context/verification/qg/T-003/placeholder.log), the task-state check (13 tasks passed; specs/epic-189-a1-project-context/verification/qg/T-003/task-state.log), and a scripted requirement-traceability verification (specs/epic-189-a1-project-context/verification/qg/T-003/traceability.log; feature carries the task-review-hash-bound traceability.md, not a traceability.json, so the JSON-mode checker does not apply and the REQ-004 -> AC-010..013/034/036 -> TEST-010..013/034/036 chain was verified directly, fail-closed). Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain in this repository; established waiver set). TDD red evidence = original Red run (specs/epic-189-a1-project-context/verification/T-003/red-sh.log with -ps1 twin, commit 46daef11); green = specs/epic-189-a1-project-context/verification/T-003/green-sh.log/-ps1 plus the seq0350-remedy pair specs/epic-189-a1-project-context/verification/T-003/remedy-red-sh.log -> specs/epic-189-a1-project-context/verification/T-003/remedy-green-sh.log (with -ps1 twins, commit ec379cfb: STAGING_IO_ERROR exit 16 classification + TEST-HARDEN(d) regression classes). Independent skeptical evaluation: round-1 NEEDS_WORK seq0350 (1 Major, remedied), round-2 PASS seq0352 (reports/quality-gate/2026-07-30T150126Z-T-003.md, 0 Critical/Major, 6 Minor recorded incl. three T-005/T-006 carry-forwards; the evaluator re-executed all five prior reproduction classes and proved the seam load-bearing via detector-injection experiments).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-003/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-003's scope; the signer is a standalone CLI exercised end-to-end by its acceptance suite (canonicalizer dispatch is in-repo).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-003/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-003/remedy-red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-003/remedy-green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-003/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-003/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-003/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-003/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the CLI itself is smoke-exercised by every suite invocation recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-003 is net-new work, not a refactor/bugfix.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-003's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

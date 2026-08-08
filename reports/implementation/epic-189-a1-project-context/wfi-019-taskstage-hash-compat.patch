@@ -1,0 +1,54 @@
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -575,11 +575,24 @@
+     fi
+   elif [[ "$stage" == task ]]; then
+     local tasks="$feature_dir/tasks.md" traceability="$feature_dir/traceability.md"
++    local tasks_norm tasks_raw contract_tasks_hash
+     [[ -f "$tasks" && ! -L "$tasks" ]] ||
+       diagnostic "$feature" stage-provenance "task plan is missing"
+-    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$(normalized_hash "$tasks" task)" "$recorded_root" ||
++    # Post-implementation provenance re-review compatibility (WFI-019): the
++    # identity-ledger validator (validate-review-context-set) binds reviewer
++    # manifests to the RAW bytes of tasks.md, while this check historically
++    # expected only the status-normalized hash. Once tasks carry approved/
++    # advanced states the two derivations diverge, so an honestly re-bound
++    # contract records the raw hash. Accept either derivation of the live
++    # file - the raw hash binds strictly more content than the normalized
++    # one, so this cannot weaken tamper detection.
++    tasks_norm="$(normalized_hash "$tasks" task)"
++    tasks_raw="$(sha256_file "$tasks")"
++    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$tasks_norm" "$recorded_root" ||
++      manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$tasks_raw" "$recorded_root" ||
+       diagnostic "$feature" stage-provenance "task plan hash is stale"
+-    [[ "$(jq -r '.tasks_sha256 // empty' "$contract")" == "$(normalized_hash "$tasks" task)" ]] ||
++    contract_tasks_hash="$(jq -r '.tasks_sha256 // empty' "$contract")"
++    [[ "$contract_tasks_hash" == "$tasks_norm" || "$contract_tasks_hash" == "$tasks_raw" ]] ||
+       diagnostic "$feature" stage-provenance "task top-level plan hash is stale"
+     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
+       [[ -f "$traceability" && ! -L "$traceability" ]] ||
+diff --git a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1 b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -775,11 +775,17 @@
+         }
+     } elseif ($Stage -eq "task") {
+         $tasks = Join-Path $FeatureDir "tasks.md"
+-        $tasksHash = Get-NormalizedHash $tasks "task"
+-        if (-not (Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHash $RepoRoot)) {
++        # Post-implementation provenance re-review compatibility (WFI-019, see
++        # the .sh twin): accept either the status-normalized or the raw hash
++        # of the live tasks.md - the raw hash binds strictly more content
++        # than the normalized one, so this cannot weaken tamper detection.
++        $tasksHashNorm = Get-NormalizedHash $tasks "task"
++        $tasksHashRaw = Get-Sha256 $tasks
++        if (-not ((Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHashNorm $RepoRoot) -or
++                  (Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHashRaw $RepoRoot))) {
+             Stop-WorkflowState $Feature "stage-provenance" "task plan hash is stale"
+         }
+-        if ([string]$contract.tasks_sha256 -ne $tasksHash) {
++        if (([string]$contract.tasks_sha256 -ne $tasksHashNorm) -and ([string]$contract.tasks_sha256 -ne $tasksHashRaw)) {
+             Stop-WorkflowState $Feature "stage-provenance" "task top-level plan hash is stale"
+         }
+         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']

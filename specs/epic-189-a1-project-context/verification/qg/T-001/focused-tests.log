@@ -1,0 +1,128 @@
+=== focused: bash tests/project-context-schema.tests.sh ===
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 44
+FAIL: 0
+bash-exit=0
+=== focused: pwsh -NoProfile -File tests/project-context-schema.tests.ps1 ===
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 44
+FAIL: 0
+pwsh-exit=0
+
+=== note on the two lanes ===
+Zero SKIP lines in either lane (`grep -c SKIP` over this whole file = 0):
+every assertion genuinely executed on this platform, so 44/0 is a real
+tally rather than a partially-skipped one.
+
+Assertion decomposition, counted from the transcripts above rather than
+read off the suite source - identical in both lanes:
+  TEST-001 =  9   parameterized required-JSON-Pointer rejection set (AC-001)
+  TEST-002 =  8   all eight ADR-0020 allowlist paths resolve      (AC-002)
+  TEST-003 =  7   provider-bindings conformance + passthrough     (AC-003)
+  TEST-004 =  2   provider-neutrality: no fixed Provider enum     (AC-004)
+  TEST-040 =  7   duplicate-id rejection, components[]/bindings[] (AC-040)
+  TEST-041 =  2   adapter_paths present and absent                (AC-041)
+  TEST-042 =  9   template conformance + six-pattern shared_paths (AC-042)
+  ------------------------------------------------------------------------
+  total    = 44   no padding; every AC in T-001's Done When is represented.
+
+The 44 assertion lines are byte-identical line-for-line between the POSIX
+and the PowerShell lane (extracted and compared programmatically this
+round), so the PowerShell twin is a genuine port of the same assertions,
+not a differently-scoped suite that happens to reach the same total.
+
+The tally is 44, not the 41 that this task's ### Blockers narrative in
+tasks.md still quotes from the 2026-07-22 session: the seq0367 round-1
+remediation (commit ad7ed305) added three TEST-040 mutation-proof
+assertions. This task's own acceptance logs were re-recorded in that same
+remediation and already read 44/0 - see
+specs/epic-189-a1-project-context/verification/T-001/acceptance-sh.log and
+.../acceptance-ps1.log, which the seq0368 evaluator diffed against its own
+independent re-runs and found clean apart from each log's trailing
+harness `exit=0` line.

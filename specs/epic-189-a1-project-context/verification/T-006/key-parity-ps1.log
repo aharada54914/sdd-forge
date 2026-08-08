@@ -1,0 +1,6 @@
+PASS: OBLIGATION 1 (TEST-013-style) case 1/4 (env var): validate-approval-sidecar.py's resolve_context_key() matches generate-approval-sidecar.py's AND sdd-hook-guard.py's _resolve_sudo_key byte-for-byte
+PASS: OBLIGATION 1 (TEST-013-style) case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 4/4 (none resolvable): all three resolvers return None
+
+# Full suite exit code for this run: 0 (all 37 assertions passed; see green-ps1.log for complete output)

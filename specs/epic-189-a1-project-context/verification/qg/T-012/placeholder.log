@@ -1,0 +1,73 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+    plugins/sdd-ship/skills/ship/SKILL.md \
+    plugins/sdd-lite/skills/lite-spec/SKILL.md \
+    specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md \
+    specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md \
+    specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml \
+    tests/ship-track-selection-migration.tests.sh \
+    tests/ship-track-selection-migration.tests.ps1 \
+    tests/plugin-contracts-track-selection.tests.sh \
+    tests/plugin-contracts-track-selection.tests.ps1 \
+    tests/guard-invariants-epic-a1.tests.sh \
+    tests/guard-invariants-epic-a1.tests.ps1 \
+    tests/run-all.sh \
+    tests/run-all.ps1
+Placeholder scan passed.
+exit=0
+
+SCOPE NOTE: the thirteen paths above are T-012's entire changed source surface.
+Derived from the commit range rather than from the task's Planned Files list, so
+that a path changed but not planned could not slip past: `git diff --name-only
+856c514f HEAD` lists 36 paths, and the thirteen above are exactly that list minus
+CHANGELOG.md (handled below), minus the frozen spec/report artifacts (tasks.md,
+the implementation report, the two quality-gate reports, the carryover note, the
+identity ledger and its two pending manifests, MANIFEST.sha256 and the twelve
+files under verification/T-012/), which are not production surface.
+
+NOTE ON THE TWO LIVE PROTECTED PATHS, which is what makes this scan differ in
+kind from T-011's. T-012's changed surface includes the LIVE
+plugins/sdd-ship/skills/ship/SKILL.md and plugins/sdd-lite/skills/lite-spec/
+SKILL.md, not only their staged candidates, because the human-apply step has
+completed and commit c50f2c64 carries the applied bytes. Both the live files and
+their staged candidates are scanned above, independently, and both are clean. The
+two pairs are byte-identical (`cmp` exit 0 for each pair, and each pair shares a
+single sha256 - ship 0761a915…, lite-spec 757c6817…), so the four scans are not
+four independent chances to find a marker; they are recorded separately anyway
+because the scan's job is to certify the bytes that actually ship.
+
+CHANGELOG.md EXCLUDED, with the reason MEASURED rather than assumed. Running the
+same scan with CHANGELOG.md appended fails with 5 findings, all of them in
+long-standing prose that DESCRIBES the placeholder scanner's own behaviour:
+
+  $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh <the thirteen above> CHANGELOG.md
+  Placeholder scan FAILED (5 finding(s)):
+   - CHANGELOG.md:1049:  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+   - CHANGELOG.md:1050:  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+   - CHANGELOG.md:1059:  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+   - CHANGELOG.md:2038:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+   - CHANGELOG.md:2048:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+  exit=1
+
+PROOF that none of the five is T-012's, by re-running the scan on the pre-T-012
+tree rather than by inspection alone:
+
+  $ git archive 856c514f | tar -x -C <scratch dir outside the repo>
+  $ cd <scratch dir> && bash plugins/sdd-quality-loop/scripts/check-placeholders.sh CHANGELOG.md
+  Placeholder scan FAILED (5 finding(s)):
+   - CHANGELOG.md:1014:  `raise NotImplementedError` ...
+   - CHANGELOG.md:1015:  ... `# TODO` マーカー ...
+   - CHANGELOG.md:1024:  ... NotImplementedError ... TODO ...
+   - CHANGELOG.md:2003: ... TODO_REPLACE_WITH_PROJECT_COMMANDS ...
+   - CHANGELOG.md:2013: ... TODO_REPLACE_WITH_PROJECT_COMMANDS ...
+  exit=1
+
+The same five findings, at line numbers exactly 35 lower. T-012's CHANGELOG
+change is a pure insertion of 35 lines at line 619 - `git log --oneline
+856c514f..HEAD -- CHANGELOG.md` names exactly one commit (afac24ed) and
+`git diff --unified=0 856c514f HEAD -- CHANGELOG.md | grep '^@@'` reports a
+single hunk `@@ -618,0 +619,35 @@` - so 1014 -> 1049, 1015 -> 1050, 1024 -> 1059,
+2003 -> 2038 and 2013 -> 2048 account for all five. T-012 introduced no
+placeholder marker and moved five pre-existing ones by a constant offset. (The
+pre-T-012 line numbers above are identical to the ones T-011's placeholder log
+recorded at ITS HEAD, which is the expected consequence of T-011's own 35-line
+insertion having already been in the tree at 856c514f.)

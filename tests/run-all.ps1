@@ -40,7 +40,19 @@ $tests = @(
     'tests/model-freshness-check.tests.ps1',
     'tests/facet-manifest-schema.tests.ps1',
     'tests/facet-manifest-semantics.tests.ps1',
-    'tests/design-system-contract.tests.ps1'
+    'tests/design-system-contract.tests.ps1',
+    'tests/project-context-schema.tests.ps1',
+    'tests/canonicalize-sdd-yaml.tests.ps1',
+    'tests/generate-approval-sidecar.tests.ps1',
+    'tests/approver-registry-schema.tests.ps1',
+    'tests/detect-policy-weakening.tests.ps1',
+    'tests/validate-approval-sidecar.tests.ps1',
+    'tests/apply-human-copy.tests.ps1',
+    'tests/check-hook-activation-handshake.tests.ps1',
+    'tests/guard-invariants-epic-a1.tests.ps1',
+    'tests/hook-guard-epic-a1-boundary.tests.ps1',
+    'tests/plugin-contracts-track-selection.tests.ps1',
+    'tests/ship-track-selection-migration.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Fixed
+
+- **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,
+  staged candidate)**: `apply-human-copy.sh`/`.ps1` が publish 時に staged
+  ファイルのモードを保持せず、全ターゲットが 0600 で着地するバグを修正
+  (sh 側は `mktemp`(0600) + `cat` + `mv` のため。実行可能な保護ターゲットが
+  exec bit を失い、publisher 自身を publish すると次バッチが
+  `Permission denied` で死ぬ)。契約は design.md の transactional bundle
+  contract に基づき「**STAGED candidate のモードを適用する**」を採用 —
+  live の既存モードは参照しない (live は publish が上書きすべき
+  drift/改竄面そのもの)。対称性として `pre/` バックアップが live の
+  PRE モードを捕捉し、rollback がそれを復元する。ps1 側は
+  `[System.IO.File]::Copy` の暗黙のモード複製に依存していた挙動を
+  `Get/SetUnixFileMode` で明示化 (Windows では no-op)。R-10 保護のため
+  修正は staged candidate
+  (`specs/epic-189-a1-project-context/human-copy/`) として作成し、
+  `MANIFEST.sha256` と `RUNBOOK-pr229.md` を更新 (Step 2 の一括 chmod
+  ワークアラウンドは、旧 publisher が実行する batch 1 の自己置換 1 件を
+  残して撤去)。`tests/apply-human-copy.tests.sh`/`.ps1` に
+  `TEST-MODE-PRESERVE` ブロックを追加 (実行可能/非実行可能ターゲットの
+  publish、既存 live モードに対する staged モード優先、mid-batch crash
+  後の rollback のモード忠実性。sh 247 passed / ps1 168 passed)。
+  副産物: BSD/macOS の `chmod` は `--` を end-of-options として扱わない
+  (bogus operand 扱いで nonzero exit) ことを実測で確認し、該当呼び出しに
+  インライン文書化。
 ### 修正
 
 - **`tests/run-all.sh` / `.ps1` が最初の失敗スイートで全体を中断していた問題**:
@@ -20,7 +45,6 @@
   が落ちると一度も実行されなかったものが実行される。なお同じ欠陥クラスを
   `check-workflow-state.{sh,ps1}` について扱う WFI-021 は Draft 段階であり、
   その Proposed Change にこの 2 ランナーは含まれない。
-
 ### Corrections
 
 - **v1.12.0 の Issue #125 エントリの訂正 (epic-136-phase3, Stream C)**:
@@ -39,6 +63,746 @@
   no-wildcard ルールにより CI で一度も実行されない — REQ-005 が塞ぐために
   存在する当のギャップを再生産することになる。v1.12.0 の記述自体は
   リリース済みの履歴として書き換えない。
+
+## v1.14.0 (2026-08-05)
+
+
+- **project-context / provider-bindings スキーマ + 単一ソース seed テンプレート
+  (Issue #189, epic-189-a1-project-context T-001)**:
+  `contracts/project-context.schema.json`(schema id
+  `sdd-project-context/v1`)と `contracts/provider-bindings.schema.json`
+  (schema id `sdd-provider-bindings/v1`)を新規追加。`workflow.spec_profile`/
+  `artifact_layout`/`capability_enforcement` の3値と `components[].id`・
+  `platform_targets[].{os,architecture}` のみを REQUIRED とし、他の
+  `components[]` フィールド(`artifact_kinds`/`runtime_classes`/
+  `characteristics.*`/`distribution_channels`/`data_classification`/
+  `provider_binding_ids`/`paths`)は任意。ADR-0020 の条件述語 DSL が参照する
+  8つのallowlistパス全てがスキーマフィールドとして解決することを検証。
+  `provider-bindings` 側は `provider`/`product`/`purpose` を固定enumなしの
+  自由文字列とし(provider-neutrality)、`state_authority`/`credentials`は
+  任意の任意形オブジェクト、`adapter_paths`(Epic A3 Reverse Coverage Gate
+  消費予定)は任意のglob文字列配列。`components[].id`/`bindings[].id` の
+  重複拒否はJSON Schema自体ではなく意味検証層の責務であることを、重複
+  フィクスチャがスキーマ単体は通過しつつ意味チェックでは
+  `DUPLICATE_COMPONENT_ID`/`DUPLICATE_BINDING_ID` として拒否されることで
+  証明。`contracts/project-context.template.yaml` は Epic A1/A3 共通の
+  単一ソース cross-cutting seed 一覧(`specs/**`/`reports/**`/`docs/**`/
+  `.github/**`/`tests/fixtures/**`/`CHANGELOG.md`、各
+  `classification: cross-cutting`)を含む汎用スキャフォールドとして追加。
+  `tests/project-context-schema.tests.sh`/`.ps1` が44アサーションで
+  受け入れ先行検証(acceptance-first)を実施、両ランタイムで実行し
+  PASS(`specs/epic-189-a1-project-context/verification/T-001/`)。
+  `tests/run-all.sh`/`.ps1` へ自スイートを直接登録。R-10 保護ファイルで
+  ある CI ワークフロー定義ファイルへの新規CIステップの反映は、staging
+  メカニズム自体が現状のガード実装(パス末尾一致)によりブロックされる
+  ため未完了 — 詳細と意図した挿入内容は
+  `reports/implementation/epic-189-a1-project-context/T-001.md` と
+  `tasks.md` の T-001 Blockers を参照。詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-001.md`。
+- **approver-registry スキーマ (Issue #189, epic-189-a1-project-context
+  T-004)**: `contracts/approver-registry.schema.json`(schema id
+  `sdd-approver-registry/v1`)を新規追加。`approvers[]` の `id`(不変の
+  identity key)・`name`(可変の表示ラベル、identity比較には一切使用しない)
+  を REQUIRED、`registered_at` は任意。`approvers: []` の空配列は
+  スキーマとして正当(T-005/T-006が構築する2名承認/フェイルクローズド
+  判定の前提条件)。`components[].id`/`bindings[].id`(T-001)と同型の
+  意味検証層による重複`id`拒否(`DUPLICATE_APPROVER_REGISTRY_ID`)を、
+  重複フィクスチャがスキーマ単体は通過することの証明とあわせて実装。
+  TDD Red(スキーマ未実装で8件中7件fail)→ Green(実装後8件全PASS)を
+  `bash`/`pwsh` 双方で実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-004/`)。
+  `tests/approver-registry-schema.tests.sh`/`.ps1` を
+  `tests/run-all.sh`/`.ps1` へ登録。CI ワークフロー登録はT-001と同じ
+  guard 制約により未完了。詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-004.md`。
+- **canonicalizer `canonicalize-sdd-yaml` (Issue #189, epic-189-a1-project-context
+  T-002)**: `plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py` を
+  新規追加 — HAND-WRITTEN・stdlib-only の制限付きYAMLサブセットパーサー
+  (PyYAML/ruamel.yaml 等サードパーティ依存なし、`requirements.txt` 新設なし。
+  人間判断3 = B、`reports/notes/epic-189-a1-decision-3-yaml-parser.md`)。
+  YAML 1.2 core schema によるプレーンスカラー解決(`yes`/`no`/`on`/`off` は
+  1.1 専用トークンとして文字列のまま維持)、anchor/alias/カスタムタグ/
+  重複キー/非文字列キーを各専用診断カテゴリで拒否、Unicode NFC 正規化後の
+  post-NFC 重複キー衝突検出、非有限(`.inf`/`.nan`)・IEEE-754 倍精度範囲外
+  数値の拒否を実装。RFC 8785 (JCS) 準拠の正準 JSON バイト列出力
+  (`--hash-only` で SHA-256 のみ出力)と、ECMAScript Number::toString
+  相当の数値フォーマット(固定/指数表記の境界を含む)を実装。JSON 入力
+  モードも受理(T-003 の HMAC preimage 経路向け)。`.sh`/`.ps1`/`.js` は
+  `python3`/`python` 解決のみを行う薄いディスパッチャで、いずれもネイティブ
+  再実装を持たない(`.ps1` も `sdd-hook-guard.sh` の PowerShell ネイティブ
+  フォールバック形は踏襲しない) — 4ランタイム全てが同一 SHA-256 を生成する
+  ことと、各ラッパーが `canonicalize-sdd-yaml.py` へ実際にディスパッチして
+  いる(単体では動作しない)ことを`tests/canonicalize-sdd-yaml.tests.sh`/
+  `.ps1` で証明。カテゴリ別に安定した終了コード(2/3/10/11/20-28)を割当て、
+  診断は stderr のみ・正常時は stdout をバイト完全出力。TDD Red(未実装で
+  bash 19件/29件・pwsh クラッシュ)→ Green(実装後 bash 29/29・pwsh 26/26 全
+  PASS)を`bash`/`pwsh` 双方で実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-002/`)。
+  `tests/canonicalize-sdd-yaml.tests.sh`/`.ps1` を`tests/run-all.sh`/`.ps1`
+  へT-001の直後・T-004の直前(数値順)に登録。CI ワークフロー登録は、
+  T-001/T-004 と同じ human-copy staging 領域に別セッションの未コミット
+  ステージング内容が存在するため、それらと競合しないよう本タスクでは延期
+  (詳細実装は`reports/implementation/epic-189-a1-project-context/T-002.md`)。
+- **承認サイドカー・スキーマ + staging-only 署名ツール `generate-approval-sidecar`
+  (Issue #189, epic-189-a1-project-context T-003)**:
+  `contracts/approval-sidecar.schema.json`(schema id
+  `sdd-project-context-approval/v1`/`sdd-provider-bindings-approval/v1`)と
+  `plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py` を新規追加。
+  `--content` の内容ファイルを T-002 の canonicalizer(`--hash-only`)へ
+  サブプロセスとして dispatch して `context_sha256` を算出、`--approver`/
+  `--second-approver`/`--status`/`--effective-at` を受理し、
+  `primary_approval.approver == second_approval.approver` の場合は
+  ハッシュ計算前に `DUPLICATE_APPROVER_IDENTITY` で拒否。HMAC preimage は
+  `hmac` フィールドを除いた承認オブジェクト全体を canonicalizer の JSON
+  入力モードへ dispatch して得た正準バイト列(TEST-036: ゴールデンベクタ
+  1件 + 全8フィールド由来の15種の単一フィールド変異、各変異で HMAC が
+  変化することを証明)。`SDD_CONTEXT_KEY` は `_resolve_sudo_key`/
+  `resolve_evidence_key` と同一の4段解決順序(env var → env-file →
+  home-path → キーなしは fail-closed)をバイト単位で再実装せずミラー
+  (TEST-013 で `sdd-hook-guard.py` に対するバイトパリティを証明)。
+  provenance フィールド(`predecessor_context_sha256`/`weakening_verdict`/
+  `approval_epoch`)は現存する live サイドカー(`--live-sidecar`)の
+  有無で分岐: 不在なら bootstrap として null/null/1 を即座に確定・署名
+  完了。存在する場合は `predecessor_context_sha256`/`approval_epoch+1` を
+  読み取った上で、T-005 の `detect-policy-weakening.py` を in-process で
+  呼び出す唯一の呼び出し口(seam)を通す — T-005 未着手の現時点では
+  当該モジュールが存在しないため、この seam は常に
+  `WEAKENING_DETECTOR_UNAVAILABLE` で fail-closed し、署名も staging も
+  一切行わない(呼び出し元から検証済み verdict を受理することは決してない
+  設計)。出力は live サイドカー/anchor パスを一切書き込まず、
+  `sdd/.staging/<schema-id>/<nonce>/` 配下へ署名済み候補・
+  approved-context バイト完全スナップショット・`MANIFEST.sha256`
+  (nonce 埋め込み)の3点のみを一時ディレクトリ経由の単一アトミック
+  rename で staging(TEST-034: シミュレートした書き込み途中失敗が
+  最終 staging パスに部分的な成果物を一切残さないこと、失敗後の再実行が
+  新しい nonce で成功することを証明)。`--dump-preimage`(AC-012 専用の
+  非本番コードパス)は `hmac` の自己参照除外を証明する内部テストフック。
+  `.sh`/`.ps1` は `python3`/`python` 解決のみを行う薄いディスパッチャ
+  (T-002 と同型)。TDD Red(未実装で bash 29/50・pwsh クラッシュ)→
+  Green(実装後 bash 50/50・pwsh 48/48 全 PASS)を`bash`/`pwsh` 双方で
+  実行・記録(`specs/epic-189-a1-project-context/verification/T-003/`、
+  seam の bootstrap/fail-closed 実行ログを含む)。
+  `tests/generate-approval-sidecar.tests.sh`/`.ps1` を`tests/run-all.sh`/
+  `.ps1` へ T-002 の直後・T-004 の直前(数値順)に登録。CI ワークフロー
+  登録は、T-001/T-002/T-004 と同じ human-copy staging 領域に別セッションの
+  未コミットステージング内容(T-001/T-004 分)が存在するため、それらと
+  競合しないよう本タスクでは延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-003.md`)。
+- **ポリシー弱体化検出ツール `detect-policy-weakening` + 配線完了
+  (Issue #189, epic-189-a1-project-context T-005)**:
+  `plugins/sdd-quality-loop/scripts/detect-policy-weakening.py` を新規追加 —
+  decision doc §9 の正準9カテゴリのうち実装済み3カテゴリ
+  (`capability_enforcement` の `required`→`advisory` 弱体化、
+  scope-prefix 集合演算によるコンポーネントパス縮小アルゴリズム(パターン
+  削除・同数置換・exclude追加・exclude広域化・純粋拡大の5境界ケース全証明)、
+  `spec_profile` の `full`→`lite` 移行)を直接フィールド比較で判定し、
+  残り6カテゴリ(Capability削除・公開配布縮小・重要度低下・Provider
+  allowlist拡大・本番書き込みパス変更・必須Gate削除)は全実行で明示的に
+  `n/a` と報告(プロキシ分類なし、決して黙殺しない)。信頼アンカーは
+  `git HEAD` ではなく `sdd/.approved-context/<schema>.approved.yaml` を
+  ツール内部で解決(本番呼び出し経路は `--approved-context` を一切
+  渡さない — 通常のコミットではアンカーを一切動かせないことをgit-commit
+  不変性テストで証明)。アンカー未存在(初回bootstrap)は
+  `NO_APPROVED_CONTEXT_ANCHOR` として全カテゴリ `not_weakened`/`n/a` を
+  返す文書化された非エラー条件。ポリシー弱体化と判定された場合のみ
+  `sdd/approver-registry.yaml`(T-004のスキーマ)の DISTINCT `id` 数を
+  数え、2以上で `two_person_required: true`、それ未満(0または1、
+  レジストリ不在含む)で `two_person_required: false, cooldown_hours: 24`
+  を出力。`sdd/.staging/*/TRANSACTION.json` が読み取り対象パスを含む
+  場合は `HUMAN_COPY_PUBLISH_IN_PROGRESS` でフェイルクローズ。
+  すべてのYAML/JSON解析はT-002の canonicalizer へサブプロセスdispatchし
+  再実装しない。**配線完了**(tasks.md T-005 Done-When、task-review
+  attempt-3 round-2 remedy): `generate-approval-sidecar.py`(T-003)の
+  `WEAKENING_DETECTOR_UNAVAILABLE` フェイルクローズド seam を in-process
+  で完成 — 非bootstrap遷移で本検出器の `compute_verdict()` を直接呼び出し、
+  その戻り値を寸分違わず sidecar の `weakening_verdict` へ埋め込む
+  (呼び出し元が verdict を供給する経路は存在しない)。T-003 QG round-2
+  seq0352 の3件の advance finding をこの配線で解消:
+  (1) `compute_verdict()` 呼び出し自体を分類済み try-wrap の内側に配置し、
+  検出器が送出する例外(その専用診断名を検証パイプラインを通して伝播、
+  または未知の例外は `WEAKENING_DETECTOR_ERROR`)を生の traceback として
+  漏らさない、(2) verdict の形状(必須4キー・カテゴリenum値・
+  JSONシリアライズ可能性)を preimage 構築前に検証し不正なら
+  `WEAKENING_VERDICT_MALFORMED` で拒否、(3) 非bootstrap遷移で
+  `None` verdict を `weakening_verdict: null` として署名することを拒否。
+  これら3件はそれぞれ独立した回帰テスト(バグを注入した検出器スタブを
+  差し替えた擬似スクリプトディレクトリ経由、実物の検出器は一切改変しない)
+  として両ランタイムに追加。`tests/generate-approval-sidecar.tests.sh`/
+  `.ps1` の既存 SEAM 非bootstrapテスト(T-003 が
+  `WEAKENING_DETECTOR_UNAVAILABLE` を期待していた箇所)を、配線完了後の
+  実際の挙動(署名成功・実verdict埋め込み)に合わせて更新。TDD
+  Red(検出器未実装で bash 5/56・pwsh 初回起動で異常終了)→
+  Green(実装後 bash 56/56・pwsh 55/55 全PASS)を`bash`/`pwsh` 双方で
+  実行・記録し、配線完了の専用証跡(`wiring-sh.log`/`wiring-ps1.log`:
+  埋め込みverdictと直接呼び出しverdictの完全一致、
+  `WEAKENING_DETECTOR_UNAVAILABLE` 不在の確認)も併せて記録
+  (`specs/epic-189-a1-project-context/verification/T-005/`)。
+  `tests/detect-policy-weakening.tests.sh`/`.ps1` を`tests/run-all.sh`/
+  `.ps1` へ T-004 の直後(数値順・5番目)に登録。CI ワークフロー登録は、
+  T-001/T-002/T-003/T-004 と同じ human-copy staging 領域に別セッションの
+  未コミットステージング内容が存在するため、それらと競合しないよう
+  本タスクでは延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-005.md`)。
+- **承認バリデータ `validate-approval-sidecar` (Issue #189,
+  epic-189-a1-project-context T-006)**:
+  `plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py` を新規
+  追加 — REQ-005 が定める6段ゲートを順番通り・最初の失敗で即時打ち切りで
+  独立検証: (0) 内容ファイルスキーマ適合(T-002 canonicalizer への
+  サブプロセスdispatch + `contracts/project-context.schema.json`/
+  `provider-bindings.schema.json` に対するdraft-07サブセット検証 —
+  T-001/T-004のテストスイートに埋め込まれていた検証ロジックと同一の
+  ものを本番コードへ格上げ — と `DUPLICATE_COMPONENT_ID`/
+  `DUPLICATE_BINDING_ID` 意味検証、加えて `sdd/approver-registry.yaml`
+  自体のスキーマ適合と重複`id`拒否(`DUPLICATE_APPROVER_REGISTRY_ID`、
+  AC-045の本番側証明 — T-004のスイートはテスト専用ハーネスで概念のみ
+  証明していた)、(1) ハッシュ一致、(2) HMAC検証(`hmac`除外オブジェクトを
+  canonicalizer JSON入力モードへdispatchして得た正準バイト列を独自に
+  再計算 — `generate-approval-sidecar.py`からのimportは一切行わず、
+  鍵解決・preimage構築とも本バリデータ自身が独立再実装することで
+  「生成側のバグをバリデータが黙って共有してしまう」リスクを排除)、
+  (3) 承認者identity検証(未登録拒否 `UNREGISTERED_APPROVER` +
+  同一identity二重拒否 `DUPLICATE_APPROVER_IDENTITY`、署名時点でT-003が
+  既に行っているチェックを検証時点で独立に再実施)、(4) `effective_at`
+  ゲート、(5) weakening-provenance整合性チェック
+  (`WEAKENING_PROVENANCE_UNDERAPPROVED`)。`--verify-provenance <sidecar>`
+  モード(REQ-005新設)は`--content`なしでLIVEなsidecar単体からHMAC
+  自己整合性(署名後の改ざん検知)と上記(5)を再検証し、先代anchorの
+  バイト列が消えた後も無期限に検証可能(AC-043)。読み取り前生成整合性
+  チェック(`sdd/.staging/*/TRANSACTION.json`が読み取り対象パスを含む場合
+  `HUMAN_COPY_PUBLISH_IN_PROGRESS`でフェイルクローズ)はT-005の同名処理を
+  本番コードとして独立再実装。**キャリーオーバー4件を本タスクで解消**:
+  (1) 鍵解決バイトパリティの実行時証明 — 本バリデータ独自の
+  `resolve_context_key()`(`_resolve_sudo_key`と同一アルゴリズムを
+  importでなく独立再実装)が`sdd-hook-guard.py`の`_resolve_sudo_key`と
+  `generate-approval-sidecar.py`の`resolve_context_key`双方とAC-013形式
+  4ケース行列で完全一致することをexecutableに証明
+  (`key-parity-sh.log`/`key-parity-ps1.log`)。(2) 非bootstrap
+  sidecar(`predecessor_context_sha256`が非null)が`weakening_verdict: null`
+  を持つ場合は requirements.md:310-312 の不変条件違反として
+  `WEAKENING_VERDICT_MISSING`で拒否 — T-005側の生成時拒否のバックストップ。
+  (3) AC-045の本番側半分をこのバリデータが担うことを明示。(4b)
+  「weakening_verdict が二者承認を要求するのに`second_approval`が不在/
+  同一identityのまま署名されてしまう」というT-005 QG seq0353での指摘済み
+  ギャップに対し、本バリデータ(標準検証経路と`--verify-provenance`の
+  両方)を設計上の正規のエンフォースメント地点として実装 —
+  `generate-approval-sidecar.py`(T-003)自体は現在もこの一貫性を
+  検証しないままサインしてしまう(修正はT-003のスコープ外と明記されて
+  いるため本タスクでは変更しない)ことをTEST-019 (a)がexplicitに記録した
+  上で、実際の生成→検証チェーン全体としてフェイルクローズであることを
+  証明。TDD Red(未実装で`bash` 8/38・`pwsh` 7/37)→ Green(実装後
+  `bash` 38/38・`pwsh` 37/37 全PASS)を`bash`/`pwsh` 双方で実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-006/`)。
+  `tests/validate-approval-sidecar.tests.sh`/`.ps1` を`tests/run-all.sh`/
+  `.ps1` へ T-005 の直後(数値順・6番目)に登録。CI ワークフロー登録は、
+  T-001/T-002/T-003/T-004/T-005 と同じ human-copy staging 領域に別
+  セッションの未コミットステージング内容が存在するため、それらと競合
+  しないよう本タスクでは延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-006.md`)。
+
+- **anchored-publisher-equivalent human-copy ツール `apply-human-copy`
+  (Issue #189, epic-189-a1-project-context T-007, Risk: critical)**:
+  `plugins/sdd-quality-loop/scripts/apply-human-copy.sh`/`.ps1` を新規
+  追加 — ADR-0011(Windows専用ネイティブランナー)の保護保証を
+  sh/ps1双方へ汎化した、REQ-007の唯一の実装。**設計上の一意な制約**:
+  この2ファイルには共有 `.py` マスターが存在せず、各ランタイムが
+  publisher全ロジックを完全に独立実装(design.md Components)。
+  **held-handle/handle-relative traversal の実現手法**: 純粋な
+  POSIX shell / クロスプラットフォーム pwsh には `openat`/`NtCreateFile`
+  相当のFFIが無い(pwsh は macOS/Linux/Windows 全てで動作するため
+  Win32 API直呼びも不可) — 代わりに、プロセス自身の
+  current-working-directory束縛(POSIX `chdir`/.NET
+  `Directory.SetCurrentDirectory`、いずれもカーネル媒介の実syscall)を
+  「保持されたハンドル」として用い、パスを1セグメントずつ
+  symlink拒否チェック→降下、を繰り返す実装を採用(祖先ディレクトリの
+  差し替えに対して免疫— ADR-0011が閉じた脆弱性クラスと同一)。
+  実装過程で2件の重大な発見: (1) `pwd -P`/`getcwd()`
+  相当は常に「ディレクトリの現在の名前」を反映するため、正当な
+  rename-and-continue(=置換耐性そのもの)が偽陽性で拒否される —
+  パス文字列比較ではなく (device, inode) 比較に修正。(2) PowerShell の
+  `Copy-Item`/`Test-Path`等のコマンドレットは
+  `[System.Environment]::CurrentDirectory`ではなく PowerShell 自身の
+  `$PWD`(これも単なる文字列ブックキーピング)経由で相対パスを解決する
+  ため、コマンドレット呼び出しは外部rename攻撃に追随してしまう —
+  publish/revert両経路を、書き込み直前に毎回
+  `[System.Environment]::CurrentDirectory`を再読込し `[System.IO.Path]`
+  で結合する生 .NET呼び出しのみに統一(コマンドレット不使用)。
+  **多対象ジャーナル化トランザクション**(design.md「Human-copy
+  publisher transactional bundle contract」、ADR-0025):
+  prepare(全候補を束で再ハッシュ+ライブ内容のpre-transactionバックアップ)
+  → journal(`sdd/.staging/<batch-nonce>/TRANSACTION.json`、
+  `targets[]` 各 `{live_path, pre_hash, post_hash}` — T-005が定義した
+  形状にcarry-forward義務1として準拠)を同一tempファイル+rehash+atomic
+  rename規律で書き込み→ commit(記録順に1対象ずつatomic rename)→
+  complete(journal削除)→ **全invocation開始時に自動実行される
+  crash-recovery**(現在のライブhashをjournal記録値と比較し、
+  全対象ALL-POST/ALL-PRE/MIXEDを判定 — MIXEDはPOST側の対象のみ
+  `pre/<basename>`バックアップからPREへ復元、必ず二値の終端状態
+  へ収束、リカバリ自体も冪等・再入可能)。**carry-forward義務2
+  (T-005 relay)を discharge**: `targets`キー欠如または不正形状の
+  journalはfail-closedで拒否(`JOURNAL_SHAPE_INVALID`)—
+  `detect-policy-weakening.py:201-203`の既知fail-open欠陥
+  (本タスクのPlanned Files外、変更せず)とは対照的に、本publisher自身の
+  recovery/publish経路は不正形状journalを「journalなし」と誤認しない。
+  AC-033の拡張crash-injection証明: (a)
+  journal書き込み直後・renameゼロ件時点のクラッシュ→ALL-PRE収束、
+  (b) 2対象中1件renameのみ完了時点のクラッシュ(mid-batch)→ALL-PRE収束、
+  (c) 全rename完了後・journal削除前のクラッシュ→ALL-POST収束、
+  (d) recovery自体の最中に2回目のクラッシュを注入→次回invocationで
+  なお正しく収束(recoveryの冪等性証明)、以上4点全てを両ランタイムで
+  実行時証明(`specs/epic-189-a1-project-context/verification/T-007/
+  crash-injection-{sh,ps1}.log`)。加えて、事前存在symlink拒否
+  (宛先leaf・宛先中間segment・staged source双方)、hard-link-alias
+  非伝播、held-handle置換耐性(宛先親ディレクトリを検証後・書き込み前に
+  外部からrenameしても真の(rename後の)anchor先へ正しく書き込まれる —
+  攻撃者が新規に作った置換先ディレクトリへは決して漏れない)、
+  atomic-rename-onlyでのpublish(path-based copyフォールバック皆無)、
+  マニフェスト形状検証・ホスティルパス文字クラス行列を含む130(`bash`)/
+  72(`pwsh`)アサーション(初回実装時点では38/27、seq0357/seq0358/seq0359
+  の3回のquality-gate remedyで段階的に追加)の
+  `tests/apply-human-copy.tests.sh`/`.ps1`で証明。TDD
+  Red(未実装で`bash` 19/38・`pwsh` 10/27)→ Green(実装後
+  `bash` 38/38・`pwsh` 27/27 全PASS)を両ランタイムで実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-007/`)。
+  **quality-gate remedy 3件**: (seq0357) 0バイトlive targetのpre-
+  transaction backupを誤削除しmid-batch crash後にpublisher恒久ブロック
+  していたCritical、basename衝突・pwsh側TEST-033d/e欠如・journal
+  UTF-8 BOMの3件のMajorを修正。(seq0358) manifest target pathに空白を
+  含む場合にshのIFS field-splittingでjournalが構造破壊される
+  (T-005 readerがfail openする)Majorを修正 — 全ての内部work-file
+  (`TARGETS_FILE`・recovery用journal再展開)をfixed-width record化し
+  `read`によるIFS分割を完全排除。(seq0359、訂正付き — 直前2回の報告書の
+  「パリティ回復」記述は過大主張だったと評価者に指摘され訂正: 空白/タブは
+  実際には正しく扱えていたが `"`・`\`・`}` は未対応のまま残っていた)
+  sh の journal reader(`json_get_targets`、手書き`sed`パース)が自身の
+  `json_escape`が出すエスケープを復号できずrecoveryが誤ったlive_pathを
+  照会してmixed stateを「成功」として固定するCriticalと、
+  同reader の `{...}` 境界スキャンが `}` を含むlive_pathで自身の
+  well-formed journalを恒久拒否するCriticalの計2件、および
+  `walk_relative_dir`の未クオート`set --`(sh)・`Set-Location`/`New-Item`
+  の`-LiteralPath`未実装/不徹底(ps1、`Set-Location -LiteralPath`が
+  wildcard文字を含むパスでは絶対パスでも実在の別ディレクトリへ解決して
+  しまう挙動を実測確認)によるglob展開Majorを修正 — sh側jsonリーダーを
+  awkによる真のエスケープ対応パーサへ全面書き換え、ps1側は
+  `Set-Location`/`Push-Location`/`New-Item -Path`を全廃し
+  `[System.IO.Directory]::SetCurrentDirectory`等の生.NET呼び出しのみへ
+  移行(`$PWD`依存を完全排除)。space/tab/先頭末尾空白/`"`/`\`/`{`/`}`/
+  `,`/`*`/`?`/`[`/`]`/`$`/backtick/`'`/UTF-8多バイトの機械的行列テストで
+  publish→crash→recovery収束→journal round-trip→T-005 surrogate照会→
+  sh/ps1パリティを全類型で証明。バックスラッシュのみ両ランタイムで
+  classified拒否(`UNSUPPORTED_PATH_CHARACTER`) — ps1側 .NET
+  FileSystemProviderが`\`を全プラットフォームでパス区切りとして扱う
+  実装上の制約と実測確認、design根拠を記録の上でsh側も一致拒否として
+  無言の非対称を回避。write_journalへのrehash-before-rename追加
+  (design.md:1020-1022、ps1は既存)も本ラウンドで実施。(seq0360)
+  過去3ラウンドと異なり**sh/ps1が同一の壊れ方をする**新規Critical:
+  live-hashプローブ(`pre_hash_of_live_target`/`Get-PreHashOfLiveTarget`)が
+  「walk失敗」(親segmentの欠落・symlink置換・chmod 000等のaccess拒否)を
+  無条件に文字列`"ABSENT"`へ丸め込んでおり、recoveryが既にPOSTへ進んだ
+  対象の宛先親を非攻撃的トリガ(symlink置換/rename退避/chmod 000)で
+  一時的に走査不能にされただけで「確認済みABSENT」と誤認 —
+  journal・pre/backupを無条件削除し復元不能なmixed stateを放置していた
+  (design.md:1055-1056が要求する「全対象がPRE復帰したことをrevert後に
+  再確認してからjournal削除」という検証ステップ自体がコード上不存在)。
+  修正: walk失敗を`"ABSENT"`へ変換する経路を全廃 —
+  `walk_relative_dir`/`Invoke-WalkRelativeDir`
+  に「この時点で単に存在しない」(sh: 戻り値3 / ps1:
+  `'segment-missing'`)と「存在するが遮断されている」(symlink・
+  access拒否・非ディレクトリ)を区別する戻り値を追加し、
+  prepare段階の**journalがまだ存在しない最初の1回のプローブに限り**
+  明示的な`tolerate-not-found`フラグで前者のみ許容(新規初回publish時に
+  宛先ディレクトリが未作成なのは正当な状態のため)。recovery側の全プローブ
+  (分類パス・revertパス・新設の確認パス)はこのフラグを一切使わず、
+  いかなるwalk失敗も分類済み失敗として`RECOVERY_FAILED`でfail-closed
+  (journal・backup保持)。design.md:1055-1056が要求する最終確認パスを
+  新規追加 — revert後に全対象を再プローブし、全てPRE一致を確認できた
+  場合のみjournal削除。prepare段階の同種失敗にも新カテゴリ
+  `LIVE_PROBE_FAILED`(exit 21、両ランタイム)を追加。regression fixtureの
+  構築中に2件のlatentバグを追加発見・修正: (a)
+  jsonリーダー(awk)の`\uXXXX`デコーダが印字可能ASCII(32-126)に制限され
+  C0制御文字を`?`へ破壊していた(本ラウンドのMajor #1修正が依存する
+  round-tripを直接破壊)、(b) 同デコーダが`strtonum`(gawk拡張、POSIX awk
+  非準拠)を使用しておりmacOS標準`/usr/bin/awk`(one true awk)でハード
+  クラッシュ — 移植可能な`hex2dec`ヘルパへ置換。Major
+  2件は一貫したper-character方針で解決: 「両ランタイムでend-to-end
+  表現可能な文字は正しくescapeして行列に含める、いずれかのランタイムで
+  構造的に表現不能な文字は両ランタイム対称に`UNSUPPORTED_PATH_CHARACTER`
+  拒否」— sh `json_escape`はC0制御文字全域(vtab/soh/formfeed/esc等)を
+  汎用的に`\u00XX`でescapeするよう修正(ps1の`ConvertTo-Json`は元々正しく
+  未変更)、CR(復帰)はCRLF行末との構造的判別不能性から両ランタイム対称に
+  拒否(ps1の`Get-Content`が独立に誤って行分割することも実測確認)。Major
+  #3: TEST-033t自体のhostileフラグメントが常にmanifestのLEAFにしか
+  出現せずglobメタ文字を含む**ディレクトリsegment**へのwalk_relative_dir
+  到達経路に回帰ロックが無かった欠落を新規fixture(decoy directory
+  `axxb/`併設)で解消。アサーション数174(`bash`)/100(`pwsh`)へ増加。
+  (seq0361) seq0360の修正自体が招いた**リグレッションCritical**を修正 —
+  recovery段のwalk失敗を種類を問わず致命扱いにしたため、宛先ディレクトリが
+  未作成の**初回publish**(journalが全対象に`pre_hash="ABSENT"`を記録した
+  状態)でcrashすると、敵対的入力が一切無くてもrecoveryが永久に
+  exit 17 `RECOVERY_FAILED`を返してjournalを保持し続け、以降の無関係な
+  batchも全て失敗する恒久ブリック状態に陥っていた(両ランタイム同一、
+  AC-033とdesign.md:1042-1046/1056-1063違反)。design.md:1036-1037が
+  プローブに「(or note `ABSENT`)」を明示的に要求し、:1042-1046が
+  「(or both are `ABSENT`) => SAFE abandonment」を必須の終端判定と
+  定めている以上、ABSENTの観測は正当な必須の結果であり失敗ではない。
+  修正方針は「walk成功/失敗」ではなく**観測できたか否か**で線を引き、
+  判別子にはjournal自身が記録した`pre_hash`を用いる: symlink・access拒否・
+  非ディレクトリ遮断は「存在するが読めない」ため常にfail-closed
+  (seq0360の修正をそのまま維持)、単純な不在は
+  journalが`pre_hash="ABSENT"`を記録している対象に限り正当な観測として
+  受理する(実hashが記録されている場合、journal書き込み時点で当該対象が
+  通常ファイルとして存在した=親チェーンも走査可能だったことの証明に
+  なるため、いま不在であることは破壊の証拠でありfail-closed)。両ランタイムに
+  専用ヘルパ(`recovery_probe_live_target`/`Get-RecoveryProbe`)を追加し
+  recoveryの全3プローブを集約。Major 3件も修正: seq0360の目玉であった
+  revert後確認パスに回帰ロックが皆無だった問題(新規TEST-033x)、
+  `DUPLICATE_BASENAME_IN_BATCH`がバイト厳密比較のため
+  case-insensitiveボリューム(macOS APFS既定)で`d1/File.txt`と
+  `d2/file.txt`が単一の`pre/<basename>`スロットを共有し一方のPREバイト列を
+  破壊していた問題(ASCII限定の常時case-insensitive判定＋PREPARE段階の
+  バックアップスロット排他チェックの二段構え)、`exec 8<. 2>/dev/null`が
+  sh側スクリプト自身のstderrを以降全域で破棄していた問題(未使用fdごと
+  削除、ps1との診断チャネル非対称も解消)。構造改善として、crash-injection
+  fixture群に**宛先ディレクトリ存在軸**(pre-existing / absent)を導入し、
+  AC-033の全4シナリオを両ランタイム×両バリアントで実行(点fixtureの
+  追加ではなく軸の追加)。各修正は scratch コピーでの mutation により
+  検出力を実証。アサーション数218(`bash`)/146(`pwsh`)へ増加。詳細は
+  `reports/implementation/epic-189-a1-project-context/T-007.md`の
+  「Quality Gate Remedy」各節。
+  `docs/adr/0025-human-copy-transactional-bundle.md`
+  は round-1 impl-review remedy(コミット `e28ba891`)で既に作成・
+  コミット済みであることを確認 — 内容は本実装(journal形状・六段階
+  プロトコル・AC-033の全4収束状態、`tests/apply-human-copy.tests.sh`/
+  `.ps1`という実ファイル名まで)と完全に整合しており、編集不要。
+  `tests/apply-human-copy.tests.sh`/`.ps1` を`tests/run-all.sh`/`.ps1`
+  へ T-006 の直後(数値順・7番目)に登録。CI ワークフロー登録は、
+  T-001〜T-006と同じ human-copy staging 領域に別セッションの未コミット
+  ステージング内容が存在するため、それらと競合しないよう本タスクでは
+  延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-007.md`)。
+
+- **hook稼働ハンドシェイク `check-hook-activation-handshake` (Issue #189,
+  epic-189-a1-project-context T-008, Risk: high)**:
+  `plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py`
+  (+ `.sh`/`.ps1` dispatchラッパー)を新規追加 — REQ-010の再設計
+  (host-side canary challenge/response)を実装。前身案(スタンドアロン
+  スクリプト自身がライブsidecarへの書き込みプローブを行い自身の結果を
+  検査)は、`sdd-hook-guard.py`がホストランタイム自身の`PreToolUse`
+  フックとして発火する以上、サブプロセス自身のファイルI/Oは決して
+  そのディスパッチに到達せず何も証明しないとして設計時に破棄済み
+  (requirements.md REQ-010)。本タスクは常にこのスクリプト自身が
+  一切の書き込みを試行しない(設計決定B4)前提のもと、3モードの
+  CLI契約を実装: `--emit-challenge`(新鮮な単回使用nonce + 専用canary対象
+  `sdd/.hook-canary-sentinel`(ライブ承認sidecarとは別、B5) +
+  ランタイム別tool-call templateを1つのJSONで出力。開始時に
+  既存sentinelの残留を読み取り専用チェック(`os.path.lexists`、
+  symlinkを辿らない)で検知し`STALE_SENTINEL_DETECTED`をstderr診断として
+  報告するが、新規challengeは常に発行——実際のcleanup試行は呼び出し側
+  スキルの責務)、`--verify-response --nonce --recorded-result --runtime`
+  (呼び出し側が記録した生のtool-call結果evidenceファイルを読み、
+  ランタイム別の期待deny署名+nonce一致を検証し`HOOK_ACTIVE`(exit 0)
+  またはfail-closedな`CAPABILITY_RUNTIME_UNAVAILABLE`を返す)、
+  `--confirm-cleanup --nonce --recorded-cleanup-result`
+  (sentinel削除試行の記録結果を検証し`SENTINEL_CLEANUP_CONFIRMED`/
+  `SENTINEL_CLEANUP_UNCONFIRMED`を、常に元のprobeの
+  `CAPABILITY_RUNTIME_UNAVAILABLE`裁定と併記——後からの結果が
+  遡って元の裁定を変えることはない、独立した裁定)。
+  **recorded-result evidenceスキーマ**(design.mdはCLI契約とランタイム別
+  署名の高レベル記述のみを固定しバイト単位のJSONフィールド名は
+  未規定のため、本実装が定義): 全evidenceファイル共通の`nonce`
+  (文字列)+`executed`(真偽値)エンベロープ、`executed: true`は
+  他フィールドに関わらず常に`WRITE_EXECUTED`へ短絡(書き込みが
+  実行された証拠は矛盾するdeny主張より常に優先)。`executed: false`時、
+  claude-code は`guard_emit_mode: "exit"` +非ゼロ整数`exit_code`
+  (`sdd-hook-guard.py`自身の`--emit exit`規約)、copilot-cli は
+  `permissionDecision: "deny"`(`--emit copilot`規約、`allow`/欠如は
+  「Copilotのsubagent hookは発火しないことが多い」既知ケースとして
+  `UNRECOGNIZED_RESULT`)、codex-cli は`plugin_hooks_enabled: true`
+  かつ`denied_by_plugin_hooks: true`(flag未設定/falseは
+  `denied_by_plugin_hooks`の値に関わらず常に`PLUGIN_HOOKS_DISABLED`
+  ——REQ-010が明記する「hook未発火への収束」)を要求。
+  `tests/check-hook-activation-handshake.tests.sh`/`.ps1`
+  (`bash` 88 / `pwsh` 87 アサーション)がTEST-027(3ランタイム×5結果
+  軸——HOOK_ACTIVE/WRITE_EXECUTED/UNRECOGNIZED_RESULT/
+  NO_RECORDED_RESULT/STALE_CHALLENGE_REJECTED、独立フィクスチャ、
+  codex-cli の`PLUGIN_HOOKS_DISABLED`収束ケース・copilot-cli の
+  `permissionDecision: allow`既知ケースを含む、AC-027)、TEST-032
+  (sentinel二分岐——hook発火時は絶対に作成されない/hook不発火時は
+  host観測された事実として作成されクリーンアップ成功が記録・確認
+  されるまで解決しない、cleanup未確認/拒否2フィクスチャ独立、
+  stale-start再帰(残留sentinel検知後も新規challengeが正しく発行・
+  解決される、残留sentinel自体はバイト同一のまま変更されない)、
+  複数回呼び出しにわたるplaceholder sidecar/registryフィクスチャの
+  非改変証明、AC-032)、design.mdのCLI契約が固定する`schema`/
+  `canary_target`フィールドの厳密一致(guard-invariants登録(T-009)との
+  クロスアーティファクト整合、AGENTS.md「High-risk task preflight」
+  WFI-001)、TEST-HARDEN(a..n)(nonce欠落/空文字列/不一致、
+  未知runtime、モードフラグ競合、不正JSON/非object top-level/不正
+  UTF-8/`executed`型不一致(文字列)、空白を含むパス、traceback
+  皆無)を検証。TDD Red(未実装スタブで`bash` 22 pass/66 fail・`pwsh`
+  21 pass/66 fail)→
+  Green(実装後`bash` 88/88・`pwsh` 87/87全PASS)を両ランタイムで実行・
+  記録(`specs/epic-189-a1-project-context/verification/T-008/`)。
+  6件の意図的mutation(nonce検証除去、`executed`常時false化、
+  claude-code署名検証除去、cleanup拒否検知除去、stale診断除去、
+  および最も安全性に関わる**B4違反mutation**——`--emit-challenge`
+  自身がsentinelへ実際に書き込むよう改変)をスクラッチコピー
+  (リポジトリ本体は変更せず)へ適用し、いずれも該当アサーションの
+  失敗として検出されることを実行時に確認(mutation F は非改変証明
+  テストが実際の禁止書き込みを検出することを直接実証)。
+  `tests/run-all.sh`/`.ps1`へT-007の直後(数値順・8番目)に登録。
+  CI ワークフロー登録は、T-001〜T-007と同じhuman-copy staging領域の
+  事情(2026-08-01時点でまだT-001/T-004の2ステップのみが登録された
+  古い状態)により本タスクでも延期——意図したCIステップの内容は
+  実装報告書に記録。ライブ`.github/workflows/test.yml`は無変更
+  (sha256 `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`)
+  であることを確認。**スコープ境界**(design.md Test Strategy
+  item 9、tasks.md Out of Scope): 本タスクはA1自身のfootgun-guard
+  Done条件——合成的・呼び出し側記録のevidenceに対するverify-response
+  ロジックの正しさのFIXTURE-SIMULATED証明のみであり、実ホストの
+  実際のtool-call denialの観測(live-host, cross-runtime)は含まない
+  ——それはEpic A8自身のmandatory Done条件。REQ-009の5つのentry point
+  へのwiring自体もT-011/T-012の範囲外。詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-008.md`。
+
+- **guard-invariants への Epic A1 保護パス登録のステージング (Issue #189,
+  epic-189-a1-project-context T-009, Risk: critical)**:
+  `specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md`
+  を新規追加 — 本パッケージ内の他のあらゆる件数が DERIVE される唯一の
+  正典インベントリ(design.md Protected-File Statement / M15)。
+  ADR-0019 item 3 の6カテゴリに沿って **具体24 + 予約4 = 28件** を列挙し、
+  パーサが依存する行文法を規範として明記する。内訳は canonicalizer 4 /
+  hash generator 3 / approval validator 3 / policy-weakening detector 3 /
+  hook稼働ハンドシェイク3(validator族に集約)/ sidecar・registry・
+  sentinel・approved-context anchor データ6(B3、ADR-0019 item 1由来の
+  明示的拡張)/ human-copy publisher 2(B9、`apply-human-copy.{sh,ps1}`
+  自身の自己保護)/ resolver 3(**予約**)/ generated projection 1
+  (**予約**)。予約4件はA1では構築されずA2/A5へ強制ハンドオフされるが、
+  同一バッチで保護登録することで後続epicが agent-writable な状態で
+  作成することを防ぐ(`_validate_repo_path` はパス形状のみを検査し、
+  ディスク上の存在を問わないため成立する)。
+  併せて6つのステージング候補
+  (`guard-invariants.json` / `generate-guard-invariants.py` / 生成物4種)
+  を `human-copy/` 配下に追加。JSONは `protected_gate_suffixes` を
+  42→70件に拡張(既存42件は完全な前置として保存し、28件をマニフェスト順に
+  追記)し、新規トップレベルキー `epic_a1_targets` を追加。Pythonは
+  第三の定数 `EPIC_A1_TARGETS` を追加して `expected_protected` の計算に
+  合流させ、`REQUIRED_TOP_LEVEL` を拡張、`phase2_human_copy_targets` と
+  同一方式(順序付き完全一致・重複禁止)で `epic_a1_targets` を検証する。
+  `PHASE2_TARGETS`/`BASELINE_SUFFIXES` は凍結定数として**無変更**
+  (tasks.md Out of Scope)。`EPIC_A1_TARGETS` 専用の生成物射影は追加
+  しない(design.md 設計判断「第5の生成物consumerは不要」)。
+  **staged-tree `--check` 合格を証跡として記録**(AC-021):
+  `generate-guard-invariants.py` は `Path(__file__)` を基点に正典JSONと
+  生成物ディレクトリを解決するため、ステージング側の複製を起動すれば
+  ライブツリーに一切触れずステージングツリーを検証できる
+  (`tests/phase2-guard-invariants.tests.sh:24,41` が凍結epic-136
+  ステージに対して既に用いている本リポジトリ自身の定石)。
+  **ライブの6ファイルは本タスクのエージェントコミット前後で
+  バイト同一**(AC-022)であることを確認:
+  `fde0a57e…d422ad` / `827d1547…facc7` / `121818ba…e115ad` /
+  `16c05a8c…82a1d6` / `52de1d38…7281b1b` / `30eadded…17ca88`。
+  `tests/guard-invariants-epic-a1.tests.sh`/`.ps1` を新規追加し
+  `tests/run-all.sh`/`.ps1` に登録(epic-189系9番目)。両スイートは
+  実行のたびにマニフェストから両候補を再導出して比較するため、
+  マニフェストに反映されない手編集はサイレントな乖離ではなくテスト失敗
+  になる。sh側はモジュールをimportして定数を読み、ps1側は同じ定数を
+  ソース解析で読む — 一方の読み方をすり抜ける欠陥をもう一方が捕らえる
+  意図的な差異軸。TDD Red/Green は
+  `specs/epic-189-a1-project-context/verification/T-009/` に記録
+  (Red = 予約4件を落とした不完全ドラフトに対する staged-tree `--check`
+  失敗、Green = 最終候補の合格。sh 75/0、ps1 79/0)。
+  **本タスクは Done の前に人手による適用ステップを必須とする**:
+  (1) B9 の一度限りの publisher ブートストラップ(人手検証付きの
+  平の `cp` + SHA-256 照合)、(2) now-live な `apply-human-copy` による
+  7件バッチの公開、(3) ライブツリーに対する `--check` 再実行、
+  (4) 新規保護パスが実際に deny されることの確認。手順書と
+  ロールバック方針は
+  `reports/implementation/epic-189-a1-project-context/T-009.md`。
+- **保護書き込みフルマトリクス deny の検証 (Issue #189,
+  epic-189-a1-project-context T-010, Risk: high)**:
+  `tests/hook-guard-epic-a1-boundary.tests.sh` / `.ps1` を追加(REQ-008 /
+  AC-023 / TEST-023)。REQ-007 が登録した4つの保護 basename に対する書き込み
+  試行が、design.md Test Strategy 項目8の**12の変異サーフェス全て**を通じて
+  拒否されること、かつ**有効な fixture `SDD_SUDO` トークン下でもバイパス
+  されない**ことを、4 × 12 × 2 = **96個の独立アサーション**として各ランタイム
+  で証明する(basename ごとの抜き取り検査ではない)。ガードは合成ペイロードを
+  stdin で実エントリポイントに渡し終了コードを読む方式で直接駆動する —
+  エージェント自身の書き込みがブロックされた事実は証拠として使わない
+  (それは環境フックの挙動であって判定関数の証拠ではなく、CI で再現できない)。
+  アサーションが空振りしないための3つの構造的防御: `PRE-*` は fixture の
+  sudo トークンが**実際に有効**であることを確認(さもなくば sudo レーン48
+  セルが無意味になる)、`MUT-*` は同一ペイロードを4エントリ削除済みの
+  使い捨てガードコピーに再投入して **allow** を要求、`BASE-*` は無改変の
+  コピーが依然 deny することを要求(コピー自体の破損で `MUT-*` が通るのを
+  防ぐ)。この仕組みは開発中に実際の偽陽性 — あるサーフェスが保護ファイル
+  規則ではなく**ペイロード検証**で拒否されていた — を検出した。TDD Red/Green
+  は `specs/epic-189-a1-project-context/verification/T-010/` に記録(Red =
+  適用前インベントリのシミュレーションに対し両ランタイムとも正確に96失敗、
+  Green = sh 211/0、ps1 207/0)。加えて5種の mutation を pristine ベースライン
+  と対にして検出力を実証。再列挙した呼び出し箇所は設計表とサーフェス粒度で
+  一致(直接9 + 間接4 = 12)。12行に含まれない R-10 前置フィルタは、
+  2026-08-03 の裁定に従い **AC-023 の96には数えない補足アサーション**として
+  検証し、凍結 spec は改訂していない。
+  本タスクは `sdd-hook-guard.*` の判定ロジックを一切変更しない。
+- **ADR-0023 トラック選択契約の移行 — 非保護コンシューマ3件 (Issue #189,
+  epic-189-a1-project-context T-011, Risk: high)**:
+  `PLUGIN-CONTRACTS.md` の Track Detection セクションを ADR-0023 に沿って改訂し、
+  `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md`、
+  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`、
+  `plugins/sdd-lite/skills/lite-gate/SKILL.md` の3コンシューマを移行(REQ-009 /
+  AC-024・AC-026・AC-039 の非保護半分)。解決順序は**物理的存在の確認が先、
+  REQ-005 承認検証が後**であり、この順序自体が契約である: `sdd/project-context.yaml`
+  が**物理的に不在**なら従来の CLI フラグ優先順位(互換フォールバック、無変更)、
+  **存在しかつ有効**なら ADR-0023 の新優先順位(lite+`--full`→昇格、
+  full+`--lite`→**明示エラーで停止**)、**存在するが REQ-005 検証に失敗**する場合は
+  `PROJECT_CONTEXT_INVALID` で停止し、**決して「不在」として扱わない**。この
+  第3分岐が security-spec.md の B5「トラック選択 fail-open」境界であり、
+  サイドカー改竄・リプレイ・鍵ローテーション窓の悪用で検証失敗を誘発しても
+  寛容な旧挙動を取り戻せないことを保証する。4文書すべてが同一の6ケース表を
+  機械可読なマーカー(`sdd:track-selection-contract v1`)で保持し、文書間の
+  ドリフト自体がテスト失敗になる。各エントリポイントには REQ-010 の
+  hook-activation ハンドシェイク(`--emit-challenge` → エージェント自身の
+  ツール呼び出し → `--verify-response`、非 `HOOK_ACTIVE` は
+  `CAPABILITY_RUNTIME_UNAVAILABLE` で停止)を配線(AC-035 の部分証跡、
+  完了は T-012)。interviewer の3つの `spec_profile` 読み取り箇所は、
+  エントリポイントで**一度だけ**解決したトラックを参照する形に統一した。
+  `tests/plugin-contracts-track-selection.tests.sh` / `.ps1` を追加(run-all
+  の11番目)。AC-026 の6つの無効理由(サイドカー欠落・content スキーマ違反・
+  ハッシュ不一致・HMAC 不一致・未登録承認者・未到達 `effective_at`)を**実際の**
+  `generate-approval-sidecar.py` / `validate-approval-sidecar.py` で駆動する
+  fixture プロジェクトとして個別に構築し、6つとも固有の終了コードで拒否される
+  こと、かつ**いずれも物理的には存在している**ことを確認する。C1(不在)と
+  C2(存在するが無効)の解決結果が**異なる**という不等式を明示的に検証しており、
+  これが「別ラベルを付けた同じ分岐」を排除する。TDD Red/Green は
+  `specs/epic-189-a1-project-context/verification/T-011/` に記録(Red = 両
+  ランタイムとも 16/64、Green = 両ランタイムとも 80/0)。検出力は12の
+  in-suite mutation(すべて pristine ベースラインとの差分として評価するため
+  Red 状態では空振りせず失敗する)と5つのスイート外 mutation で実証。
+  保護ファイル(`ship` / `lite-spec`)は本タスクでは一切触れない(T-012)。
+- **ADR-0023 トラック選択契約の移行 — 保護コンシューマ2件と配線クローズアウト
+  (Issue #189, epic-189-a1-project-context T-012, Risk: high)**:
+  R-10 保護下にある残り2コンシューマ(`sdd-ship` の Track Detection と
+  `lite-spec`)の移行候補を `specs/epic-189-a1-project-context/human-copy/`
+  配下に**ステージング**し、REQ-009 の5コンシューマ移行と REQ-010 の
+  エントリポイント配線を完結させた(AC-025・AC-026・AC-035・AC-039)。
+  **ライブの保護ファイルは一切編集していない**: 公開は T-007 の
+  `apply-human-copy` を通じた**人手の適用ステップ**であり、本タスクの Done
+  条件に明示的に含まれる(下記 runbook は
+  `reports/implementation/epic-189-a1-project-context/T-012.md`)。
+  `sdd-ship` の Step 2 は、ハンドシェイク → 契約解決 → リスク昇格スキャン →
+  **互換フォールバック**(旧優先順位1〜4を無変更で保持)という構成に再編し、
+  従来の `--full`/`--lite`/`spec_profile`/既定の4段優先順位は Project Context
+  が**物理的に不在**な C1 からのみ到達する経路として維持される。
+  **非 `HOOK_ACTIVE` ハンドシェイクの適用範囲**を、両ステージング候補が持つ
+  機械可読な `sdd:capability-gate-scope v1` 表で明文化した: 有効な Project
+  Context を持つプロジェクト(Capability Mode に入っている)は
+  `CAPABILITY_RUNTIME_UNAVAILABLE` で**停止**し、レガシー経路へ降格しない
+  (design.md:1112 — 停止するのは **Capability Mode**)。Project Context を
+  持たないプロジェクトは ADR-0016 の `disabled-legacy` であり、これは
+  「Project Context を持たないプロジェクトにとって正常かつ想定内の状態で
+  あり、エラーではない」(requirements.md:1821-1827)、かつ
+  `CAPABILITY_RUNTIME_UNAVAILABLE` とは「決して同一視されない」
+  (design.md:1734)ため、**停止しない**。禁止される遷移は Capability Mode →
+  レガシーであって、レガシー → レガシーではない。この規則は両方向とも
+  テストで反証可能にしてある(G2≠G4 / G3=G4 / G1≠G2 の3つの導出比較と、
+  両方向それぞれの mutation)。`tests/ship-track-selection-migration.tests.sh`
+  / `.ps1` を追加(run-all の12番目、両ランタイムとも 139/0)。TDD Red/Green は
+  `specs/epic-189-a1-project-context/verification/T-012/` に記録(Red = 両
+  ランタイムとも 58/76、Green = 両ランタイムとも 139/0)。T-011 のスイートは
+  文書リストを4→6に拡張(80→106、両ランタイム緑)。Red 取得中に `.ps1` 側の
+  G4 アサーションが空値で空振りする欠陥を発見し修正した。
+  `tests/guard-invariants-epic-a1.tests.*` の MANIFEST 件数を 8 に固定して
+  いたアサーションは、後続タスクの正当な追加で誤って落ちるため、下限+
+  重複なしの検査に置き換えた(各エントリのステージバイトとの照合は従来どおり)。
+- **三環境テストカバレッジと CI 配線のクローズアウト (Issue #189,
+  epic-189-a1-project-context T-013, Risk: medium)**: 本 epic が追加した
+  全スイートの登録・非使用宣言・CI 耐性を監査し、CI ステージングの drift を
+  解消した(AC-028・AC-029)。**CI ステージング drift の実測と是正**: 各タスクが
+  `specs/epic-189-a1-project-context/human-copy/` 配下の CI ワークフロー候補へ
+  逐次追記した結果、実測時点で bash レーン 13 件中 5 件・pwsh レーン 12 件中
+  5 件しか登録されておらず、**15 登録が欠落**していた。これを 13/13・12/12 に
+  是正し、`human-copy/MANIFEST.sha256` の該当ダイジェストを更新
+  (`c59b1c9a…`)。是正後の候補は YAML としてパース可能・`test` ジョブ 90
+  ステップ・ステップ名重複なしを実測。**AC-028 の3部構成証明**は3部とも成立:
+  (1) staged = 25 登録すべて存在、(2) live 不変 = ライブの CI ワークフロー定義
+  ファイルの sha256 が merge-base 時点と完全一致(`3fe8466c…`)、本ブランチの
+  当該ファイルへのコミット数 **0**、(3) post-copy = ステージ候補を適用した
+  シミュレーションで欠落 **0**。ライブファイルは一切編集していない(公開は
+  T-007 の `apply-human-copy` 経由の人手適用ステップ)。**AC-029**: 新規
+  スイート全件について実 LLM・`gh`・`sdd-sudo` のコマンド呼び出しがゼロで
+  あることを実測(検出された `copilot` はアサーション名の文字列、`SDD_SUDO`
+  は T-010 のローカル署名フィクスチャトークンおよび鍵解決パリティ用の
+  環境変数名のみで、ライブの grant は皆無)。bash 配列展開は全スイートで
+  ゼロ件(`set -u` の空配列ハザードは存在しない)。`mktemp` ルートの
+  `pwd -P` 正規化が3スイートで欠落していたため、本 epic の既存 10 スイートと
+  同一のイディオムで補った(アサーション数は 44/0・8/0・33/0 と変化なし)。
+  **個別実行は両ランタイム全 25 実行が green**(bash 13 本・pwsh 12 本、
+  全て exit 0)。**逸脱(人間承認済み)**: Done-When の
+  「`bash tests/run-all.sh` / `pwsh tests/run-all.ps1` の完走」は**本ブランチ
+  では達成できない**。bash レーンは 61 本中 **21 本目**
+  (`tests/turn-first-workflow.tests.sh`)で、pwsh レーンは 44 本中 **1 本目**
+  (`tests/validate-repository.ps1`)で中断する。**いずれも本 epic 由来では
+  なく、T-013 由来でもない**(前者は WFI-005 のテンプレート改名 drift で
+  upstream の #215/#216 が既に修正済み、後者は実装フェーズ中は構造的に
+  green を保てない stage-provenance の documented interim state)。人間判断に
+  より **main のマージは最終フェーズへ繰り延べ**、本項目は
+  「最終フェーズのマージ後に条件付きで充足」として記録する(充足済みとは
+  記録しない)。詳細な実測・使い捨てクローンでのマージ影響測定・是正内容は
+  `reports/implementation/epic-189-a1-project-context/T-013.md` と
+  `specs/epic-189-a1-project-context/verification/T-013/`。
+- **外部レビュー(PR #229 Codex review)指摘 3 件の修正 (Issue #189,
+  epic-189-a1-project-context)**: いずれも R-10 保護スクリプトのため、修正は
+  `specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/`
+  配下の**ステージ済み候補**として作成し(`MANIFEST.sha256` に 4 件追記、
+  計 14 件)、ライブ適用は人間の `cp` を待つ。追加した検証は
+  `TEST-PR229-AHC` / `TEST-PR229-GEN` / `TEST-PR229-VAL` として既存スイートを
+  拡張し、**ステージ済み候補を実行**する(適用後もそのまま緑)。
+  **(1) [P1] `apply-human-copy.{sh,ps1}` のリカバリ probe が symlink を
+  ABSENT と誤判定**: `sha256_of_or_absent` の `[ -e ] && [ ! -L ] && [ -f ]`
+  (ps1 は `Get-Sha256OrAbsent`)が symlink を `printf 'ABSENT'` に落として
+  いた。QG seq0360 が確立した「読めないものを『確実に不在』へ強制変換しない」
+  規則が、regular file が読めない場合にしか適用されていなかった。結果、
+  `pre_hash: "ABSENT"` の journal + ライブ対象を占める symlink の組み合わせで
+  リカバリが「コミット未開始」と判定し、journal と `pre/` バックアップを削除、
+  symlink を保護パス上に残したまま `{"status":"ok","recovered":1}` を返した
+  (両ランタイムで実証再現)。symlink だけでなく**非 regular file 全体**
+  (ディレクトリ・fifo 等)へ規則を一般化して修正。probe 失敗は PREPARE では
+  `PRE_EXISTING_SYMLINK_DENIED`(exit 10、publish 時と同一カテゴリ)、リカバリ
+  時は `RECOVERY_FAILED`(exit 17、journal/バックアップ保持)として既存の
+  分類体系で報告する(新規規約は導入しない)。ps1 は .NET が Unix の fifo を
+  regular file と区別できないため reparse point とディレクトリのみを検出する
+  — この残差はコード内に明記した。
+  **(2) [P1] `generate-approval-sidecar.py` が publisher の読めない manifest を
+  出力**: `nonce: <hex>` ヘッダ行(publisher は `<64-hex>␣␣<path>` 以外の行を
+  `MANIFEST_INVALID` exit 13 で拒否)と、bare basename 行(リポジトリ**ルート**へ
+  publish されてしまう)の 2 点。ステージ成果物を repo-relative なライブパス
+  (`sdd/project-context.approval.json` と
+  `sdd/.approved-context/project-context.approved.yaml` — 後者は design.md:142
+  /907-908 のとおり `sdd/` 直下ではない)配下に配置し、manifest を publisher
+  形式 2 行に修正。nonce は破棄せず兄弟ファイル `NONCE` へ退避した(manifest の
+  nonce 行を読む消費者はリポジトリ全体に存在しないことを確認済み)。これにより
+  ステージディレクトリを `apply-human-copy --manifest` へそのまま渡せる
+  (2 target の単一 journaled transaction として exit 0、2 つの basename は
+  相異なるため exit 19 の衝突なし)。既存 2 スイートのパス表明はレイアウト
+  非依存に書き換え、適用前後の双方で緑を保つ。
+  **(3) [P2] `validate-approval-sidecar.py` の標準経路がフィールド単位の
+  スキーマ適合を検査していない**: `_load_sidecar` はトップレベル 9 キーの
+  **存在**しか見ておらず、`contracts/approval-sidecar.schema.json` は標準経路で
+  一度も読まれていなかった。HMAC を**再署名した**フィクスチャで
+  `primary_approval.status: "Rejected"` / 追加プロパティ(トップレベル・
+  `primary_approval` 内の両方)/ `approval_epoch` が `0` や `"1"` / 大文字
+  `hmac` の 6 件が全て `VALID` exit 0 を返すことを実証。`_schema_validate` に
+  `$ref`・`pattern`・`minimum`・`integer`/`number`/`null` 型を追加し(T-003 の
+  テスト側ハーネスと同一キーワード集合)、`SIDECAR_SCHEMA_VIOLATION`(exit 47、
+  既存の `CONTENT_SCHEMA_VIOLATION` 32 / `APPROVER_REGISTRY_SCHEMA_VIOLATION`
+  35 と同じ系列の 3 番目)として標準経路で強制する。大文字 hmac の carryover は
+  定数時間比較を緩めずスキーマの `pattern` で構造的に拒否される。
+  `--verify-provenance` は歴史的再証明可能性を失わせないため意図的に
+  スキーマ非拘束のまま残した。**指摘のうち `approved_at` の不正形式のみは
+  反証**: draft-07 の `format` は assertion ではなく annotation であり、本 epic
+  自身のサブセット validator も実装していないため、スキーマ適合では拒否され
+  ない。現状の挙動をテストで固定し、境界を明示した(日時ゲートの新設は本修正の
+  範囲外)。
 
 ## v1.13.0 (2026-07-30)
 

@@ -384,6 +384,10 @@
     {
       "feature": "design-sync-consent",
       "profile": "full"
+    },
+    {
+      "feature": "epic-189-a1-project-context",
+      "profile": "full"
     }
   ]
 }
