@@ -3,11 +3,15 @@
 # contracts/facet-manifest.schema.json + validate-facet-manifest.py's schema
 # conformance layer (REQ-001, design.md Test Strategy item 1).
 #
-# Mirrors apply-branch-protection.tests.sh's ok/fail counter style. Fixtures
-# are pre-canonical JSON under tests/fixtures/facet-manifest/schema/ so this
-# suite exercises validate_document() directly (via the CLI's --manifest
-# <path>.json branch) without needing Epic A1's canonicalizer, which this
-# worktree does not contain (tasks.md External Checkout Constraints).
+# Mirrors apply-branch-protection.tests.sh's ok/fail counter style. Most
+# fixtures are pre-canonical JSON under tests/fixtures/facet-manifest/schema/
+# so this suite exercises validate_document() directly (via the CLI's
+# --manifest <path>.json branch) without needing Epic A1's canonicalizer
+# (tasks.md External Checkout Constraints). One fixture,
+# canonicalizer-roundtrip-valid.yaml (TEST-002 YAML round-trip), is real
+# YAML and is deliberately routed through the --manifest <path>.yaml branch
+# to exercise the actual canonicalize-sdd-yaml subprocess end-to-end, since
+# Epic A1's canonicalizer is present in this checkout.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -68,6 +72,19 @@ fi
 
 # --- TEST-002: required-field matrix (AC-002) -------------------------------
 expect_valid "valid-base.json" "TEST-002 positive baseline"
+
+# --- TEST-002 YAML round-trip: REQ-006 YAML parse contract, exercised
+# through the REAL canonicalize-sdd-yaml subprocess (not a pre-canonical
+# JSON fixture, unlike every other fixture in this suite). This is the
+# exact path where a `--yaml` vs. `--input-format yaml` CLI-flag mismatch
+# previously made every .yaml facet manifest fail closed with
+# canonicalizer-invocation-failed: "unrecognized arguments: --yaml" (100%
+# of the YAML path). The Done-gating condition tracked in tasks.md
+# "External Checkout Constraints" (Epic A1's canonicalizer must exist as a
+# real artifact) is satisfied in this checkout, so this fixture now runs
+# end-to-end instead of being deferred.
+expect_valid "canonicalizer-roundtrip-valid.yaml" "TEST-002 YAML round-trip (real canonicalizer subprocess)"
+
 for field in schema feature affected-components required-facets \
   conditional-facets resolved-gates capabilities lite-eligibility \
   context-binding resolver; do

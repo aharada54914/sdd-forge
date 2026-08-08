@@ -1,5 +1,10 @@
 # facet-manifest-schema.tests.ps1 — PowerShell twin of
 # facet-manifest-schema.tests.sh (REQ-001, design.md Test Strategy item 1).
+# One fixture, canonicalizer-roundtrip-valid.yaml (TEST-002 YAML
+# round-trip), is real YAML routed through the --manifest <path>.yaml
+# branch to exercise the actual canonicalize-sdd-yaml subprocess
+# end-to-end (tasks.md External Checkout Constraints Done-gating
+# condition, now satisfied).
 $ErrorActionPreference = 'Stop'
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -61,6 +66,11 @@ if ($schemaJson.'$id') {
 
 # TEST-002
 Expect-Valid 'valid-base.json' 'TEST-002 positive baseline'
+
+# TEST-002 YAML round-trip: real canonicalize-sdd-yaml subprocess, not a
+# pre-canonical JSON fixture (see file header).
+Expect-Valid 'canonicalizer-roundtrip-valid.yaml' 'TEST-002 YAML round-trip (real canonicalizer subprocess)'
+
 foreach ($field in @('schema','feature','affected-components','required-facets','conditional-facets','resolved-gates','capabilities','lite-eligibility','context-binding','resolver')) {
     Expect-Invalid "required-missing-$field.json" 'TEST-002' 'missing required property'
 }

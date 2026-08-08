@@ -132,9 +132,9 @@ def load_manifest_yaml(path):
 
     try:
         if canonicalizer.endswith(".py"):
-            argv = [sys.executable, canonicalizer, "--yaml", path]
+            argv = [sys.executable, canonicalizer, "--input-format", "yaml", path]
         else:
-            argv = [canonicalizer, "--yaml", path]
+            argv = [canonicalizer, "--input-format", "yaml", path]
         result = subprocess.run(
             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
         )
