@@ -5769,6 +5769,15 @@
       "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0641",
       "previous_record_sha256": "bfa5227faf304c7caaba1d8f5d85b9f13d5637baf0084b8750f7d86a88b29754",
       "record_sha256": "d81eec6d1e78e589bed5a6babebfab6ccbd500c118b7ea610a0a9b0378d0be23"
+    },
+    {
+      "sequence": 642,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0642",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0642",
+      "previous_record_sha256": "d81eec6d1e78e589bed5a6babebfab6ccbd500c118b7ea610a0a9b0378d0be23",
+      "record_sha256": "743f10bbd1cb63a635f0d785158e5737bb2b318d42b1f18295fbec6ca7b79d59"
     }
   ]
 }

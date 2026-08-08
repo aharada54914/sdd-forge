@@ -44,18 +44,23 @@ source for T-005's Signing Contract; T-005 implements it exactly as written
 and may flip its own `Status:` header to `Accepted` in the same commit once
 its implementation conforms — it never re-authors the ADR's own content.
 
-**One shared, ordinary (non-protected) file spans two tasks:**
+**Two shared, ordinary (non-protected) files each span two tasks:**
 `plugins/sdd-review-loop/references/a8-skip-allowlist.json` — T-001 creates
-it with the `AC-006` `case_id` entry only; T-005 later appends the `AC-015`
+it with the `AC-006` `case_id` entry only; T-008 later appends the `AC-015`
 and `AC-016` entries. No other task touches this file (SKIP Allowlist
-Activation Gate, design.md).
+Activation Gate, design.md). `plugins/sdd-review-loop/references/
+a8-trusted-signers.json` — T-005 seeds it empty
+(`{"schema": "a8-trusted-signers/v1", "signers": {}}`) as part of authoring
+the validator that resolves signer identities against it; T-008's own HUMAN
+APPLY STEP later appends the real `operator`/`reviewer` (and, once ready,
+`issuer`) key entries. No other task touches either file.
 
 **No task produces a genuine, signed `live-host-verification-record/v1`
 claiming a real CLI session occurred.** Every record any task in this
 feature commits under `tests/hook-activation-live-proof/` is either (a) a
 schema-valid `SKIP` record whose `operator_signature`/`reviewer_signature`
 require a maintainer-registered Ed25519 keypair that does not yet exist in
-this repository (a human action, see T-005's Done When), or (b) a
+this repository (a human action, see T-008's Done When), or (b) a
 disposable, clearly-fixture-only record used solely inside a task's own test
 suite to exercise `validate-live-host-proof`'s validation logic, never
 committed as this epic's own evidence. Fabricating a "genuine" session
@@ -80,10 +85,17 @@ AC-027).
   neither shared resource and carries no ordering requirement relative to
   the others (matching design.md's own AC-017 structural-separation
   decision, which keeps the synthetic regression file independent of every
-  other REQ-003 surface).
+  other REQ-003 surface). **T-008 is likewise deliberately outside this
+  chain**: it extends `tests/validate-live-host-proof.tests.{sh,ps1}`,
+  which T-005 already registers in both `tests/run-all.*` and the staged
+  `.github/workflows/test.yml` candidate, so T-008 itself touches neither
+  shared resource and carries no ordering requirement relative to
+  T-002/T-003/T-006/T-007 (matching T-004's identical positioning above).
 - **`plugins/sdd-review-loop/references/a8-skip-allowlist.json`: T-001 →
-  T-005** (Protected Files, above) — the only two tasks that touch it, in
-  that order.
+  T-008** (Protected Files, above) — the only two tasks that touch it, in
+  that order. **`plugins/sdd-review-loop/references/a8-trusted-signers.json`:
+  T-005 → T-008** (Protected Files, above) — the only two tasks that touch
+  it, in that order.
 - **CI resilience** (design.md Constraint Compliance) applies to every new
   `.sh`/`.ps1`/`.py` suite: no possibly-empty array expanded under `set -u`;
   every directly-created `mktemp` root normalized with `pwd -P` immediately
@@ -101,7 +113,10 @@ AC-027).
   committed by any task; T-005's own fixture Ed25519 keys are clearly
   disposable test material scoped to its own test suite, never registered
   in `a8-trusted-signers.json` as production entries (Protected Files,
-  above).
+  above). T-008's own HUMAN APPLY STEP registers only the operator's/
+  reviewer's public keys (`a8-trusted-signers.json`'s own schema carries
+  `public_key` only); no private key material is ever committed by any
+  task.
 - Preserve unrelated changes; implement one task at a time.
 
 ---
@@ -603,7 +618,7 @@ CI step name.
 
 ### Blockers
 
-None
+T-002
 
 ---
 
@@ -745,7 +760,7 @@ None
 
 ---
 
-## T-005 Author the REQ-003 live-host proof infrastructure and aggregate validator
+## T-005 Author the REQ-003/REQ-006 live-host-proof validator engine
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/196
 
@@ -757,24 +772,26 @@ Risk: high
 
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
-directly, not defaulted. `high` is justified: this task implements
-Security Boundary B1 (design.md — the fortified
-`live-host-verification-record/v1` schema, Ed25519 signing, nonce-replay
-protection) and `validate-live-host-proof`, the aggregate Done/release gate
-discharging ADR-0019's own "conditioned on the hook-activation handshake"
-defense claim. A silent defect (a forged or replayed record accepted, a
-digest mismatch silently passed, a single-signature record accepted as
-two-party, a stale post-merge `SKIP` reported `pending`) would let a
-fabricated security proof pass as genuine — the exact "silent defect
-causes material harm" surface the policy's `high` tier names on an
-access-control-adjacent enforcement surface (matching
-`specs/epic-190-a2-capability-registry/tasks.md` T-002/T-004's identical
-reasoning for security-boundary primitives). It is not `critical`: no
-financial-settlement, physical-safety, or irreversible-destructive surface
-— the validator emits `discharged`/`pending`/a named error code plus
-evidence, and its one write (marking a consumed nonce) is a narrow,
-lock-guarded, reversible ledger update, not itself the security decision.
-Required Workflow is `tdd` per the policy's high-tier row.
+directly, not defaulted. `high` is justified: this task implements the
+mechanical core of Security Boundary B1 (design.md) — the fortified
+`live-host-verification-record/v1` schema, the Nonce Issuance Ledger and
+Expected-Digest Manifest comparisons, Ed25519 signing verification, the
+AC-027 classification-mismatch/replay guard, and the aggregate
+`validate-live-host-proof` Done/release gate discharging ADR-0019's own
+"conditioned on the hook-activation handshake" defense claim. A silent
+defect (a forged or replayed record accepted, a digest mismatch silently
+passed, a single-signature record accepted as two-party, a stale
+post-merge `SKIP` reported `pending`) would let a fabricated security
+proof pass as genuine — the exact "silent defect causes material harm"
+surface the policy's `high` tier names on an access-control-adjacent
+enforcement surface (matching `specs/epic-190-a2-capability-registry/
+tasks.md` T-002/T-004's identical reasoning for security-boundary
+primitives). It is not `critical`: no financial-settlement,
+physical-safety, or irreversible-destructive surface — the validator
+emits `discharged`/`pending`/a named error code plus evidence, and its
+one write (marking a consumed nonce) is a narrow, lock-guarded, reversible
+ledger update, not itself the security decision. Required Workflow is
+`tdd` per the policy's high-tier row.
 
 Required Workflow: tdd
 
@@ -782,21 +799,24 @@ Security-Sensitive: true
 
 Cross-Model: not enabled
 
-Requirements: REQ-003 (AC-013, AC-014, AC-015, AC-016, AC-028), REQ-006
-(AC-026, AC-027)
+Requirements: REQ-003 (AC-028), REQ-006 (AC-026, AC-027)
 
-Depends On: T-001 (functional — appends the `AC-015`/`AC-016` entries to
-the `a8-skip-allowlist.json` T-001 creates with the `AC-006` entry;
-Protected Files, above), T-002 (Global Constraints — serialized only), T-003
-(Global Constraints — serialized only; no functional dependency on the
-install/uninstall matrix).
+Depends On: T-001, T-002, T-003 (Global Constraints — serialized only; no
+functional dependency on any of them — this validator's own TDD suite
+exercises its schema/nonce/signing/aggregate-gate logic entirely against
+disposable fixture keypairs and fixture allowlist/registry records under
+`tests/fixtures/live-host-proof/`, never the shared, real
+`a8-skip-allowlist.json`/`a8-trusted-signers.json` entries T-001/T-008
+create).
 
 Planned Files:
 - `plugins/sdd-review-loop/references/a8-trusted-signers.json` (new,
   agent-editable — schema `a8-trusted-signers/v1`; seeded empty
   (`{"schema": "a8-trusted-signers/v1", "signers": {}}`) as the real,
-  maintainer-committed registry — this task's own test suite uses
-  separate, disposable fixture keypairs, never registering them here)
+  maintainer-committed registry this validator resolves `operator_key_id`/
+  `reviewer_key_id` against; T-008's own HUMAN APPLY STEP later appends
+  the real signer entries — this task's own test suite uses separate,
+  disposable fixture keypairs, never registering them here)
 - `plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json`
   (new, agent-editable — one entry per semantic cell, `expected_sha256`
   computed now from the actual, currently-committed
@@ -806,21 +826,24 @@ Planned Files:
   — schema `live-host-nonce-ledger/v1`, seeded `{"schema":
   "live-host-nonce-ledger/v1", "entries": []}`; Epic A1's own handshake
   script appends real entries once it exists)
-- `plugins/sdd-review-loop/references/a8-skip-allowlist.json` (existing
-  after T-001, agent-editable — appends the `AC-015` and `AC-016` entries)
 - `plugins/sdd-quality-loop/scripts/validate-live-host-proof.py` (new,
   agent-editable — Python master: Schema Validation Rules, the
   `matrix_cell` ↔ `runtime`/`plugin_hooks_flag` discriminator, Nonce
   Issuance Ledger checks, Expected-Digest Manifest comparison, the
   Signing Contract's JCS canonicalization + domain-separated Ed25519
-  verification, the SKIP Representation three-state logic, and the one
-  lock-guarded atomic `consumed_by_record` write)
+  verification, the SKIP Representation three-state logic, the
+  classification-mismatch/replay guard, the aggregate
+  `discharged`/`pending`/hard-failure gate, and the one lock-guarded
+  atomic `consumed_by_record` write)
 - `plugins/sdd-quality-loop/scripts/validate-live-host-proof.sh` (new,
   agent-editable — thin wrapper)
 - `plugins/sdd-quality-loop/scripts/validate-live-host-proof.ps1` (new,
   agent-editable — twin)
-- `tests/validate-live-host-proof.tests.sh` (new, agent-editable)
-- `tests/validate-live-host-proof.tests.ps1` (new, agent-editable)
+- `tests/validate-live-host-proof.tests.sh` (new, agent-editable — this
+  task's own TEST-026/027/028 cases; T-008 later extends this same file
+  in place with its own TEST-013–016 cases, an existing-file edit that
+  carries no new suite/CI registration of its own)
+- `tests/validate-live-host-proof.tests.ps1` (new, agent-editable — twin)
 - `tests/fixtures/live-host-proof/` (new fixture tree — disposable
   fixture Ed25519 keypairs; one fixture per named error code
   (`ERR_MISSING_CELL`, `ERR_SCHEMA_INVALID`, `ERR_CELL_RUNTIME_MISMATCH`,
@@ -830,16 +853,10 @@ Planned Files:
   `ERR_ISSUER_SIGNATURE_INVALID`, `ERR_HASH_MISMATCH`,
   `ERR_DIGEST_MISMATCH`, `ERR_SIGNATURE_INVALID`, `ERR_SIGNER_UNTRUSTED`,
   `ERR_SIGNER_IDENTITY_MISMATCH`, `ERR_SIGNER_KEY_COLLISION`,
-  `ERR_SYNTHETIC_SUBSTITUTION`, `ERR_STALE_SKIP`); a valid pre-merge
-  `SKIP`-record fixture per semantic cell; a `discharged`-state fixture set)
-- `tests/hook-activation-live-proof/claude-active.json`,
-  `codex-enabled-active.json`, `codex-disabled-expected-unavailable.json`,
-  `copilot-primary-active.json`,
-  `copilot-subagent-expected-unavailable.json` (new — five DRAFT `SKIP`
-  records, schema-complete and citing the `AC-015` allowlist entry, with
-  `operator_signature`/`reviewer_signature` left as an explicit unsigned
-  marker pending the human apply step below; never committed as a signed,
-  authoritative record by this task itself)
+  `ERR_SYNTHETIC_SUBSTITUTION`, `ERR_STALE_SKIP`); a disposable
+  `SKIP`-record fixture per SKIP Representation state (missing/valid
+  pre-merge/stale post-merge); a `discharged`-state fixture set proving
+  the aggregate gate cannot pass vacuously)
 - `tests/run-all.sh` (existing, agent-editable — this suite's registration)
 - `tests/run-all.ps1` (existing, agent-editable)
 - `specs/epic-196-a8-integration/human-copy/.github/workflows/test.yml`
@@ -850,13 +867,12 @@ Planned Files:
 
 Data Migration: none — every data entity is net-new, no prior version.
 
-Breaking API: no; every planned file is wholly new except
-`a8-skip-allowlist.json` (additive entries only).
+Breaking API: no; every planned file is wholly new.
 
 Rollback: revert this task's commit(s); nothing protected is written
-directly; the five draft `SKIP` records remain unsigned (non-authoritative)
-until a human completes the apply step below, so a revert changes no
-signed security claim.
+directly; `a8-trusted-signers.json` stays seeded empty by this task alone
+(T-008's own commit adds the real signer entries), so a revert of this
+task's commit(s) changes no signed security claim.
 
 ### Goal
 
@@ -868,48 +884,43 @@ required/non-null per `verdict`), the `matrix_cell` ↔ `runtime`/
 (unknown/reused/cell-mismatch/issued-after-session/expired/duplicate-entry),
 the Expected-Digest Manifest comparison, the Signing Contract (RFC 8785
 JCS canonicalization, domain-separated Ed25519 verification per ADR-0028),
-and the three-state SKIP Representation (missing / valid pre-merge SKIP /
-stale post-merge SKIP). Seed the Trusted-Signer Registry, Expected-Digest
-Manifest, and Nonce Ledger as real (empty or deterministically-computed)
-files; author five schema-complete but explicitly unsigned draft `SKIP`
-records for the five semantic cells, each citing the `AC-015` allowlist
-entry, leaving the two-party Ed25519 attestation as a documented human
-apply step (no maintainer keypair exists in this repository yet).
+the three-state SKIP Representation (missing / valid pre-merge SKIP /
+stale post-merge SKIP), the AC-027 classification-mismatch/replay guard,
+and the aggregate `discharged`/`pending`/hard-failure gate. Seed the
+Trusted-Signer Registry, Expected-Digest Manifest, and Nonce Ledger as
+real (empty or deterministically-computed) files; every behavior this
+task's own Done When claims is proved against disposable fixtures under
+`tests/fixtures/live-host-proof/`, never against the five real semantic
+cells (T-008's own scope) or a real signer identity.
 
 ### Must Read
 
 - `specs/epic-196-a8-integration/requirements.md` (REQ-003(b)(c), REQ-006,
-  AC-013–016, AC-026–028, Field Definitions "Live-host hook-activation
-  handshake proof", Roles and Permissions)
+  AC-026–028, Field Definitions "Live-host hook-activation handshake
+  proof")
 - `specs/epic-196-a8-integration/design.md` (Data Plan
   `live-host-verification-record/v1` in full, including SKIP
   Representation, Schema Validation Rules, Raw Capture/Nonce Ledger/
-  Expected-Digest Manifest, Signing Contract; Live-Host Semantic Matrix;
-  SKIP Allowlist Activation Gate; API/Contract Plan's
-  `validate-live-host-proof` entry; Test Strategy items 5, 8, 10)
+  Expected-Digest Manifest, Signing Contract; Live-Host Semantic Matrix
+  (for the `matrix_cell` discriminator table this schema enforces); SKIP
+  Allowlist Activation Gate (for the allowlist shape this validator
+  reads); API/Contract Plan's `validate-live-host-proof` entry; Test
+  Strategy items 8, 10)
 - `docs/adr/0028-live-host-proof-ed25519-signing.md` (the accepted Signing
   Contract source this task implements verbatim, never re-derives)
 - `specs/epic-196-a8-integration/investigation.md` (INV-002, INV-004–007,
-  INV-011, INV-012, Safety constraints)
+  Safety constraints)
 - `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh` (the
   `mkdir` lock + `mktemp` scratch + atomic-rename + `trap`-guarded release
   pattern this validator's own single ledger write reuses)
 
 ### Scope
 
-- Write the acceptance checks first (TDD Red→Green): TEST-013 (Codex
-  `plugin_hooks` flag matrix classified `manual-required` until a
-  scripted session contract is confirmed; the two Codex semantic cells'
-  schema/discriminator behavior), TEST-014 (Copilot subagent/primary
-  contrast classified the same way; the two Copilot semantic cells'
-  behavior, plus a reference to `docs/troubleshooting.md`'s documented
-  fallback), TEST-015 (all five semantic cells' `SKIP`/`PASS`/`FAIL`
-  handling, including the three-state SKIP Representation), TEST-016 (the
-  5-consumer fingerprinted-inventory shape, `SKIP`ped pre-merge, wired for
-  Epic A1's own five entry points once they exist), TEST-026 (schema
+- Write the acceptance checks first (TDD Red→Green): TEST-026 (schema
   round-trip for every field, every named error code fixture individually
-  triggered), TEST-027 (classification-mismatch/replay guard: no
-  automated↔manual substitution, no nonce reuse, no unsigned or
+  triggered, including the three-state SKIP Representation against
+  disposable fixture records), TEST-027 (classification-mismatch/replay
+  guard: no automated↔manual substitution, no nonce reuse, no unsigned or
   single-signature record accepted), TEST-028 (the aggregate
   `discharged`/`pending`/hard-failure states, exit codes, and the one
   lock-guarded `consumed_by_record` write, idempotent under a repeat run).
@@ -917,7 +928,10 @@ apply step (no maintainer keypair exists in this repository yet).
 - Register `validate-live-host-proof` in `tests/run-all.sh`/`.ps1`; stage
   the `.github/workflows/test.yml` candidate appended to T-003's staged
   file.
-- Append the `AC-015`/`AC-016` entries to `a8-skip-allowlist.json`.
+- Seed `a8-trusted-signers.json` empty, `a8-expected-hook-config-
+  digests.json` computed, and `nonce-ledger.json` empty — the three real
+  registries this validator reads/writes; `a8-skip-allowlist.json` and the
+  five draft `SKIP` records are T-008's own scope, not this task's.
 
 ### Done When
 
@@ -925,7 +939,9 @@ apply step (no maintainer keypair exists in this repository yet).
   field's type/format constraint and every named error code
   (`ERR_SCHEMA_INVALID`, `ERR_CELL_RUNTIME_MISMATCH`,
   `ERR_FEATURE_CONFIG_MISMATCH`, `ERR_HASH_MISMATCH`,
-  `ERR_DIGEST_MISMATCH`) is independently exercised (AC-026).
+  `ERR_DIGEST_MISMATCH`) is independently exercised, including all three
+  SKIP Representation states (missing/valid pre-merge SKIP/stale
+  post-merge SKIP) against disposable fixture records (AC-026).
 - [ ] **Nonce ledger + signing verification** — TEST-026/027 pass: every
   ledger error code (`ERR_NONCE_UNKNOWN`, `ERR_NONCE_REUSED`,
   `ERR_NONCE_CELL_MISMATCH`, `ERR_NONCE_ISSUED_AFTER_SESSION`,
@@ -940,42 +956,16 @@ apply step (no maintainer keypair exists in this repository yet).
   nonce, a missing `reviewer_signature`, and a raw capture byte-identical
   to a known synthetic fixture are each rejected (`ERR_SYNTHETIC_
   SUBSTITUTION` for the last case) (AC-027).
-- [ ] **Codex/Copilot semantic-cell classification** — TEST-013/014 pass:
-  both Codex cells and both Copilot cells are correctly classified
-  `manual-required`/`automated-pending-confirmation` per the Classification
-  Table, with `docs/troubleshooting.md`'s fallback commands referenced for
-  the Copilot-subagent cell (AC-013, AC-014).
-- [ ] **Five-cell live-host proof handling** — TEST-015 passes: all three
-  SKIP Representation states (missing/valid pre-merge SKIP/stale post-merge
-  SKIP) are correctly distinguished across all five semantic cells
-  (AC-015).
-- [ ] **Consumer-entry-point inventory shape** — TEST-016 passes: the
-  fingerprinted-inventory schema for Epic A1's five migrated consumers is
-  wired and `SKIP`ped pre-merge, never a partial inventory silently
-  presented as complete (AC-016).
 - [ ] **Aggregate gate** — TEST-028 passes: `discharged` only when all
   five cells pass in full; `pending` (exit 0) when every cell is a valid
   pre-merge `SKIP`; a hard, non-zero-exit failure with a named error code
   on any missing/stale/`FAIL`/digest-mismatched/duplicate-nonce record; the
   one `consumed_by_record` write is lock-guarded, atomic, and idempotent
   under a repeat run against the same record (AC-028).
-- [ ] **Draft SKIP records committed, unsigned** — the five files under
-  `tests/hook-activation-live-proof/` are schema-complete, cite the
-  `AC-015` allowlist entry, and are explicitly marked unsigned/non-
-  authoritative pending the human apply step below.
-- [ ] **HUMAN APPLY STEP — Trusted-Signer Registry + two-party signing:** a
-  maintainer and an independent reviewer each generate an Ed25519 keypair,
-  register them in `a8-trusted-signers.json` with roles `operator`/
-  `reviewer` (and an `issuer`-role entry once Epic A1's handshake script
-  is ready to use it), and sign the five draft `SKIP` records — confirmed
-  by re-running `validate-live-host-proof` and observing `pending` (not a
-  hard failure) before this task is marked Done (AC-028's own `pending`
-  aggregate is the correct pre-merge Done state, never `discharged`).
 - [ ] **Suite/CI registration** — `tests/validate-live-host-proof.
   tests.sh`/`.ps1` self-register in `tests/run-all.sh`/`.ps1`; the staged
-  `test.yml` candidate exists with a correct, cumulative `MANIFEST.sha256`
-  entry set; the LIVE `test.yml` is byte-unchanged before/after this
-  task's own commits.
+  `test.yml` candidate exists with a correct `MANIFEST.sha256` entry; the
+  LIVE `test.yml` is byte-unchanged before/after this task's own commits.
 - [ ] **TDD evidence** — RED (each error-code/state case against a
   deliberately permissive validator) and GREEN (the full suite against the
   correct implementation, including the one fully-clean `discharged`-shape
@@ -986,6 +976,13 @@ apply step (no maintainer keypair exists in this repository yet).
 
 ### Out of Scope
 
+- The five real semantic-cell classifications (AC-013, AC-014), the
+  five-cell live-host proof discharge across the actual Live-Host Semantic
+  Matrix (AC-015), the consumer-entry-point inventory (AC-016), the five
+  draft `SKIP` records, the `a8-skip-allowlist.json` `AC-015`/`AC-016`
+  entries, and the HUMAN APPLY STEP that registers real signer identities
+  and countersigns those records — all T-008's exclusive scope, layered on
+  top of this task's already-implemented validator.
 - Producing a genuine, real-session `live-host-verification-record/v1`
   with `verdict: PASS`/`FAIL` for any of the five cells — that requires
   Epic A1's own handshake script (not yet merged) and a real,
@@ -1311,3 +1308,225 @@ per the WFI-011 convention (AC-030).
 ### Blockers
 
 None
+
+---
+
+## T-008 Classify the REQ-003 live-host semantic matrix and author its draft SKIP records
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/196
+
+Approval: Draft
+
+Status: Planned
+
+Risk: high
+
+Risk Rationale: Evaluated against
+`plugins/sdd-quality-loop/references/risk-classification-policy.md`
+directly. `high` is justified: this task performs the concrete,
+trust-establishing half of Security Boundary B1 (design.md) — determining
+and recording the Codex `plugin_hooks`-flag and Copilot subagent/primary
+semantic-cell classifications AC-013/AC-014 gate on, authoring the five
+draft `SKIP` records `validate-live-host-proof` (T-005) evaluates, wiring
+the five-migrated-consumer inventory (AC-016), and performing the HUMAN
+APPLY STEP that seeds the real Trusted-Signer Registry
+(`a8-trusted-signers.json`) with the operator/reviewer identities and
+produces the two-party Ed25519 countersignature on those records. A
+silent defect here (a cell misclassified `automated` when no genuine
+session-dispatch contract is actually confirmed, a draft record missing
+its `AC-015` allowlist citation, a signer registered under the wrong role
+or identity) would let an unverified or misattributed claim later be
+accepted by T-005's own validator as a genuine live-host proof — the same
+"silent defect causes material harm" surface T-005's own Risk Rationale
+names on this identical security boundary (matching
+`specs/epic-190-a2-capability-registry/tasks.md` T-002/T-004's identical
+reasoning for security-boundary primitives). It is not `critical`: this
+task produces no genuine, signed `live-host-verification-record/v1`
+claiming a real CLI session occurred (Protected Files, above) — every
+record it commits stays an explicit, unsigned, non-authoritative draft
+until a human completes the apply step below, and `validate-live-host-
+proof` (T-005) remains the sole authority that accepts or rejects any
+record. Required Workflow is `tdd` per the policy's high-tier row.
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: not enabled
+
+Requirements: REQ-003 (AC-013, AC-014, AC-015, AC-016)
+
+Depends On: T-001 (functional — appends the `AC-015`/`AC-016` entries to
+the `a8-skip-allowlist.json` T-001 creates with the `AC-006` entry;
+Protected Files, above), T-005 (functional — this task's own TEST-013–016
+cases exercise `validate-live-host-proof`, which must exist first, and the
+HUMAN APPLY STEP's own `pending` confirmation re-runs that same script;
+API/Contract Plan). This task touches neither `tests/run-all.*` nor the
+staged `.github/workflows/test.yml` candidate — it extends T-005's
+already-registered `tests/validate-live-host-proof.tests.{sh,ps1}` in
+place, so it carries no Global-Constraints chain-ordering requirement of
+its own relative to T-002/T-003/T-006/T-007 (matching T-004's identical
+positioning outside that chain).
+
+Planned Files:
+- `tests/hook-activation-live-proof/claude-active.json`,
+  `codex-enabled-active.json`, `codex-disabled-expected-unavailable.json`,
+  `copilot-primary-active.json`,
+  `copilot-subagent-expected-unavailable.json` (new — five DRAFT `SKIP`
+  records, schema-complete and citing the `AC-015` allowlist entry, with
+  `operator_signature`/`reviewer_signature` left as an explicit unsigned
+  marker pending the HUMAN APPLY STEP below; never committed as a signed,
+  authoritative record by this task itself)
+- `plugins/sdd-review-loop/references/a8-skip-allowlist.json` (existing
+  after T-001, agent-editable — appends the `AC-015` and `AC-016` entries
+  only; the `AC-006` entry T-001 seeded is left untouched)
+- `plugins/sdd-review-loop/references/a8-trusted-signers.json` (existing
+  after T-005, human-apply-editable — the HUMAN APPLY STEP appends the
+  real `operator`/`reviewer` key entries; the agent portion of this task
+  never invents or commits a real keypair)
+- `tests/validate-live-host-proof.tests.sh` (existing after T-005,
+  agent-editable — extended in place with this task's own TEST-013–016
+  cases; every one of T-005's pre-existing TEST-026/027/028 cases
+  preserved verbatim)
+- `tests/validate-live-host-proof.tests.ps1` (existing after T-005,
+  agent-editable — twin, extended in place)
+- `tests/fixtures/live-host-proof/` (existing after T-005, agent-editable
+  — this task may add cell-specific classification fixtures alongside
+  T-005's own error-code/SKIP-state fixtures; no existing fixture removed)
+
+Data Migration: none — every new file is net-new; the two edited files
+receive additive entries only.
+
+Breaking API: no; this task edits two existing, agent-editable files
+(`a8-skip-allowlist.json`, `tests/validate-live-host-proof.tests.{sh,
+ps1}`) with additive content only, and one existing file
+(`a8-trusted-signers.json`) via the human-only apply step.
+
+Rollback: revert this task's commit(s); the five draft `SKIP` records
+remain unsigned (non-authoritative) until a human completes the apply
+step, so a revert before that step changes no signed security claim; a
+revert after the human apply step must also state whether the now-signed
+records and the `a8-trusted-signers.json` entries should be hand-reverted
+(mirroring T-001/T-003's own staged-candidate revert note for signed/
+applied artifacts).
+
+### Goal
+
+Determine and record, per the Live-Host Semantic Matrix (design.md), the
+Codex `plugin_hooks`-flag classification (`Codex-enabled-active`/
+`Codex-disabled-expected-unavailable`) and the Copilot subagent/primary
+classification (`Copilot-primary-active`/`Copilot-subagent-expected-
+unavailable`), each `manual-required`/`automated-pending-confirmation`
+until a genuine, native-dispatcher-engaging session contract is confirmed
+for that runtime; wire the five-migrated-consumer fingerprinted inventory
+`SKIP`ped pre-merge (AC-016); author five schema-complete but explicitly
+unsigned draft `SKIP` records for the five semantic cells, each citing the
+`AC-015` allowlist entry; append the `AC-015`/`AC-016` entries to
+`a8-skip-allowlist.json`; and complete the HUMAN APPLY STEP — a
+maintainer and an independent reviewer each generate an Ed25519 keypair,
+register them in `a8-trusted-signers.json`, and sign the five draft
+records — leaving `validate-live-host-proof` (T-005) to independently
+confirm `pending`, never `discharged`, before this task is marked Done.
+
+### Must Read
+
+- `specs/epic-196-a8-integration/requirements.md` (REQ-003(b)(c), REQ-006,
+  AC-013–016, Field Definitions "Live-host hook-activation handshake
+  proof", Roles and Permissions)
+- `specs/epic-196-a8-integration/design.md` (Live-Host Semantic Matrix in
+  full; Direct-Invocation De-Spoofing; SKIP Allowlist Activation Gate
+  (Allowlist record shape, Activation predicate); Signing Contract
+  (Trusted-Signer Registry shape); Automated/Manual Classification Table;
+  Test Strategy item 5)
+- `docs/adr/0028-live-host-proof-ed25519-signing.md` (the accepted Signing
+  Contract this task's human apply step follows verbatim when generating
+  and registering keypairs)
+- `specs/epic-196-a8-integration/investigation.md` (INV-011, INV-012,
+  Safety constraints)
+- `docs/troubleshooting.md:185-204` (the documented Copilot-subagent
+  fallback this task's classification record cross-references)
+- `plugins/sdd-quality-loop/scripts/validate-live-host-proof.py` (T-005's
+  own implementation — read before extending its test suite, so this
+  task's new cases exercise the real schema/discriminator contract rather
+  than an assumed one)
+
+### Scope
+
+- Write the acceptance checks first (TDD Red→Green), extending T-005's
+  existing suite in place: TEST-013 (Codex `plugin_hooks` flag matrix
+  classified `manual-required` until a scripted session contract is
+  confirmed; the two Codex semantic cells' schema/discriminator behavior
+  against T-005's own validator), TEST-014 (Copilot subagent/primary
+  contrast classified the same way; the two Copilot semantic cells'
+  behavior, plus a reference to `docs/troubleshooting.md`'s documented
+  fallback), TEST-015 (all five semantic cells' `SKIP`/`PASS`/`FAIL`
+  handling against the actual draft records this task commits), TEST-016
+  (the 5-consumer fingerprinted-inventory shape, `SKIP`ped pre-merge,
+  wired for Epic A1's own five entry points once they exist).
+- Confirm every one of T-005's pre-existing TEST-026/027/028 cases still
+  passes unmodified after this task's own extension (non-regression).
+- Author the five draft `SKIP` records; append the `AC-015`/`AC-016`
+  entries to `a8-skip-allowlist.json`.
+- Complete the HUMAN APPLY STEP (see Done When) and re-run
+  `validate-live-host-proof` to confirm `pending`.
+
+### Done When
+
+- [ ] **Codex/Copilot semantic-cell classification** — TEST-013/014 pass:
+  both Codex cells and both Copilot cells are correctly classified
+  `manual-required`/`automated-pending-confirmation` per the Classification
+  Table, with `docs/troubleshooting.md`'s fallback commands referenced for
+  the Copilot-subagent cell (AC-013, AC-014).
+- [ ] **Five-cell live-host proof handling** — TEST-015 passes against the
+  five draft records this task commits: all three SKIP Representation
+  states (missing/valid pre-merge SKIP/stale post-merge SKIP) are
+  correctly distinguished across all five semantic cells (AC-015).
+- [ ] **Consumer-entry-point inventory shape** — TEST-016 passes: the
+  fingerprinted-inventory schema for Epic A1's five migrated consumers is
+  wired and `SKIP`ped pre-merge, never a partial inventory silently
+  presented as complete (AC-016).
+- [ ] **Draft SKIP records + allowlist entries committed, unsigned** — the
+  five files under `tests/hook-activation-live-proof/` are schema-complete,
+  cite the `AC-015` allowlist entry, and are explicitly marked
+  unsigned/non-authoritative pending the human apply step below; the
+  `AC-015`/`AC-016` entries exist in `a8-skip-allowlist.json`.
+- [ ] **HUMAN APPLY STEP — Trusted-Signer Registry + two-party signing:** a
+  maintainer and an independent reviewer each generate an Ed25519 keypair,
+  register them in `a8-trusted-signers.json` with roles `operator`/
+  `reviewer` (and an `issuer`-role entry once Epic A1's handshake script
+  is ready to use it), and sign the five draft `SKIP` records — confirmed
+  by re-running `validate-live-host-proof` and observing `pending` (not a
+  hard failure) before this task is marked Done (AC-028's own `pending`
+  aggregate, discharged by T-005, is the correct pre-merge Done state,
+  never `discharged`).
+- [ ] **Non-regression** — every one of T-005's pre-existing
+  TEST-026/027/028 cases in `tests/validate-live-host-proof.tests.sh`/
+  `.ps1` still passes unmodified after this task's own in-place extension.
+- [ ] **TDD evidence** — RED (each new classification/inventory case
+  against a deliberately permissive addition) and GREEN (the full,
+  extended suite). An independent quality-gate verdict records PASS.
+- [ ] **Requirement-traceability evidence** (high tier) — the
+  `check-traceability` report is recorded as evidence.
+
+### Out of Scope
+
+- `validate-live-host-proof`'s own schema, nonce-ledger, signing-
+  verification, classification-mismatch-guard, and aggregate-gate
+  implementation — T-005's exclusive scope; this task only exercises and
+  feeds it.
+- Producing a genuine, real-session `live-host-verification-record/v1`
+  with `verdict: PASS`/`FAIL` for any of the five cells — that requires
+  Epic A1's own handshake script (not yet merged) and a real,
+  installed-toolchain CLI session; out of scope for every task in this
+  feature (Main Workflows step 7, requirements.md).
+- Epic A1's own `check-hook-activation-handshake.{py,sh,ps1}` and its five
+  migrated consumer entry points — this task only wires the inventory
+  contract they will feed once they exist.
+- The synthetic direct-invocation extension to `cli-hook-enforcement.ps1`
+  (T-004) — a structurally separate artifact (AC-017).
+- Any new suite/CI registration — this task extends an already-registered
+  file only (Depends On, above).
+
+### Blockers
+
+T-001, T-005
