@@ -1,0 +1,134 @@
+{
+    "schema": "review-context-invocation/v2",
+    "stage": "quality",
+    "role": "sdd-evaluator",
+    "feature": "epic-189-a1-project-context",
+    "task_id": "T-005",
+    "run_id": "RUN-epic-189-a1-project-context-qg-T-005-seq0353",
+    "host_session_id": "SESS-qg-epic-189-a1-project-context-T-005-0353",
+    "sequence": 353,
+    "previous_record_sha256": "f8b90c7c2103358af50d57cb09d164679beb11629dd6dadb308a8d7969213791",
+    "identity_ledger_path": "reports/review-context/identity-ledger.json",
+    "identity_ledger_sha256": "78dbfca30b856425d6e24a0cca8220945cc2f8a8ef458df9ef4a8cbea24f7ac9",
+    "input_mode": "file-manifest",
+    "fallback_mode": "none",
+    "read_only": true,
+    "allowed_input_manifest": [
+        {
+            "path": "specs/epic-189-a1-project-context/requirements.md",
+            "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+            "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/design.md",
+            "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/tasks.md",
+            "sha256": "fadffad34464e2e700e29d20fcfb230e40c458f7c33016ec1c61967701c724bb"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/traceability.md",
+            "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/ux-spec.md",
+            "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+            "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/infra-spec.md",
+            "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/security-spec.md",
+            "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+            "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+        },
+        {
+            "path": "reports/implementation/epic-189-a1-project-context/T-005.md",
+            "sha256": "ac755473abdb57aded0a19c8a36abe615b018255146d88992bb4fdd537e26ad3"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.py",
+            "sha256": "a40433693b5274de2816710b352a000736f806daa2b68a58bf34579488fd116c"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh",
+            "sha256": "787cb451bd6f26ff6bac23f58085f3d6f34ea8cb3df05c1fc6a7081b912021b1"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1",
+            "sha256": "79318ed10ecd72e118d033f7a001c1c93ec29cfa019ff1a4d100ed468a750773"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+            "sha256": "f26287c0cda6150e19c5b48d73c0923263cc569794f5bc6ff2e7ca417cdc8e8b"
+        },
+        {
+            "path": "tests/detect-policy-weakening.tests.sh",
+            "sha256": "24e8223fa96fa1f3b2f681c825dd262d8bb6a6d77c37c4fcd6e02f8f39f1b1d7"
+        },
+        {
+            "path": "tests/detect-policy-weakening.tests.ps1",
+            "sha256": "ee7fc3d1bddf5b45fc62508caabaed1da8dfbea015b4e68217c0eb3c23af94af"
+        },
+        {
+            "path": "tests/generate-approval-sidecar.tests.sh",
+            "sha256": "8c8d28044fc65c0903a3e8f7cd3f546fd4e79fe74b9da4e33e331344e0f2b523"
+        },
+        {
+            "path": "tests/generate-approval-sidecar.tests.ps1",
+            "sha256": "198d4c39ac9be9e2f0c7d1f5baf827decd7d8d5b751618f407c0131d80c97ca1"
+        },
+        {
+            "path": "tests/run-all.sh",
+            "sha256": "b543c893235c23775f59865cceb69ab3b859e04b08fee21d65bdb0c6bbed733b"
+        },
+        {
+            "path": "tests/run-all.ps1",
+            "sha256": "42a356b0506ae99145c9b78d7ca1ba7e1eb5169ade78d5ed5e700c30c1a0a35d"
+        },
+        {
+            "path": "CHANGELOG.md",
+            "sha256": "035832e45753fa63324849b08a7876ffdb0b9587720b424af5898e8ced7be33c"
+        },
+        {
+            "path": "reports/implementation/epic-189-a1-project-context/HUMAN-APPLY-STEPS.md",
+            "sha256": "781313ce9efd85d9a3833aabe7904377e6ff390656c6d39c64f1b4eacb41d8c9"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-005/red-sh.log",
+            "sha256": "3315d7261382f766abca418939e5ddae9249aa26ac23e6fb5ebff150b102f113"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-005/red-ps1.log",
+            "sha256": "d72b36f2354612c35cb8f5b817eb6b5584c57b048e6523f2ad5326f1b2b8fe5d"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-005/green-sh.log",
+            "sha256": "466377ed56dd8d89adf7d5be0d63abb68c113ada1969d4bec1e1496bdefe5f7e"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-005/green-ps1.log",
+            "sha256": "b585e9f21265aa2713aec96cf1f2030220a2049c9b66e767b263cbe3170c6ca5"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-005/wiring-sh.log",
+            "sha256": "e3d127d9bf95380ad0b832aeafa5518d560113eb771fc09b7416106382d61c67"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-005/wiring-ps1.log",
+            "sha256": "cb27c2582a5ea2340d5ccca0fce58efefb40a6f5e41bcc4a60f236185c85f154"
+        }
+    ]
+}

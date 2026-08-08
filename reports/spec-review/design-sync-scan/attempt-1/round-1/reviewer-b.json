@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-designsyncscan-spec-a1r1-b-seq0544",
+  "host_session_id": "SESS-spec-a1r1-b-designsyncscan-0544",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-scan/attempt-1/round-1/integrated-summary.json",
+      "sha256": "890a5887ae2f33c5de256d42f20a7b1af7f491c91def2cc671df0848ea151d0b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+      "sha256": "9e1fbba2a9fa180f61eaec8a033ada68db77c346dcb5b2733b0e8de0c89e3716"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "5e5f1eff1f5753433fe88c3debb5465ab9f009bd35d31788f9c6b329d94df2fa"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/investigation.md",
+      "sha256": "67560e11a356a0e26769a01b010aab0695049705b89ee8a47130ebf6bbd44048"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+      "sha256": "060b79e442f47ea7d71d9b4cf1a49b39eed09a4f74d84f6329822218effbf5b3"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, actors, states, and I/O are concrete: scan target is a required first positional argument (requirements.md:25-27, AC-001), exit-code semantics are exhaustively enumerated with precedence rules (requirements.md:47, AC-005/006/007), masking is a testable negative property not a format choice (AC-014, TEST-027/028/063), and the override actor is disambiguated from silence/agent judgment (AC-020:149). Post-adversarial-review rulings (acceptance-tests.md:213-215) resolved 16 prior defects including several ambiguity classes (e.g. TEST-045's narrowed positional-vs-bypass claim, TEST-048's finite-list bound). No remaining term or boundary found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked exit-code precedence (REQ-002:47, AC-005:51, AC-007:62-69) against Edge Case 1 (requirements.md:245) and AC-004 (:41-43): consistent (empty-html dir=0, nonexistent dir=2). Checked override/decline field-write rules (AC-022:158-160, AC-025:170-172) against REQ-006's scope rule (:143-145): consistent, no field is written on decline. Checked BL-002/BL-004 (unmodified consent fields, protected CI file) against AC-024/AC-035/AC-036: consistent, non-overlapping file sets. No direct conflict found between any requirement, AC, constraint, or non-goal."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:237 (Non-goals, 'Scanning non-HTML files under specs/<feature>/mockups/') and requirements.md:248 (Edge Case 4) state a definite, security-relevant behavioral boundary: non-.html files (JSON fixtures, images, notes) placed under the scan target are never scanned, even if they contain a secret- or PII-shaped string. acceptance-tests.md's Test Matrix (lines 9-93) and Deferred section (95-103) contain zero rows asserting this exclusion (grep for 'non-HTML' and '*.html' across acceptance-tests.md returns no matches) -- contrast with TEST-002 (:12), which does positively test that nested .html files ARE detected, but no row tests the negative boundary that a non-.html file is NOT scanned/reported. Downstream failure mode: TEST-052's traceability manifest (:197) only checks AC-column coverage, not edge-case coverage, so this gap survives that check; an implementer could ship an overly broad file-selection glob (e.g. matching all files, or case-mismatched extensions) and pass every existing test while violating the documented product boundary, producing spurious blocks on non-HTML content with no acceptance test to catch the regression, and a task-decomposition reviewer has no row to decompose an implementation/verification task from for this boundary. This belongs to spec review because acceptance-tests.md is the Phase-1 traceability source tasks are built from (TEST-052), not an implementation-time defect. Major, not Critical, because no safety/workflow-boundary contradiction results and the fix is a single added test row."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All six Assumptions (requirements.md:256-262) are explicitly marked 're-verify at implementation time' with a named source location and rationale (e.g. :258 cites guard_invariants.py:4/:18 directly), consistent with investigation.md's INV-201/202/203/206 having already independently confirmed several of the same facts (step-5 seam, check-placeholders.sh pattern source, frozen test invariants, runtime-neutral convention). All five Open Questions (requirements.md:276-282) are explicitly marked 'Blocks: no' with owner and rationale, satisfying the calibration's decisions-needed-before-decomposition carve-out. Investigation.md's own carried-forward open questions (:48-50) are marked resolved into design.md/requirements.md. No unresolved, unmarked assumption found."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-006 (requirements.md:143-145) establishes a human-gated, single-scan-scoped override boundary distinct from an automatic block. AC-020 (:147-149) makes it testable and unambiguous ('silence, a non-response, or an agent's own judgment is not an override'), verified by TEST-036 (acceptance-tests.md:46). Scope non-carry-forward is independently tested by TEST-037/038 (:47-48) including the identical-findings-recur case. The irreversible/no-override exit-2 branch is separately and explicitly tested by TEST-055 (:64) plus the fourth clause of AC-007's tool-error branches (requirements.md:64, TEST-010-012/056 :20-22,65). This is a fully testable, document-conformance-verifiable approval boundary; SKIP does not apply since the boundary is squarely in scope."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification supplies enough concrete behavioral detail for a design reviewer to proceed without inventing product behavior: exit-code contract is exhaustive with precedence stated (requirements.md:47), named pattern-category identifiers are enumerated for design.md to fill in without re-deciding scope (AC-010:87-89, AC-011:91-93 name S1-S7/P1/P2 by role and rationale), masking is a stated security property not a design-invented one (AC-014:113-117), the override/decline/record-field contract is fully specified (REQ-006, AC-020-025), and cross-runtime parity requirements are explicit down to dual-form pattern expression (AC-038:99-101). The one gap found (EDGE-CASE-COVERAGE finding above) is a missing verification row for an already-stated behavior, not an undefined product decision, so it does not block handoff to implementation-policy review."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: domain/context-map.md and domain/domain-contract.json are not members of this invocation's allowed_input_manifest (reports/review-context/design-sync-scan-spec-a1r1-b-invocation.json lines 9-33 list only requirements.md, acceptance-tests.md, investigation.md, spec-review-calibration.md, precheck-result.json, and integrated-summary.json), so the domain-model-status/contract-validity precondition for this check cannot be evaluated within the read scope authorized for this role. This SKIP handling for domain-contract-file absence from the manifest follows established precedent for this review stage."
+    }
+  ]
+}

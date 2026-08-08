@@ -1,0 +1,141 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-136-phase4-docs-task-task-reviewer-b-seq0414",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase4-docs-0414",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase4-docs/attempt-1/round-1/integrated-summary.json",
+        "sha256": "cd6af6f1dd3ef4ab633d29b5ff51cabf8c8b0a3ee9fd69b1d7c94fc0c01effdb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase4-docs/attempt-1/round-1/precheck-result.json",
+        "sha256": "85619561d21ad6accfef5f01b130c02f22f601133aaef87b32f2c85e3f17fa6d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+        "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+        "sha256": "4ed044d4a330b99907aa1ca885435616ed19fdbc8965852feccdf9733665dae8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+        "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+        "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+        "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+        "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/tasks.md",
+        "sha256": "b3e28d179861cd89af6c41fd009e12e8532cf6c07b0674e4e2d1573f565683d9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/traceability.md",
+        "sha256": "fe49fbc25efb06ad9efafa9750035679d46c2beb89f521d90750fc8d9bb5467a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+        "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+      }
+    ]
+  },
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No sentinel surface (authentication, authorization, payment, PII storage, data migration, externally-visible API contract) appears in any task's scope per risk-classification-policy.md's proximity rule. T-001 (tasks.md:124) and T-002 (tasks.md:214) are Risk: high on the policy's 'silent defect causes material harm' ground (tasks.md:126-141, :216-222) and their Done-When lists contain genuine process-lifecycle/control-flow changes (SIGTERM/SIGKILL escalation, process-group signalling, exit-code contract), not doc/UI/test-only content, so the over-classification clause does not trigger. T-003 (tasks.md:270, low) is documentation-only with no code touched, matching the low-tier 'non-behavioral: docs' definition. T-004/T-005 (tasks.md:323, :378, medium) are documentation-only security-inventory edits with no executable behavior and no sentinel surface, matching medium. No task is misclassified in either direction."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "T-001 (Risk: high, tasks.md:124) and T-002 (Risk: high, tasks.md:214) both omit, from their Done-When sections (tasks.md:163-204 and :238-260 respectively), any item stating that Red (failing test) evidence is captured before implementation begins and that a named, independent reviewer's verdict distinct from the implementer is recorded. Both lists cover AC-003/004/005/006/011/012 mechanics exhaustively but contain zero bullet referencing 'Red', 'Green', 'independent review', or 'reviewer'. This repository's own sibling Phase-4 feature (specs/epic-136-phase4-mcp/tasks.md:382,389: 'TDD Red -> Green evidence is recorded in the implementation report with...' and 'An independent review verdict, recorded by a named reviewer distinct from...') establishes the operative convention for exactly this Risk:high + Required Workflow:tdd task shape, and multiple other features (specs/agent-cost-context-isolation/tasks.md:124,128; specs/cross-model-verification/tasks.md:88,91) follow the same pattern. This tasks.md diverges from that convention with no stated reason. This is not duplicative of any reviewer-a check id (PREREQ-AC-IDS, BLOCKERS-FORMAT, REQ-COVERAGE, AC-COVERAGE, ORPHAN-TASK, ORPHAN-TEST, INITIAL-STATE, RISK-WORKFLOW-FORMAT, NO-DUPLICATE-AC, DEPENDENCY-COMPLETE, DEPENDENCY-CYCLE, SINGLE-CONCERN, OBSERVABLE-DONE, TRACEABILITY-SYNC per integrated-summary.json) nor precheck-owned (precheck-result.json only validates hashes/blockers-format/workflow-match)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001's Done-When list runs to 12 items, but all decompose verification of a single mechanism (the bounded-wait helper) across two files with identical shape and are mandated to land in one commit by tasks.md's own Global Constraints (tasks.md:71-74: 'One commit per functional task... A runner change that lands without its test leaves the bound unverified in CI, which is the exact state #133 exists to end'); splitting would recreate the defect this feature exists to close, so the size is architecturally justified rather than a decomposition defect. No task title implies sequential design/implement/test phases. T-003/T-004/T-005 each substantively author multi-fact security-document content (a 5-mode x 3-element taxonomy table; a 10-row OWASP table plus 3-server MCP cross-reference; five trust-surface entries plus a residual-risk entry) -- none is a trivial single-function/variable-rename edit, so the fragmentation indicators do not apply either."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task carries acceptance criteria beyond the happy path. T-001/T-002: AC-003 (invalid `SDD_PANELIST_TIMEOUT` values exit 2), AC-004(b)/(c) (SIGTERM-ignoring stub, polling-boundary race), AC-005 (no partial verdict on timeout). T-003: AC-002 documents the rate-limit non-guarantee as an explicit limitation rather than a happy-path claim. T-004: AC-008 is a dedicated anti-padding assertion (requires >=1 N/A row and >=1 addressed row) that fails an artificially-complete table. T-005: AC-009 requires an explicit residual-risk entry where no mitigation exists, and AC-010 requires the governance-bypass flag be named with its cost. No task has only happy-path ACs."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001's Test Type field (tasks.md:149-156) correctly separates unit-tier AC-003 config-parsing cases (single module boundary, no timing dimension) from integration-tier AC-004/005/006 cases (real child process + stub CLI +, for AC-006, a real check-cross-model invocation -- 3+ real components). T-002 mirrors this on the PowerShell suite (tasks.md:230-231). T-003/T-004/T-005 declare 'integration (real file read)', consistent with acceptance-tests.md's Test Matrix (acceptance-tests.md:7-20) and its explicit Notes-section rationale (acceptance-tests.md:126) that a file-read case is integration by this repository's own stated convention, adopted specifically to avoid the Minor mislabelling recorded against epic-136-phase4-mcp. No task's declared tier contradicts its described scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001 and T-002 (both Risk: high, tasks.md:124,214) have no `Rollback:` field and no Done-When item addressing safe reversion; `grep -ni 'rollback|feature flag|revert' specs/epic-136-phase4-docs/tasks.md` returns zero matches. A Rollback plan does exist, but only at the spec layer: infra-spec.md:30-38 states 'Revert the single commit... Reverting the runners restores the unbounded invocation. That reopens the B1 denial-of-service hole, so a rollback is a security regression, not a neutral undo.' Neither task references infra-spec.md or restates this caveat. Concrete failure mode: design.md's own Risks section (design.md:243) acknowledges a real operational risk ('A 600s default that is too tight for a slow vendor would convert a working panel into a failing gate'); if that risk materializes and someone reverts T-001/T-002 using only the task body, they have no task-level warning that the revert reopens a DoS hole rather than being a neutral undo."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tests/cross-model.tests.sh and tests/cross-model.tests.ps1 are edited by multiple tasks (T-001/T-003/T-004/T-005 for .sh; T-002/T-003/T-004/T-005 for .ps1 per traceability.md:58-62 Shares column), and docs/THREAT-MODEL.md is edited by both T-004 and T-005 -- but every such overlap is disclosed and ordered by the Blockers chain T-001->T-002->T-003->T-004->T-005 (tasks.md:81-102), matching the legitimate 'downstream task adds cases, ordering enforced by Blockers' pattern. No two tasks claim the same primary implementation file (run-panelist-gpt.sh/gemini.sh/gpt.ps1/gemini.ps1/cross-model-verification-policy.md are each owned by exactly one task) with no blocking relationship."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:90-102 labels each Blockers edge honestly as functional, shared-artifact-only, or both, rather than dressing up coordination edges as functional dependencies. T-002<-T-001 and T-005<-T-004 are functional (mirrored exit-code contract; shared THREAT-MODEL.md region) and genuinely required. T-003<-T-002 and T-004<-T-003 are shared-artifact-only, but this is not spurious: all five tasks edit the same two test-suite files, so serializing edits to a shared artifact is a real integration-coordination need (the same pattern SCOPE-DISJOINT's own 'legitimate multi-task scope sharing' exception endorses), not an unrelated blocker inflating the critical path. No task's scope depends on another task's output without a corresponding Blockers entry -- Stream B (T-004/T-005) is functionally independent of Stream A per design.md:7 ('can land in either order') and carries no missing functional dependency on T-001-T-003."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All five tasks (T-001..T-005) are framed as net-new capability/documentation additions closing an absent bound and absent documentation (titles: 'Bound the POSIX panelist runners...', 'Mirror the bound...', 'Complete the panelist failure taxonomy...', 'Add the OWASP LLM Top 10...', 'Document the five runtime trust surfaces...'), none scoped as bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "HIGH-CRITICAL-EVIDENCE",
+      "severity": "Critical",
+      "task_id": "T-001",
+      "finding": "T-001 (tasks.md:124, Risk: high) and T-002 (tasks.md:214, Risk: high) Done-When sections (tasks.md:163-204, :238-260) contain no item requiring Red (failing test) evidence captured before implementation and no item requiring a named independent reviewer's verdict distinct from the implementer, contrary to risk-gate-matrix.md:28,30 (both marked required for the high tier) and to this repository's own established convention for Risk:high/tdd tasks (specs/epic-136-phase4-mcp/tasks.md:382,389)."
+    },
+    {
+      "check_id": "ROLLBACK-PLAN",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001 and T-002 (both Risk: high) carry no `Rollback:` field and no Done-When item addressing safe reversion (zero matches for rollback/feature flag/revert in tasks.md), despite infra-spec.md:30-38 documenting that reverting these specific tasks is 'a security regression, not a neutral undo' -- a nuance not surfaced at the task level."
+    }
+  ]
+}

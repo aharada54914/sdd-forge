@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase4-mcp",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a4ba7128ce129de96e157538aa51f765cc0d181e57ee80234d18c4a556e050a8",
+  "acceptance_sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "677ae9aeb6fbf3c57f67ea6dfd3b626315d49ea46f39922ed13391189ceb7205",
+  "edit_summary": "Round-1 remediation of 5 Major findings: added an Assumption citing package.json:2-4 (private, unpublished) and ADR-0003 as the verified basis for the required-field choice; corrected the Overview's unconditional no-breaking-shape claim; pinned the verbatim hostRequiredChecks schema description and added AC-016/TEST-016; added AC-017/TEST-017 (non-Done task in unreadableContracts) and AC-018/TEST-018 (hostRequiredChecks with signature absent or gitCommit not 40-hex); renumbered AC/TEST to 001..018. investigation.md deliberately left byte-unchanged from round 1.",
+  "reset": false,
+  "generated_at": "2026-07-28T17:17:17Z"
+}

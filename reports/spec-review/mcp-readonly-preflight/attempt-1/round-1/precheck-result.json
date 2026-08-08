@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "f3ced5cded0cfe4a7981520e77f6597e53e07fc9b1607b78ff036daeea8845c9",
+  "acceptance_sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "febfe56a071a0251f94f03ae15a03cf13b5a563091bcbd6210fac7c83b91ed19",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-08-04T13:53:20Z"
+}

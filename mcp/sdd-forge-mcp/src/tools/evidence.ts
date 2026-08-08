@@ -15,8 +15,18 @@
  * (path-guard denylists the key file outright), and nothing in this module
  * changes that. `evidence_find_missing` reproduces the same Done-transition
  * requirements `task-validation.ts`'s `validateDoneEvidence` checks
- * (check-task-state.sh parity), so its `missing` list is empty for exactly
- * the tasks whose `Status: Done` transition `parseTaskState` already accepts.
+ * (check-task-state.sh parity). Since REQ-004 (issue #132) that parity is
+ * stated over the UNION `missing` + `undeterminable`, not over `missing`
+ * alone: a requirement lands in that union for exactly the `Status: Done`
+ * transitions `parseTaskState` rejects with
+ * `done-quality-gate-report-missing`. The asymmetry is deliberate — a
+ * `reports/quality-gate` directory scan that FAILS is routed here to
+ * `undeterminable`, while `parsers/task-validation.ts` is intentionally left
+ * unchanged (BL-003) and therefore still reports that same task as missing
+ * its quality-gate report. Restricted to scan-succeeded cases,
+ * `undeterminable` is empty and the original `missing`-only parity holds
+ * exactly. Propagating the undeterminable distinction into `get_task_state`
+ * is an explicit Non-goal and a follow-on-issue candidate.
  */
 
 import { createHash } from "node:crypto";
@@ -28,7 +38,7 @@ import {
   type ContractChecksSummaryEntry,
 } from "../parsers/evidence.js";
 import type { EvidenceArtifact, EvidenceBundle } from "../parsers/evidence-bundle.js";
-import { anyFileContaining, hasQualityGateVerdictPass } from "../parsers/report-lookup.js";
+import { anyFileContainingWithDiagnostics, hasQualityGateVerdictPass } from "../parsers/report-lookup.js";
 import { parseTaskState } from "../parsers/tasks.js";
 import { parseTraceability, type TraceabilityData } from "../parsers/traceability.js";
 import { guardedExists, guardedRead, resolveGuarded } from "../path-guard.js";
@@ -160,6 +170,14 @@ export interface EvidenceMissingData {
   required: string[];
   present: string[];
   missing: string[];
+  /**
+   * Requirements whose check could not be performed at all, as opposed to
+   * being performed and found unsatisfied (REQ-004, issue #132). Every entry
+   * of `required` lands in EXACTLY ONE of `present`/`missing`/
+   * `undeterminable` — the three arrays partition `required` and never
+   * overlap.
+   */
+  undeterminable: string[];
 }
 
 const EVIDENCE_BUNDLE_REQUIREMENT = "evidence-bundle";
@@ -201,6 +219,7 @@ export function evidenceFindMissing(
   const required = [EVIDENCE_BUNDLE_REQUIREMENT, VERIFICATION_CONTRACT_REQUIREMENT, QUALITY_GATE_REPORT_REQUIREMENT];
   const present: string[] = [];
   const missing: string[] = [];
+  const undeterminable: string[] = [];
 
   if (guardedExists(root, bundleRelPath)) {
     present.push(EVIDENCE_BUNDLE_REQUIREMENT);
@@ -214,14 +233,23 @@ export function evidenceFindMissing(
     missing.push(VERIFICATION_CONTRACT_REQUIREMENT);
   }
 
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
-  if (qgMatches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  // The quality-gate requirement is the only one of the three checked by a
+  // DIRECTORY SCAN, so it is the only one that can fail ambiguously. The
+  // errors branch is tested FIRST and short-circuits: a scan that could not be
+  // performed tells us nothing about whether the evidence exists, so the
+  // result is neither `present` nor `missing` (REQ-004/OQ-3). Calling
+  // `hasQualityGateVerdictPass` in that branch would only repeat the same
+  // failed scan (requirements.md Edge Cases).
+  const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
+  if (qgScan.errors.length > 0) {
+    undeterminable.push(QUALITY_GATE_REPORT_REQUIREMENT);
+  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
     present.push(QUALITY_GATE_REPORT_REQUIREMENT);
   } else {
     missing.push(QUALITY_GATE_REPORT_REQUIREMENT);
   }
 
-  return ok({ kind: "evidence-missing", feature, taskId, required, present, missing });
+  return ok({ kind: "evidence-missing", feature, taskId, required, present, missing, undeterminable });
 }
 
 // --- evidence_summarize_contract_checks ------------------------------------
@@ -267,11 +295,25 @@ export interface TraceabilityMismatch {
   issue: string;
 }
 
+/**
+ * One task whose `<taskId>.contract.json` could not be read at all, so none
+ * of its `requirementIds` could be cross-checked against traceability.md.
+ * `reason` is `parseVerificationContract`'s own `Result.error.message`,
+ * reused verbatim — never re-worded and never interpolated with an absolute
+ * path or any other filesystem detail beyond what that already-reviewed
+ * message carries.
+ */
+export interface UnreadableContract {
+  taskId: string;
+  reason: string;
+}
+
 export interface TraceabilityComparisonData {
   kind: "traceability-comparison";
   feature: string;
   matches: number;
   mismatches: TraceabilityMismatch[];
+  unreadableContracts: UnreadableContract[];
 }
 
 const TASK_ID_PREFIX_PATTERN = /^T-\d+/;
@@ -308,6 +350,15 @@ function extractTaskIdPrefix(token: string): string | undefined {
  *      `<taskId> contract -> REQ-ID`.
  * `matches` counts every one of the above checks that did *not* produce a
  * mismatch (i.e. total checks performed minus `mismatches.length`).
+ *
+ * Rule 3 skips any task whose contract cannot be read. That skip is no longer
+ * silent: every such task is reported in `unreadableContracts` with the
+ * `parseVerificationContract` failure message verbatim, so a caller can tell
+ * "cross-checked and consistent" apart from "never cross-checked at all"
+ * (issue #131 Finding A-5). `unreadableContracts` is NOT filtered to `Done`
+ * tasks — it names every task in tasks.md whose contract was unreadable — and
+ * it does not participate in `matches`/`mismatches`, whose counting semantics
+ * are unchanged.
  */
 export function evidenceCompareToTraceability(
   root: SddRoot,
@@ -359,9 +410,11 @@ export function evidenceCompareToTraceability(
   }
 
   const declaredReqIds = new Set(traceability.reqToTask.map((row) => row.reqId));
+  const unreadableContracts: UnreadableContract[] = [];
   for (const taskId of knownTaskIds) {
     const contractResult = parseVerificationContract(root, feature, taskId);
     if (!contractResult.ok) {
+      unreadableContracts.push({ taskId, reason: contractResult.error.message });
       continue; // no readable contract for this task -- nothing to cross-check
     }
     for (const check of contractResult.data.checks) {
@@ -382,6 +435,7 @@ export function evidenceCompareToTraceability(
     feature,
     matches: totalChecks - mismatches.length,
     mismatches,
+    unreadableContracts,
   });
 }
 
@@ -454,6 +508,27 @@ export interface DeepVerifySignature {
   note: string;
 }
 
+/**
+ * The two checks `evidence_deep_verify` structurally cannot perform in-process
+ * (ADR-0008): git commit ancestry (no git subprocess) and evidence-bundle
+ * signature verification (no key material is ever read).
+ */
+export type HostRequiredCheckId = "git-commit-ancestry" | "signature-verification";
+
+/**
+ * One host-deferred check, promoted to the top level so a consumer cannot
+ * overlook it while reading a `pass` verdict. `verified` is `false` by
+ * construction — this is the set of checks the tool never performs — and
+ * `note` is the ALREADY-COMPUTED `invariants.gitCommit.reason` /
+ * `signature.note` string for the same call, reused verbatim rather than
+ * duplicated, so the two can never silently drift apart.
+ */
+export interface HostRequiredCheck {
+  check: HostRequiredCheckId;
+  verified: false;
+  note: string;
+}
+
 export interface EvidenceDeepVerifyData {
   kind: "evidence-deep-verify";
   feature: string;
@@ -462,6 +537,12 @@ export interface EvidenceDeepVerifyData {
   artifacts: ArtifactVerifyResult[];
   invariants: DeepVerifyInvariants;
   signature: DeepVerifySignature;
+  /**
+   * Always exactly 2 entries, always `verified: false`, and NEVER an input to
+   * `verdict` (issue #131 Finding B-13). Advisory metadata only: the tool
+   * documents the host-deferred boundary here, it does not enforce it.
+   */
+  hostRequiredChecks: HostRequiredCheck[];
   failures: string[];
 }
 
@@ -700,6 +781,11 @@ function echoSignature(bundle: EvidenceBundle): DeepVerifySignature {
  * spec_revision are `match`, git_commit's shape is valid, and every
  * cross-binding is `match`. `gitCommit.ancestryVerified` and
  * `signature.verified` are always `false` and never affect the verdict.
+ *
+ * `hostRequiredChecks` (issue #131 Finding B-13) promotes those same two
+ * host-deferred facts to the top level, verbatim, so a consumer reading a
+ * `pass` verdict cannot overlook them. It is appended to the response object
+ * only: it is not an input to `failures[]` and not an input to the verdict.
  */
 export function evidenceDeepVerify(
   root: SddRoot,
@@ -770,6 +856,15 @@ export function evidenceDeepVerify(
     }
   }
 
+  // Built AFTER the verdict inputs above are final, from values already
+  // computed for this same call, and consumed by nothing but the response
+  // object below — `failures[]` and the `verdict` formula never read it.
+  const signature = echoSignature(bundle);
+  const hostRequiredChecks: HostRequiredCheck[] = [
+    { check: "git-commit-ancestry", verified: false, note: gitCommit.reason },
+    { check: "signature-verification", verified: false, note: signature.note },
+  ];
+
   return ok({
     kind: "evidence-deep-verify",
     feature,
@@ -777,7 +872,8 @@ export function evidenceDeepVerify(
     verdict: failures.length === 0 ? "pass" : "fail",
     artifacts,
     invariants: { artifactsDigest, specRevision, gitCommit, crossBindings },
-    signature: echoSignature(bundle),
+    signature,
+    hostRequiredChecks,
     failures,
   });
 }

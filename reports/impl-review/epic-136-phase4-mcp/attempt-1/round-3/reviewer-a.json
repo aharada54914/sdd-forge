@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase4mcp-impl-a1r3-a-seq0376",
+  "host_session_id": "SESS-impl-a1r3-a-epic136phase4mcp-0376",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "d4330c9ec42ac3a0b00872dcee71772041344522e79ed42a1e070987bce64232"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "4fc92d1c0a6f4675af216647e10bb94decbdfc873d36713bc84e041c45488fe0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+      "sha256": "fc600560e2ce6205210729c6574987be4903af613cb2455b25f370652bbcc610"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 37-88) covers all 3 required elements: (1) top-level component boundaries via the mermaid diagram's 3 subgraphs (S1=evidence.ts, S2=path-guard.ts+report-lookup.ts, SCHEMA=contracts/sdd-forge-mcp-tools.v1.schema.json) plus BUILD/CI nodes; (2) integration with existing components stated explicitly ('all 4 affected tools keep their exact existing {feature, taskId?} input contract'; 'every change is a pure-function addition inside the existing read-only, no-exec MCP boundary'); (3) technology choices named directly in the section (BUILD node names esbuild, Feature Type header names TypeScript, SCHEMA node names the JSON-Schema contract file) plus the corroborating Components table. No frontend/data layer applies (Feature Type: api-only, Data Plan: no new entities)."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Traced every edge in design.md's Architecture mermaid diagram (lines 39-79) and the Components table (91-101): ECTT->PVC->UC->TCD, EDV->HRC->EDVD, EDV->VCB, LGF->LGFD, AFC->AFCD->LGFD, EFM->AFCD->UD->EMD, BUILD->DIST, CI->PARITY. This forms a DAG with no component A->B->A cycle. The one self-referencing edge (LGFD -> LGFD on readdirSync/statSync failure) depicts listGuardedFilesWithDiagnostics' own internal recursive walk populating its own errors array, not a dependency cycle between two distinct components."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 170-191) contains all 3 required sub-fields verbatim with explicit rationale: 'Data Entities: none new' (172-177, explains all 3 changed shapes are pre-existing TS interfaces gaining fields, plus 1 new plain shape GuardedListError), 'Existing Data Affected: none read differently' (179-184), 'Migration Strategy: none' (186-191, explains the 3 additive required-field schema diffs stay v1)."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 193-577) enumerates every changed tool response: evidence_compare_to_traceability (REQ-001, unreadableContracts), evidence_deep_verify (REQ-002, hostRequiredChecks + exact schema description text), path-guard.ts listGuardedFilesWithDiagnostics (REQ-003, full TS signature + implementation), report-lookup.ts anyFileContainingWithDiagnostics (REQ-004), evidence_find_missing (REQ-004, undeterminable), and the 3 corresponding schema diffs (REQ-005, each with additionalProperties:false preserved). No existing tool is deprecated or breaking-changed. Verified the pre-change schema state cited in the diffs matches the actual current contract file content exactly (lines 284-297, 324-346, 347-351)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has ## Security Boundaries (lines 756-764) with a 4-column table (Trust Boundary / Auth-Authz Mechanism / Data Classification / OWASP Concerns) covering B1 (new reason/note strings vs secret material), B2 (listGuardedFilesWithDiagnostics vs filesystem, names the allowlist/denylist mechanism), B3 (hostRequiredChecks policy text vs actual enforcement). Data classification is addressed (internal, non-secret, no PII) and OWASP Concerns is populated with a stated mitigation each. REQ-004's undeterminable boundary (security-spec.md's B4) is not separately numbered in design.md's own table, but design.md explicitly cross-references security-spec.md#trust-boundaries, and that normative layer spec covers B4 exhaustively (Trust Boundaries row, STRIDE Tampering row, Security Tests row naming TEST-007/TEST-008, OWASP row) -- claimed by the responsible layer specification, not omitted from both."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is api-only (design.md line 5), and ux-spec.md/frontend-spec.md both confirm N/A -- no GUI, view, or frontend bundle exists for this feature."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 579-662) has 7 numbered items covering: unit scope (items 1-5, naming exact files/fixtures, e.g. tests/path-security/list-guarded-files-diagnostics.test.ts); integration/component-boundary scope (item 4's parity-invariant check between evidenceFindMissing and task-validation.ts's validateDoneEvidence across the union of missing/undeterminable, plus the 3 named regression suites done-state.test.ts/task-state-golden.test.ts/next-command.test.ts); acceptance-criteria verification (each item maps to specific TEST-NNN/AC-NNN pairs, item 5 names the real ajv getEnvelopeValidator() harness for AC-009/TEST-009); concrete planned evidence (npm test, npx tsc --noEmit, npm run build, git diff --exit-code -- dist/, item 7). No fullstack UI journey applies; the equivalent end-to-end gate is item 7's 3-OS mcp-tests CI job, named explicitly."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in ## Architecture and ## API / Contract Plan is defined in design.md's Components table (lines 91-101) or its own named API/Contract Plan subsection. Independently re-verified against the real source (mcp/sdd-forge-mcp/src): grep confirms listGuardedFiles has exactly 3 direct callers (report-lookup.ts:30, quality-report.ts:132, review-ticket.ts:160) matching investigation.md INV-008 and design.md's Layer 1 claim; quality-report.ts:18 and review-ticket.ts:16 import only {guardedRead, listGuardedFiles} (no anyFileContaining), confirming the round-3 correction replacing the prior round's false 'mediated through' claim is now accurate; task-validation.ts:7 imports anyFileContaining/hasAnyFileMentioning/hasQualityGateVerdictPass and calls them at :163/:80/:169, confirming design.md's Layer 2 consumer claim."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 155-168) states no new ADR is introduced (purely additive, re-surfaces already-computed values, does not re-decide existing boundaries) and references docs/adr/0008, docs/adr/0009, and docs/adr/0003. Verified all 3 files exist at those exact paths with a ## Status field. The rationale for no new ADR is consistent with the feature's Technical Summary and Non-goals."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Confirmed no design-system/ directory exists in the repository root. design.md's ## Design System Compliance (line 138) records exactly 'N/A - ds_profile: none', matching the required skip format. Skipped per the check's own applicability rule."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Confirmed no domain/ directory exists in the repository root (no context-map document, no approved domain-model status marker, no domain-contract.json), so this check's precondition is absent. Skipped per the check's own applicability rule."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "api-only"
+}

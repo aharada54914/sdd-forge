@@ -1,0 +1,138 @@
+--- D1: no real LLM / agent CLI invocation ---
+tests/check-hook-activation-handshake.tests.sh:
+172:assert_exit "$rc" 0 "TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0"
+tests/check-hook-activation-handshake.tests.ps1:
+165:Assert-Eq $r.ExitCode 0 'TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0'
+(no output above a filename means: zero command-position hits in that file)
+
+--- D1b: any textual occurrence of gh / sdd-sudo / anthropic / openai ---
+tests/project-context-schema.tests.sh                    occurrences=0
+tests/canonicalize-sdd-yaml.tests.sh                     occurrences=2
+tests/generate-approval-sidecar.tests.sh                 occurrences=0
+tests/approver-registry-schema.tests.sh                  occurrences=0
+tests/detect-policy-weakening.tests.sh                   occurrences=0
+tests/validate-approval-sidecar.tests.sh                 occurrences=0
+tests/apply-human-copy.tests.sh                          occurrences=0
+tests/check-hook-activation-handshake.tests.sh           occurrences=0
+tests/guard-invariants-epic-a1.tests.sh                  occurrences=0
+tests/hook-guard-epic-a1-boundary.tests.sh               occurrences=1
+tests/plugin-contracts-track-selection.tests.sh          occurrences=0
+tests/ship-track-selection-migration.tests.sh            occurrences=0
+tests/guard-staging-exemption.tests.sh                   occurrences=0
+tests/project-context-schema.tests.ps1                   occurrences=0
+tests/canonicalize-sdd-yaml.tests.ps1                    occurrences=2
+tests/generate-approval-sidecar.tests.ps1                occurrences=0
+tests/approver-registry-schema.tests.ps1                 occurrences=0
+tests/detect-policy-weakening.tests.ps1                  occurrences=0
+tests/validate-approval-sidecar.tests.ps1                occurrences=0
+tests/apply-human-copy.tests.ps1                         occurrences=0
+tests/check-hook-activation-handshake.tests.ps1          occurrences=0
+tests/guard-invariants-epic-a1.tests.ps1                 occurrences=0
+tests/hook-guard-epic-a1-boundary.tests.ps1              occurrences=1
+tests/plugin-contracts-track-selection.tests.ps1         occurrences=0
+tests/ship-track-selection-migration.tests.ps1           occurrences=0
+
+--- D1c: SDD_SUDO usage (T-010 fixture token, never a live grant) ---
+tests/generate-approval-sidecar.tests.sh:
+392:    os.environ["SDD_SUDO_KEY"] = "byte-parity-value"
+398:    os.environ.pop("SDD_SUDO_KEY", None)
+400:    os.environ["SDD_SUDO_KEY_FILE"] = path
+405:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+411:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+tests/validate-approval-sidecar.tests.sh:
+909:    os.environ["SDD_SUDO_KEY"] = "byte-parity-value"
+913:    os.environ.pop("SDD_SUDO_KEY", None)
+915:    os.environ["SDD_SUDO_KEY_FILE"] = path
+918:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+922:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+tests/hook-guard-epic-a1-boundary.tests.sh:
+9:#   SDD_SUDO token. 4 basenames x 12 surfaces x 2 sudo states = 96
+27:#            fixture SDD_SUDO token really is ACTIVE (asserted via an
+139:open(os.path.join(project_dir, "SDD_SUDO"), "w", encoding="utf-8").write(
+146:  printf 'FAIL: could not mint the fixture SDD_SUDO token (rc=%s)\n' "$MINT_RC"
+195:    printf '%s' "$3" | ( cd "$2" && CLAUDE_PROJECT_DIR="$2" SDD_SUDO_KEY="$SUDO_KEY" \
+230:  pass "PRE-sudo-active: fixture SDD_SUDO token is ACTIVE (approval-increase allowed)"
+232:  fail "PRE-sudo-active: fixture SDD_SUDO token is NOT active (expected exit 0, got $rc) -- every sudo-lane cell would be vacuous"
+tests/generate-approval-sidecar.tests.ps1:
+432:    os.environ["SDD_SUDO_KEY"] = "byte-parity-value"
+438:    os.environ.pop("SDD_SUDO_KEY", None)
+440:    os.environ["SDD_SUDO_KEY_FILE"] = path
+445:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+452:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+tests/validate-approval-sidecar.tests.ps1:
+804:    os.environ["SDD_SUDO_KEY"] = "byte-parity-value"
+808:    os.environ.pop("SDD_SUDO_KEY", None)
+810:    os.environ["SDD_SUDO_KEY_FILE"] = path
+813:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+817:    for var in ("SDD_CONTEXT_KEY", "SDD_SUDO_KEY", "SDD_CONTEXT_KEY_FILE", "SDD_SUDO_KEY_FILE"):
+tests/hook-guard-epic-a1-boundary.tests.ps1:
+12:#   SDD_SUDO token. 4 x 12 x 2 = 96 independent assertions.
+21:#          fixture really lacks them, and the fixture SDD_SUDO token really
+111:# holds SDD_SUDO, so resolve symlinks (macOS /var -> /private/var) the same way.
+141:[System.IO.File]::WriteAllText((Join-Path $projSudo "SDD_SUDO"), $flag)
+185:    $prevKey = $env:SDD_SUDO_KEY
+189:        if ($withSudoKey) { $env:SDD_SUDO_KEY = $sudoKey } else { Remove-Item Env:\SDD_SUDO_KEY -ErrorAction SilentlyContinue }
+196:        if ($null -ne $prevKey) { $env:SDD_SUDO_KEY = $prevKey } else { Remove-Item Env:\SDD_SUDO_KEY -ErrorAction SilentlyContinue }
+224:    Pass "PRE-sudo-active: fixture SDD_SUDO token is ACTIVE (approval-increase allowed)"
+226:    Fail "PRE-sudo-active: fixture SDD_SUDO token is NOT active (expected exit 0, got $rc) -- every sudo-lane cell would be vacuous"
+
+--- D2: every mktemp root pwd -P normalized ---
+tests/project-context-schema.tests.sh:
+  L32    NOT_NORMALIZED     WORK=$(mktemp -d "${TMPDIR:-/tmp}/pc-schema-test.XXXXXX")
+tests/canonicalize-sdd-yaml.tests.sh:
+  L31    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/canon-yaml-test.XXXXXX")
+tests/generate-approval-sidecar.tests.sh:
+  L40    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/gen-approval-sidecar-test.XXXXXX")
+tests/approver-registry-schema.tests.sh:
+  L21    NOT_NORMALIZED     WORK=$(mktemp -d "${TMPDIR:-/tmp}/approver-registry-test.XXXXXX")
+tests/detect-policy-weakening.tests.sh:
+  L40    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/detect-policy-weakening-test.XXXXXX")
+tests/validate-approval-sidecar.tests.sh:
+  L62    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/validate-approval-sidecar-test.XXXXXX")
+tests/apply-human-copy.tests.sh:
+  L33    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/apply-human-copy-test.XXXXXX")
+tests/check-hook-activation-handshake.tests.sh:
+  L48    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/check-hook-activation-handshake-test.XXXXXX")
+  L122   NORMALIZED_INHERITED($WORK) T027=$(mktemp -d "$WORK/t027.XXXXXX")
+  L286   NORMALIZED_INHERITED($WORK) T032=$(mktemp -d "$WORK/t032.XXXXXX")
+  L473   NORMALIZED_INHERITED($WORK) THARD=$(mktemp -d "$WORK/thard.XXXXXX")
+tests/guard-invariants-epic-a1.tests.sh:
+  L51    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/guard-invariants-epic-a1-test.XXXXXX")
+tests/hook-guard-epic-a1-boundary.tests.sh:
+  L57    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/hook-guard-epic-a1-boundary.XXXXXX")
+tests/plugin-contracts-track-selection.tests.sh:
+  L57    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/plugin-contracts-track-selection-test.XXXXXX")
+tests/ship-track-selection-migration.tests.sh:
+  L80    NORMALIZED_LATER   WORK=$(mktemp -d "${TMPDIR:-/tmp}/ship-track-selection-migration-test.XXXXXX")
+tests/guard-staging-exemption.tests.sh:
+  L38    NOT_NORMALIZED     WORK="$(mktemp -d)"
+
+--- D3: bash array expansions (set -u empty-array hazard) ---
+tests/project-context-schema.tests.sh                    no array expansion
+tests/canonicalize-sdd-yaml.tests.sh                     no array expansion
+tests/generate-approval-sidecar.tests.sh                 no array expansion
+tests/approver-registry-schema.tests.sh                  no array expansion
+tests/detect-policy-weakening.tests.sh                   no array expansion
+tests/validate-approval-sidecar.tests.sh                 no array expansion
+tests/apply-human-copy.tests.sh                          no array expansion
+tests/check-hook-activation-handshake.tests.sh           no array expansion
+tests/guard-invariants-epic-a1.tests.sh                  no array expansion
+tests/hook-guard-epic-a1-boundary.tests.sh               no array expansion
+tests/plugin-contracts-track-selection.tests.sh          no array expansion
+tests/ship-track-selection-migration.tests.sh            no array expansion
+tests/guard-staging-exemption.tests.sh                   no array expansion
+
+--- D4: set -euo pipefail present ---
+tests/project-context-schema.tests.sh                    29:set -u 
+tests/canonicalize-sdd-yaml.tests.sh                     28:set -u 
+tests/generate-approval-sidecar.tests.sh                 37:set -u 
+tests/approver-registry-schema.tests.sh                  18:set -u 
+tests/detect-policy-weakening.tests.sh                   37:set -u 
+tests/validate-approval-sidecar.tests.sh                 59:set -u 
+tests/apply-human-copy.tests.sh                          30:set -u 
+tests/check-hook-activation-handshake.tests.sh           45:set -u 
+tests/guard-invariants-epic-a1.tests.sh                  48:set -u 
+tests/hook-guard-epic-a1-boundary.tests.sh               54:set -u 
+tests/plugin-contracts-track-selection.tests.sh          54:set -u 
+tests/ship-track-selection-migration.tests.sh            77:set -u 
+tests/guard-staging-exemption.tests.sh                   28:set -euo pipefail 

@@ -46,6 +46,13 @@ path, hash mismatch, chat-only input, writable context, fallback, or reused
 implementation/review/evaluation identity. No same-session fallback is
 permitted.
 
+`plugins/sdd-review-loop/references/review-context-boundary.md` states which
+manifest fields to re-verify and which the validator consumes before the
+reservation is appended. Read it before rejecting on a hash mismatch:
+`identity_ledger_sha256` is stale by construction once your reservation exists,
+so re-checking it always fails and is not evidence of tampering. Verify the
+ledger record chain instead — that is the guarantee that survives the append.
+
 # Finding Calibration
 
 Before reviewing, read

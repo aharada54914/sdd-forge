@@ -30,6 +30,32 @@ collected verdicts but still enforces the diversity minimum. If diversity is unm
 (e.g., all vendors are Anthropic), `check-cross-model` fails and blocks auto-Done
 (unless the task is explicitly waived).
 
+## Panelist Failure Taxonomy
+
+The collection runners use the following complete taxonomy for a panelist invocation
+that fails to yield a verdict. In every row the runner exits before its verdict-write
+step, so the panelist is absent from the gate's collected inputs. The gate then applies
+the normal diversity rule: if the remaining collection has fewer than two distinct
+vendors or no non-Anthropic vendor, it writes `result: FAIL` and exits 1; if there are
+no verdict files at all, it exits 2 without an aggregate. Both outcomes are fail-closed.
+If the remaining verdicts still satisfy diversity and consensus, the gate may pass.
+These gate consequences are implemented in `check-cross-model.sh:85-97,150-155` and
+`check-cross-model.ps1:83-95,155-160`.
+
+| Failure mode | Runner exit code | Verdict file produced | Consequence for the gate |
+|---|---:|---|---|
+| CLI absent | `1` | No. The runner exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-gpt.sh:137-147`; `run-panelist-gemini.sh:73-78`; `run-panelist-gpt.ps1:117-125`; `run-panelist-gemini.ps1:67-71`) |
+| CLI exits non-zero | `1` | No. The runner exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-gpt.sh:297-320`; `run-panelist-gemini.sh:213-225`; `run-panelist-gpt.ps1:200-219`; `run-panelist-gemini.ps1:132-151`) |
+| CLI rate-limited | `1`, through either the CLI-exits-non-zero path or the timeout path | No. Either generic path exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-gpt.sh:297-320`; `run-panelist-gemini.sh:213-225`; `run-panelist-gpt.ps1:200-223`; `run-panelist-gemini.ps1:132-155`) |
+| CLI hangs / exceeds the time bound | `1` | No. The timeout handler exits before the verdict-write step. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-gpt.sh:300-320`; `run-panelist-gemini.sh:214-225`; `run-panelist-gpt.ps1:202-213`; `run-panelist-gemini.ps1:133-145`) |
+| CLI returns malformed output | `1` when the output is rejected by runner validation | No. Validation completes before the verdict-write step and exits on rejection. | The missing verdict is absent from the collected inputs; diversity is evaluated without it, so unmet diversity makes the gate fail with exit 1, while zero verdict files make the gate fail with exit 2. (`run-panelist-gpt.sh:323-387`; `run-panelist-gemini.sh:228-284`; `run-panelist-gpt.ps1:225-260`; `run-panelist-gemini.ps1:157-188`) |
+| Runner misconfigured (bad `SDD_PANELIST_TIMEOUT`) | `2` | none | tool error |
+
+Rate-limiting is **not separately handled**. This repository neither controls nor
+pins vendor CLI rate-limit behaviour, so a rate-limited CLI reaches the gate through
+whichever generic path the vendor takes: exit-non-zero or timeout. There is no
+rate-limit-specific guarantee or runner state.
+
 ## Blind & Parallel Execution
 
 Panelists must **never** see:
@@ -202,9 +228,16 @@ glob `T-<task_id>.panelist-*.verdict.json` and applies the following algorithm:
 ## Absence of Consensus: Fail-Closed Default
 
 If no verdict JSONs are found for the task:
-- Exit 1 (fail closed).
+- Exit 2 (tool error; fail closed).
 - Diversity requirement cannot be met; gate fails.
 - Caller opens a review ticket.
+
+**Exit-code correction (2026-08-04):** the first bullet previously said exit 1. It
+was corrected to exit 2 to match both gate implementations
+(`check-cross-model.sh:85-97`; `check-cross-model.ps1:83-95`) and their pinned
+no-verdict tests (`tests/cross-model.tests.sh:190-197`;
+`tests/cross-model.tests.ps1:256-260`). The fail-closed policy is unchanged: exit 2
+is still non-zero and the gate still fails.
 
 This surfaces the silent-degradation failure mode of external fusion panels where a CLI
 is absent or fails silently.

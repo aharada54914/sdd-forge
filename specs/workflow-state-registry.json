@@ -354,6 +354,50 @@
       "profile": "full"
     },
     {
+      "feature": "epic-192-a4-facet-manifest",
+      "profile": "full"
+    },
+    {
+      "feature": "quality-loop-fixes",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase3",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase4-mcp",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase4-docs",
+      "profile": "full"
+    },
+    {
+      "feature": "mcp-readonly-preflight",
+      "profile": "full"
+    },
+    {
+      "feature": "review-cross-critique",
+      "profile": "full"
+    },
+    {
+      "feature": "design-sync-consent",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-189-a1-project-context",
+      "profile": "full"
+    },
+    {
+      "feature": "design-sync-scan",
+      "profile": "full"
+    },
+    {
+      "feature": "design-sync-standing-consent",
+      "profile": "full"
+    },
+    {
       "feature": "epic-190-a2-capability-registry",
       "profile": "full"
     }

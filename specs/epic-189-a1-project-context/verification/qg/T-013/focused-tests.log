@@ -1,0 +1,313 @@
+=== focused evidence: T-013 (closing audit) — AC-028 and AC-029 ===
+
+WHAT "FOCUSED" MEANS FOR THIS TASK, since it differs in kind from T-001..T-012.
+T-013 adds NO suite: tasks.md:2713 puts "any new production script or schema"
+out of scope, and the implementation report states "No new suite. This is a
+closing audit task; its deliverable is measurement." There is therefore no
+"T-013's own suite" to run. The focused evidence is instead the two acceptance
+criteria the task owns — AC-028 (registration + the three-part protected-file
+proof) and AC-029 (non-use declarations + CI-resilience checklist) — plus the
+three suites T-013 actually edited.
+
+Required Workflow is `acceptance-first` (tasks.md:2632), NOT `tdd`. There is
+consequently no Red/Green log pair in this chain, and none is required: the
+contract checker enforces red_evidence/green_evidence only when
+required_workflow == "tdd" (check-contract.py:_pass5_tdd_evidence, early-returns
+otherwise), and the risk->workflow rule that would force tdd applies only to
+high/critical (check-contract.py:_pass5b_risk_workflow). T-013 is `medium`.
+
+Every figure below was measured in THIS session against HEAD b3b2805e with a
+clean working tree (`git status --porcelain` empty before and after).
+
+------------------------------------------------------------------------------
+1. THE THREE SUITES T-013 EDITED — count-neutrality measured at BOTH ends
+------------------------------------------------------------------------------
+
+AC-029 required three `mktemp` fixture roots to be `pwd -P`-normalized. The fix
+must not have removed an assertion. Rather than take the report's word, both the
+BEFORE and AFTER states were run in this session.
+
+AFTER (working tree at HEAD b3b2805e):
+
+  $ bash tests/project-context-schema.tests.sh      exit=0   PASS: 44  FAIL: 0
+  $ bash tests/approver-registry-schema.tests.sh    exit=0   PASS: 8   FAIL: 0
+  $ bash tests/guard-staging-exemption.tests.sh     exit=0   33 passed, 0 failed
+
+BEFORE (`git archive 71e0f0f2 | tar -x` into a scratch dir outside the repo;
+71e0f0f2 is the commit immediately before T-013's first commit):
+
+  $ bash tests/project-context-schema.tests.sh      exit=0   PASS: 44  FAIL: 0
+  $ bash tests/approver-registry-schema.tests.sh    exit=0   PASS: 8   FAIL: 0
+  $ bash tests/guard-staging-exemption.tests.sh     exit=0   33 passed, 0 failed
+
+Identical in all three, so the edit is count-neutral by measurement and not only
+by argument. The diff was also read in full (`git diff 71e0f0f2 HEAD -- <the
+three>`): each file gains exactly +3 lines, two of them a comment citing
+design.md Test Strategy item 12 and tests/lib/loop-driver.sh:124, and one of them
+the normalization itself —
+
+  WORK=$(cd "$WORK" && pwd -P)              (project-context-schema, approver-registry-schema)
+  WORK="$(cd "$WORK" && pwd -P)"            (guard-staging-exemption)
+
+— purely additive, with no deletion anywhere in the three hunks, so it is
+structurally incapable of removing an assertion.
+
+Note the third suite is `guard-staging-exemption`, which belongs to NO task's
+Planned Files (it arrived with commit 67acc6cd). T-013 edited it anyway because
+AC-029's scope is "every new suite", and it is registered in tests/run-all.sh.
+
+------------------------------------------------------------------------------
+2. AC-028 PART 1 — self-registration in the two runners: 25/25
+------------------------------------------------------------------------------
+
+Measured by counting each suite's own basename in the runner file, one suite at
+a time, rather than by trusting the harness's aggregate:
+
+  suite                                       run-all.sh   run-all.ps1
+  project-context-schema                          1             1
+  canonicalize-sdd-yaml                           1             1
+  generate-approval-sidecar                       1             1
+  approver-registry-schema                        1             1
+  detect-policy-weakening                         1             1
+  validate-approval-sidecar                       1             1
+  apply-human-copy                                1             1
+  check-hook-activation-handshake                 1             1
+  guard-invariants-epic-a1                        1             1
+  hook-guard-epic-a1-boundary                     1             1
+  plugin-contracts-track-selection                1             1
+  ship-track-selection-migration                  1             1
+  guard-staging-exemption                         1             0   <- no .ps1 twin
+
+13 `.sh` + 12 `.ps1` = 25 registrations, each present EXACTLY once (not merely
+">= 1", so a duplicated entry would also have been caught). The single zero is
+`guard-staging-exemption.tests.ps1`, and it is zero because that file does not
+exist — the missing-twin gap the implementation report discloses and the
+carryover note records. It is not a missing registration.
+
+Cross-check on the runners' shape, measured this round: tests/run-all.sh's
+`tests=()` array holds 61 entries and this epic's 13 suites occupy positions
+49..61 — the tail of the list. tests/run-all.ps1 holds 44 entries.
+
+NEITHER RUNNER WAS EDITED BY T-013. `git diff --name-only 71e0f0f2 HEAD` does not
+list tests/run-all.sh or tests/run-all.ps1 at all. So "all 25 already registered"
+is not a claim about work T-013 did; it is a finding about T-001..T-012, and the
+absence of a runner edit is the proof that no backfill was needed.
+
+------------------------------------------------------------------------------
+3. AC-028 PART 2 — the STAGED .github/workflows/test.yml candidate
+------------------------------------------------------------------------------
+
+Counted as real GitHub Actions `run:` steps, not as string mentions: the bash
+lane pattern is `run: bash ./tests/<name>.tests.sh` and the pwsh lane pattern is
+`run: ./tests/<name>.tests.ps1`. Every one of the 13 bash suites and every one of
+the 12 pwsh twins matched exactly once; guard-staging-exemption matched 1 in the
+bash lane and 0 in the pwsh lane, consistent with the missing twin.
+
+  staged bash lane : 13 of 13
+  staged pwsh lane : 12 of 12
+  total            : 25 of 25
+
+Staged-candidate well-formedness, re-derived here with ruby/psych (PyYAML is
+absent on this host):
+
+  parses OK
+  jobs: test, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, required-checks
+  test job steps: 90   (89 of them named)
+  duplicate step names: none
+
+------------------------------------------------------------------------------
+4. AC-028 PART 2b — the LIVE workflow is UNCHANGED, which is REQUIRED
+------------------------------------------------------------------------------
+
+This is the part most easily misread as a defect, so it is stated plainly: the
+live `.github/workflows/test.yml` being untouched is what AC-028 demands, not a
+gap. The three-part shape is staged / live-unchanged / post-copy-registered.
+
+  live sha256 (working tree, HEAD b3b2805e):
+    3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4
+  live sha256 (at merge-base b085ec76):
+    3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4
+  branch commits touching the live workflow:
+    $ git log --oneline b085ec76..HEAD -- .github/workflows/test.yml  ->  0
+
+  staged candidate sha256:
+    c59b1c9a1367a32036fd072675fe7e8f75f8dc802f8703559bd799d04b7473ac
+  MANIFEST.sha256 entry for that path:
+    c59b1c9a1367a32036fd072675fe7e8f75f8dc802f8703559bd799d04b7473ac
+
+The staged bytes and the manifest entry are the SAME digest; the live bytes are a
+different digest. That is exactly the staged-not-yet-applied state.
+
+Absence proved by a command that would have found the thing: a bare substring
+grep — the loosest available — for each of the 13 suite names over the LIVE file
+returns 0 for all 13. So the live workflow registers none of this epic's suites,
+which is the pre-apply state the three-part proof requires.
+
+CONSEQUENCE THAT LOOKS LIKE A FAILURE AND IS NOT. Run from the repository root,
+where the manifest's paths resolve to the LIVE tree:
+
+  $ shasum -a 256 -c specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256
+  .github/workflows/test.yml: FAILED
+  specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md: OK
+  plugins/sdd-quality-loop/references/guard-invariants.json: OK
+  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py: OK
+  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py: OK
+  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js: OK
+  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1: OK
+  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh: OK
+  plugins/sdd-ship/skills/ship/SKILL.md: OK
+  plugins/sdd-lite/skills/lite-spec/SKILL.md: OK
+  shasum: WARNING: 1 computed checksum did NOT match
+  exit=1
+
+One FAILED, nine OK. The one FAILED is the workflow, and it reads FAILED
+precisely BECAUSE the live file has not been published yet — the manifest pins
+the staged bytes, and the live bytes are still the pre-apply ones. This is the
+same shape ship/SKILL.md and lite-spec/SKILL.md presented before T-012's human
+apply; both now read OK because that apply landed. Applying the workflow is a
+final-phase action, outside T-013's Done When. NOT a failure and NOT a defect.
+
+Measured the other way round — resolving every manifest path under human-copy/,
+which is what the audit harness does — all TEN entries MATCH. Both readings are
+correct and they are consistent: the staged tree matches the manifest completely,
+the live tree matches it in nine of ten places, and the tenth is the pending
+publication.
+
+------------------------------------------------------------------------------
+5. AC-028 PART 3 — post-copy, measured as a genuine before/after pair
+------------------------------------------------------------------------------
+
+The seq0372 gate raised a Minor that the harness's own part 3 is not independent
+of part 2: t013-evidence.sh:226 copies the live file into the throwaway tree and
+:227 immediately overwrites it with the staged file, so the post-copy grep
+re-greps the staged bytes and cannot fail whenever part 2 passes. That finding is
+correct, and this round therefore did NOT rely on the harness for part 3.
+
+Independent construction, entirely outside the repository: the LIVE bytes were
+copied to a scratch file, the registration counts were taken there, the STAGED
+bytes were then published over that same scratch location, and the counts were
+taken again with the identical patterns.
+
+  before-publish sha256: 3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4  (= live)
+  after-publish  sha256: c59b1c9a1367a32036fd072675fe7e8f75f8dc802f8703559bd799d04b7473ac  (= staged)
+
+  BEFORE publish: sh=0 ps1=0 for ALL 13 suites  (26 zero counts)
+  AFTER  publish: sh=1 ps1=1 for ALL 13 suites, except guard-staging-exemption ps1=0
+
+So the pair moves 0 -> 1 for all 25 registrations. Unlike the harness's version,
+this one is falsifiable: the before-state is non-vacuous and a publish that
+failed to carry the registrations would show 0 in the after-state.
+
+(The scratch destination files are named `before-publish.yml` / `after-publish.yml`
+rather than mirroring the protected path; only the bytes matter, and both digests
+are pinned above.)
+
+------------------------------------------------------------------------------
+6. AC-029 — non-use declarations and the CI-resilience checklist
+------------------------------------------------------------------------------
+
+Re-derived directly over the 25 files, not read out of the committed artifact.
+
+D1, real LLM / agent-CLI invocation at a COMMAND position. A `gh` invocation
+would appear as `gh` followed by a subcommand at a command position; the scan
+returns NO match across all 25 files. The harness's wider pattern
+`(claude|codex|copilot|gh|sdd-sudo)` at a command position returns exactly two
+lines in all 25 files, and both are the same assertion DESCRIPTION string, one
+per lane:
+
+  tests/check-hook-activation-handshake.tests.sh:172
+    assert_exit "$rc" 0 "TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0"
+  tests/check-hook-activation-handshake.tests.ps1:165
+    Assert-Eq $r.ExitCode 0 'TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0'
+
+Neither is a command; both are quoted text passed to an assertion helper.
+
+D1b, ANY textual occurrence of `sdd-sudo|anthropic|openai|api.github.com|https?://`.
+Four files are non-zero and each was opened and identified:
+
+  tests/canonicalize-sdd-yaml.tests.sh   2  -> both are the YAML fixture value
+  tests/canonicalize-sdd-yaml.tests.ps1  2     `http://example.com` (lines 441/442
+                                               and 473/475), a round-trip fixture
+  tests/hook-guard-epic-a1-boundary.tests.sh   1  -> the sentinel-file fixture CONTENT
+  tests/hook-guard-epic-a1-boundary.tests.ps1  1     "enabled-by: human via /sdd-sudo"
+                                                     (:140 and :130), a string literal
+                                                     written into a mktemp fixture
+
+An independent whole-word grep for `sdd-sudo` over all 25 files returns those two
+lines and nothing else. So the epic contains ZERO `sdd-sudo` invocations and two
+occurrences of the literal text inside fixture data. `anthropic`, `openai` and
+`api.github.com` appear nowhere in any of the 25.
+
+D1c, `SDD_SUDO`: present only in tests/generate-approval-sidecar.tests.sh as the
+environment-variable NAMES `SDD_SUDO_KEY` / `SDD_SUDO_KEY_FILE` in the
+key-resolution byte-parity fixtures, whose value is the literal
+`"byte-parity-value"` (:392), popped at :398, re-set as a file at :400 and cleared
+along with the other three key vars at :405. No live grant is taken.
+
+D2, every `mktemp` root `pwd -P`-normalized: all 13 `.sh` suites report a
+normalized root. Twelve are NORMALIZED_LATER (the assignment is on one line and
+the normalization on the next), and check-hook-activation-handshake additionally
+creates three nested roots (T027 L122, T032 L286, THARD L473) classified
+NORMALIZED_INHERITED($WORK) because they are created under the already-normalized
+$WORK. Zero NOT_NORMALIZED. The three that were violations before this task are
+the three suites in section 1 above.
+
+D3, possibly-empty bash array expanded under `set -u`: the hazard cannot arise,
+because there is no array expansion at all. `grep -c '\[@\]'` returns 0 for every
+one of the 13 `.sh` suites, individually:
+
+  project-context-schema 0, canonicalize-sdd-yaml 0, generate-approval-sidecar 0,
+  approver-registry-schema 0, detect-policy-weakening 0, validate-approval-sidecar 0,
+  apply-human-copy 0, check-hook-activation-handshake 0, guard-invariants-epic-a1 0,
+  hook-guard-epic-a1-boundary 0, plugin-contracts-track-selection 0,
+  ship-track-selection-migration 0, guard-staging-exemption 0
+
+POSITIVE CONTROL for that absence claim, because a grep that matches nothing
+proves nothing on its own: the identical `grep -c '\[@\]'` against
+tests/run-all.sh returns 1. The pattern does find array expansions when they are
+there.
+
+D4, `set -u` discipline: all 13 `.sh` suites set it — twelve as a bare `set -u`
+and guard-staging-exemption as `set -euo pipefail` (:28).
+
+------------------------------------------------------------------------------
+7. THE COMMITTED AUDIT ARTIFACTS REPRODUCE BYTE-FOR-BYTE
+------------------------------------------------------------------------------
+
+The committed harness was re-run at HEAD with its output directed OUTSIDE the
+repository:
+
+  $ bash specs/epic-189-a1-project-context/verification/T-013/t013-evidence.sh \
+      --out-dir <scratch dir outside the repo> --repo-root . --sections C,D
+  harness exit=0
+
+  diff <scratch>/C-registration-audit.txt  <committed>/C-registration-audit.txt   -> identical
+  diff <scratch>/D-nonuse-ci-resilience.txt <committed>/D-nonuse-ci-resilience.txt -> identical
+
+  08809e8ff4c9cc955952e4c34d375436e6e004249bdd9506d341fafd70d24e6a  C-registration-audit.txt   (both copies)
+  055923b74162714f3bd7633421379abd3e8154a9692b00a215dddaeff3fda2dd  D-nonuse-ci-resilience.txt (both copies)
+
+Those two digests equal the rows for the same paths in the implementation
+report's `## Outputs` table, so the committed artifacts, the report's hash pins
+and this round's regeneration all agree.
+
+`--out-dir` WAS DELIBERATELY NOT POINTED AT THE COMMITTED DIRECTORY. The report's
+own documented Test Command (T-013.md:138) passes
+`--out-dir specs/epic-189-a1-project-context/verification/T-013`, which would
+overwrite committed, hash-pinned artifacts — several of them inputs to the
+review manifest. That is the seq0372 round-1 Minor and is registered carryover
+(the same trap remedy1-evidence.sh carries). Nothing in this chain was produced
+by running the harness in place.
+
+------------------------------------------------------------------------------
+8. ZERO SKIPPED ASSERTIONS
+------------------------------------------------------------------------------
+
+Across all 25 transcripts recorded in this round (see regression.log), a
+case-insensitive grep for `skip` matches exactly two lines, one per lane, and
+both are inside a PASS assertion's own description text:
+
+  PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+
+There is no skip marker anywhere. Every assertion counted in the tallies
+genuinely executed on this platform.

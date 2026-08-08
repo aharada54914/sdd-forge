@@ -1,0 +1,188 @@
+=== design-sync-scan.tests.ps1: RepoRoot=/Users/jrmag/Projects/active/sdd-forge-wt-phase4 ===
+=== target script: /Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-bootstrap/scripts/design-sync-scan.ps1 ===
+=== bash available for cross-runtime rows: True ===
+
+=== TEST-001 (AC-001): script exists, is directly invocable, requires an argument ===
+ok: TEST-001a: /Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-bootstrap/scripts/design-sync-scan.ps1 exists
+ok: TEST-001b: pwsh design-sync-scan.ps1 <dir> is directly invocable and completes (exit 0 on an empty dir)
+ok: TEST-001c: zero-argument invocation does not succeed (a required first positional argument exists)
+
+=== TEST-002 (AC-002): a finding nested >=2 directories deep is detected ===
+ok: TEST-002a: a finding nested two directories deep yields exit 1
+ok: TEST-002b: the nested finding's file:line is reported
+
+=== TEST-003 (AC-003): one invocation, no flag, flags findings from >1 category ===
+ok: TEST-003a: a two-category fixture, one plain invocation, exits 1
+ok: TEST-003b: both categories' findings appear in the one-invocation report -- no flag selected a subset
+
+=== TEST-004 (AC-004): a target dir with zero .html files exits 0, is not an error ===
+ok: TEST-004: a target dir with zero .html files exits 0
+
+=== TEST-085 (AC-039a): a non-.html file with secret/PII-shaped content is never scanned ===
+ok: TEST-085a: a .json fixture with secret/PII-shaped strings beside a clean .html produces no block (exit 0)
+ok: TEST-085b: the .json fixture is never named in the report
+
+=== TEST-086 (.ps1 half of AC-039b): an upper-cased .HTML file is scanned (case-insensitive extension) ===
+ok: TEST-086 (.ps1 half): an upper-cased .HTML file containing a finding is scanned and blocks (extension match is case-insensitive)
+
+=== TEST-005 (AC-005): a fully clean fixture set exits 0 ===
+ok: TEST-005a: a fully clean multi-file fixture set exits 0
+ok: TEST-005b: a clean run reports passed
+
+=== TEST-006 (AC-006.1): a placeholder-only fixture exits 1 ===
+ok: TEST-006a: a placeholder-only fixture exits 1
+ok: TEST-006b: only the placeholder category is reported
+
+=== TEST-007 (AC-006.2): a secret-only fixture exits 1 ===
+ok: TEST-007a: a secret-only fixture exits 1
+ok: TEST-007b: only the secret category is reported
+
+=== TEST-008 (AC-006.3): a PII-only fixture exits 1 ===
+ok: TEST-008a: a PII-only fixture exits 1
+ok: TEST-008b: only the PII category is reported
+
+=== TEST-009 (AC-006.4): a mixed-category fixture exits 1, names every category present ===
+ok: TEST-009a: a mixed-category fixture exits 1
+ok: TEST-009b: the report names every category present, not only the first matched
+
+=== TEST-010 (AC-007.1, AC-008): zero arguments exits 2 with a usage diagnostic, never 1 ===
+ok: TEST-010a: zero arguments exits 2
+ok: TEST-010b: zero-argument invocation prints a usage diagnostic
+ok: TEST-010c: no override affordance is offered in the exit-2 output (AC-007's fourth clause)
+
+=== TEST-056 (AC-007.2): more arguments than the contract defines exits 2 with a usage diagnostic ===
+ok: TEST-056a: two positional arguments (one too many) exits 2
+ok: TEST-056b: too-many-arguments invocation prints a usage diagnostic
+ok: TEST-056c: no override affordance is offered in the too-many-arguments exit-2 output
+
+=== TEST-011 (AC-007.3): a nonexistent target directory exits 2, names the missing path ===
+ok: TEST-011a: a nonexistent target directory exits 2
+ok: TEST-011b: the diagnostic names the missing path
+ok: TEST-011c: no override affordance is offered for a nonexistent target directory
+
+=== TEST-012 (AC-007.4): an unreadable .html file exits 2, names the file, rest not silently clean ===
+ok: TEST-012a: an unreadable .html file exits 2
+ok: TEST-012b: the diagnostic names the unreadable file
+ok: TEST-012c: the rest of the set is not silently reported clean/passed
+
+=== TEST-013 (AC-008): usage-error exit code is 2, never 1 -- contrast with check-placeholders.ps1 ===
+ok: TEST-013a: check-placeholders.ps1's own zero-argument usage error exits 1 (the convention this script deliberately diverges from)
+ok: TEST-013b: design-sync-scan.ps1's own zero-argument usage error exits 2, never 1
+
+=== TEST-014 (AC-009): placeholder detection reproduces check-placeholders.ps1's own verdicts ===
+ok: TEST-014-setup: re-read check-placeholders.ps1's live $patternCs/$patternCi at test-run time (not transcribed)
+ok: TEST-014a: check-placeholders.ps1 flags the positive marker corpus (exit 1)
+ok: TEST-014b: design-sync-scan.ps1 flags the identical corpus as a placeholder finding -- same verdict as check-placeholders.ps1
+ok: TEST-014c: both scripts agree the negative corpus (lowercase 'todo' as ordinary prose) is clean
+
+=== TEST-015 - TEST-020, TEST-083 (AC-010): one row per secret pattern S1-S6, plus S5's sk-proj- sub-format ===
+ok: TEST-015 (S1 PEM private-key header): triggers a secret finding
+ok: TEST-016 (S2 AKIA...): triggers a secret finding
+ok: TEST-017 (S3 ghp_...): triggers a secret finding
+ok: TEST-018 (S4 github_pat_...): triggers a secret finding
+ok: TEST-019 (S5 bare sk-...): triggers a secret finding
+ok: TEST-020 (S6 xoxb-...): triggers a secret finding
+ok: TEST-083 (S5 sk-proj- sub-format): triggers a secret finding
+
+=== TEST-021 (AC-010): S7 triggers on a substantive quoted value, not on a bare or empty value ===
+ok: TEST-021a: S7 triggers on a keyword followed by a substantive quoted value
+ok: TEST-021b: S7 does NOT trigger on a bare keyword, a form-field label, an input type attribute, or an empty quoted value
+
+=== TEST-022 (AC-011): P1 (email, non-reserved domain) triggers a PII finding ===
+ok: TEST-022: a non-reserved-domain email triggers a PII finding
+
+=== TEST-023 (AC-011): P2 (E.164-shaped phone) triggers a PII finding ===
+ok: TEST-023: an E.164-shaped phone number triggers a PII finding
+
+=== TEST-024, TEST-057 - TEST-062 (AC-011): the seven RFC 2606/6761 reserved domains/TLDs do not trigger ===
+ok: TEST-024 (example.com): user@example.com does not trigger a finding
+ok: TEST-057 (example.net): user@example.net does not trigger a finding
+ok: TEST-058 (example.org): user@example.org does not trigger a finding
+ok: TEST-059 (.test): user@mockups.test does not trigger a finding
+ok: TEST-060 (.example): user@mockups.example does not trigger a finding
+ok: TEST-061 (.invalid): user@mockups.invalid does not trigger a finding
+ok: TEST-062 (.localhost): user@mockups.localhost does not trigger a finding
+
+=== TEST-080 - TEST-082 (AC-011): P2's three negative boundary shapes ===
+ok: TEST-080: a 7-digit run (one short of the minimum) does not trigger
+ok: TEST-081: a 16-digit run (one over the maximum) does not trigger -- the boundary rejects an embedded valid-length substring, not only the total count
+ok: TEST-082: a valid-length run with a digit immediately adjacent on the leading side (before '+') does not trigger
+ok: TEST-082-control: without the leading-adjacent digit, the same-length run DOES trigger (proves TEST-082 exercises the boundary, not the quantifier)
+
+=== TEST-025 (AC-012): a mixed-category fixture's report labels every finding with its correct category ===
+ok: TEST-025: every finding in the mixed fixture is labelled with its correct category at its correct line
+
+=== TEST-026 (AC-013): a multi-file fixture's report gives correct, distinct file:line per finding ===
+ok: TEST-026: each of three files' findings is reported at its own correct, distinct file:line
+
+=== TEST-027, TEST-028, TEST-029, TEST-063 (AC-014): masking is category-differentiated ===
+ok: TEST-027: a secret finding's report line does not contain the matched secret value
+ok: TEST-027b: the secret finding is masked with the fixed token
+ok: TEST-028: a PII/email finding's report line does not contain the matched address
+ok: TEST-063: a PII/phone finding's report line does not contain the matched number
+ok: TEST-029: a placeholder finding's report line contains the matched marker text in full
+
+=== TEST-030 (AC-015): the script completes with stdin closed, no interactive read, no hang ===
+ok: TEST-030: the scan completed within 5s with stdin closed (exit 0) -- no interactive read, no prompt, no hang
+
+=== TEST-034 (.ps1 half of AC-018): the script's header comment states the egress-hygiene-only scope ===
+ok: TEST-034a: the header states the check is limited to egress hygiene
+ok: TEST-034b: the header states no assessment of mockup quality, design fidelity, accessibility, or design-system/ adherence
+
+=== TEST-048 (.ps1 half of AC-030): no finite-set host/tool identifier appears as a branch condition ===
+ok: TEST-048: none of the finite identifier set (CLAUDE_CODE, CODEX, DesignSync, ANTHROPIC, OPENAI) appears as a branch condition outside a comment
+
+=== TEST-069 (.ps1 half of AC-030): representative-caller parity -- Claude-Code-style vs bare-terminal/Codex-style env ===
+ok: TEST-069: the same fixture, invoked once under a Claude-Code-style env and once under a bare-terminal/Codex-style env, is exit-code- and report-identical
+
+=== TEST-052 (AC-034): traceability manifest -- every REQ-001..REQ-009 AC-NNN heading appears in acceptance-tests.md's AC column ===
+ok: TEST-052-setup: extracted 36 AC headings from requirements.md's REQ-001..REQ-009 sections
+ok: TEST-052: every REQ-001..REQ-009 AC-NNN heading in requirements.md appears at least once in acceptance-tests.md
+
+=== Cross-runtime exit-code parity (AC-031): TEST-049, TEST-070 - TEST-076 ===
+ok: TEST-049 (AC-031, placeholder-only): both runtimes exit 1 for this fixture
+ok: TEST-070 (AC-031, secret-only): both runtimes exit 1 for this fixture
+ok: TEST-071 (AC-031, PII-only): both runtimes exit 1 for this fixture
+ok: TEST-072 (AC-031, mixed-category): both runtimes exit 1 for this fixture
+ok: TEST-073 (AC-031, clean): both runtimes exit 0 for this fixture
+ok: TEST-074 (AC-031, zero-argument): both runtimes exit 2 for this fixture
+ok: TEST-075 (AC-031, nonexistent target directory): both runtimes exit 2 for this fixture
+ok: TEST-076 (AC-031, unreadable file): both runtimes exit 2 for this fixture
+
+=== Cross-runtime classification parity (AC-032): TEST-050, TEST-077 - TEST-079 ===
+ok: TEST-050 (AC-032, placeholder): both runtimes agree on every finding's category and file:line (1 finding(s))
+ok: TEST-077 (AC-032, secret): both runtimes agree on every finding's category and file:line (1 finding(s))
+ok: TEST-078 (AC-032, PII): both runtimes agree on every finding's category and file:line (1 finding(s))
+ok: TEST-079 (AC-032, mixed): both runtimes agree on every finding's category and file:line (3 finding(s))
+
+=== TEST-051 (AC-033, AGENTS.md item 1): case-sensitivity sweep -- a mis-cased negative fixture per case-sensitive pattern group, rejected identically to the .sh original ===
+ok: TEST-051a (placeholder cs group, lower-cased 'todo') (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051a (placeholder cs group, lower-cased 'todo') (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051b (S1 PEM header, lower-cased) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051b (S1 PEM header, lower-cased) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051c (S2 AKIA, lower-cased) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051c (S2 AKIA, lower-cased) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051d (S3 ghp_, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051d (S3 ghp_, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051e (S4 github_pat_, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051e (S4 github_pat_, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051f (S5 bare sk-, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051f (S5 bare sk-, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051g (S5 sk-proj- sub-format, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051g (S5 sk-proj- sub-format, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051h (S6 xoxb-, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051h (S6 xoxb-, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+
+=== TEST-084 (AC-038): the POSIX ERE (.sh) and .NET (.ps1) forms of S7 and P2 classify TEST-021/080-082's fixture set identically ===
+ok: TEST-084a (S7 positive, TEST-021 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 1)
+ok: TEST-084b (S7 negative, TEST-021 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084c (P2 7-digit short, TEST-080 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084d (P2 16-digit long, TEST-081 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084e (P2 leading-adjacent digit, TEST-082 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084f (P2 leading-adjacent control, TEST-082-control fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 1)
+
+=== TEST-086 (cross-runtime half of AC-039b): an upper-cased .HTML file containing a finding blocks identically on both runtimes ===
+ok: TEST-086 (cross-runtime): both runtimes block on the same upper-cased .HTML finding (exit 1) -- PowerShell's case-insensitive filesystem filtering and .sh's -iname agree
+
+Results: 110 passed, 0 failed
+EXIT=0

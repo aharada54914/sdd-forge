@@ -1,0 +1,29 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-impl-a1r2-b-seq0402",
+  "host_session_id": "SESS-impl-a1r2-b-epic136phase4docs-0402",
+  "verdict": "BLOCKED",
+  "disclosure": {
+    "why_this_file_exists": "This run happened and returned BLOCKED. It is recorded here rather than as the round's reviewer-b.json because the block was a launch-boundary artifact, not a substantive review outcome: the reviewer never read the design. The round's substantive reviewer-b verdict comes from a fresh reservation at sequence 403. Sequence 402 is a disclosed consumed reservation, left in the chain rather than rewritten.",
+    "cause": "The manifest field identity_ledger_sha256 is stale by design immediately after the reservation it authorizes. validate-review-context-set.sh:313 compares it against the ledger BEFORE appending the reserved record, and :332 then appends. Every manifest therefore carries the pre-append ledger hash, which can never match the post-append file the reviewer reads.",
+    "why_it_is_a_framework_defect_not_a_reviewer_error": "impl-reviewer-b.md:62-64 requires the bound context to have 'verified hashes' and instructs the reviewer to reject on 'hash mismatch'. A reviewer that follows that text literally must BLOCK on every launch. Reviewer A at sequence 401 passed the same boundary only because it did not happen to check that particular field. Whether a launch succeeds therefore depends on which fields a reviewer chooses to verify, which is nondeterminism inside a deterministic gate.",
+    "no_reference_document_exists": "A search over plugins/*/references/ and docs/ for identity_ledger_sha256 or REVIEW_CONTEXT_OK returns no matches, so no document tells a reviewer which fields are validator-time-only and which the reviewer should re-verify.",
+    "what_was_NOT_done": "The reviewer's emitted output was not edited, and the check results below were not rewritten to make the round pass. The relaunch at sequence 403 supplies the correct boundary procedure (verify the ledger RECORD chain, which is the actual integrity guarantee; identity_ledger_sha256 is consumed by the validator before append) rather than instructing the reviewer to skip a check.",
+    "followup": "Recorded as a workflow improvement proposal; the fix to the role text or the validator is a framework change and is not made unilaterally here."
+  },
+  "checks": [
+    {"id": "DECISION-JUSTIFIED", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: launch boundary failed before substantive review began. The invocation manifest declares identity_ledger_sha256=974f0da904b6fcb043c251a436505b93bfd58cc5d1a92133d83ce9d5163089f2 for reports/review-context/identity-ledger.json, but shasum -a 256 on that file computes 45d307b007c0c6b1b15a59a322d8a6e660425cd871a10acacb5c86f102f75a1e -- a hash mismatch on the canonical identity ledger. Per fail-closed policy this run must not proceed."},
+    {"id": "OPEN-QUESTIONS-RESOLVABLE", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "ASSUMPTIONS-VALID", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "NO-REQ-CONTRADICTION", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "PERF-ADDRESSED", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "DEPLOYMENT-CONCRETE", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "MIGRATION-PLANNED", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "INTEGRATION-IDENTIFIED", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "DESIGN-WITHIN-SCOPE", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "VERIFICATION-PATH-CONCRETE", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "FAIL", "severity": "Critical", "finding": "Not evaluated: same launch-boundary hash mismatch as DECISION-JUSTIFIED."}
+  ]
+}

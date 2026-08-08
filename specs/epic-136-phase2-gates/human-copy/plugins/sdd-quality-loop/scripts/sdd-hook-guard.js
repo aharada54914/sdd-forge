@@ -197,10 +197,27 @@ const PROTECTED_BASENAMES = new Set(
   })
 );
 
+// Sanctioned staging prefix: specs/<feature>/human-copy/ holds candidate
+// copies awaiting human review and human application, never the live
+// enforcement chain itself.
+const HUMAN_COPY_STAGING_RE = /(?:^|\/)specs\/[^/]+\/human-copy\//;
+
 function isProtectedGateFile(filePath) {
   if (!filePath) return false;
   // posix.normalize collapses .. segments so ../../tests/gates.tests.sh is caught.
   const normalized = path.posix.normalize(String(filePath).replace(/\\/g, '/')).toLowerCase();
+  // Staging exemption: a path still carrying the specs/<feature>/human-copy/
+  // prefix after normalize cannot reach a live enforcement-chain file (any
+  // ..-traversal has already been collapsed), so a staging candidate is
+  // writable — unless a registered suffix itself names a human-copy path
+  // (e.g. the phase2 publisher script), which stays protected.
+  if (HUMAN_COPY_STAGING_RE.test(normalized)) {
+    return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
+      const sl = s.toLowerCase();
+      if (!sl.includes('/human-copy/')) return false;
+      return normalized.endsWith(sl) || (sl.startsWith('/') && normalized.endsWith(sl.slice(1)));
+    });
+  }
   return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
     const sl = s.toLowerCase();
     // Match absolute paths and relative paths for suffixes that start with /.
@@ -508,9 +525,66 @@ function shellCwdWriteHitsProtected(cmd) {
   return false;
 }
 
+function commandReferencesProtectedPath(cmd) {
+  // R-10 pre-filter: true when a protected path appears as a shell TOKEN
+  // (a path-shaped word, or a redirect token's target), not merely as a
+  // substring of the raw command text. Prose inside a quoted argument — e.g.
+  // a commit message that mentions a protected filename mid-sentence — no
+  // longer trips the filter, because the quoted argument is one token whose
+  // full text does not END with the protected suffix. Falls back to the raw
+  // substring scan when the tokenizer cannot model the command (fail closed).
+  const tokens = tokenizeShellCommand(cmd);
+  if (tokens === null) {
+    // The registry stores POSIX-separator suffixes, so the fallback scan must
+    // run over a separator-NORMALIZED copy of the command as well as the raw
+    // text — exactly the normalization isProtectedGateFile already performs on
+    // a single path.
+    //
+    // Without it this fallback was FAIL-OPEN on native Windows. A write target
+    // spelled as a Windows absolute path ("D:\\...\\sdd\\approver-registry.yaml")
+    // both (a) forces the tokenizer to return null — an unquoted backslash is
+    // an unmodeled construct — and (b) leaves the raw text spelling the tail
+    // "sdd\\approver-registry.yaml", which does not contain the registered
+    // "sdd/approver-registry.yaml". The pre-filter therefore returned false and
+    // shellTargetsProtectedGateFile returned "no protected path" — ALLOWING the
+    // write. Only the separator immediately before the registered suffix
+    // mattered, which is why the miss was invisible on POSIX.
+    //
+    // This fallback additionally scans PROTECTED_GATE_PLUGIN_JSON_SUFFIXES,
+    // which it previously omitted altogether — the .py/.ps1 twins have always
+    // scanned both lists here, so the JS twin was the outlier.
+    //
+    // Scanning both texts can only ADD matches, never remove one, so no command
+    // that was denied before can become allowed. Read-only access to a
+    // protected path stays allowed: the read-only short-circuit in
+    // shellTargetsProtectedGateFile is evaluated after this filter.
+    const cmdLower = cmd.toLowerCase();
+    const cmdNorm = cmdLower.replace(/\\/g, '/');
+    return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
+      const sl = s.toLowerCase();
+      if (cmdLower.includes(sl) || cmdNorm.includes(sl)) return true;
+      // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
+      if (!sl.startsWith('/')) return false;
+      const slRel = sl.slice(1);
+      return cmdLower.includes(slRel) || cmdNorm.includes(slRel);
+    });
+  }
+  for (const [kind, text] of tokens) {
+    if (kind !== 'word') continue;
+    let candidate = text;
+    if (text.includes('>')) {
+      const m = text.match(SHELL_REDIRECT_TOKEN_RE);
+      if (m && m[2]) candidate = m[2];
+    }
+    if (isProtectedGateFile(candidate)) return true;
+  }
+  return false;
+}
+
 function shellTargetsProtectedGateFile(cmd) {
   // R-10: Deny shell commands that WRITE to protected gate files.
-  // Substring scan (path appears literally in command) combined with
+  // Token-based pre-filter (a protected path appears as a shell token or
+  // redirect target) combined with
   // write-target analysis (issue #62): a write verb/redirect elsewhere in the
   // command no longer denies read-only access to a protected path.
   // REQ-002 (issue #110): a working-directory-aware pass additionally resolves
@@ -521,12 +595,7 @@ function shellTargetsProtectedGateFile(cmd) {
   // spell the full protected path literally. Read-only segments never hit,
   // so this is checked before the read-only short-circuit below.
   if (shellCwdWriteHitsProtected(cmd)) return true;
-  const cmdLower = cmd.toLowerCase();
-  const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => {
-    const sl = s.toLowerCase();
-    // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
-    return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
-  });
+  const hasProtectedPath = commandReferencesProtectedPath(cmd);
   if (!hasProtectedPath) return false;
   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
@@ -1301,38 +1370,56 @@ function isDesignMd(filePath) {
 }
 
 function implReviewVerdictExists(filePath) {
-  // Check whether a valid integrated-verdict.json with PASS or PASS-with-warnings
-  // exists in reports/impl-review/<feature>/. Extract feature from the design.md path.
-  // Path pattern: specs/<feature>/design.md
+  // Resolve the repository root the same way as resolveProjectRoot
+  // (CLAUDE_PROJECT_DIR, then the git root discovered upward from the edited
+  // filePath, then CWD) and look for a PASS/PASS-with-warnings
+  // integrated-verdict.json under each candidate root. Resolving from
+  // filePath/CLAUDE_PROJECT_DIR rather than CWD alone fixes false denials when
+  // the agent's CWD is outside the repository (the previous CWD-only scan missed
+  // a genuine verdict). The verdict criterion is unchanged. Extract feature from
+  // the design.md path (specs/<feature>/design.md). (WFI-016)
   if (!filePath) return false;
   const normalized = String(filePath).replace(/\\/g, '/');
   const specsMatch = normalized.match(/specs\/([^/]+)\/design\.md$/i);
   if (!specsMatch) return false;
   const feature = specsMatch[1];
 
-  // Look for any integrated-verdict.json in reports/impl-review/<feature>/
-  const reportsBase = 'reports/impl-review/' + feature;
-  try {
-    // Walk attempt dirs
-    const attemptDirs = fs.readdirSync(reportsBase).filter(d => d.startsWith('attempt-'));
-    for (const attemptDir of attemptDirs) {
-      const roundBase = path.join(reportsBase, attemptDir);
-      const roundDirs = fs.readdirSync(roundBase).filter(d => d.startsWith('round-'));
-      for (const roundDir of roundDirs) {
-        const verdictPath = path.join(roundBase, roundDir, 'integrated-verdict.json');
-        try {
-          const content = fs.readFileSync(verdictPath, 'utf8');
-          const verdict = JSON.parse(content);
-          if (verdict.verdict === 'PASS' || verdict.verdict === 'PASS-with-warnings') {
-            return true;
+  const roots = [];
+  const envRoot = process.env.CLAUDE_PROJECT_DIR;
+  if (envRoot) roots.push(envRoot);
+  const fpRoot = findGitRoot(path.dirname(path.resolve(filePath)));
+  if (fpRoot) roots.push(fpRoot);
+  roots.push('.');
+
+  const seen = new Set();
+  for (const root of roots) {
+    let key;
+    try { key = path.resolve(root); } catch (e) { continue; }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const reportsBase = path.join(root, 'reports/impl-review/' + feature);
+    try {
+      // Walk attempt dirs
+      const attemptDirs = fs.readdirSync(reportsBase).filter(d => d.startsWith('attempt-'));
+      for (const attemptDir of attemptDirs) {
+        const roundBase = path.join(reportsBase, attemptDir);
+        const roundDirs = fs.readdirSync(roundBase).filter(d => d.startsWith('round-'));
+        for (const roundDir of roundDirs) {
+          const verdictPath = path.join(roundBase, roundDir, 'integrated-verdict.json');
+          try {
+            const content = fs.readFileSync(verdictPath, 'utf8');
+            const verdict = JSON.parse(content);
+            if (verdict.verdict === 'PASS' || verdict.verdict === 'PASS-with-warnings') {
+              return true;
+            }
+          } catch (e) {
+            // continue
           }
-        } catch (e) {
-          // continue
         }
       }
+    } catch (e) {
+      // reports dir doesn't exist or can't be read
     }
-  } catch (e) {
-    // reports dir doesn't exist or can't be read
   }
   return false;
 }

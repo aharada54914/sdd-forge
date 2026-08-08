@@ -1,0 +1,71 @@
+PASS: tests/install.tests.sh
+PASS: tests/uninstall.tests.sh
+PASS: tests/guards.tests.sh
+PASS: tests/approval-boundary.tests.sh
+PASS: tests/gates.tests.sh
+PASS: tests/check-placeholders.tests.sh
+PASS: tests/prepare-panelist.tests.sh
+PASS: tests/review-contract-foundation.tests.sh
+PASS: tests/review-contract-foundation-parity.tests.sh
+PASS: tests/downstream-review-precheck.tests.sh
+PASS: tests/impl-layer-review-inputs.tests.sh
+PASS: tests/task-layer-review-inputs.tests.sh
+PASS: tests/task-layer-full-profile.tests.sh
+PASS: tests/downstream-review-precheck-parity.tests.sh
+PASS: tests/task-review-precheck.tests.sh
+PASS: tests/review-agent-isolation.tests.sh
+PASS: tests/agent-model-routing.tests.sh
+PASS: tests/agent-capabilities-v2.tests.sh
+PASS: tests/render-agent-frontmatter.tests.sh
+PASS: tests/task-context-isolation.tests.sh
+FAIL: tests/turn-first-workflow.tests.sh
+----- tail of tests/turn-first-workflow.tests.sh output -----
+not ok: implementation report template omits: ## Output Paths And Hashes
+------------------------------
+PASS: tests/retrospective-loop.tests.sh
+PASS: tests/emit-run-record-feature-scope.tests.sh
+FAIL: tests/rollback-1.5.0.tests.sh
+----- tail of tests/rollback-1.5.0.tests.sh output -----
+ROLLBACK_HASH: current hash mismatch: .agents/plugins/marketplace.json
+------------------------------
+PASS: tests/cross-model.tests.sh
+PASS: tests/eval.tests.sh
+PASS: tests/crlf-parity.tests.sh
+PASS: tests/scenario.tests.sh
+PASS: tests/apply-branch-protection.tests.sh
+FAIL: tests/workflow-state-registry.tests.sh
+----- tail of tests/workflow-state-registry.tests.sh output -----
+not ok: canonical registry contract is invalid
+------------------------------
+FAIL: tests/workflow-state-registry-parity.tests.sh
+----- tail of tests/workflow-state-registry-parity.tests.sh output -----
+not ok: canonical registry contract is invalid
+------------------------------
+PASS: tests/workflow-state.tests.sh
+PASS: tests/workflow-state-parity.tests.sh
+PASS: tests/second-approval-mask.tests.sh
+PASS: tests/workflow-state-ci-integration.tests.sh
+PASS: tests/structure-check-feature-mode.tests.sh
+PASS: tests/quality-gate-cycle-limit.tests.sh
+PASS: tests/guard-dispatch-fallback.tests.sh
+PASS: tests/guard-negative-corpus.tests.sh
+PASS: tests/guard-ps1-ascii.tests.sh
+PASS: tests/loop-inventory.tests.sh
+PASS: tests/loop-driver.tests.sh
+PASS: tests/loop-consistency.tests.sh
+PASS: tests/loop-escalation.tests.sh
+PASS: tests/hitl-wfi-terminal.tests.sh
+PASS: tests/check-placeholders-brownfield.tests.sh
+PASS: tests/bump-version-gate.tests.sh
+PASS: tests/release-loop-gate.tests.sh
+PASS: tests/run-panelist-effort.tests.sh
+PASS: tests/model-freshness-check.tests.sh
+==> guard-r10-port.tests.ps1
+PASS: tests/guard-r10-port.tests.ps1
+
+TOTAL: 47 passed, 4 failed
+Failed suites:
+tests/turn-first-workflow.tests.sh
+tests/rollback-1.5.0.tests.sh
+tests/workflow-state-registry.tests.sh
+tests/workflow-state-registry-parity.tests.sh

@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase4mcp-spec-a1r2-b-seq0371",
+  "host_session_id": "SESS-spec-a1r2-b-epic136phase4mcp-0371",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "f900360bf8d401ed646415fda74757d21870a6d2bc30fc309d0e475eaa7883de"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "3a951baeff006548c7cb4bc0ba304de44fec13666f128e6b7b10709066332cba"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "a4ba7128ce129de96e157538aa51f765cc0d181e57ee80234d18c4a556e050a8"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round-1 AMBIGUITY (unpinned hostRequiredChecks schema description text) is resolved: requirements.md:394-422 pins the verbatim description string in Field Definitions, and AC-016 (requirements.md:344-354) plus TEST-016 (acceptance-tests.md:29) require asserting this exact string is present in contracts/sdd-forge-mcp-tools.v1.schema.json by direct file read, not a text-marker proxy. Other terms (GuardedListError.path/reason, unreadableContracts.reason, undeterminable's population rule) stay concretely defined (requirements.md:376-435). Residual minor note: Overview's causal claim (requirements.md:44-48) that making the 3 fields 'required, not optional' is why a pre-change-schema-strict caller rejects a post-change response is technically imprecise -- the actual driver is the pre-existing additionalProperties:false on all 3 touched objects, present regardless of required/optional -- but this doesn't change any AC, test, or field definition and doesn't meet the two-implementers-diverge bar for a FAIL."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round-1 CONTRADICTION (Overview's unconditional 'no breaking response shape' claim vs. the 3 new required fields on additionalProperties:false objects) is resolved: requirements.md:42-58 now explicitly states a caller validating strictly against the PRE-change schema WILL reject a POST-change response, names the acceptable-risk rationale (private/unpublished package, ADR-0003, cited requirements.md:52-58), and AC-013 (requirements.md:320-326) requires CHANGELOG entries to match this corrected framing rather than assert unconditional backward compatibility. Cross-checked BL-004 (:596-602), Field Definitions' 'additive schema change' entry (:436-448), and AC-009 (:296-304) -- all consistent with the corrected Overview; no other requirement/AC/non-goal/constraint asserts a conflicting compatibility claim."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round-1 EDGE-CASE-COVERAGE gaps (non-Done task in unreadableContracts; hostRequiredChecks when signature absent/gitCommit not 40-hex) are resolved: AC-017/TEST-017 (requirements.md:355-361; acceptance-tests.md:30) exercises a non-Done, contract-less task distinct from AC-001's Done-task fixture; AC-018/TEST-018 (requirements.md:362-372; acceptance-tests.md:31) exercises signature.present:false and gitCommit.shapeValid:false sub-cases distinct from AC-003/AC-004's pass/fail-verdict fixtures. Every material Edge Case in requirements.md:498-535 now maps to a dedicated Test ID; the remaining listed edge case (contract reads fine but has zero requirementIds-bearing checks, :509-513) is explicitly unchanged pre-existing behavior needing no new field/test, and the redundant-scan-avoidance note (:521-525) has no externally observable difference from AC-007/AC-008's existing coverage."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round-1 ASSUMPTIONS-RESOLVABLE gap (unverified basis for REQ-005's required-over-optional choice) is resolved: requirements.md's Assumptions section (:565-581) cites sdd-forge-mcp's private:true field (mcp/sdd-forge-mcp/package.json:4), its absence from the public npm registry, and ADR-0003 ('Status: Accepted') as the factual basis, states this is 'the factual basis for REQ-005/BL-004's required, not optional choice,' and gives an explicit RE-VERIFY-before-implementation instruction (WFI-013 discipline) plus a stated fallback (re-examine required vs. optional) if the assumption later proves false. investigation.md is deliberately frozen with no dedicated INV number for this fact (only listed among referenced files, investigation.md:643); the Overview/AC-013 shorthand citations read '(Assumptions; investigation.md mcp/sdd-forge-mcp/package.json:2-4)' (requirements.md:56, :325), which could be misread as investigation.md itself having narratively verified that line range -- it did not. This is a minor citation-clarity nit, not a substantive resolution gap, since the Assumptions section itself cites the primary source directly and correctly (:565-581)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No human-approval, governance, or irreversible-change boundary is introduced or altered by this feature. All 6 target files are read-only diagnostic-surfacing changes (BL-001/BL-002, requirements.md:587-592); Non-goals explicitly excludes enforcing the 'critical tasks need host-side verification' policy in code (requirements.md:213-219), and AC-004 pins the verdict formula byte-unchanged. The only human-decision references (Roles and Permissions, requirements.md:458-462: approving the spec/tasks; deciding on a follow-on issue) are standard SDD workflow gates and an explicitly out-of-scope decision for this feature, not a feature-introduced approval boundary requiring its own acceptance criterion."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round-1 DOWNSTREAM-READINESS gap is resolved: AC-013 (requirements.md:320-326) now gives explicit, non-inventable CHANGELOG framing instructions ('matching the Overview's corrected framing... never as an unconditional fully backward compatible claim, and never inventing its own compatibility characterization'), removing the need for a task author/CHANGELOG-writer to invent compatibility language. Field Definitions (:374-448) gives concrete, non-inventable shapes/values for all 3 new fields plus GuardedListError, all 4 Open Questions (:612-643) are resolved with the actual decision stated directly in requirements.md rather than deferred to design.md, and AC-016 closes the last remaining invent-your-own-text gap (schema description content). The specification is ready to hand to implementation-policy review without requiring the design reviewer to invent missing product behavior."
+    }
+  ]
+}

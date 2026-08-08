@@ -143,7 +143,7 @@ LOOP_FIXTURE_ROOT="$IMPL_ROOT"; LOOP_FIXTURE_FEATURE="$IMPL_FEATURE"
 export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
 
 IMPL_ROUND2_DIR="${IMPL_ROOT}/reports/impl-review/${IMPL_FEATURE}/attempt-1/round-2"
-if loop_validator_capability_probe; then
+if loop_validator_capability_probe && loop_workflow_state_capability_probe; then
 if loop_prepare_impl_prereqs "$IMPL_FEATURE" &&
    drive_review_round impl 1 1 NEEDS_WORK Major &&
    drive_review_round impl 1 2 NEEDS_WORK Major &&
@@ -167,9 +167,9 @@ else
   fail "TEST-008.7: impl round-2 reviewer-a manifest is missing the round-1 integrated-summary.json entry"
 fi
 else
-  loop_validator_skip "TEST-008.5"
-  loop_validator_skip "TEST-008.6"
-  loop_validator_skip "TEST-008.7"
+  loop_impl_chain_skip "TEST-008.5"
+  loop_impl_chain_skip "TEST-008.6"
+  loop_impl_chain_skip "TEST-008.7"
 fi
 
 TASK_FEATURE="loop-consistency-task-$$"
@@ -191,7 +191,7 @@ export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
 # field. See this task's implementation report for the full finding; this
 # leg asserts only that the real gate accepts genuine evidence (HEAD-observable
 # behavior), not any specific cross-stage semantics beyond that.
-if loop_validator_capability_probe; then
+if loop_validator_capability_probe && loop_workflow_state_capability_probe; then
 if loop_prepare_task_prereqs "$TASK_FEATURE" &&
    drive_review_round task 1 1 NEEDS_WORK Major &&
    drive_review_round task 1 2 NEEDS_WORK Major &&
@@ -206,8 +206,8 @@ else
   fail "TEST-008.10: task leg observed end state does not match the loop-inventory terminal (PASS)"
 fi
 else
-  loop_validator_skip "TEST-008.9"
-  loop_validator_skip "TEST-008.10"
+  loop_impl_chain_skip "TEST-008.9"
+  loop_impl_chain_skip "TEST-008.10"
 fi
 
 DOMAIN_FEATURE="loop-consistency-domain-$$"
@@ -312,14 +312,14 @@ fi
 # ---------------------------------------------------------------------------
 echo "=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ==="
 
-if loop_validator_capability_probe; then
+if loop_validator_capability_probe && loop_workflow_state_capability_probe; then
   if [[ -f "${IMPL_ROUND2_DIR:-/nonexistent}/impl-review-contract.json" ]]; then
     ok "TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)"
   else
     fail "TEST-009.1: impl-review round-2 leg is not green at HEAD"
   fi
 else
-  loop_validator_skip "TEST-009.1"
+  loop_impl_chain_skip "TEST-009.1"
 fi
 
 RED_LOG="${REPO_ROOT}/specs/epic-159-pillar-a/verification/T-003/red-differential.log"

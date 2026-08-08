@@ -147,24 +147,12 @@ shell_schema_accepts() {
 jq -e --arg baseline "$BASELINE" '
   .schema_version == 1 and
   .migration_baseline_commit == $baseline and
-  (.entries | type == "array" and length == 14) and
+  # Full/lite membership is not pinned here: the exact feature set is
+  # enforced below by the two-way comparison against first-level specs
+  # directories. Only the legacy subset is a closed list, held solely in
+  # contracts/workflow-state-registry.schema.json (legacyEntry).
+  (.entries | type == "array" and length > 0) and
   ([.entries[].feature] | length == (unique | length)) and
-  ([.entries[].feature] | sort) == [
-    "agent-cost-context-isolation",
-    "bootstrap-interviewer-enhancement",
-    "claude-workflow-compatibility",
-    "cross-model-verification",
-    "local-env-mcp",
-    "p0-hardening",
-    "risk-adaptive-layer",
-    "sdd-diagnose",
-    "sdd-domain",
-    "sdd-forge-mcp",
-    "sdd-forge-refactor",
-    "sdd-lite",
-    "uninstall-workflow",
-    "workflow-state-integrity"
-  ] and
   all(.entries[];
     (.feature | test("^[a-z0-9][a-z0-9-]*$")) and
     (.profile == "full" or .profile == "lite" or .profile == "legacy") and

@@ -1,0 +1,70 @@
+# Pre-existing, unrelated regression-test failures — confirmed via parent-commit (pre-T-001) reproduction
+# Parent commit checked: 8802505 (docs(tasks): epic-136-phase3 T-001..T-004 Approval: Approved)
+# Method: git worktree add --detach <tmpdir> 8802505; ran each suite there; identical failure observed.
+# QG remediation re-capture (rollback-1.5.0.tests.sh section only, below): re-ran with stdout/stderr
+# captured separately and `echo "EXIT=$?"` appended, per independent-evaluator Major 2. The
+# workflow-state-registry / -parity sections below this were already evaluator-confirmed healthy
+# and are unchanged.
+
+=== tests/rollback-1.5.0.tests.sh (worktree HEAD=faa00fd5, current worktree tip: T-001 commit A plus
+subsequent T-002/T-003/T-004 commits; `git log 6d8fbc3e..faa00fd5 -- tests/rollback-1.5.0.tests.sh
+scripts/rollback-1.5.0.sh scripts/rollback-1.5.0.ps1 contracts/rollback-1.5.0.json` returns zero
+commits, so this is equivalent to testing at T-001's own commit A for this suite's purposes) ===
+$ bash tests/rollback-1.5.0.tests.sh ; echo "EXIT=$?"
+--- stdout ---
+On branch feature/epic-136-phase3
+Your branch is up to date with 'origin/feature/epic-136-phase3'.
+
+nothing to commit, working tree clean
+--- stderr ---
+(empty)
+EXIT=1
+
+=== tests/rollback-1.5.0.tests.sh (parent commit 8802505, pre-T-001, isolated `git worktree add
+--detach <tmpdir> 8802505` checkout) ===
+$ bash tests/rollback-1.5.0.tests.sh ; echo "EXIT=$?"
+--- stdout ---
+Not currently on any branch.
+nothing to commit, working tree clean
+--- stderr ---
+(empty)
+EXIT=1
+
+Both sides fail identically: exit 1, and the visible text IS the failure —
+it is `git commit`'s own "nothing to commit, working tree clean" report
+("On branch ..." vs. "Not currently on any branch." differs only because
+the parent-commit side is a detached-HEAD checkout; git's own cosmetic
+current-branch line, not a substantive difference). No "not ok:"/`fail()`
+line is ever reached on either side, because this suite's own
+`set -euo pipefail` aborts the WHOLE script at the exact internal
+`git -C "$canonical_release" ... commit -qm t008-release` call inside its
+TEST-006 block (traced directly with `bash -x tests/rollback-1.5.0.tests.sh`
+in the worktree: the failing line is the `commit` immediately after that
+block's `git -C "$canonical_release" add .`) — the abort IS a real,
+nonzero-exit-code failure, just not one of the suite's own named
+assertions. Root cause (confirmed by direct reproduction of the same
+clone + re-copy + add + commit sequence in isolation): TEST-006 clones
+`$ROOT` into a fresh temp dir, then re-copies the same 7 fixed paths
+(`contracts/rollback-1.5.0.json`, `scripts/rollback-1.5.0.sh`,
+`scripts/rollback-1.5.0.ps1`, `tests/rollback-1.5.0.tests.sh`,
+`tests/rollback-1.5.0.tests.ps1`, `tests/run-all.sh`, `tests/run-all.ps1`)
+from `$ROOT` on top of that fresh clone before `git add . && git commit`,
+expecting the recopy to produce a new commit. On any perfectly clean
+checkout (worktree or not — bytes copied are identical to what the clone
+already has, since both come from the same `$ROOT` HEAD), `git add .`
+stages nothing, so the internal `git commit` has nothing to commit and
+exits 1 with exactly this message. This working-tree-state assumption
+does not hold for any clean checkout, independent of branch content —
+consistent with both sides failing identically here.
+
+=== tests/workflow-state-registry.tests.sh (worktree HEAD=6d8fbc3, post-T-001-commit-A) ===
+not ok: canonical registry contract is invalid
+
+=== tests/workflow-state-registry.tests.sh (parent commit 8802505, pre-T-001) ===
+not ok: canonical registry contract is invalid
+
+=== tests/workflow-state-registry-parity.tests.sh (worktree HEAD=6d8fbc3, post-T-001-commit-A) ===
+not ok: canonical registry contract is invalid
+
+=== tests/workflow-state-registry-parity.tests.sh (parent commit 8802505, pre-T-001) ===
+not ok: canonical registry contract is invalid

@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-designsyncconsent-spec-a1r3-b-seq0474",
+  "host_session_id": "SESS-spec-a1r3-b-designsyncconsent-0474",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-3/integrated-summary.json",
+      "sha256": "227fd1bdceb2e4d9e77881784455ac4ba8567265fdccd01b8984b0e24fdcd504"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-3/precheck-result.json",
+      "sha256": "07e9359e2b1e04c1814c280626cf2b7a85f80c7b7071a5d3d7007592a5d20b3a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "ad7a88b6d06af6e0f3d5cdbb57db64b70dbe2f2057c97bdf5331ab94c7ed4ad2"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms with potential for divergent implementer readings are deliberately resolved or explicitly scoped out with rationale. E.g. requirements.md:27-31 pins the consent scope to the conjunction feature AND session (not a disjunction) and explicitly defers session-boundary detection to implementation, stating the reason ('every criterion here is a document-conformance assertion... the skill's obligation is to name the scope, not to detect its edges', :31); REQ-004 (requirements.md:144) explicitly declines to fix the upload-subject value-domain and hedges it via AC-010 (field names only) rather than leaving it silently ambiguous; AC-002 (requirements.md:52-54) is written to check decidedness rather than a specific answer. No remaining term, actor, state, input, or output was found where two implementers would reasonably diverge on required behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked the candidate conflict points explicitly: AC-026's decline-is-transient model vs. AC-019's persistent 'not permitted' outcome is explicitly reconciled at requirements.md:38 and :62-64 ('a decline... is not #140's off setting'), not left contradictory; the two-coordinate 'scope' (feature AND session, requirements.md:27) vs. the third destination-binding coordinate (requirements.md:37, AC-027) are kept as separate, independently-tested axes (TEST-003 vs. TEST-044/045) rather than conflated; REQ-007's 'reconcile every live site' (requirements.md:204-212) is explicitly carved out from BL-006/AC-022's 'do not modify CHANGELOG.md:1301' (requirements.md:287, :222) rather than conflicting with it. No direct conflict found between any requirement, AC, constraint, or non-goal."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 9 listed edge cases (requirements.md:261-269) map to an AC/TEST or carry an explicit, reasoned justification for why no AC is needed. Edge Case 4 (fabricated consent record) is addressed by AC-012/TEST-018 characterizing the record as an unenforced audit trace rather than solved outright, consistent with the stated Non-goal at requirements.md:255 (no machine-checkable consent object). Edge Case 9 (stale line-number comments in workflow-scenarios.tests.sh) explicitly states why no AC/TEST is warranted ('nothing breaks... a cheap fix; recorded so it is a choice', requirements.md:269) since the referenced assertion matches by phrase, not line. Negative paths (decline, TEST-041-043), boundary states (session mismatch TEST-003, destination mismatch TEST-044/045), and failure modes (tool-unavailable / auth-failure TEST-019/020, ds_profile:none TEST-024) are each covered by dedicated rows."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Verified the round-2 fix directly: BL-004 (requirements.md:285) and BL-005 (requirements.md:286) both now end with 'Re-verify per the Assumptions section before relying on this' (BL-005 adds ', on the same terms as BL-004: ... exactly as volatile and exactly as load-bearing'), and the Assumptions bullet (requirements.md:274) names both concrete targets ('plugins/sdd-lite/skills/lite-spec/SKILL.md (BL-004) and .github/workflows/test.yml (BL-005)') plus the general clause 'any later claim of the same class... must be re-derived... at spec-review time... and again at implementation start'. Checked for a third bare claim of the same class: REQ-008(a)/(b)'s inline 'neither file is protected' / 'both are unprotected' claims (requirements.md:234, :236) are claims of the same protected-file-membership class but are covered by that general catch-all clause rather than left unaddressed; the CI-registration-surface claim (AC-024) carries its own explicit re-verification instruction at requirements.md:275 and again at acceptance-tests.md:201; the ADR next-free-number claim carries its own inline re-verification instruction at requirements.md:276. No bare unconditional claim of the AGENTS.md 'shared, git-tracked state' class was found without an explicit re-verification instruction."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-consent egress boundary is in scope and testable: first-upload gating (AC-001/TEST-001), iteration bypass (TEST-002), scope re-gate (TEST-003), decision decidedness (AC-002/TEST-004), decline transience vs. persistent denial (AC-026/TEST-041-043), destination re-gate (AC-027/TEST-044-045), mid-session withdrawal (AC-028/TEST-046-047), and the three-valued consent-resolution outcome including the routing consequence of 'not permitted' (AC-019/TEST-028-030) are each stated as document-conformance assertions consistent with this gate's document-conformance scope (acceptance-tests.md:3). The staged-file governance boundary (human-applied protected-file patches) is also testable via AC-023/TEST-038 (staging + manifest hash + live-file-unmodified check, requirements.md:226, acceptance-tests.md:177-187)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "6 of 10 Open Questions are resolved with recorded rationale (requirements.md:296, 311-318); the 4 remaining (OQ-6, OQ-7, OQ-9, OQ-10) are explicitly marked non-blocking and each is hedged by a criterion that accepts the gap rather than requiring invention (requirements.md:320-324): AC-005 accepts a stated opacity for OQ-6, AC-010 enumerates only field names for OQ-7's still-open value domain, AC-018 avoids presuming interactivity for OQ-9, and OQ-10 is explicitly owned by a separate document (security-spec.md) and touches no criterion here. Protected-file/CI-registration structural constraints on the task plan's shape (BL-004, BL-005, REQ-008 parts a/b/c) are fully resolved with concrete targets and staging mechanics, so a downstream reviewer is not required to invent the task-plan shape. No undecided product behavior was found that a design/implementation-policy reviewer would have to invent."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "Skipped per instruction: grepped specs/design-sync-consent/requirements.md and acceptance-tests.md for 'Bounded-Context', 'Domain-Model-Status', and 'domain-contract' - no matches. This feature declares no domain model / Bounded-Context field under specs/design-sync-consent/, so DOMAIN-CONFORMANCE has no scoped surface to check."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a3r2-a-seq0419",
+  "host_session_id": "SESS-spec-a3r2-a-epic136phase3-0419",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-3/round-2/precheck-result.json",
+      "sha256": "04cbee40f48fd676c64b73e9f7abb34123f0e63e42c53bbb4aec4e6095d304a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "4898ed0a8d6976c2c1887b8b260a02e3f4bce4eca1bc4269b5657d6599a89124"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each name a concrete, measurable behavior (exact fixture combinations, exit codes, grep/JSON checks, e.g. AC-001..AC-023 in acceptance-tests.md). Every in-scope requirement is observable enough to validate later; no requirement lacks a concrete verification mechanism."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-NNN maps 1:1 to a contiguous AC block in acceptance-tests.md's TEST-ID table (REQ-001->AC-001..007, REQ-002->AC-008..011, REQ-003->AC-012..015, REQ-004->AC-016..018, REQ-005->AC-019..020, REQ-006->AC-021..023). The mapping itself is structurally complete; the underlying status contradiction for REQ-003/AC-012..015 is captured separately under SCOPE-BOUNDARY and CONSTRAINTS-EXPLICIT rather than here, since the trace links themselves are present and correct."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable outcomes throughout (e.g. AC-005's exit-2/copilot-JSON sub-cases, AC-008..010's 12-named-combination matrices, AC-017's text-marker self-check, AC-022's CHANGELOG entry count) rather than vague intent statements."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Non-goals directly contradicts itself on Stream C's scope status. Bullet 2 states: 'proceeding with Stream C's implementation at all while ADR-0010's Status remains Proposed (Open Questions, OQ-2) ... implementation itself is a recorded Blocker.' The round-2-edited staging bullet (bullet 6) states the opposite: 'ADR-0010's Status: Accepted promotion unblocked Stream C and it landed in this feature ... that deferral's stated premise -- that Stream C is Blocked here -- no longer holds.' The Overview section repeats the stale framing verbatim ('ADR-0010 is still Status: Proposed, so Stream C's implementation is an explicit Blocker'). A task author or implementer reading this Non-goals section alone cannot determine whether Stream C work is out-of-scope-and-not-to-be-done or already-landed-and-requiring-a-registered-CI-step -- the two premises are mutually exclusive within the same section of the same document. This is a spec-review concern, not an implementation- or task-review concern, because the contradiction is intrinsic to requirements.md's own Non-goals text, independent of any implementation evidence -- no task decomposition can safely proceed from a scope boundary that asserts both states at once. Severity is Critical because this is a genuine contradictory-scope condition (per the explicit instruction to classify contradictions as Critical), and it leaves the Non-goals boundary unreviewable as written."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The material approval boundary gating Stream C (ADR-0010's Status) is stated with two mutually exclusive values across requirements.md. Assumptions: 'ADR-0010's Status: Proposed (Re-verification note) holds at spec-authoring time ... RE-VERIFY the ADR's Status: line directly before treating Stream C as unblocked.' Open Questions OQ-2: 'RESOLVED (Blocked pending ADR-0010 Status: Accepted): Stream C does not proceed to implementation while ADR-0010 remains Status: Proposed ... no tests/workflow-scenarios/ file is created, and no CHANGELOG.md entry for #125 is written, until then.' Risks: 'if ADR-0010 is ultimately Rejected rather than Accepted, Stream C's entire REQ-003 scope must be re-scoped.' Roles and Permissions: the human maintainer 'decides when ADR-0010 moves to Status: Accepted' (future tense) and 'CI: ... Stream C's suites do not exist in CI until Stream C unblocks and lands' (future tense). Main Workflows item 3 and Goals REQ-003 both still read 'Blocked pending ADR-0010 Status: Accepted.' All of these directly contradict acceptance-tests.md's own header note in this same round/attempt ('ADR-0010 was promoted to Status: Accepted by human decision (commit 67015a5, 2026-07-22), and epic-136-phase3 T-004 has since authored and landed tests/workflow-scenarios/ + workflow-scenarios.tests.sh') and its AC-022 note that Stream C's #125 CHANGELOG entry is 'now correctly PRESENT ... commit fd4db859' -- the exact opposite of OQ-2's 'no CHANGELOG.md entry for #125 is written, until then.' A downstream implementer cannot determine the true current value of this approval-boundary constraint, nor which of Assumptions/Open Questions/Risks/Roles-and-Permissions/Main-Workflows is still authoritative, from requirements.md alone. This belongs to spec review because approval-boundary constraints are exactly the artifact this gate validates before task decomposition; it is intrinsic text-vs-text contradiction, not implementation or quality-gate evidence. Severity is Critical per the explicit instruction to classify contradictions and approval-boundary inconsistencies as Critical, and because this is precisely the 'missing/contradictory approval boundary that makes the specification unreviewable' condition the calibration document names."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every entry in the Risks section names a concrete mitigation with a validation surface (e.g. Stream B's 12-combination matrix mitigated by AC-008/009/010's explicit per-combination enumeration; Stream D's step-renaming risk mitigated by AC-017's text-marker self-check plus human reviewer verification of GitHub branch-protection settings). The High-risk ADR-0010 entry's factual staleness (it still frames ADR-0010's outcome as pending) is captured under CONSTRAINTS-EXPLICIT rather than here, since a stated mitigation/validation surface is nonetheless present for the risk as written."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no domain/ directory, domain/context-map.md, or domain/domain-contract.json is present in the allowed input manifest for this invocation, and requirements.md carries no `Bounded-Context:` field. Per calibration, when domain/ is absent (or its approval status/contract cannot be established from allowed inputs), this check is recorded as skipped."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+Requirement-traceability check passed for T-007:
+ - tasks.md T-007 -> REQ-007; REQ-007 in requirements.md and traceability.md; T-007 in traceability.md
+ - AC/TEST-033 present in acceptance-tests.md, referenced by T-007, and implemented in the suite
+   (tests/apply-human-copy.tests.sh 221 TEST-033 references, tests/apply-human-copy.tests.ps1 164)
+ - traceability.md T-007 row also names docs/adr/0025-human-copy-transactional-bundle.md as an
+   evidence artifact: the file is present, but it was committed by e28ba891 (round-1 impl-review
+   remedy) rather than by this task's implementation commit, so the Done-When wording
+   "committed as part of this task's implementation commit" is literally unmet. The deviation is
+   disclosed and was recorded, not adjudicated as a defect, in the seq0362 PASS report.
+ - NOTE: the second-approver signature on the evidence bundle (Risk: critical) is a HUMAN action
+   still outstanding; it is deliberately NOT performed by this chain-authoring session.

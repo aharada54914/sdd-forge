@@ -1,0 +1,31 @@
+T-007 RED evidence (acceptance-first/TDD required workflow) -- tests/effort-policy-flip.tests.sh
+Captured: 2026-07-21T14:40:29Z
+Pre-flip state (select-agent-model --effort-policy default is still 'welded')
+
+Pre-flip blob sha256 (git hash-object, i.e. git-authenticated RED per repo convention):
+  plugins/sdd-implementation/scripts/select-agent-model.sh  = 659eda79aee75b78f14bbb3d9beb5d638f1f714e
+  plugins/sdd-implementation/scripts/select-agent-model.ps1 = 708d9157b074855b9e070f110eee9095a7a08bdd
+Pre-flip content sha256 (shasum -a 256, cross-check):
+  select-agent-model.sh  = 33a13ed26203d927921ef96e14c042f4aa23301179c2f1e1a7a067eb113b99e9
+  select-agent-model.ps1 = 31b9c99bd6f2dc0e9bdac8fbeed915d92afd288cede05f9ab7500fd0ac915b34
+Line-18/16 default value (verified before this run):
+effort_policy="welded"
+  [ValidateSet('welded','matrix')][string]$EffortPolicy = 'welded',
+
+==== bash tests/effort-policy-flip.tests.sh ====
+not ok: TEST-041: default still resolves to welded (effort_source=welded, effort=xhigh) -- the flip has not landed yet (raw={"available_candidates":["openai/gpt-5.2-codex"],"canonical_tier":"strong","effort":"xhigh","effort_control":"none","effort_source":"welded","escalation":null,"estimated_cost_per_attempt_usd":"1.0","model":"openai/gpt-5.2-codex","xhigh_reason":"TEST-041 fixture (effort-policy-flip suite)"})
+ok: TEST-041 (welded carve-out, OQ-004): --effort-policy welded still reproduces the pre-flip declared value (xhigh) explicitly
+ok: TEST-042: first production role_defaults render is zero-diff (---- check summary: 10 targets, 0 drift ----)
+not ok: TEST-043: USERGUIDE.md does not describe the matrix-default effort policy
+not ok: TEST-043: docs/agent-capability-matrix.md does not describe the matrix-default effort policy
+not ok: TEST-043: CHANGELOG.md does not describe the matrix-default effort policy
+skip: TEST-044: real Codex-host smoke skipped -- SDD_ALLOW_REAL_CODEX_SMOKE not set to 1 (real 'codex' invocation is an autonomous coding-agent CLI, not opted into from an automated suite run; see reports/implementation/epic-159-pillar-c/T-007.md Unresolved Items)
+ok: TEST-045: A3 (2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f) is an ancestor of the implementation-time HEAD (e5d61cbc2e01dbd0726c423fd45cb739bf67ca60)
+ok: TEST-045: T-001..T-006's Phase 1 merge commit (825d6c6623ba98b6588a3c9942420dd13fceec88, PR #185) is an ancestor of the implementation-time HEAD
+ok: TEST-045: prerequisite gate satisfied at implementation time (the RELEASE-COMMIT re-run against the actual tagged release is the caller's own job at release time -- this suite verifies the implementation-time HEAD, not a release tag that does not exist yet)
+ok: TEST-046: current branch (feature/epic-159-pillar-c-t007) is T-007-scoped, distinct from any T-001..T-006 branch
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh (the separate release is the caller's own, later step)
+ok: TEST-046: process-conformance proxy satisfied (full proof -- a genuinely separate GitHub PR -- is verified by the caller at PR-creation time, outside what a local test suite can observe)
+---- summary: pass=8 fail=4 skip=1 ----
+not ok: effort-policy-flip suite FAILED (4 failures, 1 skipped)
+exit_code=1

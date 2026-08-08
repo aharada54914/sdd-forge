@@ -18,7 +18,24 @@
 
 **初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 
+## エージェントモデルルーティング — Effort Policy
+
+`select-agent-model` の `--effort-policy` は、T-007 (Issue #155,
+epic-159-pillar-c Phase 2) 以降、既定値が `matrix` になった
+(`risk_effort_matrix` に基づくリスク連動 effort 選択 + escalation bump +
+`supported_efforts` へのクランプ)。Phase 1 (T-001..T-006) の既定であった
+`welded`(effort を tier に溶接した従来挙動)は、`--effort-policy welded`
+を明示すれば引き続き無期限にフルサポートされる(非推奨化なし、OQ-004)。
+詳細は [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)
+の「Effort Policy: `welded` vs. `matrix`」節と
+[docs/adr/0012-effort-tier-decoupling.md](docs/adr/0012-effort-tier-decoupling.md)
+を参照。
+
 ## MCP サーバー
+
+MCP サーバーが提供する情報は SDD ワークフローに対して常に **助言的（advisory）** です。エージェントは各 tool の応答を判断材料として利用しますが、それによって `tasks.md` の Approval / Status 判定や品質ゲートの合否確認といったファイルベースの手続きを自動的に進めたり、その判定を上書きしたりすることはありません。SDD ワークフローの決定権は常にファイルベースの手続き側にあり、MCP はそれを補助する情報源にとどまります。
+
+また、この read-only な助言層としての位置づけを維持するため、write tool（状態を変更・作成・進行させる tool）をこれらの MCP サーバーに追加しない方針を継続しています。以下の `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` はいずれも読み取り専用の tool のみを登録しており、将来の機能拡張であってもこの方針は変わりません。
 
 ### sdd-forge-mcp
 
@@ -80,10 +97,10 @@ MCP サーバーがどのリポジトリを SDD ルートとして扱うかは�
 |---|---|
 | `evidence_get_bundle` | `specs/<feature>/verification/<taskId>.evidence.json` をそのまま読み取り（署名フィールドも含め検証はしない） |
 | `evidence_validate_paths` | evidence bundle 内の各アーティファクトパスが path-guard の allowlist 内にあるか・実在するかを報告 |
-| `evidence_find_missing` | Done 遷移に必要な要件（evidence bundle・verification contract・PASS の品質ゲートレポート）の有無を報告（check-task-state.sh の Done evidence チェック相当） |
+| `evidence_find_missing` | Done 遷移に必要な要件（evidence bundle・verification contract・PASS の品質ゲートレポート）の有無を報告（check-task-state.sh の Done evidence チェック相当）。`reports/quality-gate` のディレクトリ走査自体が失敗した場合は `missing` ではなく第3の配列 `undeterminable` に振り分ける（`present`/`missing`/`undeterminable` の3配列が `required` を過不足なく分割する）。なお `get_task_state` は意図的に変更しておらず、走査失敗のタスクを引き続き `done-quality-gate-report-missing` として報告する |
 | `evidence_summarize_contract_checks` | `<taskId>.contract.json` の各チェックの required/passes/waiverReason/requirementIds を要約 |
-| `evidence_compare_to_traceability` | `traceability.md` の REQ→Task・AC→TEST→Task 表と `tasks.md` のタスクID、各タスクの verification contract の requirementIds と traceability.md の宣言 REQ-ID を突き合わせ |
-| `evidence_deep_verify` | evidence bundle を再検証：各成果物の sha256 をディスク上から再計算して記録値と突合、正準 artifacts ダイジェスト・spec_revision・git_commit 40-hex 形状・contract/report クロスバインドの不変条件を検証し、決定論的な pass/fail verdict と failures リストを返す。署名鍵は読まず、署名検証も行わない（verified:false、host 責務）、git 祖先検証も行わない（host-deferred）。 |
+| `evidence_compare_to_traceability` | `traceability.md` の REQ→Task・AC→TEST→Task 表と `tasks.md` のタスクID、各タスクの verification contract の requirementIds と traceability.md の宣言 REQ-ID を突き合わせ。contract が読めずクロスチェックを試行できなかったタスクは `unreadableContracts`（`{ taskId, reason }`、`reason` は `parseVerificationContract` の失敗メッセージそのまま）に列挙する（`Done` に限定せず全タスクが対象。`matches`/`mismatches` の計数意味は不変） |
+| `evidence_deep_verify` | evidence bundle を再検証：各成果物の sha256 をディスク上から再計算して記録値と突合、正準 artifacts ダイジェスト・spec_revision・git_commit 40-hex 形状・contract/report クロスバインドの不変条件を検証し、決定論的な pass/fail verdict と failures リストを返す。署名鍵は読まず、署名検証も行わない（verified:false、host 責務）、git 祖先検証も行わない（host-deferred）。この host 委譲の2件は、入れ子の `invariants.gitCommit`/`signature` に加えてトップレベルの `hostRequiredChecks`（`git-commit-ancestry` と `signature-verification` の常に2件、`verified:false` 固定、`note` は既存の計算済み文字列をそのまま再利用）にも掲出される。`hostRequiredChecks` は助言的メタデータであり `verdict` にも `failures` にも一切影響しない。 |
 
 #### resources（5種）
 

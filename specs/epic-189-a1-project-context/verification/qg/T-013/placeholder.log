@@ -1,0 +1,85 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+    specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml \
+    specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256 \
+    tests/project-context-schema.tests.sh \
+    tests/approver-registry-schema.tests.sh \
+    tests/guard-staging-exemption.tests.sh \
+    specs/epic-189-a1-project-context/verification/T-013/t013-evidence.sh
+Placeholder scan passed.
+exit=0
+
+SCOPE NOTE: the six paths above are T-013's entire changed source surface.
+Derived from the commit range rather than from the task's Planned Files list, so
+that a path changed but not planned could not slip past. `git diff --name-only
+71e0f0f2 HEAD` lists 54 paths (71e0f0f2 = `git rev-parse --short 4e848ea6^`, the
+commit immediately before T-013's first commit), and the six above are exactly
+that list minus CHANGELOG.md (handled below) and minus the frozen spec/report
+artifacts, which are not production surface: tasks.md, the implementation report,
+the quality-gate report, the carryover note, the identity ledger and the seq0372
+pending manifest, and the 45 recorded artifacts under verification/T-013/ (the
+harness's own A-/B-/C-/D-/E- outputs and the 25 raw per-suite logs under
+B-per-suite/). The harness SCRIPT itself, t013-evidence.sh, is NOT treated as a
+recorded artifact - it is executable shell that this task authored, so it is
+scanned.
+
+WHY THIS SURFACE IS SMALLER THAN T-012'S THIRTEEN PATHS, stated because the
+shrinkage is the point of the task rather than an omission. T-013 is a closing
+AUDIT: it adds no suite and no production script (tasks.md:2713, "Out of Scope:
+Any new production script or schema"). Its only edits to executable test code are
+the three one-line `pwd -P` normalizations required by AC-029, and its only edit
+to a staged protected candidate is the CI registration reconciliation.
+
+tests/run-all.sh AND tests/run-all.ps1 ARE ABSENT FROM THE SCANNED SET, and that
+absence is itself a measured result rather than an oversight: neither file appears
+in `git diff --name-only 71e0f0f2 HEAD` at all. T-013 needed no new runner entry,
+which is the audit's own Part-1 finding (all 25 suites were already registered by
+T-001..T-012). A path this task did not change is not part of this task's changed
+surface.
+
+MANIFEST.sha256 is INCLUDED in the scan above even though it carries no prose,
+because it is a path this task changed and the scanner is cheap; it contributes
+no findings.
+
+CHANGELOG.md EXCLUDED, with the reason MEASURED rather than assumed. Running the
+same scan with CHANGELOG.md appended fails with 5 findings, all of them in
+long-standing prose that DESCRIBES the placeholder scanner's own behaviour:
+
+  $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh <the six above> CHANGELOG.md
+  Placeholder scan FAILED (5 finding(s)):
+   - CHANGELOG.md:1085:  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+   - CHANGELOG.md:1086:  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+   - CHANGELOG.md:1095:  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+   - CHANGELOG.md:2074:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+   - CHANGELOG.md:2084:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+  Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+  exit=1
+
+PROOF that none of the five is T-013's, by re-running the scanner on the pre-T-013
+tree rather than by inspection alone:
+
+  $ git archive 71e0f0f2 | tar -x -C <scratch dir outside the repository>
+  $ cd <scratch dir> && bash plugins/sdd-quality-loop/scripts/check-placeholders.sh CHANGELOG.md
+  Placeholder scan FAILED (5 finding(s)):
+   - CHANGELOG.md:1049:  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+   - CHANGELOG.md:1050:  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+   - CHANGELOG.md:1059:  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+   - CHANGELOG.md:2038:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+   - CHANGELOG.md:2048:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+  exit=1
+
+The same five findings, same texts, at line numbers exactly 36 LOWER
+(1049/1050/1059/2038/2048 -> 1085/1086/1095/2074/2084). That offset is not a
+coincidence and was checked against the diff rather than eyeballed: T-013's
+CHANGELOG change is a single insertion of 36 lines. `git log --oneline
+71e0f0f2..HEAD -- CHANGELOG.md` names exactly one commit, ac30805b, and
+`git diff --unified=0 71e0f0f2 HEAD -- CHANGELOG.md` reports a single hunk header,
+`@@ -653,0 +654,36 @@`. So T-013 introduced no marker; it appended 36 lines above
+five pre-existing ones and shifted them by exactly 36.
+
+This is the same exclusion T-012's log recorded, and the line numbers reconcile
+across the two rounds: T-012's log recorded these findings at 1049/1050/1059/
+2038/2048, which is precisely the pre-T-013 state measured above.
+
+SCANNER SANITY. The scan is not vacuous: the same binary, run over the same six
+paths plus one more file, DOES report findings and exits 1, as shown above. A
+clean result from this scanner is therefore a measurement, not a silent no-op.

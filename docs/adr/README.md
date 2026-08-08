@@ -113,3 +113,5 @@ must never rely on a bare legacy number.
 | 0023 | Track Selection Contract Migration | Accepted |
 | 0024 | Workflow State Registry vs. Project Context | Accepted |
 | 0025 | Registry Discovery Contract | Accepted |
+| 0025 | Risk-Adaptive Adversarial Review Lane | Proposed |
+| 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |

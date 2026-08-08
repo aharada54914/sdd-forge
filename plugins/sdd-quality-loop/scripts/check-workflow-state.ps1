@@ -1,8 +1,20 @@
 # Validate the repository-wide SDD workflow state. Keep rule IDs in parity with Bash.
 $ErrorActionPreference = "Stop"
 
-function Stop-WorkflowState([string]$Feature, [string]$Rule, [string]$Message) {
+# WFI-021: diagnostics accumulate across independent features instead of
+# exiting at the first one. Inside a feature's validation scope
+# Stop-WorkflowState throws a sentinel the per-feature loop catches (so the
+# short-circuit WITHIN a feature is retained); outside feature scope it
+# still exits immediately. The run exits non-zero at the end if any fired.
+$script:WorkflowStateFailed = 0
+$script:FeatureScopeActive = $false
+$script:WorkflowStateFeatureAbort = "workflow-state-feature-abort"
+function Write-WorkflowStateDiagnostic([string]$Feature, [string]$Rule, [string]$Message) {
     [Console]::Error.WriteLine("workflow-state: ${Feature}: ${Rule}: ${Message}")
+}
+function Stop-WorkflowState([string]$Feature, [string]$Rule, [string]$Message) {
+    Write-WorkflowStateDiagnostic $Feature $Rule $Message
+    if ($script:FeatureScopeActive) { throw $script:WorkflowStateFeatureAbort }
     exit 1
 }
 function Get-Sha256([string]$Path) {
@@ -85,6 +97,17 @@ function Get-NormalizedHash([string]$Path, [string]$Stage) {
     $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
     $sha = [Security.Cryptography.SHA256]::Create()
     # PS5.1-safe (no [Convert]::ToHexString, .NET 5+ only).
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+function Get-RereviewNormalizedHash([string]$Path, [string]$Status) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace($text, "(?m)^Task-Review-Status:[^\r\n]*(\r?)$", 'Task-Review-Status: Passed$1')
+    $text = [regex]::Replace($text, "(?m)^Approval:[^\r\n]*(\r?)$", 'Approval: Approved$1')
+    $text = [regex]::Replace($text, "(?m)^Status:[^\r\n]*(\r?)$", "Status: ${Status}`$1")
+    $text = [regex]::Replace($text, "(?m)^Second Approval:[^\r\n]*\r?\n?", '')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
     try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
@@ -220,6 +243,41 @@ function Test-ManifestHashForFile(
     $historical = Get-PluginsHashAtPin $pin $trimmed
     if (-not $historical) { return $false }
     return Test-ManifestHash $Contract $Suffix $historical $RepositoryRoot
+}
+# A reviewed document's recorded hash legitimately takes either of two forms.
+# An ordinary review runs while the stage's status field still reads `Pending`
+# (impl-review-precheck enforces that), so the reviewers record the raw bytes
+# and the post-review flip to `Passed` is absorbed by Get-NormalizedHash. A
+# re-review of an already-passed feature (--provenance-rereview) necessarily
+# runs while the field already reads `Passed` -- that mode refuses to start
+# otherwise -- so the reviewers record the raw bytes of THAT state, which no
+# normalization can reproduce. Accepting either form does not weaken
+# provenance: both prove the reviewers read the document's current body, and
+# an edit to the body still matches neither.
+function Test-ReviewedHash([string]$FilePath, [string]$Stage, [string]$Candidate) {
+    if ([string]::IsNullOrEmpty($Candidate)) { return $false }
+    if ($Candidate -eq (Get-NormalizedHash $FilePath $Stage)) { return $true }
+    if ($Candidate -eq (Get-Sha256 $FilePath)) { return $true }
+    if ($Stage -eq "task") {
+        # A task-stage re-review binds the raw bytes of an executable state;
+        # the quality gate's later Done flips are lifecycle transitions, not
+        # body edits, and are absorbed by the two re-review canonical forms
+        # (mirrors the bash twin's rereview_normalized_hash).
+        if ($Candidate -eq (Get-RereviewNormalizedHash $FilePath "Implementation Complete")) { return $true }
+        if ($Candidate -eq (Get-RereviewNormalizedHash $FilePath "Done")) { return $true }
+    }
+    return $false
+}
+function Test-ManifestReviewedHash(
+    $Contract, [string]$Suffix, [string]$FilePath, [string]$Stage, [string]$RepositoryRoot
+) {
+    if (Test-ManifestHash $Contract $Suffix (Get-NormalizedHash $FilePath $Stage) $RepositoryRoot) { return $true }
+    if (Test-ManifestHash $Contract $Suffix (Get-Sha256 $FilePath) $RepositoryRoot) { return $true }
+    if ($Stage -eq "task") {
+        if (Test-ManifestHash $Contract $Suffix (Get-RereviewNormalizedHash $FilePath "Implementation Complete") $RepositoryRoot) { return $true }
+        if (Test-ManifestHash $Contract $Suffix (Get-RereviewNormalizedHash $FilePath "Done") $RepositoryRoot) { return $true }
+    }
+    return $false
 }
 function Test-AllowedLayerSupersetPath(
     [string]$Path, [string]$Feature, [string]$Stage, [string]$RepositoryRoot, [string]$RecordedRoot
@@ -434,32 +492,43 @@ $RepoRoot = (Resolve-Path (Join-Path $SpecsRoot "..")).Path
 $duplicate = @($RegistryData.entries | Group-Object feature | Where-Object Count -gt 1 | Select-Object -First 1)
 if ($duplicate) { Stop-WorkflowState $duplicate[0].Name "registry-duplicate" "feature is registered more than once" }
 $declared = @{}
+$script:RegistryFailedFeatures = @{}
 foreach ($entry in @($RegistryData.entries)) {
     $feature = [string]$entry.feature
     $declared[$feature] = $true
-    $candidate = Join-Path $SpecsRoot $feature
-    if (-not (Test-Path -LiteralPath $candidate -PathType Container)) {
-        Stop-WorkflowState $feature "registry-dangling-entry" "registered specification directory is missing"
-    }
-    $item = Get-Item -LiteralPath $candidate -Force
-    if ($item.LinkType) {
-        $target = [string]$item.Target
-        if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path $item.Parent.FullName $target }
-        $resolved = [IO.Path]::GetFullPath($target)
-    } else {
-        $resolved = (Resolve-Path -LiteralPath $candidate).Path
-    }
-    $prefix = $SpecsRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    if (-not ($resolved + [IO.Path]::DirectorySeparatorChar).StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
-        Stop-WorkflowState $feature "registry-path-escape" "registered directory escapes specs root"
-    }
-    if ($item.LinkType) {
-        Stop-WorkflowState $feature "registry-linked-entry" "registered specification directory must not be linked"
+    $script:FeatureScopeActive = $true
+    try {
+        $candidate = Join-Path $SpecsRoot $feature
+        if (-not (Test-Path -LiteralPath $candidate -PathType Container)) {
+            Stop-WorkflowState $feature "registry-dangling-entry" "registered specification directory is missing"
+        }
+        $item = Get-Item -LiteralPath $candidate -Force
+        if ($item.LinkType) {
+            $target = [string]$item.Target
+            if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path $item.Parent.FullName $target }
+            $resolved = [IO.Path]::GetFullPath($target)
+        } else {
+            $resolved = (Resolve-Path -LiteralPath $candidate).Path
+        }
+        $prefix = $SpecsRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+        if (-not ($resolved + [IO.Path]::DirectorySeparatorChar).StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+            Stop-WorkflowState $feature "registry-path-escape" "registered directory escapes specs root"
+        }
+        if ($item.LinkType) {
+            Stop-WorkflowState $feature "registry-linked-entry" "registered specification directory must not be linked"
+        }
+    } catch {
+        if ([string]$_.Exception.Message -ne $script:WorkflowStateFeatureAbort) { throw }
+        $script:WorkflowStateFailed++
+        $script:RegistryFailedFeatures[$feature] = $true
+    } finally {
+        $script:FeatureScopeActive = $false
     }
 }
 foreach ($directory in @(Get-ChildItem -LiteralPath $SpecsRoot -Directory -Force)) {
     if (-not $declared.ContainsKey($directory.Name)) {
-        Stop-WorkflowState $directory.Name "registry-unregistered-directory" "specification directory is not registered"
+        Write-WorkflowStateDiagnostic $directory.Name "registry-unregistered-directory" "specification directory is not registered"
+        $script:WorkflowStateFailed++
     }
 }
 if ($FeatureFilter -and -not $declared.ContainsKey($FeatureFilter)) {
@@ -738,11 +807,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     }
     if ($Stage -eq "impl") {
         $design = Join-Path $FeatureDir "design.md"
-        $designHash = Get-NormalizedHash $design "impl"
-        if (-not (Test-ManifestHash $contract "/specs/$Feature/design.md" $designHash $RepoRoot)) {
+        if (-not (Test-ManifestReviewedHash $contract "/specs/$Feature/design.md" $design "impl" $RepoRoot)) {
             Stop-WorkflowState $Feature "stage-provenance" "implementation design hash is stale"
         }
-        if ([string]$contract.design_sha256 -ne $designHash) {
+        if (-not (Test-ReviewedHash $design "impl" ([string]$contract.design_sha256))) {
             Stop-WorkflowState $Feature "stage-provenance" "implementation top-level design hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
@@ -775,11 +843,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
     } elseif ($Stage -eq "task") {
         $tasks = Join-Path $FeatureDir "tasks.md"
-        $tasksHash = Get-NormalizedHash $tasks "task"
-        if (-not (Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHash $RepoRoot)) {
+        if (-not (Test-ManifestReviewedHash $contract "/specs/$Feature/tasks.md" $tasks "task" $RepoRoot)) {
             Stop-WorkflowState $Feature "stage-provenance" "task plan hash is stale"
         }
-        if ([string]$contract.tasks_sha256 -ne $tasksHash) {
+        if (-not (Test-ReviewedHash $tasks "task" ([string]$contract.tasks_sha256))) {
             Stop-WorkflowState $Feature "stage-provenance" "task top-level plan hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
@@ -862,6 +929,9 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
 foreach ($entry in @($RegistryData.entries)) {
     $feature = [string]$entry.feature
     if ($FeatureFilter -and $feature -ne $FeatureFilter) { continue }
+    if ($script:RegistryFailedFeatures.ContainsKey($feature)) { continue }
+    $script:FeatureScopeActive = $true
+    try {
     $profile = [string]$entry.profile
     $directory = Join-Path $SpecsRoot $feature
     if ($profile -eq "lite") { continue }
@@ -903,7 +973,7 @@ foreach ($entry in @($RegistryData.entries)) {
             }
         }
         foreach ($status in $statuses) {
-            if ($status -notin @("Planned", "In Progress", "Implementation Complete", "Done")) {
+            if ($status -notin @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")) {
                 Stop-WorkflowState $feature "task-lifecycle" "task status is invalid"
             }
         }
@@ -923,7 +993,7 @@ foreach ($entry in @($RegistryData.entries)) {
             }
         }
         if (($taskText -match "(?m)^Approval:\s*Approved" -or
-             $taskText -match "(?m)^Status:\s*(In Progress|Implementation Complete|Done)") -and
+             $taskText -match "(?m)^Status:\s*(In Progress|Blocked|Implementation Complete|Done)") -and
             ($spec -ne "Passed" -or $impl -ne "Passed" -or $task -ne "Passed")) {
             Stop-WorkflowState $feature "task-lifecycle" "executable task state requires all reviews Passed"
         }
@@ -931,7 +1001,14 @@ foreach ($entry in @($RegistryData.entries)) {
     if ($spec -eq "Passed") { Test-PassedStage $feature "spec" $directory }
     if ($impl -eq "Passed") { Test-PassedStage $feature "impl" $directory }
     if ($task -eq "Passed") { Test-PassedStage $feature "task" $directory }
+    } catch {
+        if ([string]$_.Exception.Message -ne $script:WorkflowStateFeatureAbort) { throw }
+        $script:WorkflowStateFailed++
+    } finally {
+        $script:FeatureScopeActive = $false
+    }
 }
 
+if ($script:WorkflowStateFailed -gt 0) { exit 1 }
 Write-Output "workflow-state: ok"
 exit 0

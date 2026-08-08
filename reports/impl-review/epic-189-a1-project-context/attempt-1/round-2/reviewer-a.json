@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-a-seq0326",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-189-a1-project-context-0326",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-189-a1-project-context/requirements.md",
+      "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+      "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/design.md",
+      "sha256": "3a68384e14e613e3b9e1397d5407c740b0e97dc4a840986955555c61b828ee5f"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/investigation.md",
+      "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/ux-spec.md",
+      "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+      "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/infra-spec.md",
+      "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/security-spec.md",
+      "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json",
+      "sha256": "c72ec033e5a92f5fe9995aca524880fd8c45b5c37b4fee7f5d4a5584ee700cb3"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "schema + security-infrastructure (no UI, no new plugin, no Provider integration)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's '## Architecture' section (lines 45-120) satisfies all three required elements. (1) Top-level component boundaries: a mermaid flowchart names every new/existing component (PC/PB content files, SCHEMA_PC/SCHEMA_PB, CANON, GEN, STAGE, REG, ANCHOR, DETECT, VALIDATE, PUBLISHER, GUARD, GINV, HANDSHAKE, AGENT, ENTRYPOINTS) with labeled edges describing each boundary's interaction (e.g. 'CANON -->|canonical hash| SIDE_PC', 'GUARD -->|full write-deny, no sudo bypass, 4-basename x 12-call-site matrix| SIDE_PC'). (2) Integration with existing components: GUARD is explicitly labeled 'sdd-hook-guard.py ... (EXISTING, unchanged decision logic)'; GINV is 'guard-invariants.json + generate-guard-invariants.py + generated/* (REQ-007, human-copy edit via PUBLISHER)'; SHIP/BOOT/INTERVIEWER/LITESPEC/LITEGATE map to five existing SKILL.md files listed in the Components table as 'existing, edited'/'existing, human-applied'. (3) Technology choices per layer: the Components table (lines 124-158) has an explicit 'Technology' column for every row (Python, POSIX sh/PowerShell/Node.js, JSON Schema, YAML, JSON, Markdown), and frontend-spec.md's Technology Stack table restates the same choices with rationale/constraint columns. This is a multi-paragraph, multi-edge description, not a one-sentence component-naming summary."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "An explicit component dependency graph is present (Architecture mermaid diagram + Components table), so this was checked directly rather than SKIPped. Tracing edges: DETECT depends on ANCHOR ('ANCHOR -.->|default-resolved trust anchor| DETECT'); ANCHOR is produced by PUBLISHER ('PUBLISHER -.->|publishes in lockstep with the sidecar| ANCHOR'); PUBLISHER depends on VALIDATE ('VALIDATE -->|staged candidate PASSES| PUBLISHER'); VALIDATE depends on STAGE ('STAGE -.->|pre-publish validation| VALIDATE'); STAGE is produced by GEN ('GEN -->|...| STAGE'); and GEN depends on DETECT ('DETECT -->|verdict, recomputed fresh, never trusted from a file| GEN'). This closes a directed cycle: GEN -> STAGE -> VALIDATE -> PUBLISHER -> ANCHOR -> DETECT -> GEN. However, this is not a structural/instantiation circular dependency of the kind this check targets (e.g. two modules mutually importing each other, creating ambiguous build/initialization order). Each edge represents a separate, sequential CLI-tool invocation at a distinct point in time within an approval lifecycle (generate -> stage -> validate -> publish -> anchor advances -> a LATER detect/generate cycle re-reads the new anchor); design.md explicitly documents that every step re-derives its inputs fresh rather than caching or assuming simultaneous mutual state ('DETECT ... never trusted from a file', 'Generator/validator never trust an externally-supplied verdict, and never re-derive from a caller-suppliable anchor', requirements.md REQ-006). There is no ambiguous initialization order, no simultaneous mutual instantiation, and no concrete implementation/verification failure mode identified from this loop -- it is the intended, documented shape of a rolling-trust-anchor approval workflow (analogous to a CI pipeline whose output becomes a later run's cached input, not a circular-import defect). No structural cycle defect found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' section (lines 299-437) provides all three required sub-fields. 'Data Entities:' enumerates every new/modified file with full field shape: sdd/project-context.yaml, contracts/project-context.template.yaml, sdd/provider-bindings.yaml, the two approval sidecars, the staging area, sdd/approver-registry.yaml, sdd/.hook-canary-sentinel, the two sdd/.approved-context/*.approved.yaml anchors, the PROTECTED-MANIFEST.md, and the human-copy staging directory, plus a 'Field Requirement Matrix' of every REQUIRED JSON Pointer. 'Existing Data Affected:' names guard-invariants.json, generate-guard-invariants.py, the four generated/guard_invariants.* files (read throughout, written only via apply-human-copy), and PLUGIN-CONTRACTS.md (edited directly); it also states explicitly that no existing production sdd/*.yaml instance exists anywhere in the repository today, citing a verifying find command. 'Migration Strategy:' is explicit: 'none. Every artifact this epic defines is wholly new; no existing schema, script, or content file is migrated in place.' All three required sub-fields are present with concrete content, not placeholders."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## API / Contract Plan' section (lines 439-928) is the CLI/schema-tool analogue of an API contract for this no-UI, script-based feature (design.md header: 'Feature Type: schema + security-infrastructure ... no UI, no new plugin, no Provider integration'; frontend-spec.md explicitly states 'The closest analog -- each script's CLI argument contract, exit-code taxonomy, and stdout/stderr framing -- is fully specified in design.md's API / Contract Plan'). It lists every new schema/script contract this epic introduces (contracts/project-context.schema.json and provider-bindings.schema.json and approval-sidecar.schema.json, full JSON Schema bodies; the canonicalization procedure's exact I/O framing and exit-code contract; the HMAC preimage and signing contract; the Weakening-detector approved-context anchor CLI contract ('detect-policy-weakening.py --candidate <path> [--approved-context <path>]'); the Human-copy publisher transactional bundle contract) with request/response-equivalent input and output schemas for each. The one existing 'contract' this epic changes behavior for -- PLUGIN-CONTRACTS.md's Track Detection CLI-flag semantics (REQ-009, ADR-0023) -- is explicitly disclosed as a breaking behavior change (full+--lite moves from silent override to an explicit error-stop) in multiple places (Security Boundary B5, Constraint Compliance table row 'CLI-flag stricter-only once Project Context exists', Edge Cases), even though that disclosure sits outside the literal API/Contract Plan section header. Given requirements.md's User Stories name user-facing interactions (a project maintainer, a sdd-ship operator, a CI maintainer), API-COVERAGE's applicability trigger is met and satisfied."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md contains one '## Security Boundaries' section (lines 1486-1499, a B1-B9 table: Trust Boundary | Auth/Authz Mechanism | Data Classification | Concern), so the primary (TYPE-D) path applies. It (1) names every trust boundary the feature crosses -- nine named boundaries covering content/approval separation, sidecar/registry write elevation, HMAC key custody, policy-weakening self-approval, track-selection fail-open, generator self-defense, hook-activation handshake integrity, human-copy publish integrity, and publisher self-protection; (2) states the authN/authZ mechanism at each boundary in a dedicated column (e.g. B2: 'full write-deny, no sudo bypass ... REQ-007/REQ-008'; B3: 'SDD_CONTEXT_KEY resolution ... never read by an agent-driven signing operation'); (3) addresses data classification for every asset -- each row is classified 'internal', and security-spec.md's Data Classification and Protection table (which explicitly states it 'expands design.md's Security Boundaries (B1-B9) ... into the review harness's canonical layer-file shape') confirms 'No PII, and no provider-specific detail, is stored by any artifact this Epic designs'; (4) addresses OWASP Top 10 concerns -- each B-row's 'Concern' column names a STRIDE category (Tampering, Elevation of Privilege, Spoofing, Repudiation, Broken Access Control), and security-spec.md's dedicated OWASP Mapping table (Injection, Broken Access Control, Cryptographic Failures, Security Misconfiguration, Software and Data Integrity Failures, Identification and Authentication Failures) provides the full canonical OWASP framing with per-row Control/Verification/Owner columns, each traceable to a specific AC. Treating the layer spec as design.md's normative expansion (as this review's own instructions direct), no required item is missing."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's header field reads 'Feature Type: schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) -- no UI, no new plugin, no Provider integration.' While this is not a verbatim match to one of the four literal skip values (api-only/frontend-only/cli/library), it is functionally equivalent to a cli/library feature type for this check's purpose: ux-spec.md states 'N/A -- no change: this Epic has no UX surface'; frontend-spec.md states 'N/A -- no change: this Epic introduces no browser/client UI and no new runtime service ... no browser UI, no client-side state, no routes, and no API client of this Epic's own'; and design.md itself contains no '## Frontend Plan' or '## Backend Plan' section for this check to compare against the API / Contract Plan. There is no frontend/backend split to check for consistency."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Test Strategy' section (lines 1018-1257, 12 top-level items plus lettered sub-items) covers all required elements. Unit scope: items 1-7c specify per-script unit proofs (dual-runtime hash equality, anchor/alias/tag/duplicate-key rejection, NFC/JCS determinism, HMAC preimage exclusion/golden-vector/mutation proofs, key-resolution byte-parity, six-way validator negative proof, weakening-category coverage, glob-narrowing boundary cases). Integration scope: item 8 (96-cell protected-file write-boundary matrix spanning sdd-hook-guard.py's 12 call sites), item 10 (human-copy anchored-publisher + multi-target crash-recovery proof), item 10e (30-assertion full per-consumer common-contract-suite matrix across all five REQ-009 entry points) all test component boundaries together. Acceptance approach: every item is explicitly tied to specific AC-NNN/TEST-NNN identifiers (e.g. 'REQ-006, AC-030', 'AC-033/TEST-033'), and acceptance-tests.md provides the reciprocal Requirement/Test-ID mapping table. Concrete planned evidence: named test artifacts (tests/*.tests.sh/.ps1 pairs, tests/run-all.sh/.ps1 registration, staged .github/workflows/test.yml via human-copy, 'generate-guard-invariants.py --check' as an existing CI signal) are identified throughout, not merely described in the abstract. This is a no-UI feature (ux-spec.md/frontend-spec.md, both N/A), so the fullstack E2E/user-journey bullet does not apply; the closest analogue -- the full per-consumer, per-runtime workflow proof (item 10e, item 9's per-runtime handshake fixture simulation) -- is present regardless."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has no '## Frontend Plan' or '## Backend Plan' sections, so only '## Architecture' and '## API / Contract Plan' were checked against '## Components' (lines 122-158). Every named node in the Architecture mermaid diagram resolves to a Components table row or another named subsection: PC/PB, SCHEMA_PC/SCHEMA_PB, CANON, SIDE_PC/SIDE_PB, GEN, REG, ANCHOR, DETECT, VALIDATE, PUBLISHER, GUARD, GINV, SENTINEL, HANDSHAKE, PLUGIN-CONTRACTS.md/SHIP/BOOT/INTERVIEWER/LITESPEC/LITEGATE all have direct Components-table rows. Rollup labels (GINV_STAGE, ENTRYPOINTS) name only already-individually-defined components. STAGE (sdd/.staging/<schema-id>/<nonce>/) is defined in the Data Plan section as 'REQ-004, new, UNPROTECTED staging area' with its own bullet, satisfying 'defined ... as a named subsection.' AGENT is a role/actor (not a file component), covered by the '## Roles and Permissions' section's 'Agent:' entry. Every schema/script named in the API / Contract Plan (project-context/provider-bindings/approval-sidecar schemas, canonicalize-sdd-yaml, generate-approval-sidecar, validate-approval-sidecar, detect-policy-weakening, apply-human-copy) has a matching Components-table row. No undefined component reference was found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## ADR Change Log' section now lists 'docs/adr/0025-human-copy-transactional-bundle.md' as a new ADR (closing round 1's sole finding) alongside references to ADR-0016, 0018, 0019, 0020, 0023. Verified directly on disk: all seven referenced ADR files exist -- docs/adr/0011-phase2-handle-relative-protected-copy.md, 0016-workflow-axes-separation.md, 0018-provider-binding-separation.md, 0019-approval-sidecar-protection.md, 0020-conditional-predicate-dsl.md, 0023-track-selection-contract-migration.md, and the new 0025-human-copy-transactional-bundle.md (dated 2026-07-21, Status: Accepted). ADR-0025 is substantive, not a stub: its Context section quotes ADR-0011's own disclaimed residual verbatim ('Each target rename is atomic, but the 18-target batch is not one transaction ... must be recovered with a reviewed full rollback batch'), its Decision section reproduces the identical six-step journaled prepare/journal/commit/complete/crash-recovery/reader-check protocol design.md's own 'Human-copy publisher transactional bundle contract' section describes, and its Verification section cross-references AC-033/TEST-033 and security-spec.md's Security Tests table by name -- this is a genuine formalization of already-approved design content, not new substantive design change, matching the human-edit summary. Checked design.md's own claim that no other new architecture decision needs an ADR: the approver-registry file (sdd/approver-registry.yaml, REQ-006/OQ-001) is explicitly reasoned as a supporting artifact for ADR-0019 item 6's already-Accepted 'approver registry' concept, not an independent decision, and design.md itself flags it as a revisitable, low-cost follow-up if impl-review disagrees. The hook-activation handshake redesign (REQ-010, host-canary challenge/response protocol) is new to this repository but is grounded in the Foundation-level 'decision doc §7 v2' Epic A1 implements throughout (the same authorizing source the rest of this design cites), and -- unlike the transactional-bundle case -- does not contradict or supersede any existing ADR's stated consequences/residual; it is a redesign of implementation approach for an already-decided requirement, not a new departure from an existing architectural commitment. No further undocumented ADR-worthy departure was found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP: this check applies only when the target project has a `design-system/` directory. Verified directly (`ls -d design-system` from the repository root) that no such directory exists anywhere in this repository (re-verified for round 2; unchanged from round 1). design.md also carries no `## Design System Compliance` section (grepped for the string across design.md and requirements.md: zero matches). Per this check's own applicability rule, record as skipped and emit PASS. (Orchestrator note: this check and DOMAIN-CONFORMANCE below are absent from the installed/cached copy of this agent's own definition at ~/.claude/plugins/cache and ~/.local/share/sdd-plugins, which are stale relative to this worktree's plugins/sdd-review-loop/agents/impl-reviewer-a.md; the orchestrator completed these two entries mechanically per the worktree's canonical check text, using the same repository-state verification the agent itself performed for the other 9 checks, so the review remains schema-complete against the worktree's own current review policy.)"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP: this check applies only when the target project has a `domain/` directory with `domain/context-map.md` recording `Domain-Model-Status: Approved` and a schema-valid `domain/domain-contract.json`. Verified directly (`ls -d domain` from the repository root) that no `domain/` directory exists anywhere in this repository (re-verified for round 2; unchanged from round 1). requirements.md also carries no `Bounded-Context:` field (grepped for the string across design.md and requirements.md: zero matches). Per this check's own applicability rule, record as skipped and emit PASS. (See orchestrator note on DESIGN-SYSTEM-CONFORMANCE, above.)"
+    }
+  ]
+}

@@ -57,7 +57,12 @@ const INSPECTOR_CLI_ENTRYPOINT = join(
   "cli.js",
 );
 
-const INSPECTOR_TIMEOUT_MS = 30_000;
+// 120s, not 30s: the real-repo smoke legs scan the whole repository through a
+// spawned CLI, and PR #229's Windows CI showed the scan legitimately exceeding
+// 30s on a windows-latest runner (SIGTERM at exactly 30013ms with empty
+// stdout/stderr — a timeout, not a hang: the same leg passes in seconds on
+// POSIX runners and the suite still bounds runaway processes).
+const INSPECTOR_TIMEOUT_MS = 120_000;
 
 before(() => {
   if (existsSync(DIST_ENTRYPOINT)) {

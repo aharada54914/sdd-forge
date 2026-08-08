@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-qualityloopfixes-spec-a1r2-a-seq0322",
+  "host_session_id": "SESS-spec-a1r2-a-qualityloopfixes-0322",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-2/precheck-result.json",
+      "sha256": "0507212bd59dbf7c225c6f4a906d105568bed35cc8bef8a87a976cd6ba7fd358"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "1bef87cf1043b3c387c2994fed1173c51501b119f2cdf46978cac6d936fc378b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "14e186eade6e8715baa15200c8a32b3af0418d52e047aa8286ee8769cddf5513"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each resolve to exit-code/output-string/file-content assertions (AC-001..AC-030) or, for REQ-004's SKILL.md prose step, explicit reviewed-text assertions (AC-019..021, AC-031) that the calibration document permits for document/skill-prose deliverables ('document conformance' test type, non-UI). No in-scope requirement is stated only as intent; each has a concrete pass/fail decision procedure an implementer or verifier can execute."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goals-section requirement traces to a listed AC set: REQ-001->AC-001..007, REQ-002->AC-008..012, REQ-003->AC-013..018, REQ-004->AC-019..021 plus AC-031 (round-2 addition), REQ-005->AC-022..026, REQ-006->AC-027..028, REQ-007->AC-029..030. The round-2 edit (precheck edit_summary) added AC-031/TEST-031 specifically to give REQ-004 a positive-continuation branch, completing its branch set alongside AC-020 (failure) and AC-021 (no-op) -- the round-1 EDGE-CASE-COVERAGE gap is closed."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete externally observable outcomes: exit codes (AC-001, AC-003), anchored-line/grep matches (AC-002, AC-008..010), printed digest/gap-list presence or absence (AC-015, AC-016), file-hash equality (AC-006, AC-014), and reviewed exact-wording text states for SKILL.md (AC-019..021, AC-031, each stating what the reviewed text must explicitly say). None are stated as vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes the directory-move remedy, WFI-010 header-association restoration, a general-purpose Markdown table parser, a general coverage-manifest schema outside cross-model-verify, guard-list extension to validate-review-context-set.sh, a .ps1 twin for Stream 4, and Phase 2 artifacts (tasks.md/traceability.md) -- each with a stated reason bounding the feature's blast radius."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table (B1..B4) states path-containment, hash-normalization-scope, protected-file, and fixture-isolation constraints; Roles and Permissions distinguishes agent-direct-edit files from the two human-copy-staged protected targets (ship/SKILL.md, .github/workflows/test.yml) with a shared MANIFEST.sha256 approval boundary; Field Definitions/Assumptions record the feature-slug grammar and WFI-013 re-verification constraints for shared git-tracked state (protected-file list, run-all.ps1 convention, identity-ledger tail)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section lists Stream 1's breaking CLI change (mitigated by AC-004/AC-006), Stream 2's coverage-gap risk (mitigated by AC-011), Stream 3's path-traversal risk (mitigated by security-spec.md STRIDE plus AC-014's reuse of the existing validated parser, exercised by TEST-015..017), Stream 4's cross-host parity drift (mitigated by REQ-006/AC-028), and the dual-protected-file review surface (mitigated by the shared MANIFEST.sha256). Every named risk cites a specific AC or process mitigation as its validation surface."
+    }
+  ]
+}
