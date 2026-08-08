@@ -54,7 +54,18 @@ $tests = @(
     'tests/plugin-contracts-track-selection.tests.ps1',
     'tests/ship-track-selection-migration.tests.ps1',
     'tests/design-sync-standing-consent.tests.ps1',
-    'tests/design-sync-scan.tests.ps1'
+    'tests/design-sync-scan.tests.ps1',
+    'tests/human-copy-runner-contract.tests.ps1',
+    'tests/check-risk-upgrade-byte-identical.tests.ps1',
+    'tests/check-risk-upgrade-capability-merge.tests.ps1',
+    'tests/check-risk-upgrade-fragment-fail-closed.tests.ps1',
+    'tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1',
+    'tests/lite-spec-capability-block.tests.ps1',
+    'tests/lite-gate-summary-consumption.tests.ps1',
+    'tests/lite-gate-summary-absent.tests.ps1',
+    'tests/lite-gate-summary-invalid.tests.ps1',
+    'tests/lite-gate-full-upgrade-backstop.tests.ps1',
+    'tests/lite-gate-summary-absent-active-enforcement.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,
