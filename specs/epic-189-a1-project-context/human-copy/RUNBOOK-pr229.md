@@ -1,8 +1,11 @@
-# Human-copy runbook — PR #229 external-review fixes (3 findings) + publisher mode-preservation fix
+# Human-copy runbook — PR #229 external-review fixes (3 findings) + publisher mode-preservation fix + Windows R-10 fail-open
 
-Applies four R-10-protected scripts from their staged candidates. An agent
-cannot perform any step here; the hook guard denies every write to these
-live paths and that denial must never be bypassed.
+Applies R-10-protected scripts from their staged candidates, as eight
+single-target batches: batches 1-5 below, then batches 6-8 (the three
+`sdd-hook-guard` twins — see "Batch 6-8"). The two groups are independent and
+may be applied in either order. An agent cannot perform any step here; the hook
+guard denies every write to these live paths and that denial must never be
+bypassed.
 
 The `apply-human-copy.{sh,ps1}` candidates in this batch additionally carry
 a fourth fix, found while rehearsing this very runbook: the publisher now
@@ -184,6 +187,160 @@ The layout resolvers in the two generator suites (`staged_rel_sidecar` /
 report whichever layout the generator produced, and after the apply that is
 always the new one.
 
+## Batch 6-8 — R-10 fail-open on native-Windows absolute paths (the three guard twins)
+
+Independent of batches 1-5 above; apply in either order. The three basenames
+(`sdd-hook-guard.ps1`, `sdd-hook-guard.py`, `sdd-hook-guard.js`) are distinct
+from each other and from every basename in batches 1-5, so no pair can hit the
+publisher's `DUPLICATE_BASENAME_IN_BATCH` refusal (exit 19). They are still
+applied as three separate single-target batches, for the same
+failure-isolation reason as above.
+
+### What is wrong
+
+CI run 31226882417, job `version-gates (windows-latest)`, step "Test hook-guard
+epic-a1 write-boundary matrix (pwsh)": every **surface 05 (cwd-absolute)**
+AC-023 cell in `tests/hook-guard-epic-a1-boundary.tests.ps1` failed with
+`expected exit 2, got 0` — in BOTH sudo lanes. The live guard **ALLOWED** a
+write to a protected gate file. This is a real fail-open in the enforcement
+chain, not a test defect.
+
+`Join-Path` emits the platform separator, so on native Windows the suite's
+`$absolute` is `D:\...\sdd\project-context.approval.json`. That path:
+
+1. makes the tokenizer return `$null`/`None`/`null` — an unquoted backslash is
+   an unmodeled construct, by design since #117; and
+2. does not contain the registry's POSIX-separator suffix
+   `sdd/project-context.approval.json`, because its own separator is `\`.
+
+The R-10 pre-filter's tokenizer-`null` fallback scanned only the **raw** command
+text, so it missed the path and reported "no protected path" — and
+`shell_targets_protected_gate_file` returns "allow" immediately on that. The
+single-path matcher (`_is_protected_gate_file`) has always normalized
+separators; this fallback did not. Only the separator immediately BEFORE the
+registered suffix mattered, which is why POSIX never saw it.
+
+Reproduced on macOS against the live twins with a hand-built Windows path
+(all three ALLOWED, exit 0), and against the staged candidates (all three
+DENY, exit 2). A POSIX-absolute control stayed DENY throughout.
+
+### The fix
+
+In each twin's `command_references_protected_path`, the fallback now scans a
+separator-normalized copy of the command in addition to the raw text — the same
+normalization the single-path matcher already applies. Scanning both can only
+ADD matches, so no command that was denied before becomes allowed, and the
+issue-#62 read-only short-circuit is untouched (read-only access to a protected
+path still returns allow).
+
+The `.js` candidate additionally gains a fix for a second, pre-existing gap
+found in the same block: its fallback iterated `PROTECTED_GATE_SUFFIXES` only
+and never `PROTECTED_GATE_PLUGIN_JSON_SUFFIXES`, which the `.py`/`.ps1` twins
+have always scanned. The JS twin was the outlier; all three now agree.
+
+| # | Live path (R-10 protected) | Basename |
+|---|---|---|
+| 6 | `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1` | `sdd-hook-guard.ps1` |
+| 7 | `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` | `sdd-hook-guard.py` |
+| 8 | `plugins/sdd-quality-loop/scripts/sdd-hook-guard.js` | `sdd-hook-guard.js` |
+
+### Step A — verify the staged bytes
+
+```sh
+cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+STAGE=specs/epic-189-a1-project-context/human-copy
+while read -r want path; do
+  case "$path" in plugins/sdd-quality-loop/scripts/sdd-hook-guard.*) ;; *) continue ;; esac
+  got=$(shasum -a 256 "$STAGE/$path" | awk '{print $1}')
+  [ "$got" = "$want" ] && echo "OK   $path" || echo "STOP $path (got $got want $want)"
+done < "$STAGE/MANIFEST.sha256"
+```
+
+Expect exactly three `OK` lines. Expected digests (also in `MANIFEST.sha256`):
+
+```
+28edb5796a6b557666f34655430b83f62f1266fd0628b9e40bd4a5d444e44e6f  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+d0bdab976c1f7321503cc61205fd2dbcbbd37631492e6689a38b6f334447894a  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+6e1e8c1a4225e36a593c61ae4f2d02a543f9f6f025569b31a3a9e966dce1f500  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+```
+
+### Step B — apply, one single-target batch at a time
+
+**These three targets ARE the guard the hook runs.** Each `mv` swaps the
+directory entry atomically, so an in-flight hook invocation keeps reading its
+original inode and no tool call ever sees a half-written guard.
+
+```sh
+cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+STAGE=specs/epic-189-a1-project-context/human-copy
+APPLY=plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+M=$(mktemp -d)
+
+for p in \
+  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 \
+  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py \
+  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+do
+  grep -F "  $p" "$STAGE/MANIFEST.sha256" > "$M/one.sha256"
+  echo "=== applying $p ==="
+  cat "$M/one.sha256"
+  sh "$APPLY" --staging-dir "$STAGE" --manifest "$M/one.sha256" || { echo "FAILED on $p — stop here"; break; }
+done
+```
+
+Each batch must print `{"status":"ok","recovered":0,"targets":["<path>"]}`.
+
+### Step C — verify (live == staged, byte for byte)
+
+```sh
+cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+STAGE=specs/epic-189-a1-project-context/human-copy
+for p in \
+  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 \
+  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py \
+  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+do
+  cmp -s "$STAGE/$p" "$p" && echo "OK   $p" || echo "STOP $p differs"
+done
+git diff --summary -- plugins/sdd-quality-loop/scripts/
+```
+
+`git diff --summary` should print nothing (all three targets are `0644` live
+and staged; if batches 1-2 have already been applied the mode-preserving
+publisher keeps it that way).
+
+### Step D — re-run the affected suites in both lanes
+
+```sh
+cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+for t in hook-guard-epic-a1-boundary guard-invariants-epic-a1; do
+  sh "tests/$t.tests.sh"   > "/tmp/$t.sh.log"  2>&1; echo "$t.sh  rc=$?  $(tail -2 /tmp/$t.sh.log | tr '\n' ' ')"
+  pwsh -NoProfile -ExecutionPolicy Bypass -File "tests/$t.tests.ps1" > "/tmp/$t.ps1.log" 2>&1; echo "$t.ps1 rc=$?  $(tail -2 /tmp/$t.ps1.log | tr '\n' ' ')"
+done
+sh tests/guards.tests.sh > /tmp/guards.sh.log 2>&1; echo "guards.sh rc=$?"
+```
+
+Expected on macOS (unchanged from the pre-apply run — the `WIN05-*` assertions
+already exercise the staged bytes, which are now also the live bytes):
+
+| suite | bash | pwsh |
+|---|---|---|
+| hook-guard-epic-a1-boundary | 228 passed, 0 failed | 224 passed, 0 failed |
+| guard-invariants-epic-a1 | 81 / 0 | 85 / 0 |
+
+`tests/guards.tests.sh` exits `rc=2` with exactly one failure
+(`sh: copilot deny -> JSON deny`) both BEFORE and AFTER this batch. That
+failure is pre-existing on this branch and unrelated to these three targets —
+do not treat it as caused by the apply, and do not "fix" it here.
+
+**Only real Windows CI can confirm the headline result.** The 8 surface-05
+AC-023 cells (4 basenames x 2 sudo lanes) in
+`tests/hook-guard-epic-a1-boundary.tests.ps1` run against the LIVE guard, so
+they stay red on `windows-latest` until this batch is applied, and no local
+macOS run can turn them green. After the apply, re-run job
+`version-gates (windows-latest)` and expect the boundary suite to report
+0 failures.
+
 ## Rollback
 
 Every target is tracked by git and nothing else on disk is touched:
@@ -192,7 +349,11 @@ Every target is tracked by git and nothing else on disk is touched:
 git checkout -- plugins/sdd-quality-loop/scripts/apply-human-copy.sh \
                 plugins/sdd-quality-loop/scripts/apply-human-copy.ps1 \
                 plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
-                plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+                plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py \
+                plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py \
+                plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 \
+                plugins/sdd-quality-loop/scripts/sdd-hook-guard.py \
+                plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
 ```
 
 If a batch died mid-transaction, run `plugins/sdd-quality-loop/scripts/apply-human-copy.sh`
