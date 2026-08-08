@@ -1,0 +1,59 @@
+{
+  "task_id": "T-001",
+  "feature": "design-sync-standing-consent",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "a1c2cbbef0954301d890f22a7830b927ff9825f5d730adc7b9a15a91d9166d59",
+  "quality_report": "reports/quality-gate/20260808T043830Z-design-sync-standing-consent-T-001.md",
+  "verification_contract": "specs/design-sync-standing-consent/verification/T-001.contract.json",
+  "git_commit": "45a85bf776603a04cbb186b975cf34daacade017",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001.contract.json",
+      "sha256": "f22cbf5345675ffe5db653c5147f87cc33b55dc0eb65dd3ba1a00e7b584818e1"
+    },
+    {
+      "path": "reports/quality-gate/20260808T043830Z-design-sync-standing-consent-T-001.md",
+      "sha256": "930854a9ae67abafa40dfe0c2b72aa04e4668576f537cd71e3ae3f4b83615f26"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/acceptance-mapping.md",
+      "sha256": "b28a0f5d1a6a8ed4d2abb3bb8126956cb9aada5628945e5b58e6f48855e64be0"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/red-baseline-sh.log",
+      "sha256": "2e418a03f6adf147f77f90f825415c67518c2e87cb4ee4578cae6767544aea84"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/placeholder-T-001.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/run-all.log",
+      "sha256": "9108c63769e473afd748a0569b457022d583589eb8fb1cbc2225ace1d3da535d"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    }
+  ]
+}

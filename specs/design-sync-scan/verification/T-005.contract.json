@@ -1,0 +1,108 @@
+{
+  "task_id": "T-005",
+  "feature": "design-sync-scan",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "96a7e24f77fc38c17494d839ea7db2dfcf29b0e88a20cfab1b7b5957f9bdaed2",
+  "created": "2026-08-08T03:38:47Z",
+  "comment": "T-005 (tests/run-all.{sh,ps1} registration + prerequisite re-verification, acceptance-first, reports/implementation/design-sync-scan/T-005.md). Standalone: 75 passed / 0 failed. Tail-harness (run-all's exact per-suite loop body, last three array entries): this task's own two entries pass; the harness's own sole failure is design-system-contract's pre-existing designed-red TEST-039 (unrelated). Full real `bash tests/run-all.sh` (27m37s) reaches and passes both newly-registered entries -- see verification/T-005/run-all-sh-full.log, reused as this feature's regression evidence (qg/run-all.log).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- POSIX shell / PowerShell script pair plus Markdown/test assertions; unlike design-sync-consent, this feature ships a real executable artifact (design.md Architecture Overview), but still authors its verification contract against the shell stack per tasks.md. lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- POSIX shell / PowerShell script pair plus Markdown/test assertions; unlike design-sync-consent, this feature ships a real executable artifact (design.md Architecture Overview), but still authors its verification contract against the shell stack per tasks.md. lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- POSIX shell / PowerShell script pair plus Markdown/test assertions; unlike design-sync-consent, this feature ships a real executable artifact (design.md Architecture Overview), but still authors its verification contract against the shell stack per tasks.md. lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/placeholder-T-005.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/T-005/standalone-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/T-005/tail-harness-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/run-all.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

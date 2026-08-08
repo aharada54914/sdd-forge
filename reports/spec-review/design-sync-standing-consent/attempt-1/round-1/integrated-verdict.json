@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "design-sync-standing-consent",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "RUN-designsyncstandingconsent-spec-a1r1-a-seq0542",
+  "reviewer_b_run_id": "RUN-designsyncstandingconsent-spec-a1r1-b-seq0543",
+  "reviewer_a_host_session_id": "SESS-spec-a1r1-a-designsyncstandingconsent-0542",
+  "reviewer_b_host_session_id": "SESS-spec-a1r1-b-designsyncstandingconsent-0543",
+  "finding_counts": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

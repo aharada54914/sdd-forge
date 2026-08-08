@@ -1,0 +1,90 @@
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+FAIL: TEST-011 staged signing succeeds (exit 0; got 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+FAIL: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist
+FAIL: TEST-011 approved-context snapshot is byte-exact with the live content file
+sha256sum: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json: No such file or directory
+sha256sum: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approved.yaml: No such file or directory
+grep: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/MANIFEST.sha256: No such file or directory
+cat: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/MANIFEST.sha256: No such file or directory
+FAIL: TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes (manifest: )
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; print(json.load(open('/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json'))['context_sha256'])
+                                 ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json'
+FAIL: TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256 (got , want sha256:814be91d61b46921c66c505299bc15643a06bd9ad1eda46eb10c161675363c4a)
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    d = json.load(open('/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json'))
+                  ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json'
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; print(json.load(open('/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json'))['hmac'])
+                                 ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test.rvcB6K/stage-t011/project-context.approval.json'
+FAIL: TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation (got 8b341492acf24dec84c532f43d604459bce830a31e5de2f2b2bcb1ca123c2143, want )
+FAIL: TEST-011 no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY (got exit 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-011 no-key refusal writes NO staged artifact at all
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-012 two sidecars differing ONLY in hmac produce an identical preimage
+FAIL: TEST-013 case 1/4 (env var): identical key bytes to _resolve_sudo_key
+FAIL: TEST-013 case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+FAIL: TEST-013 case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+FAIL: TEST-013 case 4/4 (none resolvable): both resolvers return None
+PASS: TEST-034 the live sidecar path is never opened for writing (byte-identical before/after)
+FAIL: TEST-034 a simulated failure after the sidecar write leaves no partial artifact (exit 2; stage exists: no)
+PASS: TEST-034 no stray temp staging directory remains after a simulated failure
+FAIL: TEST-034 a simulated failure after the snapshot write leaves no partial artifact (exit 2; stage exists: no)
+FAIL: TEST-034 a re-run after a mid-write failure succeeds with a fresh nonce/staging subdirectory (rc=2 before=0 after=0)
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+FAIL: TEST-036 golden vector's HMAC matches the hand-verified expected value (got 8b341492acf24dec84c532f43d604459bce830a31e5de2f2b2bcb1ca123c2143, want 93d361de8a9f97d9ff173b6db8764a606a885440e7534164dd31e1f2826d4b07)
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating schema changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating context_sha256 changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating primary_approval.status changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating primary_approval.approver changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating primary_approval.approved_at changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating second_approval.status changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating second_approval.approver changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating second_approval.approved_at changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating effective_at changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating predecessor_context_sha256 changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating weakening_verdict.policy_weakening changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating weakening_verdict.categories.capability_enforcement_weakened changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating weakening_verdict.two_person_required changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating weakening_verdict.cooldown_hours changes the HMAC
+/opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-036 mutating approval_epoch changes the HMAC
+FAIL: SEAM bootstrap (no live sidecar): signing succeeds (exit 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+FAIL: SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1 (got predecessor= verdict= epoch=)
+FAIL: SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE (exit 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: SEAM non-bootstrap: writes NO staged candidate
+FAIL: TEST-HARDEN(a) identical primary/second approver id refused (exit 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-HARDEN(a) DUPLICATE_APPROVER_IDENTITY refusal writes no staged artifact
+FAIL: TEST-HARDEN(b) an invalid-UTF-8 approver id is rejected cleanly (exit 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-HARDEN(b) hostile-field refusal writes no staged artifact
+FAIL: TEST-HARDEN(c) a missing required argument (--live-sidecar) is a clean usage error (exit 2; stderr: /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+PASS: TEST-HARDEN(c) --status not exactly "Approved" is a clean usage error (exit 2)
+PASS: self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 twin exists
+PASS: 29
+FAIL: 21

@@ -425,9 +425,9 @@ else
   fail "TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)"
 fi
 
-# TEST-026 -- structural, load-bearing (security-spec.md:169): every path
-# in the Loop that reaches an upload call passes the named pre-upload
-# point first. Deliberately scans only `write_files` (the call the
+# TEST-026 -- structural, load-bearing (security-spec.md:169): the
+# consent-already-holds path routes to the named pre-upload point, and every
+# upload call follows that point. Deliberately scans only `write_files` (the call the
 # security-spec.md B1 boundary and the loop's own Push step name as the
 # actual sender), not `finalize_plan` too: `finalize_plan` is legitimately
 # *discussed*, never called, inside step 4's disclosure (the OQ-6 hedge
@@ -439,6 +439,18 @@ fi
 test_026_no_bypass() {
   cp_line=$(loop_line_of 'Pre-upload check point')
   [ -n "$cp_line" ] || return 1
+  consent_holds_target=$(printf '%s\n' "$LOOP_SECTION" | awk '
+    /^[[:space:]]*- \*\*\(a\)/ { in_outcome_a = 1 }
+    in_outcome_a && /continue to [0-9]+ with no prompt/ {
+      match($0, /continue to [0-9]+/)
+      target = substr($0, RSTART, RLENGTH)
+      sub(/^continue to /, "", target)
+      print target
+      exit
+    }
+    in_outcome_a && /^[[:space:]]*- \*\*\(b\)/ { exit }
+  ')
+  [ "$consent_holds_target" = "5" ] || return 1
   upload_lines=$(printf '%s\n' "$LOOP_SECTION" | grep -n -E 'write_files' | cut -d: -f1)
   [ -n "$upload_lines" ] || return 1
   for l in $upload_lines; do
@@ -609,7 +621,7 @@ else
   fail "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
 fi
 
-if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not a persisted refusal|no standing forbiddance'; then
+if printf '%s' "$LOOP_FLAT" | grep -Eiq 'not the same thing as a decline at 4'; then
   pass "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
 else
   fail "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"

@@ -1,0 +1,90 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-a-attempt3-seq0334",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-189-a1-project-context-attempt3-seq0334",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "f348205f4e171780091bec3fb2cebc27f9991fd9eb3556040daf25a7bc8e25f2"},
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-1/precheck-result.json", "sha256": "9679d851567b8d9b22e4874fca383caa7478e75d88945b47c71265af42f58925"}
+  ],
+  "verdict": "BLOCKED",
+  "legacy_design": false,
+  "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) — no UI, no new plugin, no Provider integration",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md's own ## Architecture section (45-120) and Components table (122-158) adequately state top-level component boundaries, existing-component integration, and per-component technology choices. But the package's technology-choice record is NOT consistent across the design + its normative layer-spec refinements: design.md's ## Design Decisions (1292-1315, revised 2026-07-24, human decision-3) and the matching ## Constraint Compliance row (1603) now REQUIRE canonicalize-sdd-yaml.py to use a 'HAND-WRITTEN, stdlib-only, RESTRICTED YAML-SUBSET parser ... no third-party YAML library, no requirements.txt', explicitly retiring the prior PyYAML/ruamel.yaml choice ('that condition FAILED at the actual implementation session ... neither module exists in the target environment'). frontend-spec.md's Technology Stack row (line 17) and Dependencies table (31-33) still state the literal reverse: 'YAML parsing library (canonicalizer's own dependency) | PyYAML or `ruamel.yaml` ... confirmed available at a future implementation session' and 'a hand-rolled parser was considered and rejected in favor of a standard library'. security-spec.md's SBOM and Supply Chain section (169-175) repeats the same stale claim, citing design.md's own 'Design Decisions' for a claim that section no longer makes. An implementer or CI dependency-audit following the layer specs' Dependencies/SBOM sections would add a third-party YAML dependency design.md explicitly forbids, reintroducing the exact permissive-parsing risk ('PyYAML's SafeLoader silently keeps the LAST occurrence of a duplicate key by default') the amendment's own rationale names — a direct, unresolved contradiction of a required constraint for the component the entire HMAC/approval trust chain depends on."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No cycle found. design.md's Technical Summary (11-36) states an explicit, linear REQ-numbered dependency chain: REQ-001/REQ-002 -> REQ-003 -> REQ-004/REQ-006 -> REQ-005/REQ-009; REQ-007 is a precondition every other script depends on; REQ-008 relies on REQ-007's registration; REQ-010 is wired into REQ-009's five entry points; REQ-011 closes every REQ above. The Architecture diagram (45-120) matches this chain with no back-edge from a later-consumed component to an earlier producer. The apparent round-trip HANDSHAKE -> AGENT -> GUARD -> AGENT -> HANDSHAKE (99-105) is an intentional host-mediated challenge/response protocol (runtime data/control flow), not a structural build/import dependency cycle — none of the three requires another to be built first."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (299-437) specifies Data Entities (project-context.yaml, provider-bindings.yaml, the template scaffold, both approval sidecars, the staging directory, approver-registry.yaml, the hook-canary-sentinel, the approved-context snapshots, PROTECTED-MANIFEST.md/human-copy staging tree, plus a Field Requirement Matrix, 406-424), Existing Data Affected (guard-invariants.json/generate-guard-invariants.py/generated/* files and PLUGIN-CONTRACTS.md, 426-434), and Migration Strategy ('none. Every artifact this epic defines is wholly new; no existing schema, script, or content file is migrated in place.', 436-437) — all three required sub-fields present with explicit rationale."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (439-1030) gives dedicated CLI/schema-contract subsections for 3 of 4 new JSON Schemas (project-context, provider-bindings, approval-sidecar, each a full ```json body) and 4 of 5 new script families (canonicalize-sdd-yaml, generate-approval-sidecar, detect-policy-weakening, apply-human-copy). Two gaps: (1) `contracts/approver-registry.schema.json` (REQ-006, covered by AC-044/045/046) gets only a one-line Components-table row (130) and a prose field list in Data Plan (357-363) — unlike its sibling schemas it never receives its own JSON schema body, though AC-044's parameterized negative test needs a concrete schema to validate against; (2) `check-hook-activation-handshake.py` (REQ-010)'s CLI contract (`--emit-challenge` challenge-JSON schema, `--verify-response --nonce --recorded-result --runtime` per-runtime deny-signature check, `--confirm-cleanup` cleanup-result schema — fully specified in requirements.md 971-1065) never gets a dedicated subsection under API / Contract Plan the way the other four script families do; it appears only as a one-line Architecture-diagram gloss (design.md:101,105). A full heading scan of design.md confirms no 'approver-registry' or 'hook-activation-handshake' contract subsection exists under API / Contract Plan."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Security Boundaries (1557-1569) names nine trust boundaries (B1-B9), each with an Auth/Authz Mechanism column, a Data Classification column (all 'internal', consistent with security-spec.md's 'No PII ... is stored by any artifact this Epic designs'), and STRIDE-labeled Concern entries. security-spec.md's ## OWASP Mapping (131-140), the normative refinement, explicitly maps the design to six OWASP Top 10 categories (Injection, Broken Access Control, Cryptographic Failures, Security Misconfiguration, Software and Data Integrity Failures, Identification and Authentication Failures) with exposure/control/verification/owner. All required elements present."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type header states 'schema + security-infrastructure ... no UI, no new plugin, no Provider integration'. Not literally one of the four listed skip-enum values, but ux-spec.md ('this Epic has no UX surface') and frontend-spec.md ('this Epic introduces no browser/client UI') both independently confirm no frontend/UI layer exists. design.md has no ## Frontend Plan or ## Backend Plan section to compare. Consistency check is not applicable."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (1031-1269) is a 20-item, per-REQ/AC-mapped enumeration covering unit-level fixture scope with explicit mocking statements (item 4, item 9's 'FIXTURE-SIMULATED ... no real LLM session'); integration/component-boundary scope (item 10e's per-consumer common-contract-suite matrix across all five migrated consumers; item 8's 96-assertion protected-write-boundary matrix); acceptance-criteria correspondence (every item cites its AC-NNN/TEST-NNN pair); and concrete planned verification evidence naming actual artifacts (`tests/*.tests.sh`/`.ps1` self-registration in `tests/run-all.sh`, `.github/workflows/test.yml` staged registration, `generate-guard-invariants.py --check`). No browser-based user journey exists (Feature Type: no UI); item 10e's full per-consumer matrix and item 9c's full entry-point wiring inventory serve as this feature's cross-boundary integration-journey equivalent."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component node named in the ## Architecture mermaid diagram and ## API / Contract Plan is defined either in the ## Components table (122-158) or a named design.md subsection (e.g. the staging directory in Data Plan 352-356; TRANSACTION.json in Global Constraints 1547-1555). AGENT is a human/agent actor role (requirements.md Roles and Permissions), not a software component, and is out of this check's scope. No reference to an undefined component was found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (268-297) lists one new ADR, `docs/adr/0025-human-copy-transactional-bundle.md` — verified present on disk (`ls docs/adr/`, dated 2026-07-22). However design.md's ## Design Decisions section (1292-1315) separately cites a DIFFERENT document as an 'ALREADY-REVIEWED' precedent: `docs/adr/0025-component-path-ownership-resolver-semantics.md`. This file does not exist anywhere in this repository's docs/adr/ directory (verified: direct `ls` returns 'No such file or directory'; `grep -ril` for the slug across docs/adr/ finds no match), and the number 0025 is already occupied by this epic's own new ADR. A referenced ADR document that does not exist as a file is a Major finding."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No `design-system/` directory exists in this repository (verified: `ls -d design-system` -> No such file or directory). Check recorded as skipped per applicability condition; PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in this repository (verified: `ls -d domain` -> No such file or directory). Check recorded as skipped per applicability condition; PASS."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncscan-spec-a1r2-a-seq0545",
+  "host_session_id": "SESS-spec-a1r2-a-designsyncscan-0545",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-scan/attempt-1/round-2/precheck-result.json",
+      "sha256": "7a65334c3a7e0575718332b580fc8b8cdba5d95e7df69f7d7d4f8fa395189270"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/investigation.md",
+      "sha256": "67560e11a356a0e26769a01b010aab0695049705b89ee8a47130ebf6bbd44048"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+      "sha256": "f811a6698ef20af859d107041ad3ee7a18abc5ffe3790820007ae88b45614b3b"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All ten requirements decompose into binary-observable criteria: iff-conditioned three-valued exit-code contract with decided precedence (requirements.md:51-77), enumerated per-pattern positives and negatives S1-S7/P1-P2 (requirements.md:87-105; acceptance-tests.md:25-35,89-93), category-differentiated masking branches (requirements.md:117-121), document-conformance and positional/structural techniques for SKILL.md wiring (requirements.md:145,184-188), and cross-runtime parity (requirements.md:206-220). Previously unbounded universal claims are bounded testably: AC-030 runtime-neutrality is a finite named identifier set plus a behavioural two-environment parity fixture (acceptance-tests.md:185-186), and AC-028 is baseline-relative rather than an absolute suite-passes claim (requirements.md:192; acceptance-tests.md:180)."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The issue's three acceptance boxes trace to REQ-004/AC-013..016 (requirements.md:107-129), REQ-005/AC-017..019 (requirements.md:131-145), and REQ-006/AC-020..025 (requirements.md:147-176); the 2026-07-10 runtime addendum traces to REQ-008/REQ-009 (requirements.md:194-220); the step-5 single-attachment goal to REQ-007 (requirements.md:178-192). The round-1 gap is closed: the non-HTML selection boundary stated in Non-goals (requirements.md:241) and Edge Case 4 (requirements.md:252) now traces to AC-039 (requirements.md:45-47) with rows TEST-085/TEST-086 (acceptance-tests.md:94-95). Full AC-to-TEST enumeration for AC-001..AC-039 shows every AC named by at least one Test Matrix or Deferred row."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Criteria assert externally observable exits, report content, record fields, and document text rather than intent: AC-005/006/007 state iff-conditions per exit code with enumerated branches (requirements.md:55-73), AC-014 splits masking into three independently-failable directions (requirements.md:117-121), AC-039 splits the selection boundary into two independently-failable halves each with a concrete fixture assertion (requirements.md:47; acceptance-tests.md:94-95,203-205). Minor note, non-blocking: AC-039's heading and the provenance section say 'round 3' (the document's third revision, counting the interposed adversarial-review round, acceptance-tests.md:219-221) while this gate is at round 2; the provenance note (acceptance-tests.md:223-225) correctly attributes the change to the gate's round-1 reviewer-B finding, so traceability is unambiguous."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Eight explicit non-goals (requirements.md:236-245) bound the feature against entropy-based scanning, in-place redaction, cryptographically-bound override objects, non-HTML scanning, git-history remediation, any DS-29 modification, DS-31, and CI registration. Sibling issue #140 is excluded by name (requirements.md:5); the PII category is capped at exactly two patterns absent a design.md amendment (requirements.md:97); the quality-judgment exclusion is stated as a requirement with two artifact-level TEST rows (requirements.md:141; acceptance-tests.md:164)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001..BL-005 state check-point uniqueness, the frozen DS-29 consent model, the zero-new-failures baseline including the pre-existing designed red, the protected-file boundary staging CI registration to a human, and the workflow-state-registry entry (requirements.md:268-274). Security constraints are explicit: value masking rationale (requirements.md:109), fail-closed exit 2 with no override path (requirements.md:51,68), RFC 2606/6761 exclusions with the .edu correction recorded (requirements.md:97). Compatibility constraints: regex common-subset restriction (requirements.md:253), dual-form S7/P2 expression (requirements.md:105), additive Design-Source extension per the established extensibility rule (requirements.md:172)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every high-risk claim has a planned validation surface: detection efficacy via per-pattern positive and negative fixtures including P2 boundary shapes (acceptance-tests.md:25-35,89-93), masking via matched-value-absence assertions (acceptance-tests.md:157), override no-carry-forward via split TEST-037/TEST-038 (acceptance-tests.md:170), cross-runtime divergence via TEST-049/070-084/086 parity rows (acceptance-tests.md:188-195), and selection-boundary erosion via TEST-085 (acceptance-tests.md:94). Coverage limits are recorded as residual risk rather than claimed closed (requirements.md:17,238), and the unverifiable 'agent actually invokes the scan' limitation is disclosed rather than overclaimed (acceptance-tests.md:179,217). References to design.md and security-spec.md content are planned surfaces owned by later gates; those files are outside this manifest and were not read."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met: no domain/ directory exists at the project root (verified by directory-existence test, the single permitted out-of-manifest probe: 'ls domain' returns no such file or directory), so no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json exist; additionally no domain contract file appears in the allowed-input manifest. The check does not apply and is recorded as skipped."
+    }
+  ]
+}

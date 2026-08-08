@@ -1,0 +1,158 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-standing-consent",
+  "task_id": "T-001",
+  "run_id": "RUN-design-sync-standing-consent-qg-T-001-seq0569",
+  "host_session_id": "SESS-qg-design-sync-standing-consent-T-001-0569",
+  "sequence": 569,
+  "previous_record_sha256": "e198f2643506d3693636749099af9c0b202cdd162f237ca009ba738318e0c51b",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "bce8ac9115ffd041da98bf29af6ae2f7a01bce3687061f9f2082f0694d04b013",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-standing-consent/T-001.md",
+      "sha256": "8f602ef782bd43fb23d59e5415dd10833d5dd603fb2c4b464bbfb16346e67b40"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/design.md",
+      "sha256": "dd05aee2b474a3f1e330d22acd120f9c50a66a61f95ea58f44afcc8d6ba98ac5"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/frontend-spec.md",
+      "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/infra-spec.md",
+      "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/security-spec.md",
+      "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/tasks.md",
+      "sha256": "a3f7467db5bc831cfb287c6d160c4726bf9ff60200d8a7d160499aaddaf8e62f"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/traceability.md",
+      "sha256": "5ed00a950c2ffb43d525493effbe46d77bdf145704535fafe15e17ff6e7ff2a1"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/ux-spec.md",
+      "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/acceptance-mapping.md",
+      "sha256": "b28a0f5d1a6a8ed4d2abb3bb8126956cb9aada5628945e5b58e6f48855e64be0"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/case-sensitivity-sweep-evidence.log",
+      "sha256": "6865539d68b7749470ac8728beb201b0533a290f65ee473bd74b9b5c3c72cdbe"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/ds29-baseline-ps1.log",
+      "sha256": "63d0d8cda5e4b89ee16ae0c6b3b732b144c1d7dec57fa36efab19e035b389098"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/ds29-baseline-sh.log",
+      "sha256": "108dbbeeb70234d0298b7a44740e1b7698292912f7f6f262d8c65fc600b48d03"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/fixtures/fixture-well-formed-AGENTS.md",
+      "sha256": "03b55360ccba7bda714fe2075fd73ed2d355d534bc81b98acbfa365eb38a1eb1"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/fixtures/fixture-well-formed-claude-design-workflow.md",
+      "sha256": "4dbbd9a47d9d0d7cb768cf4e8bd4ed42e7413fdebc98b177608b54496d12e7e5"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/fixtures/fixture-well-formed-design-sync-loop-SKILL.md",
+      "sha256": "49e6691c9e92457b897597e2c145cc6bcc26e9eab7ecff8914f0aa9df2edadfe"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/fixtures/positive-control-ps1.log",
+      "sha256": "6e81eb2de403571a197c0a19ae9e35b72bd6f0056022656304cb9f800d817eba"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/fixtures/positive-control-sh.log",
+      "sha256": "1d31c2e37f8232a0658c88dfb5427ca1ee2da5a752bfa784be0cb1b7919dac3b"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/fixtures/vacuous-fixture-evidence.log",
+      "sha256": "f6389040efe1b6ab704b19f4f7dbe0e34190aa280a4da63c9458303ce4537586"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/red-baseline-ps1.log",
+      "sha256": "2e418a03f6adf147f77f90f825415c67518c2e87cb4ee4578cae6767544aea84"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-001/red-baseline-sh.log",
+      "sha256": "2e418a03f6adf147f77f90f825415c67518c2e87cb4ee4578cae6767544aea84"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/kill-mutant-matrix.log",
+      "sha256": "bb65b430c28f160ac926970e80f86944ca66b835b62286439045c10617083c81"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/mutation-application-log.md",
+      "sha256": "2f6a0086eb57522d188331cabc8c77f5abe7196dea8b1ae342691259c9db27e0"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/nonregression-design-sync-scan-ps1.log",
+      "sha256": "f7188634c5761f2e737a4ef2839c1d547033f733c6f13d1d3f3e7a3a160a9a1b"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/nonregression-design-sync-scan-sh.log",
+      "sha256": "bceeb4faad5f6bcb584564bed4641cedaae63af2a0fd8cf78f9749c40ee343af"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/nonregression-design-system-contract-ps1.log",
+      "sha256": "63d0d8cda5e4b89ee16ae0c6b3b732b144c1d7dec57fa36efab19e035b389098"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/nonregression-design-system-contract-sh.log",
+      "sha256": "108dbbeeb70234d0298b7a44740e1b7698292912f7f6f262d8c65fc600b48d03"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/post-fix-live-tree-ps1.log",
+      "sha256": "549af87974a2cde8674889d4d78ff2028b6510c954289cffad614bf1250019aa"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg-cycle2-fixes/post-fix-live-tree-sh.log",
+      "sha256": "549af87974a2cde8674889d4d78ff2028b6510c954289cffad614bf1250019aa"
+    },
+    {
+      "path": "tests/design-sync-standing-consent.tests.ps1",
+      "sha256": "0523b36539f025355f9cfd4880e8bdb1982b6a28e8fe1dd8ef5b3a0d64503df0"
+    },
+    {
+      "path": "tests/design-sync-standing-consent.tests.sh",
+      "sha256": "e9d46a123b01644767bda520bb34d234d7d58ce82236ea716bdedf2afe115a32"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "f0a1e3f79839e6084f8354f3b214a881a092886ac6615667f3abaf0d68747ecc"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "585466786b7e71da73aed661a41007c9cd1b1df0cfd23c820e15df54872cd1d7"
+    }
+  ]
+}
