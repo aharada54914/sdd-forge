@@ -1,0 +1,1069 @@
+#!/usr/bin/env python3
+"""canonicalize-sdd-yaml: parse a restricted YAML subset (or JSON) and emit
+RFC 8785 (JCS) canonical JSON bytes, or its SHA-256 hash.
+
+REQ-003 (specs/epic-189-a1-project-context/design.md, "Canonicalization
+procedure" and "Design Decisions" (parser library, REVISED 2026-07-24, human
+decision-3 = B, reports/notes/epic-189-a1-decision-3-yaml-parser.md)).
+
+This is a HAND-WRITTEN, stdlib-only, RESTRICTED YAML-SUBSET parser -- no
+third-party YAML library (PyYAML/ruamel.yaml are explicitly retired for this
+tool). It accepts exactly the subset project-context.yaml,
+provider-bindings.yaml, sdd/approver-registry.yaml, and the staged approval
+JSON objects actually use, and rejects everything else fail-closed with a
+named, category-specific diagnostic -- never a best-effort interpretation.
+Every other script in this epic that needs canonical bytes or a canonical
+hash calls into this one script; none reimplements canonicalization
+independently, and this script itself has exactly ONE behavioral
+implementation (the thin `.sh`/`.ps1`/`.js` wrappers beside it dispatch to
+this file; they never reimplement any of this logic).
+
+Accepted subset (normative; design.md Design Decisions):
+  - UTF-8, single document, no leading BOM, no document markers (`---`/`...`);
+  - block mappings (`key: value`; `key:` + indented child block) and block
+    sequences (`- item`; `- key: value` inline-mapping start), nested
+    arbitrarily; indentation is spaces-only;
+  - mapping keys: plain or quoted string scalars (a plain key resolving to a
+    non-string core-schema type is rejected);
+  - scalars: plain, single-quoted (`''` escaping), double-quoted (JSON's
+    escape set exactly, including `\\uXXXX` with surrogate-pair merging);
+    plain scalars resolve per the YAML 1.2 core schema to null/bool/number/
+    string, with the YAML-1.1-only tokens (yes/no/on/off) remaining strings;
+  - the empty flow collections `[]` and `{}` as complete values only;
+  - full-line and space-preceded trailing `#` comments; blank lines.
+
+Everything else -- anchors, aliases, non-core tags, duplicate keys,
+non-string keys, multi-document streams, non-empty flow style, block
+scalars, directives, explicit-key/merge-key syntax, tab indentation, an
+unquoted scalar beginning with a reserved sigil, and any other out-of-subset
+construct -- is rejected fail-closed with its own named category and a
+stable, documented exit code (see CATEGORY_EXIT_CODES below and --help).
+
+Output/exit contract: default invocation writes the canonical UTF-8 bytes to
+stdout byte-exact (no diagnostic text on stdout) and exits 0; `--hash-only`
+writes `sha256:<hex>\\n` to stdout and exits 0; any rejection exits non-zero
+with the diagnostic on stderr only and writes nothing to stdout.
+"""
+import argparse
+import hashlib
+import json
+import math
+import re
+import sys
+import threading
+import unicodedata
+
+EXIT_OK = 0
+EXIT_USAGE_ERROR = 2
+# Reserved: the .sh/.ps1/.js wrappers beside this script use exit 3 for
+# CANONICALIZER_RUNTIME_UNAVAILABLE when neither python3 nor python is on
+# PATH. This script never raises it itself (if it is running, a compatible
+# interpreter was already found) -- documented here so the full exit-code
+# table lives in one place.
+EXIT_RUNTIME_UNAVAILABLE = 3
+# Reserved for RECURSION_DEPTH_EXCEEDED (below): an environment/resource
+# capability signal, the same KIND of exit as EXIT_RUNTIME_UNAVAILABLE --
+# not a member of the 10-28 content-rejection family, since the document
+# itself is accepted-subset-valid in this case (remedy, quality-gate
+# seq0348).
+EXIT_RECURSION_DEPTH_EXCEEDED = 4
+
+CATEGORY_EXIT_CODES = {
+    "CANONICALIZER_RUNTIME_UNAVAILABLE": EXIT_RUNTIME_UNAVAILABLE,
+    "RECURSION_DEPTH_EXCEEDED": EXIT_RECURSION_DEPTH_EXCEEDED,
+    "INVALID_UTF8_REJECTED": 10,
+    "INVALID_JSON_REJECTED": 11,
+    "ANCHOR_REJECTED": 20,
+    "ALIAS_REJECTED": 21,
+    "CUSTOM_TAG_REJECTED": 22,
+    "DUPLICATE_KEY_REJECTED": 23,
+    "NON_STRING_KEY_REJECTED": 24,
+    "MULTI_DOCUMENT_REJECTED": 25,
+    "UNSUPPORTED_SYNTAX_REJECTED": 26,
+    "POST_NFC_DUPLICATE_KEY_REJECTED": 27,
+    "NUMBER_OUT_OF_RANGE_REJECTED": 28,
+}
+
+
+class CanonicalizeError(Exception):
+    """A fail-closed rejection. `category` is one of CATEGORY_EXIT_CODES's
+    keys; `line_no` is 1-based and omitted (None) when not applicable
+    (e.g. JSON-mode and whole-document errors)."""
+
+    def __init__(self, category, message, line_no=None):
+        super().__init__(message)
+        self.category = category
+        self.message = message
+        self.line_no = line_no
+
+
+def _unsupported(message, line_no=None, hint=None):
+    if hint:
+        message = f"{message} (hint: {hint})"
+    return CanonicalizeError("UNSUPPORTED_SYNTAX_REJECTED", message, line_no)
+
+
+# ---------------------------------------------------------------------------
+# Shared UTF-8 / BOM handling
+# ---------------------------------------------------------------------------
+
+def _decode_and_check_bom(data):
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise CanonicalizeError("INVALID_UTF8_REJECTED", f"input is not valid UTF-8: {exc}")
+    if text.startswith("\ufeff"):
+        raise _unsupported("a leading UTF-8 BOM is not accepted", line_no=1)
+    return text
+
+
+def _normalize_and_split(text):
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    return normalized.split("\n")
+
+
+# ---------------------------------------------------------------------------
+# JSON input mode (used for the HMAC preimage path, T-003)
+# ---------------------------------------------------------------------------
+
+def _json_object_pairs_hook(pairs):
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise CanonicalizeError("DUPLICATE_KEY_REJECTED", f"duplicate JSON object key {key!r}")
+        obj[key] = value
+    return obj
+
+
+def _json_reject_constant(constant_text):
+    raise CanonicalizeError(
+        "NUMBER_OUT_OF_RANGE_REJECTED",
+        f"non-finite JSON constant {constant_text!r} is not accepted",
+    )
+
+
+def parse_json_bytes(data):
+    text = _decode_and_check_bom(data)
+    try:
+        return json.loads(
+            text,
+            object_pairs_hook=_json_object_pairs_hook,
+            parse_constant=_json_reject_constant,
+        )
+    except json.JSONDecodeError as exc:
+        raise CanonicalizeError("INVALID_JSON_REJECTED", str(exc))
+
+
+# ---------------------------------------------------------------------------
+# YAML-subset input mode: document-marker detection
+# ---------------------------------------------------------------------------
+
+_DOC_START_RE = re.compile(r"^---(?:[ \t].*)?$")
+_DOC_END_RE = re.compile(r"^\.\.\.(?:[ \t].*)?$")
+
+
+def _check_document_markers(raw_lines):
+    # 0-based line indices, distinct from the 1-based `.line_no` used
+    # elsewhere in diagnostics.
+    start_idxs = [i for i, raw in enumerate(raw_lines) if _DOC_START_RE.match(raw)]
+    end_idxs = [i for i, raw in enumerate(raw_lines) if _DOC_END_RE.match(raw)]
+    if not start_idxs and not end_idxs:
+        return
+
+    # A '---' line ALWAYS opens a new document, whether or not it is the
+    # very first thing in the file: content before the first marker (if
+    # any) is document 1, and each marker opens the next one. Segment the
+    # stream at each '---' (the marker line itself carries no document
+    # content) and count segments that hold real content -- that count is
+    # the true number of documents, independent of how many marker lines
+    # were used to produce it.
+    seg_starts = [0] + [i + 1 for i in start_idxs]
+    seg_ends = start_idxs + [len(raw_lines)]
+    nonempty = [
+        j for j, (a, b) in enumerate(zip(seg_starts, seg_ends))
+        if _has_real_content(raw_lines[a:b])
+    ]
+    if len(nonempty) >= 2:
+        marker_line_no = start_idxs[nonempty[1] - 1] + 1
+        raise CanonicalizeError(
+            "MULTI_DOCUMENT_REJECTED",
+            f"{len(nonempty)} non-empty YAML documents detected in one stream; only a single document is accepted",
+            marker_line_no,
+        )
+    first_marker_line = min(start_idxs + end_idxs) + 1
+    raise _unsupported(
+        "YAML document markers ('---' / '...') are not accepted; this parser accepts exactly one implicit document with no markers",
+        first_marker_line,
+    )
+
+
+def _has_real_content(raw_lines_slice):
+    for raw in raw_lines_slice:
+        ws_len = _leading_ws_len(raw)
+        rest = raw[ws_len:]
+        if rest == "" or rest.startswith("#"):
+            continue
+        if _DOC_START_RE.match(raw) or _DOC_END_RE.match(raw):
+            continue
+        return True
+    return False
+
+
+# ---------------------------------------------------------------------------
+# YAML-subset input mode: tokenizer (indentation + comments -> logical lines)
+# ---------------------------------------------------------------------------
+
+class LogicalLine:
+    __slots__ = ("indent", "content", "line_no")
+
+    def __init__(self, indent, content, line_no):
+        self.indent = indent
+        self.content = content
+        self.line_no = line_no
+
+
+def _leading_ws_len(raw):
+    n = 0
+    while n < len(raw) and raw[n] in (" ", "\t"):
+        n += 1
+    return n
+
+
+def _strip_trailing_comment(rest):
+    in_single = False
+    in_double = False
+    i = 0
+    n = len(rest)
+    while i < n:
+        c = rest[i]
+        if in_single:
+            if c == "'":
+                if i + 1 < n and rest[i + 1] == "'":
+                    i += 2
+                    continue
+                in_single = False
+            i += 1
+            continue
+        if in_double:
+            if c == "\\":
+                i += 2
+                continue
+            if c == '"':
+                in_double = False
+            i += 1
+            continue
+        if c == "'":
+            in_single = True
+        elif c == '"':
+            in_double = True
+        elif c == "#" and i > 0 and rest[i - 1] in (" ", "\t"):
+            return rest[:i].rstrip(" \t")
+        i += 1
+    return rest.rstrip(" \t")
+
+
+def tokenize(text):
+    raw_lines = _normalize_and_split(text)
+    _check_document_markers(raw_lines)
+    logical = []
+    for idx, raw in enumerate(raw_lines):
+        line_no = idx + 1
+        ws_len = _leading_ws_len(raw)
+        if "\t" in raw[:ws_len]:
+            raise _unsupported("tab indentation is not accepted (indentation is spaces-only)", line_no)
+        rest = raw[ws_len:]
+        if rest == "" or rest.startswith("#"):
+            continue
+        content = _strip_trailing_comment(rest)
+        if content == "":
+            continue
+        logical.append(LogicalLine(ws_len, content, line_no))
+    return logical
+
+
+# ---------------------------------------------------------------------------
+# YAML-subset input mode: quoted-scalar parsing
+# ---------------------------------------------------------------------------
+
+def parse_single_quoted(s, start, line_no):
+    i = start + 1
+    n = len(s)
+    out = []
+    while True:
+        if i >= n:
+            raise _unsupported("unterminated single-quoted scalar", line_no)
+        c = s[i]
+        if c == "'":
+            if i + 1 < n and s[i + 1] == "'":
+                out.append("'")
+                i += 2
+                continue
+            i += 1
+            break
+        out.append(c)
+        i += 1
+    return "".join(out), i
+
+
+_DOUBLE_ESCAPES = {
+    '"': '"', "\\": "\\", "/": "/", "b": "\b", "f": "\f",
+    "n": "\n", "r": "\r", "t": "\t",
+}
+_HEX_DIGITS = set("0123456789abcdefABCDEF")
+
+
+def _read_uescape(s, i, line_no):
+    hex_part = s[i:i + 4]
+    if len(hex_part) != 4 or any(ch not in _HEX_DIGITS for ch in hex_part):
+        raise _unsupported("invalid \\u escape in double-quoted scalar", line_no)
+    return int(hex_part, 16), i + 4
+
+
+def parse_double_quoted(s, start, line_no):
+    i = start + 1
+    n = len(s)
+    out = []
+    while True:
+        if i >= n:
+            raise _unsupported("unterminated double-quoted scalar", line_no)
+        c = s[i]
+        if c == '"':
+            i += 1
+            break
+        if c == "\\":
+            if i + 1 >= n:
+                raise _unsupported("trailing backslash in double-quoted scalar", line_no)
+            nc = s[i + 1]
+            if nc in _DOUBLE_ESCAPES:
+                out.append(_DOUBLE_ESCAPES[nc])
+                i += 2
+                continue
+            if nc == "u":
+                code, i = _read_uescape(s, i + 2, line_no)
+                if 0xD800 <= code <= 0xDBFF and s[i:i + 2] == "\\u":
+                    code2, j = _read_uescape(s, i + 2, line_no)
+                    if 0xDC00 <= code2 <= 0xDFFF:
+                        out.append(chr(0x10000 + (code - 0xD800) * 0x400 + (code2 - 0xDC00)))
+                        i = j
+                        continue
+                out.append(chr(code))
+                continue
+            raise _unsupported(f"unknown escape sequence '\\{nc}' in double-quoted scalar", line_no)
+        out.append(c)
+        i += 1
+    return "".join(out), i
+
+
+# ---------------------------------------------------------------------------
+# YAML-subset input mode: core-schema plain-scalar resolution
+# ---------------------------------------------------------------------------
+
+_NULL_RE = re.compile(r"^(?:null|Null|NULL|~)$")
+_BOOL_RE = re.compile(r"^(?:true|True|TRUE|false|False|FALSE)$")
+_INT_DEC_RE = re.compile(r"^[-+]?[0-9]+$")
+_INT_OCT_RE = re.compile(r"^0o[0-7]+$")
+_INT_HEX_RE = re.compile(r"^0x[0-9a-fA-F]+$")
+_FLOAT_RE = re.compile(r"^[-+]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)(?:[eE][-+]?[0-9]+)?$")
+_FLOAT_INF_RE = re.compile(r"^([-+]?)\.(?:inf|Inf|INF)$")
+_FLOAT_NAN_RE = re.compile(r"^\.(?:nan|NaN|NAN)$")
+
+_RESERVED_SIGIL_CATEGORY = {"&": "ANCHOR_REJECTED", "*": "ALIAS_REJECTED", "!": "CUSTOM_TAG_REJECTED"}
+_RESERVED_SIGIL_NAME = {"&": "anchor", "*": "alias", "!": "tag"}
+_RESERVED_SIGIL_GENERIC = set("?%@`|>")
+# Construct-specific names for the UNSUPPORTED_SYNTAX_REJECTED sigils
+# (remedy, quality-gate seq0347 Minor finding: "%"/"?" previously fell
+# through to a generic "reserved indicator character" message with no
+# named construct, same as design.md names them by).
+_RESERVED_SIGIL_GENERIC_NAME = {
+    "?": "explicit-key",
+    "%": "directive",
+    "|": "block scalar",
+    ">": "block scalar",
+    "@": "reserved-for-future-use",
+    "`": "reserved-for-future-use",
+}
+
+
+def resolve_core_schema_scalar(text):
+    """Resolve a PLAIN (unquoted) scalar per the YAML 1.2 core schema.
+    Quoted scalars never call this -- they are always type 'string'. Returns
+    (type_name, value) with type_name in {'null','bool','number','string'};
+    numbers collapse int/float into a single Python float, since RFC 8785
+    JCS formats every JSON number identically regardless of the YAML tag
+    that produced it."""
+    if _NULL_RE.match(text):
+        return "null", None
+    if _BOOL_RE.match(text):
+        return "bool", text[0] in "tT"
+    if _INT_DEC_RE.match(text):
+        return "number", float(text)
+    if _INT_OCT_RE.match(text) or _INT_HEX_RE.match(text):
+        try:
+            return "number", float(int(text, 0))
+        except OverflowError:
+            return "number", math.inf
+    m = _FLOAT_INF_RE.match(text)
+    if m:
+        return "number", (-math.inf if m.group(1) == "-" else math.inf)
+    if _FLOAT_NAN_RE.match(text):
+        return "number", math.nan
+    if _FLOAT_RE.match(text):
+        return "number", float(text)
+    return "string", text
+
+
+def _check_reserved_sigil(token, line_no):
+    if not token:
+        return
+    c0 = token[0]
+    if c0 in _RESERVED_SIGIL_CATEGORY:
+        name = _RESERVED_SIGIL_NAME[c0]
+        raise CanonicalizeError(
+            _RESERVED_SIGIL_CATEGORY[c0],
+            f"unquoted scalar uses a YAML {name} indicator ({c0!r}), which this restricted parser does not accept",
+            line_no,
+        )
+    if c0 in _RESERVED_SIGIL_GENERIC:
+        name = _RESERVED_SIGIL_GENERIC_NAME.get(c0)
+        article = "an" if name and name[0] in "aeiou" else "a"
+        descriptor = f"{article} {name} indicator ({c0!r})" if name else f"the reserved indicator character {c0!r}"
+        raise _unsupported(
+            f"unquoted scalar begins with {descriptor}",
+            line_no,
+            hint="quote the scalar",
+        )
+
+
+# ---------------------------------------------------------------------------
+# YAML-subset input mode: recursive-descent block parser
+# ---------------------------------------------------------------------------
+
+def _sequence_marker_prefix_len(content):
+    """If `content` is shaped like a block-sequence-item marker ('-' alone,
+    or '-' followed by a run of one-or-more spaces/tabs), return the total
+    prefix length (the dash plus that separator run); else None. Widened
+    to recognize a run of ANY separator whitespace (not just a single
+    space) so that a non-conforming separator (more than one space, or any
+    tab) is caught and REJECTED by parse_sequence with a construct-specific
+    diagnostic, rather than silently falling through to a different
+    parse path (e.g. the whole document being reinterpreted as a bare
+    scalar, remedy quality-gate seq0347)."""
+    if content == "-":
+        return 1
+    if content[0] != "-" or content[1] not in (" ", "\t"):
+        return None
+    n = 2
+    while n < len(content) and content[n] in (" ", "\t"):
+        n += 1
+    return n
+
+
+def is_sequence_item(content):
+    return _sequence_marker_prefix_len(content) is not None
+
+
+def _looks_like_mapping_entry(content):
+    """Non-raising probe used only to choose mapping-vs-scalar parsing: does
+    `content` actually start a mapping entry? A quoted token only counts if
+    a ':' immediately follows its closing quote -- otherwise a bare quoted
+    scalar (e.g. a whole-document value) would be misrouted into mapping
+    parsing. Malformed quoting here is not itself an error: the real parse
+    (parse_key_part_and_rest / resolve_value_str) reports it properly."""
+    c0 = content[0]
+    if c0 == "'":
+        try:
+            _, end = parse_single_quoted(content, 0, None)
+        except CanonicalizeError:
+            return False
+        return content[end:end + 1] == ":"
+    if c0 == '"':
+        try:
+            _, end = parse_double_quoted(content, 0, None)
+        except CanonicalizeError:
+            return False
+        return content[end:end + 1] == ":"
+    return content.find(": ") != -1 or content.endswith(":")
+
+
+def parse_key_part_and_rest(content, line_no):
+    """Split `content` (one logical line, e.g. "key: value" or "key:") into
+    (key_str, val_str_or_None). Raises on anything outside the accepted
+    subset."""
+    if content[0] == "'":
+        key_str, rest_start = parse_single_quoted(content, 0, line_no)
+    elif content[0] == '"':
+        key_str, rest_start = parse_double_quoted(content, 0, line_no)
+    else:
+        idx = content.find(": ")
+        if idx == -1:
+            if content.endswith(":"):
+                idx = len(content) - 1
+            else:
+                # A construct-specific diagnostic (directive/explicit-key/
+                # anchor/alias/tag) beats the generic fallback whenever a
+                # reserved sigil is the actual cause -- applies at NESTED
+                # mapping-key positions too, not just the document root
+                # (remedy, quality-gate seq0348 Minor finding: the
+                # seq0347 fix only covered the document-root case).
+                _check_reserved_sigil(content, line_no)
+                raise _unsupported(
+                    "expected a mapping entry ('key: value' or 'key:'); no unquoted ': ' separator found",
+                    line_no,
+                    hint="quote the scalar if this is meant as plain text",
+                )
+        key_token = content[:idx].rstrip(" ")
+        if key_token == "":
+            raise _unsupported("empty mapping key", line_no)
+        if key_token == "<<":
+            # YAML merge-key syntax (remedy, quality-gate seq0348 Major
+            # finding): design.md's Canonicalization procedure step 2 and
+            # Design Decisions' accepted-subset text both name "<<" merge
+            # keys explicitly as out-of-subset. This check is scoped to
+            # the KEY position only (not folded into the general
+            # `_check_reserved_sigil` scalar check, which also runs
+            # against VALUES) -- '<' is not itself a reserved indicator
+            # for an ordinary scalar (e.g. a value like "<foo>" is legal
+            # plain text), so a blanket "reject any scalar starting with
+            # '<'" would over-reject content the accepted subset permits.
+            # Only the exact, unquoted key "<<" is merge-key syntax; a
+            # quoted "<<" key is unaffected (quoting already exempts every
+            # other reserved sigil the same way).
+            raise _unsupported(
+                "a YAML merge key ('<<') is not accepted",
+                line_no,
+                hint="quote the key ('\"<<\"') if a literal '<<' string is intended",
+            )
+        _check_reserved_sigil(key_token, line_no)
+        key_type, key_value = resolve_core_schema_scalar(key_token)
+        if key_type != "string":
+            raise CanonicalizeError(
+                "NON_STRING_KEY_REJECTED",
+                f"mapping key {key_token!r} resolves to YAML core-schema type {key_type!r}, not string",
+                line_no,
+            )
+        key_str, rest_start = key_value, idx
+
+    if content[rest_start:rest_start + 1] != ":":
+        raise _unsupported("expected ':' immediately after the quoted key", line_no)
+    after_colon = rest_start + 1
+    if after_colon >= len(content):
+        return key_str, None
+    if content[after_colon] != " ":
+        raise _unsupported(
+            "mapping ':' must be followed by a space or end of line",
+            line_no,
+            hint="quote the scalar if this is meant as plain text",
+        )
+    val_str = content[after_colon + 1:].lstrip(" ")
+    return key_str, (val_str or None)
+
+
+def resolve_value_str(val_str, line_no):
+    c0 = val_str[0]
+    if c0 == "'":
+        s, end = parse_single_quoted(val_str, 0, line_no)
+        if end != len(val_str):
+            raise _unsupported("unexpected content after a single-quoted scalar value", line_no)
+        return s
+    if c0 == '"':
+        s, end = parse_double_quoted(val_str, 0, line_no)
+        if end != len(val_str):
+            raise _unsupported("unexpected content after a double-quoted scalar value", line_no)
+        return s
+    if val_str == "[]":
+        return []
+    if val_str == "{}":
+        return {}
+    if c0 in "[{":
+        raise _unsupported(
+            "non-empty flow-style collections are not accepted; only the empty forms '[]'/'{}' are",
+            line_no,
+        )
+    if c0 in "]},":
+        raise _unsupported(f"unexpected flow indicator character {c0!r}", line_no, hint="quote the scalar")
+    _check_reserved_sigil(val_str, line_no)
+    if _looks_like_mapping_entry(val_str):
+        # A plain (unquoted) scalar containing ": " or ending with ":" is
+        # ambiguous with a nested mapping entry -- YAML 1.2 forbids ": "
+        # inside a plain scalar for exactly this reason. Reject rather than
+        # best-effort-keep the first ": " found by parse_key_part_and_rest
+        # as the key/value separator and treat everything after it as plain
+        # scalar text (the exact silent-acceptance harm design.md's Design
+        # Decisions names: "never a best-effort interpretation").
+        raise _unsupported(
+            "a plain scalar value containing ': ' or ending with ':' is ambiguous with a "
+            "nested mapping entry and is not accepted",
+            line_no,
+            hint="quote the scalar",
+        )
+    _, value = resolve_core_schema_scalar(val_str)
+    return value
+
+
+def _add_key(mapping, key, value, line_no):
+    if key in mapping:
+        raise CanonicalizeError("DUPLICATE_KEY_REJECTED", f"duplicate mapping key {key!r}", line_no)
+    mapping[key] = value
+
+
+def _resolve_entry_value(lines, i, indent, val_str, line_no):
+    """Shared tail of one mapping-entry line: given the already-split
+    val_str (None means "value is a nested block, or null"), returns
+    (value, next_i)."""
+    n = len(lines)
+    if val_str is None:
+        if i < n and lines[i].indent > indent:
+            return parse_block(lines, i, lines[i].indent)
+        return None, i
+    return resolve_value_str(val_str, line_no), i
+
+
+def parse_block(lines, i, indent):
+    if is_sequence_item(lines[i].content):
+        return parse_sequence(lines, i, indent)
+    return parse_mapping(lines, i, indent)
+
+
+def parse_sequence(lines, i, indent):
+    items = []
+    n = len(lines)
+    while i < n and lines[i].indent == indent and is_sequence_item(lines[i].content):
+        line = lines[i]
+        content = line.content
+        prefix_len = _sequence_marker_prefix_len(content)  # not None: filtered above
+        if prefix_len == 1:
+            # A bare '-' with nothing after it: value is a nested block on
+            # following more-indented lines, or null.
+            i += 1
+            value, i = _resolve_entry_value(lines, i, indent, None, line.line_no)
+        else:
+            sep = content[1:prefix_len]
+            if sep != " ":
+                # Anything other than EXACTLY one space after '-' is
+                # out-of-subset (remedy, quality-gate seq0347): the
+                # accepted subset's own text shows only the single-space
+                # '- item'/'- key: value' shapes, and silently absorbing
+                # extra separator whitespace into the resolved scalar/key
+                # is exactly the best-effort interpretation the design
+                # forbids. A tab gets its own message since it is never
+                # valid YAML block-context whitespace at all (consistent
+                # with this parser's existing tab-indentation rejection).
+                if "\t" in sep:
+                    message = "a tab is not accepted as separator whitespace after a sequence '-' marker"
+                else:
+                    message = (
+                        "a sequence '-' marker must be followed by exactly one space "
+                        f"before its item (found {len(sep)} separator characters)"
+                    )
+                raise _unsupported(message, line.line_no, hint="use exactly one space after '-'")
+            inline = content[prefix_len:]
+            if inline == "":
+                raise _unsupported("sequence item marker '- ' must be followed by a value or nothing", line.line_no)
+            if is_sequence_item(inline):
+                # '- - value' (an inline nested-sequence lookalike) is not
+                # accepted, even though it is unambiguous in full YAML --
+                # this restricted subset already supports nested sequences
+                # via the multi-line form (a bare '-' followed by an
+                # indented nested block), which is sufficient for "nested
+                # arbitrarily" (Design Decisions) without needing a second,
+                # inline nesting shape only "- key: value" documents.
+                raise _unsupported(
+                    "an inline nested sequence ('- - value') is not accepted",
+                    line.line_no,
+                    hint="write the nested sequence on indented lines below this item instead",
+                )
+            if _looks_like_mapping_entry(inline):
+                value, i = parse_inline_mapping_start(lines, i, indent, inline)
+            else:
+                value = resolve_value_str(inline, line.line_no)
+                i += 1
+        items.append(value)
+    return items, i
+
+
+def _parse_mapping_entries(lines, i, indent, mapping):
+    n = len(lines)
+    while i < n and lines[i].indent == indent:
+        content = lines[i].content
+        if is_sequence_item(content):
+            raise _unsupported(
+                "sequence item marker where a mapping key was expected (same-indent block "
+                "sequences are not supported by this restricted parser; indent sequence "
+                "items under their key)",
+                lines[i].line_no,
+            )
+        line_no = lines[i].line_no
+        key_str, val_str = parse_key_part_and_rest(content, line_no)
+        i += 1
+        value, i = _resolve_entry_value(lines, i, indent, val_str, line_no)
+        _add_key(mapping, key_str, value, line_no)
+    return i
+
+
+def parse_mapping(lines, i, indent):
+    mapping = {}
+    i = _parse_mapping_entries(lines, i, indent, mapping)
+    return mapping, i
+
+
+def parse_inline_mapping_start(lines, i, seq_indent, first_inline_content):
+    """Parse "- key: value" (and any following same-mapping sibling keys at
+    seq_indent + 2, e.g. a `key1: v1` / `  key2: v2` pair under one item)."""
+    mapping = {}
+    child_indent = seq_indent + 2
+    line_no = lines[i].line_no
+    key_str, val_str = parse_key_part_and_rest(first_inline_content, line_no)
+    i += 1
+    value, i = _resolve_entry_value(lines, i, child_indent, val_str, line_no)
+    _add_key(mapping, key_str, value, line_no)
+    i = _parse_mapping_entries(lines, i, child_indent, mapping)
+    return mapping, i
+
+
+def parse_document(lines):
+    if not lines:
+        return None
+    first = lines[0]
+    if first.indent != 0:
+        raise _unsupported("document root must start at column 0 (unexpected indentation)", first.line_no)
+    if is_sequence_item(first.content):
+        value, i = parse_sequence(lines, 0, 0)
+    elif _looks_like_mapping_entry(first.content):
+        value, i = parse_mapping(lines, 0, 0)
+    else:
+        if len(lines) != 1:
+            # A construct-specific diagnostic (e.g. "% directives"/"?
+            # explicit keys" name their own reserved indicator) beats the
+            # generic fallback below whenever the root line itself is the
+            # actual cause (remedy, quality-gate seq0347 Minor finding).
+            _check_reserved_sigil(first.content, first.line_no)
+            raise _unsupported(
+                "multiple top-level lines but the document root is not a mapping or sequence",
+                lines[1].line_no,
+            )
+        value, i = resolve_value_str(first.content, first.line_no), 1
+    if i != len(lines):
+        raise _unsupported("unexpected content after the document's top-level value (bad indentation?)", lines[i].line_no)
+    return value
+
+
+def parse_yaml_bytes(data):
+    text = _decode_and_check_bom(data)
+    return parse_document(tokenize(text))
+
+
+# ---------------------------------------------------------------------------
+# Post-parse walk: NFC normalization, post-NFC duplicate-key detection,
+# non-finite/out-of-range number rejection (procedure steps 3-4)
+# ---------------------------------------------------------------------------
+
+def _reject_if_lone_surrogate(s):
+    """A lone (unpaired) UTF-16 surrogate (U+D800-U+DFFF) is not a valid
+    Unicode scalar value and has no UTF-8 encoding at all (RFC 3629
+    excludes that whole range from UTF-8's codespace). In this parser it
+    can only be produced by a `\\uXXXX` escape in a double-quoted scalar
+    (YAML mode) or the equivalent escape in JSON input mode -- never by a
+    plain/single-quoted scalar or a correctly-paired surrogate escape --
+    but the accepted subset's own text allows exactly that escape ("JSON's
+    escape set exactly, incl. `\\uXXXX`"), so it must be checked here
+    rather than rejected at parse time. This is the same "not valid
+    Unicode text" defect the canonicalization procedure's step 1 already
+    guards against ("decode as UTF-8 (reject on decode error)") and step 6
+    requires on the way out ("the canonical UTF-8 byte sequence") --
+    INVALID_UTF8_REJECTED is the one existing category whose plain
+    meaning covers both: input bytes that never decoded to valid Unicode
+    text, and a resolved scalar that cannot be re-encoded as valid UTF-8
+    either way, regardless of which pipeline stage discovers it."""
+    for ch in s:
+        code = ord(ch)
+        if 0xD800 <= code <= 0xDFFF:
+            raise CanonicalizeError(
+                "INVALID_UTF8_REJECTED",
+                f"resolved scalar contains an unpaired UTF-16 surrogate U+{code:04X}, "
+                "which has no valid UTF-8 encoding",
+            )
+
+
+def normalize_and_validate(node):
+    if isinstance(node, dict):
+        result = {}
+        seen = {}
+        for k, v in node.items():
+            nk = unicodedata.normalize("NFC", k)
+            _reject_if_lone_surrogate(nk)
+            if nk in seen:
+                raise CanonicalizeError(
+                    "POST_NFC_DUPLICATE_KEY_REJECTED",
+                    f"keys {seen[nk]!r} and {k!r} both normalize (NFC) to {nk!r}",
+                )
+            seen[nk] = k
+            result[nk] = normalize_and_validate(v)
+        return result
+    if isinstance(node, list):
+        return [normalize_and_validate(item) for item in node]
+    if isinstance(node, str):
+        normalized = unicodedata.normalize("NFC", node)
+        _reject_if_lone_surrogate(normalized)
+        return normalized
+    if isinstance(node, bool) or node is None:
+        return node
+    if isinstance(node, float):
+        if math.isinf(node) or math.isnan(node):
+            raise CanonicalizeError(
+                "NUMBER_OUT_OF_RANGE_REJECTED",
+                f"numeric value {node!r} is non-finite or exceeds the IEEE-754 double-precision representable range",
+            )
+        return node
+    if isinstance(node, int):
+        # JSON-input mode only: json.loads yields native Python ints for
+        # integer literals. Convert to the double value RFC 8785 numbers are
+        # formatted from, then apply the same finiteness/range check.
+        try:
+            d = float(node)
+        except OverflowError:
+            d = math.inf if node > 0 else -math.inf
+        if math.isinf(d) or math.isnan(d):
+            raise CanonicalizeError(
+                "NUMBER_OUT_OF_RANGE_REJECTED",
+                f"integer value {node} exceeds the IEEE-754 double-precision representable range",
+            )
+        return d
+    raise AssertionError(f"unexpected parsed node type: {type(node)!r}")
+
+
+# ---------------------------------------------------------------------------
+# RFC 8785 (JCS) canonical serialization
+# ---------------------------------------------------------------------------
+
+def _shortest_digits_and_exponent(abs_v):
+    """Extract (digits, n) from Python's own shortest-round-trip repr() such
+    that abs_v == 0.<digits> * 10**n, with `digits` having no leading or
+    trailing zeros (Python's float repr has been shortest-round-trip since
+    3.1, so this reuses it rather than re-deriving Grisu/Ryu from scratch)."""
+    text = repr(abs_v)
+    if "e" in text or "E" in text:
+        mantissa, exp_text = re.split("[eE]", text)
+        exp = int(exp_text)
+    else:
+        mantissa, exp = text, 0
+    int_part, _, frac_part = mantissa.partition(".")
+    all_digits = int_part + frac_part
+    point_pos = len(int_part)
+    stripped = all_digits.lstrip("0")
+    point_pos -= len(all_digits) - len(stripped)
+    all_digits = (stripped or "0").rstrip("0") or "0"
+    return all_digits, point_pos + exp
+
+
+def _format_jcs_number(v):
+    """Format a finite double per RFC 8785 section 3.2.2.3: the same
+    algorithm as ECMAScript's Number::toString (shortest round-trip decimal;
+    fixed notation for -6 < n <= 21 in spec terms, else exponential with no
+    leading zero in the exponent)."""
+    if v == 0.0:
+        return "0"
+    sign = ""
+    if v < 0:
+        sign, v = "-", -v
+    digits, n = _shortest_digits_and_exponent(v)
+    k = len(digits)
+    if k <= n <= 21:
+        return sign + digits + ("0" * (n - k))
+    if 0 < n <= 21:
+        return sign + digits[:n] + "." + digits[n:]
+    if -6 < n <= 0:
+        return sign + "0." + ("0" * (-n)) + digits
+    e = n - 1
+    mantissa = digits if k == 1 else digits[0] + "." + digits[1:]
+    return sign + mantissa + "e" + ("+" if e >= 0 else "-") + str(abs(e))
+
+
+_JCS_ESCAPES = {
+    '"': b'\\"', "\\": b"\\\\", "\b": b"\\b", "\f": b"\\f",
+    "\n": b"\\n", "\r": b"\\r", "\t": b"\\t",
+}
+
+
+def _jcs_escape_string(s):
+    out = [b'"']
+    for ch in s:
+        if ch in _JCS_ESCAPES:
+            out.append(_JCS_ESCAPES[ch])
+        elif ord(ch) < 0x20:
+            out.append(("\\u%04x" % ord(ch)).encode("ascii"))
+        else:
+            out.append(ch.encode("utf-8"))
+    out.append(b'"')
+    return b"".join(out)
+
+
+def jcs_serialize(value):
+    if value is None:
+        return b"null"
+    if isinstance(value, bool):
+        return b"true" if value else b"false"
+    if isinstance(value, float):
+        return _format_jcs_number(value).encode("ascii")
+    if isinstance(value, str):
+        return _jcs_escape_string(value)
+    if isinstance(value, list):
+        return b"[" + b",".join(jcs_serialize(v) for v in value) + b"]"
+    if isinstance(value, dict):
+        items = sorted(value.items(), key=lambda kv: kv[0].encode("utf-16-be"))
+        parts = [_jcs_escape_string(k) + b":" + jcs_serialize(v) for k, v in items]
+        return b"{" + b",".join(parts) + b"}"
+    raise AssertionError(f"unexpected canonical node type: {type(value)!r}")
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+_EXIT_CODE_HELP = "\n".join(
+    f"  {code:>3}  {name}" for name, code in sorted(CATEGORY_EXIT_CODES.items(), key=lambda kv: kv[1])
+)
+
+
+def build_arg_parser():
+    parser = argparse.ArgumentParser(
+        prog="canonicalize-sdd-yaml.py",
+        description=(
+            "Parse a restricted YAML subset (or JSON, with --input-format json) "
+            "and emit RFC 8785 (JCS) canonical JSON bytes on stdout, or its "
+            "SHA-256 hash with --hash-only."
+        ),
+        epilog="Exit codes (stable, one per rejection category):\n"
+        f"    0  success\n"
+        f"  {EXIT_USAGE_ERROR:>3}  usage error (bad arguments, unreadable file)\n"
+        f"{_EXIT_CODE_HELP}\n",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("file", help="path to the YAML or JSON file to canonicalize")
+    parser.add_argument(
+        "--hash-only",
+        action="store_true",
+        help="write 'sha256:<hex>\\n' instead of the canonical bytes",
+    )
+    parser.add_argument(
+        "--input-format",
+        choices=("yaml", "json"),
+        default=None,
+        help="input format; default: 'json' when <file> ends in .json (case-insensitive), else 'yaml'",
+    )
+    return parser
+
+
+# design.md's accepted subset nests block mappings/sequences "arbitrarily"
+# (Design Decisions) with no depth cap of its own -- Python's default
+# recursion limit (1000) and default thread stack size are this
+# interpreter's own resource defaults, not part of that grammar. Hitting
+# them on an in-subset, otherwise-valid deeply nested document is a
+# resource limitation, not a content-validity rejection (remedy,
+# quality-gate seq0348 Major finding), so no new document-validity
+# rejection category is introduced. Instead, the whole parse/normalize/
+# serialize pipeline (the recursive-descent parser, the post-parse
+# normalize_and_validate walk, and jcs_serialize -- these three
+# recursions run sequentially, never simultaneously stacked on one
+# another, since each fully returns before the next begins) runs in a
+# dedicated thread with a substantially larger stack and a substantially
+# higher recursion limit, so any realistic "arbitrarily nested" document
+# succeeds normally with no error at all. RECURSION_DEPTH_EXCEEDED exists
+# only as a documented, non-crashing backstop for the residual case where
+# even this dramatically raised limit is exceeded -- the same KIND of
+# exit as CANONICALIZER_RUNTIME_UNAVAILABLE (an environment/resource
+# signal), not a new member of the content-rejection family.
+_PIPELINE_RECURSION_LIMIT = 100_000
+_PIPELINE_STACK_SIZE_BYTES = 512 * 1024 * 1024  # 512 MiB
+
+
+def _run_pipeline(func):
+    """Run `func()` (no arguments) in a dedicated thread with a much
+    larger stack and a much higher recursion limit than Python's
+    defaults, then return its result. Re-raises any exception `func`
+    raised, from THIS (the caller's) thread, so normal exception handling
+    in `main` is unaffected. Converts a `RecursionError` that occurs even
+    at the raised limit into a `CanonicalizeError`
+    (`RECURSION_DEPTH_EXCEEDED`) rather than letting it surface as a raw
+    traceback."""
+    outcome = {}
+
+    def runner():
+        sys.setrecursionlimit(_PIPELINE_RECURSION_LIMIT)
+        try:
+            outcome["value"] = func()
+        except RecursionError:
+            outcome["error"] = CanonicalizeError(
+                "RECURSION_DEPTH_EXCEEDED",
+                "the document's nesting depth exceeded this environment's available "
+                f"resources even at a raised recursion limit ({_PIPELINE_RECURSION_LIMIT}) "
+                f"and a {_PIPELINE_STACK_SIZE_BYTES // (1024 * 1024)} MiB stack; this is a "
+                "resource limitation, not a content-validity rejection",
+            )
+        except BaseException as exc:  # noqa: BLE001 - re-raised in the caller's thread
+            outcome["error"] = exc
+
+    previous_stack_size = threading.stack_size()
+    previous_recursion_limit = sys.getrecursionlimit()
+    try:
+        # PR #229 CI (first-ever Windows execution): win32 Python rejects a
+        # 512 MiB thread stack outright (ValueError: size not valid), which
+        # crashed every invocation UNCLASSIFIED (exit 1) before parsing began.
+        # Fall back through halving sizes; any accepted dedicated stack still
+        # dwarfs the platform default, and the pipeline's own recursion limit
+        # plus the classified resource-exhaustion path remain the real
+        # depth governors. If no size is accepted, run on the default stack.
+        stack_bytes = _PIPELINE_STACK_SIZE_BYTES
+        while stack_bytes >= (1 << 20):
+            try:
+                threading.stack_size(stack_bytes)
+                break
+            except ValueError:
+                stack_bytes //= 2
+        thread = threading.Thread(target=runner)
+        thread.start()
+        thread.join()
+    finally:
+        threading.stack_size(previous_stack_size)
+        sys.setrecursionlimit(previous_recursion_limit)
+
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome["value"]
+
+
+def main(argv=None):
+    parser = build_arg_parser()
+    args = parser.parse_args(argv)
+
+    try:
+        with open(args.file, "rb") as f:
+            data = f.read()
+    except OSError as exc:
+        print(f"canonicalize-sdd-yaml: usage error: cannot read file {args.file!r}: {exc}", file=sys.stderr)
+        return EXIT_USAGE_ERROR
+
+    input_format = args.input_format or ("json" if args.file.lower().endswith(".json") else "yaml")
+
+    def _run():
+        value = parse_json_bytes(data) if input_format == "json" else parse_yaml_bytes(data)
+        value = normalize_and_validate(value)
+        return jcs_serialize(value)
+
+    try:
+        canonical_bytes = _run_pipeline(_run)
+    except CanonicalizeError as exc:
+        location = f" (line {exc.line_no})" if exc.line_no else ""
+        print(f"canonicalize-sdd-yaml: {exc.category}{location}: {exc.message}", file=sys.stderr)
+        return CATEGORY_EXIT_CODES[exc.category]
+
+    if args.hash_only:
+        digest = hashlib.sha256(canonical_bytes).hexdigest()
+        sys.stdout.buffer.write(f"sha256:{digest}\n".encode("ascii"))
+    else:
+        sys.stdout.buffer.write(canonical_bytes)
+    sys.stdout.buffer.flush()
+    return EXIT_OK
+
+
+if __name__ == "__main__":
+    sys.exit(main())

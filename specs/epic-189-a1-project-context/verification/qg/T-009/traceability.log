@@ -1,0 +1,34 @@
+Requirement-traceability check passed for T-009:
+ - tasks.md T-009 -> REQ-007; REQ-007 in requirements.md and traceability.md; T-009 in traceability.md
+   (requirement row traceability.md:14, task row traceability.md:41, planned-files row traceability.md:110)
+ - AC/TEST-021, AC/TEST-022 and AC/TEST-038 are all present in acceptance-tests.md
+   (lines 43, 44, 60), all three are referenced by T-009 (Must Read, Scope and Done When), and all
+   three are implemented in the suite (tests/guard-invariants-epic-a1.tests.sh 40 TEST-021 /
+   7 TEST-022 / 9 TEST-038 references, tests/guard-invariants-epic-a1.tests.ps1 32 / 8 / 8)
+ - AC->TEST->task mapping table rows checked individually: AC-021 -> TEST-021 -> T-009,
+   AC-022 -> TEST-022 -> T-009, AC-038 -> TEST-038 -> T-009. No AC assigned to T-009 is unowned,
+   and no AC owned elsewhere is claimed by T-009.
+ - suite self-registration verified: tests/run-all.sh:65 and tests/run-all.ps1:48, ninth in numeric
+   order immediately after check-hook-activation-handshake (T-008).
+ - REQ-007's requirement row is SHARED with T-007: it names apply-human-copy.{sh,ps1},
+   docs/adr/0025-human-copy-transactional-bundle.md and TEST-033 (T-007's half) alongside
+   PROTECTED-MANIFEST.md, the six guard-invariants human-copy artifacts and TEST-021/022/038
+   (T-009's half). Both halves are now present on disk; the split is by design, not a gap.
+ - specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256 holds EIGHT entries. Seven are
+   T-009's published batch (PROTECTED-MANIFEST.md plus the six guard-invariants files); the eighth,
+   .github/workflows/test.yml, is in T-010's Planned Files and was deliberately NOT part of this
+   task's publish batch. traceability.md:110 describes the T-009 half as "6 guard-invariants
+   entries + manifest", which matches the seven actually published.
+ - NOTE, observed rather than adjudicated: traceability.md:41 names a "second-approver-signed
+   evidence bundle (Risk: critical)" among T-009's required artifacts. That signature is an
+   outstanding HUMAN action and is deliberately NOT performed by this chain-authoring session, for
+   the same reason as T-007 - the bundle must be generated and signed by a DISTINCT human approver
+   from a clean working tree. This is the second critical-risk task in the feature.
+ - NOTE, observed rather than adjudicated: tasks.md's "Human apply step" item 4 (the live guard
+   actually denying writes to the newly registered paths) was the round-1 (seq0364) Major - the
+   deployed plugin cache still carried the pre-registration inventory, so the registered paths were
+   demonstrably still writable. It has since been remediated and INDEPENDENTLY re-verified by the
+   seq0365 evaluator's own behavioural denial probe (rows 01/19/23/25/28 all DENY; an unregistered
+   filename in the same directory and a near-miss extension both still ALLOW, excluding a
+   directory-level or fuzzy-match confound). The item is therefore met on measurement, not on
+   self-certification.

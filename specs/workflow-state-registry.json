@@ -386,6 +386,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-189-a1-project-context",
+      "profile": "full"
+    },
+    {
       "feature": "design-sync-scan",
       "profile": "full"
     },

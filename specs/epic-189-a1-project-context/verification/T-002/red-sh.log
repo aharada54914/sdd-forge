@@ -1,0 +1,52 @@
+FAIL: TEST-005 anchor rejected (exit code: got 127, want 20)
+FAIL: TEST-005 alias rejected (exit code: got 127, want 21)
+FAIL: TEST-005 custom tag rejected (exit code: got 127, want 22)
+FAIL: TEST-005 duplicate key rejected (exit code: got 127, want 23)
+FAIL: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans (exit code: got 127, want 0; stderr: tests/canonicalize-sdd-yaml.tests.sh: 行 69: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh: No such file or directory
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+FAIL: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256 (got '' vs '')
+FAIL: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null) (exit code: got 127, want 0; stderr: tests/canonicalize-sdd-yaml.tests.sh: 行 69: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh: No such file or directory
+FAIL: TEST-009 .py and .sh produce an identical SHA-256 (py='' sh='')
+FAIL: TEST-009 .ps1 produces the identical SHA-256 as .py (ps1='
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.' py='')
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+cp: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh: No such file or directory
+PASS: TEST-009 .sh dispatch-not-reimplement proof (.sh alone, without .py, fails -- it truly dispatches to canonicalize-sdd-yaml.py)
+cp: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1: No such file or directory
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+cp: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js: No such file or directory
+PASS: TEST-009 .js dispatch-not-reimplement proof (.js alone, without .py, fails -- it truly dispatches to canonicalize-sdd-yaml.py)
+FAIL: TEST-009 .sh denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH (exit=127 stdout= stderr=env: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh: No such file or directory)
+FAIL: TEST-037 multi-document rejection (exit code: got 127, want 25)
+FAIL: TEST-037 non-string-key rejection (exit code: got 127, want 24)
+FAIL: TEST-037 post-NFC duplicate-key collision rejection (exit code: got 127, want 27)
+FAIL: TEST-037 non-finite number rejection (.inf) (exit code: got 127, want 28)
+FAIL: TEST-037 non-finite number rejection (.nan) (exit code: got 127, want 28)
+FAIL: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7) (exit code: got 127, want 0; stderr: tests/canonicalize-sdd-yaml.tests.sh: 行 69: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh: No such file or directory
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+FAIL: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (got 0 want 51)
+FAIL: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars (got '')
+FAIL: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037 exit-code table: every rejection category exercised by this suite uses a distinct, stable, non-zero exit code
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 twin exists
+PASS: 10
+FAIL: 19

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 5,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt5-seq0517",
+  "host_session_id": "SESS-task-epic-189-a1-project-context-b-attempt5-0517",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-189-a1-project-context/requirements.md",
+        "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+        "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/design.md",
+        "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/tasks.md",
+        "sha256": "bd66327f71f84f3d555fd4c01a9e2db4cfd0ce4debc18b7adb4e046e600cb044"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/traceability.md",
+        "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/ux-spec.md",
+        "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+        "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/infra-spec.md",
+        "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+      },
+      {
+        "path": "specs/epic-189-a1-project-context/security-spec.md",
+        "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "reports/task-review/epic-189-a1-project-context/attempt-5/round-1/precheck-result.json",
+        "sha256": "b2c316d28ad5d5194a88695a7778af76b046dee3d5bef3499be9273da4e62e29"
+      },
+      {
+        "path": "reports/task-review/epic-189-a1-project-context/attempt-5/round-1/integrated-summary.json",
+        "sha256": "aeeb98fd4fe91dfc44eb6d7cccff881f2425f27b86a5e76c91039ae1817271f0"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 13 declared Risk tiers are consistent with their task bodies and with risk-classification-policy.md's tier table. Sentinel-surface scan of every Goal/Scope/Done When found no authentication, payment, or PII-storage surface, and no data migration (design.md:436 'Migration Strategy: none'; 'pii' occurs only as a schema FIELD NAME in the ADR-0020 DSL allowlist, requirements.md:73 and :134). Every access-control/secrets surface is at high or above: T-002 canonicalizer (tasks.md:379-388, byte-stability of every HMAC preimage), T-003 SDD_CONTEXT_KEY resolution + HMAC signing (:741-747, policy line 16 secrets handling), T-004 approver-registry immutable identity key (:967-974), T-005 weakening verdict (:1121-1127, 'functionally an access-control decision'), T-006 validator enforcement point (:1313-1317), T-008 fail-open handshake (:1950-1957), T-010 live guard deny-matrix (:2244-2250). The one externally-visible contract change (track-selection precedence: PLUGIN-CONTRACTS.md plus five consumer skills, ADR-0023) is high in both owning tasks, T-011 (:2350-2367, explicitly corrected up from medium in a prior round) and T-012 (:2495-2502). Both irreversible-destructive surfaces are critical per policy line 17: T-007 (:1478-1487, sole publish mechanism, atomic rename/journal) and T-009 (:2074-2083, repository-wide protected-file inventory). Risk-to-Required-Workflow derivation matches policy lines 22-30 for all 13 tasks (medium->acceptance-first x2, high/critical->tdd x11). No over-classification: T-010 is the only high task with a test-only Planned Files list (:2265-2274), but its tdd workflow is load-bearing rather than wasted -- Done When :2321-2322 requires the pre-T-009-application Red run proving the 96 assertions are not vacuously green -- so the over-classification failure mode does not hold."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 11 tasks at Risk high or critical carry every mandatory Done When evidence item, verified by whitespace-normalized extraction of each '### Done When' block. Red->Green evidence plus an independent quality-gate verdict by a named second reviewer (not the implementing agent) appear in T-002:488-490, T-003:854-856, T-004:1053-1054, T-005:1245-1246, T-006:1406-1407, T-007:1572-1576, T-008:2045-2046, T-010:2325-2326, T-011:2466-2470, T-012:2606-2610, and T-009:2213-2219. Both Risk: critical tasks additionally require a second, distinct named approver who reviews and signs the evidence bundle, each citing risk-classification-policy.md:17 -- T-007:1574-1576 and T-009:2215-2219. Both critical tasks also carry a distinct 'Second Approval:' header field naming a different principal from 'Approval:' (T-007:1470-1472 and T-009:2066-2068, aharada54914 / aharada227), satisfying risk-gate-matrix.md:114's distinct-Second-Approval control. No high or critical task is missing any required item."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task is oversized or fragmented. Each of T-001..T-012 delivers one coherent artifact family (a schema set, the canonicalizer, the signer, the registry schema, the detector, the validator, the publisher, the handshake, the guard-invariants registration batch, the deny-matrix suite, the unprotected consumers, the protected consumers), and T-013 is a single closing audit. No title implies multiple sequential phases; no task's Scope spans more than three implementation areas (contracts/ or plugins/scripts/, tests/, and the shared CI/CHANGELOG registration required of every task by Global Constraints :64-120). Fragmentation indicators are absent: no task is a single rename or a lone one-file edit with no integration concern -- the smallest, T-004, still delivers a schema plus a dual-runtime suite plus three ACs. ADVISORY (not a defect): five tasks exceed the >8 Done-When-item indicator -- T-001 has 11 (:231-254), T-003 and T-005 have 10 (:823-856, :1218-1246), T-002 and T-006 have 9 (:474-490, :1393-1407). Four of those items are Global-Constraints boilerplate carried by every task (suite self-registration, test.yml staging, CHANGELOG, evidence recording), and the remainder map 1:1 onto distinct frozen AC-NNN ids that cannot be merged without merging an AC, so effective per-task work is 5-7 items. tasks.md:331 additionally records a human accepted-deviation pointer for T-001 sizing (decision-7 = A) at specs/epic-189-a1-project-context/verification/T-001/sizing-accepted-deviation.md; that file is outside this run's manifest and was not read -- the pointer is cited as it appears in tasks.md. Under the post-implementation provenance re-review convergence rule these Done-When lists are unchanged from the content bound by the prior attempt's task-review PASS (reports/task-review/epic-189-a1-project-context/attempt-4/round-1/), so the observation is carried here as an advisory rather than a finding."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task's acceptance criteria include at least one edge-case or error-path scenario; no task is happy-path-only. T-001: AC-001 and AC-003 are parameterized required-field REJECTION sets (acceptance-tests.md:23, :25), AC-040 duplicate-id rejection (:62), AC-041 the absent-field case (:63). T-002: AC-005 four rejection categories (:27), AC-037 six accepted-domain boundary vectors including non-finite/out-of-range numbers (:59). T-003: AC-010 hmac length/case rejection (:32), AC-011 no-key fail-closed (:33), AC-034 simulated mid-write failure plus recovery (:56). T-004: AC-044 parameterized rejection plus non-array rejection plus the zero-entry validating case (:66), AC-045 DUPLICATE_APPROVER_REGISTRY_ID (:67), AC-046 zero-identity boundary (:68). T-005: AC-017 strengthening negative proof (:39), AC-030 NO_APPROVED_CONTEXT_ANCHOR and caller-supplied-override immunity (:52), AC-031 five narrowing boundary fixtures (:53). T-006: AC-014 six independent rejection fixtures (:36), AC-020 premature-effective_at rejection (:42), AC-043 WEAKENING_PROVENANCE_UNDERAPPROVED (:65). T-007: AC-033 symlink denial, preparation-stage failure, and four crash-injection points (:55). T-008: AC-027 four fail-closed negatives (:49), AC-032 cleanup-failure and stale-start branches (:54). T-009: AC-022 live-file-unchanged invariant (:44) plus an explicit error-path Red item in tasks.md:2213-2215 (staged-tree --check failing against an intentionally-incomplete draft). T-010: AC-023 is entirely a deny/never-bypass matrix, 96 assertions (:45). T-011/T-012: AC-026 PROJECT_CONTEXT_INVALID explicit stop, proven distinct from the compatibility fallback (:48), and AC-025's full+--lite error-stop (:47). T-013 is the infrastructure/audit task this check scopes out, and still carries AC-029's negative non-use and CI-resilience assertions (:51)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every declared test type matches the scope of what it tests. Single-boundary types target one artifact: AC-001/AC-003/AC-010/AC-044 'schema conformance' run a JSON-Schema validator against one contracts/*.schema.json file (acceptance-tests.md:23, :25, :32, :66); AC-006/AC-007/AC-008 target canonicalize-sdd-yaml.py's own parse/normalize/serialize stages (:28-30). Multi-component types genuinely span components: AC-009 'multi-runtime hash-equality + dispatch proof' compares .py/.sh/.ps1/.js (:31); AC-011 'staged-signing round-trip' traverses generate-approval-sidecar into validate-approval-sidecar's independent recomputation (:33); AC-019 spans generator and validator, matching security-spec.md:198's dual-suite evidence; AC-023 exercises the test harness against the LIVE sdd-hook-guard plus generated invariants across 12 call sites (:45); AC-039's 30-assertion matrix spans five consumer skills (:61). Workflow-complete types traverse a complete operator workflow: tasks.md:1234-1244's 'proven end-to-end' item drives a non-bootstrap signing fixture through generate-approval-sidecar.py's in-process seam into detect-policy-weakening; T-013's Done When :2711-2712 runs the whole suite via bash tests/run-all.sh and pwsh tests/run-all.ps1. Every acceptance-typed Done-When item cites a specific AC-NNN -- all 46 AC ids are bound to an owning task in traceability.md:51-96. The two Done-When items that cite no AC (tasks.md:841-853 T-003's provenance seam, :1234-1244 T-005's wiring completion) are explicitly verification-command/evidence-artifact remedies with named log paths, not acceptance tests missing an AC, and the frozen acceptance-tests.md deliberately gains no new ids for them -- permitted by reviewer-calibration.md:33-34."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 13 tasks carry an explicit 'Rollback:' field, including all 11 at Risk high or critical, and each states a concrete revert path rather than boilerplate. The two protected-file publishers carry the load-bearing caveat: T-009:2131-2134 states that reverting the agent-authored commit does NOT automatically revert an already-human-applied guard-invariants/generated-file change and that the revert PR must say explicitly whether a human should hand-revert the application; T-012:2542-2545 repeats it for ship/SKILL.md and lite-spec/SKILL.md; T-001:181-183 applies the same rule to its staged test.yml candidate. T-003:778-779 records the strictly lower-risk case correctly ('a staged candidate that is never applied leaves no live-state change to roll back', staging-only output). T-002:425-427, T-007:1519-1520 and T-008:1994 each note that no protected file is touched yet because T-009 performs the registration later, which is consistent with the Protected Files section (:23-56). These match infra-spec.md's Rollback section :116-154 (per-task revertibility, the protected-file caveat, and the automatic stale-TRANSACTION.json recovery scan)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No uncoordinated parallel scope overlap exists. Mechanical extraction of every task's Planned Files found exactly ONE non-shared file claimed by two tasks: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py, created by T-003 (:762-763) and edited by T-005 (:1148-1153, which states the reason -- completing T-003's fail-closed WEAKENING_DETECTOR_UNAVAILABLE seam in-process). That is the legitimate ordered case: T-005's Blockers field names T-003 (:1262-1266). The four genuinely shared files (tests/run-all.sh/.ps1, CHANGELOG.md, the staged human-copy/.github/workflows/test.yml, and human-copy/MANIFEST.sha256) are serialized by a complete numeric-order Blockers chain, verified task by task: T-002->T-001, T-003->T-002, T-004->T-003, T-005 includes T-004, T-006 includes T-005, T-007->T-006, T-008->T-007, T-009 includes T-008, T-010->T-009, T-011 includes T-010, T-012 includes T-011, T-013 includes T-012 -- so no two of the twelve can ever be scheduled in parallel against those files, exactly as Global Constraints :77-89 claims and as tasks.md:84 records as the round-1 remedy for this check. Sole-editor constraints hold with no competing claim: guard-invariants.json/generate-guard-invariants.py/generated/* to T-009 only (:90-93), apply-human-copy.{sh,ps1} to T-007 only (:94-98), PLUGIN-CONTRACTS.md to T-011 only (:99), ship/SKILL.md and lite-spec/SKILL.md to T-012 only, with T-011 declaring them Out of Scope (:2474). T-013's final consolidated test.yml candidate explicitly supersedes prior incremental staging (:2651-2653) and blocks on all twelve."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No spurious and no missing blockers. Every blocker corresponds to a real artifact dependency or a real shared-file conflict. The five blockers labelled 'only for numeric-order append serialization' (T-002 on T-001 :398-404, T-004 on T-003 :984-987, T-007 on T-006 :1497-1502, T-008 on T-007 :1967-1972, and T-005's T-004 leg :1137-1141) are NOT spurious: those task pairs genuinely share tests/run-all.sh/.ps1, CHANGELOG.md, the staged test.yml and MANIFEST.sha256, and Global Constraints :77-89 makes the serialization the enforcement mechanism for that conflict. Functional blockers are each justified by a consumed artifact: T-003 on T-002 (canonicalizer for the content hash and HMAC preimage, :756-758), T-005 on T-002 and T-003 (diff anchor; edits generate-approval-sidecar.py, :1264-1266), T-006 on T-003/T-004/T-005 (:1327-1330), T-009 on the six tasks whose paths it registers (:2093-2099), T-010 on T-009 (the human-apply must have landed before the LIVE deny path can be tested, :2260-2263), T-011 on T-001/T-006/T-008/T-010 (:2377-2381), T-012 on T-009 and T-011 (:2512-2517). Transitive coverage closes every remaining need without an undeclared edge: T-012 reaches T-007's publisher and T-008's handshake through T-009; T-011 reaches T-005 through T-006; T-009's omission of T-004 is explained and transitively covered via T-005 (:2096-2099). ADVISORY: T-005's 'Depends On:' prose (:1137-1141) omits T-003 while its Blockers field (:1262) correctly lists it with the remedy rationale; Blockers is the machine-checked field (precheck-result.json reports blockers_format_valid: true) and T-005's Planned Files independently names generate-approval-sidecar.py as '(existing by T-003)', so no implementer ambiguity results -- a documentation nit, not a dependency defect."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 13 tasks are new-artifact authoring, protected-file registration, verification, or closing audit; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation by its title, Goal, Scope, or Done When text. A repository-wide grep of tasks.md for bugfix/regression-fix/debug/incident/flaky/root-cause language returns hits only at :285, :1082, :1440, :1762 and :1839, every one of which falls inside a '### Blockers' session-narrative block (T-001's guard-denial note, T-004's staging note, T-006's staging note, and T-007's QUALITY-GATE REMEDY 3 and 4 entries) rather than in any task-scoping field. Observed in passing, supporting the skip rather than qualifying it: those remedy narratives do exhibit the diagnostic shape this check exists to protect -- e.g. tasks.md:1762-1812 names the reproduction, the root cause read directly from the source, the design derivation, the fix, and TDD Red->Green regression evidence with captured log paths."
+    }
+  ],
+  "findings": []
+}

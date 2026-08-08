@@ -1,0 +1,214 @@
+=== regression mode note: individual-suite runs (both lanes). ===
+
+T-013 is the closing audit, so its regression set and its subject are the same
+thing: every suite epic-189-a1 added, in both runtimes. TWENTY-FIVE runs — 13
+`.sh` suites and their 12 `.ps1` twins (guard-staging-exemption has no twin).
+
+Every run below was performed in THIS session against the working tree at HEAD
+b3b2805e. `git status --porcelain` was empty immediately before the first run and
+again after the last, so no suite left residue in the repository. Every `.sh`
+suite is invoked with `bash`, not POSIX `sh`, matching the T-007..T-012 chains:
+suites across this epic's guard surface use process substitution.
+
+------------------------------------------------------------------------------
+1. THE TWENTY-FIVE RUNS
+------------------------------------------------------------------------------
+
+  sh  tests/project-context-schema.tests.sh              exit=0 PASS=44  FAIL=0
+  sh  tests/canonicalize-sdd-yaml.tests.sh               exit=0 PASS=80  FAIL=0
+  sh  tests/generate-approval-sidecar.tests.sh           exit=0 PASS=59  FAIL=0
+  sh  tests/approver-registry-schema.tests.sh            exit=0 PASS=8   FAIL=0
+  sh  tests/detect-policy-weakening.tests.sh             exit=0 PASS=60  FAIL=0
+  sh  tests/validate-approval-sidecar.tests.sh           exit=0 PASS=40  FAIL=0
+  sh  tests/apply-human-copy.tests.sh                    exit=0 PASS=218 FAIL=0
+  sh  tests/check-hook-activation-handshake.tests.sh     exit=0 PASS=88  FAIL=0
+  sh  tests/guard-invariants-epic-a1.tests.sh            exit=0 PASS=81  FAIL=0
+  sh  tests/hook-guard-epic-a1-boundary.tests.sh         exit=0 PASS=211 FAIL=0
+  sh  tests/plugin-contracts-track-selection.tests.sh    exit=0 PASS=106 FAIL=0
+  sh  tests/ship-track-selection-migration.tests.sh      exit=0 PASS=139 FAIL=0
+  sh  tests/guard-staging-exemption.tests.sh             exit=0 PASS=33  FAIL=0
+  ps1 tests/project-context-schema.tests.ps1             exit=0 PASS=44  FAIL=0
+  ps1 tests/canonicalize-sdd-yaml.tests.ps1              exit=0 PASS=77  FAIL=0
+  ps1 tests/generate-approval-sidecar.tests.ps1          exit=0 PASS=57  FAIL=0
+  ps1 tests/approver-registry-schema.tests.ps1           exit=0 PASS=8   FAIL=0
+  ps1 tests/detect-policy-weakening.tests.ps1            exit=0 PASS=59  FAIL=0
+  ps1 tests/validate-approval-sidecar.tests.ps1          exit=0 PASS=39  FAIL=0
+  ps1 tests/apply-human-copy.tests.ps1                   exit=0 PASS=146 FAIL=0
+  ps1 tests/check-hook-activation-handshake.tests.ps1    exit=0 PASS=87  FAIL=0
+  ps1 tests/guard-invariants-epic-a1.tests.ps1           exit=0 PASS=85  FAIL=0
+  ps1 tests/hook-guard-epic-a1-boundary.tests.ps1        exit=0 PASS=207 FAIL=0
+  ps1 tests/plugin-contracts-track-selection.tests.ps1   exit=0 PASS=106 FAIL=0
+  ps1 tests/ship-track-selection-migration.tests.ps1     exit=0 PASS=139 FAIL=0
+
+25 runs, 25 exit=0, 0 FAIL. Totals re-added from the rows above rather than
+copied: sh 1167 assertions, pwsh 1054.
+
+TWO SUMMARY SHAPES, recorded because a single grep would have missed one of them.
+Eleven `.sh` suites and all twelve `.ps1` suites end with the two-line
+`PASS: n` / `FAIL: n` form; `apply-human-copy` ends with `218 passed, 0 failed`
+(pwsh: `146 passed, 0 failed`) and `guard-staging-exemption` with
+`guard-staging-exemption.tests.sh: 33 passed, 0 failed`. This is the same shape
+difference that truncated the implementer's own first sweep at 6 of 25 (recorded
+in that report's Working Notes); both forms were read here.
+
+ZERO SKIPS. A case-insensitive grep for `skip` over all 25 transcripts matches
+exactly two lines, one per lane, and both are inside a PASS assertion's own
+description text:
+
+  PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+
+No skip marker appears anywhere, so every assertion in the tallies genuinely
+executed on this platform.
+
+TALLIES ARE UNCHANGED FROM T-012'S CHAIN for every suite the two rounds share.
+T-012's regression log recorded project-context-schema 44/44, canonicalize 80/77,
+signer 59/57, approver-registry 8/8, detector 60/59, validator 40/39, publisher
+218/146, handshake 88/87, guard-invariants-epic-a1 81/85, hook-guard boundary
+211/207, plugin-contracts 106/106, and its focused log recorded
+ship-track-selection-migration 139/139. All twelve match this round exactly. The
+thirteenth, guard-staging-exemption 33/0, is new to the required set here because
+T-013 is the first task to treat it as in-scope.
+
+THE THREE SUITES T-013 EDITED WERE ALSO RUN AT THE PRE-EDIT COMMIT, so the
+count-neutrality of the AC-029 fix is measured rather than argued: 44/0, 8/0 and
+33/0 at 71e0f0f2 as well as at HEAD. That before/after pair is transcribed in
+focused-tests.log.
+
+------------------------------------------------------------------------------
+2. WHY tests/run-all.sh IS NOT THIS TASK'S REGRESSION EVIDENCE
+------------------------------------------------------------------------------
+
+tests/run-all.sh runs a fixed ordered list under `set -euo pipefail`
+(run-all.sh:3), so the FIRST failing suite aborts the whole run. Measured this
+round rather than inherited: its `tests=()` array holds exactly 61 entries and
+this epic's 13 suites occupy positions 49 through 61 — the tail — behind 48
+unrelated suites. tests/run-all.ps1 holds 44 entries.
+
+A full `bash tests/run-all.sh` was nevertheless run AS-IS this round (below). It
+announced 21 suites and never reached any epic-189-a1 suite: a grep of the entire
+captured transcript for all 13 epic suite names returns 0. The aggregate runner
+therefore cannot serve as their evidence, and the 25 individual runs above are
+the substitute — this feature's established practice since T-006.
+
+------------------------------------------------------------------------------
+3. THE FULL-SUITE DONE-WHEN ITEM: A HUMAN-AUTHORIZED DEVIATION
+------------------------------------------------------------------------------
+
+T-013's Done When (tasks.md:2704-2705) includes: "Full local suite run (`bash
+tests/run-all.sh`, `pwsh tests/run-all.ps1`) passes, recorded in the
+implementation report."
+
+THIS ITEM IS **NOT SATISFIED** ON THIS BRANCH. It is recorded as **CONDITIONALLY
+SATISFIED PENDING THE FINAL-PHASE MERGE**, on a human's explicit recorded
+decision to defer that merge. It is not recorded as satisfied, and this gate does
+not treat it as satisfied. The regression check's evidence is the 25 individual
+green runs in section 1, not the aggregate runners.
+
+Both lanes were run AS-IS in this session — no patch, no skip, no environment
+tweak — each on its OWN `git clone --local` of this worktree, made in a scratch
+directory outside the repository, with `git status --porcelain` verified EMPTY in
+the clone before the run. Both clones were at HEAD b3b2805e, which is later than
+the HEAD the seq0372 evaluator used (b5930708) and therefore includes every
+T-013 commit plus the gate-report and carryover commits.
+
+BASH LANE — aborts at the 21st of 61:
+
+  $ bash tests/run-all.sh
+  ...
+  ==> tests/task-context-isolation.tests.sh
+  ok: task context isolation manifests, snapshots, fallback, and selector are deterministic
+  ==> tests/turn-first-workflow.tests.sh
+  not ok: implementation report template omits: ## Output Paths And Hashes
+  exit=1
+
+  suites announced (`grep -c '^==> '`): 21
+  last announced suite: ==> tests/turn-first-workflow.tests.sh
+  `not ok` lines in the whole transcript: exactly 1, the one quoted above
+
+PWSH LANE — aborts at the 1st of 44, earlier than the bash lane:
+
+  $ pwsh -NoProfile -File tests/run-all.ps1
+  ==> tests/validate-repository.ps1
+  workflow-state: epic-189-a1-project-context: stage-provenance: task plan hash is stale
+  Exception: .../tests/validate-repository.ps1:9
+  Line |
+     9 |      throw "Workflow-state validation failed with exit code $LASTEXITC …
+       |      Workflow-state validation failed with exit code 1.
+  Exception: .../tests/run-all.ps1:60
+  Line |
+    60 |              throw "$testFile failed with exit code $LASTEXITCODE"
+       |              tests/validate-repository.ps1 failed with exit code 1
+  exit=1
+
+  suites announced: 1
+  last announced suite: ==> tests/validate-repository.ps1
+
+------------------------------------------------------------------------------
+4. NEITHER ABORT IS ATTRIBUTABLE TO T-013
+------------------------------------------------------------------------------
+
+The controls above are the load-bearing evidence: both aborts reproduce on a
+PRISTINE clone with a verified-clean tree at a HEAD that already CONTAINS all of
+T-013's commits. A failure that a task caused cannot be reproduced by removing
+nothing and changing nothing; these reproduce with the task's work fully present
+and no local state at all.
+
+BASH LANE root cause, verified directly this round rather than cited:
+
+  this branch:  tests/turn-first-workflow.tests.sh:290  ->  '## Output Paths And Hashes' \
+  origin/main:  same file, same line 290                ->  '## Outputs' \
+
+  $ git log --oneline b085ec76..HEAD -- tests/turn-first-workflow.tests.sh                              -> 0 commits
+  $ git log --oneline b085ec76..HEAD -- plugins/sdd-implementation/scripts/validate-implementation-report.sh -> 0 commits
+
+Zero commits on either file since the merge-base, so a merge takes main's version
+of both verbatim, with nothing to conflict. This is WFI-005/WFI-017 contract
+drift: the template heading was renamed upstream, and both the suite's needle and
+the validator were realigned there. The three upstream fixes were checked for
+ancestry rather than assumed:
+
+  6b40b6e1  ancestor of origin/main: YES   ancestor of HEAD: NO
+  f2687bef  ancestor of origin/main: YES   ancestor of HEAD: NO
+  5a9df172  ancestor of origin/main: YES   ancestor of HEAD: NO
+
+  $ git rev-list --left-right --count origin/main...HEAD   ->  172   224
+                                                               ^behind ^ahead
+
+172 behind. The human decided to defer the merge to the final phase because
+taking main in now would conflict in the four generated `guard_invariants`
+enforcement artifacts, both `check-workflow-state` gate scripts (R-10-protected,
+agent-uneditable) and the append-only identity ledger. This chain applies nothing
+from main and duplicates no upstream hunk, which is the hazard WFI-017 itself
+recorded.
+
+PWSH LANE root cause is DIFFERENT IN KIND and is NOT merge-resolvable. The
+message is `stage-provenance: task plan hash is stale`: implement-task's
+lifecycle appends to tasks.md necessarily diverge the task-review contract's
+bound hash, so task-stage provenance structurally cannot stay green during the
+implementation phase. It is resolved by the final-phase provenance re-binding,
+not by a merge. It reproduced here on a clean clone at HEAD b3b2805e, i.e. with
+T-013's own tasks.md `Status:` edit already present and with no uncommitted
+change of any kind.
+
+------------------------------------------------------------------------------
+5. WHAT THIS ROUND DID **NOT** RE-MEASURE
+------------------------------------------------------------------------------
+
+Stated so the record is not read as broader than it is.
+
+- The implementer's Measurements 1-6 (the one-line-needle probe, main's suite
+  file, main's suite + main's validator, the 24-suite advance, the whole-repository
+  merge simulation, and the union-registry rerun that reached 62 suites green)
+  were NOT reproduced in this round. They are recorded in the committed E1..E9
+  artifacts and were independently checked by the seq0372 evaluator. This chain
+  re-measures only the two aborts themselves and their non-attribution.
+- Consequently, the claim "the bash lane's abort chain is entirely
+  merge-resolvable" is carried forward from those artifacts, not re-derived here.
+  It remains a simulation result, not the merge.
+- The pwsh lane beyond suite 1 is unmeasured on this branch, in this round and in
+  the implementer's.
+- The three adjacent guard suites that T-009..T-012's chains carried as a
+  SUPPLEMENTARY section (phase2-guard-invariants, guard-staging-exemption, guards)
+  are not re-run here as a supplement, because guard-staging-exemption is now a
+  member of the required set above and the other two are outside T-013's audit
+  scope. No claim is made about their current state.

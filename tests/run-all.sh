@@ -81,7 +81,19 @@ tests=(
   tests/model-freshness-check.tests.sh
   tests/facet-manifest-schema.tests.sh
   tests/facet-manifest-semantics.tests.sh
-  tests/design-system-contract.tests.sh
+  tests/project-context-schema.tests.sh
+  tests/canonicalize-sdd-yaml.tests.sh
+  tests/generate-approval-sidecar.tests.sh
+  tests/approver-registry-schema.tests.sh
+  tests/detect-policy-weakening.tests.sh
+  tests/validate-approval-sidecar.tests.sh
+  tests/apply-human-copy.tests.sh
+  tests/check-hook-activation-handshake.tests.sh
+  tests/guard-invariants-epic-a1.tests.sh
+  tests/hook-guard-epic-a1-boundary.tests.sh
+  tests/plugin-contracts-track-selection.tests.sh
+  tests/ship-track-selection-migration.tests.sh
+  tests/guard-staging-exemption.tests.sh
   tests/design-sync-standing-consent.tests.sh
   tests/design-sync-scan.tests.sh
 )

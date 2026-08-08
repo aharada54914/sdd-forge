@@ -479,6 +479,170 @@ jobs:
         shell: pwsh
         run: ./tests/model-freshness-check.tests.ps1
 
+      - name: "[deterministic] Test project-context-schema suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/project-context-schema.tests.sh
+
+      - name: "[deterministic] Test project-context-schema suite (pwsh)"
+        shell: pwsh
+        run: ./tests/project-context-schema.tests.ps1
+
+      - name: "[deterministic] Test approver-registry-schema suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/approver-registry-schema.tests.sh
+
+      - name: "[deterministic] Test approver-registry-schema suite (pwsh)"
+        shell: pwsh
+        run: ./tests/approver-registry-schema.tests.ps1
+
+      # epic-189-a1-project-context T-013 (REQ-011, AC-028): CI-staging
+      # reconciliation. T-001..T-012 each appended their own step to this
+      # staged candidate incrementally, and eight suites were left unregistered
+      # here while already registered in tests/run-all.{sh,ps1}. This block
+      # closes that drift so the staged candidate covers every suite the epic
+      # added, in both runtimes. All of these are deterministic: no LLM, no
+      # network, no `gh`, and no live sudo grant.
+      - name: "[deterministic] Test canonicalize-sdd-yaml suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/canonicalize-sdd-yaml.tests.sh
+
+      - name: "[deterministic] Test canonicalize-sdd-yaml suite (pwsh)"
+        shell: pwsh
+        run: ./tests/canonicalize-sdd-yaml.tests.ps1
+
+      - name: "[deterministic] Test generate-approval-sidecar suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/generate-approval-sidecar.tests.sh
+
+      - name: "[deterministic] Test generate-approval-sidecar suite (pwsh)"
+        shell: pwsh
+        run: ./tests/generate-approval-sidecar.tests.ps1
+
+      - name: "[deterministic] Test detect-policy-weakening suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/detect-policy-weakening.tests.sh
+
+      - name: "[deterministic] Test detect-policy-weakening suite (pwsh)"
+        shell: pwsh
+        run: ./tests/detect-policy-weakening.tests.ps1
+
+      - name: "[deterministic] Test validate-approval-sidecar suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/validate-approval-sidecar.tests.sh
+
+      - name: "[deterministic] Test validate-approval-sidecar suite (pwsh)"
+        shell: pwsh
+        run: ./tests/validate-approval-sidecar.tests.ps1
+
+      - name: "[deterministic] Test apply-human-copy publisher suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/apply-human-copy.tests.sh
+
+      - name: "[deterministic] Test apply-human-copy publisher suite (pwsh)"
+        shell: pwsh
+        run: ./tests/apply-human-copy.tests.ps1
+
+      - name: "[deterministic] Test hook-activation handshake suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-hook-activation-handshake.tests.sh
+
+      - name: "[deterministic] Test hook-activation handshake suite (pwsh)"
+        shell: pwsh
+        run: ./tests/check-hook-activation-handshake.tests.ps1
+
+      - name: "[deterministic] Test epic-a1 guard-invariants registration (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/guard-invariants-epic-a1.tests.sh
+
+      - name: "[deterministic] Test epic-a1 guard-invariants registration (pwsh)"
+        shell: pwsh
+        run: ./tests/guard-invariants-epic-a1.tests.ps1
+
+      # R-10 guard-fix package (staging exemption + command-prose pre-filter),
+      # discovered while implementing T-001. Bash-only: it drives
+      # sdd-hook-guard.{py,js,ps1} directly through one POSIX harness, so it has
+      # no .ps1 twin. That twin-pair gap is a recorded carryover, not a silent
+      # omission -- see reports/notes/epic-189-a1-carryover-items.md.
+      - name: "[deterministic] Test R-10 guard staging exemption and prose pre-filter (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/guard-staging-exemption.tests.sh
+
+      # T-010 (REQ-008, AC-023): protected-write full-matrix deny. Drives the
+      # guard directly with synthetic payloads (no agent in the loop) across
+      # 4 basenames x 12 surfaces x 2 SDD_SUDO states in each runtime.
+      - name: "[deterministic] Test hook-guard epic-a1 write-boundary matrix (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hook-guard-epic-a1-boundary.tests.sh
+
+      - name: "[deterministic] Test hook-guard epic-a1 write-boundary matrix (pwsh)"
+        shell: pwsh
+        run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
+
+      # T-011 (REQ-009, AC-024/AC-026/AC-039): ADR-0023 track-selection
+      # contract conformance for PLUGIN-CONTRACTS.md and the three UNPROTECTED
+      # migrated consumers. Fixture-driven -- it builds real project trees and
+      # drives the real approval signer/validator, with no agent in the loop.
+      - name: "[deterministic] Test plugin-contracts track-selection contract (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/plugin-contracts-track-selection.tests.sh
+
+      - name: "[deterministic] Test plugin-contracts track-selection contract (pwsh)"
+        shell: pwsh
+        run: ./tests/plugin-contracts-track-selection.tests.ps1
+
+      # epic-189-a1-project-context T-012 (REQ-009/REQ-010): the ADR-0023
+      # migration of the two PROTECTED track-selection consumers, asserted
+      # against their staged candidates, plus AC-039's full 30-assertion
+      # five-consumer matrix and AC-035's full entry-point wiring inventory.
+      # Green in both publication states, so it does not depend on whether the
+      # human apply step has run yet.
+      - name: "[deterministic] Test ship track-selection migration (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/ship-track-selection-migration.tests.sh
+
+      - name: "[deterministic] Test ship track-selection migration (pwsh)"
+        shell: pwsh
+        run: ./tests/ship-track-selection-migration.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

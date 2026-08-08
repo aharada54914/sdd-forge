@@ -1,0 +1,16 @@
+Placeholder scan FAILED (1 finding(s)):
+ - tests/validate-approval-sidecar.tests.sh:461:# hashing). Case (a) is NOT implemented at generation time -- T-003's
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+
+ACCEPTANCE ANNOTATION (orchestrator, gate-run): the single finding is a
+DOCUMENTATION COMMENT in the test suite accurately describing the recorded
+feature-wide AC-019 residual (the GENERATOR half is intentionally not
+implemented at generation time - a T-003 gap, NOT T-006 scope). This exact
+condition is explicitly recorded and accepted in the human-relayed
+quality-gate PASS report reports/quality-gate/2026-07-30T185048Z-T-006.md
+(Minor 4: "AC-019 generator half remains feature-wide unmet; TEST-019(a)
+regression-locks the shape; do not mark AC-019 satisfied at feature
+completion"), and the suite containing the comment was itself a
+hash-bound input of that PASS evaluation. No product code contains a
+placeholder; the comment is load-bearing documentation of a sanctioned
+residual, also registered in reports/notes/epic-189-a1-carryover-items.md.

@@ -1,0 +1,37 @@
+=== M0 pristine-copy BASELINE (must be all-pass; pairs with every mutation) ===
+M0 pristine copy                                           PASS=211  FAIL=0   
+
+=== M1 corrupt the fixture SDD_SUDO signature ===
+    claim under test: PRE-sudo-active proves the token is really ACTIVE
+M1 bogus sudo signature                                    PASS=210  FAIL=1   
+      > FAIL: PRE-sudo-active: fixture SDD_SUDO token is NOT active (expected exit 0, got 2) -- every sudo-lane cell would be vacuous
+
+=== M2 make the inventory stripping a no-op ===
+    claim under test: MUT-* really de-registers the four basenames
+M2 stripping neutralised                                   PASS=159  FAIL=52  
+      > FAIL: PRE-stripped-fixture: sdd/project-context.approval.json should have been removed from the stripped fixture
+      > FAIL: PRE-stripped-fixture: sdd/provider-bindings.approval.json should have been removed from the stripped fixture
+      > FAIL: PRE-stripped-fixture: sdd/approver-registry.yaml should have been removed from the stripped fixture
+
+=== M3 corrupt the PRISTINE copy (strip it too) ===
+    claim under test: BASE-* detects an unfaithful copy harness
+M3 pristine copy corrupted                                 PASS=199  FAIL=12  
+      > FAIL: BASE [sdd/approver-registry.yaml | surface 01] pristine copy expected exit 2, got 0 (copy harness is unfaithful; MUT below would be meaningless)
+      > FAIL: BASE [sdd/approver-registry.yaml | surface 02] pristine copy expected exit 2, got 0 (copy harness is unfaithful; MUT below would be meaningless)
+      > FAIL: BASE [sdd/approver-registry.yaml | surface 03] pristine copy expected exit 2, got 0 (copy harness is unfaithful; MUT below would be meaningless)
+
+=== M4 drop surface 12 from the matrix ===
+    claim under test: the exhaustiveness counters detect skipped cells
+M4 surface 12 dropped                                      PASS=193  FAIL=2   
+      > FAIL: AC-023 exhaustiveness: expected 96 cells, executed 88
+      > FAIL: BASE/MUT exhaustiveness: expected 48/48, executed 44/44
+
+=== M5 drop the required 'content' field from surface 11's payload ===
+    claim under test: MUT-* catches a cell that denies as MALFORMED PAYLOAD
+    (this is the real false-positive found during development)
+M5 surface 11 payload made malformed                       PASS=207  FAIL=4   
+      > FAIL: MUT [sdd/project-context.approval.json | surface 11] expected exit 0 after de-registration, got 2 (the matching AC-023 cell may be denying for an unrelated reason)
+      > FAIL: MUT [sdd/provider-bindings.approval.json | surface 11] expected exit 0 after de-registration, got 2 (the matching AC-023 cell may be denying for an unrelated reason)
+      > FAIL: MUT [sdd/approver-registry.yaml | surface 11] expected exit 0 after de-registration, got 2 (the matching AC-023 cell may be denying for an unrelated reason)
+
+scratch root: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//t010-mut.Z1dq00

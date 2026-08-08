@@ -279,6 +279,17 @@ review or a findings waiver.
    `plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature <slug>`
    and require exit 0 before reporting completion.
 
+TYPE-H convergence rule (provenance re-review only): a TYPE-H check that
+would raise a NEW finding against content byte-identical - modulo
+human-authorized status/approval/pointer lines - to content bound by a
+prior attempt's persisted task-review PASS evidence is recorded as PASS,
+with the observation carried as an advisory inside the check's finding
+text (citing the prior PASS evidence path), never as a FAIL finding of
+any severity. TYPE-D checks are unaffected. Rationale: frozen content
+cannot be edited to satisfy heuristic re-judgments, so fresh-instance
+TYPE-H calibration variance would otherwise make the re-review
+non-convergent (each round an independent draw, with round 3 terminal).
+
 Controlled re-binding boundary: a provenance re-review re-binds review
 evidence to the current artifact hashes; it does not license content changes
 to frozen artifacts. Sanctioned post-review updates go to non-frozen addenda

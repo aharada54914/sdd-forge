@@ -507,9 +507,25 @@ sed -i.bak \
 rm "$invalid_pending/specs/workflow-state-integrity/tasks.md.bak"
 expect_rule "$invalid_pending" task-lifecycle
 
+blocked_valid="$(make_full_fixture blocked-valid)"
+# Only the first task's Status line is retargeted to Blocked (its Approval
+# stays "Approved (sudo ...)" and all review stages stay Passed), so this
+# represents a legitimately blocked task in an otherwise fully-reviewed
+# feature. The task-stage provenance hash normalizes Status/Approval/
+# Task-Review-Status values but hashes the rest of tasks.md verbatim, so the
+# substitution below is restricted to that one line (via its line number,
+# portable across BSD and GNU sed) rather than appending new prose that
+# would otherwise make the recorded task plan hash go stale.
+blocked_status_line="$(grep -n '^Status:' \
+  "$blocked_valid/specs/workflow-state-integrity/tasks.md" | head -1 | cut -d: -f1)"
+sed -i.bak "${blocked_status_line}s/^Status:.*/Status: Blocked/" \
+  "$blocked_valid/specs/workflow-state-integrity/tasks.md"
+rm "$blocked_valid/specs/workflow-state-integrity/tasks.md.bak"
+expect_valid "$blocked_valid"
+
 matrix_index=0
 for predecessor in spec impl task; do
-  for lifecycle in Approved "In Progress" "Implementation Complete" Done; do
+  for lifecycle in Approved "In Progress" Blocked "Implementation Complete" Done; do
     matrix_index=$((matrix_index + 1))
     matrix="$(make_full_fixture "matrix-$matrix_index")"
     case "$predecessor" in

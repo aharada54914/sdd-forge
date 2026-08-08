@@ -1,0 +1,155 @@
+PASS: TEST-033a fresh single-target publish: tool exits 0
+PASS: TEST-033a fresh single-target publish: live content matches candidate
+PASS: TEST-033a fresh single-target publish: no journal/staging litter remains
+PASS: TEST-033b publish over existing live content: content replaced
+PASS: TEST-033c pre-existing symlink at destination leaf denied (exit 16, category RENAME_FAILED)
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033c the pre-existing symlink itself is left in place, not silently replaced
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 16)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 10)
+PASS: TEST-033e no live target created from a symlinked source
+PASS: TEST-033f hard-link non-propagation: live target updated
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+PASS: TEST-033g staged-candidate hash mismatch denied (STAGED_CANDIDATE_HASH_MISMATCH)
+PASS: TEST-033g live target unchanged on preparation-stage failure
+PASS: TEST-033h malformed manifest line rejected (MANIFEST_INVALID)
+PASS: TEST-033h traversal target path rejected (MANIFEST_INVALID)
+PASS: TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)
+tests/apply-human-copy.tests.sh: 87 行:  8135 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033i crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i stale journal cleaned up after recovery
+tests/apply-human-copy.tests.sh: 87 行:  8344 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033j mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)
+PASS: TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)
+tests/apply-human-copy.tests.sh: 87 行:  8623 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033k recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k journal removed once recovery confirms ALL-POST
+tests/apply-human-copy.tests.sh: 87 行:  8895 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+tests/apply-human-copy.tests.sh: 87 行:  9158 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033l a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l journal fully cleaned up after the second recovery invocation
+PASS: TEST-033m shape-mismatched journal (missing targets[]) is REJECTED, not silently ignored (JOURNAL_SHAPE_INVALID)
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+PASS: TEST-033m an unparsable (non-JSON) journal is ALSO fail-closed, identically to a shape mismatch
+PASS: TEST-033n recovery-only invocation with nothing stale exits 0
+PASS: TEST-033n recovery-only invocation reports recovered:0
+PASS: TEST-033o substitution-resistance fixture: tool still completes successfully
+PASS: TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate
+PASS: TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)
+tests/apply-human-copy.tests.sh: 87 行:  9567 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)
+PASS: TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)
+PASS: TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+tests/apply-human-copy.tests.sh: 87 行: 10028 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033r sh and ps1 journals have IDENTICAL leading 3 bytes (no BOM divergence, got 7b2273)
+PASS: TEST-033r sh journal parses via plain python3 json.load
+PASS: TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)
+PASS: TEST-033s embedded-space path publishes correctly (exit 0, correct content)
+tests/apply-human-copy.tests.sh: 87 行: 10280 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033s journal preserves the embedded-space live_path byte-exact
+PASS: TEST-033s journal's pre_hash/post_hash for the space-containing target are each EXACTLY one 64-hex value (never concatenated)
+PASS: TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery
+PASS: TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)
+PASS: TEST-033s genuine duplicate-path rejection still fires (regression lock on the grep-based rewrite)
+PASS: TEST-033s a tab character embedded in a path is preserved end-to-end
+tests/apply-human-copy.tests.sh: 87 行: 10972 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [space] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [space] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [space] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [space] no journal/staging litter remains after recovery
+PASS: TEST-033t [space] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 11373 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [tab] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [tab] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [tab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [tab] no journal/staging litter remains after recovery
+PASS: TEST-033t [tab] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 11774 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [leadtrail] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [leadtrail] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [leadtrail] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [leadtrail] no journal/staging litter remains after recovery
+PASS: TEST-033t [leadtrail] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 12176 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [dquote] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [dquote] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [dquote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dquote] no journal/staging litter remains after recovery
+PASS: TEST-033t [dquote] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 12577 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [obrace] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [obrace] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [obrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obrace] no journal/staging litter remains after recovery
+PASS: TEST-033t [obrace] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 12979 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [cbrace] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [cbrace] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [cbrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbrace] no journal/staging litter remains after recovery
+PASS: TEST-033t [cbrace] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 13389 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [comma] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [comma] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [comma] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [comma] no journal/staging litter remains after recovery
+PASS: TEST-033t [comma] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 13791 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [star] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [star] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [star] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [star] no journal/staging litter remains after recovery
+PASS: TEST-033t [star] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 14191 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [question] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [question] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [question] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [question] no journal/staging litter remains after recovery
+PASS: TEST-033t [question] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 14592 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [obracket] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [obracket] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [obracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obracket] no journal/staging litter remains after recovery
+PASS: TEST-033t [obracket] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 14993 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [cbracket] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [cbracket] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [cbracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbracket] no journal/staging litter remains after recovery
+PASS: TEST-033t [cbracket] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 15674 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [dollar] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [dollar] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [dollar] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dollar] no journal/staging litter remains after recovery
+PASS: TEST-033t [dollar] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 16086 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [backtick] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [backtick] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [backtick] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [backtick] no journal/staging litter remains after recovery
+PASS: TEST-033t [backtick] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 16487 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [squote] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [squote] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [squote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [squote] no journal/staging litter remains after recovery
+PASS: TEST-033t [squote] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 16890 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [utf8] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [utf8] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [utf8] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [utf8] no journal/staging litter remains after recovery
+PASS: TEST-033t [utf8] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+PASS: TEST-033t a literal newline inside a manifest path is structurally unrepresentable -- the resulting malformed line is rejected (MANIFEST_INVALID), confirming no separate rejection code is needed
+PASS: TEST-033t sh rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, both-runtime parity by design)
+PASS: TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, parity confirmed)
+PASS: self-registration: tests/run-all.sh references apply-human-copy.tests.sh
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+130 passed, 0 failed

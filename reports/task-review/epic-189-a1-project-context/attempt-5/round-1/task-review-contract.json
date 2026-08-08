@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-189-a1-project-context",
+  "run_id": "task-orch-epic189a1projectcontext-a5r1",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 5,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37",
+  "acceptance_sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d",
+  "design_sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5",
+  "tasks_sha256": "bd66327f71f84f3d555fd4c01a9e2db4cfd0ce4debc18b7adb4e046e600cb044",
+  "traceability_sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54",
+  "layer_sha256": {
+    "ux-spec.md": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7",
+    "frontend-spec.md": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771",
+    "infra-spec.md": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489",
+    "security-spec.md": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt5-seq0516",
+      "host_session_id": "SESS-task-epic-189-a1-project-context-a-attempt5-0516",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-project-context/requirements.md",
+          "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+          "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/design.md",
+          "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/tasks.md",
+          "sha256": "bd66327f71f84f3d555fd4c01a9e2db4cfd0ce4debc18b7adb4e046e600cb044"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/traceability.md",
+          "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/ux-spec.md",
+          "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+          "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/infra-spec.md",
+          "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/security-spec.md",
+          "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-189-a1-project-context/attempt-5/round-1/precheck-result.json",
+          "sha256": "b2c316d28ad5d5194a88695a7778af76b046dee3d5bef3499be9273da4e62e29"
+        },
+        {
+          "path": "reports/task-review/epic-189-a1-project-context/attempt-5/round-1/dependency-graph.json",
+          "sha256": "e2d3b9b1e4b46b894b03756a7cc6f8eb44a3a4da98555bcb849f4c4300efb4c1"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt5-seq0517",
+      "host_session_id": "SESS-task-epic-189-a1-project-context-b-attempt5-0517",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-189-a1-project-context/requirements.md",
+          "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+          "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/design.md",
+          "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/tasks.md",
+          "sha256": "bd66327f71f84f3d555fd4c01a9e2db4cfd0ce4debc18b7adb4e046e600cb044"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/traceability.md",
+          "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/ux-spec.md",
+          "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+          "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/infra-spec.md",
+          "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+          "path": "specs/epic-189-a1-project-context/security-spec.md",
+          "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "reports/task-review/epic-189-a1-project-context/attempt-5/round-1/precheck-result.json",
+          "sha256": "b2c316d28ad5d5194a88695a7778af76b046dee3d5bef3499be9273da4e62e29"
+        },
+        {
+          "path": "reports/task-review/epic-189-a1-project-context/attempt-5/round-1/integrated-summary.json",
+          "sha256": "aeeb98fd4fe91dfc44eb6d7cccff881f2425f27b86a5e76c91039ae1817271f0"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Post-implementation provenance re-binding (attempt 5) after full epic implementation: all 13 tasks reached Status: Done behind independent quality-gate PASS verdicts, with distinct second approvals on the two critical tasks. Changes since the attempt-4 binding: lifecycle Status/Approval transitions on all tasks; append-only session narrative inside Blockers sections (unblock notes, staging-deferral notes, quality-gate remedy records through 2026-08-04); and two human-authorized factual corrections at epic close-out (commit a8af1a20): the Lifecycle header note recording that authoring-time statuses have since advanced, and T-005's Out-of-Scope parenthetical recording that two-person enforcement lives in T-006's validator, not at generator signing time. Both reviewers returned clean PASS (reviewer-a 14/14, reviewer-b 8 PASS + 1 SKIP, zero findings). Both independently routed the same advisory: the corrected T-005 text diverges from frozen AC-019/security-spec wording about WHERE two-person signing is enforced - this is the already-registered AC-019 carryover (generator half unimplemented, regression-locked; reports/notes/epic-189-a1-carryover-items.md), and AC-019 remains not-satisfied at the generator layer by explicit instruction. Reviewer-b also noted T-005's Depends-On prose omits T-003 while the machine-checked Blockers field lists it correctly (documentation nit). Reservation identities seq0516/seq0517; ledger re-sequenced at the origin/main merge (records 463-515) with zero identity collisions.",
+  "timestamp": "2026-08-06T14:53:12Z"
+}
