@@ -1,5 +1,7 @@
 ticket_id: RT-20260808-001
-status: open
+status: resolved
+resolved: 2026-08-08
+resolution: "re-gate (seq 0574) PASS 0C/0M/0m — V3 散文 mutant + 自作変種 kill・FP2 順序入替 PASS 復帰を evaluator が独立再現。人間承認のうえ quality-gate が Status: Done を記録 (QG report 20260808T075711Z)"
 type: test-gap
 severity: major
 target:
