@@ -348,14 +348,7 @@ own RED/GREEN evidence; commit B is only the CHANGELOG entry.
   T-001 only stages the unprotected-context `test.yml` CI-step candidate).
 
 ### Blockers
-
 None
-
-(Not a task-ID blocker, but an external Done-gating condition: Epic A1's
-canonical `project-context.yaml` schema artifact must land and match for
-TEST-011 to go green — until then this task's own schema-conformance
-fixture is deterministically red and the task cannot reach Done
-(requirements.md Dependencies, AC-011).)
 
 ---
 
@@ -679,12 +672,7 @@ Commit B (documentation):
 - Any protected-file edit.
 
 ### Blockers
-
 T-001, T-002
-
-(Additional external precondition, not an in-spec blocker: Epic A1's
-canonicalizer utility must exist as a real artifact for TEST-037/TEST-041 to
-run — a documented blocker is recorded if absent, per Depends On.)
 
 ---
 
@@ -962,13 +950,7 @@ separate from the Gate/registration implementation in commit A.
   only protected data/policy files the existing guard/gate scripts read.
 
 ### Blockers
-
 T-001, T-002, T-003
-
-(Additional external precondition, not an in-spec blocker: full
-`advisory`/`required`-mode evaluation needs Epic A4's Facet Manifest as a
-real artifact; the `disabled-legacy` mode ships independently — see Depends
-On.)
 
 ---
 
@@ -1103,13 +1085,7 @@ Commit B (documentation):
 - Any protected-file edit.
 
 ### Blockers
-
 T-001
-
-(Additional external precondition, not an in-spec blocker: Epic A1's
-`contracts/project-context.template.yaml` must land and match the six-entry
-set for TEST-042/TEST-044 to go green — until then these fixtures are
-deterministically red, per Depends On.)
 
 ---
 
