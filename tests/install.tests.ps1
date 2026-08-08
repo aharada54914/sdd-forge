@@ -21,6 +21,12 @@ function New-TrackedFixture {
         if ($LASTEXITCODE -ne 0) { throw "Unable to archive tracked fixture files." }
         Expand-Archive -LiteralPath $archivePath -DestinationPath $Destination -Force
         & git -C $Destination init -q
+        # Commits in this repository can spawn detached background maintenance
+        # (auto gc) that races teardown's Remove-Item ("Directory not empty").
+        # Disable it repo-locally so no git process outlives any scenario.
+        & git -C $Destination config gc.auto 0
+        & git -C $Destination config gc.autoDetach false
+        & git -C $Destination config maintenance.auto false
         & git -C $Destination add -A
         & git -C $Destination -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
         if ($LASTEXITCODE -ne 0) { throw "Unable to initialise installer source fixture." }

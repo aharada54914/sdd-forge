@@ -1,0 +1,88 @@
+Requirement-traceability check passed for T-001:
+ - tasks.md T-001 -> REQ-001, REQ-002. Both requirements are DEFINED in
+   requirements.md (REQ-001 at requirements.md:113, the `project-context.yaml`
+   schema requirement; REQ-002 at requirements.md:185, the `provider-bindings.yaml`
+   skeleton-only schema requirement) and both are PRESENT in traceability.md
+   (REQ-001 requirement row traceability.md:8, REQ-002 requirement row
+   traceability.md:9). T-001 itself is present in traceability.md at the task row
+   traceability.md:33 and the planned-files row traceability.md:102.
+ - All SEVEN acceptance criteria assigned to T-001 are present in
+   acceptance-tests.md, are referenced by T-001 (Must Read names
+   "AC-001..AC-004, AC-040..AC-042"; Done When names each TEST id with its AC),
+   and are implemented in BOTH lanes of the suite:
+
+     AC/TEST-001  acceptance-tests.md:23   sh 6 refs / ps1 6 refs   9 assertions
+     AC/TEST-002  acceptance-tests.md:24   sh 4 / ps1 3             8 assertions
+     AC/TEST-003  acceptance-tests.md:25   sh 6 / ps1 5             7 assertions
+     AC/TEST-004  acceptance-tests.md:26   sh 7 / ps1 5             2 assertions
+     AC/TEST-040  acceptance-tests.md:62   sh 16 / ps1 15           7 assertions
+     AC/TEST-041  acceptance-tests.md:63   sh 6 / ps1 5             2 assertions
+     AC/TEST-042  acceptance-tests.md:64   sh 10 / ps1 10           9 assertions
+
+   (reference counts are `grep -c` over tests/project-context-schema.tests.sh and
+   tests/project-context-schema.tests.ps1; assertion counts are decomposed from
+   this round's own focused-tests.log transcripts and sum to exactly 44 in each
+   lane. The sh/ps1 reference counts differ by one or two for five of the seven
+   ids, and the reason was checked rather than waved at: the POSIX file opens with
+   a header-comment block (tests/project-context-schema.tests.sh:8-17) naming every
+   TEST id once, which the PowerShell port does not carry, and TEST-004 additionally
+   has a POSIX-only `fail` branch for the seq0367 jq exit-code hardening
+   (.tests.sh:467) that has no PowerShell counterpart because that lane parses JSON
+   without jq. The executed ASSERTION counts are identical in both lanes, which is
+   the load-bearing figure.)
+ - AC->TEST->task mapping table rows checked individually, not in bulk:
+   AC-001 -> TEST-001 -> T-001 (traceability.md:51), AC-002 -> TEST-002 -> T-001
+   (:52), AC-003 -> TEST-003 -> T-001 (:53), AC-004 -> TEST-004 -> T-001 (:54),
+   AC-040 -> TEST-040 -> T-001 (:90), AC-041 -> TEST-041 -> T-001 (:91),
+   AC-042 -> TEST-042 -> T-001 (:92). No AC assigned to T-001 is unowned, and no
+   AC owned elsewhere is claimed by T-001.
+ - suite self-registration verified: tests/run-all.sh:57 and tests/run-all.ps1:40 -
+   FIRST in numeric order among this epic's ten suites, immediately ahead of
+   canonicalize-sdd-yaml (T-002), exactly as the Global Constraints
+   numeric-order append rule requires of the graph root.
+ - staging verified, and for T-001 it is genuinely PERFORMED rather than deferred:
+   traceability.md:102 names
+   specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml (staged)
+   and .../human-copy/MANIFEST.sha256 among T-001's supporting files. Both exist on
+   disk this round. The staged workflow carries T-001's OWN CI steps at
+   test.yml:216-225 - "Test project-context-schema suite (bash)" gated
+   `if: runner.os != 'Windows'` invoking `bash ./tests/project-context-schema.tests.sh`,
+   plus "Test project-context-schema suite (pwsh)" with `shell: pwsh` - matching the
+   surrounding suite convention. The manifest entry
+     506133dc4ae8b4c93ea18eae8f388d5ed9aefab07d687ae77c9c1ec99a286873  .github/workflows/test.yml
+   was re-computed against the staged bytes this round (`shasum -a 256`) and matches
+   byte-for-byte. The LIVE .github/workflows/test.yml was re-measured this round at
+   3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4, identical to the
+   value tasks.md records for the original 2026-07-22 session, so the Done-When
+   non-mutation clause holds on measurement rather than on assertion. This closes the
+   long-running R-10 guard blocker that T-001..T-008's chains all recorded as deferred.
+ - NOTE, observed rather than adjudicated: traceability.md:33 names
+   specs/epic-189-a1-project-context/verification/T-001/green-sh.log and
+   .../T-001/red-sh.log as T-001's evidence artifacts. The logs the implementation
+   actually recorded are acceptance-sh.log / acceptance-ps1.log (both 44/0, exit 0)
+   together with the seq0367 remediation pair
+   remediation-seq0367-test040-red-sh.log / -red-ps1.log (both 41/3) and
+   remediation-seq0367-test004-jqstub-red.log / -green.log (29/15 and 28/16). The
+   evidence is present and complete in both lanes; only the filename convention
+   differs from the frozen row's illustrative names, and the naming is arguably more
+   accurate here since T-001's Required Workflow is `acceptance-first`, not `tdd`.
+   traceability.md is a frozen spec artifact, so this is recorded rather than edited -
+   the identical divergence T-010's chain recorded for its own green-sh/red-sh rows.
+ - NOTE, observed rather than adjudicated: the staged
+   human-copy/.github/workflows/test.yml currently registers only THREE of this epic's
+   ten suites - project-context-schema (T-001, :216-225), approver-registry-schema
+   (T-004, :227-) and hook-guard-epic-a1-boundary (T-010). The other seven
+   (canonicalize-sdd-yaml, generate-approval-sidecar, detect-policy-weakening,
+   validate-approval-sidecar, apply-human-copy, check-hook-activation-handshake,
+   guard-invariants-epic-a1) have no staged CI step, because their own tasks ran while
+   the R-10 staging blocker was still open. T-001's own step IS present, so T-001's
+   Done-When is satisfied; the remaining seven are a later task's carry-over. The
+   seq0368 evaluator recorded the same observation explicitly as out of scope for this
+   task.
+ - NOTE on gate applicability: T-001's risk tier is `medium`, and
+   check-contract.py's RISK_TIERS (check-contract.py:37-42) does NOT list
+   `requirement-traceability` among medium's required ids - it is required only at
+   `high` and `critical`. This check was therefore run and recorded ANYWAY, and its
+   contract entry is marked required:true, so T-001's contract is strictly stronger
+   than its tier demands rather than weaker. Nothing here relies on the tier
+   difference.

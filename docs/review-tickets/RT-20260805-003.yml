@@ -1,5 +1,20 @@
 ticket_id: RT-20260805-003
-status: open
+status: resolved
+resolution: |
+  2026-08-07: All four expected_fix items are complete, split across two
+  changes. Item 1 (TEST-038 two-state lifecycle) landed as bbb0e258 on
+  docs/wfi-021-gate-masking and reached main via PR #223. Items 2-4 land
+  with this commit: TEST-026 now parses the step-3 outcome (a) target from
+  the Loop section and asserts it routes to step 5 (the Pre-upload check
+  point), keeping the original ordering assertion; TEST-043 re-anchors on
+  the step 3/4 distinction text ("not the same thing as a decline at 4")
+  instead of step 6's boundary sentence. Both runtimes changed in parity
+  (BL-008). Verification: baseline green in both runtimes (sh 120/1,
+  ps1 50/1 -- only TEST-039 designed red; DS-010 resolved on main
+  separately); the T-002 evaluator's two mutations re-run -- M1
+  ('continue to 5' -> 'continue to 6') flips TEST-026 red in both
+  runtimes, M2 (both distinction statements deleted) flips TEST-043 red
+  in both runtimes; SKILL.md restored, suites back to baseline.
 type: test-gap
 severity: minor
 target:

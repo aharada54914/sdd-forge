@@ -84,20 +84,69 @@ cannot happen.
    `design-system/ui-patterns.md`; list untraceable choices as open
    questions. Raw style values that bypass the tokens are not allowed in
    mockups.
-3. **Resolve egress consent.** One named step with exactly three outcomes,
-   and no fourth:
-   - **(a) Consent already holds for this feature AND this session** —
-     continue to 5 with no prompt. The scope is the conjunction of those two
-     coordinates and both must match. A consent whose session has ended does
-     not hold; neither does one the operator withdrew mid-session.
-   - **(b) Consent has not been obtained for this scope** — go to 4.
-   - **(c) Egress is not permitted** — take the manual fallback
-     `../sdd-bootstrap-interviewer/references/claude-design-workflow.md`,
-     make no upload attempt, record the outcome, and return to the caller.
-     This outcome is persistent for the scope. It is not the same thing as a
-     decline at 4: a decline is transient, binds only the upload attempt it
-     was asked about, and the next one asks again — it is not a persisted
-     refusal and writes no standing forbiddance.
+3. **Resolve egress consent.** Read the project's `ds_upload_consent` setting
+   (`AGENTS.md` -> Project Settings; absent, or present with a value that is
+   not exactly one of the three lowercase literals -> per-feature; matching
+   is exact and case-sensitive) every time this step is resolved — never a
+   value cached from an earlier resolution in the same session. Three
+   regimes:
+   - **per-feature** (default). DS-29's own step, unedited — one named step
+     with exactly three outcomes, and no fourth:
+     - **(a) Consent already holds for this feature AND this session** —
+       continue to 5 with no prompt. The scope is the conjunction of those
+       two coordinates and both must match. A consent whose session has
+       ended does not hold; neither does one the operator withdrew
+       mid-session.
+     - **(b) Consent has not been obtained for this scope** — go to 4.
+     - **(c) Egress is not permitted** — take the manual fallback
+       `../sdd-bootstrap-interviewer/references/claude-design-workflow.md`,
+       make no upload attempt, record the outcome, and return to the caller.
+       This outcome is persistent for the scope. It is not the same thing as
+       a decline at 4: a decline is transient, binds only the upload attempt
+       it was asked about, and the next one asks again — it is not a
+       persisted refusal and writes no standing forbiddance.
+   - **standing**. Never produces outcome (b). Treat consent as already
+     holding — continue to 5 with no prompt — and, the first time this
+     feature-and-destination pair is reached under standing (scoped by
+     (feature, destination), not feature alone: no existing record carries
+     `Ds-Upload-Consent-Setting: standing` naming this destination already),
+     write one record now to the layer file's own `Design-Source` section,
+     with ALL of:
+       `Egress-Consent: granted`
+       `Egress-Consent-Party` names the setting, never a fabricated
+         per-occurrence identity — no human answered a prompt for this
+         occurrence, so the record must not claim one did.
+       `Egress-Consent-At` is an ISO-8601 timestamp.
+       `Ds-Upload-Consent-Setting: standing`
+     A different destination, later, for the same feature, still under
+     standing, is a fresh occurrence for that (feature, destination) pair
+     and gets its own one-time write — it is not silently covered by the
+     earlier record. Every later occurrence for the same (feature,
+     destination) pair finds that record already present and writes nothing
+     further.
+   - **off**. Always resolves to outcome (c): egress is not permitted. Take
+     the manual fallback and make no upload attempt, and write a record with
+     ALL of:
+       `Egress-Consent: not-permitted`
+       `Egress-Consent-Party` names the setting, never a fabricated
+         per-occurrence identity — off has no live human either, nobody is
+         ever asked.
+       `Egress-Consent-At` is an ISO-8601 timestamp.
+       `Ds-Upload-Consent-Setting: off`
+     — persistently, for as long as the setting reads off: this is not the
+     transient per-attempt decline DS-29's own step 4 already defines, it
+     does not lapse on the next attempt, and it applies on every host,
+     including one without the DesignSync tool today.
+   A per-feature mid-session withdrawal (DS-29's own unedited path) also
+   writes all three new fields on its `Egress-Consent: withdrawn` record —
+   named explicitly because it is the one record-producing occasion neither
+   the issue text nor this document's own first draft mentioned.
+   Whichever regime or occasion produces the write, `Ds-Upload-Consent-Setting`
+   names the regime in force at the time of the write and `Egress-Consent-At`
+   records when it happened — including an ordinary per-feature grant, which
+   now also carries `Ds-Upload-Consent-Setting: per-feature`, an ISO-8601
+   `Egress-Consent-At`, and `Egress-Consent-Party` naming the human who
+   answered step 4 in that case.
 4. **Obtain informed consent** — once per scope. State all of the following
    before asking, then ask:
    - **What leaves.** The generated HTML under `specs/<feature>/mockups/`,
@@ -127,11 +176,46 @@ cannot happen.
    Record the decision per "Design-Source consent record" below.
 5. **Pre-upload check point.** A single named point that every upload path
    in this loop passes through — after the consent step, before the first
-   byte leaves — with no bypass. This feature defines the point and performs
-   no check at it; DS-30 / issue #139 attaches a blocking secret, PII and
-   placeholder scan over `specs/<feature>/mockups/` here. When such a check
-   exists, its blocking behaviour is a property of the check: it does not
-   presume an interactive human is present at this point.
+   byte leaves — with no bypass. Run `design-sync-scan.sh` (or `.ps1`; DS-30
+   / issue #139) against `specs/<feature>/mockups/`. Its blocking behaviour
+   is a property of the check: it does not presume an interactive human is
+   present at this point. The check is limited to egress hygiene —
+   placeholder, secret and PII detection — and performs no assessment of
+   mockup quality, design fidelity, accessibility, or `design-system/`
+   adherence.
+   - **Exit 0** (scan completed, clean): continue directly to 6. No
+     additional prompt, no delay beyond the scan's own run time. Record
+     `Egress-Scan: clean` and `Egress-Scan-At` (an ISO-8601 timestamp) in
+     the `Design-Source` section.
+   - **Exit 1** (scan completed, finding(s)): present the findings report to
+     the human before any push is attempted — no push occurs without that
+     presentation. On an explicit human override, record
+     `Egress-Scan: overridden` and `Egress-Scan-At` (an ISO-8601 timestamp),
+     then continue to 6 — that override authorizes nothing beyond THIS
+     scan's disclosed findings, it is not a standing exemption, and a fresh
+     scan after any regeneration requires its own override decision, even
+     when the new scan reproduces findings identical to the ones already
+     overridden. Absent an explicit override — silence, a non-response, or
+     an agent's own judgment is never an override — no push occurs, nothing
+     is written to `Design-Source` as an override, and the agent remediates
+     the flagged mockups before re-entering this step. This decline is a
+     content-hygiene decision, distinct from `Egress-Consent`'s own decline
+     or withdrawal: it says nothing about whether egress to this
+     destination is still permitted, only that this specific payload should
+     not go out yet.
+   - **Exit 2** (scan did NOT complete — a tool error, not a finding): this
+     branch is unconditionally blocking, with no override affordance
+     offered at all — an override is a decision about disclosed findings,
+     and a tool error discloses none, so there is nothing for a human to
+     approve. No push occurs. Report the failure to the operator as a tool
+     failure, worded so it cannot be mistaken for a finding (e.g. "the scan
+     could not run: <reason>", never "N finding(s)"). No `Egress-Scan`
+     value is written for this branch — writing one would misrepresent an
+     unknown outcome as a checked one.
+   Exit 1's block is liftable, once, by an explicit human decision about
+   what that scan found. Exit 2's block is not liftable by any decision
+   available at this step; the tool error must be resolved before this step
+   can be re-entered at all.
 6. **Push.** Call `finalize_plan`, then `write_files`, to sync the mockups
    to the project selected in step 1. The push-failure rule has four parts.
    A push failure — a network error, a timeout, an auth expiry discovered
@@ -171,14 +255,28 @@ can tell a conforming record from a non-conforming one.
 | `Egress-Consent-Subject` | what the consent covers sending | value domain deliberately not fixed here — whether it is a file list, content hashes or a prose description is an open product decision; record what the operator was actually shown, and do not settle the domain by fiat |
 | `Egress-Destination` | where the content goes | the claude.ai/design project id selected in step 1 |
 | `Egress-Consent-Expiry` | when the consent stops applying | the end of the session it was given in; never `none` |
+| `Egress-Consent-Party` | who or what produced the grant | the human who answered step 4, when `per-feature`; a named reference to the upload-policy setting itself, never a fabricated identity, when `standing` or `off` — neither has a live per-occurrence human |
+| `Egress-Consent-At` | when the record was written | an ISO-8601 timestamp |
+| `Ds-Upload-Consent-Setting` | the setting in force at write time | `standing` / `per-feature` / `off` |
+| `Egress-Scan` | this scan's outcome | `clean` (no finding) or `overridden` (finding present, human explicitly approved) — both values are written, so a reader can tell "nothing found" from "found and excused" |
+| `Egress-Scan-At` | when the scan that produced the `Egress-Scan` value ran | an ISO-8601 timestamp, written for both `clean` and `overridden`, not only the exceptional one |
+
+A record's own `Ds-Upload-Consent-Setting` value never overrides the
+currently configured setting: it names the regime that was in force when the
+record was written, not a standing authorization for what governs the next
+resolution — step 3 always re-reads the live value (see "Resolve egress
+consent" above); a `standing`-era `granted` record does not keep granting
+once the project switches to `off`.
 
 The shape is additively **extensible**: unknown fields are ignored by a
-reader, and absent optional fields do not make a record non-conforming. That
-is what lets DS-31 / issue #140 add fields such as a consenting party, a
-timestamp and a project-level setting value later without invalidating a
-record written here. The behaviour this skill describes — one consent per
-feature and session — is the behaviour a later `per-feature` consent setting
-selects; this skill does not define that setting.
+reader, and absent optional fields do not make a record non-conforming.
+DS-31 / issue #140 has now added the three fields above —
+`Egress-Consent-Party`, `Egress-Consent-At` and `Ds-Upload-Consent-Setting`
+— populated on every occasion this skill's behaviour writes a record; a
+DS-29-era record, written before these fields existed and therefore missing
+all three, remains conforming. The behaviour this skill describes — one
+consent per feature and session — is the behaviour a later `per-feature`
+consent setting selects; this skill does not define that setting.
 
 `Egress-Destination` binds the consent. A consent granted for one
 destination does not carry to another: choosing a different project at step

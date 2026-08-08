@@ -1,0 +1,165 @@
+{
+  "task_id": "T-001",
+  "feature": "design-sync-scan",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "96a7e24f77fc38c17494d839ea7db2dfcf29b0e88a20cfab1b7b5957f9bdaed2",
+  "created": "2026-08-08T03:38:47Z",
+  "comment": "T-001 (design-sync-scan.sh + its own assertion suite, TDD Red->Green, commit per reports/implementation/design-sync-scan/T-001.md). RED: 17 passed / 58 failed (exit 127, command not found -- script absent). GREEN: 75 passed / 0 failed, reproduced 3x. placeholder-scan: check-placeholders.sh genuinely FAILs (2 findings) against this script's own pattern-catalogue source; the two findings are explicitly accepted per quality-gate/SKILL.md:45's own resolution path (self-referential, matches check-placeholders.sh's own precedent against its own source; already disclosed by the implementer) -- see qg/placeholder-T-001-accepted.log.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- POSIX shell / PowerShell script pair plus Markdown/test assertions; unlike design-sync-consent, this feature ships a real executable artifact (design.md Architecture Overview), but still authors its verification contract against the shell stack per tasks.md. lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- POSIX shell / PowerShell script pair plus Markdown/test assertions; unlike design-sync-consent, this feature ships a real executable artifact (design.md Architecture Overview), but still authors its verification contract against the shell stack per tasks.md. lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- POSIX shell / PowerShell script pair plus Markdown/test assertions; unlike design-sync-consent, this feature ships a real executable artifact (design.md Architecture Overview), but still authors its verification contract against the shell stack per tasks.md. lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/placeholder-T-001-accepted.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/T-001/green.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "specs/design-sync-scan/verification/T-001/red.log",
+      "green_evidence": "specs/design-sync-scan/verification/T-001/green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/T-001/green.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "specs/design-sync-scan/verification/T-001/red.log",
+      "green_evidence": "specs/design-sync-scan/verification/T-001/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/run-all.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "specs/design-sync-scan/verification/T-001/red.log",
+      "green_evidence": "specs/design-sync-scan/verification/T-001/green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-scan/verification/qg/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-008",
+        "REQ-010"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

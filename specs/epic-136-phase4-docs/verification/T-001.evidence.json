@@ -1,0 +1,63 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase4-docs",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "70afe97b1d9f9ca178e151003096e4bb5de9cb17c30cfa460c037fe2bbd6d619",
+  "quality_report": "reports/quality-gate/20260808T075711Z-epic-136-phase4-docs-T-001.md",
+  "verification_contract": "specs/epic-136-phase4-docs/verification/T-001.contract.json",
+  "git_commit": "5a97202f624c89457feb30f6e4e3368a2a1b9647",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001.contract.json",
+      "sha256": "e08d796b7a19c072fa8e13617c4415e26368d93e8ea5aa282f9e757ec85ed057"
+    },
+    {
+      "path": "reports/quality-gate/20260808T075711Z-epic-136-phase4-docs-T-001.md",
+      "sha256": "c22daeb1e73b491e18a69a97d7d9049f0b23625dd6c317f02449216673c9feda"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-001/green.log",
+      "sha256": "0b5caea6d8b25fa98bb3d7edd640aaf2e4ffe506ec1d89783b412367c0bd73ef"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+      "sha256": "b7f2f950da84e601cc673f7b37230b40afe72209ec614bee79243dae3766f8e7"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/placeholder-T-001.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/task-state.log",
+      "sha256": "db0bcf2172b30c75ec1d0edcdde580956ce600b09c1c20b041fd4e8468856639"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/traceability.log",
+      "sha256": "5b4881006ea8a2c3f583039a1fca506f7310747673b69ee28221204dfcbbce74"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/workflow-state-tail.log",
+      "sha256": "059a5e8ac80090e8e05d030fd3445067601ceaa3e432d7b4eaa89b17e16ca1be"
+    }
+  ]
+}

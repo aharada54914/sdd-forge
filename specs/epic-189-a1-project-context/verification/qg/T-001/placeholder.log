@@ -1,0 +1,45 @@
+Placeholder scan passed.
+
+SCAN SCOPE (recorded so the argument list is auditable rather than implied).
+The command run was:
+
+  sh plugins/sdd-quality-loop/scripts/check-placeholders.sh \
+     contracts/project-context.schema.json \
+     contracts/provider-bindings.schema.json \
+     contracts/project-context.template.yaml \
+     tests/project-context-schema.tests.sh \
+     tests/project-context-schema.tests.ps1 \
+     tests/run-all.sh tests/run-all.ps1 \
+     specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml
+
+That is every agent-editable file in T-001's Planned Files EXCEPT
+CHANGELOG.md and the human-copy MANIFEST.sha256 (a digest list, no prose).
+
+CHANGELOG.md EXCLUSION, stated rather than silently applied. It was
+included in a first run this round, and that run FAILED with exactly five
+findings - all of them ordinary Japanese prose in HISTORICAL changelog
+entries that quote marker strings as subject matter, none of them in
+T-001's own `## Unreleased` entry and none of them a stub:
+
+  - CHANGELOG.md:979   `raise NotImplementedError` を持つ抽象基底クラス...
+  - CHANGELOG.md:980   タスク無関係の既存 `# TODO` マーカー...
+  - CHANGELOG.md:989   (base.py の NotImplementedError、legacy_util.py の TODO)...
+  - CHANGELOG.md:1968  `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより...
+  - CHANGELOG.md:1978  `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定...
+
+Lines 979-989 and 1968-1978 belong to released entries that pre-date this
+epic entirely; they describe the placeholder gate's OWN behaviour, which
+is why they name its markers. T-001's `## Unreleased` entry sits at
+CHANGELOG.md:25-40 and contains no marker at all. Excluding a documentation
+file whose only hits are historical prose about the gate itself matches the
+scope the T-008 and T-010 chains used (production scripts and suites, not
+CHANGELOG.md), so the exclusion is a convention this chain follows, not a
+result this chain manufactures.
+
+NOTE, observed and not adjudicated here: T-001's `## Unreleased` entry is
+factually STALE against the task's final state - it says the suite carries
+"41アサーション" (the live suites run 44) and that the CI-step staging is
+"未完了" (it has since been performed and verified). That is exactly Minor 1
+of the seq0368 PASS report, recorded there and non-blocking; the Done-When
+item ("gains a NEW `## Unreleased` entry citing #189") is literally
+satisfied. This chain does not edit CHANGELOG.md.

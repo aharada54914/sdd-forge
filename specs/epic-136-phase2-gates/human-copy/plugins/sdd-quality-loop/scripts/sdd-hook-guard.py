@@ -998,12 +998,35 @@ _GATE_PROTECT_MSG = (
 )
 
 
+# Sanctioned staging prefix: specs/<feature>/human-copy/ holds candidate
+# copies awaiting human review and human application, never the live
+# enforcement chain itself.
+_HUMAN_COPY_STAGING_RE = re.compile(r"(?:^|/)specs/[^/]+/human-copy/")
+
+
 def _is_protected_gate_file(file_path):
     """R-10: Return True if file_path matches a protected enforcement-chain file."""
     if not file_path:
         return False
     # normpath collapses .. segments so `../../tests/gates.tests.sh` is caught.
     normalized = os.path.normpath(str(file_path).replace("\\", "/")).replace("\\", "/").lower()
+    # Staging exemption: a path still carrying the specs/<feature>/human-copy/
+    # prefix after normpath cannot reach a live enforcement-chain file (any
+    # ..-traversal has already been collapsed), so a staging candidate is
+    # writable — unless a registered suffix itself names a human-copy path
+    # (e.g. the phase2 publisher script), which stays protected.
+    if _HUMAN_COPY_STAGING_RE.search(normalized):
+        for suffix in _PROTECTED_GATE_SUFFIXES:
+            sl = suffix.lower()
+            if "/human-copy/" in sl and normalized.endswith(sl):
+                return True
+        for suffix in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES:
+            sl = suffix.lower()
+            if "/human-copy/" in sl and (
+                normalized.endswith(sl) or normalized.endswith(sl.lstrip("/"))
+            ):
+                return True
+        return False
     for suffix in _PROTECTED_GATE_SUFFIXES:
         if normalized.endswith(suffix.lower()):
             return True
@@ -1325,9 +1348,62 @@ def _shell_cwd_write_hits_protected(cmd):
     return False
 
 
+def _command_references_protected_path(cmd):
+    """R-10 pre-filter: True when a protected path appears as a shell TOKEN
+    (a path-shaped word, or a redirect token's target), not merely as a
+    substring of the raw command text. Prose inside a quoted argument — e.g.
+    a commit message that mentions a protected filename mid-sentence — no
+    longer trips the filter, because the quoted argument is one token whose
+    full text does not END with the protected suffix. Falls back to the raw
+    substring scan when the tokenizer cannot model the command (fail closed)."""
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is None:
+        # The registry stores POSIX-separator suffixes, so the fallback scan
+        # must run over a separator-NORMALIZED copy of the command as well as
+        # the raw text — exactly the normalization _is_protected_gate_file
+        # already performs on a single path.
+        #
+        # Without it this fallback was FAIL-OPEN on native Windows. A write
+        # target spelled as a Windows absolute path
+        # ("D:\\...\\sdd\\approver-registry.yaml") both (a) forces the
+        # tokenizer to return None — an unquoted backslash is an unmodeled
+        # construct — and (b) leaves the raw text spelling the tail
+        # "sdd\\approver-registry.yaml", which does not contain the registered
+        # "sdd/approver-registry.yaml". The pre-filter therefore returned False
+        # and _shell_targets_protected_gate_file returned "no protected path" —
+        # ALLOWING the write. Only the separator immediately before the
+        # registered suffix mattered: a backslashed prefix with a forward-slash
+        # tail still matched, which is why the miss was invisible on POSIX.
+        #
+        # Scanning both texts can only ADD matches, never remove one, so no
+        # command that was denied before can become allowed. Read-only access
+        # to a protected path stays allowed: the read-only short-circuit in
+        # _shell_targets_protected_gate_file is evaluated after this filter.
+        cmd_lower = cmd.lower()
+        cmd_norm = cmd_lower.replace("\\", "/")
+        return any(s.lower() in cmd_lower or s.lower() in cmd_norm
+                   for s in _PROTECTED_GATE_SUFFIXES) or \
+            any(s.lower() in cmd_lower or s.lower() in cmd_norm or
+                s.lower().lstrip("/") in cmd_lower or
+                s.lower().lstrip("/") in cmd_norm
+                for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    for kind, text in tokens:
+        if kind != "word":
+            continue
+        candidate = text
+        if ">" in text:
+            m = _SHELL_REDIRECT_TOKEN_RE.match(text)
+            if m and m.group(2):
+                candidate = m.group(2)
+        if _is_protected_gate_file(candidate):
+            return True
+    return False
+
+
 def _shell_targets_protected_gate_file(cmd):
     """R-10: Deny shell commands that WRITE to protected gate files.
-    Uses substring scan (path appears literally in command) combined with
+    Uses a token-based pre-filter (a protected path appears as a shell token
+    or redirect target) combined with
     write-target analysis (issue #62): a write verb/redirect elsewhere in the
     command no longer denies read-only access to a protected path.
     Read-only short-circuit only fires when ALL of the following hold:
@@ -1346,10 +1422,7 @@ def _shell_targets_protected_gate_file(cmd):
     # so this is checked before the read-only short-circuit below.
     if _shell_cwd_write_hits_protected(cmd):
         return True
-    cmd_lower = cmd.lower()
-    has_protected_path = any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
-                         any(s.lower() in cmd_lower or s.lower().lstrip("/") in cmd_lower
-                             for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    has_protected_path = _command_references_protected_path(cmd)
     if not has_protected_path:
         return False
     has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))

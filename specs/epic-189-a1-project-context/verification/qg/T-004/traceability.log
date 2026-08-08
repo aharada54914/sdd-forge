@@ -1,0 +1,4 @@
+Requirement-traceability check passed for T-004:
+ - tasks.md T-004 -> REQ-006; REQ-006 in requirements.md and traceability.md; T-004 in traceability.md
+ - AC-044..AC-046 / TEST-044..TEST-046 present in acceptance-tests.md, referenced by T-004,
+   and implemented in tests/approver-registry-schema.tests.sh

@@ -502,9 +502,9 @@ if (($t025Cp -ge 0) -and ($t025Consent -ge 0) -and ($t025Cp -ne $t025Consent) -a
     Test-Fail "TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)"
 }
 
-# TEST-026 -- structural, load-bearing (security-spec.md:169): every path
-# in the Loop that reaches an upload call passes the named pre-upload
-# point first. Deliberately scans only `write_files` (the call the
+# TEST-026 -- structural, load-bearing (security-spec.md:169): the
+# consent-already-holds path routes to the named pre-upload point, and every
+# upload call follows that point. Deliberately scans only `write_files` (the call the
 # security-spec.md B1 boundary and the loop's own Push step name as the
 # actual sender), not `finalize_plan` too: `finalize_plan` is legitimately
 # *discussed*, never called, inside step 4's disclosure (the OQ-6 hedge
@@ -514,6 +514,17 @@ if (($t025Cp -ge 0) -and ($t025Consent -ge 0) -and ($t025Cp -ne $t025Consent) -a
 function Test-026NoBypass {
     $cpIdx = Get-FirstLineIndex $loopLines 'Pre-upload check point'
     if ($cpIdx -lt 0) { return $false }
+    $consentHoldsTarget = $null
+    $inOutcomeA = $false
+    foreach ($line in $loopLines) {
+        if ($line -cmatch '^\s*- \*\*\(a\)') { $inOutcomeA = $true }
+        if ($inOutcomeA -and ($line -cmatch 'continue to ([0-9]+) with no prompt')) {
+            $consentHoldsTarget = [int]$Matches[1]
+            break
+        }
+        if ($inOutcomeA -and ($line -cmatch '^\s*- \*\*\(b\)')) { break }
+    }
+    if ($consentHoldsTarget -ne 5) { return $false }
     $uploadIdxs = @()
     for ($i = 0; $i -lt $loopLines.Count; $i++) {
         if ($loopLines[$i] -cmatch 'write_files') { $uploadIdxs += $i }
@@ -691,7 +702,7 @@ if ($loopFlat -match 'next (one|attempt).{0,20}asks again|next upload attempt.{0
     Test-Fail "TEST-042 the next upload attempt within the same scope prompts again (AC-026)"
 }
 
-if ($loopFlat -match 'not a persisted refusal|no standing forbiddance') {
+if ($loopFlat -match 'not the same thing as a decline at 4') {
     Test-Pass "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"
 } else {
     Test-Fail "TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)"

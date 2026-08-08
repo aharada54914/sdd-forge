@@ -769,7 +769,7 @@ while IFS= read -r entry; do
     done < <(sed -n 's/^Approval:[[:space:]]*//p' "$tasks" | tr -d '\r')
     while IFS= read -r value; do
       status_count=$((status_count + 1))
-      [[ "$value" == Planned || "$value" == "In Progress" ||
+      [[ "$value" == Planned || "$value" == "In Progress" || "$value" == Blocked ||
          "$value" == "Implementation Complete" || "$value" == Done ]] ||
         diagnostic "$feature" task-lifecycle "task status is invalid"
     done < <(sed -n 's/^Status:[[:space:]]*//p' "$tasks" | tr -d '\r')
@@ -786,7 +786,7 @@ while IFS= read -r entry; do
         diagnostic "$feature" task-lifecycle "pending task review permits only Planned statuses"
     done < <(sed -n 's/^Status:[[:space:]]*//p' "$tasks" | tr -d '\r')
   fi
-  if [[ -f "$tasks" ]] && grep -Eq '^Status:[[:space:]]*(In Progress|Implementation Complete|Done)|^Approval:[[:space:]]*Approved' "$tasks"; then
+  if [[ -f "$tasks" ]] && grep -Eq '^Status:[[:space:]]*(In Progress|Blocked|Implementation Complete|Done)|^Approval:[[:space:]]*Approved' "$tasks"; then
     [[ "$spec" == Passed && "$impl" == Passed && "$task" == Passed ]] ||
       diagnostic "$feature" task-lifecycle "executable task state requires all reviews Passed"
   fi

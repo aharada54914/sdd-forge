@@ -97,20 +97,137 @@ If `#T-NNN` is given, only process that single task.
 
 ## Step 2 — Track Detection
 
-Execute in this priority order (first match wins):
+This is `sdd-ship`'s Capability-Mode-relevant entry point. Run the
+hook-activation handshake HERE, as the first Capability-Mode-relevant action,
+before trusting any Project Context content:
 
-1. `--full` flag present → **FULL** track. Print `[sdd-ship] Track: full (--full override)`.
-   Verify that `specs/<feature>/acceptance-tests.md` and `specs/<feature>/traceability.md`
-   both exist. If either is missing, stop and instruct the user to run full-track
-   sdd-bootstrap or drop `--full` and use `--lite`.
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — returns a fresh
+   single-use nonce and the canary target `sdd/.hook-canary-sentinel`. If a
+   sentinel from an earlier run is already present, perform and record one
+   cleanup attempt first; the new challenge proceeds either way.
+2. This agent session makes its **own** real tool-call attempt against that
+   canary target, using the per-runtime template the challenge carries, and
+   records the raw result verbatim. The tool never performs the probe write
+   itself.
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
+4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome stops
+   **Capability Mode only**, and which projects that stops is decided by the
+   gate table below, not by this step alone: stop with
+   `CAPABILITY_RUNTIME_UNAVAILABLE` if and ONLY if this project's Project
+   Context is physically present and valid (gate G2); if it is physically
+   absent, the project never entered Capability Mode, so continue on the
+   compatibility fallback as `DISABLED_LEGACY` (gates G3/G4). From a
+   valid-Context project, never fall back to legacy behaviour silently.
+
+<!-- /sdd:handshake-wiring -->
+
+**When the presence/validity probe runs.** The handshake itself never reads
+the Project Context, so step 4 records an outcome without yet knowing which
+gate row applies. The physical-presence-and-validity probe that decides G1/G2
+from G3/G4 is the FIRST step of "Track resolution" below, and it runs THERE —
+after the handshake, before any track is chosen. This section precedes track
+resolution because it is normative about the handshake's meaning; it is not an
+instruction to probe earlier.
+
+### What a non-`HOOK_ACTIVE` handshake does and does not stop
+
+Step 4 above stops **Capability Mode**, not every invocation of this skill.
+Which of the two it is depends on whether this project ever entered Capability
+Mode, and the table below is normative in BOTH directions:
+
+<!-- sdd:capability-gate-scope v1 -->
+
+| Gate | Project Context | Handshake | Resolution |
+|---|---|---|---|
+| G1 | physically present and valid | `HOOK_ACTIVE` | `CAPABILITY_MODE` |
+| G2 | physically present and valid | not `HOOK_ACTIVE` | `CAPABILITY_RUNTIME_UNAVAILABLE` |
+| G3 | physically absent | `HOOK_ACTIVE` | `DISABLED_LEGACY` |
+| G4 | physically absent | not `HOOK_ACTIVE` | `DISABLED_LEGACY` |
+
+<!-- /sdd:capability-gate-scope -->
+
+- **G2 — stop.** A project that HAS a valid Project Context has entered
+  Capability Mode, so a handshake that could not observe a genuine,
+  nonce-matched denial MUST stop with `CAPABILITY_RUNTIME_UNAVAILABLE`, and
+  MUST NOT degrade to the compatibility-fallback path below. That degradation
+  is precisely the silent downgrade ADR-0023 exists to close: `design.md:1112`
+  requires the calling skill to stop **Capability Mode**, never to silently
+  fall back to legacy.
+- **G4 — continue.** A project that has NO Project Context never entered
+  Capability Mode. It sits in ADR-0016's `disabled-legacy`, which is "a
+  normal, expected condition for a project with no Project Context, not an
+  error" (`requirements.md:1821-1827`), and which
+  `CAPABILITY_RUNTIME_UNAVAILABLE` is "never conflated with"
+  (`design.md:1734`). The handshake gates `HOOK_ACTIVE`-gated behaviour only
+  (`requirements.md:1078`), so a non-`HOOK_ACTIVE` result does not stop such a
+  project: it continues on the compatibility fallback below.
+
+The prohibited transition is Capability Mode → legacy. Legacy → legacy is not
+a downgrade, and G4 must never be reported as `CAPABILITY_RUNTIME_UNAVAILABLE`
+merely because G2 is.
+
+### Track resolution
+
+Resolve the track next. **Physical presence is decided FIRST and alone;
+REQ-005 approval validation runs SECOND, only once the file is known to
+exist.** A `sdd/project-context.yaml` that exists but fails
+`validate-approval-sidecar` is **not** the same as one that is absent —
+treating the two alike is the fail-open ADR-0023 closes.
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+- `COMPATIBILITY_FALLBACK` (C1 only) — apply the compatibility fallback below,
+  unchanged from the pre-ADR-0023 contract.
+- `PROJECT_CONTEXT_INVALID` (C2) — stop before any task is started and print
+  `[sdd-ship] PROJECT_CONTEXT_INVALID: sdd/project-context.yaml is present but
+  its approval could not be verified.` Do not start implementation, do not
+  invoke any gate, do not change any `Status`, and do not fall through to C1's
+  fallback or to an implicit `full`/`lite` selection.
+- `PROMOTE_FULL` (C3) — resolved track is `full`. Print
+  `[sdd-ship] Track: full (PROMOTE_FULL)`, then verify the full-track
+  artifacts as described below.
+- `NO_OP_FULL` (C6) — resolved track is `full`. Print
+  `[sdd-ship] Track: full (NO_OP_FULL)`, then verify the full-track artifacts
+  as described below.
+- `NO_OP_LITE` (C4) — resolved track is `lite`. Print
+  `[sdd-ship] Track: lite (NO_OP_LITE)` and run the risk-upgrade scan below
+  before starting any task.
+- `ERROR_STOP` (C5) — `--lite` against a declared `full` profile would loosen
+  the declared profile. Stop before any task is started and print
+  `[sdd-ship] ERROR_STOP: --lite cannot downgrade a Project Context declaring
+  spec_profile: full. Re-run without --lite.` It is never silently ignored and
+  never silently honoured.
+
+**Full-track artifact verification** (`PROMOTE_FULL`, `NO_OP_FULL`, and the
+fallback's `--full` route): verify that `specs/<feature>/acceptance-tests.md`
+and `specs/<feature>/traceability.md` both exist. If either is missing, stop
+and instruct the user to run full-track sdd-bootstrap.
+
+`PLUGIN-CONTRACTS.md`'s Track Detection section is the normative source for
+this table.
 
 ### Risk-upgrade scan
 
-`--full` is the only scan bypass. For every remaining default, profile, or
-`--lite` route, build a local UTF-8 input by concatenating the selected task's
-complete `## T-NNN` block followed by that feature's `requirements.md`. Both
-inputs are mandatory; do not retrieve remote issue text and do not use a
-partial task block.
+A resolved `full` track is the only scan bypass. For every route that could
+resolve to **LITE** — `NO_OP_LITE`, or any remaining default, profile, or
+`--lite` route of the compatibility fallback — build a local UTF-8 input by
+concatenating the selected task's complete `## T-NNN` block followed by that
+feature's `requirements.md`. Both inputs are mandatory; do not retrieve remote
+issue text and do not use a partial task block.
 
 Run the platform-local checker before considering a lite branch:
 
@@ -126,8 +243,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-lite/scripts/che
 - Exit 2 with `risk-upgrade: input unavailable` is fail-closed: stop before
   implementation or the lite gate, print that diagnostic, and direct the user
   to restore the selected task block and requirements or run full bootstrap.
-- Exit 0 with `lite-eligible` allows the normal remaining priority rules.
+- Exit 0 with `lite-eligible` allows the resolved lite track to proceed.
 
+### Compatibility fallback (no Project Context)
+
+Reached only from case C1, and unchanged from the pre-ADR-0023 contract.
+Execute in this priority order (first match wins):
+
+1. `--full` flag present → **FULL** track. Print `[sdd-ship] Track: full (--full override)`.
+   Verify that `specs/<feature>/acceptance-tests.md` and `specs/<feature>/traceability.md`
+   both exist. If either is missing, stop and instruct the user to run full-track
+   sdd-bootstrap or drop `--full` and use `--lite`.
 2. `--lite` flag present → **LITE** track. Print `[sdd-ship] Track: lite (--lite override)`.
 3. Read `AGENTS.md`. If `spec_profile: lite` appears on any line → **LITE** track.
    Print `[sdd-ship] Track: lite (spec_profile: lite in AGENTS.md)`.

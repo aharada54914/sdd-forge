@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-designsyncstandingconsent-spec-a1r1-b-seq0543",
+  "host_session_id": "SESS-spec-a1r1-b-designsyncstandingconsent-0543",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-standing-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "bc08b4533889966275389aee0b3d9c9e1a157edf89252114394f65d0cb5f9409"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "b24381db1f36615df56ad8e7151a8e3757fc4098759eccc5a951b4ba3451ca79"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "7b2ea3f5cde2e18f245a56afdbeafdfa632902098a28cc5698fc9e40f31f5399"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6f18019d3e171a40eaf7af6f3c0c895fbf39a4841655c4b61ccd1e338913d897"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-001 (AC-001 line 29; AC-003 lines 35-37) fixes exact resolution rules for two degenerate ds_upload_consent inputs -- a wholly absent '## Project Settings' section, and a present section that omits the key -- but no REQ/AC anywhere in requirements.md, and no TEST row in acceptance-tests.md (TEST-001-TEST-005, lines 13-17), states what happens when the key is PRESENT with a value outside {standing, per-feature, off} (a typo, a case variant like 'Standing', or a legacy value). Given REQ-003's own framing (requirements.md:13, 'standing... removes the one bounded moment of live human attention DS-29's entire design exists to defend'), a fail-open reading (treat unrecognized as standing) versus fail-closed (per-feature, or a hard error) is a materially different, security-relevant outcome, and two implementers could reasonably choose differently. Downstream failure mode: a design/implementation reviewer has no acceptance criterion to validate this branch against and must invent it. Belongs to spec review because REQ-001 already fixes the analogous default-resolution rule for the two OTHER degenerate cases at requirements level (AC-003) -- the third degenerate case's absence is a requirements gap, not an implementation nuance. Major, not Critical: a bounded, narrow gap in an otherwise fully specified three-way branch, not a workflow-boundary contradiction that makes the spec unreviewable."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements.md, acceptance-tests.md, and investigation.md within the manifest. The document affirmatively hunts for and resolves apparent tensions: requirements.md:115 explicitly reconciles REQ-005/AC-015 ('step 3/4's content is unedited') against REQ-006 ('every record gains the new fields') by locating the new fields in the shared record-table section rather than inside step 3/4's own branch-specific text. The Resolutions section (requirements.md:253-260) records five coordinator rulings (A-E) closing prior round-1 tensions, including an explicit prior internal contradiction that was found and corrected (Ruling D, requirements.md:259, about design.md's persistence claim). No unresolved conflicting requirement, AC, constraint, or non-goal remains in the manifest documents."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Matrix (TEST-001 through TEST-005, lines 13-17) splits the two degenerate-absence cases into separate rows (TEST-003 wholly-absent section, TEST-004 present-section-missing-key -- explained at lines 87-89 as deliberately split because 'an implementation can satisfy one and miss the other'), but no TEST row asserts anything about a present-and-out-of-domain value for ds_upload_consent (e.g. AGENTS.md containing ds_upload_consent: enabled, or a mis-cased 'Standing'). This is a material boundary/negative case implied by REQ-001's own three-valued-domain framing (requirements.md AC-001, line 29: 'no fourth value is described anywhere in the definition') yet has no corresponding negative-path acceptance test, unlike every other degenerate input this document treats with equal or greater rigor (see the TEST-003/TEST-004 split rationale, and the AC-018 eight-branch split at acceptance-tests.md:132-134). Downstream failure mode: the implementer/verifier has no oracle for this input. Belongs to spec review because it is a Test-Matrix completeness gap parallel to a splitting rationale the document itself already applies to two adjacent degenerate inputs of the same requirement. Major per calibration: missing observable acceptance criterion for a boundary/negative case implied by the requirements, not an impossible-criteria or unsafe-workflow-boundary case."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Open Questions table (lines 245-251) and Resolutions section (lines 253-260) show OQ-1 and OQ-3 formally resolved with coordinator rulings (A, B), each traced to the REQ/AC it now governs (REQ-007/AC-020 for ruling A; REQ-003/AC-009/AC-030 for ruling B). The three still-open items (OQ-2, OQ-4, OQ-5; summarized at line 264, 'Three remain... None blocks implementation') are each explicitly marked non-blocking and hedged by a specific, checkable acceptance criterion that bounds the residual gap rather than guessing at its resolution: AC-019 fixes the non-fabrication constraint for OQ-2 while leaving only the exact string open; REQ-010/AC-028's staged-patch framing bounds OQ-5; OQ-4 is explicitly inherited from DS-29's own unresolved OQ-10 and assigned an owner (maintainers). This matches the check's explicit-decision-needed criterion for every remaining open item."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-approval/governance boundary the requirements imply -- the three-way consent resolution at design-sync-loop/SKILL.md step 3 (per-feature/standing/off) -- is fully testable: AC-007/TEST-008 (acceptance-tests.md:20) asserts standing skips the 'must be requested' outcome, AC-011/TEST-013 and AC-013/TEST-017 (lines 25, 29) assert off's persistent forbiddance is distinguished from a transient decline, and AC-015/TEST-019-025 (lines 31-37) assert DS-29's existing human-consent flow under per-feature remains textually unmodified. The narrower, separate question of whether a human (versus an agent) is the one who sets ds_upload_consent: standing in AGENTS.md is transparently scoped out, not silently missing: requirements.md's Non-goals (line 210) names it explicitly as 'the feature's principal residual risk,' with stated rationale that closing it 'is a larger change than this issue asks for.' Because the requirements do not claim to guard that particular boundary, and disclose the gap with reasoning rather than omitting it, the testability bar is met for the boundary the requirements actually assert."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the narrow invalid-value gap already reported under AMBIGUITY/EDGE-CASE-COVERAGE, the specification is unusually implementation-ready: every REQ maps to numbered ACs, every AC maps to one or more TEST rows with an explicit split rationale (acceptance-tests.md:87-176), file:line citations are given throughout requirements.md with mandated re-verification (requirements.md:228), a documented baseline-relative regression strategy is specified for the external DS-29 suite (REQ-009/AC-025, requirements.md:177-187), and Non-goals/Baseline Constraints sections (requirements.md:205-241) draw an explicit, reasoned boundary around what this feature does and does not touch. A design reviewer would not need to invent missing product behavior beyond the one bounded gap already reported above."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md or domain/domain-contract.json is present in the allowed-input manifest for this review; per role instructions this check is recorded as skipped on that basis without an out-of-manifest existence probe, consistent with established precedent and with reviewer A's own integrated-summary.json result for this check (SKIP, reports/spec-review/design-sync-standing-consent/attempt-1/round-1/integrated-summary.json:37-40)."
+    }
+  ]
+}

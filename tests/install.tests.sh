@@ -21,6 +21,12 @@ clone_fixture() {
     mkdir -p "$destination"
     git -C "$source_root" archive --format=tar HEAD -- ':(exclude)specs' ':(exclude)reports' | tar -xf - -C "$destination"
     git -C "$destination" init -q
+    # Commits in this repository can spawn detached background maintenance
+    # (auto gc) that races teardown's rm -rf ("Directory not empty"). Disable
+    # it repo-locally so no git process outlives any scenario.
+    git -C "$destination" config gc.auto 0
+    git -C "$destination" config gc.autoDetach false
+    git -C "$destination" config maintenance.auto false
     git -C "$destination" add -A
     git -C "$destination" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
 }

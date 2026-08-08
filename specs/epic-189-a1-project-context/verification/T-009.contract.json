@@ -1,0 +1,164 @@
+{
+  "task_id": "T-009",
+  "feature": "epic-189-a1-project-context",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-02T11:45:30Z",
+  "comment": "Default-FAIL verification contract for T-009 (critical, tdd) - the SECOND critical-risk task in epic-189-a1, after T-007. Populated after the quality gate reran T-009's own suite in BOTH lanes (bash tests/guard-invariants-epic-a1.tests.sh PASS 78 / FAIL 0; pwsh -NoProfile -File tests/guard-invariants-epic-a1.tests.ps1 PASS 82 / FAIL 0; ZERO skip lines in either lane, so every assertion genuinely executed on this platform) and, recorded in the same log, this task's CORE deterministic gate: PYTHONDONTWRITEBYTECODE=1 python3 plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check against the LIVE tree, exit 0 with no diagnostic output (specs/epic-189-a1-project-context/verification/qg/T-009/focused-tests.log). That third command could NOT be captured by redirection - sdd-hook-guard denies a redirect shape co-occurring with a protected path, and the generator is itself a protected gate file - so the denial was RECORDED and the command re-run in the already-permitted shape, exactly as the seq0364/seq0365 evaluator did; the log states this in its own footer rather than leaving the asymmetry unexplained. Regression run as the epic-189-a1 EIGHT-suite set (every suite except T-009's own) via INDIVIDUAL runs, both lanes, all sixteen green (project-context-schema 41/41 x2, approver-registry-schema 8/8 x2, canonicalizer 80/80 + 77/77, signer 59/59 + 57/57, detector 60/60 + 59/59, validator 40/40 + 39/39, publisher 218/0 + 146/0, handshake 88/0 + 87/0 - the handshake suite newly added to the set now that T-008 has landed; all sixteen runs exit=0; specs/epic-189-a1-project-context/verification/qg/T-009/regression.log). Individual-suite mode is used because tests/run-all.sh aborts at tests/prepare-panelist.tests.sh, whose failure PRE-DATES this task (content last touched by 298cf22b/2f93edd6, #108/#185-era; prepare-panelist sits at run-all.sh:15, far ahead of the epic-189 suites at :57-65, so the aggregate runner never reaches them) - NOT attributable to T-009, and recorded in the regression log's own header so the exclusion is transparent rather than silent. Every sh-lane run uses bash rather than POSIX sh, matching T-007/T-008, because suites across this epic's guard surface use process substitution. The regression log additionally carries a clearly-labelled SUPPLEMENTARY section BEYOND the required set - the three adjacent guard suites, since T-009 is the task that mutates the live guard-invariants inventory: phase2-guard-invariants 33/0 (bash lane), guard-staging-exemption 33/0, guards 133/0, and tests/phase2-guard-invariants.tests.ps1 59 passed / 9 FAILED. That PowerShell failure is disclosed, not buried: it was proven PRE-EXISTING by extracting the tree at 15b53914 (the T-008 Done commit, before any T-009 commit exists) with git archive into a throwaway scratch directory and reproducing the byte-identical nine-assertion failure set there; all nine are TEST-013 cases resting on Windows/NTFS semantics (junctions, held handles, out-of-inventory hard-link aliases, the fixed native replacement API) being exercised on macOS, and the same suite's bash twin passes 33/0. It is outside the required set and does not gate the regression check, whose evidence is the sixteen green runs. Placeholder scan clean this round (specs/epic-189-a1-project-context/verification/qg/T-009/placeholder.log: 'Placeholder scan passed.' over the six LIVE guard-invariants artifacts - plugins/sdd-quality-loop/references/guard-invariants.json, scripts/generate-guard-invariants.py, scripts/generated/guard_invariants.py and scripts/generated/guard-invariants.generated.{js,ps1,sh} - plus the canonical specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md and both suites). Task-state (13 tasks passed, with T-002..T-008 contracts and evidence bundles revalidated in the same run; specs/epic-189-a1-project-context/verification/qg/T-009/task-state.log) and scripted requirement-traceability (specs/epic-189-a1-project-context/verification/qg/T-009/traceability.log; REQ-007 -> AC/TEST-021, AC/TEST-022 and AC/TEST-038 chain verified directly against requirements.md, traceability.md, acceptance-tests.md and both suites, plus suite self-registration at tests/run-all.sh:65 / tests/run-all.ps1:48) are both green; the traceability log additionally records three facts the gate observed rather than adjudicated - REQ-007's requirement row is SHARED with T-007 and both halves are now present on disk, human-copy/MANIFEST.sha256 holds eight entries of which seven are T-009's actual published batch and the eighth (.github/workflows/test.yml) belongs to T-010, and the critical-risk second-approver signature on the evidence bundle remains an outstanding HUMAN action. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set, permitted at critical risk on a non-code stack per the risk-gate matrix). TDD red = specs/epic-189-a1-project-context/verification/T-009/red-sh.log (PASS 70 / FAIL 5) with its twin specs/epic-189-a1-project-context/verification/T-009/red-ps1.log (74 / 5) and the staged-tree gate transcript specs/epic-189-a1-project-context/verification/T-009/check-red.log; green = specs/epic-189-a1-project-context/verification/T-009/green-sh.log (75 / 0) with its twin specs/epic-189-a1-project-context/verification/T-009/green-ps1.log (79 / 0) and specs/epic-189-a1-project-context/verification/T-009/check-green.log, commit fc830ab9. The single Red variable was the staged EPIC_A1_TARGETS tuple omitting the 4 RESERVED manifest entries, which makes the staged --check fail with 'protected_gate_suffixes must be the exact baseline/inventory union'. The SHIPPED suite is one commit later: 85e67abb widened the inventory assertions so they are valid on BOTH sides of the human-apply boundary, and its logs are specs/epic-189-a1-project-context/verification/T-009/post-apply-sh.log (78 / 0) and post-apply-ps1.log (82 / 0) - exactly the tallies focused-tests.log reproduces here, so the contract's green tallies (75 / 79) and the focused tallies (78 / 82) differ by precisely the assertions that commit added, not by any drift. Independent skeptical evaluation ran TWO rounds. seq0364 (reports/quality-gate/2026-08-02T042645Z-T-009.md) returned NEEDS_WORK with 1 Major that was NOT a defect in T-009's own artifacts but a DEPLOYMENT finding: the plugin cache the live hook actually loads still carried the pre-registration inventory, so the newly registered paths were demonstrably still writable and the security objective was not yet in force. It was remediated, and seq0365 PASS (reports/quality-gate/2026-08-02T112506Z-T-009.md, 0 Critical / 0 Major / 1 Minor recorded) re-verified the fix BEHAVIOURALLY rather than by inspection: a denial probe in the evaluator's own sandbox, with only the trailing suffix varying, returned DENY for registered rows 01/19/23/25/28 and ALLOW for both an unregistered filename in the SAME directory and a near-miss extension, excluding a directory-level or fuzzy-match confound. The single surviving Minor is an untracked, gitignored __pycache__ directory inside the human-copy staging tree; it is unpublishable (apply-human-copy publishes only MANIFEST.sha256 entries) and non-blocking. Evidence-bundle generation and signing are deliberately NOT performed by this chain-authoring session: this is the SECOND critical-risk task in the feature, and critical risk requires a DISTINCT human approver to generate and sign the bundle from a clean working tree, exactly as it was for T-007.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-009/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-009/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-009/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-009's scope; the task registers protected paths in a data inventory and its generator, and the whole end-to-end path (PROTECTED-MANIFEST.md -> guard-invariants.json -> generate-guard-invariants.py -> the four generated projections -> a live --check) is exercised in-tree by the suite and by the deterministic --check recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-009/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-009/red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-009/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-009/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-009/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-009/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-009/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; this task's nearest equivalent is the LIVE generate-guard-invariants.py --check invocation, which is recorded inside focused-tests.log (exit 0) rather than as a separate smoke artifact, and which every suite invocation also exercises against the staged tree.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-009 is net-new registration work, not a refactor/bugfix. AC-022's own before/after live-file SHA-256 proof fills that role inside the suite, and the seq0365 evaluation additionally ran a parent-commit differential (git show 8297945a^:) over all six live files plus a 3,985-file over-capture sweep, recorded in reports/quality-gate/2026-08-02T112506Z-T-009.md.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-009's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
