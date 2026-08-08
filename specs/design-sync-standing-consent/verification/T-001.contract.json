@@ -5,7 +5,7 @@
   "required_workflow": "acceptance-first",
   "stack": "shell",
   "spec_revision": "a3f7467db5bc831cfb287c6d160c4726bf9ff60200d8a7d160499aaddaf8e62f",
-  "created": "2026-08-08T02:08:03Z",
+  "created": "2026-08-08T03:38:47Z",
   "comment": "T-001 (assertion suite authoring for TEST-001..056 + local run-all registration + pre-edit baseline, acceptance-first, reports/implementation/design-sync-standing-consent/T-001.md). RED baseline: PASS 22 / FAIL 33 in both runtimes (byte-identical transcripts), the designed TDD-RED precondition for T-002/T-003/T-004. Positive-control fixture run: 54/55 (.sh) / 53/55 (.ps1), the sole gaps being a fixture-environment artifact of TEST-051/TEST-052 against a deliberately minimal fixture tree, not a suite defect. Vacuousness bug (TEST-010's first draft) caught and fixed before finalizing.",
   "checks": [
     {

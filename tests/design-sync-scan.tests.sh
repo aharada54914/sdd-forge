@@ -406,6 +406,26 @@ else
     fail "TEST-014c: expected both exit 0, got check-placeholders=${cp_neg_exit} design-sync-scan=${SCAN_EXIT}. Output: ${SCAN_OUTPUT}"
 fi
 
+# QG cycle-1 remediation (scan T-001 Major-1): TEST-014a-c above prove the
+# two scripts agree on VERDICTS for two fixed corpora, but a verdict match
+# does not prove the PATTERNS themselves are byte-identical -- two
+# independently-drifted regexes can still happen to agree on these
+# particular fixtures. TEST-014d closes that gap by comparing the literal
+# pattern text design-sync-scan.sh:107-108 transcribed from
+# check-placeholders.sh:18-19 against the live source, at test-run time.
+scan_pattern_cs="$(grep -m1 '^placeholder_pattern_cs=' "$SC" | sed -E "s/^placeholder_pattern_cs='(.*)'\$/\\1/")"
+scan_pattern_ci="$(grep -m1 '^placeholder_pattern_ci=' "$SC" | sed -E "s/^placeholder_pattern_ci='(.*)'\$/\\1/")"
+if [ -n "$scan_pattern_cs" ] && [ -n "$scan_pattern_ci" ]; then
+    ok "TEST-014d-setup: re-read design-sync-scan.sh's live placeholder_pattern_cs/_ci at test-run time (not transcribed)"
+else
+    fail "TEST-014d-setup: could not extract placeholder_pattern_cs/_ci from ${SC}"
+fi
+if [ "$scan_pattern_cs" = "$cp_pattern_cs" ] && [ "$scan_pattern_ci" = "$cp_pattern_ci" ]; then
+    ok "TEST-014d: design-sync-scan.sh's placeholder_pattern_cs/_ci are byte-identical to check-placeholders.sh's pattern_cs/_ci -- verbatim transcription, not independent authorship (AC-009)"
+else
+    fail "TEST-014d: design-sync-scan.sh's placeholder patterns have drifted from check-placeholders.sh's -- cs '${scan_pattern_cs}' vs '${cp_pattern_cs}', ci '${scan_pattern_ci}' vs '${cp_pattern_ci}'"
+fi
+
 echo ""
 echo "=== TEST-015 - TEST-020, TEST-083 (AC-010): one row per secret pattern S1-S6, plus S5's sk-proj- sub-format ==="
 assert_secret_hit() {
@@ -460,6 +480,18 @@ if [ "$SCAN_EXIT" -eq 1 ] && printf '%s' "$SCAN_OUTPUT" | grep -q "PII"; then
     ok "TEST-022: a non-reserved-domain email triggers a PII finding"
 else
     fail "TEST-022: expected a PII finding, got ${SCAN_EXIT}. Output: ${SCAN_OUTPUT}"
+fi
+
+echo ""
+echo "=== TEST-087 (AC-011, QG cycle-1 remediation scan T-001 Major-2): P1 (.edu email) triggers a PII finding -- .edu is not one of the seven RFC 2606/6761 reserved domains/TLDs design.md's pattern catalogue names ==="
+t087_dir="${WORK}/t087"
+mkdir -p "$t087_dir"
+printf '<html><body>\n<p>Contact: prof@university.edu</p>\n</body></html>\n' > "${t087_dir}/e.html"
+run_scan "$t087_dir"
+if [ "$SCAN_EXIT" -eq 1 ] && printf '%s' "$SCAN_OUTPUT" | grep -q "PII"; then
+    ok "TEST-087: a .edu-domain email triggers a PII finding -- .edu is deliberately absent from the reserved-domain exclusion list and must not be silently added to it"
+else
+    fail "TEST-087: expected a PII finding for a .edu address, got ${SCAN_EXIT}. Output: ${SCAN_OUTPUT}"
 fi
 
 echo ""
@@ -754,6 +786,17 @@ if [ -z "$t052_missing" ]; then
     ok "TEST-052: every REQ-001..REQ-009 AC-NNN heading in requirements.md appears at least once in acceptance-tests.md"
 else
     fail "TEST-052: AC(s) missing from acceptance-tests.md's AC column:${t052_missing}"
+fi
+
+echo ""
+echo "=== TEST-053 (AC-035, QG cycle-1 remediation scan T-005 Major): both tests/run-all.sh and tests/run-all.ps1 list the new suite ==="
+RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
+RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
+if grep -Fq 'tests/design-sync-scan.tests.sh' "$RUN_ALL_SH" \
+  && grep -Fq 'tests/design-sync-scan.tests.ps1' "$RUN_ALL_PS1"; then
+    ok "TEST-053: both tests/run-all.sh and tests/run-all.ps1 list the new suite"
+else
+    fail "TEST-053: tests/design-sync-scan.tests.{sh,ps1} is not registered in both tests/run-all.sh and tests/run-all.ps1"
 fi
 
 # ============================================================================

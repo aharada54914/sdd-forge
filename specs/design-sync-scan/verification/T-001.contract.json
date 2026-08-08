@@ -5,7 +5,7 @@
   "required_workflow": "tdd",
   "stack": "shell",
   "spec_revision": "96a7e24f77fc38c17494d839ea7db2dfcf29b0e88a20cfab1b7b5957f9bdaed2",
-  "created": "2026-08-08T02:08:03Z",
+  "created": "2026-08-08T03:38:47Z",
   "comment": "T-001 (design-sync-scan.sh + its own assertion suite, TDD Red->Green, commit per reports/implementation/design-sync-scan/T-001.md). RED: 17 passed / 58 failed (exit 127, command not found -- script absent). GREEN: 75 passed / 0 failed, reproduced 3x. placeholder-scan: check-placeholders.sh genuinely FAILs (2 findings) against this script's own pattern-catalogue source; the two findings are explicitly accepted per quality-gate/SKILL.md:45's own resolution path (self-referential, matches check-placeholders.sh's own precedent against its own source; already disclosed by the implementer) -- see qg/placeholder-T-001-accepted.log.",
   "checks": [
     {

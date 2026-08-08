@@ -15,9 +15,17 @@ Set-StrictMode -Version Latest
 # `-cmatch`/`.Contains()` here; every site mirroring a case-insensitive
 # `.sh` check (`grep -Ei`/`grep -Fi`) uses plain `-match` (or, for a
 # case-insensitive literal-substring check, `-match [regex]::Escape(...)`).
-# No `Select-String`, `-split`, `[regex]` static methods, `switch
-# -wildcard`/`-regex`, or `Sort-Object` are used anywhere in this file, so
-# the cmdlet-level layer of the sweep (item 1(b)) has no site to cover.
+# No `Select-String`, `[regex]` static methods, `switch -wildcard`/
+# `-regex`, or `Sort-Object` are used anywhere in this file, so those parts
+# of the cmdlet-level layer of the sweep (item 1(b)) have no site to
+# cover. `-csplit`/`-creplace` (QG cycle-2 addendum) are used at two sites
+# to isolate the setting's table row's Values/Default cells -- always the
+# case-sensitive `-c`-prefixed form, never plain `-split`/`-replace`, even
+# though every pattern at those two sites (`\|`, `\\\|`, `@ESC@`) has no
+# letters and so is not actually case-sensitivity-dependent; `-c` is used
+# anyway for consistency with the rest of this file's discipline and so a
+# later edit that adds a letter to one of those patterns inherits the
+# correct default rather than a silent case-insensitive gap.
 
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
@@ -165,6 +173,127 @@ foreach ($line in $agLines) {
     if ($line.Contains($bannedKey)) { $agKeyLine = $line; break }
 }
 
+# The setting's table row's Values/Default cells, precisely isolated from
+# the row's free-text Meaning cell (QG cycle-2 Major fix, TEST-001/003/004
+# -- see the .sh twin's matching comment for the full rationale). Markdown
+# escapes an in-cell "|" as "\|" so it is not read as a column separator;
+# `-creplace`/`-csplit` (case-sensitive variants -- the pattern has no
+# letters, so case does not actually vary the result, but these mirror the
+# .sh twin's case-sensitive `sed`/`awk` and keep this suite's
+# case-sensitivity sweep, which this pair of sites now also covers,
+# internally consistent) neutralize a literal "\|" two-character sequence
+# to a placeholder token first, so the remaining "|" characters `-csplit`
+# splits on are only the row's true, unescaped column boundaries.
+$agValuesCell = ""
+$agValuesSegCount = 0
+$agDefaultCell = ""
+# Each Values-cell segment, individually trimmed, compared as a set
+# (QG cycle-2 Major-2 fix -- see the .sh twin's matching comment for the
+# full rationale): acceptance-tests.md :85 only commits to "exactly three
+# [values], in either order", so an order-fixed full-cell string match
+# false-positives on a legitimately reordered but still-correct cell.
+$agValuesSegmentsSet = New-Object System.Collections.Generic.HashSet[string]
+if ($agKeyLine -ne "") {
+    $agKeyLineProtected = $agKeyLine -creplace '\\\|', '@ESC@'
+    $agKeyLineCells = $agKeyLineProtected -csplit '\|'
+    if ($agKeyLineCells.Count -ge 4) {
+        $agValuesCell = $agKeyLineCells[2]
+        $agValuesSegments = $agValuesCell -csplit '@ESC@'
+        $agValuesSegCount = $agValuesSegments.Count
+        foreach ($seg in $agValuesSegments) {
+            [void]$agValuesSegmentsSet.Add((($seg -replace '\s+', ' ').Trim()))
+        }
+        $agDefaultCell = ($agKeyLineCells[3] -replace '\s+', ' ').Trim()
+    }
+}
+$agValuesSegmentsExpected = New-Object System.Collections.Generic.HashSet[string]
+[void]$agValuesSegmentsExpected.Add('`standing`')
+[void]$agValuesSegmentsExpected.Add('`per-feature`')
+[void]$agValuesSegmentsExpected.Add('`off`')
+$agValuesSegmentsMatch = $agValuesSegmentsSet.SetEquals($agValuesSegmentsExpected)
+
+# Repeatedly finds and removes the leftmost regex match from $text
+# (case-sensitive via -cmatch when $caseSensitive, case-insensitive via
+# plain -match otherwise), returning every match found, in order -- a
+# manual substitute for [regex]::Matches, which this file's own
+# case-sensitivity-sweep discipline (see the top-of-file note) states is
+# not used anywhere in it, built only from operators/methods this file
+# already uses elsewhere (-cmatch/-match, .IndexOf(), .Substring()). Safe
+# because none of this suite's patterns use lookaround, so a match's own
+# text is a pure function of the match itself -- an identical earlier
+# literal occurrence of that same text would, by construction, also
+# satisfy the pattern and so would already have been the one -match/
+# -cmatch reports first; .IndexOf() therefore always lands on the true
+# match position, never an unrelated earlier coincidence.
+function Get-AllLeftmostMatches([string]$text, [string]$pattern, [bool]$caseSensitive) {
+    $results = New-Object System.Collections.Generic.List[string]
+    $remaining = $text
+    while ($true) {
+        if ($caseSensitive) {
+            $found = $remaining -cmatch $pattern
+        } else {
+            $found = $remaining -match $pattern
+        }
+        if (-not $found) { break }
+        $m = $matches[0]
+        $results.Add($m)
+        $idx = $remaining.IndexOf($m)
+        $remaining = $remaining.Substring($idx + $m.Length)
+    }
+    return $results.ToArray()
+}
+
+# The branch-defining literal itself out of one of Get-AllLeftmostMatches'
+# own matches -- the text from just after the opening backtick up to
+# (excluding) the next backtick, e.g. "auto" out of "`auto`:" or
+# "`auto`, a fourth value".
+function Get-BacktickToken([string]$matchText) {
+    $rest = $matchText.Substring(1)
+    $idx = $rest.IndexOf('`')
+    return $rest.Substring(0, $idx)
+}
+
+# QG cycle-3 (evaluator, TEST-001 structural closure) -- see the .sh
+# twin's matching comment for the full rationale. Rounds 1-2 each
+# enumerated one specific syntactic *shape* a fourth value could take
+# (immediately followed by ':'; or by ',' with "value"/"values" nearby) --
+# each round closed the shape it named but left the class open, since a
+# mutant naming a fourth value in any other shape (e.g. a plain sentence
+# with neither a trailing ':' nor a nearby "value" word) would satisfy
+# neither prior shape and still survive. $agPsRowScan scopes this to the
+# section's own intro paragraph ($agPsIntroFlat, the lines of $agPsLines
+# before the table's own leading "|") plus the setting's own key row
+# ($agKeyLine) only -- same scope as the shape-enumeration approach this
+# replaces; the table's header/separator rows are still excluded, since
+# they carry no backtick literals anyway. $agPsAllTokens collects EVERY
+# backtick-quoted literal found anywhere in $agPsRowScan -- not just ones
+# in a hand-picked syntactic position -- case-sensitively (never folded:
+# the intro's own legitimate `Standing` case-variant illustration is kept
+# as its own distinct allowlist entry below, since folding it into
+# `standing` is exactly what would let a genuinely different fourth
+# literal of some other case hide behind an allowlist entry of a
+# different case). TEST-001 below requires $agPsAllTokens to be a subset
+# of $agPsAllowlist (the region's current 9 legitimate literals) via
+# HashSet's own IsSubsetOf (order-independent, and avoids this file's
+# barred Sort-Object), AND $agPsRequiredThree to be a subset of
+# $agPsAllTokens (none of the three required values dropped -- a mutation
+# could narrow the allowlist-conforming set to just two of the three
+# without ever introducing an unknown literal).
+$agPsIntroLines = Get-SectionBetween $agPsLines '^## Project Settings$' '^\|'
+$agPsIntroFlat = Get-Flat $agPsIntroLines
+$agPsRowScan = Get-FlatText ($agPsIntroFlat + " " + $agKeyLine)
+$agPsAllTokenMatches = Get-AllLeftmostMatches $agPsRowScan '`[^`]+`' $true
+$agPsAllTokens = New-Object System.Collections.Generic.HashSet[string]
+foreach ($m in $agPsAllTokenMatches) { [void]$agPsAllTokens.Add((Get-BacktickToken $m)) }
+$agPsAllowlist = New-Object System.Collections.Generic.HashSet[string]
+foreach ($lit in @('standing', 'per-feature', 'off', 'Standing', 'granted', 'ds_upload_consent', 'requirements.md', 'design-sync-loop', 'Design-Source')) {
+    [void]$agPsAllowlist.Add($lit)
+}
+$agPsRequiredThree = New-Object System.Collections.Generic.HashSet[string]
+foreach ($lit in @('standing', 'per-feature', 'off')) { [void]$agPsRequiredThree.Add($lit) }
+$agPsTokensAllowed = $agPsAllTokens.IsSubsetOf($agPsAllowlist)
+$agPsHasAllThree = $agPsRequiredThree.IsSubsetOf($agPsAllTokens)
+
 $dslText = Get-TextOrEmpty $dslPath
 $dslFlat = Get-FlatText $dslText
 $dslLines = Get-LinesOrEmpty $dslPath
@@ -174,21 +303,45 @@ $step3Lines = Get-SectionBetween $loopLines '^3\. \*\*Resolve egress consent' '^
 $step3Flat = Get-Flat $step3Lines
 $standingLines = Get-SectionBetween $step3Lines '\*\*standing\*\*' '\*\*off\*\*'
 $standingFlat = Get-Flat $standingLines
-$offLines = Get-SectionBetween $step3Lines '\*\*off\*\*' 'ZZZ_NEVER_MATCHES_ZZZ'
+# End sentinel closed on the real next-paragraph anchor, not a
+# never-matches sentinel (QG cycle-2 Major fix, TEST-043 -- see the .sh
+# twin's matching comment for the full rationale).
+$offLines = Get-SectionBetween $step3Lines '\*\*off\*\*' 'A per-feature mid-session withdrawal'
 $offFlat = Get-Flat $offLines
 $whicheverLines = Get-SectionBetween $step3Lines 'Whichever regime or occasion' 'ZZZ_NEVER_MATCHES_ZZZ'
 $whicheverFlat = Get-Flat $whicheverLines
+# Dedicated scope for the mid-session-withdrawal occasion (QG cycle-2
+# Major fix, TEST-042 -- see the .sh twin's matching comment for the full
+# rationale). 'ZZZ_NEVER_MATCHES_ZZZ' is safe here only because this is
+# the last paragraph in the already-bounded $step3Lines array.
+$withdrawalLines = Get-SectionBetween $step3Lines 'A per-feature mid-session withdrawal' 'ZZZ_NEVER_MATCHES_ZZZ'
+$withdrawalFlat = Get-Flat $withdrawalLines
 
 $cdwText = Get-TextOrEmpty $cdwPath
 $cdwFlat = Get-FlatText $cdwText
 
 # --- REQ-001 (AC-001, AC-002, AC-003, AC-004, AC-031) -----------------------
 
-if (($agKeyLine -ne "") -and $agKeyLine.Contains("standing") -and $agKeyLine.Contains("per-feature") `
-        -and $agKeyLine.Contains("off") -and -not ($agKeyLine -match 'e\.g\.|similar|etc\.|and so on|for example')) {
-    Test-Pass "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001)"
+# QG cycle-2 Major-1 fix -- see the .sh twin's matching comment for the
+# full rationale: requires the Values cell to contain exactly 3
+# `|`-delimited segments and, once each individually trimmed, for their
+# set (order-independent, per acceptance-tests.md :85's "in either order")
+# to equal exactly the three backtick-quoted literals and nothing else
+# ($agValuesSegmentsMatch).
+#
+# QG cycle-3 (evaluator, structural closure) -- see the .sh twin's
+# matching comment for the full rationale: adds $agPsTokensAllowed and
+# $agPsHasAllThree as further required clauses, replacing cycle-2's
+# shape-enumerated $agPsBranchTokensMatch, since that still missed a
+# fourth value described outside the Values cell in a novel sentence
+# shape neither hand-picked shape anticipated.
+if (($agKeyLine -ne "") -and ($agValuesSegCount -eq 3) `
+        -and $agValuesSegmentsMatch `
+        -and $agPsTokensAllowed -and $agPsHasAllThree `
+        -and -not ($agKeyLine -match 'e\.g\.|similar|etc\.|and so on|for example')) {
+    Test-Pass "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, order-independent Values-cell set + intro/key-row backtick-literal allowlist)"
 } else {
-    Test-Fail "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001)"
+    Test-Fail "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, order-independent Values-cell set + intro/key-row backtick-literal allowlist)"
 }
 
 $hasProjectSettingsHeading = $false
@@ -199,16 +352,23 @@ if ($hasProjectSettingsHeading -and $agPsFlat.Contains($bannedKey)) {
     Test-Fail "TEST-002 a ## Project Settings heading exists and the setting key is named in a table row under it (AC-002)"
 }
 
-if (($agPsFlat -match 'absent.{0,10}section entirely') -and $agPsFlat.Contains("per-feature")) {
-    Test-Pass "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003)"
+# QG cycle-2 Major fix -- see the .sh twin's matching comment for the full
+# rationale: both branches now require an absolute two-part proof --
+# tight adjacency to "uses the stated default", plus the Default cell
+# itself being exactly `per-feature` -- instead of bare co-occurrence with
+# the literal 'per-feature' anywhere in the section.
+if (($agPsFlat -match 'absent.{0,10}section entirely.{0,30}uses the stated default') `
+        -and ($agDefaultCell -ceq '`per-feature`')) {
+    Test-Pass "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 } else {
-    Test-Fail "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003)"
+    Test-Fail "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 }
 
-if (($agPsFlat -match 'absent key') -and $agPsFlat.Contains("per-feature")) {
-    Test-Pass "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003)"
+if (($agPsFlat -match 'absent key.{0,60}uses the stated default') `
+        -and ($agDefaultCell -ceq '`per-feature`')) {
+    Test-Pass "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 } else {
-    Test-Fail "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003)"
+    Test-Fail "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 }
 
 if (($agPsFlat -ne "") -and $agPsFlat.Contains($bannedKey) -and -not ($agPsFlat -cmatch 'Codex|Claude Code')) {
@@ -381,30 +541,34 @@ if (($dslFlat -match 'remains? conforming') `
     Test-Fail "TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)"
 }
 
-if ($dslText.Contains("Egress-Consent-Scope")) {
-    Test-Pass "TEST-030 Egress-Consent-Scope field name present, unmodified (AC-018)"
+# QG cycle-2 Major fix (TEST-030..TEST-034 ID<->target rebinding) -- see
+# the .sh twin's matching comment for the full rationale: rebound to
+# acceptance-tests.md's frozen Test Matrix order; no check's own logic
+# changed.
+if ($dslText.Contains("Egress-Consent")) {
+    Test-Pass "TEST-030 Egress-Consent field name present, unmodified (AC-018)"
 } else {
-    Test-Fail "TEST-030 Egress-Consent-Scope field name present, unmodified (AC-018)"
+    Test-Fail "TEST-030 Egress-Consent field name present, unmodified (AC-018)"
+}
+if ($dslText.Contains("Egress-Consent-Scope")) {
+    Test-Pass "TEST-031 Egress-Consent-Scope field name present, unmodified (AC-018)"
+} else {
+    Test-Fail "TEST-031 Egress-Consent-Scope field name present, unmodified (AC-018)"
 }
 if ($dslText.Contains("Egress-Consent-Subject")) {
-    Test-Pass "TEST-031 Egress-Consent-Subject field name present, unmodified (AC-018)"
+    Test-Pass "TEST-032 Egress-Consent-Subject field name present, unmodified (AC-018)"
 } else {
-    Test-Fail "TEST-031 Egress-Consent-Subject field name present, unmodified (AC-018)"
+    Test-Fail "TEST-032 Egress-Consent-Subject field name present, unmodified (AC-018)"
 }
 if ($dslText.Contains("Egress-Destination")) {
-    Test-Pass "TEST-032 Egress-Destination field name present, unmodified (AC-018)"
+    Test-Pass "TEST-033 Egress-Destination field name present, unmodified (AC-018)"
 } else {
-    Test-Fail "TEST-032 Egress-Destination field name present, unmodified (AC-018)"
+    Test-Fail "TEST-033 Egress-Destination field name present, unmodified (AC-018)"
 }
 if ($dslText.Contains("Egress-Consent-Expiry")) {
-    Test-Pass "TEST-033 Egress-Consent-Expiry field name present, unmodified (AC-018)"
+    Test-Pass "TEST-034 Egress-Consent-Expiry field name present, unmodified (AC-018)"
 } else {
-    Test-Fail "TEST-033 Egress-Consent-Expiry field name present, unmodified (AC-018)"
-}
-if ($dslText.Contains("Egress-Consent")) {
-    Test-Pass "TEST-034 Egress-Consent field name present, unmodified (AC-018)"
-} else {
-    Test-Fail "TEST-034 Egress-Consent field name present, unmodified (AC-018)"
+    Test-Fail "TEST-034 Egress-Consent-Expiry field name present, unmodified (AC-018)"
 }
 if ($dslText.Contains("granted")) {
     Test-Pass "TEST-035 Egress-Consent domain value granted present, unmodified (AC-018)"
@@ -448,12 +612,20 @@ if (($whicheverFlat -match 'per-feature grant') -and $whicheverFlat.Contains("Eg
     Test-Fail "TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)"
 }
 
-if (($step3Flat -match 'mid-session') -and ($step3Flat -match 'withdraw') `
-        -and $step3Flat.Contains("Egress-Consent-Party") -and $step3Flat.Contains("Egress-Consent-At") `
-        -and $step3Flat.Contains("Ds-Upload-Consent-Setting")) {
-    Test-Pass "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029)"
+# QG cycle-2 Major fix -- see the .sh twin's matching comment for the full
+# rationale: scoped to $withdrawalFlat (the withdrawal paragraph plus the
+# "whichever...occasion" paragraph that supplies its concrete field
+# content) and additionally requires the paragraph's own "all three new
+# fields" claim phrase and its `Egress-Consent: withdrawn` record-value
+# literal.
+if (($withdrawalFlat -match 'mid-session') -and ($withdrawalFlat -match 'withdraw') `
+        -and $withdrawalFlat.Contains("all three new fields") `
+        -and $withdrawalFlat.Contains("Egress-Consent: withdrawn") `
+        -and $withdrawalFlat.Contains("Egress-Consent-Party") -and $withdrawalFlat.Contains("Egress-Consent-At") `
+        -and $withdrawalFlat.Contains("Ds-Upload-Consent-Setting")) {
+    Test-Pass "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
 } else {
-    Test-Fail "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029)"
+    Test-Fail "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
 }
 
 if ($offFlat.Contains("Egress-Consent-Party") -and $offFlat.Contains("Egress-Consent-At") `
@@ -497,29 +669,44 @@ if (($cdwFlat -match 'upload-policy setting') -and $cdwFlat.Contains("Design-Sou
     Test-Fail "TEST-047 the new bullet states the setting's value/outcome survive via an indirect reference, naming Design-Source (AC-022)"
 }
 
+# QG cycle-2 Major fix -- see the .sh twin's matching comment for the full
+# rationale: extended with a bidirectional semantic-class regex, checked
+# against the file with the existing, legitimate no-upload sentence
+# excised first (its own literal presence is already independently
+# required by this same check's positive half), so only NEW occurrences
+# of the dangerous pattern elsewhere in the file can fail this row.
+$cdwFlatSansNoUploadSentence = $cdwFlat -creplace 'does not automatically inspect, upload, or retain', ''
 if ($cdwText.Contains("does not automatically inspect, upload, or retain") `
-        -and -not ($cdwFlat -match 'automatically upload|now uploads|may now upload|will upload')) {
-    Test-Pass "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023)"
+        -and -not ($cdwFlatSansNoUploadSentence -match 'automatically upload|now uploads|may now upload|will upload|upload(s|ed|ing)?[^.]{0,60}automatic|automatic(ally)?[^.]{0,60}(upload|retain)(s|ed|ing)?')) {
+    Test-Pass "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)"
 } else {
-    Test-Fail "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023)"
+    Test-Fail "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)"
 }
 
+# QG cycle-2 Major fix -- see the .sh twin's matching comment for the full
+# rationale: adds a third, middle-zone hash covering exactly the
+# previously-blind span strictly between the two anchors, so the three
+# hashes together cover the anchor's own line through EOF with no gap.
 function Test-049MinimalDiff {
     $cdwLines = Get-LinesOrEmpty $cdwPath
     $prefixIdx = Get-FirstLineIndexContaining $cdwLines "a normal specification edit."
     $suffixIdx = Get-FirstLineIndexContaining $cdwLines "When no visual input is supplied, record:"
     if (($prefixIdx -lt 0) -or ($suffixIdx -lt 0)) { return $false }
+    if ($suffixIdx -le ($prefixIdx + 1)) { return $false }
     $prefixBlock = (($cdwLines[0..$prefixIdx] -join "`n") + "`n")
+    $middleBlock = (($cdwLines[($prefixIdx + 1)..($suffixIdx - 1)] -join "`n") + "`n")
     $suffixBlock = (($cdwLines[$suffixIdx..($cdwLines.Count - 1)] -join "`n") + "`n")
     $prefixHash = Get-Sha256OfText $prefixBlock
+    $middleHash = Get-Sha256OfText $middleBlock
     $suffixHash = Get-Sha256OfText $suffixBlock
     return ($prefixHash -eq "5da4093e27d8533899ded892f50727b953ef8b2e7a9612a9538601d3b9db913a") `
+        -and ($middleHash -eq "8ae7c5cf0d4d5e723f2e032c4c005697f1c9fe49b53277f70db9b851a1d84830") `
         -and ($suffixHash -eq "8f40b3fef3ce403eeac8f4dd762fbf33b3d37c7c32aab44088fabc620b1a67d6")
 }
 if (Test-049MinimalDiff) {
-    Test-Pass "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, minimal diff, anchor-located byte-identity)"
+    Test-Pass "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)"
 } else {
-    Test-Fail "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, minimal diff, anchor-located byte-identity)"
+    Test-Fail "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)"
 }
 
 # TEST-050's own negative check must never spell out the banned substring

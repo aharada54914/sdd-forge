@@ -3,8 +3,10 @@
 # body (verbatim mechanism -- printf header, `bash "$test_file"`, failure
 # tracking) scoped to the array's last three entries, so this task's own new
 # tail entry (tests/design-sync-scan.tests.sh) is exercised under run-all's
-# exact invocation semantics without paying the cost of the full ~87-suite
-# array, some of whose earlier members invoke real external tools (codex)
+# exact invocation semantics without paying the cost of the full 78-suite
+# array (QG cycle-1 correction, scan T-005 Minor: 78 counted directly from
+# tests/run-all.sh's tests=(...) array; a prior draft misstated this as
+# ~87), some of whose earlier members invoke real external tools (codex)
 # and run for many minutes. This is supporting, in-scope evidence; the full
 # `bash tests/run-all.sh` background run (see run-all-sh-full.log in this
 # same directory) is the primary, real end-to-end evidence per the Done-When

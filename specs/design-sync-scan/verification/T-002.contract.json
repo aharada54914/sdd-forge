@@ -5,7 +5,7 @@
   "required_workflow": "tdd",
   "stack": "shell",
   "spec_revision": "96a7e24f77fc38c17494d839ea7db2dfcf29b0e88a20cfab1b7b5957f9bdaed2",
-  "created": "2026-08-08T02:08:03Z",
+  "created": "2026-08-08T03:38:47Z",
   "comment": "T-002 (design-sync-scan.ps1, BL-008 parity port + cross-runtime/case-sensitivity/dual-form categories, TDD Red->Green, reports/implementation/design-sync-scan/T-002.md). RED: 18 passed / 92 failed (exit-64 signature, script absent). GREEN: 110 passed / 0 failed, 0 SKIP, reproduced 3x. placeholder-scan: same self-referential pattern-catalogue findings as T-001, on the .ps1 twin's own two pattern variables, explicitly accepted the same way -- see qg/placeholder-T-002-accepted.log.",
   "checks": [
     {

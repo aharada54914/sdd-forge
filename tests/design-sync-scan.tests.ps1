@@ -462,6 +462,28 @@ if ($cpNegExit -eq 0 -and $r.ExitCode -eq 0) {
     Fail "TEST-014c: expected both exit 0, got check-placeholders=$cpNegExit design-sync-scan=$($r.ExitCode). Output: $($r.Output)"
 }
 
+# QG cycle-1 remediation (scan T-001 Major-1): TEST-014a-c above prove the
+# two scripts agree on VERDICTS for two fixed corpora, but a verdict match
+# does not prove the PATTERNS themselves are byte-identical -- two
+# independently-drifted regexes can still happen to agree on these
+# particular fixtures. TEST-014d closes that gap by comparing the literal
+# pattern text design-sync-scan.ps1's own placeholderPatternCs/
+# placeholderPatternCi transcribed from check-placeholders.ps1's own
+# patternCs/patternCi against the live source, at test-run time.
+$scContent = Get-Content -Raw -LiteralPath $SC
+$scCsMatch = [regex]::Match($scContent, "(?m)^\`$placeholderPatternCs\s*=\s*'([^']*)'")
+$scCiMatch = [regex]::Match($scContent, "(?m)^\`$placeholderPatternCi\s*=\s*'([^']*)'")
+if ($scCsMatch.Success -and $scCiMatch.Success) {
+    Ok "TEST-014d-setup: re-read design-sync-scan.ps1's live `$placeholderPatternCs/`$placeholderPatternCi at test-run time (not transcribed)"
+} else {
+    Fail "TEST-014d-setup: could not extract `$placeholderPatternCs/`$placeholderPatternCi from $SC"
+}
+if ($scCsMatch.Groups[1].Value -eq $cpCsMatch.Groups[1].Value -and $scCiMatch.Groups[1].Value -eq $cpCiMatch.Groups[1].Value) {
+    Ok "TEST-014d: design-sync-scan.ps1's placeholder patterns are byte-identical to check-placeholders.ps1's -- verbatim transcription, not independent authorship (AC-009)"
+} else {
+    Fail "TEST-014d: design-sync-scan.ps1's placeholder patterns have drifted from check-placeholders.ps1's -- cs '$($scCsMatch.Groups[1].Value)' vs '$($cpCsMatch.Groups[1].Value)', ci '$($scCiMatch.Groups[1].Value)' vs '$($cpCiMatch.Groups[1].Value)'"
+}
+
 Write-Host ""
 Write-Host "=== TEST-015 - TEST-020, TEST-083 (AC-010): one row per secret pattern S1-S6, plus S5's sk-proj- sub-format ==="
 function Assert-SecretHit {
@@ -512,6 +534,17 @@ if ($r.ExitCode -eq 1 -and $r.Output -match 'PII') {
     Ok "TEST-022: a non-reserved-domain email triggers a PII finding"
 } else {
     Fail "TEST-022: expected a PII finding, got $($r.ExitCode). Output: $($r.Output)"
+}
+
+Write-Host ""
+Write-Host "=== TEST-087 (AC-011, QG cycle-1 remediation scan T-001 Major-2): P1 (.edu email) triggers a PII finding -- .edu is not one of the seven RFC 2606/6761 reserved domains/TLDs design.md's pattern catalogue names ==="
+$t087Dir = New-WorkDir "t087"
+Set-Fixture (Join-Path $t087Dir "e.html") @("<html><body>", "<p>Contact: prof@university.edu</p>", "</body></html>")
+$r = Invoke-Scan -ScanArgs @($t087Dir)
+if ($r.ExitCode -eq 1 -and $r.Output -match 'PII') {
+    Ok "TEST-087: a .edu-domain email triggers a PII finding -- .edu is deliberately absent from the reserved-domain exclusion list and must not be silently added to it"
+} else {
+    Fail "TEST-087: expected a PII finding for a .edu address, got $($r.ExitCode). Output: $($r.Output)"
 }
 
 Write-Host ""
@@ -783,6 +816,18 @@ if ($t052Missing.Count -eq 0) {
     Ok "TEST-052: every REQ-001..REQ-009 AC-NNN heading in requirements.md appears at least once in acceptance-tests.md"
 } else {
     Fail "TEST-052: AC(s) missing from acceptance-tests.md's AC column: $($t052Missing -join ' ')"
+}
+
+Write-Host ""
+Write-Host "=== TEST-053 (AC-035, QG cycle-1 remediation scan T-005 Major): both tests/run-all.sh and tests/run-all.ps1 list the new suite ==="
+$runAllShPath053 = Join-Path $RepoRoot "tests/run-all.sh"
+$runAllPs1Path053 = Join-Path $RepoRoot "tests/run-all.ps1"
+$runAllShText053 = Get-Content -Raw -LiteralPath $runAllShPath053
+$runAllPs1Text053 = Get-Content -Raw -LiteralPath $runAllPs1Path053
+if ($runAllShText053.Contains("tests/design-sync-scan.tests.sh") -and $runAllPs1Text053.Contains("tests/design-sync-scan.tests.ps1")) {
+    Ok "TEST-053: both tests/run-all.sh and tests/run-all.ps1 list the new suite"
+} else {
+    Fail "TEST-053: tests/design-sync-scan.tests.{sh,ps1} is not registered in both tests/run-all.sh and tests/run-all.ps1"
 }
 
 # ============================================================================

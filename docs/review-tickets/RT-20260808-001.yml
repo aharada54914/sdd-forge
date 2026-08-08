@@ -1,0 +1,36 @@
+ticket_id: RT-20260808-001
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "design-sync-standing-consent"
+  task: "T-002"
+  files:
+    - "tests/design-sync-standing-consent.tests.sh"
+    - "tests/design-sync-standing-consent.tests.ps1"
+summary: "T-002 の QG cycle 上限 (3) 到達。TEST-001 の第4値クラス閉鎖 (allowlist 方式) と順序非依存化は verdict 後に evaluator 処方どおり実装済みのため、fresh-session での再ゲート 1 サイクルが必要"
+problem: |
+  AGENTS.md の成果物自体は cycle 1-3 を通じて正 (05859bd1...、純追加・
+  spec 逐語一致) だが、検証側 TEST-001 の「第4値が definition のどこにも
+  記述されない」(AC-001) の機械保証が 2 回の修正でも統語形状の列挙に
+  留まり、cycle 3 (seq 0573) で Meaning セル散文型 mutant (V3:
+  'A setting of `auto` selects the host default instead.') が両 runtime で
+  生存した。さらに cycle-2 修正が導入した Values セルの順序固定一致は
+  acceptance-tests.md:85 の「in either order」に違反する spec drift
+  (Major 2 件目)。較正規則 (ループ終了目的の降格禁止) に従い evaluator は
+  NEEDS_WORK を維持し、cycle 上限のため escalation とした。
+  救済は verdict 後に evaluator 自身の処方どおり実装済み: スキャン領域の
+  全 backtick リテラルに対する set-equality allowlist (9 literal、
+  V3/M6/M7 kill・現文 false positive ゼロ) + Values セル検査の
+  順序非依存集合一致 (FP2 順序入替が PASS に復帰)。検証ログは
+  specs/design-sync-standing-consent/verification/qg-cycle2-fixes/
+  test001-final-fix.log に保存し、T-002 レポートの Outputs に宣言済み。
+  cycle 上限のため本セッションでは Done 化せず Implementation Complete を
+  維持。
+proposed_resolution: |
+  fresh session で T-002 の evaluator を 1 サイクル予約・起動し、
+  allowlist 方式のクラス閉鎖性 (V3 系散文 mutant を含む mutation) と
+  順序非依存化 (順序入替 PASS) を検証のうえ PASS なら quality-gate として
+  Status: Done を記録する。
+requires_human_decision: false
+created: 2026-08-08

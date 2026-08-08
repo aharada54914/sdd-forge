@@ -126,6 +126,94 @@ AG_PS_SECTION=$(section_between "$AG" '^## Project Settings$' '^## ')
 AG_PS_FLAT=$(flatten_text "$AG_PS_SECTION")
 AG_KEY_LINE=$(grep -n "${BANNED_KEY}" "$AG" 2>/dev/null | head -1 | cut -d: -f2-)
 
+# The setting's table row's Values/Default cells, precisely isolated from
+# the row's free-text Meaning cell (QG cycle-2 Major fix, TEST-001/003/004:
+# the round-1 checks only tested for co-occurring substrings anywhere in
+# the whole Project Settings section, which a fourth value or a
+# Default-cell/prose mismatch elsewhere in the row's own long Meaning cell
+# would not have disturbed). Markdown escapes an in-cell "|" as "\|" so it
+# is not read as a column separator; a literal "\|" two-character sequence
+# is neutralized to a placeholder token first (which itself contains no
+# "|"), so the remaining "|" characters awk splits on are only the row's
+# true, unescaped column boundaries -- this correctly isolates the Values
+# cell (3rd column) and Default cell (4th column) even when their own
+# content changes shape (fourth value inserted, value removed, reordered).
+AG_VALUES_CELL=$(printf '%s' "$AG_KEY_LINE" | sed 's/\\|/@ESC@/g' | awk -F'|' '{print $3}')
+AG_VALUES_SEGCOUNT=$(printf '%s' "$AG_VALUES_CELL" | awk -F'@ESC@' '{print NF}')
+AG_DEFAULT_CELL=$(printf '%s' "$AG_KEY_LINE" | sed 's/\\|/@ESC@/g' | awk -F'|' '{print $4}' | tr -s '[:space:]' ' ' | sed 's/^ *//; s/ *$//')
+
+# The Values cell's own segments, individually trimmed and set-compared
+# (QG cycle-2 Major-2 fix): AC-001/acceptance-tests.md :85 only commits to
+# "exactly three [values], in either order" -- an *order-fixed* full-cell
+# string match (the round-1/cycle-2 shape) is stricter than the spec and
+# false-positives on a legitimately reordered but still-correct Values
+# cell (e.g. "`off` | `per-feature` | `standing`"). Splitting on the
+# restored "@ESC@" segment boundaries, trimming each segment individually
+# (never collapsing the *inter-segment* newlines `sort` relies on, unlike
+# a single `tr -s '[:space:]' ' '` over the whole multi-line blob), then
+# sorting the set makes the comparison order-independent while still
+# requiring each segment's content to be exactly one of the three
+# literals -- an added/renamed/free-text segment still fails.
+AG_VALUES_SEGMENTS_SET=$(printf '%s' "$AG_VALUES_CELL" | awk -F'@ESC@' '{for (i = 1; i <= NF; i++) { s = $i; gsub(/^[ \t]+|[ \t]+$/, "", s); print s }}' | sort)
+AG_VALUES_SEGMENTS_EXPECTED='`off`
+`per-feature`
+`standing`'
+
+# QG cycle-3 (evaluator, TEST-001 structural closure): AC-001
+# (requirements.md :29) requires that no fourth value be described
+# *anywhere in the definition*. Rounds 1-2 each enumerated one specific
+# syntactic *shape* a fourth value could take (a Values-cell segment; a
+# ":"-terminated branch definition in the Meaning cell; a ","+"value"
+# prose sentence in the intro) -- each round closed the shape it named but
+# left the class open, since a mutant naming a fourth value in any other
+# shape (e.g. a plain sentence with neither a trailing ':' nor a nearby
+# "value" word -- "The setting may also be set to `ask` on hosts that
+# support interactive prompting.") would satisfy neither prior shape and
+# still survive. The cycle-3 ruling: the scanned region (AG_PS_ROW_SCAN
+# below -- the section's own intro paragraph plus the setting's own key
+# row, same scope as before; the table's header/separator rows are still
+# excluded, since their own "Values"/"Default" column-name text carries no
+# backtick literals anyway) currently contains exactly 9 distinct
+# backtick-quoted literals: `standing`, `per-feature`, `off` (the three
+# legitimate values), `Standing` (the intro's own legitimate case-variant
+# illustration -- kept as its own distinct allowlist entry, deliberately
+# NOT case-folded into `standing`, since folding away the distinction
+# between the two is exactly what would let a genuinely different fourth
+# literal of some other case hide behind an allowlist entry of a
+# different case), `granted`, `ds_upload_consent`, `requirements.md`,
+# `design-sync-loop`, `Design-Source` (all incidental to the row's own
+# prose, none of them a value). A set-equality allowlist over EVERY
+# backtick-quoted literal found in AG_PS_ROW_SCAN -- regardless of what
+# syntactic position it occurs in -- closes the class structurally: any
+# newly introduced backtick-quoted literal not already on this list fails
+# AG_PS_EXTRA_TOKENS below no matter what sentence shape introduces it,
+# and dropping any of `standing`/`per-feature`/`off` fails
+# AG_PS_HAS_ALL_THREE below.
+AG_PS_INTRO_SECTION=$(section_of_lines "$AG_PS_SECTION" '^## Project Settings$' '^[|]')
+AG_PS_INTRO_FLAT=$(flatten_text "$AG_PS_INTRO_SECTION")
+AG_PS_ROW_SCAN=$(flatten_text "$AG_PS_INTRO_FLAT $AG_KEY_LINE")
+AG_PS_ALL_TOKENS=$(printf '%s' "$AG_PS_ROW_SCAN" | grep -oE '`[^`]+`' 2>/dev/null | sed -e 's/^`//' -e 's/`$//' | sort -u)
+
+# Case-sensitive membership test against the current text's own 9-literal
+# allowlist derived above -- an exact-string `awk` comparison per allowed
+# literal, not a single alternation regex, so a token containing a regex
+# metacharacter (the '.' in `requirements.md`) can never be misread as a
+# wildcard. AG_PS_EXTRA_TOKENS lists every extracted literal not on the
+# allowlist (empty means the subset check passes); AG_PS_HAS_ALL_THREE
+# separately confirms none of the three required values was dropped
+# (a mutation could narrow the allowlist-conforming set to just two of the
+# three without ever introducing an unknown literal).
+AG_PS_EXTRA_TOKENS=$(printf '%s\n' "$AG_PS_ALL_TOKENS" | awk '
+  $0 == "standing" || $0 == "per-feature" || $0 == "off" || $0 == "Standing" || $0 == "granted" || $0 == "ds_upload_consent" || $0 == "requirements.md" || $0 == "design-sync-loop" || $0 == "Design-Source" { next }
+  { print }
+')
+AG_PS_HAS_ALL_THREE=$(printf '%s\n' "$AG_PS_ALL_TOKENS" | awk '
+  $0 == "standing" { s = 1 }
+  $0 == "per-feature" { p = 1 }
+  $0 == "off" { o = 1 }
+  END { if (s && p && o) print "1"; else print "0" }
+')
+
 DSL_FLAT=$(flatten_file "$DSL")
 LOOP_SECTION=$(section_between "$DSL" '^## Loop$' '^## ')
 LOOP_FLAT=$(flatten_text "$LOOP_SECTION")
@@ -133,23 +221,68 @@ STEP3_SECTION=$(section_of_lines "$LOOP_SECTION" '^3[.] [*][*]Resolve egress con
 STEP3_FLAT=$(flatten_text "$STEP3_SECTION")
 STANDING_SECTION=$(section_of_lines "$STEP3_SECTION" '[*][*]standing[*][*]' '[*][*]off[*][*]')
 STANDING_FLAT=$(flatten_text "$STANDING_SECTION")
-OFF_SECTION=$(section_of_lines "$STEP3_SECTION" '[*][*]off[*][*]' 'ZZZ_NEVER_MATCHES_ZZZ')
+# End sentinel closed on the real next-paragraph anchor, not a
+# never-matches sentinel (QG cycle-2 Major fix, TEST-043: the prior
+# 'ZZZ_NEVER_MATCHES_ZZZ' end pattern let OFF_SECTION run through the rest
+# of step 3 -- the withdrawal and "whichever" paragraphs below it -- so a
+# deleted `Egress-Consent-Party`/`Egress-Consent-At` line inside the actual
+# off bullet was masked by those same field names reappearing downstream).
+OFF_SECTION=$(section_of_lines "$STEP3_SECTION" '[*][*]off[*][*]' 'A per-feature mid-session withdrawal')
 OFF_FLAT=$(flatten_text "$OFF_SECTION")
 WHICHEVER_SECTION=$(section_of_lines "$STEP3_SECTION" 'Whichever regime or occasion' 'ZZZ_NEVER_MATCHES_ZZZ')
 WHICHEVER_FLAT=$(flatten_text "$WHICHEVER_SECTION")
+# Dedicated scope for the mid-session-withdrawal occasion (QG cycle-2 Major
+# fix, TEST-042: previously checked against the whole of STEP3_FLAT, which
+# made the three-field-names assertion vacuous with respect to a claim
+# reduction specific to this paragraph, since standing/off/per-feature
+# text elsewhere in step 3 also names those fields). Starts at the real
+# 'A per-feature mid-session withdrawal' anchor (excludes standing/off/
+# per-feature bullet text before it) and runs to the natural end of
+# STEP3_SECTION -- legitimately including the "Whichever regime or
+# occasion" paragraph immediately after it, since that paragraph is what
+# actually spells out the three field names for "whichever...occasion
+# produces the write" (this withdrawal paragraph names the occasion and
+# the "all three new fields" claim; the following paragraph is what makes
+# that claim checkable). 'ZZZ_NEVER_MATCHES_ZZZ' is safe to keep here only
+# because this is the last paragraph in the already-bounded STEP3_SECTION
+# blob -- unlike OFF_SECTION above, there is nothing further for it to
+# swallow.
+WITHDRAWAL_SECTION=$(section_of_lines "$STEP3_SECTION" 'A per-feature mid-session withdrawal' 'ZZZ_NEVER_MATCHES_ZZZ')
+WITHDRAWAL_FLAT=$(flatten_text "$WITHDRAWAL_SECTION")
 
 CDW_FLAT=$(flatten_file "$CDW")
 
 # --- REQ-001 (AC-001, AC-002, AC-003, AC-004, AC-031) ----------------------
 
+# QG cycle-2 Major fix: the round-1 check only tested for the three
+# literals' *presence* anywhere in the row plus an absence of hedge words --
+# a fourth value (e.g. `auto`, `ask-always`) added anywhere in the Values
+# cell, or a reduction to two values, or a free-text cell, all still
+# contain/avoid those same substrings and were not caught. Now requires
+# the Values cell to contain exactly 3 `|`-delimited segments
+# (AG_VALUES_SEGCOUNT), each individually trimmed, whose set (order-
+# independent, per acceptance-tests.md :85's "in either order") equals
+# exactly the three backtick-quoted literals and nothing else
+# (AG_VALUES_SEGMENTS_SET == AG_VALUES_SEGMENTS_EXPECTED) -- see
+# AG_VALUES_CELL's own derivation comment above.
+#
+# QG cycle-3 (evaluator, structural closure): that Values-cell check alone
+# still misses a fourth value described *outside* the Values cell, in any
+# shape -- see AG_PS_ROW_SCAN's own derivation comment above for the full
+# extraction rationale and the specific gap (a novel sentence shape) this
+# closes relative to the cycle-2 fix it replaces. Requires
+# AG_PS_EXTRA_TOKENS to be empty (no backtick literal outside the current
+# 9-item allowlist) and AG_PS_HAS_ALL_THREE to hold (none of the three
+# required values dropped).
 if [ -n "$AG_KEY_LINE" ] \
-  && printf '%s' "$AG_KEY_LINE" | grep -Fq 'standing' \
-  && printf '%s' "$AG_KEY_LINE" | grep -Fq 'per-feature' \
-  && printf '%s' "$AG_KEY_LINE" | grep -Fq 'off' \
+  && [ "$AG_VALUES_SEGCOUNT" -eq 3 ] \
+  && [ "$AG_VALUES_SEGMENTS_SET" = "$AG_VALUES_SEGMENTS_EXPECTED" ] \
+  && [ -z "$AG_PS_EXTRA_TOKENS" ] \
+  && [ "$AG_PS_HAS_ALL_THREE" = "1" ] \
   && ! printf '%s' "$AG_KEY_LINE" | grep -Eiq 'e\.g\.|similar|etc\.|and so on|for example'; then
-  pass "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001)"
+  pass "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, order-independent Values-cell set + intro/key-row backtick-literal allowlist)"
 else
-  fail "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001)"
+  fail "TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, order-independent Values-cell set + intro/key-row backtick-literal allowlist)"
 fi
 
 if grep -Eq '^## Project Settings$' "$AG" && printf '%s' "$AG_PS_FLAT" | grep -Fq "${BANNED_KEY}"; then
@@ -158,18 +291,31 @@ else
   fail "TEST-002 a ## Project Settings heading exists and the setting key is named in a table row under it (AC-002)"
 fi
 
-if printf '%s' "$AG_PS_FLAT" | grep -Eiq 'absent.{0,10}section entirely' \
-  && printf '%s' "$AG_PS_FLAT" | grep -Fq 'per-feature'; then
-  pass "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003)"
+# QG cycle-2 Major fix (TEST-003/TEST-004): the round-1 checks were a bare
+# co-occurrence heuristic -- the absence-branch phrase and the bare literal
+# 'per-feature' anywhere in AG_PS_FLAT -- satisfied even if the Default
+# cell read `standing`/`off`/empty, because 'per-feature' also appears
+# elsewhere in the row (the Values cell, the Meaning prose). Both branches
+# now require an absolute, two-part proof instead: (1) the branch's own
+# phrase is tightly adjacent to (not merely co-occurring with) "uses the
+# stated default", the row's own indirection to the Default column, and
+# (2) the Default cell itself (AG_DEFAULT_CELL, isolated the same way as
+# AG_VALUES_CELL above) is exactly `per-feature` -- never `standing`/`off`/
+# empty/free prose such as "default of `standing`", which would either
+# break the "stated default" adjacency phrase, or the exact Default-cell
+# match, or both.
+if printf '%s' "$AG_PS_FLAT" | grep -Eiq 'absent.{0,10}section entirely.{0,30}uses the stated default' \
+  && [ "$AG_DEFAULT_CELL" = '`per-feature`' ]; then
+  pass "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 else
-  fail "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003)"
+  fail "TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 fi
 
-if printf '%s' "$AG_PS_FLAT" | grep -Eiq 'absent key' \
-  && printf '%s' "$AG_PS_FLAT" | grep -Fq 'per-feature'; then
-  pass "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003)"
+if printf '%s' "$AG_PS_FLAT" | grep -Eiq 'absent key.{0,60}uses the stated default' \
+  && [ "$AG_DEFAULT_CELL" = '`per-feature`' ]; then
+  pass "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 else
-  fail "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003)"
+  fail "TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)"
 fi
 
 if [ -n "$AG_PS_FLAT" ] && printf '%s' "$AG_PS_FLAT" | grep -Fq "${BANNED_KEY}" \
@@ -347,30 +493,39 @@ else
   fail "TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)"
 fi
 
-if grep -Fq 'Egress-Consent-Scope' "$DSL"; then
-  pass "TEST-030 Egress-Consent-Scope field name present, unmodified (AC-018)"
+# QG cycle-2 Major fix (TEST-030..TEST-034 ID<->target rebinding): these
+# five IDs were bound one position out of step against acceptance-tests.md's
+# frozen Test Matrix (TEST-030=Egress-Consent, 031=Egress-Consent-Scope,
+# 032=Egress-Consent-Subject, 033=Egress-Destination,
+# 034=Egress-Consent-Expiry) -- the suite as first authored instead checked
+# TEST-030=Egress-Consent-Scope ... TEST-034=Egress-Consent (a one-position
+# rotation). Each of the five underlying checks was already correct; only
+# the ID<->target binding was wrong. Rebound here, in Test-Matrix order; no
+# check's own logic changed.
+if grep -Fq 'Egress-Consent' "$DSL"; then
+  pass "TEST-030 Egress-Consent field name present, unmodified (AC-018)"
 else
-  fail "TEST-030 Egress-Consent-Scope field name present, unmodified (AC-018)"
+  fail "TEST-030 Egress-Consent field name present, unmodified (AC-018)"
+fi
+if grep -Fq 'Egress-Consent-Scope' "$DSL"; then
+  pass "TEST-031 Egress-Consent-Scope field name present, unmodified (AC-018)"
+else
+  fail "TEST-031 Egress-Consent-Scope field name present, unmodified (AC-018)"
 fi
 if grep -Fq 'Egress-Consent-Subject' "$DSL"; then
-  pass "TEST-031 Egress-Consent-Subject field name present, unmodified (AC-018)"
+  pass "TEST-032 Egress-Consent-Subject field name present, unmodified (AC-018)"
 else
-  fail "TEST-031 Egress-Consent-Subject field name present, unmodified (AC-018)"
+  fail "TEST-032 Egress-Consent-Subject field name present, unmodified (AC-018)"
 fi
 if grep -Fq 'Egress-Destination' "$DSL"; then
-  pass "TEST-032 Egress-Destination field name present, unmodified (AC-018)"
+  pass "TEST-033 Egress-Destination field name present, unmodified (AC-018)"
 else
-  fail "TEST-032 Egress-Destination field name present, unmodified (AC-018)"
+  fail "TEST-033 Egress-Destination field name present, unmodified (AC-018)"
 fi
 if grep -Fq 'Egress-Consent-Expiry' "$DSL"; then
-  pass "TEST-033 Egress-Consent-Expiry field name present, unmodified (AC-018)"
+  pass "TEST-034 Egress-Consent-Expiry field name present, unmodified (AC-018)"
 else
-  fail "TEST-033 Egress-Consent-Expiry field name present, unmodified (AC-018)"
-fi
-if grep -Fq 'Egress-Consent' "$DSL"; then
-  pass "TEST-034 Egress-Consent field name present, unmodified (AC-018)"
-else
-  fail "TEST-034 Egress-Consent field name present, unmodified (AC-018)"
+  fail "TEST-034 Egress-Consent-Expiry field name present, unmodified (AC-018)"
 fi
 if grep -Fq 'granted' "$DSL"; then
   pass "TEST-035 Egress-Consent domain value granted present, unmodified (AC-018)"
@@ -419,14 +574,30 @@ else
   fail "TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)"
 fi
 
-if printf '%s' "$STEP3_FLAT" | grep -Eiq 'mid-session' \
-  && printf '%s' "$STEP3_FLAT" | grep -Eiq 'withdraw' \
-  && printf '%s' "$STEP3_FLAT" | grep -Fq 'Egress-Consent-Party' \
-  && printf '%s' "$STEP3_FLAT" | grep -Fq 'Egress-Consent-At' \
-  && printf '%s' "$STEP3_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting'; then
-  pass "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029)"
+# QG cycle-2 Major fix: checking against the whole of STEP3_FLAT made the
+# three-field-names assertion vacuous with respect to this occasion
+# specifically -- standing/off/per-feature text elsewhere in step 3 also
+# names those fields, so a claim reduction local to the withdrawal
+# paragraph itself (e.g. weakening "writes all three new fields" to name
+# fewer) would not have been caught. Now scoped to WITHDRAWAL_FLAT (the
+# withdrawal paragraph plus the "whichever...occasion" paragraph that
+# supplies the concrete field content for it, excluding the unrelated
+# standing/off/per-feature-outcome bullets before it -- see WITHDRAWAL_
+# SECTION's own derivation comment above) and additionally requires the
+# paragraph's own "all three new fields" claim phrase and its
+# `Egress-Consent: withdrawn` record-value literal, so weakening that
+# specific claim -- even while the field names remain present downstream --
+# now fails.
+if printf '%s' "$WITHDRAWAL_FLAT" | grep -Eiq 'mid-session' \
+  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Eiq 'withdraw' \
+  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'all three new fields' \
+  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Egress-Consent: withdrawn' \
+  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Egress-Consent-Party' \
+  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Egress-Consent-At' \
+  && printf '%s' "$WITHDRAWAL_FLAT" | grep -Fq 'Ds-Upload-Consent-Setting'; then
+  pass "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
 else
-  fail "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029)"
+  fail "TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)"
 fi
 
 if printf '%s' "$OFF_FLAT" | grep -Fq 'Egress-Consent-Party' \
@@ -475,21 +646,53 @@ else
   fail "TEST-047 the new bullet states the setting's value/outcome survive via an indirect reference, naming Design-Source (AC-022)"
 fi
 
+# QG cycle-2 Major fix: the round-1 phrase list only matched a handful of
+# exact wordings ('automatically upload', 'now uploads', ...) -- a new
+# bullet phrased differently but carrying the same upload+automatic
+# meaning (e.g. "Mockups are uploaded ... automatically ..." or "may
+# upload the mockup automatically and retain it") was not caught, in or
+# out of a bullet. Extended with a bidirectional semantic-class regex
+# (upload-word near "automatic[ally]", or "automatic[ally]" near an
+# upload/retain-word, either order, one clause apart), mirroring this
+# file's own bidirectional-proximity precedent (e.g. TEST-014 above). The
+# existing, legitimate "does not automatically inspect, upload, or
+# retain" statement itself satisfies that same broadened pattern (it is a
+# negated list of three things the workflow does NOT do, one of which is
+# "upload", within a few words of "automatically") -- checked for and
+# excised from the search text first (its own literal presence is already
+# independently required by this same check's positive half), so only
+# NEW occurrences of the dangerous pattern elsewhere in the file can fail
+# this row.
+CDW_FLAT_SANS_NO_UPLOAD_SENTENCE=$(printf '%s' "$CDW_FLAT" | sed 's/does not automatically inspect, upload, or retain//')
 if grep -Fq 'does not automatically inspect, upload, or retain' "$CDW" \
-  && ! printf '%s' "$CDW_FLAT" | grep -Eiq 'automatically upload|now uploads|may now upload|will upload'; then
-  pass "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023)"
+  && ! printf '%s' "$CDW_FLAT_SANS_NO_UPLOAD_SENTENCE" | grep -Eiq 'automatically upload|now uploads|may now upload|will upload|upload(s|ed|ing)?[^.]{0,60}automatic|automatic(ally)?[^.]{0,60}(upload|retain)(s|ed|ing)?'; then
+  pass "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)"
 else
-  fail "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023)"
+  fail "TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)"
 fi
 
+# QG cycle-2 Major fix: the zone strictly between the two anchors (the
+# lines after 'a normal specification edit.' and before 'When no visual
+# input is supplied, record:') was not covered by either hash -- it was
+# genuinely unknown at this suite's original T-001 authoring time (this
+# feature's own fallback bullet had not yet landed), but is now live,
+# stable content (both this feature's bullet and the sibling
+# design-sync-scan feature's own bullet, landed in the same zone) and can
+# be pinned. Adds a third, middle-zone hash covering exactly that
+# previously-blind span, so the three hashes together cover the anchor's
+# own line through EOF with no gap -- an insertion anywhere in that zone
+# now changes middle_hash and fails this row.
 test_049_minimal_diff() {
   prefix_anchor=$(grep -n 'a normal specification edit\.' "$CDW" | head -1 | cut -d: -f1)
   suffix_anchor=$(grep -n 'When no visual input is supplied, record:' "$CDW" | head -1 | cut -d: -f1)
   [ -n "$prefix_anchor" ] || return 1
   [ -n "$suffix_anchor" ] || return 1
+  [ "$suffix_anchor" -gt "$((prefix_anchor + 1))" ] || return 1
   prefix_hash=$(sed -n "1,${prefix_anchor}p" "$CDW" | sha256_of_stdin)
+  middle_hash=$(sed -n "$((prefix_anchor + 1)),$((suffix_anchor - 1))p" "$CDW" | sha256_of_stdin)
   suffix_hash=$(sed -n "${suffix_anchor},\$p" "$CDW" | sha256_of_stdin)
   [ "$prefix_hash" = "5da4093e27d8533899ded892f50727b953ef8b2e7a9612a9538601d3b9db913a" ] \
+    && [ "$middle_hash" = "8ae7c5cf0d4d5e723f2e032c4c005697f1c9fe49b53277f70db9b851a1d84830" ] \
     && [ "$suffix_hash" = "8f40b3fef3ce403eeac8f4dd762fbf33b3d37c7c32aab44088fabc620b1a67d6" ]
 }
 sha256_of_stdin() {
@@ -500,9 +703,9 @@ sha256_of_stdin() {
   fi
 }
 if test_049_minimal_diff; then
-  pass "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, minimal diff, anchor-located byte-identity)"
+  pass "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)"
 else
-  fail "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, minimal diff, anchor-located byte-identity)"
+  fail "TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)"
 fi
 
 # TEST-050's own negative check must never spell out the banned substring
