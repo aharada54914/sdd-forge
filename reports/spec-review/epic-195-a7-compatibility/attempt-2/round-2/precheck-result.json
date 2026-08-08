@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "5a2c278d8d9583a2b8d7f7b8096e38b02fc66d56f48849a80bcc7a18a8deef42",
+  "acceptance_sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "9c1d3cc2e3ab8560fad2f0c27d0da1ba235a8998bc83eb3b3fa99ccb4b47c40c",
+  "edit_summary": "Remedy round-1 reviewer-b findings (AMBIGUITY: AC-007 track ambiguity; EDGE-CASE-COVERAGE/DOWNSTREAM-READINESS: F5/F6 REQ-002 structural gap) via AC-007 F4 clarification and new AC-043/TEST-043 (commit d1dae1b); manual precheck fallback per AGENTS.md issue #61, working around the reset-hash-staleness defect this attempt's own round 1 surfaced (see reports/notes/repo-defect-spec-review-precheck-reset-hash-staleness.md)",
+  "reset": false,
+  "generated_at": "2026-07-22T14:09:54Z"
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-seq0658",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0658",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-2/integrated-summary.json",
+        "sha256": "d0535245f850778a68f0799e89eb53cedd4f314dff9e27774457350432a20701"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-1/round-2/precheck-result.json",
+        "sha256": "17d0ac493a227c7868f98882acc91603670633a45bc57f2a76802b4712bd2388"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+        "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+        "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+        "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+        "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+        "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+        "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+        "sha256": "f12cc68ff4adca907361cb0e2de4c5fd3155299d6d8c8a19e011a6303f4451db"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+        "sha256": "cff57cd65f7221c8347daffc3294550eb707c735cd1c40cea6e6180a20a7ccab"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+        "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-012 (new this round) is classified Risk: medium, but its Scope/Planned Files/Done When make it the sole implementer of the write-side of Security Boundary B5: it is the only task that mutates `tests/fixtures/structural-fixture-corpus/` (Planned Files: 'this task's own live-model refresh writes/updates recorded-response entries via the corpus's own refresh_procedure field ... never mutated by the gating suite itself'), the exact artifact security-spec.md's Trust Boundaries table names as B5's asset ('a malformed recorded artifact must never be silently treated as passing') and whose STRIDE row names the precise threat T-012 sits on: 'A malformed or subtly-altered recorded-response fixture in the structural-fixture-corpus is silently treated as a passing structural-compatibility comparison' (security-spec.md STRIDE Analysis, B5). Unlike its closest sibling, T-002 (rated high specifically because 'a silent defect here ... lets an unreviewed, possibly-regressed legacy-behavior snapshot get silently canonized as the new compatibility oracle every other suite in this feature trusts', with a structural CI-env-var/--approved-by fail-closed guard verified by AC-040/AC-041), T-012's Done When has no equivalent structural gate on the corpus content it writes -- only a schema-shape check ('Any corpus entry the refresh path writes follows structural-fixture-corpus/v1's own documented schema ... never mutating a gating-suite-consumed entry outside this sanctioned path'). A schema-valid but semantically wrong corpus entry from a defective T-012 refresh would not be caught by the canonicalizer's 'parse failure = hard suite failure' mitigation (design.md Design Decisions, 'Structural-comparison seam') and would silently become T-004's new comparison baseline for its gating suite -- a 'silent defect causes material harm' surface per risk-classification-policy.md's own high-tier definition, and the identical oracle-corruption pattern that earns T-002 its high tier. This risk boundary was not independently scrutinized before this round: in the prior tasks.md the AC-031 refresh logic was still folded into T-004 (Risk: high) itself; the round-2 split into a standalone T-012 is the first point at which this functionality's own risk tier was set independently, and it was set to medium without addressing the B1/B5 asymmetry above."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002, T-004, T-005, T-008, T-009, T-010, T-011) carries an explicit 'TDD evidence: RED (...) and GREEN (...)' Done When item plus 'An independent quality-gate verdict records/recording PASS' (e.g. T-002 tasks.md:377-380; T-005 tasks.md:835-838; T-009 tasks.md:1330-1333; T-011 tasks.md:1624-1626), satisfying Red-Green evidence and an independent-review verdict distinct from the implementing agent. No task in this feature is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-004's Done When list is now exactly 8 items (tasks.md:667-691) after the round-2 split moved the AC-031 live-model refresh work into new T-012, closing round-1's oversized-task finding (8 is not 'more than eight'); its Planned Files still span exactly three areas (gating suite, AST-canonicalizer library, fixture corpus), not 'more than three'. New T-012 has 6 Done When items (tasks.md:1759-1780) and a single, coherent scope (author one non-gating live-refresh test pair). No task in the 12-task set shows a fragmentation pattern (3+ single-function/file-edit tasks with no integration concern, or a bare 'rename X to Y' task) -- T-006/T-007/T-008, the smallest tasks, each carry independent AC coverage, dedicated golden-trace fixtures, and 5-7 Done When items apiece."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no functional (non-test, non-infrastructure) task exists in this feature to scope this check against. Every task in tasks.md is either a test-suite-authoring task (T-003, T-004, T-006, T-007, T-008, T-012) or test/CI-supporting infrastructure (T-001 fixture builder, T-002 golden-baseline capture/promote scripts, T-005 driver/schema extension, T-009 emit-run-record extension, T-010 SKIP-allowlist manifest+evaluator, T-011 CI registration), consistent with design.md's own Feature Type ('test-infrastructure specification (Phase 1 -- no code)'). The negative/error-path discipline this whole feature enforces (AC-002 byte-identical negative self-check/T-003; AC-035's three independent hard-fail conditions/T-010; AC-040/AC-041 negative fixtures/T-011; the malformed-corpus parse-failure-is-a-hard-fail rule/T-004; T-002's CI-env-var/--approved-by refusal fixtures) is itself edge-case coverage embedded in these test/infrastructure tasks, not a separate functional-task gap."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md declares no 'unit' or 'end-to-end' test types anywhere for this feature (grep of the Test Type column returns none). Every row typed 'integration' genuinely spans at least two components -- e.g. TEST-014/T-001 (fixture construction against real mktemp-d filesystem state plus the five-parameter builder contract) and TEST-031/T-012 (a live-model call plus corpus-schema I/O plus the AST canonicalizer's comparison logic). Rows typed 'static / doc-review', 'static / schema', 'static / registration-forcing', or 'regression, byte-identical' (TEST-001/008/009/011/015/016/018/028/034/038/040) are single-artifact scans/diffs consistent with their own declared scope; the check's unit/integration/e2e/acceptance definitions impose no additional constraint on these non-canonical labels. Unchanged from round 1, where this check was not among the findings."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit `Rollback:` field citing infra-spec.md#rollback: T-002 (tasks.md:318-321), T-004 (tasks.md:610-612), T-005 (tasks.md:773-775), T-008 (tasks.md:1139), T-009 (tasks.md:1277-1279), T-010 (tasks.md:1415-1419), T-011 (tasks.md:1559-1561, which additionally addresses the human-copy-staging case for `.github/workflows/test.yml`). No task lacks a rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task pair that lists an overlapping primary file has a Blockers-enforced ordering: T-008/T-010 vs. T-006/T-007's loop-consistency.tests.sh/loop-escalation.tests.sh (T-008 Blockers: T-001,T-006,T-007; T-010 Blockers: T-003,T-004,T-006,T-007,T-008); T-011 vs. every suite pair T-002-T-010 produced (T-011 Blockers: T-001-T-010). New T-012 writes to `tests/fixtures/structural-fixture-corpus/`, the same directory T-004 creates, but T-012's own Blockers field (T-001, T-004) enforces that ordering -- the exact 'creates, then a downstream task adds to it, Blockers enforces the ordering' legitimate-sharing pattern the check names. The shared, append-only `tests/run-all.sh`/`.ps1` edits across T-002/T-003/T-004/T-010/T-011 are governed by an explicit Global Constraints line ('every task ... appends only its own suite's registration line, in task order T-001 -> T-011') and each task's Planned Files entry states it edits only its own registration line, never another task's; this pattern is unchanged from round 1, where it was not flagged."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's finding against T-007 (missing T-006 blocker) is closed: T-007's `Depends On` now names T-006 as a functional dependency ('creates the shared tests/fixtures/compatibility-event-trace/ directory this task's own Planned Files entry ... states is existing after T-006') and T-007's `Blockers` field now reads 'T-001, T-005, T-006' (tasks.md:994-998, 1080-1081), matching. New T-012's Blockers (T-001, T-004) are both genuine functional dependencies cited with concrete evidence ('constructs the fixture-matrix states this refresh test drives against a live model'; 'regenerates entries in the structural-fixture-corpus/v1 schema, the AST canonicalizer, and the fingerprinted injection anchor T-004 authors'), not spurious. No other task shows a missing or spurious blocker on inspection of Depends On vs. Blockers across all 12 tasks."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 12 tasks (T-001-T-012) author net-new Phase 2/3 test-infrastructure deliverables for a not-yet-built compatibility suite (tasks.md Scope Note: 'Every task below is a Phase 2/3 future-task deliverable'); none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "RISK-APPROPRIATE",
+      "severity": "Major",
+      "task_id": "T-012",
+      "finding": "T-012 is classified Risk: medium while being the sole implementer of Security Boundary B5's write path (the only sanctioned mutator of `tests/fixtures/structural-fixture-corpus/`, T-004's gating-suite comparison oracle), with no structural fail-closed human-approval guard on that write analogous to sibling task T-002 (Risk: high for the token-for-token analogous 'silently canonized as the new compatibility oracle' pattern under Boundary B1, guarded by promote-golden-baseline.sh's CI-env-var/--approved-by refusal and verified by AC-040/AC-041). A schema-valid-but-wrong corpus entry from a defective T-012 refresh would not be caught by the canonicalizer's parse-failure-is-a-hard-fail mitigation and would silently become T-004's new expected baseline -- exactly security-spec.md's own named STRIDE threat for Boundary B5 ('A malformed or subtly-altered recorded-response fixture in the structural-fixture-corpus is silently treated as a passing structural-compatibility comparison') and risk-classification-policy.md's own 'silent defect causes material harm' high-tier trigger. Recommend re-evaluating T-012 for Risk: high (Required Workflow: tdd) or adding an explicit, structurally-enforced review/approval gate on corpus writes comparable to T-002's promote-golden-baseline.sh guard before confirming Risk: medium."
+    }
+  ]
+}
