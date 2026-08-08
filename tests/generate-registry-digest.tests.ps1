@@ -68,6 +68,20 @@ print("PASS" if all(x in text for x in required) and not any(x in text for x in 
   $inv = Invoke-Generator @('--capability-ids', 'cap-alpha')
   if ($inv.Rc -eq 0 -and $inv.Out -eq (Get-ExpectedDigest 'registry-digest-fragment-cap-alpha.json')) { Ok 'TEST-024(2): capability selection includes transitive gates and stable-sorts both arrays' } else { Fail 'TEST-024(2): capability fragment differs from the golden fragment' }
 
+  # Quality-gate remediation (2026-08-09) -- PowerShell twin of the bash
+  # suite's identically-numbered TEST-024(9). TEST-024(1) above only selects
+  # TWO capabilities and compares two live invocations against each other;
+  # with a 2-element Python set the un-sorted iteration order coincides
+  # across separate subprocess invocations often enough that a mutation
+  # removing `sorted(capability_ids)` from build_fragment() went undetected
+  # 7 times out of 8 (measured). Comparing a 3-capability, author-unsorted
+  # selection against a FIXED, independently reconstructed golden digest
+  # removes that luck: JCS canonicalization preserves JSON array order, so
+  # any non-sorted capabilities-array ordering names a different digest,
+  # deterministically, every time.
+  $inv = Invoke-Generator @('--capability-ids', 'cap-empty,cap-beta,cap-alpha')
+  if ($inv.Rc -eq 0 -and $inv.Out -eq (Get-ExpectedDigest 'registry-digest-fragment-multi-cap.json')) { Ok 'TEST-024(9): three-capability selection (author-unsorted CSV input) matches a fixed, independently-reconstructed sorted golden digest' } else { Fail 'TEST-024(9): three-capability selection differs from the fixed sorted golden digest' }
+
   $inv = Invoke-Generator @('--gate-ids', 'gate-b')
   if ($inv.Rc -eq 0 -and $inv.Out -eq (Get-ExpectedDigest 'registry-digest-fragment-gate-b.json')) { Ok 'TEST-024(3): direct gate selection is independent of capability references' } else { Fail 'TEST-024(3): direct gate fragment differs from the golden fragment' }
 
@@ -84,6 +98,16 @@ print("PASS" if all(x in text for x in required) and not any(x in text for x in 
   Install-Registry 'registry-digest-base.json'; $wholeA = Invoke-Generator @('--whole')
   Install-Registry 'registry-digest-whole-mutated.json'; $wholeB = Invoke-Generator @('--whole')
   if ($wholeA.Rc -eq 0 -and $wholeB.Rc -eq 0 -and $wholeA.Out -ne $wholeB.Out) { Ok 'TEST-024(8): --whole is content-sensitive' } else { Fail 'TEST-024(8): --whole content sensitivity failed' }
+
+  # Quality-gate remediation (2026-08-09) -- PowerShell twin of the bash
+  # suite's identically-numbered TEST-024(10). Proves --whole leaves the
+  # Registry's array order untouched (design.md: "already author-ordered,
+  # are not re-sorted"), not merely that it is content-sensitive.
+  # registry-digest-base.json's arrays are deliberately not id-sorted, so a
+  # reordering regression would change this digest.
+  Install-Registry 'registry-digest-base.json'
+  $wholeOrder = Invoke-Generator @('--whole')
+  if ($wholeOrder.Rc -eq 0 -and $wholeOrder.Out -eq (Get-ExpectedDigest 'registry-digest-base.json')) { Ok 'TEST-024(10): --whole preserves the Registry''s author order (unsorted, unlike fragment selection)' } else { Fail 'TEST-024(10): --whole digest differs from directly canonicalizing the untouched, author-ordered fixture' }
 
   Install-Registry 'registry-digest-jcs-a.json'; $jcsA = Invoke-Generator @('--whole')
   Install-Registry 'registry-digest-jcs-b.json'; $jcsB = Invoke-Generator @('--whole')
@@ -115,6 +139,17 @@ print("PASS" if all(x in text for x in required) and not any(x in text for x in 
 
   $runnerText = Get-Content -LiteralPath (Join-Path $root 'tests/run-all.ps1') -Raw
   if ($runnerText.Contains('tests/generate-registry-digest.tests.ps1')) { Ok 'run-all.ps1 registers this suite between T-004 and T-006' } else { Fail 'run-all.ps1 does not register this suite' }
+
+  # Done When #4 (tasks.md) -- PowerShell twin of the bash suite's
+  # identically-labeled check (quality-gate remediation, 2026-08-09).
+  $versionHit = $false
+  foreach ($name in @('generate-registry-digest.py', 'generate-registry-digest.sh', 'generate-registry-digest.ps1', 'generate-registry-digest.js')) {
+    $target = Join-Path $sourceDir $name
+    if ((Test-Path -LiteralPath $target) -and ((Get-Content -LiteralPath $target -Raw) -match '[0-9]+\.[0-9]+\.[0-9]+')) {
+      $versionHit = $true
+    }
+  }
+  if (-not $versionHit) { Ok 'Done When #4: no version string was hand-mutated in this task''s production files (grep self-check)' } else { Fail 'Done When #4: a semver-looking version string was found in this task''s production files' }
 } finally {
   if (Test-Path -LiteralPath $workDir) { Remove-Item -LiteralPath $workDir -Recurse -Force }
 }

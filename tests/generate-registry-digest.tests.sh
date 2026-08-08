@@ -89,6 +89,27 @@ else
   fail "TEST-024(2): capability fragment differs from the golden fragment"
 fi
 
+# Quality-gate remediation (2026-08-09): TEST-024(1) above only ever selects
+# TWO capabilities and compares two live subprocess invocations against each
+# other -- with a 2-element Python set, an un-sorted iteration order happens
+# to coincide across separate subprocess invocations often enough that
+# mutating `sorted(capability_ids)` out of build_fragment() (generate-
+# registry-digest.py) went undetected in most trials (measured empirically
+# while fixing this: as few as 3 catches out of 8 repeated trials in one
+# run). Comparing against a FIXED, independently
+# reconstructed golden digest (not another live run) for a 3-capability
+# selection removes that luck entirely: JCS canonicalization preserves JSON
+# array element order (it only canonicalizes object member order), so any
+# capabilities-array ordering other than the sorted one names a different
+# byte sequence and therefore a different digest, deterministically, every
+# time.
+run_sh --capability-ids cap-empty,cap-beta,cap-alpha
+if [[ $RC -eq 0 && "$OUT" == "$(expected_digest registry-digest-fragment-multi-cap.json)" ]]; then
+  ok "TEST-024(9): three-capability selection (author-unsorted CSV input) matches a fixed, independently-reconstructed sorted golden digest"
+else
+  fail "TEST-024(9): three-capability selection differs from the fixed sorted golden digest"
+fi
+
 run_sh --gate-ids gate-b
 if [[ $RC -eq 0 && "$OUT" == "$(expected_digest registry-digest-fragment-gate-b.json)" ]]; then
   ok "TEST-024(3): direct gate selection is independent of capability references"
@@ -133,6 +154,25 @@ if [[ $whole_rc_a -eq 0 && $RC -eq 0 && "$whole_a" != "$OUT" ]]; then
   ok "TEST-024(8): --whole is content-sensitive"
 else
   fail "TEST-024(8): --whole did not change after Registry content mutation"
+fi
+
+# Quality-gate remediation (2026-08-09): TEST-024(8) above only proves
+# --whole is CONTENT-sensitive; it does not prove --whole leaves the
+# Registry's own array order untouched (design.md "registry_digest generator
+# contract": "`--whole` selects the entire Registry (its own
+# `gates`/`capabilities` arrays, already author-ordered, are not
+# re-sorted)"). registry-digest-base.json's own `gates`/`capabilities`
+# arrays are deliberately NOT id-sorted (gate-z, gate-b, gate-a, gate-x;
+# cap-beta, cap-alpha, cap-empty) specifically so this comparison is
+# meaningful: if --whole re-sorted (or otherwise reordered) either array,
+# this digest would differ from a digest computed by canonicalizing the
+# untouched fixture file directly.
+install_registry registry-digest-base.json
+run_sh --whole
+if [[ $RC -eq 0 && "$OUT" == "$(expected_digest registry-digest-base.json)" ]]; then
+  ok "TEST-024(10): --whole preserves the Registry's author order (unsorted, unlike fragment selection)"
+else
+  fail "TEST-024(10): --whole digest differs from directly canonicalizing the untouched, author-ordered fixture"
 fi
 
 # TEST-032: canonical equivalence and ordering vectors.
@@ -193,6 +233,27 @@ if grep -q 'tests/generate-registry-digest.tests.sh' "$ROOT/tests/run-all.sh"; t
   ok "run-all.sh registers this suite between T-004 and T-006"
 else
   fail "run-all.sh does not register this suite"
+fi
+
+# Done When #4 (tasks.md): "a grep self-check confirms no version string was
+# mutated outside scripts/bump-version.sh" -- this task's own production
+# files must never carry a hand-mutated, semver-looking version string
+# (design.md Constraint Compliance: "Version bumps only via
+# scripts/bump-version.sh"; this feature introduces no version-mutation
+# path). Previously unimplemented in this suite (quality-gate remediation,
+# 2026-08-09).
+version_hit=0
+for name in generate-registry-digest.py generate-registry-digest.sh \
+  generate-registry-digest.ps1 generate-registry-digest.js; do
+  target="$SOURCE_DIR/$name"
+  if [[ -f "$target" ]] && grep -qE '[0-9]+\.[0-9]+\.[0-9]+' "$target"; then
+    version_hit=1
+  fi
+done
+if [[ "$version_hit" -eq 0 ]]; then
+  ok "Done When #4: no version string was hand-mutated in this task's production files (grep self-check)"
+else
+  fail "Done When #4: a semver-looking version string was found in this task's production files"
 fi
 
 printf -- '---- summary: pass=%d fail=%d ----\n' "$PASS" "$FAIL"

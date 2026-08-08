@@ -179,6 +179,104 @@ try {
   } else {
     Fail 'human-copy: staged .github/workflows/test.yml candidate missing'
   }
+
+  # =====================================================================
+  # Quality-gate remediation regression lock (2026-08-09) -- PowerShell twin
+  # of the bash suite's identically-named block. See that block's own
+  # comment for the full incident record: the human-copy/ bundle was built
+  # from a pre-epic-189-a1-merge baseline and would silently drop the
+  # epic_a1_targets top-level key plus tests/guard-parity.tests.sh if
+  # applied to the current live tree. The regenerated candidate lives at
+  # drafts/human-copy-candidate/ (agents may not write under human-copy/),
+  # each file named `<target>.candidate` so its path does not match a
+  # protected-gate suffix (see that directory's README.md).
+  # =====================================================================
+  $candidateDir = Join-Path $root 'specs/epic-190-a2-capability-registry/drafts/human-copy-candidate'
+  $candidateGuardJson = Join-Path $candidateDir 'plugins/sdd-quality-loop/references/guard-invariants.json.candidate'
+  $liveGuardJson = Join-Path $root 'plugins/sdd-quality-loop/references/guard-invariants.json'
+
+  function Get-RemovedEntries([string]$Label, $LiveValues, $CandidateValues) {
+    # Set-difference (live - candidate), native PowerShell (no python
+    # shell-out -- this suite otherwise parses JSON via ConvertFrom-Json
+    # throughout, per this file's own established convention).
+    $liveSet = [System.Collections.Generic.HashSet[string]]::new([string[]]@($LiveValues))
+    $candidateSet = [System.Collections.Generic.HashSet[string]]::new([string[]]@($CandidateValues))
+    $removed = @($liveSet | Where-Object { -not $candidateSet.Contains($_) } | Sort-Object)
+    return @($removed | ForEach-Object { "[$Label] $_" })
+  }
+
+  function Test-NoRegression([string]$CandidatePath, [string]$LivePath) {
+    if (-not (Test-Path -LiteralPath $CandidatePath)) {
+      return [PSCustomObject]@{ Rc = 1; Out = "candidate file not found: $CandidatePath" }
+    }
+    $live = Get-Content -LiteralPath $LivePath -Raw | ConvertFrom-Json
+    $candidate = Get-Content -LiteralPath $CandidatePath -Raw | ConvertFrom-Json
+
+    $liveKeys = @($live.PSObject.Properties.Name)
+    $candidateKeys = @($candidate.PSObject.Properties.Name)
+
+    $removed = @()
+    $removed += Get-RemovedEntries 'top-level keys' $liveKeys $candidateKeys
+    $removed += Get-RemovedEntries 'protected_gate_suffixes' @(Get-Prop $live 'protected_gate_suffixes') @(Get-Prop $candidate 'protected_gate_suffixes')
+    $removed += Get-RemovedEntries 'phase2_human_copy_targets' @(Get-Prop $live 'phase2_human_copy_targets') @(Get-Prop $candidate 'phase2_human_copy_targets')
+    if ($liveKeys -contains 'epic_a1_targets') {
+      $removed += Get-RemovedEntries 'epic_a1_targets' @(Get-Prop $live 'epic_a1_targets') @(Get-Prop $candidate 'epic_a1_targets')
+    }
+
+    if ($removed.Count -gt 0) {
+      $message = "candidate drops $($removed.Count) live-protected entr(y/ies): " + ($removed -join '; ')
+      return [PSCustomObject]@{ Rc = 1; Out = $message }
+    }
+    return [PSCustomObject]@{ Rc = 0; Out = 'candidate is a pure superset of live (0 removals)' }
+  }
+
+  $regressionCheck = Test-NoRegression -CandidatePath $candidateGuardJson -LivePath $liveGuardJson
+  if ($regressionCheck.Rc -eq 0) {
+    Ok 'QG-fix: regenerated guard-invariants candidate drops no live-protected path/key'
+  } else {
+    Fail "QG-fix: regenerated guard-invariants candidate drops no live-protected path/key -- $($regressionCheck.Out)"
+  }
+
+  $candidateWorkflow = Join-Path $candidateDir '.github/workflows/test.yml.candidate'
+  if (Test-Path -LiteralPath $candidateWorkflow) {
+    $candidateWorkflowContent = Get-Content -LiteralPath $candidateWorkflow -Raw
+    if ($candidateWorkflowContent -match [regex]::Escape('generate-gate-capabilities.py --check') -and
+        $candidateWorkflowContent -match [regex]::Escape('tests/generate-registry-digest.tests.sh') -and
+        $candidateWorkflowContent -match [regex]::Escape('tests/generate-registry-digest.tests.ps1')) {
+      Ok 'QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite'
+    } else {
+      Fail 'QG-fix: rebuilt CI workflow candidate is missing the gate-capabilities --check step or the generate-registry-digest suite'
+    }
+
+    $candidateManifest = Join-Path $candidateDir 'MANIFEST.sha256.candidate'
+    if (Test-Path -LiteralPath $candidateManifest) {
+      $candidateWorkflowHash = (Get-FileHash -LiteralPath $candidateWorkflow -Algorithm SHA256).Hash.ToLowerInvariant()
+      $candidateManifestLines = @(Get-Content -LiteralPath $candidateManifest)
+      $candidateManifestLine = @($candidateManifestLines -match 'workflows/test\.yml')
+      if ($candidateManifestLine.Count -gt 0) {
+        $candidateManifestHash = ($candidateManifestLine[0] -split '\s+')[0].ToLowerInvariant()
+        if ($candidateWorkflowHash -eq $candidateManifestHash) { Ok 'QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate' }
+        else { Fail 'QG-fix: rebuilt CI workflow candidate sha256 does not match its own MANIFEST.sha256.candidate' }
+      } else {
+        Fail 'QG-fix: MANIFEST.sha256.candidate has no entry for the rebuilt workflow candidate'
+      }
+    } else {
+      Fail 'QG-fix: MANIFEST.sha256.candidate missing'
+    }
+  } else {
+    Fail 'QG-fix: rebuilt .github/workflows/test.yml.candidate missing'
+  }
+
+  # Done When #3 (tasks.md) -- PowerShell twin of the bash suite's
+  # identically-labeled check (quality-gate remediation, 2026-08-09).
+  $versionHit = $false
+  foreach ($name in @('generate-gate-capabilities.py', 'generate-gate-capabilities.sh', 'generate-gate-capabilities.ps1')) {
+    $target = Join-Path $root "plugins/sdd-quality-loop/scripts/$name"
+    if ((Test-Path -LiteralPath $target) -and ((Get-Content -LiteralPath $target -Raw) -match '[0-9]+\.[0-9]+\.[0-9]+')) {
+      $versionHit = $true
+    }
+  }
+  if (-not $versionHit) { Ok 'Done When #3: no version string was hand-mutated in this task''s production files (grep self-check)' } else { Fail 'Done When #3: a semver-looking version string was found in this task''s production files' }
 } finally {
   if (Test-Path -LiteralPath $workDir) { Remove-Item -LiteralPath $workDir -Recurse -Force }
 }
