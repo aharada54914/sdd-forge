@@ -1,0 +1,51 @@
+PASS: TEST-005 anchor rejected
+PASS: TEST-005 alias rejected
+PASS: TEST-005 custom tag rejected
+PASS: TEST-005 duplicate key rejected
+PASS: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+PASS: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null)
+PASS: TEST-009 .py and .ps1 produce an identical SHA-256
+PASS: TEST-009 .sh produces the identical SHA-256 as .py
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+PASS: TEST-009 .ps1 denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH
+PASS: TEST-037 multi-document rejection
+PASS: TEST-037 non-string-key rejection
+PASS: TEST-037 post-NFC duplicate-key collision rejection
+PASS: TEST-037 non-finite number rejection (.inf)
+PASS: TEST-037 non-finite number rejection (.nan)
+PASS: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7)
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+PASS: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (51 bytes)
+PASS: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars
+PASS: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table
+FAIL: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception: exit code: got 1, want 10
+FAIL: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED: exit code: got 1, want 10
+FAIL: TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED: exit code: got 1, want 10
+FAIL: TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED: exit code: got 1, want 10
+FAIL: TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED: exit code: got 1, want 10
+PASS: TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds
+FAIL: TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted: exit code: got 0, want 26
+FAIL: TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint: 
+FAIL: TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected: exit code: got 0, want 26
+FAIL: TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too: exit code: got 0, want 26
+PASS: TEST-REMEDY a URL value (':' not followed by a space) still succeeds
+PASS: TEST-REMEDY a QUOTED value containing ': ' still succeeds
+PASS: TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED
+PASS: TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)
+PASS: TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)
+PASS: TEST-REMEDY JSON input mode rejects a duplicate object key
+PASS: TEST-REMEDY JSON input mode rejects the non-standard NaN constant
+PASS: TEST-REMEDY JSON input mode rejects the non-standard Infinity constant
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: 40
+FAIL: 9

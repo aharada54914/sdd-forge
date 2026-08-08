@@ -49,19 +49,24 @@ $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySepa
 
 function Test-PathContainsReparsePoint {
     param(
-        [Parameter(Mandatory)][string]$Path
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$TrustedRoot
     )
 
-    # GetFullPath is lexical: an intermediate junction can still redirect a
-    # path that lexically begins under RepoRoot. Inspect each existing path
-    # component with the Windows PowerShell 5.1-compatible attribute flag.
-    $pathRoot = [System.IO.Path]::GetPathRoot($Path)
-    if ([string]::IsNullOrEmpty($pathRoot)) {
+    # The runner's parent directories may themselves be symlinks (notably
+    # macOS /var and hosted workspace mounts). They are outside the trust
+    # boundary; inspect only components introduced below the trusted repo
+    # root. This keeps the guard fail-closed for in-repo junctions/symlinks
+    # without rejecting a legitimate symlinked workspace location.
+    $rootFull = [System.IO.Path]::GetFullPath($TrustedRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+    $pathFull = [System.IO.Path]::GetFullPath($Path)
+    $separator = [System.IO.Path]::DirectorySeparatorChar
+    if (-not ($pathFull.StartsWith($rootFull + $separator) -or $pathFull -eq $rootFull)) {
         return $false
     }
 
-    $current = $pathRoot
-    $relativePath = $Path.Substring($pathRoot.Length)
+    $current = $rootFull
+    $relativePath = $pathFull.Substring($rootFull.Length)
     foreach ($component in ($relativePath -split '[\\/]+')) {
         if ([string]::IsNullOrEmpty($component)) {
             continue
@@ -125,7 +130,7 @@ function Test-EvidencePath {
         $result.StopsCurrentCheck = $true
         return [pscustomobject]$result
     }
-    if (Test-PathContainsReparsePoint -Path $joined) {
+    if (Test-PathContainsReparsePoint -Path $joined -TrustedRoot $RepoRoot) {
         $result.Failure = "$FieldName path contains a reparse point: $Evidence"
         $result.StopsCurrentCheck = $true
         return [pscustomobject]$result

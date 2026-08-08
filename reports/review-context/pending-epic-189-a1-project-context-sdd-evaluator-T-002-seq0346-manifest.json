@@ -1,0 +1,86 @@
+{
+    "schema": "review-context-invocation/v2",
+    "stage": "quality",
+    "role": "sdd-evaluator",
+    "feature": "epic-189-a1-project-context",
+    "task_id": "T-002",
+    "run_id": "RUN-epic-189-a1-project-context-qg-T-002-seq0346",
+    "host_session_id": "SESS-qg-epic-189-a1-project-context-T-002-0346",
+    "sequence": 346,
+    "previous_record_sha256": "6297cb7efc0339891b2a636f43b06a3d818d8d58e0e87912c322f95ca5d2a528",
+    "identity_ledger_path": "reports/review-context/identity-ledger.json",
+    "identity_ledger_sha256": "155e50f7fb187df429a54bbf863b7ce31800dec891dc0030602cfaec89b746cd",
+    "input_mode": "file-manifest",
+    "fallback_mode": "none",
+    "read_only": true,
+    "allowed_input_manifest": [
+        {
+            "path": "specs/epic-189-a1-project-context/requirements.md",
+            "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+            "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/design.md",
+            "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/tasks.md",
+            "sha256": "9203b7954e67a0efc75c372ac61c17fd6fe2574117c0374ab9e63b1341cf6f2b"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/traceability.md",
+            "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/ux-spec.md",
+            "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+            "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/infra-spec.md",
+            "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/security-spec.md",
+            "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+            "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+        },
+        {
+            "path": "reports/implementation/epic-189-a1-project-context/T-002.md",
+            "sha256": "91cd091f7ebb4cb051fef4cb270a9559cb4d1f7e4b748772acabdec7fd91d743"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+            "sha256": "c94e106ca707486158d3cd7a84a976ecafea20a6de12cb3bb3955464edf09a51"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh",
+            "sha256": "6ebdf13490ecd3667ff1b1e7bd934b21ca9277094bf5ddeff0f96b94e52ab1a5"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1",
+            "sha256": "71c738e965060e3101dc1bf7aeed9e900c3a44b16b68a1f8f75817716f41ec86"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js",
+            "sha256": "6ceacdf43799b88ffb60618ea63abfb7b7fd9ee9722fcf1728a6109717a791d8"
+        },
+        {
+            "path": "tests/canonicalize-sdd-yaml.tests.sh",
+            "sha256": "03464bb5697c27ea4e42fe0114704508df660139fd4df043812b34fe70a6e214"
+        },
+        {
+            "path": "tests/canonicalize-sdd-yaml.tests.ps1",
+            "sha256": "f1e12ad39554384c91a839805f3ff66c3fe571f9469691280e73d6fed044011e"
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "design-sync-consent",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "ad7a88b6d06af6e0f3d5cdbb57db64b70dbe2f2057c97bdf5331ab94c7ed4ad2",
+  "acceptance_sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "87465c9e270d25b525e4ebc6d84adac9d06c6a001bbb5c3be831ec4214fc290f",
+  "edit_summary": "ASSUMPTIONS-RESOLVABLE (Major, round 2): BL-005 made the same shared-state protected-file claim as BL-004 without a re-verification instruction, and the Assumptions bullet named only BL-004. Both constraints are now named in that bullet with their concrete targets, and BL-005 carries the same re-verification trailer BL-004 does.",
+  "reset": false,
+  "generated_at": "2026-08-04T15:59:02Z"
+}

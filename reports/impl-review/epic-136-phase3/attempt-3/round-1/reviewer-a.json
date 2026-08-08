@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase3-impl-a3r1-a-seq0437",
+  "host_session_id": "SESS-impl-a3r1-a-epic136phase3-0437",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/precheck-result.json",
+      "sha256": "00bc99c212f5855b84ab1247116ec177e922a6b9a54ba392d0a18c81c6cf71c4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "08242bc809e10a277f94efee0bd48e56f0143fd204ad9a2379236522fc01f2b7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "8376e72b8eb1355d966c3546c4cc254d8d1cf287d64720482a50acc3655d86d8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "e46998906497e7c9b94cd4b009ac9c99ac92f190db9d7f1031dae171465c1dfd"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "66bec9fad6f97ebbd40b95e3f64dcf4f141197915d3d988788f419f0092a3520"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's `## Architecture` section (lines 59-106) is a mermaid flowchart with 4 subgraphs (SA/SB/SC/SD) naming top-level component boundaries per stream and showing integration edges into existing components (`GDF -->|PATH-restricted subshell, drives real| SHGSH`, `SHGSH -->|python3 present| SHGPY`, `ADR0010 -.->|Status: Accepted, Blocker discharged| WFSCEN`, `TESTYML_HC -.->|human copies, SHA-256 verified| TESTYML_LIVE`) -- this satisfies items 1 and 2 with real interaction detail, not a one-sentence component list. Item 3 (technology choices per major layer) is not narrated as prose inside the Architecture section itself, but is given immediately adjacent and unambiguously in the `## Components` table (lines 110-120: Bash / Python / Node / PowerShell / GitHub Actions YAML / Markdown per component) and the `## Layer Specifications` table (lines 162-167: UX/Frontend explicitly N/A, Infrastructure/Security Planned with canonical-detail pointers). No implementer reading this design would be left to guess the stack. PASS, with the note that folding the tech-stack sentence into the Architecture section proper would be a Minor polish improvement, not required here."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Built the dependency graph from design.md's `## Architecture` mermaid edges (lines 61-106): GDF->SHGSH->{SHGPY,SHGPS}; PWSHSTUB-.->SHGSH; GDF->{SHGPY,SHGPS} (parity checks); GNC->{SHGPY,SHGPS,SHGSH,SHGJS}; CWDCORPUS-.->GNC; ADR0010-.->WFSCEN; LOOPINV-.->WFSCEN; TESTYML_HC-.->TESTYML_LIVE; TESTYML_HC-->RC; SELFCHECK-->TESTYML_HC; HUMAN-->TESTYML_LIVE. Every edge is one-directional test-harness-drives-real-target or staging-candidate-flows-to-live-file; no node is reachable back to an ancestor. No cycle exists. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## Data Plan` (design.md lines 198-212) explicitly fills all three required sub-fields: `Data Entities:` states 'none new for Streams A, B, D' and names Stream C's one new schema (the `tests/workflow-scenarios/` scenario-schema JSON, closed `greenfield`|`brownfield` set); `Existing Data Affected:` states 'none' and explicitly notes `loop-inventory.json` is read-only; `Migration Strategy:` states 'none. No schema changes to any existing artifact.' All three sub-fields are present and explicit rather than omitted. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## API / Contract Plan` (design.md lines 214-414) is present and detailed, covering every new-or-changed contract this feature actually introduces: `tests/guard-dispatch-fallback.tests.sh`'s fixture-harness contract (combo/emit loop, lines 220-273), `tests/guard-negative-corpus.tests.sh`'s 3-class x 4-runtime x 3-tool_name-shape contract (lines 275-320), `tests/workflow-scenarios/`'s directory/schema contract (lines 322-370), and the exact YAML CI-step contract staged for `.github/workflows/test.yml` (lines 372-414). requirements.md's User Stories name only maintainers/CI reviewers as the audience (no end-user-facing HTTP/RPC surface is claimed anywhere in requirements.md, and ux-spec.md/frontend-spec.md both confirm no GUI exists), so there is no unaddressed user-facing endpoint category. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's own `## Security Boundaries` table (lines 554-563) is internally complete (4 boundaries B1-B4, auth/authz mechanism, data classification, OWASP concern per row) and its B3 row correctly states 'ONE shared staged batch (Streams A + B + C + D)' (design.md:560). However, design.md's own `## Layer Specifications` table (line 167) designates `security-spec.md#trust-boundaries` as the CANONICAL DETAIL for the Security layer, and that canonical document contradicts design.md at the exact same boundary: security-spec.md:50 (Trust Boundaries table, B3 row) reads 'ONE shared staged candidate under `specs/epic-136-phase3/human-copy/` + ONE `MANIFEST.sha256` covering both Stream A's new steps and Stream D's restructuring' -- 'both' names only 2 of the 4 streams, omitting Streams B and C's new CI steps entirely. This directly contradicts the SAME document's own STRIDE Analysis B3 row ten lines later (security-spec.md:60), which correctly states 'all four streams share ONE staged batch (design.md Global Constraints)' and 'mandates ONE shared candidate ... for all four streams' -- i.e. security-spec.md is self-contradictory on its own canonical trust-boundary description. Corroborating drift of the same defect class exists in two more places: infra-spec.md:70 ('BOTH streams' edits are staged as ONE combined candidate ...') contradicts infra-spec.md:51 nineteen lines earlier in the SAME CI/CD Sequence section ('Streams A, B, and C together add exactly 3 new steps to the existing test job'); and frontend-spec.md:21 (Technology Stack table, also a Layer-Specifications-designated canonical-detail anchor, design.md:165) reads '2 new CI steps (Streams A + B)', omitting Stream C's `workflow-scenarios.tests.sh` step. Concrete downstream failure: an implementer or reviewer who consults security-spec.md's Trust Boundaries table or frontend-spec.md's Technology Stack table (both explicitly pointed to as canonical by design.md's own Layer Specifications table) rather than design.md's summary would conclude only 2 of the 4 streams' CI steps belong in the shared human-copy candidate, under-scoping the staged `test.yml` diff and silently leaving one or more streams' new suites unregistered in CI -- precisely the INV-006 silent-CI-skip defect class REQ-005/AC-019/AC-020 exist to close, and precisely the tampering/overwrite threat security-spec.md's own B3 STRIDE row (line 60) warns against. Not Critical because design.md's own Security Boundaries table and Global Constraints (lines 523-530) state the correct 4-stream/1-batch rule, so the design itself is not unimplementable -- but the designated canonical security/frontend refinement documents must be corrected to match before this passes."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no frontend or user-facing API surface exists for this feature to check consistency between. ux-spec.md (lines 9-27) states 'N/A -- no change: this feature is 4 new-test-suite/CI-lane additions ... with no GUI, view, dialog, menu item, or human interactive shell surface of its own.' frontend-spec.md (lines 8-14) states 'N/A -- no change: the deliverables ... There is no browser or frontend application.' design.md's own free-text Feature Type header (lines 5-9, '4 independent new-test-suite/CI-lane additions (Streams A, B, C, D)') does not use the literal enumerated vocabulary (fullstack/api-only/frontend-only/cli/library), but is functionally a non-fullstack, no-frontend feature class equivalent to `cli`/`library` for this check's purposes -- the scoped surface genuinely does not exist, matching the calibration guidance to SKIP rather than FAIL when the scoped surface is absent."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "`## Test Strategy` (design.md lines 416-467) covers all required elements with concrete planned evidence: unit scope (item 1, Stream A's TEST-001..004 decision-parity fixtures; item 2, Stream B's TEST-008..010 explicit 12-combination-per-class enumeration, WFI-014 discipline cited); integration/cross-boundary scope (Stream B's cross-runtime parity aggregation TEST-011, Stream D's sibling-workflow-isolation TEST-018 in item 8); acceptance-criteria verification approach (item 7 ties Stream C's AC-012..015 to acceptance-tests.md's TEST-012..015 traceability; the whole document is cross-indexed against AC-NNN via the Cross-Layer Dependencies table, design.md lines 174-185); concrete planned commands and artifacts (item 5 names `bash tests/run-all.sh` and `pwsh tests/run-all.ps1`; item 6 names the grep-based self-registration check; item 3 names the literal RED-then-GREEN self-check technique for TEST-017). No fullstack/UI critical-user-journey E2E requirement applies (FRONTEND-BACKEND-CONSISTENCY SKIP rationale above), so that sub-item is correctly not present. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in the Architecture diagram and API/Contract Plan is either defined in the `## Components` table (design.md lines 110-120: the two new Stream A/B suites, the 4 live guard runtimes, `tests/workflow-scenarios/`, `docs/adr/0010-*.md`, `.github/workflows/test.yml`, `tests/run-all.sh`/`.ps1`, `CHANGELOG.md`) or is an established system component confirmed present on disk during this review: `tests/guard-dispatch-fallback.tests.sh`, `tests/guard-negative-corpus.tests.sh`, `tests/workflow-scenarios/` (12 files including `scenario-schema.json` and `workflow-scenarios.tests.sh`), `tests/workflow-state-ci-integration.tests.sh` (the text-marker technique Stream D's self-check reuses, design.md line 56), and `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` (confirmed `Status: Accepted`) all exist as real files (verified via `ls`/`Read`). `tests/loops/loop-inventory.json`, `tests/lib/loop-driver.sh`, and `guard-cwd-bypass.tests.sh` are established pre-existing components per investigation.md INV-014/INV-016/INV-007/INV-025. No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## ADR Change Log` (lines 187-196) states 'No new ADR. This feature introduces no new vocabulary, schema, or architectural pattern of its own' and explains each stream reuses an already-established pattern verbatim (epic-136 human-copy procedure, `guard-cwd-bypass.tests.sh`'s env-var-indirection pattern, ADR-0010's own vocabulary, `tests/workflow-state-ci-integration.tests.sh`'s text-marker technique) rather than inventing a new one; it further states `docs/adr/0010-*.md` is `Status: Accepted` and not modified by this feature. Verified directly: `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` exists and its `## Status` line reads 'Accepted', matching design.md's and requirements.md's Stream C status record. No new technology choice, integration pattern, or architectural departure is introduced without ADR coverage (Stream D's job-count-preserving lane-marking choice is a narrow, feature-scoped implementation decision reasoned through in Design Decisions OQ-5, not a cross-cutting architectural pattern). No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped and recorded as PASS per the check's own rule: the target project has no `design-system/` directory (verified via `ls -d design-system` -> No such file or directory), and design.md's `## Design System Compliance` section (lines 169-172) records exactly 'N/A -- ds_profile: none. Not a UI application; no mockup provided; optional visualization skipped.'"
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped and recorded as PASS per the check's own rule: the target project has no `domain/` directory (verified via `ls -d domain` -> No such file or directory), so no `domain/context-map.md` with `Domain-Model-Status: Approved` or `domain/domain-contract.json` exists to trigger this check."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "ci-and-test-infrastructure-hardening (4 independent new-test-suite/CI-lane-boundary additions; no UI, no user-facing API)"
+}

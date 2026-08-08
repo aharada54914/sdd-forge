@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "57437ee89681ce0ab37c04a1e0a30f6fbc53ef28d01ed8eb19c768e3cfc1a482",
+  "acceptance_sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "a6ede94fdf6ea46aae796c6a6434b2c44de87a2cbd6a0752490cf466440f732a",
+  "edit_summary": "Round-1 remedy: added contracts/approver-registry.schema.json field-level schema (schema id sdd-approver-registry/v1) to REQ-006 and Field Definitions; added DUPLICATE_APPROVER_REGISTRY_ID diagnostic; added Edge Cases coverage for zero-entry/malformed/duplicate-id registry states; added AC-044/AC-045/AC-046 and TEST-044/TEST-045/TEST-046 for schema conformance, duplicate-id rejection, and the zero-identity boundary. Closes reviewer B round-1 AMBIGUITY, EDGE-CASE-COVERAGE, DOWNSTREAM-READINESS findings.",
+  "reset": false,
+  "generated_at": "2026-07-21T22:43:46Z"
+}

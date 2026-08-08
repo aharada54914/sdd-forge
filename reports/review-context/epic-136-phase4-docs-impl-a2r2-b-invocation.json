@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "epic-136-phase4-docs",
+  "run_id": "RUN-epic136phase4docs-impl-a2r2-b-seq0410",
+  "host_session_id": "SESS-impl-a2r2-b-epic136phase4docs-0410",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "732d3eff16006e86e2bba55edfcc1a0df51a90bcd8bcd7c66af21ecd2d6a24ec",
+  "previous_record_sha256": "7a5b579678455112f27b097caade657a3cebd3e0352feecb650f4689982d1243",
+  "sequence": 410,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/design.md",
+      "sha256": "deb28cfe332d914e03c8cd448bbe4f629e78d196bab0d3d659fe9008294ad98f"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase4-docs/attempt-2/round-2/precheck-result.json",
+      "sha256": "7f67e42434b9d5c827b51530e38287309d89946f8b252dc2920c83aa8f128918"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase4-docs/attempt-2/round-2/integrated-summary.json",
+      "sha256": "1ae54f54495b0fd8736c6d2ffdcad4ef42d0b9f19f2ab363c939a556b556605a"
+    }
+  ]
+}

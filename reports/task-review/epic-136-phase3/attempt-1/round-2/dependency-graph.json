@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "epic-136-phase3",
+  "attempt": 1,
+  "round": 2,
+  "nodes": ["T-001","T-002","T-003","T-004"],
+  "edges": [{"from":"T-003","to":"T-001"},{"from":"T-003","to":"T-002"}],
+  "generated_at": "2026-07-22T11:53:39Z"
+}

@@ -15,9 +15,18 @@ clone_fixture() {
     # `git clone` may invoke a host credential/helper while copying local
     # objects. Export the committed tree instead, then initialise a disposable
     # repository because later fixtures intentionally create commits.
+    # specs/ and reports/ hold no installer-relevant content but account for
+    # ~80% of the tracked files; excluding them keeps every scenario's
+    # per-file install copy loop proportional to what the installer needs.
     mkdir -p "$destination"
-    git -C "$source_root" archive --format=tar HEAD | tar -xf - -C "$destination"
+    git -C "$source_root" archive --format=tar HEAD -- ':(exclude)specs' ':(exclude)reports' | tar -xf - -C "$destination"
     git -C "$destination" init -q
+    # Commits in this repository can spawn detached background maintenance
+    # (auto gc) that races teardown's rm -rf ("Directory not empty"). Disable
+    # it repo-locally so no git process outlives any scenario.
+    git -C "$destination" config gc.auto 0
+    git -C "$destination" config gc.autoDetach false
+    git -C "$destination" config maintenance.auto false
     git -C "$destination" add -A
     git -C "$destination" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
 }

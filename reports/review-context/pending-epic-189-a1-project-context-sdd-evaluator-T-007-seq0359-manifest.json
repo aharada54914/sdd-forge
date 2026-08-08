@@ -1,0 +1,146 @@
+{
+    "schema": "review-context-invocation/v2",
+    "stage": "quality",
+    "role": "sdd-evaluator",
+    "feature": "epic-189-a1-project-context",
+    "task_id": "T-007",
+    "run_id": "RUN-epic-189-a1-project-context-qg-T-007-seq0359",
+    "host_session_id": "SESS-qg-epic-189-a1-project-context-T-007-0359",
+    "sequence": 359,
+    "previous_record_sha256": "39c02ee9722e3b81210a46e98ee9c8b5d129f8f8d7e6bf99181cfbc01d962b4a",
+    "identity_ledger_path": "reports/review-context/identity-ledger.json",
+    "identity_ledger_sha256": "e4028778cf513abaaf3d298c62dcab4f205f3579a3a547f6c39f61cfc81c0032",
+    "input_mode": "file-manifest",
+    "fallback_mode": "none",
+    "read_only": true,
+    "allowed_input_manifest": [
+        {
+            "path": "specs/epic-189-a1-project-context/requirements.md",
+            "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+            "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/design.md",
+            "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/tasks.md",
+            "sha256": "c0fb800da98089f7d9351a939020df73523722e1490793353a85807d2a51cf99"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/traceability.md",
+            "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/ux-spec.md",
+            "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+            "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/infra-spec.md",
+            "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/security-spec.md",
+            "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+            "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+        },
+        {
+            "path": "reports/implementation/epic-189-a1-project-context/T-007.md",
+            "sha256": "6c01f70f9457273bbd9a0a9a6b37c68a7b0164a6f36e5a4dce05873b7a5dea64"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+            "sha256": "79c9c1b528a2a104bdbe415ae525455209e1f8d6f0e637d456d963c026189d27"
+        },
+        {
+            "path": "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+            "sha256": "2c2ae9a1d7fe475d6762ea48c4023fd1ea3f6dc79abd07fcb86f6b9987e004cf"
+        },
+        {
+            "path": "tests/apply-human-copy.tests.sh",
+            "sha256": "528d319b933481e294803cc6e138dddd768e69d9e2b48feaf2d70e8400463d9c"
+        },
+        {
+            "path": "tests/apply-human-copy.tests.ps1",
+            "sha256": "fab9e8f64b34f94b521c58ca1565e8df7585d52dde11c27e0bf28df3c6172b58"
+        },
+        {
+            "path": "tests/run-all.sh",
+            "sha256": "ba0662896e7b6a95c380ddcd6cc58e61838666af5d6e4e93d93ea3249f226cf0"
+        },
+        {
+            "path": "tests/run-all.ps1",
+            "sha256": "6093995089b69599cf4d7708d20947a7436774d7ada5006a31c4f3eddc989f30"
+        },
+        {
+            "path": "CHANGELOG.md",
+            "sha256": "13c5f9511d065ce22b963084d3d813de4da436b3ce2da250dd7c7bd3e01482a0"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/red-sh.log",
+            "sha256": "d25b8818c8f2061146e84c1d018e5913268a5f223ec6a3d94822219c0c3748de"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/red-ps1.log",
+            "sha256": "841188cf2086a9016d53d25e6b58f5c7bdc80372bfa22f451e3aa2ce4ccf0346"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/green-sh.log",
+            "sha256": "41ffbb1ec0377cf2e1d98e71a42f7c919cda586fa924aecf0749f35bda2169ec"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/green-ps1.log",
+            "sha256": "cde25e916ecaa92b09915c2a0831bc20f971086a9da47b6919539a32b8964c7f"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy-red-sh.log",
+            "sha256": "a605bc2e3a9eddee866f72dce4c98555e3a0241fb2aa7772748f2e1628eb8a56"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy-red-ps1.log",
+            "sha256": "a4a9a7b8062ebf030abea39939cc49f4b53e6b0d1fad9e7d1e9e99ee0d0d97aa"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy-green-sh.log",
+            "sha256": "bf8b5c0eb2c395dff3381d269023fd6d31ae479453b7062703a0a14c6fc95a2f"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy-green-ps1.log",
+            "sha256": "a3d7163ea69fd0ad346e02b481967ce3db92b4061bb89a4e2bd79c6a7636bb0a"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/crash-injection-sh.log",
+            "sha256": "956123b60c0cf8e3016fec1024181df5bf1338260a94a5ff491c9def69e86b4e"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/crash-injection-ps1.log",
+            "sha256": "f5bacc54aca0f57a8bcd7459191c428699a3087cc72e12c9b81c592fc8acb25c"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy2-red-sh.log",
+            "sha256": "622c6f0729a01ff1fa0cf0f69fad1514204233636532465a39f57741c820fc28"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy2-red-ps1.log",
+            "sha256": "fb233537c04583978180ac8a5ed27a2fd2232dc10dac4a8a03d377262cbc944f"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy2-green-sh.log",
+            "sha256": "48bcd9c6a7fc9b7a89260e01a8ee4ac5a3c81d8b97ae5ede793748b3dfd764b8"
+        },
+        {
+            "path": "specs/epic-189-a1-project-context/verification/T-007/remedy2-green-ps1.log",
+            "sha256": "98641823c739604406e163105ec41134e03a390099a70d0dba4a7b27e1387907"
+        }
+    ]
+}

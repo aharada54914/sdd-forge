@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase3-impl-a2r1-a-seq0427",
+  "host_session_id": "SESS-impl-a2r1-a-epic136phase3-0427",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-2/round-1/precheck-result.json",
+      "sha256": "e0a1053be68a6a2eff6ec2dd5d259294a3f8cc9563a23242794eec5d906bb8a8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "ccd32a80163b5f71cb6ac09e9add2b7152c8bfa01e6ddbe0554ed9cd635da274"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "9fcd57454c7576fb9b6e38485f80d82726326f6956d0fe180e6aa831ea321e19"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "aa598bd1fd255cf51178d220bab263a96fbf1717b68e60d6f6499d8167fd0665"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 59-106) gives a mermaid diagram with 4 named subgraphs (Stream A-D) showing component boundaries and directional integration edges into existing live components (sdd-hook-guard.sh/.py/.ps1/.js, .github/workflows/test.yml, ADR-0010, loop-inventory.json). Technology choices per component are named in the Components table (lines 110-120: Bash; Bash/Python/Node/PowerShell; GitHub Actions YAML; Markdown) and the Layer Specifications table (lines 159-166), which explicitly marks UX/Frontend N/A (no GUI, corroborated by ux-spec.md/frontend-spec.md) and names Infrastructure/Security scope. This is CI/test-tooling work with no traditional frontend/backend split (Feature Type header + ux-spec.md/frontend-spec.md both state no GUI or frontend application exists), so the absence of a conventional frontend/backend layer description is not a gap."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Dependency graph built from design.md's ## Architecture mermaid edges: GDF/GNC -> live guard binaries; CWDCORPUS -> GNC; ADR0010/LOOPINV -> WFSCEN; TESTYML_HC -> TESTYML_LIVE; SELFCHECK -> TESTYML_HC; HUMAN -> TESTYML_LIVE. Every edge is one-directional toward an existing/live artifact; no component's dependents point back to it. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 197-211) explicitly populates all three required sub-fields: Data Entities ('none new for Streams A, B, D... Stream C introduces one new schema: the scenario-schema JSON documents'), Existing Data Affected ('none... tests/loops/loop-inventory.json is read-only for Stream C... never edited'), Migration Strategy ('none. No schema changes to any existing artifact.')."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 213-406) documents a concrete contract for every new deliverable this feature adds: tests/guard-dispatch-fallback.tests.sh's PATH-combo/emit-mode fixture harness contract, tests/guard-negative-corpus.tests.sh's 4-runtime x 3-tool_name-shape matrix contract, tests/workflow-scenarios/'s scenario-schema directory shape, and the exact test.yml YAML step diff for Streams A/D. This feature has no HTTP/RPC/event surface (CLI/test/CI tooling, confirmed by ux-spec.md/frontend-spec.md), and the section substitutes the closest applicable per-artifact contracts rather than being empty or absent."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's own ## Security Boundaries table (lines 540-549) itself names all 4 required items (trust boundaries B1-B4, auth/authz mechanism column, data-classification column, OWASP-concerns column) and states Stream C's inbound prompt-injection boundary is 'landed' (Layer Specifications row, line 166: 'inbound prompt-injection boundary (Stream C, landed)'). However, security-spec.md -- which design.md's own Layer Specifications table designates as the canonical 'Detailed controls' reference for this exact row (line 549: '[Security specification](security-spec.md#trust-boundaries)') -- directly contradicts that landed status throughout: line 10 'Stream C's target shape (blocked) defines an INBOUND prompt-injection test'; line 26-27 trust-boundary diagram labels the fixture '(Stream C, blocked)' and the target entry point '(target, once unblocked)'; line 39 and line 71 both tag 'AC-014 (Blocked)'; line 62 Authorization table states writing tests/workflow-scenarios/ is still 'deny (process gate... the file does not yet exist to be written)'; line 84 OWASP Mapping lists 'TEST-014 (Blocked, deferred)'; line 111 Open Questions restates 'its implementation is Blocked.' This is the exact class of cross-layer contradiction the review brief instructs to report (layer specs as normative refinements of design.md): design.md/requirements.md's reconciled 'Stream C status record' (ADR-0010 Accepted commit 67015a5, T-004 landed tests/workflow-scenarios/ and workflow-scenarios.tests.sh, acceptance-tests.md AC-014/TEST-014 now 'Planned' per the QG-remediation reconciliation note) was not propagated into security-spec.md, so a reader relying on the designated canonical security-detail document would wrongly conclude AC-014's inbound-prompt-injection control is unimplemented/unverified and that writing to tests/workflow-scenarios/ is still denied -- undermining confidence in whether this security boundary's verification has actually occurred. The same stale 'Blocked'/'unblocked'/'NOT YET CREATED' framing (not part of the attempt-2 reconciliation, which the invoking context states touched only requirements.md and design.md) also pervades ux-spec.md (lines 7,22,31,43), frontend-spec.md (lines 8,17,41,53), and infra-spec.md (lines 4,36 -- whose CI/CD topology diagram literally mislabels 'ADR-0010 (Status: Proposed)', when docs/adr/0010-loop-inventory-and-fixture-vocabulary.md's own ## Status heading reads 'Accepted(\u4eba\u9593\u6c7a\u5b9a 2026-07-22...)', and mislabels tests/workflow-scenarios/ 'NOT YET CREATED' though design.md/requirements.md both state T-004 already created and landed it), confirming this is a systemic, unreconciled staleness across all four layer specs rather than an isolated typo."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type header text ('4 independent new-test-suite/CI-lane additions (Streams A, B, C, D)...') does not literally match one of the four enumerated skip strings, but the scoped surface this check requires does not exist: ux-spec.md states 'N/A - no change... no GUI... no browser or frontend application' and frontend-spec.md states 'N/A - no change... There is no browser or frontend application' (both files, opening lines), and design.md contains no Frontend Plan or Backend Plan section at all. This is CLI/test/CI-infrastructure work with zero UI surface, so FRONTEND-BACKEND-CONSISTENCY's premise (frontend assumptions vs. backend contracts) is inapplicable by the calibration's Cannot-Verify Handling guidance ('the scoped surface does not exist')."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 407-457) covers unit-level fixture scope (items 1-2: Stream A decision-parity assertions, Stream B's 3-class x 4-runtime x 3-tool_name-shape matrix), integration/CI-level scope (item 5: 'bash tests/run-all.sh and pwsh tests/run-all.ps1 locally; the 3-OS CI matrix is authoritative once the test.yml human-copy candidate is applied'), and an explicit AC-NNN-to-verification mapping via the Cross-Layer Dependencies table (lines 175-184, REQ -> AC -> TEST-ID for every REQ-001..006) plus concrete named evidence artifacts (grep-based self-checks, MANIFEST.sha256-verified staged candidate, TEST-017's RED-then-GREEN self-check). No fullstack critical user journey applies since this is a non-UI feature (ux-spec.md Excluded journey note)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in design.md's Architecture diagram and API/Contract Plan is either defined in the Components table (lines 110-120: the two new test suites, the 4 guard runtimes, tests/workflow-scenarios/, docs/adr/0010-*.md, test.yml, run-all.sh, run-all.ps1, CHANGELOG.md) or is an established pre-existing repository component corroborated by investigation.md and described in a named prose subsection: guard-cwd-bypass.tests.sh's cd&&rm corpus (investigation.md INV-007/INV-025, design.md 'Real surfaces exercised READ-ONLY' paragraph), tests/loops/loop-inventory.json (INV-014, same paragraph), tests/lib/loop-driver.sh (INV-016, same paragraph), the tests/workflow-state-ci-integration.tests.sh text-marker technique (design.md Technical Summary + Test Strategy item 3), and the plugins/sdd-bootstrap entry point (design.md API/Contract Plan Stream C section, naming the gh issue view --json body step). No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## ADR Change Log' (lines 186-195) states no new ADR is introduced by this feature and that ADR-0010 (docs/adr/0010-loop-inventory-and-fixture-vocabulary.md) is pre-existing, unmodified, and Status: Accepted. Verified: the file exists at that path and its '## Status' heading reads 'Accepted(\u4eba\u9593\u6c7a\u5b9a 2026-07-22 - \u30c1\u30e3\u30c3\u30c8\u30bb\u30c3\u30b7\u30e7\u30f3\u3067\u4eba\u9593\u30e1\u30f3\u30c6\u30ca\u304c...)', matching design.md's claim. No architectural departure requiring a new ADR was found (Stream A/B/D reuse existing patterns per design.md's own ADR Change Log text; Stream C reuses ADR-0010's vocabulary verbatim rather than defining a new one)."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Repository root has no design-system/ directory (verified: ls returned 'No such file or directory'). design.md's ## Design System Compliance section (lines 168-171) records exactly 'N/A - ds_profile: none,' matching the documented skip condition. Recorded as skipped/not-applicable; PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Repository root has no domain/ directory (verified: ls returned 'No such file or directory'), so no domain/context-map.md or domain-contract.json exists either. Check does not apply; recorded as skipped; PASS."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "Non-UI CLI/test-and-CI-infrastructure feature - four independent new test-suite/CI-lane additions (Streams A-D: guard-dispatch-fallback tests, guard-negative-corpus tests, workflow-scenarios harness, and test.yml deterministic-lane marking) with no frontend, backend, or GUI surface, per design.md's Feature Type header and ux-spec.md/frontend-spec.md's explicit 'no GUI / no browser or frontend application' declarations."
+}

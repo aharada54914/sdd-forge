@@ -1,0 +1,64 @@
+{
+  "task_id": "T-009",
+  "feature": "epic-189-a1-project-context",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "quality_report": "reports/quality-gate/2026-08-02T112506Z-T-009.md",
+  "verification_contract": "specs/epic-189-a1-project-context/verification/T-009.contract.json",
+  "git_commit": "6a54eb64b85f6bac8005d24201eeae7dd2743467",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-189-a1-project-context/verification/T-009.contract.json",
+      "sha256": "0e83d7213cb2bc350296687fd552927c01d869ec3c10e799af832c8cadcc6b06"
+    },
+    {
+      "path": "reports/quality-gate/2026-08-02T112506Z-T-009.md",
+      "sha256": "ad0279c01e78abbb95ccb52450d0018c7718bd965a57949daaf56514fafb743a"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-009/focused-tests.log",
+      "sha256": "08060523907167799c6cc366df27ba9d220bd811f13a3fe74c7be43661d7d7c7"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-009/placeholder.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-009/regression.log",
+      "sha256": "64e4a24eaf546860853fcc187f0d727f0eaeb3a1d5e210f9b6576d862283f136"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-009/task-state.log",
+      "sha256": "fdf7c4ee6de018a86042dbc47a9a0187c236df4317d39286a1212da08185ab8d"
+    },
+    {
+      "path": "specs/epic-189-a1-project-context/verification/qg/T-009/traceability.log",
+      "sha256": "53845c664ce03aa79feda694cfdceab067ae2c28abd95143b435e3674e1b23de"
+    }
+  ],
+  "signature": {
+    "alg": "hmac-sha256",
+    "value": "3708eed1eab7bcc0152ce39e660c608c4569e9a476dc9b397104b45297792637",
+    "key_ref": "file:/Users/jrmag/.sdd/evidence-key"
+  }
+}

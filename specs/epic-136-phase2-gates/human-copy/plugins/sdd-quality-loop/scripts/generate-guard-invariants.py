@@ -20,6 +20,7 @@ REQUIRED_TOP_LEVEL = {
     "shell",
     "sudo_signature_hex_length",
     "phase2_human_copy_targets",
+    "epic_a1_targets",
 }
 REQUIRED_SHELL = {
     "compound_re",
@@ -51,6 +52,7 @@ PHASE2_TARGETS = (
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "tests/guard-parity.tests.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
 )
@@ -85,6 +87,36 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
     "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
     "plugins/sdd-ship/skills/ship/SKILL.md",
+)
+EPIC_A1_TARGETS = (
+    "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+    "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh",
+    "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1",
+    "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js",
+    "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py",
+    "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.sh",
+    "plugins/sdd-quality-loop/scripts/generate-approval-sidecar.ps1",
+    "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py",
+    "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh",
+    "plugins/sdd-quality-loop/scripts/validate-approval-sidecar.ps1",
+    "plugins/sdd-quality-loop/scripts/detect-policy-weakening.py",
+    "plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh",
+    "plugins/sdd-quality-loop/scripts/detect-policy-weakening.ps1",
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py",
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh",
+    "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.ps1",
+    "sdd/project-context.approval.json",
+    "sdd/provider-bindings.approval.json",
+    "sdd/approver-registry.yaml",
+    "sdd/.hook-canary-sentinel",
+    "sdd/.approved-context/project-context.approved.yaml",
+    "sdd/.approved-context/provider-bindings.approved.yaml",
+    "plugins/sdd-quality-loop/scripts/apply-human-copy.sh",
+    "plugins/sdd-quality-loop/scripts/apply-human-copy.ps1",
+    "plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+    "plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+    "plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+    "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json",
 )
 PLUGIN_SUFFIXES = ("/.plugin/plugin.json", "/.claude-plugin/plugin.json", "/.codex-plugin/plugin.json")
 ARRAY_SHELL_KEYS = {
@@ -142,7 +174,15 @@ def load_and_validate(canonical_path: Path) -> tuple[dict[str, Any], str]:
     protected = _is_string_list(data["protected_gate_suffixes"], "protected_gate_suffixes")
     for value in protected:
         _validate_repo_path(value, "protected_gate_suffixes")
-    expected_protected = tuple(BASELINE_SUFFIXES) + tuple(value for value in PHASE2_TARGETS if value not in BASELINE_SUFFIXES)
+    expected_protected = (
+        tuple(BASELINE_SUFFIXES)
+        + tuple(value for value in PHASE2_TARGETS if value not in BASELINE_SUFFIXES)
+        + tuple(
+            value
+            for value in EPIC_A1_TARGETS
+            if value not in BASELINE_SUFFIXES and value not in PHASE2_TARGETS
+        )
+    )
     if tuple(protected) != expected_protected:
         raise ValueError("protected_gate_suffixes must be the exact baseline/inventory union")
 
@@ -155,6 +195,12 @@ def load_and_validate(canonical_path: Path) -> tuple[dict[str, Any], str]:
         _validate_repo_path(value, "phase2_human_copy_targets")
     if tuple(targets) != PHASE2_TARGETS:
         raise ValueError("phase2_human_copy_targets must match the exact inventory")
+
+    epic_a1 = _is_string_list(data["epic_a1_targets"], "epic_a1_targets")
+    for value in epic_a1:
+        _validate_repo_path(value, "epic_a1_targets")
+    if tuple(epic_a1) != EPIC_A1_TARGETS:
+        raise ValueError("epic_a1_targets must match the exact inventory")
 
     shell = data["shell"]
     if not isinstance(shell, dict) or set(shell) != REQUIRED_SHELL:

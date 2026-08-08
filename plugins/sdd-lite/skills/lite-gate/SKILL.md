@@ -29,6 +29,56 @@ Claude Code:
 - `reports/implementation/<task-id>.md` が存在する。
 - 望ましくは別コンテキスト/別セッション（または委譲）で実行し、実装者の主張を独立に再検証する。
 
+## Track Detection
+
+本スキルはトラック選択を読む Capability Mode 関連のエントリポイントである。
+lite ゲートとして実行してよいか、full quality-gate に切り替えるべきかは、
+ここで解決したトラックが決める。まず hook-activation ハンドシェイクを実行する:
+
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — 新しい nonce と
+   カナリア対象 `sdd/.hook-canary-sentinel` を返す。
+2. エージェント自身が、チャレンジに含まれるランタイム別テンプレートを用いて
+   そのカナリア対象への**実際の**ツール呼び出しを試み、生の結果をそのまま記録する。
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`。
+4. `HOOK_ACTIVE` なら続行。それ以外の結果はすべて
+   `CAPABILITY_RUNTIME_UNAVAILABLE` で停止する。レガシー動作へ黙って
+   フォールバックしない。
+
+<!-- /sdd:handshake-wiring -->
+
+次にトラックを解決する。**物理的存在の確認が先、承認検証が後**である。
+`sdd/project-context.yaml` が存在するのに `validate-approval-sidecar` に
+失敗する状態は、ファイルが存在しない状態とは**別物**として扱う。両者を同一
+視することが ADR-0023 の塞ぐ fail-open である。
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+- `COMPATIBILITY_FALLBACK`（C1 のみ）— 従来の優先順位（`--lite` → lite、
+  `AGENTS.md` の `spec_profile: lite` → lite、既定 → full）をそのまま適用する。
+- `PROJECT_CONTEXT_INVALID`（C2）— その名前を報告して停止する。品質レポートを
+  生成せず、`Status` も変更せず、C1 のフォールバックへ落とさない。
+- `PROMOTE_FULL` / `NO_OP_FULL` — 解決トラックは `full`。本スキルは実行せず、
+  full quality-gate に切り替える。
+- `NO_OP_LITE` — 解決トラックは `lite`。以下の Process を実行する。
+- `ERROR_STOP` — 明示的なエラーで停止する。`--lite` が `full` プロファイルを
+  格下げすることは決してない。
+
+この表の正本は `PLUGIN-CONTRACTS.md` の Track Detection セクションである。
+
 ## Process
 
 > **順序が重要**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。

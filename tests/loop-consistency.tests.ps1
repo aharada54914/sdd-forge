@@ -111,6 +111,53 @@ try {
             Test-Fail "TEST-008.3: spec leg observed end state does not match the loop-inventory terminal (PASS)"
         }
 
+        # -------------------------------------------------------------------
+        # TEST-018: regression (same-turn edit + reset). editing
+        # requirements.md while it still declares Passed, then running
+        # --reset, must persist the hash of the post-reset (Pending) bytes in
+        # precheck-result.json, never the pre-mutation bytes hashed before
+        # the script's own rewrite. Parity with the bash regression in
+        # tests/spec-review-loop.tests.sh.
+        # -------------------------------------------------------------------
+        $specRequirementsPath = Join-Path $specRoot "specs/$specFeature/requirements.md"
+        Set-LoopStatusField $specRequirementsPath "Spec-Review-Status" "Passed"
+        Add-Content -LiteralPath $specRequirementsPath -Value "`n<!-- same-turn edit recorded while still Passed -->`n"
+        $specResetScriptPath = Join-Path $specRoot "plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
+        & $specResetScriptPath $specFeature 2 1 "--reset" | Out-Null
+        $specResetExitCode = $LASTEXITCODE
+        if ($specResetExitCode -eq 0) {
+            Test-Ok "TEST-018.1: same-turn edit + reset (attempt 2 round 1) exits success"
+        } else {
+            Test-Fail "TEST-018.1: same-turn edit + reset (attempt 2 round 1) exited $specResetExitCode"
+        }
+
+        $specResetStatusMatch = Select-String -LiteralPath $specRequirementsPath -CaseSensitive -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1
+        $specResetStatusValue = if ($specResetStatusMatch) { ($specResetStatusMatch.Matches[0].Groups[1].Value -replace '\s', '') } else { '' }
+        if ($specResetStatusValue -ceq 'Pending') {
+            Test-Ok "TEST-018.2: reset restores Spec-Review-Status: Pending after the same-turn Passed edit"
+        } else {
+            Test-Fail "TEST-018.2: reset did not restore Spec-Review-Status: Pending (observed: $specResetStatusValue)"
+        }
+
+        $specAttemptTwoRoundOne = Join-Path $specRoot "reports/spec-review/$specFeature/attempt-2/round-1"
+        $specResetPrecheckPath = Join-Path $specAttemptTwoRoundOne "precheck-result.json"
+        $specLiveRequirementsSha = Get-LoopSha256 $specRequirementsPath
+        $specPersistedRequirementsSha = Invoke-LoopJq @("-r", ".requirements_sha256") $specResetPrecheckPath
+        if ($specPersistedRequirementsSha -ceq $specLiveRequirementsSha) {
+            Test-Ok "TEST-018.3: reset persists the post-reset requirements hash, never the pre-mutation Passed bytes"
+        } else {
+            Test-Fail "TEST-018.3: reset persisted a stale requirements hash (expected $specLiveRequirementsSha, got $specPersistedRequirementsSha)"
+        }
+
+        $specPersistedAcceptanceSha = Invoke-LoopJq @("-r", ".acceptance_sha256") $specResetPrecheckPath
+        $specExpectedInputSha = Get-LoopSha256Text "${specLiveRequirementsSha}:${specPersistedAcceptanceSha}"
+        $specPersistedInputSha = Invoke-LoopJq @("-r", ".input_sha256") $specResetPrecheckPath
+        if ($specPersistedInputSha -ceq $specExpectedInputSha) {
+            Test-Ok "TEST-018.4: reset persists the composite input hash recomputed from the post-reset bytes"
+        } else {
+            Test-Fail "TEST-018.4: reset persisted a stale composite input hash (expected $specExpectedInputSha, got $specPersistedInputSha)"
+        }
+
         $implFeature = "loop-consistency-impl-$PID"
         if (Initialize-LoopFixture -Profile "greenfield" -Feature $implFeature) {
             Test-Ok "TEST-008.4: loop_fixture_init (impl leg fixture) succeeds"

@@ -1,0 +1,63 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-136-phase4-mcp",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "ed7ff1f6a874bbf56b4df80e6940bfcfb6c8a38384c99dd78e4b3f01a9c4eb17",
+  "quality_report": "reports/quality-gate/20260729T134534Z-epic-136-phase4-mcp-T-002.md",
+  "verification_contract": "specs/epic-136-phase4-mcp/verification/T-002.contract.json",
+  "git_commit": "7b7faa23e6cc5d3de1690d4d13ade893cc8f80fe",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/T-002.contract.json",
+      "sha256": "2abbf57e2803ac83b59e1ed54604b623bc6d564d513fa918f4d3456c1f73bd13"
+    },
+    {
+      "path": "reports/quality-gate/20260729T134534Z-epic-136-phase4-mcp-T-002.md",
+      "sha256": "13a3c67c018c5d1cc525a3611cfc38fc8065cf1fa5beab026b69750f48742e9a"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/qg/build.log",
+      "sha256": "0182b5b4968cbce2846d404dc7d8ca1849996fb75c9983e5f0da4e9c6288e55f"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/qg/placeholder-scan.log",
+      "sha256": "d01a76e90d8eedb5653466ad6fe95f156dac98df726bca72bab2323fda6dcd12"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/qg/task-state.log",
+      "sha256": "2cf505c7a6d35701b917100fd9bb541a6a47ec03df5f53bce1999f14cf380cd2"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/qg/tests.log",
+      "sha256": "76940a09e47dd450f1e23c0d90054fa4ccb3034de4c3b73006cde87f5fb6deec"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/qg/traceability.log",
+      "sha256": "c04047ac72f9c8e21c893213fd91adaf56ff78e0e23d4b1d7aac62a2cd030bb5"
+    },
+    {
+      "path": "specs/epic-136-phase4-mcp/verification/qg/typecheck.log",
+      "sha256": "0641c5efa4ba63c454ddc4e316f01140bca831760439bbdc32a69be18e7f4485"
+    }
+  ]
+}

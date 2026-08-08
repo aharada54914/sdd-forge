@@ -1,0 +1,25 @@
+{
+  "scenario_id": "mcp-evidence-corruption",
+  "class_number": 6,
+  "class_name": "MCP evidence corruption",
+  "class_name_source": "issue #125 body (代表10種 item 6: \"MCP 証跡破損\"); investigation.md INV-017 row 6",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify.test.ts",
+      "line": "47",
+      "note": "AC-002: a 1-byte on-disk artifact tamper maps to mismatch + digest mismatch + verdict fail."
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/error-paths/deep-verify-error-paths.test.ts",
+      "line": "79,106",
+      "note": "AC-017: a non-64-hex recorded sha -> invalid-recorded-sha, including the co-occurring-with-missing-file case (re-verified path: investigation.md cited tests/tools/deep-verify-error-paths.test.ts, which does not exist on disk -- the real file lives under tests/error-paths/, confirmed by direct find at this task's implementation time)."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Edit"],
+    "codex": ["exec_command"]
+  },
+  "assertion_summary": "Strong existing coverage at MCP-tool level, not scenario-harness level (investigation.md INV-017 row 6). workflow-scenarios.tests.sh's TEST-012 confirms both coverage_refs paths exist on disk (including the corrected tests/error-paths/ directory, a stale-path correction over investigation.md's own citation) and each still contains its cited AC-labeled test name, plus TEST-013's PreToolUse-shape drive builds a representative Edit/exec_command payload for a synthetic evidence-bundle artifact tamper. This scenario intentionally does not duplicate either existing suite's own assertions."
+}

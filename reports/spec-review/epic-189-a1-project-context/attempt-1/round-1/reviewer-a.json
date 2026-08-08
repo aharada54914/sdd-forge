@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-189-a1-project-context-0320",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/requirements.md", "sha256": "c02197de9270a7c5e2a3ad056c9f4577f61fba2aaf817fbbb2d49942ad91d1e3"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "874fb3dbc2a1a03fdef1d11a8bf15b1d7e67c59c9400f0ea3bf1068509b540ab"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/reports/spec-review/epic-189-a1-project-context/attempt-1/round-1/precheck-result.json", "sha256": "f70b25d780fbf3aa32c86ccc6777e99b5df360bc3be525c5f6183b3b7fc91fb8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each in-scope requirement (REQ-001..REQ-011, requirements.md ## Goals) states concrete, observable behavior down to named diagnostics, exit codes, and byte-level output contracts (e.g. REQ-003's MULTI_DOCUMENT_REJECTED/NON_STRING_KEY_REJECTED/POST_NFC_DUPLICATE_KEY_REJECTED categories with a defined stdout/exit contract; REQ-004's HMAC preimage/key-resolution order; REQ-009's six enumerated consumer cases). acceptance-tests.md pairs every AC with a Test ID and a concrete Test Target (parameterized fixtures, golden vectors, matrix counts such as the 96-cell REQ-008 matrix). No REQ was found stated only as an aspiration without a measurable success condition."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001..REQ-011 goal has at least one matching AC: REQ-001->AC-001/002/042(+040); REQ-002->AC-003/004/041(+040); REQ-003->AC-005..009/037; REQ-004->AC-010..013/019/020/034/036/043; REQ-005->AC-014/015; REQ-006->AC-016..020/030/031/043; REQ-007->AC-021/022/033/038; REQ-008->AC-023; REQ-009->AC-024/025/026/039; REQ-010->AC-027/032/035; REQ-011->AC-028/029. requirements.md's Acceptance Criteria bullets each end with a '(REQ-XXX)' tag and acceptance-tests.md's Requirement column independently confirms the same mapping, so no goal is left untraced."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Sampled ACs describe externally observable artifacts/behavior rather than intent: AC-005 names four rejection categories with per-category exit diagnostics; AC-023 specifies a 4-basename x 12-call-site x 2-sudo-state = 96 independently assertable denial outcomes; AC-030 specifies exact before/after classification outcomes against a named protected anchor file; AC-036 requires a hand-verified byte-exact HMAC golden vector plus 15 single-field mutation variants each producing a different HMAC. No AC was found stated only as vague intent (e.g. 'works correctly')."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section (lines ~1159-1226) explicitly excludes 8 categories that could otherwise expand scope: the Reverse Coverage Gate (Epic A3), a credentials/state_authority value vocabulary, the Capability Registry/Resolver/Facet Manifest (Epics A2/A4/A5) with an explicit forced-handoff clause, an actual sdd/project-context.yaml instance for this repo (Epic A9), wiring the handshake into not-yet-existing entry points, Artifact/Promotion Gate work, sdd-delivery/sdd-operability plugin work, running the review gates themselves, and authoring tasks.md/traceability.md in this package (explicitly deferred to Phase 2 per the coordinator's 2026-07-22 decision, consistent with investigation.md INV-008/OQ-003, which the calibration guide confirms this gate must not penalize)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: a Security Boundaries table (B1-B8) covering content-edit vs. approval-sidecar write authority, HMAC key custody, policy-weakening self-approval resistance, track-selection fail-open risk, handshake integrity, human-copy publish atomicity, and publisher self-protection; a Roles and Permissions section separating agent/human-maintainer/CI authority (agent never holds SDD_CONTEXT_KEY, never signs); an Assumptions section documenting re-verification obligations for INV-006/INV-008-derived facts; and REQ-009's migration contract for the existing CLI-flag-first track-selection behavior (compatibility fallback preserved only when the file is physically absent)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section enumerates Critical/High/Medium/Low risks (e.g. Critical: an agent forging Project Context approval; High: generate-guard-invariants.py's exact-match validation causing repo-wide CI failure on partial human-copy application; High: the weakening detector under-classifying a change as non-weakening), and each risk cites a concrete mitigation tied to a specific REQ/AC (e.g. REQ-004's full-write-deny-plus-HMAC design and AC-023's 96-cell denial matrix for the Critical risk; AC-016/AC-017's per-category and negative-case coverage for the under-classification risk), giving each high-risk claim a planned, checkable validation surface."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+Requirement-traceability check passed for T-010:
+ - tasks.md T-010 -> REQ-008; REQ-008 defined in requirements.md (requirements.md:828, the
+   hook-guard-extension / sidecar full-write-deny requirement) and present in traceability.md;
+   T-010 present in traceability.md (requirement row traceability.md:15, task row
+   traceability.md:42, AC->TEST->task row traceability.md:73, planned-files row
+   traceability.md:111).
+ - AC/TEST-023 present in acceptance-tests.md (line 45, the revised full-matrix wording),
+   referenced by T-010 (Must Read and Done When), and implemented in BOTH suites
+   (tests/hook-guard-epic-a1-boundary.tests.sh 12 AC-023 / 1 TEST-023 references,
+   tests/hook-guard-epic-a1-boundary.tests.ps1 10 / 1). The 4x12x2 = 96-cell decomposition
+   itself is counted and recorded in this round's focused-tests.log footer.
+ - AC->TEST->task mapping table row checked individually: AC-023 -> TEST-023 -> T-010. AC-023 is
+   the only AC assigned to T-010, and no AC owned elsewhere is claimed by T-010.
+ - suite self-registration verified: tests/run-all.sh:66 and tests/run-all.ps1:49, tenth in
+   numeric order immediately after guard-invariants-epic-a1 (T-009).
+ - staging verified, and for the first time in this feature actually PERFORMED rather than
+   deferred: traceability.md:111 names
+   specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml (staged, appended) and
+   .../human-copy/MANIFEST.sha256 among T-010's supporting files. Both exist on disk this round.
+   The staged workflow registers T-010's suite in both lanes (test.yml:246 bash lane, test.yml:250
+   pwsh lane), and the manifest entry
+     506133dc4ae8b4c93ea18eae8f388d5ed9aefab07d687ae77c9c1ec99a286873  .github/workflows/test.yml
+   was re-computed against the staged file this round and matches byte-for-byte.
+ - NOTE, observed rather than adjudicated: traceability.md:15 and traceability.md:42 name
+   specs/epic-189-a1-project-context/verification/T-010/green-sh.log and .../T-010/red-sh.log as
+   T-010's evidence artifacts. The logs the implementation actually recorded are
+   green-posix.log / red-posix.log, together with their PowerShell twins green-powershell.log /
+   red-powershell.log and mutation-battery-posix.log. The evidence is present and complete in both
+   lanes; only the filename convention differs from the frozen row's illustrative names.
+   traceability.md is a frozen spec artifact, so this is recorded here rather than edited.
+ - NOTE, observed rather than adjudicated: the R-10 pre-filter call site at
+   plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:1348
+   ("if _is_protected_gate_file(candidate):") is load-bearing but is NOT one of the 12 rows in
+   design.md Test Strategy item 8's surface table. The human adjudication of 2026-08-03 is that
+   AC-023's 96 cells (4 basenames x 12 surfaces x 2 lanes) stand exactly as specified, and that
+   the pre-filter is to be verified as a SUPPLEMENTARY assertion outside the AC count. The suite
+   does precisely that: four SUPP-prefilter assertions, POSIX lane only, explicitly excluded from
+   the AC-023 counter (which is why the lanes tally 211 and 207). The design-table omission is
+   recorded in reports/notes/epic-189-a1-carryover-items.md; the frozen spec is not revised here.
+ - NOTE: the PowerShell lane genuinely drives the PowerShell guard rather than the Python guard
+   twice - tests/hook-guard-epic-a1-boundary.tests.ps1:51 resolves sdd-hook-guard.ps1 and :191
+   invokes `pwsh -NoProfile -ExecutionPolicy Bypass -File $guardPath -Emit exit`, while the POSIX
+   lane drives sdd-hook-guard.py (tests/hook-guard-epic-a1-boundary.tests.sh:63). The seq0366
+   evaluator verified this independently, and additionally ran its own negative control and
+   denial-reason discrimination against the live guard.
+ - NOTE: nothing in this chain claims coverage of the surfaces design.md documents as a residual
+   gap (`ln`, an interpreter's own in-process write via `python -c` / `node -e`). Those remain
+   explicitly out of AC-023's matrix by specification.

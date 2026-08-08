@@ -1,0 +1,8 @@
+repo-root: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+HEAD: 71e0f0f27062817981cc8d0010bef3bbcc732d16
+bash tests/run-all.sh exit=1
+  suites announced (==> lines): 21
+  last announced suite: ==> tests/turn-first-workflow.tests.sh
+pwsh tests/run-all.ps1 exit=1
+  suites announced (==> lines): 1
+  last announced suite: ==> tests/validate-repository.ps1

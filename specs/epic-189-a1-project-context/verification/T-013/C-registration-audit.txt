@@ -1,0 +1,121 @@
+--- part 1/3: self-registration in tests/run-all.{sh,ps1} ---
+run-all.sh   project-context-schema.tests.sh          REGISTERED
+run-all.sh   canonicalize-sdd-yaml.tests.sh           REGISTERED
+run-all.sh   generate-approval-sidecar.tests.sh       REGISTERED
+run-all.sh   approver-registry-schema.tests.sh        REGISTERED
+run-all.sh   detect-policy-weakening.tests.sh         REGISTERED
+run-all.sh   validate-approval-sidecar.tests.sh       REGISTERED
+run-all.sh   apply-human-copy.tests.sh                REGISTERED
+run-all.sh   check-hook-activation-handshake.tests.sh REGISTERED
+run-all.sh   guard-invariants-epic-a1.tests.sh        REGISTERED
+run-all.sh   hook-guard-epic-a1-boundary.tests.sh     REGISTERED
+run-all.sh   plugin-contracts-track-selection.tests.sh REGISTERED
+run-all.sh   ship-track-selection-migration.tests.sh  REGISTERED
+run-all.sh   guard-staging-exemption.tests.sh         REGISTERED
+run-all.ps1  project-context-schema.tests.ps1         REGISTERED
+run-all.ps1  canonicalize-sdd-yaml.tests.ps1          REGISTERED
+run-all.ps1  generate-approval-sidecar.tests.ps1      REGISTERED
+run-all.ps1  approver-registry-schema.tests.ps1       REGISTERED
+run-all.ps1  detect-policy-weakening.tests.ps1        REGISTERED
+run-all.ps1  validate-approval-sidecar.tests.ps1      REGISTERED
+run-all.ps1  apply-human-copy.tests.ps1               REGISTERED
+run-all.ps1  check-hook-activation-handshake.tests.ps1 REGISTERED
+run-all.ps1  guard-invariants-epic-a1.tests.ps1       REGISTERED
+run-all.ps1  hook-guard-epic-a1-boundary.tests.ps1    REGISTERED
+run-all.ps1  plugin-contracts-track-selection.tests.ps1 REGISTERED
+run-all.ps1  ship-track-selection-migration.tests.ps1 REGISTERED
+
+--- part 1/3b: in-suite self-registration assertion (grep of own basename) ---
+project-context-schema.tests.sh          NO_SELF_ASSERTION
+canonicalize-sdd-yaml.tests.sh           ASSERTS_OWN_REGISTRATION
+generate-approval-sidecar.tests.sh       ASSERTS_OWN_REGISTRATION
+approver-registry-schema.tests.sh        NO_SELF_ASSERTION
+detect-policy-weakening.tests.sh         ASSERTS_OWN_REGISTRATION
+validate-approval-sidecar.tests.sh       ASSERTS_OWN_REGISTRATION
+apply-human-copy.tests.sh                ASSERTS_OWN_REGISTRATION
+check-hook-activation-handshake.tests.sh ASSERTS_OWN_REGISTRATION
+guard-invariants-epic-a1.tests.sh        ASSERTS_OWN_REGISTRATION
+hook-guard-epic-a1-boundary.tests.sh     ASSERTS_OWN_REGISTRATION
+plugin-contracts-track-selection.tests.sh ASSERTS_OWN_REGISTRATION
+ship-track-selection-migration.tests.sh  ASSERTS_OWN_REGISTRATION
+guard-staging-exemption.tests.sh         NO_SELF_ASSERTION
+
+--- part 2/3: staged candidate registers each suite ---
+staged test.yml  bash project-context-schema.tests.sh          STAGED
+staged test.yml  bash canonicalize-sdd-yaml.tests.sh           STAGED
+staged test.yml  bash generate-approval-sidecar.tests.sh       STAGED
+staged test.yml  bash approver-registry-schema.tests.sh        STAGED
+staged test.yml  bash detect-policy-weakening.tests.sh         STAGED
+staged test.yml  bash validate-approval-sidecar.tests.sh       STAGED
+staged test.yml  bash apply-human-copy.tests.sh                STAGED
+staged test.yml  bash check-hook-activation-handshake.tests.sh STAGED
+staged test.yml  bash guard-invariants-epic-a1.tests.sh        STAGED
+staged test.yml  bash hook-guard-epic-a1-boundary.tests.sh     STAGED
+staged test.yml  bash plugin-contracts-track-selection.tests.sh STAGED
+staged test.yml  bash ship-track-selection-migration.tests.sh  STAGED
+staged test.yml  bash guard-staging-exemption.tests.sh         STAGED
+staged test.yml  pwsh project-context-schema.tests.ps1         STAGED
+staged test.yml  pwsh canonicalize-sdd-yaml.tests.ps1          STAGED
+staged test.yml  pwsh generate-approval-sidecar.tests.ps1      STAGED
+staged test.yml  pwsh approver-registry-schema.tests.ps1       STAGED
+staged test.yml  pwsh detect-policy-weakening.tests.ps1        STAGED
+staged test.yml  pwsh validate-approval-sidecar.tests.ps1      STAGED
+staged test.yml  pwsh apply-human-copy.tests.ps1               STAGED
+staged test.yml  pwsh check-hook-activation-handshake.tests.ps1 STAGED
+staged test.yml  pwsh guard-invariants-epic-a1.tests.ps1       STAGED
+staged test.yml  pwsh hook-guard-epic-a1-boundary.tests.ps1    STAGED
+staged test.yml  pwsh plugin-contracts-track-selection.tests.ps1 STAGED
+staged test.yml  pwsh ship-track-selection-migration.tests.ps1 STAGED
+
+--- part 2/3b: live .github/workflows/test.yml UNCHANGED by this branch ---
+merge-base with origin/main: b085ec761ca75c0231384b3861aac7f2403474ed
+live sha256 (working tree):   3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4
+live sha256 (at merge-base):  3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4
+VERDICT: LIVE_UNCHANGED (this branch never edited the protected live workflow)
+branch commits touching the live workflow: 0
+
+--- part 3/3: post-copy the live file WOULD register every suite ---
+post-copy bash project-context-schema.tests.sh          REGISTERED
+post-copy bash canonicalize-sdd-yaml.tests.sh           REGISTERED
+post-copy bash generate-approval-sidecar.tests.sh       REGISTERED
+post-copy bash approver-registry-schema.tests.sh        REGISTERED
+post-copy bash detect-policy-weakening.tests.sh         REGISTERED
+post-copy bash validate-approval-sidecar.tests.sh       REGISTERED
+post-copy bash apply-human-copy.tests.sh                REGISTERED
+post-copy bash check-hook-activation-handshake.tests.sh REGISTERED
+post-copy bash guard-invariants-epic-a1.tests.sh        REGISTERED
+post-copy bash hook-guard-epic-a1-boundary.tests.sh     REGISTERED
+post-copy bash plugin-contracts-track-selection.tests.sh REGISTERED
+post-copy bash ship-track-selection-migration.tests.sh  REGISTERED
+post-copy bash guard-staging-exemption.tests.sh         REGISTERED
+post-copy pwsh project-context-schema.tests.ps1         REGISTERED
+post-copy pwsh canonicalize-sdd-yaml.tests.ps1          REGISTERED
+post-copy pwsh generate-approval-sidecar.tests.ps1      REGISTERED
+post-copy pwsh approver-registry-schema.tests.ps1       REGISTERED
+post-copy pwsh detect-policy-weakening.tests.ps1        REGISTERED
+post-copy pwsh validate-approval-sidecar.tests.ps1      REGISTERED
+post-copy pwsh apply-human-copy.tests.ps1               REGISTERED
+post-copy pwsh check-hook-activation-handshake.tests.ps1 REGISTERED
+post-copy pwsh guard-invariants-epic-a1.tests.ps1       REGISTERED
+post-copy pwsh hook-guard-epic-a1-boundary.tests.ps1    REGISTERED
+post-copy pwsh plugin-contracts-track-selection.tests.ps1 REGISTERED
+post-copy pwsh ship-track-selection-migration.tests.ps1 REGISTERED
+post-copy MISSING count: 0
+
+--- staged candidate YAML well-formedness ---
+parsed OK; top-level keys: ["jobs", "name", "permissions", "true"]
+jobs: ["ci-mcp-tests", "cli-hook-enforcement", "local-env-mcp-tests", "mcp-tests", "required-checks", "test"]
+test job step count: 90
+duplicate step names: none
+
+--- MANIFEST.sha256 consistency ---
+.github/workflows/test.yml                                             MATCH
+specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md     MATCH
+plugins/sdd-quality-loop/references/guard-invariants.json              MATCH
+plugins/sdd-quality-loop/scripts/generate-guard-invariants.py          MATCH
+plugins/sdd-quality-loop/scripts/generated/guard_invariants.py         MATCH
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js MATCH
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 MATCH
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh MATCH
+plugins/sdd-ship/skills/ship/SKILL.md                                  MATCH
+plugins/sdd-lite/skills/lite-spec/SKILL.md                             MATCH

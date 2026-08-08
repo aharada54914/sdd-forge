@@ -425,4 +425,185 @@ if (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "
 [[ -z "$(find "$outside" -mindepth 1 -print -quit)" ]] || fail "symlinked destination must not receive evidence"
 rm -rf "$IMPL_REPORT" "$outside"
 
+# AC coverage: design.md must name every AC-NNN that requirements.md states.
+# On epic-136-phase4-docs, impl review burned rounds 2 and 3 of attempt 1 finding
+# AC-013 and then AC-012 absent from the design plan, one per round, and escalated
+# to BLOCKED; a later sweep found AC-001 and AC-014 missing too. All were criteria
+# spec review had added late as gap-closers. This is deterministic work that was
+# being paid for with reviewer rounds.
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT"
+write_inputs
+# The spec contract is hash-bound to these documents, so every edit below is made
+# before the contract that pins it is written.
+printf '\n#### AC-001\n\nfixture criterion\n' >> "$SPEC_DIR/requirements.md"
+write_spec_pass
+
+ac_run() {
+  (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) 2>&1
+}
+
+# absent -> refused, and refused before any evidence is written
+rm -rf "$IMPL_REPORT"
+ac_out="$(ac_run || true)"
+grep -q 'never names these acceptance criteria: AC-001' <<<"$ac_out" ||
+  fail "impl precheck must refuse a design.md that never names AC-001 (got: $ac_out)"
+[[ ! -d "$IMPL_REPORT/attempt-1/round-1" ]] ||
+  fail 'AC-coverage refusal must fail closed before creating round evidence'
+
+# named -> accepted, proving the refusal above was the AC check and not some
+# unrelated fixture failure that would make this case vacuous
+printf '\nCovers AC-001 in the plan.\n' >> "$SPEC_DIR/design.md"
+write_spec_pass   # re-pin the contract now that design.md changed
+rm -rf "$IMPL_REPORT"
+ac_out="$(ac_run || true)"
+if grep -q 'never names these acceptance criteria' <<<"$ac_out"; then
+  fail "impl precheck must accept a design.md that names AC-001 (got: $ac_out)"
+fi
+[[ -f "$IMPL_REPORT/attempt-1/round-1/precheck-result.json" ]] ||
+  fail "impl precheck should have produced round evidence once AC-001 is named (got: $ac_out)"
+rm -rf "$IMPL_REPORT"
+
+# Contract/reviewer agreement: a round's recorded hashes must be the hashes its
+# two reviewers actually pinned. On epic-136-phase4-docs attempt 2 round 2 the
+# contract was written after a remediation edit and recorded a design.md hash
+# neither reviewer had read, so the round's verdict was attributed to text nobody
+# reviewed. It surfaced only because the next round's precheck happened to refuse.
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT"
+write_inputs
+printf '\n#### AC-001\n\nfixture criterion\n' >> "$SPEC_DIR/requirements.md"
+printf '\nCovers AC-001 in the plan.\n' >> "$SPEC_DIR/design.md"
+write_spec_pass
+# Round-1 impl evidence without flipping Impl-Review-Status, which must stay
+# Pending for round 2 to run at all.
+mkdir -p "$IMPL_REPORT/attempt-1/round-1"
+write_pass_artifacts impl "$IMPL_REPORT/attempt-1/round-1"
+impl_contract="$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json"
+[[ -f "$impl_contract" ]] || fail 'fixture did not produce an impl contract'
+cp "$impl_contract" "$impl_contract.orig"
+# Round 2 requires design.md to differ from what round 1 recorded.
+printf '\nRound-2 remediation line.\n' >> "$SPEC_DIR/design.md"
+
+fake='1111111111111111111111111111111111111111111111111111111111111111'
+
+# (a) contract records a design hash neither reviewer pinned -> refused
+jq --arg h "$fake" '.design_sha256=$h' "$impl_contract.orig" > "$impl_contract"
+out="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 2) 2>&1 || true)"
+grep -q 'neither reviewer read' <<<"$out" ||
+  fail "impl precheck must refuse a contract recording a design hash no reviewer pinned (got: $out)"
+
+# (b) the two reviewers pinned different design hashes -> refused
+jq --arg h "$fake" '.reviewers[1].allowed_input_manifest |= map(if (.path|test("design\\.md$")) then .sha256=$h else . end)' \
+  "$impl_contract.orig" > "$impl_contract"
+out="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 2) 2>&1 || true)"
+grep -q 'did not review the same text' <<<"$out" ||
+  fail "impl precheck must refuse a contract whose reviewers pinned different design.md (got: $out)"
+
+# (c) the untouched contract must still be accepted, so (a) and (b) are not vacuous
+cp "$impl_contract.orig" "$impl_contract"
+out="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 2) 2>&1 || true)"
+if grep -qE 'neither reviewer read|did not review the same text' <<<"$out"; then
+  fail "impl precheck must accept a contract whose reviewers agree with it (got: $out)"
+fi
+rm -f "$impl_contract.orig"
+rm -rf "$IMPL_REPORT"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# impl-review-precheck --provenance-rereview
+#
+# Post-implementation evidence re-binding. Before this mode existed the impl
+# stage had no way to start a second attempt at all: a shipped feature's
+# design.md must read `Impl-Review-Status: Passed` (check-workflow-state.sh's
+# task-lifecycle rule requires every stage to read Passed once any task is
+# Approved or past Planned), while the precheck demanded `Pending`. The two
+# rules could not both hold, and the error text pointed at a `--reset` flag the
+# script never implemented.
+# ─────────────────────────────────────────────────────────────────────────────
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT" "$TASK_REPORT"
+write_inputs
+write_spec_pass
+
+# Without a prior persisted impl PASS there is no provenance to re-bind, so the
+# mode must refuse even though design.md is otherwise in the right state. This
+# is the guard that stops the mode standing in for a first review.
+sed -i.bak 's/Impl-Review-Status: Pending/Impl-Review-Status: Passed/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+provenance_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) 2>&1 1>/dev/null || true )"
+grep -q 'prior persisted impl-review PASS verdict' <<<"$provenance_err" ||
+  fail "provenance re-review without a prior PASS must name the missing verdict (got: $provenance_err)"
+[[ ! -e "$IMPL_REPORT/attempt-2" ]] ||
+  fail "provenance re-review must not create evidence when it refuses"
+
+# Now give it a real prior PASS. write_impl_pass leaves design.md at Passed and
+# writes attempt-1/round-1's integrated-verdict.
+sed -i.bak 's/Impl-Review-Status: Passed/Impl-Review-Status: Pending/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+write_impl_pass
+
+# A Pending header is refused even with a prior PASS present: Pending means the
+# ordinary attempt path applies, and silently accepting it here would let the
+# mode bypass a first review after all.
+sed -i.bak 's/Impl-Review-Status: Passed/Impl-Review-Status: Pending/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+pending_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) 2>&1 1>/dev/null || true )"
+grep -q 'requires design.md to declare' <<<"$pending_err" ||
+  fail "provenance re-review must refuse a Pending header (got: $pending_err)"
+rm -rf "$IMPL_REPORT/attempt-2"
+sed -i.bak 's/Impl-Review-Status: Pending/Impl-Review-Status: Passed/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+
+# The contrast that makes this suite non-vacuous: in one and the same state, the
+# ordinary invocation must fail and the provenance invocation must succeed. If
+# the ordinary one ever starts passing here, the mode is no longer doing
+# anything and these cases would otherwise still go green.
+ordinary_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1) 2>&1 1>/dev/null || true )"
+grep -q "expected 'Pending'" <<<"$ordinary_err" ||
+  fail "ordinary impl precheck must still refuse a Passed header (got: $ordinary_err)"
+grep -q 'use --provenance-rereview' <<<"$ordinary_err" ||
+  fail "ordinary impl precheck must point at a flag that exists (got: $ordinary_err)"
+rm -rf "$IMPL_REPORT/attempt-2"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) >/dev/null ||
+  fail "provenance re-review must accept a prior-PASS design.md that the ordinary path refuses"
+[[ -f "$IMPL_REPORT/attempt-2/round-1/precheck-result.json" ]] ||
+  fail "provenance re-review must write the round's precheck evidence"
+rm -rf "$IMPL_REPORT/attempt-2"
+
+# The canonical gate is advisory under this mode, not skipped. Re-register the
+# fixture as a full-profile feature so check-workflow-state actually runs and
+# fails on it, then assert the ordinary path dies on the gate while the
+# provenance path gets past it.
+jq --arg feature "$FEATURE" \
+  '.entries |= map(if .feature == $feature then .profile = "full" else . end)' \
+  "$REGISTRY" > "$REGISTRY.tmp"
+mv "$REGISTRY.tmp" "$REGISTRY"
+gate_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1) 2>&1 1>/dev/null || true )"
+# Match the fatal form specifically. The advisory NOTE quotes the same phrase,
+# so a bare substring match would be satisfied by the very message that proves
+# the mode worked.
+grep -q '^ERROR: impl-review-precheck: canonical workflow-state validation failed' <<<"$gate_err" ||
+  fail "the full-profile fixture must actually fail the canonical gate, or the next case proves nothing (got: $gate_err)"
+rm -rf "$IMPL_REPORT/attempt-2"
+tolerant_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) 2>&1 1>/dev/null || true )"
+grep -q 'impl-stage evidence re-binding in progress' <<<"$tolerant_err" ||
+  fail "provenance re-review must disclose that it proceeded past a failing gate (got: $tolerant_err)"
+if grep -q '^ERROR: impl-review-precheck: canonical workflow-state validation failed' <<<"$tolerant_err"; then
+  fail "provenance re-review must not abort on the gate it is meant to repair (got: $tolerant_err)"
+fi
+# Positive proof that execution continued past the gate rather than stopping
+# quietly: the run reaches the full-profile layer-input check, which is many
+# steps downstream of the gate call.
+grep -q 'layer review input is missing' <<<"$tolerant_err" ||
+  fail "provenance re-review should have continued to the layer-input check (got: $tolerant_err)"
+jq --arg feature "$FEATURE" \
+  '.entries |= map(if .feature == $feature then .profile = "lite" else . end)' \
+  "$REGISTRY" > "$REGISTRY.tmp"
+mv "$REGISTRY.tmp" "$REGISTRY"
+rm -rf "$IMPL_REPORT/attempt-2"
+
 printf 'ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges\n'
+printf 'ok: impl --provenance-rereview re-binds a prior PASS, refuses without one, and treats the canonical gate as advisory\n'

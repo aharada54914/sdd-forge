@@ -39,6 +39,27 @@ test("AC-001: a fully consistent bundle verifies as pass with no failures", () =
     assert.equal(data.invariants.gitCommit.shapeValid, true);
     assert.equal(data.invariants.gitCommit.ancestryVerified, false);
     assert.ok(data.invariants.crossBindings.every((b) => b.status === "match"));
+
+    // AC-012 leg (epic-136-phase4-mcp T-002): the pure function's own ok shape
+    // carries the top-level `hostRequiredChecks` field too. Read structurally
+    // (not via the exported interface) so this file compiles both before the
+    // field exists in `src/` — the TDD red stage — and after.
+    const hostRequiredChecks = (
+      data as unknown as {
+        hostRequiredChecks?: Array<{ check: string; verified: boolean; note: string }>;
+      }
+    ).hostRequiredChecks;
+    if (!Array.isArray(hostRequiredChecks)) {
+      assert.fail("hostRequiredChecks is absent from evidenceDeepVerify's ok data");
+    }
+    assert.equal(hostRequiredChecks.length, 2);
+    assert.deepEqual(
+      hostRequiredChecks.map((entry) => entry.check),
+      ["git-commit-ancestry", "signature-verification"],
+    );
+    assert.ok(hostRequiredChecks.every((entry) => entry.verified === false));
+    assert.equal(hostRequiredChecks[0]?.note, data.invariants.gitCommit.reason);
+    assert.equal(hostRequiredChecks[1]?.note, data.signature.note);
   } finally {
     fx.tempRoot.cleanup();
   }

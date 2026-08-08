@@ -1,0 +1,59 @@
+{
+  "task_id": "T-005",
+  "feature": "mcp-readonly-preflight",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "spec_revision": "82ddf0786e66d256d6daad97f221800d533c43fda3d89d8a679ee98649dee9ba",
+  "quality_report": "reports/quality-gate/20260805T131807Z-mcp-readonly-preflight-T-005.md",
+  "verification_contract": "specs/mcp-readonly-preflight/verification/T-005.contract.json",
+  "git_commit": "55bc207c1dbb1a975b5f2746e000117e9efcec64",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-005.contract.json",
+      "sha256": "f0e1acffba12ff19e73fcaf7779829ffe6ace6924f7941af25dac4e1db1da633"
+    },
+    {
+      "path": "reports/quality-gate/20260805T131807Z-mcp-readonly-preflight-T-005.md",
+      "sha256": "fbb519d84d455464a055e2a9f0b98d7bd537e07241c19619d94f3b078a36a481"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-005/00-acceptance-first-mapping.md",
+      "sha256": "75b162669285a6a520c7c9b2947f6fee8f6d3d716d8b46090ec9f78313771214"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-005/04-verification-record.md",
+      "sha256": "0cb8c0808991feea3f247f730b75961d0868db734faf9d7ef7e99b491f0985fa"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/qg/placeholder-T-005.log",
+      "sha256": "bacd412a8d7809f6572b5cd7d5d95a097b09a67d80c91cde1f0a9959a82e924d"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/qg/run-all.log",
+      "sha256": "982589359c98bc21a6423d3f40e7fcab6f65810a4f63ff19c472eb00e0df1681"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/qg/task-state.log",
+      "sha256": "042494ebbf2f7bd99568a0f38a5c50096962413a64a9526e437519e0da622e17"
+    }
+  ]
+}

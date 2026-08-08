@@ -285,14 +285,19 @@
       "type": "object",
       "description": "evidence_find_missing: Done-transition requirements (evidence.json, contract.json, quality-gate report) vs. what is present.",
       "additionalProperties": false,
-      "required": ["kind", "feature", "taskId", "required", "present", "missing"],
+      "required": ["kind", "feature", "taskId", "required", "present", "missing", "undeterminable"],
       "properties": {
         "kind": { "const": "evidence-missing" },
         "feature": { "$ref": "#/$defs/feature" },
         "taskId": { "$ref": "#/$defs/taskId" },
         "required": { "type": "array", "items": { "type": "string" } },
         "present": { "type": "array", "items": { "type": "string" } },
-        "missing": { "type": "array", "items": { "type": "string" } }
+        "missing": { "type": "array", "items": { "type": "string" } },
+        "undeterminable": {
+          "type": "array",
+          "description": "Requirements whose check could not be performed at all, as distinct from performed-and-unsatisfied: today only quality-gate-report-pass, whose check is a reports/quality-gate directory scan, can appear here. Every entry of `required` lands in exactly one of present/missing/undeterminable.",
+          "items": { "type": "string" }
+        }
       }
     },
     "contractChecksSummaryData": {
@@ -325,7 +330,7 @@
       "type": "object",
       "description": "evidence_compare_to_traceability: mismatches between traceability.md rows and verification artifacts.",
       "additionalProperties": false,
-      "required": ["kind", "feature", "matches", "mismatches"],
+      "required": ["kind", "feature", "matches", "mismatches", "unreadableContracts"],
       "properties": {
         "kind": { "const": "traceability-comparison" },
         "feature": { "$ref": "#/$defs/feature" },
@@ -341,6 +346,18 @@
               "issue": { "type": "string" }
             }
           }
+        },
+        "unreadableContracts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["taskId", "reason"],
+            "properties": {
+              "taskId": { "$ref": "#/$defs/taskId" },
+              "reason": { "type": "string" }
+            }
+          }
         }
       }
     },
@@ -348,7 +365,7 @@
       "type": "object",
       "description": "evidence_deep_verify: re-verifies a T-NNN.evidence.json bundle by recomputing each artifact's SHA-256 from disk (via path-guard) and recomputing the bundle's internal invariants using the exact host-script canonical formulas (evidence_canonical artifacts digest, compute_spec_revision, git_commit 40-hex shape, task_id/feature cross-bindings). The tool NEVER reads signing key material and NEVER verifies the HMAC/sigstore signature: signature is echoed (present + alg) with verified always false, and git HEAD/ancestor is host-deferred (ancestryVerified always false). Neither affects verdict.",
       "additionalProperties": false,
-      "required": ["kind", "feature", "taskId", "verdict", "artifacts", "invariants", "signature", "failures"],
+      "required": ["kind", "feature", "taskId", "verdict", "artifacts", "invariants", "signature", "hostRequiredChecks", "failures"],
       "properties": {
         "kind": { "const": "evidence-deep-verify" },
         "feature": { "$ref": "#/$defs/feature" },
@@ -432,6 +449,20 @@
             "alg": { "type": "string" },
             "verified": { "const": false },
             "note": { "type": "string" }
+          }
+        },
+        "hostRequiredChecks": {
+          "type": "array",
+          "description": "Checks this tool cannot verify in-process: git commit ancestry and the evidence bundle signature. Always exactly 2 entries, each with verified: false. Promoted from the nested invariants.gitCommit and signature fields (both unchanged, still present) to make the host-deferred boundary visible at the top level. Policy: for risk: critical tasks, both checks MUST be separately confirmed via host-side verification (a real git ancestry check and a real signature verification) before this bundle's evidence is treated as fully trustworthy for a Done transition. This tool does NOT enforce that policy — it is read-only and performs no signature verification or git subprocess call (ADR-0008); enforcement is a host-script/release-gate responsibility outside this tool. Never affects verdict.",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["check", "verified", "note"],
+            "properties": {
+              "check": { "enum": ["git-commit-ancestry", "signature-verification"] },
+              "verified": { "const": false },
+              "note": { "type": "string" }
+            }
           }
         },
         "failures": { "type": "array", "items": { "type": "string" } }

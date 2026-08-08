@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "design-sync-scan",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-design-sync-scan-task-task-reviewer-b-seq0555",
+  "host_session_id": "SESS-task-task-reviewer-b-design-sync-scan-0555",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-scan/attempt-1/round-1/integrated-summary.json",
+        "sha256": "8019359b10af97db7415c2b27f2d508429a4f9ad71a976ed264ee23acd2eac66"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+        "sha256": "d0d770856534d3625ed6f3cc8220e54d6efd8dc11c978c37b44379ea9e9ad818"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+        "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/design.md",
+        "sha256": "2c8583fc2d049eaafc22cde106c092050d7e3252a387fec0ad7aa86afe259756"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/frontend-spec.md",
+        "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/infra-spec.md",
+        "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+        "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/security-spec.md",
+        "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/tasks.md",
+        "sha256": "bc3fb68fbdf8b3a73f72363a4b6ab9e7e52b7e684e722ab93f7a62d3691a8a00"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/traceability.md",
+        "sha256": "1ba636c49eee5aff0608eb5d142d6e1b89da6eb34f9dcc410b876854ed350ee4"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/ux-spec.md",
+        "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:217/385/506 (T-001/T-002/T-003, Risk: high) cite risk-classification-policy.md's secrets-handling/material-harm grounds with detailed rationale (:219-235, :387-402, :508-531); T-001/T-002 implement the secret+PII pattern catalogue and exit-code contract (not UI-copy/CSS/doc-only/test-only scope), and T-003 edits the SKILL.md text that is itself the security gate's exit-code/override semantics (security-spec.md Trust Boundaries B5\u2192B1), not incidental documentation. tasks.md:686/765 (T-004/T-005, Risk: medium) match policy's medium tier ('internal tooling... observable behavior, no sensitive surface') with rationale explicitly distinguishing why they do not reach high (:700-705, :777-781). No task touches auth/payment/PII-storage/migration/external-API-contract surfaces at a mismatched low/medium tier, and no high/critical task's scope is limited to UI copy, CSS, docs, or tests only."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All three Risk: high tasks carry both required Done-When items: Red\u2192Green TDD evidence (T-001 tasks.md:359-367, T-002 :479-488, T-003 :660-668, all citing risk-gate-matrix.md) and an independent review verdict 'recorded by a named reviewer distinct from the implementing agent... plus an independent quality-gate verdict' (T-001 :372-375, T-002 :493-496, T-003 :673-676). No Risk: critical task exists in this decomposition, so the second-approver/signed-bundle clause does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:277-375) and T-002 (:435-496) each have Done-When lists exceeding 8 items (13 and 11 respectively), the role's sizing indicator. However Global Constraints' 'One commit per task' and 'Shared-Suite Append Discipline' (tasks.md:119-143) give an explicit engineering rationale that TDD requires the script and its own fixture suite to land in one commit/task, and the scope is a single cohesive detection engine (placeholder+secret+PII+exit-code contract), not 3+ unrelated implementation areas or a multi-phase title. No fragmentation indicators found either (no 3+ single-function tasks, no bare-rename task). Indicator present but no concrete oversizing failure mode demonstrated, per calibration's indicator-not-threshold framing."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-002 (functional) map to AC-007's four tool-error branches (tasks.md:300-310) and AC-039's selection-boundary negatives (:292-299), plus RFC-2606/E.164 negative-fixture ACs (Requirements lines :254-260, :417-422). T-003 (functional) covers AC-021/Edge Case 2-3 no-carry-forward-on-regeneration (:604-620) and AC-037's exit-2-vs-exit-1 override distinction (:602-603). T-004 and T-005 are narrow single-AC documentation/registration tasks with no error-path of their own to test; all 8 edge cases enumerated in requirements.md are covered by T-001-T-003. No functional task found with only happy-path AC coverage and no error-path task."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Test Type 'unit (fixture)' (tasks.md:243-252) targets the single design-sync-scan.sh module, matching unit scope; T-002's added 'cross-runtime parity' category (:410-415) spans two components (.sh vs .ps1), matching integration-shaped scope; T-003/T-004's 'document conformance' type targets SKILL.md/claude-design-workflow.md prose only, matching a text-conformance scope; T-004 Done-When ties 'Acceptance-test evidence for TEST-047' to AC-029 (:752-755) and T-005 ties TEST-053 to AC-035 (:836-839), satisfying the acceptance-type AC-NNN reference rule. No test task's declared type mismatches its described scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Risk: high tasks carry an explicit Rollback: field: T-001 (tasks.md:264-273, additive/reversible with explicit revert-ordering note), T-002 (:426-431, same pattern), T-003 (:571-586, explicitly flags the rollback as a security regression and states revert ordering with T-004). No high/critical task lacks rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tests/design-sync-scan.tests.{sh,ps1} is shared across T-001 (create), T-002 (create .ps1 twin), T-003 (append), and T-004 (append), but ordering is enforced by Blockers (T-003<-T-001,T-002 at tasks.md:550; T-004<-T-001,T-002,T-003 at :717) plus the explicit Shared-Suite Append Discipline (:127-143) requiring prior blocks stay byte-unchanged, verified by diff \u2014 the role's own 'legitimate multi-task scope sharing' carve-out. design-sync-loop/SKILL.md's cross-feature overlap with design-sync-standing-consent is disclosed and serialization is explicitly required at T-003's header (:552-569). No uncoordinated same-file overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002<-T-001 (tasks.md:424) is functional per :146-149 (T-002 ports T-001's assertions and diffs script output). T-003<-T-001,T-002 (:550) and T-004<-T-001,T-002 (:717) are functional per :150-154/:153-154. T-004<-T-003 is explicitly labeled 'append-ordering, not content-dependent' (:155-166) \u2014 a disclosed artifact-conflict-avoidance edge (two tasks appending to the end of the same shared suite files), not a spurious content dependency. T-005<-T-001,T-002 only (:799), explicitly reasoned as not blocked on T-003/T-004 (:167-178) since AC-035's registration claim doesn't require T-003/T-004's content. No spurious or missing blocker found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All five tasks (T-001 tasks.md:209, T-002:377, T-003:498, T-004:678, T-005:757) are new-capability authoring tasks (author scanner, port to PowerShell, activate a skill step, document usage, register a test suite); none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

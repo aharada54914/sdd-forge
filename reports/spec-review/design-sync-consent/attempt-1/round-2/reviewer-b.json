@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-designsyncconsent-spec-a1r2-b-seq0471",
+  "host_session_id": "SESS-spec-a1r2-b-designsyncconsent-0471",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-2/integrated-summary.json",
+      "sha256": "462ad2b85c62a4b61dff5e3f0bebb44acf7f2430c9b0f1b6c53fdbb5b7426752"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "b48646009aed973ba2c6e26e5cf951283493b5c7a0dbc9ded7fd8c963eb24290"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "612b0e6eee34393f145ecd4e851102bbe82858373947e2bd1502310861405ae0"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Checked candidate ambiguity sites and found each explicitly reconciled in text rather than left implicit. REQ-001's 'session' scope (requirements.md:31) explicitly disclaims operationalising the boundary because every AC here is a document-conformance assertion over skill prose, a bound stated once and applied uniformly (acceptance-tests.md:3). The apparent three-coordinate tension between 'scope' (feature and session, requirements.md:27-29) and 'destination binding' (AC-027, requirements.md:66-73) is explicitly kept as two distinct, separately-tested dimensions (TEST-003 vs TEST-044/045, acceptance-tests.md:13,54-55) rather than conflated. AC-019's three-outcome resolution model (requirements.md:194-196) and AC-026's transient-decline model (requirements.md:56-64) are explicitly distinguished by TEST-043 (acceptance-tests.md:215-217) so an implementer cannot conflate them. No term, actor, state, input or output was found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked the highest-risk contradiction candidates. Decline-transience (AC-026, requirements.md:58-64) vs. AC-019's persistent 'not permitted' outcome (requirements.md:194-196) are explicitly distinguished, not merged (AC-026 row 3, requirements.md:62-64; TEST-043, acceptance-tests.md:215-217). REQ-008/BL-005's claim that AC-024 stays red pending a human-applied CI patch yet 'does not block this feature's task decomposition' (requirements.md:238-240, 286; TEST-039, acceptance-tests.md:193-201) mirrors the repository's own established staged-file precedent for AC-023/TEST-038 (requirements.md:226; acceptance-tests.md:177-188) rather than conflicting with it. REQ-001's expiry-via-session-boundary (requirements.md:35) and AC-001 branch 3 (requirements.md:44-49) are consistent. No requirement, AC, constraint or non-goal was found in direct conflict with another."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All nine documented Edge Cases (requirements.md:261-269) now trace to explicit AC/TEST coverage or an explicitly accepted residual risk: EC1 -> AC-029(d)/TEST-048 (requirements.md:261,114; acceptance-tests.md:58,241); EC2 -> AC-027/TEST-044-045 (requirements.md:262,66-73; acceptance-tests.md:54-55,219-226); EC3 -> AC-001 branch3/AC-012 (requirements.md:263); EC4 (fabricated consent record) is explicitly left as an accepted residual risk covered only by AC-012's honesty requirement, consistent with the Non-goals exclusion of a machine-checkable consent object (requirements.md:264,255) -- not a coverage gap, a stated scope boundary; EC5 -> AC-016/TEST-024 (requirements.md:265,176; acceptance-tests.md:34); EC6 -> AC-013/014/TEST-019-021 (requirements.md:266); EC7/EC8 -> authoring constraints BL-008 and the AGENTS.md sweep item 2 (requirements.md:267-268; acceptance-tests.md:171,252); EC9 -> explicitly accepted low-cost staleness (requirements.md:269). The round-2 additions (AC-026/027/028/029) each carry 2-3 independently-failing TEST rows specifically designed to catch vacuous or partial satisfaction (acceptance-tests.md:209-243), matching the document's own stated design discipline (TEST-015's non-heading-check precedent, acceptance-tests.md:121)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:285 (BL-004) makes a claim about shared, git-tracked protected-file-list membership sourced from `guard_invariants.py:4`/`:18` and closes with an explicit instruction: 'Re-verify per the Assumptions section before relying on this.' requirements.md:286 (BL-005) makes the identical class of claim -- `.github/workflows/test.yml` is protected, 'same list, same read' from `guard_invariants.py:4` and `:18` -- but carries no equivalent re-verification trailer. The generic Assumptions-section bullet that is supposed to backstop this (requirements.md:274, 'Protected-file membership is shared, git-tracked state this branch does not own') explicitly names only 'BL-004's claim' as the thing that 'must be re-derived,' not BL-005's. Downstream failure mode: an implementer using requirements.md's own Assumptions section as the authoritative re-verification checklist (as the document frames it) could treat BL-005's protected-file/PHASE2_HUMAN_COPY_TARGETS claim as settled and skip re-deriving it at implementation start -- even though it is exactly the volatile, shared, git-tracked list AGENTS.md 'Author-time sweeps' item 3 requires re-verifying, and REQ-008(c)/BL-005's whole task-plan shape (a second staged, human-applied patch, not agent-writable) depends on that protection status holding. This belongs to spec review because it is a completeness defect in the requirements artifact's own re-verification instructions, not an implementation-architecture choice. (investigation.md:178's INV-014 table does carry a generic 'each target' re-derivation instruction that would incidentally cover `.github/workflows/test.yml`, but requirements.md -- the primary normative document -- does not carry that same coverage for BL-005 specifically, so the gap is real within the document under review.)"
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This feature is centrally about a human-approval/egress boundary, so SKIP does not apply. The boundary is comprehensively and testably specified at the document-conformance level this whole specification operates at (stated once, acceptance-tests.md:3): first-upload gating (AC-001/TEST-001, requirements.md:44), iteration (AC-001 branch2/TEST-002), scope re-gating (AC-001 branch3/TEST-003), the three-outcome resolution model including the denied outcome needed by #140 (AC-019/TEST-028-030, requirements.md:194-196), transient decline vs. persistent denial (AC-026/TEST-041-043), destination re-gating (AC-027/TEST-044-045) and mid-session withdrawal (AC-028/TEST-046-047). The specification also honestly discloses, rather than hides, that the Design-Source record is an unenforced audit trace (AC-012, requirements.md:156; TEST-018) -- this is an accurate description of the pre-existing prose-only enforcement architecture of the whole design-sync-loop skill (INV-019/INV-021, investigation.md:224-244), not a new gap this feature introduces, and the acceptance criteria make that honesty itself a testable requirement rather than an unstated assumption."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Of the four remaining open questions, OQ-6 is hedged by AC-005's stated-limitation requirement (requirements.md:96,110), OQ-9 is hedged by AC-018's non-interactive-by-design requirement (requirements.md:192) and is explicitly a future #139/#140 design question this feature only leaves room for (requirements.md:182), and OQ-10 is explicitly scoped to a sibling artifact ('touches no criterion here', requirements.md:322-323). OQ-7 (requirements.md:144,306) is the closest candidate: REQ-004 explicitly declines to decide the Design-Source 'upload subject' field's value-granularity, calling it 'a product decision.' However AC-010 (requirements.md:146-148) only requires the field be *named*, which is satisfiable independent of that decision, and per the calibration's Gate Responsibility ('do not require design decisions ... those belong to later gates'), granularity choice for a record's value format is a design-phase decision in this repository's own multi-document workflow (a design.md artifact exists downstream of this spec), not a product-behaviour gap the reviewer must invent from nothing -- REQ-004/OQ-7 already supplies the trade-off analysis (investigation.md:307) that later phase needs. No check ID in this specification is left unresolved by these four."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No `domain/` directory exists at the repository root (confirmed via directory listing of the repository root and of `specs/design-sync-consent/`), so the check's explicit skip condition ('When domain/ is absent ... record the check as skipped') applies."
+    }
+  ]
+}

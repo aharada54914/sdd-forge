@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a3r3-b-seq0422",
+  "host_session_id": "SESS-spec-a3r3-b-epic136phase3-0422",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-3/round-3/integrated-summary.json",
+      "sha256": "66ce59ad5cf68a08a9f23e210d16c7bf09a03023c873a2d2d9f54a5d76e814e3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-3/round-3/precheck-result.json",
+      "sha256": "f2ae6283231802bff624a6e8402bf2e35468442e02c5a405837a4daf609d434e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "d02c35a67a051725628ddac7d9deb26236b2e9197d7150d1d051422c2c949382"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Field Definitions section concretely pins every load-bearing term this spec depends on (guard-runtime surface, tool_name shape, PATH-restricted subshell, decision parity, combined suite, human-copy staging, preventive restructuring), and acceptance-tests.md enumerates exact named combinations (e.g. AC-008/TEST-008's 12 named 4-runtime x 3-tool_name-shape fixture+assertion pairs) rather than leaving cardinality or scope open to interpretation. No term, actor, state, input, or output was found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md Main Workflows item 5 states 'Streams A, B, and D are independently shippable; Stream C ships only after its Blocker clears,' and the User Stories section states Pillar A authors trust the vocabulary '(once ADR-0010 is accepted and Stream C unblocks)' -- both phrased as still-pending/future-conditional. This directly contradicts the Overview's 'Stream C status record (authoritative)' ('ADR-0010 reached Status: Accepted ... Stream C's implementation then landed inside this feature: T-004 authored tests/workflow-scenarios/ ...') and Main Workflows item 3 in the SAME numbered list ('Blocker: DISCHARGED -- ADR-0010 approval was external to this feature's own work and was granted at commit 67015a5'), and REQ-003's 'Unblocked: ADR-0010 reached Status: Accepted.' precheck-result.json's edit_summary explicitly lists the sections reconciled this round (Overview, REQ-003, REQ-005, REQ-006, Non-goals, AC-012..015, AC-019, AC-021, AC-022, Roles and Permissions, 'Main Workflows item 3', the Phase-2 re-check note, Assumptions, OQ-2, OQ-3, the boundary table, and Risks) but omits both 'Main Workflows item 5' and 'User Stories' -- confirming these two passages were missed by this round's reconciliation pass and still assert the pre-discharge framing. Downstream failure mode: a task-decomposition author reading Main Workflows top-to-bottom reaches item 3 (Stream C landed, Blocker discharged) then item 5 (Stream C still gated on its Blocker) with no way to determine which governs -- exactly the same workflow/approval-boundary contradiction (whether an approval-gated stream is currently landed or still blocked) round 2 raised as Critical, now recurring in different, unreconciled passages of the same document. This belongs to spec review because it is an internal textual conflict within requirements.md itself, not an implementation-time ambiguity. Severity Critical because it reproduces the same contradictory-workflow-boundary category the calibration classifies as Critical and leaves the specification without the single, consistent Stream C status this round's remediation was intended to establish."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md enumerates material negative/boundary/failure paths for every REQ: AC-005/TEST-005 covers the fail-closed deny_unavailable case with 2 required named sub-cases (exit vs. copilot-shaped deny); AC-008/009/010/TEST-008..010 each enumerate a full 12-combination negative-case matrix (not a single combined assertion), with AC-010/TEST-010 adding an explicit control sub-case proving a coincidental numeric substring alone never triggers a false DENY; AC-006/TEST-006 verifies a real-PATH-lookup precedence boundary rather than trusting source-reading; AC-017/TEST-017 is a literal RED-then-GREEN self-check proving the step-omission detector can actually catch a real defect; and the Notes section documents explicit SKIP-with-reason semantics for missing runtimes (never a silent PASS)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section lists five items, each either resolved with cited re-verification evidence (ADR-0010's Status line re-confirmed Accepted at commit 67015a5) or explicitly flagged with a concrete RE-VERIFY-at-implementation-time instruction under named WFI-013 discipline (the run-all.sh/.ps1/test.yml registration gap, PROTECTED_GATE_SUFFIXES/PHASE2_HUMAN_COPY_TARGETS membership, the identity-ledger tail sequence, loop-driver.sh's stage-'spec'-only scope, and the PATH-restriction technique's continued validity). None is left as an unflagged, silent guess requiring a design/task reviewer to invent a resolution."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Two governance boundaries are named and made testable: (1) Stream C's human-approval gate is pinned to a single source of truth -- 'docs/adr/0010-loop-inventory-and-fixture-vocabulary.md's Status: line' (Edge Cases) -- rather than an assumed date or elapsed time; (2) the protected CI workflow's human-copy boundary is explicit and mechanically checkable: Roles and Permissions states the agent NEVER writes the protected file directly, staging instead under specs/epic-136-phase3/human-copy/ with a MANIFEST.sha256, and AC-016/017/020/TEST-016/017/020 specify self-checks (including a RED-demonstrable one) that the live file's grep-based check stays red until a human applies the candidate, with no staged-candidate fallback."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same unreconciled passages flagged under CONTRADICTION (Main Workflows item 5: 'Stream C ships only after its Blocker clears'; User Stories: '(once ADR-0010 is accepted and Stream C unblocks)') leave Stream C's actual current state undecided within the document itself -- already-implemented-and-landed (per the Overview's authoritative status record and Main Workflows item 3) versus still-pending-on-a-Blocker (per item 5 and User Stories). Downstream failure mode: an implementation-policy/design reviewer handed this spec would have to invent an answer -- should design.md describe Stream C as net-new work still gated on human approval, or as already-built behavior needing only documentation/verification -- a product-status decision this gate is meant to settle before handoff, not leave for the next reviewer to guess. This belongs to spec review because DOWNSTREAM-READINESS specifically measures whether Phase 1 artifacts are self-consistent enough that a later gate does not have to invent missing product state. Severity Major (rather than Critical) because the underlying safety/workflow-boundary contradiction itself is already captured at Critical severity under CONTRADICTION; this finding captures the distinct downstream-mismatch risk for the next reviewer role."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The allowed input manifest for this review contains no domain/context-map.md or domain/domain-contract.json (only requirements.md, acceptance-tests.md, investigation.md, the calibration reference, precheck-result.json, and integrated-summary.json). Per the check's explicit skip condition -- domain/ artifacts absent or unverifiable in scope -- this check is recorded as skipped rather than evaluated."
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 2,
+  "requirements_sha256": "6662fbf87bb63d38203e5f55d18c94ec695fab1478dd0b2052a1cdc617dfd4ef",
+  "acceptance_sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a1r2-a-seq0467",
+      "host_session_id": "SESS-spec-a1r2-a-mcpreadonlypreflight-0467",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-2/precheck-result.json",
+          "sha256": "89bfba2f6228d2dd33a109b651b6d06697bd84a1f40299a89c8609c45a1f049f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+          "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+          "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+          "sha256": "6662fbf87bb63d38203e5f55d18c94ec695fab1478dd0b2052a1cdc617dfd4ef"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a1r2-b-seq0468",
+      "host_session_id": "SESS-spec-a1r2-b-mcpreadonlypreflight-0468",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-2/integrated-summary.json",
+          "sha256": "add4016f68311a059200143fd815a5047379aa8be2c3f81ffaab6b86694c0521"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-2/precheck-result.json",
+          "sha256": "89bfba2f6228d2dd33a109b651b6d06697bd84a1f40299a89c8609c45a1f049f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+          "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+          "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+          "sha256": "6662fbf87bb63d38203e5f55d18c94ec695fab1478dd0b2052a1cdc617dfd4ef"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-mcpreadonlypreflight-a1r2",
+  "verdict": "PASS",
+  "warningCount": 0
+}

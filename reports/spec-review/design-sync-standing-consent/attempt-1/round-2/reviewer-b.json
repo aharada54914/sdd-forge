@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-designsyncstandingconsent-spec-a1r2-b-seq0548",
+  "host_session_id": "SESS-spec-a1r2-b-designsyncstandingconsent-0548",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-standing-consent/attempt-1/round-2/integrated-summary.json",
+      "sha256": "76d8a430b06a05f8a135bf5f1deb46f6f293ac93c58a7e7e55a1ddfeebbb22d2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-standing-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "6a49f310e1720a30de1be60e60c894c015fd0e43d4373e5cb5067e256cab9175"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+      "sha256": "daa3d89e023d3da4a5146d46a84ebf6d08ce9db564c5df7c3d9815ef80a04eb0"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-1 gap (present-but-out-of-domain ds_upload_consent value) is now closed by AC-031 (requirements.md:43-46), which fixes exact case-sensitive matching and states the resolution ('per-feature', never 'standing'/'off') in prose, not left to implementer inference. TEST-055/TEST-056 (acceptance-tests.md:68-69) make it checkable. Independent spot-checks of other high-risk terms hold up: AC-008 (requirements.md:73) pins the standing-record location per profile ('ux-spec.md' full / 'design.md' lite), and AC-009 (requirements.md:75-78) pins 'first occurrence' to the (feature, destination) pair with an explicit mechanism, not the word 'once' alone. No remaining term/state left underspecified enough for two implementers to diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The round-1/round-2 Critical (fallback bullet writing the literal key 'ds_upload_consent', which trips TEST-021's no-'consent'-substring rule) is resolved by the indirect-reference ruling in AC-022 (requirements.md:165-167) and enforced by TEST-046 (acceptance-tests.md:60, negative check for the literal identifier) plus TEST-050 (acceptance-tests.md:64, general substring sweep). AC-003's absence default (requirements.md:35-37, resolves to per-feature) and AC-031's out-of-domain default (requirements.md:43-46, also per-feature) are consistent, not conflicting -- both fail toward the same safe outcome for a documented, shared reason (requirements.md:45). No direct conflict found between REQ/AC/Non-goals/Edge Cases on independent review."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases 1-9 (requirements.md:220-228) cover mid-life setting changes, pre-existing DS-29-era records, once-scoping, host-absence under both off and standing, a live human answering the per-feature prompt after standing is later set, .ps1 divergence, and a negative-assertion false-positive risk. The round-1 gap is now Edge Case 10 (requirements.md:229): present-but-out-of-domain value, resolved by AC-031 and tested by TEST-055/TEST-056 (acceptance-tests.md:68-69, elaborated at :95-97). No further material negative path (e.g., malformed AGENTS.md table, concurrent-session write races) is implied by the requirements as document-conformance-testable, so none is missing."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section (requirements.md:231-237) marks each item as re-verified-at-drafting-time-and-must-be-re-derived-at-implementation, an explicit non-blocking re-verification instruction rather than a silent assumption. Open Questions (requirements.md:250-256): OQ-1 and OQ-3 are marked Resolved with dated coordinator rulings recorded in the Resolutions section (requirements.md:258-262); the remaining OQ-2/OQ-4/OQ-5 are explicitly flagged non-blocking under 'Still open' (requirements.md:273), each hedged by a named acceptance criterion (AC-019 for OQ-2) rather than left ungoverned."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The consent-resolution boundary itself (per-feature live prompt / standing audit-only skip / off persistent forbiddance) is fully testable: AC-007-AC-014 (requirements.md:67-105) plus TEST-008-TEST-018 (acceptance-tests.md:22-32) exercise every branch. The separate, narrower gap -- no technical distinction between a human and an agent setting ds_upload_consent: standing in an unguarded AGENTS.md -- is explicitly disclosed as an accepted residual risk, not glossed over: requirements.md:13-15 states it plainly ('the specification must say plainly what is traded'), and Non-goals (requirements.md:214) records it as a deliberate scope exclusion with reasoning ('adding a guard... is a larger change than this issue asks for'). A disclosed, reasoned scope limit on an inherently non-document-verifiable fact (who authored a line) is not the same failure mode as an untestable approval boundary silently left ambiguous."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ carries AC(s) with resolution mechanics and a corresponding TEST row (acceptance-tests.md Test Matrix, TEST-001-TEST-056), and the round-2/round-3 coordinator rulings (requirements.md:258-269, including round-3 ruling F for AC-031) close prior open items without requiring a downstream reviewer to invent product behavior. Remaining open items (OQ-2, OQ-4, OQ-5) are explicitly marked non-blocking (requirements.md:273) and each is hedged by a named criterion rather than deferred silently."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md exists at the project root (verified via the boundary doc's single permitted exception: Glob for 'domain/context-map.md' under the SDD root returned no files), and no domain contract file is present in the allowed_input_manifest. Per role instructions, this check is skipped and recorded as skipped for the absence of an Approved domain model."
+    }
+  ]
+}

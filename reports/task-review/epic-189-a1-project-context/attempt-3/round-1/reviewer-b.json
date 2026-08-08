@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt3-seq0342",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-189-a1-project-context-attempt3-seq0342",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+      {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+      {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+      {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "46a5d0d2da13316a4c2f55a58aeb15b3257461840c585658b8924f3d33ef4b2c"},
+      {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+      {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+      {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+      {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+      {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-1/precheck-result.json", "sha256": "dced6205c8a332261d2b3db4e868f5f4c910dbd22fd10fe2cfaa92f017c72dd6"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-1/integrated-summary.json", "sha256": "2cda5cc290a7c8cfe3dda1cabf5bc8ba381689d359af201865b44004b4c08edd"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task's Risk tier matches risk-classification-policy.md's proximity rule against its Scope/Done-When text: T-003 (secrets handling, SDD_CONTEXT_KEY), T-005/T-006/T-011/T-012 (access-control/two-person/track-selection precedence), T-007/T-009 (irreversible protected-file publish/registration) are correctly high/critical; T-001/T-013 (additive schema/audit work, no sensitive surface) are correctly medium; T-002/T-004/T-008/T-010's high classifications are defensible under their own stated rationales (canonicalizer byte-stability underlying every HMAC preimage; approver-identity schema underpinning access control; fail-open hook-activation risk; live security-boundary verification). This risk-tier set, including T-011's medium-to-high correction, is unchanged since attempt-1 round-2's persisted task-review PASS (reports/task-review/epic-189-a1-project-context/attempt-1/round-2/) — per the post-implementation provenance re-review convergence rule, no new finding is raised against this unchanged content. No issues found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high/critical task's Done When includes TDD Red/Green evidence plus an independent quality-gate verdict from a named second reviewer (T-002/T-003/T-004/T-005/T-006/T-008/T-010/T-011/T-012); T-007 and T-009 (Risk: critical) additionally require 'a second, distinct named approver additionally reviews and signs the evidence bundle (Risk: critical, risk-classification-policy.md:17)'. No required Done-When evidence item is missing for any high/critical task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (11 Done-When items), T-002/T-003/T-005/T-006 (9 Done-When items each) exceed the literal '>8 items' oversizing indicator, but this reflects a uniform, structurally-repeated pattern (one item per TEST-ID proof + suite self-registration + test.yml staging + CHANGELOG entry + TDD/acceptance evidence recording) applied identically across every task, not distinct engineering scope creep; each task maps 1:1 to its own REQ per traceability.md's Task Mapping table. T-001's specific instance of this finding was already raised by a prior instance of this role in attempt-2 and resolved via a human-recorded decision cited directly in T-001's own Blockers text ('Accepted-deviation record (decision-7 = A): specs/epic-189-a1-project-context/verification/T-001/sizing-accepted-deviation.md', not itself read as it is outside the allowed-input manifest). Content is unchanged since attempt-1 round-2's persisted task-review PASS (reports/task-review/epic-189-a1-project-context/attempt-1/round-2/); per the post-implementation provenance re-review convergence rule, converged to PASS. No fragmentation indicators found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task has associated negative/boundary acceptance criteria in acceptance-tests.md, not merely happy-path: T-001 (AC-001 parameterized required-field rejection, AC-040 duplicate-id rejection), T-002 (AC-005 four rejection categories, AC-037 six boundary vectors), T-003 (AC-011 fail-closed-no-key, AC-034 mid-write-failure rollback), T-004 (AC-044 malformed-registry rejection, AC-045 duplicate-id, AC-046 zero-identity boundary — added specifically in a prior spec-review round to close reviewer B's own AMBIGUITY/EDGE-CASE-COVERAGE finding per acceptance-tests.md's own notes), T-005 (AC-017 strengthening-not-misclassified, AC-031 five glob-narrowing boundary cases), T-006 (AC-014 six-way negative proof, AC-043 provenance underapproval rejection), T-007 (AC-033 symlink-denial/crash-recovery), T-008 (AC-032 cleanup-failure/stale-sentinel), T-011/T-012 (AC-026 PROJECT_CONTEXT_INVALID explicit-stop, distinct from the compatibility-fallback path). No functional task has happy-path-only coverage."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md does not use the classic unit/integration/e2e taxonomy; every row instead carries a richer descriptive Test Type tied 1:1 to a specific AC-NNN (satisfying the acceptance-test category requirement for every row by construction, per the Acceptance Mapping table). Multi-component proofs (e.g. TEST-009 multi-runtime hash-equality across .py/.sh/.ps1/.js, TEST-023's 4-basename x 12-call-site x 2-sudo-state matrix) are scoped consistently with genuine cross-component integration testing. No declared-type-vs-actual-scope mismatch found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high/critical task carries a concrete Rollback field, not a placeholder: T-007/T-009/T-012 explicitly address the protected-file caveat ('reverting this task's agent-authored commit does NOT automatically revert an already-human-applied ... change — the revert PR states explicitly whether a human should also hand-revert that application'); T-002/T-003/T-004/T-005/T-006/T-008/T-010/T-011 state the standard two-commit revert with an explicit note on whether any protected/staged artifact is touched. No high/critical task lacks rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Global Constraints' numeric-order Blockers chain (T-002 blocks on T-001, T-003 on T-002, ... T-012 on T-011) serializes every append to the shared files tests/run-all.sh/.ps1, staged human-copy/.github/workflows/test.yml, MANIFEST.sha256, and CHANGELOG.md, verified directly against each task's own Blockers section (round-1 task-review remedy per tasks.md's own text, already closing this role's prior-round SCOPE-DISJOINT finding). Sole-editor declarations are consistent and unviolated: guard-invariants.json family (T-009 only), apply-human-copy.{sh,ps1} (T-007 only), PLUGIN-CONTRACTS.md (T-011 only), ship/SKILL.md and lite-spec/SKILL.md (T-012 only, explicitly excluded from T-011's Out of Scope). No uncoordinated parallel overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's current REQ-004 'Signer output contract' requires generate-approval-sidecar.py (T-003's deliverable) to resolve weakening_verdict/predecessor_context_sha256/approval_epoch before signing, and REQ-006 states explicitly: 'generate-approval-sidecar.py and validate-approval-sidecar.py never accept a pre-computed weakening verdict as an input flag/file ... each invokes detect-policy-weakening.py itself, in-process ... at generation time and validation time respectively.' These fields are schema-required in design.md's approval-sidecar.schema.json. This makes T-003 functionally dependent on T-005's detect-policy-weakening.py, yet tasks.md T-003's Depends On / ### Blockers cite only T-002, and T-003's own Out of Scope explicitly disclaims it: 'The two-person/cooldown verdict's own computation (T-005; this task only ACCEPTS a verdict it is given and embeds it, it does not compute one).' T-003 is scheduled via the numeric-order chain to run before T-005 exists (T-003 to T-004 to T-005). No later task's Planned Files claims ownership of wiring this live call either: T-006, the only later task sharing REQ-004 per traceability.md's Task Mapping ('REQ-004 (share - recomputes T-003's construction)'), lists only validate-approval-sidecar.py/.sh/.ps1 in its Planned Files (not generate-approval-sidecar.py) even though T-006's Scope is assigned TEST-019, which asserts generate-approval-sidecar.py's own refusal behavior (acceptance-tests.md AC-019). This is a missing-blocker gap whose omission risks integration failure: T-003 could be marked Implementation Complete while generate-approval-sidecar.py still only accepts an externally-supplied verdict, directly contradicting design.md's current anti-tamper requirement. Because this design.md provenance-binding language was added/revised through the impl-review gate after task-review attempt-1 passed while T-003's tasks.md text is unchanged, this is a genuine new cross-artifact inconsistency exposed by this re-review, not a re-raised finding on unchanged content, so the post-implementation provenance re-review convergence rule does not apply."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "design.md's current REQ-004/REQ-006 require generate-approval-sidecar.py to invoke detect-policy-weakening.py (T-005) in-process to compute the schema-required weakening_verdict/predecessor_context_sha256/approval_epoch fields, never accepting an externally-supplied verdict. tasks.md T-003 declares no Blocker on T-005, is scheduled to run before T-005 exists, and its own Out of Scope explicitly states it 'only ACCEPTS a verdict it is given and embeds it, it does not compute one' -- directly conflicting with design.md's current text. No other task's Planned Files (including T-006, which shares REQ-004 and is assigned TEST-019 testing generate-approval-sidecar.py's refusal behavior) claims ownership of generate-approval-sidecar.py to wire this invocation later. This is a missing-blocker/ownership gap risking a real integration failure and a security-requirement regression (generator silently continuing to accept an externally-supplied verdict, contrary to REQ-006's anti-tamper design)."
+    }
+  ]
+}

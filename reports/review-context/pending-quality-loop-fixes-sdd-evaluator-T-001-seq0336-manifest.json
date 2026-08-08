@@ -1,0 +1,98 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "quality-loop-fixes",
+  "task_id": "T-001",
+  "run_id": "RUN-quality-loop-fixes-qg-T-001-seq0336",
+  "host_session_id": "SESS-qg-quality-loop-fixes-T-001-0336",
+  "sequence": 336,
+  "previous_record_sha256": "a8770da1c7ecada80b7796499e219f6f5d8d8c9261b0667fcb477a7d2fee3c5e",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "214338a19d1fbf836a48f6a1407c08cba6669261bf0957740887cfefa3f7f083",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+      "sha256": "6f89cf095baf3201a393d7bd69cfc68fd393c18e13437c789df5a39ff0a66b61"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh",
+      "sha256": "e09604e2fdfc381948fca8146d6ec96eeaa982d7f68f9f4a3eb7920fc7994880"
+    },
+    {
+      "path": "reports/implementation/quality-loop-fixes/T-001.md",
+      "sha256": "017c79d68e353d923364a22f77dedb25f31e2400299b6668dba4e7c431ae50d0"
+    },
+    {
+      "path": "specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "specs/quality-loop-fixes/design.md",
+      "sha256": "4bd6183cd6ba303e9712482963def96e9dc9c7be169d18033da058777f42e1ff"
+    },
+    {
+      "path": "specs/quality-loop-fixes/frontend-spec.md",
+      "sha256": "c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a"
+    },
+    {
+      "path": "specs/quality-loop-fixes/human-copy/.github/workflows/test.yml",
+      "sha256": "7470c23b3aec5e9eaf55d3dca268293d5c5dbbd131087fed8330d71859583e7f"
+    },
+    {
+      "path": "specs/quality-loop-fixes/infra-spec.md",
+      "sha256": "40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e"
+    },
+    {
+      "path": "specs/quality-loop-fixes/requirements.md",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+    },
+    {
+      "path": "specs/quality-loop-fixes/security-spec.md",
+      "sha256": "7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"
+    },
+    {
+      "path": "specs/quality-loop-fixes/tasks.md",
+      "sha256": "aa900b4f369ccc97338f0b8f11084f36db763f91c44e7f548c4019ada6933f0d"
+    },
+    {
+      "path": "specs/quality-loop-fixes/traceability.json",
+      "sha256": "f678d5434068a9ea6734debb4aab180e26b5883a397cf38c032ed4a4a554abf0"
+    },
+    {
+      "path": "specs/quality-loop-fixes/traceability.md",
+      "sha256": "6da5362782e952139f8373d126a67c90fbaaa6dbeda2f34372fa450d830c5cfa"
+    },
+    {
+      "path": "specs/quality-loop-fixes/ux-spec.md",
+      "sha256": "0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-001/green.log",
+      "sha256": "e87499e3bc761ed624f47b0698dc87750556fe691178a9f74807096b4bfeebbc"
+    },
+    {
+      "path": "specs/quality-loop-fixes/verification/qg/T-001/red.log",
+      "sha256": "7acd2ceac58d3ac3b863d34c4af7c03be4185d10eef3776e44a93f7d5883445f"
+    },
+    {
+      "path": "tests/loop-escalation.tests.ps1",
+      "sha256": "3c42fa892b5dec7b1a1bd31108940ab9e8c1cd36f33f40fa38bf65784a8986c4"
+    },
+    {
+      "path": "tests/loop-escalation.tests.sh",
+      "sha256": "ed8dc724fa6ff7e1d5ec1c3804394d77aa824606b3829ec475f45b43be6ad901"
+    },
+    {
+      "path": "tests/quality-gate-cycle-limit.tests.sh",
+      "sha256": "db9a7fcf5de235aad51f6a5a797e06283257e3fc010044ef341de920b076ba9f"
+    }
+  ]
+}

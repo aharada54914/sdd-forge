@@ -40,7 +40,12 @@ allowlist. Read the following yourself:
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 
-Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
+Do not read any reviewer-b.json from prior rounds.
+
+One deliberate exception, per Issue #143: at round > 1 your manifest carries the
+PREVIOUS round's integrated-summary.json, and `impl-review-precheck.sh` fails the
+round if it is absent. Read it only as counts and check IDs -- it carries no
+narrative. Do not reason from reviewer-b's findings.
 Treat the four layer specifications as normative refinements of design.md.
 Report contradictions, missing cross-layer references, or requirements that
 are claimed by neither design.md nor the responsible layer specification.
@@ -58,6 +63,13 @@ Reject a missing manifest or canonical identity ledger, an unlisted
 path, hash mismatch, chat-only input, writable context, fallback, or reused
 implementation/review/evaluation identity. No same-session fallback is
 permitted.
+
+`plugins/sdd-review-loop/references/review-context-boundary.md` states which
+manifest fields to re-verify and which the validator consumes before the
+reservation is appended. Read it before rejecting on a hash mismatch:
+`identity_ledger_sha256` is stale by construction once your reservation exists,
+so re-checking it always fails and is not evidence of tampering. Verify the
+ledger record chain instead — that is the guarantee that survives the append.
 
 # Finding Calibration
 

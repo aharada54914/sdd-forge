@@ -1,0 +1,142 @@
+{
+  "task_id": "T-002",
+  "feature": "quality-loop-fixes",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "d3ce2bccbe2fd0534358a26d45e5fb34c9fb1540f966dfdced5400ca38354c3a",
+  "created": "2026-07-19T17:48:19Z",
+  "comment": "Default-FAIL verification contract for T-002 (medium, acceptance-first -- risk-classification-policy.md's own Risk Rationale in tasks.md gives medium/acceptance-first directly, grouped with T-001 in security-spec.md's Impact Assessment as materially lower risk). Populated after the quality gate reran tests/emit-run-record-feature-scope.tests.sh and its .ps1 twin fresh (38/38 passed both lanes, specs/quality-loop-fixes/verification/qg/T-002/focused-tests.log) and the quality-loop-fixes cross-suite regression set (the other three tasks' suites plus validate-repository.sh/.ps1, check-sdd-structure.sh, check-risk.sh; specs/quality-loop-fixes/verification/qg/T-002/regression.log). Shell stack waives the three compile-oriented checks (lint/typecheck/build) for this task's shell/PowerShell scripts and test-infrastructure files. Per the implementation report (reports/implementation/quality-loop-fixes/T-002.md): the anchored `^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$` rewrite closes the INV-010 coverage gap (a same-feature, non-BLOCKED-verdict report whose body prose independently contains the word 'BLOCKED', mirroring the real reports/quality-gate/T-008.md shape, was previously miscounted) with a net-new fixture, proven RED against the unmodified pre-fix keyword scan first (specs/quality-loop-fixes/verification/qg/T-002/red.log) then GREEN against the fix (green.log); the pre-existing feat-a/feat-b cross-feature exclusion assertion and the other gate_total/max_gate_runs/first_pass_tasks/severity-count assertions stayed green, unedited, confirming no collateral change (AC-012). WFI-010.md's Status: Approved -> Applied flip landed in commit B, an AI-permitted transition per the file's own header comment. KNOWN, DOCUMENTED, NON-BLOCKING CONDITIONS carried into this gate's cross-suite regression sweep, unrelated to and unaffected by this task's own emit-run-record.{sh,ps1}-only diff: T-001's own suite (tests/quality-gate-cycle-limit.tests.sh) shows its usual 59 passed/2 failed shape (QGCL-015's classifier-blocked ship/SKILL.md staging, QGCL-016's designed-red pre-human-copy CI-registration state -- both documented in T-001's own contract) and T-003's own suite (tests/prepare-panelist.tests.sh/.ps1) shows its usual PP-001a/b/c ambient-sudo consent-token flake (documented in T-003's own contract); neither is newly introduced by re-running the suites now, and neither is cited here as passing evidence for any of this contract's own checks.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured for this repository's shell/PowerShell scripts (emit-run-record.sh/.ps1) plus the test-infrastructure files this task touches (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-002", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell scripts or test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-006", "REQ-007"],
+      "red_evidence": "specs/quality-loop-fixes/verification/qg/T-002/red.log",
+      "green_evidence": "specs/quality-loop-fixes/verification/qg/T-002/green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; this task's blocked-count read only touches repository-local report files under reports/quality-gate/, fully covered by the fixture-driven suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-006", "REQ-007"],
+      "red_evidence": "specs/quality-loop-fixes/verification/qg/T-002/red.log",
+      "green_evidence": "specs/quality-loop-fixes/verification/qg/T-002/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-002/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell scripts or test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-002/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-002/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's anchored-read change is fully covered by the direct script invocations in the fixture-driven suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task in that sense. The saved RED (specs/quality-loop-fixes/verification/qg/T-002/red.log) versus GREEN (green.log) evidence pair IS the applicable before/after behavior comparison for the WFI-010 miscount fix.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; Planned Files are shell/PowerShell scripts, test-infrastructure files, a WFI status flip, and CHANGELOG.md only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
