@@ -176,11 +176,46 @@ cannot happen.
    Record the decision per "Design-Source consent record" below.
 5. **Pre-upload check point.** A single named point that every upload path
    in this loop passes through — after the consent step, before the first
-   byte leaves — with no bypass. This feature defines the point and performs
-   no check at it; DS-30 / issue #139 attaches a blocking secret, PII and
-   placeholder scan over `specs/<feature>/mockups/` here. When such a check
-   exists, its blocking behaviour is a property of the check: it does not
-   presume an interactive human is present at this point.
+   byte leaves — with no bypass. Run `design-sync-scan.sh` (or `.ps1`; DS-30
+   / issue #139) against `specs/<feature>/mockups/`. Its blocking behaviour
+   is a property of the check: it does not presume an interactive human is
+   present at this point. The check is limited to egress hygiene —
+   placeholder, secret and PII detection — and performs no assessment of
+   mockup quality, design fidelity, accessibility, or `design-system/`
+   adherence.
+   - **Exit 0** (scan completed, clean): continue directly to 6. No
+     additional prompt, no delay beyond the scan's own run time. Record
+     `Egress-Scan: clean` and `Egress-Scan-At` (an ISO-8601 timestamp) in
+     the `Design-Source` section.
+   - **Exit 1** (scan completed, finding(s)): present the findings report to
+     the human before any push is attempted — no push occurs without that
+     presentation. On an explicit human override, record
+     `Egress-Scan: overridden` and `Egress-Scan-At` (an ISO-8601 timestamp),
+     then continue to 6 — that override authorizes nothing beyond THIS
+     scan's disclosed findings, it is not a standing exemption, and a fresh
+     scan after any regeneration requires its own override decision, even
+     when the new scan reproduces findings identical to the ones already
+     overridden. Absent an explicit override — silence, a non-response, or
+     an agent's own judgment is never an override — no push occurs, nothing
+     is written to `Design-Source` as an override, and the agent remediates
+     the flagged mockups before re-entering this step. This decline is a
+     content-hygiene decision, distinct from `Egress-Consent`'s own decline
+     or withdrawal: it says nothing about whether egress to this
+     destination is still permitted, only that this specific payload should
+     not go out yet.
+   - **Exit 2** (scan did NOT complete — a tool error, not a finding): this
+     branch is unconditionally blocking, with no override affordance
+     offered at all — an override is a decision about disclosed findings,
+     and a tool error discloses none, so there is nothing for a human to
+     approve. No push occurs. Report the failure to the operator as a tool
+     failure, worded so it cannot be mistaken for a finding (e.g. "the scan
+     could not run: <reason>", never "N finding(s)"). No `Egress-Scan`
+     value is written for this branch — writing one would misrepresent an
+     unknown outcome as a checked one.
+   Exit 1's block is liftable, once, by an explicit human decision about
+   what that scan found. Exit 2's block is not liftable by any decision
+   available at this step; the tool error must be resolved before this step
+   can be re-entered at all.
 6. **Push.** Call `finalize_plan`, then `write_files`, to sync the mockups
    to the project selected in step 1. The push-failure rule has four parts.
    A push failure — a network error, a timeout, an auth expiry discovered
@@ -223,6 +258,8 @@ can tell a conforming record from a non-conforming one.
 | `Egress-Consent-Party` | who or what produced the grant | the human who answered step 4, when `per-feature`; a named reference to the upload-policy setting itself, never a fabricated identity, when `standing` or `off` — neither has a live per-occurrence human |
 | `Egress-Consent-At` | when the record was written | an ISO-8601 timestamp |
 | `Ds-Upload-Consent-Setting` | the setting in force at write time | `standing` / `per-feature` / `off` |
+| `Egress-Scan` | this scan's outcome | `clean` (no finding) or `overridden` (finding present, human explicitly approved) — both values are written, so a reader can tell "nothing found" from "found and excused" |
+| `Egress-Scan-At` | when the scan that produced the `Egress-Scan` value ran | an ISO-8601 timestamp, written for both `clean` and `overridden`, not only the exceptional one |
 
 A record's own `Ds-Upload-Consent-Setting` value never overrides the
 currently configured setting: it names the regime that was in force when the

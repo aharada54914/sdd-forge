@@ -27,14 +27,6 @@ specification review.
   alongside the marker already recorded there, so the trail names which
   policy governed, regardless of which path reached this document.
 
-- On a host without the `DesignSync` tool (for example, Codex), run the
-  egress-hygiene scan directly and standalone, ahead of the manual steps
-  below: `design-sync-scan.sh` (or `design-sync-scan.ps1`) against
-  `specs/<feature>/mockups/`, its required target-directory argument. This
-  usage requires no Claude Code-specific tool, no deferred-tool search, and
-  no DesignSync capability as a precondition -- the script runs the same
-  way regardless of what invoked it.
-
 When no visual input is supplied, record:
 `No mockup provided — optional visualization skipped`.
 

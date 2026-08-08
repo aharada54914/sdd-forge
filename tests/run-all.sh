@@ -83,6 +83,7 @@ tests=(
   tests/facet-manifest-semantics.tests.sh
   tests/design-system-contract.tests.sh
   tests/design-sync-standing-consent.tests.sh
+  tests/design-sync-scan.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,
