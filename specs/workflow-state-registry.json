@@ -396,6 +396,10 @@
     {
       "feature": "design-sync-standing-consent",
       "profile": "full"
+    },
+    {
+      "feature": "epic-191-a3-path-ownership",
+      "profile": "full"
     }
   ]
 }

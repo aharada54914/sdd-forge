@@ -1,0 +1,43 @@
+=== TEST-026/027: applicability derivation, disabled-legacy ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2)
+ok: TEST-028.2: -FacetManifest omitted entirely is also a hard error
+=== TEST-029: -Diagnose never Gate-invoked ===
+ok: TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible'
+ok: TEST-034.1: absent provider-bindings records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+=== TEST-035/036/055: staged-candidate-only verification ===
+ok: TEST-036.1 (partial): registered in the UNPROTECTED risk-gate-matrix.md required-check-set
+ok: TEST-036.2 (partial): documented in quality-gate/SKILL.md's ## Process
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in run-all.sh and .ps1
+
+check-component-coverage.tests.ps1: 29 passed, 0 failed

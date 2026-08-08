@@ -96,6 +96,9 @@ tests=(
   tests/guard-staging-exemption.tests.sh
   tests/design-sync-standing-consent.tests.sh
   tests/design-sync-scan.tests.sh
+  tests/component-path-resolver.tests.sh
+  tests/component-path-diff-basis.tests.sh
+  tests/check-component-coverage.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

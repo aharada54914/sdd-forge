@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Added
+
+- **component path ownership resolver の A1 契約追従完了 (Issue #191,
+  epic-191-a3-path-ownership T-001)**: `resolve-component-paths.{py,sh,ps1}`
+  を landed 済みの `contracts/project-context.schema.json` /
+  `project-context.template.yaml` に適合させ、`components[].id`、空の
+  `components: []`、bounded/cross-cutting `shared_paths` の排他的形状を
+  fail-closed で検証する。グロブ、raw-byte sort、分類、exclude 証跡、
+  大文字小文字を区別する契約検査を Bash/PowerShell twin で固定し、ADR は
+  drafting-time の番号再検証により `0027` とした。保護領域への書込みを
+  避けるため CI ステップ候補は実装レポート配下の hash 検証済みドラフトに
+  記録した。この 2026-08-08 エントリは v1.11.0 の T-001 記録に残る
+  「A1 未着地」「human-copy staging 未作成」という当時の状態を現在状態に
+  ついてのみ訂正し、リリース履歴自体は変更しない。
+
 ### Fixed
 
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,
@@ -1052,6 +1067,132 @@
 ## v1.11.0 (2026-07-21)
 
 ### 追加
+
+- **Reverse Coverage Gate と --diagnose (Issue #191,
+  epic-191-a3-path-ownership T-004)**: `plugins/sdd-quality-loop/scripts/
+  check-component-coverage.{py,ps1,sh}` を新規追加(Python master + 独立
+  PowerShell twin + 薄い bash dispatcher、INV-008)。常に完走し常に
+  `check-component-coverage-verdict/v1` エビデンスレコード(`producer.sha256`
+  同梱)を出力する。`workflow.capability_enforcement` の値(ADR-0016)から
+  `disabled-legacy`/`advisory`/`required` の三状態を導出し(Facet Manifest
+  の有無からは導出しない)、`disabled-legacy` は評価ゼロで実 N/A・exit 0、
+  `advisory`/`required` は Facet Manifest 構造的必須(欠落は exit 2、
+  Fail 発火時の exit 1 と明確に区別)で六つの Fail 条件(UNOWNED /
+  EXCLUSIVE owner 欠落 / OVERLAP / bounded shared_paths owner 欠落 /
+  resolver の `EXCLUDED_MATCH` エビデンス到達 / Provider Adapter/Binding
+  drift)を全評価し、`required` のみ Fail 発火時 exit 1。非 Gate の
+  `resolve-component-paths --diagnose`/`-Diagnose` サブコマンドを両
+  resolver twin に追加(独自 schema、Gate の schema とは別、
+  `quality-gate/SKILL.md` からは呼ばれない)。`risk-gate-matrix.md`
+  (`high`/`critical` 必須チェックセットへ追加)・`quality-gate/SKILL.md`
+  (`## Process` への記載)を直接編集(いずれも非保護ファイル、defense-in-depth
+  として文書化するのみで実際の到達保証は required-check-set 登録そのもの)。
+  新スイート `tests/check-component-coverage.tests.sh` / `.ps1`
+  (TEST-026〜036、TEST-046、TEST-052〜055)を、Epic A4/A1 の実スキーマに
+  一切依存しない自己完結フィクスチャ Facet Manifest / Provider Bindings
+  で駆動し、両ランタイムで29/29 green(このタスクの Scope 内では外部依存
+  ブロックなし)。`tests/run-all.sh` / `.ps1` へ自己登録。R-10 保護ファイル
+  である Bundle A(`guard-invariants.json`・`generate-guard-invariants.py`・
+  `generated/*` 4件)・Bundle B(`check-contract.{sh,ps1,py}`)への
+  human-copy staging、および `.github/workflows/test.yml` への本タスク
+  分 CI ステップ追加は、T-001/T-002 と同一の Claude Code PreToolUse フック
+  (`sdd-hook-guard.sh`)によりブロックされ本コミットには含まれていない。
+  Bundle A の候補内容は実際の `generate-guard-invariants.py` をスクラッチ
+  作業コピーへ適用して生成・`--check` で内部整合性検証済み、Bundle B は
+  必要な変更内容を仕様として正確に記述(いずれも
+  `reports/implementation/epic-191-a3-path-ownership/T-004.md` の
+  Unresolved Items 参照)。
+
+- **git-diff basis collector (Issue #191, epic-191-a3-path-ownership
+  T-002)**: `plugins/sdd-quality-loop/scripts/resolve-component-paths.{py,ps1}`
+  に `--source-rev`/`--target-rev`/`--include-untracked`/`--repo-root` を
+  追加し、実 git 差分から変更パス集合を収集する経路を新設(T-001 の
+  `--changed-paths-file`/stdin 経路は `--target-rev` 省略時の代替として
+  存続)。`git rev-parse --verify <rev>^{commit}` で source/target を
+  commit OID に解決してから `git merge-base` を計算し、解決不能な rev や
+  共通祖先のない履歴は fail-closed。`baseline..worktree`(staged +
+  unstaged)+ `git ls-files --others --exclude-standard -z`(untracked)を
+  それぞれ一度だけ収集し、全ての path 列挙コマンドを NUL 区切りの生バイト
+  として解析(改行分割は一切行わない、不正 UTF-8 バイト列は fail-closed)。
+  リネームは固定閾値(類似度 50%)・固定 `diff.renameLimit`(1000)・
+  `--no-ext-diff` で追跡し、rename 前後のパスを独立に分類、component
+  境界を跨ぐリネームは `diff_basis.renames[].cross_component: true` として
+  明示。submodule/symlink は `--ignore-submodules=dirty` により
+  「dirty だが pointer 未変更」は完全に無視、gitlink OID 変更・symlink
+  自身の target-text 変更は報告、symlink が指す先の内容のみの変更は
+  symlink 自身のパスには一切現れない(実ディスポーザブル fixture リポジトリ
+  で四ケース全て検証)。単一書き手/TOCTOU スナップショット(HEAD OID +
+  ポーセリン status のハッシュ)を収集開始前後で比較し、不一致は1回だけ
+  リトライしてから fail-closed。新スイート
+  `tests/component-path-diff-basis.tests.sh` / `.ps1`(TEST-019〜025、
+  test 実行時に mktemp 配下へ使い捨て git リポジトリを作成、本リポジトリ
+  自身の履歴は一切使わない)を追加し、両ランタイムで17/17 green
+  (Epic A1/A4 への外部依存なし、T-001/T-005と異なりこのタスク自体は
+  完全 green)。`tests/run-all.sh` / `.ps1` へ自己登録。R-10 保護ファイル
+  である `.github/workflows/test.yml` への human-copy staging は
+  T-001 と同一の Claude Code PreToolUse フック(`sdd-hook-guard.sh`)に
+  よりブロックされ本コミットには含まれていない
+  (`reports/implementation/epic-191-a3-path-ownership/T-002.md` の
+  Unresolved Items 参照、既報告のブロッカーの再現であり新規事象ではない)。
+
+- **cross-epic cross-cutting seed inventory 検証 (Issue #191,
+  epic-191-a3-path-ownership T-005)**: `tests/component-path-resolver.tests.sh`
+  / `.ps1`(T-001既登録のスイート、新規スイート・新規 `tests/run-all.sh`
+  / `.ps1` 登録・`.github/workflows/test.yml` 追加ステップは一切なし)に
+  TEST-042/TEST-042-negative/TEST-043/TEST-044 を追加。Epic A1 の
+  `contracts/project-context.template.yaml` の `shared_paths` cross-cutting
+  セクションが `specs/**`・`reports/**`・`docs/**`・`.github/**`・
+  `tests/fixtures/**`・`CHANGELOG.md` の六項目に厳密一致し `contracts/**`
+  が含まれないことを検証する唯一の正典ソースとして扱い、A3 側は競合する
+  seed-list ドキュメントを一切持たない(REQ-006)。TEST-043 は
+  `tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/`
+  という自己完結フィクスチャで、六項目に触れる diff がゼロ declared
+  owners でも Fail-1(UNOWNED)を絶対に誘発しないことを実証(今日時点で
+  green)。TEST-042/TEST-044 は Epic A1 の実アーティファクトを直接読む
+  ため、それが着地するまで恒久的に red(T-001 の TEST-011.3 と同一の
+  意図された外部依存性ブロック、バグではない、再確認済み:
+  `contracts/project-context.template.yaml` は本コミット時点でも不在)。
+  TEST-042-negative は inventory-conformance チェック関数
+  (`check_inventory_conformance` / `Test-InventoryConformance`)を
+  意図的に誤った seed set に対して実行し、チェックが恒常的に true を
+  返す vacuous な実装でないことを証明(acceptance-first の RED エビデンス)。
+
+- **component path ownership resolver — グロブ意味論と分類 (Issue #191,
+  epic-191-a3-path-ownership T-001)**: `plugins/sdd-quality-loop/scripts/
+  resolve-component-paths.{py,sh,ps1}` を新規追加。`project-context.yaml`
+  の `components[].paths.{include,exclude}` / `shared_paths[]` を読み、
+  変更パス群を `EXCLUSIVE` / `SHARED_BOUNDED` / `SHARED_CROSS_CUTTING` /
+  `OVERLAP` / `UNOWNED` に分類する。`**` はゼロ以上の完全セグメント(ゼロ
+  セグメントの `a/**/b` が `a/b` に一致するケースを含む)、裸の `*` は
+  単一セグメント内のみ、`?`/`[...]` 等の未対応メタ文字は load 時に
+  fail-closed で拒否。パターン/パスは比較専用に Unicode NFC 正規化し、
+  raw path のバイト列自体は出力の identity として保持(NFC 衝突は
+  fail-closed のコリジョンエラー)。マッチングは常にバイト単位で
+  大文字小文字を区別。component 自身の `exclude` は同一 component の
+  `include` に絶対に優先し(Fail-5 不変条件)、その結果 UNOWNED になった
+  パスには `EXCLUDED_MATCH` エビデンスタグを付与。`shared_paths` は
+  bounded(`components:` 明示リスト)/cross-cutting(`classification:
+  cross-cutting`)の二者択一で、両方または どちらも無い設定は
+  fail-closed。YAML パーサーは本リポジトリの CI が PyYAML 等の外部
+  依存を一切インストールしないため独自実装の制限付きサブセット
+  (ADR-0020 の restricted-DSL 方針を踏襲、ADR-0025 に記録)。
+  Epic A1 の正式スキーマ(`contracts/project-context.template.yaml`)
+  との適合性チェック(`--check-schema-conformance`)は AC-011 により
+  当該アーティファクトが存在しない間 fail-closed で恒常的に赤のまま
+  (Epic A1 未着地の間の意図された挙動、バグではない)。
+  新スイート `tests/component-path-resolver.tests.sh` / `.ps1`
+  (TEST-001〜018 + TEST-045、`tests/fixtures/component-path-ownership/`
+  配下の静的フィクスチャで駆動)を追加し `tests/run-all.sh` /
+  `tests/run-all.ps1` へ自己登録。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CI
+  ステップ(bash/pwsh 両レーン)を反映した補正版の human-copy staging を
+  試みたが、インストール済み Claude Code の PreToolUse フック
+  (`sdd-hook-guard.sh`)が human-copy/ 配下でも `test.yml` という
+  basename を無条件にブロックしたため本コミットには含まれていない
+  (`specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256` に
+  詳細と再現手順を記録、`reports/implementation/
+  epic-191-a3-path-ownership/T-001.md` のBlockersも参照)。
+  ADR-0025 でグロブ意味論・優先順位・六つのFail条件定義を記録。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema

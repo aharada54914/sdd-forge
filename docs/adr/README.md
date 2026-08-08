@@ -114,3 +114,4 @@ must never rely on a bare legacy number.
 | 0024 | Workflow State Registry vs. Project Context | Accepted |
 | 0025 | Risk-Adaptive Adversarial Review Lane | Proposed |
 | 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
+| 0027 | Component Path Ownership Resolver Semantics | Accepted |

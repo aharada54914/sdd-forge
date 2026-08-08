@@ -1,0 +1,60 @@
+=== TEST-001: ** crosses / boundaries ===
+ok: TEST-001.1: src/desktop/** matches src/desktop/file.ts (direct child)
+ok: TEST-001.2: src/desktop/** matches src/desktop/sub/deep/file.ts (nested, crosses /)
+=== TEST-002: bare * confined to one path segment ===
+ok: TEST-002.1: src/*.ts matches src/file.ts
+ok: TEST-002.2: src/*.ts does NOT match src/sub/file.ts (bare * never crosses /)
+=== TEST-003: backslash pattern normalization ===
+ok: TEST-003.1: backslash-separated pattern matches slash-separated path
+=== TEST-004: NFC-normalized matching ===
+ok: TEST-004.1: NFD-encoded raw path matches NFC-encoded 'café/**' pattern
+=== TEST-005: case-sensitive matching ===
+ok: TEST-005.1: 'Src/**' matches 'Src/file.ts'
+ok: TEST-005.2: 'Src/**' does NOT match 'src/file.ts' (case differs)
+=== TEST-006: unsupported metacharacter rejected fail-closed ===
+ok: TEST-006.1: '[abc]' pattern rejected fail-closed at load time (exit 1)
+=== TEST-007: ** zero-segment case ===
+ok: TEST-007.1: 'a/**/b' matches literal 'a/b' (zero intervening segments)
+ok: TEST-007.2: 'a/**/b' also matches 'a/x/b' (one intervening segment)
+ok: TEST-007.3: 'a/**/b' does not match unrelated 'a/c'
+=== TEST-008: empty-set clauses ===
+ok: TEST-008.1: empty changed-paths diff resolves vacuously (0 records, no error)
+ok: TEST-008.2: component with empty include list is a config-load-time error
+=== TEST-009: shared_paths zero-match this resolve ===
+ok: TEST-009.1: a shared_paths entry that matches nothing this resolve does not disturb ordinary classification
+=== TEST-010: NFC collision, raw identity, stable sort ===
+ok: TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed
+ok: TEST-010.2: output raw_path preserves the original NFD byte sequence exactly (not the NFC comparison key)
+ok: TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes
+=== TEST-011: A1 schema-conformance fixture ===
+ok: TEST-011.1: schema-conformance check reports fail-closed non-zero when the artifact is absent (behavior proof)
+ok: TEST-011.2: schema-conformance check reports exit 0 + conformant:true when the artifact matches this parser's shape
+FAIL: TEST-011.3 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: {
+  "conformant": false,
+  "diagnostic": "schema artifact absent: contracts/project-context.template.yaml (Epic A1 has not landed it yet)"
+}
+=== TEST-012: EXCLUSIVE classification ===
+ok: TEST-012.1: single-component match classifies EXCLUSIVE
+ok: TEST-012.2: EXCLUSIVE record names the owning component
+=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ===
+ok: TEST-013.1: a path inside C's own exclude is never attributed to C, even though include also matched
+ok: TEST-014.1: the UNOWNED record carries an EXCLUDED_MATCH evidence tag naming the excluding component + pattern
+=== TEST-015: UNOWNED (Fail-1), ordinary case ===
+ok: TEST-015.1: a path matching no component's include classifies UNOWNED
+ok: TEST-015.2: an ordinary UNOWNED record (no include ever matched) carries no EXCLUDED_MATCH evidence
+=== TEST-016: OVERLAP (Fail-3) ===
+ok: TEST-016.1: a path matching two components' include classifies OVERLAP
+ok: TEST-016.2: OVERLAP record names every residual owner
+=== TEST-017: shared_paths exemption ===
+ok: TEST-017.1: a shared_paths match exempts a path from OVERLAP even when 2 components' include also match
+=== TEST-018: shared_paths shape fail-closed ===
+ok: TEST-018.1: shared_paths entry with BOTH components and classification is rejected fail-closed
+ok: TEST-018.2: shared_paths entry with NEITHER components nor classification is rejected fail-closed
+=== TEST-045: fixture-tree base shape + suite/CI registration ===
+ok: TEST-045.1: base fixture tree has >=2 components with an overlapping candidate owned path
+ok: TEST-045.2: base fixture tree has a nested excluded subtree
+ok: TEST-045.3: base fixture tree has a bounded shared_paths entry
+ok: TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1
+ok: TEST-045.5: staged .github/workflows/test.yml candidate has a MANIFEST.sha256 entry
+
+Results: 36 passed, 1 failed.

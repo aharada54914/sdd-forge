@@ -87,9 +87,20 @@ not by the contract required-set — they are listed in the matrix for completen
 ```
 low      = { lint, typecheck, build, placeholder-scan, task-state-check }
 medium   = low      ∪ { unit-tests, acceptance-tests, regression }
-high     = medium   ∪ { requirement-traceability }      # + tdd red/green, provenance via other gates
+high     = medium   ∪ { requirement-traceability, check-component-coverage }
 critical = high                                         # + signature, two-person via other gates
 ```
+
+- `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):
+  the Reverse Coverage Gate. Added to the `high`/`critical` machine-form
+  required-check-set for reachability (INV-017) — `check-contract`'s own
+  protected, hardcoded tier-minimum set (staged via human-copy since
+  `check-contract.*` is already R-10 protected) is kept textually equal to
+  this line per `tests/gates.tests.sh` T-003's existing invariant. This
+  registration exists so that suffix-protecting `check-component-coverage.*`'s
+  own content does not, by itself, stop an agent from deleting or renaming
+  the unprotected `quality-gate/SKILL.md` invocation line — the
+  required-check-set closes that reachability gap independently.
 
 Notes:
 - `low` deliberately omits `unit-tests` from the required set (test-after); it is

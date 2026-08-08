@@ -1,0 +1,9 @@
+components:
+  - id: c1
+    paths:
+      include:
+        - "shared/**"
+  - id: c2
+    paths:
+      include:
+        - "shared/**"
