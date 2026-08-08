@@ -535,11 +535,38 @@ function commandReferencesProtectedPath(cmd) {
   // substring scan when the tokenizer cannot model the command (fail closed).
   const tokens = tokenizeShellCommand(cmd);
   if (tokens === null) {
+    // The registry stores POSIX-separator suffixes, so the fallback scan must
+    // run over a separator-NORMALIZED copy of the command as well as the raw
+    // text — exactly the normalization isProtectedGateFile already performs on
+    // a single path.
+    //
+    // Without it this fallback was FAIL-OPEN on native Windows. A write target
+    // spelled as a Windows absolute path ("D:\\...\\sdd\\approver-registry.yaml")
+    // both (a) forces the tokenizer to return null — an unquoted backslash is
+    // an unmodeled construct — and (b) leaves the raw text spelling the tail
+    // "sdd\\approver-registry.yaml", which does not contain the registered
+    // "sdd/approver-registry.yaml". The pre-filter therefore returned false and
+    // shellTargetsProtectedGateFile returned "no protected path" — ALLOWING the
+    // write. Only the separator immediately before the registered suffix
+    // mattered, which is why the miss was invisible on POSIX.
+    //
+    // This fallback additionally scans PROTECTED_GATE_PLUGIN_JSON_SUFFIXES,
+    // which it previously omitted altogether — the .py/.ps1 twins have always
+    // scanned both lists here, so the JS twin was the outlier.
+    //
+    // Scanning both texts can only ADD matches, never remove one, so no command
+    // that was denied before can become allowed. Read-only access to a
+    // protected path stays allowed: the read-only short-circuit in
+    // shellTargetsProtectedGateFile is evaluated after this filter.
     const cmdLower = cmd.toLowerCase();
-    return PROTECTED_GATE_SUFFIXES.some(s => {
+    const cmdNorm = cmdLower.replace(/\\/g, '/');
+    return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
       const sl = s.toLowerCase();
+      if (cmdLower.includes(sl) || cmdNorm.includes(sl)) return true;
       // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
-      return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
+      if (!sl.startsWith('/')) return false;
+      const slRel = sl.slice(1);
+      return cmdLower.includes(slRel) || cmdNorm.includes(slRel);
     });
   }
   for (const [kind, text] of tokens) {

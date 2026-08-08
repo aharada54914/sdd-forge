@@ -1,6 +1,6 @@
-278671840ed42eefd85097432033accb58c837a8f5d14761a7f3a265dadcaa11  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
-d860e6592833339ecaae2f17b3be09b4fa3a8addaa618bf59e5f35e5837688af  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
-9ce53eb1a7494d895425519d1aa5bfb9e9533f9e31fd1cd6fcb112c1ef1df81a  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+d0bdab976c1f7321503cc61205fd2dbcbbd37631492e6689a38b6f334447894a  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+6e1e8c1a4225e36a593c61ae4f2d02a543f9f6f025569b31a3a9e966dce1f500  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+28edb5796a6b557666f34655430b83f62f1266fd0628b9e40bd4a5d444e44e6f  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840  plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
 ca9183c7cacecdd12df0d6f5d077b021b316a907460c64db654d3046e3072937  plugins/sdd-quality-loop/scripts/check-contract.ps1
 afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03  plugins/sdd-lite/references/risk-upgrade-policy.md
