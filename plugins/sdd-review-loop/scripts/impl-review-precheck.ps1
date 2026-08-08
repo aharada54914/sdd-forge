@@ -2,7 +2,8 @@ param(
   [Parameter(Mandatory = $true)][string]$Feature,
   [Parameter(Mandatory = $true)][string]$Attempt,
   [Parameter(Mandatory = $true)][string]$Round,
-  [switch]$VerifyInputs
+  [switch]$VerifyInputs,
+  [switch]$ProvenanceRereview
 )
 
 $ErrorActionPreference = 'Stop'
@@ -237,13 +238,45 @@ if ($VerifyInputs) {
 
 if (Test-Path -LiteralPath $report) { Fail 'round destination already exists (replay is forbidden)' }
 $powerShellExe = (Get-Process -Id $PID).Path
-& $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
-if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
+if ($ProvenanceRereview) {
+  # Post-implementation evidence re-binding; POSIX parity with
+  # impl-review-precheck.sh's --provenance-rereview. Same guard: a prior
+  # persisted PASS at this stage must already exist, so the mode can only
+  # re-bind evidence for a design that genuinely passed. The canonical gate is
+  # advisory rather than fatal here, because a stale impl-stage contract hash is
+  # the condition this mode exists to repair.
+  $priorPass = $false
+  $verdictRoot = Join-Path $root "reports/impl-review/$Feature"
+  if (Test-Path -LiteralPath $verdictRoot) {
+    foreach ($verdictFile in (Get-ChildItem -LiteralPath $verdictRoot -Recurse -File -Filter 'integrated-verdict.json' -ErrorAction SilentlyContinue)) {
+      if ($verdictFile.LinkType) { continue }
+      try { $verdict = Get-Content -Raw -LiteralPath $verdictFile.FullName | ConvertFrom-Json } catch { continue }
+      if ((Test-OrdinalEqual $verdict.feature $Feature) -and
+          (Test-OrdinalEqual $verdict.stage 'impl') -and
+          (Test-OrdinalEqual $verdict.verdict 'PASS')) { $priorPass = $true; break }
+    }
+  }
+  if (-not $priorPass) { Fail 'provenance re-review requires a prior persisted impl-review PASS verdict' }
+  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  if ($LASTEXITCODE -ne 0) {
+    Write-Warning 'impl-review-precheck: canonical workflow-state validation failed; proceeding under -ProvenanceRereview (impl-stage evidence re-binding in progress).'
+  }
+} else {
+  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
+}
 foreach ($path in @($requirements, $design, $acceptance)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" } }
 $specStatus = (Select-String -LiteralPath $requirements -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
 $implStatus = (Select-String -LiteralPath $design -Pattern '^Impl-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
 if ($specStatus -ne 'Passed') { Fail 'requirements.md must declare Spec-Review-Status: Passed' }
-if ($implStatus -ne 'Pending') { Fail 'design.md must declare Impl-Review-Status: Pending' }
+if ($ProvenanceRereview) {
+  # The header stays Passed for the whole re-binding, deliberately. Flipping it
+  # to Pending is not an option: check-workflow-state's task-lifecycle rule
+  # requires every stage to read Passed once any task is Approved or past
+  # Planned, so a Pending header on a shipped feature trades this stage's
+  # contradiction for a worse one.
+  if ($implStatus -ne 'Passed') { Fail "-ProvenanceRereview requires design.md to declare Impl-Review-Status: Passed; it declares '$implStatus'. Without a prior pass there is no provenance to re-bind -- run an ordinary attempt instead." }
+} elseif ($implStatus -ne 'Pending') { Fail 'design.md must declare Impl-Review-Status: Pending' }
 $designHash = (Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower(); $requirementsHash = (Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash = (Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower()
 $calibration = Join-Path $root 'plugins/sdd-review-loop/references/reviewer-calibration.md'
 if (-not (Test-Path -LiteralPath $calibration -PathType Leaf) -or (Get-Item -LiteralPath $calibration).LinkType) { Fail 'plugins/sdd-review-loop/references/reviewer-calibration.md not found' }

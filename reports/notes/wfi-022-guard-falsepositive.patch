@@ -1,0 +1,227 @@
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+@@ -50,7 +50,8 @@
+ 
+ APPROVAL_RE = re.compile(r"Approval:\s*Approved")
+ SECOND_APPROVAL_RE = re.compile(r"Second Approval:\s*Approved")
+-WFI_APPROVAL_RE = re.compile(r"Status:\s*Approved")
++WFI_APPROVAL_RE = re.compile(r"^Status:[ \t]*Approved[ \t]*$", re.MULTILINE)
++WFI_SHELL_APPROVAL_RE = re.compile(r"Status:\s*Approved")
+ DOMAIN_MODEL_APPROVAL_RE = re.compile(r"Domain-Model-Status:\s*Approved")
+ AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
+ TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
+@@ -725,8 +726,14 @@
+         tool_input.get("command"), str
+     ):
+         cmd = tool_input["command"]
+-        if "workflow-improvements/" in cmd.lower() and WFI_APPROVAL_RE.search(cmd):
+-            return True
++        if "workflow-improvements/" in cmd.lower() and WFI_SHELL_APPROVAL_RE.search(cmd):
++            has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
++            has_redirect = _wfi_shell_has_redirect(cmd)
++            if SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write and not has_redirect:
++                return False
++            if has_write or has_redirect:
++                return True
++            return bool(WFI_APPROVAL_RE.search(cmd))
+         return False
+ 
+     file_path = tool_input.get("file_path") or ""
+@@ -735,11 +742,12 @@
+ 
+     if isinstance(tool_input.get("edits"), list):
+         for edit in tool_input["edits"]:
+-            if wfi_count((edit or {}).get("new_string")) > 0:
++            current = edit or {}
++            if wfi_count(current.get("new_string")) > wfi_count(current.get("old_string")):
+                 return True
+         return False
+     elif "new_string" in tool_input:
+-        return wfi_count(tool_input.get("new_string")) > 0
++        return wfi_count(tool_input.get("new_string")) > wfi_count(tool_input.get("old_string"))
+     elif "content" in tool_input:
+         return _wfi_write_content_increases(file_path, tool_input.get("content") or "")
+     else:
+@@ -756,6 +764,14 @@
+     return wfi_count(new_content) > wfi_count(old_content)
+ 
+ 
++def _wfi_shell_has_redirect(command):
++    """Return True when the existing shell tokenizer finds a redirect token."""
++    tokens = _tokenize_shell_command(command)
++    if tokens is None:
++        return True
++    return any(kind == "word" and _SHELL_REDIRECT_TOKEN_RE.match(word) for kind, word in tokens)
++
++
+ def _wfi_patch_increases(patch):
+     """Parse a Codex patch envelope; return True if net Status: Approved added to a WFI file."""
+     current_is_wfi = False
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+@@ -102,7 +102,8 @@
+ 
+ const APPROVAL_RE = /Approval:\s*Approved/g;
+ const SECOND_APPROVAL_RE = /Second Approval:\s*Approved/g;
+-const WFI_APPROVAL_RE = /Status:\s*Approved/g;
++const WFI_APPROVAL_RE = /^Status:[ \t]*Approved[ \t]*$/gm;
++const WFI_SHELL_APPROVAL_RE = /Status:\s*Approved/g;
+ const DOMAIN_MODEL_APPROVAL_RE = /Domain-Model-Status:\s*Approved/g;
+ const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
+ const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
+@@ -1065,8 +1066,14 @@
+   }
+ 
+   if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+-    if (command.toLowerCase().includes('workflow-improvements/') && wfiCount(command) > 0) {
+-      return true;
++    WFI_SHELL_APPROVAL_RE.lastIndex = 0;
++    if (command.toLowerCase().includes('workflow-improvements/') && WFI_SHELL_APPROVAL_RE.test(command)) {
++      const hasWrite = SHELL_SUDO_WRITE_RE.test(command);
++      const hasRedirect = wfiShellHasRedirect(command);
++      if (SHELL_SUDO_READ_ONLY_RE.test(command) && !hasWrite && !hasRedirect) return false;
++      if (hasWrite || hasRedirect) return true;
++      WFI_APPROVAL_RE.lastIndex = 0;
++      return WFI_APPROVAL_RE.test(command);
+     }
+     return false;
+   }
+@@ -1077,13 +1084,13 @@
+   if (Array.isArray(toolInput.edits)) {
+     for (const edit of toolInput.edits) {
+       const e = edit || {};
+-      if (wfiCount(e.new_string) > 0) {
++      if (wfiCount(e.new_string) > wfiCount(e.old_string)) {
+         return true;
+       }
+     }
+     return false;
+   } else if ('new_string' in toolInput) {
+-    return wfiCount(toolInput.new_string) > 0;
++    return wfiCount(toolInput.new_string) > wfiCount(toolInput.old_string);
+   } else if ('content' in toolInput) {
+     return wfiWriteContentIncreases(filePath, toolInput.content || '');
+   } else {
+@@ -1101,6 +1108,12 @@
+   return wfiCount(newContent) > wfiCount(oldContent);
+ }
+ 
++function wfiShellHasRedirect(command) {
++  const tokens = tokenizeShellCommand(command);
++  if (tokens === null) return true;
++  return tokens.some(([kind, word]) => kind === 'word' && SHELL_REDIRECT_TOKEN_RE.test(word));
++}
++
+ function wfiPatchIncreases(patch) {
+   let currentIsWfi = false;
+   let added = 0;
+--- a/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
++++ b/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+@@ -212,7 +212,7 @@
+ function Get-WfiCount {
+     param([string]$Text)
+     if ([string]::IsNullOrEmpty($Text)) { return 0 }
+-    return ([regex]::Matches($Text, "Status:\s*Approved")).Count
++    return ([regex]::Matches($Text, "^Status:[ \t]*Approved[ \t]*$", [System.Text.RegularExpressions.RegexOptions]::Multiline)).Count
+ }
+ 
+ function Test-DomainContextMapPath {
+@@ -1143,7 +1143,12 @@
+ 
+     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+         if ($command.ToLower().Contains("workflow-improvements/") -and [regex]::IsMatch($command, "Status:\s*Approved")) {
+-            return $true
++            $hasWrite = [regex]::IsMatch($command, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
++            $hasRedirect = Test-WfiShellHasRedirect $command
++            $isReadOnlyStart = [regex]::IsMatch($command, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
++            if ($isReadOnlyStart -and (-not $hasWrite) -and (-not $hasRedirect)) { return $false }
++            if ($hasWrite -or $hasRedirect) { return $true }
++            return [regex]::IsMatch($command, "^Status:[ \t]*Approved[ \t]*$", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+         }
+         return $false
+     }
+@@ -1153,13 +1158,13 @@
+ 
+     if ($toolInput.PSObject.Properties["edits"] -and $null -ne $toolInput.edits) {
+         foreach ($edit in $toolInput.edits) {
+-            if ((Get-WfiCount ([string]$edit.new_string)) -gt 0) {
++            if ((Get-WfiCount ([string]$edit.new_string)) -gt (Get-WfiCount ([string]$edit.old_string))) {
+                 return $true
+             }
+         }
+         return $false
+     } elseif ($toolInput.PSObject.Properties["new_string"]) {
+-        return (Get-WfiCount ([string]$toolInput.new_string)) -gt 0
++        return (Get-WfiCount ([string]$toolInput.new_string)) -gt (Get-WfiCount ([string]$toolInput.old_string))
+     } elseif ($toolInput.PSObject.Properties["content"]) {
+         return Test-WfiWriteContentIncreases $filePath ([string]$toolInput.content)
+     } else {
+@@ -1167,6 +1172,16 @@
+     }
+ }
+ 
++function Test-WfiShellHasRedirect {
++    param([string]$Command)
++    $result = Tokenize-ShellCommand $Command
++    if ($null -eq $result) { return $true }
++    foreach ($token in $result.Tokens) {
++        if ($token[0] -eq "word" -and [regex]::IsMatch($token[1], $ShellRedirectTokenRe)) { return $true }
++    }
++    return $false
++}
++
+ function Test-SecondApprovalPatchIncreases {
+     param([string]$Patch)
+     $currentIsTasks = $false
+--- a/tests/guard-parity.tests.sh
++++ b/tests/guard-parity.tests.sh
+@@ -529,7 +529,48 @@
+     "wfi016: outside CWD + FAIL verdict still denied" 2 \
+     "$WFI016_PAYLOAD"
+ 
++# ---------------------------------------------------------------------------
++# WFI-022: WFI approval matching is column-0/full-line precise, Edit and
++# edits[] compare net counts, and shell read-only detection reuses the guard's
++# generated write/redirect invariants. Assemble the protected marker at runtime
++# so this detection suite is not its own false-positive fixture (WFI-012).
+ # ---------------------------------------------------------------------------
++WFI_STATUS_FIELD='Status:'
++WFI_APPROVED_VALUE=' Approved'
++WFI_APPROVAL_MARKER="${WFI_STATUS_FIELD}${WFI_APPROVED_VALUE}"
++WFI_APPLIED_MARKER="${WFI_STATUS_FIELD} Applied"
++WFI_QUOTED_PROSE="The guard rejects \`${WFI_APPROVAL_MARKER}\` when it is a field."
++
++# Reproduced false positive 1: an Edit adds only a prose mention (allow).
++parity_check "wfi022: prose-quoting Edit allowed" 0 \
++    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"## Result\\nPending.\",\"new_string\":\"## Result\\n${WFI_QUOTED_PROSE}\"}}"
++
++# edits[] uses the same net-count rule: removing a field is allowed.
++parity_check "wfi022: edits list net removal allowed" 0 \
++    "{\"tool_name\":\"multiedit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"edits\":[{\"old_string\":\"${WFI_APPROVAL_MARKER}\",\"new_string\":\"${WFI_APPLIED_MARKER}\"}]}}"
++
++# Reproduced false positive 2: grep is read-only and has no redirect (allow).
++parity_check "wfi022: read-only grep allowed" 0 \
++    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -H '${WFI_APPROVAL_MARKER}' docs/workflow-improvements/WFI-001.md docs/workflow-improvements/WFI-002.md\"}}"
++
++# Reproduced false positive 3: the removal command's marker is not a field
++# line in the command text (allow). No shell-side net-effect inference is used.
++parity_check "wfi022: approval-removing sed allowed" 0 \
++    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"sed -i '' 's/^${WFI_APPROVAL_MARKER}$/${WFI_APPLIED_MARKER}/' docs/workflow-improvements/WFI-001.md\"}}"
++
++# Reproduced false positive 4: creating prose that quotes the field (allow).
++parity_check "wfi022: Write of WFI prose mention allowed" 0 \
++    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/docs/workflow-improvements/WFI-022-copy.md\",\"content\":\"# Evidence\\n\\n${WFI_QUOTED_PROSE}\"}}"
++
++# Real bypass 1: a Write adds the column-0 field (deny).
++parity_check "wfi022: Write adding approval field denied" 2 \
++    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"content\":\"${WFI_APPROVAL_MARKER}\\n\"}}"
++
++# Real bypass 2: the broad shell marker remains active for redirects (deny).
++parity_check "wfi022: redirect append of approval field denied" 2 \
++    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"printf '${WFI_APPROVAL_MARKER}\\\\n' >> docs/workflow-improvements/WFI-001.md\"}}"
++
++# ---------------------------------------------------------------------------
+ # Summary
+ # ---------------------------------------------------------------------------
+ echo ""
+

@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-a-seq0496",
+  "host_session_id": "SESS-task-task-reviewer-a-mcp-readonly-preflight-0496",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/dependency-graph.json",
+      "sha256": "754ef47814ecdef66081a0565ae54b05158c0ea607ac21e099f6fbe41be626d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+      "sha256": "f9d7177be6f0ff74c2d7267ae5bd6d6c89173a7e6bb0babc86222658d4fb6375"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+      "sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/tasks.md",
+      "sha256": "c2894f512692878ef207d49063c817c54aceafaf89336717bdcf79e95e6db5af"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/traceability.md",
+      "sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC cited in tasks.md Requirements fields (AC-001,002,004-027,027a,027b across T-001 tasks.md:282-286, T-002 tasks.md:416-419, T-003 tasks.md:540, T-004 tasks.md:600-601, T-005 tasks.md:667) resolves to a real criterion heading in acceptance-tests.md (Test Matrix rows, acceptance-tests.md:11-39). AC-003 appears only in tasks.md:210-213 as commentary confirming its deliberate vacancy, matching acceptance-tests.md:5's own 'AC-003 is intentionally vacant' note -- not used as a dangling reference. No dangling ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All five tasks carry 'Blockers: None' (tasks.md:288, 421, 542, 603, 669), the valid literal form. precheck-result.json records blockers_format_valid: true, consistent with direct inspection."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md defines REQ-001 through REQ-011 (requirements.md:50,66,80,106,130,164,181,203,219,231,241). Each appears in at least one task's Requirements field: REQ-001->T-001 (tasks.md:282), REQ-002->T-002 (tasks.md:416), REQ-003->T-001/T-002 (tasks.md:282,416), REQ-004->T-001/T-002 (tasks.md:283,417), REQ-005->T-001/T-002 (tasks.md:283-284,417-418), REQ-006->T-005 (tasks.md:667), REQ-007->T-001/T-002 (tasks.md:284-285,418-419), REQ-008->T-003 (tasks.md:540), REQ-009->T-004 (tasks.md:600), REQ-010->T-002 (tasks.md:419), REQ-011->T-001/T-004 (tasks.md:285,600-601). No uncovered requirement."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 28 live AC identifiers in acceptance-tests.md's Test Matrix (AC-001,002,004-027,027a,027b; AC-003 deliberately vacant per acceptance-tests.md:5) are traceable to a task via the Requirements field: AC-001/004-009/012/017-020/027/027a/027b via T-001 (tasks.md:282-286), AC-002/004-007/010/011/013/017-020/025/026/027a/027b via T-002 (tasks.md:416-419), AC-021/022 via T-003 (tasks.md:540), AC-023/024/027 via T-004 (tasks.md:600-601), AC-014/015/016 via T-005 (tasks.md:667). No uncovered AC."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task's Requirements field cites at least one real REQ: T-001 REQ-001/003/004/005/007/011 (tasks.md:282-286), T-002 REQ-002/003/004/005/007/010 (tasks.md:416-419), T-003 REQ-008 (tasks.md:540), T-004 REQ-009/011 (tasks.md:600-601), T-005 REQ-006 (tasks.md:667). No task uses an INFRA/HOUSEKEEPING pseudo-requirement and none is needed. No orphan tasks."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Only T-005's title ('Verify no MCP server registers a write tool (REQ-006 preservation)', tasks.md:629) contains a trigger word ('Verify'). It references AC-014, AC-015, AC-016 explicitly in its Requirements field (tasks.md:667) and in its Done-When items (tasks.md:678,682,684-688). No test task lacks an AC reference."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "This is task-review attempt 1, round 1 (pre-implementation), so the Draft/Planned rule applies. All five tasks show 'Approval: Draft' and 'Status: Planned' (tasks.md:239/241, 373/375, 505/507, 575/577, 633/635). No field missing or invalid."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 Risk: medium / Required Workflow: acceptance-first (tasks.md:243,265); T-002 medium/acceptance-first (tasks.md:377,402); T-003 medium/acceptance-first (tasks.md:509,528); T-004 medium/acceptance-first (tasks.md:579,591); T-005 Risk: low / Required Workflow: test-after (tasks.md:637,653). All pairings match the risk-gate-matrix (low->test-after, medium->acceptance-first). precheck-result.json records workflow_match_precheck: PASS, consistent with direct inspection. No mismatches."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-004..AC-007, AC-017..AC-020, AC-027a and AC-027b are each claimed by both T-001 and T-002, but every instance carries an explicit '-- bootstrap leg' / '-- ship leg' scope tag distinguishing the two skills (tasks.md:282-285 vs 416-419), matching requirements.md:104's own instruction that each of AC-004..AC-007 'is asserted independently against both skills' and traceability.md:109-116's explicit statement that the split is 'by skill, not by acceptance criterion' with 'No AC ... half-satisfied by one task and half by the other.' AC-027 is claimed by both T-001 (tasks.md:285, 'bootstrap-adjacent regression') and T-004 (tasks.md:600-601, 'regression, via the existing DOCS array') -- an explicit differentiation naming which of the two edited files each task protects against regressing the same shared suite, consistent with REQ-011/AC-027 constraining both edits independently. No unexplained duplicate AC claim found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task's Blockers field is 'None' (tasks.md:288,421,542,603,669); no task references another task ID in Blockers, so there is nothing to verify against dependency-graph.json's nodes array (T-001..T-005). Vacuously satisfied."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json (attempt-1/round-1) shows edges: [] with nodes T-001..T-005 -- an empty edge set cannot contain a cycle. No cycle found."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Task titles each name one coherent concern: T-001 'Add the read-only MCP preflight probe to bootstrap' (tasks.md:235), T-002 'Stage the read-only MCP preflight probe for ship (human-copy)' (tasks.md:369), T-003 'State the advisory / no-write-tools policy in USERGUIDE.md' (tasks.md:501), T-004 same pattern for README.md (tasks.md:571), T-005 'Verify no MCP server registers a write tool (REQ-006 preservation)' (tasks.md:629). None uses 'and' to join two distinct feature concerns; T-003/T-004's two policy claims (AC-021/AC-022 and AC-023/AC-024) are two assertions of one policy statement added in the same document edit, not two decoupled concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "A scan for forbidden vague verbs/phrases inside tasks.md found no instance inside any Done-When list; all 'confirmed' occurrences (tasks.md:476,678,687) name a specific observable result. Each non-documentation task (T-001, T-002, T-005) names a concrete verification artifact in its Done-When list: T-001 cites tests/workflow-documentation.tests.sh passing unmodified and a diff check (tasks.md:364-367) plus a saved verification record path 'specs/mcp-readonly-preflight/verification/T-001/' (tasks.md:361); T-002 cites SHA-256 manifest conformance and diff/provenance checks (tasks.md:467-479); T-005 cites a saved verification artifact under 'specs/mcp-readonly-preflight/verification/T-005/' (tasks.md:692-694). The documentation-only tasks T-003 and T-004 each name the exact file and section whose change proves completion (USERGUIDE.md MCP region :38 onward, tasks.md:559; README.md MCP region :108-142, tasks.md:617), and T-004 additionally cites the existing suite (tasks.md:620-625). No Done-When item requires editing a review-frozen artifact -- T-002's staged-candidate items target the non-frozen specs/mcp-readonly-preflight/human-copy/ addendum path instead (tasks.md:436-441)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Task Mapping table (traceability.md:101-107) lists T-001 through T-005, matching every task ID in tasks.md exactly; no dangling task ID either direction. traceability.md's Requirement Coverage table (traceability.md:23-34) lists REQ-001 through REQ-011, all of which exist in requirements.md (requirements.md:50-241); no dangling requirement ID. For this full-profile feature (registry entry per tasks.md:163), every requirement row carries a canonical layer-spec anchor: REQ-001..004 -> security-spec.md#b1--the-agent--mcp-server-process-boundary-stream-a (traceability.md:24-27), REQ-005/006 -> security-spec.md#b2--the-workflows-decision-authority-stream-a (traceability.md:28-29), REQ-007/011 -> infra-spec.md#cicd-sequence (traceability.md:30,34), REQ-008/009 -> security-spec.md#b4--the-documentation-as-a-capability-inventory-stream-b (traceability.md:31-32), REQ-010 -> security-spec.md#b3--the-protected-file-boundary-stream-a (traceability.md:33). Each anchor was independently re-derived from the actual headings in security-spec.md (lines 7,15,23,29) and infra-spec.md (line 3) using slugification rules, and matches byte-for-byte. No requirement row falls back to N/A."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-a-seq0322",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-189-a1-project-context-0322",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/requirements.md", "sha256": "57437ee89681ce0ab37c04a1e0a30f6fbc53ef28d01ed8eb19c768e3cfc1a482"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/specs/epic-189-a1-project-context/investigation.md", "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/reports/spec-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json", "sha256": "2c35852c8ec3388b010dda98451905b20b2f3ce086b4f80fdc16024a80219ad2"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-011 pairs to named diagnostics, exit codes, or measurable fixture outcomes (e.g. REQ-006's approver-registry addition names DUPLICATE_APPROVER_REGISTRY_ID and defines minItems:0 + id/name required fields, requirements.md:622-648, 1777-1791; REQ-003's canonicalizer rejection categories each get a named diagnostic, lines 240-283). No in-scope requirement relies on unmeasurable language."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each REQ-001..REQ-011 goal traces to at least one AC in acceptance-tests.md/requirements.md's Acceptance Criteria section; the round-2 addition (approver-registry schema, REQ-006) traces to AC-044/AC-045/AC-046 (requirements.md:1704-1739; acceptance-tests.md TEST-044..046)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify externally observable fixture outcomes (schema validate/reject, exact diagnostics, byte-for-byte hash equality, exit codes). AC-044 (schema conformance incl. malformed-registry rejection), AC-045 (duplicate-id rejection), AC-046 (zero-identity verdict + structural fail-closed signing) are each stated as concrete, falsifiable fixture behavior (requirements.md:1704-1739)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md:1187-1254) explicitly excludes the Reverse Coverage Gate, provider-vocabulary fixing, Capability Registry/Resolver/Facet Manifest work, a live sdd-forge project-context instance, wiring beyond A1-time entry points, Artifact/Promotion Gate work, sdd-delivery/operability plugins, running the review loops themselves, and tasks.md/traceability.md authorship -- each with a stated rationale or forced-handoff gate."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security/approval boundaries are stated in the Security Boundaries table (B1-B8, requirements.md:2148-2159) and Roles and Permissions (1908-1951); the approver-registry addition states its own constraint explicitly -- uniqueness is a schema-external semantic check with a named diagnostic, run before REQ-006's distinct-identity count (requirements.md:631-648), and the registry's zero-entry state is declared non-error but structurally fail-closed for signing (Edge Cases, 2035-2053)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:2210-2282) pairs every Critical/High/Medium/Low risk with a specific REQ/AC mitigation (e.g. Critical forgery risk -> REQ-004/REQ-007/AC-023; High under-classification risk -> AC-016/AC-017). The round-1 approver-registry gap itself now has an explicit validation surface: AC-044/045/046."
+    }
+  ]
+}

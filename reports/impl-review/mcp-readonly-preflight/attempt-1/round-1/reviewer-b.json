@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-impl-a1r1-b-seq0482",
+  "host_session_id": "SESS-impl-a1r1-b-mcpreadonlypreflight-0482",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-1/integrated-summary.json",
+      "sha256": "7e140c44404119d2b14767abe142b2c34dead0597235eb44c9add74074c7906f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+      "sha256": "8329a0ee1c074784bf7bb1d5325fa246cac366656d10c3b7d775d0f63f59fc99"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+      "sha256": "b0927b0238f5a2d1603663d970958401204ea993c96b29b0a6af79e36aa0ab97"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "85fe437f4764036aaecd53464adc65e5fe5b03cbbc862a7480af3c62da9e469f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "4e149668d8eb41699006e13027ce253d785a1f9cf2db9da8d3f50ada412ca395"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:55, :99, and :111 justify decisions (the OQ-001 tool-set constraint, the probe-cannot-escalate security guarantee, and D-002 'no MCP server implementation changes, and no new tool') by citing 'REQ-014' three times ('preserved by REQ-014', 'Forced by REQ-014 and ADR-0006's precedent'). requirements.md defines only REQ-001 through REQ-011 (confirmed: grep of '^### REQ-' in requirements.md returns REQ-001..REQ-011 only, no REQ-014 exists anywhere in the file). The write-capability-preservation requirement design.md is actually pointing at is REQ-006 (requirements.md:164, 'no write capability is added to any MCP server'). D-002's stated rationale therefore cites a non-existent requirement and cannot be verified against the current requirements.md as written; the citation must be corrected to REQ-006 for the decision to be checkably justified."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's open-questions tracking (the '## Design Decisions (Resolving Open Questions)' section, design.md:103-130) still presents OQ-005 as unresolved and human-blocking: design.md:17 lists OQ-005 among the three 'load-bearing' unresolved questions; design.md:105 states 'Seven are escalated to the human' and the Escalated table (design.md:115-128, row at :123) lists OQ-005 with 'Why this design does not decide it: The load-bearing one... Whatever it is, outcome equality (AC-012/AC-013) must hold' -- no mention of a resolution; design.md:130 states outright 'OQ-005 is the one that should block.... OQ-005 determines whether there is a specifiable behaviour at all'; and Risks R-1 (design.md:203) still flags 'Implementation starts before OQ-005 is answered' as a live high/high risk requiring 'task decomposition must not schedule the probe step before it resolves'. All of this is superseded: requirements.md:130-160 records that the human resolved OQ-005 on 2026-08-04 to warn-on-divergence (REQ-005, AC-027a, AC-027b), and requirements.md:160 explicitly warns 'investigation.md's OQ-005 entry (:213-214) is superseded by this section and is not to be read as current.' design.md inherits exactly that superseded framing and gives no resolution path pointing to the decision already made. This is stale content, not an absent template sub-field label, and per Legacy Design Mode is not eligible for downgrade. An implementer or task-decomposer relying on design.md alone would wrongly treat OQ-005 as still blocking on a human decision that has already been made and documented."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no standalone '## Assumptions' heading (confirmed via grep of all top-level headings: Architecture Overview, Components, API and Contract Plan, Data Plan, Security Boundaries, Design Decisions, Test Strategy, Deployment and CI Plan, Global Constraints, Risks). This is an absent template field; design.md is marked legacy_design:true in precheck-result.json, so its absence is treated as non-blocking under Legacy Design Mode rather than a Major finding. The design's implicit technical assumptions are each grounded in cited investigation.md evidence: D-001's attempt-and-degrade shape is grounded in INV-002 (design.md:59, dual registration mechanisms in install.sh:357 and :377-378); D-002's tool-set constraint is grounded in INV-006 (server.ts:65-219 tool registry, design.md:53-55); D-003's protected-file handling is grounded in INV-010/INV-011 (guard_invariants.py:4, human-copy precedent, design.md:113). investigation.md is present in this feature, so the 'investigation.md absent' trigger for a Major finding does not apply."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md has no '## Constraint Compliance' section (confirmed via grep), so the Fallback (Major) branch applies. requirements.md REQ-005 (lines 130-160) is the current, spec-review-relevant, enforceable requirement, including the divergence-reporting obligation AC-027a/AC-027b (requirements.md:148-156: 'the agent's output states that a disagreement occurred, and names which source it acted on' / 'the conclusion the agent acts on in the divergent case is the file-based one'). design.md contains zero occurrences of '027a', '027b', 'warn-on-divergence', or 'disagree' anywhere (confirmed by grep across the full file). design.md's Security Boundaries section and its Test Strategy coverage table (design.md:134-166, closing 'Twenty-six live ACs, twenty-seven TEST rows, no AC without a row and no row without an AC' at :166) cover only AC-012/AC-013 outcome equality and are stale relative to the current acceptance-tests.md, which now carries AC-027a/AC-027b and TEST-027a/TEST-027b (acceptance-tests.md:38-39) -- 28 live ACs and 29 TEST rows total, none reflected in design.md. design.md instead affirmatively asserts OQ-005 'is the one that should block' (design.md:130) and Risks R-1 (design.md:203) still treats it as an unanswered high/high risk -- directly contradicting requirements.md's decided resolution and its explicit instruction (requirements.md:160) not to read the superseded framing as current. The same superseded framing has propagated into layer docs reviewed for this gate: ux-spec.md:20 states 'What that narration says is not decided, and this document does not decide it. It is investigation.md OQ-005' and its table (ux-spec.md:22-26) lists warn-on-divergence as merely one of three still-open hypothetical resolutions rather than the decided outcome; security-spec.md:57 similarly hedges 'If OQ-005 resolves toward displaying probe output...' without acknowledging the resolution already occurred on 2026-08-04. None of design.md, ux-spec.md, or security-spec.md reflects the current, authoritative REQ-005 text."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Scanned for numeric thresholds, SLA, throughput, latency, or concurrency language; none exist. This is confirmed by the feature's nature: frontend-spec.md:5 states 'N/A -- no browser, no frontend bundle, no client-side code' and infra-spec.md:24 states 'Nothing is deployed. No service, no container, no IaC resource, no external endpoint, no scheduled job' -- an instructional-prose/documentation feature with no runtime service to bound."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment and CI Plan' (design.md:176-187) states the deployment target (no new CI step; the existing tests/workflow-documentation.tests.sh job must stay green unmodified, design.md:180), the merge-blocking registry-registration prerequisite (design.md:187), and the two-commit staged rollout for the protected ship/SKILL.md leg with expected-red-before-human-copy documented (design.md:185). infra-spec.md's CI/CD Sequence, Deployment Topology, and Rollback sections (infra-spec.md:1-75) add concrete detail: an explicit two-commit ordering table (infra-spec.md:40-44), rollback-ordering hazard for the registry entry (infra-spec.md:71), and partial-rollback direction constraints (infra-spec.md:73). No schema/migration exists (see MIGRATION-PLANNED), so the migration-execution-order sub-bullet does not apply. Feature-flag strategy is not applicable -- this is additive documentation/instructional-prose rolled out via a git-commit-based staging gate rather than a runtime flag, and that is stated as an intentional property of the change (design.md Data Plan; infra-spec.md Deployment Topology)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' (design.md:79-92) states 'No persistent data, no schema, no migration' -- functionally equivalent to the check's 'No data changes' PASS condition. The only durable artifacts added are a workflow-state-registry.json entry (mechanical registration, BL-005) and, conditionally on OQ-007, the human-copy staged file plus manifest -- neither is a column or table change."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## API and Contract Plan' (design.md:36-55) and Components table (design.md:19-34) identify the integration: the three registered MCP servers (sdd-forge-mcp, local-env-mcp, ci-mcp) running as stdio child processes registered by the installer; the contract is named explicitly (the v1 tools schema, with specific tool identifiers get_task_state at :100 and get_next_sdd_command at :236); failure behaviour is described concretely via the attempt-and-degrade shape (design.md:61-64: 'attempt the tool; if it is unavailable or the call fails, continue with the file-based flow below') and cross-referenced against REQ-004/AC-008-011 in Test Strategy. security-spec.md's Trust Boundaries B1 (security-spec.md:7-13) adds the stdio process-boundary detail."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md contains no '## Goals' or '## User Stories' headings (confirmed via grep) -- this requirements.md uses a REQ-XXX structure instead of that template shape, so the check's literal Goals/User-Stories bullet is inapplicable here. Evaluated against REQ-001 through REQ-011 instead: design.md's Components table (design.md:19-34) maps 1:1 to the four target files (bootstrap/SKILL.md, ship/SKILL.md, USERGUIDE.md, README.md), the conditional human-copy staging artifact, and the registry entry, and explicitly marks the mcp trees, install.sh/install.ps1, and the interviewer skill as untouched, matching BL-001 and the OQ-006 deferral. No component, data model, or API endpoint appears in design.md without a corresponding requirement. No design-system/ directory exists in this repository (confirmed), so the UI-component-library sub-check does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "A high-risk surface is present and named by this feature's own security-spec.md: the STRIDE table's B2 Elevation-of-Privilege row (security-spec.md:39) -- 'The agent treats get_next_sdd_command's answer as authoritative and advances or skips a gate on it' -- states this threat is 'closed by REQ-005 / AC-012 / AC-013'. The divergence-reporting behaviour (AC-027a/AC-027b, requirements.md:148-156) is part of that identical threat surface -- an operator must see the disagreement and know which source was authoritative -- yet design.md never names TEST-027a or TEST-027b, or any validation path for the divergence-reporting requirement, anywhere in the document. The Test Strategy coverage table (design.md:134-166) stops at AC-027/TEST-027 and its closing count ('Twenty-six live ACs, twenty-seven TEST rows', design.md:166) does not include AC-027a/AC-027b or TEST-027a/TEST-027b, even though these exist as concrete acceptance-test artifacts in the current acceptance-tests.md (TEST-027a, TEST-027b at acceptance-tests.md:38-39). A reader of design.md alone -- the artifact this gate reviews -- has no way to learn which validation path covers the divergence-reporting requirement."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in this repository, so the precondition for this check (an Approved domain/context-map.md Domain-Model-Status plus a schema-valid domain/domain-contract.json) is absent and the check does not apply."
+    }
+  ]
+}

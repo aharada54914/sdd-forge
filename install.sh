@@ -835,11 +835,14 @@ STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 # only, gated by --skip-mcp / --mcp / the Node >= 20 check), so staging it
 # unconditionally here would bypass that gating.
 if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
-    while IFS= read -r -d '' relative_path; do
-        destination_path="${STAGING_ROOT}/${relative_path}"
-        mkdir -p "$(dirname "$destination_path")"
-        cp -P "${SOURCE_ROOT}/${relative_path}" "$destination_path"
-    done < <(git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**')
+    # One tar pipeline instead of a mkdir+cp process pair per tracked file.
+    # The create side reads the NUL-delimited tracked list, so content still
+    # comes from the working tree, symlinks stay symlinks (as with cp -P),
+    # untracked files still never leak in, and extraction recreates the
+    # parent directories itself.
+    git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**' \
+        | (cd "$SOURCE_ROOT" && tar --null -T - -cf -) \
+        | (cd "$STAGING_ROOT" && tar -xf -)
 else
     for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
         [[ -e "$entry" ]] || continue

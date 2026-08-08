@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/tests/workflow-scenarios/scenario-schema.json",
+  "title": "SDD Forge workflow-scenario fixture (tests/workflow-scenarios/, epic-136-phase3 T-004 / Stream C / issue #125)",
+  "description": "Per-scenario document shape for tests/workflow-scenarios/<scenario-id>.json. fixture_profile is a VERBATIM reuse of docs/adr/0010-loop-inventory-and-fixture-vocabulary.md's closed vocabulary (Decision item 2) -- the exact enum tests/loops/loop-inventory.json:25,47,70,94,115,137,151,165 already carries on all 8 of its own loop entries. No new fixture-classification value is introduced by this schema; ADR-0010 remains the sole normative authority for this field (workflow-scenarios.tests.sh's own TEST-012 asserts this enum is byte-for-byte identical to loop-inventory.json's, not merely visually similar).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "scenario_id",
+    "class_number",
+    "class_name",
+    "class_name_source",
+    "fixture_profile",
+    "coverage_kind",
+    "tool_name_shapes",
+    "assertion_summary"
+  ],
+  "properties": {
+    "scenario_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Matches this document's own filename (without .json), e.g. \"greenfield-cli\"."
+    },
+    "class_number": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "1-indexed position in issue #125's own verbatim 10-class list (investigation.md INV-017). Exactly one scenario document maps to each of 1..10 -- no gap, no duplicate."
+    },
+    "class_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "class_name_source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Citation of where this class's name/wording comes from (issue #125 body / investigation.md INV-017 row), never invented fresh."
+    },
+    "fixture_profile": {
+      "type": "string",
+      "enum": ["greenfield", "brownfield"],
+      "description": "Closed set, ADR-0010 Decision item 2 -- verbatim reuse of loop-inventory.json's own field. No third value is ever valid here."
+    },
+    "coverage_kind": {
+      "type": "string",
+      "enum": ["existing-coverage", "net-new"],
+      "description": "\"existing-coverage\": this scenario references a class investigation.md INV-017 already found tested elsewhere (coverage_refs required, no duplicate assertion authored here). \"net-new\": this class has no scenario-level test before this task (refactor-baseline-missing, inbound-prompt-injection only)."
+    },
+    "coverage_refs": {
+      "type": "array",
+      "description": "Required when coverage_kind == existing-coverage (see the conditional below); the repository-relative file(s)/line(s) investigation.md INV-017 cites as this class's existing coverage. workflow-scenarios.tests.sh's TEST-012 confirms every cited path actually exists on disk (a traceability-integrity check, not merely a textual claim).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "note"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*\\.\\.)[^*]+$"
+          },
+          "line": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "policy_ref": {
+      "type": "object",
+      "description": "Optional: for a net-new scenario anchored to a documented policy (not an existing TEST), the governing reference doc this scenario's assertion reads read-only (e.g. quality-gate-calibration.md).",
+      "additionalProperties": false,
+      "required": ["path", "note"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "line": { "type": "string", "minLength": 1 },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "entry_point": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Named target entry point this scenario proves behavior against, present only for scenario 5 (inbound-prompt-injection) per design.md API/Contract Plan and OQ-6."
+    },
+    "tool_name_shapes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claude_code", "codex"],
+      "description": "requirements.md Field Definitions, REQ-003 leg: this scenario's PreToolUse payload is driven with at least one Claude-Code-shaped and one Codex-shaped tool_name (AC-013).",
+      "properties": {
+        "claude_code": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["Edit", "Write", "MultiEdit", "Bash"] }
+        },
+        "codex": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "enum": ["apply_patch", "exec_command", "shell", "exec"] }
+        }
+      }
+    },
+    "assertion_summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-paragraph description of what workflow-scenarios.tests.sh actually checks for this scenario id (traceability-integrity check for existing-coverage classes; a real fixture-driven assertion for the 2 net-new classes)."
+    }
+  },
+  "if": {
+    "properties": { "coverage_kind": { "const": "existing-coverage" } }
+  },
+  "then": {
+    "required": ["coverage_refs"]
+  },
+  "else": {
+    "not": { "required": ["coverage_refs"] }
+  }
+}

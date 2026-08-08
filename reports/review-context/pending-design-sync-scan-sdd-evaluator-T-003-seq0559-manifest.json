@@ -1,0 +1,114 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-scan",
+  "task_id": "T-003",
+  "run_id": "RUN-design-sync-scan-qg-T-003-seq0559",
+  "host_session_id": "SESS-qg-design-sync-scan-T-003-0559",
+  "sequence": 559,
+  "previous_record_sha256": "9f4f4d27c027063687abf7dbbbfbc684963aa85093410e2e2fe72cee9f966009",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "7b860ae8985a7276420f98a809932e41eeea8af8f2b4587917e73ac61a5929c3",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md",
+      "sha256": "b41980f5adb4bc7a881b5bbbf5dac9ed09f4b978fffa3bdfca23639470d13b47"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-scan/T-003.md",
+      "sha256": "9ee828bd0ff94008479e8dc5a68ca355534351125e61cd088a553e36a6256842"
+    },
+    {
+      "path": "specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "specs/design-sync-scan/design.md",
+      "sha256": "2c8583fc2d049eaafc22cde106c092050d7e3252a387fec0ad7aa86afe259756"
+    },
+    {
+      "path": "specs/design-sync-scan/frontend-spec.md",
+      "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+    },
+    {
+      "path": "specs/design-sync-scan/infra-spec.md",
+      "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+    },
+    {
+      "path": "specs/design-sync-scan/requirements.md",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+    },
+    {
+      "path": "specs/design-sync-scan/security-spec.md",
+      "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+    },
+    {
+      "path": "specs/design-sync-scan/tasks.md",
+      "sha256": "96a7e24f77fc38c17494d839ea7db2dfcf29b0e88a20cfab1b7b5957f9bdaed2"
+    },
+    {
+      "path": "specs/design-sync-scan/traceability.md",
+      "sha256": "1ba636c49eee5aff0608eb5d142d6e1b89da6eb34f9dcc410b876854ed350ee4"
+    },
+    {
+      "path": "specs/design-sync-scan/ux-spec.md",
+      "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/dsc-baseline.ps1.log",
+      "sha256": "63d0d8cda5e4b89ee16ae0c6b3b732b144c1d7dec57fa36efab19e035b389098"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/dsc-baseline.sh.log",
+      "sha256": "108dbbeeb70234d0298b7a44740e1b7698292912f7f6f262d8c65fc600b48d03"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/dsc-post-edit.ps1.log",
+      "sha256": "63d0d8cda5e4b89ee16ae0c6b3b732b144c1d7dec57fa36efab19e035b389098"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/dsc-post-edit.sh.log",
+      "sha256": "108dbbeeb70234d0298b7a44740e1b7698292912f7f6f262d8c65fc600b48d03"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/green.ps1.log",
+      "sha256": "8c890834314efea3a9ea38a3e2237a177eb4bb05906a4d8643e82e468ad9708f"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/green.sh.log",
+      "sha256": "dc9e8bd01fac6ca7ed3978c6f4dd046c07018e4493ca4ed2459f39bbf4bd6cf0"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/red.ps1.log",
+      "sha256": "75a2c83bca88a9f16129c108585f0a3fff47b756ee894f06354eb77cbbd5a20f"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/red.sh.log",
+      "sha256": "c681172690e5eda2de4248108f396eab08869ba46e471d120aba1f3dd909b384"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/standing-post-edit.ps1.log",
+      "sha256": "33e68e28c7b833a748d193d023e37f065ff5d0320cd9c552a8b0d97835fc9d27"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-003/standing-post-edit.sh.log",
+      "sha256": "33e68e28c7b833a748d193d023e37f065ff5d0320cd9c552a8b0d97835fc9d27"
+    },
+    {
+      "path": "tests/design-sync-scan.tests.ps1",
+      "sha256": "4c2ac9d6ffa22c9206109234cf217d10acb7738ab35b2043d000f47db479bf22"
+    },
+    {
+      "path": "tests/design-sync-scan.tests.sh",
+      "sha256": "986592dd0c17a990bfd0566f054f0b30fd21169bffef992e28caad65257ae8e2"
+    }
+  ]
+}

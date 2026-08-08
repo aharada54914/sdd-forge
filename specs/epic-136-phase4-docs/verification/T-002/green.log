@@ -1,0 +1,46 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cross-model.tests.ps1
+Exit: 0
+
+ok: TEST-012: gpt default is extracted from runner source
+ok: TEST-003: gpt accepts unset timeout
+ok: TEST-003: gpt accepts empty timeout
+ok: TEST-003: gpt accepts one timeout
+ok: TEST-003: gpt accepts its source-derived default
+ok: TEST-003: gpt rejects '0' before vendor invocation
+ok: TEST-003: gpt rejects '-5' before vendor invocation
+ok: TEST-003: gpt rejects 'abc' before vendor invocation
+ok: TEST-012: gemini default is extracted from runner source
+ok: TEST-003: gemini accepts unset timeout
+ok: TEST-003: gemini accepts empty timeout
+ok: TEST-003: gemini accepts one timeout
+ok: TEST-003: gemini accepts its source-derived default
+ok: TEST-003: gemini rejects '0' before vendor invocation
+ok: TEST-003: gemini rejects '-5' before vendor invocation
+ok: TEST-003: gemini rejects 'abc' before vendor invocation
+ok: TEST-012: PowerShell runners declare the same source-derived default
+measurement: TEST-004(a) runner=gpt elapsed_ms=2604 limit_ms=10000 stub_pid=37746 stub_alive=0 child_pid=37822 child_alive=0 exit=1 verdict=0
+ok: TEST-004(a): gpt returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gpt timeout exits 1 without a verdict
+measurement: TEST-004(a) runner=gemini elapsed_ms=2614 limit_ms=10000 stub_pid=38123 stub_alive=0 child_pid=38195 child_alive=0 exit=1 verdict=0
+ok: TEST-004(a): gemini returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gemini timeout exits 1 without a verdict
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=3292 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=3306 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=3292 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=3348 exit=0 verdict=1
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=3334 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=3331 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=3612 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=3366 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=3359 exit=0 verdict=1
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=3346 exit=0 verdict=1
+
+Results: 50 passed, 0 failed
+
+Regression command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/collection-layer.tests.ps1
+Results: 27 passed, 0 failed
+
+Regression command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-panelist-effort.tests.ps1
+run-panelist-effort.tests.ps1: 28 passed, 0 failed

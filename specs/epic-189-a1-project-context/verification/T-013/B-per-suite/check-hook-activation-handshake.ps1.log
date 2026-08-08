@@ -1,0 +1,89 @@
+PASS: TEST-027 claude-code: a genuine --emit exit deny signature + matching nonce -> exit 0
+PASS: TEST-027 claude-code: HOOK_ACTIVE reported
+PASS: TEST-027 claude-code: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 claude-code: WRITE_EXECUTED -> CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-027 claude-code: WRITE_EXECUTED reason reported
+PASS: TEST-027 claude-code: executed:false with no guard_emit_mode/exit_code -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 claude-code: UNRECOGNIZED_RESULT reason reported
+PASS: TEST-027 claude-code: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 claude-code: NO_RECORDED_RESULT reason reported
+PASS: TEST-027 claude-code: an otherwise-correct signature with a MISMATCHED nonce -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 claude-code: STALE_CHALLENGE_REJECTED reason reported (never HOOK_ACTIVE without a fresh nonce match)
+PASS: TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0
+PASS: TEST-027 copilot-cli: HOOK_ACTIVE reported
+PASS: TEST-027 copilot-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 copilot-cli: an ABSENT permissionDecision -> exit 64/UNRECOGNIZED_RESULT, never HOOK_ACTIVE
+PASS: TEST-027 copilot-cli: the well-known 'subagent hook often does not fire' case (permissionDecision: allow) -> exit 64/UNRECOGNIZED_RESULT, not a special case
+PASS: TEST-027 copilot-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 copilot-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 codex-cli: plugin_hooks_enabled + denied_by_plugin_hooks + matching nonce -> exit 0
+PASS: TEST-027 codex-cli: HOOK_ACTIVE reported
+PASS: TEST-027 codex-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 codex-cli: an unset/false plugin_hooks_enabled -> exit 65/PLUGIN_HOOKS_DISABLED even when denied_by_plugin_hooks claims true (the collapse-into-hook-not-active case, REQ-010)
+PASS: TEST-027 codex-cli: PLUGIN_HOOKS_DISABLED reason reported, never HOOK_ACTIVE
+PASS: TEST-027 codex-cli: plugin_hooks_enabled true but no denied_by_plugin_hooks -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 codex-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 shared: invalid JSON syntax -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: a non-object (JSON array) top level -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: invalid UTF-8 bytes -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes
+PASS: TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers
+PASS: TEST-027 challenge shape: tool_call_template includes a 'claude-code' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'codex-cli' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'copilot-cli' entry
+PASS: TEST-032 (a) precondition: sentinel absent BEFORE the hook-fires branch
+PASS: TEST-032 (a) hook FIRES: HOOK_ACTIVE
+PASS: TEST-032 (a) the sentinel is absent-AFTER the hook-fires branch too (never created)
+PASS: TEST-032 (a) the live sidecar fixtures are byte-identical before/after (never touched)
+PASS: TEST-032 (b) hook does not fire: CAPABILITY_RUNTIME_UNAVAILABLE/WRITE_EXECUTED
+PASS: TEST-032 (b) a recorded cleanup delete showing success -> exit 0/SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) cleanup_status is SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) the standing capability_status (from the original probe) is restated alongside the cleanup verdict
+PASS: TEST-032 (c1) no cleanup-result evidence recorded at all -> exit 70/NO_CLEANUP_RESULT
+PASS: TEST-032 (c1) cleanup_status is SENTINEL_CLEANUP_UNCONFIRMED
+PASS: TEST-032 (c1) the standing CAPABILITY_RUNTIME_UNAVAILABLE is restated alongside (independent verdicts, never retroactively changed)
+PASS: TEST-032 (c2) the cleanup delete's own attempt was denied (create-to-delete race) -> exit 72/CLEANUP_DENIED, never a privileged force-delete
+PASS: TEST-032 (c2) CLEANUP_DENIED reason reported
+PASS: TEST-032 (c3) a cleanup-result with a MISMATCHED nonce is never confirmed -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-032 stale-start: --emit-challenge with a pre-existing stale sentinel still exits 0
+PASS: TEST-032 stale-start: the pre-existing stale sentinel is reported as a diagnostic (STALE_SENTINEL_DETECTED)
+PASS: TEST-032 stale-start: a fresh, valid challenge is still emitted regardless
+PASS: TEST-032 stale-start: the new challenge carries a non-empty nonce
+PASS: TEST-032 stale-start: the stale sentinel itself is byte-identical before/after --emit-challenge (this script never touches it, only the calling skill does)
+PASS: TEST-032 stale-start: the NEW challenge's own probe still resolves to HOOK_ACTIVE correctly, regardless of the stale-sentinel condition at start
+PASS: TEST-032 stale-start: HOOK_ACTIVE reported for the new challenge
+PASS: TEST-032 no-stale: --emit-challenge with NO pre-existing sentinel exits 0
+PASS: TEST-032 no-stale: no STALE_SENTINEL_DETECTED diagnostic when the sentinel is genuinely absent
+PASS: TEST-032 battery: all three live sidecar/registry fixtures are byte-identical across a full multi-invocation battery (--emit-challenge, HOOK_ACTIVE, WRITE_EXECUTED, confirm-cleanup)
+PASS: TEST-032 battery: the sentinel itself was never created by this script across the whole battery
+PASS: TEST-HARDEN(a) --verify-response with NO --nonce -> exit 2 usage error
+PASS: TEST-HARDEN(a): no raw traceback on stderr
+PASS: TEST-HARDEN(b) --verify-response with NO --recorded-result -> exit 2 usage error
+PASS: TEST-HARDEN(b): no raw traceback on stderr
+PASS: TEST-HARDEN(c) --verify-response with NO --runtime -> exit 2 usage error
+PASS: TEST-HARDEN(c): no raw traceback on stderr
+PASS: TEST-HARDEN(d) an unrecognized --runtime value -> exit 2 usage error
+PASS: TEST-HARDEN(d): no raw traceback on stderr
+PASS: TEST-HARDEN(e) an EMPTY --nonce value -> exit 2 usage error, never accepted as a trivial match
+PASS: TEST-HARDEN(e): no raw traceback on stderr
+PASS: TEST-HARDEN(f) --emit-challenge combined with --nonce -> exit 2 usage error (takes no other arguments)
+PASS: TEST-HARDEN(f): no raw traceback on stderr
+PASS: TEST-HARDEN(g) --confirm-cleanup combined with --recorded-result/--runtime -> exit 2 usage error
+PASS: TEST-HARDEN(g): no raw traceback on stderr
+PASS: TEST-HARDEN(h) --verify-response combined with --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(h): no raw traceback on stderr
+PASS: TEST-HARDEN(i) --confirm-cleanup with NO --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(i): no raw traceback on stderr
+PASS: TEST-HARDEN(j) no mode flag at all -> exit 2 usage error (argparse's own required mutually-exclusive-group check)
+PASS: TEST-HARDEN(k) two mode flags together -> exit 2 usage error (argparse's own mutually-exclusive-group check)
+PASS: TEST-HARDEN(l) an evidence path containing spaces resolves correctly -> exit 0/HOOK_ACTIVE
+PASS: TEST-HARDEN(l): no raw traceback on stderr
+PASS: TEST-HARDEN(m) a string 'executed' field (not boolean) -> exit 64/UNRECOGNIZED_RESULT, never coerced to a truthy/falsy denial
+PASS: TEST-HARDEN(m): no raw traceback on stderr
+PASS: TEST-HARDEN(n) a recorded-cleanup-result with no 'executed' field -> exit 71/CLEANUP_RESULT_UNREADABLE
+PASS: TEST-HARDEN(n): no raw traceback on stderr
+PASS: self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1
+PASS: 87
+FAIL: 0

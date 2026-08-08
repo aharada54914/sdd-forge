@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "design-sync-consent",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "612b0e6eee34393f145ecd4e851102bbe82858373947e2bd1502310861405ae0",
+  "acceptance_sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "91881863b1cfd2fc32e8079595a7fb511ab4570ec2d473387be320f4b17ab0f5",
+  "edit_summary": "OQ-1/2/3/4/5/8 resolved by human decision; decline semantics and destination binding given AC and TEST coverage",
+  "reset": false,
+  "generated_at": "2026-08-04T15:40:48Z"
+}

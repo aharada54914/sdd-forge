@@ -1,0 +1,89 @@
+--- TEST-024/TEST-035P/TEST-039: live document conformance ---
+FAIL: PLUGIN-CONTRACTS.md: contract-block-present (opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: PLUGIN-CONTRACTS.md: contract-table-exact (not parseable: opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: PLUGIN-CONTRACTS.md: handshake-block-present (opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: PLUGIN-CONTRACTS.md: handshake-tokens (no block: opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: contract-block-present (opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: contract-table-exact (not parseable: opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-block-present (opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-tokens (no block: opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-block-present (opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-table-exact (not parseable: opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-block-present (opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-tokens (no block: opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-block-present (opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-table-exact (not parseable: opening marker <!-- sdd:track-selection-contract v1 --> absent)
+FAIL: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-block-present (opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-tokens (no block: opening marker <!-- sdd:handshake-wiring v1 --> absent)
+FAIL: PLUGIN-CONTRACTS.md: fallback-retitled (heading 'Compatibility fallback (no Project Context)' absent)
+FAIL: PLUGIN-CONTRACTS.md: fallback-after-contract (compatibility fallback must follow the four-case rule (heading at -1, contract block ends at -1))
+FAIL: PLUGIN-CONTRACTS.md: fallback-steps (no fallback section to inspect)
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: gates-migrated (gate(s) not gating on the resolved track: ## Specification Review Gate; ## Implementation Policy Review Gate; ## Task Decomposition Review Gate)
+FAIL: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: legacy-gating-removed (pre-migration phrasing survives: If `spec_profile: lite` in AGENTS.md → SKIP; Check AGENTS.md spec_profile. If lite → SKIP)
+--- TEST-026/TEST-039: fixture construction ---
+PASS: TEST-026 fixture: the no-Context project's sdd/project-context.yaml is physically ABSENT
+PASS: TEST-026 fixture: the full-profile project's sdd/project-context.yaml is physically PRESENT
+PASS: TEST-039 fixture: the full-profile project's on-disk spec_profile reads 'full'
+PASS: TEST-039 fixture: the lite-profile project's on-disk spec_profile reads 'lite'
+PASS: TEST-039 fixture: the full-profile project's sidecar PASSES validate-approval-sidecar
+PASS: TEST-039 fixture: the lite-profile project's sidecar PASSES validate-approval-sidecar
+--- TEST-026: six independent present-but-invalid reasons ---
+PASS: TEST-026 (1) missing sidecar file rejected (SIDECAR_UNREADABLE)
+PASS: TEST-026 (2) content-schema violation rejected (CONTENT_SCHEMA_VIOLATION)
+PASS: TEST-026 (3) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-026 (4) HMAC mismatch rejected (HMAC_MISMATCH)
+PASS: TEST-026 (5) unregistered approver rejected (UNREGISTERED_APPROVER)
+PASS: TEST-026 (6) not-yet-effective effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-026: the 'valid-full' invalid fixture is physically PRESENT (never absent)
+PASS: TEST-026: the 'bad-schema' invalid fixture is physically PRESENT (never absent)
+PASS: TEST-026: the 'not-yet-effective' invalid fixture is physically PRESENT (never absent)
+--- TEST-039: six-case matrix x four documents ---
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C1 physically absent -> COMPATIBILITY_FALLBACK (expected [COMPATIBILITY_FALLBACK], got [])
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID (expected [PROJECT_CONTEXT_INVALID], got [])
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C3 lite + --full -> PROMOTE_FULL (expected [PROMOTE_FULL], got [])
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C4 lite + --lite -> NO_OP_LITE (expected [NO_OP_LITE], got [])
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade) (expected [ERROR_STOP], got [])
+FAIL: TEST-039 [PLUGIN-CONTRACTS.md] C6 full + --full -> NO_OP_FULL (expected [NO_OP_FULL], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK (expected [COMPATIBILITY_FALLBACK], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID (expected [PROJECT_CONTEXT_INVALID], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C3 lite + --full -> PROMOTE_FULL (expected [PROMOTE_FULL], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C4 lite + --lite -> NO_OP_LITE (expected [NO_OP_LITE], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade) (expected [ERROR_STOP], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C6 full + --full -> NO_OP_FULL (expected [NO_OP_FULL], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK (expected [COMPATIBILITY_FALLBACK], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID (expected [PROJECT_CONTEXT_INVALID], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C3 lite + --full -> PROMOTE_FULL (expected [PROMOTE_FULL], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C4 lite + --lite -> NO_OP_LITE (expected [NO_OP_LITE], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade) (expected [ERROR_STOP], got [])
+FAIL: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C6 full + --full -> NO_OP_FULL (expected [NO_OP_FULL], got [])
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK (expected [COMPATIBILITY_FALLBACK], got [])
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID (expected [PROJECT_CONTEXT_INVALID], got [])
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C3 lite + --full -> PROMOTE_FULL (expected [PROMOTE_FULL], got [])
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C4 lite + --lite -> NO_OP_LITE (expected [NO_OP_LITE], got [])
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade) (expected [ERROR_STOP], got [])
+FAIL: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C6 full + --full -> NO_OP_FULL (expected [NO_OP_FULL], got [])
+--- TEST-026: the two routes are genuinely distinct ---
+FAIL: TEST-026 [PLUGIN-CONTRACTS.md] the absent route and the present-but-invalid route must resolve DIFFERENTLY (C1=[] C2=[])
+FAIL: TEST-026 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] the absent route and the present-but-invalid route must resolve DIFFERENTLY (C1=[] C2=[])
+FAIL: TEST-026 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] the absent route and the present-but-invalid route must resolve DIFFERENTLY (C1=[] C2=[])
+FAIL: TEST-026 [plugins/sdd-lite/skills/lite-gate/SKILL.md] the absent route and the present-but-invalid route must resolve DIFFERENTLY (C1=[] C2=[])
+--- TEST-MUT: mutation detection power ---
+FAIL: TEST-MUT baseline: the pristine document copy CONFORMS (mutations below are measurable) -- 21 finding(s)
+FAIL: TEST-MUT (1) routing C2 to the compatibility fallback is REJECTED (the B5 fail-open defect) (mutation could not be applied: mutation 'c2-to-fallback' changed nothing in PLUGIN-CONTRACTS.md)
+FAIL: TEST-MUT (2) honoring --lite against a full profile is REJECTED (the ADR-0023 silent downgrade) (mutation could not be applied: mutation 'c5-silent-downgrade' changed nothing in PLUGIN-CONTRACTS.md)
+FAIL: TEST-MUT (3) deleting the present-but-invalid case entirely is REJECTED (mutation could not be applied: mutation 'drop-c2' changed nothing in PLUGIN-CONTRACTS.md)
+FAIL: TEST-MUT (4) swapping the absent and present-but-invalid preconditions is REJECTED (mutation could not be applied: mutation 'swap-c1-c2-state' changed nothing in PLUGIN-CONTRACTS.md)
+FAIL: TEST-MUT (5) demoting the four-case rule below the compatibility fallback is REJECTED (AC-024 ordering) (mutation could not be applied: mutation 'table-after-fallback' changed nothing in PLUGIN-CONTRACTS.md)
+FAIL: TEST-MUT (6) restoring a pre-migration AGENTS.md gate phrase is REJECTED (not measurable: the pristine baseline does not conform)
+FAIL: TEST-MUT (7) the silent-downgrade defect is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically (mutation could not be applied: mutation 'c5-silent-downgrade' changed nothing in plugins/sdd-bootstrap/skills/bootstrap/SKILL.md)
+FAIL: TEST-MUT (8) the silent-downgrade defect is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically (mutation could not be applied: mutation 'c5-silent-downgrade' changed nothing in plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md)
+FAIL: TEST-MUT (9) the silent-downgrade defect is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically (mutation could not be applied: mutation 'c5-silent-downgrade' changed nothing in plugins/sdd-lite/skills/lite-gate/SKILL.md)
+FAIL: TEST-MUT (10) removing the handshake wiring is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically (mutation could not be applied: mutation 'drop-handshake' changed nothing in plugins/sdd-bootstrap/skills/bootstrap/SKILL.md)
+FAIL: TEST-MUT (11) removing the handshake wiring is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically (mutation could not be applied: mutation 'drop-handshake' changed nothing in plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md)
+FAIL: TEST-MUT (12) removing the handshake wiring is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically (mutation could not be applied: mutation 'drop-handshake' changed nothing in plugins/sdd-lite/skills/lite-gate/SKILL.md)
+--- self-registration ---
+FAIL: self-registration: tests/plugin-contracts-track-selection.tests.sh registered in tests/run-all.sh
+FAIL: self-registration: tests/plugin-contracts-track-selection.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/plugin-contracts-track-selection.tests.ps1 twin exists
+PASS: 16
+FAIL: 64

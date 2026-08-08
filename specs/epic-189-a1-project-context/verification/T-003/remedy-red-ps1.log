@@ -1,0 +1,111 @@
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+PASS: TEST-011 staged signing succeeds (exit 0)
+PASS: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist
+PASS: TEST-011 approved-context snapshot is byte-exact with the live content file
+PASS: TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes
+PASS: TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256
+PASS: TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation
+PASS: TEST-011 no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY
+PASS: TEST-011 no-key refusal writes NO staged artifact at all
+PASS: TEST-012 two sidecars differing ONLY in hmac produce an identical preimage
+PASS: TEST-013 case 1/4 (env var): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 4/4 (none resolvable): both resolvers return None
+PASS: TEST-034 the live sidecar path is never opened for writing (byte-identical before/after)
+PASS: TEST-034 a simulated failure after the sidecar write leaves no partial artifact at the staged path
+PASS: TEST-034 no stray temp staging directory remains after a simulated failure
+PASS: TEST-034 a simulated failure after the snapshot write leaves no partial artifact at the staged path
+PASS: TEST-034 a re-run after a mid-write failure succeeds with a fresh nonce/staging subdirectory
+PASS: TEST-036 golden vector's HMAC matches the hand-verified expected value
+PASS: TEST-036 mutating schema changes the HMAC
+PASS: TEST-036 mutating context_sha256 changes the HMAC
+PASS: TEST-036 mutating primary_approval.status changes the HMAC
+PASS: TEST-036 mutating primary_approval.approver changes the HMAC
+PASS: TEST-036 mutating primary_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating second_approval.status changes the HMAC
+PASS: TEST-036 mutating second_approval.approver changes the HMAC
+PASS: TEST-036 mutating second_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating effective_at changes the HMAC
+PASS: TEST-036 mutating predecessor_context_sha256 changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.policy_weakening changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.categories.capability_enforcement_weakened changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.two_person_required changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.cooldown_hours changes the HMAC
+PASS: TEST-036 mutating approval_epoch changes the HMAC
+PASS: SEAM bootstrap (no live sidecar): signing succeeds
+PASS: SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1
+PASS: SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE
+PASS: SEAM non-bootstrap: writes NO staged candidate
+PASS: TEST-HARDEN(a) identical primary/second approver id refused (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-HARDEN(a) DUPLICATE_APPROVER_IDENTITY refusal writes no staged artifact
+PASS: TEST-HARDEN(b) an invalid-UTF-8/unpaired-surrogate field value is rejected (PREIMAGE_CANONICALIZATION_FAILED), never a traceback
+PASS: TEST-HARDEN(c) a missing required argument (--live-sidecar) is a clean usage error (exit 2)
+PASS: TEST-HARDEN(c) --status not exactly "Approved" is a clean usage error (exit 2)
+FAIL: TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback: exit 1; Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 529, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 513, in main
+    _write_staged_outputs(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        stage_dir, args.schema, sidecar, content_bytes, nonce,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        simulate_failure=args.simulate_mid_write_failure,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 347, in _write_staged_outputs
+    os.rename(tmp_leaf, stage_dir)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+OSError: [Errno 66] Directory not empty: '/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test-d44039ad4ece4439b75d5d763e1bddf4/.tmp-1e3b65f9365d27095beea390cad711e647219828b4a5b4c5f71784e0b5d1a9f0' -> '/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test-d44039ad4ece4439b75d5d763e1bddf4/stage-collide-dir'
+
+PASS: TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it
+PASS: TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory
+FAIL: TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback: exit 1; Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 529, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 513, in main
+    _write_staged_outputs(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        stage_dir, args.schema, sidecar, content_bytes, nonce,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        simulate_failure=args.simulate_mid_write_failure,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 347, in _write_staged_outputs
+    os.rename(tmp_leaf, stage_dir)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+NotADirectoryError: [Errno 20] Not a directory: '/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test-d44039ad4ece4439b75d5d763e1bddf4/.tmp-ab370ebfda5d8fdfd6a1365fc5fa04f69b9545431571fae23844f5e4ad806d6b' -> '/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test-d44039ad4ece4439b75d5d763e1bddf4/stage-collide-file'
+
+PASS: TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory
+FAIL: TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback: exit 1; Traceback (most recent call last):
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 529, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 513, in main
+    _write_staged_outputs(
+    ~~~~~~~~~~~~~~~~~~~~~^
+        stage_dir, args.schema, sidecar, content_bytes, nonce,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        simulate_failure=args.simulate_mid_write_failure,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py", line 302, in _write_staged_outputs
+    os.makedirs(parent_dir, exist_ok=True)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen os>", line 226, in makedirs
+  File "<frozen os>", line 226, in makedirs
+  File "<frozen os>", line 236, in makedirs
+NotADirectoryError: [Errno 20] Not a directory: 'sdd/.staging'
+
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere
+PASS: self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: 52
+FAIL: 3

@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SDD Forge approval sidecar",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "context_sha256", "primary_approval", "second_approval", "effective_at", "predecessor_context_sha256", "weakening_verdict", "approval_epoch", "hmac"],
+  "properties": {
+    "schema": { "enum": ["sdd-project-context-approval/v1", "sdd-provider-bindings-approval/v1"] },
+    "context_sha256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "primary_approval": { "$ref": "#/definitions/approval" },
+    "second_approval": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/approval" }] },
+    "effective_at": { "oneOf": [{ "type": "null" }, { "type": "string", "format": "date-time" }] },
+    "predecessor_context_sha256": { "oneOf": [{ "type": "null" }, { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" }] },
+    "weakening_verdict": { "oneOf": [{ "type": "null" }, { "$ref": "#/definitions/weakening_verdict" }] },
+    "approval_epoch": { "type": "integer", "minimum": 1 },
+    "hmac": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "definitions": {
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "approver", "approved_at"],
+      "properties": {
+        "status": { "const": "Approved" },
+        "approver": { "type": "string", "minLength": 1 },
+        "approved_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "weakening_verdict": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_weakening", "categories", "two_person_required", "cooldown_hours"],
+      "properties": {
+        "policy_weakening": { "type": "boolean" },
+        "categories": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["capability_enforcement_weakened", "capability_removed", "component_path_narrowed", "public_distribution_descoped", "criticality_lowered", "provider_allowlist_widened", "production_write_path_changed", "required_gate_removed", "spec_profile_full_to_lite"],
+          "properties": {
+            "capability_enforcement_weakened": { "enum": ["weakened", "not_weakened"] },
+            "capability_removed": { "const": "n/a" },
+            "component_path_narrowed": { "enum": ["weakened", "not_weakened"] },
+            "public_distribution_descoped": { "const": "n/a" },
+            "criticality_lowered": { "const": "n/a" },
+            "provider_allowlist_widened": { "const": "n/a" },
+            "production_write_path_changed": { "const": "n/a" },
+            "required_gate_removed": { "const": "n/a" },
+            "spec_profile_full_to_lite": { "enum": ["weakened", "not_weakened"] }
+          }
+        },
+        "two_person_required": { "type": "boolean" },
+        "cooldown_hours": { "oneOf": [{ "type": "null" }, { "type": "number" }] }
+      }
+    }
+  }
+}

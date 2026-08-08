@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "RUN-epic-136-phase4-docs-task-task-reviewer-a-seq0534",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-136-phase4-docs-0534",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/task-review/epic-136-phase4-docs/attempt-2/round-3/dependency-graph.json",
+      "sha256": "b40549975e58cd797f529ee454d02b778ba6ffee6fb07476b7d46d391a83ae67"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/task-review/epic-136-phase4-docs/attempt-2/round-3/precheck-result.json",
+      "sha256": "2388c69de774bb2adb9951f741829e2ff718d18ad9235a5153d4612a110a888a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/design.md",
+      "sha256": "d98f046a8127125e4e75244aab06645070e4faccf32ea1e82cd8a82ae3027984"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/tasks.md",
+      "sha256": "485721bbe84d2c43bc83c4ed37e0c3034a1d6f975f98a6d9900b32738169904b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/traceability.md",
+      "sha256": "c1b8a57dc0b2b086bdec4538b7704eb52e63585161533e6f6b242704dfc378e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN cited in tasks.md Requirements fields (AC-001..AC-014 across T-001..T-005) resolve to real entries in acceptance-tests.md's Test Matrix (lines 7-20). No dangling ID."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Blockers: None; T-002: T-001; T-003: T-002; T-004: T-003; T-005: T-004 (tasks.md:161,260,339,395,449) \u2014 all literal 'None' or valid T-\\d{3} refs, matching precheck-result.json blockers_format_valid=true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 (requirements.md) each appear in a task Requirements field: REQ-001->T-003, REQ-002->T-001/T-002, REQ-003->T-001/T-002, REQ-004->T-004, REQ-005->T-005, REQ-006->T-001/T-002 (tasks.md:158-159,257-258,337,393,447)."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-014 (acceptance-tests.md) all traced via task Requirements fields; cross-checked against traceability.md Acceptance Mapping table (lines 32-45), no gaps."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task (T-001..T-005) references at least one REQ-NNN in its Requirements field (tasks.md:158,257,337,393,447)."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test'/'spec'/'verify' (T-001..T-005 titles at tasks.md:116,230,309,367,422) and no task is exclusively test-file scoped; all combine runner/doc changes with test assertions. Check target class does not occur, so no violation."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Post-implementation provenance re-review rule applied. T-001..T-005 all carry Approval: Approved and Status: Implementation Complete (tasks.md:120-122,234-236,313-315,371-373,426-428), both within the allowed re-review set."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 high/tdd, T-002 high/tdd, T-003 low/test-after, T-004 medium/acceptance-first, T-005 medium/acceptance-first (tasks.md:124-143,238-246,317-324,375-382,430-436) \u2014 all match risk-gate-matrix pairing; precheck-result.json workflow_match_precheck=PASS confirms."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-003/004/005/011/012 are shared between T-001 and T-002, but titles and Requirements-field leg annotations ('POSIX legs'/'PowerShell legs') make the runtime-scope distinction explicit; traceability.md:64-68 states the split is by runtime, never by AC. No undifferentiated duplicate."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All Blockers references (T-001,T-002,T-003,T-004) exist in dependency-graph.json nodes [\"T-001\"..\"T-005\"]."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges form a single linear chain; tracing from any node terminates without revisiting a node. No cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-004 and T-005 titles use 'and' (tasks.md:367,422) but both clauses are sub-deliverables of a single requirement (REQ-004, REQ-005) added to the same document section, per design.md:141-147's explicit framing; T-001's 'and' joins the bound mechanism with its intrinsic exit-code contract (REQ-002/REQ-003, same code path). No task joins two distinct feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All Done-When items across T-001..T-005 name concrete artifacts/commands (e.g. TEST-001..TEST-014 pass, tests/cross-model.tests.{sh,ps1} pass, 'verified by diff, not by assertion' at tasks.md:214, implementation report RED/GREEN evidence, reports/quality-gate/ evidence). No forbidden vague verbs found. Documentation-only tasks name exact files/sections plus test commands. No item requires editing a frozen artifact."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001..T-005 all present in traceability.md's Requirement Coverage, Acceptance Mapping, and Task Mapping tables; REQ-001..REQ-006 all exist in requirements.md. Full re-sweep of both tables plus Baseline Constraints found no drift. Round-2 fix confirmed: traceability.md:17 REQ-003 row lists 'T-001, T-002', matching tasks.md:257-258. Round-1 fix confirmed: traceability.md:15 REQ-001 anchor resolves to security-spec.md's actual B2 heading; traceability.md:83 BL-003 row matches tasks.md:358-364 verbatim. All 6 Requirement Coverage rows carry canonical anchors verified against actual headings. precheck-result.json's pinned hashes match this round's manifest hashes exactly \u2014 no mid-round drift."
+    }
+  ],
+  "findings": []
+}

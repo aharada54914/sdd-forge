@@ -65,6 +65,24 @@ This will:
 
 Record the `input_digest` for the `--expect-digest` gate check later.
 
+### Step 1.5 — Pre-Panel Readiness (deterministic, fail-closed)
+
+If the task's specification flags an enumerable coverage requirement
+(e.g. "every jq -r site", "every protected-suffix entry", "every declared
+output" — a REQ/AC that enumerates or quantifies), the sanitized bundle
+MUST include a machine-checkable coverage manifest mapping each required
+element to the fixture/artifact that exercises it. Before invoking ANY
+panelist:
+
+- If no such flag exists on this task, skip this step — proceed to Step 2
+  unchanged (no-op for ordinary tasks).
+- If the flag exists and the manifest is present with every element
+  mapped, proceed to Step 2.
+- If the flag exists and any element is unmapped (or the manifest is
+  absent), STOP. Do not invoke any panelist. Report the unmapped elements
+  to the user and require the bundle to be corrected before retrying this
+  skill.
+
 ### Step 2 — Detect available panelists
 
 ```sh

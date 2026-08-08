@@ -1,0 +1,108 @@
+{
+  "task_id": "T-005",
+  "feature": "mcp-readonly-preflight",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "stack": "docs",
+  "spec_revision": "b18c6a438be2554cf84548624011d8396529144108e36a24a799397a6aff4e60",
+  "created": "2026-08-05T13:04:07Z",
+  "comment": "Populated for T-005 (write-tool absence verification, commit 0e8ca00a). Zero product-file changes (BL-001, git diff -- mcp/ empty). unit-tests evidence: the three tool-registry records read directly from source (14/3/5 tools, all read-only; ci-mcp HTTP constrained to GET at type level, TEST-016). Tier low: acceptance/regression not tier-mandated but the shared run-all log exists and is cited as regression anyway.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: docs -- Markdown prose and verification records only; no compile toolchain exists for these artifacts (risk-gate-matrix.md Stack descriptor: lint/typecheck/build waivable on non-code stacks with a reason).",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: docs -- Markdown prose and verification records only; no compile toolchain exists for these artifacts (risk-gate-matrix.md Stack descriptor: lint/typecheck/build waivable on non-code stacks with a reason).",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: docs -- Markdown prose and verification records only; no compile toolchain exists for these artifacts (risk-gate-matrix.md Stack descriptor: lint/typecheck/build waivable on non-code stacks with a reason).",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/qg/placeholder-T-005.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/T-005/04-verification-record.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/T-005/00-acceptance-first-mapping.md",
+      "waiver_reason": "tier low does not mandate acceptance-tests; evidence supplied anyway",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/mcp-readonly-preflight/verification/qg/run-all.log",
+      "waiver_reason": "tier low does not mandate regression; evidence supplied anyway",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

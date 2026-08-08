@@ -148,6 +148,29 @@ routing fails closed as `model-tier-unavailable`. For strong Codex routing,
 high effort is the default. Xhigh is used only when the capability registry or
 a task-specific evaluator contract requires it, with the reason recorded.
 
+### Effort Policy: `welded` vs. `matrix`
+
+`select-agent-model`'s `--effort-policy` flag chooses HOW the winning
+model's reasoning effort is resolved, as a second, independent axis from
+tier selection (`docs/adr/0012-effort-tier-decoupling.md`). As of T-007
+(Issue #155, epic-159-pillar-c Phase 2), the default effort policy is `matrix`:
+effort resolves from `contracts/agent-model-capabilities.v2.json`'s
+`risk_effort_matrix[risk]` (low→low, medium→medium, high→high,
+critical→high), with a one-step escalation bump on a repeated
+same-classified failure, clamped to the winning model's own
+`supported_efforts`; when the matrix has no entry for the supplied risk,
+`role_defaults[role].default_effort` is used instead, falling back to the
+winning model's own `default_effort` as a last resort.
+`--requested-effort <e>` always wins over either policy when explicitly
+supplied, subject to the same clamp and `--xhigh-reason` gate.
+
+`welded` (the sole policy through Phase 1, T-001..T-006) remains fully
+supported indefinitely via an explicit `--effort-policy welded` flag — no
+deprecation timer (OQ-004). It reproduces the pre-Phase-2 byte-identical
+effort selection: a candidate's own declared effort, or the winning
+model's own `default_effort` when none is declared, with no risk-based
+computation at all.
+
 ### Role Floors
 
 | Role | Required tier | Anthropic route | OpenAI/Codex route |

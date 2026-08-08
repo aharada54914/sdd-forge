@@ -1,0 +1,337 @@
+==> tests/validate-repository.ps1
+workflow-state: ok
+OK: plugins/sdd-quality-loop/agents/evaluator.md
+OK: .codex/agents/sdd-evaluator.toml
+OK: plugins/sdd-bootstrap/agents/investigator.md
+OK: .codex/agents/sdd-investigator.toml
+OK: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+OK: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/impl-reviewer-b.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-b.md (protected, read-only)
+---- check summary: 10 targets, 0 drift ----
+Repository validation passed.
+==> tests/scripts.tests.ps1
+ok: check-task-state good
+ok: check-task-state bad
+ok: check-contract default-fail template
+ok: check-contract passing
+ok: check-contract missing evidence
+ok: check-placeholders dirty
+ok: check-placeholders clean
+ok: check-placeholders ps1 lowercase todo passes (prose, RT-20260706-001)
+ok: check-placeholders ps1 uppercase TODO flagged
+ok: check-placeholders ps1 missing path fails closed (issue #127)
+ok: check-task-state header-only exits 1
+ok: check-task-state header-only produces per-field errors
+ok: check-contract duplicate ids
+ok: check-contract evidence escapes root
+ok: check-contract absolute evidence path
+ok: check-contract optional no-waiver fails
+ok: check-contract optional with-waiver passes
+ok: CM.1: cross_model:required passing -> pass
+ok: CM.2: cross_model:required missing check -> fail
+ok: CM.3: cross_model absent (legacy) -> pass
+ok: CM.4: cross_model:waived with reason -> pass
+ok: CM.5: cross_model:bogus (invalid) -> fail
+ok: check-contract baseline id removed
+ok: check-contract baseline downgrade no-waiver fails
+ok: check-contract baseline downgrade with-waiver passes
+ok: T-003.1: LEGACY (no risk field) with baseline set passes
+ok: T-003.2: risk: low with required set passes (unit-tests optional)
+ok: T-003.3: risk: low with build required:false fails correctly
+ok: T-003.4: risk: medium missing acceptance-tests fails correctly
+ok: T-003.5: risk: medium with full required set passes
+ok: T-003.6: risk: high missing requirement-traceability fails correctly
+ok: T-003.7: risk: high with full required set passes
+ok: T-003.8: risk: critical with full required set passes
+ok: T-003.9: risk: 'severe' (invalid) fails correctly
+ok: T-012.1: stack docs waives compile checks with reasons -> passes
+ok: T-012.2: absent stack (=code) keeps build mandatory
+ok: T-012.3: stack docs cannot waive unit-tests (abuse blocked)
+ok: T-012.4: stack docs waiver still requires waiver_reason
+ok: T-012.5: explicit stack code keeps build mandatory
+ok: T-012.6: invalid stack value fails correctly
+ok: T-012.7: stack shell at high+tdd tier waives compile checks -> passes
+ok: T-004.1: LEGACY (no risk, no required_workflow) passes without red/green
+ok: T-004.2: required_workflow: test-after (low) passes without red/green
+ok: T-004.3: required_workflow: tdd with valid red+green evidence passes
+ok: T-004.4: missing red_evidence fails with correct message
+ok: T-004.5: non-existent red_evidence file fails correctly
+ok: T-004.6: risk high with wrong required_workflow fails
+ok: T-004.7: risk high full tier set with tdd red+green passes
+ok: check-task-state duplicate task id
+ok: check-task-state impl-complete no-report fails
+ok: check-task-state impl-complete with-report passes
+ok: check-task-state impl-complete T-900 not matched by T-9000 report (word boundary)
+ok: check-task-state T-900 and T-9000 coexist, each matches own report
+ok: check-task-state blocked with None fails
+ok: check-task-state blocked empty section fails
+ok: check-task-state blocked with real text passes
+ok: check-task-state done without bundle fails
+ok: check-task-state done with bundle passes
+ok: check-evidence-bundle passing
+ok: check-evidence-bundle cross-feature PASS report fails
+ok: check-evidence-bundle empty feature cannot bypass contract binding
+ok: check-evidence-bundle contract feature mismatch fails
+ok: check-evidence-bundle duplicate report features fail
+ok: check-evidence-bundle feature comparison is case-sensitive
+ok: check-evidence-bundle missing passing evidence artifact
+ok: check-evidence-bundle sha mismatch fails
+ok: check-evidence-bundle path safety fails
+ok: check-evidence-bundle bad report fails
+ok: check-evidence-bundle ps1 missing git_commit fails
+ok: check-evidence-bundle ps1 malformed git_commit fails
+ok: check-placeholders catches TODO_REPLACE_WITH_PROJECT_COMMANDS
+ok: check-task-state.sh good
+ok: check-task-state.sh bad
+ok: check-placeholders.sh dirty
+ok: check-task-state.sh duplicate task id
+ok: check-task-state.sh impl-complete no-report fails
+ok: check-task-state.sh impl-complete with-report passes
+ok: check-task-state.sh T-900 not matched by T-9000 report (word boundary)
+ok: check-task-state.sh T-900 and T-9000 coexist, each matches own report
+ok: check-task-state.sh blocked None fails
+ok: check-task-state.sh blocked real text passes
+ok: check-task-state.sh done without bundle fails
+ok: check-task-state.sh done with bundle passes
+ok: check-evidence-bundle.sh passing
+ok: check-evidence-bundle.sh missing passing evidence artifact
+ok: check-placeholders.sh catches TODO_REPLACE_WITH_PROJECT_COMMANDS
+ok: check-placeholders.sh lowercase todo passes (prose, RT-20260706-001)
+ok: check-placeholders.sh uppercase TODO flagged
+ok: check-placeholders.sh missing path fails closed (issue #127)
+ok: check-task-state.sh header-only exits 1
+ok: check-task-state.sh header-only produces per-field errors
+ok: check-contract.sh duplicate ids
+ok: check-contract.sh evidence escapes root
+ok: check-contract.sh absolute evidence path
+ok: check-contract.sh optional no-waiver fails
+ok: check-contract.sh optional with-waiver passes
+ok: check-contract.sh baseline id removed
+ok: check-contract.sh baseline downgrade no-waiver fails
+ok: check-contract.sh baseline downgrade with-waiver passes
+ok: T-002.1: valid task passes
+ok: T-002.2: missing Risk line fails
+ok: T-002.2: missing Risk exits 1
+ok: T-002.3: invalid Risk value fails
+ok: T-002.3: invalid Risk exits 1
+ok: T-002.4: placeholder Risk exits 1
+ok: T-002.5: empty Rationale fails
+ok: T-002.5: empty Rationale exits 1
+ok: T-002.6: missing Rationale exits 1
+ok: T-002.7: two valid tasks pass
+ok: T-002.8: two tasks, one invalid fails
+ok: T-002.9: nonexistent file exits 1
+ok: T-002.10: task-id filter selects valid task
+ok: T-002.11: valid low risk passes
+ok: T-002.12: valid medium risk passes
+ok: T-002.13: valid critical risk passes
+ok: T-002.14: filter task-id not found fails closed
+ok: T-002.15: high risk without Required Workflow fails
+ok: T-002.15: high risk without workflow exits 1
+ok: T-002.16: high risk with acceptance-first fails (must be tdd)
+ok: T-002.16: high risk wrong workflow exits 1
+ok: T-002.17: critical risk without Required Workflow fails
+ok: T-002.17: critical risk without workflow exits 1
+ok: T-002.18: high risk with tdd passes
+ok: T-002.19: critical risk with tdd passes
+ok: T-002.20: medium risk without workflow passes (not over-enforced)
+ok: T-005.1: valid traceability (req+acs+tests, no evidence) passes
+ok: T-005.2: empty acs array fails with correct message
+ok: T-005.3: empty tests array fails with correct message
+ok: T-005.4: missing evidence file fails correctly
+ok: T-005.5: evidence file present and non-empty passes
+ok: T-005.6: require-evidence mode without evidence fails correctly
+ok: T-005.7: require-evidence mode with evidence passes
+ok: T-005.8: invalid JSON fails with correct message
+ok: T-005.9: nonexistent file fails with correct message
+ok: T-005.10: empty links array fails with correct message
+ok: T-005.11: require-evidence + empty array fails closed
+ok: T-006.ps.1a: generate-evidence-bundle succeeds for legacy contract
+ok: T-006.ps.1b: legacy bundle file created at expected path
+ok: T-006.ps.1c: check-evidence-bundle passes on legacy bundle (no risk field)
+ok: T-006.ps.3a: generate-evidence-bundle succeeds for high-risk contract
+ok: T-006.ps.3b: check-evidence-bundle passes on high-risk bundle with full provenance
+ok: T-006.ps.2a: generated bundle contains 'risk' field
+ok: T-006.ps.2b: generated bundle contains 'spec_revision' field
+ok: T-006.ps.2c: generated bundle contains 'build_env' field
+ok: T-006.ps.2d: generated bundle contains 'builder' field
+ok: T-006.ps.2e: generated bundle contains 'review_verdict' field
+ok: T-006.ps.3c: spec_revision is valid 64-char hex
+ok: T-006.ps.3d: review_verdict.verdict is PASS
+ok: T-006.ps.4a: generate-evidence-bundle succeeds even with NEEDS_WORK report
+ok: T-006.ps.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
+ok: T-006.ps.5a: generate-evidence-bundle succeeds (generates empty spec_revision)
+ok: T-006.ps.5: high bundle with empty spec_revision fails check
+ok: T-006.ps.6: risk mismatch (bundle vs contract) fails check
+ok: T-006.ps.7: emptied bundle risk vs high contract fails closed
+ok: T-007a.1a: generate-evidence-bundle succeeds for critical with key
+ok: T-007a.1b: critical bundle file created
+ok: T-007a.1c: critical bundle contains signature field
+ok: T-007a.1d: check-evidence-bundle passes on critical with matching key
+ok: T-007a.2: critical bundle without signature fails check
+ok: T-007a.3: tampered git_commit fails HMAC check
+ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails
+ok: T-007a.5: sigstore with SIGSTORE_VERIFIED env passes
+ok: T-007a.6: verify without key fails
+ok: T-007a.7: critical with dirty tree fails
+ok: T-007a.8: generate critical without key fails
+ok: T-007a.9: high-risk bundle without signature still passes
+ok: T-007a.10: legacy bundle without risk field still passes
+ok: check-sdd-structure complete → OK
+ok: check-sdd-structure missing AGENTS.md + docs/adr → FAIL
+ok: check-sdd-structure drift dir present + complete → OK
+ok: check-sdd-structure advisory-only missing → OK
+ok: check-sdd-structure.sh complete → OK
+ok: check-sdd-structure.sh missing AGENTS.md + docs/adr → FAIL
+ok: check-sdd-structure.sh drift dir present + complete → OK
+ok: check-sdd-structure.sh advisory-only missing → OK
+Testing T-007b: Two-Person Approval (Critical Risk)
+ok: T-007b.1: critical Done without Second Approval fails with correct message
+ok: T-007b.2: critical Done with bare primary Approval fails (needs named)
+ok: T-007b.3: critical Done with same approver fails
+ok: T-007b.4: critical Done with sudo primary approver fails
+ok: T-007b.5: named Approval format accepted
+ok: T-007b.6: sudo Approval format still accepted (backward compat)
+ok: L1: lite Done with impl+VERDICT:PASS passes
+ok: L2: lite Done without Approval:Approved fails
+ok: L3: lite Done with VERDICT:FAIL fails
+ok: L4: lite Done with no impl report fails
+ok: L5: lite duplicate task id fails
+ok: L6: lite CRLF tasks.md passes same as LF
+Script gate tests passed.
+==> tests/review-contract-foundation.tests.ps1
+ok: PowerShell review contract foundation validates canonical input and rejects unsafe inputs
+==> tests/task-context-isolation.tests.ps1
+ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic
+==> tests/rollback-1.5.0.tests.ps1
+ok: PowerShell-native rollback integration passed
+==> tests/downstream-review-precheck.tests.ps1
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+workflow-state: ok
+workflow-state: ok
+Risk check passed for 2 task(s).
+ok: PowerShell downstream prechecks fail closed and preserve graph semantics
+==> tests/impl-layer-review-inputs.tests.ps1
+PASS: PowerShell complete layer input set is hash-bound
+PASS: PowerShell persisted full manifest rejects tamper after registry profile downgrade
+PASS: PowerShell rejects every missing layer input
+PASS: PowerShell rejects path-substituted layer input
+PASS: PowerShell rollback fixture preserves the legacy core-input contract hash
+==> tests/task-layer-review-inputs.tests.ps1
+PASS: PowerShell complete task-review inputs verify
+PASS: PowerShell rejects invalid Layer Spec values
+PASS: PowerShell rejects omitted applicable requirement row
+PASS: PowerShell persisted full manifest rejects tamper after profile downgrade
+PASS: PowerShell rejects missing layer
+PASS: PowerShell binds the Phase 1 design input
+PASS: PowerShell rejects path-substituted layer
+==> tests/cross-model.tests.ps1
+=== AC-002: Diversity checks ===
+ok: CM-001: anthropic-only panel fails (diversity)
+ok: CM-001b: aggregate result=FAIL written
+ok: CM-002: anthropic+openai panel passes diversity
+ok: CM-003: no verdicts → exit 2 (tool error)
+ok: CM-004: openai+google panel passes (non_anthropic>=1, distinct>=2)
+=== AC-003: Schema validation ===
+ok: CM-005: blind=false → exit 2 (schema error)
+ok: CM-006: bad input_digest → exit 2 (schema error)
+ok: CM-007: missing consent.kind → exit 2 (schema error)
+=== AC-004: Consensus checks ===
+ok: CM-008: NEEDS_WORK verdict → exit 1 (consensus fail)
+ok: CM-009: Critical finding → exit 1 (consensus fail)
+ok: CM-010: all PASS no critical → exit 0
+ok: CM-010b: aggregate result=PASS written
+ok: CM-011: --evaluator PASS matches panel → exit 0
+ok: CM-012: evaluator diverges → exit 1
+ok: CM-012b: aggregate result=NEEDS_HUMAN, requires_human_decision=true
+ok: CM-013: --expect-digest matches → exit 0
+ok: CM-014: --expect-digest mismatch → exit 1
+ok: CM-015: aggregate JSON has all required fields
+=== TEST-003/TEST-012: PowerShell timeout configuration ===
+ok: TEST-012: gpt default is extracted from runner source
+ok: TEST-003: gpt accepts unset timeout
+ok: TEST-003: gpt accepts empty timeout
+FAIL: TEST-003: gpt accepts one timeout (exit=1 verdict=False)
+ok: TEST-003: gpt accepts its source-derived default
+ok: TEST-003: gpt rejects '0' before vendor invocation
+ok: TEST-003: gpt rejects '-5' before vendor invocation
+ok: TEST-003: gpt rejects 'abc' before vendor invocation
+ok: TEST-012: gemini default is extracted from runner source
+ok: TEST-003: gemini accepts unset timeout
+ok: TEST-003: gemini accepts empty timeout
+FAIL: TEST-003: gemini accepts one timeout (exit=1 verdict=False)
+ok: TEST-003: gemini accepts its source-derived default
+ok: TEST-003: gemini rejects '0' before vendor invocation
+ok: TEST-003: gemini rejects '-5' before vendor invocation
+ok: TEST-003: gemini rejects 'abc' before vendor invocation
+ok: TEST-012: PowerShell runners declare the same source-derived default
+=== TEST-004(a)/TEST-005: PowerShell timeout lifecycle ===
+measurement: TEST-004(a) runner=gpt elapsed_ms=3983 limit_ms=10000 stub_pid=0 stub_alive=1 child_pid=0 child_alive=1 exit=1 verdict=0
+FAIL: TEST-004(a): gpt returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gpt timeout exits 1 without a verdict
+measurement: TEST-004(a) runner=gemini elapsed_ms=3716 limit_ms=10000 stub_pid=0 stub_alive=1 child_pid=0 child_alive=1 exit=1 verdict=0
+FAIL: TEST-004(a): gemini returns within the wall-clock bound with no stub or child alive
+ok: TEST-005: gemini timeout exits 1 without a verdict
+ok: TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS
+note: TEST-004(b) intentionally has no PowerShell counterpart; TEST-004(a) checks descendant liveness
+=== TEST-004(c): PowerShell near-boundary completion ===
+measurement: TEST-004(c) runner=gpt iteration=1 elapsed_ms=4763 exit=1 verdict=0
+FAIL: TEST-004(c): gpt near-boundary completion iteration 1
+measurement: TEST-004(c) runner=gpt iteration=2 elapsed_ms=4735 exit=1 verdict=0
+FAIL: TEST-004(c): gpt near-boundary completion iteration 2
+measurement: TEST-004(c) runner=gpt iteration=3 elapsed_ms=4727 exit=1 verdict=0
+FAIL: TEST-004(c): gpt near-boundary completion iteration 3
+measurement: TEST-004(c) runner=gpt iteration=4 elapsed_ms=4785 exit=1 verdict=0
+FAIL: TEST-004(c): gpt near-boundary completion iteration 4
+measurement: TEST-004(c) runner=gpt iteration=5 elapsed_ms=4923 exit=1 verdict=0
+FAIL: TEST-004(c): gpt near-boundary completion iteration 5
+measurement: TEST-004(c) runner=gemini iteration=1 elapsed_ms=4976 exit=1 verdict=0
+FAIL: TEST-004(c): gemini near-boundary completion iteration 1
+measurement: TEST-004(c) runner=gemini iteration=2 elapsed_ms=5347 exit=1 verdict=0
+FAIL: TEST-004(c): gemini near-boundary completion iteration 2
+measurement: TEST-004(c) runner=gemini iteration=3 elapsed_ms=5711 exit=1 verdict=0
+FAIL: TEST-004(c): gemini near-boundary completion iteration 3
+measurement: TEST-004(c) runner=gemini iteration=4 elapsed_ms=4971 exit=1 verdict=0
+FAIL: TEST-004(c): gemini near-boundary completion iteration 4
+measurement: TEST-004(c) runner=gemini iteration=5 elapsed_ms=4896 exit=1 verdict=0
+FAIL: TEST-004(c): gemini near-boundary completion iteration 5
+=== TEST-001/002: panelist failure taxonomy ===
+ok: TEST-001: CLI absent states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI exits non-zero states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI rate-limited states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI hangs / exceeds the time bound states exit, no-verdict, and gate propagation
+ok: TEST-001: CLI returns malformed output states exit, no-verdict, and gate propagation
+ok: TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+=== TEST-009/010/014: runtime trust surfaces and closed risk ===
+ok: TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence
+ok: TEST-010: hook-trust bypass explicitly states the first-run approval forfeited
+ok: TEST-014: unbounded external panelist risk is recorded as closed with its timeout control
+
+Results: 48 passed, 14 failed
+[31;1mException: [0m/Users/jrmag/Projects/active/sdd-forge-wt-phase4/tests/run-all.ps1:51[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m  51 | [0m             [36;1mthrow "$testFile failed with exit code $LASTEXITCODE"[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mtests/cross-model.tests.ps1 failed with exit code 1[0m
+EXIT_CODE=1

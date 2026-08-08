@@ -1,0 +1,18 @@
+{
+  "scenario_id": "refactor-baseline-missing",
+  "class_number": 3,
+  "class_name": "refactor baseline missing",
+  "class_name_source": "issue #125 body (代表10種 item 3: \"refactor baseline 欠如\"); investigation.md INV-017 row 3 (net-new, no scenario-level test found)",
+  "fixture_profile": "greenfield",
+  "coverage_kind": "net-new",
+  "policy_ref": {
+    "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+    "line": "40-50",
+    "note": "Differential Verification: \"When no baseline exists, do not block for differential reasons alone. Verify the changed behavior through the approved specification, tests, contracts, and source inspection.\" -- the governing policy this net-new scenario proves a fixture-level precondition for."
+  },
+  "tool_name_shapes": {
+    "claude_code": ["Write"],
+    "codex": ["apply_patch"]
+  },
+  "assertion_summary": "Net-new: tests/quality-loop-calibration.tests.sh already greps for the 'Differential Verification' SECTION HEADING inside quality-gate-calibration.md, but no scenario-level fixture exercises the actual missing-baseline PRECONDITION the section's own body text governs (investigation.md INV-017 row 3). workflow-scenarios.tests.sh's TEST-012 (AC-012, net-new depth) block (a) builds a genuine loop_fixture_init greenfield fixture for a synthetic refactor feature, (b) asserts baseline-behavior.md is genuinely ABSENT inside that fixture BEFORE asserting on the policy (Edge Cases discipline, mirroring guard-dispatch-fallback.tests.sh's assert_absent), and (c) confirms the exact governing sentence in policy_ref is still present verbatim in the real (read-only) quality-gate-calibration.md. This scenario's own scope is the TEST -- it does not invoke a real evaluator/quality-gate LLM session (no suite in this feature does)."
+}

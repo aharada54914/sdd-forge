@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase4docs-impl-a2r1-a-seq0406",
+  "host_session_id": "SESS-impl-a2r1-a-epic136phase4docs-0406",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-1/precheck-result.json",
+      "sha256": "93580f2cd49b36702d70b7edf45ccb53e84e84328a44a23f38f19985ade331d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+      "sha256": "e002264299b1aa944c40a437ecc5f62ad2ef4ec29180a7309fa6684b73682388"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's ## Architecture Overview (5-13) names top-level component boundaries (Stream A: four runner scripts owning the child process; Stream B: docs/THREAT-MODEL.md appended sections) and states integration with an existing component explicitly: 'It deliberately does not go in check-cross-model (BL-002): that gate reads verdict files off disk and never invokes a panelist (INV-004)' (line 9) and 'exit 1 with no verdict file already flows through check-cross-model -> missing verdict -> diversity unmet -> gate fails (INV-005)' (line 11). Technology choices are stated per layer across the document: backend/CLI stack is POSIX shell + PowerShell (## API & Contract Plan 31-106; Components table 15-27), data layer is explicitly 'No data changes' (## Data Plan, line 151), infra is 'No new CI step' (## Deployment & CI Plan, line 226), and frontend is confirmed N/A by frontend-spec.md (line 5). Not a one-sentence description naming components without interaction; it identifies concrete files, line ranges, and design rationale. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. The Components table (design.md:15-27) lists files with a Status/Change column, not a dependency graph. The only directional relationship stated is one-way: runners write a verdict file that check-cross-model reads (design.md:9-11); check-cross-model itself is explicitly Untouched (design.md:27) and never invokes a panelist (INV-004), so no cycle exists."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md:149-160) states 'No data changes' explicitly (line 151) and substantively covers all three required sub-fields even though the literal template labels are not used ([LEGACY COMPAT] labelling variance; precheck-result.json declares legacy_design:true): entities -- 'no database, no persisted schema, and no new document format' (line 151); existing data affected -- the table at 155-158 lists the two on-disk artifacts touched (panelist verdict-file schema, unchanged; SDD_PANELIST_TIMEOUT, new env var, not stored data); migration -- 'No migration, no backfill, and no retention change follows from this' (line 160), cross-referenced by infra-spec.md's Rollback section (32-33). Substance is present; only field labelling differs from a newer template, which the calibration guide instructs not to penalize when intent is met."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## API & Contract Plan' (29-147; heading uses an ampersand rather than a slash, an immaterial legacy variance) is neither absent nor empty, and is not a boilerplate 'No API changes' -- this feature has no HTTP/RPC endpoint (four CLI runner scripts and two Markdown documents; requirements.md names no user-facing interaction), so the section correctly substitutes the feature's actual contract surface: the SDD_PANELIST_TIMEOUT configuration contract (table, 110-118), the bounded-wait function contract for both runtimes (31-106), and the two document contracts being extended (policy taxonomy table 124-131; THREAT-MODEL.md sections 139-147). No breaking or deprecated endpoint exists to disclose. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has '## Security Boundaries' (162-177). It names the trust boundaries the feature actually crosses (B1 vendor CLI process, B2 cross-model consensus signal, B3 threat-model control inventory, B4 hook-trust surface -- table 166-171), each mapped 1:1 to security-spec.md's normatively identical B1-B4 boundaries (security-spec.md:7-25), which design.md explicitly designates as authoritative (line 164) -- consistent with treating layer specs as normative refinements. Authorization is addressed for the domain this feature actually has (no protected-gate file write per BL-005/INV-017; no SDD_SUDO interaction; no secret transport -- lines 175-177) rather than a web auth boundary that does not exist here. Data classification is explicit: 'No secret is read, written, or transported. SDD_PANELIST_TIMEOUT is a non-secret integer' (line 177). OWASP-adjacent concerns are addressed via the cross-referenced STRIDE analysis in security-spec.md:27-37 in place of standard web-app OWASP categories that do not apply to a CLI/doc-only feature with no SQL and no HTML rendering; the closest analogue, config-value injection via SDD_PANELIST_TIMEOUT, is explicitly covered as a Tampering threat (security-spec.md:34) closed by AC-003 validation. No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md carries no 'Feature Type:' header field, but ux-spec.md ('N/A -- no user-facing surface... no rendered, interactive, or GUI surface anywhere', lines 5-9) and frontend-spec.md ('N/A -- no browser or frontend bundle... no HTML, no CSS, no JavaScript', lines 5-7) both independently and explicitly confirm this feature has zero frontend surface. design.md has no Frontend Plan section to check against the API & Contract Plan. The N/A determination in both layer specs is justified: the feature's only artifacts are four CLI scripts, two Markdown documents, and two test suites (Components table, design.md:15-27), consistent with investigation.md's scope (issues #133/#134 name no UI surface)."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's ## Test Strategy (187-222) is otherwise exceptionally thorough: it states an exhaustive AC-to-TEST coverage table (195-210, 14 rows for AC-001..AC-014 matching all 14 TEST-001..TEST-014 IDs 1:1) plus a REQ-to-AC roll-up (line 193) that I independently verified is complete and accurate against requirements.md's six REQ sections. Every 'Delivered by' cell resolves to a concrete, named artifact elsewhere in the document (a specific table, a specific numbered item, or a specific Stream B deliverable), not a bare self-reference -- a real plan, not a lookup index, for 13 of 14 rows. However, item 1's elaboration of AC-003/TEST-003 (design.md:212) directly contradicts acceptance-tests.md and reproduces a defect requirements-side review already caught and fixed. design.md:212: 'Unset, empty, 600, 1, 0, -5, abc. First three proceed; last three exit 2 before the CLI is invoked.' Against this 7-item list, 'first three' (unset, empty, 600) plus 'last three' (0, -5, abc) leaves the 4th item, 1, unclassified -- exactly the error acceptance-tests.md:43 records as previously caught: 'An earlier draft wrote first three / last three against a seven-item list, leaving 1 unclassified. Both round-2 reviewers caught the arithmetic independently.' acceptance-tests.md:40 states the corrected grouping: 'First four (unset, empty, 600, 1): the runner proceeds to invoke the CLI. 1 is a valid bound, not an invalid one -- it is the same value AC-004's timeout sub-cases use.' design.md's own AC-004 elaboration (item 2, line 214) independently relies on SDD_PANELIST_TIMEOUT=1 as a valid, accepted bound, so item 1's unrepaired arithmetic is also internally inconsistent with item 2 in the same section. Concrete failure mode: an implementer following design.md's Test Strategy item 1 literally has no correct instruction for the 1 sub-case of TEST-003 -- the same value item 2 depends on being accepted rather than rejected. This is the identical defect class (a plan reading well against headings while silently carrying a stale/incorrect AC-level detail) that produced attempt 1's three-round BLOCKED escalation, now recurring one level inside the very coverage table built to prevent it."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in ## Architecture Overview and ## API & Contract Plan is defined in the ## Components table (design.md:15-27): all four runner scripts and their PowerShell counterparts, cross-model-verification-policy.md, docs/THREAT-MODEL.md, both test suites, and check-cross-model.sh (marked Untouched). The bounded-wait helper introduced in the API & Contract Plan is defined in place by its full code listing (36-64), not merely referenced. The three MCP servers named in Stream B deliverable 1a (sdd-forge-mcp, local-env-mcp, ci-mcp, line 145) are established system components identifiable from investigation.md (INV-013). No undefined component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md contains no '## Architecture Decision Records' section, and none is required: the feature explicitly reuses an existing repository convention rather than introducing a new one -- 'the portable pattern this repository already uses for a deadline is install.sh:758-781' (design.md:33) -- within established parity (BL-004) and behaviour-preservation (BL-001) constraints. design.md also shows explicit ADR-awareness rather than silent omission: 'ADR-0003 does not apply and there is no rebuild obligation' (line 226), reasoned from the absence of a dist/ bundle. No new technology choice, integration pattern, or architectural departure is introduced. PASS per the check's explicit no-new-decision clause."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This role's launch boundary explicitly authorizes only a domain/-existence directory check. Disclosed rather than silently relied on: the single top-level ls run at the project root to satisfy that domain/ exception also incidentally showed no design-system/ directory in the same non-recursive listing; no separate or broader search targeting design-system/ was run. Substantively, design.md carries no '## Design System Compliance' section, consistent with a project with no design-system/ directory at the project root. Independently, ux-spec.md and frontend-spec.md both confirm this feature renders no UI at all, so the check is moot for this feature's substance regardless. Per the check's explicit no-directory clause, skip is recorded and PASS is emitted."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No 'domain/' directory exists at the project root -- confirmed via the one directory-existence check this role's launch boundary explicitly permits. Per the check's explicit no-directory clause, the check is skipped and PASS is emitted. There is no domain/context-map.md or domain/domain-contract.json to evaluate design.md's Data Plan or Architecture sections against."
+    }
+  ],
+  "legacy_design": true,
+  "feature_type": "cli"
+}

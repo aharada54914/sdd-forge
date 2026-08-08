@@ -1,0 +1,133 @@
+QG cycle-2 kill-mutant matrix -- design-sync-standing-consent
+Generated 2026-08-08T03:30:26Z
+Private namespace: /tmp/qg-c2-standing-65246 (isolated from the shared session scratchpad's own mutate.py)
+
+=== Item 1 / TEST-001 -- 4th value prepended (auto) ===
+-- fixed suite, sh --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+-- fixed suite, ps1 --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001)
+
+=== Item 1 / TEST-001 -- 4th value appended (ask-always) ===
+-- fixed suite, sh --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+-- fixed suite, ps1 --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+
+=== Item 1 / TEST-001 -- reduced to 2 values ===
+-- fixed suite, sh --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+-- fixed suite, ps1 --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+
+=== Item 1 / TEST-001 -- free-text Values cell ===
+-- fixed suite, sh --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+-- fixed suite, ps1 --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001, exact cell-content match)
+
+=== Item 2 / TEST-003+004 -- Default cell -> standing ===
+-- fixed suite, sh --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003)
+
+=== Item 2 / TEST-003+004 -- Default cell -> standing (004) ===
+-- fixed suite, sh --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003)
+
+=== Item 2 / TEST-003+004 -- Default cell -> off ===
+-- fixed suite, sh --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+
+=== Item 2 / TEST-003+004 -- Default cell -> off (004) ===
+-- fixed suite, sh --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+
+=== Item 2 / TEST-003+004 -- Default cell -> empty ===
+-- fixed suite, sh --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+
+=== Item 2 / TEST-003+004 -- Default cell -> empty (004) ===
+-- fixed suite, sh --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+
+=== Item 2 / TEST-003+004 -- prose 'default of standing' ===
+-- fixed suite, sh --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+
+=== Item 2 / TEST-003+004 -- prose 'default of standing' (004) ===
+-- fixed suite, sh --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+-- fixed suite, ps1 --
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+
+=== Item 3 / TEST-043 -- off block Party/At lines deleted ===
+-- fixed suite, sh --
+FAIL: TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)
+-- fixed suite, ps1 --
+FAIL: TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)
+
+=== Item 3 / TEST-042 -- withdrawal claim reduced ===
+-- fixed suite, sh --
+FAIL: TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)
+-- fixed suite, ps1 --
+FAIL: TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029, claim-phrase scoped)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029)
+
+=== Item 5 / TEST-048 -- uploaded...automatically (bullet) ===
+-- fixed suite, sh --
+FAIL: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+-- fixed suite, ps1 --
+FAIL: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023)
+
+=== Item 5 / TEST-048 -- upload...automatically...retain (bullet) ===
+-- fixed suite, sh --
+FAIL: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+-- fixed suite, ps1 --
+FAIL: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+
+=== Item 5 / TEST-048 -- uploaded...automatically (non-bullet) ===
+-- fixed suite, sh --
+FAIL: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+-- fixed suite, ps1 --
+FAIL: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023, semantic-class negative sweep)
+
+=== Item 6 / TEST-049 -- bullet inserted in the anchor-to-anchor blind zone ===
+-- fixed suite, sh --
+FAIL: TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)
+-- fixed suite, ps1 --
+FAIL: TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, full anchor-to-EOF byte-identity, no blind zone)
+-- pre-fix (attempt-1, HEAD) suite, sh, same mutant tree --
+PASS: TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, minimal diff, anchor-located byte-identity)
+
+=== positive control: base copy (git archive HEAD + fixed suite overlay), no mutation ===
+PASS: 55
+FAIL: 0
+FAIL: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred) -- DESIGNED RED: staged workflow patch not yet applied (REQ-010/AC-028)
+PASS: 55
+FAIL: 0
+FAIL: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred) -- DESIGNED RED: staged workflow patch not yet applied (REQ-010/AC-028)

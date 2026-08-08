@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-mcpreadonlypreflight-impl-a1r1-a-seq0480",
+  "host_session_id": "SESS-impl-a1r1-a-mcpreadonlypreflight-0480",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+      "sha256": "8329a0ee1c074784bf7bb1d5325fa246cac366656d10c3b7d775d0f63f59fc99"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+      "sha256": "b0927b0238f5a2d1603663d970958401204ea993c96b29b0a6af79e36aa0ab97"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "85fe437f4764036aaecd53464adc65e5fe5b03cbbc862a7480af3c62da9e469f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "4e149668d8eb41699006e13027ce253d785a1f9cf2db9da8d3f50ada412ca395"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:5-17 ('## Architecture Overview') covers all three required elements. (1) Component boundaries: the Stream A/Stream B framing plus the Components table (design.md:19-34) enumerating every touched artifact with status/change. (2) Integration with existing components: explicit statement that 'bootstrap's routing and ship's target selection keep their existing file-based logic exactly (BL-002), and the probe is layered beside it, not in front of it' (design.md:11); the protected-file integration for ship/SKILL.md is handled via the human-copy staging pattern (design.md:24,100), which honours requirements.md:36-40's three task-decomposition constraints: the Components table gives ship/SKILL.md and human-copy/ distinct rows (own-task separability), the Deployment and CI Plan frames Done-when around TEST-025 (staged candidate+manifest) with TEST-026 (live file) expected red rather than blocking (design.md:185, matching requirements.md:39's 'never in terms of the live file's content'), and OQ-007 (design.md:125) flags the human decision explicitly (requirements.md:40's handoff constraint). (3) Technology choices: 'instructional text in a skill, not code... no new script, no new binary' (design.md:9), cross-confirmed by frontend-spec.md:1-9 and infra-spec.md:22-24 ('Nothing is deployed'). Caveat (does not affect this check's verdict, see TEST-STRATEGY-COVERAGE): the Design Decisions section's OQ-005 framing is stale relative to the currently governing requirements.md, but that staleness does not remove any of the three ARCH-COVERAGE elements."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:19-34's Components table lists file-level artifacts with status/change columns but no A-depends-on-B declarations. design.md:15 ('Why the two streams are not independently landable') describes a soft merge-ordering coupling between Stream A and Stream B, not a dependency cycle. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] design.md's ## Data Plan (design.md:79-92) does not use the literal sub-field labels 'Data Entities:', 'Existing Data Affected:', or 'Migration Strategy:' this template requires; legacy design.md (precheck-result.json legacy_design:true) predates this template requirement. Substance is present in prose: design.md:81 states 'No persistent data, no schema, no migration,' and design.md:83-85 explains the probe 'reads and discards... writes no file, creates no cache, and leaves no artifact' -- covering entities (none created), existing data (read-only, nothing modified/deleted), and migration (none) collectively rather than as three labelled sub-fields. The one durable addition (a workflow-state-registry.json entry and conditional human-copy staged files) is itemized in a table (design.md:87-92). Downgraded per Legacy Design Mode rather than treated as a Major finding."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:36-55 ('## API and Contract Plan') lists the two MCP tools the probe consumes (get_task_state at server.ts:89, get_next_sdd_command at server.ts:141, design.md:44-47) and explicitly states 'No contract change is required or permitted by this feature. The probe consumes the v1 contract as-is' (design.md:40) -- equivalent in substance to the required 'No API changes' statement, since no endpoint/RPC/event is added, changed, or deprecated. Consistent with BL-001 (no file under mcp/ edited) and D-002 ('no MCP server implementation changes, and no new tool,' design.md:111)."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:94-101 ('## Security Boundaries') names the crossed boundaries (agent/MCP process boundary; workflow decision-authority boundary; protected-file boundary) and explicitly delegates detail to security-spec.md ('Detailed treatment is in security-spec.md,' design.md:96), a normative refinement per this review's instructions. security-spec.md:5-33 names all four boundaries (B1-B4) with mechanism (guard-enforced protected-file staging, security-spec.md:59-67; structural no-write-tool guarantee, security-spec.md:13); security-spec.md:48-57 addresses PII/secrets explicitly ('No secrets are read, written, or transported by this feature'); OWASP-equivalent coverage is a full STRIDE analysis (security-spec.md:35-46), appropriate given no HTTP/SQL/user-input surface exists. Caveat (does not change verdict): security-spec.md:39's B2 STRIDE row cites only AC-012/AC-013 and predates the AC-027a/AC-027b divergence-reporting addition (see TEST-STRATEGY-COVERAGE finding); REQ-005 itself states the warning 'costs nothing in safety' since AC-012/AC-013 already bind the outcome (requirements.md:146), so the authority-boundary guarantee this check evaluates remains intact."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: design.md declares no 'Feature Type:' field (zero grep matches), and the governing layer specs make the absence of a frontend/backend split explicit: ux-spec.md:5 ('N/A -- no rendered, interactive, or GUI surface') and frontend-spec.md:5 ('N/A -- no browser, no frontend bundle, no client-side code'). This feature edits Markdown skill/doc files only; there is no HTTP client, rendered UI, or client-side state to reconcile against an API contract."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:132-166 ('## Test Strategy') is substantial (unit/integration/runtime-exercise/regression levels, full per-AC coverage table) but is stale relative to the currently governing requirements.md. requirements.md:144-162 records that OQ-005 (investigation.md:213-214) was resolved by the human on 2026-08-04 to warn-on-divergence, adding live AC-027a and AC-027b (requirements.md:148-156); acceptance-tests.md:38-39 already carries matching TEST-027a/TEST-027b rows. design.md's coverage table (design.md:136-164) has no AC-027a or AC-027b row, and its summary 'Twenty-six live ACs, twenty-seven TEST rows, no AC without a row and no row without an AC' (design.md:166) is now false against the current requirements.md/acceptance-tests.md pair (28 live ACs). Root cause visible in design.md itself: the Design Decisions section still lists OQ-005 in the 'Escalated -- human decision required' table (design.md:117-124) and states 'OQ-005 is the one that should block' (design.md:130), and Risk R-1 (design.md:203) instructs 'task decomposition must not schedule the probe step before it resolves' -- all inheriting investigation.md:213-214's now-superseded framing rather than requirements.md's resolution (requirements.md:160 explicitly: 'investigation.md's OQ-005 entry (:213-214) is superseded by this section and is not to be read as current... accurate when written, wrong now'). Note requirements.md:158 states the divergence behavior definition deliberately 'lands in this specification rather than in design.md' -- so design.md is not expected to restate the warn-on-divergence wording itself -- but that does not excuse the Test Strategy section's own completeness claim, nor the Design Decisions/Risk sections' factual claim that OQ-005 remains open and blocking. Concrete failure mode: a task-decomposer following design.md's Test Strategy table has no instruction to build TEST-027a/TEST-027b coverage, and following R-1's own mitigation text would misread OQ-005 as an unresolved blocker when requirements.md already closed it. Not eligible for [LEGACY COMPAT] downgrade -- the Test Strategy section is fully populated; this is a content-currency defect, not an absent template field."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in design.md's Architecture Overview (design.md:5-17), Components table (design.md:19-34), and API and Contract Plan (design.md:36-55) is defined. bootstrap/SKILL.md, ship/SKILL.md, USERGUIDE.md, README.md, the human-copy staging directory, specs/workflow-state-registry.json, the three mcp/ trees, install.sh/install.ps1, sdd-bootstrap-interviewer/SKILL.md, and tests/workflow-documentation.tests.sh all appear as rows in the Components table (design.md:19-34) with explicit status/change. Tool identifiers get_task_state and get_next_sdd_command (design.md:44-47) and the v1 tools schema (design.md:40) are established system components verified in investigation.md INV-006 (server.ts:65-219). No reference to an undefined component found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no '## Architecture Decision Records' section and references no new ADR, so the primary check does not trigger. The feature does not introduce an undocumented new architectural decision: D-001 (design.md:109) states the attempt-and-degrade shape is 'the same graceful-degradation shape the repository already uses in... design-sync-loop/SKILL.md:28,55... and lite-spec/SKILL.md:66. The pattern is established here, not invented for this feature' (design.md:66); D-002 (design.md:111) forbids any new MCP tool or server-implementation change. The one plausible ADR-worthy question -- whether generalising ADR-0006's write-suppression policy to all three servers warrants a new ADR rather than prose -- is explicitly named OQ-008 and escalated to a human decision rather than silently assumed either way (design.md:77,126). Confirmed docs/adr/0006-ci-mcp-readonly-github-actions.md exists as the cited precedent. Explicit escalation of a genuinely undecided ADR question is adequate handling, not an omission."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: repository has no design-system/ directory (confirmed via directory listing). This is a documentation/workflow feature with no UI surface (ux-spec.md:5, frontend-spec.md:5), so design-system conformance has no applicable surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: repository has no domain/ directory (confirmed via directory listing), so there is no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json to check design.md against."
+    }
+  ],
+  "legacy_design": true,
+  "feature_type": "not declared (no 'Feature Type:' field present in design.md; legacy design predates this field)"
+}

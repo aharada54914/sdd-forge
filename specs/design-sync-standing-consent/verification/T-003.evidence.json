@@ -1,0 +1,63 @@
+{
+  "task_id": "T-003",
+  "feature": "design-sync-standing-consent",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "a1c2cbbef0954301d890f22a7830b927ff9825f5d730adc7b9a15a91d9166d59",
+  "quality_report": "reports/quality-gate/20260808T043830Z-design-sync-standing-consent-T-003.md",
+  "verification_contract": "specs/design-sync-standing-consent/verification/T-003.contract.json",
+  "git_commit": "45a85bf776603a04cbb186b975cf34daacade017",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 3,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-003.contract.json",
+      "sha256": "0ba9a75461c256c22938a778b8f399591b206ab6e3d935e7a98da17acbe15b53"
+    },
+    {
+      "path": "reports/quality-gate/20260808T043830Z-design-sync-standing-consent-T-003.md",
+      "sha256": "c8c2b81ab6fffb0c1235069494a0544f5330cad97a5768147f7945013980efd0"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-003/green-sh.log",
+      "sha256": "33e68e28c7b833a748d193d023e37f065ff5d0320cd9c552a8b0d97835fc9d27"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-003/step3-abc-new-dewhitespaced.txt",
+      "sha256": "d6bb25228da5b810033ff5b2b35469a9d8b67c29231abb9973e600534564a6d4"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/placeholder-T-003.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/run-all.log",
+      "sha256": "9108c63769e473afd748a0569b457022d583589eb8fb1cbc2225ace1d3da535d"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/qg/traceability.log",
+      "sha256": "4aa60ae22dae85c11e5485ec6a7cd5d9ce7669e41af45ebde31b206f9b055465"
+    }
+  ]
+}

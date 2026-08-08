@@ -65,7 +65,13 @@
       "req": "REQ-007",
       "acs": ["AC-041", "AC-042", "AC-043", "AC-044", "AC-045", "AC-046"],
       "tests": ["TEST-041", "TEST-042", "TEST-043", "TEST-044", "TEST-045", "TEST-046"],
-      "evidence": []
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-007/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-007/green-sh.log",
+        "specs/epic-159-pillar-c/verification/T-007/green-ps1.log",
+        "specs/epic-159-pillar-c/verification/T-007/render-check.log",
+        "specs/epic-159-pillar-c/verification/T-007/prereq-gate.log"
+      ]
     },
     {
       "req": "REQ-008",

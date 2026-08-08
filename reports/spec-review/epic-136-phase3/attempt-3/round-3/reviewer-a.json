@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a3r3-a-seq0421",
+  "host_session_id": "SESS-spec-a3r3-a-epic136phase3-0421",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-3/round-3/precheck-result.json",
+      "sha256": "f2ae6283231802bff624a6e8402bf2e35468442e02c5a405837a4daf609d434e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "d02c35a67a051725628ddac7d9deb26236b2e9197d7150d1d051422c2c949382"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each specify enumerated, observable branches (e.g. REQ-001's 5 PATH-availability combinations + precedence order, REQ-002's 3-class x 4-runtime x 3-tool_name-shape matrix) with explicit pass/fail decision criteria (exit codes, decision-parity, grep-based self-checks), all measurable by a downstream implementer without further clarification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal has multiple mapped ACs: REQ-001->AC-001..007, REQ-002->AC-008..011, REQ-003->AC-012..015, REQ-004->AC-016..018, REQ-005->AC-019..020, REQ-006->AC-021..023, each cross-referenced by '(REQ-NNN)' tags in requirements.md and mirrored 1:1 in acceptance-tests.md's TEST-ID table."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete externally observable outcomes: exit codes (AC-005), decision-parity comparisons (AC-001..004, AC-011), grep/self-check conformance (AC-019..022), staged-file diffs against MANIFEST.sha256 (AC-016, AC-020), and a named deterministic proxy-harness detector for AC-014 rather than vague intent statements."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md lines 287-336) is now internally consistent: the Stream C vocabulary-invention exclusion, the protected-suite-editing exclusion, the tasks.md/traceability.md/baseline-behavior.md exclusions, the Phase-4/design-sync exclusion, and the single-shared-batch human-copy boundary are each stated once and do not contradict each other or the Overview's Stream C status record in this reading. The round-2 Critical (Non-goals self-contradicting about Stream C's status) does not reproduce in the current Non-goals text."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Two passages in requirements.md were NOT reconciled by the round-3 edit and still state the ADR-0010 approval boundary as a live, unresolved future condition, directly contradicting the document's own 'Stream C status record (authoritative)' (lines 119-128) and every reconciled passage (Goals REQ-003 line 231, Main Workflows item 3 line 607-618, Roles and Permissions line 565, Risks line 792-800, OQ-2 line 746-756), all of which state ADR-0010 reached Status: Accepted and Stream C already landed (T-004, commit fd4db859). (1) Acceptance Criteria section intro, lines 362-364: 'Every criterion below is tied to a deterministic suite (or, for Stream C while blocked, a Planned-but-not-yet-implementable target)...' presents 'while blocked' as a live branch, immediately followed two paragraphs later by AC-012..015 which each open with 'Unblocked... likewise discharged.' (2) Main Workflows item 5, lines 632-636: 'Streams A, B, and D are independently shippable; Stream C ships only after its Blocker clears.' presents the Blocker's clearing as a still-pending future event, three lines below Main Workflows item 3 (lines 607-618) in the SAME numbered list, which states 'Unblocked - ADR-0010 reached Status: Accepted... Blocker: DISCHARGED.' Downstream failure mode: a task author decomposing Main Workflows into tasks hits a direct self-contradiction within the same list about whether Stream C's approval gate has cleared, and a reader of the Acceptance Criteria intro is told Stream C's target may still be only a 'Planned-but-not-yet-implementable' placeholder, contradicting every individual AC-012..015 entry immediately below it. This is a specification-internal consistency defect only spec review can catch before task decomposition relies on it -- the edit_summary's own reconciliation list (Overview, REQ-003, REQ-005, REQ-006, Non-goals, AC-012..015, AC-019, AC-021, AC-022, Roles and Permissions, Main Workflows item 3, the Phase-2 re-check note, Assumptions, OQ-2, OQ-3, the boundary table, and Risks) omits both of these passages, confirming they were missed rather than intentionally retained as history (neither is labelled a snapshot the way Assumptions/Re-verification-note passages are). This reproduces the same substantive defect class (mutually exclusive statements of the ADR-0010 approval/blocking boundary) that round 2 classified Critical under CONSTRAINTS-EXPLICIT, so the same severity applies: a missing/contradictory approval boundary makes the current-state of Stream C unreviewable without cross-referencing the whole document."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Risk entry (High-now-RETIRED, two Medium, Low-Medium, Low) carries an explicit mitigation or validation surface: AC-008/009/010's per-combination enumeration for the matrix risk, design.md Global Constraints for the shared-batch intra-ordering risk, Edge Cases' presence-assertion requirement for the PATH-stub false-pass risk, and AC-017's text-marker self-check plus human reviewer verification of GitHub branch-protection settings for the Stream D step-drop risk."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met: requirements.md carries no `Bounded-Context:` field, and this feature (test/CI-hardening infrastructure for existing guard scripts and CI workflow files) shows no evidence of an Approved domain model applying to it; domain/context-map.md and domain/domain-contract.json are outside the allowed manifest and were not supplied as inputs for this review, so the check is recorded as skipped."
+    }
+  ]
+}

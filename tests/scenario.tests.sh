@@ -5,6 +5,14 @@
 #   B1. Hook contract for all 3 CLI forms (Claude Code, Codex, Copilot) + drift guard.
 #   E.  Critical signing round-trip (ephemeral key, generate => pass; tamper => fail).
 #
+# Cross-reference (AC-015, epic-136-phase3 T-004 / issue #125): THIS suite is
+# a small, fixed set of end-to-end lifecycle/hook-contract/signing scenarios
+# with no greenfield/brownfield vocabulary. tests/workflow-scenarios/ is a
+# separate, differently-scoped namespace: 10 representative
+# greenfield/brownfield-classified classes (issue #125's body), never a
+# migration or rename of Scenarios A/B1/E here. The two suites coexist and
+# are never duplicates of each other.
+#
 # House style mirrors eval.tests.sh.
 set -euo pipefail
 

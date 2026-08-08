@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase3-spec-a4r1-a-seq0423",
+  "host_session_id": "SESS-spec-a4r1-a-epic136phase3-0423",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-4/round-1/precheck-result.json",
+      "sha256": "3493186053b55792a7d7be40e73ffa36cda730d7e09c21e4a2ad4ef2f10d2dae"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "fa1c3ce6ddddefcc3e0280680c45835747c38a9942f25c87bcced6ee16a20d95"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each of REQ-001..006 names a concrete, observable target: exact PATH-availability branches and exit-code/JSON-shape assertions for the .sh dispatcher fallback chain (REQ-001), a named 4-runtime x 3-tool_name-shape matrix with decision-parity assertions (REQ-002), a closed-set greenfield|brownfield schema field plus a 10-class scenario mapping (REQ-003), a text-marker self-check over step names and the required-checks needs: list (REQ-004), grep-verifiable run-all.sh/.ps1 and test.yml registration (REQ-005), and grep-verifiable bash-3.2/ps1-ASCII constraints plus CHANGELOG entries (REQ-006). No in-scope requirement is stated only as vague intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal has a full AC block: REQ-001->AC-001..007, REQ-002->AC-008..011, REQ-003->AC-012..015, REQ-004->AC-016..018, REQ-005->AC-019..020, REQ-006->AC-021..023, and acceptance-tests.md's TEST-001..023 map 1:1 to those AC numbers with no gaps."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable outcomes throughout: specific exit codes and copilot-shaped JSON (AC-005), which stub's marker file is written to prove precedence (AC-006), named 12-combination fixture+assertion pairs (AC-008..010), directory/schema existence and a closed enum value (AC-012), a grep-based self-check enumerating step names against a staged candidate (AC-017), and a CHANGELOG entry count (AC-022). None rely on unmeasurable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals is explicit and multi-part: no edits to the 4 R-10-protected suites, no invented fixture vocabulary, no migration of tests/scenario.tests.sh, Stream D not framed as a bugfix, epic-136 Phase 4/design-sync excluded, only ONE shared test.yml human-copy batch permitted, and tasks.md/traceability/baseline-behavior.md explicitly out of this document's scope."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "A Security Boundaries trust-boundary table (B1-B4) covers guard-binary read-only access, inbound fixture data handling, human-copy-only writes to test.yml, and network isolation; Roles and Permissions names the human-maintainer approval boundary for both the spec/tasks and for applying human-copy candidates and for the (already-exercised) ADR-0010 Status decision; REQ-006/AC-021 pin bash-3.2 and PowerShell ASCII/BOM/LF compatibility constraints."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section ties each named risk to a concrete validation surface: the now-retired ADR-0010-rejection risk to the ADR's own Status field and OQ-2's resolution record; the shared test.yml batch risk to a single coherent staged diff (Non-goals/OQ-4) plus design.md's ordering; the 12-combination-matrix false-pass risk to AC-008/009/010's explicit per-combination enumeration; and the PATH-stub false-pass and step-drop risks to the Edge Cases presence/absence assertion and AC-017's text-marker self-check respectively."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "domain/ is outside this role's allowed-input manifest (only requirements.md, acceptance-tests.md, investigation.md, spec-review-calibration.md, and precheck-result.json are permitted reads), and none of the allowed artifacts reference a domain/context-map.md with Domain-Model-Status: Approved or a domain-contract.json for this test/CI-hardening feature. Per calibration, when no Approved domain model is in evidence the check is recorded as skipped."
+    }
+  ]
+}

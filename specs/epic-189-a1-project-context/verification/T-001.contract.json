@@ -1,0 +1,170 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-189-a1-project-context",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-04T00:35:53Z",
+  "comment": "Default-FAIL verification contract for T-001 (medium, acceptance-first) - the graph root of epic-189-a1 and the feature's ONLY medium-risk task. Populated after the quality gate reran T-001's own suite in BOTH lanes (bash tests/project-context-schema.tests.sh PASS 44 / FAIL 0; pwsh -NoProfile -File tests/project-context-schema.tests.ps1 PASS 44 / FAIL 0; ZERO skip lines in either lane, so every assertion genuinely executed on this platform; specs/epic-189-a1-project-context/verification/qg/T-001/focused-tests.log). The 44 were decomposed from the transcripts rather than taken on trust and hold identically in both lanes: TEST-001=9, TEST-002=8, TEST-003=7, TEST-004=2, TEST-040=7, TEST-041=2, TEST-042=9, summing to exactly 44 with no padding, and the 44 assertion lines are byte-identical line-for-line between the two lanes, so the PowerShell twin is a genuine port. The tally is 44 rather than the 41 this task's tasks.md Blockers narrative still quotes: the seq0367 remediation (ad7ed305) added three TEST-040 mutation-proof assertions and re-recorded the acceptance logs at 44/0. RISK-TIER DIFFERENCE, checked in the gate script rather than assumed from the high-risk siblings: check-contract.py:37-42's RISK_TIERS gives medium the set {lint, typecheck, build, placeholder-scan, task-state-check, unit-tests, acceptance-tests, regression} - identical to high EXCEPT that high additionally requires requirement-traceability, which medium does not; and _pass5b_risk_workflow (check-contract.py:186-192) forces required_workflow: tdd only for high/critical, which is why this task's acceptance-first workflow is contract-legal at medium where it would not be at high. Those are the only two deltas. This contract nonetheless keeps requirement-traceability present, required:true and evidenced, so it is strictly stronger than its tier demands rather than weaker; nothing recorded here depends on the tier difference. Regression run as the epic-189-a1 NINE-suite set (every suite except T-001's own) via INDIVIDUAL runs, both lanes, all eighteen green: approver-registry-schema 8/0 x2, canonicalizer 80/0 + 77/0, signer 59/0 + 57/0, detector 60/0 + 59/0, validator 40/0 + 39/0, publisher 218/0 + 146/0, handshake 88/0 + 87/0, guard-invariants-epic-a1 78/0 + 82/0, hook-guard-epic-a1-boundary 211/0 + 207/0 - the last newly in the set now that T-010 has landed; all eighteen runs exit=0 (specs/epic-189-a1-project-context/verification/qg/T-001/regression.log). Individual-suite mode is used because tests/run-all.sh runs a fixed ordered list under set -euo pipefail and aborts at the first failing suite, while the epic-189-a1 suites sit at tests/run-all.sh:57-66 behind 48 unrelated suites. That exclusion was MEASURED this round, not inherited: a full bash tests/run-all.sh against an isolated git clone of HEAD (b40d7381) in a throwaway directory aborted after 21 suites at tests/turn-first-workflow.tests.sh ('not ok: implementation report template omits: ## Output Paths And Hashes', exit 1), whose assertion reads plugins/sdd-implementation/templates/implementation-report.template.md - a file T-001 does not touch (T-001's three commits 4bd2ec3b/6946dff0/ad7ed305 touch 15 paths in total, none under plugins/), and the runner never reached any epic-189-a1 suite. The long-repeated claim that run-all aborts at tests/prepare-panelist.tests.sh is STALE and is NOT carried forward: in this round's own transcript prepare-panelist is the seventh suite executed and it PASSED, Results: 32 passed / 0 failed, with the runner continuing fourteen suites past it. Every sh-lane regression run uses bash rather than POSIX sh, matching T-007..T-010, because suites across this epic's guard surface use process substitution. The regression log carries a clearly-labelled SUPPLEMENTARY section BEYOND the required set - the three adjacent guard suites: phase2-guard-invariants 33/0 (bash lane), guard-staging-exemption 33/0, guards 133/0 (bash lane). TWO PRE-EXISTING failures appear there, disclosed up front rather than buried, and neither is attributable to T-001: (1) tests/phase2-guard-invariants.tests.ps1 fails 9 (59 passed / 9 failed, exit 1), all nine being TEST-013 cases resting on Windows/NTFS semantics exercised on macOS; (2) tests/guards.tests.sh is INVOCATION-DEPENDENT - 133/0 exit 0 under bash, but under POSIX sh it fails 'sh: copilot deny -> JSON deny' and aborts (46 ok lines, no Results line, exit 2), the case name labelling the guard's sh IMPLEMENTATION rather than the harness shell. BOTH are already registered carryover items in reports/notes/epic-189-a1-carryover-items.md (the phase2 pwsh lane from T-009's chain; the guards sh lane added by commit 757dd104), so neither is a new discovery here. The provenance probe recorded in the same section proves non-attribution directly: T-001's three commits touch neither suite nor any file under plugins/, and the complete 15-path change surface is transcribed. Neither gates the regression check, whose evidence is the eighteen green runs. Placeholder scan clean this round (specs/epic-189-a1-project-context/verification/qg/T-001/placeholder.log: 'Placeholder scan passed.' over T-001's whole code surface - contracts/project-context.schema.json, contracts/provider-bindings.schema.json, contracts/project-context.template.yaml, tests/project-context-schema.tests.sh, tests/project-context-schema.tests.ps1, tests/run-all.sh, tests/run-all.ps1 and the staged specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml). CHANGELOG.md was included in a first run and excluded from the recorded one; the log states this rather than hiding it, transcribes all five findings, and shows each to be ordinary Japanese prose in HISTORICAL changelog entries (CHANGELOG.md:979-989 and :1968-1978) that quote the placeholder gate's own marker strings as subject matter - none in T-001's own ## Unreleased entry at :25-40, none a stub, and the same documentation-file exclusion the T-008 and T-010 chains applied. Task-state (13 tasks passed, with T-002..T-010 contracts and evidence bundles all revalidated in the same run; specs/epic-189-a1-project-context/verification/qg/T-001/task-state.log) and requirement-traceability (specs/epic-189-a1-project-context/verification/qg/T-001/traceability.log; REQ-001 -> AC/TEST-001, 002, 040, 042 and REQ-002 -> AC/TEST-003, 004, 040, 041 verified directly against requirements.md:113/:185, traceability.md rows :8/:9/:33/:51-54/:90-92/:102, acceptance-tests.md:23-26/:62-64 and both suites, plus suite self-registration at tests/run-all.sh:57 / tests/run-all.ps1:40, FIRST in numeric order as the graph root) are both green. For the first time in this feature's Done chains, T-001's staged human-copy candidate is genuinely PERFORMED rather than deferred: the staged .github/workflows/test.yml carries T-001's own CI steps at :216-225 in both lanes, its MANIFEST.sha256 digest 506133dc4ae8b4c93ea18eae8f388d5ed9aefab07d687ae77c9c1ec99a286873 was re-computed against the staged bytes this round and matches byte-for-byte, and the LIVE .github/workflows/test.yml was re-measured at 3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4, unchanged from the value tasks.md records for the original session - so the Done-When non-mutation clause holds on measurement. This closes the long-running R-10 guard-staging blocker that T-001..T-008's chains all recorded as deferred. The traceability log additionally records two facts the gate observed rather than adjudicated: traceability.md:33 names verification/T-001/green-sh.log and red-sh.log while the logs actually recorded are acceptance-sh.log / acceptance-ps1.log plus the seq0367 remediation pairs (evidence present and complete in both lanes; only the filename convention differs from the frozen row, and arguably more accurately here since this task's workflow is acceptance-first rather than tdd), and the staged workflow still registers only three of this epic's ten suites - T-001's own among them, the other seven a later task's carry-over. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set). Acceptance-first evidence (check-contract.py enforces red/green pairs only for required_workflow == 'tdd', so these are recorded for the human record rather than to satisfy a gate): red = specs/epic-189-a1-project-context/verification/T-001/remediation-seq0367-test040-red-sh.log (PASS 41 / FAIL 3) with its twin .../remediation-seq0367-test040-red-ps1.log (41 / 3), where the three failures are exactly the three new TEST-040 mutation-proof assertions run against the pre-remedy tautological duplicate_id_check; green = .../acceptance-sh.log (44 / 0) with its twin .../acceptance-ps1.log (44 / 0), commit ad7ed305. The jq-hardening pair .../remediation-seq0367-test004-jqstub-red.log (29 / 15) and -green.log (28 / 16) is the companion demonstration: with a stub jq exiting 127 on PATH the enum assertion vacuously PASSed before the fix and reports a real failure after it, hence the failure count rising by exactly one. Unlike T-008 and T-010, this task needed TWO rounds: independent skeptical evaluation returned NEEDS_WORK at seq0367 (reports/quality-gate/2026-08-03T235329Z-T-001.md) on three Majors - the staged workflow and MANIFEST omitted from the implementation report's ## Outputs table and therefore unreadable through the evaluator's manifest; tests/run-all.sh, tests/run-all.ps1 and CHANGELOG.md declared in ## Files Changed but likewise absent from ## Outputs; and TEST-040's DUPLICATE_COMPONENT_ID / DUPLICATE_BINDING_ID assertions being tautological because duplicate_id_check returned the caller-supplied code. All three were remedied in ad7ed305 and the gate PASSed at seq0368 (reports/quality-gate/2026-08-04T001808Z-T-001.md, 0 Critical / 0 Major / 3 Minor recorded), whose evaluator independently re-ran both lanes, re-derived the 44-assertion decomposition, mutation-tested the new TEST-040 assertions in throwaway copies (a code-swap mutation broke two of the three, proving them code-bound), and verified the staged workflow and manifest digest first-hand. The three Minors are recorded and non-blocking: T-001's CHANGELOG entry is stale against the task's final state (still says 41 assertions and that CI staging is incomplete); additionalProperties:false is enforced by the embedded validator but no assertion pins the posture; and tasks.md appears in ## Files Changed without an ## Outputs row, an asymmetry the report does not explain although pinning a digest for a file every workflow stage mutates would arguably be wrong. Risk medium (not critical) means the evidence bundle is generated here in the same manner as T-002..T-010, with no second-approver signature required by generate-evidence-bundle.sh - verified this round by reading the script rather than inferring from the siblings: signing is gated on contract_risk == 'critical' (generate-evidence-bundle.sh:390). This chain-authoring commit touches no tasks.md line at all.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-001/remediation-seq0367-test040-red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-001/acceptance-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-001's scope; the deliverables are three declarative contract artifacts (two JSON Schemas and a YAML template) exercised end-to-end by their own suite through an embedded stdlib validator and scratch-directory fixtures only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "red_evidence": "specs/epic-189-a1-project-context/verification/T-001/remediation-seq0367-test040-red-sh.log",
+      "green_evidence": "specs/epic-189-a1-project-context/verification/T-001/acceptance-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts or for declarative JSON/YAML contract artifacts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-001/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-001/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the schemas and template are declarative artifacts, smoke-exercised by every suite invocation recorded in focused-tests.log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-001 is net-new greenfield work with no existing consumer, not a refactor/bugfix (the seq0367 evaluator independently confirmed no baseline applies).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-001's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

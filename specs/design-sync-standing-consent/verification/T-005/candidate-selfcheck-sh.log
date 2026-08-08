@@ -1,0 +1,7 @@
+=== sh harness: RED self-check (empty CI dir, proves check is non-vacuous) ===
+FAIL: TEST-054 (harness) CI_DIR=/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/t005-empty-ci-dir is NOT reachable from a CI entry point (AC-028)
+exit=1
+
+=== sh harness: GREEN against staged candidate only (proves candidate satisfies TEST-054) ===
+PASS: TEST-054 (harness) CI_DIR=/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/t005-candidate-ci-dir is reachable from a CI entry point (AC-028)
+exit=0

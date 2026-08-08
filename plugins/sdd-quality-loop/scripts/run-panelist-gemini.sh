@@ -11,6 +11,7 @@
 # Graceful degrade (fusion-fable run_gemini.sh pattern):
 #   - gemini CLI absent → exit 1 (graceful degrade, not exit 2)
 #   - gemini CLI errors → exit 1 with message to stderr
+#   - gemini CLI exceeds SDD_PANELIST_TIMEOUT → process group terminated, exit 1
 #   - Scratch dir always cleaned up via trap
 #
 # Security (design.md §6):
@@ -26,6 +27,7 @@ spec_root="specs"
 model="gemini-2.0-flash"
 input_digest=""
 consent_kind="human-flag"
+_panelist_timeout="${SDD_PANELIST_TIMEOUT:-600}"
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -39,6 +41,19 @@ while [ $# -gt 0 ]; do
         *) printf 'run-panelist-gemini: unknown argument: %s\n' "$1" >&2; exit 2 ;;
     esac
 done
+
+case "$_panelist_timeout" in
+    '' | *[!0-9]*)
+        printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: %s)\n' \
+            "$_panelist_timeout" >&2
+        exit 2
+        ;;
+esac
+if [ "$_panelist_timeout" -le 0 ]; then
+    printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be positive (got: %s)\n' \
+        "$_panelist_timeout" >&2
+    exit 2
+fi
 
 # ── Validate required arguments ──────────────────────────────────────────────
 
@@ -61,6 +76,10 @@ if ! command -v gemini >/dev/null 2>&1; then
     printf 'run-panelist-gemini: gemini CLI not found in PATH — skipping Gemini panelist (graceful degrade)\n' >&2
     exit 1
 fi
+if ! command -v python3 >/dev/null 2>&1; then
+    printf 'run-panelist-gemini: python3 is required to supervise the panelist process group\n' >&2
+    exit 2
+fi
 
 # ── Prepare scratch and output paths ────────────────────────────────────────
 
@@ -75,6 +94,71 @@ out_path="${out_dir}/${task_id}.panelist-google.verdict.json"
 
 # ── Key isolation ────────────────────────────────────────────────────────────
 unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
+
+# See the GPT twin for the process-group and completion-marker rationale.
+_sdd_run_bounded() {
+    _bw_limit="$1"
+    shift
+    _bw_status="${_scratch}/bounded-status"
+    rm -f "$_bw_status"
+
+    python3 -c '
+import os
+import subprocess
+import sys
+
+status_path = sys.argv[1]
+os.setsid()
+return_code = subprocess.call(sys.argv[2:])
+tmp_path = status_path + ".tmp"
+with open(tmp_path, "w", encoding="ascii") as status_file:
+    status_file.write(str(return_code))
+os.rename(tmp_path, status_path)
+sys.exit(return_code if 0 <= return_code <= 255 else 1)
+' "$_bw_status" "$@" &
+    _bw_pid=$!
+    # date +%s truncates the current second; include that fractional interval
+    # so the configured whole-second budget is never shortened.
+    _bw_deadline=$(( $(date +%s) + _bw_limit + 1 ))
+
+    while kill -0 "$_bw_pid" 2>/dev/null; do
+        if [ -s "$_bw_status" ]; then
+            wait "$_bw_pid"
+            return $?
+        fi
+        if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
+            # Completion and expiry are not atomic, and the integer-second
+            # deadline can fire with sub-second slack depending on the
+            # start phase. Wait a full second so any child that finished
+            # within limit+1 real seconds has published its status before
+            # the expiry is treated as authoritative (Edge Case 6).
+            sleep 1
+            if [ -s "$_bw_status" ]; then
+                wait "$_bw_pid"
+                return $?
+            fi
+            if ! kill -0 "$_bw_pid" 2>/dev/null; then
+                wait "$_bw_pid"
+                return $?
+            fi
+
+            kill -TERM "-$_bw_pid" 2>/dev/null || true
+            _bw_grace_deadline=$(( $(date +%s) + 2 ))
+            while kill -0 "-$_bw_pid" 2>/dev/null && \
+                    [ "$(date +%s)" -lt "$_bw_grace_deadline" ]; do
+                sleep 1
+            done
+            if kill -0 "-$_bw_pid" 2>/dev/null; then
+                kill -KILL "-$_bw_pid" 2>/dev/null || true
+            fi
+            wait "$_bw_pid" 2>/dev/null || true
+            return 124
+        fi
+        sleep 1
+    done
+
+    wait "$_bw_pid"
+}
 
 # ── Build the panelist prompt ────────────────────────────────────────────────
 
@@ -134,19 +218,21 @@ printf 'run-panelist-gemini: invoking gemini --model %s (task=%s feature=%s)\n' 
     "$model" "$task_id" "$feature" >&2
 
 _raw_output="${_scratch}/raw-output.txt"
-if ! gemini --model "$model" < "$_combined" > "$_raw_output" 2>&1; then
-    _rc=$?
-    printf 'run-panelist-gemini: gemini CLI exited %d\n' "$_rc" >&2
+_sdd_run_bounded "$_panelist_timeout" gemini --model "$model" \
+    < "$_combined" > "$_raw_output" 2>&1
+_rc=$?
+if [ "$_rc" -ne 0 ]; then
+    if [ "$_rc" -eq 124 ]; then
+        printf 'run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=%ss; terminated\n' \
+            "$_panelist_timeout" >&2
+    else
+        printf 'run-panelist-gemini: gemini CLI exited %d\n' "$_rc" >&2
+    fi
     cat "$_raw_output" >&2
     exit 1
 fi
 
 # ── Extract and validate JSON from output ────────────────────────────────────
-
-if ! command -v python3 >/dev/null 2>&1; then
-    printf 'run-panelist-gemini: python3 is required to extract and validate verdict JSON\n' >&2
-    exit 2
-fi
 
 python3 - "$_raw_output" "$out_path" "$task_id" "$feature" "$model" "$input_digest" "$consent_kind" << 'PYEOF'
 import json, re, sys

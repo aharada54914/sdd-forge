@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-qualityloopfixes-spec-a1r2-b-seq0323",
+  "host_session_id": "SESS-spec-a1r2-b-qualityloopfixes-0323",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-2/integrated-summary.json",
+      "sha256": "2f2a8eccf1aaee5d442673cbcf50546083ba01063f8a961ae716461d2cfc6d5e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-2/precheck-result.json",
+      "sha256": "0507212bd59dbf7c225c6f4a906d105568bed35cc8bef8a87a976cd6ba7fd358"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "1bef87cf1043b3c387c2994fed1173c51501b119f2cdf46978cac6d936fc378b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "14e186eade6e8715baa15200c8a32b3af0418d52e047aa8286ee8769cddf5513"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Load-bearing terms are concrete: exact anchors (`^Feature:[[:space:]]*<feature>[[:space:]]*$` reused from emit-run-record.sh:125; `^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$`), Field Definitions pins feature-slug grammar, combined-suite convention, and human-copy-staging terms precisely. The one residual soft term, 'enumerable coverage requirement' (REQ-004/AC-019/020/021/031), is a document/skill-prose deliverable reviewed manually against design.md's exact wording at PR time (acceptance-tests.md's TEST-019..021/031 note), and Non-goals explicitly defers its manifest schema to cross-model-verify's own design ('A general coverage-manifest schema usable outside cross-model verification... is scoped to the existing cross-model-verify flow only') -- a deliberate Phase-2 deferral, not spec-level ambiguity, per calibration's False-Positive Guard against requiring implementation-architecture decisions."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 6 requirements.md Open Questions resolve consistently against investigation.md's identically-numbered open questions (OQ-1 direct-edit matches INV-020/021/022's protected-suffix-list finding; OQ-4 fail-open-on-missing-VERDICT matches INV-009/AC-009). The Edge Cases section explicitly separates Stream 2's sole deliberate fail-OPEN outcome from Stream 3/4's fail-CLOSED outcomes ('Fail-open vs. fail-closed, precisely distinguished per stream (do not confuse them)'), pre-empting the kind of goal/AC conflict this check screens for. No Goal, AC, constraint, or Non-goal pair was found asserting mutually exclusive behavior."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-003/AC-013..AC-018 and TEST-013..TEST-018 cover recursion, positive-baseline, missing-path, hash-mismatch, and subdirectory cases for the new declared-outputs completeness check, but omit the path-traversal negative case the spec's own Edge Cases section names as material: 'Stream 3's declared-outputs check must not become a path-traversal vector: a crafted `## Outputs` row pointing outside the bundle's own input root must not cause the completeness check to read outside the declared bundle root (security-spec.md STRIDE)' -- restated as Security Boundary B1 ('a declared path resolving outside the bundle's own input root must be rejected, never read') and Risks item 3. AC-014 mandates reuse only of the declared-outputs TABLE PARSER shape ('evaluator_output_is_declared', validate-review-context-set.sh:63-74), not the separately-named containment function investigation.md identifies at the same site ('path_is_authorized', INV-015) -- so an implementer building a spec-conformant declared-outputs check from AC-013..018 alone could correctly parse the table and verify hash-matches while never rejecting an out-of-root path, and no TEST-NNN would catch the gap. Downstream failure mode: an implementation-policy reviewer and quality-gate verification have no acceptance criterion or test id to hold an implementation accountable for this named security behavior. This belongs to spec review because it is an acceptance-criteria/test-coverage completeness gap in the AC/TEST set itself, not an implementation defect. Major per calibration ('missing observable acceptance criterion... for a high-risk claim with no planned validation surface') -- not Critical because the required behavior IS already stated in prose (Security Boundaries B1) and partial reuse of already-validated parser infrastructure mitigates the risk, so the specification remains reviewable, only incompletely test-covered on this one branch."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 5 Assumptions bullets carry explicit re-verification instructions rather than being silently trusted for implementation: each states a concrete WFI-013-discipline re-check action at implementation time (e.g. 'RE-VERIFY directly against plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4,18 at implementation time... If the list has been extended... Stream 4 must switch to human-copy staging before making any edit'; the identity-ledger-tail assumption directs Stream-4 fixtures to use a fixture-scoped ledger copy specifically to avoid staleness risk). Each traces to a specific investigation finding (INV-020/022, INV-005/025, INV-024, INV-007) rather than being left as an unresolved open item."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A human-approval/irreversible-change boundary is in scope (2 protected files: plugins/sdd-ship/skills/ship/SKILL.md and .github/workflows/test.yml) and is made testable, not merely asserted in prose: TEST-006 requires 'the staged candidate's SHA-256 matches its MANIFEST.sha256 entry; the LIVE file is confirmed unmodified by the agent at staging time (diff against pre-staging content is empty)', and TEST-007 requires the live .github/workflows/test.yml self-check stay red 'until the human-copy commit lands (no staged-candidate fallback)'. Roles and Permissions explicitly separates agent-direct-edit authority (9 files, INV-021) from the two staged-only targets and names the human maintainer as sole applier."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The spec supplies Field Definitions, a Roles-and-Permissions authority table, a 4-row Security Boundaries trust-boundary table, Main Workflows per stream, and Assumptions with concrete re-verification instructions -- sufficient for implementation-policy/design review to proceed on all 4 streams without inventing missing product behavior. The EDGE-CASE-COVERAGE gap identified in this review (REQ-003's path-traversal negative case lacking a dedicated AC/TEST) does not block readiness on this axis specifically, because the required product behavior is already stated in prose at Security Boundaries B1 ('a declared path resolving outside the bundle's own input root must be rejected, never read') -- a design reviewer has a stated behavioral requirement to implement against even though the acceptance-test suite has not yet operationalized it into its own TEST-NNN id."
+    }
+  ]
+}
