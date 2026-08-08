@@ -15,17 +15,17 @@ specification review.
   data-handling rules.
 - Never overwrite an existing layer specification. Review proposed changes as
   a normal specification edit.
-
-- This workflow does not decide whether an upload may occur at all -- that is
-  the upload-policy setting defined in AGENTS.md's Project Settings section
-  (this document intentionally does not name the setting's key, so a future
-  edit here can never reintroduce the one substring this file's own
-  regression test forbids). When this document is the path actually taken --
-  because the tool is unavailable, authentication failed, or the project's
-  upload-policy setting forbids the upload outright -- record that setting's
-  value and its audit outcome in the layer file's Design-Source section,
-  alongside the marker already recorded there, so the trail names which
-  policy governed, regardless of which path reached this document.
+- This workflow does not decide whether an upload may occur at all -- that
+  is the upload-policy setting defined in AGENTS.md's Project Settings
+  section (this document intentionally does not name the setting's key, so
+  a future edit here can never reintroduce the one substring this file's
+  own regression test forbids). When this document is the path actually
+  taken -- because the tool is unavailable, authentication failed, or the
+  project's upload-policy setting forbids the upload outright -- record
+  that setting's value and its audit outcome in the layer file's
+  Design-Source section, alongside the marker already recorded there, so
+  the trail names which policy governed, regardless of which path reached
+  this document.
 
 When no visual input is supplied, record:
 `No mockup provided — optional visualization skipped`.

@@ -85,68 +85,74 @@ cannot happen.
    questions. Raw style values that bypass the tokens are not allowed in
    mockups.
 3. **Resolve egress consent.** Read the project's `ds_upload_consent` setting
-   (`AGENTS.md` -> Project Settings; absent, or present with a value that is
+   (AGENTS.md -> Project Settings; absent, or present with a value that is
    not exactly one of the three lowercase literals -> per-feature; matching
-   is exact and case-sensitive) every time this step is resolved — never a
-   value cached from an earlier resolution in the same session. Three
+   is exact and case-sensitive -- round 3, ruling F) every time this step is
+   resolved -- never a value cached from an earlier or previous resolution in
+   the same session (round 2, ruling A / requirements.md AC-020). Three
    regimes:
-   - **per-feature** (default). DS-29's own step, unedited — one named step
+
+   - **per-feature** (default). DS-29's own step, unedited -- one named step
      with exactly three outcomes, and no fourth:
-     - **(a) Consent already holds for this feature AND this session** —
-       continue to 5 with no prompt. The scope is the conjunction of those
-       two coordinates and both must match. A consent whose session has
-       ended does not hold; neither does one the operator withdrew
-       mid-session.
-     - **(b) Consent has not been obtained for this scope** — go to 4.
-     - **(c) Egress is not permitted** — take the manual fallback
+     - **(a) Consent already holds for this feature AND this session** --
+       continue to 5 with no prompt. The scope is the conjunction of those two
+       coordinates and both must match. A consent whose session has ended does
+       not hold; neither does one the operator withdrew mid-session.
+     - **(b) Consent has not been obtained for this scope** -- go to 4.
+     - **(c) Egress is not permitted** -- take the manual fallback
        `../sdd-bootstrap-interviewer/references/claude-design-workflow.md`,
        make no upload attempt, record the outcome, and return to the caller.
-       This outcome is persistent for the scope. It is not the same thing as
-       a decline at 4: a decline is transient, binds only the upload attempt
-       it was asked about, and the next one asks again — it is not a
-       persisted refusal and writes no standing forbiddance.
+       This outcome is persistent for the scope. It is not the same thing as a
+       decline at 4: a decline is transient, binds only the upload attempt it
+       was asked about, and the next one asks again -- it is not a persisted
+       refusal and writes no standing forbiddance.
+
    - **standing**. Never produces outcome (b). Treat consent as already
-     holding — continue to 5 with no prompt — and, the first time this
-     feature-and-destination pair is reached under standing (scoped by
-     (feature, destination), not feature alone: no existing record carries
-     `Ds-Upload-Consent-Setting: standing` naming this destination already),
-     write one record now to the layer file's own `Design-Source` section,
-     with ALL of:
-       `Egress-Consent: granted`
-       `Egress-Consent-Party` names the setting, never a fabricated
-         per-occurrence identity — no human answered a prompt for this
-         occurrence, so the record must not claim one did.
-       `Egress-Consent-At` is an ISO-8601 timestamp.
-       `Ds-Upload-Consent-Setting: standing`
+     holding -- continue to 5 with no prompt -- and, the first time this
+     feature-and-destination pair is reached under standing (round 2, ruling
+     B: scoped by (feature, destination), not feature alone -- no existing
+     Design-Source record for this feature names this destination and
+     carries `Ds-Upload-Consent-Setting: standing` naming that destination),
+     write one record now, with all of:
+       Egress-Consent: granted
+       Egress-Consent-Party: names the setting, never a fabricated
+         per-occurrence identity -- no human answered a prompt for this
+         occurrence, so the record must not claim one did
+       Egress-Consent-At: an ISO-8601 timestamp
+       Ds-Upload-Consent-Setting: standing
      A different destination, later, for the same feature, still under
-     standing, is a fresh occurrence for that (feature, destination) pair
-     and gets its own one-time write — it is not silently covered by the
-     earlier record. Every later occurrence for the same (feature,
-     destination) pair finds that record already present and writes nothing
-     further.
+     standing, is a fresh first occurrence for that (feature, destination)
+     pair and gets its own one-time write (requirements.md AC-030) -- it is
+     not silently covered by the earlier record. Every later occurrence for
+     the same (feature, destination) pair finds that record already present
+     and writes nothing further.
+
    - **off**. Always resolves to outcome (c): egress is not permitted. Take
-     the manual fallback and make no upload attempt, and write a record with
-     ALL of:
-       `Egress-Consent: not-permitted`
-       `Egress-Consent-Party` names the setting, never a fabricated
-         per-occurrence identity — off has no live human either, nobody is
-         ever asked.
-       `Egress-Consent-At` is an ISO-8601 timestamp.
-       `Ds-Upload-Consent-Setting: off`
-     — persistently, for as long as the setting reads off: this is not the
-     transient per-attempt decline DS-29's own step 4 already defines, it
-     does not lapse on the next attempt, and it applies on every host,
-     including one without the DesignSync tool today.
-   A per-feature mid-session withdrawal (DS-29's own unedited path) also
-   writes all three new fields on its `Egress-Consent: withdrawn` record —
-   named explicitly because it is the one record-producing occasion neither
-   the issue text nor this document's own first draft mentioned.
+     the manual fallback, make no upload attempt, and write a record with
+     all of:
+       Egress-Consent: not-permitted
+       Egress-Consent-Party: names the setting, never a fabricated
+         per-occurrence identity -- off has no live human either: nobody is
+         ever asked
+       Egress-Consent-At: an ISO-8601 timestamp
+       Ds-Upload-Consent-Setting: off
+     -- persistently, for as long as the setting reads off. This is not the
+     transient per-attempt decline DS-29's own step 4 already defines; it
+     does not lapse on the next attempt, and it applies on every host
+     (REQ-002), including one without the DesignSync tool today.
+
+   A per-feature mid-session withdrawal (DS-29's own unedited AC-028 path)
+   also writes all three new fields -- `Egress-Consent-Party`,
+   `Egress-Consent-At`, and `Ds-Upload-Consent-Setting` -- on its
+   `Egress-Consent: withdrawn` record, named explicitly because it is the
+   one record-producing occasion neither the issue text nor round 1 of this
+   document mentioned.
+
    Whichever regime or occasion produces the write, `Ds-Upload-Consent-Setting`
-   names the regime in force at the time of the write and `Egress-Consent-At`
-   records when it happened — including an ordinary per-feature grant, which
-   now also carries `Ds-Upload-Consent-Setting: per-feature`, an ISO-8601
-   `Egress-Consent-At`, and `Egress-Consent-Party` naming the human who
-   answered step 4 in that case.
+   names the regime in force at the time of the write -- including an
+   ordinary per-feature grant, which now also carries
+   `Ds-Upload-Consent-Setting: per-feature`, `Egress-Consent-Party` naming
+   the human who answered step 4 in that case, and `Egress-Consent-At`.
 4. **Obtain informed consent** — once per scope. State all of the following
    before asking, then ask:
    - **What leaves.** The generated HTML under `specs/<feature>/mockups/`,
@@ -220,26 +226,18 @@ can tell a conforming record from a non-conforming one.
 | `Egress-Consent-Subject` | what the consent covers sending | value domain deliberately not fixed here — whether it is a file list, content hashes or a prose description is an open product decision; record what the operator was actually shown, and do not settle the domain by fiat |
 | `Egress-Destination` | where the content goes | the claude.ai/design project id selected in step 1 |
 | `Egress-Consent-Expiry` | when the consent stops applying | the end of the session it was given in; never `none` |
-| `Egress-Consent-Party` | who or what produced the grant | the human who answered step 4, when `per-feature`; a named reference to the upload-policy setting itself, never a fabricated identity, when `standing` or `off` — neither has a live per-occurrence human |
-| `Egress-Consent-At` | when the record was written | an ISO-8601 timestamp |
-| `Ds-Upload-Consent-Setting` | the setting in force at write time | `standing` / `per-feature` / `off` |
-
-A record's own `Ds-Upload-Consent-Setting` value never overrides the
-currently configured setting: it names the regime that was in force when the
-record was written, not a standing authorization for what governs the next
-resolution — step 3 always re-reads the live value (see "Resolve egress
-consent" above); a `standing`-era `granted` record does not keep granting
-once the project switches to `off`.
+| `Egress-Consent-Party` | who or what produced the grant | the human who answered step 4, when per-feature; a named reference to the upload-policy setting itself, never a fabricated identity, when standing or off |
+| `Egress-Consent-At` | when the record was written | ISO-8601 timestamp |
+| `Ds-Upload-Consent-Setting` | the setting in force at write time; a record's own value here never overrides the currently configured setting | standing / per-feature / off |
 
 The shape is additively **extensible**: unknown fields are ignored by a
-reader, and absent optional fields do not make a record non-conforming.
-DS-31 / issue #140 has now added the three fields above —
-`Egress-Consent-Party`, `Egress-Consent-At` and `Ds-Upload-Consent-Setting`
-— populated on every occasion this skill's behaviour writes a record; a
-DS-29-era record, written before these fields existed and therefore missing
-all three, remains conforming. The behaviour this skill describes — one
-consent per feature and session — is the behaviour a later `per-feature`
-consent setting selects; this skill does not define that setting.
+reader, and absent optional fields do not make a record non-conforming. That
+is what let DS-31 / issue #140 add the consenting party, timestamp and
+project-level setting value fields above, populated on every record-producing
+occasion this skill's behaviour defines; a DS-29-era record missing all three
+remains conforming. The behaviour this skill describes — one consent per
+feature and session — is the behaviour a later `per-feature` consent setting
+selects; this skill does not define that setting.
 
 `Egress-Destination` binds the consent. A consent granted for one
 destination does not carry to another: choosing a different project at step
