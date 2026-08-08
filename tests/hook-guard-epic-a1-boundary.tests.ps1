@@ -324,6 +324,119 @@ if ($baseCells -eq 48 -and $mutCells -eq 48) {
 }
 
 # ---------------------------------------------------------------------------
+# WIN05-*: surface 05 with a NATIVE WINDOWS absolute target (STAGED candidate)
+# ---------------------------------------------------------------------------
+# Regression cover for the R-10 fail-open that CI run 31226882417 exposed on
+# windows-latest: every surface-05 (cwd-absolute) AC-023 cell was ALLOWED
+# (exit 0) instead of denied, in BOTH sudo lanes.
+#
+# Join-Path emits the platform separator, so on native Windows this suite's
+# $absolute becomes "D:\...\sdd\approver-registry.yaml". That path (a) makes
+# Tokenize-ShellCommand return $null -- an unquoted backslash is an unmodeled
+# construct -- and (b) does not contain the registry's POSIX-separator suffix
+# "sdd/approver-registry.yaml", so the raw-substring fallback in
+# Test-CommandReferencesProtectedPath missed it and the pre-filter reported "no
+# protected path". Only the separator immediately BEFORE the registered suffix
+# mattered, which is why POSIX never saw it: Join-Path emits '/' there.
+#
+# The Windows path here is a hand-built literal, so these cells assert the same
+# thing on every platform and reproduce the Windows failure on POSIX.
+#
+# These cells drive the STAGED candidate, because the live guard is R-10
+# protected and cannot be modified by an agent. The live twins still carry the
+# fail-open until a human runs specs/epic-189-a1-project-context/human-copy/
+# RUNBOOK-pr229.md; the surface-05 cells in the AC-023 block above will only
+# flip to green on real Windows CI after that apply.
+
+Write-Host ""
+Write-Host "--- WIN05-* native-Windows absolute target (STAGED candidate) ---"
+
+$stagedScripts = Join-Path $repositoryRoot (Join-Path "specs/epic-189-a1-project-context/human-copy" $scriptsRel)
+$stagedGuard = Join-Path $stagedScripts "sdd-hook-guard.ps1"
+$winPrefix = 'D:\a\sdd-forge\sdd-forge\proj-plain\sdd\'
+
+if (-not (Test-Path -LiteralPath $stagedGuard)) {
+    Fail "WIN05-staged-present: staged candidate missing at $stagedGuard"
+} else {
+    Pass "WIN05-staged-present: staged candidate exists"
+
+    # Detection-power pair: a copy of the STAGED tree with exactly the four
+    # entries removed must ALLOW the same payloads. Without it, a cell could
+    # pass because some unrelated rule denies every backslashed command.
+    $win05Stripped = Join-Path $work "guard-staged-stripped"
+    Copy-Item -Path $stagedScripts -Destination $win05Stripped -Recurse -Force
+    $pc = Join-Path $win05Stripped "__pycache__"
+    if (Test-Path -LiteralPath $pc) { Remove-Item -LiteralPath $pc -Recurse -Force }
+    $win05Inv = Join-Path $win05Stripped $invRel
+    $win05Text = [System.IO.File]::ReadAllText($win05Inv)
+    $win05StripOk = $true
+    foreach ($bn in $basenames) {
+        $needle = "'" + $bn + "', "
+        if (-not $win05Text.Contains($needle)) { $win05StripOk = $false; break }
+        $win05Text = $win05Text.Replace($needle, "")
+    }
+    if ($win05StripOk) {
+        [System.IO.File]::WriteAllText($win05Inv, $win05Text)
+        Pass "WIN05-strip-fixture: staged inventory copy stripped of the four entries"
+    } else {
+        Fail "WIN05-strip-fixture: could not strip the staged inventory copy"
+    }
+
+    foreach ($bn in $basenames) {
+        $base = $bn.Substring($bn.LastIndexOf("/") + 1)
+        $winAbs = $winPrefix + $base
+        $payload = '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > ' + (ConvertTo-JsonStringBody $winAbs) + '"}}'
+
+        $rc = Invoke-GuardExit $stagedGuard $projPlain $payload $false
+        if ($rc -eq 2) {
+            Pass "WIN05 [$bn] staged guard denies a native-Windows absolute write target"
+        } else {
+            Fail "WIN05 [$bn] expected exit 2 from the staged guard, got $rc (R-10 fail-open on Windows-style paths)"
+        }
+
+        $rc = Invoke-GuardExit $stagedGuard $projSudo $payload $true
+        if ($rc -eq 2) {
+            Pass "WIN05-sudo [$bn] staged guard denies it under an ACTIVE sudo token too"
+        } else {
+            Fail "WIN05-sudo [$bn] expected exit 2 under active sudo, got $rc"
+        }
+
+        $rc = Invoke-GuardExit (Join-Path $win05Stripped "sdd-hook-guard.ps1") $projPlain $payload $false
+        if ($rc -eq 0) {
+            Pass "WIN05-MUT [$bn] de-registered basename is allowed (assertion has detection power)"
+        } else {
+            Fail "WIN05-MUT [$bn] expected exit 0 after de-registration, got $rc (WIN05 above may deny for an unrelated reason)"
+        }
+    }
+
+    # Controls: the widened scan must not deny more than it should.
+    $posixAbs = Join-Path $projPlain "sdd/approver-registry.yaml"
+    $payload = '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > ' + (ConvertTo-JsonStringBody $posixAbs) + '"}}'
+    $rc = Invoke-GuardExit $stagedGuard $projPlain $payload $false
+    if ($rc -eq 2) {
+        Pass "WIN05-control-posix: staged guard still denies the platform-absolute equivalent"
+    } else {
+        Fail "WIN05-control-posix: expected exit 2 for the platform-absolute path, got $rc (separator normalization replaced the original matching)"
+    }
+
+    $payload = '{"tool_name":"Bash","tool_input":{"command":"cat ' + (ConvertTo-JsonStringBody ($winPrefix + "approver-registry.yaml")) + '"}}'
+    $rc = Invoke-GuardExit $stagedGuard $projPlain $payload $false
+    if ($rc -eq 0) {
+        Pass "WIN05-control-read: read-only access to a Windows-style protected path stays ALLOWED (issue #62)"
+    } else {
+        Fail "WIN05-control-read: expected exit 0 for a read-only command, got $rc (over-denial)"
+    }
+
+    $payload = '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > ' + (ConvertTo-JsonStringBody ($winPrefix + "notes.txt")) + '"}}'
+    $rc = Invoke-GuardExit $stagedGuard $projPlain $payload $false
+    if ($rc -eq 0) {
+        Pass "WIN05-control-unprotected: an unregistered Windows-style path stays ALLOWED (deny is suffix-specific, not backslash-specific)"
+    } else {
+        Fail "WIN05-control-unprotected: expected exit 0 for an unregistered path, got $rc (over-denial: any backslash now denies)"
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Self-registration
 # ---------------------------------------------------------------------------
 

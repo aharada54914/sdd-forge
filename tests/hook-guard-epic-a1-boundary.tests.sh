@@ -337,6 +337,119 @@ PYEOF
 done
 
 # ---------------------------------------------------------------------------
+# WIN05-*: surface 05 with a NATIVE WINDOWS absolute target (STAGED candidate)
+# ---------------------------------------------------------------------------
+# Regression cover for the R-10 fail-open that CI run 31226882417 exposed on
+# windows-latest: every surface-05 (cwd-absolute) AC-023 cell was ALLOWED
+# (exit 0) instead of denied.
+#
+# On native Windows PowerShell's Join-Path emits the platform separator, so the
+# suite's $absolute becomes "D:\...\sdd\approver-registry.yaml". That path (a)
+# makes _tokenize_shell_command return None -- an unquoted backslash is an
+# unmodeled construct -- and (b) does not contain the registry's POSIX-separator
+# suffix "sdd/approver-registry.yaml", so the raw-substring fallback in
+# _command_references_protected_path missed it and the pre-filter reported "no
+# protected path". Only the separator immediately BEFORE the registered suffix
+# mattered, which is why POSIX never saw it: Join-Path emits '/' there.
+#
+# The Windows path here is a hand-built literal, so these cells assert the same
+# thing on every platform and reproduce the Windows failure on POSIX.
+#
+# These cells drive the STAGED candidate, because the live guard is R-10
+# protected and cannot be modified by an agent. The live twins still carry the
+# fail-open until a human runs specs/epic-189-a1-project-context/human-copy/
+# RUNBOOK-pr229.md; the surface-05 cells in the AC-023 block above will only
+# flip to green on real Windows CI after that apply.
+
+printf '\n--- WIN05-* native-Windows absolute target (STAGED candidate) ---\n'
+
+STAGED_SCRIPTS="$ROOT/specs/epic-189-a1-project-context/human-copy/$SCRIPTS_REL"
+STAGED_GUARD="$STAGED_SCRIPTS/sdd-hook-guard.py"
+# JSON-escaped (doubled) backslashes: the payload body must decode to single ones.
+WIN_JSON_PREFIX='D:\\a\\sdd-forge\\sdd-forge\\proj-plain\\sdd\\'
+
+if [ ! -f "$STAGED_GUARD" ]; then
+  fail "WIN05-staged-present: staged candidate missing at $STAGED_GUARD"
+else
+  pass "WIN05-staged-present: staged candidate exists"
+
+  # Detection-power pair: a copy of the STAGED tree with exactly the four
+  # entries removed must ALLOW the same payloads. Without it, a cell could pass
+  # because some unrelated rule denies every backslashed command.
+  WIN05_STRIPPED="$WORK/guard-staged-stripped"
+  cp -R "$STAGED_SCRIPTS" "$WIN05_STRIPPED" 2>/dev/null
+  rm -rf "$WIN05_STRIPPED/__pycache__"
+  WIN05_STRIP_RC=0
+  "$PY" - "$WIN05_STRIPPED/$INV_REL" $BASENAMES <<'PYEOF' >/dev/null 2>&1 || WIN05_STRIP_RC=$?
+import sys
+path, entries = sys.argv[1], sys.argv[2:]
+text = open(path, encoding="utf-8").read()
+for entry in entries:
+    needle = "'%s', " % entry
+    if needle not in text:
+        raise SystemExit(3)
+    text = text.replace(needle, "")
+open(path, "w", encoding="utf-8").write(text)
+PYEOF
+  if [ "$WIN05_STRIP_RC" -ne 0 ]; then
+    fail "WIN05-strip-fixture: could not strip the staged inventory copy (rc=$WIN05_STRIP_RC)"
+  else
+    pass "WIN05-strip-fixture: staged inventory copy stripped of the four entries"
+  fi
+
+  for bn in $BASENAMES; do
+    base=${bn##*/}
+    pl=$(printf '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > %s%s"}}' "$WIN_JSON_PREFIX" "$base")
+
+    rc=$(guard_exit "$STAGED_GUARD" "$PROJ_PLAIN" "$pl" 0)
+    if [ "$rc" = "2" ]; then
+      pass "WIN05 [$bn] staged guard denies a native-Windows absolute write target"
+    else
+      fail "WIN05 [$bn] expected exit 2 from the staged guard, got $rc (R-10 fail-open on Windows-style paths)"
+    fi
+
+    rc=$(guard_exit "$STAGED_GUARD" "$PROJ_SUDO" "$pl" 1)
+    if [ "$rc" = "2" ]; then
+      pass "WIN05-sudo [$bn] staged guard denies it under an ACTIVE sudo token too"
+    else
+      fail "WIN05-sudo [$bn] expected exit 2 under active sudo, got $rc"
+    fi
+
+    rc=$(guard_exit "$WIN05_STRIPPED/sdd-hook-guard.py" "$PROJ_PLAIN" "$pl" 0)
+    if [ "$rc" = "0" ]; then
+      pass "WIN05-MUT [$bn] de-registered basename is allowed (assertion has detection power)"
+    else
+      fail "WIN05-MUT [$bn] expected exit 0 after de-registration, got $rc (WIN05 above may deny for an unrelated reason)"
+    fi
+  done
+
+  # Controls: the widened scan must not deny more than it should.
+  rc=$(guard_exit "$STAGED_GUARD" "$PROJ_PLAIN" \
+    "$(printf '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > %s/sdd/approver-registry.yaml"}}' "$PROJ_PLAIN")" 0)
+  if [ "$rc" = "2" ]; then
+    pass "WIN05-control-posix: staged guard still denies the POSIX-absolute equivalent"
+  else
+    fail "WIN05-control-posix: expected exit 2 for the POSIX path, got $rc (separator normalization replaced POSIX matching)"
+  fi
+
+  rc=$(guard_exit "$STAGED_GUARD" "$PROJ_PLAIN" \
+    "$(printf '{"tool_name":"Bash","tool_input":{"command":"cat %sapprover-registry.yaml"}}' "$WIN_JSON_PREFIX")" 0)
+  if [ "$rc" = "0" ]; then
+    pass "WIN05-control-read: read-only access to a Windows-style protected path stays ALLOWED (issue #62)"
+  else
+    fail "WIN05-control-read: expected exit 0 for a read-only command, got $rc (over-denial)"
+  fi
+
+  rc=$(guard_exit "$STAGED_GUARD" "$PROJ_PLAIN" \
+    "$(printf '{"tool_name":"Bash","tool_input":{"command":"cd /tmp && echo x > %snotes.txt"}}' "$WIN_JSON_PREFIX")" 0)
+  if [ "$rc" = "0" ]; then
+    pass "WIN05-control-unprotected: an unregistered Windows-style path stays ALLOWED (deny is suffix-specific, not backslash-specific)"
+  else
+    fail "WIN05-control-unprotected: expected exit 0 for an unregistered path, got $rc (over-denial: any backslash now denies)"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
 # Self-registration
 # ---------------------------------------------------------------------------
 
