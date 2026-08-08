@@ -997,54 +997,7 @@ unsorted.
   (Epic A4/A5's own scope, Non-goals).
 
 ### Blockers
-
 T-001, T-002, T-003, T-004
-
-(Additional external precondition, not an in-repository task-ID blocker:
-Epic A1's canonicalizer utility must exist as a real, finalized artifact
-for this task to reach Done — requirements.md Dependencies, design.md
-Assumptions.)
-
-BLOCKED (2026-07-22T18:32Z, implementation session, before any code was
-written): re-verified this precondition at task-start per the above and
-per requirements.md Dependencies -- still absent. `feature/epic-190-a2-
-capability-registry` (this branch) and `main` both contain no Epic A1
-artifact of any kind (no `specs/epic-189*` or `specs/*a1*` directory, no
-`canonicalize`/`jcs`-named script anywhere in the tree, no
-`provider-bindings.yaml`; confirmed via repo-wide `find`/`grep`, not
-assumed). Epic A1's own feature branch exists locally
-(`feature/epic-189-a1-project-context`, 33 commits ahead of `main`, not
-merged into `main` or this branch) but its own canonicalizer task is
-*itself* `Status: Blocked` there too (commit `1018c10`,
-`specs/epic-189-a1-project-context/tasks.md` T-002 "Author the
-canonicalizer (`canonicalize-sdd-yaml`)"): that task's own Required
-Reading found design.md's parser-library decision (PyYAML/ruamel.yaml)
-unsatisfiable in that implementation session (`ModuleNotFoundError` for
-both; no `requirements.txt`/`pyproject.toml`/`Pipfile` anywhere in the
-repo; every existing `.py` file imports stdlib only) -- an
-architecture/packaging decision A1's own coder correctly did not resolve
-by guessing, per that task's `reports/implementation/
-epic-189-a1-project-context/T-002.md`. So the canonicalizer does not
-exist as a real, finalized artifact in ANY reachable branch of this
-repository, not merely an unmerged-but-complete one. Per
-requirements.md Dependencies and design.md Assumptions, this is not a
-routine approval checkpoint sudo can pass and not something this session
-resolves by reimplementing RFC 8785/JCS itself (Non-goals; would
-duplicate, not delegate to, Epic A1's canonicalizer, and would need to be
-thrown away once the real one lands). No Scope items were started -- this
-was found while re-confirming the Depends-On precondition, before writing
-any Red test or code. Human decision needed: resolve Epic A1's own T-002
-blocker (see that task's Blockers section for the parser-library
-question) and land/merge its canonicalizer; only then can T-005 resume
-from its own Scope's Red step.
-
-Cross-reference: per coordinator decision 2026-07-22 (option (a),
-conditional), T-006 proceeded ahead of this task's Blocked state under
-the Global Constraints' serialized-order rule, since T-005 made zero
-edits to any shared file before blocking -- see T-006's own
-implementation report for the deviation record and the required
-future-task obligation (insert T-005's shared-file registration between
-T-004's and T-006's entries once T-005 unblocks and lands).
 
 ---
 
@@ -1252,29 +1205,7 @@ a direct edit.
   new `check-contract`-enforced Gate).
 
 ### Blockers
-
 T-001, T-002, T-003, T-004, T-005
-
-(T-005 satisfied for shared-file-serialization purposes only, per
-coordinator decision 2026-07-22 option (a) -- see this task's own
-implementation report for the deviation record and the future-task
-obligation this creates for T-005.)
-
-PARTIALLY BLOCKED (Done When #2 only, 2026-07-22): the six-file
-guard-invariants protected-file registration bundle is staged under
-`human-copy/` and independently verified mechanically self-consistent
-(`generate-guard-invariants.py --check` exits 0 against the staged
-overlay in an isolated tree; the live real files are confirmed
-byte-unchanged), but is not recommended for a routine human `cp` --
-`PHASE2_TARGETS`/`guard-invariants.json` are shared, repository-wide
-constants that at least one other in-flight epic
-(`feature/epic-189-a1-project-context`, its own future T-009) will also
-need to extend; applying either epic's whole-file-replacement candidate
-without a human coordination decision on sequencing risks silently
-dropping the other epic's registration. Full detail in this task's own
-implementation report (Summary, Unresolved Items). The core projection
-generator, its test suite, and this feature's ordinary `test.yml`/
-`MANIFEST` staging are unaffected and complete.
 
 ---
 
