@@ -1,0 +1,10 @@
+# npx tsc --noEmit — epic-136-phase4-mcp gate evidence
+# cwd: mcp/sdd-forge-mcp
+# run: 2026-07-29T23:37:30Z
+# HEAD: aeaea6b248debb6ca8af8c92b5d275e79a40e8ad
+# NOTE: this repository configures no separate lint tool for the MCP package
+#       (package.json scripts: build/typecheck/pretest/test/golden:record).
+#       tsc --noEmit is the package's static-analysis command and is the
+#       evidence for BOTH the 'lint' and 'typecheck' contract checks.
+
+# exit=0

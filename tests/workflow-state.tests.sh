@@ -422,6 +422,47 @@ mv "$top_level_hash/contract.tmp" \
   "$top_level_hash/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
 expect_rule "$top_level_hash" stage-provenance
 
+# A re-review (impl-review-precheck --provenance-rereview) necessarily runs
+# while design.md already reads `Impl-Review-Status: Passed`, so its reviewers
+# record the RAW hash of that state rather than the Pending-normalized one.
+# The gate must accept it, or a re-reviewed feature can never pass again no
+# matter how many times its review passes.
+rereview_ok="$(make_full_fixture rereview-raw-hash)"
+rereview_design="$rereview_ok/specs/workflow-state-integrity/design.md"
+rereview_contract="$rereview_ok/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
+rereview_raw="$(shasum -a 256 "$rereview_design" | awk '{print $1}')"
+rereview_norm="$(sed 's/^Impl-Review-Status:[[:space:]]*.*/Impl-Review-Status: Pending/' \
+  "$rereview_design" | shasum -a 256 | awk '{print $1}')"
+# Guard against a vacuous fixture: if the two forms coincided, this case would
+# prove nothing about accepting the raw one.
+[[ "$rereview_raw" != "$rereview_norm" ]] ||
+  fail "rereview fixture is vacuous: raw and normalized design hashes are equal"
+jq --arg raw "$rereview_raw" '
+  .design_sha256 = $raw |
+  (.reviewers[].allowed_input_manifest) |=
+    map(if (.path | endswith("/specs/workflow-state-integrity/design.md"))
+        then .sha256 = $raw else . end)' \
+  "$rereview_contract" > "$rereview_ok/contract.tmp"
+mv "$rereview_ok/contract.tmp" "$rereview_contract"
+expect_valid "$rereview_ok"
+
+# Non-vacuity of the above: accepting the raw form must NOT mean accepting any
+# hash. An edit to design.md's BODY after the contract was recorded matches
+# neither form, so the gate must still reject it.
+rereview_body="$(make_full_fixture rereview-body-edit)"
+rereview_body_design="$rereview_body/specs/workflow-state-integrity/design.md"
+rereview_body_contract="$rereview_body/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
+rereview_body_raw="$(shasum -a 256 "$rereview_body_design" | awk '{print $1}')"
+jq --arg raw "$rereview_body_raw" '
+  .design_sha256 = $raw |
+  (.reviewers[].allowed_input_manifest) |=
+    map(if (.path | endswith("/specs/workflow-state-integrity/design.md"))
+        then .sha256 = $raw else . end)' \
+  "$rereview_body_contract" > "$rereview_body/contract.tmp"
+mv "$rereview_body/contract.tmp" "$rereview_body_contract"
+printf '\nAn edit made after the reviewers read this document.\n' >> "$rereview_body_design"
+expect_rule "$rereview_body" stage-provenance
+
 missing_calibration="$(make_full_fixture missing-calibration)"
 jq '(.reviewers[].allowed_input_manifest) |=
       map(select((.path | endswith("plugins/sdd-review-loop/references/reviewer-calibration.md")) | not))' \
@@ -466,9 +507,25 @@ sed -i.bak \
 rm "$invalid_pending/specs/workflow-state-integrity/tasks.md.bak"
 expect_rule "$invalid_pending" task-lifecycle
 
+blocked_valid="$(make_full_fixture blocked-valid)"
+# Only the first task's Status line is retargeted to Blocked (its Approval
+# stays "Approved (sudo ...)" and all review stages stay Passed), so this
+# represents a legitimately blocked task in an otherwise fully-reviewed
+# feature. The task-stage provenance hash normalizes Status/Approval/
+# Task-Review-Status values but hashes the rest of tasks.md verbatim, so the
+# substitution below is restricted to that one line (via its line number,
+# portable across BSD and GNU sed) rather than appending new prose that
+# would otherwise make the recorded task plan hash go stale.
+blocked_status_line="$(grep -n '^Status:' \
+  "$blocked_valid/specs/workflow-state-integrity/tasks.md" | head -1 | cut -d: -f1)"
+sed -i.bak "${blocked_status_line}s/^Status:.*/Status: Blocked/" \
+  "$blocked_valid/specs/workflow-state-integrity/tasks.md"
+rm "$blocked_valid/specs/workflow-state-integrity/tasks.md.bak"
+expect_valid "$blocked_valid"
+
 matrix_index=0
 for predecessor in spec impl task; do
-  for lifecycle in Approved "In Progress" "Implementation Complete" Done; do
+  for lifecycle in Approved "In Progress" Blocked "Implementation Complete" Done; do
     matrix_index=$((matrix_index + 1))
     matrix="$(make_full_fixture "matrix-$matrix_index")"
     case "$predecessor" in
@@ -562,5 +619,40 @@ jq '{schema_version, migration_baseline_commit,
   "$ROOT/specs/workflow-state-registry.json" > "$lite/specs/workflow-state-registry.json"
 bash "$CHECKER" --registry "$lite/specs/workflow-state-registry.json" >/dev/null ||
   fail "lite fixture was subjected to full rules"
+
+# WFI-021: two independently broken features are BOTH reported in one run
+# (cross-feature accumulation), while a feature's own chain still stops at
+# its first diagnostic (within-feature short-circuit). Under the pre-change
+# exit-at-first behavior the second feature's line was absent, so asserting
+# its presence is the non-vacuous regression guard.
+accumulate="$TMP/accumulate"
+mkdir -p "$accumulate/specs/feat-a" "$accumulate/specs/feat-b"
+printf 'x\n' > "$accumulate/specs/feat-a/acceptance-tests.md"
+printf 'Spec-Review-Status: Bogus\n' > "$accumulate/specs/feat-b/requirements.md"
+printf 'Impl-Review-Status: Pending\n' > "$accumulate/specs/feat-b/design.md"
+printf 'x\n' > "$accumulate/specs/feat-b/acceptance-tests.md"
+jq '{schema_version, migration_baseline_commit,
+     entries: [{"feature":"feat-a","profile":"full"},{"feature":"feat-b","profile":"full"}]}' \
+  "$ROOT/specs/workflow-state-registry.json" > "$accumulate/specs/workflow-state-registry.json"
+diag_seq() { sed -n 's/^workflow-state: \([^:]*\): \([^:]*\):.*/\1:\2/p'; }
+set +e
+acc_output="$(bash "$CHECKER" --registry "$accumulate/specs/workflow-state-registry.json" 2>&1)"
+acc_status=$?
+acc_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$accumulate/specs/workflow-state-registry.json" 2>&1)"
+acc_ps_status=$?
+set -e
+[[ $acc_status -ne 0 && $acc_ps_status -ne 0 ]] || fail "WFI-021 accumulate fixture unexpectedly passed"
+for acc_out in "$acc_output" "$acc_ps_output"; do
+  [[ "$acc_out" == *"workflow-state: feat-a: stage-input:"* ]] ||
+    fail "WFI-021 first feature diagnostic missing: $acc_out"
+  [[ "$acc_out" == *"workflow-state: feat-b: stage-status:"* ]] ||
+    fail "WFI-021 second feature diagnostic missing (exit-at-first regression): $acc_out"
+  [[ "$(printf '%s\n' "$acc_out" | grep -c '^workflow-state: feat-a:')" -eq 1 ]] ||
+    fail "WFI-021 within-feature short-circuit lost: $acc_out"
+done
+[[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
+  fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
 
 printf 'ok: Shell workflow-state validation fixtures passed\n'

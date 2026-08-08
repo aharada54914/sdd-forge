@@ -1,0 +1,71 @@
+T-009 (epic-189-a1-project-context, REQ-007) — TDD Red evidence
+Staged-tree `generate-guard-invariants.py --check` against the
+INTENTIONALLY-INCOMPLETE draft candidate.
+
+Red defect (single variable): the staged
+generate-guard-invariants.py's EPIC_A1_TARGETS tuple omits the 4 RESERVED
+PROTECTED-MANIFEST.md entries (resolve-project-context.{py,sh,ps1} and
+generated/project-context.resolved.json), while the staged
+guard-invariants.json still carries all 28. Everything else in the staged
+tree is byte-identical to the Green candidate.
+
+This is precisely the failure mode design.md's Protected-File Statement
+warns about ("Editing guard-invariants.json's array without a matching
+edit to generate-guard-invariants.py's own constants makes --check fail")
+and the one AC-038 exists to prevent (silently dropping the resolver /
+generated-projection reservations).
+
+--------------------------------------------------------------------------
+$ cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+$ python3 specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+generate-guard-invariants: protected_gate_suffixes must be the exact baseline/inventory union
+check_exit=1
+--------------------------------------------------------------------------
+
+How the staged tree (not the live one) is targeted
+--------------------------------------------------
+generate-guard-invariants.py has no --repo-root/--root flag. It anchors on
+its own location:
+
+    script_dir = Path(__file__).resolve().parent
+    canonical  = script_dir.parent / "references" / "guard-invariants.json"
+    outputs    = expected_outputs(data, digest, script_dir / "generated")
+
+Invoking the STAGED COPY of the generator therefore resolves the canonical
+JSON and all four generated outputs INSIDE the staging directory, and never
+touches the live tree. This is the repository's own established idiom for
+checking a staged inventory: tests/phase2-guard-invariants.tests.sh:24,41
+does exactly this for the frozen epic-136 stage
+(`run_generator "$source_loop" --check`).
+
+tests/guard-invariants-epic-a1.tests.{sh,ps1} assert this anchoring
+explicitly ("the staged generator anchors on the STAGED canonical JSON,
+never the live one") so the proof cannot silently regress into a live-tree
+check.
+
+Suite results in this Red state
+-------------------------------
+tests/guard-invariants-epic-a1.tests.sh   PASS 70 / FAIL 5 (exit 1) — red-sh.log
+tests/guard-invariants-epic-a1.tests.ps1  PASS 74 / FAIL 5 (exit 1) — red-ps1.log
+
+The 5 failures are identical in both runtimes:
+  1. TEST-021: staged generator EPIC_A1_TARGETS equals the manifest exactly
+  2. TEST-021: staged-tree generate-guard-invariants.py --check passes
+  3. TEST-021-MUT: pristine copy passes --check before mutation (dropped JSON entry)
+  4. TEST-021-MUT: pristine copy passes --check before mutation (dropped EPIC_A1_TARGETS entry)
+  5. TEST-021-MUT: pristine copy passes --check before mutation (stale generated output)
+
+Failures 3-5 are the mutation-baseline assertions doing their job: they
+refuse to report detection power while the tree under test is already
+broken. An earlier draft of this suite omitted those baselines, and in the
+Red state its three mutation assertions all "passed" vacuously — the
+mutated copy failed --check only because the unmutated copy already did.
+That is the two-guards-mask-each-other / zero-detection-power defect, and
+it was fixed before this evidence was recorded.
+
+The ps1 tally is 4 higher than the sh tally by design: the PowerShell twin
+reads EPIC_A1_TARGETS / PHASE2_TARGETS / BASELINE_SUFFIXES / REQUIRED_TOP_LEVEL
+by PARSING the module source, so it adds four "is parseable" guard
+assertions that the .sh twin (which IMPORTS the module and reads live
+objects) has no analogue for. That divergence is the deliberate variant
+axis documented in the ps1 suite header.

@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase3",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-b-seq0444",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase3-0444",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase3/attempt-2/round-1/integrated-summary.json",
+        "sha256": "a109d3ef2ecc26b67308c830b6082c582e99472557d198c5605d92f17a3356b0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase3/attempt-2/round-1/precheck-result.json",
+        "sha256": "006eb4dacf951eaa9a00db28d1c6c560e45cbce2b0e9990480edfd40bc33677e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+        "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+        "sha256": "4985a15b58f3db59be0fd72cd30bd93bf87634ddfccb37c56461eb5f508d3439"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+        "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+        "sha256": "147f7d421fd6f8cadc518157d6b7dccbeabbfb581896632154cb1b7611a2145a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+        "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+        "sha256": "df7e842d8cb7f4bb8342c4f3be07e147d87dd27f48897c0a531c3740da4bc2c6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/tasks.md",
+        "sha256": "e79152ffd3cfecf1c324180592770b7220bacf40246a6f1faf7f55eec0753916"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/traceability.md",
+        "sha256": "6a9606ba0a04384edbbb110349e46f345d8792bdcd28638da4935d894838640c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+        "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-002 (Risk: medium) only add new, unprotected read-only test files exercising live guards via env-var/PATH indirection (no auth/authz/payment/PII/migration/API-contract surface modified) -- consistent with medium. T-003 (Risk: high) is the one task touching the genuinely R-10-protected `.github/workflows/test.yml` (via staged human-copy), where design.md's own Risks section names a silent `needs:`-narrowing or dropped-step hazard invisible to normal test failure -- matches risk-classification-policy.md's high-tier 'silent defect causes material harm' clause. T-004 (Risk: high) is elevated specifically because scenario 5/AC-014 validates a genuine prompt-injection security property (security-spec.md Boundary B2), per the policy's 'classify at the highest applicable tier' rule; the other 9/10 scenarios alone would be medium, but this is not over-classification since a real security-sensitive surface (Security-Sensitive: true) is present. No task's scope is UI-copy/docs/test-only despite a high/critical label. No sentinel surface (auth, payment, PII, migration, externally-visible API contract) is touched by any medium-tier task."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-003 (Risk: high) Done When's final item requires 'TDD evidence... with Red and Green explicitly separated' (RED: dropped-step fixture failing; GREEN: staged candidate passing) plus 'An independent quality-gate verdict, plus an independent review verdict distinct from the implementing agent, records PASS for this task (high-risk requirement)' -- both Red->Green and independent-review evidence present. T-004 (Risk: high) Done When's final item likewise requires RED (mutated-stub fixture failing the non-execution assertion) / GREEN (real entry point's recorded result) plus the identical independent quality-gate + independent review verdict clause. No task in this set is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002/T-003/T-004 each carry 6 Done-When checkbox items and a Scope confined to one suite/candidate file plus the uniform two-commit (impl + CHANGELOG/doc-check) convention used across all sibling epic-136/quality-loop-fixes features. T-001 has 9 Done-When items (verified by direct count), one over the indicator threshold, but all 7 of the TEST-001..007 items verify branches of a SINGLE fallback chain inside ONE suite file, explicitly required to be individually PASS/FAIL-visible per WFI-014 branch-enumeration discipline (acceptance-tests.md Notes) rather than reflecting multiple implementation areas or sequential phases -- no title implies multi-phase work, and Scope does not exceed 3 areas (suite authoring, registration+CI-resilience, CHANGELOG/doc-check). No fragmentation indicator (single-function/file-only tasks, bare rename tasks) is present anywhere in the 4-task set."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task in this feature is itself edge-case/negative-path test authoring, and acceptance-tests.md documents explicit non-happy-path criteria for each: AC-005 (`deny_unavailable` fail-closed, 2 named sub-cases), AC-008/AC-009/AC-010 (cd&&rm bypass, triple-quote injection, task-id-collision negative corpus with an explicit false-DENY control case), AC-011 (cross-runtime parity divergence detection), AC-017 (RED-then-GREEN dropped-step self-check), and AC-014 (RED/GREEN prompt-injection non-execution proof with a named-defect-count pin). No functional task in this set has only happy-path AC coverage."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 and T-002 each carry an explicit task-level `Test Type: integration` field (tasks.md lines 210, 427) that deliberately supersedes acceptance-tests.md's frozen 'unit' column label, with a stated rationale (2+ real components: dispatcher + direct .py/.ps1 parity target for T-001; 4 real runtime surfaces for T-002, no mocking) that matches this check's own integration-tier definition (>=2 real components). T-003/T-004 declare no task-level Test Type field; acceptance-tests.md's per-TEST-ID labels for their scope (TEST-016/017 'staged candidate vs. live'/'self-check text-marker', TEST-018 'non-regression', TEST-020 'CI/registration conformance', TEST-012/013 'unit... schema-presence/declaration checks') describe narrowly-scoped, single-target conformance/self-checks accurately, without overstating breadth -- no declared type contradicts its actual scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003 (Risk: high) carries a `Rollback:` field (tasks.md ~lines 679-688) detailing revert of its two agent commits plus an explicit note that a SECOND human-copy application is required if the staged candidate was already applied, with the exact revert-boundary obligation assigned to whichever stream lands last in the shared batch. T-004 (Risk: high) carries a `Rollback:` field (tasks.md ~lines 953-955) stating reviewed revert of its two commits with no protected-file touch. Both high-risk tasks have explicit rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tests/run-all.sh is edited by all 4 tasks, but Global Constraints (tasks.md lines 120-133) pre-assigns each task a distinct, non-overlapping line (37, 47, 48, 49 -- verified byte-identical against the live tests/run-all.sh via grep), and Global Constraints line 172 mandates 'implement one task at a time,' serializing the edits. CHANGELOG.md's `## Unreleased` section is similarly edited by all 4 tasks but via 4 independent, never-colliding entries with the section header itself never re-created by any task (Global Constraints lines 140-145). `.github/workflows/test.yml`'s staged candidate is authored solely by T-003; T-001/T-002/T-004 each explicitly list staging/editing that file (staged or live) as Out of Scope. No two tasks claim the same primary implementation file for the same purpose without a coordinating mechanism."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003's Scope (Commit A) explicitly requires the staged candidate to append 'one new CI step per new suite... Stream C's `tests/workflow-scenarios/workflow-scenarios.tests.sh` (T-004)' as one of the four steps, and this was verified true in the actual artifact (`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml:388-390` names that exact suite path). Yet T-003's `Depends On:` (tasks.md ~lines 640-646) and `### Blockers` (tasks.md ~lines 829-840) fields list only 'T-001, T-002' -- T-004 is never declared as a blocker or dependency, despite T-003 needing T-004's FINAL suite basename for the same reason it cites for blocking on T-001/T-002 ('sequenced after both so the batch is authored against their FINAL basenames, not a placeholder'). The Blockers section's own justification quotes requirements.md Main Workflows item 4 as ending '...it shares `test.yml` as a file surface with Streams A/B' -- but requirements.md's actual text (verified at requirements.md lines 642-644) reads '...it shares `test.yml` as a file surface with all three of them' (Streams A, B, AND C), not 'Streams A/B'. tasks.md's Blockers rationale misquotes its own cited source to drop Stream C/T-004 from the set, and no T-003->T-004 edge is declared for `task-review-precheck.sh`'s dependency-graph.json (which T-003's own Blockers text says is built from this field). This is a missing blocker: nothing in the declared dependency graph enforces that T-004's suite basename is final before T-003's staged candidate references it, the same integration-failure risk the task itself names as the reason T-001/T-002 are blockers."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 4 tasks are new-test-suite additions or preventive/structural CI restructuring (requirements.md Field Definitions explicitly frames Stream A/D as 'preventive... distinguished explicitly from a bugfix so the design and its tests are not held to a RED-then-GREEN regression-reproduction standard'); T-004's AC-014 may non-fatally record a genuinely discovered defect as an outcome, but the task itself is scoped as a proof/test-authoring task, not a bugfix/regression/debugging/incident-remediation task."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "T-003's staged `.github/workflows/test.yml` candidate must name T-004's final suite basename (`tests/workflow-scenarios/workflow-scenarios.tests.sh`, confirmed present in the actual draft at verification/T-003/staged-workflow-candidate.draft.yml:388-390), the same class of dependency T-003 cites to justify blocking on T-001/T-002 ('sequenced after both so the batch is authored against their FINAL basenames, not a placeholder'). T-003's `Depends On:`/`### Blockers` fields (tasks.md ~lines 640-646, 829-840) omit T-004 entirely. The Blockers section's rationale misquotes requirements.md Main Workflows item 4 -- tasks.md renders it as '...shares `test.yml` as a file surface with Streams A/B', while the actual requirements.md text (lines 642-644) reads '...shares `test.yml` as a file surface with all three of them' (Streams A, B, and C) -- to justify the omission. This is a missing blocker that leaves the dependency-graph.json T-003->T-004 edge unrecorded despite a genuine functional dependency."
+    }
+  ]
+}

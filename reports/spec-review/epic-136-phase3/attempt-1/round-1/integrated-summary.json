@@ -1,0 +1,41 @@
+{
+  "schema": "integrated-summary/v1",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Minor"
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Minor"
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major"
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor"
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Minor"
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Minor"
+    }
+  ],
+  "reviewer_a_fail_count": 1,
+  "reviewer_a_pass_count": 5,
+  "reviewer_a_skip_count": 0,
+  "generated_at": "2026-07-21T17:10:50Z"
+}

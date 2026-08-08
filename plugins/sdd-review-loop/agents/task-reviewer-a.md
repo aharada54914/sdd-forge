@@ -59,6 +59,13 @@ path, hash mismatch, chat-only input, writable context, fallback, or reused
 implementation/review/evaluation identity. No same-session fallback is
 permitted.
 
+`plugins/sdd-review-loop/references/review-context-boundary.md` states which
+manifest fields to re-verify and which the validator consumes before the
+reservation is appended. Read it before rejecting on a hash mismatch:
+`identity_ledger_sha256` is stale by construction once your reservation exists,
+so re-checking it always fails and is not evidence of tampering. Verify the
+ledger record chain instead — that is the guarantee that survives the append.
+
 # Finding Calibration
 
 After reading the input artifacts, read
@@ -70,6 +77,17 @@ emitting any FAIL finding. In particular:
   even when precheck has already recorded related mechanical failures.
 - Do not require live build, coverage, E2E, git, checkpoint, or learning
   workflows; require only planned, inspectable task evidence.
+
+Post-implementation provenance re-review convergence rule (TYPE-H checks
+only): when the orchestrator declares the invocation a post-implementation
+provenance re-review (see the task-review-loop skill) and a TYPE-H check
+would raise a NEW finding against content that is byte-identical - modulo
+human-authorized status/approval/pointer lines - to content already bound
+by a prior attempt's persisted task-review PASS evidence, record that
+check as `status: PASS` and carry the observation in the check's
+`finding` text as an advisory, citing the prior PASS evidence path
+(`reports/task-review/<feature>/attempt-<K>/round-<N>/`). Do NOT emit a
+`findings` entry for it. TYPE-D checks are unaffected by this rule.
 
 # Checks
 

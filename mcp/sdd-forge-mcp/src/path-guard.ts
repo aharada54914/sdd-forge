@@ -246,6 +246,91 @@ export function guardedExistsNonEmpty(root: SddRoot, relPath: string): boolean {
   return guardResult.ok && guardResult.data.size > 0;
 }
 
+/** One failure encountered while listing a guarded directory. */
+export interface GuardedListError {
+  /**
+   * The `relDir` itself for a top-level guard-validation failure, or the
+   * root-relative sub-path where a `readdirSync`/`statSync` call threw for a
+   * mid-walk failure.
+   */
+  path: string;
+  /** The caught error's message, or the guard's own denial message. */
+  reason: string;
+}
+
+/** The result of a diagnostics-carrying guarded directory listing. */
+export interface GuardedListResult {
+  files: string[];
+  errors: GuardedListError[];
+}
+
+/** Normalizes an unknown thrown value into a message string. */
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Recursively lists every regular file reachable under an allowlisted
+ * directory (as `listGuardedFiles` does) while ALSO reporting every failure it
+ * encountered, so that a genuinely empty but successfully-read directory is
+ * distinguishable from a directory that could not be scanned at all. Read-only
+ * (readdirSync/statSync only).
+ *
+ * Guard-check ordering is load-bearing and deliberately not defensive
+ * (security-spec.md Boundary B3): `resolveGuardedDirectory` — which owns the
+ * shape, allowlist and denylist checks — is called FIRST, OUTSIDE and BEFORE
+ * every `try`/`catch` below, and its failure returns immediately without any
+ * filesystem read being attempted. A denial is therefore always a hard deny,
+ * never an entry that a swallowed I/O error could be confused with. The
+ * `try`/`catch` blocks below exist solely to collect genuine `readdirSync`/
+ * `statSync` errors from inside a directory that has ALREADY passed the guard.
+ *
+ * The walk's own control flow is unchanged from `listGuardedFiles`: it still
+ * `return`s past a top-level `readdirSync` failure and still `continue`s past
+ * a per-entry `statSync` failure. This function adds visibility, not a
+ * stricter or fail-fast walk.
+ */
+export function listGuardedFilesWithDiagnostics(
+  root: SddRoot,
+  relDir: string,
+): GuardedListResult {
+  const guardResult = resolveGuardedDirectory(root, relDir);
+  if (!guardResult.ok) {
+    return { files: [], errors: [{ path: relDir, reason: guardResult.error.message }] };
+  }
+
+  const files: string[] = [];
+  const errors: GuardedListError[] = [];
+  const walk = (absDir: string, relPrefix: string): void => {
+    let entries: string[];
+    try {
+      entries = readdirSync(absDir);
+    } catch (error) {
+      errors.push({ path: relPrefix, reason: errorMessage(error) });
+      return;
+    }
+    for (const entry of entries) {
+      const absEntryPath = join(absDir, entry);
+      const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
+      let stats: ReturnType<typeof statSync>;
+      try {
+        stats = statSync(absEntryPath);
+      } catch (error) {
+        errors.push({ path: relEntryPath, reason: errorMessage(error) });
+        continue;
+      }
+      if (stats.isDirectory()) {
+        walk(absEntryPath, relEntryPath);
+      } else if (stats.isFile()) {
+        files.push(relEntryPath);
+      }
+    }
+  };
+
+  walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
+  return { files, errors };
+}
+
 /**
  * Recursively lists every regular file reachable under an allowlisted
  * directory, returned as root-relative paths (POSIX `/` separators, mirroring
@@ -256,41 +341,14 @@ export function guardedExistsNonEmpty(root: SddRoot, relPath: string): boolean {
  *
  * Returns an empty array if `relDir` fails path-guard validation or does not
  * exist / is not a directory — callers that need the failure reason should
- * use `resolveGuarded` instead.
+ * use `listGuardedFilesWithDiagnostics` instead, which returns the same
+ * `files` alongside a `GuardedListError[]` naming every failure.
+ *
+ * Exact signature and exact behavior preserved: this is a thin wrapper over
+ * `listGuardedFilesWithDiagnostics` that discards the diagnostics.
  */
 export function listGuardedFiles(root: SddRoot, relDir: string): string[] {
-  const guardResult = resolveGuardedDirectory(root, relDir);
-  if (!guardResult.ok) {
-    return [];
-  }
-
-  const results: string[] = [];
-  const walk = (absDir: string, relPrefix: string): void => {
-    let entries: string[];
-    try {
-      entries = readdirSync(absDir);
-    } catch {
-      return;
-    }
-    for (const entry of entries) {
-      const absEntryPath = join(absDir, entry);
-      const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
-      let stats: ReturnType<typeof statSync>;
-      try {
-        stats = statSync(absEntryPath);
-      } catch {
-        continue;
-      }
-      if (stats.isDirectory()) {
-        walk(absEntryPath, relEntryPath);
-      } else if (stats.isFile()) {
-        results.push(relEntryPath);
-      }
-    }
-  };
-
-  walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
-  return results;
+  return listGuardedFilesWithDiagnostics(root, relDir).files;
 }
 
 /**

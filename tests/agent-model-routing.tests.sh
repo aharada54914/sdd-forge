@@ -411,10 +411,17 @@ done
 # extension there).
 
 # Sanity: schema auto-detection recognizes the REAL, shipped v2 registry
-# (not just the synthetic fixtures below).
+# (not just the synthetic fixtures below). --effort-policy welded is
+# explicit here (epic-159-pillar-c T-007, #155): this check's own intent
+# (per its name/comment) is schema auto-detection, never the
+# --effort-policy DEFAULT value -- it originally relied on welded being
+# that default incidentally, which T-007 changed to matrix. Pinning the
+# policy explicitly keeps this a true auto-detection + welded-behavior
+# sanity check, decoupled from whichever policy happens to be the default.
 real_v2="$(
   bash "$SELECTOR_SH" --risk low --registry "$REGISTRY_V2" \
-    --candidates-file "$TMP/all-tiers.json" --required-tier lightweight --json
+    --candidates-file "$TMP/all-tiers.json" --required-tier lightweight \
+    --effort-policy welded --json
 )"
 jq -e '.model == "openai/gpt-5.1-codex-mini" and .effort_source == "welded"' \
   <<<"$real_v2" >/dev/null ||
@@ -589,9 +596,16 @@ explicit_welded_text="$(
   fail "TEST-007 v2 welded (default policy) text output diverged from the v1 golden baseline"
 [[ "$explicit_welded_text" == "openai/gpt-5.2-codex strong" ]] ||
   fail "TEST-007 v2 welded (explicit policy) text output diverged from the v1 golden baseline"
+# --effort-policy welded is explicit here (epic-159-pillar-c T-007, #155):
+# this JSON-mode assertion's own claim is "v2 registry WELDED mode's output
+# has the right additive keys/values" (effort_source: "welded"), never
+# "whatever the selector's own default happens to be" -- it originally
+# relied on welded being that default incidentally, before T-007 flipped
+# it. tests/effort-policy-flip.tests.sh's own TEST-041 separately proves
+# the no-flag/default case now resolves to matrix.
 welded_json="$(
   bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
-    --candidates-file "$TMP/v2-golden-candidates.json" --json
+    --candidates-file "$TMP/v2-golden-candidates.json" --effort-policy welded --json
 )"
 jq -e '.model == "openai/gpt-5.2-codex" and .canonical_tier == "strong" and
   .effort == "high" and .estimated_cost_per_attempt_usd == "0.03" and
@@ -747,9 +761,13 @@ if bash "$SELECTOR_SH" --risk low --registry "$REGISTRY" \
   --candidates-file "$TMP/v1-omit-effort-candidate.json" --json >/dev/null 2>&1; then
   fail "TEST-013 v1 --candidates-file accepted a candidate omitting effort"
 fi
+# --effort-policy welded is explicit here (epic-159-pillar-c T-007, #155)
+# -- same reasoning as TEST-007/TEST-034 above: this asserts welded-mode's
+# omitted-effort fill behavior specifically (effort_source: "welded"), not
+# whichever policy happens to be the selector's own default.
 v2_omit_json="$(
   bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
-    --candidates-file "$TMP/v1-omit-effort-candidate.json" --json
+    --candidates-file "$TMP/v1-omit-effort-candidate.json" --effort-policy welded --json
 )"
 jq -e '.model == "anthropic/haiku" and .effort == "low" and
   .effort_source == "welded"' <<<"$v2_omit_json" >/dev/null ||
@@ -860,11 +878,15 @@ fi
 # Phase-1-scoped smoke above -------------------------------------------
 # TEST-034 (AC-034): v1<->v2 projection invariant -- the SAME candidate set
 # and risk/tier input, run against the REAL v1 registry and the REAL v2
-# registry (welded, the Phase-1 default), select the identical winning
-# model and canonical_tier, with effort_source correctly attributed
-# "welded" (shares fixtures with tests/agent-capabilities-v2.tests.sh's
-# TEST-004 registry-content parity lock; this is the same invariant
-# re-asserted at the select-agent-model.sh OUTPUT level).
+# registry under --effort-policy welded (explicit here, epic-159-pillar-c
+# T-007/#155: this invariant is about v1<->v2 PROJECTION equivalence, not
+# about whichever policy happens to be the selector's own default -- it
+# originally relied on welded being that default incidentally), select the
+# identical winning model and canonical_tier, with effort_source correctly
+# attributed "welded" (shares fixtures with
+# tests/agent-capabilities-v2.tests.sh's TEST-004 registry-content parity
+# lock; this is the same invariant re-asserted at the select-agent-model.sh
+# OUTPUT level).
 for risk_and_tier in "low lightweight" "medium standard" "high strong"; do
   read -r proj_risk proj_tier <<<"$risk_and_tier"
   v1_projection="$(
@@ -873,7 +895,8 @@ for risk_and_tier in "low lightweight" "medium standard" "high strong"; do
   )"
   v2_projection="$(
     bash "$SELECTOR_SH" --risk "$proj_risk" --registry "$REGISTRY_V2" \
-      --candidates-file "$TMP/all-tiers.json" --required-tier "$proj_tier" --json
+      --candidates-file "$TMP/all-tiers.json" --required-tier "$proj_tier" \
+      --effort-policy welded --json
   )"
   v1_model="$(jq -r '.model' <<<"$v1_projection")"
   v1_tier="$(jq -r '.canonical_tier' <<<"$v1_projection")"

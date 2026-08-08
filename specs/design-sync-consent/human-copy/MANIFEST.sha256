@@ -1,0 +1,32 @@
+# design-sync-consent, T-004 (issue #138) -- ONE staged candidate.
+#
+# The sha256 below is the content of
+#   specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md
+# which is the byte-exact content a human must place at the staged candidate
+# path in this directory. The agent cannot write that path itself: sdd-hook-guard
+# denies every agent write whose path ends with a protected suffix
+# (plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4, and :18
+# for PHASE2_HUMAN_COPY_TARGETS), and the suffix match has no human-copy
+# carve-out (sdd-hook-guard.py:1001-1015).
+#
+# Human steps (all human-performed; tasks.md T-004 Done-When, infra-spec.md
+# CI/CD Sequence):
+#   1. copy the draft to
+#      <this dir>/plugins/sdd-lite/skills/lite-spec/SKILL.md
+#   2. verify:  cd <this dir> && shasum -a 256 -c MANIFEST.sha256   (must say OK)
+#   3. apply the staged candidate to the live
+#      plugins/sdd-lite/skills/lite-spec/SKILL.md
+#
+# The single change is Process step 4 of lite-spec/SKILL.md (pre-edit
+# `:62-66`): the Design-Source destination is now stated explicitly as
+# `specs/<feature>/design.md`, matching the lite-profile leg of the
+# destination fact design-sync-loop/SKILL.md:18-20 already states for both
+# profiles (AC-011 lite leg). Until step 3 above lands, TEST-017 (this
+# feature's tests/design-system-contract.tests.{sh,ps1}) stays red against
+# the live tree -- the designed fail-closed state (tasks.md T-004 Done-When;
+# acceptance-tests.md TEST-017/TEST-038 notes), not a defect.
+#
+# The path below is the destination file's own repository-relative path so
+# that `shasum -a 256 -c` run from this directory checks the placed
+# candidate.
+d428b0dff8fec5b64917e7fd66796e470dc4d3462ddc2139d428f8bc96681bd8  plugins/sdd-lite/skills/lite-spec/SKILL.md

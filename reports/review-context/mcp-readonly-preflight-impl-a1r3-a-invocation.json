@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "mcp-readonly-preflight",
+  "run_id": "RUN-mcpreadonlypreflight-impl-a1r3-a-seq0487",
+  "host_session_id": "SESS-impl-a1r3-a-mcpreadonlypreflight-0487",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "bd0d2ef12e636f53fea4c1889d80efcbf95141398c52bc7093e745ac07b63852",
+  "previous_record_sha256": "6dc400851af3ac7519d083a91908f82e6795b2a6b9b795d57c669d900a52d176",
+  "sequence": 487,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/design.md",
+      "sha256": "228f3fa39a289cc87ba28e8f2730b8fb043caf153a0948f49f593614fd275239"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/mcp-readonly-preflight/attempt-1/round-3/precheck-result.json",
+      "sha256": "018081f6be91fc17aff27f14f1af0b4dfe43b6f3f419b7d572f54ca358828327"
+    },
+    {
+      "path": "reports/impl-review/mcp-readonly-preflight/attempt-1/round-2/integrated-summary.json",
+      "sha256": "d65a4eaa91cf7a322f509c0bb5ed64d7f4efee5200da0778e8e3348e08dfff52"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "design-sync-consent",
+  "run_id": "RUN-designsyncconsent-impl-a1r2-b-seq0486",
+  "host_session_id": "SESS-impl-a1r2-b-designsyncconsent-0486",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "1e9ebf156f1834897a33ddf7e165ec1bb19e386582ef927cd64b7020c0680aa7",
+  "previous_record_sha256": "08ebd263ee14b9fdffbbf70afe3f6c87a73a6b790262a7c0277c48782a69d39c",
+  "sequence": 486,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/design-sync-consent/requirements.md",
+      "sha256": "7d1d4e81866266c74020abfb2de8decd38897a153faff2b71f57b0860f535f2d"
+    },
+    {
+      "path": "specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "specs/design-sync-consent/design.md",
+      "sha256": "4693e65e7b57edce7bfe576c7802b5ad43572e24d3ca667cce42e45bf8c14807"
+    },
+    {
+      "path": "specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    },
+    {
+      "path": "specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "specs/design-sync-consent/security-spec.md",
+      "sha256": "63254ac7a73ebbf98e6e61c3d4330af8265cf0674d8e581adeee3f7b5cf6e3ba"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/design-sync-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "9cd6b2b9a9eba8b265f3d77f0ac0ce9cd726b0f9efe0442b81a9d48b0bc907e8"
+    },
+    {
+      "path": "reports/impl-review/design-sync-consent/attempt-1/round-2/integrated-summary.json",
+      "sha256": "90aaba5daf0f9ccc4ca072e21382e0720b8f20156b0534b5462e6db2cd861804"
+    }
+  ]
+}

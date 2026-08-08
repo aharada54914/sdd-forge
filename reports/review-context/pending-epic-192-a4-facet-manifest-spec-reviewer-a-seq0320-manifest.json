@@ -1,0 +1,37 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "epic-192-a4-facet-manifest",
+  "run_id": "RUN-epic-192-a4-facet-manifest-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-192-a4-facet-manifest-0320",
+  "sequence": 320,
+  "previous_record_sha256": "1a4bfebc4c72e911ac823f24f39d74262e21520552ccde320567357b6fcaa441",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "18c392d8e1214511f831d296a799d3b114c65c4ed32e428541a1e9cb244202e0",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-192-a4-facet-manifest/requirements.md",
+      "sha256": "26a11832883733ab4b17d7716cd99f1c4102c6ef6dab50f4026fcaf4a58fb3f5"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md",
+      "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/investigation.md",
+      "sha256": "e82a67c5cb79f0be950500635642f69744df50400177e21f263de1a7fe83f17f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/epic-192-a4-facet-manifest/attempt-1/round-1/precheck-result.json",
+      "sha256": "dba97d8a249fee4a8416f33acc8227f7075167b0d6efd4dd80e90b1a793d1ddf"
+    }
+  ]
+}

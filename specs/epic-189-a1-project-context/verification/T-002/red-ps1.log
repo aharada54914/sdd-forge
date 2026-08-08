@@ -1,0 +1,15 @@
+FAIL: TEST-005 anchor rejected: exit code: got 64, want 20
+FAIL: TEST-005 alias rejected: exit code: got 64, want 21
+FAIL: TEST-005 custom tag rejected: exit code: got 64, want 22
+FAIL: TEST-005 duplicate key rejected: exit code: got 64, want 23
+FAIL: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans: exit code: got 64, want 0; stderr: The argument '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+FAIL: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null): exit code: got 64, want 0; stderr: The argument '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+[31;1mInvalidOperation: [0m/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/tests/canonicalize-sdd-yaml.tests.ps1:230[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 230 | [0m   [36;1m$hashPy = (Get-Content -Raw -LiteralPath $rPy.StdoutPath).Trim()[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mYou cannot call a method on a null-valued expression.[0m

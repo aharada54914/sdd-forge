@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-designsyncscan-spec-a1r1-a-seq0541",
+  "host_session_id": "SESS-spec-a1r1-a-designsyncscan-0541",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+      "sha256": "9e1fbba2a9fa180f61eaec8a033ada68db77c346dcb5b2733b0e8de0c89e3716"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "5e5f1eff1f5753433fe88c3debb5465ab9f009bd35d31788f9c6b329d94df2fa"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/investigation.md",
+      "sha256": "67560e11a356a0e26769a01b010aab0695049705b89ee8a47130ebf6bbd44048"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+      "sha256": "060b79e442f47ea7d71d9b4cf1a49b39eed09a4f74d84f6329822218effbf5b3"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement resolves to observable behavior. The exit-code contract is fully decided including precedence (requirements.md:47; AC-005..AC-008 at requirements.md:49-73). Detection categories are pinned to named pattern IDs with positive and negative fixtures rather than left to the implementer: AC-009 cites check-placeholders.sh:18-19 verbatim (requirements.md:85), S1-S7 are concretely enumerated per-row (acceptance-tests.md:25-31, :92), and P1/P2 carry stated exclusion and boundary properties with dedicated negative fixtures (requirements.md:93; acceptance-tests.md:89-91). Masking is verified by grepping the matched value itself out of the report (acceptance-tests.md:155). Skill-wiring claims are cast as document-conformance or positional checks matching what text can prove (acceptance-tests.md:41-56, :177). The one criterion unverifiable now, AC-036 CI reachability, is honestly framed as a designed red awaiting a human-applied protected-file patch (requirements.md:230; acceptance-tests.md:99-103), not as a passing claim."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The source issue's three acceptance boxes each trace to a requirement family with ACs: detection-blocks-and-presents to REQ-004/AC-013..016 (requirements.md:103-125), clean-scan-does-not-impede to REQ-005/AC-017..019 (requirements.md:127-141), documented false-positive override to REQ-006/AC-020..025 (requirements.md:143-172). The 2026-07-10 addendum goals trace to REQ-008/AC-029..030 (requirements.md:190-200) and REQ-009/AC-031..033 (requirements.md:202-216). Every AC-001..AC-038 appears at least once in the acceptance-tests AC column, per the mechanically checkable manifest rule TEST-052 (acceptance-tests.md:62). Non-blocking note (Minor-grade): TEST-084 attributes AC-038 to REQ-009 (acceptance-tests.md:93) while requirements.md places AC-038 under REQ-003 (requirements.md:99-101); the criterion genuinely spans both and TEST-052's coverage rule is unaffected."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria assert externally observable outcomes throughout: exit codes against enumerated fixture classes (acceptance-tests.md:14-22, :65), report-content properties with concrete pass/fail shapes including the three-branch category-differentiated masking rule (requirements.md:113-117; acceptance-tests.md:155-156), artifact-state changes in the Design-Source record with one row per field value (requirements.md:160-168; acceptance-tests.md:49-51, :73), and text-structure positions verified positionally rather than by presence (requirements.md:141; acceptance-tests.md:163, :177). Two criteria that originally overclaimed were narrowed to what their technique can observe: TEST-045 to a text-order single-path claim (acceptance-tests.md:177) and TEST-048/AC-030 to a finite named identifier set plus a behavioral parity fixture TEST-069 (acceptance-tests.md:183-184), avoiding unverifiable universal claims."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals are explicit and cover the plausible expansion directions: no entropy-based/trufflehog-class scanning, no in-place redaction, no cryptographically-bound override object, no non-HTML scanning, no git-history remediation, no changes to design-sync-consent's consent model, no DS-31, no CI registration (requirements.md:232-241). The Overview additionally states the egress-hygiene-not-quality boundary with the issue's own language (requirements.md:15) and requires both artifacts to carry that boundary (AC-018, requirements.md:137). Known gaps are recorded rather than silent: the non-HTML gap as Edge Case 4 (requirements.md:248) and pattern-coverage incompleteness as a residual risk to be recorded (requirements.md:17, :234)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated. Compatibility: BL-001 step-5 stays the single point, BL-002 the five Egress-Consent* fields and consent rules are untouched, BL-003 zero new failures against the documented suite baseline (requirements.md:264-269), with additive-only record extension per design-sync-consent/design.md:180 (AC-024, requirements.md:168). Approval boundaries: the override is explicitly human-gated, silence is not an override (AC-020, requirements.md:149), single-scan-scoped with no carry-forward (AC-021, requirements.md:153-156), and exit 2 carries no override path at all (requirements.md:47, AC-037 at :77). Security: value masking for secret/PII findings (requirements.md:113-117), fail-closed tool-error handling (requirements.md:69). Change-control: BL-004 names .github/workflows/test.yml as protected/human-applied and BL-005 the registry entry (requirements.md:269-270), with re-verification obligations stated in Assumptions (requirements.md:256-262)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims are present (the feature is the stated compensating control for design-sync-consent's residual risk R1, requirements.md:9), so the check applies rather than SKIPs. Each such claim has a planned validation surface: per-pattern positive and negative fixtures including the seven RFC 2606/6761 exclusions and P2's three boundary negatives (acceptance-tests.md:32-34, :66-71, :89-91), masking non-disclosure asserted by requiring the matched value absent from the report (acceptance-tests.md:155), fail-closed tool-error branches each with their own row (acceptance-tests.md:20-23, :65), branch-by-branch cross-runtime verdict parity including the engine-divergent S7/P2 dual forms (acceptance-tests.md:59-61, :78-93), and the acknowledged incompleteness of pattern matching is pinned as a residual-risk recording obligation on security-spec.md rather than an implied-completeness claim (requirements.md:17, :234)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped per the check's explicit skip condition. No domain/ directory exists at the SDD root (verified by direct existence test, the single out-of-manifest check review-context-boundary.md:154-156 permits for exactly this purpose), so no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json exist; accordingly no domain contract file appears in this round's allowed-input manifest (design-sync-scan-spec-a1r1-a-invocation.json:9-30). Per spec-reviewer-a.md:87-95, when domain/ is absent the check is recorded as skipped, consistent with the precedent established in prior features' spec reviews."
+    }
+  ]
+}

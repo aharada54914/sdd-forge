@@ -1,0 +1,207 @@
+=== design-sync-scan.tests.sh: REPO_ROOT=/private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/mutkill2/trial-m4-remove-notimplemented ===
+=== target script: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/mutkill2/trial-m4-remove-notimplemented/plugins/sdd-bootstrap/scripts/design-sync-scan.sh ===
+
+=== TEST-001 (AC-001): script exists, is directly invocable, requires an argument ===
+ok: TEST-001a: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/mutkill2/trial-m4-remove-notimplemented/plugins/sdd-bootstrap/scripts/design-sync-scan.sh exists
+ok: TEST-001b: bash design-sync-scan.sh <dir> is directly invocable and completes (exit 0 on an empty dir)
+ok: TEST-001c: zero-argument invocation does not succeed (a required first positional argument exists)
+
+=== TEST-002 (AC-002): a finding nested >=2 directories deep is detected ===
+ok: TEST-002a: a finding nested two directories deep yields exit 1
+ok: TEST-002b: the nested finding's file:line is reported
+
+=== TEST-003 (AC-003): one invocation, no flag, flags findings from >1 category ===
+ok: TEST-003a: a two-category fixture, one plain invocation, exits 1
+ok: TEST-003b: both categories' findings appear in the one-invocation report -- no flag selected a subset
+
+=== TEST-004 (AC-004): a target dir with zero .html files exits 0, is not an error ===
+ok: TEST-004: a target dir with zero .html files exits 0
+
+=== TEST-085 (AC-039a): a non-.html file with secret/PII-shaped content is never scanned ===
+ok: TEST-085a: a .json fixture with secret/PII-shaped strings beside a clean .html produces no block (exit 0)
+ok: TEST-085b: the .json fixture is never named in the report
+
+=== TEST-086 (.sh half of AC-039b): an upper-cased .HTML file is scanned (case-insensitive extension) ===
+ok: TEST-086: an upper-cased .HTML file containing a finding is scanned and blocks (extension match is case-insensitive)
+
+=== TEST-005 (AC-005): a fully clean fixture set exits 0 ===
+ok: TEST-005a: a fully clean multi-file fixture set exits 0
+ok: TEST-005b: a clean run reports passed
+
+=== TEST-006 (AC-006.1): a placeholder-only fixture exits 1 ===
+ok: TEST-006a: a placeholder-only fixture exits 1
+ok: TEST-006b: only the placeholder category is reported
+
+=== TEST-007 (AC-006.2): a secret-only fixture exits 1 ===
+ok: TEST-007a: a secret-only fixture exits 1
+ok: TEST-007b: only the secret category is reported
+
+=== TEST-008 (AC-006.3): a PII-only fixture exits 1 ===
+ok: TEST-008a: a PII-only fixture exits 1
+ok: TEST-008b: only the PII category is reported
+
+=== TEST-009 (AC-006.4): a mixed-category fixture exits 1, names every category present ===
+ok: TEST-009a: a mixed-category fixture exits 1
+ok: TEST-009b: the report names every category present, not only the first matched
+
+=== TEST-010 (AC-007.1, AC-008): zero arguments exits 2 with a usage diagnostic, never 1 ===
+ok: TEST-010a: zero arguments exits 2
+ok: TEST-010b: zero-argument invocation prints a usage diagnostic
+ok: TEST-010c: no override affordance is offered in the exit-2 output (AC-007's fourth clause)
+
+=== TEST-056 (AC-007.2): more arguments than the contract defines exits 2 with a usage diagnostic ===
+ok: TEST-056a: two positional arguments (one too many) exits 2
+ok: TEST-056b: too-many-arguments invocation prints a usage diagnostic
+ok: TEST-056c: no override affordance is offered in the too-many-arguments exit-2 output
+
+=== TEST-011 (AC-007.3): a nonexistent target directory exits 2, names the missing path ===
+ok: TEST-011a: a nonexistent target directory exits 2
+ok: TEST-011b: the diagnostic names the missing path
+ok: TEST-011c: no override affordance is offered for a nonexistent target directory
+
+=== TEST-012 (AC-007.4): an unreadable .html file exits 2, names the file, rest not silently clean ===
+ok: TEST-012a: an unreadable .html file exits 2
+ok: TEST-012b: the diagnostic names the unreadable file
+ok: TEST-012c: the rest of the set is not silently reported clean/passed
+
+=== TEST-013 (AC-008): usage-error exit code is 2, never 1 -- contrast with check-placeholders.sh ===
+ok: TEST-013a: check-placeholders.sh's own zero-argument usage error exits 1 (the convention this script deliberately diverges from)
+ok: TEST-013b: design-sync-scan.sh's own zero-argument usage error exits 2, never 1
+
+=== TEST-014 (AC-009): placeholder detection reproduces check-placeholders.sh:18-19's own verdicts ===
+ok: TEST-014-setup: re-read check-placeholders.sh's live pattern_cs/pattern_ci at test-run time (not transcribed)
+ok: TEST-014a: check-placeholders.sh flags the positive marker corpus (exit 1)
+ok: TEST-014b: design-sync-scan.sh flags the identical corpus as a placeholder finding -- same verdict as check-placeholders.sh
+ok: TEST-014c: both scripts agree the negative corpus (lowercase 'todo' as ordinary prose) is clean
+ok: TEST-014d-setup: re-read design-sync-scan.sh's live placeholder_pattern_cs/_ci at test-run time (not transcribed)
+FAIL: TEST-014d: design-sync-scan.sh's placeholder patterns have drifted from check-placeholders.sh's -- cs 'TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS' vs 'TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS', ci 'lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)' vs 'not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
+
+=== TEST-015 - TEST-020, TEST-083 (AC-010): one row per secret pattern S1-S6, plus S5's sk-proj- sub-format ===
+ok: TEST-015 (S1 PEM private-key header): triggers a secret finding
+ok: TEST-016 (S2 AKIA...): triggers a secret finding
+ok: TEST-017 (S3 ghp_...): triggers a secret finding
+ok: TEST-018 (S4 github_pat_...): triggers a secret finding
+ok: TEST-019 (S5 bare sk-...): triggers a secret finding
+ok: TEST-020 (S6 xoxb-...): triggers a secret finding
+ok: TEST-083 (S5 sk-proj- sub-format): triggers a secret finding
+
+=== TEST-021 (AC-010): S7 triggers on a substantive quoted value, not on a bare or empty value ===
+ok: TEST-021a: S7 triggers on a keyword followed by a substantive quoted value
+ok: TEST-021b: S7 does NOT trigger on a bare keyword, a form-field label, an input type attribute, or an empty quoted value
+
+=== TEST-022 (AC-011): P1 (email, non-reserved domain) triggers a PII finding ===
+ok: TEST-022: a non-reserved-domain email triggers a PII finding
+
+=== TEST-087 (AC-011, QG cycle-1 remediation scan T-001 Major-2): P1 (.edu email) triggers a PII finding -- .edu is not one of the seven RFC 2606/6761 reserved domains/TLDs design.md's pattern catalogue names ===
+ok: TEST-087: a .edu-domain email triggers a PII finding -- .edu is deliberately absent from the reserved-domain exclusion list and must not be silently added to it
+
+=== TEST-023 (AC-011): P2 (E.164-shaped phone) triggers a PII finding ===
+ok: TEST-023: an E.164-shaped phone number triggers a PII finding
+
+=== TEST-024, TEST-057 - TEST-062 (AC-011): the seven RFC 2606/6761 reserved domains/TLDs do not trigger ===
+ok: TEST-024 (example.com): user@example.com does not trigger a finding
+ok: TEST-057 (example.net): user@example.net does not trigger a finding
+ok: TEST-058 (example.org): user@example.org does not trigger a finding
+ok: TEST-059 (.test): user@mockups.test does not trigger a finding
+ok: TEST-060 (.example): user@mockups.example does not trigger a finding
+ok: TEST-061 (.invalid): user@mockups.invalid does not trigger a finding
+ok: TEST-062 (.localhost): user@mockups.localhost does not trigger a finding
+
+=== TEST-080 - TEST-082 (AC-011): P2's three negative boundary shapes ===
+ok: TEST-080: a 7-digit run (one short of the minimum) does not trigger
+ok: TEST-081: a 16-digit run (one over the maximum) does not trigger -- the boundary rejects an embedded valid-length substring, not only the total count
+ok: TEST-082: a valid-length run with a digit immediately adjacent on the leading side (before '+') does not trigger
+ok: TEST-082-control: without the leading-adjacent digit, the same-length run DOES trigger (proves TEST-082 exercises the boundary, not the quantifier)
+
+=== TEST-025 (AC-012): a mixed-category fixture's report labels every finding with its correct category ===
+ok: TEST-025: every finding in the mixed fixture is labelled with its correct category at its correct line
+
+=== TEST-026 (AC-013): a multi-file fixture's report gives correct, distinct file:line per finding ===
+ok: TEST-026: each of three files' findings is reported at its own correct, distinct file:line
+
+=== TEST-027, TEST-028, TEST-029, TEST-063 (AC-014): masking is category-differentiated ===
+ok: TEST-027: a secret finding's report line does not contain the matched secret value
+ok: TEST-027b: the secret finding is masked with the fixed token
+ok: TEST-028: a PII/email finding's report line does not contain the matched address
+ok: TEST-063: a PII/phone finding's report line does not contain the matched number
+ok: TEST-029: a placeholder finding's report line contains the matched marker text in full
+
+=== TEST-030 (AC-015): the script completes with stdin closed, no interactive read, no hang ===
+ok: TEST-030: the scan completed within 3s with stdin closed (exit 0) -- no interactive read, no prompt, no hang
+
+=== TEST-034 (.sh half of AC-018): the script's header comment states the egress-hygiene-only scope ===
+ok: TEST-034a: the header states the check is limited to egress hygiene
+ok: TEST-034b: the header states no assessment of mockup quality, design fidelity, accessibility, or design-system/ adherence
+
+=== TEST-048 (.sh half of AC-030): no finite-set host/tool identifier appears as a branch condition ===
+ok: TEST-048: none of the finite identifier set (CLAUDE_CODE, CODEX, DesignSync, ANTHROPIC, OPENAI) appears as a branch condition outside a comment
+
+=== TEST-069 (.sh half of AC-030): representative-caller parity -- Claude-Code-style vs bare-terminal/Codex-style env ===
+ok: TEST-069: the same fixture, invoked once under a Claude-Code-style env and once under a bare-terminal/Codex-style env, is exit-code- and report-identical
+
+=== TEST-052 (AC-034): traceability manifest -- every REQ-001..REQ-009 AC-NNN heading appears in acceptance-tests.md's AC column ===
+ok: TEST-052-setup: extracted 36 AC headings from requirements.md's REQ-001..REQ-009 sections
+ok: TEST-052: every REQ-001..REQ-009 AC-NNN heading in requirements.md appears at least once in acceptance-tests.md
+
+=== TEST-053 (AC-035, QG cycle-1 remediation scan T-005 Major): both tests/run-all.sh and tests/run-all.ps1 list the new suite ===
+ok: TEST-053: both tests/run-all.sh and tests/run-all.ps1 list the new suite
+
+=== TEST-031 (AC-016): step 5 names the script, the target dir, and states exit-1 presents findings before any push ===
+ok: TEST-031: step 5 names design-sync-scan.sh and specs/<feature>/mockups/, and states exit-1 presents findings before any push
+
+=== TEST-032 (AC-017): the exit-0 branch states direct continuation to 6, no additional prompt, no delay beyond scan run time ===
+ok: TEST-032: exit 0 states direct continuation to step 6, no additional prompt, no delay beyond the scan's own run time
+
+=== TEST-033 (AC-018, SKILL.md half): the skill text states the check is egress-hygiene-only, no quality judgment ===
+ok: TEST-033: SKILL.md states the check is limited to egress hygiene and makes no quality/fidelity/accessibility/design-system judgment
+
+=== TEST-035 (AC-019, structural): the Loop's step order is unchanged -- generate -> consent -> check point -> push -> review, cycle to 2 ===
+ok: TEST-035: the Loop's seven numbered steps retain their relative order, and the cycle at 7 returns to 2, not 3
+
+=== TEST-036 (AC-020): an explicit override affordance is stated; absent it, no push occurs -- silence/non-response/agent judgment is not an override ===
+ok: TEST-036: an explicit override affordance is stated; silence, non-response, or agent judgment is never an override, and absent it no push occurs
+
+=== TEST-037 (AC-021.1): a fresh scan after regeneration requires its own override decision -- a prior override does not carry forward ===
+ok: TEST-037: a fresh scan after any regeneration is stated to require its own override decision
+
+=== TEST-038 (AC-021.2): this holds even when the new scan reproduces IDENTICAL findings -- recurrence is not evidence the human need not be asked again ===
+ok: TEST-038: the no-carry-forward rule is stated to hold even for identical findings, not only different ones
+
+=== TEST-039 (AC-022.1): an override is stated to record Egress-Scan: overridden ===
+ok: TEST-039: step 5 states an override records Egress-Scan: overridden
+
+=== TEST-040 (AC-022.2): a clean scan is stated to record Egress-Scan: clean ===
+ok: TEST-040: step 5 states a clean scan records Egress-Scan: clean
+
+=== TEST-041 (AC-023, clean value): Egress-Scan-At (ISO-8601) is stated for the clean branch ===
+ok: TEST-041: the clean branch states Egress-Scan-At as an ISO-8601 timestamp
+
+=== TEST-064 (AC-023, overridden value): Egress-Scan-At (ISO-8601) is stated for the overridden branch too, not only the exceptional one ===
+ok: TEST-064: the overridden branch also states Egress-Scan-At as an ISO-8601 timestamp
+
+=== TEST-042, TEST-065 - TEST-068 (AC-024): the five existing Design-Source field names are present, unrenamed, unredefined ===
+ok: TEST-042 (Egress-Consent): the field row | `Egress-Consent` | is present, unrenamed
+ok: TEST-065 (Egress-Consent-Scope): the field row | `Egress-Consent-Scope` | is present, unrenamed
+ok: TEST-066 (Egress-Consent-Subject): the field row | `Egress-Consent-Subject` | is present, unrenamed
+ok: TEST-067 (Egress-Destination): the field row | `Egress-Destination` | is present, unrenamed
+ok: TEST-068 (Egress-Consent-Expiry): the field row | `Egress-Consent-Expiry` | is present, unrenamed
+
+=== TEST-043 (AC-025): on decline, no push, nothing written to Design-Source as an override, remediate before rescan -- distinguished from Egress-Consent's decline/withdrawal ===
+ok: TEST-043: the decline outcome (no push, nothing written as override, remediate) is stated and distinguished from Egress-Consent's own decline/withdrawal vocabulary
+
+=== TEST-044 (AC-026): step 5 remains the single named point -- not duplicated, not relocated relative to steps 4 and 6 ===
+ok: TEST-044: step 5 appears exactly once, still positioned between steps 4 and 6
+
+=== TEST-045 (AC-027, positional): no route from generation to push (write_files) in the Loop's text reaches push without passing step 5's position first ===
+ok: TEST-045: every write_files mention in the Loop's text sits at or after step 5's position -- no described route bypasses it
+
+=== TEST-046 (AC-028, baseline-relative regression): tests/design-system-contract.tests.sh introduces zero new failures vs its documented baseline ===
+FAIL: TEST-046: tests/design-system-contract.tests.sh regressed -- a baseline-green row is no longer green, or one of TEST-010/015/018/026/040 is no longer passing
+
+=== TEST-055 (AC-037): the skill states the exit-2 branch is unconditionally blocking, with no override affordance offered at all ===
+ok: TEST-055: the exit-2 branch is stated as unconditionally blocking with no override affordance offered at all, worded as a tool failure
+
+=== TEST-047 (AC-029): claude-design-workflow.md documents standalone design-sync-scan usage ahead of the manual fallback it describes ===
+ok: TEST-047: claude-design-workflow.md names both scripts, the required target-directory argument, and states no Claude Code-specific tool/deferred-tool search/DesignSync capability is a precondition
+
+Results: 99 passed, 2 failed

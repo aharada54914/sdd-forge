@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "design-sync-standing-consent",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "daa3d89e023d3da4a5146d46a84ebf6d08ce9db564c5df7c3d9815ef80a04eb0",
+  "acceptance_sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "fd09cd522edfe8156ee61d6a2e36afab13ee8869cd6750c86144b535d93f1e7f",
+  "edit_summary": "Added AC-031 (REQ-001, ruling F) with TEST-055/056: a present-but-out-of-domain ds_upload_consent value resolves to per-feature by exact case-sensitive matching, recorded in Edge Case 10 and a round-3 Resolutions entry. Resolves round-1 reviewer B AMBIGUITY and EDGE-CASE-COVERAGE (both Major). design.md synced.",
+  "reset": false,
+  "generated_at": "2026-08-07T14:27:10Z"
+}

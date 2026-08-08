@@ -1,0 +1,94 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-standing-consent",
+  "task_id": "T-005",
+  "run_id": "RUN-design-sync-standing-consent-qg-T-005-seq0566",
+  "host_session_id": "SESS-qg-design-sync-standing-consent-T-005-0566",
+  "sequence": 566,
+  "previous_record_sha256": "a3583946d76a62b02bbe96fb122e8ebd0e778da893a632a5b9e8c4b35bd22bc6",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "072af7adb9f2f82de8faa81bbdcb234a7eb3211bc0b947d6d58510233d813db9",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-standing-consent/T-005.md",
+      "sha256": "af6e2d0ea004aac9e25076d90bd95dfe899115341ce97ca0d79f5e582f7fd2fc"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/design.md",
+      "sha256": "dd05aee2b474a3f1e330d22acd120f9c50a66a61f95ea58f44afcc8d6ba98ac5"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/frontend-spec.md",
+      "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/human-copy/MANIFEST.sha256",
+      "sha256": "f4e0ed70c54a01f48d47c48b0718256584874414a49d0c81799cdcc908f70a4a"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/infra-spec.md",
+      "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/security-spec.md",
+      "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/tasks.md",
+      "sha256": "a3f7467db5bc831cfb287c6d160c4726bf9ff60200d8a7d160499aaddaf8e62f"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/traceability.md",
+      "sha256": "5ed00a950c2ffb43d525493effbe46d77bdf145704535fafe15e17ff6e7ff2a1"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/ux-spec.md",
+      "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/candidate-selfcheck-ps1.log",
+      "sha256": "fde10fceab8cea58ed7aa4bfbdcf7efb166b1d6d4f2ddddddfbaeebf5e8647e7"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/candidate-selfcheck-sh.log",
+      "sha256": "705bee2c74d5d442cbc18ae53a9a0225b39c1ea4c4177c3a04dbb757117eed9f"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/red-live-ps1.log",
+      "sha256": "100c5449b8153ba6386577176df4bcf423f6d21b65a62877576306fd60bcc895"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/red-live-sh.log",
+      "sha256": "100c5449b8153ba6386577176df4bcf423f6d21b65a62877576306fd60bcc895"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/staged-workflow-candidate.draft.yml",
+      "sha256": "eecb968cce94ed1126df01b57649485c85bc2a421b0fc71dda793ad6ea148519"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/test054-harness.ps1",
+      "sha256": "b769688f7cfc89e8189ff766763e6e1d83ba9885d0b237e5ab15351fd91b52bc"
+    },
+    {
+      "path": "specs/design-sync-standing-consent/verification/T-005/test054-harness.sh",
+      "sha256": "c32a2cd616068e20c9443a2177db0aa1d38b6cce04b86f3ec96daaebd2ebc237"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+=== Vacuous-fixture demonstrations (non-vacuousness evidence for structural/negative rows) ===
+
+-- TEST-010 (AC-009, structural): destination-scoping clause removed from the standing bullet --
+vacuous (feature-only, no destination naming):
+FAIL: TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)
+well-formed (destination-scoped, restored):
+PASS: TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)
+
+-- TEST-046/TEST-050 (AC-022/AC-024, negative): banned literal injected into the fallback file --
+vacuous (literal key injected):
+FAIL: TEST-046 claude-design-workflow.md contains no occurrence of the setting's literal key identifier (AC-022)
+FAIL: TEST-050 no case-insensitive occurrence of the general banned substring exists anywhere in the fallback file (AC-024)
+well-formed (restored, no literal key):
+PASS: TEST-046 claude-design-workflow.md contains no occurrence of the setting's literal key identifier (AC-022)
+PASS: TEST-050 no case-insensitive occurrence of the general banned substring exists anywhere in the fallback file (AC-024)
+
+-- TEST-055/TEST-056 (AC-031, two independently-failable claims): out-of-domain branch removed --
+vacuous (branch-3 rule and case-sensitivity claim both dropped):
+FAIL: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+FAIL: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)
+well-formed (restored):
+PASS: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+PASS: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)

@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-designsyncconsent-spec-a1r1-b-seq0465",
+  "host_session_id": "SESS-spec-a1r1-b-designsyncconsent-0465",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "8248479f12e1eb2bfc0aeba72069b67336329c77a518abd198e491bc4dde01b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/design-sync-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "2a74e7bdb9379a381eac1a57d49f31439c13ab52c7f878eed3acb2d97e629ed7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "e2a1d451dd8030bdccdd765a009032c2f9772ef92b8f1730b6568e4d65cb87c7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "d79242ad6216a43939a382d490554d0ac12fe288d854cb407182af10e467366c"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-001 (:23-27) and AC-001 (:29-37) state three consent branches - first upload gated, subsequent uploads proceed without prompt, a different scope re-gates - but none states what happens when the human answers the first-upload prompt no. REQ-006/AC-019 (:130-148) requires a three-outcome consent-resolution step so that #140's future off setting can be expressed, yet the document never states whether a plain decline during REQ-001's own consent step is that same not-permitted outcome, making one no equivalent to a persistent configuration-level forbiddance for the whole scope, or a transient non-grant that simply re-prompts next time. Two implementers reading only this document would build materially different behaviour for the most fundamental branch of the approval boundary this feature exists to define. Major rather than Critical because a decision point and a denial-adjacent outcome both exist in the text; what is missing is which one governs a plain decline and whether it is retriable or binding."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Reviewed REQ-001 through REQ-008, Non-goals (:194-201), Baseline Constraints (:224-236) and Edge Cases (:203-213) for direct conflicts; none found. BL-001 (:226) is consistent with REQ-001's frequency change (:23-25). AC-012 (:106-108) is consistent with the Non-goals exclusion of a machine-checkable consent object (:199) and REQ-004's unenforced record shape (:92-96). REQ-005's fallback preservation (:110-112) is consistent with Edge Case 6 (:210). AC-009 (:90) explicitly states the regeneration cycle is written so it cannot contradict AC-001 branch 2."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Edge Case 2 (:206-207) states that nothing binds a consent to the project it was granted against, and that consent to send to project A is not consent to send to project B while the current text cannot tell them apart - a self-identified material risk. Unlike Edge Cases 1, 3, 5, 6, 7, 8 and 9, each of which maps to an Open Question, REQ, AC or Baseline Constraint, Edge Case 2 maps to no OQ, REQ, AC or TEST anywhere in requirements.md or across acceptance-tests.md's 40 TEST rows. A downstream implementer following only the documented ACs could ship a design where switching projects mid-scope silently reuses standing consent, egressing content to an unintended external destination without a fresh consent decision - precisely the failure mode REQ-001's outside-the-scope clause (:25) exists to prevent, applied to a scope dimension this document never operationalizes."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Open Questions table (:242-255) marks OQ-1, OQ-2, OQ-3 and OQ-8 as blocking and ties them explicitly to the Approval Gate rule, stating at :255 that approving tasks while they stand would violate it. The remaining six are each recorded with an owner and blocked-criteria mapping, and OQ-9 carries a stated hedge (AC-018, :143-144) that neutralizes its blocking risk rather than leaving it silently open. The Assumptions section (:215-222) lists shared-state re-verification instructions each with its own re-derivation instruction rather than being treated as settled fact."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The approval boundary is testable at the document-conformance level this gate reviews. AC-001 (:29-37) with TEST-001/002/003 (acceptance-tests.md:11-13, 54-61) defines the first-upload gate, no-reprompt and different-scope re-gate branches, verified structurally rather than by keyword presence. AC-019 (:146-148) with TEST-028/029/030 defines a three-outcome consent-resolution step including a denial routed to fallback. The record carrying the consent fact is honestly bounded rather than overclaimed: AC-012 (:106-108) requires it be characterised as an agent-written audit trace rather than an authorization any gate enforces, citing the threat model's NOT-Trusted classification of agent self-reports, and mechanical enforcement is an explicit Non-goal (:199) deferred to #139/#140. The residual gap in the decline path is a completeness issue in that boundary's behaviour, captured under AMBIGUITY, not an absent or untestable boundary."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Largely handoff-ready: 8 of 10 Open Questions are explicitly flagged, 4 of them blocking per :255, so a downstream reviewer is directed to stop and route to a human rather than invent behaviour. Two gaps remain unflagged and would force invention instead. First, Edge Case 2 (:206-207) documents that consent is not bound to the claude.ai project it was granted against, but unlike every other Edge Case it maps to no OQ, REQ, AC or TEST, so a downstream reviewer would have to invent project-binding behaviour rather than being told to pause. Second, the behaviour when a human declines the first-upload prompt (:23-37) is unstated, and REQ-006/AC-019's three-outcome model (:130-148) is framed as forward-compatibility plumbing for #140 rather than explicitly wired to today's decline case, leaving a reviewer to guess whether a declined consent is retriable or permanently binding. Both concern core consent-mechanism behaviour, and both are exactly the class of product decision this document elsewhere correctly surfaces as an Open Question rather than leaving implicit."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in the target repository, verified via a repository-wide glob returning zero matches, so the check's explicit skip condition applies. Reviewer A's integrated summary carries counts and IDs only and was not relied upon; this conclusion was derived directly from the repository's filesystem state."
+    }
+  ]
+}

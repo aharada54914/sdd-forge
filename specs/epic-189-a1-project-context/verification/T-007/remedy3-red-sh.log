@@ -1,0 +1,130 @@
+FAIL: TEST-033a fresh single-target publish: tool exits 0 (got 127; tests/apply-human-copy.tests.sh: 行 90: /Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/apply-human-copy.sh: No such file or directory)
+FAIL: TEST-033a fresh single-target publish: live content matches candidate
+PASS: TEST-033a fresh single-target publish: no journal/staging litter remains
+FAIL: TEST-033b publish over existing live content: content replaced
+FAIL: TEST-033c pre-existing symlink at destination leaf denied (exit 127, category )
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033c the pre-existing symlink itself is left in place, not silently replaced
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 127)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 127)
+PASS: TEST-033e no live target created from a symlinked source
+FAIL: TEST-033f hard-link non-propagation: live target updated
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+FAIL: TEST-033g staged-candidate hash mismatch denied (exit 127, category )
+PASS: TEST-033g live target unchanged on preparation-stage failure
+FAIL: TEST-033h malformed manifest line rejected (MANIFEST_INVALID)
+FAIL: TEST-033h traversal target path rejected (MANIFEST_INVALID)
+FAIL: TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)
+PASS: TEST-033i crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i stale journal cleaned up after recovery
+FAIL: TEST-033j mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)
+PASS: TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)
+FAIL: TEST-033k recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k journal removed once recovery confirms ALL-POST
+FAIL: TEST-033l a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l journal fully cleaned up after the second recovery invocation
+FAIL: TEST-033m shape-mismatched journal (missing targets[]) is REJECTED, not silently ignored (exit 127, category )
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+FAIL: TEST-033m an unparsable (non-JSON) journal is ALSO fail-closed, identically to a shape mismatch
+FAIL: TEST-033n recovery-only invocation with nothing stale exits 0
+FAIL: TEST-033n recovery-only invocation reports recovered:0
+FAIL: TEST-033o substitution-resistance fixture: tool still completes successfully
+FAIL: TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate
+FAIL: TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)
+FAIL: TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 127; a-size=       0; b=old-b)
+FAIL: TEST-033p the publisher remains usable afterward (exit 127)
+FAIL: TEST-033q duplicate-basename batch rejected (exit 127, category )
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+FAIL: TEST-033r both sh and ps1 journals must exist for comparison (sh= ps1=)
+FAIL: TEST-033s embedded-space path publishes correctly (exit 127; content=old content)
+FAIL: TEST-033s journal preserves the embedded-space live_path byte-exact (journal: )
+PASS: TEST-033s journal hash-field shape check (skipped: python3 not available)
+FAIL: TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE (exit 127)
+FAIL: TEST-033s no false-positive duplicate-path rejection for space-containing paths (exit 127)
+FAIL: TEST-033s genuine duplicate-path rejection still fires
+FAIL: TEST-033s a tab character embedded in a path is preserved end-to-end
+PASS: TEST-033t [space] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [space] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [space] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [space] no journal/staging litter remains after recovery
+FAIL: TEST-033t [space] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [tab] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [tab] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [tab] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [tab] no journal/staging litter remains after recovery
+FAIL: TEST-033t [tab] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [leadtrail] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [leadtrail] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [leadtrail] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [leadtrail] no journal/staging litter remains after recovery
+FAIL: TEST-033t [leadtrail] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [dquote] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [dquote] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [dquote] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [dquote] no journal/staging litter remains after recovery
+FAIL: TEST-033t [dquote] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [obrace] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [obrace] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [obrace] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [obrace] no journal/staging litter remains after recovery
+FAIL: TEST-033t [obrace] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [cbrace] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [cbrace] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [cbrace] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [cbrace] no journal/staging litter remains after recovery
+FAIL: TEST-033t [cbrace] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [comma] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [comma] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [comma] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [comma] no journal/staging litter remains after recovery
+FAIL: TEST-033t [comma] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [star] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [star] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [star] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [star] no journal/staging litter remains after recovery
+FAIL: TEST-033t [star] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [question] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [question] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [question] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [question] no journal/staging litter remains after recovery
+FAIL: TEST-033t [question] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [obracket] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [obracket] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [obracket] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [obracket] no journal/staging litter remains after recovery
+FAIL: TEST-033t [obracket] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [cbracket] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [cbracket] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [cbracket] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [cbracket] no journal/staging litter remains after recovery
+FAIL: TEST-033t [cbracket] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [dollar] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [dollar] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [dollar] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [dollar] no journal/staging litter remains after recovery
+FAIL: TEST-033t [dollar] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [backtick] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [backtick] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [backtick] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [backtick] no journal/staging litter remains after recovery
+FAIL: TEST-033t [backtick] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [squote] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [squote] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [squote] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [squote] no journal/staging litter remains after recovery
+FAIL: TEST-033t [squote] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+PASS: TEST-033t [utf8] journal round-trip + T-005 surrogate (skipped: python3 not available)
+PASS: TEST-033t [utf8] journal round-trip + T-005 surrogate (skipped: python3 not available)
+FAIL: TEST-033t [utf8] recovery converges ALL-PRE (exit 127)
+PASS: TEST-033t [utf8] no journal/staging litter remains after recovery
+FAIL: TEST-033t [utf8] sh/ps1 parity (sh_rc=127 ps1_rc=64 sh='' ps1='')
+FAIL: TEST-033t a literal newline inside a manifest path is structurally unrepresentable
+FAIL: TEST-033t sh rejects a literal backslash in a manifest path (exit 127, category )
+FAIL: TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (exit 64, category )
+PASS: self-registration: tests/run-all.sh references apply-human-copy.tests.sh
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+66 passed, 62 failed

@@ -1,0 +1,16 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-192-a4-facet-manifest",
+  "run_id": "RUN-impl-review-orchestrator-epic-192-a4-facet-manifest-a1r1",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "verdict_note": "Clean PASS: both reviewers returned 0 findings (reviewer-a 10 PASS/1 SKIP, reviewer-b 10 PASS/1 SKIP). The round-aware BLOCKED-vs-NEEDS_WORK distinction (round<3 individual-reviewer BLOCKED downgraded to integrated NEEDS_WORK) does not apply because no reviewer emitted any Critical/Major/Minor FAIL. Design.md transition to Impl-Review-Status: Passed is intentionally left to the calling orchestrator, not performed here.",
+  "generated_at": "2026-07-22T00:42:48Z"
+}

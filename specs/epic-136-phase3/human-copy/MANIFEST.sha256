@@ -1,0 +1,32 @@
+# epic-136 Phase 3, T-003 (issue #126) -- ONE shared human-copy batch.
+#
+# The sha256 below is the content of
+#   specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml
+# which is the byte-exact content a human must place at the staged candidate
+# path in this directory. The agent cannot write that path itself: sdd-hook-guard
+# denies every agent write whose path ends with the protected workflow suffix,
+# and the suffix match has no human-copy carve-out.
+#
+# Human steps (all human-performed):
+#   1. copy the draft to  <this dir>/.github/workflows/test.yml
+#   2. verify:  cd <this dir> && shasum -a 256 -c MANIFEST.sha256   (must say OK)
+#   3. apply the staged candidate to the live .github/workflows/test.yml
+#   4. confirm branch protection still requires [test, cli-hook-enforcement]
+#
+# Until step 3 lands, this PR's CI cannot run the four new suites Streams A/B,
+# Stream C, and Stream D's own self-check register -- that red state is the
+# designed fail-closed behaviour (design.md Deployment / CI Plan; TEST-020
+# DESIGNED-RED), not a defect. Stream C's
+# tests/workflow-scenarios/workflow-scenarios.tests.sh joined this batch once
+# ADR-0010's `Status: Accepted` promotion unblocked Stream C and its suite
+# landed in this feature (AC-019/AC-020).
+#
+# The candidate also carries the CURRENT live actions/checkout pin. If a
+# dependabot bump lands live before step 3, re-sync the draft (and this hash)
+# first -- applying a stale candidate silently reverts the bump, which is how
+# main went red once (actions/checkout 7.0.0 -> 7.0.1, PR #222).
+# tests/deterministic-lane-selfcheck.tests.sh enforces this as a hard FAIL.
+#
+# The path below is the workflow's own repository-relative path so that
+# `shasum -a 256 -c` run from this directory checks the placed candidate.
+6d0d5e2a81e96f1d957ef007d6483e2673cb7659b2668eeb17938ca073015cf8  .github/workflows/test.yml

@@ -1,0 +1,68 @@
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-189-a1-project-context/tasks.md
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+WARNING: evidence bundle for task T-002 was generated with a dirty working tree
+Evidence bundle passed for task T-002.
+Verification contract passed for task T-003.
+WARNING: evidence bundle for task T-003 was generated with a dirty working tree
+Evidence bundle passed for task T-003.
+Verification contract passed for task T-004.
+WARNING: evidence bundle for task T-004 was generated with a dirty working tree
+Evidence bundle passed for task T-004.
+Verification contract passed for task T-005.
+WARNING: evidence bundle for task T-005 was generated with a dirty working tree
+Evidence bundle passed for task T-005.
+Verification contract passed for task T-006.
+WARNING: evidence bundle for task T-006 was generated with a dirty working tree
+Evidence bundle passed for task T-006.
+Verification contract passed for task T-007.
+Evidence bundle passed for task T-007.
+Verification contract passed for task T-008.
+WARNING: evidence bundle for task T-008 was generated with a dirty working tree
+Evidence bundle passed for task T-008.
+Verification contract passed for task T-009.
+Evidence bundle passed for task T-009.
+Verification contract passed for task T-010.
+WARNING: evidence bundle for task T-010 was generated with a dirty working tree
+Evidence bundle passed for task T-010.
+Verification contract passed for task T-011.
+WARNING: evidence bundle for task T-011 was generated with a dirty working tree
+Evidence bundle passed for task T-011.
+Verification contract passed for task T-012.
+WARNING: evidence bundle for task T-012 was generated with a dirty working tree
+Evidence bundle passed for task T-012.
+Task state check passed for 13 task(s).
+exit=0
+
+NOTE ON WHAT THE 13 COVERS. The gate walks every `## T-NNN` section in tasks.md.
+T-001..T-012 are `Status: Done`, which is the state that additionally demands a
+verification/<task-id>.evidence.json bundle and forces the gate to revalidate
+each task's contract, its bundle, and the bundle's declared quality-gate report
+(check-task-state.sh:5-12) - that is why twelve contract/bundle pairs are
+re-verified above rather than merely counted. T-013 is `Status: Implementation
+Complete`, whose only additional requirement is an implementation report
+mentioning the task id (check-task-state.sh:13); that report is
+reports/implementation/epic-189-a1-project-context/T-013.md.
+
+THIS RUN DELIBERATELY OBSERVES T-013 AS `Implementation Complete`, NOT AS `Done`.
+Recording `Status: Done` is the main session's job and is explicitly outside this
+chain's scope. `git diff --cached -- specs/epic-189-a1-project-context/tasks.md`
+was re-checked immediately before this chain's commit and is EMPTY; tasks.md is
+not among the paths this commit stages.
+
+THE "dirty working tree" WARNINGS ARE HISTORICAL, NOT THIS ROUND'S. They are
+emitted from each task's own stored bundle, recording the tree state at the time
+THAT bundle was generated; they are not a statement about the tree now. The
+working tree at this run was clean - `git status --porcelain` produced no output
+immediately before this invocation, and again after the 25 individual suite runs
+recorded in regression.log. The pattern also matches the T-011 and T-012 chains
+exactly: T-007 and T-009 carry no warning, every other Done task does.
+
+THE GATE IS NOT VACUOUS HERE. It is the same binary that returns non-zero on a
+missing bundle or a failing contract; this round exercised that path
+independently, because `bash plugins/sdd-quality-loop/scripts/check-contract.sh`
+run against T-013's own contract is recorded separately in this chain and had to
+be made to pass on its own terms (medium tier, acceptance-first) before this
+output could be produced.

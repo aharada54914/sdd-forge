@@ -1,0 +1,105 @@
+FAIL: TEST-033a fresh single-target publish: tool exits 0: exit 64
+FAIL: TEST-033a fresh single-target publish: live content matches candidate: got ''
+FAIL: TEST-033b publish over existing live content: content replaced: got 'old-content
+'
+PASS: TEST-033c pre-existing symlink at destination leaf denied (exit 64)
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 64)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 64)
+PASS: TEST-033e no live target created from a symlinked source
+FAIL: TEST-033f hard-link non-propagation: live target updated: got 'shared-old
+'
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+FAIL: TEST-033g staged-candidate hash mismatch denied: exit 64 category 
+PASS: TEST-033g live target unchanged on preparation-stage failure
+FAIL: TEST-033h malformed manifest line rejected: exit 64
+FAIL: TEST-033h traversal target path rejected: exit 64
+FAIL: TEST-033h duplicate manifest target rejected: exit 64
+PASS: TEST-033i crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i recovery converges to ALL-PRE (crash before any rename)
+FAIL: TEST-033j mid-batch crash partial state: a='old-a
+' b='old-b
+'
+PASS: TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)
+FAIL: TEST-033k recovery converges to ALL-POST: a='old-a
+' b='old-b
+'
+FAIL: TEST-033l partial-recovery state: a='old-a
+' b='old-b
+' c='old-c
+'
+PASS: TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+FAIL: TEST-033m journal shape mismatch: exit 64 category 
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+FAIL: TEST-033n recovery-only invocation: exit 64
+FAIL: TEST-033n recovered:0 reported: got '
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.
+'
+FAIL: TEST-033o substitution completes: exit 64
+FAIL: TEST-033o original-name directory unaffected: candidate leaked into the substitute
+FAIL: TEST-033o write lands in anchored original: got ''
+FAIL: TEST-033p zero-byte live target converges ALL-PRE: exit 64; a-len=0; b='old-b
+'
+FAIL: TEST-033p publisher remains usable afterward: exit 64; a=''
+FAIL: TEST-033q duplicate-basename batch rejected: exit 64 category 
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+FAIL: TEST-033r ps1 journal exists for BOM inspection: no TRANSACTION.json found
+FAIL: TEST-033s embedded-space path publishes correctly: exit 64; content='old content
+'
+FAIL: TEST-033s journal preserves embedded-space live_path: not found in journal
+FAIL: TEST-033s mid-batch crash convergence with embedded-space target: exit 64; a='old content
+' c='old-c
+'
+FAIL: TEST-033s no false-positive duplicate rejection for space-containing paths: exit 64
+FAIL: TEST-033t [space] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [space] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [tab] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [tab] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [leadtrail] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [leadtrail] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [dquote] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [dquote] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [obrace] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [obrace] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [cbrace] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [cbrace] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [comma] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [comma] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [star] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [star] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [question] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [question] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [obracket] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [obracket] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [cbracket] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [cbracket] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [dollar] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [dollar] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [backtick] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [backtick] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [squote] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [squote] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t [utf8] journal exists for round-trip check: no TRANSACTION.json found
+FAIL: TEST-033t [utf8] recovery converges ALL-PRE: exit 64
+FAIL: TEST-033t ps1 rejects a literal backslash: exit 64 category 
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+15 passed, 56 failed
