@@ -27,7 +27,9 @@ plus the two named exceptions the Protected-File Statement below fixes
 (`AGENTS.md`'s Active Spec Directories list, `specs/workflow-state-registry.json`'s
 one new entry); the extension points below are a specification for a
 later Phase 2/3 task, cited by exact file:line insertion target where the
-current file content makes that possible.
+current file content makes that possible — the file:line evidence
+discipline this whole package follows for every checkable factual claim
+about current repository behavior (WFI-011, AC-017).
 
 ## Architecture
 
@@ -240,8 +242,8 @@ future implementer could satisfy with any arbitrary string):
 | Event kind | Producer(s) — exact `_loop_trace_emit` call site | Ordering rule | Value-normalization |
 |---|---|---|---|
 | `skill-order` | `producer: "skill-order:invocation"` — `drive_review_round`'s own dispatch, immediately before each stage-script invocation (`tests/lib/loop-driver.sh:1478`, INV-003) | one event per invocation, call order | `value` = script/skill identifier only; working-directory-relative paths canonicalized, no timestamp |
-| `review-loop-presence` | `producer: "review-loop-presence:stage-dispatch"` — `drive_review_round`'s own `stage` dispatch, immediately after a stage's own invocation completes (`tests/lib/loop-driver.sh:1478-1487`) | one event per stage actually driven, dispatch order | `value` = `stage` name only (`spec\|impl\|task\|domain`); a stage never dispatched emits no event (absence is the signal, never a placeholder) |
-| `approval-checkpoint` | `producer: "approval-checkpoint:reserve"` — the shared driver's `_loop_reserve_review_context` call, at its own return (INV-003) | one event per reservation call, call order | `value` = `{stage, role}` only; `run_id`/`host_session_id`/ledger hash fields ignored (fixture-random, never compared) |
+| `review-loop-presence` | `producer: "review-loop-presence:stage-dispatch"` — `drive_review_round`'s own `stage` dispatch, immediately after a stage's own invocation completes (`tests/lib/loop-driver.sh:1478-1487`) | one event per stage actually driven, dispatch order | `value` = `stage` name only (`spec\|impl\|task\|domain`); a stage never dispatched emits no event (absence is the signal, never a placeholder) — this producer, ordering rule, and value-normalization are what AC-023 requires |
+| `approval-checkpoint` | `producer: "approval-checkpoint:reserve"` — the shared driver's `_loop_reserve_review_context` call, at its own return (INV-003) | one event per reservation call, call order | `value` = `{stage, role}` only; `run_id`/`host_session_id`/ledger hash fields ignored (fixture-random, never compared) — this producer, ordering rule, and value-normalization are what AC-024 requires |
 | `quality-gate-outcome` | **two** named producers, both required when both fire, always in this order: (1) `producer: "quality-gate-outcome:escalation"` — `check-quality-gate-cycle-limit.sh`/`select-agent-model.sh`'s own escalation-decision call site (INV-005), one event per decision, decision order; (2) `producer: "quality-gate-outcome:capability-applicability"` — `assert_capability_applicability`'s own comparison call (API / Contract Plan), exactly one event when the fixture state is capability-aware, always the last `quality-gate-outcome` event in the trace | escalation-decision events in decision order, then (if present) exactly one capability-applicability event, always last within this kind | `value` = `{next_tier}` (escalation producer) or `{applicability}` (capability-applicability producer) only; wall-clock fields ignored |
 | `done-transition` | `producer: "done-transition:assert-terminal"` — `assert_terminal`'s own comparison call, firing exactly once per round at the instant it evaluates the freshly-read `.terminal.state` against the loop's expected terminal state (`tests/lib/loop-driver.sh:1512-1518`, INV-004); this recording is itself a state-transition record — the round's own invariant pre-round non-terminal state to the newly-observed terminal state, captured at terminal-state-assertion time — never a separately-sampled "final value" read after the comparison completes | always the last event in the round's own event sub-sequence | `value` = `.terminal.state` string only (the transition's own "to" side; "from" is invariantly non-terminal by construction and is not itself a compared field) |
 | `skip-stop-message` | **two** named producers: (1) `producer: "skip-stop-message:skip"` — `loop_validator_skip`'s existing named-SKIP call site (`tests/lib/loop-driver.sh:460-519`, INV-005), extended by the REQ-007 allowlist manifest (below); (2) `producer: "skip-stop-message:stop"` — a new, dedicated fail-closed stop-detection call site in the fixture drive's own Context-validation guard (Test Strategy item 1, future task), firing the moment a `PROJECT_CONTEXT_INVALID` (or any other hard, non-SKIP stop) condition is detected, before any further stage dispatch. **`PROJECT_CONTEXT_INVALID` is uniquely assigned to this `stop` producer of `skip-stop-message`, never to `quality-gate-outcome` and never ambiguous between the two** (resolving an earlier draft's dual-kind framing) | emitted wherever either producer fires within the driven round, fire order | `value` = the fixed, cited-issue-number template string (`skip` producer) or the fixed `PROJECT_CONTEXT_INVALID` template string (`stop` producer) only — never free text, never either producer's template substituted for the other's |
@@ -347,7 +349,9 @@ to that row at all, matching the Compatibility Matrix's own N/A rationale
 (F7/F8) or REQ-001's own Context-absent-only scope (byte-identical
 observables, F3–F8) or REQ-002/REQ-003's own no-Foundation-epic rationale
 (structural/event observables, F7/F8). No observable appears in more than
-one comparison-type column for a given row.
+one comparison-type column for a given row — this exhaustive, mutually
+exclusive assignment is exactly the clause-(a)/clause-(b) boundary that
+REQ-004's three-clause decomposition requires (AC-013).
 
 **REQ-001 canonical target inventory** (AC-038; single table pairing
 every REQ-001 target with its own exact capture format and AC/TEST — an
@@ -789,7 +793,7 @@ Phase 2/3 (not this task) implements, in this order:
    usage-error golden negative test.
 8. REQ-007 allowlist manifest (AC-034) and its three hard-fail checks
    (AC-035) wired into the suite run itself, enumerating A1/A2/A3/A4/A5/A6.
-9. Registration: every new/extended `.sh` suite's `.ps1` twin, plus
+9. Registration (AC-015): every new/extended `.sh` suite's `.ps1` twin, plus
    `tests/run-all.sh`/`tests/run-all.ps1`/`.github/workflows/test.yml`
    entries (INV-005 pattern) — `.github/workflows/test.yml` is a CI file
    this repository has, in at least one precedent (Epic A5's own

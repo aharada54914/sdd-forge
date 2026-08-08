@@ -65,7 +65,7 @@ directly. No other task in this feature touches `.github/workflows/test.yml`.
   T-011.
 - **AC-031's non-gating live-model refresh test is never added to the
   gating `tests/run-all.sh` array or the gating `.github/workflows/test.yml`
-  entries** (design.md Deployment / CI Plan) — T-004 registers it, if at
+  entries** (design.md Deployment / CI Plan) — T-012 registers it, if at
   all, as a separate, explicitly non-gating entry, or leaves it
   run-manually-only.
 - **F5–F8** (Compatibility Matrix, design.md) have no fixture-builder call
@@ -545,7 +545,7 @@ of the golden baseline differs from a fresh run's output (AC-002).
 
 ### Blockers
 
-None
+T-001, T-002
 
 ---
 
@@ -579,8 +579,7 @@ Security-Sensitive: true
 
 Cross-Model: not enabled
 
-Requirements: REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-031, AC-042,
-AC-043)
+Requirements: REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042, AC-043)
 
 Depends On: T-001 (functional — constructs F1–F4 fixtures, including the
 F3/F4 `SKIP`-gated variants).
@@ -599,15 +598,8 @@ Planned Files:
 - `tests/fixtures/structural-fixture-corpus/` (new — `structural-fixture-corpus/v1`
   recorded-response fixtures, one JSON file per exercised fixture-matrix
   cell: F1/F2 now, F3/F4 recorded but `SKIP`-gated until Epic A1/A4 merge)
-- `tests/structural-compatibility-live-refresh.tests.sh` (new,
-  agent-editable — AC-031's separate, explicitly non-gating live-model
-  refresh test; never added to the gating `run-all` array, Global
-  Constraints)
-- `tests/structural-compatibility-live-refresh.tests.ps1` (new,
-  agent-editable — twin)
-- `tests/run-all.sh` (existing, agent-editable — `compatibility-structural.tests.sh`
-  registration only; the live-refresh twin is never added here, Global
-  Constraints)
+- `tests/run-all.sh` (existing, agent-editable — `structural-compatibility.tests.sh`
+  registration only, Global Constraints serialized order)
 - `tests/run-all.ps1` (existing, agent-editable — twin registration)
 
 Data Migration: none — `structural-fixture-corpus/v1` is a net-new schema
@@ -671,16 +663,13 @@ entries (AC-007, AC-042, AC-043) until their cited upstream epics merge.
   citing T-010's REQ-007 allowlist manifest (once it exists; until then,
   a local named-`SKIP` matching `LOOP_VALIDATOR_CAPABILITY`'s own
   degradation pattern, `tests/lib/loop-driver.sh:460-519`, AC-016).
-- Author the separate, non-gating AC-031 live-model refresh test; never
-  register it in the gating `run-all` array.
 
 ### Done When
 
-- [ ] `full`-track (F1) structural assertion passes against the existing
-  legacy-seven-layer templates, unchanged (AC-005 `full`-track clause).
-- [ ] `lite`-track (F2) structural assertion passes against the existing
-  three-file `lite-spec` templates, unchanged — never substituted for the
-  `full`-track clause (AC-005 `lite`-track clause, INV-024).
+- [ ] `full`-track (F1) and `lite`-track (F2) structural assertions both
+  pass against their own existing templates, unchanged — the `lite`-track
+  templates never substituted for the `full`-track clause (AC-005
+  `full`-track and `lite`-track clauses, INV-024).
 - [ ] `REQ-NNN`/`AC-NNN` identifier format is asserted unchanged in
   Context-absent generation output (AC-006).
 - [ ] The F4 Facet-reference-absence assertion is a named `SKIP` citing
@@ -691,17 +680,14 @@ entries (AC-007, AC-042, AC-043) until their cited upstream epics merge.
 - [ ] The gating suite runs fully offline against the recorded corpus,
   never a live model call (AC-030); a corpus/canonicalizer parse failure
   is a hard suite failure, never a silent skip.
-- [ ] The separate AC-031 live-model refresh test exists, is registered
-  as explicitly non-gating, and is never part of the gating
-  `tests/run-all.sh`/`.github/workflows/test.yml` entries.
 - [ ] TDD evidence: RED (the malformed-corpus fixture) and GREEN (the
   full suite against the correct canonicalizer). An independent
   quality-gate verdict records PASS.
 - [ ] `tests/structural-compatibility.tests.sh`/`.ps1` self-register in
-  `tests/run-all.sh`/`.ps1` (the live-refresh twin does not).
+  `tests/run-all.sh`/`.ps1`.
 - [ ] Implementation report created; quality gate passes; traceability.md
-  updated with T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-031,
-  AC-042, AC-043).
+  updated with T-004 → REQ-002 (AC-005, AC-006, AC-007, AC-030, AC-042,
+  AC-043).
 
 ### Out of Scope
 
@@ -711,11 +697,15 @@ entries (AC-007, AC-042, AC-043) until their cited upstream epics merge.
   hard-fail checks (T-010) — this task's own named `SKIP`s are wired to
   read from that manifest once T-010 lands; until then they use the
   existing ad hoc `LOOP_VALIDATOR_CAPABILITY`-style degradation.
+- The separate, non-gating AC-031 live-model refresh test that
+  regenerates `structural-fixture-corpus/v1` entries (T-012) — this task
+  builds and records the corpus's own initial F1/F2 entries but never
+  live-refreshes them itself.
 - F7/F8 (`N/A`, no Foundation epic ever produces these states).
 
 ### Blockers
 
-None
+T-001
 
 ---
 
@@ -973,7 +963,7 @@ trace via `assert_event_trace` — the single oracle T-005 authored.
 
 ### Blockers
 
-None
+T-001, T-005
 
 ---
 
@@ -1003,7 +993,9 @@ Requirements: REQ-003 (AC-010, AC-019, AC-020, AC-025, AC-027)
 
 Depends On: T-001 (functional — constructs the Context-absent and
 F3/F4-invalid round-drive fixtures), T-005 (functional — the collector/
-comparator functions this case calls).
+comparator functions this case calls), T-006 (functional — creates the
+shared `tests/fixtures/compatibility-event-trace/` directory this task's
+own Planned Files entry, below, states is "existing after T-006").
 
 Planned Files:
 - `tests/loop-escalation.tests.sh` (existing, agent-editable — new
@@ -1086,7 +1078,7 @@ uses).
 
 ### Blockers
 
-None
+T-001, T-005, T-006
 
 ---
 
@@ -1220,7 +1212,7 @@ fallback to legacy generation (AC-037, `FP-A5-BLOCK-REQ002`).
 
 ### Blockers
 
-None
+T-001, T-006, T-007
 
 ---
 
@@ -1493,7 +1485,7 @@ T-007/T-008 introduced ad hoc to read from this manifest (AC-016).
 
 ### Blockers
 
-None
+T-003, T-004, T-006, T-007, T-008
 
 ---
 
@@ -1540,7 +1532,7 @@ Planned Files:
 - `.github/workflows/test.yml` (existing — protected-file status
   confirmed at implementation time, Protected Files above; registers
   every new/extended `.sh`/`.ps1` suite pair from T-002–T-010, except
-  T-004's AC-031 live-refresh test, which is registered as a separate
+  T-012's AC-031 live-refresh test, which is registered as a separate
   non-gating job or omitted from CI entirely)
 - `tests/run-all.sh`, `tests/run-all.ps1` (existing, agent-editable —
   cumulative confirmation that every suite T-001–T-010 registered is
@@ -1573,7 +1565,7 @@ reverted per infra-spec.md#rollback's own note on that case.
 Register every `.sh`/`.ps1` suite pair T-002–T-010 authored or extended
 into `tests/run-all.sh`, `tests/run-all.ps1`, and
 `.github/workflows/test.yml` (confirming that file's live protected-file
-status first, Protected Files above), excluding T-004's AC-031 live-model
+status first, Protected Files above), excluding T-012's AC-031 live-model
 refresh test from the gating set; author AC-040 (a static scan of the
 committed `test.yml` text for `promote-golden-baseline.sh`/
 `--write-candidate`) and AC-041 (two independent negative fixtures
@@ -1602,7 +1594,7 @@ runtime refusal directly).
   stage via `human-copy/` + `MANIFEST.sha256` if protected, edit directly
   otherwise.
 - Register every T-002–T-010 suite pair in `tests/run-all.sh`/`.ps1` and
-  the resolved `test.yml` path; exclude T-004's live-refresh test from
+  the resolved `test.yml` path; exclude T-012's live-refresh test from
   both gating registrations.
 - TDD Red→Green: write AC-040's negative fixture (a `test.yml` text
   containing either forbidden string) and AC-041's two negative fixtures
@@ -1622,7 +1614,7 @@ runtime refusal directly).
   `--write-candidate` appears anywhere in the committed `test.yml` text.
 - [ ] AC-041's two negative fixtures (`CI` set; `--approved-by` omitted)
   each assert a non-zero exit and no write to the canonical path.
-- [ ] T-004's AC-031 live-model refresh test is registered as a separate,
+- [ ] T-012's AC-031 live-model refresh test is registered as a separate,
   non-gating job or omitted from CI entirely — never inside the gating
   `test.yml` entries.
 - [ ] Every Compatibility Matrix cell's own disposition (AC-028) is
@@ -1644,4 +1636,158 @@ runtime refusal directly).
 
 ### Blockers
 
-None
+T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010
+
+---
+
+## T-012 Author the non-gating AC-031 live-model structural-comparison refresh test
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
+
+Approval: Draft
+
+Status: Planned
+
+Risk: medium
+
+Risk Rationale: Evaluated against
+`plugins/sdd-quality-loop/references/risk-classification-policy.md`
+directly. `medium` is justified: this task authors a standalone,
+explicitly non-gating integration test that regenerates
+`structural-fixture-corpus/v1` entries via an actual live model call —
+normal internal test tooling with observable behavior (a corpus entry
+written/updated in the documented schema shape) but no sensitive surface
+of its own. It never participates in the gating `tests/run-all.sh` array
+or `.github/workflows/test.yml` (Global Constraints; AC-031), and it does
+not itself implement Security Boundary B5 — the gating structural-
+compatibility suite that boundary protects is T-004's own scope,
+already secured; this task is only the sanctioned-but-optional refresh
+path security-spec.md's B5 row names as the corpus's one legitimate
+mutation route. It is not `high`: a defect in this task cannot silently
+vacuous-pass the gating suite (design.md's own "never mutated by the
+gating suite itself" discipline means T-004's gating suite is structurally
+unaffected by anything this task does), and this task performs no
+capability-machinery invocation and no write to any protected or gating
+path. Matches this repository's own precedent for a self-contained,
+non-gating tooling task (T-001's identical "inert/optional until
+consumed" reasoning). Required Workflow is `acceptance-first` per the
+policy's medium-tier row.
+
+Required Workflow: acceptance-first
+
+Security-Sensitive: false
+
+Cross-Model: not enabled
+
+Requirements: REQ-002 (AC-031)
+
+Depends On: T-001 (functional — constructs the fixture-matrix states this
+refresh test drives against a live model), T-004 (functional — this task
+regenerates entries in the `structural-fixture-corpus/v1` schema, the AST
+canonicalizer, and the fingerprinted injection anchor T-004 authors; it
+never defines its own corpus schema or canonicalizer).
+
+Planned Files:
+- `tests/structural-compatibility-live-refresh.tests.sh` (new,
+  agent-editable — AC-031's separate, explicitly non-gating live-model
+  refresh test; never added to the gating `run-all` array, Global
+  Constraints)
+- `tests/structural-compatibility-live-refresh.tests.ps1` (new,
+  agent-editable — twin)
+- `tests/fixtures/structural-fixture-corpus/` (existing after T-004,
+  agent-editable — this task's own live-model refresh writes/updates
+  recorded-response entries via the corpus's own `refresh_procedure`
+  field, design.md Data Plan; never mutated by the gating suite itself)
+
+Data Migration: none — the live-refresh test is a net-new, non-gating
+script; any corpus entry it writes is an additive update within the
+existing `structural-fixture-corpus/v1` schema T-004 defines, never a
+schema change of its own.
+
+Breaking API: no; `structural-compatibility-live-refresh.{sh,ps1}` are
+wholly new files, and this task alters no gating suite's behavior.
+
+Rollback: revert this task's commit(s) (infra-spec.md#rollback); since
+this test never runs in the gating suite or in CI, a revert has zero
+blast radius on any consumer's own pass/fail state.
+
+### Goal
+
+Author the separate, explicitly non-gating
+`tests/structural-compatibility-live-refresh.{sh,ps1}` test implementing
+AC-031: exercising the structural-compatibility assertions against an
+actual live model call to regenerate `structural-fixture-corpus/v1`
+entries via the corpus's own `refresh_procedure` field (design.md Data
+Plan), with its own result never required for, and never registered
+inside, the gating `tests/run-all.sh`/`.github/workflows/test.yml`
+entries (AC-015).
+
+### Must Read
+
+- `specs/epic-195-a7-compatibility/requirements.md`
+- `specs/epic-195-a7-compatibility/design.md` (Data Plan
+  "Structural-comparison seam" — `refresh_procedure` field; Design
+  Decisions; Deployment / CI Plan)
+- `specs/epic-195-a7-compatibility/security-spec.md#trust-boundaries`
+  (B5)
+- `specs/epic-195-a7-compatibility/acceptance-tests.md`
+- `specs/epic-195-a7-compatibility/traceability.md`
+- `tests/lib/fixture-matrix-builder.sh` (T-001's own contract, consumed
+  here)
+- `tests/structural-compatibility.tests.sh`,
+  `tests/lib/markdown-ast-canonicalizer.sh` (T-004's own gating suite and
+  canonicalizer this refresh test exercises against a live model instead
+  of the recorded corpus)
+
+### Scope
+
+- Implement the live-model refresh test's own invocation path against the
+  same structural assertions T-004's gating suite performs, but sourced
+  from an actual live model call rather than the recorded
+  `structural-fixture-corpus/v1` entries.
+- Implement the corpus's own `refresh_procedure` (design.md Data Plan) as
+  the only sanctioned regeneration path for `structural-fixture-corpus/v1`
+  entries.
+- Verify this test is never invoked by
+  `tests/run-all.sh`/`.github/workflows/test.yml`; register it, if at
+  all, as a separate explicitly non-gating entry only, or leave it
+  run-manually-only (Global Constraints).
+- Acceptance-first: write the assertions for the refresh path's own
+  observable behavior (a corpus entry written/updated in the documented
+  schema shape) before/alongside the implementation.
+
+### Done When
+
+- [ ] `tests/structural-compatibility-live-refresh.sh`/`.ps1` exist and
+  exercise the structural-compatibility assertions against an actual live
+  model call (AC-031).
+- [ ] The test's own result is never required for the gating compatibility
+  suite's own pass/fail verdict (AC-031).
+- [ ] The test is never registered in the gating
+  `tests/run-all.sh`/`.github/workflows/test.yml` entries — registered
+  instead as a separate, explicitly non-gating entry, or left
+  run-manually-only (AC-015, AC-031, Global Constraints).
+- [ ] Any corpus entry the refresh path writes follows
+  `structural-fixture-corpus/v1`'s own documented schema and the
+  `refresh_procedure` field's own contract, never mutating a
+  gating-suite-consumed entry outside this sanctioned path
+  (security-spec.md B5).
+- [ ] Acceptance-first evidence: the refresh path's own assertions are
+  written and run against a live model call, with an independent
+  quality-gate verdict recording PASS.
+- [ ] Implementation report created; quality gate passes; traceability.md
+  updated with T-012 → REQ-002 (AC-031).
+
+### Out of Scope
+
+- The gating structural-compatibility suite itself, the AST canonicalizer,
+  and the `structural-fixture-corpus/v1` schema definition (T-004's own
+  scope) — this task only ever refreshes corpus entries via the
+  sanctioned path; it does not define the schema or any gating assertion.
+- CI registration of any gating suite (T-011).
+- F3–F8 corpus entries beyond what T-004's own Compatibility Matrix scope
+  already covers (Global Constraints).
+
+### Blockers
+
+T-001, T-004
