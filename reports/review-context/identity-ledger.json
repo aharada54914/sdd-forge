@@ -5778,6 +5778,42 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0642",
       "previous_record_sha256": "d81eec6d1e78e589bed5a6babebfab6ccbd500c118b7ea610a0a9b0378d0be23",
       "record_sha256": "743f10bbd1cb63a635f0d785158e5737bb2b318d42b1f18295fbec6ca7b79d59"
+    },
+    {
+      "sequence": 643,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-a-seq0643",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0643",
+      "previous_record_sha256": "743f10bbd1cb63a635f0d785158e5737bb2b318d42b1f18295fbec6ca7b79d59",
+      "record_sha256": "6b6180e21e7374e6a656636bb049eea8b4cc5ee51b9aa53301a7bea29acf4c62"
+    },
+    {
+      "sequence": 644,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0644",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0644",
+      "previous_record_sha256": "6b6180e21e7374e6a656636bb049eea8b4cc5ee51b9aa53301a7bea29acf4c62",
+      "record_sha256": "3d4a16b5c84f313078810afadf85c04ba2167e331c87af8d1e4a74bb7ab5c38f"
+    },
+    {
+      "sequence": 645,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-a-seq0645",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0645",
+      "previous_record_sha256": "3d4a16b5c84f313078810afadf85c04ba2167e331c87af8d1e4a74bb7ab5c38f",
+      "record_sha256": "05d6e830cc7cdc05cbe9502070ba8a0f044866703fbee3e4369709fc0ea2cb2c"
+    },
+    {
+      "sequence": 646,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0646",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0646",
+      "previous_record_sha256": "05d6e830cc7cdc05cbe9502070ba8a0f044866703fbee3e4369709fc0ea2cb2c",
+      "record_sha256": "2a51b86d60adfa2d94cfd67de7bf431a49ba71aa00540e4d20eb21bcba0b1a6d"
     }
   ]
 }

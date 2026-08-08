@@ -1,6 +1,6 @@
 # Tasks: epic-196-a8-integration
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issue #196 (Epic A8 — 3環境統合検証), tracked under epic #187
 (AI-DLC Foundation) / #188 (Epic A0) /
@@ -1168,13 +1168,15 @@ Cross-Model: not enabled
 
 Requirements: REQ-006 (AC-025), REQ-007 (AC-029, AC-030)
 
-Depends On: T-001, T-002, T-003, T-005, T-006 (Global Constraints —
-serialized only; also the natural final task, since AC-030's own citation
-check reads every other Phase 1 document this feature already froze, and
-this task's Done When re-confirms the cumulative suite/CI registration
-state left by every task above, matching this repository's own established
-"last task re-confirms cumulative state" convention,
-`specs/epic-190-a2-capability-registry/tasks.md` T-007).
+Depends On: T-001, T-002, T-003, T-005, T-006 (functional — this task's own
+"Test-registration procedure proof" Done When requires every one of those
+tasks' suite-registration entries, in the shared runners and in the staged
+CI candidate, to already exist, so it cannot be correctly implemented
+before them; the same basis on which T-003 → T-002 is marked functional.
+Also the natural final task, since AC-030's own citation check reads every
+other Phase 1 document this feature already froze, matching this
+repository's own established "last task re-confirms cumulative state"
+convention, `specs/epic-190-a2-capability-registry/tasks.md` T-007).
 
 Planned Files:
 - `plugins/sdd-quality-loop/scripts/check-a8-classification-table.py`
@@ -1307,7 +1309,7 @@ per the WFI-011 convention (AC-030).
 
 ### Blockers
 
-None
+T-001, T-002, T-003, T-005, T-006
 
 ---
 
