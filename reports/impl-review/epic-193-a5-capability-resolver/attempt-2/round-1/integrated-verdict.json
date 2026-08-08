@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-orchestrator-a2r1",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

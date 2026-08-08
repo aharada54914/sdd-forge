@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Capability Resolver steps 0-3 (Issue #193, epic-193-a5 T-002)**:
+  Project Context の入力検証、workflow state 導出、2-pass canonicalization、
+  Context Projection のメモリ内 staging、および早期 Block 5診断を実装。
+  `resolve-project-context-block.tests.{sh,ps1}` で無効 workflow の2分岐を
+  含む6シナリオを固定した。保護対象の適用候補は呼び出し側の指示に従い
+  `verification/T-002/staged/` に置き、`human-copy/` と live plugin は未変更。
+
 ### Fixed
 
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,
@@ -1053,6 +1060,43 @@
 
 ### 追加
 
+- **Resolver Evidence 契約とスキーマ適合スイート (Issue #193, epic-193-a5
+  T-001)**: `contracts/resolver-evidence.schema.json`(schema
+  `sdd-resolver-evidence/v1`、draft-07)を新規追加。Capability Resolver
+  (`resolve-project-context`、T-002〜T-004 で実装予定)が毎回の呼び出しで
+  出力する、この機能唯一の新規アーティファクト
+  `specs/<feature>/resolver-evidence.yaml` の構造契約を固定する。
+  `capability_evaluations[]` は Registry の `capabilities[]` と exact-set
+  対応し、`matched: false` の場合は `conditional_facet_evaluations` キー
+  自体を持てない (`if`/`then`)。`diagnostics[].id` は REQ-002 の16値
+  closed enum。新スイート `tests/resolver-evidence-schema.tests.sh` /
+  `.ps1` が、スタンドアロンの stdlib-only Python 検証器
+  (`tests/resolver-evidence-schema-check.py`、draft-07 のこの契約が使う
+  キーワードのみを実装した hand-rolled サブセット検証器。第三者ライブラリ
+  なし)を介して、hand-crafted な有効/無効フィクスチャ12件
+  (`tests/fixtures/capability-resolver/resolver-evidence-schema/`)を
+  この契約に対して直接検証する — ライブの Registry/Resolver 呼び出しは
+  一切行わない(それは T-002〜T-004 の範囲)。`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイートを直接登録。受け入れ先行
+  (acceptance-first、medium tier)で RED
+  (`specs/epic-193-a5-capability-resolver/verification/T-001-red-sh.log`,
+  `T-001-red-ps1.log`: スキーマ不在によりスイートが fail)→ GREEN
+  (`T-001-green-sh.log`, `T-001-green-ps1.log`)の順で実装。
+
+  **人手適用待ち(HUMAN APPLY STEP)**: R-10 保護ファイルである
+  `.github/workflows/test.yml` は、その human-copy ステージング先
+  (`specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml`)自体も同一の保護 suffix 判定に一致し、エージェントによる
+  書き込みが hook-guard により deny された(迂回は行っていない)。意図した
+  完全な補正版(既存ライブ内容+本スイートの新規CIステップ2件)は
+  `reports/implementation/epic-193-a5-capability-resolver/T-001.md` の
+  Human Apply Step セクションに sha256
+  (`aadf23b77f53bb5ce057295f8880f9815f3d591e2e97afedb910241d6892209b`)
+  とともに記載済み。`MANIFEST.sha256` はこのハッシュ値を記録済みだが、
+  対応する `test.yml` 自体は human-copy 配下にまだ存在しない — 人間が
+  報告書の内容を直接適用し、ハッシュ一致を確認する必要がある。
+  詳細は `reports/implementation/epic-193-a5-capability-resolver/T-001.md`
+  を参照。
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接

@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 3,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "verdict": "BLOCKED",
+  "run_id": "task-orch-epic193a5capabilityresolver-a1r3"
+}

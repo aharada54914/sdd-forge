@@ -1,0 +1,8 @@
+FAIL: TEST-017 schema file exists
+FAIL: TEST-017 schema is valid JSON
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; print(json.load(open('/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json', encoding='utf-8')).get('$schema',''))
+                                 ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/contracts/resolver-evidence.schema.json'
+exit=1
