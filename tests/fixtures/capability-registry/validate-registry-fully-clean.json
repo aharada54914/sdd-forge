@@ -1,0 +1,57 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-contract",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
+    },
+    {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    },
+    {
+      "id": "publish-notes",
+      "stage": "artifact",
+      "blocking": false
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "durable-workflow",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "durable-workflow-replay-safety"
+      ],
+      "gate_ids": [
+        "check-contract"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    }
+  ]
+}

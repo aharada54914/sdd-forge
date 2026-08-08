@@ -5670,6 +5670,294 @@
       "host_session_id": "SESS-qg-epic-136-phase4-docs-T-001-0575",
       "previous_record_sha256": "a2d55645086c7abc01b34b1f09fa02a3de69cef3140a7cfb8f25293568997eb5",
       "record_sha256": "3900b05a2bbb4ec5862a97b77853c7fb6804a83ef5da5a09528fef4f5a3a59ec"
+    },
+    {
+      "sequence": 631,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0320",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0320",
+      "previous_record_sha256": "3900b05a2bbb4ec5862a97b77853c7fb6804a83ef5da5a09528fef4f5a3a59ec",
+      "record_sha256": "3ff19203dc77c0de1e10411c7079cfe87fcae5c8eacdddb3007faf2de6a30847"
+    },
+    {
+      "sequence": 632,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0321",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0321",
+      "previous_record_sha256": "3ff19203dc77c0de1e10411c7079cfe87fcae5c8eacdddb3007faf2de6a30847",
+      "record_sha256": "8fa98f1497da6cdcada69a209100e6c451d947fe820fea3c07d51403cd271a6b"
+    },
+    {
+      "sequence": 633,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0322",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0322",
+      "previous_record_sha256": "8fa98f1497da6cdcada69a209100e6c451d947fe820fea3c07d51403cd271a6b",
+      "record_sha256": "c1e8394386e02056d6d1feb61342f5ff5d331bf20ff1dce1309f0333f04fc919"
+    },
+    {
+      "sequence": 634,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0323",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0323",
+      "previous_record_sha256": "c1e8394386e02056d6d1feb61342f5ff5d331bf20ff1dce1309f0333f04fc919",
+      "record_sha256": "7e3d3846841b82f57d971734063881a915b2616b71537c214b9fd5c3bd420399"
+    },
+    {
+      "sequence": 635,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0324",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0324",
+      "previous_record_sha256": "7e3d3846841b82f57d971734063881a915b2616b71537c214b9fd5c3bd420399",
+      "record_sha256": "2601fa4ebf30c9b60cbf2dc05feb301e090d8eb0de66d356f2c54ccfd7e85be5"
+    },
+    {
+      "sequence": 636,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0325",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0325",
+      "previous_record_sha256": "2601fa4ebf30c9b60cbf2dc05feb301e090d8eb0de66d356f2c54ccfd7e85be5",
+      "record_sha256": "1a76f2a5b1ad43f75b8a2a549b6e96e88cbb0183e5ce8d1a7317499a2d8dac42"
+    },
+    {
+      "sequence": 637,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0326",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0326",
+      "previous_record_sha256": "1a76f2a5b1ad43f75b8a2a549b6e96e88cbb0183e5ce8d1a7317499a2d8dac42",
+      "record_sha256": "697cc62f83e008bd5d3673bec8574dcf2505b25ff901acf1336ccad75e4e57b3"
+    },
+    {
+      "sequence": 638,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0327",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0327",
+      "previous_record_sha256": "697cc62f83e008bd5d3673bec8574dcf2505b25ff901acf1336ccad75e4e57b3",
+      "record_sha256": "834e08059ff838b1e3caed66493028a1d00b0aa3544becf7ab2d8eb4dccacfe2"
+    },
+    {
+      "sequence": 639,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0328",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0328",
+      "previous_record_sha256": "834e08059ff838b1e3caed66493028a1d00b0aa3544becf7ab2d8eb4dccacfe2",
+      "record_sha256": "832273d2bb2f8211bda64ba323cae4145b004e735c6771cba2507b30d9f63a1a"
+    },
+    {
+      "sequence": 640,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0329",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0329",
+      "previous_record_sha256": "832273d2bb2f8211bda64ba323cae4145b004e735c6771cba2507b30d9f63a1a",
+      "record_sha256": "a648647dbd376bf192cf80d8dcf1fcd11d4d5b2cb168dbd4332cfc6bb33f986a"
+    },
+    {
+      "sequence": 641,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-seq0330",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-0330",
+      "previous_record_sha256": "a648647dbd376bf192cf80d8dcf1fcd11d4d5b2cb168dbd4332cfc6bb33f986a",
+      "record_sha256": "c55d4957459b60f044b1f8bc1ab210f5129ff7404f0d9d892966f06d2d31b3ed"
+    },
+    {
+      "sequence": 642,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-seq0331",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-0331",
+      "previous_record_sha256": "c55d4957459b60f044b1f8bc1ab210f5129ff7404f0d9d892966f06d2d31b3ed",
+      "record_sha256": "00e4698ac618442a39f6f7f674c4a9e0856d6188938f9cb8bb3bfea46bb28f1c"
+    },
+    {
+      "sequence": 643,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-seq0332",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-0332",
+      "previous_record_sha256": "00e4698ac618442a39f6f7f674c4a9e0856d6188938f9cb8bb3bfea46bb28f1c",
+      "record_sha256": "ca652af07a508c92279613668b69f05de4f659727c1321ddae52ffdde77ab54b"
+    },
+    {
+      "sequence": 644,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-seq0333",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-0333",
+      "previous_record_sha256": "ca652af07a508c92279613668b69f05de4f659727c1321ddae52ffdde77ab54b",
+      "record_sha256": "fb18f5d319ffadada265f311ff9f8d865827b476b0afb6d08e817d2bc2d8b15b"
+    },
+    {
+      "sequence": 645,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-seq0334",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-0334",
+      "previous_record_sha256": "fb18f5d319ffadada265f311ff9f8d865827b476b0afb6d08e817d2bc2d8b15b",
+      "record_sha256": "1c511c761e4d311d761cbe843c8516a1c60987e8a18873cca9bf279c1004b2c7"
+    },
+    {
+      "sequence": 646,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-r2-seq0335",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-r2-0335",
+      "previous_record_sha256": "1c511c761e4d311d761cbe843c8516a1c60987e8a18873cca9bf279c1004b2c7",
+      "record_sha256": "9d7e80d126cfa609bcae32655e4eb1dea6e0a7a5f5276d8fdbb0f1dddd4a6d23"
+    },
+    {
+      "sequence": 647,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-r2-seq0336",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-r2-0336",
+      "previous_record_sha256": "9d7e80d126cfa609bcae32655e4eb1dea6e0a7a5f5276d8fdbb0f1dddd4a6d23",
+      "record_sha256": "6e4205559e59dd10c6dd1ffcca5b1c7fbdbfec18f42ce21dcc68b59f8bf7b429"
+    },
+    {
+      "sequence": 648,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-r3-seq0337",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-r3-0337",
+      "previous_record_sha256": "6e4205559e59dd10c6dd1ffcca5b1c7fbdbfec18f42ce21dcc68b59f8bf7b429",
+      "record_sha256": "b9a071052f9a5fe4ba2d211fc1acfac2944d5b88c5fd5facf629476079f076b7"
+    },
+    {
+      "sequence": 649,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-r3-seq0338",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-r3-0338",
+      "previous_record_sha256": "b9a071052f9a5fe4ba2d211fc1acfac2944d5b88c5fd5facf629476079f076b7",
+      "record_sha256": "fbd460bb93214983fe09595a97e32c7ef8a7b4bfb142c49bfa37a414be8bdc78"
+    },
+    {
+      "sequence": 650,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-a2r1-seq0339",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-a2r1-0339",
+      "previous_record_sha256": "fbd460bb93214983fe09595a97e32c7ef8a7b4bfb142c49bfa37a414be8bdc78",
+      "record_sha256": "ef58444d4bdecc43c2f496ee099dcc4c613b2d6e5c7efac2e38b7a3918e36e7d"
+    },
+    {
+      "sequence": 651,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-a2r1-seq0340",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-a2r1-0340",
+      "previous_record_sha256": "ef58444d4bdecc43c2f496ee099dcc4c613b2d6e5c7efac2e38b7a3918e36e7d",
+      "record_sha256": "de8570cf55029d427a7e89592e331a67a6450a2bf12189f5b319f421dab2153d"
+    },
+    {
+      "sequence": 652,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-a2r1-seq0341",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-a2r1-0341",
+      "previous_record_sha256": "de8570cf55029d427a7e89592e331a67a6450a2bf12189f5b319f421dab2153d",
+      "record_sha256": "7cff195bea2e3ce20f0d293a4adbe85d847b6a4e127be20381d97fe50ed0e28a"
+    },
+    {
+      "sequence": 653,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-a1r1-seq0342",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-a1r1-0342",
+      "previous_record_sha256": "7cff195bea2e3ce20f0d293a4adbe85d847b6a4e127be20381d97fe50ed0e28a",
+      "record_sha256": "813fd6bdd4ac98d3ad2f1ad1f67eb6bf5a0fdb808c8d81d16024adccfa86c534"
+    },
+    {
+      "sequence": 654,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-a1r1-seq0343",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-a1r1-0343",
+      "previous_record_sha256": "813fd6bdd4ac98d3ad2f1ad1f67eb6bf5a0fdb808c8d81d16024adccfa86c534",
+      "record_sha256": "3fb18d50cdcc66dccf9047b547dd001a7ed9d27a78a1bf3f80eedab9ccc33e61"
+    },
+    {
+      "sequence": 655,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-001-seq0344",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-001-0344",
+      "previous_record_sha256": "3fb18d50cdcc66dccf9047b547dd001a7ed9d27a78a1bf3f80eedab9ccc33e61",
+      "record_sha256": "83c1b0f1d83f64aedd99a5b43da606ca2f800eb3fe0c336bd57637b0be140989"
+    },
+    {
+      "sequence": 656,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-002-seq0345",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-002-0345",
+      "previous_record_sha256": "83c1b0f1d83f64aedd99a5b43da606ca2f800eb3fe0c336bd57637b0be140989",
+      "record_sha256": "f04840fea1b63e6fc527978528ccdf65f8f92fc853a46984274a65ca88d1ff27"
+    },
+    {
+      "sequence": 657,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-003-seq0346",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-003-0346",
+      "previous_record_sha256": "f04840fea1b63e6fc527978528ccdf65f8f92fc853a46984274a65ca88d1ff27",
+      "record_sha256": "ba1188ab6d7fd2116d9d76b6a015eddb13f96c7cd19268a61d99660ee06ae5b4"
+    },
+    {
+      "sequence": 658,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-004-seq0347",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-004-0347",
+      "previous_record_sha256": "ba1188ab6d7fd2116d9d76b6a015eddb13f96c7cd19268a61d99660ee06ae5b4",
+      "record_sha256": "ccd446bbeb42a7f8553fe84f631e117ab39578b5a64461b0615142d82e2f6116"
+    },
+    {
+      "sequence": 659,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-004-a2-seq0348",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-004-a2-0348",
+      "previous_record_sha256": "ccd446bbeb42a7f8553fe84f631e117ab39578b5a64461b0615142d82e2f6116",
+      "record_sha256": "fec6e70ba3837c21b99f084d570575237d493b9527c4677f6e5d4f26501e6807"
+    },
+    {
+      "sequence": 660,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-006-seq0349",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-006-0349",
+      "previous_record_sha256": "fec6e70ba3837c21b99f084d570575237d493b9527c4677f6e5d4f26501e6807",
+      "record_sha256": "baa65a80149ad579561e28131c3fd807561e431391e189dd4cda0543e60812e9"
+    },
+    {
+      "sequence": 661,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-seq0661",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-0661",
+      "previous_record_sha256": "baa65a80149ad579561e28131c3fd807561e431391e189dd4cda0543e60812e9",
+      "record_sha256": "b3701c0ca9232c4318bd84c766f12450cf53704d39e3d08e476735dbb75566cd"
+    },
+    {
+      "sequence": 662,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-seq0662",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-0662",
+      "previous_record_sha256": "b3701c0ca9232c4318bd84c766f12450cf53704d39e3d08e476735dbb75566cd",
+      "record_sha256": "438eb11c0ae18e335236c3c308003ff9800476710f2960b8bb2ccfa63eaaf615"
     }
   ]
 }

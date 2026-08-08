@@ -1,0 +1,7 @@
+7d57f1d9dc21f701ffccbc861ec8605c6bc02ea1003b71527b8540b3713cf548  .github/workflows/test.yml
+9ecc77853dda050dd2a7030416a5f276fbb260bdc9e4390f1666ccad15e97bca  plugins/sdd-quality-loop/references/guard-invariants.json
+04eb90d036786fa72122b05b33cf81dffeec277299ad30f8b92cc95f95397465  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+4606faf04c32ec15c0a0cc00791a43d9b149da3c4783e54f11eb40c97b11333f  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+5ff08571eb963d150b354edffb7c796048928d5992ba6d8c4ff3b5b67aeaecd2  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+0e04af8fc716954c0e0dd657bbe4b65aa0a9c6283b6510d212aed58e31b52089  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+831d080d53bf54f50c21e88387fda76488677589d192c76d2eaf06d7df639719  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh

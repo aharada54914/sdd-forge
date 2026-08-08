@@ -1,0 +1,91 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-a-r3-seq0337",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-190-a2-capability-registry-r3-0337",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+    {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path": "specs/epic-190-a2-capability-registry/design.md", "sha256": "b7f2f8f414867c58601f1582e10c856b2dc4366fb97e95889aec7489d9b50958"},
+    {"path": "specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "specs/epic-190-a2-capability-registry/ux-spec.md", "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+    {"path": "specs/epic-190-a2-capability-registry/frontend-spec.md", "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+    {"path": "specs/epic-190-a2-capability-registry/infra-spec.md", "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+    {"path": "specs/epic-190-a2-capability-registry/security-spec.md", "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-190-a2-capability-registry/attempt-1/round-3/precheck-result.json", "sha256": "a16426f7e3939fd693908077fbc2193bc07fbc2c6c0d9569b13673f139971360"},
+    {"path": "reports/impl-review/epic-190-a2-capability-registry/attempt-1/round-2/integrated-summary.json", "sha256": "4cd9a212258a531e8c3ac76e50498080b7fa6bc0e83ce0439cc2f3b7be55c5f9"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "new machine-readable contract (Capability Registry schema + instance, plus a versioned lite-upgrade-reason catalog) plus four deterministic scripts added to the existing plugins/sdd-quality-loop/ plugin — no UI/frontend surface (functionally library/cli-shaped)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 28-71) states top-level component boundaries via an ASCII dependency diagram (contracts/*.json/.schema.json feeding four scripts feeding the generated projection, consumed by sdd-quality-loop's Implementation Gate) and a 4-step Registry discovery contract; integration with the existing plugins/sdd-quality-loop/ plugin is stated explicitly ('added to the existing plugins/sdd-quality-loop/ plugin' ... 'read by sdd-quality-loop's own Implementation Gate'); technology choices per layer are named for data (JSON Schema draft-07 + JSON instance files), backend (Python master + sh/ps1(/js) wrapper scripts, per the adjacent Technical Summary and Components section), and infra (CI --check drift/release-gate mode, named within the discovery-contract's own step 4). The absence of frontend technology choices within Architecture itself is not an omission: Technical Summary immediately above and the Layer Specifications table immediately below both state explicitly 'no new UI, no new UX surface, no new runtime service' / 'Frontend: N/A — no change: no browser/client UI.' No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Architecture section's ASCII diagram declares an explicit, acyclic dependency graph: contracts/*.json/.schema.json/lite-upgrade-reason-catalog.json -> {validate-capability-registry, evaluate-predicate, generate-registry-digest, generate-gate-capabilities} -> generate-gate-capabilities.py writes plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json -> read by sdd-quality-loop's Implementation Gate. contracts/* is read-only input to every script; the generated projection is write-only output of generate-gate-capabilities.py and is never itself fed back as an input to the Registry. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md lines 317-333) names the new data entities explicitly (contracts/capability-registry.json, contracts/lite-upgrade-reason-catalog.json as new persistent files; plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json and the vendored contracts/* copies as derived/generated data), states existing-data impact explicitly ('No database, no migration, no runtime storage'; 'No data is deleted or migrated; this is a net-new contract with no prior version'), and states the migration strategy explicitly ('No database, no migration' with rationale: net-new contract, no prior version to migrate from). The section does not use the literal sub-field labels 'Data Entities:'/'Existing Data Affected:'/'Migration Strategy:', but substantively and unambiguously answers all three for a downstream implementer. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (design.md lines 334-677) lists every new script-level contract (capability-registry.schema.json shape; Predicate DSL evaluator REQ-002: CLI invocation, request=predicate+component-properties JSON, response={result,evidence} JSON; Registry validator REQ-003: CLI invocation, exit codes, diagnostic-line format; registry_digest generator REQ-004: CLI flags, stdout digest; projection generator REQ-005: CLI flags, output JSON shape; Registry discovery contract REQ-005: resolution algorithm), each with a method-equivalent (CLI flag/invocation), request schema, and response schema. No existing endpoint of this Epic's own is deprecated or changed since this is wholly new, additive scope; Assumptions ('plugins/sdd-quality-loop/'s existing... manifest... is structurally unaffected — only its scripts/references/contracts inventories grow') and security-spec.md's SBOM and Supply Chain section make this explicit. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Primary/TYPE-D path applies: ## Security Boundaries (design.md lines 935-952) is present and names every trust boundary crossed by this feature (B1 maintainer->Registry, B2 predicate caller->evaluator, B3 implementation-phase agent->protected paths, B4 script->discovery target). Auth mechanism at each boundary is stated in security-spec.md's Trust Boundaries table (normative refinement of design.md per this gate's instructions), e.g. 'None — OS/filesystem user boundary only; this Epic defines no authentication mechanism' (B1), 'Human-only cp action' (B3). PII/data classification is addressed via security-spec.md's Data Classification and Protection table and the explicit statement 'No PII, no credential, no provider-specific detail is stored by any artifact this Epic designs.' OWASP Top 10 concerns are addressed in security-spec.md's OWASP Mapping table (Injection, Broken Access Control, Security Misconfiguration, Software and Data Integrity Failures, plus explicit N/A rationale for Cryptographic Failures and Identification/Authentication Failures). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is a descriptive, non-enum value in design.md's header, but its substance is unambiguously non-fullstack with no frontend/UI surface at all — functionally equivalent to a library/cli feature type. Technical Summary states 'It introduces no new UI, no new UX surface, and no new runtime service'; ux-spec.md states 'N/A — no change: this Epic has no UX surface'; frontend-spec.md states 'N/A — no change: this Epic introduces no browser/client UI and no new runtime service'; design.md's own Design System Compliance section states 'Not applicable — no UI surface.' design.md contains no Frontend Plan or Backend Plan section to cross-check against API / Contract Plan."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md lines 679-787) covers unit scope per script/module (8 numbered items, each naming what is exercised and what fixture data is used), integration/boundary scope (e.g. item 2's validator+schema fixtures, item 4's generator+committed-projection drift boundary, item 8's script+filesystem discovery boundary across 3 simulated runtimes), and acceptance-criteria verification (every item cross-references specific AC-NNN IDs, and acceptance-tests.md maps every AC-NNN to exactly one TEST-NNN by row). Concrete planned verification evidence is named: tests/*.tests.sh/.tests.ps1 suite paths, tests/run-all.sh/.ps1 registration, and infra-spec.md's CI/CD Sequence names each .github/workflows/test.yml step. This feature has no traditional UI user journey (no UX/frontend surface, per FRONTEND-BACKEND-CONSISTENCY); the closest analog — 3-runtime installed-plugin invocation parity (item 7) and installed-layout Registry-discovery fixtures (item 8) — is concretely named as the operator-facing verification path. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in Architecture and API / Contract Plan is defined in ## Components (design.md lines 79-186): contracts/capability-registry.schema.json, contracts/capability-registry.json, contracts/lite-upgrade-reason-catalog.json, evaluate-predicate.{py,sh,ps1}, validate-capability-registry.{py,sh,ps1}, generate-registry-digest.{py,sh,ps1,js}, generate-gate-capabilities.{py,sh,ps1}, references/provider-terms.json, the vendored plugins/sdd-quality-loop/contracts/* copies, and the generated gate-capabilities.json each have their own defining bullet. 'sdd-quality-loop's own Implementation Gate,' 'Epic A1's canonicalizer,' and 'Epic A5's Resolver' are established, existing/external system components identifiable from investigation.md (INV-009, INV-006) and requirements.md's Dependencies section, not net-new undefined references. No issues found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log names exactly one new ADR: 'ADR-0025 (Registry Discovery Contract, docs/adr/0025-registry-discovery-contract.md), Accepted 2026-07-21.' Independently verified: docs/adr/0025-registry-discovery-contract.md exists (156 lines), Status: Accepted, with a substantive Context/Decision/Consequences/References structure (not a stub) matching design.md's Registry discovery contract content verbatim in substance, and is indexed in docs/adr/README.md line 115 ('| 0025 | Registry Discovery Contract | Accepted |'). This closes round 2's ADR-PRESENT Major finding. The remaining un-promoted design decision (Gate implementation identity mechanism, Risks/ADR Change Log) is independently confirmed to have no named cross-Epic consumer anywhere in requirements.md/design.md/investigation.md: Epic A5 is named as a consumer of the Predicate DSL evaluator, registry_digest generator, and the Registry discovery contract, but not of the Gate-implementation-identity scan-root mechanism, which remains scoped to this Epic's own validator (plugins/sdd-quality-loop/scripts/) only — so it does not meet ADR-0025's own stated real-named-cross-Epic-consumer promotion threshold and is defensibly left as a design-level decision with a tracked residual risk. No issues found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No design-system/ directory exists anywhere in this repository (verified via `ls -d design-system/`, not found). Check is skipped per the applicability rule; design.md's own ## Design System Compliance section additionally records 'Not applicable — no UI surface,' consistent with the skip."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No domain/ directory exists anywhere in this repository (verified via `ls -d domain/`, not found). Check is skipped per the applicability rule."
+    }
+  ]
+}

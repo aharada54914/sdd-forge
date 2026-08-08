@@ -1,0 +1,15 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "no-op-capability",
+      "trigger": {"scope": "affected_component", "field": "runtime_classes", "operator": "exists"},
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": ["some-review-check"],
+      "gate_ids": [],
+      "delivery_strategy": {"kind": "no-op"}
+    }
+  ]
+}

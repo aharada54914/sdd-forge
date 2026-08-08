@@ -1,0 +1,109 @@
+ticket_id: RT-20260723-001
+status: resolved
+resolution: |
+  2026-07-23: Remedied in plugins/sdd-quality-loop/scripts/validate-capability-registry.py:
+  check_c_unregistered_script now tracks implementation_ref resolutions as
+  real-path -> [gate ids] instead of a bare set, and emits a new
+  `gate-implementation-collision` diagnostic (naming every colliding gate
+  id) whenever two or more gates[] entries resolve to the identical real
+  path -- closing the AC-016 gap the evaluator's crafted registry
+  demonstrated (exit 0 where the spec requires failure).
+  Added the three missing TEST-016 assertions to both
+  tests/validate-capability-registry.tests.{sh,ps1}: (1) a gate naming a
+  .sh wrapper instead of its .py master (the master correctly shows
+  unregistered-script), (2) a gate referencing a symlinked entry point
+  (the real master correctly registers, proving symlink resolution),
+  (3) the new collision diagnostic (two new fixtures:
+  validate-registry-identity-{non-py-ref,symlink,collision}.json, plus a
+  check-registered-symlink.py symlink added to the existing
+  identity-bidirectional-repo fixture).
+  TDD evidence: reran the ORIGINAL (pre-remedy, commit 2e79289) validator
+  against the new assertions first -- RED showed exactly the reported bug
+  (both collision assertions fail; the non-py-ref and symlink assertions
+  already passed even pre-remedy, since only collision detection was
+  actually broken) -- then GREEN after the fix, 27/27 both runtimes.
+  Evidence: specs/epic-190-a2-capability-registry/verification/T-004/
+  {red,green}-{sh,ps1}-remedy.log.
+  Minor findings 3-5 from the attempt-1 report were not actioned this
+  round per the evaluator's own instruction (recorded only).
+
+  2026-07-23: Re-evaluated (attempt 2, run
+  RUN-epic-190-a2-capability-registry-qg-T-004-a2-seq0348, report
+  reports/quality-gate/2026-07-23T041500Z-epic-190-a2-capability-registry-T-004-attempt2.md).
+  VERDICT: PASS -- both Major findings above confirmed resolved (the
+  evaluator independently reproduced the pre-remedy silent-pass bug
+  against unmodified commit 2e79289 as a differential proof, then
+  confirmed the remedy fires correctly on independently-crafted
+  adversarial registries, not only the shipped fixture). Zero Critical,
+  zero Major, three new Minor findings (all recorded, non-blocking):
+  (1) the check-registered-symlink.py fixture was named only in
+  T-004.md's Remedy prose, not as its own Outputs-table row -- fixed
+  post-gate as a report-completeness cleanup (added the row); (2)
+  design.md's diagnostic-ID table does not separately enumerate
+  gate-implementation-collision -- not a conformance defect per the
+  evaluator (the behavior is fully specified in prose elsewhere; record
+  only, no fix); (3) the seq0348 review-context manifest omitted this
+  ticket file even though T-004.md's Outputs table declares it -- a
+  manifest-construction observation outside T-004's scope, not actioned.
+  Attempt-1's Minor findings 3-5 were confirmed by the attempt-2
+  evaluator to remain correctly out of the remedy's scope.
+type: incomplete-implementation
+severity: major
+target:
+  feature: epic-190-a2-capability-registry
+  task: T-004
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+    - tests/validate-capability-registry.tests.sh
+    - tests/validate-capability-registry.tests.ps1
+summary: Registry validator's Gate implementation identity check (c) does not detect a wrapper-group collision, and TEST-016 is missing three required assertions.
+problem: |
+  The independent quality-gate evaluator for epic-190-a2-capability-registry
+  T-004 (run RUN-epic-190-a2-capability-registry-qg-T-004-seq0347, report
+  reports/quality-gate/2026-07-23T020000Z-epic-190-a2-capability-registry-T-004-attempt1.md,
+  VERDICT: NEEDS_WORK) found two Major issues:
+
+  1. Wrapper-group collision not detected (REQ-003(c)/AC-016/TEST-016).
+     validate-capability-registry.py:178-209's `check_c_unregistered_script`
+     builds `registered_reals` as a set of resolved implementation_ref real
+     paths; if two distinct gates[] entries reference the identical
+     check-*.py master, the set silently collapses both references into one
+     entry and no diagnostic fires. AC-016 states "two gates[] entries must
+     not resolve to the same wrapper group" -- this is currently
+     unenforced. The evaluator demonstrated a crafted two-gate registry
+     referencing the same check-registered.py-equivalent master passing
+     validation with exit 0, when the spec requires it to fail.
+  2. TEST-016 is substantially unimplemented in
+     tests/validate-capability-registry.tests.{sh,ps1}: the block labeled
+     "TEST-016/017" only exercises TEST-017's four bidirectional sub-cases.
+     Three TEST-016 assertions have no fixture or assertion at all:
+       (1) rejection of a non-.py implementation_ref (e.g. a gate pointing
+           at a .sh/.ps1/.js wrapper instead of its .py master),
+       (2) symlink resolution (the code path exists in
+           check_c_unregistered_script's use of Path.resolve(), but zero
+           test exercises a symlinked script),
+       (3) the wrapper-group collision from finding 1.
+expected_fix: |
+  1. Add a distinct diagnostic ID (e.g. `gate-implementation-collision`) to
+     validate-capability-registry.py's check (c): when two or more gates[]
+     entries' implementation_ref values resolve to the same real path,
+     emit this diagnostic naming the colliding gate ids and fail the check
+     -- do not let the set-based dedup silently absorb the collision.
+  2. Add fixtures/assertions to both test suites (TDD Red->Green, new RED
+     evidence appended, not fabricated) for:
+     - a gate whose implementation_ref names a .sh/.ps1/.js wrapper instead
+       of the .py master (expect rejection),
+     - a gate whose implementation_ref traverses a symlink to the real
+       master (expect correct resolution/acceptance),
+     - two gates referencing the identical master (expect the new
+       gate-implementation-collision diagnostic).
+  Both runtimes green after the fix; live .github/workflows/test.yml
+  unchanged; re-submit for quality-gate re-evaluation under a freshly
+  reserved evaluator identity.
+references:
+  - reports/quality-gate/2026-07-23T020000Z-epic-190-a2-capability-registry-T-004-attempt1.md
+  - reports/implementation/epic-190-a2-capability-registry/T-004.md
+  - specs/epic-190-a2-capability-registry/design.md (Registry validator contract, REQ-003)
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2
