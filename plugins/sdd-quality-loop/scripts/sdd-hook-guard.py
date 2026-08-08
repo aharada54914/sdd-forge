@@ -1358,9 +1358,34 @@ def _command_references_protected_path(cmd):
     substring scan when the tokenizer cannot model the command (fail closed)."""
     tokens = _tokenize_shell_command(cmd)
     if tokens is None:
+        # The registry stores POSIX-separator suffixes, so the fallback scan
+        # must run over a separator-NORMALIZED copy of the command as well as
+        # the raw text — exactly the normalization _is_protected_gate_file
+        # already performs on a single path.
+        #
+        # Without it this fallback was FAIL-OPEN on native Windows. A write
+        # target spelled as a Windows absolute path
+        # ("D:\\...\\sdd\\approver-registry.yaml") both (a) forces the
+        # tokenizer to return None — an unquoted backslash is an unmodeled
+        # construct — and (b) leaves the raw text spelling the tail
+        # "sdd\\approver-registry.yaml", which does not contain the registered
+        # "sdd/approver-registry.yaml". The pre-filter therefore returned False
+        # and _shell_targets_protected_gate_file returned "no protected path" —
+        # ALLOWING the write. Only the separator immediately before the
+        # registered suffix mattered: a backslashed prefix with a forward-slash
+        # tail still matched, which is why the miss was invisible on POSIX.
+        #
+        # Scanning both texts can only ADD matches, never remove one, so no
+        # command that was denied before can become allowed. Read-only access
+        # to a protected path stays allowed: the read-only short-circuit in
+        # _shell_targets_protected_gate_file is evaluated after this filter.
         cmd_lower = cmd.lower()
-        return any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
-            any(s.lower() in cmd_lower or s.lower().lstrip("/") in cmd_lower
+        cmd_norm = cmd_lower.replace("\\", "/")
+        return any(s.lower() in cmd_lower or s.lower() in cmd_norm
+                   for s in _PROTECTED_GATE_SUFFIXES) or \
+            any(s.lower() in cmd_lower or s.lower() in cmd_norm or
+                s.lower().lstrip("/") in cmd_lower or
+                s.lower().lstrip("/") in cmd_norm
                 for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
     for kind, text in tokens:
         if kind != "word":

@@ -893,13 +893,39 @@ function Test-CommandReferencesProtectedPath {
     param([string]$Cmd)
     $res = Tokenize-ShellCommand $Cmd
     if ($null -eq $res) {
+        # The registry stores POSIX-separator suffixes, so the fallback scan
+        # must run over a separator-NORMALIZED copy of the command as well as
+        # the raw text -- exactly the normalization Test-IsProtectedGateFile
+        # already performs on a single path.
+        #
+        # Without it this fallback was FAIL-OPEN on native Windows. A write
+        # target spelled as a Windows absolute path
+        # ("D:\...\sdd\approver-registry.yaml") both (a) forces the tokenizer
+        # to return $null -- an unquoted backslash is an unmodeled construct --
+        # and (b) leaves the raw text spelling the tail "sdd\approver-registry.yaml",
+        # which does not contain the registered "sdd/approver-registry.yaml".
+        # The pre-filter therefore returned $false and
+        # Test-ShellTargetsProtectedGateFile returned "no protected path" --
+        # ALLOWING the write. Only the separator immediately before the
+        # registered suffix mattered: a backslashed prefix with a forward-slash
+        # tail still matched, which is why the miss was invisible on POSIX,
+        # where PowerShell's Join-Path never emits a backslash.
+        #
+        # Scanning both texts can only ADD matches, never remove one, so no
+        # command that was denied before can become allowed. Read-only access
+        # to a protected path stays allowed: the read-only short-circuit in
+        # Test-ShellTargetsProtectedGateFile is evaluated after this filter.
         $cmdLower = $Cmd.ToLower()
+        $cmdNorm = $cmdLower -replace "\\", "/"
         foreach ($s in $ProtectedGateSuffixes) {
-            if ($cmdLower.Contains($s.ToLower())) { return $true }
+            $sl = $s.ToLower()
+            if ($cmdLower.Contains($sl) -or $cmdNorm.Contains($sl)) { return $true }
         }
         foreach ($s in $ProtectedGatePluginJsonSuffixes) {
             $sl = $s.ToLower()
-            if ($cmdLower.Contains($sl) -or $cmdLower.Contains($sl.TrimStart("/"))) { return $true }
+            $slRel = $sl.TrimStart("/")
+            if ($cmdLower.Contains($sl) -or $cmdNorm.Contains($sl) -or
+                $cmdLower.Contains($slRel) -or $cmdNorm.Contains($slRel)) { return $true }
         }
         return $false
     }
