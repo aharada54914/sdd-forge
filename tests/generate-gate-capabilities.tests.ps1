@@ -11,8 +11,16 @@ $stagedManifest = Join-Path $root 'specs/epic-190-a2-capability-registry/human-c
 
 $script:PassCount = 0
 $script:FailCount = 0
+$script:DesignedRedCount = 0
 function Ok([string]$Message) { $script:PassCount++; Write-Host "ok: $Message" }
 function Fail([string]$Message) { $script:FailCount++; [Console]::Error.WriteLine("not ok: $Message") }
+# Established repo pattern for "stays red until a human applies a staged
+# candidate" assertions (tests/deterministic-lane-selfcheck.tests.sh
+# TEST-020's designed_red(), tests/design-system-contract.tests.sh
+# TEST-039). Distinct from FailCount so the summary can tell a genuine
+# defect apart from an expected pre-human-copy state; still makes the
+# suite's own exit code non-zero (see footer).
+function DesignedRed([string]$Message) { $script:DesignedRedCount++; [Console]::Error.WriteLine("DESIGNED-RED (pre-human-copy): $Message") }
 
 # Strict-mode-safe property access: a malformed/empty projection (e.g. a
 # stub's `{}` `_generated` object) must not throw a terminating
@@ -156,11 +164,22 @@ try {
   }
 
   if (Test-Path -LiteralPath $stagedWorkflow) {
+    # Quality-gate cycle 3 remediation (2026-08-09): reviewed per the
+    # cycle-2 Critical ("納品スイート自身が旧 staged workflow を ok: 2 件
+    # で肯定している" -- an assertion affirming a stale artifact
+    # contradicts the DESIGNED-RED checks below). This check previously
+    # only grepped for this suite's own two test-invocation step names,
+    # which the STALE human-copy/ file already contains -- it now also
+    # requires the --check drift-lock step this task's own Scope requires
+    # ("adding the --check steps"), so a stale file correctly reports
+    # DESIGNED-RED instead of a false "ok".
     $workflowContent = Get-Content -LiteralPath $stagedWorkflow -Raw
-    if ($workflowContent -match [regex]::Escape('tests/generate-gate-capabilities.tests.sh') -and $workflowContent -match [regex]::Escape('tests/generate-gate-capabilities.tests.ps1')) {
-      Ok "human-copy: staged workflow candidate registers this suite's CI steps"
+    if ($workflowContent -match [regex]::Escape('tests/generate-gate-capabilities.tests.sh') -and
+        $workflowContent -match [regex]::Escape('tests/generate-gate-capabilities.tests.ps1') -and
+        $workflowContent -match [regex]::Escape('generate-gate-capabilities.py --check')) {
+      Ok "human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)"
     } else {
-      Fail "human-copy: staged workflow candidate missing this suite's CI steps"
+      DesignedRed "human-copy: staged workflow candidate is STALE -- missing this suite's --check drift-lock step and/or predates the current CI job structure -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite"
     }
     if (Test-Path -LiteralPath $stagedManifest) {
       $stagedHash = (Get-FileHash -LiteralPath $stagedWorkflow -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -168,7 +187,12 @@ try {
       $manifestLine = @($manifestLines -match 'workflows/test\.yml')
       if ($manifestLine.Count -gt 0) {
         $manifestHash = ($manifestLine[0] -split '\s+')[0].ToLowerInvariant()
-        if ($stagedHash -eq $manifestHash) { Ok 'human-copy: staged workflow candidate sha256 matches MANIFEST.sha256' }
+        # NOTE: proves only that the staged file matches its own recorded
+        # MANIFEST hash (internal self-consistency), NOT a freshness or
+        # completeness proof -- a stale-but-internally-consistent bundle
+        # still passes this narrower check by design. See the
+        # DESIGNED-RED checks in this block and below for that proof.
+        if ($stagedHash -eq $manifestHash) { Ok 'human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)' }
         else { Fail 'human-copy: staged workflow candidate sha256 does not match MANIFEST.sha256' }
       } else {
         Fail 'human-copy: MANIFEST.sha256 has no entry for the staged workflow candidate'
@@ -237,6 +261,105 @@ try {
     Fail "QG-fix: regenerated guard-invariants candidate drops no live-protected path/key -- $($regressionCheck.Out)"
   }
 
+  # =====================================================================
+  # Quality-gate cycle 3 remediation (2026-08-09) -- Major finding 5: the
+  # regression check above only ever inspects the JSON side of the staged
+  # bundle. tasks.md's own Protected Files section warns this is
+  # insufficient: "Editing guard-invariants.json alone... is therefore
+  # insufficient -- generate-guard-invariants.py itself must be edited in
+  # the same staged change so PHASE2_TARGETS gains the identical seven new
+  # entries" -- so a JSON-only superset check cannot catch a candidate
+  # whose .py sibling was swapped back to a stale/destructive version
+  # while the JSON candidate stayed correct. Mutation-verified as part of
+  # this remediation (this task's own implementation report, "Quality-gate
+  # remediation correction" section): swapping the CANDIDATE .py for the
+  # real human-copy/ (pre-epic-189-a1-merge) .py leaves the check below
+  # FAILING, where the JSON-only check above alone would have stayed
+  # green.
+  #
+  # Reads the .py sibling's PHASE2_TARGETS / BASELINE_SUFFIXES /
+  # EPIC_A1_TARGETS constants by PARSING the module SOURCE TEXT (no python
+  # shell-out), matching this file's own established "no python shell-out"
+  # convention for candidate/live comparison logic above, and the same
+  # textual-parsing technique tests/guard-invariants-epic-a1.tests.ps1
+  # already uses for the identical class of constant.
+  # =====================================================================
+  $livePy = Join-Path $root 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
+  $candidatePy = Join-Path $candidateDir 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py.candidate'
+  $humanCopyGuardJson = Join-Path $root 'specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json'
+  $humanCopyPy = Join-Path $root 'specs/epic-190-a2-capability-registry/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
+
+  function Get-PyTupleConstant([string]$SourcePath, [string]$Name) {
+    # Extract a `NAME = ( "a", "b", ... )` python tuple-of-string-literals
+    # constant from module SOURCE TEXT. Returns an empty array (never
+    # $null) if the constant is absent entirely -- e.g. EPIC_A1_TARGETS in
+    # a pre-epic-189-a1-merge generator -- so downstream set-difference
+    # logic reads that as "0 entries" (a removal of every live entry, not
+    # a script error), and never errors under Set-StrictMode.
+    if (-not (Test-Path -LiteralPath $SourcePath)) { return @() }
+    $text = [IO.File]::ReadAllText($SourcePath)
+    $pattern = "(?ms)^$([regex]::Escape($Name)) = \($`r?`n(.*?)^\)`r?$"
+    $m = [regex]::Match($text, $pattern)
+    if (-not $m.Success) { return @() }
+    $values = New-Object System.Collections.Generic.List[string]
+    foreach ($line in $m.Groups[1].Value -split "`r?`n") {
+      $lm = [regex]::Match($line, '^\s*"([^"]+)",\s*$')
+      if ($lm.Success) { $values.Add($lm.Groups[1].Value) }
+    }
+    return , $values.ToArray()
+  }
+
+  function Test-NoRegressionPy([string]$TargetPath, [string]$LivePath) {
+    if (-not (Test-Path -LiteralPath $TargetPath)) {
+      return [PSCustomObject]@{ Rc = 1; Out = "script not found: $TargetPath" }
+    }
+    $removed = @()
+    foreach ($attr in @('PHASE2_TARGETS', 'BASELINE_SUFFIXES', 'EPIC_A1_TARGETS')) {
+      $liveValues = Get-PyTupleConstant -SourcePath $LivePath -Name $attr
+      $targetValues = Get-PyTupleConstant -SourcePath $TargetPath -Name $attr
+      $removed += Get-RemovedEntries $attr $liveValues $targetValues
+    }
+    if ($removed.Count -gt 0) {
+      $message = "script drops $($removed.Count) live-protected entr(y/ies): " + ($removed -join '; ')
+      return [PSCustomObject]@{ Rc = 1; Out = $message }
+    }
+    return [PSCustomObject]@{ Rc = 0; Out = 'script tuples are a pure superset of live (0 removals)' }
+  }
+
+  $candidatePyCheck = Test-NoRegressionPy -TargetPath $candidatePy -LivePath $livePy
+  if ($candidatePyCheck.Rc -eq 0) {
+    Ok "QG-fix: regenerated generate-guard-invariants.py candidate's PHASE2_TARGETS/BASELINE_SUFFIXES/EPIC_A1_TARGETS are a pure superset of live (.py, not just JSON)"
+  } else {
+    Fail "QG-fix: regenerated generate-guard-invariants.py candidate drops live-protected .py tuple entries -- $($candidatePyCheck.Out)"
+  }
+
+  # =====================================================================
+  # Quality-gate cycle 3 remediation (2026-08-09) -- Critical finding: the
+  # ACTUAL trap. tasks.md Done When #2, AC-029(a), and AC-030 all point a
+  # human at applying whatever is staged under human-copy/ -- NOT at
+  # drafts/human-copy-candidate/. The two checks below inspect that REAL
+  # location directly; they are the deterministic gate the cycle-2
+  # evaluator asked for ("罠が残置されたまま、決定論的ゲートが無い"). They
+  # intentionally FAIL (DESIGNED-RED) for as long as human-copy/ still
+  # holds the pre-epic-189-a1-merge bundle, and turn GREEN automatically
+  # the moment a human replaces human-copy/'s contents with
+  # drafts/human-copy-candidate/'s (that directory's own README.md "Human
+  # apply step").
+  # =====================================================================
+  $humanCopyJsonCheck = Test-NoRegression -CandidatePath $humanCopyGuardJson -LivePath $liveGuardJson
+  if ($humanCopyJsonCheck.Rc -eq 0) {
+    Ok 'human-copy/ staged guard-invariants.json is a pure superset of live (human apply already landed)'
+  } else {
+    DesignedRed "human-copy/ staged guard-invariants.json is STALE and would DROP live-protected paths/keys if applied -- $($humanCopyJsonCheck.Out) -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md), then re-run this suite"
+  }
+
+  $humanCopyPyCheck = Test-NoRegressionPy -TargetPath $humanCopyPy -LivePath $livePy
+  if ($humanCopyPyCheck.Rc -eq 0) {
+    Ok 'human-copy/ staged generate-guard-invariants.py is a pure superset of live (human apply already landed)'
+  } else {
+    DesignedRed "human-copy/ staged generate-guard-invariants.py is STALE (e.g. missing EPIC_A1_TARGETS entirely) and would DROP live-protected .py tuple entries if applied -- $($humanCopyPyCheck.Out) -- HUMAN ACTION REQUIRED: same as above"
+  }
+
   $candidateWorkflow = Join-Path $candidateDir '.github/workflows/test.yml.candidate'
   if (Test-Path -LiteralPath $candidateWorkflow) {
     $candidateWorkflowContent = Get-Content -LiteralPath $candidateWorkflow -Raw
@@ -267,8 +390,69 @@ try {
     Fail 'QG-fix: rebuilt .github/workflows/test.yml.candidate missing'
   }
 
-  # Done When #3 (tasks.md) -- PowerShell twin of the bash suite's
-  # identically-labeled check (quality-gate remediation, 2026-08-09).
+  # =====================================================================
+  # Quality-gate cycle 3 remediation (2026-08-09) -- Minor finding 10:
+  # PowerShell twin of the bash suite's identically-labeled job-set
+  # superset check. See that check's own comment for the full rationale:
+  # a substring grep or whole-file hash cannot detect a candidate that
+  # silently drops an unrelated live job wholesale. Get-YamlJobKeys uses
+  # the same line-based `jobs:`-block parsing tests/deterministic-lane-
+  # selfcheck.tests.sh's job_keys() already established in this repository
+  # (text markers only, no YAML-parsing dependency).
+  # =====================================================================
+  $liveWorkflow = Join-Path $root '.github/workflows/test.yml'
+
+  function Get-YamlJobKeys([string]$Path) {
+    $lines = [IO.File]::ReadAllLines($Path)
+    $inJobs = $false
+    $keys = New-Object System.Collections.Generic.List[string]
+    foreach ($ln in $lines) {
+      if ($ln.TrimEnd() -eq 'jobs:') { $inJobs = $true; continue }
+      if ($inJobs) {
+        if ($ln.Length -gt 0 -and $ln[0] -ne ' ') { break }
+        if ($ln.StartsWith('  ') -and -not $ln.StartsWith('   ') -and $ln.TrimEnd().EndsWith(':')) {
+          $keys.Add($ln.Trim().TrimEnd(':'))
+        }
+      }
+    }
+    return , $keys.ToArray()
+  }
+
+  function Test-JobSuperset([string]$TargetPath, [string]$LivePath) {
+    if (-not (Test-Path -LiteralPath $TargetPath)) {
+      return [PSCustomObject]@{ Rc = 1; Out = "workflow not found: $TargetPath" }
+    }
+    $liveJobs = Get-YamlJobKeys $LivePath
+    $targetJobsArray = Get-YamlJobKeys $TargetPath
+    $targetJobs = [System.Collections.Generic.HashSet[string]]::new([string[]]$targetJobsArray)
+    $missing = @($liveJobs | Where-Object { -not $targetJobs.Contains($_) })
+    if ($missing.Count -gt 0) {
+      return [PSCustomObject]@{ Rc = 1; Out = "candidate drops $($missing.Count) live job(s): $($missing -join ' ')" }
+    }
+    return [PSCustomObject]@{ Rc = 0; Out = 'candidate carries every live job (0 dropped)' }
+  }
+
+  $candidateJobsCheck = Test-JobSuperset -TargetPath $candidateWorkflow -LivePath $liveWorkflow
+  if ($candidateJobsCheck.Rc -eq 0) {
+    Ok 'QG-fix: rebuilt CI workflow candidate is a job-set superset of live (structural, not just a step-name grep)'
+  } else {
+    Fail "QG-fix: rebuilt CI workflow candidate drops a live job -- $($candidateJobsCheck.Out)"
+  }
+
+  $humanCopyJobsCheck = Test-JobSuperset -TargetPath $stagedWorkflow -LivePath $liveWorkflow
+  if ($humanCopyJobsCheck.Rc -eq 0) {
+    Ok 'human-copy/ staged workflow is a job-set superset of live (human apply already landed)'
+  } else {
+    DesignedRed "human-copy/ staged workflow is STALE and would DROP whole live job(s) if applied -- $($humanCopyJobsCheck.Out) -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite"
+  }
+
+  # Done When #4 (tasks.md, "Suite registration + structural checks") --
+  # PowerShell twin of the bash suite's identically-labeled check
+  # (quality-gate remediation, 2026-08-09). Corrected label (quality-gate
+  # cycle 3, 2026-08-09): this is Done When item #4, not #3 -- #3 is
+  # "Test-registration procedure proof" (TEST-030); #4 is "Suite
+  # registration + structural checks", which is where tasks.md's own text
+  # places this grep self-check.
   $versionHit = $false
   foreach ($name in @('generate-gate-capabilities.py', 'generate-gate-capabilities.sh', 'generate-gate-capabilities.ps1')) {
     $target = Join-Path $root "plugins/sdd-quality-loop/scripts/$name"
@@ -276,16 +460,20 @@ try {
       $versionHit = $true
     }
   }
-  if (-not $versionHit) { Ok 'Done When #3: no version string was hand-mutated in this task''s production files (grep self-check)' } else { Fail 'Done When #3: a semver-looking version string was found in this task''s production files' }
+  if (-not $versionHit) { Ok 'Done When #4: no version string was hand-mutated in this task''s production files (grep self-check)' } else { Fail 'Done When #4: a semver-looking version string was found in this task''s production files' }
 } finally {
   if (Test-Path -LiteralPath $workDir) { Remove-Item -LiteralPath $workDir -Recurse -Force }
 }
 
-Write-Host ("---- summary: pass={0} fail={1} ----" -f $script:PassCount, $script:FailCount)
-if ($script:FailCount -eq 0) {
+Write-Host ("---- summary: pass={0} fail={1} designed-red={2} ----" -f $script:PassCount, $script:FailCount, $script:DesignedRedCount)
+if ($script:FailCount -eq 0 -and $script:DesignedRedCount -eq 0) {
   Write-Host "generate-gate-capabilities suite passed ($script:PassCount checks)"
   exit 0
+} elseif ($script:FailCount -eq 0) {
+  Write-Host "generate-gate-capabilities suite is DESIGNED-RED ($script:PassCount passed, $script:DesignedRedCount designed-red pending human apply, 0 genuine failures)"
+  Write-Host "HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/ with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/ (see that directory's README.md 'Human apply step'), then re-run this suite."
+  exit 1
 } else {
-  Write-Host "generate-gate-capabilities suite FAILED ($script:PassCount passed, $script:FailCount failed)"
+  Write-Host "generate-gate-capabilities suite FAILED ($script:PassCount passed, $script:FailCount failed, $script:DesignedRedCount designed-red)"
   exit 1
 }
