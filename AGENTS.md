@@ -102,6 +102,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/mcp-readonly-preflight/`
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
+- `specs/epic-196-a8-integration/`
 
 ## Source Artifact Locations
 

@@ -396,6 +396,10 @@
     {
       "feature": "design-sync-standing-consent",
       "profile": "full"
+    },
+    {
+      "feature": "epic-196-a8-integration",
+      "profile": "full"
     }
   ]
 }
