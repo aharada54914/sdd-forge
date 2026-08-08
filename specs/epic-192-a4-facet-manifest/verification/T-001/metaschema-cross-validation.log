@@ -1,0 +1,75 @@
+check_schema(): OK -- schema conforms to the official draft-07 metaschema
+
+VALID    tests/fixtures/facet-manifest/schema/capability-minimum-enforcement-absent-valid.json
+VALID    tests/fixtures/facet-manifest/schema/capability-minimum-enforcement-aggregate-valid.json
+INVALID  tests/fixtures/facet-manifest/schema/capability-minimum-enforcement-invalid-value.json
+           - ['capability_minimum_enforcement']: 'required' was expected
+INVALID  tests/fixtures/facet-manifest/schema/conditional-facet-applied-false-missing-reason.json
+           - ['conditional_facets', 0]: 'reason' is a required property
+VALID    tests/fixtures/facet-manifest/schema/conditional-facet-applied-true-valid.json
+INVALID  tests/fixtures/facet-manifest/schema/conditional-facet-applied-true-with-reason.json
+           - ['conditional_facets', 0]: {'facet': 'ui-patterns', 'applied': True, 'reason': 'should not be present when applied is true', 'evidence': []} should not be valid under {'required': ['reason']}
+INVALID  tests/fixtures/facet-manifest/schema/context-binding-empty-dependency-pointers.json
+           - ['context_binding', 'dependency_pointers']: [] should be non-empty
+INVALID  tests/fixtures/facet-manifest/schema/context-binding-malformed-digest.json
+           - ['context_binding', 'full_context_revision']: 'sha256:not-64-hex' does not match '^sha256:[0-9a-f]{64}$'
+VALID    tests/fixtures/facet-manifest/schema/decision-doc-v2-section16-worked-example.json
+VALID    tests/fixtures/facet-manifest/schema/dependency-pointer-all-roots-valid.json
+INVALID  tests/fixtures/facet-manifest/schema/dependency-pointer-malformed-rfc6901.json
+           - ['context_binding', 'dependency_pointers', 0]: '/workflow/bad~token' does not match '^/(workflow|components|shared_paths)(/([^/~]|~0|~1)*)*$'
+INVALID  tests/fixtures/facet-manifest/schema/dependency-pointer-root-not-allowlisted.json
+           - ['context_binding', 'dependency_pointers', 0]: '/not-an-allowed-root/x' does not match '^/(workflow|components|shared_paths)(/([^/~]|~0|~1)*)*$'
+INVALID  tests/fixtures/facet-manifest/schema/duplicate-affected-components.json
+           - ['affected_components']: ['cli-core', 'cli-core'] has non-unique elements
+INVALID  tests/fixtures/facet-manifest/schema/duplicate-capabilities.json
+           - ['capabilities']: ['schema-validation', 'schema-validation'] has non-unique elements
+INVALID  tests/fixtures/facet-manifest/schema/duplicate-required-facets.json
+           - ['required_facets']: ['backend-patterns', 'backend-patterns'] has non-unique elements
+VALID    tests/fixtures/facet-manifest/schema/empty-arrays-valid.json
+INVALID  tests/fixtures/facet-manifest/schema/evidence-invalid-operator.json
+           - ['conditional_facets', 0, 'evidence', 0, 'operator']: 'bogus-operator' is not one of ['all', 'any', 'not', 'equals', 'not_equals', 'contains', 'in', 'exists']
+INVALID  tests/fixtures/facet-manifest/schema/evidence-warn-missing-reason.json
+           - ['conditional_facets', 0, 'evidence', 0]: 'reason' is a required property
+VALID    tests/fixtures/facet-manifest/schema/evidence-warn-with-reason-valid.json
+VALID    tests/fixtures/facet-manifest/schema/lite-eligibility-empty-upgrade-reasons-valid.json
+INVALID  tests/fixtures/facet-manifest/schema/lite-eligibility-missing-upgrade-reasons.json
+           - ['lite_eligibility']: 'upgrade_reasons' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-affected-components.json
+           - []: 'affected_components' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-capabilities.json
+           - []: 'capabilities' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-conditional-facets.json
+           - []: 'conditional_facets' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-context-binding.json
+           - []: 'context_binding' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-feature.json
+           - []: 'feature' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-lite-eligibility.json
+           - []: 'lite_eligibility' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-required-facets.json
+           - []: 'required_facets' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-resolved-gates.json
+           - []: 'resolved_gates' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-resolver.json
+           - []: 'resolver' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/required-missing-schema.json
+           - []: 'schema' is a required property
+INVALID  tests/fixtures/facet-manifest/schema/resolved-gate-invalid-stage.json
+           - ['resolved_gates', 0, 'stage']: 'not-a-real-stage' is not one of ['implementation', 'artifact', 'promotion']
+VALID    tests/fixtures/facet-manifest/schema/resolved-gate-valid-multi.json
+INVALID  tests/fixtures/facet-manifest/schema/resolver-malformed-semver.json
+           - ['resolver', 'version']: '1.0' does not match '^[0-9]+\\.[0-9]+\\.[0-9]+$'
+VALID    tests/fixtures/facet-manifest/schema/resolver-valid-semver.json
+INVALID  tests/fixtures/facet-manifest/schema/upgrade-reasons-duplicate.json
+           - ['lite_eligibility', 'upgrade_reasons']: ['missing-security-spec', 'missing-security-spec'] has non-unique elements
+VALID    tests/fixtures/facet-manifest/schema/valid-base.json
+VALID    tests/fixtures/facet-manifest/semantics/affected-components-not-sorted.json
+VALID    tests/fixtures/facet-manifest/semantics/capabilities-not-sorted.json
+VALID    tests/fixtures/facet-manifest/semantics/conditional-facet-duplicate.json
+VALID    tests/fixtures/facet-manifest/semantics/conditional-facets-not-sorted.json
+VALID    tests/fixtures/facet-manifest/semantics/facet-classification-conflict.json
+VALID    tests/fixtures/facet-manifest/semantics/fully-clean.json
+VALID    tests/fixtures/facet-manifest/semantics/required-facets-not-sorted.json
+VALID    tests/fixtures/facet-manifest/semantics/resolved-gate-id-duplicate.json
+VALID    tests/fixtures/facet-manifest/semantics/resolved-gates-not-sorted.json
+VALID    tests/fixtures/facet-manifest/semantics/upgrade-reasons-not-sorted.json

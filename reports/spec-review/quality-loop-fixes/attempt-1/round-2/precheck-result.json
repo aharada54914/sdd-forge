@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "quality-loop-fixes",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "14e186eade6e8715baa15200c8a32b3af0418d52e047aa8286ee8769cddf5513",
+  "acceptance_sha256": "1bef87cf1043b3c387c2994fed1173c51501b119f2cdf46978cac6d936fc378b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "5ca4d1378b36cadf0ea5c4e601decabbb417aa561c54c1b1b51ba0af60343ba4",
+  "edit_summary": "Added AC-031/TEST-031: REQ-004 positive-continuation branch (complete coverage manifest -> readiness passes, proceed to Step 2), closing round-1 reviewer B EDGE-CASE-COVERAGE Major. Header range updated to TEST-001..031; PR-time review note extended to include TEST-031. No other REQ/AC/TEST changed.",
+  "reset": false,
+  "generated_at": "2026-07-19T13:17:35Z"
+}

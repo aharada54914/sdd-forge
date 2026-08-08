@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 3,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "f348205f4e171780091bec3fb2cebc27f9991fd9eb3556040daf25a7bc8e25f2",
+  "requirements_sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37",
+  "acceptance_sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d",
+  "layer_sha256": {"ux-spec.md":"1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7","frontend-spec.md":"d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276","infra-spec.md":"2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489","security-spec.md":"e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+  "input_sha256": "76edec4b25ded82a53559a34e78a56d8fb684e962af98382cb3a8a2ca3b35521",
+  "generated_at": "2026-07-28T13:48:45Z"
+}

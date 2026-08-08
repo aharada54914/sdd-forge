@@ -260,6 +260,9 @@ if [ -z "$consent_kind" ]; then
 fi
 
 # ── Collect input content ────────────────────────────────────────────────────
+# find-based recursive traversal (replaces the single-level `for f in
+# "$input_path"/*` glob) so subdirectories of --input are visited too
+# (REQ-003/AC-013); sorted for determinism.
 
 if [ ! -e "$input_path" ]; then
     printf 'prepare-panelist-input: input not found: %s\n' "$input_path" >&2
@@ -267,16 +270,136 @@ if [ ! -e "$input_path" ]; then
 fi
 
 if [ -d "$input_path" ]; then
-    # Concatenate all text files in the directory
     raw_content=""
-    for f in "$input_path"/*; do
-        [ -f "$f" ] || continue
+    while IFS= read -r f; do
         raw_content="${raw_content}$(cat "$f")
 "
-    done
+    done < <(find "$input_path" -type f | sort)
 else
     raw_content="$(cat "$input_path")"
 fi
+
+# ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
+# Security Boundary B1 (security-spec.md): verifies every path the
+# implementation report's own "## Outputs" table declares is present in the
+# bundle's --input root with a matching SHA-256, BEFORE sanitization/digest
+# computation ever runs — a completeness gap means no digest line can ever
+# print (a structural property: the sanitize/write/print code below is
+# simply never reached on a gap, not a conditional guard around it).
+#
+# Reuses the "## Outputs" heading + "| `path` | `hash` |" row shape
+# validate-review-context-set.sh:63-74's evaluator_output_is_declared already
+# establishes, applied in the OPPOSITE direction: instead of checking one
+# caller-supplied path against the table, this iterates every row and
+# containment-checks each declared path against the bundle's OWN --input
+# root FIRST — reusing that same site's path_is_authorized containment
+# discipline — a path that would resolve outside is a gap, NEVER read
+# (never opened, never hashed), before existence/hash is verified for paths
+# that pass containment.
+#
+# Convention, not a new flag (Breaking API: no — CLI flags are unchanged):
+# the implementation report path is derived from --task/--feature/
+# --project-root as reports/implementation/<feature>/<task_id>.md, the same
+# convention validate-review-context-set.sh:267-282 already uses to locate
+# an sdd-evaluator's implementation report. If no report exists at that
+# conventional path, there is no declared-outputs table to check against —
+# the completeness check is a no-op (preserves BL-007/BL-008/BL-009 for
+# every caller that predates this convention, e.g. this script's own
+# existing test fixtures).
+
+_ppi_sha256_file() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{print $1}'
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$1" | awk '{print $1}'
+    else
+        printf 'prepare-panelist-input: SHA-256 tool unavailable\n' >&2
+        exit 2
+    fi
+}
+
+# Reject any declared path that is not a plain, relative, forward-slash,
+# no-`..`-segment path — containment check BEFORE any read is attempted.
+_ppi_is_canonical_declared_path() {
+    case "$1" in
+        '') return 1 ;;
+        /*) return 1 ;;
+        [A-Za-z]:*) return 1 ;;
+        *'\'*) return 1 ;;
+        ..|../*|*/..|*/../*) return 1 ;;
+        .|./*|*/.|*/./*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+check_declared_outputs_completeness() {
+    _impl_report="${project_root}/reports/implementation/${feature}/${task_id}.md"
+    [ -f "$_impl_report" ] || return 0
+
+    _ppi_tab="$(printf '\t')"
+    _gaps=""
+    while IFS="$_ppi_tab" read -r _row_path _row_hash; do
+        [ -n "$_row_path" ] || continue
+
+        if ! _ppi_is_canonical_declared_path "$_row_path"; then
+            _gaps="${_gaps}prepare-panelist-input: declared output resolves outside input root: ${_row_path}
+"
+            continue
+        fi
+
+        # Component-walk containment: no symbolic link anywhere between the
+        # bundle root and the candidate may be followed (mirrors
+        # validate-review-context-set.sh's own symlink-component-walk).
+        _current="${input_path%/}"
+        _outside_root=0
+        _old_ifs="$IFS"
+        IFS='/'
+        set -- $_row_path
+        IFS="$_old_ifs"
+        for _component in "$@"; do
+            _current="${_current}/${_component}"
+            if [ -L "$_current" ]; then
+                _outside_root=1
+            fi
+        done
+
+        if [ "$_outside_root" = "1" ]; then
+            _gaps="${_gaps}prepare-panelist-input: declared output resolves outside input root: ${_row_path}
+"
+            continue
+        fi
+
+        _candidate="${input_path%/}/${_row_path}"
+        if [ ! -L "$_candidate" ] && [ -f "$_candidate" ]; then
+            _actual_hash="$(_ppi_sha256_file "$_candidate")"
+            if [ "$_actual_hash" != "$_row_hash" ]; then
+                _gaps="${_gaps}prepare-panelist-input: declared output hash mismatch: ${_row_path}
+"
+            fi
+        else
+            _gaps="${_gaps}prepare-panelist-input: declared output missing from bundle: ${_row_path}
+"
+        fi
+    done < <(awk '
+        /^## Outputs[[:space:]]*$/ { in_outputs = 1; next }
+        in_outputs && /^##[[:space:]]/ { exit }
+        in_outputs {
+            line = $0
+            gsub(/\r$/, "", line)
+            n = split(line, parts, "`")
+            if (n == 5 && parts[1] ~ /^\| *$/ && parts[3] ~ /^ *\| *$/ && parts[5] ~ /^ *\|[[:space:]]*$/) {
+                print parts[2] "\t" parts[4]
+            }
+        }
+    ' "$_impl_report")
+
+    if [ -n "$_gaps" ]; then
+        printf '%s' "$_gaps" >&2
+        exit 1
+    fi
+}
+
+check_declared_outputs_completeness
 
 # ── Sanitize via python3 ─────────────────────────────────────────────────────
 # Uses python3 for reliable regex; required for sha256 as well.

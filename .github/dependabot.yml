@@ -10,3 +10,32 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "ci(deps)"
+
+  # sdd-forge-mcp (mcp/sdd-forge-mcp/) is a Node/TypeScript MCP server whose
+  # npm dependencies are bundled into dist/ and shipped to installers, so its
+  # lockfile needs the same freshness/vulnerability monitoring as CI actions.
+  - package-ecosystem: "npm"
+    directory: "/mcp/sdd-forge-mcp"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+
+  # local-env-mcp (mcp/local-env-mcp/) — same rationale as sdd-forge-mcp above.
+  - package-ecosystem: "npm"
+    directory: "/mcp/local-env-mcp"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ci-mcp (mcp/ci-mcp/) — same rationale as sdd-forge-mcp above.
+  - package-ecosystem: "npm"
+    directory: "/mcp/ci-mcp"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"

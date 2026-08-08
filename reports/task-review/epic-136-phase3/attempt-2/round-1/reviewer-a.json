@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase3",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-a-seq0443",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-136-phase3-0443",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase3/attempt-2/round-1/dependency-graph.json",
+      "sha256": "27cef89aa4e85d2dba6972f02b1b448d67ce43722d619e6aa3774b5f29d487c4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/epic-136-phase3/attempt-2/round-1/precheck-result.json",
+      "sha256": "006eb4dacf951eaa9a00db28d1c6c560e45cbce2b0e9990480edfd40bc33677e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+      "sha256": "4985a15b58f3db59be0fd72cd30bd93bf87634ddfccb37c56461eb5f508d3439"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "147f7d421fd6f8cadc518157d6b7dccbeabbfb581896632154cb1b7611a2145a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+      "sha256": "df7e842d8cb7f4bb8342c4f3be07e147d87dd27f48897c0a531c3740da4bc2c6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/tasks.md",
+      "sha256": "e79152ffd3cfecf1c324180592770b7220bacf40246a6f1faf7f55eec0753916"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/traceability.md",
+      "sha256": "6a9606ba0a04384edbbb110349e46f345d8792bdcd28638da4935d894838640c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in tasks.md Requirements fields (AC-019..AC-023 shared legs; task-level Done-When cite AC-001..AC-023) resolves to a real row in acceptance-tests.md's AC table (AC-001..AC-023, lines 21-43). No dangling ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 tasks.md:381, T-002:586, T-004:1120 each carry the literal value `None`; T-003:831 carries `T-001, T-002`, comma-separated T-NNN IDs. No range notation or prose. Matches precheck's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 (T-001), REQ-002 (T-002), REQ-003 (T-004), REQ-004 (T-003), REQ-005 (T-001/T-002/T-003/T-004), REQ-006 (T-001/T-002/T-003/T-004) -- all six requirements.md REQ-NNN IDs appear in at least one task's Requirements field."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "traceability.md's Acceptance Mapping table (lines 35-59) maps all 23 AC-NNN IDs (AC-001..AC-023) to a Test ID and a task. No AC is left unmapped."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (REQ-001,005,006), T-002 (REQ-002,005,006), T-003 (REQ-004,005,006), T-004 (REQ-003,005,006) each declare at least one REQ-NNN in their Requirements field."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All four tasks are effectively test-suite-authoring tasks (scope is exclusively new .tests.sh/.json test artifacts plus registration/CHANGELOG commits); each task's Requirements field and Done-When list cite explicit AC-NNN/TEST-NNN IDs (e.g. T-003 Requirements line 635 cites AC-019/AC-020/AC-022/AC-023), so none is orphaned from acceptance criteria."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Per the post-implementation lifecycle rule (this work already shipped), all four tasks carry `Approval: Approved (sudo 2026-07-22T12:11:46Z)` (a valid workflow-bypass-mode audit mark) and `Status: Done`, both permitted values under that rule (tasks.md:180-182, 392-394, 597-599, 848-850)."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 medium/acceptance-first, T-002 medium/acceptance-first, T-003 high/tdd, T-004 high/tdd -- every pairing matches the risk-gate-matrix (low->test-after, medium->acceptance-first, high/critical->tdd). precheck-result.json records workflow_match_precheck: PASS, consistent with direct inspection."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "AC-019/AC-021/AC-022/AC-023 are shared across multiple tasks but each task's Done-When text scopes the shared AC to that task's own suite/file/CHANGELOG entry (e.g. tasks.md:356-362 vs 794-797), matching the calibration's distinct-scope exception; traceability.md's Acceptance Mapping explicitly annotates these as 'each task's own leg'."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-003's Blockers (T-001, T-002) both exist in dependency-graph.json's nodes array (T-001, T-002, T-003, T-004) and as real task headings in tasks.md."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges are T-003->T-001 and T-003->T-002; T-001 and T-002 have no outgoing edges, so no path revisits a node. No cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-003's title ('Mark the deterministic CI lane and stage the shared test.yml batch (Streams A/B/C/D)') bundles lane-marking and batch-staging, but both are the SAME protected-file edit forced into one shared human-copy candidate by requirements.md Non-goals ('never two sequential human-copy rounds against the same file') -- mandatory, undecoupleable housekeeping of one artifact, not two distinct feature concerns. No task title/scope conjunction elsewhere connects unrelated concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done-When item names a specific TEST-ID/AC-ID and concrete observable behavior (e.g. tasks.md:338-340 'TEST-001 confirms the python3-present control case: .py branch selected, decision matches a direct sdd-hook-guard.py invocation'). No forbidden vague verb ('ensure','consider','works correctly','verify is correct') found via direct grep. Each task names a concrete artifact (implementation report, grep self-check, MANIFEST.sha256) satisfying the verification-evidence sub-requirement. No item requires editing a frozen artifact (design.md/tasks.md/traceability.md itself)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All four T-NNN IDs appear in traceability.md's Task Mapping (lines 28-31) and Deliverables table (lines 65-68). All REQ-NNN IDs in traceability.md exist in requirements.md. REQ-001..005 layer-spec cells cite valid canonical anchors (security-spec.md#trust-boundaries confirmed at security-spec.md:27; infra-spec.md#cicd-sequence confirmed at infra-spec.md:46); REQ-006 carries a reasoned N/A. All four layer-spec files' sha256 match the bound manifest."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-189-a1-project-context",
+  "run_id": "task-orch-epic189a1projectcontext-a1r2",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37",
+  "acceptance_sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d",
+  "design_sha256": "d46874550250fed89bc2d70dd415f7b566a7ef64488903c67b04aa32c865978b",
+  "tasks_sha256": "5a7ff75b9a1462b779dd4113a6a07b83cf25f44446820492a6de3f66d7c6426b",
+  "traceability_sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54",
+  "layer_sha256": {
+    "ux-spec.md": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7",
+    "frontend-spec.md": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276",
+    "infra-spec.md": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489",
+    "security-spec.md": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt1-seq0332",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt1-seq0332",
+      "allowed_input_manifest": [
+        {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+        {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+        {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "d46874550250fed89bc2d70dd415f7b566a7ef64488903c67b04aa32c865978b"},
+        {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "5a7ff75b9a1462b779dd4113a6a07b83cf25f44446820492a6de3f66d7c6426b"},
+        {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+        {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+        {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"},
+        {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+        {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json", "sha256": "202309e716deafa4141a66f8cd34bfde19d017d1ad1262014e00c6bac8a821fe"},
+        {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-2/dependency-graph.json", "sha256": "0f608902f057542fb13d53ba6888b859d08eac32ad6913a776e3a945d10126d6"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt1-seq0333",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-189-a1-project-context-attempt1-seq0333",
+      "allowed_input_manifest": [
+        {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+        {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+        {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "d46874550250fed89bc2d70dd415f7b566a7ef64488903c67b04aa32c865978b"},
+        {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "5a7ff75b9a1462b779dd4113a6a07b83cf25f44446820492a6de3f66d7c6426b"},
+        {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+        {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+        {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "d41825a4ee8004fb3c03efd3307e4a8b5d5ee50ada04b3fba7f95605ee81f276"},
+        {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+        {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "e475edfd34ee4cebf76ff595e2980cbf077e1cf83702922fab911ae22faabe1d"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+        {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-2/precheck-result.json", "sha256": "202309e716deafa4141a66f8cd34bfde19d017d1ad1262014e00c6bac8a821fe"},
+        {"path": "reports/task-review/epic-189-a1-project-context/attempt-1/round-2/integrated-summary.json", "sha256": "d7713f36a720390c1f8f0d75a3d57b5bc232ee9fd26f4cc75093ce415a8c53bb"}
+      ]
+    }
+  ],
+  "human_edit_summary": "T-010(old)->T-011 Risk medium->high + tdd; T-004 split into T-004(schema)+T-005(detector), T-005..T-012(old) renumbered to T-006..T-013; shared-file Blockers chain made fully transitive across T-001..T-012.",
+  "timestamp": "2026-07-22T12:20:00Z"
+}

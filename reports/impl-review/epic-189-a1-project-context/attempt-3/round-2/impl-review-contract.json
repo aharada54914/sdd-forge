@@ -1,0 +1,134 @@
+{
+    "schema": "impl-review-contract/v1",
+    "stage": "impl",
+    "feature": "epic-189-a1-project-context",
+    "run_id": "impl-orch-epic189a1projectcontext-a3r2",
+    "verdict": "PASS",
+    "pass_type": "clean",
+    "round": 2,
+    "attempt": 3,
+    "legacy_design": false,
+    "feature_type": "schema + security-infrastructure (canonicalization, HMAC approval sidecar, protected-file registration, hook-guard extension, track-selection contract migration) \u2014 no UI, no new plugin, no Provider integration",
+    "reviewer_a_verdict": "PASS",
+    "reviewer_b_verdict": "PASS",
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0,
+    "prior_round_contract_sha256": "613de80382d9cf1ae0c2a4d0ea58f59aec8b1ddbb248b78aa534f9a355ebf8a1",
+    "requirements_sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37",
+    "acceptance_sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d",
+    "design_sha256": "ef1838c93088b17b3e10309d059d4e5a139fcbf881bd0d1bba1d5ee1e04087de",
+    "layer_sha256": {
+        "ux-spec.md": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7",
+        "frontend-spec.md": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771",
+        "infra-spec.md": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489",
+        "security-spec.md": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+    },
+    "design_req_drift": false,
+    "reviewers": [
+        {
+            "role": "impl-reviewer-a",
+            "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-a-attempt3-seq0336",
+            "host_session_id": "SESS-impl-impl-reviewer-a-epic-189-a1-project-context-attempt3-seq0336",
+            "allowed_input_manifest": [
+                {
+                    "path": "specs/epic-189-a1-project-context/design.md",
+                    "sha256": "ef1838c93088b17b3e10309d059d4e5a139fcbf881bd0d1bba1d5ee1e04087de"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/requirements.md",
+                    "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+                    "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/investigation.md",
+                    "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/ux-spec.md",
+                    "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+                    "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/infra-spec.md",
+                    "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/security-spec.md",
+                    "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+                },
+                {
+                    "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+                    "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+                },
+                {
+                    "path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-2/precheck-result.json",
+                    "sha256": "feded01aee5264df7b41f3a93ceec4cdc349f648eeabdd4ce84798404852aeb5"
+                },
+                {
+                    "path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-1/integrated-summary.json",
+                    "sha256": "f0910363d4814d3a662cb91132c862e48cb77eac91175524a42d7cd6ec035ac7"
+                }
+            ]
+        },
+        {
+            "role": "impl-reviewer-b",
+            "run_id": "RUN-epic-189-a1-project-context-impl-impl-reviewer-b-attempt3-seq0337",
+            "host_session_id": "SESS-impl-impl-reviewer-b-epic-189-a1-project-context-attempt3-seq0337",
+            "allowed_input_manifest": [
+                {
+                    "path": "specs/epic-189-a1-project-context/design.md",
+                    "sha256": "ef1838c93088b17b3e10309d059d4e5a139fcbf881bd0d1bba1d5ee1e04087de"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/requirements.md",
+                    "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/acceptance-tests.md",
+                    "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/investigation.md",
+                    "sha256": "b60b762522130b2e2ebdb18afc89c07ee9c01444302e8c180d633e3b5f587574"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/ux-spec.md",
+                    "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/frontend-spec.md",
+                    "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/infra-spec.md",
+                    "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"
+                },
+                {
+                    "path": "specs/epic-189-a1-project-context/security-spec.md",
+                    "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"
+                },
+                {
+                    "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+                    "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+                },
+                {
+                    "path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-2/precheck-result.json",
+                    "sha256": "feded01aee5264df7b41f3a93ceec4cdc349f648eeabdd4ce84798404852aeb5"
+                },
+                {
+                    "path": "reports/impl-review/epic-189-a1-project-context/attempt-3/round-2/integrated-summary.json",
+                    "sha256": "58a16abeb8cc573dd1893fa923d8d045bd5c938cb046730bb6d045a5f755e0d0"
+                }
+            ]
+        }
+    ],
+    "human_edit_summary": "Round-1 merged BLOCKED (2 Critical / 2 Major). Human-authorized remedies applied in commit 00ed0918: (1) frontend-spec.md Technology Stack + Dependencies and security-spec.md SBOM and Supply Chain synchronized with design.md's 2026-07-24 restricted-subset YAML parser decision (human decision-3 = B, verbatim recorded in reports/notes/epic-189-a1-decision-3-yaml-parser.md) - zero third-party packages, stdlib-only; (2) design.md A3-precedent citations rewritten under an explicit cross-branch citation contract (epic-191-branch documents cited as precedent, never as local files; 0025 numbering collision deferred to merge-phase renumbering); (3) API / Contract Plan gained the approver-registry.schema.json body subsection and the hook-activation handshake CLI contract subsection.",
+    "timestamp": "2026-07-28T14:55:15Z"
+}

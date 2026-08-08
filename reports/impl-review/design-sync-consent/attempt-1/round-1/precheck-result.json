@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "design-sync-consent",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "0133a4f158c70fc5330127b2ca77876707d129dbd37fa2fc54aa90f979fca2c0",
+  "requirements_sha256": "7d1d4e81866266c74020abfb2de8decd38897a153faff2b71f57b0860f535f2d",
+  "acceptance_sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550",
+  "layer_sha256": {"ux-spec.md":"ce9404be82c1be499d78a0dcac5a7f011f134d57def1c81d6af9bdab9ca38c7f","frontend-spec.md":"3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c","infra-spec.md":"0e3f19cbf97f5bf5e5c790e25dec386942dbe5b90e5b1a7346b6c46af9e89b1e","security-spec.md":"9bb48a72f9f36a9d69b6ffd55a6311ae5fc09a3146bfbcd3cf010e7b3117abdc"},
+  "input_sha256": "ebac96fee82545e863bf6c00c999818a3de27b7ed5422ca18ee0a3044bc56b71",
+  "generated_at": "2026-08-04T16:13:45Z"
+}

@@ -1,0 +1,21 @@
+T-007 GREEN evidence -- tests/effort-policy-flip.tests.ps1 (PowerShell twin, ASCII-only)
+Captured: 2026-07-21T14:59:20Z
+
+==== pwsh -NoProfile -File tests/effort-policy-flip.tests.ps1 ====
+ok: TEST-041: no -EffortPolicy flag resolves to matrix post-flip (effort_source=risk-matrix, effort=high)
+ok: TEST-041 (welded carve-out, OQ-004): -EffortPolicy welded still reproduces the pre-flip declared value (xhigh) explicitly
+ok: TEST-042: first production role_defaults render is zero-diff
+ok: TEST-043: USERGUIDE.md describes the matrix-default effort policy
+ok: TEST-043: docs/agent-capability-matrix.md describes the matrix-default effort policy
+ok: TEST-043: CHANGELOG.md describes the matrix-default effort policy
+ok: TEST-043: all three REQ-009 doc surfaces describe the matrix-default policy
+skip: TEST-044: real Codex-host smoke skipped -- SDD_ALLOW_REAL_CODEX_SMOKE not set to 1 (see reports/implementation/epic-159-pillar-c/T-007.md Unresolved Items; the .sh twin is authoritative for the opted-in real-invocation path)
+ok: TEST-045: A3 (2d8c6a561e0f5d2bc29ded4195c057d4cc918f2f) is an ancestor of the implementation-time HEAD (e5d61cbc2e01dbd0726c423fd45cb739bf67ca60)
+ok: TEST-045: T-001..T-006's Phase 1 merge commit (825d6c6623ba98b6588a3c9942420dd13fceec88, PR #185) is an ancestor of the implementation-time HEAD
+ok: TEST-045: prerequisite gate satisfied at implementation time (the release-commit re-run is the caller's own job at release time)
+ok: TEST-046: current branch (feature/epic-159-pillar-c-t007) is T-007-scoped, distinct from any T-001..T-006 branch
+ok: TEST-046: CHANGELOG.md's '## Unreleased' heading is unrenamed -- this implementation session did not itself invoke scripts/bump-version.sh
+ok: TEST-046: process-conformance proxy satisfied (full proof is verified by the caller at PR-creation time)
+---- summary: pass=13 fail=0 skip=1 ----
+ok: effort-policy-flip suite passed (13 checks, 1 skipped)
+exit_code=0

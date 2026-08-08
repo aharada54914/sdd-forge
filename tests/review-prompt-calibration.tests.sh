@@ -54,11 +54,12 @@ for file in \
   grep -Fq "$CALIBRATION" "$file" || fail "${file##*/} must keep reviewer calibration in contract/precheck path"
 done
 
-grep -Fq 'spec-review-loop`: 12 checks' "$CHECKLIST" || fail "spec checklist count must be 12"
-grep -Fq 'spec-reviewer-a (requirements and acceptance coverage, 6' "$CHECKLIST" || fail "spec reviewer-a count must be 6"
-grep -Fq 'spec-reviewer-b (ambiguity, contradiction, and downstream readiness,' "$CHECKLIST" || fail "spec reviewer-b count must be 6"
-grep -Fq 'impl-review-loop`: 20 checks' "$CHECKLIST" || fail "impl checklist count must be 20"
-grep -Fq 'impl-reviewer-b (implementability/risk, 10 checks)' "$CHECKLIST" || fail "impl reviewer-b count must be 10"
+grep -Fq 'spec-review-loop`: 14 checks' "$CHECKLIST" || fail "spec checklist count must be 14"
+grep -Fq 'spec-reviewer-a (requirements and acceptance coverage, 7' "$CHECKLIST" || fail "spec reviewer-a count must be 7"
+grep -Fq 'spec-reviewer-b (ambiguity, contradiction, and downstream readiness,' "$CHECKLIST" || fail "spec reviewer-b count must be 7"
+grep -Fq 'impl-review-loop`: 22 checks' "$CHECKLIST" || fail "impl checklist count must be 22"
+grep -Fq 'impl-reviewer-b (implementability/risk, 11 checks)' "$CHECKLIST" || fail "impl reviewer-b count must be 11"
+grep -Fq '#### DOMAIN-CONFORMANCE' "$CHECKLIST" || fail "DOMAIN-CONFORMANCE must be documented in the checklist"
 grep -Fq 'task-review-loop`: 23 checks' "$CHECKLIST" || fail "task checklist count must be 23"
 grep -Fq 'task-reviewer-b (quality/risk, 9 checks)' "$CHECKLIST" || fail "task reviewer-b count must be 9"
 grep -Fq '#### VERIFICATION-PATH-CONCRETE' "$CHECKLIST" || fail "impl verification path check must be documented"
@@ -69,9 +70,28 @@ task_b_checks="$(sed -n '/The `checks` array must contain one entry per check ID
 spec_a_checks="$(sed -n '/The `checks` array must contain one entry per check ID in this order:/,/^$/p' "$AGENTS/spec-reviewer-a.md" | tr '\n' ' ')"
 spec_b_checks="$(sed -n '/The `checks` array must contain one entry per check ID in this order:/,/^$/p' "$AGENTS/spec-reviewer-b.md" | tr '\n' ' ')"
 
-[[ "$impl_b_checks" == *"DESIGN-WITHIN-SCOPE, VERIFICATION-PATH-CONCRETE."* ]] || fail "impl-reviewer-b ordered checks must include VERIFICATION-PATH-CONCRETE last"
+[[ "$impl_b_checks" == *"DESIGN-WITHIN-SCOPE, VERIFICATION-PATH-CONCRETE, DOMAIN-CONFORMANCE."* ]] || fail "impl-reviewer-b ordered checks must end VERIFICATION-PATH-CONCRETE, DOMAIN-CONFORMANCE"
 [[ "$task_b_checks" == *"DEPENDENCY-OVERLAP, BUGFIX-DIAGNOSTIC-PATH."* ]] || fail "task-reviewer-b ordered checks must include BUGFIX-DIAGNOSTIC-PATH last"
-[[ "$spec_a_checks" == *"REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY, CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE."* ]] || fail "spec-reviewer-a ordered checks must match checklist"
-[[ "$spec_b_checks" == *"AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE, APPROVAL-BOUNDARY, DOWNSTREAM-READINESS."* ]] || fail "spec-reviewer-b ordered checks must match checklist"
+[[ "$spec_a_checks" == *"REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY, CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE, DOMAIN-CONFORMANCE."* ]] || fail "spec-reviewer-a ordered checks must match the precheck expected_ids"
+[[ "$spec_b_checks" == *"AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE, APPROVAL-BOUNDARY, DOWNSTREAM-READINESS, DOMAIN-CONFORMANCE."* ]] || fail "spec-reviewer-b ordered checks must match the precheck expected_ids"
+
+# The spec roles and spec-review-precheck each hold their own copy of the id
+# list, and spec-review-precheck compares them byte-for-byte at every round.
+# They drifted apart once: the roles gained DOMAIN-CONFORMANCE while the gate
+# kept six ids, which made every spec-review round 2 unreachable. Nothing caught
+# it, because this suite was not registered in run-all.sh. Compare the two copies
+# directly rather than asserting each against a hand-written literal.
+extract_role_ids() {
+  sed -n '/The `checks` array must contain one entry per check ID in this order:/,/^$/p' "$1" \
+    | tr '\n' ' ' | sed 's/.*order: *//' | tr -d '`' \
+    | sed 's/\.[[:space:]]*$//' | sed 's/, */,/g' | sed 's/[[:space:]]*$//'
+}
+for role in a b; do
+  role_ids="$(extract_role_ids "$AGENTS/spec-reviewer-${role}.md")"
+  gate_ids="$(grep -A1 "spec-reviewer-${role})" "$SPEC_PRECHECK" | sed -n 's/.*expected_ids="\(.*\)"/\1/p')"
+  [[ -n "$gate_ids" ]] || fail "could not read expected_ids for spec-reviewer-${role} from spec-review-precheck.sh"
+  [[ "$role_ids" == "$gate_ids" ]] || \
+    fail "spec-reviewer-${role} id list drifted from the gate: role=[${role_ids}] gate=[${gate_ids}]"
+done
 
 printf 'ok: review prompt calibration inventory is synchronized\n'

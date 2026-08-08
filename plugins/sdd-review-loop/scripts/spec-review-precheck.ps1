@@ -225,8 +225,8 @@ function Test-ValidateReviewerOutput(
 
   $expectedIds = $null
   switch ($Role) {
-    'spec-reviewer-a' { $expectedIds = @('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY', 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE') }
-    'spec-reviewer-b' { $expectedIds = @('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS') }
+    'spec-reviewer-a' { $expectedIds = @('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY', 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE', 'DOMAIN-CONFORMANCE') }
+    'spec-reviewer-b' { $expectedIds = @('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE') }
     default { return $false }
   }
   $actualIds = @($data.checks | ForEach-Object { $_.id })
@@ -509,6 +509,12 @@ try {
     )
     [IO.File]::WriteAllText($requirements, $normalized)
     $status = 'Pending'
+    # Recompute the requirements/input hashes against the post-reset file: any
+    # persisted precheck-result.json must record the bytes reviewers, contracts,
+    # and later contract validation will actually see, never the pre-mutation
+    # (Passed) bytes this same invocation just rewrote.
+    $requirementsSha = Get-Sha256File $requirements
+    $inputSha = Get-Sha256Text "${requirementsSha}:${acceptanceSha}"
   }
 
   $generatedAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')

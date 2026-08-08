@@ -1,0 +1,322 @@
+==> tests/design-system-contract.tests.ps1
+ok: DS-001 contract schema envelope
+ok: DS-002 tokens template conforms
+ok: DS-003 design-system template sections
+ok: DS-004 ui-patterns template sections
+ok: DS-005 PLUGIN-CONTRACTS section
+ok: DS-006 design-sync-loop v2
+ok: DS-007 investigate-codebase design inventory
+ok: DS-008/DS-009 design templates
+ok: DS-010 reviewer-a conformance check
+ok: DS-011 reviewer-b UI library rule
+ok: DS-012 implementation policy UI rules
+ok: DS-013 visual-verify-loop design-system comparison
+ok: DS-014 design-system checklist wiring
+ok: DS-015 WCAG 2.2 AA
+ok: DS-016 contract and matrix wiring
+ok: DS-017 documentation
+ok: design-system contract tests passed
+PASS: TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)
+PASS: TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)
+PASS: TEST-003 a different scope does not inherit the consent (AC-001 branch 3)
+PASS: TEST-004 scope names exactly one unit, no disjunction between units (AC-002)
+PASS: TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)
+PASS: TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)
+PASS: TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)
+PASS: TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)
+PASS: TEST-009 finalize_plan payload is cited or its opacity is stated as a limitation (AC-005)
+PASS: TEST-010 Loop order: generate -> consent -> push -> claude.ai review (AC-006, ordered structure)
+PASS: TEST-011 local review carries an optionality marker (AC-007)
+PASS: TEST-012 local review is explicitly stated not to be a precondition for push (AC-007)
+PASS: TEST-013 the demotion's consequence is stated where the demotion is described (AC-008)
+PASS: TEST-014 regeneration cycle returns to generation (2), not consent (3) (AC-009, ordered structure)
+PASS: TEST-015 Design-Source record fields are enumerated by name, not a heading check (AC-010)
+PASS: TEST-016 full-profile record destination is specs/<feature>/ux-spec.md (AC-011)
+PASS: TEST-017 lite-profile record destination is specs/<feature>/design.md, staged draft (AC-011)
+PASS: TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)
+PASS: TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)
+PASS: TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)
+PASS: TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)
+PASS: TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)
+PASS: TEST-023 non-blocking condition 2: absence of design tools never blocks review (AC-015)
+PASS: TEST-024 ds_profile: none keeps no artifacts / no further questions; no consent leak (AC-016)
+PASS: TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)
+PASS: TEST-026 no upload path in the Loop bypasses the pre-upload check point (AC-017, structural)
+PASS: TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)
+PASS: TEST-028 consent-resolution outcome 1: must be requested (AC-019)
+PASS: TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)
+PASS: TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)
+PASS: TEST-031 Design-Source shape is stated as additively extensible (AC-020)
+PASS: TEST-032 this feature's behaviour is the one a later per-feature setting selects (AC-020)
+PASS: TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)
+PASS: TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)
+PASS: TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)
+PASS: TEST-036 site 4 (workflow-guide.md, Japanese) states the per-feature/session model (AC-021)
+PASS: TEST-037 CHANGELOG.md historical release note is byte-identical to pre-change content (AC-022)
+PASS: TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)
+FAIL: TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)
+PASS: TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression) -- ASCII subset; the em-dash D6 fallback note is asserted by the sh twin, following this file's existing DS-006 precedent
+PASS: TEST-041 a decline blocks that upload -- no upload occurs (AC-026)
+PASS: TEST-042 the next upload attempt within the same scope prompts again (AC-026)
+PASS: TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)
+PASS: TEST-044 the consent names the destination project as part of its coverage (AC-027)
+PASS: TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)
+PASS: TEST-046 a mid-session withdrawal path is stated (AC-028)
+PASS: TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)
+PASS: TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)
+PASS: TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)
+PASS: TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)
+PASS: TEST-051 push-failure rule, all four parts (AC-030)
+PASS: 50
+FAIL: 1
+FAILED: tests/design-system-contract.tests.ps1 (exit code 1)
+==> tests/design-sync-standing-consent.tests.ps1
+PASS: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value, no hedge (AC-001)
+PASS: TEST-002 a ## Project Settings heading exists and the setting key is named in a table row under it (AC-002)
+PASS: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003)
+PASS: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003)
+PASS: TEST-005 the setting's own definition carries no host-name conditional (AC-004)
+PASS: TEST-006 off's definition states the forbiddance applies on every host, unconditionally (AC-005)
+PASS: TEST-007 step 3's outer selector carries no tool-presence conditional as part of what the three regimes mean (AC-006)
+PASS: TEST-008 under standing, step 3 never produces its 'must be requested' outcome (AC-007)
+PASS: TEST-009 the standing write is stated to go to the layer file's own Design-Source section specifically (AC-008)
+PASS: TEST-010 the first-occurrence test is scoped to (feature, destination), not the feature alone (AC-009, structural)
+PASS: TEST-011 a different destination for an already-recorded feature triggers a fresh one-time write (AC-030)
+PASS: TEST-012 the one-time record's Egress-Consent value is granted, not a new fourth value (AC-010)
+PASS: TEST-013 under off, step 3's resolved outcome is always outcome (c) (AC-011)
+PASS: TEST-014 outcome (c) routes to the manual fallback and no upload is attempted (combined, one clause) (AC-012)
+PASS: TEST-015 an outcome record is written for the off resolution (existence) (AC-012)
+PASS: TEST-016 that record carries Ds-Upload-Consent-Setting: off specifically (AC-012)
+PASS: TEST-017 off's forbiddance is stated as persistent, distinguished from a transient decline (AC-013)
+PASS: TEST-018 the forbiddance holds on every host, in both AGENTS.md and the loop's off branch (AC-014, cross-referencing TEST-006)
+PASS: TEST-019 step 3(a)'s scope clause is present, unmodified (AC-015)
+PASS: TEST-020 step 3(b)'s routing clause is present, unmodified (AC-015)
+PASS: TEST-021 step 3(c)'s not-permitted/persistence/decline-distinction clauses are present, unmodified (AC-015)
+PASS: TEST-022 step 4's informed-consent disclosure content is present, unmodified (AC-015)
+PASS: TEST-023 step 5's pre-upload check point text is present, unmodified (AC-015)
+PASS: TEST-024 step 6's push-failure rule is present, unmodified (AC-015)
+PASS: TEST-025 step 7's review/regeneration cycle text is present, unmodified (AC-015)
+PASS: TEST-026 Egress-Consent-Party is enumerated by name in the record table (AC-016)
+PASS: TEST-027 Egress-Consent-At is enumerated by name in the record table (AC-016)
+PASS: TEST-028 Ds-Upload-Consent-Setting is enumerated by name in the record table (AC-016)
+PASS: TEST-029 the extensibility paragraph states a DS-29-era record remains conforming (AC-017)
+PASS: TEST-030 Egress-Consent-Scope field name present, unmodified (AC-018)
+PASS: TEST-031 Egress-Consent-Subject field name present, unmodified (AC-018)
+PASS: TEST-032 Egress-Destination field name present, unmodified (AC-018)
+PASS: TEST-033 Egress-Consent-Expiry field name present, unmodified (AC-018)
+PASS: TEST-034 Egress-Consent field name present, unmodified (AC-018)
+PASS: TEST-035 Egress-Consent domain value granted present, unmodified (AC-018)
+PASS: TEST-036 Egress-Consent domain value not-permitted present, unmodified (AC-018)
+PASS: TEST-037 Egress-Consent domain value withdrawn present, unmodified (AC-018)
+PASS: TEST-038 standing's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)
+PASS: TEST-039 off's text states Egress-Consent-Party must not name a fabricated per-occurrence identity (AC-019)
+PASS: TEST-040 a standing grant's target text carries all three new fields (AC-029)
+PASS: TEST-041 an ordinary per-feature grant's target text carries all three new fields (AC-029)
+PASS: TEST-042 a per-feature mid-session withdrawal's target text carries all three new fields (AC-029)
+PASS: TEST-043 an off-driven not-permitted outcome's target text carries all three new fields (AC-029)
+PASS: TEST-044 step 3's opening sentence states the setting is re-read at every resolution, not cached (AC-020, executable oracle)
+PASS: TEST-045 the record-table text states a record's own setting value never overrides the currently configured setting (AC-021)
+PASS: TEST-046 claude-design-workflow.md contains no occurrence of the setting's literal key identifier (AC-022)
+PASS: TEST-047 the new bullet states the setting's value/outcome survive via an indirect reference, naming Design-Source (AC-022)
+PASS: TEST-048 the existing no-upload statement is present, unmodified, and no new upload-enabling language appears (AC-023)
+PASS: TEST-049 the file's content is unchanged outside the one appended bullet (AC-023, minimal diff, anchor-located byte-identity)
+PASS: TEST-050 no case-insensitive occurrence of the general banned substring exists anywhere in the fallback file (AC-024)
+PASS: TEST-051 zero rows in DS-29's own suite flip from green (baseline) to red (current), TEST-010/015/018/026/040 checked explicitly (AC-025)
+PASS: TEST-052 DS-29's own TEST-021 is green in both the baseline and current run, re-verified from this feature's own suite (AC-026)
+PASS: TEST-053 both suite files are registered in tests/run-all.sh and tests/run-all.ps1 (AC-027)
+PASS: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+PASS: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)
+PASS: 55
+FAIL: 0
+FAIL: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred) -- DESIGNED RED: staged workflow patch not yet applied (REQ-010/AC-028)
+==> tests/design-sync-scan.tests.ps1
+=== design-sync-scan.tests.ps1: RepoRoot=/Users/jrmag/Projects/active/sdd-forge-wt-phase4 ===
+=== target script: /Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-bootstrap/scripts/design-sync-scan.ps1 ===
+=== bash available for cross-runtime rows: True ===
+
+=== TEST-001 (AC-001): script exists, is directly invocable, requires an argument ===
+ok: TEST-001a: /Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-bootstrap/scripts/design-sync-scan.ps1 exists
+ok: TEST-001b: pwsh design-sync-scan.ps1 <dir> is directly invocable and completes (exit 0 on an empty dir)
+ok: TEST-001c: zero-argument invocation does not succeed (a required first positional argument exists)
+
+=== TEST-002 (AC-002): a finding nested >=2 directories deep is detected ===
+ok: TEST-002a: a finding nested two directories deep yields exit 1
+ok: TEST-002b: the nested finding's file:line is reported
+
+=== TEST-003 (AC-003): one invocation, no flag, flags findings from >1 category ===
+ok: TEST-003a: a two-category fixture, one plain invocation, exits 1
+ok: TEST-003b: both categories' findings appear in the one-invocation report -- no flag selected a subset
+
+=== TEST-004 (AC-004): a target dir with zero .html files exits 0, is not an error ===
+ok: TEST-004: a target dir with zero .html files exits 0
+
+=== TEST-085 (AC-039a): a non-.html file with secret/PII-shaped content is never scanned ===
+ok: TEST-085a: a .json fixture with secret/PII-shaped strings beside a clean .html produces no block (exit 0)
+ok: TEST-085b: the .json fixture is never named in the report
+
+=== TEST-086 (.ps1 half of AC-039b): an upper-cased .HTML file is scanned (case-insensitive extension) ===
+ok: TEST-086 (.ps1 half): an upper-cased .HTML file containing a finding is scanned and blocks (extension match is case-insensitive)
+
+=== TEST-005 (AC-005): a fully clean fixture set exits 0 ===
+ok: TEST-005a: a fully clean multi-file fixture set exits 0
+ok: TEST-005b: a clean run reports passed
+
+=== TEST-006 (AC-006.1): a placeholder-only fixture exits 1 ===
+ok: TEST-006a: a placeholder-only fixture exits 1
+ok: TEST-006b: only the placeholder category is reported
+
+=== TEST-007 (AC-006.2): a secret-only fixture exits 1 ===
+ok: TEST-007a: a secret-only fixture exits 1
+ok: TEST-007b: only the secret category is reported
+
+=== TEST-008 (AC-006.3): a PII-only fixture exits 1 ===
+ok: TEST-008a: a PII-only fixture exits 1
+ok: TEST-008b: only the PII category is reported
+
+=== TEST-009 (AC-006.4): a mixed-category fixture exits 1, names every category present ===
+ok: TEST-009a: a mixed-category fixture exits 1
+ok: TEST-009b: the report names every category present, not only the first matched
+
+=== TEST-010 (AC-007.1, AC-008): zero arguments exits 2 with a usage diagnostic, never 1 ===
+ok: TEST-010a: zero arguments exits 2
+ok: TEST-010b: zero-argument invocation prints a usage diagnostic
+ok: TEST-010c: no override affordance is offered in the exit-2 output (AC-007's fourth clause)
+
+=== TEST-056 (AC-007.2): more arguments than the contract defines exits 2 with a usage diagnostic ===
+ok: TEST-056a: two positional arguments (one too many) exits 2
+ok: TEST-056b: too-many-arguments invocation prints a usage diagnostic
+ok: TEST-056c: no override affordance is offered in the too-many-arguments exit-2 output
+
+=== TEST-011 (AC-007.3): a nonexistent target directory exits 2, names the missing path ===
+ok: TEST-011a: a nonexistent target directory exits 2
+ok: TEST-011b: the diagnostic names the missing path
+ok: TEST-011c: no override affordance is offered for a nonexistent target directory
+
+=== TEST-012 (AC-007.4): an unreadable .html file exits 2, names the file, rest not silently clean ===
+ok: TEST-012a: an unreadable .html file exits 2
+ok: TEST-012b: the diagnostic names the unreadable file
+ok: TEST-012c: the rest of the set is not silently reported clean/passed
+
+=== TEST-013 (AC-008): usage-error exit code is 2, never 1 -- contrast with check-placeholders.ps1 ===
+ok: TEST-013a: check-placeholders.ps1's own zero-argument usage error exits 1 (the convention this script deliberately diverges from)
+ok: TEST-013b: design-sync-scan.ps1's own zero-argument usage error exits 2, never 1
+
+=== TEST-014 (AC-009): placeholder detection reproduces check-placeholders.ps1's own verdicts ===
+ok: TEST-014-setup: re-read check-placeholders.ps1's live $patternCs/$patternCi at test-run time (not transcribed)
+ok: TEST-014a: check-placeholders.ps1 flags the positive marker corpus (exit 1)
+ok: TEST-014b: design-sync-scan.ps1 flags the identical corpus as a placeholder finding -- same verdict as check-placeholders.ps1
+ok: TEST-014c: both scripts agree the negative corpus (lowercase 'todo' as ordinary prose) is clean
+
+=== TEST-015 - TEST-020, TEST-083 (AC-010): one row per secret pattern S1-S6, plus S5's sk-proj- sub-format ===
+ok: TEST-015 (S1 PEM private-key header): triggers a secret finding
+ok: TEST-016 (S2 AKIA...): triggers a secret finding
+ok: TEST-017 (S3 ghp_...): triggers a secret finding
+ok: TEST-018 (S4 github_pat_...): triggers a secret finding
+ok: TEST-019 (S5 bare sk-...): triggers a secret finding
+ok: TEST-020 (S6 xoxb-...): triggers a secret finding
+ok: TEST-083 (S5 sk-proj- sub-format): triggers a secret finding
+
+=== TEST-021 (AC-010): S7 triggers on a substantive quoted value, not on a bare or empty value ===
+ok: TEST-021a: S7 triggers on a keyword followed by a substantive quoted value
+ok: TEST-021b: S7 does NOT trigger on a bare keyword, a form-field label, an input type attribute, or an empty quoted value
+
+=== TEST-022 (AC-011): P1 (email, non-reserved domain) triggers a PII finding ===
+ok: TEST-022: a non-reserved-domain email triggers a PII finding
+
+=== TEST-023 (AC-011): P2 (E.164-shaped phone) triggers a PII finding ===
+ok: TEST-023: an E.164-shaped phone number triggers a PII finding
+
+=== TEST-024, TEST-057 - TEST-062 (AC-011): the seven RFC 2606/6761 reserved domains/TLDs do not trigger ===
+ok: TEST-024 (example.com): user@example.com does not trigger a finding
+ok: TEST-057 (example.net): user@example.net does not trigger a finding
+ok: TEST-058 (example.org): user@example.org does not trigger a finding
+ok: TEST-059 (.test): user@mockups.test does not trigger a finding
+ok: TEST-060 (.example): user@mockups.example does not trigger a finding
+ok: TEST-061 (.invalid): user@mockups.invalid does not trigger a finding
+ok: TEST-062 (.localhost): user@mockups.localhost does not trigger a finding
+
+=== TEST-080 - TEST-082 (AC-011): P2's three negative boundary shapes ===
+ok: TEST-080: a 7-digit run (one short of the minimum) does not trigger
+ok: TEST-081: a 16-digit run (one over the maximum) does not trigger -- the boundary rejects an embedded valid-length substring, not only the total count
+ok: TEST-082: a valid-length run with a digit immediately adjacent on the leading side (before '+') does not trigger
+ok: TEST-082-control: without the leading-adjacent digit, the same-length run DOES trigger (proves TEST-082 exercises the boundary, not the quantifier)
+
+=== TEST-025 (AC-012): a mixed-category fixture's report labels every finding with its correct category ===
+ok: TEST-025: every finding in the mixed fixture is labelled with its correct category at its correct line
+
+=== TEST-026 (AC-013): a multi-file fixture's report gives correct, distinct file:line per finding ===
+ok: TEST-026: each of three files' findings is reported at its own correct, distinct file:line
+
+=== TEST-027, TEST-028, TEST-029, TEST-063 (AC-014): masking is category-differentiated ===
+ok: TEST-027: a secret finding's report line does not contain the matched secret value
+ok: TEST-027b: the secret finding is masked with the fixed token
+ok: TEST-028: a PII/email finding's report line does not contain the matched address
+ok: TEST-063: a PII/phone finding's report line does not contain the matched number
+ok: TEST-029: a placeholder finding's report line contains the matched marker text in full
+
+=== TEST-030 (AC-015): the script completes with stdin closed, no interactive read, no hang ===
+ok: TEST-030: the scan completed within 5s with stdin closed (exit 0) -- no interactive read, no prompt, no hang
+
+=== TEST-034 (.ps1 half of AC-018): the script's header comment states the egress-hygiene-only scope ===
+ok: TEST-034a: the header states the check is limited to egress hygiene
+ok: TEST-034b: the header states no assessment of mockup quality, design fidelity, accessibility, or design-system/ adherence
+
+=== TEST-048 (.ps1 half of AC-030): no finite-set host/tool identifier appears as a branch condition ===
+ok: TEST-048: none of the finite identifier set (CLAUDE_CODE, CODEX, DesignSync, ANTHROPIC, OPENAI) appears as a branch condition outside a comment
+
+=== TEST-069 (.ps1 half of AC-030): representative-caller parity -- Claude-Code-style vs bare-terminal/Codex-style env ===
+ok: TEST-069: the same fixture, invoked once under a Claude-Code-style env and once under a bare-terminal/Codex-style env, is exit-code- and report-identical
+
+=== TEST-052 (AC-034): traceability manifest -- every REQ-001..REQ-009 AC-NNN heading appears in acceptance-tests.md's AC column ===
+ok: TEST-052-setup: extracted 36 AC headings from requirements.md's REQ-001..REQ-009 sections
+ok: TEST-052: every REQ-001..REQ-009 AC-NNN heading in requirements.md appears at least once in acceptance-tests.md
+
+=== Cross-runtime exit-code parity (AC-031): TEST-049, TEST-070 - TEST-076 ===
+ok: TEST-049 (AC-031, placeholder-only): both runtimes exit 1 for this fixture
+ok: TEST-070 (AC-031, secret-only): both runtimes exit 1 for this fixture
+ok: TEST-071 (AC-031, PII-only): both runtimes exit 1 for this fixture
+ok: TEST-072 (AC-031, mixed-category): both runtimes exit 1 for this fixture
+ok: TEST-073 (AC-031, clean): both runtimes exit 0 for this fixture
+ok: TEST-074 (AC-031, zero-argument): both runtimes exit 2 for this fixture
+ok: TEST-075 (AC-031, nonexistent target directory): both runtimes exit 2 for this fixture
+ok: TEST-076 (AC-031, unreadable file): both runtimes exit 2 for this fixture
+
+=== Cross-runtime classification parity (AC-032): TEST-050, TEST-077 - TEST-079 ===
+ok: TEST-050 (AC-032, placeholder): both runtimes agree on every finding's category and file:line (1 finding(s))
+ok: TEST-077 (AC-032, secret): both runtimes agree on every finding's category and file:line (1 finding(s))
+ok: TEST-078 (AC-032, PII): both runtimes agree on every finding's category and file:line (1 finding(s))
+ok: TEST-079 (AC-032, mixed): both runtimes agree on every finding's category and file:line (3 finding(s))
+
+=== TEST-051 (AC-033, AGENTS.md item 1): case-sensitivity sweep -- a mis-cased negative fixture per case-sensitive pattern group, rejected identically to the .sh original ===
+ok: TEST-051a (placeholder cs group, lower-cased 'todo') (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051a (placeholder cs group, lower-cased 'todo') (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051b (S1 PEM header, lower-cased) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051b (S1 PEM header, lower-cased) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051c (S2 AKIA, lower-cased) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051c (S2 AKIA, lower-cased) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051d (S3 ghp_, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051d (S3 ghp_, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051e (S4 github_pat_, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051e (S4 github_pat_, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051f (S5 bare sk-, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051f (S5 bare sk-, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051g (S5 sk-proj- sub-format, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051g (S5 sk-proj- sub-format, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+ok: TEST-051h (S6 xoxb-, upper-cased prefix) (ps1): the mis-cased fixture is rejected (exit 0, no false-positive finding)
+ok: TEST-051h (S6 xoxb-, upper-cased prefix) (cross-runtime): rejected identically to the .sh original (both exit 0)
+
+=== TEST-084 (AC-038): the POSIX ERE (.sh) and .NET (.ps1) forms of S7 and P2 classify TEST-021/080-082's fixture set identically ===
+ok: TEST-084a (S7 positive, TEST-021 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 1)
+ok: TEST-084b (S7 negative, TEST-021 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084c (P2 7-digit short, TEST-080 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084d (P2 16-digit long, TEST-081 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084e (P2 leading-adjacent digit, TEST-082 fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 0)
+ok: TEST-084f (P2 leading-adjacent control, TEST-082-control fixture): both the .NET form (ps1) and the POSIX ERE form (sh) classify this fixture identically (exit 1)
+
+=== TEST-086 (cross-runtime half of AC-039b): an upper-cased .HTML file containing a finding blocks identically on both runtimes ===
+ok: TEST-086 (cross-runtime): both runtimes block on the same upper-cased .HTML finding (exit 1) -- PowerShell's case-insensitive filesystem filtering and .sh's -iname agree
+
+Results: 110 passed, 0 failed
+
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1

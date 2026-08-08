@@ -138,19 +138,44 @@ def is_design_md(path):
     return bool(path) and str(path).replace("\\", "/").lower().endswith("design.md")
 
 
-def _impl_review_verdict_exists(feature):
-    """CWD-relative path resolution (matches JS behavior, ADR-004)."""
+def _impl_review_verdict_exists(feature, file_path=None):
+    """Resolve the repository root the same way as _resolve_project_root
+    (CLAUDE_PROJECT_DIR, then the git root discovered upward from the edited
+    file_path, then CWD) and look for a PASS/PASS-with-warnings
+    integrated-verdict.json under each candidate root. Resolving from
+    file_path/CLAUDE_PROJECT_DIR rather than CWD alone fixes false denials when
+    the agent's CWD is outside the repository (the previous CWD-only glob missed
+    a genuine verdict). The verdict criterion is unchanged. (WFI-016)
+    """
     import glob as _glob
     import json as _json
-    pattern = f"reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json"
-    for f in _glob.glob(pattern):
+    roots = []
+    env_root = os.environ.get("CLAUDE_PROJECT_DIR")
+    if env_root:
+        roots.append(env_root)
+    if file_path:
+        fp_root = _find_git_root(os.path.dirname(os.path.abspath(file_path)))
+        if fp_root:
+            roots.append(fp_root)
+    roots.append(".")
+    rel = f"reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json"
+    seen = set()
+    for root in roots:
         try:
-            with open(f) as fh:
-                data = _json.load(fh)
-            if data.get("verdict") in ("PASS", "PASS-with-warnings"):
-                return True
+            key = os.path.abspath(root)
         except Exception:
-            pass
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        for f in _glob.glob(os.path.join(root, rel)):
+            try:
+                with open(f) as fh:
+                    data = _json.load(fh)
+                if data.get("verdict") in ("PASS", "PASS-with-warnings"):
+                    return True
+            except Exception:
+                pass
     return False
 
 
@@ -193,7 +218,7 @@ def impl_review_status_passed_increases(payload):
     if not m:
         return False
     feature = m.group(1)
-    return not _impl_review_verdict_exists(feature)
+    return not _impl_review_verdict_exists(feature, file_path)
 
 
 def is_wfi_path(path):
@@ -973,12 +998,35 @@ _GATE_PROTECT_MSG = (
 )
 
 
+# Sanctioned staging prefix: specs/<feature>/human-copy/ holds candidate
+# copies awaiting human review and human application, never the live
+# enforcement chain itself.
+_HUMAN_COPY_STAGING_RE = re.compile(r"(?:^|/)specs/[^/]+/human-copy/")
+
+
 def _is_protected_gate_file(file_path):
     """R-10: Return True if file_path matches a protected enforcement-chain file."""
     if not file_path:
         return False
     # normpath collapses .. segments so `../../tests/gates.tests.sh` is caught.
     normalized = os.path.normpath(str(file_path).replace("\\", "/")).replace("\\", "/").lower()
+    # Staging exemption: a path still carrying the specs/<feature>/human-copy/
+    # prefix after normpath cannot reach a live enforcement-chain file (any
+    # ..-traversal has already been collapsed), so a staging candidate is
+    # writable — unless a registered suffix itself names a human-copy path
+    # (e.g. the phase2 publisher script), which stays protected.
+    if _HUMAN_COPY_STAGING_RE.search(normalized):
+        for suffix in _PROTECTED_GATE_SUFFIXES:
+            sl = suffix.lower()
+            if "/human-copy/" in sl and normalized.endswith(sl):
+                return True
+        for suffix in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES:
+            sl = suffix.lower()
+            if "/human-copy/" in sl and (
+                normalized.endswith(sl) or normalized.endswith(sl.lstrip("/"))
+            ):
+                return True
+        return False
     for suffix in _PROTECTED_GATE_SUFFIXES:
         if normalized.endswith(suffix.lower()):
             return True
@@ -1300,9 +1348,62 @@ def _shell_cwd_write_hits_protected(cmd):
     return False
 
 
+def _command_references_protected_path(cmd):
+    """R-10 pre-filter: True when a protected path appears as a shell TOKEN
+    (a path-shaped word, or a redirect token's target), not merely as a
+    substring of the raw command text. Prose inside a quoted argument — e.g.
+    a commit message that mentions a protected filename mid-sentence — no
+    longer trips the filter, because the quoted argument is one token whose
+    full text does not END with the protected suffix. Falls back to the raw
+    substring scan when the tokenizer cannot model the command (fail closed)."""
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is None:
+        # The registry stores POSIX-separator suffixes, so the fallback scan
+        # must run over a separator-NORMALIZED copy of the command as well as
+        # the raw text — exactly the normalization _is_protected_gate_file
+        # already performs on a single path.
+        #
+        # Without it this fallback was FAIL-OPEN on native Windows. A write
+        # target spelled as a Windows absolute path
+        # ("D:\\...\\sdd\\approver-registry.yaml") both (a) forces the
+        # tokenizer to return None — an unquoted backslash is an unmodeled
+        # construct — and (b) leaves the raw text spelling the tail
+        # "sdd\\approver-registry.yaml", which does not contain the registered
+        # "sdd/approver-registry.yaml". The pre-filter therefore returned False
+        # and _shell_targets_protected_gate_file returned "no protected path" —
+        # ALLOWING the write. Only the separator immediately before the
+        # registered suffix mattered: a backslashed prefix with a forward-slash
+        # tail still matched, which is why the miss was invisible on POSIX.
+        #
+        # Scanning both texts can only ADD matches, never remove one, so no
+        # command that was denied before can become allowed. Read-only access
+        # to a protected path stays allowed: the read-only short-circuit in
+        # _shell_targets_protected_gate_file is evaluated after this filter.
+        cmd_lower = cmd.lower()
+        cmd_norm = cmd_lower.replace("\\", "/")
+        return any(s.lower() in cmd_lower or s.lower() in cmd_norm
+                   for s in _PROTECTED_GATE_SUFFIXES) or \
+            any(s.lower() in cmd_lower or s.lower() in cmd_norm or
+                s.lower().lstrip("/") in cmd_lower or
+                s.lower().lstrip("/") in cmd_norm
+                for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    for kind, text in tokens:
+        if kind != "word":
+            continue
+        candidate = text
+        if ">" in text:
+            m = _SHELL_REDIRECT_TOKEN_RE.match(text)
+            if m and m.group(2):
+                candidate = m.group(2)
+        if _is_protected_gate_file(candidate):
+            return True
+    return False
+
+
 def _shell_targets_protected_gate_file(cmd):
     """R-10: Deny shell commands that WRITE to protected gate files.
-    Uses substring scan (path appears literally in command) combined with
+    Uses a token-based pre-filter (a protected path appears as a shell token
+    or redirect target) combined with
     write-target analysis (issue #62): a write verb/redirect elsewhere in the
     command no longer denies read-only access to a protected path.
     Read-only short-circuit only fires when ALL of the following hold:
@@ -1321,10 +1422,7 @@ def _shell_targets_protected_gate_file(cmd):
     # so this is checked before the read-only short-circuit below.
     if _shell_cwd_write_hits_protected(cmd):
         return True
-    cmd_lower = cmd.lower()
-    has_protected_path = any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
-                         any(s.lower() in cmd_lower or s.lower().lstrip("/") in cmd_lower
-                             for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    has_protected_path = _command_references_protected_path(cmd)
     if not has_protected_path:
         return False
     has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))

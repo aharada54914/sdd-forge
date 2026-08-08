@@ -1,0 +1,119 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 3,
+  "round": 2,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt3-seq0343",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt3-seq0343",
+  "manifest": [
+    {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+    {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+    {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+    {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "1e1d0a2fe8b64cfe2ca6ede6cfeaab88238a592c4d0e822376e750b751c04021"},
+    {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+    {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+    {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+    {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+    {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-2/precheck-result.json", "sha256": "adde6624fe1e3b9649719ca80569ef7093ddd4aa72b81d5efda88057680f43dd"},
+    {"path": "reports/task-review/epic-189-a1-project-context/attempt-3/round-2/dependency-graph.json", "sha256": "cb5b8c4c354306fbe56c2de7e8ed79dee6413bd7ea4e59f3b5eb9430c2501838"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN literal appearing anywhere in tasks.md (46 distinct IDs, AC-001..AC-046, cross-checked programmatically) resolves to a real row in acceptance-tests.md's table; comm -23 of the two ID sets is empty. No task's Requirements: field ever cites an AC-NNN in place of a REQ-NNN (all 13 Requirements: lines use only REQ-001..REQ-011). No dangling ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 13 tasks' Blockers: fields are either the literal 'None' (T-001) or a comma-separated T-\\d{3} list (T-002=T-001; T-003=T-002; T-004=T-003; T-005=T-002, T-003, T-004; T-006=T-003, T-004, T-005; T-007=T-006; T-008=T-007; T-009=T-002, T-003, T-005, T-006, T-007, T-008; T-010=T-009; T-011=T-001, T-006, T-008, T-010; T-012=T-009, T-011; T-013=T-001..T-012). No range notation, no prose. Matches precheck-result.json's blockers_format_valid: true. blockers_format_valid = true (gates DEPENDENCY-CYCLE to run below)."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-011 defined in requirements.md's Goals section appears in at least one task's Requirements: field: REQ-001/002->T-001, REQ-003->T-002, REQ-004->T-003, REQ-005->T-006, REQ-006->T-004/T-005, REQ-007->T-007/T-009, REQ-008->T-010, REQ-009->T-011/T-012, REQ-010->T-008/T-012, REQ-011->T-013. No gap."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 46 AC-001..AC-046 rows in acceptance-tests.md are traceable to a task: traceability.md's Acceptance Mapping table maps every AC-NNN to a Test ID and an owning Task, and tasks.md's own Done When bullets independently cite the matching AC-NNN per TEST-NNN item (e.g. T-001 Done When cites AC-001/002/003/004/040/041/042; T-013 cites AC-028/029). No AC without a task attribution found."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task T-001..T-013 declares a non-empty Requirements: field citing at least one real REQ-NNN (verified via grep of all 13 'Requirements:' lines). No task relies on the INFRA/HOUSEKEEPING pseudo-requirement exception."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Programmatic title scan for case-insensitive 'test'/'spec'/'verify' substrings flags exactly three tasks: T-010 ('Verify the hook-guard extension...'), T-012 (via the 'lite-spec' skill name), and T-013 ('...three-environment test coverage...'). All three explicitly reference AC-NNN in their Done When lists (T-010->AC-023; T-012->AC-025/026/035/039; T-013->AC-028/029). No orphaned test task found."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Evaluated under the post-implementation provenance re-review lifecycle rule (declared invocation context). T-001 (Approval: Approved (sudo 2026-07-22T14:31:01Z), Status: Blocked), T-002 (Approved (sudo 2026-07-22T15:16:57Z), Blocked), T-004 (Approved (sudo 2026-07-22T15:24:55Z), Blocked) all carry a valid 'Approved (<audit-mark>)' workflow-bypass authorization with a Status in the permitted set. T-003, T-005..T-013 all carry Approval: Draft / Status: Planned, both members of tasks.md's own documented Lifecycle (Draft -> Approved -> ...) and within the permitted Status set. No task carries a missing or invalid field."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All 13 tasks declare Risk: and Required Workflow: matching the risk-gate-matrix: T-001 medium/acceptance-first; T-002..T-012 high or critical/tdd (T-002,T-003,T-004,T-005,T-006,T-008,T-010,T-011,T-012 = high/tdd; T-007,T-009 = critical/tdd); T-013 medium/acceptance-first. No mismatch found, consistent with precheck-result.json's workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Programmatic scan of every task's Done When bullets for AC-NNN reuse across tasks found only two multi-task ACs, both explicitly differentiated in-text rather than duplicated: AC-035 (T-011 Done When states 'partial evidence toward AC-035, completed at T-012'; T-012 alone is AC-035's primary owner per traceability.md's Acceptance Mapping) and AC-046 (T-004/T-005/T-006 each own an explicitly named distinct 'half' — schema-conformance / verdict / structural fail-closed — matching traceability.md's own three-way-split note). No undifferentiated duplicate primary-target claim found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in any Blockers: field (T-001..T-013) exists in tasks.md and in dependency-graph.json's nodes array (13 nodes, exact match). Programmatic cross-check confirmed tasks.md's Blockers: sets equal dependency-graph.json's edges (grouped by 'from') for all 13 tasks with zero mismatches."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Runs because BLOCKERS-FORMAT is PASS. DFS-based cycle search over dependency-graph.json's 13 nodes / 36 edges found no cycle; the edge set forms a strict DAG consistent with the numeric task order T-001 < T-002 < ... < T-013 (every edge points to an equal-or-lower-numbered task)."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Post-implementation provenance re-review convergence rule applied (TYPE-H). Several task titles combine two deliverables via 'and' (T-001 'project-context.yaml and provider-bindings.yaml schemas'; T-003 'approval sidecar schema and staging-only signer'; T-009 'sidecar, registry, publisher, and verification scripts'; T-011 'PLUGIN-CONTRACTS.md and the unprotected track-selection consumers'; T-012 '...via human-copy and close out consumer wiring'). None of these titles or their ### Scope sections were touched by the round-1 STEP 6 remedy (commit 4d7c8b63, which edited only T-003's Out of Scope prose and T-005's Planned Files/Blockers) — this wording is byte-identical to content already bound by attempt-1 round-2's persisted task-review PASS (reports/task-review/epic-189-a1-project-context/attempt-1/round-2/). Per the convergence rule this is re-bound as PASS with this advisory rather than re-litigated as a new finding."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "Found in remedy-changed content (round-1 STEP 6, commit 4d7c8b63), which the convergence rule explicitly excludes from re-binding ('(iv) is remedy-changed content that you must review normally'). T-005's Planned Files gained `plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py` (existing-by-T-003, edited), described as completing T-003's fail-closed `WEAKENING_DETECTOR_UNAVAILABLE` seam by wiring `detect-policy-weakening` in-process for non-bootstrap transitions. T-003's parallel, remedy-rewritten Out of Scope section correspondingly claims T-003 itself 'DOES build the generator's provenance-field resolution... the bootstrap case... is completed entirely within this task' and that a non-bootstrap transition 'fails CLOSED with a named diagnostic (WEAKENING_DETECTOR_UNAVAILABLE)... T-005 completes the seam.' Neither task's Done When list (both left unchanged by the remedy) names any concrete verification command or evidence artifact for this specific committed work: T-005's six Done-When TEST items (TEST-016/017/018/030/031/046) exercise only detect-policy-weakening's own classification/verdict logic, never generate-approval-sidecar.py's invocation of it; T-003's Done-When (TEST-010/011/012/013/034/036) never references WEAKENING_DETECTOR_UNAVAILABLE or the bootstrap/non-bootstrap provenance-resolution branch. requirements.md's REQ-004 ('before signing... resolves... weakening_verdict, the exact verdict detect-policy-weakening computes...') and design.md's 'HMAC preimage and signing' section (both frozen, confirmed unchanged) never name this diagnostic or a staged/deferred resolution path, so no existing AC/TEST-ID can be cited for it either. An implementer could check off every one of T-005's (or T-003's) own Done-When boxes without ever performing this edit, leaving REQ-004's mandatory in-process detector invocation unverified by either task's own completion criteria."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID T-001..T-013 has a Task Mapping row in traceability.md; every requirement ID in traceability.md (REQ-001..REQ-011) exists in requirements.md's Goals section. For the full-profile layer-anchor requirement: every one of the 11 requirement rows in traceability.md's main table cites a resolvable canonical anchor (security-spec.md#trust-boundaries for REQ-001..REQ-010; infra-spec.md#deployment-topology and infra-spec.md#cicd-sequence for REQ-007/REQ-011) — cross-checked directly against each layer file's own '##' headings (security-spec.md has '## Trust Boundaries'; infra-spec.md has '## Deployment Topology' and '## CI/CD Sequence'), all present and hash-bound to the manifest's layer_sha256 entries. The Layer Coverage table's UX/Frontend rows are reasoned N/A ('no user-facing UI' / 'no browser/frontend bundle'), consistent with design.md's Feature Type header."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "OBSERVABLE-DONE",
+      "severity": "Major",
+      "task_id": "T-005",
+      "finding": "T-005's Planned Files (round-1 STEP 6 remedy, commit 4d7c8b63) adds generate-approval-sidecar.py as an edited file completing T-003's WEAKENING_DETECTOR_UNAVAILABLE seam wiring, and T-003's parallel remedy-rewritten Out of Scope section claims T-003 itself completes the bootstrap-case provenance resolution and the non-bootstrap fail-closed diagnostic — but neither task's Done When list (both left unchanged by the remedy) names any concrete verification command or evidence artifact for this newly-committed work, and no existing AC/TEST-ID in the frozen acceptance-tests.md covers it either (the diagnostic and seam are absent from requirements.md/design.md, which mandate only that the generator always resolve a real weakening_verdict, with no staged/deferred path). An implementer could satisfy every Done-When box in T-003 and T-005 without performing this edit."
+    }
+  ]
+}

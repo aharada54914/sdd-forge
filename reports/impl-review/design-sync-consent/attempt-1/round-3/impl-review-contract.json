@@ -1,0 +1,134 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "design-sync-consent",
+  "attempt": 1,
+  "round": 3,
+  "feature_type": "feature (workflow/policy change to an existing internal skill; no application code)",
+  "legacy_design": false,
+  "requirements_sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a",
+  "acceptance_sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26",
+  "design_sha256": "0c0716f6a18ea8af648e7be2f7610fa7536dcf775265f33a6e89247ec4ce77f2",
+  "layer_sha256": {
+    "ux-spec.md": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6",
+    "frontend-spec.md": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c",
+    "infra-spec.md": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927",
+    "security-spec.md": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "round-3 fixes: the two remaining propagation sites updated; AC-030/TEST-051 chain landed via spec attempt 2 and traced through the design",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-designsyncconsent-impl-a1r3-a-seq0493",
+      "host_session_id": "SESS-impl-a1r3-a-designsyncconsent-0493",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-2/integrated-summary.json",
+          "sha256": "90aaba5daf0f9ccc4ca072e21382e0720b8f20156b0534b5462e6db2cd861804"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-3/precheck-result.json",
+          "sha256": "4c91a1ecd8d500397ce63f489ddc2e55687311f6657bb7739d44070f74b00de5"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+          "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+          "sha256": "0c0716f6a18ea8af648e7be2f7610fa7536dcf775265f33a6e89247ec4ce77f2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+          "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+          "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+          "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+          "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+          "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+          "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-designsyncconsent-impl-a1r3-b-seq0494",
+      "host_session_id": "SESS-impl-a1r3-b-designsyncconsent-0494",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-3/integrated-summary.json",
+          "sha256": "39c116d7854610a1e9e484345807bff002c0324c6b146d694d7d7a6759ada67f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-3/precheck-result.json",
+          "sha256": "4c91a1ecd8d500397ce63f489ddc2e55687311f6657bb7739d44070f74b00de5"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+          "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+          "sha256": "0c0716f6a18ea8af648e7be2f7610fa7536dcf775265f33a6e89247ec4ce77f2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+          "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+          "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+          "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+          "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+          "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+          "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "impl-orch-designsyncconsent-a1r3",
+  "timestamp": "2026-08-04T23:35:10Z"
+}

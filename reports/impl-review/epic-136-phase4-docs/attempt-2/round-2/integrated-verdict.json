@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 2,
+  "round": 2,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic136phase4docs-a2r2"
+}

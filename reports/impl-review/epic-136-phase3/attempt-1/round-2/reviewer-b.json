@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase3-impl-a1r2-b-seq0350",
+  "host_session_id": "SESS-impl-a1r2-b-epic136phase3-0350",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/reports/impl-review/epic-136-phase3/attempt-1/round-2/integrated-summary.json",
+      "sha256": "0ee741824f5db01ae6d9173dabe9a73fb2644bc03958f15fb48afdbc3b836468"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/reports/impl-review/epic-136-phase3/attempt-1/round-2/precheck-result.json",
+      "sha256": "224c12cec6e301df87baccf44049e9fd80b53abae745ffe73bece9de7bfdc4ae"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/design.md",
+      "sha256": "5ff0ad5868d8164e972ce79ff2629fc9e3e2051e8ed9700b95241e9a86a3856f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "9fcd57454c7576fb9b6e38485f80d82726326f6956d0fe180e6aa831ea321e19"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/requirements.md",
+      "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Design Decisions section justifies each inline decision: OQ-5's job-count-preserving choice states the blast-radius rationale ('splitting the 50+-step test job into multiple GitHub Actions JOBS...would require re-plumbing the 3-OS matrix, checkout, and toolchain setup steps per job -- a much larger blast radius than #126's own issue text asks for', design.md:342-346, restated design.md:425-433); the triple-quote/task-id-collision corpus decision states 'Decided: NEW for both...since reusing that exact payload would not exercise the guard's own tokenizer' (design.md:442-449); the PowerShell-stub decision states 'Decided: thin forwarding shims...this keeps the decision-under-test genuine' (design.md:450-456); Stream A's bash-only CI-step shape cites 'matching the quality-loop-fixes Stream 1 convention for a suite that does not need a separate pwsh leg' (design.md:330-331). No inline decision found stated without an accompanying rationale clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's own ## Open Questions section (design.md:554-562) contains zero unresolved entries -- it states 'None blocking for Streams A, B, D. All investigation.md OQ-1..OQ-6 are resolved above with design decisions' and explicitly reclassifies Stream C's ADR-0010 precondition as a Blocker rather than an Open Question, with owner and unblock condition traceable to requirements.md's Roles and Permissions ('Human maintainer:...decides when ADR-0010 moves to Status: Accepted, which is the sole unblock condition for Stream C's implementation (OQ-2)', requirements.md:556-559). No entry lacks an owner, blocking status, or resolution path because no entry exists to evaluate. Minor advisory: the Blocker is not expressed using the literal 'Owner:'/'Blocks Implementation:'/'Resolution Path:' field labels the check names, though the substance (owner, blocking=yes for Stream C, resolution=ADR-0010 Accepted) is present in prose."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is present (manifest sha256 0d2aa2a3...caad66d1 confirmed). design.md's Assumptions section (design.md:541-552) carries forward 6 assumptions from requirements.md, each traceable to a specific INV-xxx: registration-gap state -> INV-006 (investigation.md:219-241); PROTECTED_GATE_SUFFIXES/PHASE2_HUMAN_COPY_TARGETS membership -> INV-024 (investigation.md:596-615); ADR-0010's Status: Proposed -> INV-015 (investigation.md:403-421); loop-driver.sh's stage-spec-only scope -> INV-016 (investigation.md:423-442); the PATH=/usr/bin:/bin technique -> INV-005 (investigation.md:197-217). The identity-ledger-tail assumption cites sequence 337, which is requirements.md's own re-verified correction of investigation.md INV-026's stale sequence 319 (requirements.md Re-verification note finding 1, requirements.md:36-43) -- still investigation-grounded via the documented re-verification trail, not an ungrounded new claim."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md has a populated ## Constraint Compliance section (design.md:528-539) addressing every requirements-level constraint found (BL-001 baseline preservation, bash 3.2 set -u safety, .ps1 ASCII/exit-N, read-only guard-exercise boundary, the ONE-shared-batch protected-file carve-out, doc-following, version-bump-only-via-script, ADR-0010 dependency) -- satisfying the Primary (Critical) path. Re-verifying the round-1 Critical finding specifically (a new deterministic-tests-boundary job contradicting REQ-004/AC-016/AC-017's job-count-preserving, needs:-byte-unchanged constraint): a full-text grep of the entire specs/epic-136-phase3/ tree for 'deterministic-tests-boundary' returns zero matches, and every 'new job'/'job split'/'needs:' occurrence in design.md and infra-spec.md now consistently states the job-count-preserving, single-job, needs:-unchanged design (design.md:342-362 API/Contract Plan, design.md:425-436 Design Decisions OQ-5, design.md:532 Constraint Compliance row 1; infra-spec.md:39-89 CI/CD Sequence). A job split is explicitly deferred as a named FOLLOW-ON, never a current output of this design (design.md:433-436, 566-571). The remediation held across both design.md and infra-spec.md."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Full-text grep of requirements.md for performance-indicating keywords (response time, throughput, concurrency, latency, ms, SLA, p95/p99, rps) returns zero matches; infra-spec.md's Runtime Budget section (infra-spec.md:110-116) affirmatively states no runtime-budget assertion is required for any stream, consistent with the absence of any numeric performance requirement. No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Deployment / CI Plan (design.md:504-526) states the deployment target ('No runtime deployment'; the existing 3-OS Actions matrix is detailed in infra-spec.md CI/CD Sequence, infra-spec.md:39-58), the CI pipeline changes required (2 new steps to the test job, staged via the ONE shared human-copy batch, design.md:506-514), and the fail-closed rollout gating ('until the human maintainer applies the staged candidate...the PR's own CI stays red on TEST-019/020's live-file self-check', design.md:508-512), plus rollback for both Streams A/B and Stream D (design.md:519-526). Feature-flag strategy is inapplicable (no incremental runtime rollout -- test/CI-only feature). No schema changes exist (Data Plan: 'Migration Strategy: none', design.md:198), so the migration-execution-order sub-requirement does not apply."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Data Plan states 'Migration Strategy: none. No schema changes to any existing artifact.' (design.md:198) and 'Existing Data Affected: none' (design.md:193-196), functionally equivalent to the check's 'No data changes' pass condition. PASS per the check's own stated rule."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## External Integrations section (design.md:495-502) states 'None. All 3 unblocked streams operate entirely on repository-local files...no new network call, external API, or credential is introduced,' and explicitly confirms Stream C's blocked target shape likewise introduces no external integration ('a SYNTHETIC issue body, never a real gh issue view network call', design.md:499-502, cross-referenced to security-spec.md B4, security-spec.md:41). No external system or cross-service API call is referenced in passing elsewhere in design.md; GitHub Actions itself is pre-existing CI infrastructure already governed by the Deployment/CI Plan and infra-spec.md, not a newly introduced integration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Components table (design.md:97-107) maps 1:1 onto requirements.md's Goals REQ-001..REQ-006 (requirements.md:196-271): tests/guard-dispatch-fallback.tests.sh (REQ-001), tests/guard-negative-corpus.tests.sh (REQ-002), tests/workflow-scenarios/ target shape (REQ-003, Blocked, matching requirements.md's own instruction to define target shape without implementing), .github/workflows/test.yml edits (REQ-004/005), tests/run-all.sh/.ps1 (REQ-005), CHANGELOG.md (REQ-006). No component, data model, or API endpoint appears in design.md without a corresponding requirement; conversely every Goal and each of the four User Stories (requirements.md:319-338) is covered by a named Stream in the Architecture diagram and Cross-Layer Dependencies table (design.md:160-171). No scope creep or omission found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces are present (adversarial-payload test-harness self-injection risk, Stream C's blocked inbound prompt-injection boundary, and protected-CI-file changes affecting required-checks branch protection), so this check is not SKIP-eligible. Each names a concrete validation path: security-spec.md's STRIDE table ties the PowerShell-stub self-execution risk to 'code review + TEST-002..004' (security-spec.md:47), Stream B's harness-self-injection risk to 'code review (payload-construction site inspection) + TEST-009' (security-spec.md:48), and the B3 protected-file misapplication risk to 'TEST-016/017 (staged-candidate content review) + hook-guard enforcement' (security-spec.md:50). BL-001 preservation has a literal RED-then-GREEN self-check named (TEST-017, design.md:383-389, acceptance-tests.md:31,59-62). design.md's Deployment / CI Plan additionally names a required human-review checkpoint for GitHub's actual branch-protection configuration before Stream D's candidate is applied (design.md:515-518). All identified high-risk surfaces have a concrete, named validation path."
+    }
+  ]
+}

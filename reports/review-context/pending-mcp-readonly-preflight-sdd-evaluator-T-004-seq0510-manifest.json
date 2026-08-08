@@ -1,0 +1,74 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "mcp-readonly-preflight",
+  "task_id": "T-004",
+  "run_id": "RUN-mcp-readonly-preflight-qg-T-004-seq0510",
+  "host_session_id": "SESS-qg-mcp-readonly-preflight-T-004-0510",
+  "sequence": 510,
+  "previous_record_sha256": "542277fb2b4bbf5455f07f0ead523a68ceef635039684c5412e7ad92e293a3a7",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ad8df3a9d19bb1b49b7c5d32916f03405fce25bf0585b1ad0b0a363c03fd1f9a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "README.md",
+      "sha256": "291ab367c8d39b0214843ce3f643fdda9b1ba11f4cdb12bf6c3f5f1ccb4b5ff8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/mcp-readonly-preflight/T-004.md",
+      "sha256": "d04084534fa0813132bf18d7b8388170af6a1042e8fd7fd1f0bf344f46522b0b"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/design.md",
+      "sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/frontend-spec.md",
+      "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/infra-spec.md",
+      "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/security-spec.md",
+      "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/tasks.md",
+      "sha256": "b18c6a438be2554cf84548624011d8396529144108e36a24a799397a6aff4e60"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/traceability.md",
+      "sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/ux-spec.md",
+      "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-004/00-acceptance-first-mapping.md",
+      "sha256": "d1c257c48468cc3a27e9936cbb33a6c3bf660b70fc9941445952f93bf24b505b"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-004/01-verification-record.md",
+      "sha256": "d5d4e35e88ef6cd29c9127f0aa43ec8788087cd05ad91e5f5bc756e3b7ea28cf"
+    }
+  ]
+}

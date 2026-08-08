@@ -1,0 +1,46 @@
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+FAIL: TEST-002 allowlist path artifact_kinds resolves to a schema field: 
+FAIL: TEST-002 allowlist path runtime_classes resolves to a schema field: 
+FAIL: TEST-002 allowlist path characteristics.pii resolves to a schema field: 
+FAIL: TEST-002 allowlist path characteristics.ui resolves to a schema field: 
+FAIL: TEST-002 allowlist path characteristics.auto_update resolves to a schema field: 
+FAIL: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field: 
+FAIL: TEST-002 allowlist path distribution_channels resolves to a schema field: 
+FAIL: TEST-002 allowlist path data_classification resolves to a schema field: 
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)
+PASS: TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+FAIL: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**': 
+FAIL: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**': 
+FAIL: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**': 
+FAIL: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**': 
+FAIL: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**': 
+FAIL: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md': 
+FAIL: TEST-042 shared_paths contains exactly the six canonical seed patterns: 
+PASS: 29
+FAIL: 15

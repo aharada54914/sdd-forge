@@ -1,0 +1,63 @@
+# guard-dispatch-fallback.tests.sh — bash 3.2 CI-resilience confirmation (REQ-006/AC-021)
+# Date: 2026-07-22T12:31:15Z
+# /bin/bash version: GNU bash, version 3.2.57(1)-release (arm64-apple-darwin25)
+# Direct review: no 'declare -A' and no array expansion ([@]/[*]) anywhere in the file (grep confirms zero matches).
+
+=== TEST-001 (AC-001): python3 present (control) -> .py branch, decision parity ===
+ok: TEST-001 setup: python3 genuinely present under the constructed PATH
+ok: TEST-001: dispatcher (python3 present) exit 0 matches direct sdd-hook-guard.py exit 0 (decision parity, AC-001)
+ok: TEST-001: dispatcher stdout/stderr matches direct .py stdout/stderr byte-for-byte (AC-001)
+ok: TEST-001: benign ALLOW payload correctly allowed (exit 0) via the .py branch (AC-001)
+=== TEST-002 (AC-002): python3 absent + pwsh present -> .ps1 via pwsh ===
+ok: TEST-002 setup: python3 genuinely absent under the constructed PATH
+ok: TEST-002 setup: pwsh genuinely present under the constructed PATH
+ok: TEST-002 setup: powershell.exe genuinely absent under the constructed PATH
+ok: TEST-002 setup: powershell genuinely absent under the constructed PATH
+ok: TEST-002: dispatcher (--emit exit) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-002)
+ok: TEST-002: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-002)
+=== TEST-003 (AC-003): python3+pwsh absent + powershell.exe present -> .ps1 via powershell.exe ===
+ok: TEST-003 setup: python3 genuinely absent under the constructed PATH
+ok: TEST-003 setup: pwsh genuinely absent under the constructed PATH
+ok: TEST-003 setup: powershell.exe genuinely present under the constructed PATH
+ok: TEST-003 setup: powershell genuinely absent under the constructed PATH
+ok: TEST-003: dispatcher (--emit exit) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-003)
+ok: TEST-003: only the 'powershell.exe'-named stub actually executed (marker=[powershell.exe]) (AC-003)
+=== TEST-004 (AC-004): python3+pwsh+powershell.exe absent + powershell present -> .ps1 via powershell ===
+ok: TEST-004 setup: python3 genuinely absent under the constructed PATH
+ok: TEST-004 setup: pwsh genuinely absent under the constructed PATH
+ok: TEST-004 setup: powershell.exe genuinely absent under the constructed PATH
+ok: TEST-004 setup: powershell genuinely present under the constructed PATH
+ok: TEST-004: dispatcher (--emit exit) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-004)
+ok: TEST-004: only the 'powershell'-named stub actually executed (marker=[powershell]) (AC-004)
+=== TEST-005 (AC-005): all four absent -> deny_unavailable (2 sub-cases) ===
+ok: TEST-005 setup: python3 genuinely absent under the constructed PATH
+ok: TEST-005 setup: pwsh genuinely absent under the constructed PATH
+ok: TEST-005 setup: powershell.exe genuinely absent under the constructed PATH
+ok: TEST-005 setup: powershell genuinely absent under the constructed PATH
+ok: TEST-005a: all four absent, --emit exit -> exit 2 (deny_unavailable, AC-005 sub-case a)
+ok: TEST-005b: all four absent, --emit copilot -> copilot-shaped deny JSON (AC-005 sub-case b)
+ok: TEST-005b: --emit copilot mode exits 0 even on deny_unavailable (decision is IN the JSON, never a crash)
+=== TEST-006 (AC-006): python3 absent, all 3 PS names present -> pwsh wins (precedence) ===
+ok: TEST-006 setup: python3 genuinely absent under the constructed PATH
+ok: TEST-006 setup: pwsh genuinely present under the constructed PATH
+ok: TEST-006 setup: powershell.exe genuinely present under the constructed PATH
+ok: TEST-006 setup: powershell genuinely present under the constructed PATH
+ok: TEST-006: dispatcher (--emit exit) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-006, precedence)
+ok: TEST-006: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-006, precedence)
+=== TEST-007 (AC-007): AC-002/003/004/006 branches re-run under --emit copilot (4 of 8 sub-cases; the --emit exit half is TEST-002/003/004/006 above) ===
+ok: TEST-007a: dispatcher (--emit copilot) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-007, pwsh branch, copilot mode)
+ok: TEST-007a: dispatcher (--emit copilot) stdout matches direct .ps1 copilot JSON byte-for-byte (AC-007, pwsh branch, copilot mode)
+ok: TEST-007a: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-007, pwsh branch, copilot mode)
+ok: TEST-007b: dispatcher (--emit copilot) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-007, powershell.exe branch, copilot mode)
+ok: TEST-007b: dispatcher (--emit copilot) stdout matches direct .ps1 copilot JSON byte-for-byte (AC-007, powershell.exe branch, copilot mode)
+ok: TEST-007b: only the 'powershell.exe'-named stub actually executed (marker=[powershell.exe]) (AC-007, powershell.exe branch, copilot mode)
+ok: TEST-007c: dispatcher (--emit copilot) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-007, powershell branch, copilot mode)
+ok: TEST-007c: dispatcher (--emit copilot) stdout matches direct .ps1 copilot JSON byte-for-byte (AC-007, powershell branch, copilot mode)
+ok: TEST-007c: only the 'powershell'-named stub actually executed (marker=[powershell]) (AC-007, powershell branch, copilot mode)
+ok: TEST-007d: dispatcher (--emit copilot) exit 0 matches direct sdd-hook-guard.ps1 exit 0 (decision parity) (AC-007, precedence branch, copilot mode)
+ok: TEST-007d: dispatcher (--emit copilot) stdout matches direct .ps1 copilot JSON byte-for-byte (AC-007, precedence branch, copilot mode)
+ok: TEST-007d: only the 'pwsh'-named stub actually executed (marker=[pwsh]) (AC-007, precedence branch, copilot mode)
+
+guard-dispatch-fallback.tests.sh: 47 passed, 0 failed
+
+EXIT_CODE=0

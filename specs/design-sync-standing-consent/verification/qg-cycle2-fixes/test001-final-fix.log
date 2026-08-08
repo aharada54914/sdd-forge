@@ -1,0 +1,197 @@
+TEST-001 structural-closure fix (QG cycle-3) -- kill verification
+Generated 2026-08-08, sdd-forge-wt-phase4 worktree, branch feature/wave9-design-sync.
+
+## Background
+
+QG cycle-3 evaluator finding (T-001 re-review): the cycle-2 fix
+(test001-class-fix.log) closed the two SPECIFIC syntactic shapes it named
+(M6: a ':'-terminated branch definition appended to the Meaning cell; M7:
+a ','+"value" prose sentence appended to the intro paragraph) by
+enumerating them individually (AG_PS_COLON_TOKENS / AG_PS_COMMA_VALUE_TOKENS
+in .sh; $agPsColonMatches / $agPsCommaValueMatches in .ps1). This closes
+each named shape but not the class: a mutant naming a fourth value in any
+OTHER shape -- e.g. a plain declarative sentence with neither a trailing
+':' nor a nearby "value" word -- satisfies neither enumerated pattern and
+still survives. Evaluator ruling: the whole scanned region currently
+contains exactly 9 distinct backtick-quoted literals (standing,
+per-feature, off, Standing, granted, ds_upload_consent, requirements.md,
+design-sync-loop, Design-Source), so a set-equality ALLOWLIST over every
+backtick literal in the region -- not just ones in a hand-picked syntactic
+position -- closes the class structurally, with zero false positives on
+the current text.
+
+Separately (Major-2, same review): the cycle-2 Values-cell check
+(AG_VALUES_NORM exact string match) is order-FIXED, but
+acceptance-tests.md :85 only commits to "exactly three [values], in
+either order" -- so the cycle-2 fix itself introduced a false positive on
+a legitimately reordered but still-correct Values cell (e.g.
+"`off` | `per-feature` | `standing`").
+
+## Fix
+
+1. Replaced the two-shape enumeration (AG_PS_COLON_TOKENS /
+   AG_PS_COMMA_VALUE_TOKENS / AG_PS_BRANCH_TOKENS / case-folded compare)
+   with an allowlist over ALL backtick-quoted literals found anywhere in
+   the same scanned region (AG_PS_ROW_SCAN, unchanged: the section's own
+   intro paragraph + the setting's own key row, table header/separator
+   rows excluded). AG_PS_ALL_TOKENS (every backtick literal, case-
+   sensitive, NOT folded -- `Standing` is kept as its own distinct
+   allowlist entry rather than folded into `standing`, since folding is
+   exactly what would let a genuinely different literal of another case
+   hide behind an allowlist entry of a different case) must (a) be a
+   subset of the current 9-literal allowlist (AG_PS_EXTRA_TOKENS empty)
+   and (b) be a superset of {standing, per-feature, off}
+   (AG_PS_HAS_ALL_THREE). Any new backtick literal, in ANY shape, now
+   fails (a); dropping any of the three required values fails (b).
+2. Replaced the Values-cell exact-string match (AG_VALUES_NORM) with an
+   order-independent set comparison (AG_VALUES_SEGMENTS_SET, each `@ESC@`-
+   delimited segment individually trimmed then sorted, compared against
+   AG_VALUES_SEGMENTS_EXPECTED) -- still requires exactly 3 segments, each
+   exactly one of the three literals, just no longer requires a specific
+   left-to-right order.
+3. TEST-001's own label text updated to drop "whole-section" (inaccurate:
+   the scan was never the whole section, only the intro + key row) in
+   favour of "order-independent Values-cell set + intro/key-row backtick-
+   literal allowlist".
+
+.ps1 mirror: $agPsAllTokens/$agPsAllowlist/$agPsRequiredThree (all
+HashSet[string], case-sensitive default comparer) with .IsSubsetOf() for
+both directions (avoids this file's barred Sort-Object, per its own
+header discipline); $agValuesSegmentsSet/$agValuesSegmentsExpected
+(HashSet + SetEquals) for the order-independent Values-cell check. No
+Select-String, [regex] static method, switch -wildcard/-regex, or
+Sort-Object introduced -- confirmed by grep sweep of the finished file
+(only pre-existing header-comment/self-referential mentions remain).
+
+Files touched: tests/design-sync-standing-consent.tests.sh (TEST-001
+setup block + conditional) and tests/design-sync-standing-consent.tests.ps1
+(TEST-001 setup block + conditional). No other file touched.
+
+## Isolation harness
+
+Private scratchpad namespace (never the live repo tree):
+`mutkill-t001-full/baseline` = `rsync -a --exclude='.git' --exclude='mcp/'`
+of the FULL working tree (41M after exclusions) -- a narrower subset copy
+(AGENTS.md + plugins/ + tests/ + this feature's specs/ only) was tried
+first and produced a spurious 17-row cascade failure in
+design-system-contract.tests.sh (missing CHANGELOG.md/workflow-guide.md
+etc.), which TEST-051/052 then correctly propagated as a flip -- a known
+scratch-environment artifact, not a defect; the full-tree copy avoids it
+entirely and reproduces the live tree's 55/0 baseline byte-for-byte.
+Every mutation trial got its own fresh `trial-<name>` directory (`cp -R`
+from baseline, never `rm -rf` a reused directory). `mutate.py` (single
+Python script) required its search string to occur exactly once in the
+target file and printed PRE_HASH/POST_HASH (sha256) before/after every
+edit, so a silently-unapplied mutation is distinguishable from a real one.
+
+Baseline (unmodified AGENTS.md) pre-hash, matching test001-class-fix.log's
+recorded value exactly (confirms this session started from the same,
+unedited AGENTS.md):
+  05859bd19a29c4df1bc77231400452cf92a53116ab10bb3df8b80ea7c9a6b4f3
+
+Baseline sanity run (full-tree scratch copy, fixed suite, no mutation):
+  sh:  PASS: 55 / FAIL: 0 (TEST-054 designed-red)
+  ps1: PASS: 55 / FAIL: 0 (TEST-054 designed-red)
+-- identical to the live tree's own 55/0 run.
+
+## Kill matrix (fixed/cycle-3 suite, both runtimes, fresh trial dir each)
+
+=== V3 -- Meaning cell gets a plain declarative sentence, no ':' suffix, no "value" word ("A setting of `auto` selects the host default instead.") ===
+Post-hash: 00d8e73fa66f76c539534c99b7419664a4169dca76a808ca3e7d1b535f22ad8b
+sh:  FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+
+=== M6 -- fourth branch appended to Meaning cell ("`auto`: let the agent decide per upload without asking.") ===
+Post-hash: 1d8ad290b9fcd4eaab17e97a700f8eff943674129ada328142de9752191c123c
+sh:  FAIL: TEST-001 ...; TEST-003/004 unaffected (PASS); PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; TEST-003/004 unaffected (PASS); PASS: 54 / FAIL: 1
+
+=== M7 -- fourth value named in section intro ("Some keys also accept `auto`, a fourth value, chosen automatically.") ===
+Post-hash: 9e406e657dbe8ecf4c6714b20d4909c741ad9841c7822bb00e574395297567c2
+sh:  FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+
+=== V1 -- Values cell gets a 4th segment appended ("`standing` | `per-feature` | `off` | `auto`") ===
+Post-hash: f3f1ec4abe3d2669c2f16d2b4f0e2ad8cc083c33f7bcab9f9f979731c386148a
+sh:  FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+
+=== V2 -- Values cell segment swapped to a wrong literal ("`standing` | `per-feature` | `on`") ===
+Post-hash: 640e19ce64c2252ec093ab0a1be86e18b91029142a500a167fff48cfe28ef75b
+sh:  FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+
+=== K1 -- Values cell gets a 4th segment inserted mid-cell, distinct position from V1 ("`standing` | `auto` | `per-feature` | `off`") ===
+Post-hash: 4ada317cb4113a7a566c914f270c3442a8282d73796b7d833fc64a5d6dfbbeb0
+sh:  FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+
+=== K2 -- hedge word inserted into Meaning cell prose (", e.g. similar tools,") ===
+Post-hash: 04992a50bbe440b19c9aa1c54a3fc7585f596091fbe0dc9e33d8ff8b303a5182
+sh:  FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+ps1: FAIL: TEST-001 ...; PASS: 54 / FAIL: 1
+
+=== K3 -- Default cell `per-feature` -> `standing` (TEST-001 must NOT flip; TEST-003/004 must) ===
+Post-hash: b1a272cef34f3b81e693fc81a7d74ee855ca71fcc6d3fbecf17350e9c28a55a5
+  (matches test001-class-fix.log's own recorded m2a hash exactly --
+  confirms byte-identical reproduction of that same mutant)
+sh:  PASS: TEST-001 (unaffected, as designed); FAIL: TEST-003; FAIL: TEST-004; PASS: 53 / FAIL: 2
+ps1: same three lines, same counts
+
+=== FP2 -- Values cell segments legitimately reordered ("`off` | `per-feature` | `standing`"), must now PASS ===
+Post-hash: baab968689c81b3758ccb81687c0e87b1a590b17989a34cad0598c90edbce6b0
+sh:  PASS: TEST-001 ...; PASS: 55 / FAIL: 0
+ps1: PASS: TEST-001 ...; PASS: 55 / FAIL: 0
+
+=== V4 -- new paragraph appended AFTER the table row (still inside "## Project Settings", AGENTS.md's last section, before EOF), naming a 4th value ("A future release may also support `auto` for automatic host selection.") -- deliberately OUT of AG_PS_ROW_SCAN's scope (intro + key row only, never post-table prose); acceptance-tests.md :85 restricts TEST-001 to "the key's own row" (plus the intro, per the cycle-2/3 broadening for M6/M7) -- SURVIVE here is the CORRECT, designed behaviour, not a gap ===
+Post-hash: 2656c160d4ab0fb8ba1082c71af31294257ec17b06e658ac0a6c9e34d94ff5d9
+sh:  PASS: TEST-001 ...; PASS: TEST-002 ...; PASS: 55 / FAIL: 0
+ps1: PASS: TEST-001 ...; PASS: TEST-002 ...; PASS: 55 / FAIL: 0
+
+## Structural-closure proof (fixed/cycle-3 suite vs. the TRUE cycle-2 suite, same mutant tree)
+
+The cycle-2 suite compared against below was reconstructed byte-for-byte
+by reverse-applying this session's own Edit operations to a scratch copy
+(verified: reconstructed-suite + unmutated AGENTS.md reproduces cycle-2's
+own previously-recorded 55/0 baseline exactly) -- NOT `git show HEAD`,
+which predates even cycle-2 (cycle-2 was never committed; HEAD is
+round-1). This is a stronger, apples-to-apples comparison than diffing
+against round-1.
+
+=== V3-equivalent novel-shape mutant vs cycle-2 suite (same AGENTS.md, post-hash fcd7cc145ad0623768e30fd0cb4e9e53e6ec56349dede00e4aad157f17e2c855) ===
+sh:  PASS: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, exact cell-content + whole-section branch-literal match)
+     -- SURVIVES under cycle-2's logic (the exact gap this fix closes)
+ps1: same -- PASS (survives)
+-- vs. fixed/cycle-3 suite, identical mutant tree: FAIL (killed), both runtimes (see V3 above).
+
+=== FP2 (legitimately reordered Values cell) vs cycle-2 suite (same AGENTS.md, post-hash baab968689c81b3758ccb81687c0e87b1a590b17989a34cad0598c90edbce6b0) ===
+sh:  FAIL: TEST-001 ... -- the Major-2 false positive, reproduced directly against a real invocation of the cycle-2 suite (not just its logic re-derived by hand)
+ps1: same -- FAIL (false positive)
+-- vs. fixed/cycle-3 suite, identical mutant tree: PASS (no false positive), both runtimes (see FP2 above).
+
+## Full-suite non-regression (live tree, after the fix, no mutation)
+
+sh:  PASS: 55 / FAIL: 0
+ps1: PASS: 55 / FAIL: 0
+TEST-054 remains the one designed-red, non-blocking Deferred row
+(REQ-010/AC-028), unaffected by this fix. `sh -n` reports no syntax
+error; a PowerShell tokenizer parse (`[System.Management.Automation.PSParser]::Tokenize`)
+reports no parse error on the .ps1 file.
+
+## Sibling-suite spot checks (files not touched by this fix)
+
+- tests/design-sync-scan.tests.sh / .ps1: show as already modified
+  (uncommitted) from a concurrent session's prior/in-flight work in this
+  shared worktree, predating and unrelated to this task --
+  `git diff --stat` for this fix pass touches only
+  tests/design-sync-standing-consent.tests.{sh,ps1}.
+- tests/design-system-contract.tests.sh / .ps1: zero diff from HEAD
+  (confirmed via `git diff --stat`), untouched by this or any other
+  in-flight session work.
+
+## Report note
+
+reports/implementation/design-sync-standing-consent/T-002.md's Outputs
+table gets two rows appended for this evidence: the pre-existing
+qg-cycle2-fixes/test001-class-fix.log (not previously listed) and this
+file (test001-final-fix.log), per task instruction (Minor m-C3-5).

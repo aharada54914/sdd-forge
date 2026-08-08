@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a2r2-a-seq0475",
+  "host_session_id": "SESS-spec-a2r2-a-mcpreadonlypreflight-0475",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-2/precheck-result.json",
+      "sha256": "6870e5d9377388871c58cb983928cdf366721b86d2d461ab5cc7d09e50a7698a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "00f843a9f1d647599f42c2748c68bd7b25e3a426e92830579925e6f7a57c99a1"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "In-scope requirements resolve to observable ACs: AC-001 (requirements.md:58-64) asserts three separately-checkable textual elements; AC-012/AC-013 (requirements.md:134-140) assert differential outcome equality; AC-027a/AC-027b (requirements.md:148-156) assert the divergence-report content and which source is acted on, both backed by TEST-027a/TEST-027b (acceptance-tests.md:38-39). AC-017-020's verification method is deferred to OQ-009 (requirements.md:201), but the acceptance outcome itself (probe path vs fallback path executes) is observable now; per calibration's false-positive guard, an undetermined test-command name does not fail this check when the outcome is already stated. No in-scope requirement lacks a measurable AC."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round 1's Major CONTRADICTION is resolved rather than relocated. All three passages implicated in round 1 now agree with AC-027a/AC-027b: the Overview (requirements.md:21) states 'nine of ten Open Questions unresolved... OQ-005 is the exception... decided in REQ-005 below'; Edge Case 3 (requirements.md:260) now states REQ-005 guarantees both outcome equality (AC-027b) AND that the disagreement is reported naming the acted-on source (AC-027a), matching TEST-027a/TEST-027b (acceptance-tests.md:38-39) exactly; REQ-005 itself (requirements.md:144-156) states the warn-on-divergence resolution and both criteria. investigation.md:213-214 was deliberately left unedited (it is a hash-bound round input per requirements.md:160-162's own explanation), but requirements.md:160-162 names the exact stale line range, states why it is not current, and gives an explicit precedence rule ('Where the two disagree, this specification governs'). Because requirements.md -- the primary artifact a task author or implementer works from per this gate's own scope (spec-review-calibration.md:22-24, investigation.md is optional) -- is now internally self-consistent and gives an unambiguous, explicit override for the one remaining stale passage, a downstream reader is not left to guess which artifact controls. This is a genuine resolution: the addendum does not just restate the old ambiguity elsewhere, it names the stale claim, explains the freeze mechanism, and states precedence. Every stated goal (probe, fallback, non-auto-advance including its divergence-report addendum, no-write preservation, policy statements, protected-file staging, existing-consumer regression) traces to at least one AC (AC-001/002, AC-008-011, AC-012/013+AC-027a/b, AC-014-016, AC-021-024, AC-025/026, AC-027)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and behavior throughout, not vague intent: AC-001/AC-002 require three named, separately-verifiable textual elements (requirements.md:58-64, 72-76); AC-012/AC-013 require identical routing/selection outcomes across two runs (requirements.md:134-140); AC-014-016 require assertions against the tool registry itself rather than prose (requirements.md:172-179). Central to this round: AC-027a (requirements.md:148-151) requires the agent's output to state that a disagreement occurred AND name the acted-on source as two separate, checkable elements, and AC-027b (requirements.md:153-156) requires the acted-on conclusion be the file-based one specifically to block a 'warn, then follow the probe' false pass -- both are concretely observable and both now match the corrected Edge Case 3 text (requirements.md:260) and TEST-027a/TEST-027b (acceptance-tests.md:38-39). No criterion in scope was found stated only as unmeasurable intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals are explicit and specific: requirements.md:246-254 excludes write/approval/state-mutating tools, rewriting existing read-only prose, making the probe authoritative, editing any file under mcp/, registering/configuring MCP servers, generalising ADR-0006, and adding the probe to the interviewer skill, each tied to a concrete requirement or Open Question rather than left implicit. REQ-002's scope is explicitly bounded against its own contingency: 'If OQ-007 resolves to descoping ship, this requirement and AC-002 are withdrawn rather than weakened' (requirements.md:78). REQ-010/AC-025-026 are explicitly scoped to apply 'only if OQ-007 resolves toward staging' (requirements.md:231-233). No unbounded expansion surface was found."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated where implied: the approval/human boundary for the protected file is explicit end-to-end (Protected Gate Files, requirements.md:23-46: staged candidate + MANIFEST.sha256 + human-applied commit, with task-decomposition consequences spelled out at :36-40); Baseline Constraints (requirements.md:272-278) cover no-server-implementation-changes (BL-001), preservation of existing file-based flow meaning/outcomes (BL-002), preservation of existing read-only prose meaning (BL-003), the agent-cannot-write-protected-file constraint (BL-004), and the workflow-state-registry registration requirement (BL-005) with its mechanical trigger cited. Compatibility across the two runtimes is constrained by REQ-003's registration-surface-agnostic requirement (requirements.md:80-104). No implied-but-unstated constraint was found."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claim in this specification -- that probe/file-based divergence is handled safely -- now has a concrete validation surface: AC-027a/AC-027b (requirements.md:148-156) plus TEST-027a/TEST-027b (acceptance-tests.md:38-39), which explicitly targets the failure mode of 'warn, then follow the probe' silently inverting authority. The protected-file risk has AC-025/AC-026 + TEST-025/TEST-026 (requirements.md:235-239; acceptance-tests.md:35-36, 146-156). The runtime-agnostic-wording risk has AC-004-007 + TEST-004-007 (requirements.md:92-104; acceptance-tests.md:14-17, 78-91). Edge Case 4's stale-bundle risk (requirements.md:261) and OQ-010's error-envelope branch (requirements.md:128) are disclosed as explicitly named, deliberate deferrals rather than silently dropped claims, consistent with calibration's tolerance for recorded open decisions. No undisclosed high-risk claim lacking any validation surface was found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain model was found under specs/mcp-readonly-preflight/ (requirements.md, acceptance-tests.md, and investigation.md contain no domain/context-map.md or domain-contract.json reference, and no Bounded-Context field is present or implied). Per this round's explicit skip instruction, this check is skipped for absence of a domain model scoped to this feature."
+    }
+  ]
+}

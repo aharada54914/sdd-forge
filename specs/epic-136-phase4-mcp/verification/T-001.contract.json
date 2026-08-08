@@ -1,0 +1,144 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase4-mcp",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "code",
+  "spec_revision": "ed7ff1f6a874bbf56b4df80e6940bfcfb6c8a38384c99dd78e4b3f01a9c4eb17",
+  "created": "2026-07-29T23:41:41Z",
+  "comment": "Default-FAIL verification contract for T-001 (epic-136-phase4-mcp), populated only after reports/quality-gate/20260729T140817Z-epic-136-phase4-mcp-T-001.md recorded VERDICT: PASS (review-context reservation sequence 387 in reports/review-context/identity-ledger.json; 0 Critical / 0 Major / 3 Minor, every Minor classified Accepted by the evaluator). risk: high, required_workflow: tdd, stack: code. Adds the `required` property `unreadableContracts` to $defs.traceabilityComparisonData and populates it from parseVerificationContract's own failure message verbatim (issue #131 Finding A-5, AC-001/002/011/017). Landing commits: 0bbfb9d9 (src + schema + regenerated dist, one commit per ADR-0003) + 2335a8de (report + red/green evidence). This task's gate was re-run at sequence 387 after the orchestrator invalidated its first manifest by reserving sequence 382 more than once; the re-reservation is disclosed in the report header and in commit aeaea6b2's message. The lint/typecheck/build/placeholder-scan/task-state-check/unit-tests/acceptance-tests/regression/requirement-traceability evidence logs under specs/epic-136-phase4-mcp/verification/qg/ were executed ONCE at HEAD aeaea6b2 -- the commit at which all 5 tasks have landed -- and are therefore referenced by all 5 contracts. This is deliberate and disclosed: T-001..T-004 all edit mcp/sdd-forge-mcp/src/tools/evidence.ts, the v1 schema and the committed dist/index.js, so a per-task re-run at each task's own commit would measure a tree that no longer exists on this branch. Each task's own per-commit red/green/dist-parity evidence is separate and unshared (specs/epic-136-phase4-mcp/verification/<task>/). placeholder-scan evidence records BOTH runs. Run A (all 7 changed production files) exits 1 with 8 findings; Run A' repeats the identical command over the identical 7 paths' content at the merge base 7f152ce5 and reproduces the SAME 8 findings -- measured delta introduced by this feature: ZERO. Provenance was read, not assumed: 5 are inside CHANGELOG.md's RELEASED history sections (lines 607/608/617/1745/1755, all below the '## Unreleased' section's CHANGELOG.md:3..80 span) where the marker words are the release note's own subject matter, and 3 are inside the third-party ajv library that esbuild inlines into the committed dist/index.js (ajv internals codegen_1/names_1/propertyInData). Run B -- the gating scope, i.e. the content this feature actually authored (the 3 changed src/*.ts, the v1 schema, USERGUIDE.md, and CHANGELOG.md's '## Unreleased' section extracted verbatim) -- exits 0. `passes: true` is recorded against Run B, with Run A/A' kept in the same log so the wider scan's red state is disclosed rather than hidden. This repository configures no separate lint tool for the MCP package (mcp/sdd-forge-mcp/package.json scripts: build/typecheck/pretest/test/golden:record). `npx tsc --noEmit` is the package's static-analysis command and is recorded as the evidence for both `lint` and `typecheck`, matching the established repository precedent in specs/ci-mcp/verification/*.contract.json.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-136-phase4-mcp/verification/T-001/red.log",
+      "green_evidence": "specs/epic-136-phase4-mcp/verification/T-001/green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-136-phase4-mcp/verification/T-001/red.log",
+      "green_evidence": "specs/epic-136-phase4-mcp/verification/T-001/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "specs/epic-136-phase4-mcp/verification/T-001/red.log",
+      "green_evidence": "specs/epic-136-phase4-mcp/verification/T-001/green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase4-mcp/verification/qg/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

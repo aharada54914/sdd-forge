@@ -1,0 +1,222 @@
+PASS: PRE-live-inventory: sdd/project-context.approval.json is registered in the LIVE generated inventory
+PASS: PRE-live-inventory: sdd/provider-bindings.approval.json is registered in the LIVE generated inventory
+PASS: PRE-live-inventory: sdd/approver-registry.yaml is registered in the LIVE generated inventory
+PASS: PRE-live-inventory: sdd/.hook-canary-sentinel is registered in the LIVE generated inventory
+PASS: PRE-stripped-fixture: sdd/project-context.approval.json removed from the stripped fixture inventory
+PASS: PRE-stripped-fixture: sdd/provider-bindings.approval.json removed from the stripped fixture inventory
+PASS: PRE-stripped-fixture: sdd/approver-registry.yaml removed from the stripped fixture inventory
+PASS: PRE-stripped-fixture: sdd/.hook-canary-sentinel removed from the stripped fixture inventory
+PASS: PRE-sudo-active: fixture SDD_SUDO token is ACTIVE (approval-increase allowed)
+PASS: PRE-sudo-inactive: no-token fixture leaves the approval guard enforcing (deny)
+
+--- AC-023 matrix: live post-application inventory ---
+PASS: AC-023 [sdd/project-context.approval.json | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/project-context.approval.json | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/provider-bindings.approval.json | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/approver-registry.yaml | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 01 detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 01 detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 02 attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 02 attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 03 cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 03 cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 04 tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 04 tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 05 cwd-absolute | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 05 cwd-absolute | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 06 cwd-relative | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 06 cwd-relative | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 07 segment-detached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 07 segment-detached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 08 segment-attached-redirect | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 08 segment-attached-redirect | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 09 segment-cp/mv-dest | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 09 segment-cp/mv-dest | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 10 segment-tee/touch/rm | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 10 segment-tee/touch/rm | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 11 native-Edit/Write/MultiEdit | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 11 native-Edit/Write/MultiEdit | sudo=ACTIVE] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 12 apply_patch-envelope | sudo=inactive] -> deny
+PASS: AC-023 [sdd/.hook-canary-sentinel | surface 12 apply_patch-envelope | sudo=ACTIVE] -> deny
+PASS: AC-023 exhaustiveness: all 96 matrix cells executed
+
+--- BASE-* pristine copy (must still deny) / MUT-* stripped copy (must allow) ---
+PASS: BASE [sdd/project-context.approval.json | surface 01] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 02] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 03] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 04] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 05] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 06] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 07] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 08] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 09] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 10] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 11] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/project-context.approval.json | surface 12] pristine copy still denies
+PASS: MUT [sdd/project-context.approval.json | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 01] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 02] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 03] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 04] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 05] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 06] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 07] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 08] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 09] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 10] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 11] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/provider-bindings.approval.json | surface 12] pristine copy still denies
+PASS: MUT [sdd/provider-bindings.approval.json | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 01] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 02] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 03] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 04] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 05] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 06] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 07] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 08] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 09] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 10] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 11] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/approver-registry.yaml | surface 12] pristine copy still denies
+PASS: MUT [sdd/approver-registry.yaml | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 01] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 01] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 02] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 02] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 03] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 03] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 04] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 04] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 05] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 05] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 06] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 06] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 07] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 07] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 08] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 08] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 09] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 09] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 10] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 10] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 11] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 11] de-registered basename is allowed (assertion has detection power)
+PASS: BASE [sdd/.hook-canary-sentinel | surface 12] pristine copy still denies
+PASS: MUT [sdd/.hook-canary-sentinel | surface 12] de-registered basename is allowed (assertion has detection power)
+PASS: BASE/MUT exhaustiveness: 48 pristine + 48 mutated cells executed
+
+--- SUPP-* R-10 pre-filter (supplementary; NOT counted in AC-023 96) ---
+PASS: SUPP-prefilter: _command_references_protected_path recognises sdd/project-context.approval.json
+PASS: SUPP-prefilter: _command_references_protected_path recognises sdd/provider-bindings.approval.json
+PASS: SUPP-prefilter: _command_references_protected_path recognises sdd/approver-registry.yaml
+PASS: SUPP-prefilter: _command_references_protected_path recognises sdd/.hook-canary-sentinel
+
+--- self-registration ---
+PASS: self-registration: PowerShell twin exists
+PASS: self-registration: registered in tests/run-all.sh
+PASS: self-registration: registered in tests/run-all.ps1
+
+PASS: 211
+FAIL: 0
