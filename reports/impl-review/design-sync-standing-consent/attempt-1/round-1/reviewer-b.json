@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-designsyncstandingconsent-impl-a1r1-b-seq0552",
+  "host_session_id": "SESS-impl-a1r1-b-designsyncstandingconsent-0552",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-standing-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "84ad5dd421ec4e263deed077fdae61b592978de9b80f5309ab4d5cbd0246dd71"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "f4b0a163808eb171fc666b4d1e642d43dfde5f294e8ab4113b770ec1c3259c20"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+      "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/design.md",
+      "sha256": "343440c258e9fae96129f6a6a8dc17f8dd9193c9201bcbecf0bf518d72dc9b1e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/frontend-spec.md",
+      "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/infra-spec.md",
+      "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+      "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+      "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/security-spec.md",
+      "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/ux-spec.md",
+      "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural decision in design.md carries an explicit rationale. design.md:23-38 states the central structural decision ('wrap step 3 with an outer selector; do not rewrite its content') and names the rejected alternative with a reason ('it fails REQ-005/AC-015 ... rewriting it in place would force every one of those assertions to be re-derived'). design.md:248-258 ('Design Decisions') lists seven decisions, each with an explicit 'chosen so'/'lets... without touching...' rationale clause (e.g. the shared-table field placement at design.md:253). No inline decision was found stated without a because/since-equivalent clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:345-367 lists OQ-2, OQ-4, OQ-5 as remaining, stating collectively at design.md:347 'three remain, all non-blocking'. requirements.md:253,255-256 gives each a named owner (product for OQ-2; maintainers for OQ-4 and OQ-5 -- never 'TBD') and a Blocks column reading 'no' for all three. Per calibration's explicit rule ('Open questions that do not block implementation and have a stated owner are acceptable Minor findings if incomplete'), the absence of a literal per-entry 'Resolution Path:' label in design.md's OQ-4/OQ-5 prose is at most Minor. OQ-1 and OQ-3, which required resolution, were closed with a named ruling and concrete outcome (design.md:349-351,357-359; requirements.md:260-261, rulings A and B)."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (specs/design-sync-standing-consent/investigation.md), so the investigation-absent Major-finding branch does not apply. Each of design.md's four Assumptions (design.md:340-343) is grounded: the protected-file-membership assumption is grounded in investigation.md INV-306 (investigation.md:43-49, 'None of AGENTS.md, design-sync-loop/SKILL.md, or claude-design-workflow.md appears in PROTECTED_GATE_SUFFIXES'); 'DS-29 is shipped and live' is grounded in investigation.md INV-301 (investigation.md:10-16); the WFI-011 re-verification note and the DesignSync-tool-semantics assumption are reasonable technical defaults carried directly from DS-29's own already-approved spec (design.md:343)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no section literally titled '## Constraint Compliance' (full heading scan: design.md:8,42,57,66,70,207,220,230,240,248,264,320,329,338,345,369), so the Fallback (TYPE-H, Major) applies. Constraints found in requirements.md are each addressed: REQ-005's 'must not rewrite step 3(a)/(b)/(c)' (requirements.md:109) is addressed at design.md:38 and by AC-015's per-span checks; REQ-008's Critical literal-key ban (requirements.md:161-163) is addressed at design.md:185-205; AC-013's persistent-vs-transient distinction (requirements.md:101) is addressed at design.md:142-145; requirements.md's Baseline Constraints BL-001-BL-006 (requirements.md:241-246) are each restated in design.md's Global Constraints (design.md:331-336). No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. REQ-001 through REQ-010 (requirements.md:23-207) contain no numeric latency/throughput/concurrency thresholds or SLA language; this is a document-conformance-only feature with no runtime execution path (design.md:10, 'nothing here can enforce anything at runtime')."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:320-328 ('Deployment & CI Plan') states the deployment target ('No service, no artifact, no build ... repository-only', corroborated by infra-spec.md:3-18) and states the CI pipeline change required (the staged `.github/workflows/test.yml` patch process at infra-spec.md:52-58, including the draft-candidate + MANIFEST.sha256 + human-copy mechanism); design.md:326 and infra-spec.md:22-26 confirm no protected-file staging blocks implementation. No schema changes exist (see MIGRATION-PLANNED), so migration-execution-order is correctly absent. Feature-flag strategy is not applicable -- there is no incremental rollout; the `ds_upload_consent` setting itself is the per-project opt-in, defaulting safely to unchanged DS-29 behaviour (requirements.md AC-003; design.md:77-79)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan (design.md:207-218) states 'No new storage mechanism, no migration' and details that the only shape changes are additive Markdown fields (AGENTS.md gains one new section; the Design-Source section gains three new fields), with explicit backward-compatibility framing (AC-017; design.md:216, 'DS-29-era records without them remain conforming'). No database, column, or table schema is touched; this satisfies the check's 'No data changes' pass condition in substance."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one external integration referenced -- claude.ai/design via the DesignSync tool -- is identified in a dedicated table: design.md's Security Boundaries table (design.md:224-228, row B1) names it, states its trust posture ('External; retention uncontrolled'), and states failure/contract behaviour by explicit reference to DS-29's own already-approved inventory, corroborated by infra-spec.md:16-18 ('a Claude Code-only capability (INV-022, carried) ... no endpoint to configure, no credential this repository holds'). Failure behaviour per regime is concretely stated (off => persistent 'not permitted' plus zero-upload fallback, design.md:133-145; push-failure rule unedited, AC-015/TEST-024). This is cross-referenced with purpose, trust posture, and failure routing, not a passing mention."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md uses REQ-001..REQ-010 rather than literal '## Goals'/'## User Stories' headings; precheck-result.json:7 confirms legacy_design: false, i.e. this is the repo's standard non-legacy REQ/AC template, not drift. design.md's Test Strategy roll-up (design.md:268) maps every REQ-001 through REQ-010 to at least one AC. design.md's Components table (design.md:44-55) contains only the four edit surfaces requirements.md authorizes plus the two procedural artifacts requirements.md's own Baseline Constraints require (workflow-state-registry.json entry BL-005; the deferred AGENTS.md Active-Spec-Directories item BL-006). No component, data model, or endpoint appears without a corresponding REQ. Design System Compliance is explicitly N/A (design.md:66-68, ds_profile: none) and no project `domain/` or `design-system/` directory exists, so no scope-creep risk applies."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surface present: a security/authorization-relevant, project-wide egress-consent dial. Concrete validation paths are named for every substantive security-relevant claim: security-spec.md's Security Tests table (security-spec.md:112-125) ties each STRIDE row to specific TEST IDs (TEST-005/007 host-fork; TEST-044/045 stale-record override; TEST-038/039 fabricated identity; TEST-010/011 standing-scope misimplementation; TEST-017 off persistence; TEST-046/050/052 the round-2 Critical literal-key regression), and REQ-009/AC-025 (requirements.md:183-191) names a concrete baseline-relative regression command path (run `tests/design-system-contract.tests.{sh,ps1}` before/after this feature's edit and diff). The one row with no test (B5, Elevation of Privilege via an unreviewed AGENTS.md edit, security-spec.md:87,116) is explicitly and transparently documented as an accepted, out-of-scope residual risk with stated rationale ('adding a guard is out of scope', requirements.md Non-goals:214; security-spec.md R1:129), not a silently missing verification path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the project root (verified: `test -d domain` returned false at /Users/jrmag/Projects/active/sdd-forge-wt-phase4). Per the check's own skip condition, DOMAIN-CONFORMANCE does not apply to this feature; skipped."
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+TEST-001 class-wide fix -- kill verification
+Generated 2026-08-08, sdd-forge-wt-phase4 worktree, branch feature/wave9-design-sync.
+
+## Background
+
+QG cycle-2 evaluator finding (T-001 re-review, seq0569): the cycle-2 Major
+fix landed a Values-cell-only exact-match check for TEST-001 (AG_VALUES_NORM
+must equal exactly "`standing` | `per-feature` | `off`"). AC-001
+(requirements.md :29) requires "no fourth value is described anywhere in
+the definition", which is broader than that one table cell. Two mutants
+demonstrate the gap:
+
+  - M6: a fourth branch definition appended to the key row's own Meaning
+    cell -- "`auto`: let the agent decide per upload without asking."
+    (mirrors the row's three legitimate `per-feature`:/`standing`:/`off`:
+    branch definitions, just for an undefined fourth value).
+  - M7: a new sentence appended to the section's own intro paragraph,
+    ahead of the table -- "Some keys also accept `auto`, a fourth value
+    ..." -- naming a fourth value without ever touching the Values cell.
+
+Both mutants leave AG_VALUES_NORM untouched, so the round-1/cycle-2 check
+alone does not see either of them.
+
+## Fix
+
+Added a further required clause to TEST-001 (both runtimes), on top of the
+pre-existing Values-cell exact-match and hedge-word checks (both kept
+unchanged): AG_PS_BRANCH_TOKENS (.sh) / $agPsBranchTokensMatch (.ps1) --
+the set of backtick-quoted literals occurring in "branch-defining"
+position across the section's own intro paragraph plus the setting's own
+key row (deliberately excluding the table's header/separator rows, whose
+"Values"/"Default" column names would otherwise read as spurious nearby
+"value" prose) -- must equal exactly {standing, per-feature, off}, no more,
+no fewer, in either position. A literal counts as branch-defining in
+either of two shapes: immediately followed by ':' (the Meaning cell's own
+branch-definition shape, catches M6), or immediately followed by ',' with
+the word "value"/"values" appearing before the next backtick (the shape a
+prose sentence introducing an additional named value naturally takes,
+catches M7). Extracted literals are case-folded to lowercase before the
+set comparison (this layer's job is only to catch a wholly new branch
+name, not AC-031's separate case-sensitivity rule tested elsewhere;
+case-folding also correctly resolves the intro's own legitimate
+`Standing` case-variant illustration to the real `standing` value).
+
+Files touched: tests/design-sync-standing-consent.tests.sh (TEST-001 block
++ new AG_PS_INTRO_SECTION/AG_PS_INTRO_FLAT/AG_PS_ROW_SCAN/
+AG_PS_COLON_TOKENS/AG_PS_COMMA_VALUE_TOKENS/AG_PS_BRANCH_TOKENS/
+AG_PS_BRANCH_TOKENS_EXPECTED setup variables) and
+tests/design-sync-standing-consent.tests.ps1 (TEST-001 block + new
+Get-AllLeftmostMatches/Get-BacktickToken helper functions + mirrored
+$agPsIntroLines/$agPsIntroFlat/$agPsRowScan/$agPsColonMatches/
+$agPsCommaValueMatches/$agPsBranchTokens/$agPsBranchTokensExpected/
+$agPsBranchTokensMatch setup variables). No other file touched.
+
+Note on the .ps1 helper: this file's own header comment states "[regex]
+static methods ... are used [nowhere] in this file". Get-AllLeftmostMatches
+respects that -- it extracts every non-overlapping leftmost match by
+repeated -cmatch/-match + .IndexOf()/.Substring() instead of
+[regex]::Matches, safe here because none of this suite's patterns use
+lookaround (a match's text is a pure function of the match itself).
+
+## Isolation harness
+
+Private namespace (never the live repo tree): rsync -a --exclude='.git'
+--exclude='mcp/' of the full working tree into a scratch directory
+(fix-t001-<pid> under this session's scratchpad), all mutation/restoration
+performed only against the scratch copy's AGENTS.md, verified via
+pre/post SHA-256 before every trial and restored (byte-identical hash
+re-confirmed) after every trial. Baseline run against the scratch copy was
+first confirmed byte-identical (PASS/FAIL id+status) to a run against the
+live tree, confirming the harness is faithful.
+
+Pre-hash (unmodified AGENTS.md, both the scratch copy and the live tree):
+  05859bd19a29c4df1bc77231400452cf92a53116ab10bb3df8b80ea7c9a6b4f3
+
+## Kill matrix
+
+=== M6 -- fourth branch appended to Meaning cell ("`auto`: ...") ===
+Post-hash: e6b8105a65428fb35d0d9d4f0ca96d937702c922636165bdad1875375c26d0c6
+-- sh --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, exact cell-content + whole-section branch-literal match)
+PASS: 54 / FAIL: 1
+-- ps1 --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, exact cell-content + whole-section branch-literal match)
+PASS: 54 / FAIL: 1
+Restored, hash re-confirmed: 05859bd1...9a6b4f3 == pre-hash.
+
+=== M7 -- fourth value named in section intro ("Some keys also accept `auto`, a fourth value ...") ===
+Post-hash: 9452c5fa9b7291915e75f02f7ba846d75789207e94f103287978aeeee577ef36
+-- sh --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, exact cell-content + whole-section branch-literal match)
+PASS: 54 / FAIL: 1
+-- ps1 --
+FAIL: TEST-001 the setting's value domain is named as exactly three alternatives, no fourth value anywhere in the definition, no hedge (AC-001, exact cell-content + whole-section branch-literal match)
+PASS: 54 / FAIL: 1
+Restored, hash re-confirmed: 05859bd1...9a6b4f3 == pre-hash.
+
+## Re-confirmation of pre-existing TEST-001 kill mutants (fixed suite still kills all three)
+
+=== Re-confirm 1 / m1a -- 4th value `auto` prepended to Values cell (same mutant as mutation-application-log.md's m1a-4th-prepend) ===
+Post-hash: 3629ad9e35d0632b22a1b96cc96d3519a230a28f5f10da185bdc2d1e37e1e71b (matches mutation-application-log.md's recorded 3629ad9e...e71b exactly -- confirms identical mutant reproduced)
+-- sh --
+FAIL: TEST-001 ... ; PASS: 54 / FAIL: 1
+-- ps1 --
+FAIL: TEST-001 ... ; PASS: 54 / FAIL: 1
+Restored, hash re-confirmed: 05859bd1...9a6b4f3 == pre-hash.
+
+=== Re-confirm 2 / hedge word inserted into Meaning cell ("..., e.g. similar host-specific variants may be added later.") ===
+Post-hash: 14820def9a8bc65df6423e4b3b45e1c1ec240d74dd8a57b942afebda68757491 (new trial, no prior logged hedge mutation existed to reproduce byte-for-byte)
+-- sh --
+FAIL: TEST-001 ... ; PASS: 54 / FAIL: 1
+-- ps1 --
+FAIL: TEST-001 ... ; PASS: 54 / FAIL: 1
+Restored, hash re-confirmed: 05859bd1...9a6b4f3 == pre-hash.
+
+=== Re-confirm 3 / m2a -- Default cell `per-feature` -> `standing` (same mutant as mutation-application-log.md's m2a-default-standing) ===
+Post-hash: b1a272cef34f3b81e693fc81a7d74ee855ca71fcc6d3fbecf17350e9c28a55a5 (matches mutation-application-log.md's recorded b1a272ce...5a5 exactly -- confirms identical mutant reproduced)
+-- sh --
+PASS: TEST-001 (unaffected, as designed -- TEST-001 does not test the Default cell)
+FAIL: TEST-003 branch 1: a wholly absent Project Settings section is stated to resolve to per-feature (AC-003, Default-cell exact match)
+FAIL: TEST-004 branch 2: a present section that omits the setting key is stated to resolve to per-feature (AC-003, Default-cell exact match)
+PASS: 53 / FAIL: 2
+-- ps1 --
+Same three lines, same counts.
+Restored, hash re-confirmed: 05859bd1...9a6b4f3 == pre-hash.
+
+## Full-suite non-regression (live tree, after the fix, no mutation)
+
+-- sh --
+PASS: 55 / FAIL: 0
+-- ps1 --
+PASS: 55 / FAIL: 0
+TEST-054 remains the one designed-red, non-blocking Deferred row (REQ-010/
+AC-028, CI-registration workflow patch outside this feature's task plan),
+unaffected by this fix, as before.
+Full PASS/FAIL id+status sequence diffed byte-identical between .sh and
+.ps1 runs (both live tree and the isolated scratch-namespace runs above),
+confirming dual-runtime parity is preserved.
+
+## Sibling-suite spot checks (files not touched by this fix)
+
+- tests/design-sync-scan.tests.sh / .ps1: not touched by this fix pass;
+  these two files show as already modified (uncommitted) in git status
+  from the shared worktree's own prior/concurrent wave9 QG cycle-1 work,
+  predating this session -- `git diff --stat` for this fix pass touches
+  only tests/design-sync-standing-consent.tests.{sh,ps1}. The .sh half
+  currently raises a shell syntax error independent of this fix (out of
+  this task's scope -- not investigated or modified per the constraint
+  against touching other files).
+- tests/design-system-contract.tests.sh / .ps1: zero diff from HEAD
+  (confirmed via `git diff --stat`, untouched by this or any other
+  in-flight session work); this suite's own current PASS/FAIL counts are
+  therefore a pre-existing property of the committed tree, not a
+  regression introduced by this fix. TEST-051/052 (this suite's own two
+  checks that invoke design-system-contract's suite at runtime) both still
+  PASS in the live-tree 55/0 runs above.

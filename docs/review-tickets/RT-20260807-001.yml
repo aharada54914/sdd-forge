@@ -1,5 +1,7 @@
 ticket_id: RT-20260807-001
-status: open
+status: resolved
+resolved: 2026-08-08
+resolution: "re-gate (seq 0575) PASS 0C/0M/0m — TEST-004(c2) の re-check 分岐実効性 (gpt/gemini 対称 mutant 3/3) と atomic status publication (hazard 再現) を evaluator が独立実証、suite 70/0。人間承認のうえ quality-gate が Status: Done を記録 (QG report 20260808T075711Z)"
 type: test-gap
 severity: major
 target:

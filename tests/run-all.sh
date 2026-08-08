@@ -94,6 +94,8 @@ tests=(
   tests/plugin-contracts-track-selection.tests.sh
   tests/ship-track-selection-migration.tests.sh
   tests/guard-staging-exemption.tests.sh
+  tests/design-sync-standing-consent.tests.sh
+  tests/design-sync-scan.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

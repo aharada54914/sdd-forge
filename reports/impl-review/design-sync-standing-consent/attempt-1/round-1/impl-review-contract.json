@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "design-sync-standing-consent",
+  "attempt": 1,
+  "round": 1,
+  "feature_type": "feature (project-level configuration for an existing internal skill; no application code) \u2014 design.md:4",
+  "legacy_design": false,
+  "requirements_sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821",
+  "acceptance_sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735",
+  "design_sha256": "343440c258e9fae96129f6a6a8dc17f8dd9193c9201bcbecf0bf518d72dc9b1e",
+  "layer_sha256": {
+    "ux-spec.md": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c",
+    "frontend-spec.md": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e",
+    "infra-spec.md": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da",
+    "security-spec.md": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-designsyncstandingconsent-impl-a1r1-a-seq0550",
+      "host_session_id": "SESS-impl-a1r1-a-designsyncstandingconsent-0550",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+          "sha256": "f4b0a163808eb171fc666b4d1e642d43dfde5f294e8ab4113b770ec1c3259c20"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+          "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/design.md",
+          "sha256": "343440c258e9fae96129f6a6a8dc17f8dd9193c9201bcbecf0bf518d72dc9b1e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/frontend-spec.md",
+          "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/infra-spec.md",
+          "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+          "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+          "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/security-spec.md",
+          "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/ux-spec.md",
+          "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-designsyncstandingconsent-impl-a1r1-b-seq0552",
+      "host_session_id": "SESS-impl-a1r1-b-designsyncstandingconsent-0552",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-standing-consent/attempt-1/round-1/integrated-summary.json",
+          "sha256": "84ad5dd421ec4e263deed077fdae61b592978de9b80f5309ab4d5cbd0246dd71"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-standing-consent/attempt-1/round-1/precheck-result.json",
+          "sha256": "f4b0a163808eb171fc666b4d1e642d43dfde5f294e8ab4113b770ec1c3259c20"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/acceptance-tests.md",
+          "sha256": "81ba63221896a9b3d22545882259d43c4a47b9ae3b37435ea92280e01b2df735"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/design.md",
+          "sha256": "343440c258e9fae96129f6a6a8dc17f8dd9193c9201bcbecf0bf518d72dc9b1e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/frontend-spec.md",
+          "sha256": "c9b82604359ac669b13a38c7c21c5f32e104eec754267b2db43d90bc97b78f3e"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/infra-spec.md",
+          "sha256": "33faa99473bb1d08b641574f836f525392ec890e02e9b049d7e0337e75a2e9da"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/investigation.md",
+          "sha256": "a7ab2498253108c9de31e35fc74d5f7dd878094fa54cc0b9c5e1e3aaa1f92999"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/requirements.md",
+          "sha256": "6e481aa8655d70ae9fd5f2ebe055ed18cdc1bc52fa75ab5d5c4a040c0b552821"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/security-spec.md",
+          "sha256": "8888ef382c8d07aecac63c920b359422d22e4f8691ea99e0281b2f86cdbb4b82"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-standing-consent/ux-spec.md",
+          "sha256": "998c43b0f11d9cc6f6d14ba98452268c816df1d7d9de829eea1d6107b4066e0c"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "impl-orch-designsyncstandingconsent-a1r1",
+  "timestamp": "2026-08-07T14:59:18Z"
+}

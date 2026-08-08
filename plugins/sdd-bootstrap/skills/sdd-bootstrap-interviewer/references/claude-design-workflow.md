@@ -16,6 +16,25 @@ specification review.
 - Never overwrite an existing layer specification. Review proposed changes as
   a normal specification edit.
 
+- This workflow does not decide whether an upload may occur at all -- that is
+  the upload-policy setting defined in AGENTS.md's Project Settings section
+  (this document intentionally does not name the setting's key, so a future
+  edit here can never reintroduce the one substring this file's own
+  regression test forbids). When this document is the path actually taken --
+  because the tool is unavailable, authentication failed, or the project's
+  upload-policy setting forbids the upload outright -- record that setting's
+  value and its audit outcome in the layer file's Design-Source section,
+  alongside the marker already recorded there, so the trail names which
+  policy governed, regardless of which path reached this document.
+
+- On a host without the `DesignSync` tool (for example, Codex), run the
+  egress-hygiene scan directly and standalone, ahead of the manual steps
+  below: `design-sync-scan.sh` (or `design-sync-scan.ps1`) against
+  `specs/<feature>/mockups/`, its required target-directory argument. This
+  usage requires no Claude Code-specific tool, no deferred-tool search, and
+  no DesignSync capability as a precondition -- the script runs the same
+  way regardless of what invoked it.
+
 When no visual input is supplied, record:
 `No mockup provided — optional visualization skipped`.
 
