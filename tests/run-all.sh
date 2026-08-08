@@ -100,6 +100,7 @@ tests=(
   tests/evaluate-predicate.tests.sh
   tests/registry-discovery.tests.sh
   tests/validate-capability-registry.tests.sh
+  tests/generate-registry-digest.tests.sh
   tests/generate-gate-capabilities.tests.sh
 )
 

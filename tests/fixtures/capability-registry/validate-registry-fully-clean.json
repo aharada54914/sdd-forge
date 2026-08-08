@@ -8,6 +8,12 @@
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-contract.py"
     },
     {
+      "id": "check-hook-activation-handshake",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
+    },
+    {
       "id": "publish-notes",
       "stage": "artifact",
       "blocking": false

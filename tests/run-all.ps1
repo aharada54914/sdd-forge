@@ -59,6 +59,7 @@ $tests = @(
     'tests/evaluate-predicate.tests.ps1',
     'tests/registry-discovery.tests.ps1',
     'tests/validate-capability-registry.tests.ps1',
+    'tests/generate-registry-digest.tests.ps1',
     'tests/generate-gate-capabilities.tests.ps1'
 )
 
