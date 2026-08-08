@@ -1,0 +1,174 @@
+{
+  "task_id": "T-003",
+  "feature": "design-sync-standing-consent",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "a3f7467db5bc831cfb287c6d160c4726bf9ff60200d8a7d160499aaddaf8e62f",
+  "created": "2026-08-08T02:08:03Z",
+  "comment": "T-003 (design-sync-loop/SKILL.md step 3 outer selector + three Design-Source fields, TDD Red->Green, reports/implementation/design-sync-standing-consent/T-003.md). RED: PASS 31 / FAIL 24 (this task's 24 owned rows). GREEN: PASS 55 / FAIL 0. DS-29 span preservation proven by line-wrap-normalized diff (empty) against the pre-edit file -- step3-abc-{old,new}-dewhitespaced.txt. External-suite baseline-relative regression (dsc29-post-edit-sh.log) byte-identical to T-001's ds29-baseline-sh.log.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; this feature has no executable code path of its own (design.md Architecture Overview). lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; this feature has no executable code path of its own (design.md Architecture Overview). lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; this feature has no executable code path of its own (design.md Architecture Overview). lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/placeholder-T-003.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/T-003/green-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/design-sync-standing-consent/verification/T-003/red-sh.log",
+      "green_evidence": "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/T-003/step3-abc-new-dewhitespaced.txt",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/design-sync-standing-consent/verification/T-003/red-sh.log",
+      "green_evidence": "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/run-all.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/design-sync-standing-consent/verification/T-003/red-sh.log",
+      "green_evidence": "specs/design-sync-standing-consent/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-003",
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

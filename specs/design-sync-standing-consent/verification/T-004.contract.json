@@ -1,0 +1,116 @@
+{
+  "task_id": "T-004",
+  "feature": "design-sync-standing-consent",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "a3f7467db5bc831cfb287c6d160c4726bf9ff60200d8a7d160499aaddaf8e62f",
+  "created": "2026-08-08T02:08:03Z",
+  "comment": "T-004 (claude-design-workflow.md indirect-reference bullet, acceptance-first, reports/implementation/design-sync-standing-consent/T-004.md). RED: PASS 30 / FAIL 25 (only TEST-047 red among this task's 5 owned rows; TEST-046/048/049/050 pass vacuously pre-edit). GREEN: PASS 31 / FAIL 24 (exactly one flip, TEST-047). git diff is a pure append (11 lines); grep -in consent / grep -in ds_upload_consent both exit 1 post-edit.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; this feature has no executable code path of its own (design.md Architecture Overview). lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; this feature has no executable code path of its own (design.md Architecture Overview). lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- Markdown prose plus shell/PowerShell test assertions; this feature has no executable code path of its own (design.md Architecture Overview). lint/typecheck/build remain waivable with a reason per risk-gate-matrix.md's Stack descriptor table; no compile toolchain is configured for this stack (tasks.md Global Constraints).",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/placeholder-T-004.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/T-004/green-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/T-004/claude-design-workflow.md.diff",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/design-sync-standing-consent/verification/qg/run-all.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-008",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
