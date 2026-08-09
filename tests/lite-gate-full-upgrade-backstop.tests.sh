@@ -8,6 +8,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 source "${REPO_ROOT}/tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.sh"
+SKILL="${REPO_ROOT}/plugins/sdd-lite/skills/lite-gate/SKILL.md"
 PASS=0
 FAIL=0
 
@@ -49,6 +50,22 @@ cat > "${WORK}/no-full-upgrade.json" <<'EOF'
 EOF
 simulate_lite_gate_step2 "${WORK}/no-full-upgrade.json" "required" "${WORK}"
 if [ "${SIM_VERDICT}" = "PASS" ]; then ok "TEST-026b: full_upgrade_required: false continues, VERDICT: PASS"; else fail "TEST-026b: expected PASS, got ${SIM_VERDICT} (${SIM_REASON})"; fi
+
+# ---------------------------------------------------------------------------
+# TEST-026c (deliverable-drift lock, quality-gate NEEDS_WORK cycle 1 Major
+# finding 5): lite-gate/SKILL.md's own Step 2a backstop clause must still
+# read VERDICT: FAIL on full_upgrade_required == true, not a silent
+# pass-through ("続行"). TEST-026a above already proves the simulator's
+# reference algorithm behaves correctly; this locks the shipped prose text
+# itself, since the simulator is a separate implementation that would not
+# notice a SKILL.md-only mutation.
+# ---------------------------------------------------------------------------
+echo "=== TEST-026c: SKILL.md text -- full_upgrade_required: true backstop stays VERDICT: FAIL ==="
+if grep -Eq 'full_upgrade_required == true.*VERDICT: FAIL' "${SKILL}"; then
+  ok "TEST-026c: SKILL.md's own Step 2a backstop clause still reads VERDICT: FAIL on full_upgrade_required == true"
+else
+  fail "TEST-026c: SKILL.md's Step 2a backstop clause no longer FAILs on full_upgrade_required == true (Blocker [B2] regression)"
+fi
 
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed"

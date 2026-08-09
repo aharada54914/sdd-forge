@@ -65,7 +65,8 @@ $tests = @(
     'tests/lite-gate-summary-absent.tests.ps1',
     'tests/lite-gate-summary-invalid.tests.ps1',
     'tests/lite-gate-full-upgrade-backstop.tests.ps1',
-    'tests/lite-gate-summary-absent-active-enforcement.tests.ps1'
+    'tests/lite-gate-summary-absent-active-enforcement.tests.ps1',
+    'tests/lite-gate-direct-edit-contract.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

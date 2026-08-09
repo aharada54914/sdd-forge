@@ -1,0 +1,51 @@
+{
+  "schema": "epic-194-human-copy-fixtures/v1",
+  "declared_targets": [
+    "plugins/sdd-lite/references/risk-upgrade-policy.md",
+    "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+    "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md"
+  ],
+  "scenarios": {
+    "correct": {
+      "description": "The declared, manifest, and staged payload sets are identical and every digest matches."
+    },
+    "undeclared_payload": {
+      "extra_payload": "plugins/sdd-lite/scripts/extra-undeclared.sh"
+    },
+    "missing_payload": {
+      "omit_target": "plugins/sdd-lite/skills/lite-spec/SKILL.md"
+    },
+    "manifest_extra_target": {
+      "extra_target": "plugins/sdd-lite/scripts/manifest-only-extra.sh"
+    },
+    "manifest_missing_target": {
+      "omit_target": "plugins/sdd-lite/skills/lite-spec/SKILL.md"
+    },
+    "hash_mismatch": {
+      "tamper_after_manifest": "plugins/sdd-lite/scripts/check-risk-upgrade.sh"
+    },
+    "control_files": {
+      "control_files": [
+        "MANIFEST.sha256",
+        "apply-protected-files.ps1"
+      ]
+    },
+    "post_copy_corruption": {
+      "corrupt_after_copy": "plugins/sdd-lite/scripts/check-risk-upgrade.ps1"
+    },
+    "feature_scope": {
+      "foreign_prefix": "specs/epic-136-phase2-gates/human-copy",
+      "foreign_manifest": "not-a-valid-manifest-at-all"
+    },
+    "case_sensitive_control_and_digest": {
+      "mis_cased_control": "manifest.sha256"
+    },
+    "ancestor_symlink_escape": {
+      "target": "plugins/sdd-lite/references/risk-upgrade-policy.md"
+    },
+    "nested_proposed": {
+      "path": "PROPOSED/nested/payload.PROPOSED"
+    }
+  }
+}

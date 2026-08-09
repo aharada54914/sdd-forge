@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Added
+
+- **Epic 194 T-001 human-copy runner candidate (#194)**: added a non-protected
+  feature-scoped runner draft and twin `.sh`/`.ps1` contract checks for the
+  exact four-target payload, ordinal control/digest handling, recursive payload
+  enumeration, anchored no-follow publication, hash and post-copy verification,
+  suite registration, and CI wiring. Because `.github/workflows/test.yml` and
+  the staged human-copy artifacts are protected, the runner and CI insertion
+  remain non-executable drafts for human application after the four-target / CI
+  target specification contradiction is resolved.
+
 ### Fixed
 
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,

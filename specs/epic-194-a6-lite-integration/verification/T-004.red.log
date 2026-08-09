@@ -134,3 +134,243 @@ ok: TEST-030d: present-but-empty Summary passes through, VERDICT: PASS
 
 Results: 2 passed, 3 failed
 
+################################################################################
+# REMEDIATION ADDENDUM (quality-gate NEEDS_WORK cycle 1,
+# reports/quality-gate/20260809T082000Z-epic-194-a6-lite-integration-T-004.md,
+# Major findings 1/3/5). The five suites above were originally proven
+# non-vacuous by disabling the reference simulator
+# (tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.{sh,ps1}) --
+# that method cannot prove the six NEW assertions added in this addendum,
+# because those six read lite-gate/SKILL.md's own shipped prose text
+# directly and never call the simulator (the exact deliverable/simulator
+# separation the gate's Major finding 5 named). Their RED evidence is
+# therefore captured by the complementary method the gate itself used to
+# find the original gap: mutate SKILL.md's own text at the cited line,
+# run the affected suite in BOTH runtimes, confirm the new assertion fails
+# (and no other assertion in the suite spuriously fails), then revert via
+# a surgical Edit and re-run (see the matching GREEN addendum in
+# T-004.green.log). `git diff --stat -- plugins/sdd-lite/skills/lite-gate/
+# SKILL.md` was empty after every revert below, confirming byte-for-byte
+# restoration before the next mutation began.
+################################################################################
+
+=== MUTATION 1/5: SKILL.md:84 ordering-note text changed (TEST-014b) ===
+=== TEST-014a: Step 2a/2b sit strictly between the existing Step 2 and Step 3 ===
+ok: TEST-014a: Step order is 2 (87) < 2a (89) < 2b (99) < 3 (120)
+=== TEST-014b: '順序が重要' ordering note preserved verbatim ===
+FAIL: TEST-014b: ordering note text has drifted from the golden fixture -- expected [> **順序が重要**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。], got [> **順序が重要です**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。]
+=== TEST-017: guard-invariants.json direct-edit protection-status re-verification ===
+34:    "plugins/sdd-lite/references/risk-upgrade-policy.md",
+35:    "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+36:    "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+37:    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+100:    "plugins/sdd-lite/references/risk-upgrade-policy.md",
+101:    "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+102:    "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+103:    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+ok: TEST-017: lite-gate/SKILL.md is absent from every sdd-lite-tagged guard-invariants.json entry; direct-edit remains valid
+
+Results: 2 passed, 1 failed
+--- ps1 ---
+=== TEST-014a: Step 2a/2b sit strictly between the existing Step 2 and Step 3 ===
+ok: TEST-014a: Step order is 2 (87) < 2a (89) < 2b (99) < 3 (120)
+=== TEST-014b: '順序が重要' ordering note preserved verbatim ===
+FAIL: TEST-014b: ordering note text has drifted from the golden fixture -- expected [> **順序が重要**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。], got [> **順序が重要です**: `check-task-state-lite` の `Done` 専用検証（実装レポート + 品質レポート `VERDICT: PASS` の存在）は、品質レポートを生成し `Status: Done` に遷移した**後**に実行する。先に実行すると（タスクがまだ `Implementation Complete` でレポート未生成のため）Done 専用検証が一度も実走せず、不正・別タスク向けの PASS レポートでも Done が残る。]
+=== TEST-017: guard-invariants.json direct-edit protection-status re-verification ===
+34:    "plugins/sdd-lite/references/risk-upgrade-policy.md",
+35:    "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+36:    "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+37:    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+100:    "plugins/sdd-lite/references/risk-upgrade-policy.md",
+101:    "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+102:    "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+103:    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+ok: TEST-017: lite-gate/SKILL.md is absent from every sdd-lite-tagged guard-invariants.json entry; direct-edit remains valid
+
+Results: 2 passed, 1 failed
+=== MUTATION 2/5: SKILL.md:102 unmapped-FAIL changed to N/A (TEST-016f) ===
+=== TEST-015a: baseline-name duplicate is a no-op ===
+ok: TEST-015a: baseline-only required_lite_checks is a no-op, VERDICT: PASS
+ok: TEST-015a: no command-discovery attempted for baseline names
+=== TEST-015b: Registry-sourced check resolved via npm scripts ===
+ok: TEST-015b: npm-resolvable check runs, VERDICT: PASS
+ok: TEST-015b: recorded as run via npm
+=== TEST-015c: Registry-sourced check resolved via scripts/<id> pair ===
+ok: TEST-015c: scripts-pair-resolvable check runs, VERDICT: PASS
+ok: TEST-015c: recorded as run via scripts pair
+=== TEST-016a: unmapped Registry-sourced id is VERDICT: FAIL, never N/A ===
+ok: TEST-016a: unmapped id is VERDICT: FAIL
+ok: TEST-016a: reason names the missing discoverable command (never N/A)
+=== TEST-016b: grammar-failing check-id blocked before discovery (NEW-01) ===
+ok: TEST-016b: grammar-failing id rejected before discovery is attempted
+=== TEST-016c: symlink-escaping scripts/<id> candidate rejected (NEW-01) ===
+ok: TEST-016c: symlinked scripts/<id> pair treated as unmapped, never executed
+=== TEST-016d: single-runtime-member pair is unmapped (NEW-01) ===
+ok: TEST-016d: a check-id with only one runtime member present is treated as unmapped
+=== TEST-016e: N/A stays reserved for Step 2's own pre-existing convention ===
+ok: TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only
+=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ===
+FAIL: TEST-016f: SKILL.md's unmapped-id clause no longer reads VERDICT: FAIL (Blocker [B7] regression)
+=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ===
+ok: TEST-016g: SKILL.md's check-id grammar rule is present and still FAILs on a grammar mismatch
+=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===
+ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding evidence-bundle/cross-model/second-approval machinery, and introduces none
+
+Results: 14 passed, 1 failed
+--- ps1 ---
+=== TEST-015a: baseline-name duplicate is a no-op ===
+ok: TEST-015a: baseline-only is a no-op, VERDICT: PASS
+ok: TEST-015a: no command-discovery attempted for baseline names
+=== TEST-015b: Registry-sourced check resolved via npm scripts ===
+ok: TEST-015b: npm-resolvable check runs, VERDICT: PASS
+ok: TEST-015b: recorded as run via npm
+=== TEST-015c: Registry-sourced check resolved via scripts/<id> pair ===
+ok: TEST-015c: scripts-pair-resolvable check runs, VERDICT: PASS
+ok: TEST-015c: recorded as run via scripts pair
+=== TEST-016a: unmapped Registry-sourced id is VERDICT: FAIL, never N/A ===
+ok: TEST-016a: unmapped id is VERDICT: FAIL
+ok: TEST-016a: reason names the missing discoverable command (never N/A)
+=== TEST-016b: grammar-failing check-id blocked before discovery (NEW-01) ===
+ok: TEST-016b: grammar-failing id rejected before discovery
+=== TEST-016c: symlink-escaping scripts/<id> candidate rejected (NEW-01) ===
+ok: TEST-016c: symlinked scripts/<id> pair treated as unmapped, never executed
+=== TEST-016d: single-runtime-member pair is unmapped (NEW-01) ===
+ok: TEST-016d: single-runtime-member check-id is unmapped
+=== TEST-016e: N/A stays reserved for Step 2's own pre-existing convention ===
+ok: TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only
+=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ===
+FAIL: TEST-016f: SKILL.md's unmapped-id clause no longer reads VERDICT: FAIL (Blocker [B7] regression)
+=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ===
+ok: TEST-016g: SKILL.md's check-id grammar rule is present and still FAILs on a grammar mismatch
+=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===
+ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding this machinery, and introduces none
+
+Results: 14 passed, 1 failed
+=== MUTATION 3/5: SKILL.md:108 check-id grammar bullet deleted (TEST-016g) ===
+=== TEST-015a: baseline-name duplicate is a no-op ===
+ok: TEST-015a: baseline-only required_lite_checks is a no-op, VERDICT: PASS
+ok: TEST-015a: no command-discovery attempted for baseline names
+=== TEST-015b: Registry-sourced check resolved via npm scripts ===
+ok: TEST-015b: npm-resolvable check runs, VERDICT: PASS
+ok: TEST-015b: recorded as run via npm
+=== TEST-015c: Registry-sourced check resolved via scripts/<id> pair ===
+ok: TEST-015c: scripts-pair-resolvable check runs, VERDICT: PASS
+ok: TEST-015c: recorded as run via scripts pair
+=== TEST-016a: unmapped Registry-sourced id is VERDICT: FAIL, never N/A ===
+ok: TEST-016a: unmapped id is VERDICT: FAIL
+ok: TEST-016a: reason names the missing discoverable command (never N/A)
+=== TEST-016b: grammar-failing check-id blocked before discovery (NEW-01) ===
+ok: TEST-016b: grammar-failing id rejected before discovery is attempted
+=== TEST-016c: symlink-escaping scripts/<id> candidate rejected (NEW-01) ===
+ok: TEST-016c: symlinked scripts/<id> pair treated as unmapped, never executed
+=== TEST-016d: single-runtime-member pair is unmapped (NEW-01) ===
+ok: TEST-016d: a check-id with only one runtime member present is treated as unmapped
+=== TEST-016e: N/A stays reserved for Step 2's own pre-existing convention ===
+ok: TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only
+=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ===
+ok: TEST-016f: SKILL.md's own unmapped-id clause still reads VERDICT: FAIL
+=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ===
+FAIL: TEST-016g: SKILL.md's check-id grammar rule (NEW-01) is missing or no longer fail-closed (occurrences=0)
+=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===
+ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding evidence-bundle/cross-model/second-approval machinery, and introduces none
+
+Results: 14 passed, 1 failed
+--- ps1 ---
+=== TEST-015a: baseline-name duplicate is a no-op ===
+ok: TEST-015a: baseline-only is a no-op, VERDICT: PASS
+ok: TEST-015a: no command-discovery attempted for baseline names
+=== TEST-015b: Registry-sourced check resolved via npm scripts ===
+ok: TEST-015b: npm-resolvable check runs, VERDICT: PASS
+ok: TEST-015b: recorded as run via npm
+=== TEST-015c: Registry-sourced check resolved via scripts/<id> pair ===
+ok: TEST-015c: scripts-pair-resolvable check runs, VERDICT: PASS
+ok: TEST-015c: recorded as run via scripts pair
+=== TEST-016a: unmapped Registry-sourced id is VERDICT: FAIL, never N/A ===
+ok: TEST-016a: unmapped id is VERDICT: FAIL
+ok: TEST-016a: reason names the missing discoverable command (never N/A)
+=== TEST-016b: grammar-failing check-id blocked before discovery (NEW-01) ===
+ok: TEST-016b: grammar-failing id rejected before discovery
+=== TEST-016c: symlink-escaping scripts/<id> candidate rejected (NEW-01) ===
+ok: TEST-016c: symlinked scripts/<id> pair treated as unmapped, never executed
+=== TEST-016d: single-runtime-member pair is unmapped (NEW-01) ===
+ok: TEST-016d: single-runtime-member check-id is unmapped
+=== TEST-016e: N/A stays reserved for Step 2's own pre-existing convention ===
+ok: TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only
+=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ===
+ok: TEST-016f: SKILL.md's own unmapped-id clause still reads VERDICT: FAIL
+=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ===
+FAIL: TEST-016g: SKILL.md's check-id grammar rule (NEW-01) is missing or no longer fail-closed (occurrences=0)
+=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===
+ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding this machinery, and introduces none
+
+Results: 14 passed, 1 failed
+=== MUTATION 4/5: SKILL.md:97 backstop clause changed to always-continue (TEST-026c) ===
+=== TEST-026a: full_upgrade_required: true Blocks before Step 2b runs ===
+ok: TEST-026a: VERDICT: FAIL
+ok: TEST-026a: reason names full_upgrade_required specifically (not the unmapped check-id -- proves Step 2b never ran)
+ok: TEST-026a: no check-discovery was attempted (Step 2b never reached)
+=== TEST-026b: full_upgrade_required: false continues normally ===
+ok: TEST-026b: full_upgrade_required: false continues, VERDICT: PASS
+=== TEST-026c: SKILL.md text -- full_upgrade_required: true backstop stays VERDICT: FAIL ===
+FAIL: TEST-026c: SKILL.md's Step 2a backstop clause no longer FAILs on full_upgrade_required == true (Blocker [B2] regression)
+
+Results: 4 passed, 1 failed
+--- ps1 ---
+=== TEST-026a: full_upgrade_required: true Blocks before Step 2b runs ===
+ok: TEST-026a: VERDICT: FAIL
+ok: TEST-026a: reason names full_upgrade_required specifically (proves Step 2b never ran)
+ok: TEST-026a: no check-discovery was attempted (Step 2b never reached)
+=== TEST-026b: full_upgrade_required: false continues normally ===
+ok: TEST-026b: full_upgrade_required: false continues, VERDICT: PASS
+=== TEST-026c: SKILL.md text -- full_upgrade_required: true backstop stays VERDICT: FAIL ===
+FAIL: TEST-026c: SKILL.md's Step 2a backstop clause no longer FAILs on full_upgrade_required == true (Blocker [B2] regression)
+
+Results: 4 passed, 1 failed
+=== MUTATION 5/5: SKILL.md:94 missing-Summary FAIL changed to PASS (TEST-030e) ===
+=== TEST-030a: active capability_enforcement, no Summary at all -> VERDICT: FAIL ===
+ok: TEST-030a: required enforcement + absent Summary is VERDICT: FAIL
+ok: TEST-030a: reason names active capability_enforcement specifically
+=== TEST-030b: advisory enforcement, no Summary at all -> also VERDICT: FAIL ===
+ok: TEST-030b: advisory enforcement + absent Summary is also VERDICT: FAIL
+=== TEST-030c: disabled-legacy (distinct case) is NOT a failure ===
+ok: TEST-030c: disabled-legacy (no Project Context at all) is legitimate, VERDICT: PASS -- distinct from TEST-030a/b
+=== TEST-030d: present-but-empty Summary is a pass-through ===
+ok: TEST-030d: present-but-empty Summary passes through, VERDICT: PASS
+=== TEST-030e: SKILL.md text -- missing-Summary-under-active-enforcement stays VERDICT: FAIL ===
+FAIL: TEST-030e: SKILL.md's missing-Summary branch no longer reads VERDICT: FAIL (Blocker [B6] regression)
+
+Results: 5 passed, 1 failed
+--- ps1 ---
+=== TEST-030a: active capability_enforcement, no Summary at all -> VERDICT: FAIL ===
+ok: TEST-030a: required enforcement + absent Summary is VERDICT: FAIL
+ok: TEST-030a: reason names active capability_enforcement specifically
+=== TEST-030b: advisory enforcement, no Summary at all -> also VERDICT: FAIL ===
+ok: TEST-030b: advisory enforcement + absent Summary is also VERDICT: FAIL
+=== TEST-030c: disabled-legacy (distinct case) is NOT a failure ===
+ok: TEST-030c: disabled-legacy is legitimate, VERDICT: PASS -- distinct from TEST-030a/b
+=== TEST-030d: present-but-empty Summary is a pass-through ===
+ok: TEST-030d: present-but-empty Summary passes through, VERDICT: PASS
+=== TEST-030e: SKILL.md text -- missing-Summary-under-active-enforcement stays VERDICT: FAIL ===
+FAIL: TEST-030e: SKILL.md's missing-Summary branch no longer reads VERDICT: FAIL (Blocker [B6] regression)
+
+Results: 5 passed, 1 failed
+
+TEST-017 (AC-017) is proven separately below, not by mutating SKILL.md: it
+reads plugins/sdd-quality-loop/references/guard-invariants.json, a file
+this task must never edit (real, not text-mention-only, protection). Its
+non-vacuity is proven by running the identical check logic against a
+disposable scratchpad copy with a synthetic
+"plugins/sdd-lite/skills/lite-gate/SKILL.md" substring injected into a
+protected array, confirming the check flags it, then confirming the same
+logic passes clean against the real, untouched file:
+
+--- TEST-017 mutation proof (scratchpad copy, guard-invariants.json itself untouched) ---
+--- mutated copy: grep -n sdd-lite ---
+34:    "plugins/sdd-lite/references/risk-upgrade-policy.md",
+35:    "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+36:    "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
+37:    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+74:    "MUTATION-PROOF-INJECT-plugins/sdd-lite/skills/lite-gate/SKILL.md"
+--- running TEST-017's exact check logic against the MUTATED copy (expect FAIL) ---
+FAIL (correctly detected): lite-gate/SKILL.md now appears in guard-invariants.json -- the direct-edit path is no longer valid
+

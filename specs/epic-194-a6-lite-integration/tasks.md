@@ -236,6 +236,16 @@ content, only on its own fixture set). This task is first in the
 registration order (Global Constraints) precisely because T-002/T-003's
 own Done-When human-apply step needs this runner to already exist.
 
+External precondition, not a task-ID blocker, and the reason this task's
+Status reads Blocked: reaching Done requires writing the runner and its
+manifest into this feature's own staged human-copy tree, which the R-10
+guard refuses for agents because its suffix match carries no human-copy
+carve-out. That refusal is described in full in this task's own Scope
+narrative above. An agent can build and prove the candidate — and has: the
+contract suite runs 45/0 on both runtimes against non-protected draft
+paths — but only a human can place it. Blockers stays None below because
+no task in this plan blocks T-001; the blocker is outside the plan.
+
 Blockers: None
 
 Planned Files:

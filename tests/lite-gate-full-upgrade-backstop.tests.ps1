@@ -7,6 +7,7 @@ Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $RepoRoot 'tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.ps1')
+$Skill = Join-Path $RepoRoot 'plugins/sdd-lite/skills/lite-gate/SKILL.md'
 
 $Script:Pass = 0
 $Script:Fail = 0
@@ -29,6 +30,14 @@ try {
     Set-Content -LiteralPath (Join-Path $Work 'no-full-upgrade.json') -Value '{"schema":"sdd-capability-summary/v1","feature":"demo","track":"lite","capabilities":["cap-a"],"required_lite_checks":["build"],"full_upgrade_required":false}' -NoNewline
     $r = Invoke-LiteGateStep2Simulation -SummaryPath (Join-Path $Work 'no-full-upgrade.json') -Enforcement 'required' -RepoRoot $Work
     if ($r.Verdict -eq 'PASS') { Ok 'TEST-026b: full_upgrade_required: false continues, VERDICT: PASS' } else { Bad "TEST-026b: expected PASS, got $($r.Verdict) ($($r.Reason))" }
+
+    Write-Host '=== TEST-026c: SKILL.md text -- full_upgrade_required: true backstop stays VERDICT: FAIL ==='
+    $skillContent = Get-Content -LiteralPath $Skill -Raw
+    if ($skillContent -match 'full_upgrade_required == true.*VERDICT: FAIL') {
+        Ok "TEST-026c: SKILL.md's own Step 2a backstop clause still reads VERDICT: FAIL on full_upgrade_required == true"
+    } else {
+        Bad "TEST-026c: SKILL.md's Step 2a backstop clause no longer FAILs on full_upgrade_required == true (Blocker [B2] regression)"
+    }
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }

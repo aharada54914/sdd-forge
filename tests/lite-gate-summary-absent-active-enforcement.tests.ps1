@@ -8,6 +8,7 @@ Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $RepoRoot 'tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.ps1')
+$Skill = Join-Path $RepoRoot 'plugins/sdd-lite/skills/lite-gate/SKILL.md'
 
 $Script:Pass = 0
 $Script:Fail = 0
@@ -36,6 +37,14 @@ try {
     Set-Content -LiteralPath (Join-Path $Work 'present-empty.json') -Value '{"schema":"sdd-capability-summary/v1","feature":"demo","track":"lite","capabilities":[],"required_lite_checks":[],"full_upgrade_required":false}' -NoNewline
     $r = Invoke-LiteGateStep2Simulation -SummaryPath (Join-Path $Work 'present-empty.json') -Enforcement 'required' -RepoRoot $Work
     if ($r.Verdict -eq 'PASS') { Ok 'TEST-030d: present-but-empty Summary passes through, VERDICT: PASS' } else { Bad "TEST-030d: expected PASS, got $($r.Verdict) ($($r.Reason))" }
+
+    Write-Host '=== TEST-030e: SKILL.md text -- missing-Summary-under-active-enforcement stays VERDICT: FAIL ==='
+    $skillContent = Get-Content -LiteralPath $Skill -Raw
+    if ($skillContent -match 'VERDICT: FAIL.*capability-summary\.yaml missing under active capability_enforcement') {
+        Ok "TEST-030e: SKILL.md's own missing-Summary branch still reads VERDICT: FAIL"
+    } else {
+        Bad "TEST-030e: SKILL.md's missing-Summary branch no longer reads VERDICT: FAIL (Blocker [B6] regression)"
+    }
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }

@@ -107,6 +107,7 @@ tests=(
   tests/lite-gate-summary-invalid.tests.sh
   tests/lite-gate-full-upgrade-backstop.tests.sh
   tests/lite-gate-summary-absent-active-enforcement.tests.sh
+  tests/lite-gate-direct-edit-contract.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

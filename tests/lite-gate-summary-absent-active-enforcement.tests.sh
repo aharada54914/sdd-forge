@@ -10,6 +10,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 source "${REPO_ROOT}/tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.sh"
+SKILL="${REPO_ROOT}/plugins/sdd-lite/skills/lite-gate/SKILL.md"
 PASS=0
 FAIL=0
 
@@ -59,6 +60,22 @@ if [ "${SIM_VERDICT}" = "PASS" ]; then
   ok "TEST-030d: present-but-empty Summary passes through, VERDICT: PASS"
 else
   fail "TEST-030d: expected PASS for a present-but-empty Summary, got ${SIM_VERDICT} (${SIM_REASON})"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-030e (deliverable-drift lock, quality-gate NEEDS_WORK cycle 1 Major
+# finding 5): lite-gate/SKILL.md's own missing-Summary-under-active-
+# enforcement clause must still read VERDICT: FAIL, not a silent PASS
+# (Blocker [B6]). TEST-030a/b above already prove the simulator's reference
+# algorithm behaves correctly; this locks the shipped prose text itself,
+# since the simulator is a separate implementation that would not notice a
+# SKILL.md-only mutation.
+# ---------------------------------------------------------------------------
+echo "=== TEST-030e: SKILL.md text -- missing-Summary-under-active-enforcement stays VERDICT: FAIL ==="
+if grep -Eq 'VERDICT: FAIL.*capability-summary\.yaml missing under active capability_enforcement' "${SKILL}"; then
+  ok "TEST-030e: SKILL.md's own missing-Summary branch still reads VERDICT: FAIL"
+else
+  fail "TEST-030e: SKILL.md's missing-Summary branch no longer reads VERDICT: FAIL (Blocker [B6] regression)"
 fi
 
 echo ""

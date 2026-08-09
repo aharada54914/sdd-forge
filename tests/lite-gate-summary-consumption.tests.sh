@@ -136,6 +136,40 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# TEST-016f (deliverable-drift lock, quality-gate NEEDS_WORK cycle 1 Major
+# finding 5): lite-gate/SKILL.md's own unmapped-check-id clause must still
+# read VERDICT: FAIL, never N/A or any other pass-through (Blocker [B7],
+# reversed). The simulator's TEST-016a above already proves the reference
+# algorithm behaves correctly; this assertion locks the shipped prose text
+# itself, so a SKILL.md-only mutation (simulator left untouched) is still
+# caught -- the simulator and the deliverable can otherwise drift apart
+# silently, since nothing else in this suite reads SKILL.md's own wording
+# for this specific clause.
+# ---------------------------------------------------------------------------
+echo "=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ==="
+if grep -Eq 'VERDICT: FAIL.*required Lite check has no discoverable command' "${SKILL}"; then
+  ok "TEST-016f: SKILL.md's own unmapped-id clause still reads VERDICT: FAIL"
+else
+  fail "TEST-016f: SKILL.md's unmapped-id clause no longer reads VERDICT: FAIL (Blocker [B7] regression)"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-016g (deliverable-drift lock, NEW-01): SKILL.md's own check-id
+# grammar rule (step 0 of the command-discovery contract) must still exist
+# and still be wired to VERDICT: FAIL on a grammar mismatch -- the simulator
+# already enforces this rule (TEST-016b), but its Ruby/PowerShell regex is a
+# separate implementation from the shipped prose text, so this locks the
+# prose itself.
+# ---------------------------------------------------------------------------
+echo "=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ==="
+GRAMMAR_OCCURRENCES="$( { grep -o -F '^[a-z0-9][a-z0-9-]*$' "${SKILL}" || true; } | wc -l | tr -d ' ')"
+if [ "${GRAMMAR_OCCURRENCES}" -ge 1 ] && grep -Eq 'VERDICT: FAIL.*does not match the required.*grammar' "${SKILL}"; then
+  ok "TEST-016g: SKILL.md's check-id grammar rule is present and still FAILs on a grammar mismatch"
+else
+  fail "TEST-016g: SKILL.md's check-id grammar rule (NEW-01) is missing or no longer fail-closed (occurrences=${GRAMMAR_OCCURRENCES})"
+fi
+
+# ---------------------------------------------------------------------------
 # TEST-018 (AC-018, static-review): Step 2b introduces no evidence-bundle
 # generator, cross-model-verification call, second-approval check, or
 # risk-hierarchy classification of its own (ADR-0022 item 4's own

@@ -94,6 +94,17 @@ _sim_discover_command() {
     if [ ! -f "$sh_path" ] || [ ! -f "$ps1_path" ]; then echo "unmapped"; return 0; fi
     sh_canon="$(cd "$(dirname "$sh_path")" 2>/dev/null && pwd -P)/$(basename "$sh_path")"
     ps1_canon="$(cd "$(dirname "$ps1_path")" 2>/dev/null && pwd -P)/$(basename "$ps1_path")"
+    # These two prefix-containment checks are currently unreachable by any
+    # fixture in this suite (quality-gate NEEDS_WORK cycle 1, Minor finding):
+    # id already passed the step-0 grammar (^[a-z0-9][a-z0-9-]*$, no "/" or
+    # ".."), and the symlink/regular-file checks above already reject any
+    # leaf-level escape, so sh_canon/ps1_canon can never actually land outside
+    # scripts_canon given today's grammar. Retained anyway as defense-in-depth
+    # matching SKILL.md:112's own documented containment rule (a distinct
+    # rule from the symlink/regular-file rule, stated as its own bullet) --
+    # if the grammar is ever relaxed to permit more characters, this is the
+    # backstop that keeps command-discovery bounded to scripts/. Do not
+    # remove; the symlink checks above are a different, load-bearing rule.
     case "$sh_canon" in "${scripts_canon}"/*) : ;; *) echo "unmapped"; return 0 ;; esac
     case "$ps1_canon" in "${scripts_canon}"/*) : ;; *) echo "unmapped"; return 0 ;; esac
     echo "scripts:${id}"

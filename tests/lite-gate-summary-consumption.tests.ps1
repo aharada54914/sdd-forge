@@ -74,6 +74,21 @@ try {
     $skillContent = Get-Content -LiteralPath $Skill -Raw
     if ($skillContent -match 'N/A.*は Step 2 既存の' -or $skillContent -match 'Step 2 既存の.*N/A') { Ok "TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only" } else { Bad 'TEST-016e: expected SKILL.md to state N/A stays reserved for Step 2' }
 
+    Write-Host '=== TEST-016f: SKILL.md text -- unmapped Registry-sourced id stays VERDICT: FAIL ==='
+    if ($skillContent -match 'VERDICT: FAIL.*required Lite check has no discoverable command') {
+        Ok "TEST-016f: SKILL.md's own unmapped-id clause still reads VERDICT: FAIL"
+    } else {
+        Bad "TEST-016f: SKILL.md's unmapped-id clause no longer reads VERDICT: FAIL (Blocker [B7] regression)"
+    }
+
+    Write-Host '=== TEST-016g: SKILL.md text -- check-id grammar rule (NEW-01) still present and fail-closed ==='
+    $grammarOccurrences = ([regex]::Matches($skillContent, [regex]::Escape('^[a-z0-9][a-z0-9-]*$'))).Count
+    if ($grammarOccurrences -ge 1 -and $skillContent -match 'VERDICT: FAIL.*does not match the required.*grammar') {
+        Ok "TEST-016g: SKILL.md's check-id grammar rule is present and still FAILs on a grammar mismatch"
+    } else {
+        Bad "TEST-016g: SKILL.md's check-id grammar rule (NEW-01) is missing or no longer fail-closed (occurrences=$grammarOccurrences)"
+    }
+
     Write-Host '=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ==='
     $step2Match = [regex]::Match($skillContent, '(?s)2a\. \*\*`full_upgrade_required`.*?3\. `reports/quality-gate')
     $newStepText = if ($step2Match.Success) { $step2Match.Value } else { '' }

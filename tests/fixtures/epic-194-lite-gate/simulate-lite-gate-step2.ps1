@@ -55,6 +55,14 @@ function Resolve-SimCommand([string]$Id, [string]$RepoRoot) {
         $scriptsCanon = (Resolve-Path -LiteralPath $scriptsDir).Path
         $shCanon = (Resolve-Path -LiteralPath $shPath).Path
         $ps1Canon = (Resolve-Path -LiteralPath $ps1Path).Path
+        # These two prefix-containment checks are currently unreachable by any
+        # fixture in this suite (quality-gate NEEDS_WORK cycle 1, Minor
+        # finding) -- see simulate-lite-gate-step2.sh's matching comment for
+        # the full rationale (grammar + symlink/regular-file checks already
+        # foreclose any escape given today's grammar). Retained as
+        # defense-in-depth matching SKILL.md:112's own documented containment
+        # rule. Do not remove; the LinkType check above is a different,
+        # load-bearing rule.
         if (-not $shCanon.StartsWith($scriptsCanon, [StringComparison]::Ordinal)) { return 'unmapped' }
         if (-not $ps1Canon.StartsWith($scriptsCanon, [StringComparison]::Ordinal)) { return 'unmapped' }
         return "scripts:$Id"
