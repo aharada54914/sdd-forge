@@ -5877,6 +5877,24 @@
       "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-005-0653",
       "previous_record_sha256": "269b6e137b619e7e039bf0ee41b8a12e8426e58c3ed0961f83f75a75739045c6",
       "record_sha256": "7d6a47501e2e9c3775a78f0bc6d803c360e2e2e177bfa18f7a327c1a7460ef51"
+    },
+    {
+      "sequence": 654,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-191-a3-path-ownership-qg-T-002-seq0654",
+      "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-002-0654",
+      "previous_record_sha256": "7d6a47501e2e9c3775a78f0bc6d803c360e2e2e177bfa18f7a327c1a7460ef51",
+      "record_sha256": "ba7494ee087485dfe53c3e8c289e4c3935678fc455ea017a5c26a8131979cc0f"
+    },
+    {
+      "sequence": 655,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-191-a3-path-ownership-qg-T-005-seq0655",
+      "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-005-0655",
+      "previous_record_sha256": "ba7494ee087485dfe53c3e8c289e4c3935678fc455ea017a5c26a8131979cc0f",
+      "record_sha256": "05a34aecaf83375e2c2704ba7d33ba03cda28fa58e6753a4145826dc1c181b77"
     }
   ]
 }

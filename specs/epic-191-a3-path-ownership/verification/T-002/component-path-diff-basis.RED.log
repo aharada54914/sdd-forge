@@ -30,6 +30,22 @@ that direct invocation terminates the whole script immediately -- this is
 itself genuine, reproducible behavior of the suite as authored, not an
 artifact of this capture process.
 
+STALENESS LABEL (added during cycle-3 remediation, 2026-08-09): this capture
+predates commit `83561379` ("close the two defects found in passing and left
+unfixed"), which added the DEFECT-002 tab-indentation-guard axis (REQ-001) to
+this suite. Every per-axis transcript below, and the final confirmation, are
+therefore against the suite's PRE-DEFECT-002 baseline of 17 total assertions
+(16 passed + 1 failed per mutated axis; 17 passed + 0 failed at rest) -- none
+of them include a "=== DEFECT-002 ===" block, and that omission is correct
+for what this file actually captured, not a defect in this file. The
+evidence for axes 1/2/3/4/5 (TEST-019/021/023/024/025) below is still
+historically accurate for the suite shape at the time it was captured and is
+not being rewritten. It does not exercise DEFECT-002.1, which did not exist
+yet. For a RED capture against the CURRENT 18-assertion baseline (including
+DEFECT-002.1 in every transcript), see the sibling
+`component-path-diff-basis-ps1.RED.log`, which was re-captured after
+DEFECT-002 landed.
+
 ================================================================================
 AXIS 1 of 5: unresolvable rev (AC-019)
 Mutation: resolve_commit_oid()'s `if code != 0: raise GitDiffError(...)`

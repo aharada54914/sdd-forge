@@ -24,7 +24,9 @@ ok: TEST-024.4: a referent-only content change is reported at the referent's own
 ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds (no retry needed)
 OK: collect_changed_paths retries exactly once then fails closed on a persistent mismatch
 ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test)
+=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ===
+ok: DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnostic (real CLI invocation)
 === registration self-check ===
 ok: component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1
 
-Results: 17 passed, 0 failed.
+Results: 18 passed, 0 failed.
