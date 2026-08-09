@@ -1,0 +1,182 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-191-a3-path-ownership",
+  "task_id": "T-004",
+  "run_id": "RUN-epic-191-a3-path-ownership-qg-T-004-seq0649",
+  "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-004-0649",
+  "sequence": 649,
+  "previous_record_sha256": "28a9ee9d1b473161e36a09f66314ed261ba1d7a20e2fca57f30efecf6a78ea55",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "5b0a63d0f516a115ea63af570e841301b3242d6fb537fed686a7a5fe8ab8df7d",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "25b813a2a7c991c58088b690887a82a3b66e5ea84588aa3af319abab1aa3c79d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+      "sha256": "711289e48ecfafdfda39638b1ad00eae97aa1a52cc3351fb022254d9054e6543"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+      "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
+      "sha256": "487e96a95f4aa999173ecb33ce8b1b0525bff5456360202ca84250383c0628d4"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "sha256": "977ca0e92b4c8be4ba4bb401837c4c8ffccbe5dcb5a3247c3dc985e2f3c6a176"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "25b5ebd39700d43003a90db13a9fc6a78e648db5efe462d1cb38fc6ef4406bd0"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "0ba7dc4dd38e8db09039c092da6d614b8c04453f80e4a7c98a603c94c0168509"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/T-004.md",
+      "sha256": "7a6378de7dbbf9eed5671313969bb7f764dad49ca35cf00d635f52ef376ee53f"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+      "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/design.md",
+      "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+      "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+      "sha256": "270a67c57cd396d1c2d9aff8cef95139246a786603faf058d89e081387fb9233"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+      "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/requirements.md",
+      "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+      "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/tasks.md",
+      "sha256": "cc11c2132623b483e50d7a25d9131800db4231a8c3d557eaa0167a60aa7c0b26"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/traceability.md",
+      "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+      "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+    },
+    {
+      "path": "tests/check-component-coverage.tests.ps1",
+      "sha256": "fdc48224e4a1040eb9f590fff49b410092aace6e4f6d2ecdbae33881ba9cc827"
+    },
+    {
+      "path": "tests/check-component-coverage.tests.sh",
+      "sha256": "cfbffe378ffbed90b9a157e901e28e284a818ce1eb3030b4364affb6e5975b4c"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-clean.txt",
+      "sha256": "9b2e79567bd114b83d35f32a9aaf386fc0ce1c6346985ff86c5425a660268e35"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-fail1.txt",
+      "sha256": "da06d264f65162cd6edeb5146e744ad35d1eea4f733aa0fbc2d18aa4907c7c14"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-fail2.txt",
+      "sha256": "fe12e8f1e3aa95889969f97208216312d0fc65378f4e9edbb693360e09dad9fd"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-fail3.txt",
+      "sha256": "91f740617b20a259bbb5ccda4cbd6113a6f09a1df9d8cb8c1ac59c07e9badd0c"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-fail4.txt",
+      "sha256": "ec092d43a0a95785f1bda37c42dce04074b0f25286507bcf44edf0e91fb7ac21"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-fail5.txt",
+      "sha256": "ec363290bde3cda765e8ad93b42af81b8741b836c330efa47591710a09335c04"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/changed-paths-fail6.txt",
+      "sha256": "b9c0960a5846255e3f8e5ee1cc5b1c0e693663f1f2f84e8468116577bea42620"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/config-advisory.yaml",
+      "sha256": "269486decb0bd24019764cfb87ecad5ef61000ef065a83bfa71fce3539ddbed0"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/config-contracts-fail4.yaml",
+      "sha256": "d786e1c0fd62feefd52e6a31588a65cd5bc5c1f03584ccb2e391a44a8f3ca254"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/config-disabled-legacy.yaml",
+      "sha256": "b1898999174a9c2952845b7c700f29a8bdd572f60cce1eae06dde3126521557d"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/config-overlap-required.yaml",
+      "sha256": "d41e0271cd82a1eec3986521659366229565c58565a60f68003329e1d090bd9b"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/config-overlap.yaml",
+      "sha256": "67977f9e12225503430b8605a35ff8e240b572f1e4f559bb0a52843e54d07cdc"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/config-required.yaml",
+      "sha256": "2fa595b795d3c758327c1560df7167837e5d468a09f63233b29a2e1749b91165"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/facet-manifest-contracts-partial.json",
+      "sha256": "c204102b2a9a380d1d17cdd5fbabd76ae99e45732981214f3e225ab2d654e9c3"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/facet-manifest-desktop-only.json",
+      "sha256": "d7ba8af080a1437998dfd6f43261e95b9fd3b9a280c57bdeb2b05b382dc07b22"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/facet-manifest-full.json",
+      "sha256": "c204102b2a9a380d1d17cdd5fbabd76ae99e45732981214f3e225ab2d654e9c3"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/provider-bindings-match.json",
+      "sha256": "c58cddc6ac07f44aa55949bfc853147c44000c97b67624025b139b381657c8a9"
+    },
+    {
+      "path": "tests/fixtures/check-component-coverage/provider-bindings-no-adapter.json",
+      "sha256": "676b387a2fbe619aef76360672137735f9cdc08e70d360cca968c4edf2ed2cf0"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "b69e36da97e1ab87c6d2709557c69327274af11ee484f5f46adb2d91fc7d5a75"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "274d8d537fdd86ed7f40718da8ccaa68162c5cdebba09e306ff46507b279c473"
+    }
+  ]
+}
