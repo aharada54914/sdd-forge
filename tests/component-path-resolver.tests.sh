@@ -681,7 +681,7 @@ A1_TEMPLATE="${REPO_ROOT}/contracts/project-context.template.yaml"
 if [ ! -f "$A1_TEMPLATE" ]; then
   fail "TEST-042: A1's canonical template has LANDED and is a tracked repository artifact; its absence at ${A1_TEMPLATE} is now a regression, not an expected pre-A1 state"
 elif check_inventory_conformance "$A1_TEMPLATE" >/dev/null; then
-  ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent, none misclassified"
+  ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)"
 else
   fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set: $(check_inventory_conformance "$A1_TEMPLATE")"
 fi
@@ -761,6 +761,107 @@ else
   ok "TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')"
 fi
 rm -f "$WRONG_SEED_MISCLASSIFIED"
+
+# T-005 quality-gate finding (Major, cycle 2, reports/quality-gate/20260809T081500Z-epic-191-a3-path-ownership-T-005.md):
+# these three sub-cases are shaped to reproduce the specific structural
+# blind spots the PowerShell twin's first remedy still had -- a
+# hand-rolled line scanner that (1) compared classification
+# case-insensitively, (2) tracked no shared_paths: block so entries under
+# an unrelated key still counted, and (3) only recognised block-form
+# components:, missing an inline form. .1-.3 above are shaped to exactly
+# what a structure-aware parser already caught even before this cycle's
+# fix; these three are shaped to what only a genuinely structural parse
+# catches, so the suite itself can surface a regression back to
+# line-scanning in future.
+
+# Cycle-2 sub-case: a case-DIVERGENT classification literal. The resolver
+# itself is case-sensitive (TEST-018.3 proves 'Cross-Cutting' is rejected
+# fail-closed with exit 1, "unsupported classification"), so an
+# inventory-conformance check that accepted it would be a false green over
+# a configuration the product hard-errors on.
+WRONG_SEED_CASE_DIVERGENT=$(mktemp)
+cat > "$WRONG_SEED_CASE_DIVERGENT" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: Cross-Cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_CASE_DIVERGENT" >/dev/null; then
+  fail "TEST-042-negative.4: a case-divergent 'Cross-Cutting' classification (the resolver itself rejects fail-closed) should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.4: the check correctly rejects a case-divergent classification literal"
+fi
+rm -f "$WRONG_SEED_CASE_DIVERGENT"
+
+# Cycle-2 sub-case: all six canonical entries relocated under an unrelated
+# top-level key, with the real shared_paths left empty. A check that scans
+# every line for "- pattern:" regardless of which top-level key it falls
+# under would wrongly see all six as present.
+WRONG_SEED_MISPLACED_KEY=$(mktemp)
+cat > "$WRONG_SEED_MISPLACED_KEY" << 'WRONGEOF'
+shared_paths: []
+old_shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_MISPLACED_KEY" >/dev/null; then
+  fail "TEST-042-negative.5: six entries relocated under 'old_shared_paths:' with the real shared_paths empty should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'"
+fi
+rm -f "$WRONG_SEED_MISPLACED_KEY"
+
+# Cycle-2 sub-case: a canonical entry combining classification:
+# cross-cutting with an inline components: [x] -- an invalid shape a
+# structure-blind line scanner's HasComponents flag never saw (it only
+# recognised block-form components:), so the entry read as plain
+# cross-cutting and the check missed the extra inline field entirely. The
+# restricted YAML-subset parser itself rejects unquoted inline [...]
+# scalars (parse_minimal_yaml only supports the empty flow sequence []),
+# so this fails closed via a parse error, same as any unparseable
+# template would -- never a skip.
+WRONG_SEED_INLINE_COMPONENTS=$(mktemp)
+cat > "$WRONG_SEED_INLINE_COMPONENTS" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+    components: [some-component]
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_INLINE_COMPONENTS" >/dev/null; then
+  fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with an inline components: [x] should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with an inline components: [x]"
+fi
+rm -f "$WRONG_SEED_INLINE_COMPONENTS"
 
 echo "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
 # TEST-043.0 — AC-043 is specifically about a diff "with zero components

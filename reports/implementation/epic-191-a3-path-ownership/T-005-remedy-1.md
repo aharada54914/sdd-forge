@@ -38,12 +38,39 @@ cross-cutting, so it fails the same equality check either way).
   `resolve-component-paths.py`'s own restricted-YAML parser
   (`parse_minimal_yaml`) via a `python3 -` invocation, rather than a
   second, potentially-diverging parser implementation.
-- **PowerShell** (`tests/component-path-resolver.tests.ps1`): a small,
-  purpose-built line-based parser scoped to exactly the `shared_paths`
-  entry shape (dot-sourcing `resolve-component-paths.ps1` was rejected as
-  an approach — its CLI dispatch/`exit` logic sits at script scope, so
-  dot-sourcing it with no bound parameters would execute that logic and
-  terminate the calling test script too).
+- **PowerShell** (`tests/component-path-resolver.tests.ps1`): originally a
+  small, purpose-built line-based parser scoped to exactly the
+  `shared_paths` entry shape (dot-sourcing `resolve-component-paths.ps1`
+  was rejected as an approach — its CLI dispatch/`exit` logic sat at
+  script scope, so dot-sourcing it with no bound parameters would execute
+  that logic and terminate the calling test script too).
+
+  **Correction (T-005 quality-gate cycle 2, 2026-08-09)**: this
+  description no longer matches the code and is left here struck through
+  in substance rather than silently rewritten, per the finding at
+  `reports/quality-gate/20260809T081500Z-epic-191-a3-path-ownership-T-005.md`
+  (Minor). The line-based parser above was itself structure-UNAWARE in
+  three ways that gate cycle proved by mutation against the real landed
+  `contracts/project-context.template.yaml`: case-insensitive
+  `-eq`/`-ne` classification comparison, no `shared_paths:` block
+  tracking (entries under an unrelated top-level key still counted), and
+  block-form-only `components:` detection (an inline `components: [x]`
+  combined with `classification: cross-cutting` went unseen). All three
+  produced a false-conformant verdict on a template shape the resolver
+  itself rejects fail-closed. Separately, `resolve-component-paths.ps1`
+  gained a `$MyInvocation.InvocationName -ne '.'` guard around its CLI
+  dispatch (for T-004's `check-component-coverage.ps1`, which already
+  dot-sources it this same way), so the original rejection reason no
+  longer holds: a bare `. resolve-component-paths.ps1` with no bound
+  parameters now only defines its functions/classes and never runs that
+  CLI body. `Test-InventoryConformance` was rewritten to dot-source that
+  script for its own `ConvertFrom-MinimalYaml` restricted-YAML parser and
+  read `$data["shared_paths"]` structurally, with case-sensitive
+  (`-ceq`/`-cne`/`-ccontains`) comparisons throughout — the same
+  structural delegation the bash twin already had via
+  `parse_minimal_yaml`, not a second, potentially-diverging
+  implementation. See that script's `Test-InventoryConformance` header
+  comment for the full account.
 
 Added two new `TEST-042-negative` sub-cases the quality-gate specifically
 named as unexercised: `.2` (all six canonical entries present and
@@ -58,22 +85,34 @@ conformant fixture is still accepted (no regression toward over-rejection).
 
 Population: this addendum's own commit (`347f2f70`). The hashes below are
 refreshed to the current on-disk value — the file was edited again after
-this addendum's own authoring run, by T-001's unblock commit (`01df4cbd`)
-and most recently by T-001's quality-gate remediation pass (adding
-TEST-002.3-.5 and extending TEST-010.3's stable-sort fixture), per the
-epic-level Outputs repair (RT-20260809-001). Same current hash as
-declared in `T-005.md`'s own Outputs table (both reports declare the same
-shared file). Excluded as not-an-implementation-output:
+this addendum's own authoring run, by T-001's unblock commit (`01df4cbd`),
+by T-001's quality-gate remediation pass (adding TEST-002.3-.5 and
+extending TEST-010.3's stable-sort fixture), and most recently by T-005's
+own SECOND quality-gate remediation pass (2026-08-09, cycle 2 — see the
+Correction note under Remedy above, and `T-005.md`'s own "Quality-gate
+remediation addendum (2026-08-09, cycle 2)" section for the full account:
+`Test-InventoryConformance` was rewritten again, from the hand-rolled line
+parser this addendum introduced to a structural delegation via dot-sourcing
+`resolve-component-paths.ps1`, and six new `TEST-042-negative` sub-cases
+were added). Same current hash as declared in `T-005.md`'s own Outputs
+table (both reports declare the same shared file), restricted via `git
+diff --name-only` to this remediation's own changes (concurrent, unrelated
+working-tree changes from other tasks' sessions sharing this worktree —
+`plugins/sdd-quality-loop/scripts/resolve-component-paths.{ps1,py}` and
+`tests/component-path-diff-basis.tests.{sh,ps1}` — are excluded as not
+this task's output). Excluded as not-an-implementation-output:
 `reports/quality-gate/epic-191-a3-path-ownership/T-005.md` (the finding this
 addendum responds to — a review artifact) and
-`specs/epic-191-a3-path-ownership/verification/T-005/*` (evidence logs) and
-this report itself; `specs/epic-191-a3-path-ownership/tasks.md`
-(Approval/Status only) is excluded as hash-bound.
+`specs/epic-191-a3-path-ownership/verification/T-005/*` (evidence logs,
+regenerated by the cycle-2 remediation at the current 66/0 state but still
+excluded under this same rationale) and this report itself;
+`specs/epic-191-a3-path-ownership/tasks.md` (Approval/Status only) is
+excluded as hash-bound.
 
 | Path | SHA-256 |
 |---|---|
-| `tests/component-path-resolver.tests.ps1` | `5381a3cdda19e407ccfb4935c88de0aec553f2e6f1d5b5e21e9043108a3293c9` |
-| `tests/component-path-resolver.tests.sh` | `656645de64002fc8f830946bd49e3138c73f9902a90181eb543041ba9b72f092` |
+| `tests/component-path-resolver.tests.ps1` | `a1d7a73472ea3292d19a24b3a82bdc192023da94da6a4eb642afd40fb66b4fbd` |
+| `tests/component-path-resolver.tests.sh` | `727c29415c7c1bd11f05aa3cd0fb5807925ab3f338d9d7e1d9a5cadb77d3e829` |
 
 ## Test Evidence
 

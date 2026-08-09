@@ -479,46 +479,80 @@ if ($r.ExitCode -ne 0 -and $r.Output -match "config.components must be a list") 
 # fixtures (TEST-042-negative, the acceptance-first RED evidence this
 # task's Required Workflow calls for).
 #
-# T-005 quality-gate finding (Major, reports/quality-gate/epic-191-a3-path-ownership/T-005.md):
-# the prior version did a fixed-string/regex-escaped substring match, which
-# caught a missing entry and the one specific extra `contracts/**` case,
-# but did not reject an ARBITRARY extra cross-cutting entry ("no more") or
-# a canonical entry wrongly classified as bounded instead of cross-cutting
-# ("no differently classified") — both of which AC-042 explicitly requires
-# this fixture to fail on. Remedied by parsing the actual shared_paths
-# entry structure (a small, purpose-built parser scoped to exactly this
-# shape — not resolve-component-paths.ps1's own generic YAML parser,
-# since dot-sourcing that script would also execute its CLI dispatch/exit
-# logic in this process) and asserting SET EQUALITY between the
-# template's cross-cutting patterns and the canonical six.
+# T-005 quality-gate finding (Major, reports/quality-gate/epic-191-a3-path-ownership/T-005.md,
+# cycle 1): a first remedy pass parsed the actual shared_paths entry
+# structure with a small, purpose-built line-based parser rather than
+# resolve-component-paths.ps1's own generic YAML parser -- reasoning that
+# dot-sourcing that script would also execute its CLI dispatch/exit logic
+# in this process. That reasoning no longer holds: the script now guards
+# its CLI dispatch behind `if ($MyInvocation.InvocationName -ne '.')`
+# (added for T-004's check-component-coverage.ps1, which already
+# dot-sources it the same way -- see that script's own header comment),
+# so a bare `. $scriptPs1` with no bound parameters only defines functions
+# and classes and never runs the CLI body. The hand-rolled parser was
+# still structure-UNAWARE in three ways a second quality-gate cycle
+# proved by mutation: (1) PowerShell's `-eq`/`-ne` are case-insensitive by
+# default, so `classification: Cross-Cutting` silently passed even though
+# the resolver itself rejects that exact string with exit 1; (2) the line
+# scanner matched `^\s*-\s*pattern:` on every line with no `shared_paths:`
+# block tracking, so entries relocated under an unrelated top-level key
+# still satisfied the check even with the real `shared_paths` empty; (3)
+# `^\s*components:\s*$` only recognised block-form `components:`, so an
+# inline `components: [x]` combined with `classification: cross-cutting`
+# on the same canonical entry (an invalid "both" shape TEST-018.1 proves
+# the resolver itself rejects) went undetected because `HasComponents`
+# never flipped true.
+#
+# Remedied here, for the second time, by dot-sourcing
+# resolve-component-paths.ps1 for its own `ConvertFrom-MinimalYaml`
+# restricted-YAML parser (the same parser the real resolver validates
+# against, not a second, potentially-diverging implementation -- the same
+# INV-008 parity the bash twin already had via `parse_minimal_yaml`) and
+# reading `$data["shared_paths"]` structurally, then asserting SET
+# EQUALITY between the template's cross-cutting patterns and the
+# canonical six using case-SENSITIVE (`-ceq`/`-cne`/`-ccontains`)
+# comparisons throughout -- this codebase's established convention
+# (WFI-012, documented at length in resolve-component-paths.ps1) for
+# every place a YAML/JSON field name or enum literal must not silently
+# match on a different case.
 function Test-InventoryConformance {
     param([string]$TemplatePath)
     $CANONICAL = @("specs/**", "reports/**", "docs/**", ".github/**", "tests/fixtures/**", "CHANGELOG.md")
-    $lines = Get-Content -LiteralPath $TemplatePath
-    $entries = [System.Collections.Generic.List[object]]::new()
-    $current = $null
-    foreach ($line in $lines) {
-        if ($line -match '^\s*-\s*pattern:\s*(.+)$') {
-            if ($null -ne $current) { $entries.Add($current) }
-            $patternValue = $matches[1].Trim().Trim('"').Trim("'")
-            $current = [ordered]@{ Pattern = $patternValue; Classification = $null; HasComponents = $false }
-        } elseif ($null -ne $current -and $line -match '^\s*classification:\s*(.+)$') {
-            $current.Classification = $matches[1].Trim().Trim('"').Trim("'")
-        } elseif ($null -ne $current -and $line -match '^\s*components:\s*$') {
-            $current.HasComponents = $true
-        }
+    # Dot-sourcing inside this function keeps ConvertFrom-MinimalYaml (and
+    # the rest of resolve-component-paths.ps1's functions/classes) scoped
+    # to this function call only -- confirmed not to leak into or clobber
+    # this test script's own script-scope variables (e.g. $repoRoot, which
+    # collides case-insensitively with the dot-sourced script's own
+    # -RepoRoot parameter) since PowerShell function scopes are isolated
+    # from the caller unless a variable is written with an explicit
+    # $script:/$global: qualifier, which the dot-sourced script never does.
+    . $scriptPs1
+
+    try {
+        $text = Get-Content -Raw -LiteralPath $TemplatePath -Encoding utf8
+        $data = ConvertFrom-MinimalYaml $text
+    } catch {
+        return @{ Conformant = $false; Reason = "template could not be parsed: $($_.Exception.Message)" }
     }
-    if ($null -ne $current) { $entries.Add($current) }
+
+    $sharedPaths = $data["shared_paths"]
+    if ($sharedPaths -isnot [System.Array]) {
+        return @{ Conformant = $false; Reason = "template has no top-level 'shared_paths' list" }
+    }
 
     $misclassified = [System.Collections.Generic.List[string]]::new()
     $crossCuttingSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-    foreach ($e in $entries) {
-        $isCanonical = $CANONICAL -contains $e.Pattern
-        if ($isCanonical -and ($e.Classification -ne "cross-cutting" -or $e.HasComponents)) {
-            $misclassified.Add($e.Pattern)
+    foreach ($entry in $sharedPaths) {
+        if ($entry -isnot [System.Collections.IDictionary]) { continue }
+        $pattern = $entry["pattern"]
+        $classification = $entry["classification"]
+        $hasComponents = $entry.Contains("components") -and $null -ne $entry["components"]
+        $isCanonical = $CANONICAL -ccontains $pattern
+        if ($isCanonical -and ($classification -cne "cross-cutting" -or $hasComponents)) {
+            $misclassified.Add($pattern)
         }
-        if ($e.Classification -eq "cross-cutting") {
-            [void]$crossCuttingSet.Add($e.Pattern)
+        if ($classification -ceq "cross-cutting") {
+            [void]$crossCuttingSet.Add($pattern)
         }
     }
     if ($misclassified.Count -gt 0) {
@@ -527,7 +561,7 @@ function Test-InventoryConformance {
     $canonicalSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$CANONICAL, [System.StringComparer]::Ordinal)
     if (-not $crossCuttingSet.SetEquals($canonicalSet)) {
         $missing = $CANONICAL | Where-Object { -not $crossCuttingSet.Contains($_) }
-        $extra = $crossCuttingSet | Where-Object { $CANONICAL -notcontains $_ }
+        $extra = $crossCuttingSet | Where-Object { $CANONICAL -cnotcontains $_ }
         return @{ Conformant = $false; Reason = "cross-cutting set mismatch: missing=$($missing -join ',') extra=$($extra -join ',')" }
     }
     return @{ Conformant = $true; Reason = "conformant" }
@@ -540,7 +574,7 @@ if (-not (Test-Path -LiteralPath $a1Template)) {
 } else {
     $r042 = Test-InventoryConformance $a1Template
     if ($r042.Conformant) {
-        Ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent, none misclassified"
+        Ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)"
     } else {
         Fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set: $($r042.Reason)"
     }
@@ -627,6 +661,115 @@ try {
     }
 } finally {
     Remove-Item -Force -LiteralPath $wrongSeedFile3 -ErrorAction SilentlyContinue
+}
+
+# T-005 quality-gate finding (Major, cycle 2,
+# reports/quality-gate/20260809T081500Z-epic-191-a3-path-ownership-T-005.md):
+# these three sub-cases are shaped to reproduce the specific structural
+# blind spots the first remedy's hand-rolled line scanner still had --
+# case-insensitive `-eq`/`-ne` comparison, no shared_paths: block
+# tracking, and block-form-only components: detection. .1-.3 above are
+# shaped to exactly what a structure-aware parser already caught even
+# before this cycle's fix; these three are shaped to what only a
+# genuinely structural parse catches, so the suite itself can surface a
+# regression back to line-scanning in future.
+
+# Cycle-2 sub-case: a case-DIVERGENT classification literal. The resolver
+# itself is case-sensitive (TEST-018.3 proves 'Cross-Cutting' is rejected
+# fail-closed with exit 1, "unsupported classification"), so an
+# inventory-conformance check that accepted it would be a false green over
+# a configuration the product hard-errors on.
+$wrongSeedFile4 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed4." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@"
+shared_paths:
+  - pattern: "specs/**"
+    classification: Cross-Cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+"@ | Set-Content -LiteralPath $wrongSeedFile4 -Encoding utf8 -NoNewline
+try {
+    if ((Test-InventoryConformance $wrongSeedFile4).Conformant) {
+        Fail "TEST-042-negative.4: a case-divergent 'Cross-Cutting' classification (the resolver itself rejects fail-closed) should have been rejected, but the check reported conformant"
+    } else {
+        Ok "TEST-042-negative.4: the check correctly rejects a case-divergent classification literal"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $wrongSeedFile4 -ErrorAction SilentlyContinue
+}
+
+# Cycle-2 sub-case: all six canonical entries relocated under an unrelated
+# top-level key, with the real shared_paths left empty. A check that scans
+# every line for "- pattern:" regardless of which top-level key it falls
+# under would wrongly see all six as present.
+$wrongSeedFile5 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed5." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@"
+shared_paths: []
+old_shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+"@ | Set-Content -LiteralPath $wrongSeedFile5 -Encoding utf8 -NoNewline
+try {
+    if ((Test-InventoryConformance $wrongSeedFile5).Conformant) {
+        Fail "TEST-042-negative.5: six entries relocated under 'old_shared_paths:' with the real shared_paths empty should have been rejected, but the check reported conformant"
+    } else {
+        Ok "TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $wrongSeedFile5 -ErrorAction SilentlyContinue
+}
+
+# Cycle-2 sub-case: a canonical entry combining classification:
+# cross-cutting with an inline components: [x] -- an invalid shape a
+# structure-blind line scanner's HasComponents flag never saw (it only
+# recognised block-form components:), so the entry read as plain
+# cross-cutting and the check missed the extra inline field entirely. The
+# restricted YAML-subset parser itself rejects unquoted inline [...]
+# scalars (ConvertFrom-MinimalYaml only supports the empty flow sequence
+# []), so this fails closed via a parse error, same as any unparseable
+# template would -- never a skip.
+$wrongSeedFile6 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed6." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@"
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+    components: [some-component]
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+"@ | Set-Content -LiteralPath $wrongSeedFile6 -Encoding utf8 -NoNewline
+try {
+    if ((Test-InventoryConformance $wrongSeedFile6).Conformant) {
+        Fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with an inline components: [x] should have been rejected, but the check reported conformant"
+    } else {
+        Ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with an inline components: [x]"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $wrongSeedFile6 -ErrorAction SilentlyContinue
 }
 
 Write-Output "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
