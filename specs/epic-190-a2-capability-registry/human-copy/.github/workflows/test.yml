@@ -7,6 +7,13 @@ on:
   merge_group:
   workflow_dispatch:
 
+# Cancel superseded runs of the same pull request. Pushes to main and
+# merge-queue runs fall back to the unique run_id group, so they are
+# never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -17,8 +24,9 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
@@ -34,13 +42,19 @@ jobs:
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
 
-      - name: Install recorded Claude Code CLI
-        shell: bash
-        run: npm install -g @anthropic-ai/claude-code
-
-      - name: Validate Claude plugin manifests (real CLI)
+      # epic-190-a2-capability-registry T-006 (REQ-005 AC-026): drift lock for
+      # the generated gate-capabilities.json projection, mirroring the guard
+      # invariants --check steps immediately above (design.md Deployment / CI
+      # Plan; infra-spec.md CI/CD Sequence).
+      - name: Verify generated gate-capabilities projection (Windows)
+        if: runner.os == 'Windows'
         shell: pwsh
-        run: ./tests/claude-manifest-validation.tests.ps1
+        run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+
+      - name: Verify generated gate-capabilities projection (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
 
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
@@ -67,6 +81,225 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
+
+      - name: Test deterministic gate scripts
+        shell: pwsh
+        run: ./tests/scripts.tests.ps1
+
+      - name: Test selected-feature structure validation
+        shell: pwsh
+        run: ./tests/structure-check-feature-mode.tests.ps1
+
+      - name: Test quality-gate cycle-limit suite (bash)
+        shell: bash
+        run: bash ./tests/quality-gate-cycle-limit.tests.sh
+
+      - name: Test portable review-loop prechecks (pwsh)
+        shell: pwsh
+        run: |
+          ./tests/review-contract-foundation.tests.ps1
+          ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
+
+      - name: Test cross-model gate (pwsh)
+        shell: pwsh
+        run: ./tests/cross-model.tests.ps1
+
+      - name: Test Phase 2 guard invariants (pwsh)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/phase2-guard-invariants.tests.ps1
+
+      - name: Test Phase 2 guard invariants (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/phase2-guard-invariants.tests.sh
+
+      - name: Test hook guards
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
+
+      - name: Test cross-runtime scenario suite (pwsh)
+        shell: pwsh
+        run: ./tests/scenario.tests.ps1
+
+      - name: Test guards (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
+
+      - name: Test approval boundary (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
+
+      - name: Test deterministic gates (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
+
+      - name: Test panelist-input consent gate (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
+
+      - name: Test panelist-input consent gate (pwsh)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/prepare-panelist.tests.ps1
+
+      - name: Test portable review-loop prechecks (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/review-contract-foundation.tests.sh
+          bash tests/review-contract-foundation-parity.tests.sh
+          bash tests/spec-review-loop.tests.sh
+          bash tests/downstream-review-precheck.tests.sh
+          bash tests/downstream-review-precheck-parity.tests.sh
+          bash tests/impl-layer-review-inputs.tests.sh
+          bash tests/task-layer-review-inputs.tests.sh
+          bash tests/task-layer-full-profile.tests.sh
+          bash tests/task-review-precheck.tests.sh
+          bash tests/review-agent-isolation.tests.sh
+
+      - name: Test cross-model gate (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
+
+      - name: Test outcome-based eval suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
+
+      - name: Test CRLF line-ending parity (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
+
+      - name: Test cross-runtime scenario suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
+
+      - name: Test branch-protection script (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: ${{ runner.temp }}/*.log
+          if-no-files-found: ignore
+
+  # installers -- the install/uninstall suites clone a source fixture and
+  # perform real filesystem installs per scenario, which dominated the old
+  # single test job (27+ min on the macOS leg alone). They run as their own
+  # parallel job so the gate suites above are not serialized behind them.
+  # Shallow checkout suffices here -- the fixtures archive HEAD and the
+  # remote-installer steps resolve $GITHUB_SHA through the GitHub API.
+  installers:
+    name: installers
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Verify generated guard invariants (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+
+      - name: Verify generated guard invariants (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+
+      - name: Install recorded Claude Code CLI
+        shell: bash
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate Claude plugin manifests (real CLI)
+        shell: pwsh
+        run: ./tests/claude-manifest-validation.tests.ps1
+
+      - name: Test installer (pwsh)
+        shell: pwsh
+        run: ./tests/install.tests.ps1
+
+      - name: Test uninstaller (pwsh)
+        shell: pwsh
+        run: ./tests/uninstall.tests.ps1
+
+      - name: Test Claude registration (pwsh)
+        shell: pwsh
+        run: ./tests/claude-registration.tests.ps1
+
+      - name: Test authenticated remote installer (pwsh)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.ps1 -Ref $env:GITHUB_SHA -InstallRoot (Join-Path $env:RUNNER_TEMP "sdd-remote-pwsh") -Target FilesOnly
+
+      - name: Test POSIX installer
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash -n ./tests/release-host-smoke.sh
+          ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
+
+      - name: Test POSIX uninstaller
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/uninstall.tests.sh 2>&1 | tee "${{ runner.temp }}/uninstall-tests-sh.log"
+
+      - name: Test authenticated remote installer (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.sh --ref "$GITHUB_SHA" --install-root "${RUNNER_TEMP}/sdd-remote-bash" --target FilesOnly
+
+      - name: Upload installer test logs
+        if: failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: installer-test-logs-${{ matrix.os }}
+          path: ${{ runner.temp }}/*.log
+          if-no-files-found: ignore
+
+  # loops-routing -- loop inventory/driver/consistency/escalation plus the
+  # agent-model routing, capabilities, frontmatter and placeholder suites.
+  # Pure file/manifest assertions with no git-history or CLI dependency.
+  loops-routing:
+    name: loops-routing
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Test template-validator parity (bash)
         shell: bash
@@ -171,6 +404,31 @@ jobs:
         shell: pwsh
         run: ./tests/check-placeholders-brownfield.tests.ps1
 
+      - name: Test run-panelist-effort suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/run-panelist-effort.tests.sh
+
+      - name: Test run-panelist-effort suite (pwsh)
+        shell: pwsh
+        run: ./tests/run-panelist-effort.tests.ps1
+
+  # version-gates -- the bump-version and release loop-gate suites are the
+  # slowest non-installer steps on Windows (~9 min combined), so they get
+  # their own parallel job together with the model-freshness suite.
+  version-gates:
+    name: version-gates
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Test bump-version.sh loop-gate prerequisite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
@@ -191,17 +449,6 @@ jobs:
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
 
-      - name: Test run-panelist-effort suite (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        # Invoked via bash explicitly so the step does not depend on the
-        # committed exec bit (Windows-authored commits record mode 100644).
-        run: bash ./tests/run-panelist-effort.tests.sh
-
-      - name: Test run-panelist-effort suite (pwsh)
-        shell: pwsh
-        run: ./tests/run-panelist-effort.tests.ps1
-
       - name: Test model-freshness-check suite (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -213,6 +460,177 @@ jobs:
         shell: pwsh
         run: ./tests/model-freshness-check.tests.ps1
 
+      - name: Test project-context-schema suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/project-context-schema.tests.sh
+
+      - name: Test project-context-schema suite (pwsh)
+        shell: pwsh
+        run: ./tests/project-context-schema.tests.ps1
+
+      - name: Test approver-registry-schema suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/approver-registry-schema.tests.sh
+
+      - name: Test approver-registry-schema suite (pwsh)
+        shell: pwsh
+        run: ./tests/approver-registry-schema.tests.ps1
+
+      # epic-189-a1-project-context T-013 (REQ-011, AC-028): CI-staging
+      # reconciliation. T-001..T-012 each appended their own step to this
+      # staged candidate incrementally, and eight suites were left unregistered
+      # here while already registered in tests/run-all.{sh,ps1}. This block
+      # closes that drift so the staged candidate covers every suite the epic
+      # added, in both runtimes. All of these are deterministic: no LLM, no
+      # network, no `gh`, and no live sudo grant.
+      - name: Test canonicalize-sdd-yaml suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/canonicalize-sdd-yaml.tests.sh
+
+      - name: Test canonicalize-sdd-yaml suite (pwsh)
+        shell: pwsh
+        run: ./tests/canonicalize-sdd-yaml.tests.ps1
+
+      - name: Test generate-approval-sidecar suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/generate-approval-sidecar.tests.sh
+
+      - name: Test generate-approval-sidecar suite (pwsh)
+        shell: pwsh
+        run: ./tests/generate-approval-sidecar.tests.ps1
+
+      - name: Test detect-policy-weakening suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/detect-policy-weakening.tests.sh
+
+      - name: Test detect-policy-weakening suite (pwsh)
+        shell: pwsh
+        run: ./tests/detect-policy-weakening.tests.ps1
+
+      - name: Test validate-approval-sidecar suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/validate-approval-sidecar.tests.sh
+
+      - name: Test validate-approval-sidecar suite (pwsh)
+        shell: pwsh
+        run: ./tests/validate-approval-sidecar.tests.ps1
+
+      - name: Test apply-human-copy publisher suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/apply-human-copy.tests.sh
+
+      - name: Test apply-human-copy publisher suite (pwsh)
+        shell: pwsh
+        run: ./tests/apply-human-copy.tests.ps1
+
+      - name: Test hook-activation handshake suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-hook-activation-handshake.tests.sh
+
+      - name: Test hook-activation handshake suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-hook-activation-handshake.tests.ps1
+
+      - name: Test epic-a1 guard-invariants registration (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/guard-invariants-epic-a1.tests.sh
+
+      - name: Test epic-a1 guard-invariants registration (pwsh)
+        shell: pwsh
+        run: ./tests/guard-invariants-epic-a1.tests.ps1
+
+      # R-10 guard-fix package (staging exemption + command-prose pre-filter),
+      # discovered while implementing T-001. Bash-only: it drives
+      # sdd-hook-guard.{py,js,ps1} directly through one POSIX harness, so it has
+      # no .ps1 twin. That twin-pair gap is a recorded carryover, not a silent
+      # omission -- see reports/notes/epic-189-a1-carryover-items.md.
+      - name: Test R-10 guard staging exemption and prose pre-filter (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/guard-staging-exemption.tests.sh
+
+      # T-010 (REQ-008, AC-023): protected-write full-matrix deny. Drives the
+      # guard directly with synthetic payloads (no agent in the loop) across
+      # 4 basenames x 12 surfaces x 2 SDD_SUDO states in each runtime.
+      - name: Test hook-guard epic-a1 write-boundary matrix (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hook-guard-epic-a1-boundary.tests.sh
+
+      - name: Test hook-guard epic-a1 write-boundary matrix (pwsh)
+        shell: pwsh
+        run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
+
+      # T-011 (REQ-009, AC-024/AC-026/AC-039): ADR-0023 track-selection
+      # contract conformance for PLUGIN-CONTRACTS.md and the three UNPROTECTED
+      # migrated consumers. Fixture-driven -- it builds real project trees and
+      # drives the real approval signer/validator, with no agent in the loop.
+      - name: Test plugin-contracts track-selection contract (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/plugin-contracts-track-selection.tests.sh
+
+      - name: Test plugin-contracts track-selection contract (pwsh)
+        shell: pwsh
+        run: ./tests/plugin-contracts-track-selection.tests.ps1
+
+      # epic-189-a1-project-context T-012 (REQ-009/REQ-010): the ADR-0023
+      # migration of the two PROTECTED track-selection consumers, asserted
+      # against their staged candidates, plus AC-039's full 30-assertion
+      # five-consumer matrix and AC-035's full entry-point wiring inventory.
+      # Green in both publication states, so it does not depend on whether the
+      # human apply step has run yet.
+      - name: Test ship track-selection migration (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/ship-track-selection-migration.tests.sh
+
+      - name: Test ship track-selection migration (pwsh)
+        shell: pwsh
+        run: ./tests/ship-track-selection-migration.tests.ps1
+
+      # epic-190-a2-capability-registry (T-001..T-006): rebuilt against the
+      # post-3baadda5 parallel job split (this feature's own staged candidate
+      # predated that split and was stale against the 9-job/854-line live
+      # file it was meant to extend). Appended at the end of this job,
+      # alongside the other schema/generator suites already registered here
+      # (project-context-schema, canonicalize-sdd-yaml, etc.) since no prior
+      # task fixed a location before the split occurred.
       - name: Test capability-registry-schema suite (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -257,6 +675,17 @@ jobs:
         shell: pwsh
         run: ./tests/validate-capability-registry.tests.ps1
 
+      - name: Test generate-registry-digest suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/generate-registry-digest.tests.sh
+
+      - name: Test generate-registry-digest suite (pwsh)
+        shell: pwsh
+        run: ./tests/generate-registry-digest.tests.ps1
+
       - name: Test generate-gate-capabilities suite (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -267,164 +696,6 @@ jobs:
       - name: Test generate-gate-capabilities suite (pwsh)
         shell: pwsh
         run: ./tests/generate-gate-capabilities.tests.ps1
-
-      - name: Test deterministic gate scripts
-        shell: pwsh
-        run: ./tests/scripts.tests.ps1
-
-      - name: Test selected-feature structure validation
-        shell: pwsh
-        run: ./tests/structure-check-feature-mode.tests.ps1
-
-      - name: Test portable review-loop prechecks (pwsh)
-        shell: pwsh
-        run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
-
-      - name: Test cross-model gate (pwsh)
-        shell: pwsh
-        run: ./tests/cross-model.tests.ps1
-
-      - name: Test Phase 2 guard invariants (pwsh)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/phase2-guard-invariants.tests.ps1
-
-      - name: Test Phase 2 guard invariants (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: bash ./tests/phase2-guard-invariants.tests.sh
-
-      - name: Test hook guards
-        shell: pwsh
-        run: ./tests/hooks.tests.ps1
-
-      - name: Test cross-runtime scenario suite (pwsh)
-        shell: pwsh
-        run: ./tests/scenario.tests.ps1
-
-      - name: Test installer (pwsh)
-        shell: pwsh
-        run: ./tests/install.tests.ps1
-
-      - name: Test uninstaller (pwsh)
-        shell: pwsh
-        run: ./tests/uninstall.tests.ps1
-
-      - name: Test Claude registration (pwsh)
-        shell: pwsh
-        run: ./tests/claude-registration.tests.ps1
-
-      - name: Test authenticated remote installer (pwsh)
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./install.ps1 -Ref $env:GITHUB_SHA -InstallRoot (Join-Path $env:RUNNER_TEMP "sdd-remote-pwsh") -Target FilesOnly
-
-      - name: Test POSIX installer
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash -n ./tests/release-host-smoke.sh
-          ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
-
-      - name: Test POSIX uninstaller
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          ./tests/uninstall.tests.sh 2>&1 | tee "${{ runner.temp }}/uninstall-tests-sh.log"
-
-      - name: Test authenticated remote installer (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./install.sh --ref "$GITHUB_SHA" --install-root "${RUNNER_TEMP}/sdd-remote-bash" --target FilesOnly
-
-      - name: Test guards (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
-
-      - name: Test approval boundary (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
-
-      - name: Test deterministic gates (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
-
-      - name: Test panelist-input consent gate (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
-
-      - name: Test panelist-input consent gate (pwsh)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/prepare-panelist.tests.ps1
-
-      - name: Test portable review-loop prechecks (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/review-contract-foundation.tests.sh
-          bash tests/review-contract-foundation-parity.tests.sh
-          bash tests/spec-review-loop.tests.sh
-          bash tests/downstream-review-precheck.tests.sh
-          bash tests/downstream-review-precheck-parity.tests.sh
-          bash tests/impl-layer-review-inputs.tests.sh
-          bash tests/task-layer-review-inputs.tests.sh
-          bash tests/task-layer-full-profile.tests.sh
-          bash tests/task-review-precheck.tests.sh
-          bash tests/review-agent-isolation.tests.sh
-
-      - name: Test cross-model gate (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
-
-      - name: Test outcome-based eval suite (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
-
-      - name: Test CRLF line-ending parity (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
-
-      - name: Test cross-runtime scenario suite (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
-
-      - name: Test branch-protection script (bash)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
-
-      - name: Upload test logs
-        if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: test-logs-${{ matrix.os }}
-          path: ${{ runner.temp }}/*.log
-          if-no-files-found: ignore
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
@@ -440,11 +711,12 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: mcp/sdd-forge-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: the golden task-state tests exercise
           # check-evidence-bundle, which resolves each bundle's recorded
@@ -500,11 +772,12 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: mcp/local-env-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -551,11 +824,12 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: mcp/ci-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -599,8 +873,9 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Claude Code CLI
         shell: bash
@@ -625,13 +900,38 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, cli-hook-enforcement]
+    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check all required tests passed
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.installers.result }}" != "success" ]; then
+            echo "installers job failed"
+            exit 1
+          fi
+          if [ "${{ needs.loops-routing.result }}" != "success" ]; then
+            echo "loops-routing job failed"
+            exit 1
+          fi
+          if [ "${{ needs.version-gates.result }}" != "success" ]; then
+            echo "version-gates job failed"
+            exit 1
+          fi
+          if [ "${{ needs.mcp-tests.result }}" != "success" ]; then
+            echo "mcp-tests job failed"
+            exit 1
+          fi
+          if [ "${{ needs.local-env-mcp-tests.result }}" != "success" ]; then
+            echo "local-env-mcp-tests job failed"
+            exit 1
+          fi
+          if [ "${{ needs.ci-mcp-tests.result }}" != "success" ]; then
+            echo "ci-mcp-tests job failed"
             exit 1
           fi
           if [ "${{ needs.cli-hook-enforcement.result }}" != "success" ]; then
