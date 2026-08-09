@@ -6021,6 +6021,15 @@
       "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-002-0669",
       "previous_record_sha256": "bf556045592efff1c80efef6250da971aae5643bed5992cef0b4eb357768ade4",
       "record_sha256": "3837dc46b4c4c9116d0346f9fa0a158b14e87c872dd7433251f2898d90d96a1b"
+    },
+    {
+      "sequence": 670,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-002-seq0670",
+      "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-002-0670",
+      "previous_record_sha256": "3837dc46b4c4c9116d0346f9fa0a158b14e87c872dd7433251f2898d90d96a1b",
+      "record_sha256": "03f6ed723969936b8c74b73243e4a690972d5a8af8ef14f3b805386e24282b75"
     }
   ]
 }
