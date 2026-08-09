@@ -861,9 +861,9 @@ shared_paths:
     classification: cross-cutting
 WRONGEOF
 if check_inventory_conformance "$WRONG_SEED_INLINE_COMPONENTS" >/dev/null; then
-  fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with an inline components: [x] should have been rejected, but the check reported conformant"
+  fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with a block-form components: list should have been rejected, but the check reported conformant"
 else
-  ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with an inline components: [x]"
+  ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list"
 fi
 rm -f "$WRONG_SEED_INLINE_COMPONENTS"
 

@@ -71,7 +71,7 @@ ok: TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cu
 ok: TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')
 ok: TEST-042-negative.4: the check correctly rejects a case-divergent classification literal
 ok: TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'
-ok: TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with an inline components: [x]
+ok: TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list
 === TEST-043: no-op proof for the six-entry cross-cutting set ===
 ok: TEST-043.0: the no-op fixture really does declare zero component owners (components: [])
 ok: TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED

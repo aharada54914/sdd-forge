@@ -100,7 +100,11 @@ diff --name-only` to this remediation's own changes (concurrent, unrelated
 working-tree changes from other tasks' sessions sharing this worktree —
 `plugins/sdd-quality-loop/scripts/resolve-component-paths.{ps1,py}` and
 `tests/component-path-diff-basis.tests.{sh,ps1}` — are excluded as not
-this task's output). Excluded as not-an-implementation-output:
+this task's output). Refreshed again below (2026-08-10): T-005's own
+cycle-4 remediation reworded the `TEST-042-negative.6` assertion messages
+in this same shared file (message text only — see `T-005.md`'s Cycle-4
+remediation addendum), per RT-20260809-001's convention that a shared file
+is declared at its CURRENT on-disk hash. Excluded as not-an-implementation-output:
 `reports/quality-gate/epic-191-a3-path-ownership/T-005.md` (the finding this
 addendum responds to — a review artifact) and
 `specs/epic-191-a3-path-ownership/verification/T-005/*` (evidence logs,
@@ -111,8 +115,8 @@ excluded as hash-bound.
 
 | Path | SHA-256 |
 |---|---|
-| `tests/component-path-resolver.tests.ps1` | `e4a062e20333f9f4c762b58f62bbddf472a7b14ddcc3a265db11261dc3766bd4` |
-| `tests/component-path-resolver.tests.sh` | `8a07c1d61d8d7ec9216e1af5b954d63dc59badd74c7a05354b69d203a5b38008` |
+| `tests/component-path-resolver.tests.ps1` | `6220383131ea15d68f6885cd1ed866882f02c572def5e42a06582ca763023a2d` |
+| `tests/component-path-resolver.tests.sh` | `ab03017f92884b2211bfac8241909f9d177064732179c931d78c806b0e40edeb` |
 
 ## Test Evidence
 

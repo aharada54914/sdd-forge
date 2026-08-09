@@ -768,9 +768,9 @@ shared_paths:
 "@ | Set-Content -LiteralPath $wrongSeedFile6 -Encoding utf8 -NoNewline
 try {
     if ((Test-InventoryConformance $wrongSeedFile6).Conformant) {
-        Fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with an inline components: [x] should have been rejected, but the check reported conformant"
+        Fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with a block-form components: list should have been rejected, but the check reported conformant"
     } else {
-        Ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with an inline components: [x]"
+        Ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list"
     }
 } finally {
     Remove-Item -Force -LiteralPath $wrongSeedFile6 -ErrorAction SilentlyContinue
