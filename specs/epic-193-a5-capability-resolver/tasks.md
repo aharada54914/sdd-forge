@@ -729,7 +729,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -970,7 +970,7 @@ T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -1237,7 +1237,7 @@ T-001, T-003
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -1435,7 +1435,7 @@ T-002, T-004
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -1612,7 +1612,7 @@ T-004, T-005
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -1844,7 +1844,7 @@ T-004
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -2036,7 +2036,7 @@ T-001, T-006, T-007
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -2189,7 +2189,7 @@ T-002, T-003, T-004, T-005, T-006, T-007, T-008
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
