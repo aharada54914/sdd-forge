@@ -5,157 +5,236 @@
 | Field | Value |
 |---|---|
 | WFI-ID | WFI-025 |
-| Category | `workflow-correctness` at audit time (reclassified to `plugin-improvement` by the revisions below) |
+| Category | plugin-improvement |
 | Cycle | 1 of 2 |
 | Auditor Agent | wfi-auditor-a |
-| Verdict | **BLOCKED** |
-| Critical Findings | 1 |
+| Verdict | **NEEDS_REVISION** |
+| Critical Findings | 0 |
 | Major Findings | 4 |
-| Minor Findings (Advisory) | 1 |
+| Minor Findings (Advisory) | 0 |
 | Generated | 2026-08-10T00:00:00Z |
+| Audit-Attempt | 2 |
 
 Raw auditor output: `docs/workflow-improvements/WFI-025-auditor-a.json`.
+Attempt 1's artifacts are preserved verbatim under `WFI-025-attempt-1-*`.
 
-## Verdict: BLOCKED
+## Verdict: NEEDS_REVISION
 
-The WFI declared `Category: workflow-correctness`, which is not one of the four
-categories the classification flowchart defines. Because every language rule and
-every scope rule keys off the category, nothing downstream of that field could be
-certified, and the auditor correctly refused to pass it.
+Four of eight checks failed, all Major, none Critical. The two Criticals that
+BLOCKED attempt 1 — `CATEGORY-LANGUAGE-MATCH` in Cycle 1 and
+`FEASIBILITY-WITHOUT-PLUGINS` in Cycle 2 — were the reason attempt 2 exists, and
+`CATEGORY-LANGUAGE-MATCH` now **PASSES** against the revision that resolved it.
+That was the specific gap this attempt was opened to close, and it is closed.
 
-Six of eight checks failed. Two passed — and notably `ROOT-CAUSE-PLAUSIBLE`
-passed even after the auditor was asked to test the root cause against a known
-imprecision in the document's narration.
+The run halted at Cycle 1 without applying revisions and without invoking
+`wfi-auditor-b`, on the operator's explicit instruction that a NEEDS_REVISION or
+BLOCKED verdict stops the attempt. This is stricter than the process: STEP 4's
+NEEDS_REVISION path would apply the proposed revisions and continue to Cycle 2.
+The deviation is toward caution and is recorded rather than hidden.
+
+Two of the four Major findings are **artifacts of a stale installed plugin, not
+defects in WFI-025**. See "Orchestrator verification" below. Two are sound and
+stand on their own.
+
+---
 
 ## Findings
 
 ### Critical Findings
 
-- [CRITICAL] CATEGORY-LANGUAGE-MATCH — `Category: workflow-correctness` is not a
-  recognized value. WFI-025 is the only WFI in the repository using it; the
-  flowchart admits only `measurement`, `human-process`, `plugin-improvement` and
-  `app-dev-efficiency`. The auditor additionally flagged `Mechanism: script`,
-  which is not on the mechanism axis (`instructions | memory | tools |
-  architecture | model-routing`).
+None.
 
 ### Major Findings
 
-- [MAJOR] EVIDENCE-CITED — the three-feature rebind narrative cited no commit,
-  path, or ID a reader could check.
-- [MAJOR] CHANGE-CONCRETE — `## Proposed Change` was a prose list, not a Target
-  File / Change Description table.
-- [MAJOR] NO-PLUGIN-SCOPE-CREEP — every target resolves to a path inside
-  `plugins/`.
-- [MAJOR] VERIFICATION-METRIC-DEFINED — baseline not traceable to a
-  retrospective row; "the next full epic run" is not a quantified checkpoint.
+- [MAJOR] EVIDENCE-CITED — `## Problem Evidence` cites commit hashes and
+  `reports/task-review/.../precheck-result.json` artifacts, not "a real row in the
+  retrospective report or a real file in `docs/review-tickets/`" as the check
+  enumerates. The auditor independently verified every citation is factually
+  accurate before failing the check on its source requirement alone.
+- [MAJOR] CHANGE-CONCRETE — all four Target File rows name paths inside
+  `plugins/`. **Contaminated finding — see below.**
+- [MAJOR] VERIFICATION-METRIC-DEFINED — the baseline is not sourced from the
+  retrospective report, as check item 1 requires. The WFI states this outright,
+  and the auditor confirmed no such row exists in
+  `reports/retrospective/2026-08-05T145740Z-design-sync-consent.md`.
+- [MAJOR] NO-PLUGIN-SCOPE-CREEP — every Target File is inside `plugins/`.
+  **Contaminated finding — see below.**
 
 ### Minor Findings (Advisory)
 
-- [MINOR] VERIFICATION-PLAN-SPECIFIC — all four plan items were code tests; none
-  named the retrospective metric row that would carry the measurement forward.
+None. `VERIFICATION-PLAN-SPECIFIC` passed on item 5 of the Verification Plan.
+
+---
+
+## Auditor Reasoning
+
+### EVIDENCE-CITED
+Result: FAIL (Major)
+Evidence: The auditor resolved all three cited commits (`340f0149`, `b836a11e`,
+`726a5a0c`) through `git ls-tree` / `git show`, confirmed the artifacts exist in
+them, and corroborated two independent details — that `726a5a0c`'s precheck
+`tasks_sha256` (`7bf1a5cd…`) matches the WFI's own scratch-copy pre-flip digest,
+and that `b836a11e`'s `task-review-contract.json` `human_edit_summary` verbatim
+records both reviewers flagging the replacement binding as mixed. It then failed
+the check purely on the enumerated-source clause.
+
+### ROOT-CAUSE-PLAUSIBLE
+Result: PASS
+Evidence: Verified against the live code, not just the prose —
+`task-review-precheck.sh:494` is `tasks_sha256=$(sha256 "${TASKS_MD}")`, and
+`check-workflow-state.sh`'s `reviewed_hash_accepted()` (lines 234-241) admits all
+four forms. The producer/acceptor asymmetry is real.
+
+### CATEGORY-LANGUAGE-MATCH
+Result: PASS (Critical check, cleared)
+Evidence: `plugin-improvement` is a valid category. The auditor grepped the whole
+document for every Section 2 forbidden term and found five occurrences, all
+outside the scanned scope: four in the Target File column and one in prose below
+the table (`"The task plan is manifested only by \`task-review-loop\`"`, line 197).
+Section 2 scopes the rule to `## Root Cause Hypothesis`, the `## Proposed Change`
+**Change Description column**, and `## Expected Effect`; those three contain zero
+forbidden terms.
+
+This is the finding attempt 2 was opened to obtain. The `workflow-correctness` →
+`plugin-improvement` reclassification, made by attempt 1's orchestrator rather
+than by any auditor, has now been examined by an auditor with no knowledge of
+attempt 1 and cleared.
+
+### CHANGE-CONCRETE
+Result: FAIL (Major) — **contaminated**
+Evidence: The auditor found the Change Description text "concrete and non-vague in
+every row" and failed the check solely on the `plugins/` paths.
+
+### EFFECT-MEASURABLE
+Result: PASS
+Evidence: "attempts 5, 3 and 5 … Average task-stage attempts per feature falls
+from 4.3 to 1.0" — generic metric name plus a quantitative target.
+
+### VERIFICATION-METRIC-DEFINED
+Result: FAIL (Major)
+Evidence: One primary metric, target `0`, checkpoint "the next 3 features" are all
+present. Only item 1 (baseline from the retrospective report) fails, and the WFI
+concedes it: "not from a retrospective table row: no retrospective covers this
+session".
+
+### VERIFICATION-PLAN-SPECIFIC
+Result: PASS
+Evidence: Item 5 names the exact retrospective row to be added and the baseline
+and target it will be compared against.
+
+### NO-PLUGIN-SCOPE-CREEP
+Result: FAIL (Major) — **contaminated**
+Evidence: The auditor reported, unprompted and correctly, that its role definition
+"contains no carve-out clause of any kind".
+
+---
 
 ## Orchestrator verification of the audit
 
-Two of the auditor's findings were checked against the repository before being
-acted on, and one of its proposed revisions was rejected as unsound.
+The auditor was checked before being acted on. It was right about something the
+task instructions told it was false, and that inverts two of its four findings.
 
-**The `plugins/` carve-out was missed.** `wfi-auditor-a.md:129-154` carries an
-explicit carve-out: a `plugins/` path is *not* a finding when the WFI declares
-`Category: plugin-improvement`, states in its `## Category` section that this
-repository is the plugin's source of truth and that the change travels as a
-repository commit, and carries a `## GitHub-Issue` section. The check text
-requires an auditor applying it to say so and name the conditions verified — and,
-by the same logic, a silent non-application is indistinguishable from a missed
-check. The auditor never mentioned the carve-out.
+**The carve-out does not exist in the agent definition that actually ran.** The
+task prompt told the auditor that `wfi-auditor-a.md:129-154` carries a
+three-condition carve-out for `plugins/` paths and that it must either apply it or
+say which condition failed. The auditor replied that no such text is in its role
+definition, and declined to invent one — refusing, in its words, to soften a
+finding "based on an unverified claim in a task message rather than my actual role
+text". That was the correct call, and the claim in the prompt was the unreliable
+input.
 
-That matters because the carve-out's own provenance note records it was added by
-human decision on 2026-08-03 to resolve exactly this failure, which WFI-020 hit
-twice. WFI-020's attempt-2 was BLOCKED at Cycle 1 with the identical triple —
-Critical CATEGORY-LANGUAGE-MATCH plus Major CHANGE-CONCRETE and
-NO-PLUGIN-SCOPE-CREEP for naming `plugins/` paths.
+The executed agent definition is the **installed** plugin, not this repository's
+copy:
 
-**The proposed category was wrong.** The auditor recommended `measurement`,
-reasoning from the WFI's own self-description ("changes what a deterministic gate
-accepts as a valid binding") rather than from the flowchart's actual test, which
-is *anything that MEASURES the workflow* — graders, thresholds, retrospective or
-audit logic, run-record definitions. A provenance digest binds document identity;
-it grades nothing and feeds no metric. Q1 is NO. Q2 (approval policy, escalation,
-what humans review) is NO. Q3 is YES on its second clause: this is a cross-plugin
-handoff, the producing side living in the review gate plugin and the accepting
-side in the quality verification gate plugin, and the defect *is* their
-disagreement. The correct category is `plugin-improvement`.
+```
+installed: ~/.claude/plugins/cache/sdd-plugins/sdd-quality-loop/1.10.0/agents/wfi-auditor-a.md
+repo:      plugins/sdd-quality-loop/agents/wfi-auditor-a.md   (plugin.json version 1.14.0)
+```
 
-Taking the auditor's recommendation would have been actively harmful. Under
-`measurement` the carve-out is unavailable by its own terms ("For every other
-Category — `app-dev-efficiency`, `human-process`, `measurement` — a `plugins/`
-path remains a Major finding with no exception"), so its third proposed revision
-followed: strip the real targets out of the WFI and route them elsewhere. For a
-change that is *only* a plugin script change, in the repository that is the
-plugin's source of truth, that produces a WFI which cannot name what it does —
-the precise unsatisfiability the carve-out exists to prevent.
+`diff` between them returns exactly two hunks and nothing else: the CHANGE-CONCRETE
+cross-reference sentence, and the entire `**Carve-out — the plugin's own source
+repository.**` block with its three conditions and its provenance note. The
+installed file is dated 2026-08-02; the carve-out's own provenance line records it
+was "added by human decision on 2026-08-03". The installed copy predates the
+decision by one day.
 
-**Two evidence citations were wrong.** The auditor's `## Problem Evidence`
-revision paired commit `39065c9b` with
-`.../epic-190-a2-capability-registry/attempt-5/round-1/precheck-result.json`.
-Both commits it named are real (`git cat-file -t` confirms; the messages match
-its quotations), but `git ls-tree` at `39065c9b` shows only `attempt-1` and
-`attempt-4` — the attempt-5 artifact first appears at `340f0149`, whose message
-("pass T-007, escalate T-005 and T-006, re-bind the plan") is the rebind the WFI
-actually describes. The `epic-191-a3` citation was given with no commit at all;
-`726a5a0c` is the one. Only the `epic-194-a6` pairing was correct as written.
-The corrected triple was written into the WFI; the auditor's was not.
+`wfi-auditor-b.md` and `wfi-category-guide.md` are byte-identical between installed
+and repo, so Cycle 2 and every language rule would have run against current text.
+The contamination is confined to `wfi-auditor-a`'s two `plugins/`-path checks.
+
+**Consequences, stated precisely:**
+
+1. `CHANGE-CONCRETE` and `NO-PLUGIN-SCOPE-CREEP` are *correct* against the text the
+   auditor was given and *wrong* against the authoritative definition in this
+   repository. Under the current text the carve-out applies. All three conditions
+   were verified independently by the orchestrator against `WFI-025.md`:
+   - condition 1 — `Category: plugin-improvement` (line 20);
+   - condition 2 — the `## Category` section states in its own words that "This
+     repository is the source of truth for the plugins named in `## Proposed
+     Change`, not a consuming project holding a vendored copy of them. The change
+     is delivered as an ordinary commit to this repository" (lines 32-35);
+   - condition 3 — `## GitHub-Issue` is present carrying an explicit statement of
+     when the issue is filed: "Pending — filed against this repository on human
+     approval" (line 57).
+2. The auditor's third proposed revision escalates the `plugins/` tension to a
+   human for a policy ruling. That ruling was already made on 2026-08-03. The stale
+   definition is re-litigating a settled decision, which is the specific harm the
+   carve-out was written to end.
+3. **Attempt 1's cycle-1 report needs a correction.** It recorded that "The
+   auditor never mentioned the carve-out" and treated that as a missed check. The
+   observation was right; the attributed cause was wrong. That auditor could not
+   have mentioned the carve-out — it was not in its instructions either. The defect
+   is environmental, not a lapse of auditor judgement, and it has now recurred
+   identically across two independent attempts, which is what a stale-input defect
+   looks like and what an auditor-quality defect does not.
+
+**The other two findings are not contaminated.** `EVIDENCE-CITED` and
+`VERIFICATION-METRIC-DEFINED` have byte-identical check text in 1.10.0 and 1.14.0.
+Both were applied to the letter, both were backed by verification work rather than
+assertion, and both identify a real mismatch between what the WFI cites and what
+the check enumerates as an admissible source. They are arguable — the WFI argues
+the point itself, and no retrospective row it could cite exists — but they are the
+auditor's to make, and they are enough to hold the verdict at NEEDS_REVISION
+independently of the carve-out question.
 
 ## Revisions applied
 
-| # | Section | Applied |
-|---|---|---|
-| 1 | `## Category` | `plugin-improvement` (not the auditor's `measurement`), with the flowchart walk recorded as a comment and the carve-out's source-of-truth statement written in prose. `Meta-Change: true` retained, per the WFI-020 precedent, so the classification buys the tracking-issue lane without buying a weaker audit. |
-| 2 | `## Mechanism` | `script` → `tools`, as the auditor found. |
-| 3 | `## GitHub-Issue` | `N/A` → `Pending — filed against this repository on human approval`, satisfying carve-out condition 3. The session did not open the issue: creating public content is a human-authorized action and no authorization was given. |
-| 4 | `## Problem Evidence` | Corrected citations added (commits `340f0149`, `b836a11e`, `726a5a0c` with their artifact paths), plus an explicit note that these are primary artifacts rather than retrospective rows and why. The auditor's suggestion to file an RT ticket was not taken — item 5 of the Verification Plan addresses the same gap structurally. |
-| 5 | `## Problem Evidence` | **Orchestrator-initiated.** The claim that forms 1/3/4 "all require the file's statuses to be uniform" was mechanically wrong — those forms are well-defined on any file. Rewritten around the real mechanism: a raw digest survives a flip only when normalization was already a no-op when it was taken. The reproduction paragraph now carries the actual digests and the `reviewed_hash_accepted` replay result. |
-| 6 | `## Root Cause Hypothesis` | Rewritten to survive that correction. The durable forms are not dead code — they are load-bearing on the re-review path, where a uniform plan makes raw coincide with form 3 or 4. The defect is narrower and truer: their invariance is a property of the file's state when the digest was taken, never something the producer can choose. |
-| 7 | `## Proposed Change` | Reformatted as a Target File / Change Description table, keeping the real `plugins/` paths under the carve-out. Added the `Meta-Change` non-decreasing guard and an explicit anti-Goodhart paragraph. |
-| 8 | `## Expected Effect` | Feature slugs replaced with generic terms per Section 2, retaining the numbers: attempts 5, 3 and 5 → 1, average 4.3 → 1.0. |
-| 9 | `## Verification Metric` | Baseline sourcing stated honestly (direct observation, not a retrospective row, with the reason no such row exists); checkpoint quantified to the next 3 features. |
-| 10 | `## Verification Plan` | Item 4 extended with a negative case that binds the new cross-check itself. Item 5 added for the retrospective metric row. |
-| 11 | `## Rollback-Plan` | Extended to state that the accepting side was never modified, so nothing needs un-widening, and that `tasks_sha256_form` becomes inert. |
+**None.** The attempt halted at Cycle 1 per the operator's instruction. Applying
+findings and continuing is precisely the deviation attempt 2 exists to correct, and
+two of the four findings should not be applied at all.
+
+For a future attempt 3, the live questions are:
+- whether to update the installed `sdd-quality-loop` plugin from 1.10.0 to 1.14.0
+  before auditing again, so `wfi-auditor-a` runs with the carve-out it is supposed
+  to have (this is the root fix — without it, attempt 3's Cycle 1 will return the
+  same two spurious Majors);
+- whether to file a review ticket carrying the three rebind observations, which
+  would resolve `EVIDENCE-CITED` and `VERIFICATION-METRIC-DEFINED` together, as the
+  auditor proposed;
+- or whether the human approver rules that a WFI documenting first-hand primary
+  artifacts, in a session no retrospective covers, satisfies those two checks as
+  written.
 
 ## State after this cycle
 
-Cycle 1 returned BLOCKED. `wfi-audit-cycle` STEP 4's BLOCKED path would halt here
-and require a fresh attempt starting again at Cycle 1. This session instead
-applied the revisions and continued to Cycle 2, on the operator's explicit
-instruction to run both cycles. The deviation is recorded rather than hidden:
-`Audit-Attempt: 1` is set on the WFI, and the Critical that caused the BLOCKED
-was resolved by revision 1 before Cycle 2 began.
+`Audit-Status` is returned to `Not-Started` with `Audit-Attempt: 2` unchanged. The
+counter was **not** incremented: STEP 4 increments on BLOCKED, and this cycle was
+NEEDS_REVISION halted by operator instruction, not by the process's BLOCKED path.
+Attempt 3 therefore remains available before the convergence guard trips.
 
-The residual risk of that shortcut is that the corrected category — the
-orchestrator's judgement, not the auditor's — never faced an independent check by
-the agent that raised it. It is partly covered: `wfi-auditor-b` runs
-`CATEGORY-LANGUAGE-SECOND-PASS` and receives the revised document with no
-knowledge of Cycle 1's reasoning, so the reclassification is re-examined blind.
+`Audit-Content-Hash` remains deliberately absent. Writing it now would arm the
+Precondition no-change guard against a document that may correctly need no
+revision at all — if the stale-plugin root cause is fixed and the human rules on
+the two sourcing checks, attempt 3 could legitimately re-audit an unchanged body.
+An absent field fails safe.
 
-`Audit-Content-Hash` is deliberately absent, following the WFI-020 precedent: the
-revisions were applied before the field could be written, so the pre-revision body
-no longer exists and the true value is unrecoverable. Writing the post-revision
-hash would invert the no-change guard and halt a later attempt as "unchanged"
-despite substantial revision. An absent field fails safe.
+`Status:` was not touched and remains `Draft`. No GitHub issue was created: that is
+a human-authorized action and no authorization was given for this run.
 
 ## Orchestrator note
 
-`wfi-auditor-a` is read-only by charter and holds no write tool, so it returned
-its JSON body and this session persisted it verbatim to `WFI-025-auditor-a.json`.
-No check result, severity, finding, or proposed revision was altered. Where the
-orchestrator disagreed — the category, the citations, the plugin-scope findings —
-the disagreement is argued above and applied to the WFI, not edited into the
-auditor's record.
-
-Before either cycle ran, the WFI's central factual claim was verified
-independently against the live scripts: the four accepted forms at
-`check-workflow-state.sh:234-244`, the raw computation at
-`task-review-precheck.sh:494`, the validator's raw-equality requirement at
-`validate-review-context-set.sh:302-304` and its round-consistency check at
-`:326`, and a reproduction on a scratch copy showing the raw digest changing
-across a status flip while all three invariant forms hold. The premise is sound;
-the audit was therefore about the quality of the proposal built on it.
+`wfi-auditor-a` is read-only by charter and holds no write tool, so it returned its
+JSON body and this session persisted it verbatim to `WFI-025-auditor-a.json`. No
+check result, severity, finding, or proposed revision was altered — including the
+two the orchestrator believes are wrong. The disagreement is argued here, not
+edited into the auditor's record.
