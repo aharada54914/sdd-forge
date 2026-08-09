@@ -4,10 +4,23 @@
 
 - **Capability Resolver steps 0-3 (Issue #193, epic-193-a5 T-002)**:
   Project Context の入力検証、workflow state 導出、2-pass canonicalization、
-  Context Projection のメモリ内 staging、および早期 Block 5診断を実装。
-  `resolve-project-context-block.tests.{sh,ps1}` で無効 workflow の2分岐を
-  含む6シナリオを固定した。保護対象の適用候補は呼び出し側の指示に従い
-  `verification/T-002/staged/` に置き、`human-copy/` と live plugin は未変更。
+  Context Projection のメモリ内 staging、および早期 Block の 5 診断行を
+  実装。`resolve-project-context-block.tests.{sh,ps1}`（共有ドライバは
+  `tests/resolve-project-context-block-check.py`）で **10 invocation /
+  73 アサーション** を固定した — 無効 workflow の 2 分岐を含む Block
+  マトリクスの 6 invocation、step 3 Context Projection の組み立て
+  2 invocation、および step 3 自身の 2 回目 canonicalizer パスの Block
+  2 invocation。sh/ps1 とも 73 passed / 0 failed、TDD RED は同一ドライバで
+  2 passed / 10 failed。step 3 の 35 アサーションは 14 mutation で
+  非空虚性を実証済み。
+  R-10 保護対象の適用候補 4 件 — `plugins/sdd-quality-loop/scripts/
+  resolve-project-context.{py,sh,ps1}` と `.github/workflows/test.yml` —
+  は `specs/epic-193-a5-capability-resolver/human-copy/` 配下のミラー先
+  パスに staged 済み（同ディレクトリの `MANIFEST.sha256` は 4 entry で
+  `shasum -a 256 -c` が 4/4 OK, exit 0）。
+  **必要な人間アクション: この 4 件をレビューして適用すること。** 適用まで
+  live の `plugins/**` と live の `.github/workflows/test.yml` は
+  byte-unchanged で、この機能はまだ実行経路に入らない。
 
 ### Fixed
 
