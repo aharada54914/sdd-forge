@@ -697,6 +697,22 @@ jobs:
         shell: pwsh
         run: ./tests/generate-gate-capabilities.tests.ps1
 
+      # epic-190-a2-capability-registry T-007 (REQ-006, AC-031/AC-033): the
+      # cross-script parity and installed-layout invocation harness. Appended
+      # last, closing this feature's suite registration chain in task order.
+      # It shells out to bash, pwsh and node from either entry point, so both
+      # steps carry the same runtime expectations as the suites above.
+      - name: Test capability-registry-parity suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/capability-registry-parity.tests.sh
+
+      - name: Test capability-registry-parity suite (pwsh)
+        shell: pwsh
+        run: ./tests/capability-registry-parity.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

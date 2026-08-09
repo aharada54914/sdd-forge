@@ -60,7 +60,8 @@ $tests = @(
     'tests/registry-discovery.tests.ps1',
     'tests/validate-capability-registry.tests.ps1',
     'tests/generate-registry-digest.tests.ps1',
-    'tests/generate-gate-capabilities.tests.ps1'
+    'tests/generate-gate-capabilities.tests.ps1',
+    'tests/capability-registry-parity.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

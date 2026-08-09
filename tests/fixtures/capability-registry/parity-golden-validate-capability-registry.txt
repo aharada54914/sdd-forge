@@ -1,0 +1,1 @@
+validate-capability-registry: all 9 checks passed.

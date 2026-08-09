@@ -102,6 +102,7 @@ tests=(
   tests/validate-capability-registry.tests.sh
   tests/generate-registry-digest.tests.sh
   tests/generate-gate-capabilities.tests.sh
+  tests/capability-registry-parity.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

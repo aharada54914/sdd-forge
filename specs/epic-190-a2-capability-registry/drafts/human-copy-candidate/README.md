@@ -96,6 +96,39 @@ entry removed), proving the assertion is not vacuous. See
 `reports/implementation/epic-190-a2-capability-registry/T-006.md`'s
 "Quality-gate remediation correction" section for the full record.
 
+## T-007 append (2026-08-09) -- one more pending apply, workflow only
+
+The human apply recorded in commit `86b9aa7b` ("apply the regenerated
+human-copy bundle") brought `specs/epic-190-a2-capability-registry/human-copy/`
+in line with this directory as it stood at that moment, and T-006's own suite
+went to `pass=21 fail=0 designed-red=0`.
+
+T-007 ("Author the cross-script parity and installed-layout invocation
+harness") then appended **its own two CI steps** -- `tests/
+capability-registry-parity.tests.sh` and `.ps1`, at the end of the
+`version-gates` job, immediately after `generate-gate-capabilities`'s pair --
+to `.github/workflows/test.yml.candidate`, and recomputed that file's entry in
+`MANIFEST.sha256.candidate`. That append is the LAST one this feature makes:
+the candidate now carries every one of this feature's suite pairs in task
+order (T-001 `capability-registry-schema`, T-002 `evaluate-predicate`, T-003
+`registry-discovery`, T-004 `validate-capability-registry`, T-005
+`generate-registry-digest`, T-006 `generate-gate-capabilities`, T-007
+`capability-registry-parity`).
+
+Nothing else in this directory changed, so **only two files need re-applying**:
+
+| Candidate file | Target |
+|---|---|
+| `.github/workflows/test.yml.candidate` | `specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml` |
+| `MANIFEST.sha256.candidate` | `specs/epic-190-a2-capability-registry/human-copy/MANIFEST.sha256` |
+
+Until that lands, `tests/capability-registry-parity.tests.sh`/`.ps1` reports
+exactly one `DESIGNED-RED` result naming this action, and exits non-zero with
+`fail=0`. It turns green with no suite-code change once the two files above
+are copied. (`tests/generate-gate-capabilities.tests.sh`/`.ps1` stays green
+throughout: its own candidate-vs-`MANIFEST.sha256.candidate` check was
+updated in the same edit.)
+
 ## Human apply step (unchanged procedure, new source directory)
 
 1. For each row above, `cp` the candidate file to its real target path
