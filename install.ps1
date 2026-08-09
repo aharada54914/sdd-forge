@@ -632,7 +632,11 @@ try {
         # payload placement is handled exclusively by Install-McpServerPayloads
         # (dist/ + package.json only, gated by -SkipMcp / -Mcp / the Node >= 20
         # check), so staging it unconditionally here would bypass that gating.
-        $trackedFiles = & git -C $sourceRoot ls-files -- . ':!mcp/**'
+        # tests/fixtures/ is excluded too: it is Git-tracked test scaffolding,
+        # not part of the installed product, and some fixtures are themselves
+        # symlinks that this loop's reparse-point rejection would otherwise
+        # (correctly, but unhelpfully) refuse to stage.
+        $trackedFiles = & git -C $sourceRoot ls-files -- . ':!mcp/**' ':!tests/fixtures/**'
         if ($LASTEXITCODE -ne 0) {
             throw "Unable to enumerate Git-tracked source files."
         }

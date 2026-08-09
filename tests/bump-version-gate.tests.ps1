@@ -48,7 +48,11 @@ function New-Fixture {
     Remove-Item -LiteralPath (Join-Path $fixtureRoot "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
 
     $fixtureRoot = (Resolve-Path -LiteralPath $fixtureRoot).Path
-    & git -C $fixtureRoot init -q
+    # core.longpaths=true: the fixture root already sits under a generated
+    # temp path, and some tracked paths under specs/ (e.g. the T-006/T-007
+    # human-copy-candidate tree) are long enough that the combination trips
+    # Windows MAX_PATH (260) inside git's own path handling.
+    & git -C $fixtureRoot -c core.longpaths=true init -q
     if ($LASTEXITCODE -ne 0) { throw "git init failed in $fixtureRoot" }
     return $fixtureRoot
 }
@@ -81,9 +85,11 @@ function Set-FixtureChangelogHeading {
 # `git status --porcelain` call in this suite is measured against.
 function Set-FixtureBaseline {
     param([string]$FixtureRoot)
-    & git -C $FixtureRoot -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" add -A
+    # core.longpaths=true: see New-Fixture's git init above — this add/commit
+    # pair is the one that actually walks the long human-copy-candidate paths.
+    & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" add -A
     if ($LASTEXITCODE -ne 0) { throw "git add -A failed in $FixtureRoot" }
-    & git -C $FixtureRoot -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
+    & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
     if ($LASTEXITCODE -ne 0) { throw "git commit failed in $FixtureRoot" }
 }
 
@@ -101,7 +107,8 @@ function Invoke-BumpVersion {
 
 function Get-FixturePorcelain {
     param([string]$FixtureRoot)
-    $out = & git -C $FixtureRoot status --porcelain
+    # core.longpaths=true: see New-Fixture's git init above.
+    $out = & git -C $FixtureRoot -c core.longpaths=true status --porcelain
     return ($out -join "`n")
 }
 
