@@ -740,17 +740,21 @@ try {
 # cross-cutting with an inline components: [x] -- an invalid shape a
 # structure-blind line scanner's HasComponents flag never saw (it only
 # recognised block-form components:), so the entry read as plain
-# cross-cutting and the check missed the extra inline field entirely. The
-# restricted YAML-subset parser itself rejects unquoted inline [...]
-# scalars (ConvertFrom-MinimalYaml only supports the empty flow sequence
-# []), so this fails closed via a parse error, same as any unparseable
-# template would -- never a skip.
+# cross-cutting and the check missed the extra field entirely.
+#
+# Block form, deliberately. An inline `components: [x]` is rejected by the
+# restricted parser before the entry ever reaches components detection, so
+# the sub-case would fail closed on a parse error rather than on the logic
+# it is named for -- and a mutation deleting the detection clause would
+# survive it. A quality gate proved exactly that. Block form is parsed, so
+# the fixture now exercises the branch it claims to guard.
 $wrongSeedFile6 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed6." + [Guid]::NewGuid().ToString("N") + ".yaml")
 @"
 shared_paths:
   - pattern: "specs/**"
     classification: cross-cutting
-    components: [some-component]
+    components:
+      - some-component
   - pattern: "reports/**"
     classification: cross-cutting
   - pattern: "docs/**"

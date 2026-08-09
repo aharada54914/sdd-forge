@@ -111,8 +111,8 @@ excluded as hash-bound.
 
 | Path | SHA-256 |
 |---|---|
-| `tests/component-path-resolver.tests.ps1` | `a1d7a73472ea3292d19a24b3a82bdc192023da94da6a4eb642afd40fb66b4fbd` |
-| `tests/component-path-resolver.tests.sh` | `727c29415c7c1bd11f05aa3cd0fb5807925ab3f338d9d7e1d9a5cadb77d3e829` |
+| `tests/component-path-resolver.tests.ps1` | `e4a062e20333f9f4c762b58f62bbddf472a7b14ddcc3a265db11261dc3766bd4` |
+| `tests/component-path-resolver.tests.sh` | `8a07c1d61d8d7ec9216e1af5b954d63dc59badd74c7a05354b69d203a5b38008` |
 
 ## Test Evidence
 
