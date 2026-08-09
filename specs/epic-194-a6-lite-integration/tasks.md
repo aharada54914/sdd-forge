@@ -846,7 +846,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
 Approval: Approved (sudo 2026-07-22T15:44:54Z)
 
-Status: Implementation Complete
+Status: Done
 
 Implementation Note (2026-07-22T16:02:11Z, a6-impl2): unlike T-001/T-002/
 T-003, this task's own target (`plugins/sdd-lite/skills/lite-gate/SKILL.md`)
