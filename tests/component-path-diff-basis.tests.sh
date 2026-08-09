@@ -457,6 +457,33 @@ else
 fi
 
 # ============================================================================
+# DEFECT-002: tab-indentation guard (REQ-001 config parsing) fails closed on
+# a bare leading tab. Found in passing during T-002 remediation and fixed
+# here; not part of the T-002/AC-019..025 catalog this suite otherwise
+# covers (REQ-001's YAML tab-indentation guard is conceptually T-001/
+# component-path-resolver territory, but that suite is concurrently being
+# remediated by another agent for T-005, so this regression check lives
+# here instead, against the same shared resolve-component-paths
+# implementation both suites exercise). Root cause: the guard computed an
+# indent depth by stripping only " " (space) characters, then checked that
+# same space-only-derived prefix for a tab -- a prefix that, by
+# construction, can never contain a tab. It never fired for ANY
+# tab-indented line, not just a bare leading tab.
+# ============================================================================
+echo "=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ==="
+TAB_CONFIG="${WORK}/tab-indent-config.yaml"
+printf 'components:\n\t- id: desktop\n\t  paths:\n\t    include:\n\t      - "src/desktop/**"\n' > "$TAB_CONFIG"
+set +e
+err=$(printf '' | "$SCRIPT" --config "$TAB_CONFIG" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "spaces, not tabs"; then
+  ok "DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnostic (real CLI invocation)"
+else
+  fail "DEFECT-002.1: expected a non-zero exit and a 'spaces, not tabs' diagnostic, got exit=$code out=$err"
+fi
+
+# ============================================================================
 # Suite/CI registration self-check
 # ============================================================================
 echo "=== registration self-check ==="

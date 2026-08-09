@@ -105,6 +105,23 @@ function Get-IndentOf {
     return $Line.Length - $Line.TrimStart(" ").Length
 }
 
+function Get-LeadingWhitespace {
+    # Deliberately trims BOTH " " and "`t" here (unlike Get-IndentOf, which
+    # only trims " " to measure a space-only indent depth), so the tab
+    # guard below sees the true leading-whitespace run. A bare leading tab
+    # has zero leading SPACES, so `$raw.Substring(0, (Get-IndentOf $raw))`
+    # -- taking only as many characters as Get-IndentOf counted -- was
+    # always the empty string for such a line and could never contain a
+    # tab; the same held for spaces-then-tab indentation, since
+    # Get-IndentOf stops counting at the first non-space character. That
+    # made the guard this replaces permanently unable to fire for any
+    # tab-indented line, not just a bare leading tab (mirrors the identical
+    # fix in resolve-component-paths.py's _leading_whitespace).
+    param([string]$Line)
+    $trimmedLen = $Line.TrimStart(" ", "`t").Length
+    return $Line.Substring(0, $Line.Length - $trimmedLen)
+}
+
 class YamlLineReader {
     [System.Collections.Generic.List[object]]$Lines
     [int]$Pos
@@ -116,8 +133,7 @@ class YamlLineReader {
         foreach ($raw in $normalized -split "`n") {
             $stripped = (Strip-Comment $raw).TrimEnd()
             if ($stripped.Trim() -eq "") { continue }
-            $indentPrefix = $raw.Substring(0, (Get-IndentOf $raw))
-            if ($indentPrefix.Contains("`t")) {
+            if ((Get-LeadingWhitespace $raw).Contains("`t")) {
                 throw [ConfigError]::new("YAML indentation must use spaces, not tabs")
             }
             $indent = Get-IndentOf $stripped

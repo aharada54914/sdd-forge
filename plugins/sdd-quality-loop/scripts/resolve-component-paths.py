@@ -134,6 +134,20 @@ def _indent_of(line: str) -> int:
     return len(line) - len(line.lstrip(" "))
 
 
+def _leading_whitespace(line: str) -> str:
+    # Deliberately strips BOTH " " and "\t" here (unlike _indent_of, which
+    # only strips " " to measure a space-only indent depth) so the tab
+    # guard below sees the true leading-whitespace run. A bare leading tab
+    # has zero leading SPACES, so `raw[: _indent_of(raw)]` -- slicing only
+    # as many characters as _indent_of counted -- is always the empty
+    # string for such a line and can never contain a tab; the same holds
+    # for spaces-then-tab indentation, since _indent_of stops counting at
+    # the first non-space character. That made the guard this replaces
+    # permanently unable to fire for any tab-indented line, not just a
+    # bare leading tab.
+    return line[: len(line) - len(line.lstrip(" \t"))]
+
+
 class _Lines:
     def __init__(self, text: str):
         raw_lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
@@ -142,7 +156,7 @@ class _Lines:
             stripped = _strip_comment(raw).rstrip()
             if stripped.strip() == "":
                 continue
-            if "\t" in raw[: _indent_of(raw)]:
+            if "\t" in _leading_whitespace(raw):
                 raise ConfigError("YAML indentation must use spaces, not tabs")
             self.lines.append((_indent_of(stripped), stripped.strip()))
         self.pos = 0

@@ -122,6 +122,22 @@ if ($obj.records.Count -eq 3 `
 }
 
 # ============================================================================
+# Dot-source the real product script once so TEST-021.2 and TEST-025.2 below
+# can call its actual functions (ConvertTo-PathStrict, Get-ChangedPaths)
+# directly, rather than the standalone reproductions this suite previously
+# used for both (see specs/epic-191-a3-path-ownership/verification/T-002/
+# component-path-diff-basis-ps1.RED.log: both were confirmed structurally
+# unable to catch a regression in the real functions -- a pre-existing gap
+# in this suite's own design, not something T-002's remediation introduced).
+# Safe: the script's CLI dispatch is guarded by
+# `if ($MyInvocation.InvocationName -ne '.')`, so dot-sourcing here only
+# defines functions/classes in this scope; it never runs the CLI body.
+# Mirrors the bash twin's use of importlib to load the real
+# resolve-component-paths.py module for the same two cases.
+# ============================================================================
+. $scriptPs1
+
+# ============================================================================
 # TEST-021 (AC-021): NUL-safe framing (TAB round-trip; invalid-UTF-8 as a
 # direct unit test, same rationale as the bash twin)
 # ============================================================================
@@ -143,19 +159,23 @@ if ((Get-Classification $r.Output $tabName) -eq "EXCLUSIVE") {
     Fail "TEST-021.1: expected the TAB-containing path to round-trip and classify EXCLUSIVE"
 }
 
-# Direct unit test (same rationale as the bash twin: macOS's own filesystem
-# does not permit creating an invalid-UTF-8-named file on disk). $Utf8Strict
-# is script-scoped inside resolve-component-paths.ps1 and not accessible
-# here; reproduce the same strict-decode contract standalone instead of
-# dot-sourcing the CLI script (which would also execute its CLI
-# dispatch/exit logic in this process).
+# Direct unit test of the real product function (same rationale as the bash
+# twin, which importlib-loads resolve-component-paths.py and calls the real
+# _decode_path_strict directly): macOS's own filesystem does not permit
+# creating an invalid-UTF-8-named file on disk, so this cannot be driven
+# through the CLI end-to-end. Calls the actual ConvertTo-PathStrict function
+# (dot-sourced above) -- not a standalone reproduction of its contract -- so
+# a regression in the real function is caught here.
 $badBytes = [byte[]]@(0x73, 0x72, 0x63, 0xFF, 0x2E, 0x74, 0x73)  # "src\xFF.ts"
-$strict = [System.Text.UTF8Encoding]::new($false, $true)
 try {
-    [void]$strict.GetString($badBytes)
-    Fail "TEST-021.2: expected a decode failure for invalid UTF-8 bytes"
-} catch {
-    Ok "TEST-021.2: strict UTF-8 decoding (the same contract ConvertTo-PathStrict enforces) fails closed on invalid UTF-8 bytes, confirmed via a direct unit test of the identical .NET strict-decode call"
+    $decoded = ConvertTo-PathStrict $badBytes
+    Fail "TEST-021.2: expected ConvertTo-PathStrict to throw a GitDiffError for invalid UTF-8 bytes, got '$decoded'"
+} catch [GitDiffError] {
+    if ($_.Exception.Message -match "invalid UTF-8") {
+        Ok "TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a direct call to the product function itself (dot-sourced from resolve-component-paths.ps1; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)"
+    } else {
+        Fail "TEST-021.2: ConvertTo-PathStrict threw but with the wrong diagnostic: $($_.Exception.Message)"
+    }
 }
 
 # ============================================================================
@@ -296,34 +316,66 @@ Pop-Location
 $r = Invoke-ResolverGit $r25 $base25 $base25
 if ($r.ExitCode -eq 0) { Ok "TEST-025.1: an ordinary resolve with no concurrent writer succeeds" } else { Fail "TEST-025.1: expected a clean resolve with no concurrent writer" }
 
-# Direct unit test of the retry-then-fail-closed mechanism (same rationale
-# as the bash twin: reliably simulating a true concurrent race via the CLI
-# alone is impractical; this proves the retry-once-then-fail-closed logic
-# itself, applied inline here rather than dot-sourcing the CLI script).
-$callCount = 0
-function Get-EverChangingFingerprint {
-    $script:callCount += 1
-    return @{ Head = "fake-head-$($script:callCount)"; StatusHash = "fake-status-$($script:callCount)" }
+# Direct unit test of the real product function (same rationale as the bash
+# twin, which monkeypatches rcp._capture_fingerprint on the importlib-loaded
+# module and then calls the real collect_changed_paths): reliably simulating
+# a true concurrent race via the CLI alone is impractical. PowerShell
+# resolves an unqualified function call dynamically at call time (confirmed
+# empirically), so redefining Get-RepoFingerprint here in this scope is
+# picked up by the real Get-ChangedPaths (dot-sourced above) without editing
+# its source -- proving the retry-once-then-fail-closed logic in the actual
+# function itself, not a standalone reimplementation of its shape. The
+# original Get-RepoFingerprint is restored afterward so no later test in
+# this file observes the monkeypatch.
+$originalGetRepoFingerprint = ${function:Get-RepoFingerprint}
+$script:toctouCallCount = 0
+function Get-RepoFingerprint {
+    param([string]$RepoRoot)
+    $script:toctouCallCount += 1
+    return @{ Head = "fake-head-$($script:toctouCallCount)"; StatusHash = "fake-status-$($script:toctouCallCount)" }
 }
-# Minimal standalone re-implementation of Get-ChangedPaths' retry loop
-# shape, calling the fingerprint function directly to prove exactly 2
-# attempts (4 fingerprint captures: before+after x2) occur before it fails
-# closed -- mirrors resolve-component-paths.ps1's own Get-ChangedPaths loop
-# structure without invoking real git (isolating the retry-counting logic
-# under test).
-$attempt = 0
-$failedClosed = $false
-while ($true) {
-    $attempt += 1
-    $fpBefore = Get-EverChangingFingerprint
-    $fpAfter = Get-EverChangingFingerprint
-    if ($fpBefore.Head -eq $fpAfter.Head -and $fpBefore.StatusHash -eq $fpAfter.StatusHash) { break }
-    if ($attempt -ge 2) { $failedClosed = $true; break }
+try {
+    Get-ChangedPaths -RepoRoot $r25 -SourceRev $base25 -TargetRev $base25 -IncludeUntracked $true | Out-Null
+    Fail "TEST-025.2: expected Get-ChangedPaths to throw a GitDiffError after a persistent fingerprint mismatch"
+} catch [GitDiffError] {
+    if ($_.Exception.Message -match "retry" -and $script:toctouCallCount -eq 4) {
+        # 2 attempts x 2 fingerprint captures (before+after) each = 4 calls
+        Ok "TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed, confirmed via a direct call to the real Get-ChangedPaths with Get-RepoFingerprint monkeypatched to never settle"
+    } else {
+        Fail "TEST-025.2: expected callCount=4 and a 'retry' diagnostic, got callCount=$($script:toctouCallCount) diagnostic=$($_.Exception.Message)"
+    }
+} finally {
+    ${function:Get-RepoFingerprint} = $originalGetRepoFingerprint
 }
-if ($failedClosed -and $callCount -eq 4) {
-    Ok "TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test of the retry-loop shape)"
+
+# ============================================================================
+# DEFECT-002: tab-indentation guard (REQ-001 config parsing) fails closed on
+# a bare leading tab. Found in passing during T-002 remediation and fixed
+# here; not part of the T-002/AC-019..025 catalog this suite otherwise
+# covers (REQ-001's YAML tab-indentation guard is conceptually T-001/
+# component-path-resolver territory, but that suite is concurrently being
+# remediated by another agent for T-005, so this regression check lives
+# here instead, against the same shared resolve-component-paths
+# implementation both suites exercise). Root cause: the guard computed an
+# indent depth by stripping only " " (space) characters, then checked that
+# same space-only-derived prefix for a tab -- a prefix that, by
+# construction, can never contain a tab. It never fired for ANY
+# tab-indented line, not just a bare leading tab. Same root cause and same
+# fix in both resolve-component-paths.py and resolve-component-paths.ps1.
+# ============================================================================
+Write-Output "=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ==="
+$tabConfig = Join-Path $work "tab-indent-config.yaml"
+"components:`n`t- id: desktop`n`t  paths:`n`t    include:`n`t      - `"src/desktop/**`"`n" | Set-Content -LiteralPath $tabConfig -Encoding utf8 -NoNewline
+$tabOutRaw = & $powerShell -NoProfile -ExecutionPolicy Bypass -File $scriptPs1 -Config $tabConfig 2>&1 | Out-String -Width 4096
+$tabExitCode = $LASTEXITCODE
+# Same whitespace-flattening as Invoke-ResolverGit above: Write-Error wraps
+# long diagnostic lines at the console width, which would otherwise split
+# "spaces, not tabs" across two lines and defeat a simple -match.
+$tabOut = (($tabOutRaw -replace '\s+', ' ') -replace ' \| ', ' ') -replace '\s+', ' '
+if ($tabExitCode -ne 0 -and $tabOut -match "spaces, not tabs") {
+    Ok "DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnostic (real CLI invocation)"
 } else {
-    Fail "TEST-025.2: expected failedClosed=true and callCount=4, got failedClosed=$failedClosed callCount=$callCount"
+    Fail "DEFECT-002.1: expected a non-zero exit and a 'spaces, not tabs' diagnostic, got exit=$tabExitCode out=$tabOut"
 }
 
 # ============================================================================
