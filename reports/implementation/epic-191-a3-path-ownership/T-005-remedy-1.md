@@ -56,10 +56,22 @@ conformant fixture is still accepted (no regression toward over-rejection).
 
 ## Outputs
 
+Population: this addendum's own commit (`347f2f70`). The hashes below are
+refreshed to the current on-disk value — the file was edited again after
+this addendum's own authoring run, by T-001's unblock commit (`01df4cbd`),
+per the epic-level Outputs repair (RT-20260809-001). Same current hash as
+declared in `T-005.md`'s own Outputs table (both reports declare the same
+shared file). Excluded as not-an-implementation-output:
+`reports/quality-gate/epic-191-a3-path-ownership/T-005.md` (the finding this
+addendum responds to — a review artifact) and
+`specs/epic-191-a3-path-ownership/verification/T-005/*` (evidence logs) and
+this report itself; `specs/epic-191-a3-path-ownership/tasks.md`
+(Approval/Status only) is excluded as hash-bound.
+
 | Path | SHA-256 |
 |---|---|
-| `tests/component-path-resolver.tests.sh` | `ad841705a6564edfbce095f1f2b0cdd71b1a14998a21687872c0efe0b0c49d7c` |
-| `tests/component-path-resolver.tests.ps1` | `7b2eb252daa42f639d5a104bb13380a0f7848710a6c953107ca74d617ac2cda9` |
+| `tests/component-path-resolver.tests.ps1` | `dc1829b2364edc5fb34ec5188aa4cd2b3ae97b0253eed611140e714c022b66d4` |
+| `tests/component-path-resolver.tests.sh` | `53246b9d1d550a9275625820070592dafbceefa96d37ac1f30364dead0fd67cb` |
 
 ## Test Evidence
 

@@ -524,7 +524,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
@@ -1093,7 +1093,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
 Status: Planned
 
