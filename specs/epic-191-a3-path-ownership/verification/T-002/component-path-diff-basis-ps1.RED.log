@@ -1,0 +1,195 @@
+TDD RED evidence for T-002's PowerShell twin
+(tests/component-path-diff-basis.tests.ps1), captured post-hoc during
+quality-gate remediation, mirroring
+verification/T-002/component-path-diff-basis.RED.log's bash-side capture.
+See that file for the full methodology note (each of the 5 named
+fail-closed axes isolated in its own mutate-run-revert cycle against
+resolve-component-paths.ps1, `git diff --stat` confirmed empty before and
+after every individual revert).
+
+resolve-component-paths.ps1 is a full, independent parallel implementation
+of resolve-component-paths.py (not a wrapper that shells out to Python,
+INV-008 convention) -- these are genuine runs of the real PowerShell CLI
+subprocess, not a hand-edited transcript or a re-run of the bash-side log
+under a different label.
+
+Two axes (2 and 4) surface a genuine, pre-existing GAP in this suite's own
+design, distinct from the product regression each axis targets: TEST-021.2
+and TEST-025.2 do not call the real product functions (ConvertTo-PathStrict,
+Get-ChangedPaths) at all -- both are documented in the suite's own comments
+as standalone reproductions, for platform/practicality reasons unrelated to
+this remediation. Consequently no mutation to the real product code can
+make either assertion fail via the registered suite. This is reported
+honestly below rather than glossed over; redesigning those two assertions
+to exercise the real functions is a separate concern from what this
+remediation was scoped to fix (verify and remediate the two named
+quality-gate findings), so it is not attempted here.
+
+================================================================================
+AXIS 1 of 5: unresolvable rev (AC-019)
+Mutation: Resolve-CommitOid's `if ($r.ExitCode -ne 0) { throw
+[GitDiffError]::new("unresolvable rev ...") }` check removed.
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly
+FAIL: TEST-019.2: expected non-zero exit + diagnostic, got exit=1 out=Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1238 Line 1238 … Write-Error ("resolve-component-paths: $($_.Exception.Message)") ~~~~~~~~~~~~~~~~~~~~ resolve-component-paths: no merge-base between 42cc317424b48ec3ea720cc6693a2347d8ae0c88 and (unrelated histories?): fatal: Not a valid object name
+ok: TEST-019.3: unrelated histories fail closed with a diagnostic
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once
+=== TEST-021: NUL-safe framing ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly
+ok: TEST-021.2: strict UTF-8 decoding (the same contract ConvertTo-PathStrict enforces) fails closed on invalid UTF-8 bytes, confirmed via a direct unit test of the identical .NET strict-decode call
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants
+ok: TEST-023.2: the rename-limit-exceeded stderr warning text and fail-closed diagnostic are present in the implementation (direct source-level check; see the bash twin for the runtime unit test of the same code path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test of the retry-loop shape)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in run-all.sh and .ps1
+
+component-path-diff-basis.tests.ps1: 16 passed, 1 failed
+exit=1
+
+Same honest cascading-diagnostic shape as the bash twin's axis 1: the
+bogus rev resolves to an empty string instead of raising, which then trips
+the sibling "no merge-base" fail-closed check with the wrong message.
+TEST-019.2 correctly identifies this as a regression (its `-match
+"unresolvable rev"` check does not match).
+
+Reverted after this run; confirmed via `git diff --stat` (empty).
+
+================================================================================
+AXIS 2 of 5: invalid UTF-8 (AC-021) -- registered-suite blind spot, direct
+function-level proof instead
+Mutation: ConvertTo-PathStrict's `try { $Utf8Strict.GetString($Raw) } catch
+{ throw [GitDiffError]::new(...) }` replaced with a non-throwing
+`[System.Text.Encoding]::UTF8.GetString($Raw)` (silent replacement of
+invalid bytes).
+================================================================================
+--- registered suite run (confirms TEST-021.2 does not detect this regression, as expected given it never calls ConvertTo-PathStrict) ---
+component-path-diff-basis.tests.ps1: 17 passed, 0 failed
+exit=0
+
+--- direct invocation of the real (mutated) ConvertTo-PathStrict function, dot-sourcing resolve-component-paths.ps1 (safe: its CLI dispatch body is guarded by `if ($MyInvocation.InvocationName -ne '.')`, so dot-sourcing only defines functions/classes) ---
+FAIL (RED confirmed): expected GitDiffError, got no throw, result=src<0xEF 0xBF 0xBD>.ts
+
+Reverted after this run; confirmed via `git diff --stat` (empty) and a
+follow-up green run (17 passed, 0 failed) before starting axis 3.
+
+================================================================================
+AXIS 3 of 5: rename-limit-exceeded (AC-023)
+Mutation: Get-TrackedDiff's `if ($errText -match "too many files" -or
+$errText -match "rename detection was skipped") { throw
+[GitDiffError]::new("rename-detection limit exceeded ...") }` block removed
+(TEST-023.2 here is a direct source-text check, per its own comment, so the
+mutation removes the underlying diagnostic text itself, not just runtime
+behavior).
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories fail closed with a diagnostic
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once
+=== TEST-021: NUL-safe framing ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly
+ok: TEST-021.2: strict UTF-8 decoding (the same contract ConvertTo-PathStrict enforces) fails closed on invalid UTF-8 bytes, confirmed via a direct unit test of the identical .NET strict-decode call
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants
+FAIL: TEST-023.2: expected the rename-limit-exceeded detection text in resolve-component-paths.ps1
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test of the retry-loop shape)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in run-all.sh and .ps1
+
+component-path-diff-basis.tests.ps1: 16 passed, 1 failed
+exit=1
+
+Unlike the bash twin, this run completes to the summary line: PowerShell's
+`$ErrorActionPreference = "Stop"` does not turn the ordinary `if/else` +
+`Fail` pattern this test uses into a terminating error, so there is no
+early-abort here.
+
+Reverted after this run; confirmed via `git diff --stat` (empty).
+
+================================================================================
+AXIS 4 of 5: single-writer/TOCTOU (AC-025) -- registered-suite blind spot
+Mutation: Get-ChangedPaths' fingerprint-capture/retry-once-then-fail-closed
+loop removed; reduced to a single unguarded pass.
+================================================================================
+component-path-diff-basis.tests.ps1: 17 passed, 0 failed
+exit=0
+
+TEST-025.2 is a standalone re-implementation of the retry-loop shape (its
+own comment: "Minimal standalone re-implementation... isolating the
+retry-counting logic under test") that never calls the real Get-ChangedPaths
+function, so -- like axis 2 -- no mutation to the real function can make it
+fail via the registered suite. Confirmed: the full 17/0 green result above
+is with the real retry-then-fail-closed logic genuinely removed from
+Get-ChangedPaths.
+
+Reverted after this run; confirmed via `git diff --stat` (empty) and a
+follow-up green run (17 passed, 0 failed) before starting axis 5.
+
+================================================================================
+AXIS 5 of 5: submodule/symlink reference-only (AC-024)
+Mutation: `--ignore-submodules=dirty` removed from Get-TrackedDiff's `git
+diff` invocation.
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories fail closed with a diagnostic
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once
+=== TEST-021: NUL-safe framing ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly
+ok: TEST-021.2: strict UTF-8 decoding (the same contract ConvertTo-PathStrict enforces) fails closed on invalid UTF-8 bytes, confirmed via a direct unit test of the identical .NET strict-decode call
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants
+ok: TEST-023.2: the rename-limit-exceeded stderr warning text and fail-closed diagnostic are present in the implementation (direct source-level check; see the bash twin for the runtime unit test of the same code path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+FAIL: TEST-024.1: expected no record for vendor/inner
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test of the retry-loop shape)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in run-all.sh and .ps1
+
+component-path-diff-basis.tests.ps1: 16 passed, 1 failed
+exit=1
+
+Reverted after this run; confirmed via `git diff --stat` (empty).
+
+================================================================================
+Final confirmation: `git diff --stat
+plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1` is empty (the
+shipping implementation was never left mutated), and the unmodified suite
+reruns clean:
+
+component-path-diff-basis.tests.ps1: 17 passed, 0 failed
+================================================================================

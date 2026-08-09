@@ -88,6 +88,15 @@ $r = Invoke-ResolveFixture (Join-Path $fixtures "test-002-singlestar/config.yaml
 if ((Get-Classification $r.Output "src/file.ts") -eq "EXCLUSIVE") { Ok "TEST-002.1: src/*.ts matches src/file.ts" } else { Fail "TEST-002.1: expected EXCLUSIVE" }
 if ((Get-Classification $r.Output "src/sub/file.ts") -eq "UNOWNED") { Ok "TEST-002.2: src/*.ts does not cross /" } else { Fail "TEST-002.2: expected UNOWNED" }
 
+# TEST-002.3..002.5: "src/*.ts" only exercises `*` at the end of a segment.
+# "src/*/file.ts" exercises `*` as a whole segment on its own, distinguishing
+# it from `**` on all three segment-count cases (one intervening segment
+# matches; zero or two do not).
+$r = Invoke-ResolveFixture (Join-Path $fixtures "test-002b-star-one-segment/config.yaml") (Join-Path $fixtures "test-002b-star-one-segment/changed-paths.txt")
+if ((Get-Classification $r.Output "src/a/file.ts") -eq "EXCLUSIVE") { Ok "TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)" } else { Fail "TEST-002.3: expected EXCLUSIVE" }
+if ((Get-Classification $r.Output "src/a/b/file.ts") -eq "UNOWNED") { Ok "TEST-002.4: src/*/file.ts does not match src/a/b/file.ts (bare * segment does not cross /, unlike **)" } else { Fail "TEST-002.4: expected UNOWNED" }
+if ((Get-Classification $r.Output "src/file.ts") -eq "UNOWNED") { Ok "TEST-002.5: src/*/file.ts does not match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)" } else { Fail "TEST-002.5: expected UNOWNED" }
+
 # ============================================================================
 # TEST-003 (AC-003): backslash normalization
 # ============================================================================
@@ -203,7 +212,16 @@ if ([System.Linq.Enumerable]::SequenceEqual([byte[]]$rawBytes, [byte[]]$fileByte
 $r = Invoke-ResolveFixture (Join-Path $fixtures "test-010b-stable-sort/config.yaml") (Join-Path $fixtures "test-010b-stable-sort/changed-paths.txt")
 $obj = $r.Output | ConvertFrom-Json
 $order = ($obj.records | ForEach-Object { $_.raw_path }) -join ","
-if ($order -ceq "A/upper.ts,a/lower.ts,z/last.ts,é/nonascii.ts") { Ok "TEST-010.3: stable ordinal sort over raw UTF-8 path bytes" } else { Fail "TEST-010.3: expected raw UTF-8 byte order A,a,z,é, got '$order'" }
+# The fixture's "e<COMBINING ACUTE ACCENT>/a.ts" entry is NFD-encoded, distinct
+# from the fixture's other non-ASCII entry "é/nonascii.ts" which is
+# precomposed NFC. Without an NFD entry, raw-byte order and NFC-normalized
+# order are indistinguishable for this fixture, and the sort key could be
+# swapped from raw_path to normalized_path undetected. Both non-ASCII
+# characters below are built from codepoints ([char] casts) rather than
+# typed literally, so this source file stays 7-bit ASCII and the two forms
+# cannot be silently re-normalized by an editor.
+$expected = "A/upper.ts,a/lower.ts,e" + [char]0x0301 + "/a.ts,f/b.ts,z/last.ts," + [char]0x00E9 + "/nonascii.ts"
+if ($order -ceq $expected) { Ok "TEST-010.3: stable ordinal sort over raw UTF-8 path bytes (incl. an NFD/NFC-distinguishing pair)" } else { Fail "TEST-010.3: expected raw UTF-8 byte order '$expected', got '$order'" }
 
 # ============================================================================
 # TEST-011 (AC-011): A1 schema conformance
@@ -650,6 +668,21 @@ if (-not (Test-Path -LiteralPath $a1Template)) {
         Remove-Item -Force -LiteralPath $dayOneFile -ErrorAction SilentlyContinue
     }
 }
+
+# ============================================================================
+# Coverage gap fix (quality-gate T-001 finding 3, not a formal TEST-NNN/AC-NNN
+# id): the top-level affected_components field (design.md:358 Data Plan) had
+# zero assertion coverage; replacing its computation with an empty array
+# reproduced every existing fixture's expected records/classifications
+# unchanged. This fixture keeps "alpha" (EXCLUSIVE-owner-only) and "beta"
+# (bounded-shared-touched-only) in disjoint roles so the assertion actually
+# exercises both sides of the exclusive-owners/bounded-shared-touched union.
+# ============================================================================
+Write-Output "=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ==="
+$r = Invoke-ResolveFixture (Join-Path $fixtures "test-affected-components-mixed/config.yaml") (Join-Path $fixtures "test-affected-components-mixed/changed-paths.txt")
+$obj = $r.Output | ConvertFrom-Json
+$affected = @($obj.affected_components) -join ","
+if ($affected -ceq "alpha,beta") { Ok "COVERAGE-AFFECTED-COMPONENTS: affected_components == [alpha,beta] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)" } else { Fail "COVERAGE-AFFECTED-COMPONENTS: expected affected_components [alpha,beta], got '$affected'" }
 
 # ============================================================================
 # TEST-045 (AC-045): fixture-tree base shape + suite/CI registration

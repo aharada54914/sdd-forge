@@ -62,6 +62,28 @@ out=$(resolve "${FIXTURES}/test-002-singlestar/config.yaml" "${FIXTURES}/test-00
   && ok "TEST-002.2: src/*.ts does NOT match src/sub/file.ts (bare * never crosses /)" \
   || fail "TEST-002.2: expected UNOWNED for src/sub/file.ts"
 
+# TEST-002.3..002.5: the only bare-`*` pattern above is "src/*.ts", where the
+# `*` sits at the end of a segment (matching zero-or-more non-"/" chars up to
+# the extension). That leaves the "`*` as its own whole segment" shape
+# (`src/*/file.ts`) completely unexercised, so a mutation at
+# resolve-component-paths.py:333 (`if seg == "**":`) that also accepts a
+# lone `seg == "*"` -- making a bare `*` segment cross "/" and match a
+# zero-or-more-segments span exactly like "**" -- reproduces TEST-002.1/.2's
+# expected output unchanged and survives undetected. This fixture uses
+# "src/*/file.ts" and asserts all three segment-count cases the mutation
+# would flip: exactly one intervening segment must match (bare `*` matches
+# one segment), zero and two intervening segments must not.
+out=$(resolve "${FIXTURES}/test-002b-star-one-segment/config.yaml" "${FIXTURES}/test-002b-star-one-segment/changed-paths.txt")
+[ "$(classification_of "$out" "src/a/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)" \
+  || fail "TEST-002.3: expected EXCLUSIVE for src/a/file.ts"
+[ "$(classification_of "$out" "src/a/b/file.ts")" = "UNOWNED" ] \
+  && ok "TEST-002.4: src/*/file.ts does NOT match src/a/b/file.ts (bare * segment does not cross /, unlike **)" \
+  || fail "TEST-002.4: expected UNOWNED for src/a/b/file.ts"
+[ "$(classification_of "$out" "src/file.ts")" = "UNOWNED" ] \
+  && ok "TEST-002.5: src/*/file.ts does NOT match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)" \
+  || fail "TEST-002.5: expected UNOWNED for src/file.ts"
+
 # ============================================================================
 # TEST-003 (AC-003): backslash-authored pattern normalizes identically to /
 # ============================================================================
@@ -201,9 +223,22 @@ fi
 
 out=$(resolve "${FIXTURES}/test-010b-stable-sort/config.yaml" "${FIXTURES}/test-010b-stable-sort/changed-paths.txt")
 order=$(printf '%s' "$out" | jqf -r '[.records[].raw_path] | join(",")')
-[ "$order" = "A/upper.ts,a/lower.ts,z/last.ts,é/nonascii.ts" ] \
-  && ok "TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes" \
-  || fail "TEST-010.3: expected raw UTF-8 byte order A,a,z,é, got '$order'"
+# The fixture's "e<COMBINING ACUTE ACCENT>/a.ts" entry is NFD-encoded (raw
+# bytes 65 cc 81), distinct from the fixture's other non-ASCII entry
+# "é/nonascii.ts" which is precomposed NFC (raw bytes c3 a9). Without an NFD
+# entry, raw-byte order and NFC-normalized order are indistinguishable for
+# this fixture (every other byte here sorts identically either way) and the
+# sort key at resolve-component-paths.py:596 could be swapped from
+# `raw_path` to `normalized_path` undetected: normalizing the NFD entry to
+# NFC would move it from between "a/lower.ts" and "f/b.ts" (raw order) to
+# after "z/last.ts" (NFC order, since C3 > 0x7A), inverting its position
+# relative to "f/b.ts". Both non-ASCII byte sequences are built via printf
+# hex escapes rather than typed directly, so this source file stays 7-bit
+# ASCII and the two forms cannot be silently re-normalized by an editor.
+expected=$(printf 'A/upper.ts,a/lower.ts,e\xcc\x81/a.ts,f/b.ts,z/last.ts,\xc3\xa9/nonascii.ts')
+[ "$order" = "$expected" ] \
+  && ok "TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes (incl. an NFD/NFC-distinguishing pair)" \
+  || fail "TEST-010.3: expected raw UTF-8 byte order '$expected', got '$order'"
 
 # ============================================================================
 # TEST-011 (AC-011): A1 schema conformance — FAIL-closed on absence, never a
@@ -772,6 +807,33 @@ else
     fail "TEST-044: day-one integration against A1's landed template failed (exit=$dayone_code, or an ordinary day-one change tripped Fail-1)"
   fi
 fi
+
+# ============================================================================
+# Coverage gap fix (quality-gate T-001 finding 3, not a formal TEST-NNN/AC-NNN
+# id -- every TEST-001..TEST-055 slot is already assigned in
+# acceptance-tests.md, one-to-one, to a different AC): the top-level
+# `affected_components` field (resolve-component-paths.py:598, design.md:358
+# Data Plan -- "the union of all EXCLUSIVE ... " owners and bounded-shared-
+# touched components) had zero assertion coverage anywhere in this suite;
+# replacing its computation with a bare `[]` reproduced every existing
+# fixture's expected records/classifications unchanged and survived the full
+# suite. This is the exact field the Reverse Coverage Gate (T-004) consumes,
+# so an empty result would silently skip all per-component review coverage.
+#
+# The fixture below deliberately keeps "alpha" and "beta" in disjoint roles
+# -- alpha is EXCLUSIVE-owner-only, beta is bounded-shared-touched-only --
+# so the assertion actually exercises BOTH sides of the
+# `exclusive_owners | bounded_shared_touched` union: a fixture where the same
+# component appeared on both sides (e.g. base-tree below) would not catch a
+# mutation that dropped one side of the union, since the other side alone
+# would already reproduce the same result set.
+# ============================================================================
+echo "=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ==="
+out=$(resolve "${FIXTURES}/test-affected-components-mixed/config.yaml" "${FIXTURES}/test-affected-components-mixed/changed-paths.txt")
+affected=$(printf '%s' "$out" | jqf -c '.affected_components')
+[ "$affected" = '["alpha","beta"]' ] \
+  && ok "COVERAGE-AFFECTED-COMPONENTS: affected_components == [\"alpha\",\"beta\"] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)" \
+  || fail "COVERAGE-AFFECTED-COMPONENTS: expected affected_components [\"alpha\",\"beta\"], got '$affected'"
 
 # ============================================================================
 # TEST-045 (AC-045): fixture-tree base shape (>=2 overlapping components,

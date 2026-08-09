@@ -1,0 +1,14 @@
+# Human-application draft for .github/workflows/test.yml.
+#
+# This fragment is deliberately stored outside specs/*/human-copy because the
+# T-002 execution request forbids writes to protected-gate staging paths. A
+# human may place these steps in the existing repository test job, appended
+# after T-001's component-path-resolver-ci-steps.yml steps (Global
+# Constraints: this suite's CI steps are appended after T-001's).
+- name: Component path diff basis (Bash)
+  shell: bash
+  run: bash tests/component-path-diff-basis.tests.sh
+
+- name: Component path diff basis (PowerShell)
+  shell: pwsh
+  run: pwsh -NoProfile -File tests/component-path-diff-basis.tests.ps1

@@ -58,8 +58,10 @@ conformant fixture is still accepted (no regression toward over-rejection).
 
 Population: this addendum's own commit (`347f2f70`). The hashes below are
 refreshed to the current on-disk value — the file was edited again after
-this addendum's own authoring run, by T-001's unblock commit (`01df4cbd`),
-per the epic-level Outputs repair (RT-20260809-001). Same current hash as
+this addendum's own authoring run, by T-001's unblock commit (`01df4cbd`)
+and most recently by T-001's quality-gate remediation pass (adding
+TEST-002.3-.5 and extending TEST-010.3's stable-sort fixture), per the
+epic-level Outputs repair (RT-20260809-001). Same current hash as
 declared in `T-005.md`'s own Outputs table (both reports declare the same
 shared file). Excluded as not-an-implementation-output:
 `reports/quality-gate/epic-191-a3-path-ownership/T-005.md` (the finding this
@@ -70,8 +72,8 @@ this report itself; `specs/epic-191-a3-path-ownership/tasks.md`
 
 | Path | SHA-256 |
 |---|---|
-| `tests/component-path-resolver.tests.ps1` | `dc1829b2364edc5fb34ec5188aa4cd2b3ae97b0253eed611140e714c022b66d4` |
-| `tests/component-path-resolver.tests.sh` | `53246b9d1d550a9275625820070592dafbceefa96d37ac1f30364dead0fd67cb` |
+| `tests/component-path-resolver.tests.ps1` | `5381a3cdda19e407ccfb4935c88de0aec553f2e6f1d5b5e21e9043108a3293c9` |
+| `tests/component-path-resolver.tests.sh` | `656645de64002fc8f830946bd49e3138c73f9902a90181eb543041ba9b72f092` |
 
 ## Test Evidence
 
