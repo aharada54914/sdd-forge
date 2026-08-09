@@ -7,9 +7,18 @@
 # root (never this repository's own history).
 $ErrorActionPreference = "Stop"
 
-$repoRoot = Split-Path -Parent $PSScriptRoot
-$scriptPs1 = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
-$resolverPy = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+# Named $suiteRepoRoot (not $repoRoot / $RepoRoot) deliberately: the product
+# script dot-sourced below (see the TEST-021.2/TEST-025.2 block) declares
+# `param([string]$RepoRoot = ".")`, and PowerShell variable names are
+# case-insensitive, so a script-scope `$repoRoot` here would be silently
+# rebound to "." by that dot-source, corrupting the registration self-check
+# at the bottom of this file when the suite is run from a directory other
+# than this repository's root. Keeping this suite's own variable name
+# case-insensitively distinct from the product's -RepoRoot parameter avoids
+# the collision entirely rather than relying on run-from-repo-root luck.
+$suiteRepoRoot = Split-Path -Parent $PSScriptRoot
+$scriptPs1 = Join-Path $suiteRepoRoot "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1"
+$resolverPy = Join-Path $suiteRepoRoot "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
 $powerShell = (Get-Process -Id $PID).Path
 
 $script:passCount = 0
@@ -218,10 +227,39 @@ if ($ps1Text -match '\$RENAME_SIMILARITY_THRESHOLD = 50' -and $ps1Text -match '\
 } else {
     Fail "TEST-023.1: expected pinned RENAME_SIMILARITY_THRESHOLD=50 and RENAME_LIMIT=1000 constants"
 }
-if ($ps1Text -match 'too many files.*rename detection was skipped|rename-detection limit exceeded') {
-    Ok "TEST-023.2: the rename-limit-exceeded stderr warning text and fail-closed diagnostic are present in the implementation (direct source-level check; see the bash twin for the runtime unit test of the same code path)"
-} else {
-    Fail "TEST-023.2: expected the rename-limit-exceeded detection text in resolve-component-paths.ps1"
+
+# Direct unit test of the real product function (same rationale as the bash
+# twin, which monkeypatches rcp._run_git on the importlib-loaded module and
+# then calls the real collect_tracked_diff): reproducing git's own real
+# "too many files" trigger at fixture scale is impractical (see the
+# implementation report's Specification Differences #2). Redefining
+# Invoke-GitRaw here in this scope is picked up by the real Get-TrackedDiff
+# (dot-sourced above) without editing its source -- PowerShell resolves an
+# unqualified function call dynamically at call time (confirmed empirically
+# in TEST-025.2 below) -- proving the fail-closed branch in the actual
+# function itself, not a source-text grep that would still pass with the
+# branch made unreachable. The original Invoke-GitRaw is restored afterward
+# so no later test in this file observes the monkeypatch.
+$originalInvokeGitRaw = ${function:Invoke-GitRaw}
+function Invoke-GitRaw {
+    param([string]$RepoRoot, [string[]]$GitArgs)
+    return @{
+        ExitCode = 0
+        Stdout = [byte[]]@()
+        Stderr = [System.Text.Encoding]::UTF8.GetBytes("warning: inexact rename detection was skipped due to too many files.`n")
+    }
+}
+try {
+    Get-TrackedDiff -RepoRoot "/nonexistent" -BaselineOid "deadbeef" | Out-Null
+    Fail "TEST-023.2: expected Get-TrackedDiff to throw a GitDiffError for a too-many-files stderr warning"
+} catch [GitDiffError] {
+    if ($_.Exception.Message -match "rename-detection limit exceeded") {
+        Ok "TEST-023.2: the real Get-TrackedDiff fails closed with the expected diagnostic on a too-many-files stderr warning, confirmed via a direct call to the product function itself with Invoke-GitRaw monkeypatched (mirrors the bash twin's monkeypatching of rcp._run_git on the real module)"
+    } else {
+        Fail "TEST-023.2: Get-TrackedDiff threw but with the wrong diagnostic: $($_.Exception.Message)"
+    }
+} finally {
+    ${function:Invoke-GitRaw} = $originalInvokeGitRaw
 }
 
 # ============================================================================
@@ -382,8 +420,8 @@ if ($tabExitCode -ne 0 -and $tabOut -match "spaces, not tabs") {
 # Registration self-check
 # ============================================================================
 Write-Output "=== registration self-check ==="
-$runAllSh = Join-Path $repoRoot "tests/run-all.sh"
-$runAllPs1 = Join-Path $repoRoot "tests/run-all.ps1"
+$runAllSh = Join-Path $suiteRepoRoot "tests/run-all.sh"
+$runAllPs1 = Join-Path $suiteRepoRoot "tests/run-all.ps1"
 if ((Select-String -LiteralPath $runAllSh -Pattern "component-path-diff-basis" -Quiet) -and (Select-String -LiteralPath $runAllPs1 -Pattern "component-path-diff-basis" -Quiet)) {
     Ok "component-path-diff-basis suite self-registers in run-all.sh and .ps1"
 } else {

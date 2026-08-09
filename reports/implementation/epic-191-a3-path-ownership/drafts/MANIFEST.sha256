@@ -1,5 +1,5 @@
 36d497ecd426311cef55e9f06da665cd95022f31a802412b0cf52bb3b58bde96  component-path-resolver-ci-steps.yml
-65cfe2087ccad2a42a1022f561e0a0f2e63f229018e8752fe6c3ede1a19f1d1c  component-path-diff-basis-ci-steps.yml
+8cd0440de5008e9bb5ee4d3c6720c08b10bdff18b4507dd0bd14ab7ab55b690a  component-path-diff-basis-ci-steps.yml
 dbfb8cee5949941a073111b5d052f0ee14f713064ef86b3afcf03b32d48c5984  bundle-a/references/guard-invariants.json
 525a0dea3d1c4bdd0a287d9b50968b93d756d35714f4e6bc564859de2cb4f1a5  bundle-a/scripts/generate-guard-invariants.py
 87b4bbcea15bad7b9aa79b78f353c73122eb35978b61fff7e24137b18fad6c26  bundle-a/scripts/generated/guard_invariants.py
