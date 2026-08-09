@@ -332,6 +332,22 @@ jobs:
         shell: pwsh
         run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
 
+      # Sixth suite, added after this task's Done-When text was frozen. That
+      # text names five suites and five are registered above, so it is
+      # satisfied as written -- this pair is here because AC-014 and AC-017
+      # are themselves frozen criteria whose only automated enforcement lives
+      # in this suite, and this candidate runs per-suite steps with no
+      # aggregate runner. It is already registered in tests/run-all.{sh,ps1};
+      # without these two steps the two criteria would never execute in CI.
+      - name: Test lite-gate direct-edit contract (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/lite-gate-direct-edit-contract.tests.sh
+
+      - name: Test lite-gate direct-edit contract (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-direct-edit-contract.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
