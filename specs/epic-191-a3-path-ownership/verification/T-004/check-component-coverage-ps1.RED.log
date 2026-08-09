@@ -36,13 +36,88 @@ ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed 
 ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
 ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
 === TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ===
-ok: TEST-056.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+FAIL: TEST-056.1: expected exit 2 and no disabled-legacy downgrade, got exit=0 out={
+  "schema": "check-component-coverage-verdict/v1",
+  "check_id": "check-component-coverage",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+  },
+  "state": "not-applicable (disabled-legacy)",
+  "manifest_status": "not-consulted",
+  "fail_conditions": [],
+  "warnings": []
+}
+
 === TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
-ok: TEST-057.1: pwsh: a post-parse config structural error (empty include list) is a hard error, exit 2 (matches python)
+FAIL: TEST-057.1: expected exit 2, got 1 (out=Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1:262
+Line |
+ 262 |  …     Write-Error ("check-component-coverage: $($_.Exception.Message)")
+     |                                                  ~~~~~~~~~~~~~~~~~~~~
+     | check-component-coverage: component 'desktop' has an empty paths.include
+     | list
+)
 === TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
-ok: TEST-058.1: pwsh: capability_enforcement: Required (capital) is NOT matched as required (ordinal, case-sensitive), derives disabled-legacy (matches python)
+FAIL: TEST-058.1: expected disabled-legacy, got state=required
 === TEST-059: omitting both -ChangedPathsFile and -TargetRev is a hard error (reachability bypass closed) ===
-ok: TEST-059.1: required state, valid manifest, no -ChangedPathsFile/-TargetRev: hard error (exit 2), never a silent all-clear
+FAIL: TEST-059.1: expected exit 2, got 0 (out={
+  "schema": "check-component-coverage-verdict/v1",
+  "check_id": "check-component-coverage",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+  },
+  "state": "required",
+  "manifest_status": "present",
+  "fail_conditions": [
+    {
+      "id": "Fail-1",
+      "triggered": false,
+      "detail": {
+        "unowned_paths": []
+      }
+    },
+    {
+      "id": "Fail-2",
+      "triggered": false,
+      "detail": {
+        "missing_exclusive_owners": []
+      }
+    },
+    {
+      "id": "Fail-3",
+      "triggered": false,
+      "detail": {
+        "overlap_paths": []
+      }
+    },
+    {
+      "id": "Fail-4",
+      "triggered": false,
+      "detail": {
+        "missing_bounded_shared_owners": []
+      }
+    },
+    {
+      "id": "Fail-5",
+      "triggered": false,
+      "detail": {
+        "excluded_match_paths": []
+      }
+    },
+    {
+      "id": "Fail-6",
+      "triggered": false,
+      "detail": {
+        "status": "not-applicable (provider-bindings absent)"
+      }
+    }
+  ],
+  "warnings": [
+    "Fail-6: sdd/provider-bindings.yaml absent; recorded N/A"
+  ]
+}
+)
 === TEST-036: protected-suffix registration + generator inventory ===
 ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
 ok: TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)
@@ -57,4 +132,19 @@ ok: TEST-055.2: the staged Bundle B candidate (check-contract.ps1) defines the m
 === registration self-check ===
 ok: check-component-coverage suite self-registers in run-all.sh and .ps1
 
-check-component-coverage.tests.ps1: 40 passed, 0 failed
+check-component-coverage.tests.ps1: 36 passed, 4 failed
+
+# NOTE: this RED log was captured 2026-08-09 against the code as it stood
+# before the quality-gate remediation fix in this same session (Critical 1
+# from reports/quality-gate/20260809T073000Z-epic-191-a3-path-ownership-T-004.md).
+# All four genuine failures above are real product defects fixed immediately
+# after this log was captured: TEST-056.1 (fail-open: a project-context.yaml
+# that EXISTS but fails to parse silently downgrades to disabled-legacy,
+# exit 0), TEST-057.1 (a Write-Error call under $ErrorActionPreference=Stop
+# threw before the intended `exit 2` line could run, so pwsh exited 1 where
+# python already exited 2 for the identical structural config error),
+# TEST-058.1 (pwsh's default -eq is culture-aware/case-insensitive, so
+# 'Required' matched as required on pwsh while python correctly derived
+# disabled-legacy), and TEST-059.1 (reachability bypass: omitting both
+# -ChangedPathsFile and -TargetRev in `required` state with a valid manifest
+# read empty stdin and returned a conformant all-clear, exit 0).

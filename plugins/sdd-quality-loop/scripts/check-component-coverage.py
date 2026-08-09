@@ -56,6 +56,19 @@ EXIT_FAIL_TRIGGERED = 1  # `required` state, at least one Fail condition trigger
 EXIT_HARD_ERROR = 2  # manifest missing/unreadable in advisory/required; config error
 
 
+class ConfigParseHardError(Exception):
+    """Raised by derive_state when project-context.yaml EXISTS but cannot be
+    parsed. Per ADR-0016 point 3, only file ABSENCE is a legitimate
+    disabled-legacy fallback ("File-existence checks are used only for the
+    compatibility fallback when project-context.yaml is absent"); a
+    present-but-unparseable config is a distinct condition that must never
+    be silently downgraded to disabled-legacy -- doing so would fail OPEN
+    (zero evaluation, exit 0) on exactly the security-sensitive surface
+    this task's own Risk Rationale names for a project that may have
+    declared `capability_enforcement: required`. Callers turn this into a
+    hard, non-zero exit -- never a WARN + downgrade."""
+
+
 def _producer_sha256() -> str:
     with open(os.path.abspath(__file__), "rb") as fh:
         return hashlib.sha256(fh.read()).hexdigest()
@@ -67,8 +80,19 @@ def derive_state(config_path: Optional[str]) -> str:
     Per ADR-0016 point 4: disabled-legacy is a derived internal state, not
     an enum value of capability_enforcement, entered whenever
     project-context.yaml is absent OR the capability_enforcement field
-    itself is absent/invalid in it — a conservative, fail-toward-inactive
-    default (this feature never infers `required` from ambiguous data).
+    itself is absent/invalid *within a document that DOES parse* — a
+    conservative, fail-toward-inactive default (this feature never infers
+    `required` from ambiguous data). A config file that EXISTS but fails to
+    parse is NOT one of those legitimate cases (ADR-0016 point 3: file
+    presence checks are only a fallback for absence) — raises
+    ConfigParseHardError instead of returning "disabled-legacy" for it; see
+    that exception's docstring for why silently downgrading here would be a
+    fail-open defect.
+
+    `capability_enforcement` is matched byte-for-byte case-sensitively
+    (never a case-insensitive comparison — this repository's own
+    established PowerShell-twin convention, see resolve-component-paths.ps1)
+    so both runtimes derive the identical state for the identical input.
     """
     if not config_path or not os.path.isfile(config_path):
         return "disabled-legacy"
@@ -76,8 +100,10 @@ def derive_state(config_path: Optional[str]) -> str:
         with open(config_path, "r", encoding="utf-8") as fh:
             text = fh.read()
         data = rcp.parse_minimal_yaml(text)
-    except (rcp.ConfigError, OSError):
-        return "disabled-legacy"
+    except (rcp.ConfigError, OSError) as exc:
+        raise ConfigParseHardError(
+            f"project-context.yaml at {config_path} exists but could not be parsed: {exc}"
+        ) from exc
     workflow = data.get("workflow")
     if not isinstance(workflow, dict):
         return "disabled-legacy"
@@ -296,10 +322,31 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--repo-root", default=".")
     args = parser.parse_args(argv)
 
-    state = derive_state(args.config)
+    try:
+        state = derive_state(args.config)
+    except ConfigParseHardError as exc:
+        print(f"check-component-coverage: config error: {exc}", file=sys.stderr)
+        return EXIT_HARD_ERROR
 
     records: List[dict] = []
     if state != "disabled-legacy":
+        if not args.target_rev and not args.changed_paths_file:
+            # Reachability bypass fix: with no explicit diff basis at all, the
+            # only remaining input is raw, un-redirected stdin. In `advisory`/
+            # `required` state that would silently classify zero raw paths
+            # and return a conformant all-clear (exit 0/advisory, exit 0 even
+            # in `required` since no path can trigger a Fail condition),
+            # binding no diff basis or provenance to the evidence record.
+            # Require the caller to be explicit (design.md's own canonical
+            # invocation shape always specifies --target-rev); this never
+            # affects `disabled-legacy`, which never reaches this branch.
+            print(
+                "check-component-coverage: --target-rev or --changed-paths-file is required "
+                "in advisory/required state (an explicit diff basis must be provided; omitting "
+                "both would silently evaluate whatever raw stdin happens to contain)",
+                file=sys.stderr,
+            )
+            return EXIT_HARD_ERROR
         try:
             config = rcp.load_config_file(args.config) if args.config else None
         except (rcp.ConfigError, OSError) as exc:
@@ -318,7 +365,11 @@ def main(argv: Optional[List[str]] = None) -> int:
                 print(f"check-component-coverage: {exc}", file=sys.stderr)
                 return EXIT_HARD_ERROR
 
-    result = run(args.config, args.facet_manifest, args.provider_bindings, records)
+    try:
+        result = run(args.config, args.facet_manifest, args.provider_bindings, records)
+    except ConfigParseHardError as exc:
+        print(f"check-component-coverage: config error: {exc}", file=sys.stderr)
+        return EXIT_HARD_ERROR
     print(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
 
     if result["state"] == "not-applicable (disabled-legacy)":

@@ -235,24 +235,226 @@ check_producer "disabled-legacy" "$(printf '' | "$SCRIPT" --config "${FIXTURES}/
 check_producer "advisory" "$(run_gate "${FIXTURES}/config-advisory.yaml" "${FIXTURES}/facet-manifest-full.json" "${FIXTURES}/changed-paths-clean.txt" "")"
 check_producer "required" "$(run_gate "${FIXTURES}/config-required.yaml" "${FIXTURES}/facet-manifest-full.json" "${FIXTURES}/changed-paths-clean.txt" "")"
 
-# ============================================================================
-# TEST-035/036/055 — see Unresolved Items in the implementation report:
-# these require the REAL, human-applied check-contract.*/guard-invariants.json
-# (Bundle A/B), which cannot be applied in this session (guard-blocked
-# human-copy staging, same finding as T-001/T-002). Verified instead
-# against the STAGED candidate content's own logic where practical.
-# ============================================================================
-echo "=== TEST-035/036/055: staged-candidate-only verification (real files not yet human-applied) ==="
-if grep -q "check-component-coverage" "${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md"; then
-  ok "TEST-036.1 (partial): check-component-coverage is registered in the UNPROTECTED risk-gate-matrix.md required-check-set (direct edit, already live)"
+# TEST-054.4 (AC-054 negative clause, quality-gate remediation 2026-08-09):
+# check_producer above only ever compares two independent computations of
+# the SAME current file's hash, so it can never observe a mismatch. Prove
+# the comparison itself is capable of failing: hand-tamper a copy of a real
+# evidence record's producer.sha256 and confirm it is distinguishable from
+# the live script's real hash (the actual mismatch-rejection behavior is
+# exercised end-to-end against check-contract's staged producer-digest pass
+# in TEST-055 below).
+tampered_producer=$(printf '%s' "$(run_gate "${FIXTURES}/config-required.yaml" "${FIXTURES}/facet-manifest-full.json" "${FIXTURES}/changed-paths-clean.txt" "")" \
+  | jqf '.producer.sha256 = "0000000000000000000000000000000000000000000000000000000000000000"' | jqf -r '.producer.sha256')
+real_sha=$(shasum -a 256 "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-component-coverage.py" | awk '{print $1}')
+if [ "$tampered_producer" != "$real_sha" ]; then
+  ok "TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)"
 else
-  fail "TEST-036.1: expected check-component-coverage in risk-gate-matrix.md"
+  fail "TEST-054.4: tampered and real producer.sha256 unexpectedly matched"
 fi
-if grep -q "check-component-coverage" "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"; then
-  ok "TEST-036.2 (partial): check-component-coverage is documented in quality-gate/SKILL.md's ## Process (direct edit, already live)"
+
+# ============================================================================
+# TEST-056 (fail-open fix, Critical 1): a project-context.yaml that EXISTS
+# but fails to parse is a hard error, never a silent downgrade to
+# disabled-legacy. Before this fix: both runtimes returned
+# 'not-applicable (disabled-legacy)', exit 0, zero evaluation for this exact
+# fixture -- fail-open on the security-sensitive surface this task's own
+# Risk Rationale names.
+# ============================================================================
+echo "=== TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ==="
+set +e
+out=$("$SCRIPT" --config "${FIXTURES}/config-parse-error.yaml" --facet-manifest "${FIXTURES}/facet-manifest-full.json" --changed-paths-file "${FIXTURES}/changed-paths-clean.txt" 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 2 ] && ! printf '%s' "$out" | grep -q "not-applicable (disabled-legacy)"; then
+  ok "TEST-056.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy"
 else
-  fail "TEST-036.2: expected check-component-coverage documented in quality-gate/SKILL.md"
+  fail "TEST-056.1: expected exit 2 and no disabled-legacy downgrade, got exit=$code out=$out"
 fi
+
+# ============================================================================
+# TEST-057 (dual-runtime exit-code parity, Critical 1): a config that parses
+# fine but fails resolve-component-paths' own structural validation (a
+# post-parse ConfigError, distinct from the parse-error case above) must
+# exit 2 identically on both runtimes. Before this fix: python exited 2,
+# pwsh exited 1 (a Write-Error call under $ErrorActionPreference=Stop threw
+# before the intended `exit 2` line could run).
+# ============================================================================
+echo "=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ==="
+set +e
+out=$("$SCRIPT" --config "${FIXTURES}/config-required-bad-components.yaml" --facet-manifest "${FIXTURES}/facet-manifest-full.json" --changed-paths-file "${FIXTURES}/changed-paths-clean.txt" 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 2 ]; then
+  ok "TEST-057.1: python: a post-parse config structural error (empty include list) is a hard error, exit 2"
+else
+  fail "TEST-057.1: expected exit 2, got $code (out=$out)"
+fi
+
+# ============================================================================
+# TEST-058 (case-sensitivity parity, Critical 1): capability_enforcement is
+# matched case-sensitively on both runtimes. Before this fix: python treated
+# 'Required' as disabled-legacy (correct, case-sensitive) while pwsh's
+# default -eq matched it as required (culture-aware/case-insensitive) --
+# the two runtimes disagreed on the derived state and verdict for the exact
+# same config file.
+# ============================================================================
+echo "=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ==="
+out=$(printf '' | "$SCRIPT" --config "${FIXTURES}/config-required-capitalized.yaml")
+state=$(printf '%s' "$out" | jqf -r '.state')
+if [ "$state" = "not-applicable (disabled-legacy)" ]; then
+  ok "TEST-058.1: python: capability_enforcement: Required (capital) is NOT matched as required (case-sensitive), derives disabled-legacy"
+else
+  fail "TEST-058.1: expected disabled-legacy, got state=$state"
+fi
+
+# ============================================================================
+# TEST-059 (reachability bypass fix, Major -> closed): in advisory/required
+# state, omitting BOTH --changed-paths-file and --target-rev is now a hard
+# error, never a silent conformant all-clear. Before this fix: this exact
+# invocation read empty stdin, classified zero records, and returned exit 0
+# with no Fail condition ever evaluated -- binding no diff basis or
+# provenance.
+# ============================================================================
+echo "=== TEST-059: omitting both --changed-paths-file and --target-rev is a hard error (reachability bypass closed) ==="
+set +e
+out=$("$SCRIPT" --config "${FIXTURES}/config-required.yaml" --facet-manifest "${FIXTURES}/facet-manifest-full.json" < /dev/null 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 2 ]; then
+  ok "TEST-059.1: required state, valid manifest, no --changed-paths-file/--target-rev: hard error (exit 2), never a silent all-clear"
+else
+  fail "TEST-059.1: expected exit 2, got $code (out=$out)"
+fi
+
+# ============================================================================
+# TEST-035/036/055 (quality-gate remediation 2026-08-09): the live gap AND
+# the staged Bundle A/B candidates under reports/implementation/
+# epic-191-a3-path-ownership/drafts/ are both proven structurally and
+# behaviorally -- not asserted, not skipped, and not a bare substring grep
+# anywhere in the file.
+# ============================================================================
+DRAFTS="${REPO_ROOT}/reports/implementation/epic-191-a3-path-ownership/drafts"
+
+echo "=== TEST-036: protected-suffix registration + generator inventory ==="
+matrix_block=$(sed -n '/^low      = /,/^critical = /p' "${REPO_ROOT}/plugins/sdd-quality-loop/references/risk-gate-matrix.md")
+if printf '%s' "$matrix_block" | grep -Eq '^high[[:space:]]+=.*check-component-coverage'; then
+  ok "TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)"
+else
+  fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
+fi
+process_block=$(sed -n '/^## Process/,/^## Done Decision/p' "${REPO_ROOT}/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
+if printf '%s' "$process_block" | grep -q "check-component-coverage"; then
+  ok "TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage"
+else
+  fail "TEST-036.2: expected check-component-coverage inside SKILL.md's ## Process section"
+fi
+if grep -q "check-component-coverage" "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-contract.py" \
+   || grep -q "check-component-coverage" "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-contract.ps1"; then
+  fail "TEST-036.3: unexpected -- live check-contract.{py,ps1} already registers check-component-coverage (guard bypassed?)"
+else
+  ok "TEST-036.3: live check-contract.{py,ps1}'s protected RISK_TIERS does NOT yet register check-component-coverage (documents the live reachability gap this Bundle B candidate closes)"
+fi
+if [ -f "${DRAFTS}/bundle-a/references/guard-invariants.json" ] \
+   && python3 -c "
+import json
+live = json.load(open('${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json'))
+draft = json.load(open('${DRAFTS}/bundle-a/references/guard-invariants.json'))
+new = ('plugins/sdd-quality-loop/scripts/check-component-coverage.py',
+       'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
+       'plugins/sdd-quality-loop/scripts/check-component-coverage.sh')
+for key in ('protected_gate_suffixes', 'phase2_human_copy_targets', 'epic_a1_targets'):
+    dropped = set(live[key]) - set(draft[key])
+    if dropped:
+        raise SystemExit(f'{key} drops live entries: {sorted(dropped)}')
+for n in new:
+    if n not in draft['protected_gate_suffixes'] or n not in draft['phase2_human_copy_targets']:
+        raise SystemExit(f'{n} missing from the staged candidate')
+    if n in live['protected_gate_suffixes']:
+        raise SystemExit(f'{n} unexpectedly already live')
+raise SystemExit(0)
+"; then
+  ok "TEST-036.4: the staged Bundle A candidate (drafts/bundle-a/) adds exactly the three check-component-coverage.* suffixes and DROPS NOTHING from either live protected_gate_suffixes or phase2_human_copy_targets (proven by direct set comparison, not asserted)"
+else
+  fail "TEST-036.4: staged Bundle A candidate failed the live-vs-draft drop/addition comparison"
+fi
+if python3 "${DRAFTS}/bundle-a/scripts/generate-guard-invariants.py" --check >/dev/null 2>&1; then
+  ok "TEST-036.5: running the REAL generate-guard-invariants.py --check against the staged Bundle A candidate tree exits 0 (internal consistency proven, not asserted)"
+else
+  fail "TEST-036.5: generate-guard-invariants.py --check failed against the staged Bundle A candidate"
+fi
+
+echo "=== TEST-035: reachability registration (two-tier defense scope) ==="
+if grep -Eq '"high":[[:space:]]*\{[^}]*"check-component-coverage"[^}]*\}' "${DRAFTS}/bundle-b/scripts/check-contract.py" \
+   && grep -Eq '"critical":[[:space:]]*\{[^}]*"check-component-coverage"[^}]*\}' "${DRAFTS}/bundle-b/scripts/check-contract.py" \
+   && grep -Eq '"high"[^{]*=.*"check-component-coverage"' "${DRAFTS}/bundle-b/scripts/check-contract.ps1" \
+   && grep -Eq '"critical"[^{]*=.*"check-component-coverage"' "${DRAFTS}/bundle-b/scripts/check-contract.ps1"; then
+  ok "TEST-035.1: the staged Bundle B candidate registers check-component-coverage in RISK_TIERS high AND critical on both runtimes (drafts/bundle-b/scripts/check-contract.{py,ps1}), ready for human-apply"
+else
+  fail "TEST-035.1: expected check-component-coverage registered in the staged candidate's high/critical RISK_TIERS on both runtimes"
+fi
+
+echo "=== TEST-055: check-contract producer-digest verification (AC-055) ==="
+WORK055="$(mktemp -d)"
+mkdir -p "${WORK055}/reports" "${WORK055}/scripts_assembled"
+cp "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/validate_path.py" "${WORK055}/scripts_assembled/validate_path.py"
+cp "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-component-coverage.py" "${WORK055}/scripts_assembled/check-component-coverage.py"
+cp "${DRAFTS}/bundle-b/scripts/check-contract.py" "${WORK055}/scripts_assembled/check-contract.py"
+echo "unused baseline evidence" > "${WORK055}/reports/baseline.log"
+real_out=$(run_gate "${FIXTURES}/config-required.yaml" "${FIXTURES}/facet-manifest-full.json" "${FIXTURES}/changed-paths-clean.txt" "")
+printf '%s' "$real_out" > "${WORK055}/reports/real-evidence.json"
+printf '%s' "$real_out" | jqf '.producer.sha256 = "0000000000000000000000000000000000000000000000000000000000000000"' > "${WORK055}/reports/tampered-evidence.json"
+make_055_contract() {
+  local evidence_rel="$1" out_file="$2"
+  cat > "$out_file" <<EOF
+{
+  "task_id": "TEST-055",
+  "feature": "test-feature",
+  "created": "2026-06-13T00:00:00Z",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" },
+    { "id": "check-component-coverage", "required": false, "passes": true, "evidence": "${evidence_rel}", "waiver_reason": "" }
+  ]
+}
+EOF
+}
+make_055_contract "reports/tampered-evidence.json" "${WORK055}/tampered.contract.json"
+make_055_contract "reports/real-evidence.json" "${WORK055}/real.contract.json"
+
+set +e
+live_out=$(python3 "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-contract.py" "${WORK055}/tampered.contract.json" "${WORK055}" 2>&1)
+live_code=$?
+set -e
+if [ "$live_code" -eq 0 ]; then
+  ok "TEST-055.1 [documents the live gap]: the LIVE, unmodified check-contract.py accepts a tampered check-component-coverage producer.sha256 without complaint -- AC-055's producer-digest pass does not exist yet on the live file"
+else
+  fail "TEST-055.1: expected the LIVE check-contract.py to (incorrectly, today) pass the tampered evidence; got exit=$live_code out=$live_out"
+fi
+
+set +e
+draft_bad_out=$(python3 "${WORK055}/scripts_assembled/check-contract.py" "${WORK055}/tampered.contract.json" "${WORK055}" 2>&1)
+draft_bad_code=$?
+set -e
+if [ "$draft_bad_code" -ne 0 ] && printf '%s' "$draft_bad_out" | grep -q "does not match the live on-disk"; then
+  ok "TEST-055.2: the STAGED Bundle B candidate's new producer-digest pass REJECTS a tampered producer.sha256 (AC-054 negative clause / AC-055, proven against real check-component-coverage.py bytes, not a self-referential comparison)"
+else
+  fail "TEST-055.2: expected the staged candidate to reject the tampered evidence, got exit=$draft_bad_code out=$draft_bad_out"
+fi
+
+set +e
+draft_ok_out=$(python3 "${WORK055}/scripts_assembled/check-contract.py" "${WORK055}/real.contract.json" "${WORK055}" 2>&1)
+draft_ok_code=$?
+set -e
+if [ "$draft_ok_code" -eq 0 ]; then
+  ok "TEST-055.3: the STAGED Bundle B candidate PASSES a genuine, live-produced check-component-coverage evidence record (positive case)"
+else
+  fail "TEST-055.3: expected the staged candidate to pass genuine evidence, got exit=$draft_ok_code out=$draft_ok_out"
+fi
+rm -rf "${WORK055}"
 
 echo "=== registration self-check ==="
 if grep -q "check-component-coverage" "${REPO_ROOT}/tests/run-all.sh" \

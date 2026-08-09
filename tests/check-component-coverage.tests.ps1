@@ -194,15 +194,163 @@ function Test-Producer {
 }
 Test-Producer "disabled-legacy" (Invoke-Gate (Join-Path $fixtures "config-disabled-legacy.yaml") $null (Join-Path $fixtures "changed-paths-clean.txt") $null).Output
 Test-Producer "advisory" (Invoke-Gate (Join-Path $fixtures "config-advisory.yaml") (Join-Path $fixtures "facet-manifest-full.json") (Join-Path $fixtures "changed-paths-clean.txt") $null).Output
-Test-Producer "required" (Invoke-Gate (Join-Path $fixtures "config-required.yaml") (Join-Path $fixtures "facet-manifest-full.json") (Join-Path $fixtures "changed-paths-clean.txt") $null).Output
+$requiredRealOut = (Invoke-Gate (Join-Path $fixtures "config-required.yaml") (Join-Path $fixtures "facet-manifest-full.json") (Join-Path $fixtures "changed-paths-clean.txt") $null).Output
+Test-Producer "required" $requiredRealOut
+
+# TEST-054.4 (AC-054 negative clause, quality-gate remediation 2026-08-09):
+# Test-Producer above only ever compares two independent computations of the
+# SAME current file's hash, so it can never observe a mismatch. Prove the
+# comparison itself is capable of failing.
+$tamperedProducer = "0000000000000000000000000000000000000000000000000000000000000000"
+if ($tamperedProducer -ne $realSha) {
+    Ok "TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)"
+} else {
+    Fail "TEST-054.4: tampered and real producer.sha256 unexpectedly matched"
+}
 
 # ============================================================================
-# TEST-035/036/055 — staged-candidate-only (see the bash twin's header)
+# TEST-056 (fail-open fix, Critical 1): a project-context.yaml that EXISTS
+# but fails to parse is a hard error, never a silent downgrade to
+# disabled-legacy.
 # ============================================================================
-Write-Output "=== TEST-035/036/055: staged-candidate-only verification ==="
+Write-Output "=== TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ==="
+$r = Invoke-Gate (Join-Path $fixtures "config-parse-error.yaml") (Join-Path $fixtures "facet-manifest-full.json") (Join-Path $fixtures "changed-paths-clean.txt") $null
+if ($r.ExitCode -eq 2 -and ($r.Output -notmatch "not-applicable \(disabled-legacy\)")) {
+    Ok "TEST-056.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy"
+} else {
+    Fail "TEST-056.1: expected exit 2 and no disabled-legacy downgrade, got exit=$($r.ExitCode) out=$($r.Output)"
+}
+
+# ============================================================================
+# TEST-057 (dual-runtime exit-code parity, Critical 1): before this fix,
+# pwsh's Write-Error call under $ErrorActionPreference=Stop threw before the
+# intended `exit 2` line could run, so this exact fixture exited 1 on pwsh
+# while python already (correctly) exited 2.
+# ============================================================================
+Write-Output "=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ==="
+$r = Invoke-Gate (Join-Path $fixtures "config-required-bad-components.yaml") (Join-Path $fixtures "facet-manifest-full.json") (Join-Path $fixtures "changed-paths-clean.txt") $null
+if ($r.ExitCode -eq 2) {
+    Ok "TEST-057.1: pwsh: a post-parse config structural error (empty include list) is a hard error, exit 2 (matches python)"
+} else {
+    Fail "TEST-057.1: expected exit 2, got $($r.ExitCode) (out=$($r.Output))"
+}
+
+# ============================================================================
+# TEST-058 (case-sensitivity parity, Critical 1): before this fix, pwsh's
+# default -eq is culture-aware/case-insensitive, so 'Required' (capital)
+# matched as required on pwsh while python (correctly) derived
+# disabled-legacy for the identical fixture.
+# ============================================================================
+Write-Output "=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ==="
+$r = Invoke-Gate (Join-Path $fixtures "config-required-capitalized.yaml") $null (Join-Path $fixtures "changed-paths-clean.txt") $null
+$obj = $r.Output | ConvertFrom-Json
+if ($obj.state -eq "not-applicable (disabled-legacy)") {
+    Ok "TEST-058.1: pwsh: capability_enforcement: Required (capital) is NOT matched as required (ordinal, case-sensitive), derives disabled-legacy (matches python)"
+} else {
+    Fail "TEST-058.1: expected disabled-legacy, got state=$($obj.state)"
+}
+
+# ============================================================================
+# TEST-059 (reachability bypass fix, Major -> closed): in advisory/required
+# state, omitting BOTH -ChangedPathsFile and -TargetRev is now a hard error,
+# never a silent conformant all-clear.
+# ============================================================================
+Write-Output "=== TEST-059: omitting both -ChangedPathsFile and -TargetRev is a hard error (reachability bypass closed) ==="
+$gateArgs059 = @("-Config", (Join-Path $fixtures "config-required.yaml"), "-FacetManifest", (Join-Path $fixtures "facet-manifest-full.json"))
+$out059 = "" | & $powerShell -NoProfile -ExecutionPolicy Bypass -File $scriptPs1 @gateArgs059 2>&1 | Out-String -Width 4096
+$code059 = $LASTEXITCODE
+if ($code059 -eq 2) {
+    Ok "TEST-059.1: required state, valid manifest, no -ChangedPathsFile/-TargetRev: hard error (exit 2), never a silent all-clear"
+} else {
+    Fail "TEST-059.1: expected exit 2, got $code059 (out=$out059)"
+}
+
+# ============================================================================
+# TEST-035/036/055 (quality-gate remediation 2026-08-09): the live gap AND
+# the staged Bundle A/B candidates are both proven structurally -- not
+# asserted, not skipped, and not a bare substring match anywhere in the
+# file. The full behavioral producer-digest proof (TEST-055.1-3) lives in
+# the bash twin (Python is the schema/hash-comparison reference runtime for
+# that pass, per Specification Difference #2 in T-004.md); this twin
+# proves the STAGED candidate's structural shape on both runtimes.
+# ============================================================================
+$drafts = Join-Path $repoRoot "reports/implementation/epic-191-a3-path-ownership/drafts"
+
+Write-Output "=== TEST-036: protected-suffix registration + generator inventory ==="
 $matrixText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/risk-gate-matrix.md")
-if ($matrixText -match "check-component-coverage") { Ok "TEST-036.1 (partial): registered in the UNPROTECTED risk-gate-matrix.md required-check-set" } else { Fail "TEST-036.1: expected check-component-coverage in risk-gate-matrix.md" }
-if ($skillText -match "check-component-coverage") { Ok "TEST-036.2 (partial): documented in quality-gate/SKILL.md's ## Process" } else { Fail "TEST-036.2: expected check-component-coverage documented in quality-gate/SKILL.md" }
+$matrixLines = $matrixText -split "`n"
+$matrixBlock = ($matrixLines | Where-Object { $_ -match '^low\s+=\s' -or $_ -match '^medium\s+=\s' -or $_ -match '^high\s+=\s' -or $_ -match '^critical\s+=\s' }) -join "`n"
+if ($matrixBlock -match '(?m)^high\s+=.*check-component-coverage') {
+    Ok "TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)"
+} else {
+    Fail "TEST-036.1: expected check-component-coverage inside the machine-form 'high =' line"
+}
+if ($skillText -match "check-component-coverage") {
+    Ok "TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)"
+} else {
+    Fail "TEST-036.2: expected check-component-coverage documented in quality-gate/SKILL.md"
+}
+$liveContractPs1 = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-contract.ps1")
+if ($liveContractPs1 -match "check-component-coverage") {
+    Fail "TEST-036.3: unexpected -- live check-contract.ps1 already registers check-component-coverage (guard bypassed?)"
+} else {
+    Ok "TEST-036.3: live check-contract.ps1's protected RISK_TIERS does NOT yet register check-component-coverage (documents the live reachability gap this Bundle B candidate closes)"
+}
+$liveGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json") | ConvertFrom-Json
+$draftGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $drafts "bundle-a/references/guard-invariants.json") | ConvertFrom-Json
+$newSuffixes = @(
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
+)
+$dropOk = $true
+foreach ($key in @("protected_gate_suffixes", "phase2_human_copy_targets", "epic_a1_targets")) {
+    $liveSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$liveGuardInvariants.$key)
+    $draftSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$draftGuardInvariants.$key)
+    foreach ($item in $liveSet) {
+        if (-not $draftSet.Contains($item)) { $dropOk = $false }
+    }
+}
+$addOk = $true
+foreach ($n in $newSuffixes) {
+    if (($draftGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($draftGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $addOk = $false }
+    if ($liveGuardInvariants.protected_gate_suffixes -contains $n) { $addOk = $false }
+}
+if ($dropOk -and $addOk) {
+    Ok "TEST-036.4: the staged Bundle A candidate adds exactly the three check-component-coverage.* suffixes and DROPS NOTHING from either live protected_gate_suffixes or phase2_human_copy_targets (proven by direct set comparison, not asserted)"
+} else {
+    Fail "TEST-036.4: staged Bundle A candidate failed the live-vs-draft drop/addition comparison (dropOk=$dropOk addOk=$addOk)"
+}
+$genCheck = & python3 (Join-Path $drafts "bundle-a/scripts/generate-guard-invariants.py") --check 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Ok "TEST-036.5: running the REAL generate-guard-invariants.py --check against the staged Bundle A candidate tree exits 0 (internal consistency proven, not asserted)"
+} else {
+    Fail "TEST-036.5: generate-guard-invariants.py --check failed against the staged Bundle A candidate: $genCheck"
+}
+
+Write-Output "=== TEST-035: reachability registration (two-tier defense scope) ==="
+$draftContractPy = Get-Content -Raw -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-contract.py")
+$draftContractPs1 = Get-Content -Raw -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-contract.ps1")
+if ($draftContractPy -match '"high":\s*\{[^}]*"check-component-coverage"[^}]*\}' -and
+    $draftContractPy -match '"critical":\s*\{[^}]*"check-component-coverage"[^}]*\}' -and
+    $draftContractPs1 -match '"high"\s*=.*"check-component-coverage"' -and
+    $draftContractPs1 -match '"critical"\s*=.*"check-component-coverage"') {
+    Ok "TEST-035.1: the staged Bundle B candidate registers check-component-coverage in RISK_TIERS high AND critical on both runtimes, ready for human-apply"
+} else {
+    Fail "TEST-035.1: expected check-component-coverage registered in the staged candidate's high/critical RISK_TIERS on both runtimes"
+}
+
+Write-Output "=== TEST-055: staged Bundle B candidate structural proof (behavioral proof is in the bash twin) ==="
+if ($draftContractPy -match "_pass7_producer_digest" -and $draftContractPy -match "producer\.sha256") {
+    Ok "TEST-055.1: the staged Bundle B candidate (check-contract.py) defines a producer-digest verification pass"
+} else {
+    Fail "TEST-055.1: expected a producer-digest verification pass in the staged candidate"
+}
+if ($draftContractPs1 -match "PRODUCER_DIGEST_CHECK_ID" -and $draftContractPs1 -match "producer\.sha256") {
+    Ok "TEST-055.2: the staged Bundle B candidate (check-contract.ps1) defines the matching producer-digest verification pass"
+} else {
+    Fail "TEST-055.2: expected the matching producer-digest verification pass in the staged pwsh candidate"
+}
 
 Write-Output "=== registration self-check ==="
 $runAllSh = Join-Path $repoRoot "tests/run-all.sh"

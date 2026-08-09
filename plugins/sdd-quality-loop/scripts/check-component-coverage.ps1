@@ -69,21 +69,33 @@ function Get-ProducerSha256 {
 }
 
 function Get-DerivedState {
+    # Returns 'disabled-legacy' | 'advisory' | 'required'. Per ADR-0016
+    # point 4, disabled-legacy is a derived internal state entered whenever
+    # project-context.yaml is absent OR the capability_enforcement field
+    # itself is absent/invalid *within a document that DOES parse*. A
+    # config file that EXISTS but fails to parse is NOT one of those
+    # legitimate cases (ADR-0016 point 3: file presence checks are only a
+    # fallback for absence) -- this no longer catches that failure; it
+    # propagates as a terminating error so the caller can turn it into a
+    # hard, non-zero exit instead of silently downgrading to
+    # disabled-legacy (fail-open on a security-sensitive surface).
+    #
+    # capability_enforcement is matched byte-for-byte case-sensitively via
+    # [string]::Equals(...,[StringComparison]::Ordinal) -- never -eq, which
+    # is PowerShell's default culture-aware/case-insensitive comparison and
+    # would otherwise match "Required" as "required", diverging from the
+    # Python twin's already-case-sensitive `==`.
     param([string]$ConfigPath)
     if ([string]::IsNullOrEmpty($ConfigPath) -or -not (Test-Path -LiteralPath $ConfigPath -PathType Leaf)) {
         return "disabled-legacy"
     }
-    try {
-        $text = Get-Content -Raw -LiteralPath $ConfigPath -Encoding utf8
-        $data = ConvertFrom-MinimalYaml $text
-    } catch {
-        return "disabled-legacy"
-    }
+    $text = Get-Content -Raw -LiteralPath $ConfigPath -Encoding utf8
+    $data = ConvertFrom-MinimalYaml $text
     $workflow = $data["workflow"]
     if ($workflow -isnot [System.Collections.IDictionary]) { return "disabled-legacy" }
-    $value = $workflow["capability_enforcement"]
-    if ($value -eq "advisory") { return "advisory" }
-    if ($value -eq "required") { return "required" }
+    $value = [string]$workflow["capability_enforcement"]
+    if ([string]::Equals($value, "advisory", [System.StringComparison]::Ordinal)) { return "advisory" }
+    if ([string]::Equals($value, "required", [System.StringComparison]::Ordinal)) { return "required" }
     return "disabled-legacy"
 }
 
@@ -227,7 +239,14 @@ function Test-FailConditions {
 # CLI dispatch
 # --------------------------------------------------------------------------
 
-$state = Get-DerivedState -ConfigPath $myConfig
+try {
+    $state = Get-DerivedState -ConfigPath $myConfig
+} catch {
+    # A config file that EXISTS but fails to parse is a hard error, never a
+    # silent downgrade to disabled-legacy (see Get-DerivedState's docstring).
+    [Console]::Error.WriteLine("check-component-coverage: config error: $($_.Exception.Message)")
+    exit $EXIT_HARD_ERROR
+}
 $producer = [ordered]@{ script = "plugins/sdd-quality-loop/scripts/check-component-coverage.py"; sha256 = (Get-ProducerSha256) }
 
 if ($state -eq "disabled-legacy") {
@@ -240,6 +259,22 @@ if ($state -eq "disabled-legacy") {
     exit $EXIT_OK
 }
 
+if ([string]::IsNullOrEmpty($myTargetRev) -and [string]::IsNullOrEmpty($myChangedPathsFile)) {
+    # Reachability bypass fix: with no explicit diff basis at all, the only
+    # remaining input is raw, un-redirected stdin. In advisory/required
+    # state that would silently classify zero raw paths and return a
+    # conformant all-clear, binding no diff basis or provenance to the
+    # evidence record. Require the caller to be explicit (design.md's own
+    # canonical invocation shape always specifies -TargetRev); this branch
+    # is unreachable for disabled-legacy, which already exited above.
+    [Console]::Error.WriteLine(
+        "check-component-coverage: -TargetRev or -ChangedPathsFile is required in advisory/required " +
+        "state (an explicit diff basis must be provided; omitting both would silently evaluate " +
+        "whatever raw stdin happens to contain)"
+    )
+    exit $EXIT_HARD_ERROR
+}
+
 $records = @()
 if (-not [string]::IsNullOrEmpty($myConfig)) {
     try {
@@ -248,18 +283,24 @@ if (-not [string]::IsNullOrEmpty($myConfig)) {
             $diffBasis = Get-ChangedPaths -RepoRoot $myRepoRoot -SourceRev $mySourceRev -TargetRev $myTargetRev -IncludeUntracked $myIncludeUntracked
             $rawPaths = @($diffBasis.ChangedPaths)
         } else {
-            if ([string]::IsNullOrEmpty($myChangedPathsFile)) {
-                $text = [Console]::In.ReadToEnd()
-            } else {
-                $text = Get-Content -Raw -LiteralPath $myChangedPathsFile -Encoding utf8
-            }
+            $text = Get-Content -Raw -LiteralPath $myChangedPathsFile -Encoding utf8
             $normalizedText = $text -replace "`r`n", "`n" -replace "`r", "`n"
             $rawPaths = @($normalizedText -split "`n" | Where-Object { $_ -ne "" })
         }
         $classifyResult = Invoke-ClassifyPaths -Config $cfg -RawPaths $rawPaths
         $records = $classifyResult.records
     } catch {
-        Write-Error ("check-component-coverage: $($_.Exception.Message)")
+        # NOTE: Write-Error under $ErrorActionPreference = "Stop" (set at
+        # the top of this script) THROWS a terminating error itself,
+        # bypassing any code after it -- including the `exit $EXIT_HARD_ERROR`
+        # line that used to follow it, which made this catch block silently
+        # exit 1 (PowerShell's default uncaught-exception code) instead of
+        # the intended 2, diverging from the Python twin. [Console]::Error
+        # writes to stderr without raising, so the exit statement below
+        # actually runs (confirmed via a minimal repro; matches the
+        # convention already used elsewhere in this plugin, e.g.
+        # check-cross-model.ps1, check-hook-activation-handshake.ps1).
+        [Console]::Error.WriteLine("check-component-coverage: $($_.Exception.Message)")
         exit $EXIT_HARD_ERROR
     }
 }
