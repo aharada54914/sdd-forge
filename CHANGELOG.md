@@ -75,6 +75,30 @@
   存在する当のギャップを再生産することになる。v1.12.0 の記述自体は
   リリース済みの履歴として書き換えない。
 
+### 追加
+
+- **`lite-gate` の Capability Summary 消費と Registry-sourced チェック実行 (Issue #194, epic-194-a6-lite-integration T-004)**:
+  `plugins/sdd-lite/skills/lite-gate/SKILL.md` の Process に Step 2a
+  (`full_upgrade_required` バックストップ)と Step 2b(コマンド発見契約
+  経由の Registry-sourced チェック実行)を、既存 Step 2 と Step 3 の間に
+  挿入(直接編集、`guard-invariants.json` で編集直前に非保護を再確認)。
+  Project Context が無い場合(disabled-legacy)は空リストで継続、
+  アクティブな `capability_enforcement` 下で Summary が無ければ
+  `VERDICT: FAIL`(disabled-legacy とは明確に区別)。Summary は A4/A5
+  所有のバリデータで検証(再実装しない)、`full_upgrade_required: true`
+  は Step 2b 実行前にブロック。未マップな Registry-sourced check-id は
+  `N/A` ではなく常に `VERDICT: FAIL`。新規コマンド発見契約は
+  check-id 文法・シンボリックリンク脱出・パストラバーサル・
+  単一ランタイムメンバーのみのペアをすべて fail-closed で拒否する
+  (安全性強化 NEW-01)。`lite-gate/SKILL.md` は agent 向けプローズの
+  ため、`tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.{sh,ps1}`
+  という文書化されたアルゴリズムの参照シミュレータを新規追加し、5つの
+  新規スイート(`tests/lite-gate-summary-consumption`,
+  `-summary-absent`, `-summary-invalid`, `-full-upgrade-backstop`,
+  `-summary-absent-active-enforcement`、各 `.sh`/`.ps1`)がこれを検証する
+  (両ランタイム合計58アサーション)。`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイート群を直接登録(第4/最終位置)。
+
 ## v1.14.0 (2026-08-05)
 
 
@@ -1063,28 +1087,6 @@
 ## v1.11.0 (2026-07-21)
 
 ### 追加
-
-- **`lite-gate` の Capability Summary 消費と Registry-sourced チェック実行 (Issue #194, epic-194-a6-lite-integration T-004)**:
-  `plugins/sdd-lite/skills/lite-gate/SKILL.md` の Process に Step 2a
-  (`full_upgrade_required` バックストップ)と Step 2b(コマンド発見契約
-  経由の Registry-sourced チェック実行)を、既存 Step 2 と Step 3 の間に
-  挿入(直接編集、`guard-invariants.json` で編集直前に非保護を再確認)。
-  Project Context が無い場合(disabled-legacy)は空リストで継続、
-  アクティブな `capability_enforcement` 下で Summary が無ければ
-  `VERDICT: FAIL`(disabled-legacy とは明確に区別)。Summary は A4/A5
-  所有のバリデータで検証(再実装しない)、`full_upgrade_required: true`
-  は Step 2b 実行前にブロック。未マップな Registry-sourced check-id は
-  `N/A` ではなく常に `VERDICT: FAIL`。新規コマンド発見契約は
-  check-id 文法・シンボリックリンク脱出・パストラバーサル・
-  単一ランタイムメンバーのみのペアをすべて fail-closed で拒否する
-  (安全性強化 NEW-01)。`lite-gate/SKILL.md` は agent 向けプローズの
-  ため、`tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.{sh,ps1}`
-  という文書化されたアルゴリズムの参照シミュレータを新規追加し、5つの
-  新規スイート(`tests/lite-gate-summary-consumption`,
-  `-summary-absent`, `-summary-invalid`, `-full-upgrade-backstop`,
-  `-summary-absent-active-enforcement`、各 `.sh`/`.ps1`)がこれを検証する
-  (両ランタイム合計58アサーション)。`tests/run-all.sh` /
-  `tests/run-all.ps1` へ自スイート群を直接登録(第4/最終位置)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
