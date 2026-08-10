@@ -174,6 +174,32 @@ if [[ -f "$STAGED_WORKFLOW" ]] \
 else
   designed_red "human-copy: staged workflow candidate is STALE -- missing this suite's --check drift-lock step and/or predates the current CI job structure -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite"
 fi
+
+# ---------------------------------------------------------------------
+# RT-20260809-002 item 1 (2026-08-10): tasks.md Scope assigns TWO --check
+# steps to this task in a single sentence -- "the
+# `generate-gate-capabilities.py --check` step **and the vendoring step's
+# `--check` step**" -- and design.md's Deployment / CI Plan (:964-967) plus
+# infra-spec.md's CI/CD Sequence (:16,:37,:109) both require the
+# vendored-copy drift check (canonical `contracts/*` vs vendored
+# `plugins/sdd-quality-loop/contracts/*`, sha256-compared by
+# vendor-capability-registry.py --check) as a release gate. Only the
+# projection step existed; `vendor` appeared 0 times in the live workflow,
+# the staged candidate, the drafts candidate and run-all.sh.
+#
+# Asserted SEPARATELY from the compound check above, never folded into it:
+# the two --check scripts compare disjoint artifact pairs, so deleting
+# either step must fail that step's OWN assertion and only that one.
+# Mutation-verified in both directions -- see this task's implementation
+# report, "Vendoring drift-lock --check step (RT-20260809-002 item 1)".
+# ---------------------------------------------------------------------
+if [[ -f "$STAGED_WORKFLOW" ]] \
+  && grep -Fq 'vendor-capability-registry.py --check' "$STAGED_WORKFLOW"; then
+  ok "human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)"
+else
+  fail "human-copy: staged workflow candidate is missing the vendoring drift-lock --check step (vendor-capability-registry.py --check)"
+fi
+
 if [[ -f "$STAGED_MANIFEST" ]]; then
   staged_hash="$(shasum -a 256 "$STAGED_WORKFLOW" | awk '{print $1}')"
   manifest_hash="$(grep -F 'workflows/test.yml' "$STAGED_MANIFEST" | awk '{print $1}')"
@@ -385,6 +411,19 @@ if [[ -f "$CANDIDATE_WORKFLOW" ]] \
   ok "QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite"
 else
   fail "QG-fix: rebuilt CI workflow candidate is missing the gate-capabilities --check step or the generate-registry-digest suite"
+fi
+
+# RT-20260809-002 item 1 (2026-08-10), drafts/ twin of the staged-workflow
+# vendoring assertion above. Kept separate from the compound check
+# immediately above for the same independence reason stated there. The two
+# candidate trees are byte-identical since the drafts -> human-copy apply
+# landed (86b9aa7b), so both must carry the step or neither does; asserting
+# each independently is what keeps a future divergence visible.
+if [[ -f "$CANDIDATE_WORKFLOW" ]] \
+  && grep -Fq 'vendor-capability-registry.py --check' "$CANDIDATE_WORKFLOW"; then
+  ok "QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)"
+else
+  fail "QG-fix: rebuilt CI workflow candidate is missing the vendoring drift-lock --check step (vendor-capability-registry.py --check)"
 fi
 
 CANDIDATE_MANIFEST="$CANDIDATE_DIR/MANIFEST.sha256.candidate"

@@ -181,6 +181,21 @@ try {
     } else {
       DesignedRed "human-copy: staged workflow candidate is STALE -- missing this suite's --check drift-lock step and/or predates the current CI job structure -- HUMAN ACTION REQUIRED: replace specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml with specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate (see that directory's README.md), then re-run this suite"
     }
+
+    # RT-20260809-002 item 1 (2026-08-10) -- PowerShell twin of the bash
+    # suite's identically-named assertion. See that block's comment for the
+    # full rationale: tasks.md Scope assigns TWO --check steps to this task
+    # in one sentence, design.md's Deployment / CI Plan and infra-spec.md's
+    # CI/CD Sequence both require the vendored-copy drift check as a release
+    # gate, and only the projection step existed. Asserted SEPARATELY from
+    # the compound check above so deleting either step fails that step's own
+    # assertion and only that one.
+    if ($workflowContent -match [regex]::Escape('vendor-capability-registry.py --check')) {
+      Ok 'human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)'
+    } else {
+      Fail 'human-copy: staged workflow candidate is missing the vendoring drift-lock --check step (vendor-capability-registry.py --check)'
+    }
+
     if (Test-Path -LiteralPath $stagedManifest) {
       $stagedHash = (Get-FileHash -LiteralPath $stagedWorkflow -Algorithm SHA256).Hash.ToLowerInvariant()
       $manifestLines = @(Get-Content -LiteralPath $stagedManifest)
@@ -369,6 +384,16 @@ try {
       Ok 'QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite'
     } else {
       Fail 'QG-fix: rebuilt CI workflow candidate is missing the gate-capabilities --check step or the generate-registry-digest suite'
+    }
+
+    # RT-20260809-002 item 1 (2026-08-10), drafts/ twin -- PowerShell
+    # counterpart of the bash suite's identically-named assertion. Kept
+    # separate from the compound check immediately above for the same
+    # independence reason stated there.
+    if ($candidateWorkflowContent -match [regex]::Escape('vendor-capability-registry.py --check')) {
+      Ok 'QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)'
+    } else {
+      Fail 'QG-fix: rebuilt CI workflow candidate is missing the vendoring drift-lock --check step (vendor-capability-registry.py --check)'
     }
 
     $candidateManifest = Join-Path $candidateDir 'MANIFEST.sha256.candidate'
