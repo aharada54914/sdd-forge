@@ -51,8 +51,65 @@ $NONCODE_STACKS = @("shell", "docs", "spec")
 $PRODUCER_DIGEST_CHECK_ID = "check-component-coverage"
 $PRODUCER_DIGEST_SCRIPT_NAME = "check-component-coverage.py"
 
+# epic-191-a3-path-ownership T-004 follow-up (REQ-004, INV-018): tier-minimum
+# ids that are only required once the project has declared a capability-
+# enforcement posture at all.
+#
+# check-component-coverage derives one of three states from
+# `workflow.capability_enforcement` in sdd/project-context.yaml (ADR-0016 §4).
+# In `disabled-legacy` -- which Get-DerivedState returns when that file is
+# ABSENT -- the gate evaluates zero Fail conditions, consults no Facet
+# Manifest, and exits 0 unconditionally: it is structurally incapable of
+# asserting anything. Requiring it in the tier minimum while it is inert
+# demands a `passes:true` entry for a check that can never say anything but
+# "not-applicable", which is exactly the fabricated-pass footgun
+# requirements.md warns about. So the REQUIREMENT is gated on the same
+# project state the GATE itself reads, and activates precisely when the gate
+# becomes capable of asserting something.
+#
+# The predicate is file PRESENCE, not a re-derivation of the three-way state,
+# and that is deliberate:
+#   * contracts/project-context.schema.json makes `capability_enforcement`
+#     REQUIRED with enum ["advisory","required"], so every schema-conformant
+#     config yields advisory|required -- never disabled-legacy. Presence is
+#     therefore EXACTLY equivalent to `Get-DerivedState -ne "disabled-legacy"`
+#     for any conformant config.
+#   * The only divergence is a malformed/non-conformant config, where this
+#     predicate still REQUIRES the check (fail-closed). Get-DerivedState
+#     either throws (present-but-unparseable) or returns disabled-legacy
+#     (parses but lacks the field); over-requiring there is the safe
+#     direction.
+#   * It duplicates no YAML parsing into this file -- notably it avoids
+#     dot-sourcing resolve-component-paths.ps1 purely to reach
+#     ConvertFrom-MinimalYaml. A parser that threw and was caught would
+#     silently conclude "disabled-legacy", turning the tier minimum OFF
+#     permanently and undetectably. This predicate has no such failure mode:
+#     the only way it reads "inactive" is the file genuinely not existing,
+#     which is the intended inactive condition.
+#
+# Kept byte-for-byte in step with check-contract.py's PROJECT_CONTEXT_REL_PATH
+# / CAPABILITY_STATE_GATED_IDS.
+$PROJECT_CONTEXT_REL_PATH = "sdd/project-context.yaml"
+$CAPABILITY_STATE_GATED_IDS = @("check-component-coverage")
+
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+
+function Test-CapabilityEnforcementDeclared {
+    # True iff this project declares a capability-enforcement posture, i.e.
+    # sdd/project-context.yaml exists relative to the repo root. Mirrors the
+    # file-absence branch of check-component-coverage.ps1's Get-DerivedState.
+    #
+    # The relative path is joined segment-by-segment from the shared constant
+    # rather than passed to Join-Path whole, so the separator is the host's
+    # own on every platform. Join-Path is called one segment at a time because
+    # its multi-argument form is PowerShell 6+ only and this repository's
+    # scripts must also run under Windows PowerShell 5.1.
+    param([Parameter(Mandatory)][string]$Root)
+    $p = $Root
+    foreach ($seg in ($PROJECT_CONTEXT_REL_PATH -split '/')) { $p = Join-Path $p $seg }
+    return (Test-Path -LiteralPath $p -PathType Leaf)
+}
 
 function Test-PathContainsReparsePoint {
     param(
@@ -248,8 +305,14 @@ if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
     if ($risk -notin $RISK_TIERS.Keys) {
         $failures += "contract risk is invalid: $risk"
     } else {
-        # Enforce tier's required-id set
+        # Enforce tier's required-id set. Capability-state-gated ids drop out
+        # while the project declares no capability-enforcement posture, so the
+        # requirement activates exactly when the corresponding gate stops
+        # being inert (see $CAPABILITY_STATE_GATED_IDS).
         $requiredIds = $RISK_TIERS[$risk]
+        if (-not (Test-CapabilityEnforcementDeclared -Root $absRoot)) {
+            $requiredIds = @($requiredIds | Where-Object { $CAPABILITY_STATE_GATED_IDS -notcontains $_ })
+        }
         $presentIdSet = $contract.checks | ForEach-Object { $_.id }
         $compileWaivable = ($stack -in $NONCODE_STACKS)
 

@@ -1063,15 +1063,6 @@ create_evidence() {
     echo "evidence data" > "$path"
 }
 
-# Run the real producer so its JSON evidence carries the live producer digest.
-create_component_coverage_evidence() {
-    local path="$1"
-    local repo_root="$2"
-    mkdir -p "$(dirname "$path")"
-    python3 "${SCRIPTS_DIR}/check-component-coverage.py" \
-        --repo-root "$repo_root" > "$path"
-}
-
 # Test: T-003.1 - LEGACY: contract with NO risk field passes (regression test)
 mkdir -p "${WORK}/t003_test1/reports"
 create_evidence "${WORK}/t003_test1/reports/test.log"
@@ -1237,9 +1228,6 @@ fi
 # Test: T-003.7 - risk: high full (adds requirement-traceability)
 mkdir -p "${WORK}/t003_test7/reports"
 create_evidence "${WORK}/t003_test7/reports/test.log"
-create_component_coverage_evidence \
-    "${WORK}/t003_test7/reports/check-component-coverage.json" \
-    "${WORK}/t003_test7"
 cat > "${WORK}/t003_test7/T-003.7.contract.json" <<'EOF'
 {
   "task_id": "T-003.7",
@@ -1256,8 +1244,7 @@ cat > "${WORK}/t003_test7/T-003.7.contract.json" <<'EOF'
     { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -1270,9 +1257,6 @@ fi
 # Test: T-003.8 - risk: critical (same set as high)
 mkdir -p "${WORK}/t003_test8/reports"
 create_evidence "${WORK}/t003_test8/reports/test.log"
-create_component_coverage_evidence \
-    "${WORK}/t003_test8/reports/check-component-coverage.json" \
-    "${WORK}/t003_test8"
 cat > "${WORK}/t003_test8/T-003.8.contract.json" <<'EOF'
 {
   "task_id": "T-003.8",
@@ -1289,8 +1273,7 @@ cat > "${WORK}/t003_test8/T-003.8.contract.json" <<'EOF'
     { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -1511,9 +1494,6 @@ mkdir -p "${WORK}/t012_test7/reports"
 create_evidence "${WORK}/t012_test7/reports/test.log"
 create_evidence "${WORK}/t012_test7/reports/test.red.log"
 create_evidence "${WORK}/t012_test7/reports/test.green.log"
-create_component_coverage_evidence \
-    "${WORK}/t012_test7/reports/check-component-coverage.json" \
-    "${WORK}/t012_test7"
 cat > "${WORK}/t012_test7/T-012.7.contract.json" <<'EOF'
 {
   "task_id": "T-012.7",
@@ -1532,8 +1512,7 @@ cat > "${WORK}/t012_test7/T-012.7.contract.json" <<'EOF'
     { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -1603,9 +1582,6 @@ mkdir -p "${WORK}/t004_test3/reports"
 echo "test" > "${WORK}/t004_test3/reports/test.log"
 echo "red log" > "${WORK}/t004_test3/reports/red.log"
 echo "green log" > "${WORK}/t004_test3/reports/green.log"
-create_component_coverage_evidence \
-    "${WORK}/t004_test3/reports/check-component-coverage.json" \
-    "${WORK}/t004_test3"
 cat > "${WORK}/t004_test3/T-003.contract.json" <<'EOF'
 {
   "task_id": "T-003",
@@ -1621,8 +1597,7 @@ cat > "${WORK}/t004_test3/T-003.contract.json" <<'EOF'
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -1725,9 +1700,6 @@ mkdir -p "${WORK}/t004_test7/reports"
 echo "test" > "${WORK}/t004_test7/reports/test.log"
 echo "red log" > "${WORK}/t004_test7/reports/red.log"
 echo "green log" > "${WORK}/t004_test7/reports/green.log"
-create_component_coverage_evidence \
-    "${WORK}/t004_test7/reports/check-component-coverage.json" \
-    "${WORK}/t004_test7"
 cat > "${WORK}/t004_test7/T-007.contract.json" <<'EOF'
 {
   "task_id": "T-007",
@@ -1743,8 +1715,7 @@ cat > "${WORK}/t004_test7/T-007.contract.json" <<'EOF'
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -1963,9 +1934,6 @@ EOF
 
 # Create evidence file
 printf 'lint output: OK\n' > "${T006_REPO}/specs/test-feature/verification/ev.log"
-create_component_coverage_evidence \
-    "${T006_REPO}/specs/test-feature/verification/check-component-coverage.json" \
-    "${T006_REPO}"
 
 # Test: T-006.1 - LEGACY: generate bundle without risk field, then check → passes (regression)
 # Create quality report for T-099 (legacy contract)
@@ -2084,8 +2052,7 @@ cat > "${T006_REPO}/specs/test-feature/verification/T-100.contract.json" <<'EOF'
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "specs/test-feature/verification/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -2314,9 +2281,6 @@ EOF
 
 # Create evidence file
 printf 'critical evidence: OK\n' > "${T007A_REPO}/specs/test-feature/verification/ev.log"
-create_component_coverage_evidence \
-    "${T007A_REPO}/specs/test-feature/verification/check-component-coverage.json" \
-    "${T007A_REPO}"
 
 # Create quality report for T-200
 cat > "${T007A_REPO}/reports/quality-gate/T-200.md" <<'EOF'
@@ -2347,8 +2311,7 @@ cat > "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" <<'EOF
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "specs/test-feature/verification/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -2502,8 +2465,7 @@ cat > "${T007A_REPO}/specs/test-feature/verification/T-201.contract.json" <<'EOF
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "specs/test-feature/verification/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -2907,9 +2869,6 @@ echo "=== T-003-CM: cross_model descriptor ==="
 
 # CM.1 - critical + cross_model:required + passing cross-model-verification → PASS
 mkdir -p "${WORK}/cm_test1/reports"; create_evidence "${WORK}/cm_test1/reports/test.log"
-create_component_coverage_evidence \
-    "${WORK}/cm_test1/reports/check-component-coverage.json" \
-    "${WORK}/cm_test1"
 cat > "${WORK}/cm_test1/CM-1.contract.json" <<'EOF'
 {
   "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "cross_model": "required",
@@ -2923,8 +2882,7 @@ cat > "${WORK}/cm_test1/CM-1.contract.json" <<'EOF'
     { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "cross-model-verification", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "cross-model-verification", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -2961,9 +2919,6 @@ fi
 
 # CM.3 - critical + cross_model ABSENT (legacy) + no cross-model check → PASS (backward compat)
 mkdir -p "${WORK}/cm_test3/reports"; create_evidence "${WORK}/cm_test3/reports/test.log"
-create_component_coverage_evidence \
-    "${WORK}/cm_test3/reports/check-component-coverage.json" \
-    "${WORK}/cm_test3"
 cat > "${WORK}/cm_test3/CM-3.contract.json" <<'EOF'
 {
   "task_id": "CM-3", "feature": "test-feature", "risk": "critical",
@@ -2976,8 +2931,7 @@ cat > "${WORK}/cm_test3/CM-3.contract.json" <<'EOF'
     { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
 EOF
@@ -2989,9 +2943,6 @@ fi
 
 # CM.4 - critical + cross_model:waived + cross-model-verification waived → PASS
 mkdir -p "${WORK}/cm_test4/reports"; create_evidence "${WORK}/cm_test4/reports/test.log"
-create_component_coverage_evidence \
-    "${WORK}/cm_test4/reports/check-component-coverage.json" \
-    "${WORK}/cm_test4"
 cat > "${WORK}/cm_test4/CM-4.contract.json" <<'EOF'
 {
   "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "cross_model": "waived",
@@ -3005,8 +2956,7 @@ cat > "${WORK}/cm_test4/CM-4.contract.json" <<'EOF'
     { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "cross-model-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "air-gapped repo: no external model access" },
-    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }
+    { "id": "cross-model-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "air-gapped repo: no external model access" }
   ]
 }
 EOF
@@ -3224,6 +3174,156 @@ fi
 # ============================================================================
 # Summary
 # ============================================================================
+
+# ============================================================================
+# CSG: capability-state gating of the check-component-coverage tier minimum
+# (epic-191-a3-path-ownership T-004 follow-up; REQ-004, INV-018)
+#
+# NON-VACUITY CONTRACT -- read this before editing any case below.
+#
+# check-component-coverage derives `disabled-legacy` whenever
+# sdd/project-context.yaml is absent, and in that state it evaluates zero Fail
+# conditions, consults no Facet Manifest, and exits 0 unconditionally: it is
+# structurally incapable of asserting anything. check-contract therefore drops
+# it from the high/critical tier minimum in exactly that state. The failure
+# mode that matters for a condition like this is writing it so the requirement
+# NEVER fires again -- which is silent, and leaves the hole wider than before.
+#
+# These cases pin the condition from BOTH sides using ONE byte-identical
+# contract body, so neither a stuck-open nor a stuck-shut implementation can
+# pass the suite:
+#
+#   CSG.1  config ABSENT  + contract WITHOUT the check -> must PASS
+#   CSG.2  config PRESENT + the SAME contract          -> must FAIL, and the
+#                                                         message must name
+#                                                         check-component-coverage
+#
+# CSG.1 alone is satisfied by an "always skip" bug. CSG.2 alone is satisfied by
+# an "always require" bug -- which is precisely the pre-fix behaviour. Only a
+# correctly-gated condition satisfies both at once.
+#
+# CSG.3 repeats CSG.2 for `capability_enforcement: required` so both enforcing
+# states are covered rather than just the first one reached. CSG.4 proves the
+# activated requirement is actually satisfiable by a genuine producer record --
+# without it, "activates" could mean "makes the tier permanently unreachable".
+# CSG.5 mirrors CSG.2 at the `critical` tier, since high and critical carry
+# independent hardcoded sets.
+# ============================================================================
+echo "=== CSG: capability-state gating of the tier minimum ==="
+
+# Writes the shared fixture contract: the complete required set for $3 EXCEPT
+# check-component-coverage. $4, when non-empty, is appended verbatim inside the
+# checks array (its leading comma included).
+csg_write_contract() {
+    local dir="$1" task_id="$2" risk="$3" extra="${4:-}"
+    mkdir -p "${dir}/reports"
+    create_evidence "${dir}/reports/test.log"
+    cat > "${dir}/${task_id}.contract.json" <<EOF
+{
+  "task_id": "${task_id}",
+  "feature": "test-feature",
+  "risk": "${risk}",
+  "created": "2026-08-11T00:00:00Z",
+  "comment": "CSG: capability-state gating fixture",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }${extra}
+  ]
+}
+EOF
+}
+
+# Writes a schema-shaped sdd/project-context.yaml declaring $2 as the
+# capability_enforcement posture. contracts/project-context.schema.json makes
+# that field required with enum advisory|required, so these are the only two
+# postures a conformant config can declare.
+csg_write_project_context() {
+    local dir="$1" mode="$2"
+    mkdir -p "${dir}/sdd"
+    cat > "${dir}/sdd/project-context.yaml" <<EOF
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: ${mode}
+components: []
+shared_paths: []
+EOF
+}
+
+# --- CSG.1: config absent -> requirement is inert -------------------------
+csg_write_contract "${WORK}/csg1" "CSG.1" "high"
+if check_contract_passes "${WORK}/csg1/CSG.1.contract.json" "${WORK}/csg1"; then
+    ok "CSG.1: config absent: high contract without check-component-coverage passes"
+else
+    fail "CSG.1: config absent: high contract without check-component-coverage should pass: $(run_check_contract "${WORK}/csg1/CSG.1.contract.json" "${WORK}/csg1")"
+fi
+
+# --- CSG.2: config present (advisory) -> the SAME contract must fail ------
+csg_write_contract "${WORK}/csg2" "CSG.2" "high"
+csg_write_project_context "${WORK}/csg2" "advisory"
+csg2_out="$(run_check_contract "${WORK}/csg2/CSG.2.contract.json" "${WORK}/csg2")"
+if check_contract_passes "${WORK}/csg2/CSG.2.contract.json" "${WORK}/csg2"; then
+    fail "CSG.2: config present (advisory): the same contract should FAIL -- the tier minimum did not activate"
+elif printf '%s' "$csg2_out" | grep -q "check-component-coverage"; then
+    ok "CSG.2: config present (advisory): the same contract fails, naming check-component-coverage"
+else
+    fail "CSG.2: config present (advisory): failed, but not for check-component-coverage: ${csg2_out}"
+fi
+
+# --- CSG.3: config present (required) -> same, second enforcing state -----
+csg_write_contract "${WORK}/csg3" "CSG.3" "high"
+csg_write_project_context "${WORK}/csg3" "required"
+csg3_out="$(run_check_contract "${WORK}/csg3/CSG.3.contract.json" "${WORK}/csg3")"
+if check_contract_passes "${WORK}/csg3/CSG.3.contract.json" "${WORK}/csg3"; then
+    fail "CSG.3: config present (required): the same contract should FAIL -- the tier minimum did not activate"
+elif printf '%s' "$csg3_out" | grep -q "check-component-coverage"; then
+    ok "CSG.3: config present (required): the same contract fails, naming check-component-coverage"
+else
+    fail "CSG.3: config present (required): failed, but not for check-component-coverage: ${csg3_out}"
+fi
+
+# --- CSG.4: the activated requirement is satisfiable ----------------------
+# Uses a real advisory-state run of the live producer, so producer.sha256
+# genuinely matches the on-disk check-component-coverage.py and Pass 7's
+# producer-digest verification is exercised rather than bypassed.
+csg_write_contract "${WORK}/csg4" "CSG.4" "high" ',
+    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }'
+csg_write_project_context "${WORK}/csg4" "advisory"
+echo '{"affected_components": []}' > "${WORK}/csg4/reports/facet-manifest.json"
+: > "${WORK}/csg4/reports/changed-paths.txt"
+if python3 "${SCRIPTS_DIR}/check-component-coverage.py" \
+        --config "${WORK}/csg4/sdd/project-context.yaml" \
+        --facet-manifest "${WORK}/csg4/reports/facet-manifest.json" \
+        --changed-paths-file "${WORK}/csg4/reports/changed-paths.txt" \
+        --repo-root "${WORK}/csg4" > "${WORK}/csg4/reports/check-component-coverage.json" 2>/dev/null; then
+    if check_contract_passes "${WORK}/csg4/CSG.4.contract.json" "${WORK}/csg4"; then
+        ok "CSG.4: config present (advisory): contract declaring the check with a genuine producer record passes"
+    else
+        fail "CSG.4: config present (advisory): the activated requirement is unsatisfiable: $(run_check_contract "${WORK}/csg4/CSG.4.contract.json" "${WORK}/csg4")"
+    fi
+else
+    fail "CSG.4: the live check-component-coverage.py producer did not complete in advisory state"
+fi
+
+# --- CSG.5: critical tier carries its own hardcoded set -------------------
+csg_write_contract "${WORK}/csg5" "CSG.5" "critical"
+csg_write_project_context "${WORK}/csg5" "advisory"
+csg5_out="$(run_check_contract "${WORK}/csg5/CSG.5.contract.json" "${WORK}/csg5")"
+if check_contract_passes "${WORK}/csg5/CSG.5.contract.json" "${WORK}/csg5"; then
+    fail "CSG.5: critical, config present: contract without check-component-coverage should FAIL"
+elif printf '%s' "$csg5_out" | grep -q "check-component-coverage"; then
+    ok "CSG.5: critical, config present: contract without check-component-coverage fails"
+else
+    fail "CSG.5: critical, config present: failed, but not for check-component-coverage: ${csg5_out}"
+fi
 
 echo ""
 echo "====== Test Summary ======"
