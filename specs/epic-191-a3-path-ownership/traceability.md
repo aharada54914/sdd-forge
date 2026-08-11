@@ -96,18 +96,33 @@ reasoned cross-layer N/A.
 | AC-055 | TEST-055 | T-004 |
 | AC-056 | TEST-056 | T-001 |
 
-(2026-08-11 note, AC-056/TEST-056: this criterion was assigned by the
-requirements/acceptance-tests amendment `6e7c84dd` — closing the a2r3 spec
-re-review's EDGE-CASE-COVERAGE Major — after tasks.md was frozen by
-task-review, so T-001's Scope/Done-When text predates and cannot name it.
-The T-001 assignment is mechanically forced by the approved documents, not
-a new decision: acceptance-tests.md maps AC-056 1:1 to TEST-056 under
-REQ-001, design.md's Cross-Layer Dependencies REQ-001 row names AC-056,
-and T-001 is the only task carrying REQ-001. Its verification surface is
-T-001's own resolver suite (tests/component-path-resolver.tests.sh /
-.tests.ps1, the TEST-001..018 execution profile per acceptance-tests.md's
-Notes) and T-001's independent quality-gate evaluation, which judges the
-criterion on the current implementation's merits.)
+(2026-08-11 note, AC-056/TEST-056 — DEFERRAL RATIONALE, this table's
+authoritative coverage anchor for the criterion. Amended in the a7r1
+task-review round, which ruled this note's earlier wording a descriptive
+explanation rather than an explicit deferral rationale; this revision
+states the deferral explicitly. tasks.md itself carries no AC-056
+reference and, under this feature's review freeze, MUST NOT be edited to
+add one: the task plan is hash-bound by task-review provenance, its body
+is frozen after review, and this criterion was created by the
+human-authorized requirements/acceptance-tests amendment `6e7c84dd` —
+closing the a2r3 spec re-review's EDGE-CASE-COVERAGE Major — AFTER that
+freeze. The AC-056 -> TEST-056 -> T-001 obligation is therefore DEFERRED
+from tasks.md's frozen text to this traceability row, under the same
+frozen-artifact supersession convention this feature already uses for the
+ADR-0025 -> ADR-0027 renumbering (T-001.md's dated WFI-023 note). The
+assignment is mechanically forced by the approved documents, not a new
+decision: acceptance-tests.md maps AC-056 1:1 to TEST-056 under REQ-001,
+design.md's Cross-Layer Dependencies REQ-001 row names AC-056, and T-001
+is the only task carrying REQ-001. The obligation is discharged and
+verified through T-001's own resolver suite — TEST-056.1..TEST-056.6 in
+tests/component-path-resolver.tests.sh and .tests.ps1
+(present-but-malformed `--config`, plain and `--diagnose`, three malformed
+classes, disposable fixture trees, per acceptance-tests.md's AC-056 row
+and Notes) — and by T-001's independent quality-gate evaluation, which
+judged the criterion on the implementation's merits and recorded PASS at
+ledger seq0683. Forward rule: if tasks.md is ever legitimately unfrozen
+for a body edit, AC-056 must be folded into T-001's Requirements/Done-When
+text and this deferral note reduced to a historical record.)
 
 ## Deliverables (Per Task)
 
