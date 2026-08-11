@@ -100,7 +100,7 @@ def check_e_stage_missing(registry, diagnostics):
 def check_d_no_pack_owned_gates(repo_root, diagnostics):
     matches = sorted(repo_root.glob("capability-packs/*/gates.yaml"))
     for m in matches:
-        diagnostics.append(f"registry: pack-owns-gate-definition: {m.relative_to(repo_root)}")
+        diagnostics.append(f"registry: pack-owns-gate-definition: {m.relative_to(repo_root).as_posix()}")
     return not matches
 
 
@@ -222,7 +222,7 @@ def check_c_unregistered_script(registry, repo_root, diagnostics):
 
     for real_str, original in masters.items():
         if real_str not in registered_by_real:
-            diagnostics.append(f"registry: unregistered-script: {original.relative_to(repo_root)}")
+            diagnostics.append(f"registry: unregistered-script: {original.relative_to(repo_root).as_posix()}")
             ok = False
     return ok
 
