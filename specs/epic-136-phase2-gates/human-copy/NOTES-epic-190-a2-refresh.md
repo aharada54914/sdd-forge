@@ -76,6 +76,19 @@ failed, ps1 59 passed / 10 failed (nine of the ten are macOS-environmental,
 `apply-protected-files: Windows is required`) — but the reason list changed and
 the residue is not A2's to decide:
 
+> **CORRECTION (2026-08-11, QG cycle 7, gate seq0680):** the "failed
+> before this refresh too" claim above is false. Measured from git
+> history: the sh suite was **34 passed / 0 failed** (WFI-016 green) at
+> `6277cde0` and `340f0149`, and went **33/1** at `36339788` — the very
+> commit this note documents. The refresh regenerated the staged canonical
+> to 26 registry targets against 19 staged files, which is what turned
+> WFI-016 red; the regression was A2-caused, not pre-existing. The
+> underlying refresh was itself necessary (it disarmed the un-protection
+> hazard); only the attribution was wrong. Resolved 2026-08-11 by the
+> class fix recorded at the end of this file (WFI-016 now iterates this
+> bundle's own staging inventory and is green: sh 35/0, ps1 61/9 with the
+> nine pre-existing macOS platform failures).
+
 1. **Seven `missing:` entries.** WFI-016 iterates the *staged* canonical
    JSON's `phase2_human_copy_targets` and requires each entry to exist inside
    this stage. That array is now 26, but this bundle stages 19 files. Closing
