@@ -42,6 +42,56 @@ frozen `specs/` and `reports/` artifacts historically reference those
 paths and must keep resolving. New work must reference the new numbers;
 the tombstones are historical-compatibility only, not live content.
 
+## 2026-08-12 duplicate-number resolution (branch-side note, fourth collision, at 0027)
+
+The same class recurred at 0027, and this instance was cross-branch: this
+feature branch (`feature/epic-191-a3-path-ownership`) independently
+authored `0027-component-path-ownership-resolver-semantics.md` (first
+drafted 2026-07-23, locally renumbered from a provisional 0025 slot to
+0027 on 2026-08-08 per that file's own Numbering note, at a time when
+0025/0026 were the only occupied numbers this branch could see). Separately
+and later, main resolved its own second file at 0025
+(`0025-risk-adaptive-adversarial-review-lane.md`) by moving it to
+**ADR-0027** on 2026-08-10 — a change this branch had not yet merged, so
+neither side could see the other's claim on 0027 until this audit.
+
+| Number | Kept file (main, unmerged here) | Renumbered file (this branch) |
+|---|---|---|
+| 0027 | `0027-risk-adaptive-adversarial-review-lane.md` | `0027-component-path-ownership-resolver-semantics.md` |
+
+Per the same rule as the prior three resolutions, the file that landed on
+main first keeps the number; this branch's file — never merged, so not yet
+"first" in main's history — moves to the next free number:
+
+- `0027-component-path-ownership-resolver-semantics.md` → **`0030-component-path-ownership-resolver-semantics.md`**
+
+0028 and 0029 were both already claimed elsewhere (`0028-live-host-proof-
+ed25519-signing.md` on `feature/epic-196-a8-integration`;
+`0029-registry-discovery-contract.md` on
+`feature/epic-190-a2-capability-registry`, itself the 2026-08-11
+resolution of a *third* collision at 0025 — see that branch's
+`docs/adr/README.md` for the full account). An all-refs audit
+(`git log --all --name-only` plus `git ls-tree` on every local and remote
+branch, 2026-08-12) found 0030 as the lowest number free across every ref.
+
+The only in-branch, non-frozen, non-hash-bound references that meant the
+component-path decision — `plugins/sdd-quality-loop/scripts/
+resolve-component-paths.py` (two comment references) — were updated to
+ADR-0030. The frozen `specs/epic-191-a3-path-ownership/` trio
+(`requirements.md`, `design.md`, `tasks.md`), `traceability.md` (pinned by
+the attempt-7 task-review manifests, seq 0684-0687), and all historical
+`reports/` and `docs/review-tickets/` records keep their bare `ADR-0027`
+references as accurate statements of what was true when each was written.
+
+**Branch-side note only:** this branch's copy of this file predates main's
+own 2026-08-10 and 2026-08-11 duplicate-number resolution sections (this
+branch has not merged the commits that added them), so those two sections
+and their Index/Legacy-bare-number-reference rows are absent here. This
+section documents only this branch's own half of the fourth collision;
+full reconciliation — merging this section with main's 2026-08-10/2026-08-11
+sections and index into one consistent history — happens when this branch
+merges with main.
+
 ## Legacy bare-number references
 
 Tombstone stubs resolve a *path* reference (e.g.
@@ -114,4 +164,5 @@ must never rely on a bare legacy number.
 | 0024 | Workflow State Registry vs. Project Context | Accepted |
 | 0025 | Risk-Adaptive Adversarial Review Lane | Proposed |
 | 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
-| 0027 | Component Path Ownership Resolver Semantics | Accepted |
+| 0027 | component-path-ownership-resolver-semantics — renumbered to ADR-0030 | (tombstone) |
+| 0030 | Component Path Ownership Resolver Semantics | Accepted |

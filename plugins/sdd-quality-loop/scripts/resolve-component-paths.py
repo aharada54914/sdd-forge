@@ -36,7 +36,7 @@ CI installs no Python packages for its gate scripts (check-contract.py sets
 the same precedent), so a YAML library such as PyYAML is unavailable. The
 restricted YAML-subset parser below is a deliberate, bounded implementation
 choice (mirroring this repository's existing restricted-DSL philosophy,
-ADR-0020 / ADR-0027), not a general YAML 1.2 implementation. The
+ADR-0020 / ADR-0030), not a general YAML 1.2 implementation. The
 schema-conformance fixture below validates this projection against Epic A1's
 landed canonical schema and template.
 """
@@ -889,7 +889,7 @@ def check_schema_conformance(
 # follows renames under a pinned threshold/limit, evaluates submodule/
 # symlink entries reference-only, and enforces a single-writer/TOCTOU
 # snapshot check with a retry-once-then-fail-closed rule. Every axis is
-# normatively fail-closed (ADR-0027).
+# normatively fail-closed (ADR-0030).
 
 RENAME_SIMILARITY_THRESHOLD = 50  # percent, pinned (git's own default -M50%)
 RENAME_LIMIT = 1000  # pinned diff.renameLimit
