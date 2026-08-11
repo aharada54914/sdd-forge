@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 7,
+  "round": 1,
+  "requirements_sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97",
+  "acceptance_sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b",
+  "design_sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c",
+  "tasks_sha256": "bff141796419376a720ce6b9978f3f3bab1a38830713a6edf0e4db91e456240d",
+  "traceability_sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6",
+  "layer_sha256": {
+    "ux-spec.md": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5",
+    "frontend-spec.md": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793",
+    "infra-spec.md": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96",
+    "security-spec.md": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+  },
+  "workflow_match_precheck": "ok",
+  "human_edit_summary": "Task-stage evidence re-bind, no human edit to tasks.md. Attempt 6's binding recorded the raw bytes of a status-mixed plan (six Done, T-006 Implementation Complete) and its own contract predicted it would go stale on T-006's Done flip. That flip happened: the independent quality gate at ledger sequence 681 returned PASS on the eighth review attempt (run on the human's explicit direction, ruling (b) of 2026-08-11 on RT-20260811-002, the class fix evicting the repo-shared workflow snapshot from both sibling bundles) and recorded Status: Done for T-006 (reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md). The only change to tasks.md since attempt 6 is that one lifecycle line; both reviewers re-ran their full check sets on the current document (PASS/PASS, zero findings; reviewer B records one honest SKIP, BUGFIX-DIAGNOSTIC-PATH, no bugfix task in scope). Durability, measured: all seven tasks are now at the terminal Done state, so no further lifecycle flip exists for this feature; tasks_sha256 below records the raw bytes (bff14179...), which check-workflow-state accepts via its raw-hash path, and the Done-canonical form rereview_normalized_hash(tasks.md, 'Done') = 532f0d2cf02203f163829eee40b3bef07dd9ee2441a625f43686db0d03aa1505 is additionally accepted for any future re-derivation (the two differ only because the normalizer strips the '(sudo <timestamp>)' audit marks from approval lines). Unlike attempts 5 and 6, this binding can no longer be invalidated by a lifecycle transition -- only by a body edit, which must invalidate it by design. WFI-025 remains the systemic fix for the underlying matching rule.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-seq0682",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-0682",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-190-a2-capability-registry/attempt-7/round-1/dependency-graph.json",
+          "sha256": "c094b752c58fc5aec617ab0188c779498ace8535058865270dedf29d9dfd5dd3"
+        },
+        {
+          "path": "reports/task-review/epic-190-a2-capability-registry/attempt-7/round-1/precheck-result.json",
+          "sha256": "ccd0094519806b2da2a1a51f1570e930bc2b09a596c90cb80db0f144124e6780"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/acceptance-tests.md",
+          "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/design.md",
+          "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/frontend-spec.md",
+          "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/infra-spec.md",
+          "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/requirements.md",
+          "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/security-spec.md",
+          "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/tasks.md",
+          "sha256": "bff141796419376a720ce6b9978f3f3bab1a38830713a6edf0e4db91e456240d"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/traceability.md",
+          "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/ux-spec.md",
+          "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-seq0683",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-0683",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/epic-190-a2-capability-registry/attempt-7/round-1/integrated-summary.json",
+          "sha256": "deb6ac49d441e5550250fa38f3e4f5ea9f9fec0c415afbfc7a869159fdc35b7e"
+        },
+        {
+          "path": "reports/task-review/epic-190-a2-capability-registry/attempt-7/round-1/precheck-result.json",
+          "sha256": "ccd0094519806b2da2a1a51f1570e930bc2b09a596c90cb80db0f144124e6780"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/acceptance-tests.md",
+          "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/design.md",
+          "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/frontend-spec.md",
+          "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/infra-spec.md",
+          "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/requirements.md",
+          "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/security-spec.md",
+          "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/tasks.md",
+          "sha256": "bff141796419376a720ce6b9978f3f3bab1a38830713a6edf0e4db91e456240d"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/traceability.md",
+          "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+        },
+        {
+          "path": "specs/epic-190-a2-capability-registry/ux-spec.md",
+          "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "task-orch-epic-190-a2-capability-registry-a7r1",
+  "timestamp": "2026-08-11T11:34:19Z"
+}
