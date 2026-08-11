@@ -7,3 +7,4 @@ e4f42841fd1eecc9da299fabcad4edeaead6e99813b39ec79ea2ba1762e4709f  plugins/sdd-qu
 c15562f51d980d398379e635d8a92ae2af1a9b085d5fa2481bdd8fdfe2014886  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 5c0c387436c3d271390de90197a7f4e0e4bc1ea0de31da44df3902fe8be76e3d  plugins/sdd-quality-loop/scripts/check-contract.py
 9005f86156e453e3361ef90aa9ef2c1a44edb580e340cfc9790ff3b2310733b1  plugins/sdd-quality-loop/scripts/check-contract.ps1
+bf163e0e79ecba58351207cb7773142b20b79ab707fb20a03c4e6620b6bf6a93  tests/gates.tests.sh
