@@ -2,7 +2,15 @@
 
 TEST IDs (TEST-001..TEST-055) are namespaced to this feature
 (`specs/epic-191-a3-path-ownership/`) and map 1:1 to AC-001..AC-055 in
-requirements.md. All TEST IDs are `Status: Planned` — this feature's Phase
+requirements.md. **Amended 2026-08-11** (following requirements.md's
+human-directed conditional-activation supersession, which made a
+predicate load-bearing that this file previously never exercised —
+measured: zero occurrences of `sdd/project-context.yaml` existed here
+before this amendment): AC-035 is now additionally covered by three
+sub-ID rows — TEST-035a/TEST-035b/TEST-035c, the conditional-activation
+three-way fixture — so the mapping remains 1:1 by acceptance criterion
+(AC-035 ↔ the TEST-035 family); no pre-existing TEST ID changed meaning
+and none was deleted. All TEST IDs are `Status: Planned` — this feature's Phase
 2 task decomposition (`tasks.md`, deferred per investigation.md INV-012)
 has not yet been authored, so no task owns any TEST ID yet; that mapping
 is `traceability.md`'s job once Phase 2 exists.
@@ -43,7 +51,10 @@ is `traceability.md`'s job once Phase 2 exists.
 | AC-032 | REQ-004 | TEST-032 | Fail-5 Gate-level reachability | same suite: a dedicated fixture drives Fail-5 as an ordinary runtime path via `EXCLUDED_MATCH` evidence against real Facet Manifest data, distinguished from a same-fixture UNOWNED trigger | Planned |
 | AC-033 | REQ-004 | TEST-033 | Fail-6 adapter-path rule | same suite: a binding declaring `adapter_paths` whose glob matches an EXCLUSIVE-owned path triggers Fail-6 (the glob match is the sole trigger condition); a fixture whose declared `adapter_paths` glob does not match any EXCLUSIVE-owned changed path does not trigger Fail-6; a binding lacking `adapter_paths` records WARN "evaluation not possible" | Planned |
 | AC-034 | REQ-004 | TEST-034 | conditional N/A | same suite: with no `sdd/provider-bindings.yaml` present, Fail-6 is recorded N/A with a WARN, never silently omitted without a trace | Planned |
-| AC-035 | REQ-004 | TEST-035 | reachability (two-tier defense scope) | same suite: a fixture deletes/renames the `quality-gate/SKILL.md` invocation, or substitutes an unregistered replacement script paired with a same-id, mismatched-digest `passes:true` evidence entry; the `high`/`critical` Gate still fails via `check-contract`'s protected required-check-set + producer-digest verification, scoped to footgun-prevention/tamper-evidence, not unconditional adversarial-agent reachability (external boundary: protected files, HMAC evidence bundle, branch protection, human review) | Planned |
+| AC-035 | REQ-004 | TEST-035 | reachability (two-tier defense scope) | same suite: a fixture deletes/renames the `quality-gate/SKILL.md` invocation, or substitutes an unregistered replacement script paired with a same-id, mismatched-digest `passes:true` evidence entry; the `high`/`critical` Gate still fails via `check-contract`'s protected required-check-set + producer-digest verification, scoped to footgun-prevention/tamper-evidence, not unconditional adversarial-agent reachability (external boundary: protected files, HMAC evidence bundle, branch protection, human review); amended 2026-08-11: this fixture pins `sdd/project-context.yaml` present and schema-valid in its fixture tree, because under the conditional-activation supersession the required-check-set half it exercises is active only in that state (the activation boundary itself is TEST-035a/b/c) | Planned |
+| AC-035 | REQ-004 | TEST-035a | conditional activation — file absent (added 2026-08-11) | same suite (+ direct invocation of the staged `check-contract.{sh,ps1,py}` candidate against a disposable fixture tree, never the live repository): with no `sdd/project-context.yaml` in the fixture tree, a `high`/`critical` contract carrying no `check-component-coverage` evidence entry passes `check-contract` — the tier-minimum membership is inactive (the state of every pre-existing contract); guards against a stuck-shut regression that would re-break the 94 pre-existing `high`/`critical` contracts (requirements.md Problems) | Planned |
+| AC-035 | REQ-004 | TEST-035b | conditional activation — present and valid (added 2026-08-11) | same suite: with a schema-valid `sdd/project-context.yaml` present in the fixture tree, the otherwise-identical `high`/`critical` contract lacking the entry FAILS `check-contract` — the membership is active; guards against a stuck-open regression where the minimum never arms once the file lands | Planned |
+| AC-035 | REQ-004 | TEST-035c | conditional activation — present but malformed, fail-closed (added 2026-08-11) | same suite: with a present but malformed `sdd/project-context.yaml` (one unparseable-YAML variant and one schema-divergent variant), the contract lacking the entry still FAILS — check still required — proving the predicate is plain file presence with no YAML parser participating; catches an implementation whose caught parse exception silently concludes `disabled-legacy` and turns the minimum off forever, the exact regression requirements.md's Problems paragraph warns against | Planned |
 | AC-036 | REQ-004 | TEST-036 | protected-registration + generator-inventory parity | same suite: (a) staged six-file candidate set (`guard-invariants.json`, `generate-guard-invariants.py`, four `generated/*` files) exists with correct `MANIFEST.sha256` entries; (b) `generate-guard-invariants.py --check` exits 0 against the staged tree; (c) the live files are byte-identical before/after this feature's own commits; (d) a post-human-copy self-registration grep confirms the three `check-component-coverage.*` entries are present | Planned |
 | AC-037 | REQ-005 | TEST-037 | digest scope (full input, unconditional) | `tests/ownership-digest.tests.sh`/`.ps1`: `ownership_digest` is computed over the **entire** declared ownership input — every component/`shared_paths` entry, unconditionally, never a per-resolve-scoped subset — plus the matcher-semantics-version, via Epic A1's canonicalizer; the task records a documented blocker if that canonicalizer does not exist at implementation time | Planned |
 | AC-038 | REQ-005 | TEST-038 | staleness exclusion | same suite: `ownership_digest` populates `context_binding` per ADR-0021; a fixture where only `ownership_digest` changes (no resolved-component-set change) does not mark the Feature stale | Planned |
@@ -86,7 +97,13 @@ Notes:
   fixture is a standalone JSON/YAML object shaped to match
   `facet-manifest.affected_components`'s documented field (design.md Data
   Plan), consistent with this feature's own scope boundary against
-  redefining that schema. TEST-035/TEST-036/TEST-055 additionally read
+  redefining that schema. TEST-035a/b/c (added 2026-08-11) construct
+  their `sdd/project-context.yaml` presence/validity/malformation
+  variants inside a disposable fixture tree only — this repository has
+  no live `sdd/project-context.yaml`, and no test creates one at the
+  live path (doing so would flip the repository's own derived
+  capability state). TEST-035 (with its 2026-08-11 sub-IDs
+  TEST-035a/b/c)/TEST-036/TEST-055 additionally read
   (never write) `check-contract.{sh,ps1,py}`, `risk-gate-matrix.md`,
   `guard-invariants.json`, and `generate-guard-invariants.py` to construct
   their reachability/registration/producer-digest fixtures, and invoke
@@ -107,7 +124,8 @@ Notes:
   TEST-027 established for a different protected file
   (`.github/workflows/test.yml`) — reused here for the
   `guard-invariants.json`/generator toolchain (TEST-036) and the CI step
-  registration (TEST-047); TEST-035/TEST-055 additionally reuse the
+  registration (TEST-047); TEST-035 (and its 2026-08-11 sub-IDs
+  TEST-035a/b/c)/TEST-055 additionally reuse the
   pattern for `check-contract`'s protected required-check-set and its
   producer-digest verification pass (a family TEST-027 itself did not
   need to cover).

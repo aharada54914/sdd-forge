@@ -1028,13 +1028,26 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   verifies the evidence entry's `producer.sha256` against the live script
   (Dependencies, AC-055; under the 2026-08-11 supersession the
   tier-minimum requirement for this id is active only once
-  `sdd/project-context.yaml` exists, while the producer-digest
-  verification runs in every state); a fixture that deletes or renames the
+  `sdd/project-context.yaml` exists — a plain file-presence predicate
+  with no YAML parser participating, **fail-closed for a malformed
+  config**: a `sdd/project-context.yaml` that is present but unparseable
+  or schema-divergent still activates the tier minimum (check still
+  required), so a caught parse failure can never silently conclude
+  `disabled-legacy` and turn the minimum off (Problems) — while the
+  producer-digest verification runs in every state). The activation
+  boundary itself is observable as a three-way fixture — file absent
+  (requirement inactive; a contract without the entry passes), file
+  present and schema-valid (requirement active; a contract lacking the
+  entry fails), file present but malformed (fail-closed; still fails) —
+  specified as TEST-035a/TEST-035b/TEST-035c (amendment of 2026-08-11).
+  A fixture that deletes or renames the
   `quality-gate/SKILL.md` invocation, or substitutes an unregistered
   replacement script and pairs it with a same-id `passes:true` evidence
   entry whose `producer.sha256` does not match the real
   `check-component-coverage.py`, still fails a `high`/`critical` task's
-  Gate. This AC's claim is scoped to the same two-tier defense boundary
+  Gate — that reachability fixture pins `sdd/project-context.yaml`
+  present and schema-valid, the state in which the required-check-set
+  half it exercises is active. This AC's claim is scoped to the same two-tier defense boundary
   `docs/adr/0019-approval-sidecar-protection.md:70-77` already establishes
   for this repository's other protected mechanisms: the hook layer +
   `check-contract`'s deterministic validator guarantee **footgun
@@ -1323,6 +1336,26 @@ schemas this feature now treats as a hard (not follow-up) dependency.
    registered in `check-contract`'s protected required-check-set (which
    also verifies the producer-digest binding), so deleting the SKILL.md
    invocation, or substituting an unregistered script, does not bypass it.
+   **Superseded in part (2026-08-11, human-directed)** — the closing
+   clause above ("so deleting the SKILL.md invocation, or substituting an
+   unregistered script, does not bypass it") holds only while
+   `sdd/project-context.yaml` exists. Under the same ruling's conditional
+   activation (Problems; REQ-004), the tier-minimum membership for this
+   id is inactive while that file is absent — the `disabled-legacy`
+   state, and this repository's state as of this amendment — so in that
+   state `check-contract` requires no `check-component-coverage` evidence
+   entry, and an unprotected SKILL.md edit that deletes the invocation is
+   NOT caught by this mechanism. What such a bypass forfeits in that
+   state is only the truthful `state: "not-applicable (disabled-legacy)"`
+   record — no ownership Fail condition was being evaluated to begin
+   with — and what still detects the edit is only the external boundary
+   (branch protection/CODEOWNERS and human review of the unprotected
+   SKILL.md). The producer-digest verification, which runs in every
+   state, validates any evidence entry that is present but cannot force
+   one to exist. The does-not-bypass guarantee re-arms exactly when
+   `sdd/project-context.yaml` lands — fail-closed for a malformed file
+   (AC-035; Edge Cases) — the same moment the Gate first becomes capable
+   of asserting anything (Security Boundaries).
 5. In the `required` state, any Fail condition, or a manifest-required
    hard error (in `advisory` or `required`), blocks the Implementation
    Gate; a human resolves the underlying config or Facet Manifest and
@@ -1382,6 +1415,24 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   triggered condition is recorded in the evidence output, not silently
   dropped, so a human reviewing the report still sees it (REQ-004,
   AC-052).
+- (Added 2026-08-11 with the conditional-activation supersession,
+  Problems) `sdd/project-context.yaml` transitions from absent to
+  present — the activation boundary of `check-contract`'s tier-minimum
+  membership for `check-component-coverage` (REQ-004, AC-035). The
+  behavior is three-way, exercised by TEST-035a/b/c: while the file is
+  absent, the tier minimum omits this id, and a `high`/`critical`
+  contract without the entry passes `check-contract` (the state of every
+  pre-existing contract, and of this repository as of this amendment);
+  once the file exists and is schema-valid, the membership is active,
+  and an otherwise-identical contract lacking the entry fails; a file
+  that is present but malformed (unparseable, or schema-divergent) is
+  fail-closed — the check is still required — because the predicate is
+  plain file presence and no YAML parser participates in the decision,
+  so a caught parse exception can never silently conclude
+  `disabled-legacy` and disarm the minimum (Problems). The transition
+  needs no migration step: activation is evaluated per `check-contract`
+  run, so the first run after the file lands simply evaluates the
+  minimum with the id included.
 
 ## Security Boundaries
 
@@ -1394,6 +1445,29 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   registration into `check-contract`'s protected required-check-set
   (INV-017) is the boundary that additionally prevents an unprotected
   `quality-gate/SKILL.md` edit from bypassing invocation.
+  **Superseded in part (2026-08-11, human-directed)** — the preceding
+  sentence overclaims for one state, and this security-guarantee section
+  must not overclaim. Under the sanctioned conditional activation
+  (Problems; REQ-004; Dependencies), the required-check-set membership
+  for this id is evaluated only while `sdd/project-context.yaml` exists.
+  While that file is absent — the `disabled-legacy` state, and this
+  repository's state as of this amendment — the tier minimum does not
+  include the id, so this boundary does NOT prevent an unprotected
+  `quality-gate/SKILL.md` edit from bypassing invocation. In that state,
+  what a bypass forfeits is only the truthful
+  `state: "not-applicable (disabled-legacy)"` record (the Gate performs
+  zero ownership evaluation there, so no enforcement is lost); the
+  mechanisms that remain are the script-content protection above
+  (INV-006), the producer-digest pass (next bullet — it validates any
+  evidence entry that is present but cannot force one to exist), and
+  the external boundary (branch protection/CODEOWNERS and human review
+  of the unprotected SKILL.md), which in `disabled-legacy` is the only
+  detection for such an edit. The invocation-reachability boundary this
+  bullet originally described becomes real at the moment
+  `sdd/project-context.yaml` lands, fail-closed for a malformed file
+  (AC-035; Edge Cases): from then on, a `high`/`critical` contract
+  lacking the entry fails `check-contract` regardless of any SKILL.md
+  edit.
 - The required-check-set registration (previous bullet) is strengthened by
   a producer-digest binding (Dependencies; NEW-001, formerly a
   NOT_RESOLVED verification finding): `check-contract` independently
