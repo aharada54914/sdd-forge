@@ -404,12 +404,17 @@ fi
 # asserted the three suffixes were NOT yet live; post-apply that inverted.
 # Now: the live guard-invariants.json must carry all three
 # check-component-coverage.* entries in BOTH protected_gate_suffixes and
-# phase2_human_copy_targets, and every live protected artifact this feature
-# staged must still be byte-identical to its human-copy candidate
-# (shasum -c of the feature manifest from the repo root verifies the LIVE
-# paths against the staged hashes — divergence or a dropped apply fails).
+# phase2_human_copy_targets; T-004's two live workflow steps must remain
+# present; every candidate must match its manifest hash; and T-004-owned
+# protected rows must remain byte-identical live. The shared workflow row is
+# candidate-only because later serialized tasks reuse it for pending staged
+# registrations after T-004's own steps have been human-applied.
 if python3 -c "
+import hashlib
 import json
+from pathlib import Path
+repo = Path('${REPO_ROOT}')
+manifest = Path('${HC_MANIFEST_191}')
 live = json.load(open('${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json'))
 new = ('plugins/sdd-quality-loop/scripts/check-component-coverage.py',
        'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
@@ -419,12 +424,27 @@ for n in new:
         raise SystemExit(f'{n} missing from live protected_gate_suffixes')
     if n not in live['phase2_human_copy_targets']:
         raise SystemExit(f'{n} missing from live phase2_human_copy_targets')
+workflow = (repo / '.github/workflows/test.yml').read_text()
+for marker in ('bash ./tests/check-component-coverage.tests.sh',
+               './tests/check-component-coverage.tests.ps1'):
+    if marker not in workflow:
+        raise SystemExit(f'missing live T-004 workflow marker: {marker}')
+for line in manifest.read_text().splitlines():
+    if not line.strip() or line.lstrip().startswith('#'):
+        continue
+    expected, relative = line.split(None, 1)
+    candidate = manifest.parent / relative
+    if not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
+        raise SystemExit(f'candidate hash mismatch: {relative}')
+    if relative != '.github/workflows/test.yml':
+        applied = repo / relative
+        if not applied.is_file() or hashlib.sha256(applied.read_bytes()).hexdigest() != expected:
+            raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
-" \
-   && (cd "$REPO_ROOT" && shasum -a 256 -c "$HC_MANIFEST_191" >/dev/null 2>&1); then
-  ok "TEST-036.4: live guard-invariants.json carries the three check-component-coverage.* entries in both protected lists, and every applied live file is byte-identical to its human-copy staged candidate (shasum -c from the repo root)"
+"; then
+  ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live"
 else
-  fail "TEST-036.4: live registration or live-vs-staged byte-identity failed (guard-invariants membership or shasum -c against ${HC_MANIFEST_191})"
+  fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed against ${HC_MANIFEST_191}"
 fi
 # TEST-036.5 (retargeted 2026-08-11): the generator inventory check now runs
 # against the LIVE tree — the applied state is what must be internally

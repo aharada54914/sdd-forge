@@ -356,10 +356,11 @@ if ($liveContractPs1Text -match '"high"\s*=.*"check-component-coverage"' -and
 } else {
     Fail "TEST-036.3: expected the live check-contract.ps1 to carry the conditional check-component-coverage registration"
 }
-# TEST-036.4 (retargeted 2026-08-11): live guard-invariants.json must carry
-# the three entries in BOTH protected lists, and every live file this
-# feature staged must still match its human-copy candidate hash (the pwsh
-# equivalent of shasum -c from the repo root).
+# TEST-036.4 (retargeted 2026-08-12): live guard-invariants.json must carry
+# the three entries in BOTH protected lists; T-004's own live workflow steps
+# must remain present; every shared-manifest candidate hash must verify; and
+# T-004-owned protected rows must still match live. The shared workflow row
+# may carry a later serialized task's pending staged registration.
 $liveGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json") | ConvertFrom-Json
 $newSuffixes = @(
     "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
@@ -372,20 +373,34 @@ foreach ($n in $newSuffixes) {
 }
 $manifestOk = $true
 $manifestChecked = 0
+$liveChecked = 0
+$liveWorkflowText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot '.github/workflows/test.yml')
+if (-not $liveWorkflowText.Contains('bash ./tests/check-component-coverage.tests.sh') -or
+    -not $liveWorkflowText.Contains('./tests/check-component-coverage.tests.ps1')) {
+    $manifestOk = $false
+}
 foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     if ($line.Trim() -ceq "" -or $line.TrimStart().StartsWith("#")) { continue }
     $parts = $line -split '\s+', 2
     if ($parts.Count -ne 2) { $manifestOk = $false; continue }
-    $livePath = Join-Path $repoRoot $parts[1].Trim()
-    if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
-    $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
-    if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+    $relativePath = $parts[1].Trim()
+    $candidatePath = Join-Path (Split-Path -Parent $hcManifest191) $relativePath
+    if (-not (Test-Path -LiteralPath $candidatePath)) { $manifestOk = $false; continue }
+    $candidateHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $candidatePath).Hash.ToLowerInvariant()
+    if ($candidateHash -cne $parts[0].Trim()) { $manifestOk = $false }
+    if ($relativePath -cne '.github/workflows/test.yml') {
+        $livePath = Join-Path $repoRoot $relativePath
+        if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
+        $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
+        if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+        $liveChecked++
+    }
     $manifestChecked++
 }
-if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0) {
-    Ok "TEST-036.4: live guard-invariants.json carries the three check-component-coverage.* entries in both protected lists, and all $manifestChecked applied live files are byte-identical to their human-copy staged candidates"
+if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0 -and $liveChecked -gt 0) {
+    Ok "TEST-036.4: T-004's live registrations remain applied; all $manifestChecked shared-manifest candidate hashes verify; and all $liveChecked T-004-owned protected rows remain byte-identical live"
 } else {
-    Fail "TEST-036.4: live registration or live-vs-staged byte-identity failed (addOk=$liveAddOk manifestOk=$manifestOk checked=$manifestChecked)"
+    Fail "TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity failed (addOk=$liveAddOk manifestOk=$manifestOk candidates=$manifestChecked live=$liveChecked)"
 }
 # TEST-036.5 (retargeted 2026-08-11): the generator inventory check runs
 # against the LIVE tree — the applied state is what must be consistent.

@@ -9,6 +9,7 @@ $resolver = if ($env:T003_RESOLVER) { $env:T003_RESOLVER } else { Join-Path $rep
 $canonicalizer = Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1'
 $only = $env:T003_ONLY
 $mutation = $env:T003_MUTATE_ASSERTION
+$diffBaseline = if ($env:T003_DIFF_BASELINE) { $env:T003_DIFF_BASELINE } else { '057223e9bfdc01da159d182e9d67648536712970' }
 $powerShell = (Get-Process -Id $PID).Path
 $script:passCount = 0
 $script:failCount = 0
@@ -317,10 +318,6 @@ components:
         $wiringCount = 0
         $runAllSh = Join-Path $repoRoot 'tests/run-all.sh'
         $runAllPs1 = Join-Path $repoRoot 'tests/run-all.ps1'
-        $stagedRunAllSh = Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/human-copy/tests/run-all.sh'
-        $stagedRunAllPs1 = Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/human-copy/tests/run-all.ps1'
-        if (Test-Path -LiteralPath $stagedRunAllSh) { $runAllSh = $stagedRunAllSh }
-        if (Test-Path -LiteralPath $stagedRunAllPs1) { $runAllPs1 = $stagedRunAllPs1 }
         if ([IO.File]::ReadAllText($runAllSh).Contains('  tests/ownership-digest.tests.sh')) { $wiringCount++ }
         if ([IO.File]::ReadAllText($runAllPs1).Contains("'tests/ownership-digest.tests.ps1'")) { $wiringCount++ }
         $stagedWorkflow = [IO.File]::ReadAllText((Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml'))
@@ -345,7 +342,18 @@ components:
     }
 
     if (Should-Run 'TEST-049') {
-        $versionFiles = (& git -C $repoRoot diff --name-only -- 'plugins/*/plugin.json' 'tests/validate-repository.ps1' | Out-String).Trim()
+        & git -C $repoRoot cat-file -e "$diffBaseline^{commit}" 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $versionPaths = @(
+                ':(glob)plugins/*/.claude-plugin/plugin.json',
+                ':(glob)plugins/*/.codex-plugin/plugin.json',
+                ':(glob)plugins/*/.plugin/plugin.json',
+                'tests/validate-repository.ps1'
+            )
+            $versionFiles = (& git -C $repoRoot diff --name-only $diffBaseline -- @versionPaths | Out-String).Trim()
+        } else {
+            $versionFiles = "MISSING_BASELINE:$diffBaseline"
+        }
         if (Is-Mutated 'TEST-049') { $versionFiles = 'plugins/sdd-quality-loop/plugin.json'; Write-Output 'MUTATION: TEST-049 introduces an out-of-band version surface change' }
         Record 'TEST-049' 'no version-carrying surface is changed outside the release bump script' ([string]::IsNullOrEmpty($versionFiles))
     }

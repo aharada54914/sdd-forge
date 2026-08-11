@@ -98,6 +98,7 @@ tests=(
   tests/design-sync-scan.tests.sh
   tests/component-path-resolver.tests.sh
   tests/component-path-diff-basis.tests.sh
+  tests/ownership-digest.tests.sh
   tests/check-component-coverage.tests.sh
 )
 

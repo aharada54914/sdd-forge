@@ -10,6 +10,7 @@ RESOLVER="${T003_RESOLVER:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/resolve
 CANONICALIZER="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py"
 ONLY="${T003_ONLY:-}"
 MUTATE="${T003_MUTATE_ASSERTION:-}"
+DIFF_BASELINE="${T003_DIFF_BASELINE:-057223e9bfdc01da159d182e9d67648536712970}"
 PASS=0
 FAIL=0
 TMP="$(mktemp -d)"
@@ -307,8 +308,6 @@ if should_run TEST-041; then
   wiring_count=0
   run_all_sh="$REPO_ROOT/tests/run-all.sh"
   run_all_ps1="$REPO_ROOT/tests/run-all.ps1"
-  [ -f "$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/tests/run-all.sh" ] && run_all_sh="$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/tests/run-all.sh"
-  [ -f "$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/tests/run-all.ps1" ] && run_all_ps1="$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/tests/run-all.ps1"
   grep -Fxq '  tests/ownership-digest.tests.sh' "$run_all_sh" && wiring_count=$((wiring_count + 1))
   grep -Fq "'tests/ownership-digest.tests.ps1'" "$run_all_ps1" && wiring_count=$((wiring_count + 1))
   grep -Fq 'bash ./tests/ownership-digest.tests.sh' "$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
@@ -329,7 +328,15 @@ if should_run TEST-048; then
 fi
 
 if should_run TEST-049; then
-  version_files="$(git -C "$REPO_ROOT" diff --name-only -- plugins/*/plugin.json tests/validate-repository.ps1 2>/dev/null || true)"
+  if git -C "$REPO_ROOT" cat-file -e "${DIFF_BASELINE}^{commit}" 2>/dev/null; then
+    version_files="$(git -C "$REPO_ROOT" diff --name-only "$DIFF_BASELINE" -- \
+      ':(glob)plugins/*/.claude-plugin/plugin.json' \
+      ':(glob)plugins/*/.codex-plugin/plugin.json' \
+      ':(glob)plugins/*/.plugin/plugin.json' \
+      'tests/validate-repository.ps1')"
+  else
+    version_files="MISSING_BASELINE:$DIFF_BASELINE"
+  fi
   if is_mutated TEST-049; then version_files='plugins/sdd-quality-loop/plugin.json'; printf 'MUTATION: TEST-049 introduces an out-of-band version surface change\n'; fi
   result=0; [ -z "$version_files" ] && result=1
   check TEST-049 'no version-carrying surface is changed outside the release bump script' "$result"

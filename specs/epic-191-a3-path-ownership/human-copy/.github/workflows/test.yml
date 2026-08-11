@@ -611,9 +611,9 @@ jobs:
         run: ./tests/ship-track-selection-migration.tests.ps1
 
       # epic-191-a3-path-ownership T-001/T-002/T-003/T-004 (CI-staging
-      # registration). All four suites are registered in
-      # tests/run-all.{sh,ps1} but none was ever registered in this
-      # workflow, so none of them runs in CI today. All four are
+      # registration). All four suites are registered in the live
+      # tests/run-all.{sh,ps1}; this staged candidate supplies their
+      # previously missing direct CI steps. All four are
       # deterministic: no LLM, no network, no `gh`, and no live sudo
       # grant. Ordered as in run-all: T-001's resolver suite, then
       # T-002's diff-basis suite, T-003's ownership-digest suite, then

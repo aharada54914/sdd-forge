@@ -57,6 +57,7 @@ $tests = @(
     'tests/design-sync-scan.tests.ps1',
     'tests/component-path-resolver.tests.ps1',
     'tests/component-path-diff-basis.tests.ps1',
+    'tests/ownership-digest.tests.ps1',
     'tests/check-component-coverage.tests.ps1'
 )
 

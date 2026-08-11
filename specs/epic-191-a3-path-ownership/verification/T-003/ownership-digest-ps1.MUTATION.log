@@ -130,3 +130,17 @@ ok: TEST-049: no version-carrying surface is changed outside the release bump sc
 RESTORED_EXIT_CODE=0
 
 MUTATION_PROOF_EXIT_CODE=0
+
+=== TEST-049 real diff mutation proof (quality-gate cycle 1 remediation) ===
+Fixture: isolated git repository; baseline contains one plugin.json version surface.
+Violation: mutate that tracked version field in the fixture worktree.
+=== TEST-049 pwsh violated version surface ===
+FAIL: TEST-049: no version-carrying surface is changed outside the release bump script
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+Restore: git restore the fixture version surface from its baseline commit.
+=== TEST-049 pwsh restored ===
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+MUTATION_PROOF_EXIT_CODE=0
