@@ -155,7 +155,7 @@ of each wrapper — never a suite-twin-to-suite-twin comparison.
 | `tests/component-path-ownership-parity.tests.sh` / `.ps1` | dual-runtime parity harness feeding identical fixture+argv DIRECTLY to the two product wrapper pairs (`resolve-component-paths.{sh,ps1}`, `check-component-coverage.{sh,ps1}`), diffing canonical normalized stdout JSON / exit code / WARN category / argv pass-through (incl. `$LASTEXITCODE`) — not a suite-twin comparison | Bash / PowerShell | new | no |
 | `tests/run-all.sh` / `.ps1` | suite registration for the five new suites | Bash / PowerShell | existing, edited | no (verified) |
 | `.github/workflows/test.yml` | CI step registration for the five new suites | YAML | existing, human-applied via staged candidate + `MANIFEST.sha256` | **yes** (INV-010) |
-| `docs/adr/0025-component-path-ownership-resolver-semantics.md` (provisional number, re-verified at drafting time) | records glob semantics, precedence rules, six Fail-condition definitions, applicability-derivation decision, reachability-registration decision | Markdown (ADR) | new | no |
+| `docs/adr/0027-component-path-ownership-resolver-semantics.md` (renumbered 2026-08-08 from the provisional `0025` after unrelated merged ADRs occupied slots 0025/0026; content unchanged) | records glob semantics, precedence rules, six Fail-condition definitions, applicability-derivation decision, reachability-registration decision | Markdown (ADR) | new | no |
 | `CHANGELOG.md` | REQ-008 doc-following surface | Markdown | existing, edited | no |
 
 ## Protected-File Statement
@@ -308,11 +308,15 @@ unchanged: no criterion was added to or removed from any row.)
 
 ## ADR Change Log
 
-**New ADR**: provisionally `docs/adr/0025-component-path-ownership-resolver-semantics.md`
-(investigation.md INV-014 — `0025` is the next free number as of this
-investigation; re-verified via `ls docs/adr/` at drafting time, renumbering
-if a concurrent merge has occupied it, per the precedent
-`specs/epic-159-pillar-c/design.md:201-236` set for ADR-0012). This ADR
+**New ADR**: `docs/adr/0027-component-path-ownership-resolver-semantics.md`
+(originally drafted as the provisional `0025` per investigation.md INV-014
+— `0025` was the next free number as of that investigation, with the
+re-verify-at-drafting-time instruction carried from the
+`specs/epic-159-pillar-c/design.md:201-236` ADR-0012 precedent. That
+re-verification fired: `ls docs/adr/` on 2026-08-08 found slots 0025 and
+0026 occupied by unrelated merged ADRs, so the decision was renumbered to
+the next free slot, 0027, as the ADR's own Numbering note records; content
+unchanged). This ADR
 records: (a) the glob-matching algorithm (`**`/`*` semantics incl.
 zero-segment, unsupported-metacharacter rejection, NFC + raw-identity
 normalization, separator, case-sensitivity rule) as a NEW design decision
@@ -978,19 +982,42 @@ implementation time, not asserted as unconditionally permanent.
 
 ## Open Questions
 
-Carried from requirements.md Open Questions (OQ-002; OQ-001 is resolved —
-see requirements.md Dependencies, Design Decisions "Fail-6 scope"); no new
-open question is introduced at design time.
+Carried from requirements.md Open Questions; no new open question is
+introduced at design time. (2026-08-11: the OQ-002 entry below is
+restructured into the mandated owner/blocks/resolution schema — recording
+the decision requirements.md already adopted, not making a new one.)
+
+- **OQ-002** (investigation.md; carried from requirements.md Open
+  Questions): whether T-001/T-002 (resolver core, git-diff integration)
+  should hard-block on Epic A1 merging, versus proceeding against
+  self-contained fixtures matching the already-fixed field shape.
+  - Owner: the implementing agent for T-001 (resolution is enforced by
+    the T-001 verification surface itself; no further human decision is
+    pending — the human-approved requirements.md adopted the middle path).
+  - Blocks Implementation: no — implementation proceeds now against the
+    documented decision-document v2 §12 shape.
+  - Resolution Path: T-001's own **Done** state is gated on the AC-011
+    schema-conformance fixture, which FAILs deterministically — not skip
+    or conditionally pass — while Epic A1's schema is unlanded or
+    divergent, so the question self-resolves the moment Epic A1's merged
+    template exists and conforms (see requirements.md Open Questions and
+    Design Decisions "T-001/T-002 not hard-blocked").
+
+OQ-001 is resolved — see requirements.md Dependencies and Design
+Decisions "Fail-6 scope".
 
 ## Risks
 
 Carried from requirements.md Risks. Additionally: authoring the new ADR
-(0025, provisional) in the same commit as T-001 (ADR Change Log) risks a
-renumbering collision if a sibling Epic-191 sub-feature (A1/A2, both
-currently in-flight in sibling worktrees per this session's own
-coordination) claims `0025` first — mitigated by the explicit
-re-verify-at-drafting-time instruction already carried from the
-`ADR-0012` precedent. Additionally: widening this feature's protected-file
+(drafted as the provisional `0025`) in the same commit as T-001 (ADR
+Change Log) risks a renumbering collision if a sibling Epic-191
+sub-feature (A1/A2, both currently in-flight in sibling worktrees per
+this session's own coordination) claims `0025` first — mitigated by the
+explicit re-verify-at-drafting-time instruction already carried from the
+`ADR-0012` precedent. (2026-08-11 note: this risk materialized and the
+mitigation worked as designed — slots 0025/0026 were claimed by unrelated
+merged ADRs, and the decision was renumbered to `0027` on 2026-08-08; the
+ADR now lives at `docs/adr/0027-component-path-ownership-resolver-semantics.md`.) Additionally: widening this feature's protected-file
 touch surface to include `check-contract.{sh,ps1,py}` and
 `risk-gate-matrix.md` (reachability registration, INV-017) means T-004's
 human-copy staging now spans two independent already-protected file
