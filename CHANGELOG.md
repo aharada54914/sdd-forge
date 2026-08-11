@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Added
+
+- **Epic A7 compatibility fixture matrix (Issue #195, T-001)**: added
+  sourced Bash and PowerShell `build_fixture` helpers for the F1-F4
+  project-context combinations and the six Context-absent CLI cells. Each
+  invocation returns a fresh, physically normalized temporary root outside
+  the repository; invalid F3/F4 fixtures remain valid YAML while failing the
+  named project-context content validator through the schema field alone.
+
 ### Fixed
 
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,

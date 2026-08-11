@@ -100,7 +100,7 @@ directly. No other task in this feature touches `.github/workflows/test.yml`.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -247,7 +247,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -407,7 +407,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -553,7 +553,7 @@ T-001, T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -713,7 +713,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -862,7 +862,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -971,7 +971,7 @@ T-001, T-005
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -1086,7 +1086,7 @@ T-001, T-005, T-006
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -1220,7 +1220,7 @@ T-001, T-006, T-007
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -1350,7 +1350,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -1493,7 +1493,7 @@ T-003, T-004, T-006, T-007, T-008
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 
@@ -1644,7 +1644,7 @@ T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-08T16:33:11Z)
 
 Status: Planned
 

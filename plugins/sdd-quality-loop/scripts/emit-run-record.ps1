@@ -6,6 +6,8 @@
 #                            [-EffortControlReviewers <flag|frontmatter|none>]
 #                            [-EffortAppliedMain <e|none>]
 #                            [-EffortAppliedReviewers <e|none>]
+#                            [-CapabilityEnforcement <disabled-legacy|advisory|required>]
+#                            [-CapabilityBlockId <id>]
 #
 # Mirrors emit-run-record.sh exactly. Writes
 # reports/runs/RUN-<UTC-timestamp>-<feature>.json from repository artifacts
@@ -32,7 +34,9 @@ param(
     [string]$EffortControlMain,
     [string]$EffortControlReviewers,
     [string]$EffortAppliedMain,
-    [string]$EffortAppliedReviewers
+    [string]$EffortAppliedReviewers,
+    [string]$CapabilityEnforcement,
+    [string]$CapabilityBlockId
 )
 
 $ErrorActionPreference = "Stop"
@@ -59,12 +63,32 @@ if ($PSBoundParameters.ContainsKey('EffortControlReviewers')) {
     Assert-EffortControlValue "-EffortControlReviewers" $EffortControlReviewers
 }
 
+$validCapabilityEnforcements = [System.Collections.Generic.HashSet[string]]::new(
+    [string[]]@("disabled-legacy", "advisory", "required"),
+    [System.StringComparer]::Ordinal)
+if ($PSBoundParameters.ContainsKey('CapabilityEnforcement') -and
+    -not $validCapabilityEnforcements.Contains($CapabilityEnforcement)) {
+    [Console]::Error.WriteLine("emit-run-record: -CapabilityEnforcement must be one of disabled-legacy|advisory|required (got: $CapabilityEnforcement)")
+    exit 1
+}
+
 $emitV2 = $PSBoundParameters.ContainsKey('EffortMain') `
     -or $PSBoundParameters.ContainsKey('EffortReviewers') `
     -or $PSBoundParameters.ContainsKey('EffortControlMain') `
     -or $PSBoundParameters.ContainsKey('EffortControlReviewers') `
     -or $PSBoundParameters.ContainsKey('EffortAppliedMain') `
     -or $PSBoundParameters.ContainsKey('EffortAppliedReviewers')
+$emitCapability = $PSBoundParameters.ContainsKey('CapabilityEnforcement') `
+    -or $PSBoundParameters.ContainsKey('CapabilityBlockId')
+
+if ($emitCapability -and -not $PSBoundParameters.ContainsKey('CapabilityEnforcement')) {
+    [Console]::Error.WriteLine("emit-run-record: -CapabilityBlockId requires -CapabilityEnforcement")
+    exit 1
+}
+if ($emitCapability -and -not $emitV2) {
+    [Console]::Error.WriteLine("emit-run-record: -CapabilityEnforcement requires at least one -Effort* parameter")
+    exit 1
+}
 
 # --- PowerShell case-sensitivity layer 2: -ceq branch dispatch --------------
 # Resolve-EffortSlot's own control-value comparisons use -ceq exclusively
@@ -213,6 +237,13 @@ if ($emitV2) {
             gate_reports = [ordered]@{ total = $gateTotal; blocked = $gateBlocked; max_runs_single_task = $maxGateRuns }
             review_tickets = [ordered]@{ critical = $ticketsCritical; major = $ticketsMajor; minor = $ticketsMinor }
         }
+    }
+    if ($emitCapability) {
+        $blockId = if ($PSBoundParameters.ContainsKey('CapabilityBlockId')) { $CapabilityBlockId } else { $null }
+        $record.Insert(7, "capability", [ordered]@{
+            enforcement = $CapabilityEnforcement
+            block_id = $blockId
+        })
     }
 } else {
     # v1 shape, byte-identical to every pre-feature invocation (AC-025). This

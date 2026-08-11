@@ -12,6 +12,8 @@
 #   Test-PriorRoundComplete -Stage <s> -RoundDir <path>
 #   Test-ArtifactsSchema -Dir <path>
 #   Test-LoopTerminal -LoopId <id> -Observed <state> [-ExitCode <n>]
+#   Test-CapabilityApplicability -LoopId <id> -FixtureState <state> -Observed <value>
+#   Test-EventTrace -GoldenTracePath <path>
 #   Test-RuntimeBudget -Start <epoch> [-Budget <seconds>]
 #
 # Environment:
@@ -44,6 +46,8 @@ $script:LoopInventoryPath = $env:LOOP_INVENTORY_PATH
 if ([string]::IsNullOrEmpty($script:LoopInventoryPath)) {
     $script:LoopInventoryPath = Join-Path $script:SddLoopRepoRoot "tests/loops/loop-inventory.json"
 }
+$script:_LOOP_EVENT_TRACE = '[]'
+$script:_LOOP_EVENT_SEQ = 0
 
 function Get-LoopSha256([string]$Path) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -59,6 +63,30 @@ function Invoke-LoopJq {
     $out = & jq @JqArgs $Path 2>$null
     if ($LASTEXITCODE -ne 0) { return $null }
     return $out
+}
+
+# Sole event-trace appender.
+function Write-LoopTraceEvent {
+    param(
+        [Parameter(Mandatory = $true)][string]$Kind,
+        [Parameter(Mandatory = $true)][string]$Producer,
+        [Parameter(Mandatory = $true)][string]$ValueJson
+    )
+    $null = $ValueJson | & jq -e . 2>$null
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $nextSeq = $script:_LOOP_EVENT_SEQ + 1
+    $nextTrace = $script:_LOOP_EVENT_TRACE | & jq -ce `
+        --arg kind $Kind `
+        --arg producer $Producer `
+        --argjson seq $nextSeq `
+        --argjson value $ValueJson `
+        '. + [{kind: $kind, producer: $producer, seq: $seq, value: $value}]' 2>$null
+    if ($LASTEXITCODE -ne 0 -or $null -eq $nextTrace) { return $false }
+
+    $script:_LOOP_EVENT_TRACE = [string]$nextTrace
+    $script:_LOOP_EVENT_SEQ = $nextSeq
+    return $true
 }
 
 function Get-LoopIdForStage([string]$Stage) {
@@ -194,6 +222,8 @@ Synthetic $layerName layer content for loop-driver fixture REQ-001.
         Set-Content -LiteralPath (Join-Path $ledgerDir "identity-ledger.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
+    $script:_LOOP_EVENT_TRACE = '[]'
+    $script:_LOOP_EVENT_SEQ = 0
     $script:LoopFixtureRoot = $root
     $script:LoopFixtureFeature = $Feature
     $env:LOOP_FIXTURE_ROOT = $root
@@ -1195,6 +1225,119 @@ function Test-LoopTerminal {
     $expected = Invoke-LoopJq @("-r", "--arg", "id", $LoopId, '.loops[] | select(.id == $id) | .terminal.state // empty') $script:LoopInventoryPath
     if ([string]::IsNullOrEmpty($expected)) { return $false }
     return ($expected -eq $Observed)
+}
+
+function ConvertTo-NormalizedLoopTrace([string]$TraceJson) {
+    $repoRoot = $script:SddLoopRepoRoot -creplace '\\', '/'
+    $filter = @'
+def sequence_is_strict:
+  reduce .[] as $event
+    ({ok: true, last: null};
+      if (.ok and ($event.seq | type) == "number" and
+          ($event.seq | floor) == $event.seq and $event.seq > 0 and
+          (.last == null or $event.seq > .last))
+      then {ok: true, last: $event.seq}
+      else {ok: false, last: .last}
+      end) | .ok;
+def capability_order_is_valid:
+  reduce .[] as $event
+    ({ok: true, seen: false};
+      if (.ok | not) then .
+      elif ($event.kind == "quality-gate-outcome" and
+            $event.producer == "quality-gate-outcome:capability-applicability")
+      then if .seen then .ok = false else .seen = true end
+      elif ($event.kind == "quality-gate-outcome" and .seen)
+      then .ok = false
+      else .
+      end) | .ok;
+def producer_is_known:
+  (.kind == "skill-order" and .producer == "skill-order:invocation") or
+  (.kind == "review-loop-presence" and .producer == "review-loop-presence:stage-dispatch") or
+  (.kind == "approval-checkpoint" and .producer == "approval-checkpoint:reserve") or
+  (.kind == "quality-gate-outcome" and
+    (.producer == "quality-gate-outcome:escalation" or
+     .producer == "quality-gate-outcome:capability-applicability")) or
+  (.kind == "done-transition" and .producer == "done-transition:assert-terminal") or
+  (.kind == "skip-stop-message" and
+    (.producer == "skip-stop-message:skip" or .producer == "skip-stop-message:stop"));
+def normalized_value:
+  if .kind == "skill-order" then
+    if (.value | type) != "string" then error("skill-order value must be a string")
+    elif (.value | startswith($repo_root + "/"))
+    then .value[($repo_root | length) + 1:]
+    elif (.value | startswith("./")) then .value[2:]
+    else .value
+    end
+  elif .kind == "review-loop-presence" or .kind == "done-transition" or
+       .kind == "skip-stop-message" then
+    if (.value | type) == "string" then .value else error("event value must be a string") end
+  elif .kind == "approval-checkpoint" then
+    if ((.value | type) == "object" and (.value.stage | type) == "string" and
+        (.value.role | type) == "string")
+    then {stage: .value.stage, role: .value.role}
+    else error("approval-checkpoint value must carry stage and role")
+    end
+  elif .producer == "quality-gate-outcome:escalation" then
+    if ((.value | type) == "object" and (.value.next_tier | type) == "string")
+    then {next_tier: .value.next_tier}
+    else error("escalation value must carry next_tier")
+    end
+  elif .producer == "quality-gate-outcome:capability-applicability" then
+    if ((.value | type) == "object" and (.value.applicability | type) == "string")
+    then {applicability: .value.applicability}
+    else error("capability value must carry applicability")
+    end
+  else error("unknown event kind")
+  end;
+if type != "array" then error("trace must be an array")
+elif (all(.[]; (keys | sort) == ["kind", "producer", "seq", "value"]) | not)
+then error("event schema mismatch")
+elif (sequence_is_strict | not) then error("event sequence is not strictly monotonic")
+elif (all(.[]; producer_is_known) | not) then error("unknown event producer")
+elif (capability_order_is_valid | not) then error("capability event ordering mismatch")
+else map(. as $event | {
+  kind: $event.kind,
+  producer: $event.producer,
+  value: ($event | normalized_value)
+})
+end
+'@
+    $normalized = $TraceJson | & jq -ce --arg repo_root $repoRoot $filter 2>$null
+    if ($LASTEXITCODE -ne 0 -or $null -eq $normalized) { return $null }
+    return [string]$normalized
+}
+
+function Test-CapabilityApplicability {
+    param(
+        [Parameter(Mandatory = $true)][string]$LoopId,
+        [Parameter(Mandatory = $true)][string]$FixtureState,
+        [Parameter(Mandatory = $true)][string]$Observed
+    )
+    $expected = Invoke-LoopJq @(
+        "-er", "--arg", "loop_id", $LoopId,
+        "--arg", "fixture_state", $FixtureState,
+        '.loops[] | select(.id == $loop_id) | .capability_applicability[$fixture_state]'
+    ) $script:LoopInventoryPath
+    if ([string]::IsNullOrEmpty($expected) -or $expected -ceq "null") { return $false }
+
+    $valueJson = & jq -cn --arg applicability $Observed '{applicability: $applicability}'
+    if ($LASTEXITCODE -ne 0) { return $false }
+    if (-not (Write-LoopTraceEvent `
+        -Kind quality-gate-outcome `
+        -Producer quality-gate-outcome:capability-applicability `
+        -ValueJson ([string]$valueJson))) { return $false }
+    return ($expected -ceq $Observed)
+}
+
+# Pure comparator: reads completed trace state without appending events.
+function Test-EventTrace {
+    param([Parameter(Mandatory = $true)][string]$GoldenTracePath)
+    if (-not (Test-Path -LiteralPath $GoldenTracePath -PathType Leaf)) { return $false }
+    $normalizedActual = ConvertTo-NormalizedLoopTrace $script:_LOOP_EVENT_TRACE
+    if ($null -eq $normalizedActual) { return $false }
+    $normalizedGolden = ConvertTo-NormalizedLoopTrace ([IO.File]::ReadAllText($GoldenTracePath))
+    if ($null -eq $normalizedGolden) { return $false }
+    return ($normalizedActual -ceq $normalizedGolden)
 }
 
 # ---------------------------------------------------------------------------
