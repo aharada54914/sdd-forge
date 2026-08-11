@@ -103,6 +103,12 @@ dangerous — is fully resolved above.
 
 ## Ruling note — staged workflow entry (2026-08-11, RT-20260811-002)
 
+> **SUPERSEDED, same day** — see "Ruling executed" below. The pinned
+> invariants this note describes were amended under the follow-up human
+> ruling (option (b), class fix), and the entry eviction described here as
+> blocked has been executed. The DO-NOT-APPLY instruction is now moot:
+> there is no staged workflow entry left to apply.
+
 QG cycle 6 (seq0679) found this bundle's staged `.github/workflows/test.yml`
 (854 lines, `8beba70c…`, item 2 of the OPEN section above) is not merely out
 of sync: applying that one entry would **remove 137 lines / 18 named live
@@ -137,3 +143,57 @@ which TEST-013 permits), or amend TEST-013/TEST-011 and remove the entry:
 stale copy deletes live CI enforcement. The other 18 entries are unaffected
 (byte-identical to live; the rehearsal measured zero removals outside the
 workflow target).
+
+---
+
+## Ruling executed — workflow snapshot evicted (2026-08-11, RT-20260811-002, class fix)
+
+After QG cycle 7 (seq0680) measured both remaining options, the human ruled
+**option (b) directly**: amend this epic's pinning assertions so the
+shared-file snapshot is evicted from per-epic bundles entirely — the class
+fix, not the instance fix — explicitly accepting that epic-190-a2's
+completion waits on it. Rationale, as ruled: a per-epic staged snapshot of a
+repo-shared file (`.github/workflows/test.yml`) is structurally doomed to go
+stale and become a deletion hazard — three such surfaces were found in the
+week of 2026-08-11 alone; refresh-to-live (option (a)) would rot again as CI
+grows, eviction removes the class. The cross-epic edits are human-authorized
+under this ruling.
+
+Executed in this bundle:
+
+- `MANIFEST.sha256`: the `.github/workflows/test.yml` entry (position 18,
+  `8beba70c…`, the stale 854-line snapshot) is REMOVED; 19 -> 18 entries, no
+  other line touched (`shasum -a 256 -c` remains 18/18 OK).
+- The staged file
+  `specs/epic-136-phase2-gates/human-copy/.github/workflows/test.yml`
+  is DELETED.
+- `tests/phase2-guard-invariants.tests.{sh,ps1}` amended in step:
+  - TEST-013 pins the 18-entry fixed-order inventory (workflow evicted);
+  - a new TEST-013 **class lock** asserts the ABSENCE of both the staged
+    file and any manifest entry for the repo-shared workflow, so a future
+    re-adding fails the suite instead of rotting silently;
+  - TEST-011 now asserts the CI ordering invariant against the LIVE
+    workflow (the single source of truth);
+  - WFI-016 iterates this bundle's own staging inventory (the TEST-013
+    list) instead of the canonical JSON's `phase2_human_copy_targets`,
+    which epic-190-a2's registration turned into a repository-wide
+    protection registry (19 -> 26) — the item-4 semantics decision of
+    RT-20260811-002, resolved as "per-bundle staging inventory".
+
+What this closes: the 137-line / 18-step deletion hazard on every apply path
+(whole batch, single-target batch, runner) — there is no stale snapshot left
+to apply. The WFI-016 red (1 out-of-sync + 7 missing) clears.
+
+Known residue, this epic's owner, human-only: the staged immutable runner
+`apply-protected-files.ps1` is R-10 protected and still embeds the OLD
+19-entry `$BootstrapTargets` list (workflow at position 18), while the live
+canonical registry now has 26 entries. Whole-bundle applies through the
+runner were ALREADY fail-closed before this eviction (staged canonical 26 !=
+runner 19 in bootstrap mode; manifest line count != 26 targets in normal
+mode) and remain fail-closed after it — nothing can apply the evicted entry —
+but the runner cannot complete a legitimate whole-bundle apply either until
+its embedded list is refreshed by a human (it is R-10; no agent path). The
+corresponding runner-emulation assertions in the ps1 suite remain red on
+Windows for the same pre-existing reason (macOS shows them as the nine
+platform failures). Single-target applies of the remaining 18 entries
+through the generic publisher are unaffected.
