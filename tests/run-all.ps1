@@ -2,6 +2,7 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+function Invoke-RegressionSuite {
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $powerShell = (Get-Process -Id $PID).Path
 $tests = @(
@@ -88,3 +89,6 @@ if ($failed.Count -gt 0) {
 
 Write-Host 'All PowerShell regression tests passed.'
 exit 0
+}
+
+Invoke-RegressionSuite

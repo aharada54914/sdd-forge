@@ -2,6 +2,7 @@
 # Run the local, deterministic POSIX regression suite in CI order.
 set -euo pipefail
 
+main() {
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 cd "$ROOT"
 
@@ -131,3 +132,7 @@ if [[ ${#failed[@]} -gt 0 ]]; then
 fi
 
 printf 'All POSIX regression tests passed.\n'
+exit 0
+}
+
+main "$@"
