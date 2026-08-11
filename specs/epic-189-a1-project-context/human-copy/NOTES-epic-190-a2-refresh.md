@@ -80,6 +80,12 @@ to green as a result: 81/0 (sh) and 85/0 (ps1), with no assertion edited.
 
 ## Ruling note — staged workflow entry (2026-08-11, RT-20260811-002)
 
+> **SUPERSEDED, same day** — see "Ruling executed" below. The pinning
+> assertions this note describes were amended under the follow-up human
+> ruling (option (b), class fix), and the entry eviction described here as
+> blocked has been executed. The DO-NOT-APPLY instruction is now moot:
+> there is no staged workflow entry left to apply.
+
 QG cycle 6 (seq0679) found this bundle's staged `.github/workflows/test.yml`
 (854 lines, `8beba70c…`) stale against live (991 lines, `a37a3795…`): its
 purpose — this epic's own CI steps — is already served by the live workflow,
@@ -112,3 +118,40 @@ batch size.** The stale copy deletes live CI enforcement. The remaining
 17 entries are unaffected (byte-identical to live; rehearsal measured zero
 removals outside the workflow target). Tracked in
 `docs/review-tickets/RT-20260811-002.yml`.
+
+---
+
+## Ruling executed — workflow snapshot evicted (2026-08-11, RT-20260811-002, class fix)
+
+After QG cycle 7 (seq0680) measured both remaining options, the human ruled
+**option (b) directly**: amend this epic's pinning assertions so the
+shared-file snapshot is evicted from per-epic bundles entirely — the class
+fix, not the instance fix — explicitly accepting that epic-190-a2's
+completion waits on it. Rationale, as ruled: a per-epic staged snapshot of a
+repo-shared file (`.github/workflows/test.yml`) is structurally doomed to go
+stale and become a deletion hazard — three such surfaces were found in the
+week of 2026-08-11 alone; refresh-to-live (option (a)) would rot again as CI
+grows, eviction removes the class. The cross-epic edits are human-authorized
+under this ruling.
+
+Executed in this bundle:
+
+- `MANIFEST.sha256`: the `.github/workflows/test.yml` entry (position 1,
+  `8beba70c…`, the stale 854-line snapshot) is REMOVED; 18 -> 17 entries, no
+  other line touched (`shasum -a 256 -c` remains 17/17 OK).
+- The staged file
+  `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
+  is DELETED.
+- `tests/guard-invariants-epic-a1.tests.{sh,ps1}` amended in step: the old
+  TEST-HARDEN "present exactly once" assertion is replaced by a **class
+  lock** asserting the ABSENCE of both the manifest entry and the staged
+  snapshot file — so a future re-adding fails the suite instead of rotting
+  silently. The per-entry digest loop is untouched (the evicted entry simply
+  no longer participates). This closes the cycle-7 evaluator's point that
+  this bundle had "no deterministic gate on it at all — the only protection
+  is prose in a NOTES file".
+
+What this closes: the 137-line / 18-step deletion hazard on this bundle's
+only reachable apply path (the single-target batch convention documented in
+`RUNBOOK-pr229.md`) — there is no stale snapshot left to apply. The
+remaining 17 entries and the RUNBOOK batches are unaffected.
