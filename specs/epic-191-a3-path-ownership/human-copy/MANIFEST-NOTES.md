@@ -225,6 +225,88 @@ destination as an argument; the resolved destination was the sanctioned staging
 path, never the protected live path. The live `tests/gates.tests.sh` is
 unmodified.
 
+### 5. `spec-review-precheck.{sh,ps1}` — severity-to-verdict rule narrowed (2 files, 2026-08-11)
+
+**Awaits human confirmation of the ruling below before application.** This
+candidate executes a ruling that has been *prepared for* the human, not yet
+confirmed by them; it is staged so the decision can be applied in one step.
+
+**The deadlock.** `validate_reviewer_output` (live `.sh:185-186`, live
+`.ps1:235-238`) derived an expected verdict from a reviewer's own finding
+severities — any FAIL/Critical → BLOCKED — and rejected an output whose
+declared verdict differed. Attempt-2 round-1 of this feature's spec re-review
+persisted reviewer B's output verbatim: verdict `NEEDS_WORK` carrying one
+FAIL/Critical (`CONTRADICTION`). Every subsequent `spec-review-precheck`
+invocation re-validates that round's contract and hard-fails (`prior round
+contract is malformed or does not require work`), so neither round 2 nor an
+attempt-3 `--reset` chain can ever open. Reproduced read-only on 2026-08-11 in
+a scratch clone, both runtimes, before building this candidate.
+
+**The ruling being executed (pending confirmation).** The role documents are
+authoritative and the validator overreached: `review-context-boundary.md`
+defines BLOCKED as a launch/boundary failure — the review could not be validly
+conducted — and neither `spec-reviewer-b.md` nor any other role document
+states a severity-to-verdict formula. A reviewer that conducted its review and
+found a Critical problem has returned NEEDS_WORK correctly; content severity
+and procedural blockage are different questions. reviewer-b.json remains
+verbatim; the validator changes.
+
+**Scope, precisely.** Coherence checking is narrowed, not removed:
+
+- a declared PASS carrying any FAIL is still rejected;
+- a declared NEEDS_WORK **or** BLOCKED is accepted whenever at least one FAIL
+  exists, at any severity — the choice between them belongs to the reviewer;
+- a declared NEEDS_WORK or BLOCKED carrying zero FAILs is still rejected;
+- every other validation (key set, check-id sequence, counts consistency,
+  manifest hashes, merged-verdict derivation) is untouched.
+
+The merged contract verdict computation (`critical/major → NEEDS_WORK`, round
+3 → `BLOCKED`, etc.) is unchanged — it never depended on the per-reviewer
+declared verdict, only on the checks.
+
+**Verified, both directions, both runtimes** (scratch clones with the
+candidate applied per the recipe above; live worktree untouched):
+
+- The real deadlocked invocation — `spec-review-precheck 2 2` for this
+  feature with the post-amendment inputs — completes end-to-end (exit 0,
+  round-2 `precheck-result.json` persisted). It does not merely pass the
+  prior-round validation; nothing later stops it.
+- Three shapes, mutating only the fixture's reviewer-b `verdict` field:
+  declared PASS with FAIL/Critical → rejected; declared NEEDS_WORK with
+  FAIL/Critical (the verbatim real record) → accepted; declared BLOCKED with
+  FAIL/Critical → accepted. Identical results under bash and pwsh.
+- Zero-FAIL non-vacuity: an all-PASS 7-id fixture contract validates through
+  the reset path; the same fixture with reviewer-b verdict flipped to
+  NEEDS_WORK (still zero FAILs) is rejected. Both runtimes.
+- Regression: attempt-1/round-3's terminal PASS contract (real PASS reviewer
+  outputs) still validates via `--reset` under the candidate `.sh`, and the
+  full live `tests/spec-review-loop.tests.sh` suite passes unmodified against
+  the candidate (its fixtures — Critical→BLOCKED, Major/Minor→NEEDS_WORK,
+  none→PASS — all remain coherent under the narrowed rule; no test asserts
+  the removed derivation).
+
+**Observed pre-existing `.ps1` parity gaps — deliberately NOT addressed here**
+(each verified to fail identically under the live, unfixed `.ps1`, so neither
+is caused by this candidate):
+
+1. The `.ps1` compares manifest paths ordinally against local absolute paths;
+   it lacks the `.sh`'s recorded-root normalization, so evidence recording
+   relative paths (this feature's attempt-2) or another checkout's root
+   (attempt-1) fails its manifest comparison from any other checkout.
+2. The `.ps1` requires full check-id list equality; the `.sh` accepts a
+   historical prefix (epic-136-phase3 precedent). Attempt-1/round-3's six-id
+   outputs (pre-DOMAIN-CONFORMANCE) are rejected by the `.ps1` for that
+   reason alone.
+
+Widening this candidate to close those gaps was out of its sanctioned scope;
+they are recorded here so the deadlock fix is not blamed for them.
+
+**Impl/task prechecks carry no analogous rule.** `impl-review-precheck.sh`
+and `task-review-precheck.sh` (and their `.ps1` twins) validate predecessor
+PASS contracts at the merged level only; neither derives a per-reviewer
+verdict from severities. The spec pair was the only site of the rule, so this
+candidate's two files are the complete fix.
+
 ## Not staged, deliberately
 
 **`plugins/sdd-quality-loop/scripts/check-contract.sh`** — no manifest entry,

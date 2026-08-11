@@ -8,3 +8,5 @@ c15562f51d980d398379e635d8a92ae2af1a9b085d5fa2481bdd8fdfe2014886  plugins/sdd-qu
 252c6200f36de7d374430a8a6b1034cc04fdfd2ac9126c4930f03806d038a42f  plugins/sdd-quality-loop/scripts/check-contract.py
 01a3ca22f73d4b38c818b2b6d5e45d988acc10e1e3bf0068546d8cb2c571ddee  plugins/sdd-quality-loop/scripts/check-contract.ps1
 31d8581dda3eceac63ccb5a05b9d7608cd280e637407aa032e89e8cd9a57dcc2  tests/gates.tests.sh
+a39b812ebc23e79234a755e4c6caa3e74a95b06e206489ed05fff3e362c0aaeb  plugins/sdd-review-loop/scripts/spec-review-precheck.sh
+895d831f9c59fefb1f8be896fc10a43a96df26cdfca7b65d6e4fcf902e66a171  plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
