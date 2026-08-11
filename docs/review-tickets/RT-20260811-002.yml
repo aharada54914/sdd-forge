@@ -172,3 +172,20 @@ disposition: |
      stale workflow entry is ultimately disarmed. Not executed under this
      ticket. phase2-guard-invariants numbers unchanged: sh 33/1, ps1 59/10
      (nine macOS platform fails).
+gate_seq0680: |
+  2026-08-11, cycle 7 (run on the human ruling above): VERDICT NEEDS_WORK,
+  1 Critical / 1 Major / 2 Minor
+  (reports/quality-gate/20260811T095621Z-epic-190-a2-capability-registry-T-006.md).
+  - Critical: the hazard stays armed; the evaluator measured that the
+    pin-compatible digest-in-place refresh-to-live of both sibling staged
+    workflows disarms it with zero removals, zero pin breakage, and zero
+    suite regressions - an option the 2026-08-11 ruling did not authorize
+    (it ruled entry removal, which is pin-blocked). Executing the refresh,
+    amending the sibling pins, or explicitly accepting the documented
+    DO-NOT-APPLY posture as the end state requires fresh human direction.
+  - Major (new): the report's/notes' claim that the phase2 WFI-016 red
+    "failed before this cycle too" is falsified: the suite was 34/0 at
+    6277cde0 and 340f0149, and went 33/1 at T-006's own cycle-5 commit
+    36339788. Correction by dated addendum belongs to the next remediation
+    cycle, under the same fresh direction.
+  A cycle 8 requires fresh human direction; none is assumed.
