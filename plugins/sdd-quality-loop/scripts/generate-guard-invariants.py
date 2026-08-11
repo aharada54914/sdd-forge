@@ -55,6 +55,9 @@ PHASE2_TARGETS = (
     "tests/guard-parity.tests.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
 )
 BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",

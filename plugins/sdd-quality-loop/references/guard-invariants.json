@@ -43,6 +43,9 @@
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh",
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1",
@@ -110,7 +113,10 @@
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
     "tests/guard-parity.tests.sh",
     ".github/workflows/test.yml",
-    "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1"
+    "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
   ],
   "epic_a1_targets": [
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

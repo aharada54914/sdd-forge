@@ -31,8 +31,8 @@ $BASELINE_IDS = @("lint", "typecheck", "unit-tests", "build", "placeholder-scan"
 $RISK_TIERS = @{
     "low"      = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check")
     "medium"   = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression")
-    "high"     = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
-    "critical" = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+    "high"     = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability", "check-component-coverage")
+    "critical" = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability", "check-component-coverage")
 }
 
 # Stack descriptor (source: risk-gate-matrix.md). Compile-oriented checks are
@@ -43,6 +43,13 @@ $RISK_TIERS = @{
 $COMPILE_CHECKS = @("lint", "typecheck", "build")
 $KNOWN_STACKS = @("code", "shell", "docs", "spec")
 $NONCODE_STACKS = @("shell", "docs", "spec")
+
+# epic-191-a3-path-ownership T-004 (REQ-004, AC-055, INV-017/INV-018): the
+# check-component-coverage evidence producer-digest is independently
+# recomputed over this literal sibling file, never trusted from the
+# evidence record itself.
+$PRODUCER_DIGEST_CHECK_ID = "check-component-coverage"
+$PRODUCER_DIGEST_SCRIPT_NAME = "check-component-coverage.py"
 
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
@@ -338,6 +345,48 @@ if ($crossModel -and $crossModel -ne "legacy") {
                 $failures += "cross_model:waived needs a non-empty waiver_reason on 'cross-model-verification'"
             }
         }
+    }
+}
+
+# Pass 7: producer-digest verification (epic-191-a3-path-ownership T-004;
+# REQ-004, AC-055, INV-017/INV-018). A passing check-component-coverage
+# evidence entry must carry a producer.sha256 matching the live, on-disk
+# check-component-coverage.py, recomputed independently at verification
+# time -- never trusted from the evidence record itself.
+foreach ($check in $contract.checks) {
+    if ($check.id -ne $PRODUCER_DIGEST_CHECK_ID) { continue }
+    if (-not [bool]$check.passes) { continue }
+    $evidence = ([string]($check.evidence)).Trim()
+    if ([string]::IsNullOrWhiteSpace($evidence)) { continue }
+    $evidencePath = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $evidence))
+    if (-not (Test-Path -LiteralPath $evidencePath -PathType Leaf)) {
+        $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be read for producer-digest verification: $evidence"
+        continue
+    }
+    try {
+        $record = Get-Content -Raw -LiteralPath $evidencePath -Encoding utf8 | ConvertFrom-Json
+    } catch {
+        $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence could not be parsed as JSON for producer-digest verification: $evidence"
+        continue
+    }
+    $recordedSha256 = $null
+    if ($record.PSObject.Properties.Name -contains "producer") {
+        $recordedSha256 = $record.producer.sha256
+    }
+    if ([string]::IsNullOrWhiteSpace([string]$recordedSha256)) {
+        $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence is missing producer.sha256"
+        continue
+    }
+    $producerScript = Join-Path $PSScriptRoot $PRODUCER_DIGEST_SCRIPT_NAME
+    if (-not (Test-Path -LiteralPath $producerScript -PathType Leaf)) {
+        $failures += "check '$PRODUCER_DIGEST_CHECK_ID' producer-digest verification could not read the live script: $producerScript"
+        continue
+    }
+    $bytes = [System.IO.File]::ReadAllBytes($producerScript)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $liveSha256 = (-join (($sha.ComputeHash($bytes)) | ForEach-Object { $_.ToString("x2") }))
+    if ([string]$recordedSha256 -ne $liveSha256) {
+        $failures += "check '$PRODUCER_DIGEST_CHECK_ID' evidence producer.sha256 ($recordedSha256) does not match the live on-disk $PRODUCER_DIGEST_SCRIPT_NAME ($liveSha256)"
     }
 }
 

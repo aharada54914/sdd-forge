@@ -16,6 +16,7 @@ R-01: Path validation is delegated to validate_path.validate_evidence_path()
 imported via __file__-relative sys.path. If validate-path.py is missing,
 this script exits 1 (fail-closed) rather than skipping validation.
 """
+import hashlib
 import json
 import os
 import sys
@@ -37,8 +38,8 @@ BASELINE_IDS = {"lint", "typecheck", "unit-tests", "build", "placeholder-scan", 
 RISK_TIERS = {
     "low":      {"lint", "typecheck", "build", "placeholder-scan", "task-state-check"},
     "medium":   {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression"},
-    "high":     {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability"},
-    "critical": {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability"},
+    "high":     {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability", "check-component-coverage"},
+    "critical": {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability", "check-component-coverage"},
 }
 
 # Stack descriptor: compile-oriented checks are toolchain-dependent on non-code stacks.
@@ -47,6 +48,13 @@ KNOWN_STACKS = {"code", "shell", "docs", "spec"}
 NONCODE_STACKS = {"shell", "docs", "spec"}
 
 TDD_TEST_IDS = {"unit-tests", "acceptance-tests"}
+
+# epic-191-a3-path-ownership T-004 (REQ-004, AC-055, INV-017/INV-018): the
+# check-component-coverage evidence producer-digest is independently
+# recomputed over this literal sibling file, never trusted from the
+# evidence record itself.
+PRODUCER_DIGEST_CHECK_ID = "check-component-coverage"
+PRODUCER_DIGEST_SCRIPT_NAME = "check-component-coverage.py"
 
 
 def _str_field(check, key):
@@ -215,6 +223,62 @@ def _pass6_cross_model(checks, contract, failures):
             failures.append("cross_model:waived needs a non-empty waiver_reason on 'cross-model-verification'")
 
 
+def _pass7_producer_digest(checks, root, failures):
+    """Producer-digest verification (epic-191-a3-path-ownership T-004; REQ-004,
+    AC-055, INV-017/INV-018): a passing check-component-coverage evidence
+    entry must carry a producer.sha256 field equal to the sha256 this pass
+    independently (re-)computes over the live, on-disk
+    check-component-coverage.py at verification time — never trusted from
+    the evidence record itself. A mismatch, or a missing/unreadable
+    evidence file, or a missing producer/producer.sha256 field, fails the
+    contract. Scoped to check-component-coverage only; every other check id
+    is untouched by this pass."""
+    for check in checks:
+        if check.get("id") != PRODUCER_DIGEST_CHECK_ID:
+            continue
+        if not check.get("passes", False):
+            continue  # a non-passing check is already handled by Pass 2/3/4
+
+        evidence = _str_field(check, "evidence")
+        if not evidence:
+            continue  # already flagged by Pass 2 ("passes without evidence")
+
+        evidence_path = os.path.normpath(os.path.join(root, evidence))
+        try:
+            with open(evidence_path, "r", encoding="utf-8") as fh:
+                record = json.load(fh)
+        except (OSError, json.JSONDecodeError) as exc:
+            failures.append(
+                f"check '{PRODUCER_DIGEST_CHECK_ID}' evidence could not be read/parsed "
+                f"for producer-digest verification: {exc}"
+            )
+            continue
+
+        producer = record.get("producer") if isinstance(record, dict) else None
+        recorded_sha256 = producer.get("sha256") if isinstance(producer, dict) else None
+        if not recorded_sha256:
+            failures.append(f"check '{PRODUCER_DIGEST_CHECK_ID}' evidence is missing producer.sha256")
+            continue
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        producer_script = os.path.join(script_dir, PRODUCER_DIGEST_SCRIPT_NAME)
+        try:
+            with open(producer_script, "rb") as fh:
+                live_sha256 = hashlib.sha256(fh.read()).hexdigest()
+        except OSError as exc:
+            failures.append(
+                f"check '{PRODUCER_DIGEST_CHECK_ID}' producer-digest verification could not "
+                f"read the live script {PRODUCER_DIGEST_SCRIPT_NAME}: {exc}"
+            )
+            continue
+
+        if recorded_sha256 != live_sha256:
+            failures.append(
+                f"check '{PRODUCER_DIGEST_CHECK_ID}' evidence producer.sha256 ({recorded_sha256}) "
+                f"does not match the live on-disk {PRODUCER_DIGEST_SCRIPT_NAME} ({live_sha256})"
+            )
+
+
 def run(contract_path, root):
     """Run all passes against the contract file. Returns (task_id, failures)."""
     try:
@@ -244,6 +308,7 @@ def run(contract_path, root):
     _pass5_tdd_evidence(checks, contract, root, failures)
     _pass5b_risk_workflow(contract, failures)
     _pass6_cross_model(checks, contract, failures)
+    _pass7_producer_digest(checks, root, failures)
 
     return contract.get("task_id", "?"), failures
 
