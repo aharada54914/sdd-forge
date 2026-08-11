@@ -115,8 +115,16 @@ excluded as hash-bound.
 
 | Path | SHA-256 |
 |---|---|
-| `tests/component-path-resolver.tests.ps1` | `6220383131ea15d68f6885cd1ed866882f02c572def5e42a06582ca763023a2d` |
-| `tests/component-path-resolver.tests.sh` | `ab03017f92884b2211bfac8241909f9d177064732179c931d78c806b0e40edeb` |
+| `tests/component-path-resolver.tests.ps1` | `0ca8b643449590da234f367af0cbf275336c30b733c99c8f1d5e2893048cba2d` |
+| `tests/component-path-resolver.tests.sh` | `805382882e46040a2e5e8ea2f9e4a5b6ea6b9103e4c053d19e3ac9d445c6740b` |
+
+> Refreshed 2026-08-11: T-001's RT-20260811-001 remediation edited this same
+> shared pair (TEST-045.5 repointed to the human-copy staged candidate,
+> TEST-045.6 replaced by a commit-attribution check, TEST-056 and an AC-049
+> self-check added — none of it touches the T-005-owned TEST-042/043/044
+> assertion groups, and both twins were re-verified green at 73/0 after the
+> edit). Declared at the current on-disk hash per RT-20260809-001's
+> shared-file convention; T-005's Status and Approval are untouched.
 
 ## Test Evidence
 

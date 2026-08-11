@@ -964,19 +964,79 @@ else
   fail "TEST-045.4: component-path-resolver missing from tests/run-all.sh/.ps1 registration"
 fi
 
-DRAFT_DIR="${REPO_ROOT}/reports/implementation/epic-191-a3-path-ownership/drafts"
-DRAFT_FILE="${DRAFT_DIR}/component-path-resolver-ci-steps.yml"
-MANIFEST="${DRAFT_DIR}/MANIFEST.sha256"
-if [ -f "$DRAFT_FILE" ] && [ -f "$MANIFEST" ] && (cd "$DRAFT_DIR" && shasum -a 256 -c MANIFEST.sha256 >/dev/null 2>&1); then
-  ok "TEST-045.5: non-protected CI-step draft has a verified MANIFEST.sha256 entry"
+# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1): Done-When 4
+# names the human-copy staged workflow candidate, not the superseded
+# reports/implementation/.../drafts/ copy this assertion used to verify
+# (human-copy/MANIFEST-NOTES.md records the drafts detour as "never
+# necessary" and drafts/MANIFEST.sha256 as superseded). The assertion now
+# guards the real deliverable: the staged candidate must exist AND match its
+# own MANIFEST.sha256 entry byte-for-byte, so deleting the candidate,
+# deleting its manifest line, or letting the two diverge each turns this red.
+HC_DIR="${REPO_ROOT}/specs/epic-191-a3-path-ownership/human-copy"
+HC_WORKFLOW="${HC_DIR}/.github/workflows/test.yml"
+HC_MANIFEST="${HC_DIR}/MANIFEST.sha256"
+expected_hc=""
+[ -f "$HC_MANIFEST" ] && expected_hc=$(awk '$2 == ".github/workflows/test.yml" {print $1}' "$HC_MANIFEST")
+actual_hc=""
+[ -f "$HC_WORKFLOW" ] && actual_hc=$(shasum -a 256 "$HC_WORKFLOW" | awk '{print $1}')
+if [ -n "$expected_hc" ] && [ -n "$actual_hc" ] && [ "$expected_hc" = "$actual_hc" ]; then
+  ok "TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry"
 else
-  fail "TEST-045.5: expected a hash-verified CI-step draft in ${DRAFT_DIR}"
+  fail "TEST-045.5: expected a hash-verified staged test.yml candidate in ${HC_DIR} (manifest entry='${expected_hc}', on-disk='${actual_hc}')"
 fi
 
-if git -C "$REPO_ROOT" diff --quiet -- .github/workflows/test.yml; then
-  ok "TEST-045.6: live .github/workflows/test.yml remains byte-unchanged"
+# TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2): the previous
+# assertion (`git diff --quiet -- .github/workflows/test.yml`) compared the
+# working tree to HEAD and was structurally incapable of observing a
+# COMMITTED change — proven vacuous on this branch, where the live workflow
+# gained 41 lines in the human-apply commit c1db8b57 while the assertion
+# stayed green. Done-When 4's clause is about attribution ("the LIVE
+# test.yml is byte-unchanged before/after this task's own commits"), so the
+# check is now made against the commit range itself: none of the four
+# commits authored for T-001 may appear in the live workflow's touch
+# history. The violation this catches is a T-001 commit writing the live,
+# human-apply-only workflow file (mutation-proven: injecting c1db8b57 — a
+# commit that genuinely touched the workflow — into the checked set turns
+# this red). Fail-closed: if any pinned commit is absent from history (e.g.
+# a shallow clone), the assertion fails rather than passing vacuously; CI
+# checks out with fetch-depth: 0.
+T001_COMMITS="41881071d50ce2eca928f41eb07b4a2f084bacd2 f3ba917a2d70f098ec1e29938b52d780ec53ce3b 01df4cbd3b6ae23c8a2c1c264006f5c0cef02556 18624e543645ee578e34e92ae0e3684af626ec5d"
+workflow_touchers=$(git -C "$REPO_ROOT" log --format=%H -- .github/workflows/test.yml)
+attribution_violation=""
+missing_commit=""
+for c in $T001_COMMITS; do
+  if ! git -C "$REPO_ROOT" cat-file -e "${c}^{commit}" 2>/dev/null; then
+    missing_commit="$c"
+  elif printf '%s\n' "$workflow_touchers" | grep -q "^${c}\$"; then
+    attribution_violation="$c"
+  fi
+done
+if [ -z "$missing_commit" ] && [ -z "$attribution_violation" ]; then
+  ok "TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on unavailable history)"
 else
-  fail "TEST-045.6: live .github/workflows/test.yml has working-tree changes"
+  fail "TEST-045.6: live workflow attribution check failed (missing commit='${missing_commit}', T-001 commit touching the live workflow='${attribution_violation}')"
+fi
+
+# AC-049-SELFCHECK (added 2026-08-11, closing the seq0680 Minor): Done-When 5
+# requires a grep self-check that no version string was mutated outside a
+# scripts/bump-version.sh invocation (AC-049 share). bump-version.sh's own
+# synchronized surfaces are the plugins/*/{.claude-plugin,.codex-plugin,.plugin}/plugin.json
+# "version" fields and tests/validate-repository.ps1's expected versions, so
+# the self-check asserts none of T-001's commits touched any of those files
+# (CHANGELOG.md is legitimately touched — an `## Unreleased` entry is not a
+# version-string mutation). Reuses TEST-045.6's fail-closed commit-existence
+# guard: a missing pinned commit fails here too.
+version_surface_touch=""
+for c in $T001_COMMITS; do
+  if git -C "$REPO_ROOT" cat-file -e "${c}^{commit}" 2>/dev/null; then
+    touched=$(git -C "$REPO_ROOT" show --name-only --format= "$c" | grep -E '(^|/)plugin\.json$|^tests/validate-repository\.ps1$' || true)
+    [ -n "$touched" ] && version_surface_touch="${c}:$(printf '%s' "$touched" | tr '\n' ',')"
+  fi
+done
+if [ -z "$missing_commit" ] && [ -z "$version_surface_touch" ]; then
+  ok "AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation"
+else
+  fail "AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='${missing_commit}', touch='${version_surface_touch}')"
 fi
 
 # TEST-045.7 — this suite's fixture corpus is keyed on Epic A1's canonical
@@ -991,6 +1051,57 @@ if [ -z "$legacy_named" ]; then
 else
   fail "TEST-045.7: fixtures still use the pre-A1 'name' key: $(printf '%s' "$legacy_named" | tr '\n' ' ')"
 fi
+
+# ============================================================================
+# TEST-056 (AC-056, added 2026-08-11 per the a2r3-driven spec amendment):
+# resolver-side present-but-malformed config is fail-closed. With a --config
+# file that EXISTS but cannot be parsed, resolve-component-paths — plain AND
+# --diagnose (same script, same parser) — exits non-zero with a diagnostic
+# naming the parse failure, before any matching or classification work. No
+# fallback is tolerated: the resolver has no applicability derivation and no
+# disabled-legacy state, so a caught parse exception has nothing to convert
+# into. Three malformed classes, each built in a disposable fixture tree
+# only (never a live path): tab indentation, top-level non-mapping, and an
+# unsupported/unterminated flow construct. This row asserts the RESOLVER's
+# behaviour (REQ-001); the Gate's own recordless crash on the same fixture
+# class is TEST-035d in tests/check-component-coverage.tests.{sh,ps1}.
+# Note (label reconciliation, acceptance-tests.md Notes 2026-08-11): the
+# coverage suite historically carried a suite-internal label "TEST-056" for
+# the Gate-side case; that label is renamed TEST-035d there, so the ID
+# TEST-056 now belongs unambiguously to this resolver-side block.
+# ============================================================================
+echo "=== TEST-056: present-but-malformed --config fails closed (plain and --diagnose) ==="
+T056_DIR=$(mktemp -d)
+printf 'components:\n\t- id: bad\n' > "${T056_DIR}/malformed-tab.yaml"
+printf -- '- just\n- a list\n' > "${T056_DIR}/malformed-nonmap.yaml"
+printf 'components: [unclosed\n' > "${T056_DIR}/malformed-unclosed.yaml"
+
+check_056() {
+  # $1=sub-id  $2=config  $3=mode ("" or --diagnose)  $4=required diagnostic fragment
+  local sub="$1" cfg="$2" mode="$3" frag="$4" out code label
+  label="plain"
+  [ -n "$mode" ] && label="--diagnose"
+  set +e
+  if [ -n "$mode" ]; then
+    out=$(printf '' | "$SCRIPT" --config "$cfg" "$mode" 2>&1)
+  else
+    out=$(printf '' | "$SCRIPT" --config "$cfg" 2>&1)
+  fi
+  code=$?
+  set -e
+  if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q "config error" && printf '%s' "$out" | grep -q "$frag"; then
+    ok "TEST-056.${sub}: present-but-malformed config ($(basename "$cfg"), ${label}) exits non-zero naming the parse failure"
+  else
+    fail "TEST-056.${sub}: expected non-zero exit + 'config error' + '${frag}' for $(basename "$cfg") (${label}); got exit=${code} out=${out}"
+  fi
+}
+check_056 1 "${T056_DIR}/malformed-tab.yaml"      ""          "tabs"
+check_056 2 "${T056_DIR}/malformed-tab.yaml"      "--diagnose" "tabs"
+check_056 3 "${T056_DIR}/malformed-nonmap.yaml"   ""          "must be a mapping"
+check_056 4 "${T056_DIR}/malformed-nonmap.yaml"   "--diagnose" "must be a mapping"
+check_056 5 "${T056_DIR}/malformed-unclosed.yaml" ""          "unsupported YAML construct"
+check_056 6 "${T056_DIR}/malformed-unclosed.yaml" "--diagnose" "unsupported YAML construct"
+rm -rf "${T056_DIR}"
 
 # ============================================================================
 # Summary

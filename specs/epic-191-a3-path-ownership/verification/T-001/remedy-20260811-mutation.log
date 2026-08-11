@@ -1,0 +1,124 @@
+# Mutation transcript — T-001 remediation (RT-20260811-001), 2026-08-11
+# Every run below is a real execution of the delivered suites; nothing is hand-edited.
+# Repo: feature/epic-191-a3-path-ownership @ 5f3f051b (pre-remediation-commit working tree)
+
+## Baseline (no mutation)
+$ bash tests/component-path-resolver.tests.sh | tail -1
+Results: 73 passed, 0 failed.
+$ pwsh -NoProfile -File tests/component-path-resolver.tests.ps1 | tail -1
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+
+## M1 — TEST-045.5 violation A: staged human-copy test.yml candidate removed
+# mv specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml -> scratch (outside repo)
+FAIL: TEST-045.5: expected a hash-verified staged test.yml candidate in /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy (manifest entry='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1', on-disk='')
+Results: 72 passed, 1 failed.
+FAIL: TEST-045.5: expected a hash-verified staged test.yml candidate in /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy (manifest entry='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1', on-disk='')
+component-path-resolver.tests.ps1: 72 passed, 1 failed
+# restore:
+1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1  specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml
+
+## M2 — TEST-045.5 violation B: the candidate's MANIFEST.sha256 line removed
+# backup taken to scratch; python3 filters the .github/workflows/test.yml line out of human-copy/MANIFEST.sha256
+FAIL: TEST-045.5: expected a hash-verified staged test.yml candidate in /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy (manifest entry='', on-disk='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1')
+Results: 72 passed, 1 failed.
+FAIL: TEST-045.5: expected a hash-verified staged test.yml candidate in /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy (manifest entry='', on-disk='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1')
+component-path-resolver.tests.ps1: 72 passed, 1 failed
+# restore from backup copy:
+# (no git-status lines above = byte-identical restore)
+
+## M3 — TEST-045.5 violation C: staged candidate diverges from its manifest entry
+# one byte appended to the staged copy (backup in scratch)
+FAIL: TEST-045.5: expected a hash-verified staged test.yml candidate in /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy (manifest entry='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1', on-disk='5d333931f89c8e72ae7c1e1c68b25a912978c268170cc67259714ab15998ebf4')
+Results: 72 passed, 1 failed.
+FAIL: TEST-045.5: expected a hash-verified staged test.yml candidate in /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy (manifest entry='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1', on-disk='5d333931f89c8e72ae7c1e1c68b25a912978c268170cc67259714ab15998ebf4')
+component-path-resolver.tests.ps1: 72 passed, 1 failed
+# restore from backup copy:
+# (no git-status lines above = byte-identical restore)
+
+## M4 — TEST-045.6 violation: a workflow-touching commit enters the checked set
+# c1db8b5751d657771bf1623ebe7e0a8b5222b166 (the human-apply commit that added 41 lines
+# to the live workflow) is temporarily appended to T001_COMMITS in both suites.
+# The OLD git-diff-based assertion stayed green through exactly this commit; the new one:
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='c1db8b5751d657771bf1623ebe7e0a8b5222b166')
+Results: 72 passed, 1 failed.
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='c1db8b5751d657771bf1623ebe7e0a8b5222b166')
+component-path-resolver.tests.ps1: 72 passed, 1 failed
+
+## M5 — AC-049-SELFCHECK violation: a version-surface-touching commit enters the checked set
+# 3f914a598762c73747fbff70025d86773890c7f2 (touches plugins/*/plugin.json) temporarily appended:
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='3f914a598762c73747fbff70025d86773890c7f2')
+FAIL: AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='', touch='3f914a598762c73747fbff70025d86773890c7f2:plugins/sdd-bootstrap/.claude-plugin/plugin.json,plugins/sdd-bootstrap/.codex-plugin/plugin.json,plugins/sdd-bootstrap/.plugin/plugin.json,plugins/sdd-domain/.claude-plugin/plugin.json,plugins/sdd-domain/.codex-plugin/plugin.json,plugins/sdd-domain/.plugin/plugin.json,plugins/sdd-implementation/.claude-plugin/plugin.json,plugins/sdd-implementation/.codex-plugin/plugin.json,plugins/sdd-implementation/.plugin/plugin.json,plugins/sdd-lite/.claude-plugin/plugin.json,plugins/sdd-lite/.codex-plugin/plugin.json,plugins/sdd-lite/.plugin/plugin.json,plugins/sdd-quality-loop/.claude-plugin/plugin.json,plugins/sdd-quality-loop/.codex-plugin/plugin.json,plugins/sdd-quality-loop/.plugin/plugin.json,plugins/sdd-review-loop/.claude-plugin/plugin.json,plugins/sdd-review-loop/.codex-plugin/plugin.json,plugins/sdd-review-loop/.plugin/plugin.json,plugins/sdd-ship/.claude-plugin/plugin.json,plugins/sdd-ship/.codex-plugin/plugin.json,plugins/sdd-ship/.plugin/plugin.json')
+Results: 71 passed, 2 failed.
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='3f914a598762c73747fbff70025d86773890c7f2')
+FAIL: AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='', touch='3f914a598762c73747fbff70025d86773890c7f2:plugins/sdd-bootstrap/.claude-plugin/plugin.json,plugins/sdd-bootstrap/.codex-plugin/plugin.json,plugins/sdd-bootstrap/.plugin/plugin.json,plugins/sdd-domain/.claude-plugin/plugin.json,plugins/sdd-domain/.codex-plugin/plugin.json,plugins/sdd-domain/.plugin/plugin.json,plugins/sdd-implementation/.claude-plugin/plugin.json,plugins/sdd-implementation/.codex-plugin/plugin.json,plugins/sdd-implementation/.plugin/plugin.json,plugins/sdd-lite/.claude-plugin/plugin.json,plugins/sdd-lite/.codex-plugin/plugin.json,plugins/sdd-lite/.plugin/plugin.json,plugins/sdd-quality-loop/.claude-plugin/plugin.json,plugins/sdd-quality-loop/.codex-plugin/plugin.json,plugins/sdd-quality-loop/.plugin/plugin.json,plugins/sdd-review-loop/.claude-plugin/plugin.json,plugins/sdd-review-loop/.codex-plugin/plugin.json,plugins/sdd-review-loop/.plugin/plugin.json,plugins/sdd-ship/.claude-plugin/plugin.json,plugins/sdd-ship/.codex-plugin/plugin.json,plugins/sdd-ship/.plugin/plugin.json')
+component-path-resolver.tests.ps1: 71 passed, 2 failed
+
+## M6 — fail-closed proof: a pinned commit absent from history
+# bogus hash 0000000000000000000000000000000000000001 appended: the checks must FAIL, not pass vacuously
+# (this is the shallow-clone / grafted-history hazard the old assertion had no answer to)
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='0000000000000000000000000000000000000001', T-001 commit touching the live workflow='')
+FAIL: AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='0000000000000000000000000000000000000001', touch='')
+Results: 71 passed, 2 failed.
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='0000000000000000000000000000000000000001', T-001 commit touching the live workflow='')
+FAIL: AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='0000000000000000000000000000000000000001', touch='')
+component-path-resolver.tests.ps1: 71 passed, 2 failed
+
+## M7 — TEST-056 violation (bash/python side): the resolver's caught ConfigError exits 0
+# resolve-component-paths.py:1234 'return 1' -> 'return 0' after the config-error print
+# (the exact fail-open class AC-056 forbids: a caught parse exception converting to success)
+FAIL: TEST-006.1: expected non-zero exit + diagnostic, got exit=0 err=resolve-component-paths: config error: unsupported glob metacharacter '[' in pattern 'src/[abc]/*' (only '**', '*', '/', and literal path characters are supported)
+FAIL: TEST-006.2: expected non-zero exit + diagnostic, got exit=0 err=resolve-component-paths: config error: unsupported glob metacharacter '?' in pattern 'src/?.ts' (only '**', '*', '/', and literal path characters are supported)
+FAIL: TEST-008.2: expected non-zero exit + empty-include diagnostic, got exit=0 err=resolve-component-paths: config error: component 'c1' has an empty paths.include list
+FAIL: TEST-011.7: ordinary resolve accepted legacy name, exit=0 out=resolve-component-paths: config error: legacy 'name' is not supported; use canonical component field 'id'
+FAIL: TEST-018.1: expected non-zero exit + shape diagnostic, got exit=0 err=resolve-component-paths: config error: shared_paths entry 'x/**' must carry exactly one of 'components' (bounded) or 'classification: cross-cutting' (unbounded), never both or neither
+FAIL: TEST-018.2: expected non-zero exit + shape diagnostic, got exit=0 err=resolve-component-paths: config error: shared_paths entry 'x/**' must carry exactly one of 'components' (bounded) or 'classification: cross-cutting' (unbounded), never both or neither
+FAIL: TEST-018.3: expected exact-case classification rejection, got exit=0 err=resolve-component-paths: config error: shared_paths entry 'specs/**' has unsupported classification 'Cross-Cutting' (only 'cross-cutting' is defined)
+FAIL: TEST-018.4: expected exact-case field-name rejection, got exit=0 err=resolve-component-paths: config error: config.components must be a list
+FAIL: TEST-056.1: expected non-zero exit + 'config error' + 'tabs' for malformed-tab.yaml (plain); got exit=0 out=resolve-component-paths: config error: YAML indentation must use spaces, not tabs
+FAIL: TEST-056.2: expected non-zero exit + 'config error' + 'tabs' for malformed-tab.yaml (--diagnose); got exit=0 out=resolve-component-paths: config error: YAML indentation must use spaces, not tabs
+FAIL: TEST-056.3: expected non-zero exit + 'config error' + 'must be a mapping' for malformed-nonmap.yaml (plain); got exit=0 out=resolve-component-paths: config error: top-level YAML document must be a mapping
+FAIL: TEST-056.4: expected non-zero exit + 'config error' + 'must be a mapping' for malformed-nonmap.yaml (--diagnose); got exit=0 out=resolve-component-paths: config error: top-level YAML document must be a mapping
+FAIL: TEST-056.5: expected non-zero exit + 'config error' + 'unsupported YAML construct' for malformed-unclosed.yaml (plain); got exit=0 out=resolve-component-paths: config error: unsupported YAML construct at start of scalar: '[unclosed' (quote glob patterns beginning with '[')
+FAIL: TEST-056.6: expected non-zero exit + 'config error' + 'unsupported YAML construct' for malformed-unclosed.yaml (--diagnose); got exit=0 out=resolve-component-paths: config error: unsupported YAML construct at start of scalar: '[unclosed' (quote glob patterns beginning with '[')
+Results: 59 passed, 14 failed.
+
+## M8 — TEST-056 violation (diagnostic clause): non-zero exit kept, but the diagnostic no longer names the parse failure
+# resolve-component-paths.py config-error print replaced by a generic 'internal failure' (exit stays 1)
+FAIL: TEST-056.1: expected non-zero exit + 'config error' + 'tabs' for malformed-tab.yaml (plain); got exit=1 out=resolve-component-paths: internal failure
+FAIL: TEST-056.2: expected non-zero exit + 'config error' + 'tabs' for malformed-tab.yaml (--diagnose); got exit=1 out=resolve-component-paths: internal failure
+FAIL: TEST-056.3: expected non-zero exit + 'config error' + 'must be a mapping' for malformed-nonmap.yaml (plain); got exit=1 out=resolve-component-paths: internal failure
+FAIL: TEST-056.4: expected non-zero exit + 'config error' + 'must be a mapping' for malformed-nonmap.yaml (--diagnose); got exit=1 out=resolve-component-paths: internal failure
+FAIL: TEST-056.5: expected non-zero exit + 'config error' + 'unsupported YAML construct' for malformed-unclosed.yaml (plain); got exit=1 out=resolve-component-paths: internal failure
+FAIL: TEST-056.6: expected non-zero exit + 'config error' + 'unsupported YAML construct' for malformed-unclosed.yaml (--diagnose); got exit=1 out=resolve-component-paths: internal failure
+Results: 59 passed, 14 failed.
+
+# note on M8: TEST-056.1/.2 (tab class) stayed green under M8 because the tab diagnostic
+# is emitted from a different code path than the mutated except-clause; the exit-code
+# mutation (M7) covered all six assertions, and M8 proves the diagnostic clause bites for
+# the two classes that flow through the mutated handler.
+
+## M9 — TEST-056 violation (pwsh side): the twin's caught ConfigError exits 0
+# resolve-component-paths.ps1:1245 'exit 1' -> 'exit 0' after the config-error Write-Error
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+# RESULT: 73 passed, 0 failed — the exit-code mutation alone is INEFFECTIVE on pwsh, because
+# Write-Error under the product's $ErrorActionPreference=Stop throws a terminating error
+# before the mutated 'exit 0' line can run (the same mechanism TEST-057's history records).
+# The process still exits 1, so the suite rightly stays green: that mutant is not a violation.
+# M9b applies a REAL violation instead: the catch swallows silently (no Write-Error, exit 0).
+
+## M9b — TEST-056 violation (pwsh side, real): catch [ConfigError] swallows silently and exits 0
+FAIL: TEST-056.1: expected non-zero exit + 'config error' + 'tabs' for malformed-tab.yaml (plain); got exit=0 out=
+FAIL: TEST-056.2: expected non-zero exit + 'config error' + 'tabs' for malformed-tab.yaml (-Diagnose); got exit=0 out=
+FAIL: TEST-056.3: expected non-zero exit + 'config error' + 'must be a mapping' for malformed-nonmap.yaml (plain); got exit=0 out=
+FAIL: TEST-056.4: expected non-zero exit + 'config error' + 'must be a mapping' for malformed-nonmap.yaml (-Diagnose); got exit=0 out=
+FAIL: TEST-056.5: expected non-zero exit + 'config error' + 'unsupported YAML construct' for malformed-unclosed.yaml (plain); got exit=0 out=
+FAIL: TEST-056.6: expected non-zero exit + 'config error' + 'unsupported YAML construct' for malformed-unclosed.yaml (-Diagnose); got exit=0 out=
+component-path-resolver.tests.ps1: 59 passed, 14 failed
+
+## Restore — all mutants reverted; product files byte-identical to HEAD; suites green
+$ git status --porcelain plugins/ specs/epic-191-a3-path-ownership/human-copy/
+# (no output above = clean)
+$ bash tests/component-path-resolver.tests.sh | tail -1
+Results: 73 passed, 0 failed.
+$ pwsh -NoProfile -File tests/component-path-resolver.tests.ps1 | tail -1
+component-path-resolver.tests.ps1: 73 passed, 0 failed

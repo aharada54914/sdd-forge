@@ -848,22 +848,75 @@ if ((Select-String -LiteralPath $runAllSh -Pattern "component-path-resolver" -Qu
     Fail "TEST-045.4: component-path-resolver missing from run-all.sh/.ps1 registration"
 }
 
-$draftDir = Join-Path $repoRoot "reports/implementation/epic-191-a3-path-ownership/drafts"
-$draftFile = Join-Path $draftDir "component-path-resolver-ci-steps.yml"
-$manifest = Join-Path $draftDir "MANIFEST.sha256"
-$expectedDigest = if (Test-Path -LiteralPath $manifest) { ((Get-Content -LiteralPath $manifest -Raw) -split '\s+')[0] } else { "" }
-$actualDigest = if (Test-Path -LiteralPath $draftFile) { (Get-FileHash -Algorithm SHA256 -LiteralPath $draftFile).Hash.ToLowerInvariant() } else { "" }
-if ($expectedDigest -cne "" -and $actualDigest -ceq $expectedDigest) {
-    Ok "TEST-045.5: non-protected CI-step draft has a verified MANIFEST.sha256 entry"
+# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1): Done-When 4
+# names the human-copy staged workflow candidate, not the superseded
+# reports/implementation/.../drafts/ copy this assertion used to verify.
+# The staged candidate must exist AND match its own MANIFEST.sha256 entry
+# byte-for-byte; see the bash twin's comment for the full rationale.
+$hcDir = Join-Path $repoRoot "specs/epic-191-a3-path-ownership/human-copy"
+$hcWorkflow = Join-Path $hcDir ".github/workflows/test.yml"
+$hcManifest = Join-Path $hcDir "MANIFEST.sha256"
+$expectedHc = ""
+if (Test-Path -LiteralPath $hcManifest) {
+    foreach ($line in (Get-Content -LiteralPath $hcManifest)) {
+        $parts = $line -split '\s+', 2
+        if ($parts.Count -eq 2 -and $parts[1].Trim() -ceq ".github/workflows/test.yml") { $expectedHc = $parts[0].Trim() }
+    }
+}
+$actualHc = if (Test-Path -LiteralPath $hcWorkflow) { (Get-FileHash -Algorithm SHA256 -LiteralPath $hcWorkflow).Hash.ToLowerInvariant() } else { "" }
+if ($expectedHc -cne "" -and $actualHc -ceq $expectedHc) {
+    Ok "TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry"
 } else {
-    Fail "TEST-045.5: expected a hash-verified CI-step draft in $draftDir"
+    Fail "TEST-045.5: expected a hash-verified staged test.yml candidate in $hcDir (manifest entry='$expectedHc', on-disk='$actualHc')"
 }
 
-& git -C $repoRoot diff --quiet -- .github/workflows/test.yml
-if ($LASTEXITCODE -eq 0) {
-    Ok "TEST-045.6: live .github/workflows/test.yml remains byte-unchanged"
+# TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2): the previous
+# working-tree `git diff --quiet` could never observe a committed change
+# (the live workflow gained 41 lines in c1db8b57 while this stayed green).
+# Now a commit-attribution check: none of T-001's four commits may appear
+# in the live workflow's touch history. Fail-closed when a pinned commit is
+# absent from history; CI checks out with fetch-depth: 0. See the bash twin.
+$t001Commits = @(
+    "41881071d50ce2eca928f41eb07b4a2f084bacd2",
+    "f3ba917a2d70f098ec1e29938b52d780ec53ce3b",
+    "01df4cbd3b6ae23c8a2c1c264006f5c0cef02556",
+    "18624e543645ee578e34e92ae0e3684af626ec5d"
+)
+$workflowTouchers = @(& git -C $repoRoot log --format=%H -- .github/workflows/test.yml)
+$missingCommit = ""
+$attributionViolation = ""
+foreach ($c in $t001Commits) {
+    & git -C $repoRoot cat-file -e "$c^{commit}" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        $missingCommit = $c
+    } elseif ($workflowTouchers -ccontains $c) {
+        $attributionViolation = $c
+    }
+}
+if ($missingCommit -ceq "" -and $attributionViolation -ceq "") {
+    Ok "TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on unavailable history)"
 } else {
-    Fail "TEST-045.6: live .github/workflows/test.yml has working-tree changes"
+    Fail "TEST-045.6: live workflow attribution check failed (missing commit='$missingCommit', T-001 commit touching the live workflow='$attributionViolation')"
+}
+
+# AC-049-SELFCHECK (added 2026-08-11, closing the seq0680 Minor): Done-When 5
+# requires a grep self-check that no version string was mutated outside a
+# scripts/bump-version.sh invocation (AC-049 share). Asserts none of T-001's
+# commits touched a version-carrying surface (plugin.json manifests /
+# tests/validate-repository.ps1). See the bash twin's comment.
+$versionSurfaceTouch = ""
+foreach ($c in $t001Commits) {
+    & git -C $repoRoot cat-file -e "$c^{commit}" 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        $touched = @(@(& git -C $repoRoot show --name-only --format= $c) |
+            Where-Object { $_ -cmatch '(^|/)plugin\.json$' -or $_ -ceq 'tests/validate-repository.ps1' })
+        if ($touched.Count -gt 0) { $versionSurfaceTouch = "$($c):$($touched -join ',')" }
+    }
+}
+if ($missingCommit -ceq "" -and $versionSurfaceTouch -ceq "") {
+    Ok "AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation"
+} else {
+    Fail "AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='$missingCommit', touch='$versionSurfaceTouch')"
 }
 
 # TEST-045.7 — this suite's fixture corpus is keyed on Epic A1's canonical
@@ -878,6 +931,42 @@ if ($legacyNamed.Count -eq 0) {
 } else {
     Fail "TEST-045.7: fixtures still use the pre-A1 'name' key: $($legacyNamed -join ' ')"
 }
+
+# ============================================================================
+# TEST-056 (AC-056, added 2026-08-11 per the a2r3-driven spec amendment):
+# resolver-side present-but-malformed config is fail-closed — plain AND
+# -Diagnose (same script, same parser) exit non-zero with a diagnostic
+# naming the parse failure. Three malformed classes, disposable fixture
+# trees only. See the bash twin's comment for the full rationale and the
+# TEST-056/TEST-035d label reconciliation note.
+# ============================================================================
+Write-Output "=== TEST-056: present-but-malformed -Config fails closed (plain and -Diagnose) ==="
+$t056Dir = Join-Path ([IO.Path]::GetTempPath()) ("rcp-056." + [Guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Path $t056Dir | Out-Null
+[IO.File]::WriteAllText((Join-Path $t056Dir "malformed-tab.yaml"), "components:`n`t- id: bad`n")
+[IO.File]::WriteAllText((Join-Path $t056Dir "malformed-nonmap.yaml"), "- just`n- a list`n")
+[IO.File]::WriteAllText((Join-Path $t056Dir "malformed-unclosed.yaml"), "components: [unclosed`n")
+
+function Test-056 {
+    param([string]$Sub, [string]$ConfigName, [bool]$Diagnose, [string]$Fragment)
+    $cfg = Join-Path $t056Dir $ConfigName
+    $cliArgs = @("-Config", $cfg)
+    $label = "plain"
+    if ($Diagnose) { $cliArgs += "-Diagnose"; $label = "-Diagnose" }
+    $r = Invoke-ResolverRaw $cliArgs
+    if ($r.ExitCode -ne 0 -and $r.Output -match "config error" -and $r.Output -match [regex]::Escape($Fragment)) {
+        Ok "TEST-056.$($Sub): present-but-malformed config ($ConfigName, $label) exits non-zero naming the parse failure"
+    } else {
+        Fail "TEST-056.$($Sub): expected non-zero exit + 'config error' + '$Fragment' for $ConfigName ($label); got exit=$($r.ExitCode) out=$($r.Output)"
+    }
+}
+Test-056 "1" "malformed-tab.yaml"      $false "tabs"
+Test-056 "2" "malformed-tab.yaml"      $true  "tabs"
+Test-056 "3" "malformed-nonmap.yaml"   $false "must be a mapping"
+Test-056 "4" "malformed-nonmap.yaml"   $true  "must be a mapping"
+Test-056 "5" "malformed-unclosed.yaml" $false "unsupported YAML construct"
+Test-056 "6" "malformed-unclosed.yaml" $true  "unsupported YAML construct"
+Remove-Item -Recurse -Force -LiteralPath $t056Dir -ErrorAction SilentlyContinue
 
 # ============================================================================
 # Summary
