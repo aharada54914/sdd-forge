@@ -1,7 +1,7 @@
 # Acceptance Tests: epic-191-a3-path-ownership
 
-TEST IDs (TEST-001..TEST-055) are namespaced to this feature
-(`specs/epic-191-a3-path-ownership/`) and map 1:1 to AC-001..AC-055 in
+TEST IDs (TEST-001..TEST-056) are namespaced to this feature
+(`specs/epic-191-a3-path-ownership/`) and map 1:1 to AC-001..AC-056 in
 requirements.md. **Amended 2026-08-11** (following requirements.md's
 human-directed conditional-activation supersession, which made a
 predicate load-bearing that this file previously never exercised —
@@ -19,6 +19,16 @@ present-but-malformed config — deliberately distinct from TEST-035c,
 which asserts `check-contract`'s behaviour on the same fixture class;
 the mapping remains 1:1 by acceptance criterion (AC-035 ↔ the TEST-035
 family), and again no pre-existing TEST ID changed meaning and none was
+deleted. **Amended a third time 2026-08-11** (closing the a2r3 spec
+re-review's single Major, EDGE-CASE-COVERAGE: the same-day class-sweep
+clause in REQ-001 — the resolver's and `--diagnose`'s fail-closed
+contract on a present-but-malformed `--config` — carried no criterion
+number and therefore no row here): that clause is now AC-056 with
+matching row TEST-056, the resolver-side twin of the Gate-side
+TEST-035d; this header's declared ranges, which previously read
+TEST-001..TEST-055 / AC-001..AC-055, now read TEST-001..TEST-056 /
+AC-001..AC-056; the mapping remains 1:1 by acceptance criterion, and
+again no pre-existing TEST ID changed meaning and none was
 deleted. All TEST IDs are `Status: Planned` — this feature's Phase
 2 task decomposition (`tasks.md`, deferred per investigation.md INV-012)
 has not yet been authored, so no task owns any TEST ID yet; that mapping
@@ -85,6 +95,7 @@ is `traceability.md`'s job once Phase 2 exists.
 | AC-053 | REQ-004 | TEST-053 | `required` blocking | same suite: in `required`, a fixture where at least one Fail condition triggers exits non-zero; a fixture where none trigger exits 0 | Planned |
 | AC-054 | REQ-004 | TEST-054 | evidence producer binding + `emit-run-record` conformance | same suite: every evidence record, in all three derived states, carries `schema: "check-component-coverage-verdict/v1"`, `check_id`, and a `producer.sha256` computed over the actual invoked `check-component-coverage.py`; a fixture with a mismatched or missing `producer.sha256` is rejected | Planned |
 | AC-055 | REQ-004 | TEST-055 | `check-contract` producer-digest verification | same suite (+ direct `check-contract` invocation): the staged `check-contract.{sh,ps1,py}` candidate recomputes `check-component-coverage.py`'s live sha256 and fails a `passes:true` evidence entry whose recorded `producer.sha256` does not match; a substituted-script fixture paired with a stale/unrelated evidence file fails this check | Planned |
+| AC-056 | REQ-001 | TEST-056 | resolver-side present-but-malformed config fail-closed (added 2026-08-11, closing the a2r3 EDGE-CASE-COVERAGE Major) | `tests/component-path-resolver.tests.sh`/`.ps1`: with a `--config` file that exists but cannot be parsed (constructed in a disposable fixture tree only, never a live path), `resolve-component-paths` — both runtimes — exits non-zero with a diagnostic naming the parse failure, before any matching or classification work; the identical fixture class run through `resolve-component-paths --diagnose` (same script, same parser) produces the same fail-closed non-zero exit in both runtimes; no fallback is tolerated — the resolver has no applicability derivation and no `disabled-legacy` state, so a caught parse exception has nothing to convert into (requirements.md REQ-001's config-read clause, AC-056); this row asserts the RESOLVER's behaviour, not the Gate's — TEST-035d asserts `check-component-coverage`'s recordless crash on the same fixture class, and the two rows must never be merged: 035d pins the Gate's own read of the file (REQ-004), 056 pins the resolver's read (REQ-001), two different scripts whose independent fail-closed contracts together close the class sweep | Planned |
 
 Notes:
 
@@ -97,6 +108,26 @@ Notes:
   dependency (Epic A1's landed schema) — but it is not precondition-gated
   the way a skip would be: it runs unconditionally and **FAILS closed**
   whenever that schema artifact is absent, rather than skipping.
+- TEST-056 (REQ-001, added 2026-08-11) shares TEST-001..TEST-018's
+  execution profile: fully deterministic, fixture-driven, no LLM
+  invocation, no network call, no `gh` invocation — it exercises
+  `resolve-component-paths` alone (including its `--diagnose`
+  subcommand, which is the same script and parser), and constructs its
+  unparseable `--config` variants inside a disposable fixture tree
+  only; like TEST-035a/b/c/d, it never creates a live
+  `sdd/project-context.yaml`. Disambiguation (measured 2026-08-11):
+  `tests/check-component-coverage.tests.sh`/`.ps1` already carry
+  suite-internal case labels numbered TEST-056..TEST-059, added during
+  T-004's quality-gate remediation before this row existed
+  (reports/implementation/epic-191-a3-path-ownership/T-004.md); those
+  labels are not rows of this file — the coverage suite's internal
+  TEST-056 exercises the Gate's own crash on an unparseable config
+  (the behaviour this file's row TEST-035d specifies), never the
+  resolver — and this row's implementing case belongs in the resolver
+  suite named in its Test Target. Reconciling those historical
+  suite-internal labels with this file's row IDs is an
+  implementation-time concern for the task that realizes this row, not
+  a change this spec amendment makes to any live test.
 - TEST-019..TEST-025 (REQ-003) exercise the git-diff collector alone
   against real, disposable fixture git repositories (never this
   repository's own history) — deterministic, no network call.

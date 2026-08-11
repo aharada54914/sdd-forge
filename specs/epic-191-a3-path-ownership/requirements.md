@@ -350,7 +350,12 @@ schemas this feature now treats as a hard (not follow-up) dependency.
     reader infers a resolver-side analogue of the Gate's file-absence
     fallback. The resolver-only diagnostic subcommand (`--diagnose`,
     REQ-004) is the same script and the same parser and inherits this
-    identical contract.
+    identical contract. (Anchors assigned 2026-08-11, closing the a2r3
+    spec re-review's single Major, EDGE-CASE-COVERAGE: this clause was
+    stated in the same-day class-sweep amendment with no criterion of
+    its own and therefore no acceptance-test row — it is now AC-056,
+    validated by TEST-056, the resolver-side twin of the Gate-side
+    TEST-035d; nothing in the clause's contract changed.)
 
 - REQ-002 (exclusive/shared classification, overlap detection, unowned
   detection, and excluded-match evidence; §12): For each changed path, the
@@ -566,7 +571,17 @@ schemas this feature now treats as a hard (not follow-up) dependency.
       participating; Problems, AC-035, Edge Cases), and the resolver
       with its `--diagnose` subcommand (fail-closed load-time parse
       error, REQ-001); no other component this feature ships reads
-      that file.
+      that file. (Anchor note added 2026-08-11, with the a2r3
+      remediation: the crash contract this bullet adds is AC-035's
+      Gate-side extension, TEST-035d; the resolver-side member of the
+      sweep is AC-056/TEST-056; the parseable-but-axis-invalid passage
+      above restates ADR-0016 §4's pre-existing conservative
+      derivation, whose surfaces are already AC-026/TEST-026
+      (derivation solely from the parsed field) and AC-027/TEST-027
+      (the genuine `disabled-legacy` record), with the
+      minimum-stays-active half of that state pinned by TEST-035c's
+      schema-divergent variant — that passage adds no new behavior of
+      its own.)
   - **Fail-1** (changed path belongs to no component and no `shared_paths`
     entry — UNOWNED).
   - **Fail-2** (an EXCLUSIVE owner of a changed path is missing from
@@ -1320,6 +1335,24 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   `producer.sha256` does not match; a fixture with a substituted script
   (different sha256) paired with a `passes:true`/matching-id evidence
   entry pointing at a stale or unrelated evidence file fails this check.
+- AC-056 (REQ-001, config-read fail-closed on a present-but-malformed
+  file; assigned 2026-08-11, closing the a2r3 spec re-review's
+  EDGE-CASE-COVERAGE Major — the behavior itself was stated the same
+  day in REQ-001's class-sweep clause and is unchanged here): given a
+  `--config` path naming a file that exists but cannot be parsed,
+  `resolve-component-paths` — both runtimes — exits non-zero at load
+  time with a diagnostic naming the parse failure, before any matching
+  or classification work; no code path may catch the parse exception
+  and continue under any substitute configuration — the resolver has no
+  applicability derivation and no `disabled-legacy` state, so there is
+  no fallback a parse failure could be converted into (REQ-001). The
+  `--diagnose` subcommand (same script, same parser, REQ-004) exhibits
+  the identical fail-closed contract against the identical fixture
+  class, in both runtimes. This is the resolver-side half of the
+  class sweep whose Gate-side half is AC-035's present-but-malformed
+  extension (TEST-035d): two different scripts reading the same file,
+  each with its own stated fail-closed contract and its own test
+  surface, never merged into one.
 
 ## Field Definitions
 

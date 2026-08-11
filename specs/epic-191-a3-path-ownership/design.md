@@ -287,7 +287,7 @@ N/A — `ds_profile: none`. No UI application, no mockup, no visualization.
 
 | From | To | Contract / Decision | REQ | AC |
 |---|---|---|---|---|
-| requirements.md | design.md | glob compiler semantics (`**`/`*`/zero-segment/unsupported-meta, NFC + raw identity, separator, case, empty-set clauses, NFC collision) | REQ-001 | AC-001..011 |
+| requirements.md | design.md | glob compiler semantics (`**`/`*`/zero-segment/unsupported-meta, NFC + raw identity, separator, case, empty-set clauses, NFC collision) | REQ-001 | AC-001..011, AC-056 (assigned 2026-08-11: config-read fail-closed on a present-but-malformed file, incl. `--diagnose`) |
 | requirements.md | design.md | shared/exclusive/overlap/unowned classification + exclude-misuse invariant + `EXCLUDED_MATCH` evidence | REQ-002 | AC-012..018 |
 | requirements.md | design.md | git-diff basis (rev-resolution, merge-base, NUL framing, rename contract, submodule/symlink 4-case, single-writer/TOCTOU) | REQ-003 | AC-019..025 |
 | requirements.md | design.md | Reverse Coverage Gate: 3-state (`disabled-legacy`/`advisory`/`required`) derived applicability, Fail-1..6 (incl. mutual-exclusivity, Gate-level Fail-5, Fail-6 adapter_paths), reachability + protected-suffix registration + evidence producer binding | REQ-004 | AC-026..036, AC-052..055 |
@@ -446,7 +446,10 @@ single-writer/TOCTOU mismatch after one retry (REQ-003), or a
 present-but-unparseable `--config` file (fail-closed load-time parse
 error; stated 2026-08-11 as part of the Gate-side ruling's class sweep
 — the resolver has no derived-state machinery, so no fallback exists to
-convert a parse failure into; REQ-001).
+convert a parse failure into; REQ-001, AC-056/TEST-056 — criterion and
+row assigned later the same day, closing the a2r3 spec re-review's
+EDGE-CASE-COVERAGE Major; the `--diagnose` subcommand below inherits
+the identical contract).
 
 ### `resolve-component-paths --diagnose` (T-004, resolver-only diagnostics)
 
