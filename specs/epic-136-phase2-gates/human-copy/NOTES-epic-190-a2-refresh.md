@@ -210,3 +210,64 @@ corresponding runner-emulation assertions in the ps1 suite remain red on
 Windows for the same pre-existing reason (macOS shows them as the nine
 platform failures). Single-target applies of the remaining 18 entries
 through the generic publisher are unaffected.
+
+> **CORRECTION (2026-08-11, PR #243 CI triage):** "remain red on Windows
+> for the same pre-existing reason" understated the impact. On
+> windows-latest CI these are nine hard failures of
+> `tests/phase2-guard-invariants.tests.ps1` (61 passed / 9 failed, run
+> 31490719703), all with the runner diagnostic `staged canonical bootstrap
+> inventory target count differs` — they are not environmental there, and
+> they hold `test (windows-latest)` red on PR #243. main is not equally
+> red: its Windows job fails on an unrelated timing flake in a different
+> suite. The refresh candidate below closes them once applied.
+
+---
+
+## Runner refresh candidate — prepared, awaiting human apply (2026-08-11)
+
+An agent-prepared refresh of the R-10 runner sits beside it as
+`apply-protected-files.refresh-candidate-20260811.ps1`
+(sha256 `54c3b3d192f2bd7784614ddd8b52e67b19d618ebed9794980a3936e67f06bde2`).
+It executes the RT-20260811-002 rulings inside the runner itself:
+
+- `$BootstrapTargets` becomes this bundle's 18-entry staging inventory
+  (workflow snapshot evicted), byte-order-identical to `MANIFEST.sha256`
+  and to the TEST-013 pin.
+- A new `$RegistryTargets` pin carries the 26-entry repository-wide
+  protection registry in canonical order; the canonical authority check
+  (`Assert-SameOrder` against the staged canonical, both modes) binds it,
+  so a mutated canonical still fails closed — including the TEST-013
+  `expansion` mutation (19 entries) — while the legitimate 26-entry
+  registry is accepted.
+- The copy plan is always the 18-entry bundle inventory; normal-update
+  mode keeps the staged==live canonical equality check.
+
+Verified before staging: PowerShell parser clean; ASCII/no-BOM; every
+ACTIVE TEST-013 static pin holds (anchored native API names, no
+`Get-FileHash`/path-copy fallback, FullLanguage+NTFS floor, all four
+fixture markers unique); `$RegistryTargets` == live canonical
+`phase2_human_copy_targets` (26/26, exact order); `$BootstrapTargets` ==
+`MANIFEST.sha256` target order (18/18); selection-block simulation 7/7
+(accepts real canonical with plan=18 in both modes; rejects expansion,
+staged-mutation, live-tamper, invalid-live, absent-live).
+
+**Human apply steps** (from the repository root; both copies must stay
+byte-identical, and the manifest digest travels in the same commit):
+
+1. Copy the candidate over BOTH protected copies:
+   - `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+   - `specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+2. In `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256`, replace the
+   digest on the final line (target
+   `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`,
+   currently `e00f76b6…`) with
+   `54c3b3d192f2bd7784614ddd8b52e67b19d618ebed9794980a3936e67f06bde2`.
+   No line is added, removed, or reordered.
+3. Delete `apply-protected-files.refresh-candidate-20260811.ps1`.
+4. Verify: `shasum -a 256 -c` against the manifest (18/18 OK) and
+   `bash tests/phase2-guard-invariants.tests.sh` (35/0). On Windows,
+   `tests/phase2-guard-invariants.tests.ps1` is expected to go 70/0 —
+   the nine runner-emulation assertions turn green (the companion
+   `New-InstallationFixture` change in the same PR supplies the live
+   workflow to the runner's post-install child suites, which TEST-011
+   needs after the eviction).

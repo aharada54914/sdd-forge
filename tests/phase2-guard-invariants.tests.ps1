@@ -600,6 +600,15 @@ function New-InstallationFixture {
     New-Item -ItemType Directory -Path $fixtureTests -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $root 'tests/phase2-guard-invariants.tests.ps1') -Destination $fixtureTests -Force
     Copy-Item -LiteralPath (Join-Path $root 'tests/phase2-guard-invariants.tests.sh') -Destination $fixtureTests -Force
+    # TEST-011 asserts against the LIVE workflow (the post-eviction single
+    # source of truth), so the runner's post-install child suites need it
+    # present inside the fixture tree. This is a runtime copy of the live
+    # bytes, never a committed snapshot -- it cannot go stale.
+    if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
+        $fixtureCi = Join-Path $fixture '.github/workflows/test.yml'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $fixtureCi) -Force | Out-Null
+        Copy-Item -LiteralPath $liveCi -Destination $fixtureCi -Force
+    }
     $fixtureStage = Join-Path $fixture 'specs/epic-136-phase2-gates/human-copy'
     $lines = @()
     foreach ($target in $bootstrapTargets) {
