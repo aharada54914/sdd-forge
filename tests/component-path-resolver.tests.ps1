@@ -870,53 +870,90 @@ if ($expectedHc -cne "" -and $actualHc -ceq $expectedHc) {
     Fail "TEST-045.5: expected a hash-verified staged test.yml candidate in $hcDir (manifest entry='$expectedHc', on-disk='$actualHc')"
 }
 
-# TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2): the previous
-# working-tree `git diff --quiet` could never observe a committed change
-# (the live workflow gained 41 lines in c1db8b57 while this stayed green).
-# Now a commit-attribution check: none of T-001's four commits may appear
-# in the live workflow's touch history. Fail-closed when a pinned commit is
-# absent from history; CI checks out with fetch-depth: 0. See the bash twin.
+# TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2; shallow-aware
+# form 2026-08-11 per seq0682): the original working-tree `git diff --quiet`
+# could never observe a committed change (the live workflow gained 41 lines
+# in c1db8b57 while it stayed green). Two environment-appropriate forms,
+# never skipped: full-history checkouts run the strict commit-attribution
+# check (fail-closed on a missing pinned commit); a SHALLOW checkout (the
+# version-gates CI job registers this suite and uses actions/checkout's
+# DEFAULT depth-1 clone — a prior comment here falsely claimed CI uses
+# fetch-depth: 0, and the seq0682 gate proved the strict form exits 1
+# there) falls back to the content-level attribution form: the live
+# workflow must be byte-identical to the human-applied staged candidate's
+# MANIFEST.sha256 entry. See the bash twin for the full rationale and the
+# T001_COMMITS maintenance rule.
 $t001Commits = @(
     "41881071d50ce2eca928f41eb07b4a2f084bacd2",
     "f3ba917a2d70f098ec1e29938b52d780ec53ce3b",
     "01df4cbd3b6ae23c8a2c1c264006f5c0cef02556",
-    "18624e543645ee578e34e92ae0e3684af626ec5d"
+    "18624e543645ee578e34e92ae0e3684af626ec5d",
+    "b0589e3202bf89834a70edbc3e413282b14f84fb",
+    "3eb2af61ab42c7528997c71dfae5a9a580e21189",
+    "87fe0452a0a0474631f26c7393381b48fe9d980c"
 )
-$workflowTouchers = @(& git -C $repoRoot log --format=%H -- .github/workflows/test.yml)
+$isShallow = (& git -C $repoRoot rev-parse --is-shallow-repository 2>$null | Out-String).Trim()
 $missingCommit = ""
-$attributionViolation = ""
-foreach ($c in $t001Commits) {
-    & git -C $repoRoot cat-file -e "$c^{commit}" 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        $missingCommit = $c
-    } elseif ($workflowTouchers -ccontains $c) {
-        $attributionViolation = $c
+if ($isShallow -ceq "true") {
+    $liveWfHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repoRoot ".github/workflows/test.yml")).Hash.ToLowerInvariant()
+    if ($expectedHc -cne "" -and $liveWfHash -ceq $expectedHc) {
+        Ok "TEST-045.6: (shallow checkout) live .github/workflows/test.yml is byte-identical to the human-applied staged candidate's MANIFEST.sha256 entry (content-level attribution form; pinned commits unavailable at depth 1)"
+    } else {
+        Fail "TEST-045.6: (shallow checkout) live workflow diverges from the staged candidate's manifest entry (live='$liveWfHash', manifest='$expectedHc')"
     }
-}
-if ($missingCommit -ceq "" -and $attributionViolation -ceq "") {
-    Ok "TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on unavailable history)"
 } else {
-    Fail "TEST-045.6: live workflow attribution check failed (missing commit='$missingCommit', T-001 commit touching the live workflow='$attributionViolation')"
+    $workflowTouchers = @(& git -C $repoRoot log --format=%H -- .github/workflows/test.yml)
+    $attributionViolation = ""
+    foreach ($c in $t001Commits) {
+        & git -C $repoRoot cat-file -e "$c^{commit}" 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            $missingCommit = $c
+        } elseif ($workflowTouchers -ccontains $c) {
+            $attributionViolation = $c
+        }
+    }
+    if ($missingCommit -ceq "" -and $attributionViolation -ceq "") {
+        Ok "TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)"
+    } else {
+        Fail "TEST-045.6: live workflow attribution check failed (missing commit='$missingCommit', T-001 commit touching the live workflow='$attributionViolation')"
+    }
 }
 
-# AC-049-SELFCHECK (added 2026-08-11, closing the seq0680 Minor): Done-When 5
-# requires a grep self-check that no version string was mutated outside a
-# scripts/bump-version.sh invocation (AC-049 share). Asserts none of T-001's
-# commits touched a version-carrying surface (plugin.json manifests /
-# tests/validate-repository.ps1). See the bash twin's comment.
-$versionSurfaceTouch = ""
-foreach ($c in $t001Commits) {
-    & git -C $repoRoot cat-file -e "$c^{commit}" 2>$null
-    if ($LASTEXITCODE -eq 0) {
-        $touched = @(@(& git -C $repoRoot show --name-only --format= $c) |
-            Where-Object { $_ -cmatch '(^|/)plugin\.json$' -or $_ -ceq 'tests/validate-repository.ps1' })
-        if ($touched.Count -gt 0) { $versionSurfaceTouch = "$($c):$($touched -join ',')" }
+# AC-049-SELFCHECK (added 2026-08-11, closing the seq0680 Minor;
+# shallow-aware form 2026-08-11 per seq0682): full-history checkouts assert
+# no T-001 commit touched a version-carrying surface (plugin.json manifests
+# / tests/validate-repository.ps1); a shallow checkout asserts the
+# bump-version-synchronized plugin.json version fields all carry one
+# identical value (a stray hand-edit outside scripts/bump-version.sh
+# desynchronizes the set). See the bash twin's comment.
+if ($isShallow -ceq "true") {
+    $versionValues = @()
+    foreach ($pat in @("plugins/*/.claude-plugin/plugin.json", "plugins/*/.codex-plugin/plugin.json", "plugins/*/.plugin/plugin.json")) {
+        foreach ($f in (Get-ChildItem -Path (Join-Path $repoRoot $pat) -File -ErrorAction SilentlyContinue)) {
+            $versionValues += (Get-Content -Raw -LiteralPath $f.FullName | ConvertFrom-Json).version
+        }
     }
-}
-if ($missingCommit -ceq "" -and $versionSurfaceTouch -ceq "") {
-    Ok "AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation"
+    $distinct = @($versionValues | Sort-Object -Unique)
+    if ($versionValues.Count -gt 0 -and $distinct.Count -eq 1) {
+        Ok "AC-049-SELFCHECK: (shallow checkout) all plugin.json version fields carry one identical value ($($distinct[0])) — the bump-version-synchronized surface set is not desynchronized by a stray mutation"
+    } else {
+        Fail "AC-049-SELFCHECK: (shallow checkout) plugin.json version fields are desynchronized: $($distinct -join ',')"
+    }
 } else {
-    Fail "AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='$missingCommit', touch='$versionSurfaceTouch')"
+    $versionSurfaceTouch = ""
+    foreach ($c in $t001Commits) {
+        & git -C $repoRoot cat-file -e "$c^{commit}" 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            $touched = @(@(& git -C $repoRoot show --name-only --format= $c) |
+                Where-Object { $_ -cmatch '(^|/)plugin\.json$' -or $_ -ceq 'tests/validate-repository.ps1' })
+            if ($touched.Count -gt 0) { $versionSurfaceTouch = "$($c):$($touched -join ',')" }
+        }
+    }
+    if ($missingCommit -ceq "" -and $versionSurfaceTouch -ceq "") {
+        Ok "AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation"
+    } else {
+        Fail "AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='$missingCommit', touch='$versionSurfaceTouch')"
+    }
 }
 
 # TEST-045.7 — this suite's fixture corpus is keyed on Epic A1's canonical

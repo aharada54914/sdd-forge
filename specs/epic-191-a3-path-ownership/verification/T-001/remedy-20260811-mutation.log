@@ -122,3 +122,27 @@ $ bash tests/component-path-resolver.tests.sh | tail -1
 Results: 73 passed, 0 failed.
 $ pwsh -NoProfile -File tests/component-path-resolver.tests.ps1 | tail -1
 component-path-resolver.tests.ps1: 73 passed, 0 failed
+
+# ===========================================================================
+# Second remediation pass — 2026-08-11, seq0682 Major (shallow-checkout fix)
+# The seq0682 gate proved TEST-045.6/AC-049-SELFCHECK exit 1 in the depth-1
+# version-gates CI checkout (the 'fetch-depth: 0' comment was false for that
+# job). Both guards are now two-form: strict commit-attribution in
+# full-history checkouts, content-level fallback (live workflow == staged
+# candidate manifest entry; plugin.json version-set synchronization) in
+# shallow checkouts. The pinned set also gains the three newer
+# T-001-attributable commits (seq0682 Minor). All runs below are real.
+# ===========================================================================
+
+## Incidental fail-closed proof: while appending the three new pinned commits,
+## the first edit used WRONG full hashes (invented tails). The suite immediately
+## went red on both new checks:
+#   FAIL: TEST-045.6: ... missing commit='b0589e32c2e39a3e15e73aa2eefc71875ac1c17a' ...
+#   Results: 71 passed, 2 failed.
+## — demonstrating the missing-pinned-commit fail-closed path with no staged mutation.
+
+## M10 — full-history strict form still discriminates after the rework: inject c1db8b57
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='c1db8b5751d657771bf1623ebe7e0a8b5222b166')
+Results: 72 passed, 1 failed.
+FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='c1db8b5751d657771bf1623ebe7e0a8b5222b166')
+component-path-resolver.tests.ps1: 72 passed, 1 failed

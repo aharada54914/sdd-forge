@@ -85,7 +85,7 @@ ok: TEST-045.2: base fixture has a nested excluded subtree
 ok: TEST-045.3: base fixture has a bounded shared_paths entry
 ok: TEST-045.4: component-path-resolver self-registers in run-all.sh and .ps1
 ok: TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry
-ok: TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on unavailable history)
+ok: TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)
 ok: AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation
 ok: TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key
 === TEST-056: present-but-malformed -Config fails closed (plain and -Diagnose) ===
