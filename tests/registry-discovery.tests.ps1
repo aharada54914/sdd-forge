@@ -88,7 +88,12 @@ foreach ($runtime in @('claude-code', 'codex-cli', 'copilot-cli')) {
   $entry = New-Layout -Name $runtime -RegMode 'valid' -SchemaMode 'valid' -CatalogMode 'valid' -UseSymlink:$useSymlink
   foreach ($filename in @('capability-registry.json', 'capability-registry.schema.json', 'lite-upgrade-reason-catalog.json')) {
     $inv = Invoke-Discover -Entry $entry -Filename $filename
-    if ($inv.Rc -eq 0 -and $inv.Out -match [regex]::Escape("plugins/sdd-quality-loop/contracts/$filename")) {
+    # Normalize separators before matching: the resolver prints native paths
+    # (backslashes on Windows), while the expected literal uses forward
+    # slashes. Runs of [\/] collapse to a single '/' so Python-repr doubled
+    # backslashes normalize identically.
+    $outNormalized = ($inv.Out -replace '[\\/]+', '/')
+    if ($inv.Rc -eq 0 -and $outNormalized -match [regex]::Escape("plugins/sdd-quality-loop/contracts/$filename")) {
       Ok "AC-027 installed-layout ($runtime): $filename resolves via packaged copy alone"
     } else {
       Fail "AC-027 installed-layout ($runtime): $filename did not resolve via packaged copy (rc=$($inv.Rc) out=$($inv.Out) err=$($inv.Err))"
@@ -136,7 +141,10 @@ if ($inv.Rc -ne 0 -and $inv.Err -match 'registry-discovery' -and $inv.Err -match
 # =====================================================================
 $entry = New-Layout -Name 'neither-resolves' -RegMode 'missing' -SchemaMode 'missing' -CatalogMode 'missing'
 $inv = Invoke-Discover -Entry $entry -Filename 'capability-registry.json'
-if ($inv.Rc -ne 0 -and $inv.Err -match 'registry-discovery' -and $inv.Err -match [regex]::Escape('plugins/sdd-quality-loop/contracts/capability-registry.json')) {
+# The diagnostic embeds a Python list repr, so Windows paths arrive with
+# doubled backslashes; collapse separator runs to '/' before matching.
+$errNormalized = ([string]$inv.Err -replace '[\\/]+', '/')
+if ($inv.Rc -ne 0 -and $inv.Err -match 'registry-discovery' -and $errNormalized -match [regex]::Escape('plugins/sdd-quality-loop/contracts/capability-registry.json')) {
   Ok 'AC-027 neither-location-resolves: fail-closed diagnostic names the attempted path(s)'
 } else {
   Fail "AC-027 neither-location-resolves: expected fail-closed diagnostic naming attempted paths (rc=$($inv.Rc) err=$($inv.Err))"

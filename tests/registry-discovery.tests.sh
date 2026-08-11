@@ -167,11 +167,18 @@ fi
 
 # Freshly-vendored tree: re-vendor for real, then confirm --check passes
 # and performs no filesystem write (mtime-unchanged after a second --check).
+# The mtime probe uses python3 (already a suite dependency) because `stat`
+# flags are not portable: BSD `stat -f '%m'` is the mtime format, but GNU
+# `stat -f` is file-system mode and treats '%m' as a FILE OPERAND, printing
+# a filesystem-status block whose free-block counters drift between calls
+# on a busy CI disk -- a false "mtime changed" failure. st_mtime_ns is also
+# strictly stronger than the previous whole-second granularity.
+file_mtime_ns() { python3 -c 'import os, sys; print(os.stat(sys.argv[1]).st_mtime_ns)' "$1"; }
 python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" >/dev/null 2>&1
-mtime_before="$(stat -f '%m' "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json" 2>/dev/null || stat -c '%Y' "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json")"
+mtime_before="$(file_mtime_ns "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json")"
 python3 "$DRIFT_ROOT/plugins/sdd-quality-loop/scripts/vendor-capability-registry.py" --check >/dev/null 2>"$WORKDIR/drift-check2.log"
 drift_check_rc=$?
-mtime_after="$(stat -f '%m' "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json" 2>/dev/null || stat -c '%Y' "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json")"
+mtime_after="$(file_mtime_ns "$DRIFT_ROOT/plugins/sdd-quality-loop/contracts/capability-registry.json")"
 if [[ "$drift_check_rc" -eq 0 ]]; then
   ok "AC-027 vendored-copy-drift: --check exits zero against a freshly-vendored tree"
 else
