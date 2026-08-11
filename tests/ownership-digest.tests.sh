@@ -10,7 +10,6 @@ RESOLVER="${T003_RESOLVER:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/resolve
 CANONICALIZER="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py"
 ONLY="${T003_ONLY:-}"
 MUTATE="${T003_MUTATE_ASSERTION:-}"
-DIFF_BASELINE="${T003_DIFF_BASELINE:-057223e9bfdc01da159d182e9d67648536712970}"
 PASS=0
 FAIL=0
 TMP="$(mktemp -d)"
@@ -328,17 +327,42 @@ if should_run TEST-048; then
 fi
 
 if should_run TEST-049; then
-  if git -C "$REPO_ROOT" cat-file -e "${DIFF_BASELINE}^{commit}" 2>/dev/null; then
-    version_files="$(git -C "$REPO_ROOT" diff --name-only "$DIFF_BASELINE" -- \
-      ':(glob)plugins/*/.claude-plugin/plugin.json' \
-      ':(glob)plugins/*/.codex-plugin/plugin.json' \
-      ':(glob)plugins/*/.plugin/plugin.json' \
-      'tests/validate-repository.ps1')"
+  # Two environment-appropriate forms, matching TEST-045.6/AC-049-SELFCHECK:
+  # full-history checkouts strictly attribute version-surface changes to the
+  # known T-003 commits, while depth-1 version-gates clones fall back to the
+  # content invariant scripts/bump-version.sh preserves: all plugin manifests
+  # carry one synchronized version. A later sanctioned release is therefore
+  # exempt (it is not a T-003 commit and keeps the synchronized set intact).
+  # Append later T-003-attributed commits here; the editing commit itself is
+  # covered by the shallow/content form until a successor can append its hash.
+  T003_COMMITS="ee001845afa962d541eef736b6b5a5017fc93d2f 8c961886d04cb77bae545bd9645fbc2e06b2155e 3b27c3e5d12b8dabe1f9724b8b069c01e55ae408 1e651dbd7e2987b35936b810506cfcac3f16e319 b067213544d5e1097f58ec52969c33e478030c2c 305de3c406eb2dd52d01bd75997f6c7b57fcc539"
+  is_shallow="$(git -C "$REPO_ROOT" rev-parse --is-shallow-repository 2>/dev/null || echo unknown)"
+  if [ "$is_shallow" = true ]; then
+    version_state="$(python3 -c "
+import glob, json
+values = sorted({json.load(open(path))['version']
+                 for pattern in ('plugins/*/.claude-plugin/plugin.json',
+                                 'plugins/*/.codex-plugin/plugin.json',
+                                 'plugins/*/.plugin/plugin.json')
+                 for path in glob.glob('${REPO_ROOT}/' + pattern)})
+print(str(len(values)) + ':' + ','.join(values))
+")"
+    if is_mutated TEST-049; then version_state='2:1.14.0,mutated'; printf 'MUTATION: TEST-049 desynchronizes the shallow checkout version surface\n'; fi
+    result=0; [ "${version_state%%:*}" = 1 ] && result=1
   else
-    version_files="MISSING_BASELINE:$DIFF_BASELINE"
+    missing_commit=""
+    version_touch=""
+    for commit in $T003_COMMITS; do
+      if ! git -C "$REPO_ROOT" cat-file -e "${commit}^{commit}" 2>/dev/null; then
+        missing_commit="$commit"
+      else
+        touched="$(git -C "$REPO_ROOT" show --name-only --format= "$commit" | grep -E '(^|/)plugin\.json$|^tests/validate-repository\.ps1$' || true)"
+        [ -n "$touched" ] && version_touch="${commit}:$(printf '%s' "$touched" | tr '\n' ',')"
+      fi
+    done
+    if is_mutated TEST-049; then version_touch='MUTATION:plugins/sdd-quality-loop/.claude-plugin/plugin.json'; printf 'MUTATION: TEST-049 attributes an out-of-band version surface change to T-003\n'; fi
+    result=0; [ -z "$missing_commit" ] && [ -z "$version_touch" ] && result=1
   fi
-  if is_mutated TEST-049; then version_files='plugins/sdd-quality-loop/plugin.json'; printf 'MUTATION: TEST-049 introduces an out-of-band version surface change\n'; fi
-  result=0; [ -z "$version_files" ] && result=1
   check TEST-049 'no version-carrying surface is changed outside the release bump script' "$result"
 fi
 

@@ -144,3 +144,49 @@ ok: TEST-049: no version-carrying surface is changed outside the release bump sc
 1 passed / 0 failed
 RESTORED_EXIT_CODE=0
 MUTATION_PROOF_EXIT_CODE=0
+
+=== TEST-049 cycle-2 shallow-aware remediation (Bash) ===
+Pre-fix RED: a genuine git clone --depth 1 --no-local reported
+SHALLOW=true COUNT=1 and TEST-049 failed 0/1 because 057223e9 was absent.
+
+=== TEST-049 full-history strict attribution mutation ===
+Mutation: temporarily append real release commit
+3f914a598762c73747fbff70025d86773890c7f2 to T003_COMMITS in both suite
+twins. That commit touched 21 plugin.json manifests; no mutation hook was set,
+so the production git show plus path-matching predicate detected the touch.
+FAIL: TEST-049: no version-carrying surface is changed outside the release bump script
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-049 full-history restored ===
+Restore: remove 3f914a598762c73747fbff70025d86773890c7f2 from both
+T003_COMMITS lists.
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-049 real 1.14.0 bump scenario ===
+Command preserved the evaluator input: T003_DIFF_BASELINE=a05e8b0f.
+The retired baseline variable is intentionally ignored; sanctioned release
+commits are not attributed to T-003.
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+1 passed / 0 failed
+RELEASE_SCENARIO_EXIT_CODE=0
+
+=== TEST-049 genuine depth-1 content fallback ===
+Clone: git clone --depth 1 --no-local --branch feature/epic-191-a3-path-ownership file://<worktree> <scratch>
+Overlay uncommitted remediation under test:
+cp <worktree>/tests/ownership-digest.tests.sh <scratch>/tests/
+cp <worktree>/tests/ownership-digest.tests.ps1 <scratch>/tests/
+SHALLOW=true COUNT=1
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+1 passed / 0 failed
+INITIAL_EXIT_CODE=0
+Mutation: plugins/sdd-quality-loop/.claude-plugin/plugin.json version 1.14.0 -> 9.99.0.
+FAIL: TEST-049: no version-carrying surface is changed outside the release bump script
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+Restore: git restore -- plugins/sdd-quality-loop/.claude-plugin/plugin.json.
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+MUTATION_PROOF_EXIT_CODE=0

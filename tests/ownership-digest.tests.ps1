@@ -9,7 +9,6 @@ $resolver = if ($env:T003_RESOLVER) { $env:T003_RESOLVER } else { Join-Path $rep
 $canonicalizer = Join-Path $repoRoot 'plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1'
 $only = $env:T003_ONLY
 $mutation = $env:T003_MUTATE_ASSERTION
-$diffBaseline = if ($env:T003_DIFF_BASELINE) { $env:T003_DIFF_BASELINE } else { '057223e9bfdc01da159d182e9d67648536712970' }
 $powerShell = (Get-Process -Id $PID).Path
 $script:passCount = 0
 $script:failCount = 0
@@ -342,20 +341,46 @@ components:
     }
 
     if (Should-Run 'TEST-049') {
-        & git -C $repoRoot cat-file -e "$diffBaseline^{commit}" 2>$null
-        if ($LASTEXITCODE -eq 0) {
-            $versionPaths = @(
-                ':(glob)plugins/*/.claude-plugin/plugin.json',
-                ':(glob)plugins/*/.codex-plugin/plugin.json',
-                ':(glob)plugins/*/.plugin/plugin.json',
-                'tests/validate-repository.ps1'
-            )
-            $versionFiles = (& git -C $repoRoot diff --name-only $diffBaseline -- @versionPaths | Out-String).Trim()
+        # Twin of the Bash two-form guard: strict T-003 commit attribution in
+        # full history, synchronized plugin-version content at shallow depth 1.
+        # Sanctioned releases are exempt because they are not T-003 commits and
+        # scripts/bump-version.sh preserves the synchronized content invariant.
+        $t003Commits = @(
+            'ee001845afa962d541eef736b6b5a5017fc93d2f',
+            '8c961886d04cb77bae545bd9645fbc2e06b2155e',
+            '3b27c3e5d12b8dabe1f9724b8b069c01e55ae408',
+            '1e651dbd7e2987b35936b810506cfcac3f16e319',
+            'b067213544d5e1097f58ec52969c33e478030c2c',
+            '305de3c406eb2dd52d01bd75997f6c7b57fcc539'
+        )
+        $isShallow = (& git -C $repoRoot rev-parse --is-shallow-repository 2>$null | Out-String).Trim()
+        if ($isShallow -ceq 'true') {
+            $versionValues = @()
+            foreach ($pattern in @('plugins/*/.claude-plugin/plugin.json', 'plugins/*/.codex-plugin/plugin.json', 'plugins/*/.plugin/plugin.json')) {
+                foreach ($file in (Get-ChildItem -Path (Join-Path $repoRoot $pattern) -File -ErrorAction SilentlyContinue)) {
+                    $versionValues += (Get-Content -Raw -LiteralPath $file.FullName | ConvertFrom-Json).version
+                }
+            }
+            $distinctVersions = @($versionValues | Sort-Object -Unique)
+            if (Is-Mutated 'TEST-049') { $distinctVersions = @('1.14.0', 'mutated'); Write-Output 'MUTATION: TEST-049 desynchronizes the shallow checkout version surface' }
+            $valid = $versionValues.Count -gt 0 -and $distinctVersions.Count -eq 1
         } else {
-            $versionFiles = "MISSING_BASELINE:$diffBaseline"
+            $missingCommit = ''
+            $versionTouch = ''
+            foreach ($commit in $t003Commits) {
+                & git -C $repoRoot cat-file -e "$commit^{commit}" 2>$null
+                if ($LASTEXITCODE -ne 0) {
+                    $missingCommit = $commit
+                } else {
+                    $touched = @(@(& git -C $repoRoot show --name-only --format= $commit) |
+                        Where-Object { $_ -cmatch '(^|/)plugin\.json$' -or $_ -ceq 'tests/validate-repository.ps1' })
+                    if ($touched.Count -gt 0) { $versionTouch = "${commit}:$($touched -join ',')" }
+                }
+            }
+            if (Is-Mutated 'TEST-049') { $versionTouch = 'MUTATION:plugins/sdd-quality-loop/.claude-plugin/plugin.json'; Write-Output 'MUTATION: TEST-049 attributes an out-of-band version surface change to T-003' }
+            $valid = [string]::IsNullOrEmpty($missingCommit) -and [string]::IsNullOrEmpty($versionTouch)
         }
-        if (Is-Mutated 'TEST-049') { $versionFiles = 'plugins/sdd-quality-loop/plugin.json'; Write-Output 'MUTATION: TEST-049 introduces an out-of-band version surface change' }
-        Record 'TEST-049' 'no version-carrying surface is changed outside the release bump script' ([string]::IsNullOrEmpty($versionFiles))
+        Record 'TEST-049' 'no version-carrying surface is changed outside the release bump script' $valid
     }
 } finally {
     Remove-Item -LiteralPath $tempRoot -Recurse -Force -ErrorAction SilentlyContinue
