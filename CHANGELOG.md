@@ -4,6 +4,16 @@
 
 ### Added
 
+- **Full-input ownership digest (Issue #191,
+  epic-191-a3-path-ownership T-003)**: `resolve-component-paths` now hashes
+  every declared component include/exclude rule, every bounded or
+  cross-cutting shared-path rule, and the matcher-semantics version through
+  the repository canonicalizer. Both resolver runtimes emit the identical
+  digest in ADR-0021's `context_binding` together with resolver provenance;
+  dedicated Bash/PowerShell acceptance suites pin full-input behavior,
+  selective-staleness semantics, the six-row freshness matrix, and staged
+  CI/run-all wiring.
+
 - **component path ownership resolver の A1 契約追従完了 (Issue #191,
   epic-191-a3-path-ownership T-001)**: `resolve-component-paths.{py,sh,ps1}`
   を landed 済みの `contracts/project-context.schema.json` /
