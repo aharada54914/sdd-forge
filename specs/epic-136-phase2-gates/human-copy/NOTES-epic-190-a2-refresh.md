@@ -98,3 +98,42 @@ the residue is not A2's to decide:
 A2 deliberately stopped short of both rather than expanding another epic's
 bundle unilaterally. The un-protection hazard — the part that was actively
 dangerous — is fully resolved above.
+
+---
+
+## Ruling note — staged workflow entry (2026-08-11, RT-20260811-002)
+
+QG cycle 6 (seq0679) found this bundle's staged `.github/workflows/test.yml`
+(854 lines, `8beba70c…`, item 2 of the OPEN section above) is not merely out
+of sync: applying that one entry would **remove 137 lines / 18 named live
+steps** — epic-190-a2 T-006's four drift locks plus the 14 CI-registration
+steps for all seven epic-190 suites (measured end-to-end:
+`specs/epic-190-a2-capability-registry/verification/T-006/cycle6-apply-rehearsal.log`).
+The generic publisher refuses this manifest as a whole batch
+(`DUPLICATE_BASENAME_IN_BATCH` exit 19: two `SKILL.md` targets), but this
+epic's own Windows-only `apply-protected-files.ps1` applies all 19 targets
+in one transaction, and a single-target batch through the generic publisher
+applies the entry cleanly — the hazard is live on both paths.
+
+The human ruling of 2026-08-11 on RT-20260811-002 directed removing the
+`.github/workflows/test.yml` entry from this bundle's `MANIFEST.sha256` to
+disarm the hazard class. **That removal is deliberately NOT performed**,
+under the same ruling's own constraint (stop rather than break a pinned
+invariant): `TEST-013` in `tests/phase2-guard-invariants.tests.sh:45-92`
+pins this manifest to exactly 19 entries in a fixed order with
+`.github/workflows/test.yml` at position 18, and requires the staged
+candidate file to exist; the ps1 twin (`:189-233`, `:294-296`) pins the
+same list and asserts the staged CI candidate exists, and `TEST-011`
+asserts its content. Removing the entry or the staged file breaks all of
+these; the resolution is this epic's owner's decision (already flagged as
+item 4 of RT-20260811-002 together with the WFI-016 semantics question).
+
+Until that decision — refresh the staged workflow to live bytes with the
+digest updated in place (the technique the section above already proved,
+which TEST-013 permits), or amend TEST-013/TEST-011 and remove the entry:
+
+**DO NOT APPLY this bundle's `.github/workflows/test.yml` entry, via
+`apply-protected-files.ps1`, any publisher batch, or manual copy.** The
+stale copy deletes live CI enforcement. The other 18 entries are unaffected
+(byte-identical to live; the rehearsal measured zero removals outside the
+workflow target).

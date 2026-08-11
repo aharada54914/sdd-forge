@@ -75,3 +75,40 @@ Verified: `generate-guard-invariants.py --check` exits 0 and
 `tests/guard-invariants-epic-a1.tests.{sh,ps1}` — which encodes exactly this
 "staged equals live, or staged equals live-plus-manifest" invariant — returns
 to green as a result: 81/0 (sh) and 85/0 (ps1), with no assertion edited.
+
+---
+
+## Ruling note — staged workflow entry (2026-08-11, RT-20260811-002)
+
+QG cycle 6 (seq0679) found this bundle's staged `.github/workflows/test.yml`
+(854 lines, `8beba70c…`) stale against live (991 lines, `a37a3795…`): its
+purpose — this epic's own CI steps — is already served by the live workflow,
+and applying the entry would **remove 137 lines / 18 named live steps**,
+including epic-190-a2 T-006's four drift locks (measured end-to-end:
+`specs/epic-190-a2-capability-registry/verification/T-006/cycle6-apply-rehearsal.log`;
+the whole-batch publisher refuses this manifest outright with
+`DUPLICATE_BASENAME_IN_BATCH` exit 19, but the single-target batch
+convention this bundle's own RUNBOOK-pr229.md documents applies the entry
+cleanly, so the batch refusal protects nothing).
+
+The human ruling of 2026-08-11 on RT-20260811-002 directed removing the
+`.github/workflows/test.yml` entry from this bundle's `MANIFEST.sha256` to
+disarm the hazard class. **That removal is deliberately NOT performed**,
+under the same ruling's own constraint (stop rather than break a pinned
+invariant): this epic's suite pins the entry —
+`tests/guard-invariants-epic-a1.tests.sh:532-534` asserts the CI-staging
+workflow entry is present exactly once ("T-009 must neither drop nor
+duplicate it"; `tests/guard-invariants-epic-a1.tests.ps1:399-400` asserts
+the same), and the per-entry loop requires staged bytes to exist for every
+manifest entry, so deleting the staged file is equally pinned. Both suites
+are green today (81/0 sh, 85/0 ps1); executing the removal flips them red.
+
+Until this epic's owner either refreshes the staged workflow to live bytes
+(digest updated in place — the technique the section above already proved)
+or amends the pinning assertions and removes the entry:
+
+**DO NOT APPLY this bundle's `.github/workflows/test.yml` entry, in any
+batch size.** The stale copy deletes live CI enforcement. The remaining
+17 entries are unaffected (byte-identical to live; rehearsal measured zero
+removals outside the workflow target). Tracked in
+`docs/review-tickets/RT-20260811-002.yml`.
