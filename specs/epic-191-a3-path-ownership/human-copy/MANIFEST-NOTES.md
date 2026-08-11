@@ -45,10 +45,23 @@ live counterparts (**all blocked**), then demonstrated by writing the files: no
 write below was blocked.
 
 Consequence: the workaround the old notes describe — staging under
-`reports/implementation/<feature>/drafts/` instead — was never necessary. The
-`drafts/` copies remain in place and are byte-identical to the Bundle A/B files
-staged here; **this directory is now the canonical staging location**, and
+`reports/implementation/<feature>/drafts/` instead — was never necessary.
+**This directory is now the canonical staging location**, and
 `drafts/MANIFEST.sha256` is superseded by this one.
+
+Correction (2026-08-11, RT-20260811-003): the sentence that stood here —
+"the `drafts/` copies remain in place and are byte-identical to the Bundle
+A/B files staged here" — was true for Bundle A only and **false for Bundle
+B**. The drafts Bundle B pair was the pre-ruling UNCONDITIONAL
+`check-contract.{py,ps1}` candidate (`5c0c3874…`/`9005f861…`), while the
+files staged here and applied live are the human-ruled CONDITIONAL artifact
+(`252c6200…`/`01a3ca22…`, `eb427d60` → applied in `710d6746`) — confirmed by
+direct hashing. Because the drafts manifest's Bundle B apply mapping would
+have silently reverted the conditional gate if followed, the two drafts
+Bundle B files are evicted, their manifest rows removed, and
+`tests/check-component-coverage.tests.{sh,ps1}` TEST-055.3 asserts they stay
+evicted. The drafts Bundle A copies remain and ARE byte-identical to the
+files staged here.
 
 ## What each item is, and how it was verified
 

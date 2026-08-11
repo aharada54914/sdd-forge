@@ -1,0 +1,120 @@
+# Mutation transcript — T-004 remediation (RT-20260811-003 / seq0679), 2026-08-11
+# Every run below is a real execution of the delivered suites; nothing is hand-edited.
+# Repo: feature/epic-191-a3-path-ownership, working tree of the remediation commit.
+#
+# Two genuine historical mutant worlds are used for the live-file assertions (the live
+# check-contract pair and guard-invariants.json are R-10 protected and cannot be mutated
+# in place, even temporarily):
+#   W1 = blobs at c1db8b57~1 — NO check-component-coverage registration at all
+#        (the pre-registration world the old inverted assertions celebrated)
+#   W2 = blobs at 710d6746~1 — the UNCONDITIONAL registration (the superseded
+#        pre-ruling candidate; no CAPABILITY_STATE_GATED_IDS predicate)
+# For each world the suite's live-artifact paths are temporarily retargeted at the
+# extracted blobs (grep-verified above the runs: W1 has 0 check-component-coverage
+# occurrences; W2 has the registration but 0 predicate occurrences), the suite is run
+# for real, and the paths are then restored. World-level mutations (manifest lines,
+# drafts resurrection, fixture swaps) mutate the real world and restore it.
+
+## Baseline (no mutation)
+$ bash tests/check-component-coverage.tests.sh | tail -1
+Results: 46 passed, 0 failed.
+$ pwsh -NoProfile -File tests/check-component-coverage.tests.ps1 | tail -1
+check-component-coverage.tests.ps1: 47 passed, 0 failed
+
+## W1 (bash) — live-artifact paths retargeted at the c1db8b57~1 pre-registration blobs
+FAIL: TEST-036.3: expected the live check-contract pair to carry the conditional check-component-coverage registration
+FAIL: TEST-036.4: live registration or live-vs-staged byte-identity failed (guard-invariants membership or shasum -c against /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256)
+FAIL: TEST-035.1: expected the live check-contract.py to fail the fixture naming check-component-coverage, got exit=0 out=Verification contract passed for task TEST-035.
+FAIL: TEST-035c.2: expected fail-closed activation under an unparseable config, got exit=0 out=Verification contract passed for task TEST-035c.
+FAIL: TEST-035c.3: expected fail-closed activation under a schema-divergent config, got exit=0 out=Verification contract passed for task TEST-035c.
+FAIL: TEST-055.1: expected the live check-contract.py to reject the tampered evidence, got exit=0 out=Verification contract passed for task TEST-055.
+Results: 40 passed, 6 failed.
+
+## W2 (bash) — live-artifact paths retargeted at the 710d6746~1 UNCONDITIONAL-candidate blobs
+# (the superseded pre-ruling registration: check-component-coverage present, no conditional predicate)
+FAIL: TEST-036.3: expected the live check-contract pair to carry the conditional check-component-coverage registration
+FAIL: TEST-035c.1 (control): expected the absence-state contract to pass, got exit=1 out=Verification contract FAILED for task TEST-035c:
+FAIL: TEST-055.1: expected the live check-contract.py to reject the tampered evidence, got exit=1 out=Verification contract FAILED for task TEST-055:
+FAIL: TEST-055.2: expected the live check-contract.py to pass genuine evidence, got exit=1 out=Verification contract FAILED for task TEST-055:
+Results: 42 passed, 4 failed.
+
+## W1 (pwsh) — live-artifact paths retargeted at the c1db8b57~1 pre-registration blobs
+FAIL: TEST-036.3: expected the live check-contract.ps1 to carry the conditional check-component-coverage registration
+FAIL: TEST-036.4: live registration or live-vs-staged byte-identity failed (addOk=False manifestOk=True checked=12)
+FAIL: TEST-035.1: expected the live check-contract.ps1 to fail the fixture naming check-component-coverage, got exit=0 out=Verification contract passed for task TEST-035.
+FAIL: TEST-035c.2: expected fail-closed activation under an unparseable config, got exit=0 out=Verification contract passed for task TEST-035c.
+FAIL: TEST-035c.3: expected fail-closed activation under a schema-divergent config, got exit=0 out=Verification contract passed for task TEST-035c.
+FAIL: TEST-055.1: expected the live check-contract.ps1 to reject the tampered evidence, got exit=0 out=Verification contract passed for task TEST-055.
+FAIL: TEST-055.2b: expected the producer-digest verification pass in the live check-contract pair
+check-component-coverage.tests.ps1: 40 passed, 7 failed
+
+## W2 (pwsh) — live-artifact paths retargeted at the 710d6746~1 UNCONDITIONAL-candidate blobs
+FAIL: TEST-036.3: expected the live check-contract.ps1 to carry the conditional check-component-coverage registration
+FAIL: TEST-035c.1 (control): expected the absence-state contract to pass, got exit=1 out=Verification contract FAILED for task TEST-035c:
+FAIL: TEST-055.1: expected the live check-contract.ps1 to reject the tampered evidence, got exit=1 out=Verification contract FAILED for task TEST-055:
+FAIL: TEST-055.2: expected the live check-contract.ps1 to pass genuine evidence, got exit=1 out=Verification contract FAILED for task TEST-055:
+check-component-coverage.tests.ps1: 43 passed, 4 failed
+
+# Note on W2's TEST-055.1/.2: both fail under the W2 blob, but not via the designed
+# tampered-vs-genuine discrimination — the extracted blob's producer-digest pass looks for
+# its sibling check-component-coverage.py relative to the SCRIPT's own location (the
+# scratch dir), which does not exist there, so both contracts hard-fail. The designed
+# discrimination (tampered rejected, genuine accepted) is what the baseline green run
+# proves; W1 proves the no-pass7 world is caught. Either way both assertions demonstrably
+# CAN fail, which is what a vacuity check requires.
+# Restore check: both suites re-run green after path restore (46/0 bash, 47/0 pwsh).
+
+## W3 — TEST-036.5 violation: generator inventory out of sync with the applied guard-invariants.json
+# A scratch mini-tree pairs the c1db8b57~1 generator (PHASE2_TARGETS without the three
+# entries) with the LIVE post-apply guard-invariants.json + live generated/ siblings;
+# its --check genuinely exits 1 ('protected_gate_suffixes must be the exact
+# baseline/inventory union'). TEST-036.5 temporarily retargeted at it:
+FAIL: TEST-036.5: the LIVE generate-guard-invariants.py --check failed against the applied tree
+Results: 45 passed, 1 failed.
+FAIL: TEST-036.5: the LIVE generate-guard-invariants.py --check failed: generate-guard-invariants: protected_gate_suffixes must be the exact baseline/inventory union
+check-component-coverage.tests.ps1: 46 passed, 1 failed
+
+## W4 — TEST-036.4 violation: a staged-candidate hash line no longer matches its live file
+# A row with a bogus hash for an existing live path is appended to human-copy/MANIFEST.sha256
+# (backup in scratch; simulates live-vs-staged divergence / a dropped apply):
+FAIL: TEST-036.4: live registration or live-vs-staged byte-identity failed (guard-invariants membership or shasum -c against /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256)
+Results: 45 passed, 1 failed.
+FAIL: TEST-036.4: live registration or live-vs-staged byte-identity failed (addOk=True manifestOk=False checked=13)
+check-component-coverage.tests.ps1: 46 passed, 1 failed
+# restore from backup copy:
+# (no git-status line above = byte-identical restore)
+
+## W5 — TEST-055.3 violation: the superseded drafts/bundle-b candidate is resurrected
+# (a) a file reappears at drafts/bundle-b/scripts/ (placeholder bytes are enough):
+FAIL: TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected
+Results: 45 passed, 1 failed.
+FAIL: TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected
+check-component-coverage.tests.ps1: 46 passed, 1 failed
+# (b) a machine-readable mapping row reappears in drafts/MANIFEST.sha256:
+FAIL: TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected
+Results: 45 passed, 1 failed.
+FAIL: TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected
+check-component-coverage.tests.ps1: 46 passed, 1 failed
+git-status:  M reports/implementation/epic-191-a3-path-ownership/drafts/MANIFEST.sha256
+git-status: D  reports/implementation/epic-191-a3-path-ownership/drafts/bundle-b/scripts/check-contract.ps1
+git-status: D  reports/implementation/epic-191-a3-path-ownership/drafts/bundle-b/scripts/check-contract.py
+# (git-status: the two 'D' lines are this remediation's own eviction commit-in-progress; no other diff)
+
+## W6 — TEST-035d violation: the Gate is fed a config it will NOT crash on
+# Every config-parse-error.yaml reference in the TEST-035d block is temporarily swapped
+# for config-disabled-legacy.yaml (which parses, derives disabled-legacy, EMITS a record,
+# and exits 0) — the recordless-hard-error property is violated on all three clauses:
+FAIL: TEST-035d.1: expected exit 2 and no disabled-legacy downgrade, got exit=0 out={
+FAIL: TEST-035d.2: expected a diagnostic naming the parse failure, got: {
+FAIL: TEST-035d.3: expected a recordless crash, got stdout=[{
+Results: 43 passed, 3 failed.
+FAIL: TEST-035d.1: expected exit 2 and no disabled-legacy downgrade, got exit=0 out={
+FAIL: TEST-035d.2: expected a diagnostic naming the parse failure, got: {
+FAIL: TEST-035d.3: expected a recordless crash, got stdout=[{
+check-component-coverage.tests.ps1: 44 passed, 3 failed
+
+## Restore — all mutants reverted; both suites green; working tree carries only the remediation itself
+$ bash tests/check-component-coverage.tests.sh | tail -1
+Results: 46 passed, 0 failed.
+$ pwsh -NoProfile -File tests/check-component-coverage.tests.ps1 | tail -1
+check-component-coverage.tests.ps1: 47 passed, 0 failed

@@ -35,8 +35,10 @@ ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-co
 ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
 ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
 ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
-=== TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ===
-ok: TEST-056.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
 === TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
 ok: TEST-057.1: pwsh: a post-parse config structural error (empty include list) is a hard error, exit 2 (matches python)
 === TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
@@ -46,15 +48,21 @@ ok: TEST-059.1: required state, valid manifest, no -ChangedPathsFile/-TargetRev:
 === TEST-036: protected-suffix registration + generator inventory ===
 ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
 ok: TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)
-ok: TEST-036.3: live check-contract.ps1's protected RISK_TIERS does NOT yet register check-component-coverage (documents the live reachability gap this Bundle B candidate closes)
-ok: TEST-036.4: the staged Bundle A candidate adds exactly the three check-component-coverage.* suffixes and DROPS NOTHING from either live protected_gate_suffixes or phase2_human_copy_targets (proven by direct set comparison, not asserted)
-ok: TEST-036.5: running the REAL generate-guard-invariants.py --check against the staged Bundle A candidate tree exits 0 (internal consistency proven, not asserted)
+ok: TEST-036.3: live check-contract.ps1 registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact)
+ok: TEST-036.4: live guard-invariants.json carries the three check-component-coverage.* entries in both protected lists, and all 12 applied live files are byte-identical to their human-copy staged candidates
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
 === TEST-035: reachability registration (two-tier defense scope) ===
-ok: TEST-035.1: the staged Bundle B candidate registers check-component-coverage in RISK_TIERS high AND critical on both runtimes, ready for human-apply
-=== TEST-055: staged Bundle B candidate structural proof (behavioral proof is in the bash twin) ===
-ok: TEST-055.1: the staged Bundle B candidate (check-contract.py) defines a producer-digest verification pass
-ok: TEST-055.2: the staged Bundle B candidate (check-contract.ps1) defines the matching producer-digest verification pass
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.ps1 fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055, pwsh side) ===
+ok: TEST-055.1: the LIVE, applied check-contract.ps1 REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (the delivered tamper-evidence rejection, behavioral on this runtime)
+ok: TEST-055.2: the LIVE, applied check-contract.ps1 PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the pass is not stuck shut)
+ok: TEST-055.2b: the LIVE, applied check-contract pair defines the producer-digest verification pass on both runtimes (structural pin)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
 === registration self-check ===
 ok: check-component-coverage suite self-registers in run-all.sh and .ps1
 
-check-component-coverage.tests.ps1: 40 passed, 0 failed
+check-component-coverage.tests.ps1: 47 passed, 0 failed

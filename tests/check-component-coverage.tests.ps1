@@ -209,17 +209,42 @@ if ($tamperedProducer -ne $realSha) {
 }
 
 # ============================================================================
-# TEST-056 (fail-open fix, Critical 1): a project-context.yaml that EXISTS
-# but fails to parse is a hard error, never a silent downgrade to
-# disabled-legacy.
+# TEST-035d (relabelled from the suite-internal "TEST-056" on 2026-08-11 —
+# the 2026-08-11 spec amendment assigned TEST-056 to T-001's resolver-side
+# criterion and gave THIS Gate-side clause the ID TEST-035d,
+# acceptance-tests.md:77. Originally the fail-open fix for Critical 1.)
+# A present-but-unparseable project-context.yaml is a RECORDLESS hard
+# error: non-zero exit, a diagnostic naming the parse failure, and NO
+# evidence record emitted — see the bash twin's comment.
 # ============================================================================
-Write-Output "=== TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ==="
+Write-Output "=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ==="
 $r = Invoke-Gate (Join-Path $fixtures "config-parse-error.yaml") (Join-Path $fixtures "facet-manifest-full.json") (Join-Path $fixtures "changed-paths-clean.txt") $null
 if ($r.ExitCode -eq 2 -and ($r.Output -notmatch "not-applicable \(disabled-legacy\)")) {
-    Ok "TEST-056.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy"
+    Ok "TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy"
 } else {
-    Fail "TEST-056.1: expected exit 2 and no disabled-legacy downgrade, got exit=$($r.ExitCode) out=$($r.Output)"
+    Fail "TEST-035d.1: expected exit 2 and no disabled-legacy downgrade, got exit=$($r.ExitCode) out=$($r.Output)"
 }
+# (Phrasing differs per runtime: the python Gate says "exists but could not
+# be parsed: …", the pwsh Gate says "config error: …" — both then name the
+# concrete parse failure, which for this fixture is the non-mapping top
+# level.)
+if ($r.Output -match "config error" -and $r.Output -match "must be a mapping") {
+    Ok "TEST-035d.2: the diagnostic names the parse failure"
+} else {
+    Fail "TEST-035d.2: expected a diagnostic naming the parse failure, got: $($r.Output)"
+}
+$stdout035d = & $powerShell -NoProfile -ExecutionPolicy Bypass -File $scriptPs1 -Config (Join-Path $fixtures "config-parse-error.yaml") -FacetManifest (Join-Path $fixtures "facet-manifest-full.json") -ChangedPathsFile (Join-Path $fixtures "changed-paths-clean.txt") 2>$null | Out-String
+if ($stdout035d.Trim() -ceq "" -and ($r.Output -notmatch "check-component-coverage-verdict/v1")) {
+    Ok "TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept"
+} else {
+    Fail "TEST-035d.3: expected a recordless crash, got stdout=[$($stdout035d.Trim())]"
+}
+
+# ============================================================================
+# Label note (2026-08-11): TEST-057..TEST-059 below are SUITE-INTERNAL
+# remediation labels, not rows of acceptance-tests.md (whose ID space ends
+# at TEST-056, owned by T-001's resolver suite). No spec row collides.
+# ============================================================================
 
 # ============================================================================
 # TEST-057 (dual-runtime exit-code parity, Critical 1): before this fix,
@@ -266,15 +291,44 @@ if ($code059 -eq 2) {
 }
 
 # ============================================================================
-# TEST-035/036/055 (quality-gate remediation 2026-08-09): the live gap AND
-# the staged Bundle A/B candidates are both proven structurally -- not
-# asserted, not skipped, and not a bare substring match anywhere in the
-# file. The full behavioral producer-digest proof (TEST-055.1-3) lives in
-# the bash twin (Python is the schema/hash-comparison reference runtime for
-# that pass, per Specification Difference #2 in T-004.md); this twin
-# proves the STAGED candidate's structural shape on both runtimes.
+# TEST-035/036/055 (retargeted 2026-08-11 per RT-20260811-003 / seq0679):
+# these blocks originally documented a LIVE reachability gap and proved the
+# staged drafts/ candidates. A human ruled for CONDITIONAL activation
+# (staged eb427d60, applied 710d6746); everything below now exercises the
+# POST-APPLY world on this runtime — the applied live
+# check-contract.ps1/guard-invariants.json — and TEST-055.3 asserts the
+# superseded unconditional drafts/bundle-b candidate stays evicted. The
+# python-side behavioral twin cases live in the bash suite.
 # ============================================================================
 $drafts = Join-Path $repoRoot "reports/implementation/epic-191-a3-path-ownership/drafts"
+$liveContractPy = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-contract.py"
+$liveContractPs1 = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-contract.ps1"
+$hcManifest191 = Join-Path $repoRoot "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256"
+
+function Invoke-LiveCheckContract {
+    param([string]$ContractPath, [string]$Root)
+    $out = & $powerShell -NoProfile -ExecutionPolicy Bypass -File $liveContractPs1 $ContractPath -RepoRoot $Root 2>&1 | Out-String -Width 4096
+    return @{ Output = $out; ExitCode = $LASTEXITCODE }
+}
+
+function Write-035Contract {
+    # A high contract carrying the complete high-tier required set EXCEPT
+    # check-component-coverage (mirrors the bash twin's write_035_contract).
+    param([string]$Dir, [string]$TaskId)
+    New-Item -ItemType Directory -Force -Path (Join-Path $Dir "reports") | Out-Null
+    Set-Content -LiteralPath (Join-Path $Dir "reports/test.log") -Value "fixture evidence" -Encoding utf8
+    $checkIds = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+    $checks = ($checkIds | ForEach-Object { '    { "id": "' + $_ + '", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }' }) -join ",`n"
+    $body = "{`n  `"task_id`": `"$TaskId`",`n  `"feature`": `"test-feature`",`n  `"risk`": `"high`",`n  `"created`": `"2026-08-11T00:00:00Z`",`n  `"checks`": [`n$checks`n  ]`n}"
+    Set-Content -LiteralPath (Join-Path $Dir "$TaskId.contract.json") -Value $body -Encoding utf8
+}
+
+function Write-035ValidContext {
+    param([string]$Dir)
+    New-Item -ItemType Directory -Force -Path (Join-Path $Dir "sdd") | Out-Null
+    $yaml = "schema: sdd-project-context/v1`nworkflow:`n  spec_profile: full`n  artifact_layout: legacy-seven-layer`n  capability_enforcement: advisory`ncomponents: []`nshared_paths: []`n"
+    [IO.File]::WriteAllText((Join-Path $Dir "sdd/project-context.yaml"), $yaml)
+}
 
 Write-Output "=== TEST-036: protected-suffix registration + generator inventory ==="
 $matrixText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/risk-gate-matrix.md")
@@ -290,66 +344,161 @@ if ($skillText -match "check-component-coverage") {
 } else {
     Fail "TEST-036.2: expected check-component-coverage documented in quality-gate/SKILL.md"
 }
-$liveContractPs1 = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-contract.ps1")
-if ($liveContractPs1 -match "check-component-coverage") {
-    Fail "TEST-036.3: unexpected -- live check-contract.ps1 already registers check-component-coverage (guard bypassed?)"
+# TEST-036.3 (retargeted 2026-08-11): the pre-apply inversion ("does NOT yet
+# register") could never pass again once the human apply landed. Now: the
+# live check-contract.ps1 registers the check in high AND critical and
+# carries the conditional-activation predicate.
+$liveContractPs1Text = Get-Content -Raw -LiteralPath $liveContractPs1
+if ($liveContractPs1Text -match '"high"\s*=.*"check-component-coverage"' -and
+    $liveContractPs1Text -match '"critical"\s*=.*"check-component-coverage"' -and
+    $liveContractPs1Text -match 'CAPABILITY_STATE_GATED_IDS') {
+    Ok "TEST-036.3: live check-contract.ps1 registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact)"
 } else {
-    Ok "TEST-036.3: live check-contract.ps1's protected RISK_TIERS does NOT yet register check-component-coverage (documents the live reachability gap this Bundle B candidate closes)"
+    Fail "TEST-036.3: expected the live check-contract.ps1 to carry the conditional check-component-coverage registration"
 }
+# TEST-036.4 (retargeted 2026-08-11): live guard-invariants.json must carry
+# the three entries in BOTH protected lists, and every live file this
+# feature staged must still match its human-copy candidate hash (the pwsh
+# equivalent of shasum -c from the repo root).
 $liveGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json") | ConvertFrom-Json
-$draftGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $drafts "bundle-a/references/guard-invariants.json") | ConvertFrom-Json
 $newSuffixes = @(
     "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
 )
-$dropOk = $true
-foreach ($key in @("protected_gate_suffixes", "phase2_human_copy_targets", "epic_a1_targets")) {
-    $liveSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$liveGuardInvariants.$key)
-    $draftSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$draftGuardInvariants.$key)
-    foreach ($item in $liveSet) {
-        if (-not $draftSet.Contains($item)) { $dropOk = $false }
-    }
-}
-$addOk = $true
+$liveAddOk = $true
 foreach ($n in $newSuffixes) {
-    if (($draftGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($draftGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $addOk = $false }
-    if ($liveGuardInvariants.protected_gate_suffixes -contains $n) { $addOk = $false }
+    if (($liveGuardInvariants.protected_gate_suffixes -notcontains $n) -or ($liveGuardInvariants.phase2_human_copy_targets -notcontains $n)) { $liveAddOk = $false }
 }
-if ($dropOk -and $addOk) {
-    Ok "TEST-036.4: the staged Bundle A candidate adds exactly the three check-component-coverage.* suffixes and DROPS NOTHING from either live protected_gate_suffixes or phase2_human_copy_targets (proven by direct set comparison, not asserted)"
+$manifestOk = $true
+$manifestChecked = 0
+foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
+    if ($line.Trim() -ceq "" -or $line.TrimStart().StartsWith("#")) { continue }
+    $parts = $line -split '\s+', 2
+    if ($parts.Count -ne 2) { $manifestOk = $false; continue }
+    $livePath = Join-Path $repoRoot $parts[1].Trim()
+    if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
+    $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
+    if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+    $manifestChecked++
+}
+if ($liveAddOk -and $manifestOk -and $manifestChecked -gt 0) {
+    Ok "TEST-036.4: live guard-invariants.json carries the three check-component-coverage.* entries in both protected lists, and all $manifestChecked applied live files are byte-identical to their human-copy staged candidates"
 } else {
-    Fail "TEST-036.4: staged Bundle A candidate failed the live-vs-draft drop/addition comparison (dropOk=$dropOk addOk=$addOk)"
+    Fail "TEST-036.4: live registration or live-vs-staged byte-identity failed (addOk=$liveAddOk manifestOk=$manifestOk checked=$manifestChecked)"
 }
-$genCheck = & python3 (Join-Path $drafts "bundle-a/scripts/generate-guard-invariants.py") --check 2>&1
+# TEST-036.5 (retargeted 2026-08-11): the generator inventory check runs
+# against the LIVE tree — the applied state is what must be consistent.
+$genCheck = & python3 (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/generate-guard-invariants.py") --check 2>&1
 if ($LASTEXITCODE -eq 0) {
-    Ok "TEST-036.5: running the REAL generate-guard-invariants.py --check against the staged Bundle A candidate tree exits 0 (internal consistency proven, not asserted)"
+    Ok "TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)"
 } else {
-    Fail "TEST-036.5: generate-guard-invariants.py --check failed against the staged Bundle A candidate: $genCheck"
+    Fail "TEST-036.5: the LIVE generate-guard-invariants.py --check failed: $genCheck"
 }
 
 Write-Output "=== TEST-035: reachability registration (two-tier defense scope) ==="
-$draftContractPy = Get-Content -Raw -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-contract.py")
-$draftContractPs1 = Get-Content -Raw -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-contract.ps1")
-if ($draftContractPy -match '"high":\s*\{[^}]*"check-component-coverage"[^}]*\}' -and
-    $draftContractPy -match '"critical":\s*\{[^}]*"check-component-coverage"[^}]*\}' -and
-    $draftContractPs1 -match '"high"\s*=.*"check-component-coverage"' -and
-    $draftContractPs1 -match '"critical"\s*=.*"check-component-coverage"') {
-    Ok "TEST-035.1: the staged Bundle B candidate registers check-component-coverage in RISK_TIERS high AND critical on both runtimes, ready for human-apply"
+# TEST-035.1 (rebound 2026-08-11): behavioral against the APPLIED live
+# check-contract.ps1 — with a present, schema-valid project-context.yaml in
+# a disposable fixture tree, a high contract omitting the check must FAIL
+# naming check-component-coverage (see the bash twin for the python side).
+$work035 = Join-Path ([IO.Path]::GetTempPath()) ("ccc-035." + [Guid]::NewGuid().ToString("N"))
+Write-035Contract $work035 "TEST-035"
+Write-035ValidContext $work035
+$r035 = Invoke-LiveCheckContract (Join-Path $work035 "TEST-035.contract.json") $work035
+if ($r035.ExitCode -ne 0 -and $r035.Output -match "check-component-coverage") {
+    Ok "TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.ps1 fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)"
 } else {
-    Fail "TEST-035.1: expected check-component-coverage registered in the staged candidate's high/critical RISK_TIERS on both runtimes"
+    Fail "TEST-035.1: expected the live check-contract.ps1 to fail the fixture naming check-component-coverage, got exit=$($r035.ExitCode) out=$($r035.Output)"
+}
+Remove-Item -Recurse -Force -LiteralPath $work035 -ErrorAction SilentlyContinue
+
+# TEST-035c (added 2026-08-11, acceptance-tests.md:76): fail-closed
+# activation under a present-but-malformed config — pwsh side. See the bash
+# twin's comment for the full rationale and the absence control's purpose.
+Write-Output "=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ==="
+$work035c = Join-Path ([IO.Path]::GetTempPath()) ("ccc-035c." + [Guid]::NewGuid().ToString("N"))
+
+Write-035Contract (Join-Path $work035c "absent") "TEST-035c"
+$r035c0 = Invoke-LiveCheckContract (Join-Path $work035c "absent/TEST-035c.contract.json") (Join-Path $work035c "absent")
+if ($r035c0.ExitCode -eq 0) {
+    Ok "TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone"
+} else {
+    Fail "TEST-035c.1 (control): expected the absence-state contract to pass, got exit=$($r035c0.ExitCode) out=$($r035c0.Output)"
 }
 
-Write-Output "=== TEST-055: staged Bundle B candidate structural proof (behavioral proof is in the bash twin) ==="
-if ($draftContractPy -match "_pass7_producer_digest" -and $draftContractPy -match "producer\.sha256") {
-    Ok "TEST-055.1: the staged Bundle B candidate (check-contract.py) defines a producer-digest verification pass"
+Write-035Contract (Join-Path $work035c "unparseable") "TEST-035c"
+New-Item -ItemType Directory -Force -Path (Join-Path $work035c "unparseable/sdd") | Out-Null
+[IO.File]::WriteAllText((Join-Path $work035c "unparseable/sdd/project-context.yaml"), "workflow:`n`tcapability_enforcement: advisory`n")
+$r035c1 = Invoke-LiveCheckContract (Join-Path $work035c "unparseable/TEST-035c.contract.json") (Join-Path $work035c "unparseable")
+if ($r035c1.ExitCode -ne 0 -and $r035c1.Output -match "check-component-coverage") {
+    Ok "TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage"
 } else {
-    Fail "TEST-055.1: expected a producer-digest verification pass in the staged candidate"
+    Fail "TEST-035c.2: expected fail-closed activation under an unparseable config, got exit=$($r035c1.ExitCode) out=$($r035c1.Output)"
 }
-if ($draftContractPs1 -match "PRODUCER_DIGEST_CHECK_ID" -and $draftContractPs1 -match "producer\.sha256") {
-    Ok "TEST-055.2: the staged Bundle B candidate (check-contract.ps1) defines the matching producer-digest verification pass"
+
+Write-035Contract (Join-Path $work035c "divergent") "TEST-035c"
+New-Item -ItemType Directory -Force -Path (Join-Path $work035c "divergent/sdd") | Out-Null
+[IO.File]::WriteAllText((Join-Path $work035c "divergent/sdd/project-context.yaml"), "schema: some-other-schema/v9`nbogus_top_level_key: true`n")
+$r035c2 = Invoke-LiveCheckContract (Join-Path $work035c "divergent/TEST-035c.contract.json") (Join-Path $work035c "divergent")
+if ($r035c2.ExitCode -ne 0 -and $r035c2.Output -match "check-component-coverage") {
+    Ok "TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage"
 } else {
-    Fail "TEST-055.2: expected the matching producer-digest verification pass in the staged pwsh candidate"
+    Fail "TEST-035c.3: expected fail-closed activation under a schema-divergent config, got exit=$($r035c2.ExitCode) out=$($r035c2.Output)"
+}
+Remove-Item -Recurse -Force -LiteralPath $work035c -ErrorAction SilentlyContinue
+
+Write-Output "=== TEST-055: check-contract producer-digest verification (AC-055, pwsh side) ==="
+# Rebound 2026-08-11: the old structural greps read the superseded
+# drafts/bundle-b candidate. Now: behavioral tamper-reject and genuine-pass
+# against the LIVE check-contract.ps1, plus the structural pin that the
+# applied pair carries the pass, plus the drafts/bundle-b eviction guard.
+$work055p = Join-Path ([IO.Path]::GetTempPath()) ("ccc-055." + [Guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Force -Path (Join-Path $work055p "reports") | Out-Null
+Set-Content -LiteralPath (Join-Path $work055p "reports/baseline.log") -Value "unused baseline evidence" -Encoding utf8
+$realEvidence055 = $requiredRealOut.Trim()
+[IO.File]::WriteAllText((Join-Path $work055p "reports/real-evidence.json"), $realEvidence055)
+$tamperedObj = $realEvidence055 | ConvertFrom-Json
+$tamperedObj.producer.sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
+[IO.File]::WriteAllText((Join-Path $work055p "reports/tampered-evidence.json"), ($tamperedObj | ConvertTo-Json -Depth 16))
+function Write-055Contract {
+    param([string]$EvidenceRel, [string]$OutFile)
+    $baselineIds = @("lint", "typecheck", "unit-tests", "build", "placeholder-scan", "task-state-check")
+    $checks = ($baselineIds | ForEach-Object { '    { "id": "' + $_ + '", "required": true, "passes": true, "evidence": "reports/baseline.log", "waiver_reason": "" }' }) -join ",`n"
+    $checks += ",`n" + '    { "id": "check-component-coverage", "required": false, "passes": true, "evidence": "' + $EvidenceRel + '", "waiver_reason": "" }'
+    $body = "{`n  `"task_id`": `"TEST-055`",`n  `"feature`": `"test-feature`",`n  `"created`": `"2026-06-13T00:00:00Z`",`n  `"checks`": [`n$checks`n  ]`n}"
+    [IO.File]::WriteAllText($OutFile, $body)
+}
+Write-055Contract "reports/tampered-evidence.json" (Join-Path $work055p "tampered.contract.json")
+Write-055Contract "reports/real-evidence.json" (Join-Path $work055p "real.contract.json")
+$r055bad = Invoke-LiveCheckContract (Join-Path $work055p "tampered.contract.json") $work055p
+if ($r055bad.ExitCode -ne 0 -and $r055bad.Output -match "does not match the live on-disk") {
+    Ok "TEST-055.1: the LIVE, applied check-contract.ps1 REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (the delivered tamper-evidence rejection, behavioral on this runtime)"
+} else {
+    Fail "TEST-055.1: expected the live check-contract.ps1 to reject the tampered evidence, got exit=$($r055bad.ExitCode) out=$($r055bad.Output)"
+}
+$r055ok = Invoke-LiveCheckContract (Join-Path $work055p "real.contract.json") $work055p
+if ($r055ok.ExitCode -eq 0) {
+    Ok "TEST-055.2: the LIVE, applied check-contract.ps1 PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the pass is not stuck shut)"
+} else {
+    Fail "TEST-055.2: expected the live check-contract.ps1 to pass genuine evidence, got exit=$($r055ok.ExitCode) out=$($r055ok.Output)"
+}
+Remove-Item -Recurse -Force -LiteralPath $work055p -ErrorAction SilentlyContinue
+$liveContractPyText = Get-Content -Raw -LiteralPath $liveContractPy
+if ($liveContractPyText -match "_pass7_producer_digest" -and $liveContractPyText -match "producer\.sha256" -and
+    $liveContractPs1Text -match "PRODUCER_DIGEST_CHECK_ID" -and $liveContractPs1Text -match "producer\.sha256") {
+    Ok "TEST-055.2b: the LIVE, applied check-contract pair defines the producer-digest verification pass on both runtimes (structural pin)"
+} else {
+    Fail "TEST-055.2b: expected the producer-digest verification pass in the live check-contract pair"
+}
+# TEST-055.3 (eviction guard, 2026-08-11): see the bash twin's comment.
+$draftsManifest = Join-Path $drafts "MANIFEST.sha256"
+$draftsManifestRows = @(Get-Content -LiteralPath $draftsManifest | Where-Object { -not $_.TrimStart().StartsWith("#") })
+if (-not (Test-Path -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-contract.py")) -and
+    -not (Test-Path -LiteralPath (Join-Path $drafts "bundle-b/scripts/check-contract.ps1")) -and
+    -not ($draftsManifestRows -match "bundle-b/scripts/check-contract")) {
+    Ok "TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate"
+} else {
+    Fail "TEST-055.3: the superseded drafts/bundle-b check-contract candidate or its manifest mapping has been resurrected"
 }
 
 Write-Output "=== registration self-check ==="
