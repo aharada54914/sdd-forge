@@ -1,0 +1,23 @@
+# T-005 backfill verification transcript (2026-08-11T11:44Z, HEAD c36a6cbb59084d44b45464509714379a4f080e59)
+# Re-execution of T-005's deterministic checks at backfill time. The authoritative
+# quality-gate record is reports/quality-gate/20260810T231458Z-epic-190-a2-capability-registry-T-005.md (seq0673, VERDICT: PASS).
+
+$ bash tests/generate-registry-digest.tests.sh (tail)
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=17 fail=0 ----
+generate-registry-digest suite passed (17 checks)
+exit=0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/generate-registry-digest.tests.ps1 (tail)
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=17 fail=0 ----
+generate-registry-digest suite passed (17 checks)
+exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/generate-registry-digest.py .sh .ps1 .js
+Placeholder scan passed.
+exit=0
+
+$ sh plugins/sdd-quality-loop/scripts/check-risk.sh specs/epic-190-a2-capability-registry/tasks.md T-005
+Risk check passed for task T-005.
+exit=0
