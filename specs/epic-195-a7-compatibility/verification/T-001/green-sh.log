@@ -108,6 +108,7 @@ ok 107 - invalid argument tuple is rejected: absent absent disabled-legacy unkno
 ok 108 - invalid argument tuple is rejected: absent absent disabled-legacy valid --unknown
 ok 109 - invalid argument tuple is rejected: absent absent disabled-legacy valid --FULL
 ok 110 - invalid argument tuple is rejected: present absent disabled-legacy valid none
-ok 111 - a sixth argument is rejected
-ok 112 - sourced builder is not registered as an independent suite
-RESULT: PASS=112 FAIL=0
+ok 111 - a missing fifth argument reaches the explicit arity guard
+ok 112 - a sixth argument is rejected
+ok 113 - sourced builder is not registered as an independent suite
+RESULT: PASS=113 FAIL=0

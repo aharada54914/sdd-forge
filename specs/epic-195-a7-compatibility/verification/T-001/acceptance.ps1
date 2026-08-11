@@ -21,6 +21,23 @@ function Assert-True([bool]$Condition, [string]$Description) {
     if ($Condition) { Pass $Description } else { Fail $Description }
 }
 
+function Get-IndependentPhysicalDirectory([string]$LiteralPath) {
+    if ($IsWindows) {
+        return (Resolve-Path -LiteralPath $LiteralPath).Path
+    }
+
+    Push-Location -LiteralPath $LiteralPath
+    try {
+        $physicalPath = @(& /bin/pwd -P)
+        if ($LASTEXITCODE -ne 0 -or $physicalPath.Count -ne 1) {
+            throw "could not independently resolve physical path for $LiteralPath"
+        }
+        return $physicalPath[0]
+    } finally {
+        Pop-Location
+    }
+}
+
 if (-not (Test-Path -LiteralPath $Builder -PathType Leaf)) {
     Fail 'fixture matrix builder exists'
     Write-Output "RESULT: PASS=$PassCount FAIL=$FailCount"
@@ -29,13 +46,19 @@ if (-not (Test-Path -LiteralPath $Builder -PathType Leaf)) {
 
 . $Builder
 
+$ExpectedPhysicalRepoRoot = Get-IndependentPhysicalDirectory $Root
+$ExpectedPhysicalTempRoot = Get-IndependentPhysicalDirectory ([IO.Path]::GetTempPath())
+$PathComparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+
 function Assert-FixtureRoot([string]$FixtureRoot, [string]$Label) {
-    $physicalRoot = (Resolve-Path -LiteralPath $FixtureRoot).Path
+    $fixtureLeaf = [IO.Path]::GetFileName($FixtureRoot.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar))
+    $expectedPhysicalRoot = Join-Path $ExpectedPhysicalTempRoot $fixtureLeaf
     Assert-True (Test-Path -LiteralPath $FixtureRoot -PathType Container) "$Label returns an existing directory"
-    Assert-True ($physicalRoot -ceq $FixtureRoot) "$Label returns a physically normalized root"
-    $outside = -not ($physicalRoot -ceq $Root -or $physicalRoot.StartsWith($Root + [IO.Path]::DirectorySeparatorChar, [StringComparison]::Ordinal))
+    Assert-True ([string]::Equals($FixtureRoot, $expectedPhysicalRoot, $PathComparison)) "$Label returns a physically normalized root"
+    $repositoryPrefix = $ExpectedPhysicalRepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    $outside = -not ([string]::Equals($FixtureRoot, $ExpectedPhysicalRepoRoot, $PathComparison) -or $FixtureRoot.StartsWith($repositoryPrefix, $PathComparison))
     Assert-True $outside "$Label root is outside the real repository"
-    Assert-True ($SeenRoots.Add($physicalRoot)) "$Label root is fresh"
+    Assert-True ($SeenRoots.Add($FixtureRoot)) "$Label root is fresh"
 }
 
 function Assert-Marker([string]$FixtureRoot, [string]$Marker, [string]$Label) {
@@ -181,6 +204,10 @@ raise SystemExit(1)
         try { [void](build_fixture @invalidCase) } catch { $rejected = $true }
         Assert-True $rejected "invalid argument tuple is rejected: $($invalidCase -join ' ')"
     }
+
+    $underArityError = $null
+    try { [void](build_fixture absent absent disabled-legacy valid) } catch { $underArityError = $_.Exception.Message }
+    Assert-True ($underArityError -ceq 'build_fixture: expected 5 arguments, received 4') 'a missing fifth argument reaches the explicit arity guard'
 
     $registered = Select-String -LiteralPath (Join-Path $Root 'tests/run-all.sh'), (Join-Path $Root 'tests/run-all.ps1') -SimpleMatch 'fixture-matrix-builder' -CaseSensitive -Quiet
     Assert-True (-not $registered) 'sourced builder is not registered as an independent suite'

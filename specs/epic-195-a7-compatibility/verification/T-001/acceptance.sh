@@ -222,17 +222,27 @@ for invalid_case in \
   fi
 done
 
+under_arity_output="$(build_fixture absent absent disabled-legacy valid 2>&1)"
+under_arity_status=$?
+if [ "$under_arity_status" -eq 2 ] && [ "$under_arity_output" = 'build_fixture: expected 5 arguments, received 4' ]; then
+  pass "a missing fifth argument reaches the explicit arity guard"
+else
+  fail "a missing fifth argument reaches the explicit arity guard"
+fi
+
 if build_fixture absent absent disabled-legacy valid none extra >/dev/null 2>&1; then
   fail "a sixth argument is rejected"
 else
   pass "a sixth argument is rejected"
 fi
 
-if rg -F 'fixture-matrix-builder' "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" >/dev/null 2>&1; then
-  fail "sourced builder is not registered as an independent suite"
-else
-  pass "sourced builder is not registered as an independent suite"
-fi
+grep -F 'fixture-matrix-builder' "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" >/dev/null 2>&1
+registration_status=$?
+case "$registration_status" in
+  0) fail "sourced builder is not registered as an independent suite" ;;
+  1) pass "sourced builder is not registered as an independent suite" ;;
+  *) fail "sourced builder registration could not be checked (grep exit $registration_status)" ;;
+esac
 
 printf 'RESULT: PASS=%d FAIL=%d\n' "$PASS_COUNT" "$FAIL_COUNT"
 [ "$FAIL_COUNT" -eq 0 ]

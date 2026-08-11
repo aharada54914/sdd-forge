@@ -4,19 +4,39 @@
 
 if ($script:_SddFixtureMatrixBuilderSourced) { return }
 $script:_SddFixtureMatrixBuilderSourced = $true
-$script:FixtureMatrixRepoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../..')).Path
+
+function Resolve-FixtureMatrixPhysicalDirectory {
+    param([Parameter(Mandatory = $true)][string]$LiteralPath)
+
+    $resolvedPath = (Resolve-Path -LiteralPath $LiteralPath).Path
+    $pathRoot = [IO.Path]::GetPathRoot($resolvedPath)
+    $currentPath = $pathRoot
+    $relativePath = $resolvedPath.Substring($pathRoot.Length)
+    $separators = [char[]]@([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar)
+
+    foreach ($component in $relativePath.Split($separators, [StringSplitOptions]::RemoveEmptyEntries)) {
+        $item = Get-Item -LiteralPath ([IO.Path]::Combine($currentPath, $component)) -Force
+        $linkTarget = $item.ResolveLinkTarget($true)
+        $currentPath = if ($null -ne $linkTarget) { $linkTarget.FullName } else { $item.FullName }
+    }
+
+    return [IO.Path]::GetFullPath($currentPath)
+}
+
+$script:FixtureMatrixRepoRoot = Resolve-FixtureMatrixPhysicalDirectory (Join-Path $PSScriptRoot '../..')
 
 function build_fixture {
     param(
-        [Parameter(Mandatory = $true, Position = 0)][string]$project_context,
-        [Parameter(Mandatory = $true, Position = 1)][string]$agents_marker,
-        [Parameter(Mandatory = $true, Position = 2)][string]$capability_enforcement,
-        [Parameter(Mandatory = $true, Position = 3)][string]$valid_or_invalid,
-        [Parameter(Mandatory = $true, Position = 4)][string]$track_flag
+        [Parameter(Position = 0)][string]$project_context,
+        [Parameter(Position = 1)][string]$agents_marker,
+        [Parameter(Position = 2)][string]$capability_enforcement,
+        [Parameter(Position = 3)][string]$valid_or_invalid,
+        [Parameter(Position = 4)][string]$track_flag
     )
 
-    if ($args.Count -ne 0) {
-        throw "build_fixture: expected 5 arguments, received $($args.Count + 5)"
+    $argumentCount = $PSBoundParameters.Count + $args.Count
+    if ($argumentCount -ne 5) {
+        throw "build_fixture: expected 5 arguments, received $argumentCount"
     }
     if (-not (@('absent', 'present') -ccontains $project_context)) {
         throw 'build_fixture: project_context must be absent or present'
@@ -39,7 +59,7 @@ function build_fixture {
 
     $fixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ('sdd-fixture-matrix.' + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $fixtureRoot | Out-Null
-    $fixtureRoot = (Resolve-Path -LiteralPath $fixtureRoot).Path
+    $fixtureRoot = Resolve-FixtureMatrixPhysicalDirectory $fixtureRoot
 
     $comparison = if ($IsWindows) { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
     $repositoryPrefix = $script:FixtureMatrixRepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar, [IO.Path]::AltDirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
