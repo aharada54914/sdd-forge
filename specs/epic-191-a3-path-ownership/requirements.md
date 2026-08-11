@@ -134,7 +134,10 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   itself is state-aware either way: it always runs, always emits real
   evidence, and its own recorded `state`/exit-code reflect which of the
   three derived states applied (REQ-004) — that half of the remedy is
-  unchanged. **Superseded (2026-08-11, human-directed)** — the other
+  unchanged (scope note added 2026-08-11, human-directed ruling:
+  "always" quantifies over the three derived states; a
+  present-but-malformed config derives no state and produces no record
+  — REQ-004's present-but-malformed sub-bullet, TEST-035d). **Superseded (2026-08-11, human-directed)** — the other
   half of this passage originally read: "The remedy is not to make
   `check-contract`'s tier mechanism itself capability-aware (out of this
   feature's touch surface, Non-goals)". That prohibition existed to keep
@@ -333,6 +336,21 @@ schemas this feature now treats as a hard (not follow-up) dependency.
     present but diverges from this feature's parser — a hard, not
     follow-up, dependency for this REQ's own Done state, enforced
     deterministically rather than merely documented (AC-011).
+  - **Config-read contract on a present-but-malformed file (stated
+    2026-08-11 as part of the Gate-side ruling's class sweep,
+    REQ-004)**: a `--config` file that exists but cannot be parsed is a
+    fail-closed load-time error — non-zero exit with a diagnostic
+    naming the parse failure — the same load-time-error class this
+    feature already pins for unsupported metacharacters (AC-006), an
+    empty `include` list (AC-008), and REQ-002's ill-shaped
+    `shared_paths` entry (AC-018). The resolver has no applicability
+    derivation and no `disabled-legacy` state, so there is no fallback
+    a parse failure could be converted into; this clause states
+    explicitly what that load-time-error class already implied, so no
+    reader infers a resolver-side analogue of the Gate's file-absence
+    fallback. The resolver-only diagnostic subcommand (`--diagnose`,
+    REQ-004) is the same script and the same parser and inherits this
+    identical contract.
 
 - REQ-002 (exclusive/shared classification, overlap detection, unowned
   detection, and excluded-match evidence; §12): For each changed path, the
@@ -442,7 +460,11 @@ schemas this feature now treats as a hard (not follow-up) dependency.
     NEW-001 finding, INV-018) — `check-component-coverage` **always runs**
     and **always emits a real, truthful evidence record** (Data Plan); it
     is the record's `state` field and exit code, not whether the script
-    ran at all, that vary across the three derived states below.
+    ran at all, that vary across the three derived states below. (Scope
+    note added 2026-08-11, human-directed ruling: "always" quantifies
+    over the three derived states; a `--config` file that exists but
+    cannot be parsed derives no state and produces no record — the Gate
+    hard-errors first, per the present-but-malformed sub-bullet below.)
     **Superseded (2026-08-11, human-directed)** — this bullet originally
     continued: "This also closes the required-check-set incompatibility
     (NEW-001): a `disabled-legacy` `high`/`critical` task has a genuine,
@@ -498,6 +520,53 @@ schemas this feature now treats as a hard (not follow-up) dependency.
       behavior and full six-Fail-condition evaluation as `advisory`, but
       the script exits **non-zero iff at least one Fail condition
       triggers** — `required` means evaluated, recorded, AND blocking.
+    - **Present-but-malformed config — the Gate itself fails closed
+      (added 2026-08-11, human-directed ruling)**: the ADR-0016
+      file-absence fallback named above is for **absence only** —
+      INV-016 records ADR-0016's own scoping (a file-existence fallback
+      used ONLY for the compatibility case where `project-context.yaml`
+      itself is absent). When the `--config` path names a file that
+      **exists but cannot be parsed**, no state is derived at all:
+      `check-component-coverage` itself must exit non-zero with a
+      diagnostic naming the parse failure and must emit **no evidence
+      record**. No code path may catch the parse exception and convert
+      it into `disabled-legacy` (or any other derived state) — the
+      same prohibition Problems/AC-035 already state for
+      `check-contract`'s file-presence predicate, now stated for the
+      Gate's own read of the same file. The reason is identical on
+      both sides: a caught parse failure that silently concluded
+      `disabled-legacy` would emit a genuine, producer-digest-valid
+      `state: "not-applicable (disabled-legacy)"` record (AC-055
+      verifies producer identity, never config validity), satisfying
+      the activated tier minimum while the config is broken. With the
+      Gate crashing recordless and `check-contract` keeping the check
+      required (fail-closed predicate, TEST-035c), a `high`/`critical`
+      contract fails on the missing required check and the pipeline
+      stays red until the config is fixed — the Gate-side half of
+      AC-035's end-to-end fail-closed guarantee (TEST-035d). A
+      distinct, unchanged condition: a config that **does parse** but
+      whose `workflow.capability_enforcement` is absent or not one of
+      `advisory`/`required` derives `disabled-legacy` under ADR-0016
+      §4's conservative derivation — a statement about successfully
+      parsed content (the axis is not validly declared), never a
+      converted exception. Such a document is non-conformant to
+      `contracts/project-context.schema.json` (which makes
+      `capability_enforcement` required with enum `advisory|required`);
+      in that state the tier minimum is active (the file exists) and is
+      satisfiable by the Gate's genuine `disabled-legacy` record — a
+      truthful, visible statement that the capability axis is not
+      validly declared, with the misdeclaration observable both in the
+      record's own `state` field and to Epic A1's schema surface
+      (Dependencies) — not a silent parser downgrade, which is the
+      sole failure mode this ruling forbids. This closes the class:
+      every component this feature governs that reads
+      `sdd/project-context.yaml` now has a stated
+      present-but-malformed contract — this Gate (this bullet),
+      `check-contract`'s predicate (fail-closed, no parser
+      participating; Problems, AC-035, Edge Cases), and the resolver
+      with its `--diagnose` subcommand (fail-closed load-time parse
+      error, REQ-001); no other component this feature ships reads
+      that file.
   - **Fail-1** (changed path belongs to no component and no `shared_paths`
     entry — UNOWNED).
   - **Fail-2** (an EXCLUSIVE owner of a changed path is missing from
@@ -1040,6 +1109,21 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   present and schema-valid (requirement active; a contract lacking the
   entry fails), file present but malformed (fail-closed; still fails) —
   specified as TEST-035a/TEST-035b/TEST-035c (amendment of 2026-08-11).
+  Amended further on 2026-08-11 (human-directed ruling): the fail-closed
+  guarantee is end-to-end only because both halves are pinned —
+  `check-contract` keeps the check required for a present-but-malformed
+  config (TEST-035c), **and** the Gate's own config read hard-fails on
+  the same condition (REQ-004's present-but-malformed sub-bullet):
+  `check-component-coverage` itself exits non-zero naming the parse
+  failure and emits no evidence record, so no genuine record exists for
+  the activated minimum to accept and the contract fails on the missing
+  required check until the config is fixed (TEST-035d). Without that
+  Gate-side half, an implementation that caught its own parse exception
+  and reused the file-absence fallback would emit a genuine,
+  producer-digest-valid `disabled-legacy` record satisfying this AC's
+  activated minimum while the config was broken — AC-055's digest pass
+  verifies producer identity, never config validity, and could not
+  catch it.
   A fixture that deletes or renames the
   `quality-gate/SKILL.md` invocation, or substitutes an unregistered
   replacement script and pairs it with a same-id `passes:true` evidence
@@ -1355,7 +1439,15 @@ schemas this feature now treats as a hard (not follow-up) dependency.
    one to exist. The does-not-bypass guarantee re-arms exactly when
    `sdd/project-context.yaml` lands — fail-closed for a malformed file
    (AC-035; Edge Cases) — the same moment the Gate first becomes capable
-   of asserting anything (Security Boundaries).
+   of asserting anything (Security Boundaries). (Extended 2026-08-11,
+   same-day human-directed ruling) Within step 4 itself: if the
+   `--config` file exists but cannot be parsed, the Gate derives no
+   state — it exits non-zero naming the parse failure and emits no
+   evidence record (REQ-004's present-but-malformed sub-bullet), and
+   the activated tier minimum then fails the contract on the missing
+   required check (AC-035, TEST-035d); the workflow stays red until the
+   config is fixed, never re-routed through the file-absence
+   `disabled-legacy` path.
 5. In the `required` state, any Fail condition, or a manifest-required
    hard error (in `advisory` or `required`), blocks the Implementation
    Gate; a human resolves the underlying config or Facet Manifest and
@@ -1432,7 +1524,15 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   `disabled-legacy` and disarm the minimum (Problems). The transition
   needs no migration step: activation is evaluated per `check-contract`
   run, so the first run after the file lands simply evaluates the
-  minimum with the id included.
+  minimum with the id included. (Extended 2026-08-11, same-day
+  human-directed ruling) The present-but-malformed row of this boundary
+  is two-sided: `check-contract` keeps the check required (fail-closed,
+  above, TEST-035c), and the Gate itself — reading the same file as its
+  `--config` — exits non-zero with a diagnostic naming the parse
+  failure and emits no evidence record (REQ-004's present-but-malformed
+  sub-bullet, TEST-035d); the ADR-0016 file-absence fallback never
+  applies to a file that is present, so the missing required check
+  keeps the pipeline red until the config is fixed.
 
 ## Security Boundaries
 
@@ -1504,7 +1604,18 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   and misrepresenting the project's actual capability adoption in
   `project-context.yaml` to obtain that state is a Project-Context
   approval/policy-weakening concern (ADR-0019), not a gap in this
-  feature's own Gate logic.
+  feature's own Gate logic. **(Extended 2026-08-11, human-directed
+  ruling)** The no-degrade guarantee explicitly covers the
+  parse-failure surface: a present-but-unparseable
+  `project-context.yaml` is a hard, recordless, non-zero exit of the
+  Gate itself (REQ-004's present-but-malformed sub-bullet) — never a
+  caught exception converted into the file-absence `disabled-legacy`
+  fallback, which ADR-0016 reserves for genuine absence (INV-016) — so
+  a permissive `disabled-legacy` outcome cannot be obtained by
+  corrupting the config rather than deleting it: deletion deactivates
+  the tier minimum visibly (Edge Cases), while corruption leaves the
+  minimum armed with no record able to satisfy it (AC-035,
+  TEST-035d).
 
 ## Assumptions
 

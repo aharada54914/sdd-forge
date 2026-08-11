@@ -10,7 +10,16 @@ before this amendment): AC-035 is now additionally covered by three
 sub-ID rows — TEST-035a/TEST-035b/TEST-035c, the conditional-activation
 three-way fixture — so the mapping remains 1:1 by acceptance criterion
 (AC-035 ↔ the TEST-035 family); no pre-existing TEST ID changed meaning
-and none was deleted. All TEST IDs are `Status: Planned` — this feature's Phase
+and none was deleted. **Amended again 2026-08-11** (following the
+same-day human-directed ruling that added REQ-004's
+present-but-malformed Gate-side contract): a fourth sub-ID row,
+TEST-035d, adds the Gate-side half of the same activation boundary —
+`check-component-coverage`'s own recordless non-zero exit on a
+present-but-malformed config — deliberately distinct from TEST-035c,
+which asserts `check-contract`'s behaviour on the same fixture class;
+the mapping remains 1:1 by acceptance criterion (AC-035 ↔ the TEST-035
+family), and again no pre-existing TEST ID changed meaning and none was
+deleted. All TEST IDs are `Status: Planned` — this feature's Phase
 2 task decomposition (`tasks.md`, deferred per investigation.md INV-012)
 has not yet been authored, so no task owns any TEST ID yet; that mapping
 is `traceability.md`'s job once Phase 2 exists.
@@ -55,6 +64,7 @@ is `traceability.md`'s job once Phase 2 exists.
 | AC-035 | REQ-004 | TEST-035a | conditional activation — file absent (added 2026-08-11) | same suite (+ direct invocation of the staged `check-contract.{sh,ps1,py}` candidate against a disposable fixture tree, never the live repository): with no `sdd/project-context.yaml` in the fixture tree, a `high`/`critical` contract carrying no `check-component-coverage` evidence entry passes `check-contract` — the tier-minimum membership is inactive (the state of every pre-existing contract); guards against a stuck-shut regression that would re-break the 94 pre-existing `high`/`critical` contracts (requirements.md Problems) | Planned |
 | AC-035 | REQ-004 | TEST-035b | conditional activation — present and valid (added 2026-08-11) | same suite: with a schema-valid `sdd/project-context.yaml` present in the fixture tree, the otherwise-identical `high`/`critical` contract lacking the entry FAILS `check-contract` — the membership is active; guards against a stuck-open regression where the minimum never arms once the file lands | Planned |
 | AC-035 | REQ-004 | TEST-035c | conditional activation — present but malformed, fail-closed (added 2026-08-11) | same suite: with a present but malformed `sdd/project-context.yaml` (one unparseable-YAML variant and one schema-divergent variant), the contract lacking the entry still FAILS — check still required — proving the predicate is plain file presence with no YAML parser participating; catches an implementation whose caught parse exception silently concludes `disabled-legacy` and turns the minimum off forever, the exact regression requirements.md's Problems paragraph warns against | Planned |
+| AC-035 | REQ-004 | TEST-035d | Gate-side present-but-malformed fail-closed crash (added 2026-08-11, human-directed ruling) | `tests/check-component-coverage.tests.sh`/`.ps1`: with a present but malformed (unparseable) `sdd/project-context.yaml` supplied as `--config` in a disposable fixture tree, `check-component-coverage` ITSELF — both runtimes — exits non-zero with a diagnostic naming the parse failure and emits NO evidence record (no record at all, so no `passes:true` entry can exist for the activated tier minimum to accept); this row asserts the GATE's behaviour, not `check-contract`'s — TEST-035c asserts that `check-contract` still requires the check on the same fixture class, and the two rows must never be merged: 035c pins the requirement side (check still demanded), 035d pins the producer side (no record produced), and only both together keep the pipeline red until the config is fixed (requirements.md REQ-004's present-but-malformed sub-bullet; AC-035); catches an implementation that catches the Gate's own parse exception and reuses the file-absence `disabled-legacy` fallback, which would emit a genuine, producer-digest-valid record satisfying the activated minimum while the config is broken | Planned |
 | AC-036 | REQ-004 | TEST-036 | protected-registration + generator-inventory parity | same suite: (a) staged six-file candidate set (`guard-invariants.json`, `generate-guard-invariants.py`, four `generated/*` files) exists with correct `MANIFEST.sha256` entries; (b) `generate-guard-invariants.py --check` exits 0 against the staged tree; (c) the live files are byte-identical before/after this feature's own commits; (d) a post-human-copy self-registration grep confirms the three `check-component-coverage.*` entries are present | Planned |
 | AC-037 | REQ-005 | TEST-037 | digest scope (full input, unconditional) | `tests/ownership-digest.tests.sh`/`.ps1`: `ownership_digest` is computed over the **entire** declared ownership input — every component/`shared_paths` entry, unconditionally, never a per-resolve-scoped subset — plus the matcher-semantics-version, via Epic A1's canonicalizer; the task records a documented blocker if that canonicalizer does not exist at implementation time | Planned |
 | AC-038 | REQ-005 | TEST-038 | staleness exclusion | same suite: `ownership_digest` populates `context_binding` per ADR-0021; a fixture where only `ownership_digest` changes (no resolved-component-set change) does not mark the Feature stale | Planned |
@@ -97,12 +107,16 @@ Notes:
   fixture is a standalone JSON/YAML object shaped to match
   `facet-manifest.affected_components`'s documented field (design.md Data
   Plan), consistent with this feature's own scope boundary against
-  redefining that schema. TEST-035a/b/c (added 2026-08-11) construct
+  redefining that schema. TEST-035a/b/c (added 2026-08-11) and
+  TEST-035d (added 2026-08-11, Gate-side ruling) construct
   their `sdd/project-context.yaml` presence/validity/malformation
   variants inside a disposable fixture tree only — this repository has
   no live `sdd/project-context.yaml`, and no test creates one at the
   live path (doing so would flip the repository's own derived
-  capability state). TEST-035 (with its 2026-08-11 sub-IDs
+  capability state). TEST-035d invokes only
+  `check-component-coverage.{sh,ps1}` (both runtimes) against its
+  malformed fixture config; unlike TEST-035a/b/c it never invokes
+  `check-contract`. TEST-035 (with its 2026-08-11 sub-IDs
   TEST-035a/b/c)/TEST-036/TEST-055 additionally read
   (never write) `check-contract.{sh,ps1,py}`, `risk-gate-matrix.md`,
   `guard-invariants.json`, and `generate-guard-invariants.py` to construct

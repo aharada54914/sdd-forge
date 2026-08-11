@@ -24,7 +24,9 @@ into `quality-gate`'s Implementation Gate, derives one of three states
 (`disabled-legacy`/`advisory`/`required`) from
 `workflow.capability_enforcement`/`disabled-legacy` (ADR-0016) rather than
 Facet Manifest file presence — always running, always emitting a real,
-producer-digest-bound evidence record regardless of state (NEW-001) — and
+producer-digest-bound evidence record regardless of state (NEW-001;
+scope note added 2026-08-11: a present-but-malformed config derives no
+state — the Gate hard-errors recordless, REQ-004/TEST-035d) — and
 is registered both as a protected script (content) and as a protected
 required-check-set member whose evidence is producer-digest-verified
 (reachability + tamper-evidence); a cross-epic seed-inventory validation
@@ -379,7 +381,11 @@ Data Entities:
   changes.
 - Gate verdict / evidence record (new, `check-component-coverage`'s own
   output, consumed by `quality-gate`'s evidence bundle; emitted in **every**
-  derived state, NEW-001): `{schema: "check-component-coverage-verdict/v1",
+  derived state, NEW-001 — scope note added 2026-08-11, human-directed
+  ruling: a present-but-malformed `--config` derives no state and
+  produces no record, the Gate hard-errors first naming the parse
+  failure (requirements.md REQ-004, TEST-035d), so "every derived
+  state" remains exhaustive): `{schema: "check-component-coverage-verdict/v1",
   check_id: "check-component-coverage", producer: {script:
   "plugins/sdd-quality-loop/scripts/check-component-coverage.py", sha256:
   "<hex>"}, state: "not-applicable (disabled-legacy)"|"advisory"|
@@ -435,8 +441,12 @@ results are data, not failure by themselves; only
 Fail). Non-zero exit on a config-shape error (REQ-002's fail-closed
 `shared_paths` shape check, or an unsupported-metacharacter pattern,
 REQ-001), an unresolvable rev or unattainable `git merge-base` (REQ-003),
-an NFC-collision (REQ-001), an exceeded rename limit (REQ-003), or a
-single-writer/TOCTOU mismatch after one retry (REQ-003).
+an NFC-collision (REQ-001), an exceeded rename limit (REQ-003), a
+single-writer/TOCTOU mismatch after one retry (REQ-003), or a
+present-but-unparseable `--config` file (fail-closed load-time parse
+error; stated 2026-08-11 as part of the Gate-side ruling's class sweep
+— the resolver has no derived-state machinery, so no fallback exists to
+convert a parse failure into; REQ-001).
 
 ### `resolve-component-paths --diagnose` (T-004, resolver-only diagnostics)
 
@@ -451,7 +461,10 @@ Invocation shape: `check-component-coverage --config <project-context.yaml>
 [--source-rev HEAD] --target-rev main --facet-manifest <path>`. The script
 **always runs to completion and always emits an evidence record** (Data
 Plan) with a `producer.sha256` binding — never a bare skip line with no
-evidence artifact (NEW-001). It first reads
+evidence artifact (NEW-001). (Scope note added 2026-08-11,
+human-directed ruling: "always" quantifies over the three derived
+states; a present-but-malformed `--config` derives no state at all —
+see the fourth bullet below.) It first reads
 `workflow.capability_enforcement`/the ADR-0016 file-absence fallback from
 `--config` to derive one of three states:
 
@@ -472,6 +485,17 @@ evidence artifact (NEW-001). It first reads
 - `required` → identical Facet-Manifest-required/hard-error behavior and
   full six-Fail-condition evaluation as `advisory`, but exit is non-zero
   **iff** at least one Fail condition triggers.
+- **present-but-malformed `--config` (added 2026-08-11, human-directed
+  ruling)** → no state is derived and the always-runs/always-emits
+  contract above is explicitly out of reach: the script exits with the
+  hard-error code and a stderr diagnostic naming the parse failure, and
+  emits **no evidence record** — the ADR-0016 file-absence fallback is
+  for absence only, and no code path converts the caught parse
+  exception into `disabled-legacy` (requirements.md REQ-004's
+  present-but-malformed sub-bullet). `check-contract`'s file-presence
+  predicate keeps the check required in this state, so the absent
+  record fails a `high`/`critical` contract until the config is fixed
+  (AC-035, TEST-035d).
 
 In both `advisory` and `required`, WARN-only conditions (N/A Fail-6 with
 no Provider Bindings file; WARN "evaluation not possible" Fail-6 when a
@@ -728,6 +752,16 @@ unconditionally; no suite drives a real validator gate directly.
   is operational (epic sequencing, §19), so the "evaluating but manifest
   genuinely unavailable" case is a visible, intentional hard error, not a
   steady-state mode requiring a silent WARN-and-continue design.
+  **Amended 2026-08-11 (human-directed ruling)**: the three-state
+  derivation is defined only over an absent config (the ADR-0016
+  file-absence fallback) or a config that parses; a config file that
+  exists but cannot be parsed derives no state — the Gate hard-errors
+  recordless, naming the parse failure, and no code path converts that
+  parse exception into `disabled-legacy` (requirements.md REQ-004's
+  present-but-malformed sub-bullet; AC-035; TEST-035d) — so the
+  fail-open the conditional-activation predicate excludes on the
+  `check-contract` side cannot re-enter through the Gate's own config
+  read.
 - **Protected-gate-suffix registration + generator-inventory parity**
   (REQ-004, INV-006, INV-015): chosen by direct precedent
   (`check-contract.*`/`check-evidence-bundle.*`, INV-006) — a
@@ -917,7 +951,7 @@ capability axis is introduced by this feature (Security Boundaries B5).
 | Doc-following (REQ-008) | ADR Change Log; CHANGELOG entries per Phase-2 task; single-source count discipline |
 | Version-bump discipline | Global Constraints |
 | No Registry/Epic A2 coupling | Architecture — Gate wired directly into `quality-gate`'s `## Process` (+ required-check-set), no Registry projection dependency |
-| No file-presence mode selection | ADR-0016 — Design Decisions "Capability-derived Gate applicability". The 2026-08-11 conditional-activation supersession does not violate this constraint: the constraint rejects inferring the Gate's mode from an *incidental artifact* (a Facet Manifest happening to exist, INV-016), whereas the staged `check-contract` predicate reads the presence of `sdd/project-context.yaml` itself — ADR-0016's own file-absence fallback, exactly equivalent to `derive_state() != disabled-legacy` for any schema-conformant config and fail-closed for a malformed one |
+| No file-presence mode selection | ADR-0016 — Design Decisions "Capability-derived Gate applicability". The 2026-08-11 conditional-activation supersession does not violate this constraint: the constraint rejects inferring the Gate's mode from an *incidental artifact* (a Facet Manifest happening to exist, INV-016), whereas the staged `check-contract` predicate reads the presence of `sdd/project-context.yaml` itself — ADR-0016's own file-absence fallback, exactly equivalent to `derive_state() != disabled-legacy` for any schema-conformant config and fail-closed for a malformed one; the Gate's own read of the same file hard-errors recordless on a parse failure (2026-08-11 human-directed ruling, requirements.md REQ-004, TEST-035d) rather than re-entering the file-absence fallback |
 | Cross-OS path semantics (requirements.md Target Users, lines 64-69: "path and case semantics must not depend on host OS") | Design Decisions "Glob semantics" and "Path/case normalization and raw-identity preservation"; REQ-009's dual-runtime parity harness proves the `.sh`/`.ps1` wrappers behaviorally identical, not merely both present |
 | Submodule/symlink reference-only boundary (requirements.md Security Boundaries) | Architecture (git-diff collector's "submodule/symlink → reference-only evaluation"); Security Boundaries; security-spec.md Trust Boundaries B4 |
 | Fail-6 credential exclusion (requirements.md Security Boundaries) | Security Boundaries; security-spec.md Secrets Management — Fail-6 never reads `sdd/provider-bindings.yaml`'s `credentials` block |
