@@ -1,0 +1,21 @@
+{
+  "_generated": {
+    "source": "contracts/capability-registry.json",
+    "schema_version": 1,
+    "sha256": "70ccb4e052514edae6b7b617da94e5ce5cc003e9ed55b79afbe34d498989a9fc",
+    "notice": "This file is generated. Do not edit."
+  },
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
+    }
+  ],
+  "capability_gate_map": {
+    "durable-workflow": [
+      "check-update-migration"
+    ]
+  }
+}

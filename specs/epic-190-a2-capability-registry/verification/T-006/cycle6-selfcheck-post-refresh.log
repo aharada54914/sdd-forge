@@ -1,0 +1,39 @@
+# cycle6 evidence: tests/deterministic-lane-selfcheck.tests.sh after the T-003 candidate refresh
+# date: 2026-08-11T09:21:24Z  host: Darwin  tree: 10f96da3 + working-tree candidate refresh
+# command: bash tests/deterministic-lane-selfcheck.tests.sh; echo rc=$?
+=== TEST-016 (AC-016): candidate structure, every step prefixed ===
+ok: TEST-016: job count and job names are byte-unchanged (test installers loops-routing version-gates mcp-tests local-env-mcp-tests ci-mcp-tests cli-hook-enforcement required-checks )
+ok: TEST-016: all 37 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)
+ok: TEST-016: the documented, currently-empty eval-lane comment placeholder is present
+ok: TEST-016: every 'test'-job step name is a YAML-safe scalar (no unquoted flow-sequence opener)
+ok: TEST-016: the candidate parses as YAML (ruby/Psych)
+=== TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ===
+ok: TEST-017-RED: dropped step 'Verify generated gate-capabilities projection (Windows)' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 32 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
+ok: TEST-017: required-checks' needs: line is byte-unchanged (   needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement])
+=== TEST-018 (AC-018): sibling workflow graph isolation unchanged ===
+ok: TEST-018: the candidate does not reuse self-improvement.yml as a workflow (isolation preserved)
+ok: TEST-018: self-improvement is not a job in the candidate (isolation preserved)
+ok: TEST-018: self-improvement appears in no needs: list in the candidate (isolation preserved)
+ok: TEST-018: self-improvement.yml keeps its own independent trigger (no workflow_run coupling)
+ok: TEST-018: the candidate does not reuse model-freshness-check.yml as a workflow (isolation preserved)
+ok: TEST-018: model-freshness-check is not a job in the candidate (isolation preserved)
+ok: TEST-018: model-freshness-check appears in no needs: list in the candidate (isolation preserved)
+ok: TEST-018: model-freshness-check.yml keeps its own independent trigger (no workflow_run coupling)
+=== TEST-020 (AC-020): CI step per new suite, DESIGNED-RED until human-copy ===
+ok: TEST-020: the candidate runs tests/guard-dispatch-fallback.tests.sh
+ok: TEST-020: the referenced suite tests/guard-dispatch-fallback.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-dispatch-fallback.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate runs tests/guard-negative-corpus.tests.sh
+ok: TEST-020: the referenced suite tests/guard-negative-corpus.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-negative-corpus.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate runs tests/deterministic-lane-selfcheck.tests.sh
+ok: TEST-020: the referenced suite tests/deterministic-lane-selfcheck.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/deterministic-lane-selfcheck.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate runs tests/workflow-scenarios/workflow-scenarios.tests.sh
+ok: TEST-020: the referenced suite tests/workflow-scenarios/workflow-scenarios.tests.sh exists
+DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/workflow-scenarios/workflow-scenarios.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the candidate's actions/checkout pins match the live workflow (applying it regresses no landed bump)
+
+deterministic-lane-selfcheck.tests.sh: 25 passed, 0 failed, 4 designed-red (pre-human-copy)
+rc=1
