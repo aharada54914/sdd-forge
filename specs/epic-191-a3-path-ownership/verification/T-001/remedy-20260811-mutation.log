@@ -146,3 +146,34 @@ FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-0
 Results: 72 passed, 1 failed.
 FAIL: TEST-045.6: live workflow attribution check failed (missing commit='', T-001 commit touching the live workflow='c1db8b5751d657771bf1623ebe7e0a8b5222b166')
 component-path-resolver.tests.ps1: 72 passed, 1 failed
+
+## M11 — real depth-1 clone (git clone --depth 1, the version-gates CI checkout shape)
+# clone: is-shallow=true, history=1 commit. Both twins, unmutated:
+ok: TEST-045.6: (shallow checkout) live .github/workflows/test.yml is byte-identical to the human-applied staged candidate's MANIFEST.sha256 entry (content-level attribution form; pinned commits unavailable at depth 1)
+ok: AC-049-SELFCHECK: (shallow checkout) all plugin.json version fields carry one identical value (1.14.0) — the bump-version-synchronized surface set is not desynchronized by a stray mutation
+Results: 73 passed, 0 failed.
+ok: TEST-045.6: (shallow checkout) live .github/workflows/test.yml is byte-identical to the human-applied staged candidate's MANIFEST.sha256 entry (content-level attribution form; pinned commits unavailable at depth 1)
+ok: AC-049-SELFCHECK: (shallow checkout) all plugin.json version fields carry one identical value (1.14.0) — the bump-version-synchronized surface set is not desynchronized by a stray mutation
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+
+## M12 — shallow-form TEST-045.6 violation: the CLONE's workflow copy gains one byte
+# (mutation applied inside the disposable depth-1 clone only, never the real repository)
+FAIL: TEST-045.6: (shallow checkout) live workflow diverges from the staged candidate's manifest entry (live='5d333931f89c8e72ae7c1e1c68b25a912978c268170cc67259714ab15998ebf4', manifest='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1')
+Results: 72 passed, 1 failed.
+FAIL: TEST-045.6: (shallow checkout) live workflow diverges from the staged candidate's manifest entry (live='5d333931f89c8e72ae7c1e1c68b25a912978c268170cc67259714ab15998ebf4', manifest='1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1')
+component-path-resolver.tests.ps1: 72 passed, 1 failed
+# restore the clone's workflow copy from its own HEAD, then M13:
+
+## M13 — shallow-form AC-049 violation: one plugin.json version hand-edited in the clone
+FAIL: AC-049-SELFCHECK: (shallow checkout) plugin.json version fields are desynchronized: 2:1.14.0,9.9.9
+Results: 72 passed, 1 failed.
+FAIL: AC-049-SELFCHECK: (shallow checkout) plugin.json version fields are desynchronized: 1.14.0,9.9.9
+component-path-resolver.tests.ps1: 72 passed, 1 failed
+# disposable clone discarded after this section; the real repository was never touched.
+
+## Final restore check — real repository clean; both twins green in the full-history worktree
+# (no git-status lines above = clean)
+$ bash tests/component-path-resolver.tests.sh | tail -1
+Results: 73 passed, 0 failed.
+$ pwsh -NoProfile -File tests/component-path-resolver.tests.ps1 | tail -1
+component-path-resolver.tests.ps1: 73 passed, 0 failed
