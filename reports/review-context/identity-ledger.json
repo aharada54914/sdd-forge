@@ -6138,6 +6138,15 @@
       "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-001-0682",
       "previous_record_sha256": "0bd24cf2a27e9b2851c7e67710bbcf3e1ca6fc79cf2f951f7d5d6ca8eb9d506d",
       "record_sha256": "38b22767ab68bff6665d8028c7f9278c132c24ab8dff5538fc5304d7540fc9ec"
+    },
+    {
+      "sequence": 683,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-191-a3-path-ownership-qg-T-001-seq0683",
+      "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-001-0683",
+      "previous_record_sha256": "38b22767ab68bff6665d8028c7f9278c132c24ab8dff5538fc5304d7540fc9ec",
+      "record_sha256": "301a519846bea470f0e6c935f81e440363ba6bb0e19523c995819264824442d2"
     }
   ]
 }
