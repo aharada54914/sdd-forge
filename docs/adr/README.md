@@ -42,6 +42,35 @@ frozen `specs/` and `reports/` artifacts historically reference those
 paths and must keep resolving. New work must reference the new numbers;
 the tombstones are historical-compatibility only, not live content.
 
+## 2026-08-10 duplicate-number resolution
+
+The same class recurred at 0025, by the same mechanism: two unrelated
+branches each incremented from the same stale max.
+
+| Number | First (kept) file | Second (renumbered) file |
+|---|---|---|
+| 0025 | `0025-human-copy-transactional-bundle.md` | `0025-risk-adaptive-adversarial-review-lane.md` |
+
+- `0025-risk-adaptive-adversarial-review-lane.md` → **`0027-risk-adaptive-adversarial-review-lane.md`**
+
+The same rule applies: the file accepted first (human-copy, 2026-07-21)
+keeps the number; the second (risk-adaptive, 2026-08-07) moves to the next
+free number and leaves a permanent tombstone at its old path.
+
+Two details worth recording, because they are why this went unnoticed for
+three days. First, `0025-human-copy-transactional-bundle.md` was never
+listed in the index below, so the branch that took 0025 for the
+adversarial lane had no way to see the number was occupied — the index
+was the detection mechanism and it had a hole in it. Second, every bare
+`ADR-0025` reference outside `docs/adr/` resolves to the human-copy
+decision, including the hash-bound `specs/epic-189-a1-project-context/`
+documents; renumbering the *second* file therefore left every frozen
+artifact untouched. Renumbering the first would have required a
+provenance re-review of those frozen specs.
+
+The three in-repo references that did mean the adversarial lane all live
+in `0026-gate-cross-critique-phase.md` and were updated to ADR-0027.
+
 ## Legacy bare-number references
 
 Tombstone stubs resolve a *path* reference (e.g.
@@ -112,5 +141,7 @@ must never rely on a bare legacy number.
 | 0022 | Lite Capability Upgrade | Accepted |
 | 0023 | Track Selection Contract Migration | Accepted |
 | 0024 | Workflow State Registry vs. Project Context | Accepted |
-| 0025 | Risk-Adaptive Adversarial Review Lane | Proposed |
+| 0025 | Human-Copy Publisher Transactional Bundle | Accepted |
+| 0025 | Risk-Adaptive Adversarial Review Lane — renumbered to ADR-0027 | (tombstone) |
 | 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
+| 0027 | Risk-Adaptive Adversarial Review Lane | Proposed |
