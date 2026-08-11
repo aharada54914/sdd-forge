@@ -6,6 +6,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 UNINSTALLER="${REPO_ROOT}/uninstall.sh"
+# shellcheck source=tests/lib/fixture-matrix-builder.sh
+source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
 ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
 PASS=0
 FAIL=0
@@ -657,6 +659,29 @@ _j_ok=1
 [[ ! -d "$_j_install" ]] || { fail "FilesOnly should still remove installed files"; _j_ok=0; }
 rm -rf "$_j_root"
 [[ $_j_ok -eq 1 ]] && ok "FilesOnly skips CLI calls but removes files"
+
+# ---------------------------------------------------------------------------
+# T-003 context-presence invariant: FilesOnly removes an identical installed
+# layout the same way with project-context.yaml absent or present.
+# ---------------------------------------------------------------------------
+_t003_absent="$(build_fixture absent absent disabled-legacy valid none)"
+_t003_present="$(build_fixture present absent advisory valid none)"
+_t003_absent_codex="$(mktemp -d)"
+_t003_present_codex="$(mktemp -d)"
+seed_installed_layout "$_t003_absent" "$_t003_absent_codex"
+seed_installed_layout "$_t003_present" "$_t003_present_codex"
+_t003_failed=0
+bash "$UNINSTALLER" --install-root "$_t003_absent" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >/dev/null 2>&1 || _t003_failed=1
+bash "$UNINSTALLER" --install-root "$_t003_present" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >/dev/null 2>&1 || _t003_failed=1
+if [[ "${T003_MUTATE_CONTEXT_INVARIANT:-}" == uninstall-sh ]]; then
+    mkdir -p "$_t003_present"
+fi
+if [[ $_t003_failed -eq 0 && ! -e "$_t003_absent" && ! -e "$_t003_present" ]]; then
+    ok "T-003 uninstall output is unaffected by project-context presence"
+else
+    fail "T-003 uninstall output changed with project-context presence"
+fi
+rm -rf -- "$_t003_absent_codex" "$_t003_present_codex"
 
 # ---------------------------------------------------------------------------
 # Summary

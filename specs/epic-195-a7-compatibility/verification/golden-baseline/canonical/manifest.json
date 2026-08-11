@@ -2,11 +2,11 @@
   "capture_scripts": [
     {
       "path": "tests/capture-golden-baseline.sh",
-      "sha256": "1772242c6847c9c92be9ba6f9e9c2cd0f74fda28e2dba0b6843484b828b01bad"
+      "sha256": "decc888e6eb316f29b4c9c54fd33744b667b61203c737b3650070da38052501c"
     },
     {
       "path": "tests/capture-golden-baseline.ps1",
-      "sha256": "d4b67f7c842f21ba81e71b10ba13412e4d343e5dcb39b5d4fc322edec5e99605"
+      "sha256": "7b7e77a577ff617cbf369f976f3cdffb7a94b74bd20685c72714923ed309ea66"
     }
   ],
   "fixed_environment": {
@@ -60,7 +60,7 @@
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
-      "capture_format": "filesystem listing",
+      "capture_format": "filesystem manifest",
       "name": "generated-directory-listing",
       "path": "targets/generated-directory-listing.txt",
       "sha256": "8692874b996701b721ff6ecef5879b6cd4e6576d64a4a995c9d7c8f5ee37e6e6"

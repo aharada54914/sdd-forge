@@ -34,7 +34,7 @@ TARGETS = (
     ("schema-validator-result", "targets/schema-validator-result.txt", "status integer"),
     ("install-result", "targets/install-result.sha256", "filesystem manifest"),
     ("uninstall-result", "targets/uninstall-result.sha256", "filesystem manifest"),
-    ("generated-directory-listing", "targets/generated-directory-listing.txt", "filesystem listing"),
+    ("generated-directory-listing", "targets/generated-directory-listing.txt", "filesystem manifest"),
     ("plugin-manifest", "targets/plugin-manifest.sha256", "filesystem manifest (path -> sha256)"),
 )
 

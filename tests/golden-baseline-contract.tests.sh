@@ -99,7 +99,7 @@ expected_targets = [
     ("schema-validator-result", "status integer"),
     ("install-result", "filesystem manifest"),
     ("uninstall-result", "filesystem manifest"),
-    ("generated-directory-listing", "filesystem listing"),
+    ("generated-directory-listing", "filesystem manifest"),
     ("plugin-manifest", "filesystem manifest (path -> sha256)"),
 ]
 assert manifest["schema_version"] == "golden-baseline-manifest/v1"
@@ -126,6 +126,7 @@ if git clone -q --shared "$ROOT" "$CLONE" \
     && mkdir -p "${CLONE}/tests" "${CLONE}/specs/epic-195-a7-compatibility/verification/golden-baseline" \
     && cp "$ROOT/tests/capture-golden-baseline.sh" "$ROOT/tests/capture-golden-baseline.ps1" \
           "$ROOT/tests/promote-golden-baseline.sh" "$ROOT/tests/promote-golden-baseline.ps1" "${CLONE}/tests/" \
+    && rm -rf "${CLONE}/specs/epic-195-a7-compatibility/verification/golden-baseline/canonical" \
     && cp -R "$CANONICAL" "${CLONE}/specs/epic-195-a7-compatibility/verification/golden-baseline/canonical"; then
   clone_capture="${CLONE}/tests/capture-golden-baseline.sh"
   clone_promote="${CLONE}/tests/promote-golden-baseline.sh"

@@ -1,0 +1,22 @@
+FAIL: A1 compatibility suite twins exist (missing tests/compatibility-byte-identical.tests.sh)
+FAIL: A2 Bash suite sources the fixture builder and names F1/F2 (missing tests/compatibility-byte-identical.tests.sh)
+FAIL: A2 PowerShell suite dot-sources the fixture builder and names F1/F2 (missing tests/compatibility-byte-identical.tests.ps1)
+FAIL: A3 Bash suite asserts all nine canonical targets (missing tests/compatibility-byte-identical.tests.sh)
+FAIL: A3 PowerShell suite asserts all nine canonical targets (missing tests/compatibility-byte-identical.tests.ps1)
+FAIL: A4 Bash suite carries all six CLI cells and the documented priority (missing tests/compatibility-byte-identical.tests.sh)
+FAIL: A4 PowerShell suite carries all six CLI cells and the documented priority (missing tests/compatibility-byte-identical.tests.ps1)
+FAIL: A5 Bash suite includes a one-byte negative self-check (missing tests/compatibility-byte-identical.tests.sh)
+FAIL: A5 PowerShell suite includes a one-byte negative self-check (missing tests/compatibility-byte-identical.tests.ps1)
+FAIL: A6 tests/install.tests.sh has the T-003 context-presence invariant (missing 'T-003 context-presence invariant' in tests/install.tests.sh)
+FAIL: A6 tests/install.tests.ps1 has the T-003 context-presence invariant (missing 'T-003 context-presence invariant' in tests/install.tests.ps1)
+FAIL: A6 tests/uninstall.tests.sh has the T-003 context-presence invariant (missing 'T-003 context-presence invariant' in tests/uninstall.tests.sh)
+FAIL: A6 tests/uninstall.tests.ps1 has the T-003 context-presence invariant (missing 'T-003 context-presence invariant' in tests/uninstall.tests.ps1)
+FAIL: A7 Bash aggregate runner directly registers the suite (missing 'tests/compatibility-byte-identical.tests.sh' in tests/run-all.sh)
+FAIL: A7 PowerShell aggregate runner directly registers the suite (missing 'tests/compatibility-byte-identical.tests.ps1' in tests/run-all.ps1)
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+AssertionError
+FAIL: A8 generated-directory-listing capture_format matches the frozen inventory
+FAIL: A9 Bash compatibility suite is GREEN (suite is absent or not executable)
+FAIL: A9 PowerShell compatibility suite is GREEN (suite or pwsh is absent)
+0 passed, 18 failed

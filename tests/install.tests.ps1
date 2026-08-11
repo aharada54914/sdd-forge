@@ -2,6 +2,8 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+$script:_SddFixtureMatrixBuilderSourced = $false
+. (Join-Path $repositoryRoot 'tests/lib/fixture-matrix-builder.ps1')
 $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
@@ -1597,6 +1599,37 @@ finally {
     $env:SDD_CURSOR_DIR = $corruptVSCodeOriginalCursorDir
     $env:SDD_VSCODE_USER_DIR = $corruptVSCodeOriginalVSCodeDir
     if (Test-Path $corruptVSCodeRoot) { Remove-Item -Path $corruptVSCodeRoot -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
+# T-003 context-presence invariant: FilesOnly output is byte-identical whether
+# an otherwise identical source fixture has project-context.yaml or not.
+$t003Absent = build_fixture absent absent disabled-legacy valid none
+$t003Present = build_fixture present absent advisory valid none
+try {
+    $t003AbsentSource = Join-Path $t003Absent 'source'
+    $t003PresentSource = Join-Path $t003Present 'source'
+    $t003AbsentInstall = Join-Path $t003Absent 'installed'
+    $t003PresentInstall = Join-Path $t003Present 'installed'
+    New-TrackedFixture -Source $installerSourceRoot -Destination $t003AbsentSource
+    New-TrackedFixture -Source $installerSourceRoot -Destination $t003PresentSource
+    New-Item -ItemType Directory -Path (Join-Path $t003PresentSource 'sdd') -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $t003Present 'sdd/project-context.yaml') -Destination (Join-Path $t003PresentSource 'sdd/project-context.yaml')
+    & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $t003AbsentSource -InstallRoot $t003AbsentInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *>$null
+    & (Join-Path $repositoryRoot 'install.ps1') -SourceDirectory $t003PresentSource -InstallRoot $t003PresentInstall -Target FilesOnly -SkipAgentInstall -SkipMcp *>$null
+    if ($env:T003_MUTATE_CONTEXT_INVARIANT -ceq 'install-ps1') {
+        $t003MutatedFile = Get-ChildItem -LiteralPath $t003PresentInstall -File -Recurse | Select-Object -First 1
+        [IO.File]::AppendAllText($t003MutatedFile.FullName, "mutation`n", [Text.UTF8Encoding]::new($false))
+    }
+    $absentFiles = Get-ChildItem -LiteralPath $t003AbsentInstall -File -Recurse | ForEach-Object {
+        [pscustomobject]@{ Path = $_.FullName.Substring($t003AbsentInstall.Length); Hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash }
+    } | ConvertTo-Json -Compress
+    $presentFiles = Get-ChildItem -LiteralPath $t003PresentInstall -File -Recurse | ForEach-Object {
+        [pscustomobject]@{ Path = $_.FullName.Substring($t003PresentInstall.Length); Hash = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash }
+    } | ConvertTo-Json -Compress
+    if ($absentFiles -cne $presentFiles) { throw 'T-003 install output changed with project-context presence' }
+    Write-Host 'ok: T-003 install output is unaffected by project-context presence'
+} finally {
+    foreach ($path in @($t003Absent, $t003Present)) { if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force } }
 }
 
 Write-Host "Installer integration tests passed."

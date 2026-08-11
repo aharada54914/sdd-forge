@@ -4,6 +4,13 @@
 
 ### Added
 
+- **Epic A7 byte-identical compatibility suite (Issue #195, T-003)**: added
+  Bash and PowerShell F1/F2 compatibility suites that compare all nine
+  canonical targets across two fixed-environment invocations, cover the six
+  legacy CLI-priority cells, and self-check one-byte drift detection. Extended
+  the install/uninstall twins with project-context presence invariants and
+  registered the new suites directly in both live aggregate runners.
+
 - **Epic A7 compatibility fixture matrix (Issue #195, T-001)**: added
   sourced Bash and PowerShell `build_fixture` helpers for the F1-F4
   project-context combinations and the six Context-absent CLI cells. Each

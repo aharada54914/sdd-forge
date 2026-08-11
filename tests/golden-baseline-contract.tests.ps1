@@ -80,7 +80,7 @@ exit 0
 import hashlib, json, pathlib, sys
 root, candidate = map(pathlib.Path, sys.argv[1:])
 m = json.loads((candidate / "manifest.json").read_text())
-expected = [("deterministic-script-output", "raw stdout/stderr byte-tuple"), ("exit-code", "status integer"), ("stdout-stderr", "raw stdout/stderr byte-tuple"), ("template-copy-result", "filesystem manifest (path -> sha256)"), ("schema-validator-result", "status integer"), ("install-result", "filesystem manifest"), ("uninstall-result", "filesystem manifest"), ("generated-directory-listing", "filesystem listing"), ("plugin-manifest", "filesystem manifest (path -> sha256)")]
+expected = [("deterministic-script-output", "raw stdout/stderr byte-tuple"), ("exit-code", "status integer"), ("stdout-stderr", "raw stdout/stderr byte-tuple"), ("template-copy-result", "filesystem manifest (path -> sha256)"), ("schema-validator-result", "status integer"), ("install-result", "filesystem manifest"), ("uninstall-result", "filesystem manifest"), ("generated-directory-listing", "filesystem manifest"), ("plugin-manifest", "filesystem manifest (path -> sha256)")]
 assert m["schema_version"] == "golden-baseline-manifest/v1"
 assert m["pre_capability_commit_sha"] == "50b20364e996432cb06061df03ffb4d173c27fa6"
 assert m["fixed_environment"] == {"LC_ALL":"C", "TZ":"UTC", "ambient_sdd_variables":[]}
@@ -105,7 +105,9 @@ for group in (m["capture_scripts"], m["targets"]):
         Copy-Item (Join-Path $Root 'tests/promote-golden-baseline.ps1') (Join-Path $Clone 'tests/')
         $CloneBaseline = Join-Path $Clone 'specs/epic-195-a7-compatibility/verification/golden-baseline'
         [IO.Directory]::CreateDirectory($CloneBaseline) | Out-Null
-        Copy-Item $Canonical (Join-Path $CloneBaseline 'canonical') -Recurse
+        $CloneCanonical = Join-Path $CloneBaseline 'canonical'
+        Remove-Item -LiteralPath $CloneCanonical -Recurse -Force
+        Copy-Item $Canonical $CloneCanonical -Recurse
         $CloneCapture = Join-Path $Clone 'tests/capture-golden-baseline.ps1'
         $ClonePromote = Join-Path $Clone 'tests/promote-golden-baseline.ps1'
         Add-Content (Join-Path $CloneBaseline 'canonical/targets/exit-code.txt') 'drift'
