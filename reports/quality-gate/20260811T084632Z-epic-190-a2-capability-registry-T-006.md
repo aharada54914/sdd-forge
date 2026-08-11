@@ -71,7 +71,7 @@ more than one record — was re-proven this cycle over all 679 records.
 - `git status --porcelain` captured before launch, after the evaluator
   returned, and at report time: the only deltas the whole cycle are this
   gate's own artifacts (the pending manifest, the validator's ledger append,
-  this report, and review ticket RT-20260811-001). The evaluator wrote
+  this report, and review ticket RT-20260811-002). The evaluator wrote
   nothing. The human-applied live protected files are committed in the
   human's own `025b2f0d` and appear in no commit this gate makes.
 
@@ -221,14 +221,14 @@ All six findings are **Accepted**. None is downgraded.
   two other epics' staged candidates. That is a cross-epic scope decision,
   not a safe auto-fix under `auto-fix-policy.md` (forbidden: "unrelated
   changes", "ambiguous business decisions"); per that policy a review ticket
-  is created instead: **RT-20260811-001** (severity critical), which also
+  is created instead: **RT-20260811-002** (severity critical), which also
   names the WFI-016 residue and its epic-136-owned TEST-013 pin question.
 - Major 1 (report mischaracterization): recorded here with the corrected
   values per SKILL step 9; the frozen implementation report is not edited by
   this gate. The correction itself — and the rehearsal-log falsified-scope
   correction — belongs to the next remediation cycle.
 - Major 2 (WFI-016): accepted with the evaluator's ownership split; now
-  tracked in RT-20260811-001.
+  tracked in RT-20260811-002.
 - Minor 1 and Minor 2: accepted, record-only.
 
 ## Required before the next cycle
@@ -239,7 +239,7 @@ Stated as evidence targets, per the evaluator:
    to live's `a37a3795…` with their `MANIFEST.sha256` digests re-measured in
    place (the technique already proven for the six guard files in
    `36339788`), **or** record the owners' explicit apply-ordering decision in
-   RT-20260811-001 — either way the 18-step deletion hazard must stop being
+   RT-20260811-002 — either way the 18-step deletion hazard must stop being
    silently appliable.
 2. Re-run the apply rehearsal with the safety property extended to **every**
    manifest target (byte or step-set comparison of the workflow included),
