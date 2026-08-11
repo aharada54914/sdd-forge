@@ -1,0 +1,132 @@
+
+=== TEST-037 mutation ===
+MUTATION: TEST-037 replaces the canonical full-input digest expectation
+FAIL: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-037 restored ===
+ok: TEST-037: digest covers the complete declared ownership input and is Feature-independent
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-038A mutation ===
+MUTATION: TEST-038A removes the required context binding from the observed contract
+FAIL: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-038A restored ===
+ok: TEST-038A: context_binding and resolver metadata have the ADR-0021 shape
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-038B mutation ===
+MUTATION: TEST-038B leaks metadata into the semantic comparison projection
+FAIL: TEST-038B: context_binding, resolver metadata, and ownership_input are excluded from semantic output comparison
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-038B restored ===
+ok: TEST-038B: context_binding, resolver metadata, and ownership_input are excluded from semantic output comparison
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-039 mutation ===
+MUTATION: TEST-039 substitutes the stale evaluated-only digest
+FAIL: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-039 restored ===
+ok: TEST-039: a nonmatching-to-matching rule edit changes the digest without staling unchanged Feature semantics
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-040A mutation ===
+MUTATION: TEST-040A collapses the after digest to the before digest
+FAIL: TEST-040A: ownership freshness matrix semantic=1 digest=1
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-040A restored ===
+ok: TEST-040A: ownership freshness matrix semantic=1 digest=1
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-040B mutation ===
+MUTATION: TEST-040B collapses the after digest to the before digest
+FAIL: TEST-040B: ownership freshness matrix semantic=1 digest=1
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-040B restored ===
+ok: TEST-040B: ownership freshness matrix semantic=1 digest=1
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-040C mutation ===
+MUTATION: TEST-040C collapses the after digest to the before digest
+FAIL: TEST-040C: ownership freshness matrix semantic=0 digest=1
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-040C restored ===
+ok: TEST-040C: ownership freshness matrix semantic=0 digest=1
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-040D mutation ===
+MUTATION: TEST-040D collapses the after digest to the before digest
+FAIL: TEST-040D: ownership freshness matrix semantic=0 digest=1
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-040D restored ===
+ok: TEST-040D: ownership freshness matrix semantic=0 digest=1
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-040E mutation ===
+MUTATION: TEST-040E preserves one Feature digest across the disjoint edit
+FAIL: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-040E restored ===
+ok: TEST-040E: a disjoint edit invalidates all Feature digests simultaneously without semantic stale
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-040F mutation ===
+MUTATION: TEST-040F hides the changed matcher classification
+FAIL: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-040F restored ===
+ok: TEST-040F: version-only bumps refresh metadata only; semantic matcher changes stale affected output
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-041 mutation ===
+MUTATION: TEST-041 removes one required registration from the observed inventory
+FAIL: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-041 restored ===
+ok: TEST-041: both suites are wired in run-all, staged CI, and the design inventory
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-048 mutation ===
+MUTATION: TEST-048 removes the T-003 Issue #191 Unreleased entry
+FAIL: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-048 restored ===
+ok: TEST-048: CHANGELOG has an Unreleased T-003 entry citing Issue #191
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+=== TEST-049 mutation ===
+MUTATION: TEST-049 introduces an out-of-band version surface change
+FAIL: TEST-049: no version-carrying surface is changed outside the release bump script
+0 passed / 1 failed
+MUTANT_EXIT_CODE=1
+=== TEST-049 restored ===
+ok: TEST-049: no version-carrying surface is changed outside the release bump script
+1 passed / 0 failed
+RESTORED_EXIT_CODE=0
+
+MUTATION_PROOF_EXIT_CODE=0

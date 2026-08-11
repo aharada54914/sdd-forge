@@ -46,6 +46,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $MATCHER_SEMANTICS_VERSION = "1.0.0"
+$RESOLVER_VERSION = "1.1.0"
 $PROJECT_CONTEXT_SCHEMA_VERSION = "sdd-project-context/v1"
 $UNSUPPORTED_METACHARS = @("?", "[", "]", "{", "}", "(", ")", "!", "+", "@", "^", "$", "|", "~")
 
@@ -54,6 +55,31 @@ class ConfigError : System.Exception {
 }
 class CollisionError : System.Exception {
     CollisionError([string]$message) : base($message) {}
+}
+
+function Get-CanonicalDigest {
+    param($Value)
+    $canonicalizer = Join-Path $PSScriptRoot "canonicalize-sdd-yaml.ps1"
+    $tempPath = Join-Path ([IO.Path]::GetTempPath()) ("resolve-component-paths-" + [guid]::NewGuid().ToString("N") + ".json")
+    try {
+        $json = $Value | ConvertTo-Json -Depth 30 -Compress
+        [IO.File]::WriteAllText($tempPath, $json, [Text.UTF8Encoding]::new($false))
+        $powerShell = (Get-Process -Id $PID).Path
+        $output = & $powerShell -NoProfile -ExecutionPolicy Bypass -File $canonicalizer $tempPath --input-format json --hash-only 2>&1 | Out-String
+        $exitCode = $LASTEXITCODE
+    } catch {
+        throw [ConfigError]::new("ownership digest canonicalizer could not be invoked: $($_.Exception.Message)")
+    } finally {
+        Remove-Item -LiteralPath $tempPath -Force -ErrorAction SilentlyContinue
+    }
+    if ($exitCode -ne 0) {
+        throw [ConfigError]::new("ownership digest canonicalization failed (exit ${exitCode}): $($output.Trim())")
+    }
+    $digest = $output.Trim()
+    if ($digest -cnotmatch '^sha256:[0-9a-f]{64}$') {
+        throw [ConfigError]::new("ownership digest canonicalizer returned a malformed digest")
+    }
+    return $digest
 }
 
 # --------------------------------------------------------------------------
@@ -698,13 +724,26 @@ function Invoke-ClassifyPaths {
         [ordered]@{ pattern = $_.PatternRaw; components = $_.Components; classification = $_.Classification }
     })
 
+    $ownershipInput = [ordered]@{
+        components                = $ownershipInputComponents
+        shared_paths              = $ownershipInputShared
+        matcher_semantics_version = $MATCHER_SEMANTICS_VERSION
+    }
+    $ownershipDigest = Get-CanonicalDigest $ownershipInput
+    $ruleSetRevision = Get-CanonicalDigest ([ordered]@{
+        matcher_semantics_version = $MATCHER_SEMANTICS_VERSION
+    })
+
     return [ordered]@{
         records             = @($sortedRecords)
         affected_components = @($affectedComponents)
-        ownership_input      = [ordered]@{
-            components               = $ownershipInputComponents
-            shared_paths              = $ownershipInputShared
-            matcher_semantics_version = $MATCHER_SEMANTICS_VERSION
+        ownership_input      = $ownershipInput
+        context_binding      = [ordered]@{
+            ownership_digest = $ownershipDigest
+        }
+        resolver             = [ordered]@{
+            version           = $RESOLVER_VERSION
+            rule_set_revision = $ruleSetRevision
         }
     }
 }

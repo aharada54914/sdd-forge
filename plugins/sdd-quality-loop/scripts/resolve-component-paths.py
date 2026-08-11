@@ -46,7 +46,9 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
+import tempfile
 import unicodedata
 from typing import Dict, List, Optional, Tuple
 
@@ -54,6 +56,7 @@ SCHEMA_ARTIFACT_PATH = "contracts/project-context.template.yaml"
 SCHEMA_CONTRACT_PATH = "contracts/project-context.schema.json"
 PROJECT_CONTEXT_SCHEMA_VERSION = "sdd-project-context/v1"
 MATCHER_SEMANTICS_VERSION = "1.0.0"
+RESOLVER_VERSION = "1.1.0"
 
 # Characters the restricted glob DSL never supports (REQ-001: "?" and
 # "[...]" and every other glob metacharacter, and regex, and dynamic code
@@ -73,6 +76,43 @@ class CollisionError(ValueError):
     """Two distinct raw paths NFC-normalize to the same comparison key
     (AC-010). Fail-closed: never silently merged, dropped, or arbitrarily
     picked."""
+
+
+def canonical_digest(value: dict) -> str:
+    """Hash a JSON-compatible value through the shipped A1 canonicalizer.
+
+    Canonicalization remains single-sourced in canonicalize-sdd-yaml.py.
+    The resolver supplies ordinary JSON bytes and validates the subprocess
+    contract fail-closed before placing the digest in emitted evidence.
+    """
+    canonicalizer = os.path.join(os.path.dirname(os.path.abspath(__file__)), "canonicalize-sdd-yaml.py")
+    fd, temp_path = tempfile.mkstemp(prefix="resolve-component-paths-", suffix=".json")
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8"))
+        try:
+            process = subprocess.run(
+                [sys.executable, canonicalizer, temp_path, "--input-format", "json", "--hash-only"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+        except OSError as exc:
+            raise ConfigError("ownership digest canonicalizer could not be invoked: {}".format(exc))
+    finally:
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+
+    if process.returncode != 0:
+        diagnostic = process.stderr.decode("utf-8", "replace").strip()
+        raise ConfigError(
+            "ownership digest canonicalization failed (exit {}): {}".format(process.returncode, diagnostic)
+        )
+    digest = process.stdout.decode("ascii", "strict").strip()
+    if re.fullmatch(r"sha256:[0-9a-f]{64}", digest) is None:
+        raise ConfigError("ownership digest canonicalizer returned a malformed digest")
+    return digest
 
 
 # --------------------------------------------------------------------------
@@ -625,11 +665,20 @@ def classify_paths(config: Config, raw_paths: List[str]) -> dict:
         ],
         "matcher_semantics_version": MATCHER_SEMANTICS_VERSION,
     }
+    ownership_digest = canonical_digest(ownership_input)
+    rule_set_revision = canonical_digest(
+        {"matcher_semantics_version": MATCHER_SEMANTICS_VERSION}
+    )
 
     return {
         "records": records,
         "affected_components": affected_components,
         "ownership_input": ownership_input,
+        "context_binding": {"ownership_digest": ownership_digest},
+        "resolver": {
+            "version": RESOLVER_VERSION,
+            "rule_set_revision": rule_set_revision,
+        },
     }
 
 
