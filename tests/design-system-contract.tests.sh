@@ -170,9 +170,14 @@ LITE_DEST_NAME="plugins/sdd-lite/skills/lite-spec/SKILL.md"
 # any task in this decomposition (BL-004) -- T-004 stages a draft candidate
 # instead -- so this hash holds until the human applies that candidate
 # (T-004 handoff; MANIFEST.sha256 step 3). After the apply, the live file
-# must instead be byte-identical to the reviewed staged candidate:
-# test_038_staged accepts exactly those two states, so any unreviewed
-# drift of the protected file still fails.
+# is byte-identical to the reviewed staged candidate -- until another
+# feature's own human-applied change lands on the same shared protected
+# file (epic-189 T-012's Track Detection section arrived via PR #229's
+# merge, 2026-08-08, additions only). From then on no whole-file hash can
+# hold, so past the two whole-file states test_038_staged falls back to
+# T-004's own payload: the exact Process step-4 destination block the
+# candidate changed must survive in the live file, contiguous and
+# byte-identical. Loss or drift of that block still fails.
 LITE_LIVE_SHA256_AT_T001='40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74'
 
 # Lines from the first line matching $2 (inclusive) up to, but excluding,
@@ -567,9 +572,22 @@ test_038_staged() {
   [ -n "$draft_hash" ] || return 1
   grep -Eq "^${draft_hash}[[:space:]]+.*${LITE_DEST_NAME}\$" "$DSC_MANIFEST" || return 1
   live_hash=$(sha256_of "$LITE_LIVE")
-  # Two designed states (see LITE_LIVE_SHA256_AT_T001's comment): pre-apply
-  # the live file is untouched; post-apply it is the reviewed candidate.
-  [ "$live_hash" = "$LITE_LIVE_SHA256_AT_T001" ] || [ "$live_hash" = "$draft_hash" ]
+  # Three designed epochs (see LITE_LIVE_SHA256_AT_T001's comment):
+  # pre-apply the live file is untouched; applied-verbatim it is the
+  # reviewed candidate; once other features' human-applied changes land on
+  # the same shared protected file, whole-file identity cannot hold and
+  # the check falls back to T-004's own payload block. The fallback fires
+  # only after both whole-file comparisons miss, and requires the anchor
+  # to be unique in each file, so ambiguity fails closed.
+  [ "$live_hash" = "$LITE_LIVE_SHA256_AT_T001" ] && return 0
+  [ "$live_hash" = "$draft_hash" ] && return 0
+  payload_anchor='design.md` に記録される'
+  [ "$(grep -cF -- "$payload_anchor" "$DSC_DRAFT")" = "1" ] || return 1
+  [ "$(grep -cF -- "$payload_anchor" "$LITE_LIVE")" = "1" ] || return 1
+  draft_block=$(grep -F -A2 -- "$payload_anchor" "$DSC_DRAFT")
+  [ -n "$draft_block" ] || return 1
+  live_block=$(grep -F -A2 -- "$payload_anchor" "$LITE_LIVE")
+  [ "$draft_block" = "$live_block" ]
 }
 if test_038_staged; then
   pass "TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)"
