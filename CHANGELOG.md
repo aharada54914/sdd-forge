@@ -11,9 +11,14 @@
   `components: []`、bounded/cross-cutting `shared_paths` の排他的形状を
   fail-closed で検証する。グロブ、raw-byte sort、分類、exclude 証跡、
   大文字小文字を区別する契約検査を Bash/PowerShell twin で固定し、ADR は
-  drafting-time の番号再検証により `0027` とした。保護領域への書込みを
-  避けるため CI ステップ候補は実装レポート配下の hash 検証済みドラフトに
-  記録した。この 2026-08-08 エントリは v1.11.0 の T-001 記録に残る
+  drafting-time の番号再検証により `0027` とした。CI ステップ候補は
+  `specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml`
+  として staged 済みで `MANIFEST.sha256` に hash 束縛されている
+  (2026-08-11 訂正: 旧文「保護領域への書込みを避けるため CI ステップ候補は
+  実装レポート配下の hash 検証済みドラフトに記録した」は HEAD の実態と
+  矛盾していた — human-copy 候補はこのタスク自身の初回書込み `41881071`
+  以来実在し、ガードの staging 免除により書込み可能。旧ドラフト経由の
+  記録は superseded)。この 2026-08-08 エントリは v1.11.0 の T-001 記録に残る
   「A1 未着地」「human-copy staging 未作成」という当時の状態を現在状態に
   ついてのみ訂正し、リリース履歴自体は変更しない。
 
