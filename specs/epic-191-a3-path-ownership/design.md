@@ -287,16 +287,22 @@ N/A — `ds_profile: none`. No UI application, no mockup, no visualization.
 
 | From | To | Contract / Decision | REQ | AC |
 |---|---|---|---|---|
-| requirements.md | design.md | glob compiler semantics (`**`/`*`/zero-segment/unsupported-meta, NFC + raw identity, separator, case, empty-set clauses, NFC collision) | REQ-001 | AC-001..011, AC-056 (assigned 2026-08-11: config-read fail-closed on a present-but-malformed file, incl. `--diagnose`) |
-| requirements.md | design.md | shared/exclusive/overlap/unowned classification + exclude-misuse invariant + `EXCLUDED_MATCH` evidence | REQ-002 | AC-012..018 |
+| requirements.md | design.md | glob compiler semantics (`**`/`*`/zero-segment/unsupported-meta, NFC + raw identity, separator, case, empty-set clauses, NFC collision) | REQ-001 | AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007, AC-008, AC-009, AC-010, AC-011, AC-056 (assigned 2026-08-11: config-read fail-closed on a present-but-malformed file, incl. `--diagnose`) |
+| requirements.md | design.md | shared/exclusive/overlap/unowned classification + exclude-misuse invariant + `EXCLUDED_MATCH` evidence | REQ-002 | AC-012, AC-013, AC-014, AC-015, AC-016, AC-017, AC-018 |
 | requirements.md | design.md | git-diff basis (rev-resolution, merge-base, NUL framing, rename contract, submodule/symlink 4-case, single-writer/TOCTOU) | REQ-003 | AC-019..025 |
 | requirements.md | design.md | Reverse Coverage Gate: 3-state (`disabled-legacy`/`advisory`/`required`) derived applicability, Fail-1..6 (incl. mutual-exclusivity, Gate-level Fail-5, Fail-6 adapter_paths), reachability + protected-suffix registration + evidence producer binding | REQ-004 | AC-026..036, AC-052..055 |
 | requirements.md | design.md | `ownership_digest` full-input (unconditional, not per-resolve-scoped) binding, ADR-0021 binding, selective-stale matrix, suite wiring | REQ-005 | AC-037..041 |
 | requirements.md | design.md | cross-epic seed-inventory single-source-of-truth (Epic A1's `contracts/project-context.template.yaml`, no A3-authored competing list) + inventory-conformance and day-one integration proof + `contracts/**` exclusion | REQ-006 | AC-042..044 |
 | requirements.md | design.md | monorepo fixture + sh/ps1 suites (incl. contracts bounded-shared, submodule/symlink, NFC-collision, glob-clause fixtures) | REQ-007 | AC-045..047 |
-| requirements.md | design.md | ADR authorship, CHANGELOG, version-bump discipline, single-source count discipline | REQ-008 | AC-048..049 |
+| requirements.md | design.md | ADR authorship, CHANGELOG, version-bump discipline, single-source count discipline | REQ-008 | AC-048, AC-049 |
 | requirements.md | design.md | dual-runtime parity harness (product-wrapper-direct comparison) + its own CI registration | REQ-009 | AC-050..051 |
 | requirements.md | ADR-0021 | `ownership_digest` context_binding shape + semantic-output exclusion + full-input binding | REQ-005 | AC-037, AC-038 |
+
+(2026-08-11 note: the REQ-001, REQ-002, and REQ-008 AC cells above previously
+used range notation — `AC-001..011`, `AC-012..018`, `AC-048..049` — which the
+deterministic impl-review-precheck AC-coverage check cannot resolve to
+individual criteria; they are now enumerated explicitly. Coverage is
+unchanged: no criterion was added to or removed from any row.)
 | requirements.md | ADR-0017 | Gate stage classification (`stage: implementation`) | REQ-004 | AC-030 |
 | requirements.md | ADR-0016 | 3-state derivation (`disabled-legacy`/`advisory`/`required`) from `capability_enforcement`, never file presence | REQ-004 | AC-026, AC-027, AC-028, AC-029, AC-052, AC-053 |
 
