@@ -3175,6 +3175,156 @@ fi
 # Summary
 # ============================================================================
 
+# ============================================================================
+# CSG: capability-state gating of the check-component-coverage tier minimum
+# (epic-191-a3-path-ownership T-004 follow-up; REQ-004, INV-018)
+#
+# NON-VACUITY CONTRACT -- read this before editing any case below.
+#
+# check-component-coverage derives `disabled-legacy` whenever
+# sdd/project-context.yaml is absent, and in that state it evaluates zero Fail
+# conditions, consults no Facet Manifest, and exits 0 unconditionally: it is
+# structurally incapable of asserting anything. check-contract therefore drops
+# it from the high/critical tier minimum in exactly that state. The failure
+# mode that matters for a condition like this is writing it so the requirement
+# NEVER fires again -- which is silent, and leaves the hole wider than before.
+#
+# These cases pin the condition from BOTH sides using ONE byte-identical
+# contract body, so neither a stuck-open nor a stuck-shut implementation can
+# pass the suite:
+#
+#   CSG.1  config ABSENT  + contract WITHOUT the check -> must PASS
+#   CSG.2  config PRESENT + the SAME contract          -> must FAIL, and the
+#                                                         message must name
+#                                                         check-component-coverage
+#
+# CSG.1 alone is satisfied by an "always skip" bug. CSG.2 alone is satisfied by
+# an "always require" bug -- which is precisely the pre-fix behaviour. Only a
+# correctly-gated condition satisfies both at once.
+#
+# CSG.3 repeats CSG.2 for `capability_enforcement: required` so both enforcing
+# states are covered rather than just the first one reached. CSG.4 proves the
+# activated requirement is actually satisfiable by a genuine producer record --
+# without it, "activates" could mean "makes the tier permanently unreachable".
+# CSG.5 mirrors CSG.2 at the `critical` tier, since high and critical carry
+# independent hardcoded sets.
+# ============================================================================
+echo "=== CSG: capability-state gating of the tier minimum ==="
+
+# Writes the shared fixture contract: the complete required set for $3 EXCEPT
+# check-component-coverage. $4, when non-empty, is appended verbatim inside the
+# checks array (its leading comma included).
+csg_write_contract() {
+    local dir="$1" task_id="$2" risk="$3" extra="${4:-}"
+    mkdir -p "${dir}/reports"
+    create_evidence "${dir}/reports/test.log"
+    cat > "${dir}/${task_id}.contract.json" <<EOF
+{
+  "task_id": "${task_id}",
+  "feature": "test-feature",
+  "risk": "${risk}",
+  "created": "2026-08-11T00:00:00Z",
+  "comment": "CSG: capability-state gating fixture",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }${extra}
+  ]
+}
+EOF
+}
+
+# Writes a schema-shaped sdd/project-context.yaml declaring $2 as the
+# capability_enforcement posture. contracts/project-context.schema.json makes
+# that field required with enum advisory|required, so these are the only two
+# postures a conformant config can declare.
+csg_write_project_context() {
+    local dir="$1" mode="$2"
+    mkdir -p "${dir}/sdd"
+    cat > "${dir}/sdd/project-context.yaml" <<EOF
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: ${mode}
+components: []
+shared_paths: []
+EOF
+}
+
+# --- CSG.1: config absent -> requirement is inert -------------------------
+csg_write_contract "${WORK}/csg1" "CSG.1" "high"
+if check_contract_passes "${WORK}/csg1/CSG.1.contract.json" "${WORK}/csg1"; then
+    ok "CSG.1: config absent: high contract without check-component-coverage passes"
+else
+    fail "CSG.1: config absent: high contract without check-component-coverage should pass: $(run_check_contract "${WORK}/csg1/CSG.1.contract.json" "${WORK}/csg1")"
+fi
+
+# --- CSG.2: config present (advisory) -> the SAME contract must fail ------
+csg_write_contract "${WORK}/csg2" "CSG.2" "high"
+csg_write_project_context "${WORK}/csg2" "advisory"
+csg2_out="$(run_check_contract "${WORK}/csg2/CSG.2.contract.json" "${WORK}/csg2")"
+if check_contract_passes "${WORK}/csg2/CSG.2.contract.json" "${WORK}/csg2"; then
+    fail "CSG.2: config present (advisory): the same contract should FAIL -- the tier minimum did not activate"
+elif printf '%s' "$csg2_out" | grep -q "check-component-coverage"; then
+    ok "CSG.2: config present (advisory): the same contract fails, naming check-component-coverage"
+else
+    fail "CSG.2: config present (advisory): failed, but not for check-component-coverage: ${csg2_out}"
+fi
+
+# --- CSG.3: config present (required) -> same, second enforcing state -----
+csg_write_contract "${WORK}/csg3" "CSG.3" "high"
+csg_write_project_context "${WORK}/csg3" "required"
+csg3_out="$(run_check_contract "${WORK}/csg3/CSG.3.contract.json" "${WORK}/csg3")"
+if check_contract_passes "${WORK}/csg3/CSG.3.contract.json" "${WORK}/csg3"; then
+    fail "CSG.3: config present (required): the same contract should FAIL -- the tier minimum did not activate"
+elif printf '%s' "$csg3_out" | grep -q "check-component-coverage"; then
+    ok "CSG.3: config present (required): the same contract fails, naming check-component-coverage"
+else
+    fail "CSG.3: config present (required): failed, but not for check-component-coverage: ${csg3_out}"
+fi
+
+# --- CSG.4: the activated requirement is satisfiable ----------------------
+# Uses a real advisory-state run of the live producer, so producer.sha256
+# genuinely matches the on-disk check-component-coverage.py and Pass 7's
+# producer-digest verification is exercised rather than bypassed.
+csg_write_contract "${WORK}/csg4" "CSG.4" "high" ',
+    { "id": "check-component-coverage", "required": true, "passes": true, "evidence": "reports/check-component-coverage.json", "waiver_reason": "" }'
+csg_write_project_context "${WORK}/csg4" "advisory"
+echo '{"affected_components": []}' > "${WORK}/csg4/reports/facet-manifest.json"
+: > "${WORK}/csg4/reports/changed-paths.txt"
+if python3 "${SCRIPTS_DIR}/check-component-coverage.py" \
+        --config "${WORK}/csg4/sdd/project-context.yaml" \
+        --facet-manifest "${WORK}/csg4/reports/facet-manifest.json" \
+        --changed-paths-file "${WORK}/csg4/reports/changed-paths.txt" \
+        --repo-root "${WORK}/csg4" > "${WORK}/csg4/reports/check-component-coverage.json" 2>/dev/null; then
+    if check_contract_passes "${WORK}/csg4/CSG.4.contract.json" "${WORK}/csg4"; then
+        ok "CSG.4: config present (advisory): contract declaring the check with a genuine producer record passes"
+    else
+        fail "CSG.4: config present (advisory): the activated requirement is unsatisfiable: $(run_check_contract "${WORK}/csg4/CSG.4.contract.json" "${WORK}/csg4")"
+    fi
+else
+    fail "CSG.4: the live check-component-coverage.py producer did not complete in advisory state"
+fi
+
+# --- CSG.5: critical tier carries its own hardcoded set -------------------
+csg_write_contract "${WORK}/csg5" "CSG.5" "critical"
+csg_write_project_context "${WORK}/csg5" "advisory"
+csg5_out="$(run_check_contract "${WORK}/csg5/CSG.5.contract.json" "${WORK}/csg5")"
+if check_contract_passes "${WORK}/csg5/CSG.5.contract.json" "${WORK}/csg5"; then
+    fail "CSG.5: critical, config present: contract without check-component-coverage should FAIL"
+elif printf '%s' "$csg5_out" | grep -q "check-component-coverage"; then
+    ok "CSG.5: critical, config present: contract without check-component-coverage fails"
+else
+    fail "CSG.5: critical, config present: failed, but not for check-component-coverage: ${csg5_out}"
+fi
+
 echo ""
 echo "====== Test Summary ======"
 echo "PASS: $PASS"

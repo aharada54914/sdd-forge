@@ -144,7 +144,7 @@ input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -
 
 validate_reviewer_output() {
   local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5" recorded_prefix="${6:-}"
-  local expected_verdict actual_manifest expected_ids actual_ids
+  local actual_manifest expected_ids actual_ids
   [[ -f "$output" && ! -L "$output" ]] || return 1
   jq -e --arg schema "${role}/v1" --arg role "$role" --arg run_id "$run_id" --arg host_session_id "$host_session_id" '
     type == "object" and keys == ["allowed_input_manifest", "checks", "host_session_id", "role", "run_id", "schema", "stage", "verdict"] and
@@ -182,8 +182,24 @@ validate_reviewer_output() {
   # a prefix and still fails, so this does not weaken any current-version
   # review: for those, prefix and equality coincide.
   [[ "${expected_ids}," == "${actual_ids},"* ]] || return 1
-  expected_verdict="$(jq -r 'if ([.checks[] | select(.result == "FAIL" and .severity == "Critical")] | length) > 0 then "BLOCKED" elif ([.checks[] | select(.result == "FAIL")] | length) > 0 then "NEEDS_WORK" else "PASS" end' "$output")"
-  [[ "$(jq -r .verdict "$output")" == "$expected_verdict" ]]
+  # Verdict/finding coherence is checked, not derived. The role documents are
+  # authoritative on the verdict choice (epic-191-a3 a2r1 escalation,
+  # 2026-08-11): review-context-boundary.md defines BLOCKED as a launch or
+  # boundary failure -- the review could not be validly conducted -- and no
+  # role document states a severity-to-verdict formula. A reviewer that
+  # conducted its review and recorded at least one FAIL, of any severity, has
+  # earned the choice between NEEDS_WORK and BLOCKED; content severity and
+  # procedural blockage are different questions. The previous rule here
+  # mechanically forced FAIL/Critical to BLOCKED and rejected a persisted
+  # NEEDS_WORK verbatim record, deadlocking every subsequent round and reset
+  # of the same attempt chain.
+  #
+  # Narrowed, not removed. The two shapes that are incoherent on any reading
+  # are still rejected: a declared PASS carrying any FAIL, and a declared
+  # NEEDS_WORK or BLOCKED carrying none.
+  jq -e 'if ([.checks[] | select(.result == "FAIL")] | length) > 0
+         then .verdict == "NEEDS_WORK" or .verdict == "BLOCKED"
+         else .verdict == "PASS" end' "$output" >/dev/null
 }
 
 validate_contract() {

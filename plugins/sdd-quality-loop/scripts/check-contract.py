@@ -56,6 +56,54 @@ TDD_TEST_IDS = {"unit-tests", "acceptance-tests"}
 PRODUCER_DIGEST_CHECK_ID = "check-component-coverage"
 PRODUCER_DIGEST_SCRIPT_NAME = "check-component-coverage.py"
 
+# epic-191-a3-path-ownership T-004 follow-up (REQ-004, INV-018): tier-minimum
+# ids that are only required once the project has declared a capability-
+# enforcement posture at all.
+#
+# check-component-coverage derives one of three states from
+# `workflow.capability_enforcement` in sdd/project-context.yaml (ADR-0016 §4).
+# In `disabled-legacy` -- which derive_state() returns when that file is
+# ABSENT -- the gate evaluates zero Fail conditions, consults no Facet
+# Manifest, and exits 0 unconditionally: it is structurally incapable of
+# asserting anything. Requiring it in the tier minimum while it is inert
+# demands a `passes:true` entry for a check that can never say anything but
+# "not-applicable", which is exactly the fabricated-pass footgun
+# requirements.md warns about. So the REQUIREMENT is gated on the same
+# project state the GATE itself reads, and activates precisely when the gate
+# becomes capable of asserting something.
+#
+# The predicate is file PRESENCE, not a re-derivation of the three-way state,
+# and that is deliberate:
+#   * contracts/project-context.schema.json makes `capability_enforcement`
+#     REQUIRED with enum ["advisory","required"], so every schema-conformant
+#     config yields advisory|required -- never disabled-legacy. Presence is
+#     therefore EXACTLY equivalent to `derive_state() != "disabled-legacy"`
+#     for any conformant config.
+#   * The only divergence is a malformed/non-conformant config, where this
+#     predicate still REQUIRES the check (fail-closed). derive_state() either
+#     hard-errors (present-but-unparseable) or returns disabled-legacy
+#     (parses but lacks the field); over-requiring in those cases is the safe
+#     direction.
+#   * It duplicates no YAML parsing into this file. A re-derivation would
+#     need a parser in BOTH runtimes, and a parser that threw and was caught
+#     would silently conclude "disabled-legacy" -- turning the tier minimum
+#     OFF permanently and undetectably. This predicate has no such failure
+#     mode: the only way it reads "inactive" is the file genuinely not
+#     existing, which is the intended inactive condition.
+PROJECT_CONTEXT_REL_PATH = os.path.join("sdd", "project-context.yaml")
+CAPABILITY_STATE_GATED_IDS = {"check-component-coverage"}
+
+
+def _capability_enforcement_declared(root):
+    """True iff this project declares a capability-enforcement posture,
+    i.e. sdd/project-context.yaml exists relative to the repo root.
+
+    Mirrors the file-absence branch of check-component-coverage.py's
+    derive_state(); see CAPABILITY_STATE_GATED_IDS for why presence (rather
+    than a re-derived three-way state) is the predicate.
+    """
+    return os.path.isfile(os.path.join(root, PROJECT_CONTEXT_REL_PATH))
+
 
 def _str_field(check, key):
     """Safely extract a string field from a check dict; returns '' for non-string values."""
@@ -132,8 +180,14 @@ def _pass3_required_set(checks, failures):
                 break
 
 
-def _pass4_risk_tier(checks, contract, failures):
-    """Risk-tier enforcement: required-id superset per tier."""
+def _pass4_risk_tier(checks, contract, root, failures):
+    """Risk-tier enforcement: required-id superset per tier.
+
+    Ids in CAPABILITY_STATE_GATED_IDS are dropped from the tier minimum while
+    the project has declared no capability-enforcement posture, so the
+    requirement activates exactly when the corresponding gate stops being
+    inert. See CAPABILITY_STATE_GATED_IDS for the full rationale.
+    """
     risk = (contract.get("risk") or "").strip()
     stack = (contract.get("stack") or "code").strip()
     if not risk:
@@ -148,6 +202,8 @@ def _pass4_risk_tier(checks, contract, failures):
         return
 
     required_ids = RISK_TIERS[risk]
+    if not _capability_enforcement_declared(root):
+        required_ids = required_ids - CAPABILITY_STATE_GATED_IDS
     present_ids_set = {check.get("id", "?") for check in checks}
     compile_waivable = stack in NONCODE_STACKS
 
@@ -304,7 +360,7 @@ def run(contract_path, root):
     _pass1_duplicate_ids(checks, failures)
     _pass2_per_check_rules(checks, root, failures)
     _pass3_required_set(checks, failures)
-    _pass4_risk_tier(checks, contract, failures)
+    _pass4_risk_tier(checks, contract, root, failures)
     _pass5_tdd_evidence(checks, contract, root, failures)
     _pass5b_risk_workflow(contract, failures)
     _pass6_cross_model(checks, contract, failures)

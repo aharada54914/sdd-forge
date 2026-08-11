@@ -232,10 +232,26 @@ function Test-ValidateReviewerOutput(
   $actualIds = @($data.checks | ForEach-Object { $_.id })
   if (($actualIds -join ',') -cne ($expectedIds -join ',')) { return $false }
 
-  $criticalFail = @($data.checks | Where-Object { $_.result -ceq 'FAIL' -and $_.severity -ceq 'Critical' })
+  # Verdict/finding coherence is checked, not derived. The role documents are
+  # authoritative on the verdict choice (epic-191-a3 a2r1 escalation,
+  # 2026-08-11): review-context-boundary.md defines BLOCKED as a launch or
+  # boundary failure -- the review could not be validly conducted -- and no
+  # role document states a severity-to-verdict formula. A reviewer that
+  # conducted its review and recorded at least one FAIL, of any severity, has
+  # earned the choice between NEEDS_WORK and BLOCKED; content severity and
+  # procedural blockage are different questions. The previous rule here
+  # mechanically forced FAIL/Critical to BLOCKED and rejected a persisted
+  # NEEDS_WORK verbatim record, deadlocking every subsequent round and reset
+  # of the same attempt chain.
+  #
+  # Narrowed, not removed. The two shapes that are incoherent on any reading
+  # are still rejected: a declared PASS carrying any FAIL, and a declared
+  # NEEDS_WORK or BLOCKED carrying none.
   $anyFail = @($data.checks | Where-Object { $_.result -ceq 'FAIL' })
-  $expectedVerdict = if ($criticalFail.Count -gt 0) { 'BLOCKED' } elseif ($anyFail.Count -gt 0) { 'NEEDS_WORK' } else { 'PASS' }
-  return (Test-OrdinalEqual $data.verdict $expectedVerdict)
+  if ($anyFail.Count -gt 0) {
+    return ((Test-OrdinalEqual $data.verdict 'NEEDS_WORK') -or (Test-OrdinalEqual $data.verdict 'BLOCKED'))
+  }
+  return (Test-OrdinalEqual $data.verdict 'PASS')
 }
 
 # --- validate_contract translation ------------------------------------------
