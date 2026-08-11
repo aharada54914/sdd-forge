@@ -98,3 +98,77 @@ references:
 auto_fix_allowed: false
 requires_human_decision: true
 created: 2026-08-11
+updated: 2026-08-11
+human_ruling: |
+  2026-08-11, given after review of the seq0679 gate report and its
+  recommendation: disarm the stale staged-workflow hazard class by removing
+  the .github/workflows/test.yml entries from the two sibling bundles'
+  MANIFEST.sha256 files, then run quality-gate cycle 7 on T-006 (the cycle
+  cap is already exceeded; cycle 7 runs on this explicit direction). The
+  sibling-bundle edits were explicitly authorized this time, bounded by the
+  standing constraint: where a pinned invariant blocks the removal, stop on
+  that bundle and report rather than break the invariant.
+disposition: |
+  Recorded 2026-08-11, remediation executed under the ruling above
+  (commits 3f442251, 30bb3266, 5cd8e423 and the T-006.md cycle-6 addendum):
+
+  1. [Critical, stale staged workflows] RULED, NOT MECHANICALLY EXECUTED -
+     the entry removal is blocked by pinned invariants on BOTH bundles,
+     not only the anticipated phase2 one:
+       - epic-136-phase2-gates: TEST-013
+         (tests/phase2-guard-invariants.tests.sh:45-92; .ps1:189-233,
+         294-296) pins 19 fixed-order entries including the workflow and
+         requires the staged candidate to exist; TEST-011 asserts its
+         content.
+       - epic-189-a1-project-context: TEST-HARDEN
+         (tests/guard-invariants-epic-a1.tests.sh:532-534, "T-009 must
+         neither drop nor duplicate it"; .ps1:399-400) asserts the workflow
+         entry is present exactly once, and the per-entry loop requires
+         staged bytes for every entry. Both suites green today (81/0,
+         85/0); the removal flips them red.
+     Both manifests are therefore unchanged (shasum -a 256 -c still 18/18
+     and 19/19 OK) and the staged files remain. A dated ruling note with an
+     explicit DO-NOT-APPLY instruction for the workflow entry (any batch
+     size, any applier) is recorded in each bundle's
+     NOTES-epic-190-a2-refresh.md. The hazard therefore REMAINS ARMED
+     mechanically; disarming it now requires each owning epic to either
+     refresh the staged workflow to live bytes (digest-in-place, which the
+     pins permit) or amend its pinning assertions - folded into item 4's
+     owner scope. New reachability fact (cycle-6 rehearsal): the generic
+     publisher refuses BOTH whole batches fail-closed
+     (DUPLICATE_BASENAME_IN_BATCH, exit 19, two SKILL.md targets per
+     manifest), but a single-target batch - the convention
+     RUNBOOK-pr229.md itself documents - applies the stale entry cleanly,
+     as does epic-136's Windows-only runner; the batch refusal protects
+     nothing.
+  2. [Critical, arrays-only rehearsal] CLOSED. The apply rehearsal was
+     redone across EVERY manifest target of all three bundles with
+     per-target byte hashes, removed/added line counts, full unified
+     diffs, workflow step-name set differences, and guard-array entry
+     diffs; denied applies are recorded as denials with a verified
+     zero-write post-state and never contribute a zero-removal claim.
+     Result: REMOVALS PRESENT - each sibling bundle's workflow entry
+     removes 137 lines / 18 named live steps (T-006's four drift locks +
+     the 14 epic-190 CI-registration steps); all other targets and this
+     feature's own bundle measure zero removals of any kind.
+     cycle5-apply-rehearsal.log is retired as safety evidence of record,
+     superseded by
+     specs/epic-190-a2-capability-registry/verification/T-006/cycle6-apply-rehearsal.log.
+  3. [Major, deterministic-lane-selfcheck mischaracterization] CLOSED.
+     The sibling candidate
+     specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml
+     was refreshed with the four missing step names in its
+     "[deterministic] " prefix convention (mechanical restoration of the
+     live-derived TEST-017 invariant, commit 3f442251): the suite moved
+     24/1/4 -> 25/0/4 (rc=1 solely from TEST-020's documented designed-red
+     window). The implementation report's "unrelated / not a defect" prose
+     is corrected by a dated addendum (T-006.md, "Quality-gate cycle 6
+     remediation (2026-08-11, gate seq0679)"), naming the causal commit
+     025b2f0d and the three-surface hazard class, not by a silent rewrite.
+  4. [Major, WFI-016 / TEST-013 semantics] REMAINS OPEN, unchanged - it is
+     epic-136-phase2-gates' scope decision (per-bundle staging inventory vs
+     repository-wide registry; the 19-entry TEST-013 pin), now enlarged by
+     item 1's disposition: the same owner decision also governs how the
+     stale workflow entry is ultimately disarmed. Not executed under this
+     ticket. phase2-guard-invariants numbers unchanged: sh 33/1, ps1 59/10
+     (nine macOS platform fails).
