@@ -5958,6 +5958,42 @@
       "host_session_id": "SESS-qg-epic-195-a7-compatibility-T-001-0662",
       "previous_record_sha256": "c8ba28ae4d292caa96a0e288d6875bb1a713bac85cddf30668ce859513f0f8b3",
       "record_sha256": "5303f6f249e6dcfac1adbf3d1e2b3019e9ac541ba71e1f2bc7b34d70515705db"
+    },
+    {
+      "sequence": 663,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt2-seq0663",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0663",
+      "previous_record_sha256": "5303f6f249e6dcfac1adbf3d1e2b3019e9ac541ba71e1f2bc7b34d70515705db",
+      "record_sha256": "3e9b7b99b1af159e895f2ea9ea101fb0158865a8e81f9b86a6391b5cbe342a55"
+    },
+    {
+      "sequence": 664,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt2-seq0664",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0664",
+      "previous_record_sha256": "3e9b7b99b1af159e895f2ea9ea101fb0158865a8e81f9b86a6391b5cbe342a55",
+      "record_sha256": "13d29f0dad2a6da5ac5dadfbd5729c325748188145dba8f25fe090c94600be0f"
+    },
+    {
+      "sequence": 665,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt2r2-seq0665",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0665",
+      "previous_record_sha256": "13d29f0dad2a6da5ac5dadfbd5729c325748188145dba8f25fe090c94600be0f",
+      "record_sha256": "91e010ad69636eb3f15983f09344610e71b2fac7356166e7586acb02742a370d"
+    },
+    {
+      "sequence": 666,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt2r2-seq0666",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0666",
+      "previous_record_sha256": "91e010ad69636eb3f15983f09344610e71b2fac7356166e7586acb02742a370d",
+      "record_sha256": "902feef963244670c07accd42433d8d8b14c57438480f079a81d0c508013e936"
     }
   ]
 }
