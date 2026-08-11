@@ -1,0 +1,100 @@
+ticket_id: RT-20260811-001
+status: open
+type: incomplete-implementation
+severity: critical
+review_cycles: 6
+target:
+  feature: "epic-190-a2-capability-registry"
+  task: "T-006"
+  files:
+    - "specs/epic-136-phase2-gates/human-copy/.github/workflows/test.yml"
+    - "specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml"
+    - "specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256"
+    - "specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256"
+    - "specs/epic-190-a2-capability-registry/verification/T-006/cycle5-apply-rehearsal.log"
+    - "reports/implementation/epic-190-a2-capability-registry/T-006.md"
+    - "tests/phase2-guard-invariants.tests.sh"
+    - "tests/phase2-guard-invariants.tests.ps1"
+summary: >-
+  T-006 QG cycle 6 (seq0679) NEEDS_WORK. The cycle-5 sibling-bundle repair
+  regenerated six of seven staged files per bundle but left both siblings'
+  staged .github/workflows/test.yml at the pre-apply 854-line copy
+  (8beba70c...), while live is 991 lines (a37a3795...) after the human apply
+  025b2f0d. Each sibling MANIFEST.sha256 lists the workflow as an apply
+  target, so applying either bundle would silently delete 18 live CI steps,
+  including all four drift-lock steps T-006 itself added. The cycle-5
+  rehearsal evidence (cycle5-apply-rehearsal.log) applied that stale workflow
+  in its scratch tree but only measured the two guard-invariants JSON arrays,
+  so its "ZERO REMOVALS" conclusion is a false all-clear for the workflow
+  surface.
+problem: |
+  Measured by the seq0679 evaluator and re-verified by the gate (2026-08-11):
+
+  1. [Critical] specs/epic-136-phase2-gates/human-copy/.github/workflows/test.yml
+     and specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml
+     are both sha256 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998
+     (854 lines, the pre-apply live copy). Live is
+     a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442
+     (991 lines). At 6277cde0 (pre-apply) both bundles were byte-identical to
+     live on every manifest target (18/18 and 19/19); at HEAD each differs on
+     exactly this one target. Applying either bundle (its MANIFEST.sha256
+     passes shasum -c, so it is fully appliable) would remove 18 named live
+     steps: the four T-006 drift locks ("Verify generated gate-capabilities
+     projection (Windows)/(POSIX)", "Verify vendored contracts copy
+     (Windows)/(POSIX)") plus the 14 CI-registration steps for all seven
+     epic-190 suites. tests/deterministic-lane-selfcheck.tests.sh TEST-020 is
+     DESIGNED-RED because epic-136's bundle still awaits its apply, so this
+     hazard is on a live path, not hypothetical.
+
+  2. [Critical] cycle5-apply-rehearsal.log seeded and applied all manifest
+     targets (including the stale workflow) but measured only
+     protected_gate_suffixes / phase2_human_copy_targets counts before
+     concluding "REHEARSAL OVERALL: ZERO REMOVALS ACROSS ALL BUNDLES". The
+     18-step deletion is invisible to it. The report reproduces this as the
+     "Safety property, measured" table (T-006.md:1056-1066).
+
+  3. [Major] T-006.md:1122-1125 characterizes the
+     deterministic-lane-selfcheck failure as pre-existing/"not a defect";
+     measured, the sole FAIL (TEST-017-GREEN, naming the four T-006 step
+     names) is new since the apply (cycle-4 recorded 25/0/4; delivered tree
+     is 24/1/4) and clears only when the sibling candidate is refreshed,
+     not when the human-copy application completes.
+
+  4. [Major] tests/phase2-guard-invariants WFI-016 stays red (sh 33/1, ps1
+     59/10 of which nine are macOS "Windows is required" platform failures):
+     "out of sync: .github/workflows/test.yml" (T-006-attributable, item 1
+     above) plus seven "missing:" entries that are T-006's newly registered
+     paths read against epic-136-phase2-gates' 19-entry staging inventory.
+     Closing the seven-missing half means either staging seven epic-190-a2
+     files into that epic's bundle or rewriting that epic's TEST-013 pin
+     (19 entries, fixed order) - epic-136-phase2-gates' scope decision.
+expected_fix: |
+  1. Refresh .github/workflows/test.yml inside BOTH
+     specs/epic-136-phase2-gates/human-copy/ and
+     specs/epic-189-a1-project-context/human-copy/ to live bytes
+     (a37a3795...), refreshing each bundle's MANIFEST.sha256 workflow digest
+     in place (no line added, removed, or reordered - the same technique
+     36339788 proved for the six guard files), OR record here the owners'
+     explicit apply-ordering decision that makes the stale copies
+     un-appliable. Either way the silent 18-step deletion path must be
+     closed before any further bundle apply.
+  2. Re-run the apply rehearsal with the safety property extended to every
+     manifest target (byte or step-set comparison of the workflow included)
+     and persist the new transcript; retire cycle5-apply-rehearsal.log's
+     arrays-only all-clear as the safety evidence of record.
+  3. Correct the deterministic-lane-selfcheck characterization in the T-006
+     implementation report's next remediation section (new TEST-017-GREEN
+     failure caused by the apply; clears on sibling-candidate refresh).
+  4. epic-136-phase2-gates' owner decides the WFI-016 phase2_human_copy_targets
+     semantics (per-bundle staging inventory vs repository-wide registry) and
+     the TEST-013 19-entry pin; that decision is recorded against this ticket
+     but is not executed under it.
+references:
+  - "reports/quality-gate/20260811T084632Z-epic-190-a2-capability-registry-T-006.md"
+  - "reports/quality-gate/20260811T015253Z-epic-190-a2-capability-registry-T-006.md"
+  - "docs/review-tickets/RT-20260809-002.yml"
+  - "reports/implementation/epic-190-a2-capability-registry/T-006.md"
+  - "specs/epic-190-a2-capability-registry/tasks.md"
+auto_fix_allowed: false
+requires_human_decision: true
+created: 2026-08-11
