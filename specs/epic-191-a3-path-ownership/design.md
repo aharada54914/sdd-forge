@@ -142,7 +142,7 @@ of each wrapper — never a suite-twin-to-suite-twin comparison.
 | `plugins/sdd-quality-loop/scripts/generate-guard-invariants.py` | **edited** — its own fixed `PHASE2_TARGETS` tuple gains the identical three entries; without this edit its `load_and_validate()` exact-match check rejects the edited `guard-invariants.json` before `--check` ever runs (INV-015) | Python | existing, **edited**, human-applied (corrects this feature's own earlier "unchanged, read-only" mischaracterization) | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py` + 3 generated siblings | regenerated output reflecting the new protected entries; parity with the edited generator + JSON verified via `--check` against the staged tree | generated Python/JS/PS1/sh | existing, human-applied | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/references/risk-gate-matrix.md` | gains `check-component-coverage` as a required contract-check id at `high`/`critical` tier (reachability, INV-017) | Markdown | existing, edited (unprotected, direct edit) | no |
-| `plugins/sdd-quality-loop/scripts/check-contract.{sh,ps1,py}` | protected hardcoded tier-minimum set gains `check-component-coverage` at `high`/`critical`, kept equal to `risk-gate-matrix.md`'s text per `tests/gates.tests.sh` T-003's existing invariant; **additionally gains a producer-digest verification pass** that recomputes `check-component-coverage.py`'s live sha256 and rejects a `passes:true` evidence entry whose `producer.sha256` does not match (NEW-001; two-tier defense scope, ADR-0019) | Bash/PowerShell/Python | existing, edited, human-applied | **yes (pre-existing)** |
+| `plugins/sdd-quality-loop/scripts/check-contract.{sh,ps1,py}` | protected hardcoded tier-minimum set gains `check-component-coverage` at `high`/`critical`, kept equal to `risk-gate-matrix.md`'s text per `tests/gates.tests.sh` T-003's existing invariant; **additionally gains a producer-digest verification pass** that recomputes `check-component-coverage.py`'s live sha256 and rejects a `passes:true` evidence entry whose `producer.sha256` does not match (NEW-001; two-tier defense scope, ADR-0019); **amended 2026-08-11 (human-directed supersession)**: the new entry's *requirement* is capability-state-gated — `_pass4_risk_tier` drops `check-component-coverage` from the evaluated minimum while `sdd/project-context.yaml` is absent, activating it exactly when the Gate can assert something (staged candidate `eb427d60`; see Deployment / CI Plan) | Bash/PowerShell/Python | existing, edited, human-applied | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` | `## Process` gains a documented `check-component-coverage` step (defense-in-depth; the required-check-set registration above is the actual reachability guarantee) | Markdown (skill) | existing, edited | no (verified, INV-005) |
 | ~~`plugins/sdd-quality-loop/references/default-shared-paths.md`~~ | **withdrawn** — the default cross-cutting seed list's sole canonical source is Epic A1's own `contracts/project-context.template.yaml`; A3 authors no competing reference document (REQ-006, Dependencies) | N/A | **removed from scope** | n/a |
 | `tests/fixtures/component-path-ownership/` | monorepo fixture: ≥2 components, overlapping candidate paths, nested excluded subtree, bounded `contracts/**`-shaped `shared_paths` entry, 4 submodule/symlink fixtures, NFC-collision fixture, one fixture per glob clause id, a day-one cross-epic fixture reading Epic A1's `contracts/project-context.template.yaml` directly (FAILS closed/block while absent, never a stand-in) | fixture tree | new | no |
@@ -210,6 +210,14 @@ conflated:
    evidence entry whose recorded `producer.sha256` field does not match —
    no additional protected file is introduced by this, only an additional
    validation pass inside the same three-file edit already staged here.
+   The same staged edit also carries the 2026-08-11 human-directed
+   conditional-activation supersession (Deployment / CI Plan; Design
+   Decisions): `_pass4_risk_tier` drops `check-component-coverage` from
+   the evaluated tier minimum while `sdd/project-context.yaml` is absent,
+   so the registration blocks nothing until the project state the Gate
+   itself reads makes the check capable of asserting something — again no
+   additional protected file, only a condition inside the already-staged
+   edit (`eb427d60`).
    Per the two-tier defense-claim scope this mirrors
    (`docs/adr/0019-approval-sidecar-protection.md:70-77,96-103`), this
    closes footgun/tamper-evidence exposure (an unprotected caller replaced
@@ -698,9 +706,20 @@ unconditionally; no suite drives a real validator gate directly.
   six-Fail-condition evaluation and recording, but always exit 0 —
   non-blocking); `required` (identical evaluation, exit non-zero iff a
   Fail condition triggers — blocking). Always running and always emitting
-  evidence, rather than "not invoked at all" in `disabled-legacy`, is what
-  keeps `check-contract`'s required-check-set satisfiable with genuine,
-  non-fabricated evidence in every state (NEW-001). The Fail-1/3/5/6-
+  evidence remains the Gate's own contract, and every record it emits is
+  genuine and producer-digest-verifiable. **Superseded (2026-08-11,
+  human-directed)** — this bullet originally claimed that always-run/
+  always-emit "is what keeps `check-contract`'s required-check-set
+  satisfiable with genuine, non-fabricated evidence in every state
+  (NEW-001)"; that satisfiability claim held only for tasks gated after
+  the registration, and for the 94 pre-existing `high`/`critical`
+  contracts it presupposed a backfill that measurement disqualified
+  (requirements.md Problems). Required-check-set satisfiability in
+  `disabled-legacy` is now provided by conditional activation instead:
+  the staged `check-contract` candidate (`eb427d60`) drops this one id
+  from the evaluated tier minimum while `sdd/project-context.yaml` is
+  absent, so no evidence entry is demanded from a state in which the
+  Gate can assert nothing (NEW-001). The Fail-1/3/5/6-
   conditional resolver-only checks are retained but repackaged as an
   independent, non-Gate diagnostic command, never a Gate mode. This
   resolves the Epic A4 forward dependency (INV-003) by construction: a
@@ -729,7 +748,24 @@ unconditionally; no suite drives a real validator gate directly.
   the unprotected `risk-gate-matrix.md` documentation, kept in sync per
   `tests/gates.tests.sh` T-003's existing invariant) gives this Gate the
   same reachability guarantee every tier-minimum-registered check already
-  has, independent of SKILL.md's own text.
+  has, independent of SKILL.md's own text. **Amended 2026-08-11
+  (human-directed supersession)**: the registration's *activation* is
+  additionally gated on capability state — `_pass4_risk_tier` drops
+  `check-component-coverage` from the evaluated `high`/`critical` minimum
+  while `sdd/project-context.yaml` is absent (file presence being exactly
+  equivalent to `derive_state() != disabled-legacy` for any
+  schema-conformant config, and fail-closed for a malformed one). Chosen
+  over the originally-presupposed 94-contract backfill because
+  measurement disqualified the backfill (all 94 pre-existing
+  `high`/`critical` contracts are hash-bound in evidence bundles, and a
+  backfilled `passes:true` entry arms a Pass-7 producer-digest tripwire
+  that any future `check-component-coverage.py` edit detonates), while
+  the conditional gate measured `check-contract` 0/94 → 79/94,
+  `tests/gates.tests.sh` 114/12 → 126/0 on the unrepaired live suite, and
+  `mcp-tests` 231/1 → 232/0, with non-vacuity mutation-proven
+  (stuck-open, stuck-shut, and inverted mutants each caught). The
+  reachability guarantee is unchanged wherever the capability pipeline is
+  active; where it is not, there is nothing for the Gate to reach.
 - **`ownership_digest` binds the entire declared ownership input（宣言され
   た全 ownership 入力）, never a consumed/evaluated subset** (REQ-005):
   corrected from an earlier draft that bound only the matched
@@ -844,15 +880,30 @@ This feature's own rollout is staged, not all-or-nothing: `check-component-
 coverage`'s three-state capability-derived applicability model
 (`disabled-legacy`/`advisory`/`required`, REQ-004, ADR-0016 — see
 Architecture and Design Decisions "Capability-derived, three-state Gate
-applicability") is the mechanism that governs whether the newly-registered
-required-check-set entry actually blocks a consuming project's
-Implementation Gate. This repository's own immediate adoption of this CI
-registration resolves to the safe, non-blocking `disabled-legacy` path via
-the ADR-0016 file-absence fallback, because no `project-context.yaml`
-exists in this repository yet (investigation.md INV-002) and
-`check-contract`'s tier-minimum set has no capability-state axis of its own
-to consult (investigation.md INV-018) — the Gate still runs and records a
-real `state: "not-applicable (disabled-legacy)"` evidence entry (Data Plan,
+applicability") is the mechanism that governs whether the Gate's own
+ownership evaluation blocks a consuming project's Implementation Gate.
+**Superseded (2026-08-11, human-directed)** — this paragraph originally
+claimed that this repository's own immediate adoption "resolves to the
+safe, non-blocking `disabled-legacy` path" *because* the Gate itself is a
+no-op in that state, while conceding that "`check-contract`'s tier-minimum
+set has no capability-state axis of its own to consult (investigation.md
+INV-018)". Measurement on 2026-08-11 proved that concession fatal to the
+safety claim: precisely because the tier minimum had no capability-state
+axis, the applied registration demanded a `check-component-coverage`
+evidence entry from all 94 pre-existing `high`/`critical` contracts —
+whose hash-bound bundles predate the Gate — failing every one of them
+(`check-contract` 0/94, `mcp-tests` 231/1), an unexpected block at the
+`check-contract` layer even though the Gate itself remained a truthful
+no-op. The staged `check-contract` candidate (`eb427d60`) closes exactly
+this gap by giving the tier minimum a capability-state axis for this one
+id: `_pass4_risk_tier` drops `check-component-coverage` from the evaluated
+minimum while `sdd/project-context.yaml` is absent, so this repository's
+adoption is non-blocking at both layers (measured: `check-contract`
+79/94, the 15 residual failures pre-existing and unrelated;
+`tests/gates.tests.sh` 126/0 on the unrepaired live suite; `mcp-tests`
+232/0), and the minimum activates exactly when a consuming project's
+capability pipeline does. The Gate still runs and records a real
+`state: "not-applicable (disabled-legacy)"` evidence entry (Data Plan,
 NEW-001) rather than an unexpected block. No separate feature-flag
 mechanism, canary stage, or phased CI rollout beyond this existing
 capability axis is introduced by this feature (Security Boundaries B5).
@@ -866,7 +917,7 @@ capability axis is introduced by this feature (Security Boundaries B5).
 | Doc-following (REQ-008) | ADR Change Log; CHANGELOG entries per Phase-2 task; single-source count discipline |
 | Version-bump discipline | Global Constraints |
 | No Registry/Epic A2 coupling | Architecture — Gate wired directly into `quality-gate`'s `## Process` (+ required-check-set), no Registry projection dependency |
-| No file-presence mode selection | ADR-0016 — Design Decisions "Capability-derived Gate applicability" |
+| No file-presence mode selection | ADR-0016 — Design Decisions "Capability-derived Gate applicability". The 2026-08-11 conditional-activation supersession does not violate this constraint: the constraint rejects inferring the Gate's mode from an *incidental artifact* (a Facet Manifest happening to exist, INV-016), whereas the staged `check-contract` predicate reads the presence of `sdd/project-context.yaml` itself — ADR-0016's own file-absence fallback, exactly equivalent to `derive_state() != disabled-legacy` for any schema-conformant config and fail-closed for a malformed one |
 | Cross-OS path semantics (requirements.md Target Users, lines 64-69: "path and case semantics must not depend on host OS") | Design Decisions "Glob semantics" and "Path/case normalization and raw-identity preservation"; REQ-009's dual-runtime parity harness proves the `.sh`/`.ps1` wrappers behaviorally identical, not merely both present |
 | Submodule/symlink reference-only boundary (requirements.md Security Boundaries) | Architecture (git-diff collector's "submodule/symlink → reference-only evaluation"); Security Boundaries; security-spec.md Trust Boundaries B4 |
 | Fail-6 credential exclusion (requirements.md Security Boundaries) | Security Boundaries; security-spec.md Secrets Management — Fail-6 never reads `sdd/provider-bindings.yaml`'s `credentials` block |

@@ -130,12 +130,51 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   and `advisory` would be silently promoted to the same blocking strength
   as `required` — both outcomes contradict ADR-0016's own
   `capability_enforcement: advisory | required` distinction and its
-  `disabled-legacy` domain-exclusion rule. The remedy is not to make
+  `disabled-legacy` domain-exclusion rule. `check-component-coverage`
+  itself is state-aware either way: it always runs, always emits real
+  evidence, and its own recorded `state`/exit-code reflect which of the
+  three derived states applied (REQ-004) — that half of the remedy is
+  unchanged. **Superseded (2026-08-11, human-directed)** — the other
+  half of this passage originally read: "The remedy is not to make
   `check-contract`'s tier mechanism itself capability-aware (out of this
-  feature's touch surface, Non-goals), but to make
-  `check-component-coverage` itself state-aware: it always runs, always
-  emits real evidence, and its own recorded `state`/exit-code reflect
-  which of the three derived states applied (REQ-004).
+  feature's touch surface, Non-goals)". That prohibition existed to keep
+  this feature's protected-file touch surface minimal — the sanctioned
+  `check-contract` edit was scoped to adding tier-minimum entries plus
+  the producer-digest verification pass (Non-goals) — and it implicitly
+  presupposed that every pre-existing `high`/`critical` contract could
+  satisfy the newly-registered minimum through a backfilled evidence
+  entry. Measurement on 2026-08-11 overturned that presupposition,
+  twice over: (a) the unconditional registration broke all 94
+  pre-existing `high`/`critical` contracts (`check-contract` 0/94;
+  the `mcp-tests` CI job red at 231/1), and (b) the backfill is
+  structurally disqualified — all 94 contracts are hash-bound
+  `artifacts[]` entries in their tasks' evidence bundles, so editing
+  them trades the missing-check failure for the tampered-artifact
+  failure H-02.2 exists to catch, and `check-contract` offers no
+  grandfather path, so each backfilled entry must claim `passes:true`
+  with a `producer.sha256` matching the live script — 94 byte-identical
+  records attesting nothing, armed against a Pass-7 tripwire that any
+  future edit to `check-component-coverage.py` detonates (measured: 79
+  pass → 0 pass on a one-line comment; epic-192 is scheduled to edit
+  that script). The sanctioned remedy is now **conditional activation**
+  (staged human-copy candidate, commit `eb427d60`): `check-contract`'s
+  `_pass4_risk_tier` drops `check-component-coverage` — and only that
+  id — from the `high`/`critical` tier minimum exactly while
+  `sdd/project-context.yaml` is absent, the same state in which the
+  Gate itself derives `disabled-legacy` and can assert nothing. The
+  predicate is file presence, not a re-derived three-way state:
+  `contracts/project-context.schema.json` makes `capability_enforcement`
+  required with enum `advisory|required`, so presence is exactly
+  equivalent to `derive_state() != disabled-legacy` for every
+  schema-conformant config, fail-closed (check still required) for a
+  malformed one, and no YAML parser — whose caught exception would
+  silently conclude `disabled-legacy` and turn the minimum off forever —
+  participates in the decision. Measured against a candidate-patched
+  tree: `check-contract` 79/94 (the 15 residual failures are
+  pre-existing missing-evidence findings unrelated to this check),
+  `tests/gates.tests.sh` 126/0 with the unrepaired live suite,
+  `mcp-tests` 232/0; non-vacuity was mutation-proven (stuck-open,
+  stuck-shut, and inverted-condition mutants each caught).
 
 ## Dependencies
 
@@ -234,7 +273,10 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   live, on-disk `check-component-coverage.py` and rejects a `passes:true`
   evidence entry whose recorded `producer.sha256` field does not match —
   no new protected-file family is introduced by this, only an additional
-  validation pass inside the edit this feature already stages. This
+  validation pass inside the edit this feature already stages. The same
+  staged edit also carries the 2026-08-11 conditional-activation
+  supersession (Problems): the tier-minimum requirement for this one id
+  activates only once `sdd/project-context.yaml` exists. This
   closes the gap (Problems; formerly a NOT_RESOLVED verification finding)
   where an unprotected caller could be replaced and paired with a
   fabricated `passes:true` evidence entry pointing at any existing file;
@@ -400,12 +442,32 @@ schemas this feature now treats as a hard (not follow-up) dependency.
     NEW-001 finding, INV-018) — `check-component-coverage` **always runs**
     and **always emits a real, truthful evidence record** (Data Plan); it
     is the record's `state` field and exit code, not whether the script
-    ran at all, that vary across the three derived states below. This
-    also closes the required-check-set incompatibility (NEW-001): a
-    `disabled-legacy` `high`/`critical` task has a genuine, non-fabricated
-    `passes:true` evidence entry to satisfy `check-contract`'s tier
-    minimum (Dependencies), never a choice between "no evidence exists"
-    and "a fabricated pass."
+    ran at all, that vary across the three derived states below.
+    **Superseded (2026-08-11, human-directed)** — this bullet originally
+    continued: "This also closes the required-check-set incompatibility
+    (NEW-001): a `disabled-legacy` `high`/`critical` task has a genuine,
+    non-fabricated `passes:true` evidence entry to satisfy
+    `check-contract`'s tier minimum (Dependencies), never a choice
+    between 'no evidence exists' and 'a fabricated pass.'" That closure
+    held only for tasks gated after the registration landed; for the 94
+    pre-existing `high`/`critical` contracts it prescribed backfilling
+    minted evidence records, which measurement disqualified (Problems:
+    hash-bound bundles, no grandfather path, Pass-7 producer-digest
+    tripwire). The required-check-set incompatibility (NEW-001) is now
+    closed by **conditional activation** instead: the staged
+    `check-contract.{py,ps1}` candidate (`eb427d60`) drops
+    `check-component-coverage` from the `high`/`critical` tier minimum
+    exactly while `sdd/project-context.yaml` is absent — the same state
+    in which the Gate derives `disabled-legacy` and can assert nothing —
+    so a `disabled-legacy` task (including every pre-existing contract)
+    is not required to carry the entry at all, and the minimum activates
+    precisely when the Gate becomes capable of asserting something. The
+    Gate's own always-run/always-emit contract below is unchanged: its
+    genuine records remain producer-digest-verifiable in every state
+    (the Pass-7 verification is not state-gated), and once the project
+    context lands, the activated minimum is satisfiable only by such a
+    genuine record — never a choice between "no evidence exists" and "a
+    fabricated pass."
     - **`disabled-legacy`** (derived state, ADR-0016 §4): the script still
       runs, reads the same `--config`, and determines it is in this
       state — it performs **zero** ownership Fail-condition evaluation
@@ -417,8 +479,10 @@ schemas this feature now treats as a hard (not follow-up) dependency.
       `quality-gate`'s `## Process` step treats this outcome as an
       expected no-op. This mirrors ADR-0016 §4's requirement that the
       entire capability evaluation pipeline sits outside its own domain in
-      this state, while still giving `check-contract`'s required-check-set
-      genuine evidence to validate (NEW-001).
+      this state, while still emitting a genuine record `check-contract`'s
+      producer-digest pass can validate whenever one is present — under
+      the 2026-08-11 supersession (above), the tier minimum itself no
+      longer requires this id in this state (NEW-001).
     - **`advisory`**: the Gate **is** invoked, and by construction requires
       a Facet Manifest — `--facet-manifest <path>` is a structurally
       required flag in this state (its own argument-parsing enforces
@@ -486,7 +550,11 @@ schemas this feature now treats as a hard (not follow-up) dependency.
     direct edit) *and* in `check-contract`'s own protected, hardcoded
     tier-minimum set (`check-contract.{sh,ps1,py}`, staged via human-copy
     since `check-contract.*` is already R-10 protected,
-    `guard-invariants.json:14-16`). The same staged `check-contract.*`
+    `guard-invariants.json:14-16`). The entry's *requirement* is
+    capability-state-gated per the 2026-08-11 supersession (Problems;
+    applicability sub-bullet above): it participates in the evaluated
+    tier minimum only once `sdd/project-context.yaml` exists. The same
+    staged `check-contract.*`
     candidate additionally gains a producer-digest verification pass: a
     `passes:true` `check-component-coverage` evidence entry must be an
     `emit-run-record`-conformant record (Data Plan) whose `check_id`
@@ -711,7 +779,20 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   only adds new entries to protected *data*/*policy* files
   (`guard-invariants.json`, `generate-guard-invariants.py`'s inventory
   tuple, `check-contract`'s tier-minimum set, `risk-gate-matrix.md`) the
-  existing guard/gate scripts already read.
+  existing guard/gate scripts already read, plus — **amended 2026-08-11
+  (human-directed supersession; Problems, REQ-004)** — the
+  capability-state activation predicate for the one tier-minimum entry
+  this feature itself adds (`_pass4_risk_tier` drops
+  `check-component-coverage` from the `high`/`critical` minimum while
+  `sdd/project-context.yaml` is absent) and the producer-digest
+  verification pass (Dependencies), both carried by the same staged
+  `check-contract` human-copy candidate (`eb427d60`). As originally
+  written, this bullet scoped the sanctioned `check-contract` change to
+  "adds new entries" only; that narrower scope presupposed the
+  94-contract backfill that measurement overturned on 2026-08-11
+  (Problems). No other check id gains a capability-state axis, no
+  general capability-awareness is added to the tier mechanism, and
+  `sdd-hook-guard.*`'s enforcement logic remains untouched.
 
 ## User Stories
 
@@ -945,7 +1026,10 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   for `high`/`critical` tier in `risk-gate-matrix.md` and in
   `check-contract`'s protected hardcoded tier-minimum set, which now also
   verifies the evidence entry's `producer.sha256` against the live script
-  (Dependencies, AC-055); a fixture that deletes or renames the
+  (Dependencies, AC-055; under the 2026-08-11 supersession the
+  tier-minimum requirement for this id is active only once
+  `sdd/project-context.yaml` exists, while the producer-digest
+  verification runs in every state); a fixture that deletes or renames the
   `quality-gate/SKILL.md` invocation, or substitutes an unregistered
   replacement script and pairs it with a same-id `passes:true` evidence
   entry whose `producer.sha256` does not match the real
@@ -1445,8 +1529,10 @@ restated rule.
   when its ownership evaluation is a no-op; mitigated by the
   `disabled-legacy` path being deliberately cheap (config-read + a fixed
   evidence record, no `git diff` collection, no Facet Manifest read), so
-  this is a bounded, intentional trade for closing the required-check-set
-  incompatibility, not an unbounded cost.
+  this is a bounded, intentional trade for truthful, producer-digest-
+  verifiable evidence in every state, not an unbounded cost (the
+  required-check-set incompatibility itself is closed by the 2026-08-11
+  conditional-activation supersession — Problems, REQ-004).
 - Consolidating the default cross-cutting seed inventory onto a single
   canonical source, Epic A1's `contracts/project-context.template.yaml`
   (REQ-006), couples REQ-007's day-one fixture to an artifact this feature
