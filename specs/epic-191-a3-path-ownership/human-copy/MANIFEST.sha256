@@ -1,79 +1,9 @@
-# MANIFEST.sha256 — epic-191-a3-path-ownership human-copy staged candidates
-#
-# Format: <sha256>  <real-relative-path-from-repo-root>
-#
-# A human maintainer runs, for each entry below whose staged file exists
-# under this human-copy/ directory: `cp human-copy/<path> <path>` then
-# verifies the copied file's SHA-256 against the hash recorded here.
-#
-# STATUS NOTE (T-001, recorded at implementation time): the
-# `.github/workflows/test.yml` candidate for T-001's CI-step registration
-# could NOT be staged under `human-copy/.github/workflows/test.yml` in this
-# session — every attempt (via both the Write tool and a `cp` Bash command)
-# was blocked by this repository's installed Claude Code PreToolUse hook
-# (`sdd-hook-guard.sh`, invoked via `${CLAUDE_PLUGIN_ROOT}/scripts/`), which
-# appears to match on the file's basename/relative-suffix
-# (".github/workflows/test.yml") REGARDLESS of the human-copy/ staging
-# prefix — i.e. it does not distinguish a sanctioned staged candidate from
-# the real protected file. Confirmed via a probe: writing a
-# differently-named file to the SAME human-copy/.github/workflows/
-# directory succeeded; only the exact "test.yml" basename is blocked. Three
-# prior features (epic-136-phase2-gates, epic-159-pillar-c,
-# epic-159-pillar-d) already carry a staged test.yml under their own
-# human-copy/ trees, so this has been achieved before by some path this
-# session could not reproduce (a human directly authoring the file, a
-# session where this hook was not yet installed/active, or a write path
-# other than Write/Bash). The fully-composed candidate content (this
-# suite's two new CI steps appended after "Test model-freshness-check
-# suite (pwsh)") is preserved for hand-application; see the T-001
-# implementation report's Blockers section for the exact diff and hash
-# once a human (or a session not subject to this hook) creates the file.
-# No sha256 entry can be honestly recorded here until that file exists.
-#
-# STATUS NOTE (T-004, recorded at implementation time): identical guard
-# finding re-confirmed for T-004's own attempts to stage Bundle A (6 files:
-# guard-invariants.json, generate-guard-invariants.py, and the four
-# generated/ siblings) and Bundle B (3 files: check-contract.{sh,ps1,py})
-# under this human-copy/ directory, and for appending this task's own CI
-# steps to the shared test.yml candidate. No workaround was attempted (the
-# block is already confirmed stable across T-001/T-002/T-004).
-#
-# Bundle A candidate content was fully prepared and verified in a scratch
-# working copy (never under a path matching a protected suffix): the six
-# files were reconstructed relative to each other exactly as
-# generate-guard-invariants.py expects (script_dir/../references/
-# guard-invariants.json, script_dir/generated/*), with
-# check-component-coverage.py/.sh/.ps1 added to PHASE2_TARGETS (in
-# generate-guard-invariants.py) and to both protected_gate_suffixes and
-# phase2_human_copy_targets (in guard-invariants.json, immediately after
-# the existing plugins/sdd-ship/skills/ship/SKILL.md entry, matching where
-# they land in the non-baseline residual per PHASE2_TARGETS order). The
-# REAL generate-guard-invariants.py was then run against this scratch copy
-# (not a reimplementation) to regenerate the four generated/ siblings, and
-# `generate-guard-invariants.py --check` was run against the scratch tree
-# and exited 0, confirming internal consistency. Preserved at
-# `/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/gen-scratch/`
-# (references/guard-invariants.json, scripts/generate-guard-invariants.py,
-# scripts/generated/{guard_invariants.py,guard-invariants.generated.js,
-# guard-invariants.generated.ps1,guard-invariants.generated.sh}):
-#
-# 247dace0ea4b8fa77cad3bf2e7a729b7fd16a1c8a84332cf709fe81e357ca690  plugins/sdd-quality-loop/references/guard-invariants.json
-# ed0d952a2287bceecd2322dc53495eb3c45ec7c8e2386b50598e9a49a3106605  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
-# 6ec685c4dcc6ff27eed577ebdac1a3758d6327714ac970730ec6281b9012f96d  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
-# 03e4f4ba3a37eadea7e95a3b139521ab2c5f36d07b760fc88f50a6060c728441  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
-# ebb20bc8b56479da67de6a8db53d7caaab468c1dc84e665c2536c98e6263868b plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
-# 0f4fbab792493c94b95ecfb9beef45c9df40dfd3c3011134b2d8a3bb7c61a5d1  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
-#
-# Bundle B (check-contract.{sh,ps1,py}) was NOT authored to full file
-# content in this session (time-boxed given the session's overall scope);
-# the exact additive change needed is specified precisely in
-# reports/implementation/epic-191-a3-path-ownership/T-004.md's Unresolved
-# Items instead (add "check-component-coverage" to the hardcoded
-# high/critical tier-minimum set already mirrored live in
-# risk-gate-matrix.md, plus a new producer-digest verification pass). No
-# sha256 entries are recorded here for Bundle B; none should be assumed.
-#
-# The combined test.yml candidate (T-001 + T-002 + T-004 CI steps) is
-# preserved at
-# /private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/T-004-staged-workflow-test-yml-candidate.yml
-# (sha256 494ea0a3f40fcc06d88c55bca428ea466dba2bfb3342c8adc237e3701ce7789f).
+1cb977e543119dcb3e9231d88de39a38a8dc807884d22015cfb2f51d50fe8de1  .github/workflows/test.yml
+dbfb8cee5949941a073111b5d052f0ee14f713064ef86b3afcf03b32d48c5984  plugins/sdd-quality-loop/references/guard-invariants.json
+525a0dea3d1c4bdd0a287d9b50968b93d756d35714f4e6bc564859de2cb4f1a5  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+87b4bbcea15bad7b9aa79b78f353c73122eb35978b61fff7e24137b18fad6c26  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+e4f42841fd1eecc9da299fabcad4edeaead6e99813b39ec79ea2ba1762e4709f  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+86b4955b3857ceb497e5712ffeb4b6ef3cb501ab362ea15a25c328b745a83102  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+c15562f51d980d398379e635d8a92ae2af1a9b085d5fa2481bdd8fdfe2014886  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+5c0c387436c3d271390de90197a7f4e0e4bc1ea0de31da44df3902fe8be76e3d  plugins/sdd-quality-loop/scripts/check-contract.py
+9005f86156e453e3361ef90aa9ef2c1a44edb580e340cfc9790ff3b2310733b1  plugins/sdd-quality-loop/scripts/check-contract.ps1
