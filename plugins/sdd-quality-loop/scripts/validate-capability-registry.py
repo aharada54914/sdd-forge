@@ -27,6 +27,18 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from registry_discovery import discover_artifact, resolve_git_root, DiscoveryError  # noqa: E402
 
+
+def _emit_stdout(line):
+    """Write one stdout line byte-deterministically (LF on every platform).
+
+    Windows text-mode stdout translates \n to \r\n, which breaks the
+    byte-identical cross-wrapper/golden comparisons (TEST-031); writing
+    through sys.stdout.buffer pins LF.
+    """
+    sys.stdout.buffer.write((line + "\n").encode("utf-8"))
+    sys.stdout.buffer.flush()
+
+
 SCAN_ROOT_REL = "plugins/sdd-quality-loop/scripts"
 PROVIDER_TERMS_REL = "plugins/sdd-quality-loop/references/provider-terms.json"
 
@@ -278,15 +290,15 @@ def main(argv=None):
     else:
         repo_root = resolve_git_root()
     if repo_root is None:
-        print("registry: cannot resolve repository root (no git command and no reachable .git)")
+        _emit_stdout("registry: cannot resolve repository root (no git command and no reachable .git)")
         return 1
 
     diagnostics = run(args.registry, repo_root)
     if diagnostics:
         for line in diagnostics:
-            print(line)
+            _emit_stdout(line)
         return 1
-    print("validate-capability-registry: all 9 checks passed.")
+    _emit_stdout("validate-capability-registry: all 9 checks passed.")
     return 0
 
 

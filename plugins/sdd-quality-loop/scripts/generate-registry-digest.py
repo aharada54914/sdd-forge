@@ -23,6 +23,18 @@ class DigestError(Exception):
     pass
 
 
+def _emit_stdout(line):
+    """Write one stdout line byte-deterministically (LF on every platform).
+
+    Windows text-mode stdout translates \n to \r\n, which breaks the
+    byte-identical cross-wrapper/golden comparisons (TEST-031) and the
+    64-hex+LF framing pin; writing through sys.stdout.buffer pins LF.
+    """
+    sys.stdout.buffer.write((line + "\n").encode("utf-8"))
+    sys.stdout.buffer.flush()
+
+
+
 def _canonicalizer_path() -> Path:
     return Path(__file__).resolve().parent / "canonicalize-sdd-yaml.py"
 
@@ -137,7 +149,7 @@ def main(argv: list[str] | None = None) -> int:
         if not isinstance(registry, dict):
             raise DigestError("invalid-registry: top level must be an object")
         selected = registry if args.whole else build_fragment(registry, capability_ids, gate_ids)
-        print(canonical_digest(selected))
+        _emit_stdout(canonical_digest(selected))
     except (
         OSError,
         UnicodeError,

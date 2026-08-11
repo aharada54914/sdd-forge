@@ -37,6 +37,18 @@ error, never conflated with a WARN evaluation outcome.
 import json
 import sys
 
+
+def _emit_stdout(line):
+    """Write one stdout line byte-deterministically (LF on every platform).
+
+    Windows text-mode stdout translates \n to \r\n, which breaks the
+    byte-identical cross-wrapper/golden comparisons (TEST-031); writing
+    through sys.stdout.buffer pins LF.
+    """
+    sys.stdout.buffer.write((line + "\n").encode("utf-8"))
+    sys.stdout.buffer.flush()
+
+
 # AC-011 / INV-004a: this list is the field allowlist's source of truth
 # within this script. It is generated from, or drift-checked against,
 # Epic A1's Project Context schema per design.md's API/Contract Plan --
@@ -332,7 +344,7 @@ def check_field_allowlist(project_context_path):
             file=sys.stderr,
         )
         return 1
-    print("Field allowlist matches the Project Context schema (or fixture): no drift.")
+    _emit_stdout("Field allowlist matches the Project Context schema (or fixture): no drift.")
     return 0
 
 
@@ -385,7 +397,7 @@ def main(argv=None):
         print(f"PREDICATE_SCHEMA_ERROR: {exc}", file=sys.stderr)
         return 2
 
-    print(json.dumps(output, sort_keys=True))
+    _emit_stdout(json.dumps(output, sort_keys=True))
     return 0
 
 
