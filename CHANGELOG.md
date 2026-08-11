@@ -1083,7 +1083,8 @@
   human-copy 経由でステージ(T-003 の候補に追記)。詳細は
   `reports/implementation/epic-190-a2-capability-registry/T-004.md` を参照。
 - **Registry discovery contract + vendored-copy packaging (Issue #190,
-  epic-190-a2-capability-registry T-003)**: ADR-0025 の三段階
+  epic-190-a2-capability-registry T-003)**: ADR-0029(2026-08-11 の
+  番号衝突解消まで ADR-0025)の三段階
   script-relative 探索(`plugins/sdd-quality-loop/scripts/registry_discovery.py`、
   T-004/T-005 が import する共有 helper)を実装。①自スクリプトの
   symlink 解決済み実パスから `../contracts/<filename>` のパッケージ済み

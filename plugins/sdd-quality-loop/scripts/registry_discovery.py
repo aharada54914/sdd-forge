@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """registry_discovery: the Registry discovery contract (T-003, REQ-005,
-ADR-0025, docs/adr/0025-registry-discovery-contract.md).
+ADR-0029, docs/adr/0029-registry-discovery-contract.md).
 
 Shared helper module -- imported by validate-capability-registry.py (T-004)
 for the lite-upgrade-reason-catalog lookup and generate-registry-digest.py

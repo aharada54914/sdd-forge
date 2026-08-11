@@ -71,6 +71,62 @@ provenance re-review of those frozen specs.
 The three in-repo references that did mean the adversarial lane all live
 in `0026-gate-cross-critique-phase.md` and were updated to ADR-0027.
 
+## 2026-08-11 duplicate-number resolution (third collision at 0025)
+
+The same class recurred at 0025 a **third** time, and this one was
+structurally invisible to the 2026-08-10 resolution: the third file,
+`0025-registry-discovery-contract.md`, lived only on the
+`feature/epic-190-a2-capability-registry` branch (first committed
+2026-07-22, `673e42d6`) and had never reached main, so the 2026-08-10
+sweep — which audited main's `docs/adr/` and this index — could not see
+it or its branch-side index row. The detection hole named in that
+resolution (an ADR this index does not list) bit again in a new form: an
+ADR committed on an unmerged feature branch is invisible to any
+main-side index scan, indexed or not.
+
+| Number | Kept file | Renumbered file |
+|---|---|---|
+| 0025 | `0025-human-copy-transactional-bundle.md` | `0025-registry-discovery-contract.md` |
+
+- `0025-registry-discovery-contract.md` → **`0029-registry-discovery-contract.md`**
+
+0028 was skipped deliberately: `0028-live-host-proof-ed25519-signing.md`
+already exists on `feature/epic-196-a8-integration`. The same all-refs
+audit (`git log --all --name-only`, plus `git ls-tree` on every remote
+branch, 2026-08-11) also found a **fourth** latent collision — a second,
+different 0027 (`0027-component-path-ownership-resolver-semantics.md`)
+on `feature/epic-191-a3-path-ownership` — which is not resolved here and
+falls due when that branch merges. 0029 was the lowest number free
+across every local and remote ref.
+
+A timeline note for future archaeology: by raw first-commit time the
+yielding file was actually the earlier one (`673e42d6`, 2026-07-22 08:27
+JST, branch-only) — main's `0025-human-copy-transactional-bundle.md`
+followed twenty minutes later (`e28ba891`, 08:47 JST), and both files'
+Date lines say 2026-07-21. The number nonetheless stays with human-copy,
+consistent with both precedent resolutions: it has held 0025 on main
+through two prior collision resolutions, every bare `ADR-0025` reference
+in the hash-bound `specs/epic-189-a1-project-context/` documents means
+it, and renumbering the main-side incumbent would force a provenance
+re-review of frozen specs — exactly the cost the 2026-08-10 note records
+avoiding. Since 2026-07-22 that note's claim that "every bare `ADR-0025`
+reference outside `docs/adr/` resolves to the human-copy decision" no
+longer holds branch-wide: the frozen
+`specs/epic-190-a2-capability-registry/` documents use bare `ADR-0025`
+meaning the Registry Discovery Contract. Disambiguation is by subject
+matter, per § Legacy bare-number references below.
+
+Live, unfrozen, unpinned references that meant the Registry Discovery
+Contract (`plugins/sdd-quality-loop/scripts/registry_discovery.py`,
+`vendor-capability-registry.py`, `tests/registry-discovery.tests.sh`,
+`tests/registry-discovery.tests.ps1`, and `CHANGELOG.md`'s epic-190-a2
+T-003 entry) were updated to ADR-0029. The frozen
+`specs/epic-190-a2-capability-registry/` trio
+(requirements/design/tasks), `traceability.md` (pinned by the attempt-7
+task-review manifests, seq 0682/0683), and all historical `reports/`
+keep their bare `ADR-0025` references and resolve per § Legacy
+bare-number references.
+
 ## Legacy bare-number references
 
 Tombstone stubs resolve a *path* reference (e.g.
@@ -106,6 +162,8 @@ general rule above, without requiring a table update first.
 | `.github/workflows/test.yml` comments (e.g. the `local-env-mcp-tests` and `ci-mcp-tests` job headers) | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
 | `specs/sdd-domain/**` and its related `reports/` | `ADR-0004` (DDD upstream domain lane) | ADR-0015 |
 | `specs/local-env-mcp/**` and other artifacts referencing the no-exec probe allowlist (local-env-mcp's own decision) | `ADR-0004` | ADR-0004 (unchanged — the first-mover at this number keeps it) |
+| `specs/epic-190-a2-capability-registry/**` and its related `reports/` (implementation, impl-review, quality-gate) | `ADR-0025` (Registry Discovery Contract) | ADR-0029 |
+| `specs/epic-189-a1-project-context/**` and its related `reports/` | `ADR-0025` (human-copy transactional bundle) | ADR-0025 (unchanged — the incumbent at this number keeps it) |
 
 New work must always cite the current number or filename directly and
 must never rely on a bare legacy number.
@@ -142,7 +200,8 @@ must never rely on a bare legacy number.
 | 0023 | Track Selection Contract Migration | Accepted |
 | 0024 | Workflow State Registry vs. Project Context | Accepted |
 | 0025 | Human-Copy Publisher Transactional Bundle | Accepted |
-| 0025 | Registry Discovery Contract | Accepted |
+| 0025 | Registry Discovery Contract — renumbered to ADR-0029 | (tombstone) |
 | 0025 | Risk-Adaptive Adversarial Review Lane — renumbered to ADR-0027 | (tombstone) |
 | 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
 | 0027 | Risk-Adaptive Adversarial Review Lane | Proposed |
+| 0029 | Registry Discovery Contract | Accepted |

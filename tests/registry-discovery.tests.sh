@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # TDD suite for the Registry discovery contract + vendoring step
-# (T-003, REQ-005, ADR-0025).
+# (T-003, REQ-005, ADR-0029; numbered ADR-0025 until the 2026-08-11 renumber).
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"

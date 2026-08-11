@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """vendor-capability-registry: the vendoring/packaging step (T-003, REQ-005,
-ADR-0025's vendored-copy drift check / release gate).
+ADR-0029's vendored-copy drift check / release gate).
 
 Refreshes `plugins/sdd-quality-loop/contracts/*` from the canonical
 top-level `contracts/*` originals (capability-registry.json,

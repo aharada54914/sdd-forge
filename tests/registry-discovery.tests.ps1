@@ -1,5 +1,5 @@
 # TDD suite for the Registry discovery contract + vendoring step
-# (T-003, REQ-005, ADR-0025) -- PowerShell twin.
+# (T-003, REQ-005, ADR-0029; numbered ADR-0025 until the 2026-08-11 renumber) -- PowerShell twin.
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
