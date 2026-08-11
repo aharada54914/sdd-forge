@@ -6,7 +6,11 @@ Date: 2026-07-23
 
 Numbering note: re-verified with `ls docs/adr/` on 2026-08-08. ADR numbers
 0025 and 0026 were occupied after the original draft, so this decision was
-renumbered to the next free slot, 0027.
+renumbered to the next free slot, 0027. Renumbered again to 0030 on
+2026-08-12 after main's 2026-08-10 resolution assigned 0027 to the
+risk-adaptive adversarial review lane — an all-refs audit found 0028/0029
+taken on sibling branches, which an `ls docs/adr/` on one branch cannot see
+(the recurring detection hole; see docs/adr/README.md).
 
 ## Context
 
