@@ -932,3 +932,20 @@ ok: T-003 uninstall output is unaffected by project-context presence
 
 uninstall.tests.ps1: all scenarios passed.
 context invariant mutation proof complete: 4 assertions
+
+=== cycle 2 uninstall output-comparison remediation (2026-08-12) ===
+MUTATE uninstall-sh
+FAIL: T-003 uninstall output changed with project-context presence
+Results: 24 passed, 1 failed.
+EXPECTED RED: uninstall-sh (exit 1)
+RESTORE uninstall-sh / GREEN
+ok: T-003 uninstall output is unaffected by project-context presence
+Results: 25 passed, 0 failed.
+MUTATE uninstall-ps1
+T-003 uninstall output changed with project-context presence
+EXPECTED RED: uninstall-ps1 (exit 1)
+RESTORE uninstall-ps1 / GREEN
+ok: T-003 uninstall output is unaffected by project-context presence
+uninstall.tests.ps1: all scenarios passed.
+The mutation appends one observable line to the context-present run's captured
+output. Both assertions reject that divergence and return GREEN after restore.

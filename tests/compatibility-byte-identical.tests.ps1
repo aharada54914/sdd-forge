@@ -6,6 +6,7 @@ $script:_SddFixtureMatrixBuilderSourced = $false
 . (Join-Path $Root 'tests/lib/fixture-matrix-builder.ps1')
 
 $Canonical = if ($env:T003_CANONICAL_UNDER_TEST) { $env:T003_CANONICAL_UNDER_TEST } else { Join-Path $Root 'specs/epic-195-a7-compatibility/verification/golden-baseline/canonical' }
+$ProductRoot = if ($env:T003_PRODUCT_ROOT_UNDER_TEST) { $env:T003_PRODUCT_ROOT_UNDER_TEST } else { $Root }
 $Cache = $env:T003_CAPTURE_CACHE
 $Mutation = $env:T003_MUTATE_ASSERTION
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-compatibility-byte.' + [Guid]::NewGuid().ToString('N'))
@@ -45,13 +46,29 @@ function Invoke-FixedCapture([string]$Fixture, [string]$Destination) {
     }
 }
 
-function Invoke-Track([string]$Fixture, [string]$Flag, [string]$Output) {
-    $result = if ($Flag -ceq '--full') { 'FULL' }
-        elseif ($Flag -ceq '--lite') { 'LITE' }
-        elseif ((Test-Path (Join-Path $Fixture 'AGENTS.md')) -and
-            ((Get-Content -Raw (Join-Path $Fixture 'AGENTS.md')).Trim() -ceq 'spec_profile: lite')) { 'LITE' }
-        else { 'FULL' }
-    [IO.File]::WriteAllText($Output, "$result`n", [Text.UTF8Encoding]::new($false))
+function Resolve-ContractTrack([string]$Document, [string]$Fixture, [string]$Flag) {
+    if (-not (Test-Path -LiteralPath $Document -PathType Leaf)) {
+        throw "missing live product contract: $Document"
+    }
+    $text = Get-Content -Raw -LiteralPath $Document
+    $heading = [regex]::Match($text, '(?m)^#{3,4} Compatibility fallback \(no Project Context\)\s*$')
+    if (-not $heading.Success) { throw "missing compatibility fallback section: $Document" }
+    $tail = $text.Substring($heading.Index + $heading.Length)
+    $nextHeading = [regex]::Match($tail, '(?m)^#{1,4} \S')
+    $section = if ($nextHeading.Success) { $tail.Substring(0, $nextHeading.Index) } else { $tail }
+    $rows = @{}
+    foreach ($match in [regex]::Matches($section, '(?m)^\s*([1-4])\.\s+(.+?)\s*$')) {
+        $rows[[int]$match.Groups[1].Value] = $match.Groups[2].Value
+    }
+    if ($rows.Count -ne 4) { throw "incomplete compatibility fallback rows: $Document" }
+
+    $agents = Join-Path $Fixture 'AGENTS.md'
+    $markerPresent = (Test-Path -LiteralPath $agents -PathType Leaf) -and
+        ((Get-Content -LiteralPath $agents) -ccontains 'spec_profile: lite')
+    $row = if ($Flag -ceq '--full') { 1 } elseif ($Flag -ceq '--lite') { 2 } elseif ($markerPresent) { 3 } else { 4 }
+    $track = [regex]::Match($rows[$row], '(?<![A-Za-z])(FULL|LITE)(?![A-Za-z])')
+    if (-not $track.Success) { throw "fallback row $row has no track resolution: $Document" }
+    return $track.Value
 }
 
 try {
@@ -95,34 +112,40 @@ try {
     }
 
     foreach ($cell in @(
-        'none|present|LITE', 'none|absent|FULL',
-        '--full|present|FULL', '--full|absent|FULL',
-        '--lite|present|LITE', '--lite|absent|LITE'
+        'none|present', 'none|absent',
+        '--full|present', '--full|absent',
+        '--lite|present', '--lite|absent'
     )) {
-        $flag, $marker, $expected = $cell.Split('|')
+        $flag, $marker = $cell.Split('|')
         $fixture = if ($marker -ceq 'present') { build_fixture absent present disabled-legacy valid $flag } else { build_fixture absent absent disabled-legacy valid $flag }
         $Fixtures.Add($fixture)
-        $safe = ($flag -replace '-', '') + '-' + $marker
-        $first = Join-Path $Work "$safe-1.txt"
-        $second = Join-Path $Work "$safe-2.txt"
-        Invoke-Track $fixture $flag $first
-        Invoke-Track $fixture $flag $second
-        if ($Mutation -ceq "CLI:$cell") { [IO.File]::WriteAllText($second, "MUTATED`n", [Text.UTF8Encoding]::new($false)) }
-        $actual = (Get-Content -Raw $first).Trim()
-        if ((Test-BytesEqual $first $second) -and $actual -ceq $expected) {
-            Add-Pass "CLI cell $cell is byte-identical and respects flag-marker-default priority"
-        } else { Add-Fail "CLI cell $cell differs or selects the wrong track" }
+        try {
+            $first = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag
+            $second = Resolve-ContractTrack (Join-Path $ProductRoot 'plugins/sdd-ship/skills/ship/SKILL.md') $fixture $flag
+            $expected = Resolve-ContractTrack (Join-Path $ProductRoot 'PLUGIN-CONTRACTS.md') $fixture $flag
+            if (($first -ceq $second) -and ($first -ceq $expected)) {
+                Add-Pass "CLI cell $cell resolves identically from both live product contracts"
+            } else { Add-Fail "CLI cell $cell is inconsistent across live product contracts" }
+        } catch {
+            Add-Fail "CLI cell $cell could not resolve live product contracts: $($_.Exception.Message)"
+        }
     }
 
     $source = Join-Path $Canonical 'targets/deterministic-script-output.bin'
-    $mutated = Join-Path $Work 'one-byte-mutated.bin'
-    $bytes = [IO.File]::ReadAllBytes($source)
-    if ($Mutation -cne 'negative-self-check') {
+    $observed = $source
+    if ($Mutation -ceq 'negative-self-check') {
+        $observed = Join-Path $Work 'one-byte-mutated.bin'
+        $bytes = [IO.File]::ReadAllBytes($source)
         if ($bytes.Length -eq 0) { $bytes = [byte[]]@(1) } else { $bytes[0] = $bytes[0] -bxor 1 }
+        [IO.File]::WriteAllBytes($observed, $bytes)
     }
-    [IO.File]::WriteAllBytes($mutated, $bytes)
-    if (Test-BytesEqual $source $mutated) { Add-Fail 'negative self-check did not detect the one-byte mutation' }
-    else { Add-Pass 'negative self-check detects a one-byte mutation in the golden baseline' }
+    $manifestTarget = (Get-Content -Raw (Join-Path $Canonical 'manifest.json') | ConvertFrom-Json).targets |
+        Where-Object name -CEQ 'deterministic-script-output'
+    if ($null -eq $manifestTarget) { throw 'deterministic-script-output missing from manifest' }
+    $actualHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([IO.File]::ReadAllBytes($observed))).ToLowerInvariant()
+    if ($actualHash -ceq $manifestTarget.sha256) {
+        Add-Pass 'negative self-check: canonical target bytes match the manifest sha256'
+    } else { Add-Fail 'negative self-check: canonical target bytes differ from the manifest sha256' }
 } catch {
     Add-Fail $_.Exception.Message
 } finally {

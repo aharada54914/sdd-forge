@@ -16,11 +16,11 @@ ok: F2 install-result is byte-identical across two fixed-environment invocations
 ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
 ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
 ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
-ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
-ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
-ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
-ok: negative self-check detects a one-byte mutation in the golden baseline
+ok: CLI cell none|present resolves identically from both live product contracts
+ok: CLI cell none|absent resolves identically from both live product contracts
+ok: CLI cell --full|present resolves identically from both live product contracts
+ok: CLI cell --full|absent resolves identically from both live product contracts
+ok: CLI cell --lite|present resolves identically from both live product contracts
+ok: CLI cell --lite|absent resolves identically from both live product contracts
+ok: negative self-check: canonical target bytes match the manifest sha256
 25 passed, 0 failed

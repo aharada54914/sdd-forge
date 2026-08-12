@@ -712,26 +712,37 @@ try {
 }
 finally { if (Test-Path $j.TestRoot) { Remove-Item -Path $j.TestRoot -Recurse -Force } }
 
-# T-003 context-presence invariant: FilesOnly removes an identical installed
-# layout the same way with project-context.yaml absent or present.
-$t003Absent = build_fixture absent absent disabled-legacy valid none
-$t003Present = build_fixture present absent advisory valid none
-$t003AbsentCodex = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-' + [Guid]::NewGuid().ToString('N'))
-$t003PresentCodex = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-' + [Guid]::NewGuid().ToString('N'))
+# T-003 context-presence invariant: FilesOnly produces byte-identical output
+# from the same install path with project-context.yaml absent or present.
+$t003Root = build_fixture absent absent disabled-legacy valid none
+$t003PresentFixture = build_fixture present absent advisory valid none
+$t003Codex = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-' + [Guid]::NewGuid().ToString('N'))
+$t003AbsentOutput = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-output-' + [Guid]::NewGuid().ToString('N'))
+$t003PresentOutput = Join-Path ([IO.Path]::GetTempPath()) ('sdd-t003-uninstall-output-' + [Guid]::NewGuid().ToString('N'))
 try {
-    New-InstalledLayout -InstallRoot $t003Absent -CodexHome $t003AbsentCodex
-    New-InstalledLayout -InstallRoot $t003Present -CodexHome $t003PresentCodex
-    & $uninstaller -InstallRoot $t003Absent -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *>$null
-    & $uninstaller -InstallRoot $t003Present -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *>$null
+    New-InstalledLayout -InstallRoot $t003Root -CodexHome $t003Codex
+    $t003AbsentFailed = $false
+    try { & $uninstaller -InstallRoot $t003Root -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *> $t003AbsentOutput }
+    catch { $t003AbsentFailed = $true }
+
+    if (Test-Path -LiteralPath $t003Root) { Remove-Item -LiteralPath $t003Root -Recurse -Force }
+    Copy-Item -LiteralPath $t003PresentFixture -Destination $t003Root -Recurse
+    New-InstalledLayout -InstallRoot $t003Root -CodexHome $t003Codex
+    $t003PresentFailed = $false
+    try { & $uninstaller -InstallRoot $t003Root -Target FilesOnly -SkipAgentUninstall -SkipMcpUninstall *> $t003PresentOutput }
+    catch { $t003PresentFailed = $true }
     if ($env:T003_MUTATE_CONTEXT_INVARIANT -ceq 'uninstall-ps1') {
-        New-Item -ItemType Directory -Path $t003Present | Out-Null
+        [IO.File]::AppendAllText($t003PresentOutput, "MUTATED OUTPUT`n", [Text.UTF8Encoding]::new($false))
     }
-    if ((Test-Path -LiteralPath $t003Absent) -or (Test-Path -LiteralPath $t003Present)) {
+    $absentBytes = [IO.File]::ReadAllBytes($t003AbsentOutput)
+    $presentBytes = [IO.File]::ReadAllBytes($t003PresentOutput)
+    if ($t003AbsentFailed -or $t003PresentFailed -or $absentBytes.Length -eq 0 -or
+        -not [Linq.Enumerable]::SequenceEqual([byte[]]$absentBytes, [byte[]]$presentBytes)) {
         throw 'T-003 uninstall output changed with project-context presence'
     }
     Write-Host 'ok: T-003 uninstall output is unaffected by project-context presence'
 } finally {
-    foreach ($path in @($t003Absent, $t003Present, $t003AbsentCodex, $t003PresentCodex)) {
+    foreach ($path in @($t003Root, $t003PresentFixture, $t003Codex, $t003AbsentOutput, $t003PresentOutput)) {
         if (Test-Path -LiteralPath $path) { Remove-Item -LiteralPath $path -Recurse -Force }
     }
 }

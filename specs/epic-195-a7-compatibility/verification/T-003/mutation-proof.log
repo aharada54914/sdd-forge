@@ -1507,3 +1507,16 @@ ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-defau
 ok: negative self-check detects a one-byte mutation in the golden baseline
 25 passed, 0 failed
 mutation proof complete: 25 assertions x 2 runtimes
+
+=== cycle 2 blocking-finding remediation (2026-08-12) ===
+Bash: 25 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell chunk 0:9: 9 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell chunk 9:8: 8 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell chunk 17:8: 8 assertion mutations produced EXPECTED RED; RESTORE returned 25 passed, 0 failed.
+PowerShell total: 25 assertion mutations produced EXPECTED RED.
+The six CLI mutations changed the selected row in a scratch copy of
+plugins/sdd-ship/skills/ship/SKILL.md while leaving PLUGIN-CONTRACTS.md
+unchanged; every selected live-contract assertion went RED.
+The negative-self-check mutation changed the canonical bytes observed by
+the manifest-integrity assertion; the suite reported 24 passed, 1 failed.
+Final direct twins: Bash 25 passed, 0 failed; PowerShell 25 passed, 0 failed.

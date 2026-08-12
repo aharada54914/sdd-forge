@@ -3,8 +3,8 @@ ok: A2 Bash suite sources the fixture builder and names F1/F2
 ok: A2 PowerShell suite dot-sources the fixture builder and names F1/F2
 ok: A3 Bash suite asserts all nine canonical targets
 ok: A3 PowerShell suite asserts all nine canonical targets
-ok: A4 Bash suite carries all six CLI cells and the documented priority
-ok: A4 PowerShell suite carries all six CLI cells and the documented priority
+ok: A4 Bash suite carries all six CLI cells and reads both live contracts
+ok: A4 PowerShell suite carries all six CLI cells and reads both live contracts
 ok: A5 Bash suite includes a one-byte negative self-check
 ok: A5 PowerShell suite includes a one-byte negative self-check
 ok: A6 tests/install.tests.sh has the T-003 context-presence invariant
@@ -32,13 +32,13 @@ ok: F2 install-result is byte-identical across two fixed-environment invocations
 ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
 ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
 ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
-ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
-ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
-ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
-ok: negative self-check detects a one-byte mutation in the golden baseline
+ok: CLI cell none|present resolves identically from both live product contracts
+ok: CLI cell none|absent resolves identically from both live product contracts
+ok: CLI cell --full|present resolves identically from both live product contracts
+ok: CLI cell --full|absent resolves identically from both live product contracts
+ok: CLI cell --lite|present resolves identically from both live product contracts
+ok: CLI cell --lite|absent resolves identically from both live product contracts
+ok: negative self-check: canonical target bytes match the manifest sha256
 25 passed, 0 failed
 ok: A9 Bash compatibility suite is GREEN
 ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
@@ -59,13 +59,13 @@ ok: F2 install-result is byte-identical across two fixed-environment invocations
 ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
 ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
 ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
-ok: CLI cell none|present|LITE is byte-identical and respects flag-marker-default priority
-ok: CLI cell none|absent|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --full|present|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --full|absent|FULL is byte-identical and respects flag-marker-default priority
-ok: CLI cell --lite|present|LITE is byte-identical and respects flag-marker-default priority
-ok: CLI cell --lite|absent|LITE is byte-identical and respects flag-marker-default priority
-ok: negative self-check detects a one-byte mutation in the golden baseline
+ok: CLI cell none|present resolves identically from both live product contracts
+ok: CLI cell none|absent resolves identically from both live product contracts
+ok: CLI cell --full|present resolves identically from both live product contracts
+ok: CLI cell --full|absent resolves identically from both live product contracts
+ok: CLI cell --lite|present resolves identically from both live product contracts
+ok: CLI cell --lite|absent resolves identically from both live product contracts
+ok: negative self-check: canonical target bytes match the manifest sha256
 25 passed, 0 failed
 ok: A9 PowerShell compatibility suite is GREEN
 18 passed, 0 failed

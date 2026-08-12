@@ -65,24 +65,26 @@ assert_contains_all \
   tests/compatibility-byte-identical.tests.ps1 "${inventory[@]}"
 
 assert_contains_all \
-  'A4 Bash suite carries all six CLI cells and the documented priority' \
+  'A4 Bash suite carries all six CLI cells and reads both live contracts' \
   tests/compatibility-byte-identical.tests.sh \
-  'none|present|LITE' 'none|absent|FULL' '--full|present|FULL' \
-  '--full|absent|FULL' '--lite|present|LITE' '--lite|absent|LITE'
+  'none|present' 'none|absent' '--full|present' '--full|absent' \
+  '--lite|present' '--lite|absent' \
+  'plugins/sdd-ship/skills/ship/SKILL.md' 'PLUGIN-CONTRACTS.md'
 assert_contains_all \
-  'A4 PowerShell suite carries all six CLI cells and the documented priority' \
+  'A4 PowerShell suite carries all six CLI cells and reads both live contracts' \
   tests/compatibility-byte-identical.tests.ps1 \
-  'none|present|LITE' 'none|absent|FULL' '--full|present|FULL' \
-  '--full|absent|FULL' '--lite|present|LITE' '--lite|absent|LITE'
+  'none|present' 'none|absent' '--full|present' '--full|absent' \
+  '--lite|present' '--lite|absent' \
+  'plugins/sdd-ship/skills/ship/SKILL.md' 'PLUGIN-CONTRACTS.md'
 
 assert_contains_all \
   'A5 Bash suite includes a one-byte negative self-check' \
   tests/compatibility-byte-identical.tests.sh \
-  'one-byte mutation' 'negative self-check'
+  'manifest sha256' 'negative self-check'
 assert_contains_all \
   'A5 PowerShell suite includes a one-byte negative self-check' \
   tests/compatibility-byte-identical.tests.ps1 \
-  'one-byte mutation' 'negative self-check'
+  'manifest sha256' 'negative self-check'
 
 for twin in \
   tests/install.tests.sh tests/install.tests.ps1 \

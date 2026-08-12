@@ -661,27 +661,34 @@ rm -rf "$_j_root"
 [[ $_j_ok -eq 1 ]] && ok "FilesOnly skips CLI calls but removes files"
 
 # ---------------------------------------------------------------------------
-# T-003 context-presence invariant: FilesOnly removes an identical installed
-# layout the same way with project-context.yaml absent or present.
+# T-003 context-presence invariant: FilesOnly produces byte-identical output
+# from the same install path with project-context.yaml absent or present.
 # ---------------------------------------------------------------------------
-_t003_absent="$(build_fixture absent absent disabled-legacy valid none)"
-_t003_present="$(build_fixture present absent advisory valid none)"
-_t003_absent_codex="$(mktemp -d)"
-_t003_present_codex="$(mktemp -d)"
-seed_installed_layout "$_t003_absent" "$_t003_absent_codex"
-seed_installed_layout "$_t003_present" "$_t003_present_codex"
-_t003_failed=0
-bash "$UNINSTALLER" --install-root "$_t003_absent" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >/dev/null 2>&1 || _t003_failed=1
-bash "$UNINSTALLER" --install-root "$_t003_present" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >/dev/null 2>&1 || _t003_failed=1
+_t003_root="$(build_fixture absent absent disabled-legacy valid none)"
+_t003_present_fixture="$(build_fixture present absent advisory valid none)"
+_t003_codex="$(mktemp -d)"
+_t003_absent_output="$(mktemp)"
+_t003_present_output="$(mktemp)"
+seed_installed_layout "$_t003_root" "$_t003_codex"
+_t003_absent_failed=0
+bash "$UNINSTALLER" --install-root "$_t003_root" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >"$_t003_absent_output" 2>&1 || _t003_absent_failed=1
+mkdir -p "$_t003_root"
+cp -R "${_t003_present_fixture}/." "$_t003_root/"
+seed_installed_layout "$_t003_root" "$_t003_codex"
+_t003_present_failed=0
+bash "$UNINSTALLER" --install-root "$_t003_root" --target FilesOnly --skip-agent-uninstall --skip-mcp-uninstall >"$_t003_present_output" 2>&1 || _t003_present_failed=1
 if [[ "${T003_MUTATE_CONTEXT_INVARIANT:-}" == uninstall-sh ]]; then
-    mkdir -p "$_t003_present"
+    printf 'MUTATED OUTPUT\n' >>"$_t003_present_output"
 fi
-if [[ $_t003_failed -eq 0 && ! -e "$_t003_absent" && ! -e "$_t003_present" ]]; then
+if [[ $_t003_absent_failed -eq 0 && $_t003_present_failed -eq 0 && -s "$_t003_absent_output" ]] &&
+   cmp -s "$_t003_absent_output" "$_t003_present_output"; then
     ok "T-003 uninstall output is unaffected by project-context presence"
 else
     fail "T-003 uninstall output changed with project-context presence"
 fi
-rm -rf -- "$_t003_absent_codex" "$_t003_present_codex"
+_fixture_matrix_cleanup "$_t003_present_fixture"
+rm -rf -- "$_t003_codex"
+rm -- "$_t003_absent_output" "$_t003_present_output"
 
 # ---------------------------------------------------------------------------
 # Summary
