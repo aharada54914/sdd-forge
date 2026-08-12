@@ -1137,9 +1137,15 @@ Planned Files:
 - `plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1` (existing,
   agent-editable — added by the 2026-08-12 scope supersession recorded in
   Out of Scope: the unknown-argument-rejection parity correction only)
-- `plugins/sdd-quality-loop/scripts/check-component-coverage.ps1` (existing,
-  agent-editable — added by the 2026-08-12 scope supersession recorded in
-  Out of Scope: the unknown-argument-rejection parity correction only)
+- `specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1`
+  (staged candidate, agent-editable — added by the 2026-08-12 scope
+  supersession recorded in Out of Scope, delivery form corrected by the
+  a9r1 remediation of the same date: the unknown-argument-rejection parity
+  correction only. The REAL path is R-10 protected content since T-004's
+  applied `protected_gate_suffixes` registration
+  (`guard-invariants.json:47`), so the correction is staged here with a
+  `MANIFEST.sha256` entry and human-applied — the live protected file is
+  never written by the agent)
 - `tests/run-all.sh` (existing, agent-editable — this suite's registration,
   terminal)
 - `tests/run-all.ps1` (existing, agent-editable — this suite's registration,
@@ -1148,17 +1154,25 @@ Planned Files:
   (staged candidate, agent-editable — this suite's CI steps, appended after
   T-004's; R-10 protected real path)
 - `specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256` (existing,
-  agent-editable — new entry for this task's staged `test.yml` candidate)
+  agent-editable — new entry for this task's staged `test.yml` candidate;
+  plus — 2026-08-12 supersession, a9r1 remediation — a second new entry for
+  this task's staged `check-component-coverage.ps1` parity-fix candidate)
 - `CHANGELOG.md` (existing, agent-editable — CREATE the `## Unreleased`
   entry citing #191)
 
 Data Migration: none.
 
-Breaking API: no; test-only additions.
+Breaking API: no; test-only additions, plus — 2026-08-12 supersession — the
+narrowing ps1 unknown-argument-rejection parity correction (unknown argv
+that the Python master already rejects with exit 2 becomes rejected
+identically on the PowerShell runtime; no recognized invocation changes).
 
 Rollback: revert this task's two commits; nothing protected is written
-directly (a revert PR states whether an already-applied `test.yml` step
-should be hand-reverted).
+directly (a revert PR states whether an already-applied `test.yml` step —
+and, per the 2026-08-12 supersession, whether an already-applied staged
+`check-component-coverage.ps1` parity-fix candidate — should be
+hand-reverted, and by whom; the direct `resolve-component-paths.ps1`
+parity edit reverts with the task's own commits).
 
 ### Goal
 
@@ -1210,7 +1224,16 @@ Commit A (implementation — parity harness + registration audit + CI wiring):
   instead of being silently bound into the unread automatic `$args` array
   and dropped with exit 0. This is exactly the behavior TEST-050's
   extra-argument parity cells compare (AC-050); no other wrapper behavior
-  change is sanctioned.
+  change is sanctioned. Delivery split (a9r1 remediation, 2026-08-12):
+  `resolve-component-paths.ps1` is unprotected (design.md Components table;
+  no `PROTECTED_GATE_SUFFIXES` entry) and is corrected by direct edit;
+  `check-component-coverage.ps1` is R-10 protected content since T-004's
+  applied registration, so its correction is STAGED under
+  `specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1`
+  with a `MANIFEST.sha256` entry (the same staging procedure this task
+  already uses for `test.yml`) — the live protected file is never written
+  by the agent, and the coverage pair's TEST-050 GREEN is contingent on the
+  HUMAN APPLY STEP under Done When.
 - CI resilience per Global Constraints.
 - Register `component-path-ownership-parity` in `tests/run-all.sh`/`.ps1`
   (terminal); stage the `test.yml` candidate appended to T-004's staged file.
@@ -1238,6 +1261,17 @@ Commit B (documentation):
 - [ ] The staged `.github/workflows/test.yml` candidate exists with a correct
   `MANIFEST.sha256` entry and the LIVE `test.yml` is byte-unchanged
   before/after this task's commits.
+- [ ] **HUMAN APPLY STEP — staged `check-component-coverage.ps1` parity-fix
+  candidate (2026-08-12 supersession, a9r1 remediation):** a human
+  maintainer runs `cp` for
+  `plugins/sdd-quality-loop/scripts/check-component-coverage.ps1` from
+  `human-copy/`, verifies its SHA-256 against `MANIFEST.sha256`, and re-runs
+  the parity harness so TEST-050's coverage-pair extra-argument cells are
+  GREEN against the applied file — confirmed before this task is marked
+  Done. (Until application those cells remain the genuine RED the
+  supersession records, with the LIVE protected file byte-unchanged across
+  this task's commits; the resolver-pair cells turn GREEN on the direct
+  `resolve-component-paths.ps1` edit alone.)
 - [ ] `CHANGELOG.md` gains a NEW `## Unreleased` entry citing #191
   (AC-048 share).
 - [ ] A grep self-check confirms no version string was mutated outside
@@ -1278,13 +1312,20 @@ Commit B (documentation):
   those two files, aligning them to the Python master per INV-008
   (`resolve-component-paths.sh`'s own shipped header: "See
   resolve-component-paths.py for the full usage/exit-code contract; both
-  this dispatcher's targets implement it identically"). Every other wrapper
-  behavior remains out of scope, and T-001..T-004's sections, statuses, and
-  approvals are untouched. Acceptance surface: unchanged — AC-050/TEST-050's
+  this dispatcher's targets implement it identically"). Delivery honors the
+  protected-file regime (a9r1 remediation, 2026-08-12): the resolver twin
+  by direct edit (unprotected), the coverage twin via the human-copy staged
+  candidate with a `MANIFEST.sha256` entry and a HUMAN APPLY STEP (R-10
+  protected since T-004's applied registration) — see Scope Commit A,
+  Planned Files, and Done When. Every other wrapper behavior remains out of
+  scope, and T-001..T-004's sections, statuses, and approvals are
+  untouched. Acceptance surface: unchanged — AC-050/TEST-050's
   extra-argument parity cells (the four currently-RED assertions) must turn
   GREEN under the unmodified harness expectation, and the disposable-mutant
   negative self-check remains required as the non-vacuity proof.
 - Any protected-file edit beyond staging this suite's own `test.yml` CI-step
+  candidate and — 2026-08-12 supersession (first bullet, a9r1 remediation)
+  — this suite's staged `check-component-coverage.ps1` parity-fix
   candidate.
 
 ### Blockers
