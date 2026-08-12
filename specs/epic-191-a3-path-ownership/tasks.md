@@ -1134,6 +1134,12 @@ T-006, Global Constraints).
 Planned Files:
 - `tests/component-path-ownership-parity.tests.sh` (new, agent-editable)
 - `tests/component-path-ownership-parity.tests.ps1` (new, agent-editable)
+- `plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1` (existing,
+  agent-editable — added by the 2026-08-12 scope supersession recorded in
+  Out of Scope: the unknown-argument-rejection parity correction only)
+- `plugins/sdd-quality-loop/scripts/check-component-coverage.ps1` (existing,
+  agent-editable — added by the 2026-08-12 scope supersession recorded in
+  Out of Scope: the unknown-argument-rejection parity correction only)
 - `tests/run-all.sh` (existing, agent-editable — this suite's registration,
   terminal)
 - `tests/run-all.ps1` (existing, agent-editable — this suite's registration,
@@ -1195,6 +1201,16 @@ Commit A (implementation — parity harness + registration audit + CI wiring):
   human-copy proof + the six named cases' positive/red-then-fixed coverage +
   the fixture tree carrying the four submodule/symlink fixtures, the
   NFC-collision fixture, and one fixture per glob clause id).
+- **Amended 2026-08-12 (scope supersession — Out of Scope, first bullet):**
+  apply the minimal unknown-argument-rejection parity correction to the two
+  PowerShell product twins (`resolve-component-paths.ps1`,
+  `check-component-coverage.ps1`): an unrecognized/extra argument is
+  rejected with the same non-zero usage-error exit status the Python
+  master's argparse produces (observed exit 2) and a stderr diagnostic,
+  instead of being silently bound into the unread automatic `$args` array
+  and dropped with exit 0. This is exactly the behavior TEST-050's
+  extra-argument parity cells compare (AC-050); no other wrapper behavior
+  change is sanctioned.
 - CI resilience per Global Constraints.
 - Register `component-path-ownership-parity` in `tests/run-all.sh`/`.ps1`
   (terminal); stage the `test.yml` candidate appended to T-004's staged file.
@@ -1234,7 +1250,40 @@ Commit B (documentation):
 ### Out of Scope
 
 - Any change to the product wrappers themselves (T-001/T-002/T-003/T-004) —
-  this task only drives and compares them.
+  this task only drives and compares them, **except — amended 2026-08-12
+  (scope supersession; T-006 attempt-1 genuine-RED evidence, AC-050/
+  TEST-050)** — the minimal unknown-argument-rejection parity correction to
+  `resolve-component-paths.ps1` and `check-component-coverage.ps1` (Scope
+  Commit A; Planned Files). As originally written (2026-07-22, `f728e440`,
+  before any wrapper code existed), this exclusion protected the harness
+  task from product creep on the premise that T-001..T-004 would deliver
+  parity-clean wrapper pairs — GREEN reachable with no product edit, RED
+  supplied only by the disposable-mutant negative self-check (Done When;
+  task-review attempt-1 round-1 reviewer-b read AC-050's argument-drop case
+  exactly that way). T-006's first genuine harness run (attempt 1, run
+  `epic-191-a3-path-ownership-t006-20260812-codex-01`; RED logs
+  `specs/epic-191-a3-path-ownership/verification/T-006/component-path-ownership-parity.RED.log`
+  and `...-parity-ps1.RED.log`) disproved that premise against the real,
+  unmodified wrappers: both Python-backed shell entries reject an
+  unrecognized argument with argparse's usage-error exit 2, while both
+  `.ps1` twins silently bind it into the unread automatic `$args` array
+  (plain `param()` blocks, no `[CmdletBinding()]`, no `$args` guard) and
+  exit 0 — a latent REQ-009 nonconformity present since each twin's birth
+  commit (`41881071`, T-001; `819baf2c`, T-004) that T-001/T-004's own
+  gates structurally could not catch, because unknown-argument parity is
+  anchored solely to AC-050/TEST-050, serialized into this task by design;
+  the harness detecting it is the designed behavior, but with this
+  exclusion unamended AC-050's GREEN was unreachable inside scope. The
+  carve-out sanctions exactly the argument-rejection behavior change on
+  those two files, aligning them to the Python master per INV-008
+  (`resolve-component-paths.sh`'s own shipped header: "See
+  resolve-component-paths.py for the full usage/exit-code contract; both
+  this dispatcher's targets implement it identically"). Every other wrapper
+  behavior remains out of scope, and T-001..T-004's sections, statuses, and
+  approvals are untouched. Acceptance surface: unchanged — AC-050/TEST-050's
+  extra-argument parity cells (the four currently-RED assertions) must turn
+  GREEN under the unmodified harness expectation, and the disposable-mutant
+  negative self-check remains required as the non-vacuity proof.
 - Any protected-file edit beyond staging this suite's own `test.yml` CI-step
   candidate.
 
