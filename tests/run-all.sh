@@ -100,6 +100,7 @@ tests=(
   tests/component-path-diff-basis.tests.sh
   tests/ownership-digest.tests.sh
   tests/check-component-coverage.tests.sh
+  tests/component-path-ownership-parity.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

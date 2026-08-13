@@ -663,6 +663,17 @@ jobs:
         shell: pwsh
         run: ./tests/check-component-coverage.tests.ps1
 
+      - name: Test component-path-ownership parity suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/component-path-ownership-parity.tests.sh
+
+      - name: Test component-path-ownership parity suite (pwsh)
+        shell: pwsh
+        run: ./tests/component-path-ownership-parity.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

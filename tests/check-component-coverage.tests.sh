@@ -408,13 +408,19 @@ fi
 # present; every candidate must match its manifest hash; and T-004-owned
 # protected rows must remain byte-identical live. The shared workflow row is
 # candidate-only because later serialized tasks reuse it for pending staged
-# registrations after T-004's own steps have been human-applied.
+# registrations after T-004's own steps have been human-applied. A later
+# task's explicit HUMAN APPLY STEP may likewise add a not-yet-live protected
+# candidate; those paths are derived from that task's text, never hand-listed.
 if python3 -c "
 import hashlib
 import json
+import re
 from pathlib import Path
 repo = Path('${REPO_ROOT}')
 manifest = Path('${HC_MANIFEST_191}')
+tasks = (repo / 'specs/epic-191-a3-path-ownership/tasks.md').read_text()
+t006 = tasks.split('## T-006', 1)[1]
+pending_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
 live = json.load(open('${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json'))
 new = ('plugins/sdd-quality-loop/scripts/check-component-coverage.py',
        'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
@@ -436,7 +442,7 @@ for line in manifest.read_text().splitlines():
     candidate = manifest.parent / relative
     if not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
         raise SystemExit(f'candidate hash mismatch: {relative}')
-    if relative != '.github/workflows/test.yml':
+    if relative != '.github/workflows/test.yml' and relative not in pending_human_apply:
         applied = repo / relative
         if not applied.is_file() or hashlib.sha256(applied.read_bytes()).hexdigest() != expected:
             raise SystemExit(f'applied hash mismatch: {relative}')

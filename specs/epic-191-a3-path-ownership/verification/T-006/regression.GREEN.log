@@ -1,0 +1,25 @@
+FINAL TESTER REGRESSION
+
+bash tests/check-component-coverage.tests.sh
+Exit: 0
+Results: 46 passed, 0 failed.
+
+pwsh -NoProfile -File tests/check-component-coverage.tests.ps1
+Exit: 0
+check-component-coverage.tests.ps1: 47 passed, 0 failed
+TEST-055.2b observed exactly once as PASS.
+
+bash tests/component-path-resolver.tests.sh
+Exit: 0
+Results: 73 passed, 0 failed.
+
+pwsh -NoProfile -File tests/component-path-resolver.tests.ps1
+Exit: 0
+component-path-resolver.tests.ps1: 73 passed, 0 failed
+
+Direct unknown-argument diagnostics:
+- live unprotected resolve-component-paths.ps1: exit 2; stderr usage-shaped; stderr names final-parity-probe.
+- staged protected check-component-coverage.ps1 candidate: exit 2; stderr usage-shaped; stderr names final-parity-probe.
+
+Manifest: shasum -a 256 -c passed all 13 rows.
+Protected/frozen checks: live coverage, live workflow, tasks.md, requirements.md, design.md, acceptance-tests.md, traceability.md, and the guard/check-contract protected bundle all had empty git diffs.

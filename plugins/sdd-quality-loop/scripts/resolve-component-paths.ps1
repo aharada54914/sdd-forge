@@ -43,6 +43,17 @@ param(
     [switch]$Diagnose,
     [string]$ProviderBindings = "sdd/provider-bindings.yaml"
 )
+
+# A plain PowerShell param() block leaves unknown named arguments in $args.
+# Reject them explicitly so this independent twin preserves argparse's
+# observable CLI contract: usage-shaped stderr, the argument name, and exit 2.
+if ($args.Count -gt 0) {
+    $scriptName = [System.IO.Path]::GetFileName($MyInvocation.MyCommand.Path)
+    [Console]::Error.WriteLine("usage: $scriptName [options]")
+    [Console]::Error.WriteLine("${scriptName}: error: unrecognized arguments: $($args -join ' ')")
+    exit 2
+}
+
 $ErrorActionPreference = "Stop"
 
 $MATCHER_SEMANTICS_VERSION = "1.0.0"

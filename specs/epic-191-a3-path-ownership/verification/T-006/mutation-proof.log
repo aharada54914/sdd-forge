@@ -1,0 +1,21 @@
+MUTATION PROOF — DISPOSABLE FULL CLONE
+Precondition: T-006 worktree overlaid and staged coverage candidate copied to its live path only in the disposable clone.
+Protocol: violate one assertion family; require both harness twins to exit 1 and name the intended assertion; restore; require both harness twins to exit 0 with 21/0.
+
+MUTATION resolver-json: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION resolver-exit: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION resolver-argv: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION coverage-json: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION coverage-exit-LASTEXITCODE: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION coverage-argv: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION runner-registration: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION staged-manifest-binding: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION behavior-red-green-evidence: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION fixture-inventory: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION live-protected-workflow: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION changelog-registration: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION release-surface-synchronization: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+
+The suites' own disposable argument-drop, child-exit, and missing-suite mutants also executed and were detected during every GREEN restoration. No mutant replaced a live product path in the production worktree.
+
+Setup note: an initial evidence mutation removed the verification directory and made the PowerShell harness abort during setup. That invalid run is excluded. The counted mutation retained an empty verification directory and produced the intended TEST-047 assertion failure in both twins.
