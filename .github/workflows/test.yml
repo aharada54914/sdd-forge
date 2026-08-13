@@ -610,13 +610,14 @@ jobs:
         shell: pwsh
         run: ./tests/ship-track-selection-migration.tests.ps1
 
-      # epic-191-a3-path-ownership T-001/T-002/T-004 (CI-staging
-      # registration). All three suites are registered in
-      # tests/run-all.{sh,ps1} but none was ever registered in this
-      # workflow, so none of them runs in CI today. All three are
+      # epic-191-a3-path-ownership T-001/T-002/T-003/T-004 (CI-staging
+      # registration). All four suites are registered in the live
+      # tests/run-all.{sh,ps1}; this staged candidate supplies their
+      # previously missing direct CI steps. All four are
       # deterministic: no LLM, no network, no `gh`, and no live sudo
       # grant. Ordered as in run-all: T-001's resolver suite, then
-      # T-002's diff-basis suite, then T-004's component-coverage suite.
+      # T-002's diff-basis suite, T-003's ownership-digest suite, then
+      # T-004's component-coverage suite.
 
       - name: Test component-path-resolver suite (bash)
         if: runner.os != 'Windows'
@@ -640,6 +641,17 @@ jobs:
         shell: pwsh
         run: ./tests/component-path-diff-basis.tests.ps1
 
+      - name: Test ownership-digest suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/ownership-digest.tests.sh
+
+      - name: Test ownership-digest suite (pwsh)
+        shell: pwsh
+        run: ./tests/ownership-digest.tests.ps1
+
       - name: Test check-component-coverage suite (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -650,6 +662,17 @@ jobs:
       - name: Test check-component-coverage suite (pwsh)
         shell: pwsh
         run: ./tests/check-component-coverage.tests.ps1
+
+      - name: Test component-path-ownership parity suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/component-path-ownership-parity.tests.sh
+
+      - name: Test component-path-ownership parity suite (pwsh)
+        shell: pwsh
+        run: ./tests/component-path-ownership-parity.tests.ps1
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
