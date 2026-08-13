@@ -162,14 +162,36 @@ sh plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh specs/epic-195-a
   touched here because T-004 is `Implementation Complete` with a `NEEDS_WORK`
   verdict, so it names no bundle yet — but its next gate cycle will hit this
   wall unless the header is added when the report is rewritten.
-- **`tests/capture-golden-baseline.sh` needs Python >= 3.10.** Under a
-  restricted `PATH=/usr/bin:/bin` on macOS, `python3` resolves to the system
-  3.9.6, where `pathlib.Path.write_text()` has no `newline` keyword; the script
-  dies with a `TypeError` and `tests/golden-baseline-contract.tests.sh` reports
-  3 failures, `tests/compatibility-byte-identical.tests.sh` 2. Both suites are
-  fully green (10/0 and 25/0) under the normal `PATH`. The suites do fail closed
-  on it, so this is a portability finding, not a correctness one, and fixing it
-  would mean editing a T-002 deliverable — outside this change's scope.
+- **`tests/capture-golden-baseline.sh` under a restricted `PATH=/usr/bin:/bin`.**
+  The Python half of this *is* now fixed, in a follow-up change that also
+  re-promoted the canonical baseline and regenerated all three bundles. The
+  capture wrote its manifest with `pathlib.Path.write_text(..., newline=...)`,
+  and that keyword is Python 3.10+, so under the macOS system interpreter (3.9.6)
+  the script died with a raw `TypeError` before `manifest.json` existed. Both
+  twins now use `write_bytes`, which is byte-identical — `json.dumps` escapes CR,
+  so the body is pure LF — and keeps the Windows newline-translation guarantee the
+  keyword was there to provide, with no version floor at all. Proof: a capture run
+  under Python 3.9.6 with a full `PATH` is byte-for-byte identical to one under
+  3.14, every canonical target included; the only thing that changed in
+  `canonical/manifest.json` is the two `capture_scripts` provenance hashes, which
+  `promote-golden-baseline.sh` re-recorded.
+
+  What is **not** fixed is the second, unrelated cause the `TypeError` was hiding.
+  `PATH=/usr/bin:/bin` also makes `bash` resolve to macOS `/bin/bash` 3.2.57, and
+  `capture_install_state` shells out to `bash install.sh`. Under 3.2 the pinned
+  snapshot's `install.sh:292` hits `MCP_SELECTION[@]: unbound variable` — bash
+  before 4.4 treats an empty array as unset under `set -u` — which aborts the copy
+  but still exits 0, so the capture silently records an empty `install-result`
+  manifest instead of 4741 files and then reports drift. That is not fixable from
+  inside this feature: the `install.sh` being run comes from the pinned
+  pre-capability archive (`50b20364`) and is frozen by definition, the live
+  `install.sh` uses the same construct at six sites with no `BASH_VERSINFO` guard,
+  and pinning an interpreter in the manifest's `fixed_environment` would change
+  T-002's reviewed golden-baseline contract. Under the normal `PATH`,
+  `tests/golden-baseline-contract.tests.sh` is 10/0 and
+  `tests/compatibility-byte-identical.tests.sh` 25/0; under the restricted one
+  both still fail closed, but now name `install-result` specifically instead of
+  dying on an interpreter error.
 - **`check-workflow-state` still reports `task plan hash is stale`** for this
   feature. That predates this work (the T-004 gate recorded it as the expected
   consequence of the `Implementation Complete` flip, resolved by the post-Done
