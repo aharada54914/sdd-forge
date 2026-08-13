@@ -1,0 +1,15 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-191-a3-path-ownership",
+ "run_id": "task-orch-epic-191-a3-path-ownership-a10r1",
+ "verdict": "PASS",
+ "round": 1,
+ "attempt": 10,
+ "findings_critical": 0,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "PASS",
+ "reviewer_b_verdict": "PASS",
+ "verdict_note": "Provenance re-review, attempt 10 round 1: both reviewers PASS with zero FAIL findings (A: 14/14 PASS; B: 9/9 PASS). This round exists because the a9r2 contract bound the RAW bytes of a status-mixed plan (T-001..T-005 Done, T-006 Implementation Complete), and T-006's mandatory lifecycle flip to Status: Done changed those bytes, leaving check-workflow-state.sh reporting 'stage-provenance: task plan hash is stale'. The a9r2 attestation was NOT edited -- a fresh round is the sanctioned re-binding path, and rewriting a persisted reviewer attestation after the fact would falsify it. All six tasks are now Done; reviewer A applied the provenance re-review INITIAL-STATE lifecycle rule and recorded the audit-marked approvals and uniform Done statuses as valid. The plan body is unchanged from the a9r2-bound content apart from that one Status line. This binding is over tasks.md 48b8b8a8c78eb4526dba3ef89a8e72abdb9dd4a04347e4707a199dedc26e6778, the raw bytes of the terminal all-Done plan; rereview_normalized_hash(tasks.md, \"Done\") evaluates to 80caf3f2eecb99375383c3797559b1d71770fc38fbc84c33797b082bdd8adb9b and is accepted by the same validator predicate, so the binding also survives any further uniform lifecycle rewrite."
+}
