@@ -4,9 +4,15 @@ so there is one run, not three. It transitively runs check-evidence-bundle and
 check-contract for each Done task, which is why its output names them.
 
 $ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-195-a7-compatibility/tasks.md reports/quality-gate reports/implementation .
-Task state check FAILED:
- - T-001 is Done but verification/T-001.evidence.json does not exist in specs/epic-195-a7-compatibility
- - T-002 is Done but verification/T-002.evidence.json does not exist in specs/epic-195-a7-compatibility
- - T-003 is Done but verification/T-003.evidence.json does not exist in specs/epic-195-a7-compatibility
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+WARNING: evidence bundle for task T-002 was generated with a dirty working tree
+Evidence bundle passed for task T-002.
+Verification contract passed for task T-003.
+WARNING: evidence bundle for task T-003 was generated with a dirty working tree
+Evidence bundle passed for task T-003.
+Task state check passed for 12 task(s).
 
-exit status: 1
+exit status: 0

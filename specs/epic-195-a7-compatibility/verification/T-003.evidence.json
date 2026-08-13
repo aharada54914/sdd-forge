@@ -1,0 +1,55 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
+  "quality_report": "reports/quality-gate/epic-195-a7-compatibility/T-003.md",
+  "verification_contract": "specs/epic-195-a7-compatibility/verification/T-003.contract.json",
+  "git_commit": "012abb4008e6f8121dcdb8e93f543a8b35f68d46",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 11,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/T-003.contract.json",
+      "sha256": "238f31b29149a1196e4b8addeebbcb1a02ca2d8b6751f8314088f2de0035359e"
+    },
+    {
+      "path": "reports/quality-gate/epic-195-a7-compatibility/T-003.md",
+      "sha256": "af4902937d8c5e932a45651d98a16049479084074ba4c08e1137c38c3a453ac0"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-003/acceptance.log",
+      "sha256": "5519507b53c082031db7a3d80cae57e0e0a1f1cc864dbe45967192c422c42939"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/T-003/placeholder.log",
+      "sha256": "90f5a8c4b73e0a7bc96fc6028eca86b512fdeee11403d5c4d441871aec2c9d7c"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/regression.log",
+      "sha256": "5c3afd756639f4ce1208777c06375e7d269e00f8e5a5f844369887c338f7caab"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/task-state.log",
+      "sha256": "28b57497bdaa1666a087ebfeec21dd69ff000f2bd583e7d2a285b680e2e4a9f1"
+    }
+  ]
+}
