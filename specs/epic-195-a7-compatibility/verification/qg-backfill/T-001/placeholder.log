@@ -1,0 +1,14 @@
+Scan scope is recorded here so the argument list is auditable rather
+than implied. The files are exactly the agent-editable deliverables that
+traceability.md's "Deliverables (Per Task)" table attributes to this task.
+Excluded on purpose: specs/epic-195-a7-compatibility/verification/golden-baseline/
+canonical/, which is captured product output (a fixture), not authored code --
+check-placeholders is scoped to changed production files per
+references/deterministic-check-policy.md ("Keep the caller scoped to changed
+files"), and scanning captured product bytes would flag markers this feature
+never wrote.
+
+$ sh /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/lib/fixture-matrix-builder.sh tests/lib/fixture-matrix-builder.ps1
+Placeholder scan passed.
+
+exit status: 0
