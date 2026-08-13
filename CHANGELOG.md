@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Epic A7 structural compatibility suite (Issue #195, T-004)**: added
+  offline Bash and PowerShell structural gates for the full seven-file and
+  lite three-file profiles, a versioned recorded-response corpus, and strict
+  Markdown AST canonicalizers that sort frontmatter keys while preserving
+  heading level/order. Malformed frontmatter and unsupported headings fail
+  closed; F3/F4/F5/F6 remain dependency-citing named skips. Registered both
+  suites in the live aggregate runners and staged the protected CI workflow
+  candidate under the feature's checksum-bound `human-copy/` bundle.
+
 - **Epic A7 byte-identical compatibility suite (Issue #195, T-003)**: added
   Bash and PowerShell F1/F2 compatibility suites that compare all nine
   canonical targets across two fixed-environment invocations, cover the six

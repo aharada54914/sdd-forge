@@ -57,7 +57,8 @@ $tests = @(
     'tests/design-sync-standing-consent.tests.ps1',
     'tests/design-sync-scan.tests.ps1',
     'tests/golden-baseline-contract.tests.ps1',
-    'tests/compatibility-byte-identical.tests.ps1'
+    'tests/compatibility-byte-identical.tests.ps1',
+    "tests/structural-compatibility.tests.ps1"
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

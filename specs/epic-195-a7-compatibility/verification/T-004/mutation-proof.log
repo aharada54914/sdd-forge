@@ -1,0 +1,208 @@
+MUTATION-KILLED: envelope-schema [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-schema [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-state [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-state [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-model [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-model [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-commit [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-commit [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-refresh [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-refresh [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-path [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-path [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-content [sh] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-content [ps1] exit=1 evidence=FAIL: F1 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-f2 [sh] exit=1 evidence=FAIL: F2 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-f2 [ps1] exit=1 evidence=FAIL: F2 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-f3 [sh] exit=1 evidence=FAIL: F3 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-f3 [ps1] exit=1 evidence=FAIL: F3 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-f4 [sh] exit=1 evidence=FAIL: F4 corpus envelope matches the shipped schema
+MUTATION-KILLED: envelope-f4 [ps1] exit=1 evidence=FAIL: F4 corpus envelope matches the shipped schema
+MUTATION-KILLED: operator-case-sensitivity [sh] exit=1 evidence=FAIL: operator layer rejects a mis-cased shipped state
+MUTATION-KILLED: operator-case-sensitivity [ps1] exit=1 evidence=FAIL: operator layer rejects a mis-cased shipped state
+MUTATION-KILLED: language-case-sensitivity [sh] exit=1 evidence=FAIL: language matching layer rejects a mis-cased shipped anchor
+MUTATION-KILLED: language-case-sensitivity [ps1] exit=1 evidence=FAIL: language matching layer rejects a mis-cased shipped anchor
+MUTATION-KILLED: anchor [sh] exit=1 evidence=FAIL: fingerprinted Required Outputs injection anchor is unchanged
+MUTATION-KILLED: anchor [ps1] exit=1 evidence=FAIL: fingerprinted Required Outputs injection anchor is unchanged
+MUTATION-KILLED: full-paths [sh] exit=1 evidence=FAIL: full artifact paths and exact count derive from its shipped output surface
+MUTATION-KILLED: full-paths [ps1] exit=1 evidence=FAIL: full artifact paths and exact count derive from its shipped output surface
+MUTATION-KILLED: lite-paths [sh] exit=1 evidence=FAIL: lite artifact paths and exact count derive from its shipped output surface
+MUTATION-KILLED: lite-paths [ps1] exit=1 evidence=FAIL: lite artifact paths and exact count derive from its shipped output surface
+MUTATION-KILLED: full-heading-requirements [sh] exit=1 evidence=FAIL: full requirements.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-requirements [ps1] exit=1 evidence=FAIL: full requirements.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-requirements [sh] exit=1 evidence=FAIL: full requirements.md status field names match its shipped template
+MUTATION-KILLED: full-status-requirements [ps1] exit=1 evidence=FAIL: full requirements.md status field names match its shipped template
+MUTATION-KILLED: full-heading-acceptance-tests [sh] exit=1 evidence=FAIL: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-acceptance-tests [ps1] exit=1 evidence=FAIL: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-acceptance-tests [sh] exit=1 evidence=FAIL: full acceptance-tests.md status field names match its shipped template
+MUTATION-KILLED: full-status-acceptance-tests [ps1] exit=1 evidence=FAIL: full acceptance-tests.md status field names match its shipped template
+MUTATION-KILLED: full-heading-design [sh] exit=1 evidence=FAIL: full design.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-design [ps1] exit=1 evidence=FAIL: full design.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-design [sh] exit=1 evidence=FAIL: full design.md status field names match its shipped template
+MUTATION-KILLED: full-status-design [ps1] exit=1 evidence=FAIL: full design.md status field names match its shipped template
+MUTATION-KILLED: full-heading-ux-spec [sh] exit=1 evidence=FAIL: full ux-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-ux-spec [ps1] exit=1 evidence=FAIL: full ux-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-ux-spec [sh] exit=1 evidence=FAIL: full ux-spec.md status field names match its shipped template
+MUTATION-KILLED: full-status-ux-spec [ps1] exit=1 evidence=FAIL: full ux-spec.md status field names match its shipped template
+MUTATION-KILLED: full-heading-frontend-spec [sh] exit=1 evidence=FAIL: full frontend-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-frontend-spec [ps1] exit=1 evidence=FAIL: full frontend-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-frontend-spec [sh] exit=1 evidence=FAIL: full frontend-spec.md status field names match its shipped template
+MUTATION-KILLED: full-status-frontend-spec [ps1] exit=1 evidence=FAIL: full frontend-spec.md status field names match its shipped template
+MUTATION-KILLED: full-heading-infra-spec [sh] exit=1 evidence=FAIL: full infra-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-infra-spec [ps1] exit=1 evidence=FAIL: full infra-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-infra-spec [sh] exit=1 evidence=FAIL: full infra-spec.md status field names match its shipped template
+MUTATION-KILLED: full-status-infra-spec [ps1] exit=1 evidence=FAIL: full infra-spec.md status field names match its shipped template
+MUTATION-KILLED: full-heading-security-spec [sh] exit=1 evidence=FAIL: full security-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-heading-security-spec [ps1] exit=1 evidence=FAIL: full security-spec.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: full-status-security-spec [sh] exit=1 evidence=FAIL: full security-spec.md status field names match its shipped template
+MUTATION-KILLED: full-status-security-spec [ps1] exit=1 evidence=FAIL: full security-spec.md status field names match its shipped template
+MUTATION-KILLED: lite-heading-requirements [sh] exit=1 evidence=FAIL: lite requirements.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: lite-heading-requirements [ps1] exit=1 evidence=FAIL: lite requirements.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: lite-status-requirements [sh] exit=1 evidence=FAIL: lite requirements.md status field names match its shipped template
+MUTATION-KILLED: lite-status-requirements [ps1] exit=1 evidence=FAIL: lite requirements.md status field names match its shipped template
+MUTATION-KILLED: lite-heading-design [sh] exit=1 evidence=FAIL: lite design.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: lite-heading-design [ps1] exit=1 evidence=FAIL: lite design.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: lite-status-design [sh] exit=1 evidence=FAIL: lite design.md status field names match its shipped template
+MUTATION-KILLED: lite-status-design [ps1] exit=1 evidence=FAIL: lite design.md status field names match its shipped template
+MUTATION-KILLED: lite-heading-tasks [sh] exit=1 evidence=FAIL: lite tasks.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: lite-heading-tasks [ps1] exit=1 evidence=FAIL: lite tasks.md frontmatter and ordered headings match its shipped template
+MUTATION-KILLED: lite-status-tasks [sh] exit=1 evidence=FAIL: lite tasks.md status field names match its shipped template
+MUTATION-KILLED: lite-status-tasks [ps1] exit=1 evidence=FAIL: lite tasks.md status field names match its shipped template
+MUTATION-KILLED: full-id [sh] exit=1 evidence=FAIL: full generated identifiers retain the shipped three-digit grammar
+MUTATION-KILLED: full-id [ps1] exit=1 evidence=FAIL: full generated identifiers retain the shipped three-digit grammar
+MUTATION-KILLED: lite-id [sh] exit=1 evidence=FAIL: lite generated identifiers retain the shipped three-digit grammar
+MUTATION-KILLED: lite-id [ps1] exit=1 evidence=FAIL: lite generated identifiers retain the shipped three-digit grammar
+MUTATION-KILLED: full-reference [sh] exit=1 evidence=FAIL: full output contains no 
+MUTATION-KILLED: full-reference [ps1] exit=1 evidence=FAIL: full output contains no 
+MUTATION-KILLED: lite-reference [sh] exit=1 evidence=FAIL: lite output contains no 
+MUTATION-KILLED: lite-reference [ps1] exit=1 evidence=FAIL: lite output contains no 
+MUTATION-KILLED: full-artifact-leak [sh] exit=1 evidence=FAIL: full output contains no 
+MUTATION-KILLED: full-artifact-leak [ps1] exit=1 evidence=FAIL: full output contains no 
+MUTATION-KILLED: lite-artifact-leak [sh] exit=1 evidence=FAIL: lite output contains no 
+MUTATION-KILLED: lite-artifact-leak [ps1] exit=1 evidence=FAIL: lite output contains no 
+MUTATION-KILLED: corpus-bad-frontmatter [sh] exit=1 evidence=markdown AST parse failure:
+MUTATION-KILLED: corpus-bad-frontmatter [ps1] exit=1 evidence=markdown AST parse failure:
+MUTATION-KILLED: corpus-bad-heading [sh] exit=1 evidence=markdown AST parse failure:
+MUTATION-KILLED: corpus-bad-heading [ps1] exit=1 evidence=markdown AST parse failure:
+MUTATION-KILLED: parser-frontmatter-lenient [sh] exit=1 evidence=FAIL: malformed frontmatter is a hard failure
+MUTATION-KILLED: parser-frontmatter-lenient [ps1] exit=1 evidence=FAIL: malformed frontmatter is a hard failure
+MUTATION-KILLED: parser-heading-lenient [sh] exit=1 evidence=FAIL: unrecognized heading grammar is a hard failure
+MUTATION-KILLED: parser-heading-lenient [ps1] exit=1 evidence=FAIL: unrecognized heading grammar is a hard failure
+MUTATION-KILLED: normalize-key-order [sh] exit=1 evidence=FAIL: frontmatter order and permitted whitespace/line endings normalize
+MUTATION-KILLED: normalize-key-order [ps1] exit=1 evidence=FAIL: frontmatter order and permitted whitespace/line endings normalize
+MUTATION-KILLED: normalize-horizontal-space [sh] exit=1 evidence=FAIL: frontmatter order and permitted whitespace/line endings normalize
+MUTATION-KILLED: normalize-horizontal-space [ps1] exit=1 evidence=FAIL: frontmatter order and permitted whitespace/line endings normalize
+MUTATION-KILLED: normalize-line-endings [sh] exit=1 evidence=FAIL: frontmatter order and permitted whitespace/line endings normalize
+MUTATION-KILLED: normalize-line-endings [ps1] exit=1 evidence=FAIL: frontmatter order and permitted whitespace/line endings normalize
+MUTATION-KILLED: frontmatter-value-significance [sh] exit=1 evidence=FAIL: frontmatter values remain comparison-significant
+MUTATION-KILLED: frontmatter-value-significance [ps1] exit=1 evidence=FAIL: frontmatter values remain comparison-significant
+MUTATION-KILLED: heading-order-significance [sh] exit=1 evidence=FAIL: heading level and document order remain comparison-significant
+MUTATION-KILLED: heading-order-significance [ps1] exit=1 evidence=FAIL: heading level and document order remain comparison-significant
+MUTATION-KILLED: artifact-order-normalization [sh] exit=1 evidence=FAIL: corpus artifact array order is comparison-irrelevant
+MUTATION-KILLED: artifact-order-normalization [ps1] exit=1 evidence=FAIL: corpus artifact array order is comparison-irrelevant
+MUTATION-KILLED: f3-skip [sh] exit=1 evidence=FAIL: F3 named skip metadata matches its acceptance dependency
+MUTATION-KILLED: f3-skip [ps1] exit=1 evidence=FAIL: F3 named skip metadata matches its acceptance dependency
+MUTATION-KILLED: f4-skip [sh] exit=1 evidence=FAIL: F4 named skip metadata matches its acceptance dependency
+MUTATION-KILLED: f4-skip [ps1] exit=1 evidence=FAIL: F4 named skip metadata matches its acceptance dependency
+MUTATION-KILLED: compound-without-a1 [sh] exit=1 evidence=FAIL: F5 compound named skip matches task and acceptance dependencies
+MUTATION-KILLED: compound-without-a1 [ps1] exit=1 evidence=FAIL: F5 compound named skip matches task and acceptance dependencies
+MUTATION-KILLED: compound-without-a6 [sh] exit=1 evidence=FAIL: F6 compound named skip matches task and acceptance dependencies
+MUTATION-KILLED: compound-without-a6 [ps1] exit=1 evidence=FAIL: F6 compound named skip matches task and acceptance dependencies
+MUTATION-KILLED: runner-sh [sh] exit=1 evidence=FAIL: Bash aggregate runner registers this shipped suite
+MUTATION-KILLED: runner-ps1 [ps1] exit=1 evidence=FAIL: PowerShell aggregate runner registers this shipped suite
+MUTATION-KILLED: empty-product-root [sh] exit=1 evidence=FAIL: required shipped product surface exists:
+MUTATION-KILLED: empty-product-root [ps1] exit=1 evidence=FAIL: required shipped product surface exists:
+RESTORE-GREEN: Bash
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+SKIP: F4/AC-007 (Epic A4 ): Reserved-reference absence awaits Epic A4
+SKIP: F3/AC-042 (Epic A1 ): structural identity awaits Epic A1
+SKIP: F5/AC-043 (A1+A6 ): compound dependency not merged
+SKIP: F6/AC-043 (A1+A6 ): compound dependency not merged
+PASS: Bash aggregate runner registers this shipped suite
+40 passed, 0 failed
+RESTORE-GREEN: PowerShell
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+SKIP: F4/AC-007 (Epic A4): Reserved-reference absence awaits Epic A4
+SKIP: F3/AC-042 (Epic A1): structural identity awaits Epic A1
+SKIP: F5/AC-043 (A1+A6): compound dependency not merged
+SKIP: F6/AC-043 (A1+A6): compound dependency not merged
+PASS: PowerShell aggregate runner registers this shipped suite
+40 passed, 0 failed
+MUTATION SUMMARY: 114 killed, 0 survived
+EXIT_CODE=0

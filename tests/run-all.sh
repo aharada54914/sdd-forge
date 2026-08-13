@@ -99,6 +99,7 @@ tests=(
   tests/design-sync-scan.tests.sh
   tests/golden-baseline-contract.tests.sh
   tests/compatibility-byte-identical.tests.sh
+  tests/structural-compatibility.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,
