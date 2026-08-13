@@ -4,6 +4,15 @@
 
 ### Added
 
+- **Component path ownership dual-runtime parity (Issue #191,
+  epic-191-a3-path-ownership T-006)**: added direct Bash/PowerShell product-
+  wrapper parity coverage for canonical JSON, exit status, diagnostics, and
+  unknown-argument pass-through across the resolver and reverse-coverage
+  pairs. The resolver PowerShell twin now rejects unknown arguments with the
+  Python master's exit-2 contract; the protected coverage twin fix and the
+  parity suite's CI steps are hash-bound under the feature's `human-copy/`
+  staging tree for human application.
+
 - **Full-input ownership digest (Issue #191,
   epic-191-a3-path-ownership T-003)**: `resolve-component-paths` now hashes
   every declared component include/exclude rule, every bounded or
