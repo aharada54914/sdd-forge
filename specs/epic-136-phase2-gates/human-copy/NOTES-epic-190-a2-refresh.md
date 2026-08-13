@@ -271,3 +271,141 @@ byte-identical, and the manifest digest travels in the same commit):
    `New-InstallationFixture` change in the same PR supplies the live
    workflow to the runner's post-install child suites, which TEST-011
    needs after the eviction).
+
+> **APPLIED** — the human executed steps 1–4; `MANIFEST.sha256`'s final line
+> carries `54c3b3d1…` today and the candidate file is gone. The section below
+> supersedes this one with a NEW candidate for the same runner.
+
+---
+
+## Class fix extended — registry-projection snapshot evicted (2026-08-14)
+
+The 2026-08-11 ruling evicted the repo-shared **CI workflow** snapshot. The
+same defect class then fired a fourth time, on a different repo-shared file:
+on 2026-08-14 a sanctioned refresh of epic-190-a2's bundle advanced live
+`guard-invariants.json`, which left THIS bundle's staged copy stale and turned
+PR #244's CI red on all six jobs across all three OSes with
+`FAIL: WFI-016 staged targets are byte-identical to live (no stale staging)`.
+
+### Why these six files are the same class
+
+`guard-invariants.json`, its generator, and the four `generated/` siblings are
+a **projection of a repository-wide registry with many writers**. Membership
+test for the class: *the file's LIVE bytes can change without this epic
+changing anything*. Measured on `main`, the live canonical has been written by
+three separate epics plus one framework fix:
+
+| commit | writer |
+|---|---|
+| `2b8a52f6` | epic-136-phase2-gates (creation) |
+| `848e46d1` | WFI-016 hook-guard CWD fix |
+| `8297945a` | epic-189-a1 protected-path registration |
+| `025b2f0d` | epic-190-a2 capability-registry registration |
+
+A per-epic snapshot of such a file cannot stay fresh, and every apply of a
+stale one silently un-protects whatever the other writers added.
+Refresh-to-live only resets the clock; eviction removes the class.
+
+### Executed in this bundle
+
+- `MANIFEST.sha256`: the six registry-projection entries REMOVED; 18 → 12
+  entries, no other line touched, no digest rewritten, order preserved
+  (`shasum -a 256 -c` = 12/12 OK).
+- The six staged files DELETED.
+- `tests/phase2-guard-invariants.tests.{sh,ps1}` amended in step:
+  - the TEST-013 inventory pin is the 12-entry list;
+  - the class lock is now **data-driven over all seven evicted paths**
+    (workflow + the six), asserting ABSENCE of both the staged file and any
+    manifest entry, so re-adding any of them fails the suite;
+  - TEST-010/011/012 retarget their subject from the staged plugin tree to the
+    **LIVE** `plugins/sdd-quality-loop` — the single source of truth, exactly
+    the retargeting TEST-011 received on 2026-08-11;
+  - the fixture helpers that read the staged canonical now read the LIVE one
+    (`Install-FixtureCanonical`), and the two mutation cases that mutated the
+    staged canonical now mutate the surfaces that survive eviction.
+
+**The guard's protection of these six paths is unchanged.** They remain in the
+live `protected_gate_suffixes` (77) and `phase2_human_copy_targets` (26); only
+the per-epic *snapshot* is gone. Verified: all seven evicted paths are still
+present in the runner's `$RegistryTargets` pin.
+
+### Proof
+
+- **Non-vacuity, both lanes, one suite run per mutation state**: for each of
+  the seven evicted paths, re-adding the staged file and (separately) the
+  manifest entry flips **exactly that path's lock to FAIL while the other six
+  stay ok**; restoring returns all seven to ok. 16 vectors per lane, 7/7 locks
+  each, zero violations (sh and ps1).
+- **Real-publisher rehearsal**, 46 legs in a scratch tree, measuring 25 live
+  paths plus the CI step-name set plus every array in the live canonical —
+  not the two-array measurement that produced the cycle-5 false all-clear:
+  **ZERO REMOVALS** (no live file deleted, no live line lost, no CI step lost,
+  no registry key lost). Legs: whole-batch ×2 (both refused
+  `DUPLICATE_BASENAME_IN_BATCH` exit 19), single-target ×29 (every manifest
+  entry of both bundles), adversarial replay ×14, runner ×1.
+- **Adversarial replay** — hand-crafting the deleted manifest line and applying
+  it as a single-target batch, the exact 2026-08-11 hazard shape — is REFUSED
+  for all seven evicted paths against this bundle (exit 10, staged candidate
+  absent), with the live workflow and canonical byte-unchanged.
+
+### OPEN — needs this epic's owner, human-only
+
+The R-10 runner `apply-protected-files.ps1` read the staged canonical as its
+inventory authority (`:662-664`), so the eviction leaves it **fail-closed**: no
+apply path can remove anything, but a legitimate whole-bundle runner apply is
+impossible until a human refreshes it. A candidate sits beside it as
+`apply-protected-files.refresh-candidate-20260814.ps1`
+(sha256 `4b75bc1df75d0295e2f92758af94ab4bf54b0ccdabf2c71effae89dd731cebf1`).
+It makes exactly two changes:
+
+- `$BootstrapTargets` becomes this bundle's 12-entry inventory (the six
+  evicted), byte-order-identical to `MANIFEST.sha256` and to the TEST-013 pin;
+- the staged-canonical authority read is removed. The reviewed
+  `$RegistryTargets` pin — the very list the staged snapshot was only ever
+  checked *against* — becomes the bootstrap authority, and normal-update mode
+  validates the INSTALLED LIVE canonical against that same pin. This is
+  strictly stronger than the former staged/live equality check: it binds live
+  to a reviewed immutable list instead of to another mutable snapshot.
+  `$RegistryTargets` itself is unchanged (26 entries).
+
+Verified before staging: PowerShell parser CLEAN; ASCII/no-BOM; `diff` against
+the protected runner is exactly the two changes above and nothing else;
+`$BootstrapTargets` == `MANIFEST.sha256` target order (12/12, exact);
+`$RegistryTargets` == live `phase2_human_copy_targets` (26/26, exact);
+`$BootstrapTargets` is a subset of `$RegistryTargets`; none of the seven
+evicted paths appears in `$BootstrapTargets`; all seven still appear in
+`$RegistryTargets`.
+
+**NOT verified, and this is a real gap:** the runner is Windows-only
+(`apply-protected-files: Windows is required`, exit 2 on macOS), so its install
+path could not be executed on the authoring host. The nine runner-emulation
+assertions in the ps1 suite are macOS platform failures both before and after
+this change (identical failure list). Their behaviour on windows-latest after
+the human apply is **unproven** and must be confirmed by CI.
+
+**Human apply steps** (from the repository root; both copies must stay
+byte-identical, and the manifest digest travels in the same commit):
+
+1. Copy the candidate over BOTH protected copies:
+   - `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+   - `specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+2. In `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256`, replace the
+   digest on the final line (target
+   `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`,
+   currently `54c3b3d1…`) with
+   `4b75bc1df75d0295e2f92758af94ab4bf54b0ccdabf2c71effae89dd731cebf1`.
+   No line is added, removed, or reordered.
+3. Delete `apply-protected-files.refresh-candidate-20260814.ps1`.
+4. Verify: `shasum -a 256 -c` against the manifest (12/12 OK) and
+   `bash tests/phase2-guard-invariants.tests.sh` (41/0). On Windows, run
+   `tests/phase2-guard-invariants.tests.ps1` and record the actual result —
+   it is deliberately not predicted here.
+
+### Sibling bundle NOT closed
+
+`specs/epic-189-a1-project-context/human-copy/` still stages all six
+registry-projection files, and the rehearsal measured that its single-target
+applies of them still succeed (exit 0). That is a no-op today only because
+staged == live; it re-arms the moment live advances. It is NOT closed here
+because doing so requires amending AC-021 in a hash-bound `acceptance-tests.md`
+— see the PR body and that bundle's own NOTES.
