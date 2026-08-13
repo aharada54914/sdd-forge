@@ -30,14 +30,38 @@ for ps in pwsh powershell.exe powershell; do
     # loop start, so reassigning "$@" with `set --` inside the loop body
     # (to accumulate the mapped/translated arguments) does not disturb the
     # list still being iterated.
+    # Every option the Python master declares must appear below. An option
+    # that is missing here is NOT rejected: it falls through the `*` arm
+    # unchanged, PowerShell leaves it in $args, and the twin's unknown-argument
+    # check exits 2 — so the failure is loud, but only for flags. A missing
+    # VALUE-taking option is worse: `--repo-root /x` arrives as two stray
+    # tokens and the run dies on an unrelated diagnostic. Keep this table in
+    # sync with resolve-component-paths.py's parser and the .ps1 param() block.
+    #
+    # -IncludeUntracked is [bool], not [switch], so it cannot be passed bare
+    # under `pwsh -File`; and a bare string value cannot bind either
+    # ("Cannot convert value \"System.String\" to type \"System.Boolean\"",
+    # measured on PowerShell 7.6.2 for `$false`, `false`, and `0` alike).
+    # The `-Name:$value` colon form is the one that binds under -File, and it
+    # is what argparse's --include-untracked/--no-include-untracked pair maps
+    # onto. Single quotes keep `$true`/`$false` literal for PowerShell to read
+    # rather than letting this shell expand them to the empty string.
     first=true
     for arg in "$@"; do
       case "$arg" in
         --config) mapped="-Config" ;;
         --changed-paths-file) mapped="-ChangedPathsFile" ;;
+        --source-rev) mapped="-SourceRev" ;;
+        --target-rev) mapped="-TargetRev" ;;
+        --repo-root) mapped="-RepoRoot" ;;
+        --include-untracked) mapped='-IncludeUntracked:$true' ;;
+        --no-include-untracked) mapped='-IncludeUntracked:$false' ;;
         --check-schema-conformance) mapped="-CheckSchemaConformance" ;;
         --schema) mapped="-Schema" ;;
         --schema-contract) mapped="-SchemaContract" ;;
+        --diagnose) mapped="-Diagnose" ;;
+        --provider-bindings) mapped="-ProviderBindings" ;;
+        --json) mapped="-Json" ;;
         *) mapped="$arg" ;;
       esac
       if [ "$first" = true ]; then

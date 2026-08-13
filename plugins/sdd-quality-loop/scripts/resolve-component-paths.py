@@ -14,7 +14,8 @@ entry point without removing it):
         [--changed-paths-file <file, one raw path per line>] [--json]
 
     (omitting --changed-paths-file reads newline-separated raw paths from
-    stdin)
+    stdin; --json is an accepted no-op -- stdout is JSON in every mode
+    regardless, and there is no alternative output format)
 
 Usage (schema-conformance mode, AC-011 — FAIL-closed on absence, never a
 skip; this task's own Done state is gated on this fixture, see tasks.md):
@@ -1264,6 +1265,15 @@ def main(argv: Optional[List[str]] = None) -> int:
         "--provider-bindings",
         default="sdd/provider-bindings.yaml",
         help="path to the Provider Bindings file for --diagnose's Fail-6 (default: sdd/provider-bindings.yaml)",
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="emit JSON (accepted no-op: every mode of this script already "
+        "writes JSON to stdout unconditionally, and there is no alternative "
+        "output format). Declared because this script's own usage text and "
+        "design.md's API/Contract Plan both advertise it, so the documented "
+        "invocation must not die on an unrecognized argument.",
     )
     args = parser.parse_args(argv)
 

@@ -11,8 +11,9 @@
 #
 # Usage (classification mode):
 #   resolve-component-paths.ps1 -Config <project-context.yaml> `
-#       [-ChangedPathsFile <file, one raw path per line>]
+#       [-ChangedPathsFile <file, one raw path per line>] [-Json]
 #   (omitting -ChangedPathsFile reads newline-separated raw paths from stdin)
+#   (-Json is an accepted no-op; stdout is JSON in every mode regardless)
 #
 # Usage (schema-conformance mode, AC-011 — FAIL-closed on absence):
 #   resolve-component-paths.ps1 -CheckSchemaConformance `
@@ -41,7 +42,13 @@ param(
     [string]$Schema = "contracts/project-context.template.yaml",
     [string]$SchemaContract = "contracts/project-context.schema.json",
     [switch]$Diagnose,
-    [string]$ProviderBindings = "sdd/provider-bindings.yaml"
+    [string]$ProviderBindings = "sdd/provider-bindings.yaml",
+    # Accepted no-op, mirroring the Python master's --json. Every mode of both
+    # runtimes already writes JSON to stdout unconditionally and neither has an
+    # alternative output format, but this script's usage text and design.md's
+    # API/Contract Plan both advertise the flag, so the documented invocation
+    # must not fall through to the unknown-argument rejection below.
+    [switch]$Json
 )
 
 # A plain PowerShell param() block leaves unknown named arguments in $args.

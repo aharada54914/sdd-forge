@@ -19,6 +19,7 @@ trap 'rm -rf "$TMP"' EXIT
 
 passed=0
 failed=0
+skipped=0
 
 pass() {
   passed=$((passed + 1))
@@ -28,6 +29,11 @@ pass() {
 fail() {
   failed=$((failed + 1))
   printf 'not ok - %s\n' "$1"
+}
+
+skip() {
+  skipped=$((skipped + 1))
+  printf 'skip - %s\n' "$1"
 }
 
 assert_equal() {
@@ -95,125 +101,139 @@ for required in "$RESOLVER_SH" "$RESOLVER_PS" "$COVERAGE_SH" "$COVERAGE_PS" \
   fi
 done
 
-# TEST-050: recognized resolver argv, canonical JSON, and exit status are
-# compared between the real product entry points. Expected output is derived
-# only by executing those entry points; no output value is copied into here.
-run_shell resolver-sh "$RESOLVER_SH" \
-  --config "$RESOLVER_FIXTURE/config.yaml" \
-  --changed-paths-file "$RESOLVER_FIXTURE/changed-paths.txt"
-run_pwsh resolver-ps "$RESOLVER_PS" \
-  -Config "$RESOLVER_FIXTURE/config.yaml" \
-  -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt"
-resolver_sh_json="$(canonical_json "$TMP/resolver-sh.stdout")"
-resolver_ps_json="$(canonical_json "$TMP/resolver-ps.stdout")"
-if [[ -n "$resolver_sh_json" && -n "$resolver_ps_json" ]]; then
-  pass "TEST-050 resolver outputs parse as JSON"
-else
-  fail "TEST-050 resolver outputs parse as JSON"
-fi
-assert_equal "TEST-050 resolver canonical stdout parity" "$resolver_sh_json" "$resolver_ps_json"
-assert_equal "TEST-050 resolver exit parity" "$(<"$TMP/resolver-sh.exit")" "$(<"$TMP/resolver-ps.exit")"
+# TEST-050 compares the two REAL runtimes against each other, so a PowerShell
+# host is a prerequisite for it. On a POSIX machine without one, every parity
+# cell would compare real shell output against an empty pwsh stdout and a 127
+# "command not found" status, reporting 12 fabricated failures that say nothing
+# about the product. Skip the cross-runtime block instead, matching the
+# prerequisite guard in tests/review-contract-foundation-parity.tests.sh. Unlike
+# that suite, this one also carries pwsh-independent checks (TEST-047/048/049,
+# TEST-051), so the guard wraps only the block that needs pwsh rather than
+# exiting the whole suite -- skipping those too would silently drop real
+# coverage on exactly the hosts this guard exists to serve.
+if command -v pwsh >/dev/null 2>&1; then
+  # TEST-050: recognized resolver argv, canonical JSON, and exit status are
+  # compared between the real product entry points. Expected output is derived
+  # only by executing those entry points; no output value is copied into here.
+  run_shell resolver-sh "$RESOLVER_SH" \
+    --config "$RESOLVER_FIXTURE/config.yaml" \
+    --changed-paths-file "$RESOLVER_FIXTURE/changed-paths.txt"
+  run_pwsh resolver-ps "$RESOLVER_PS" \
+    -Config "$RESOLVER_FIXTURE/config.yaml" \
+    -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt"
+  resolver_sh_json="$(canonical_json "$TMP/resolver-sh.stdout")"
+  resolver_ps_json="$(canonical_json "$TMP/resolver-ps.stdout")"
+  if [[ -n "$resolver_sh_json" && -n "$resolver_ps_json" ]]; then
+    pass "TEST-050 resolver outputs parse as JSON"
+  else
+    fail "TEST-050 resolver outputs parse as JSON"
+  fi
+  assert_equal "TEST-050 resolver canonical stdout parity" "$resolver_sh_json" "$resolver_ps_json"
+  assert_equal "TEST-050 resolver exit parity" "$(<"$TMP/resolver-sh.exit")" "$(<"$TMP/resolver-ps.exit")"
 
-# TEST-050: the real coverage pair is exercised with the same shipped fixture.
-# Its warning strings are part of the canonical output comparison.
-run_shell coverage-sh "$COVERAGE_SH" \
-  --config "$COVERAGE_FIXTURE/config-required.yaml" \
-  --facet-manifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
-  --changed-paths-file "$COVERAGE_FIXTURE/changed-paths-clean.txt"
-run_pwsh coverage-ps "$COVERAGE_PS" \
-  -Config "$COVERAGE_FIXTURE/config-required.yaml" \
-  -FacetManifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
-  -ChangedPathsFile "$COVERAGE_FIXTURE/changed-paths-clean.txt"
-coverage_sh_json="$(canonical_json "$TMP/coverage-sh.stdout")"
-coverage_ps_json="$(canonical_json "$TMP/coverage-ps.stdout")"
-if [[ -n "$coverage_sh_json" && -n "$coverage_ps_json" ]]; then
-  pass "TEST-050 coverage outputs parse as JSON"
-else
-  fail "TEST-050 coverage outputs parse as JSON"
-fi
-assert_equal "TEST-050 coverage canonical stdout and warning parity" "$coverage_sh_json" "$coverage_ps_json"
-assert_equal "TEST-050 coverage exit and LASTEXITCODE parity" "$(<"$TMP/coverage-sh.exit")" "$(<"$TMP/coverage-ps.exit")"
+  # TEST-050: the real coverage pair is exercised with the same shipped fixture.
+  # Its warning strings are part of the canonical output comparison.
+  run_shell coverage-sh "$COVERAGE_SH" \
+    --config "$COVERAGE_FIXTURE/config-required.yaml" \
+    --facet-manifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
+    --changed-paths-file "$COVERAGE_FIXTURE/changed-paths-clean.txt"
+  run_pwsh coverage-ps "$COVERAGE_PS" \
+    -Config "$COVERAGE_FIXTURE/config-required.yaml" \
+    -FacetManifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
+    -ChangedPathsFile "$COVERAGE_FIXTURE/changed-paths-clean.txt"
+  coverage_sh_json="$(canonical_json "$TMP/coverage-sh.stdout")"
+  coverage_ps_json="$(canonical_json "$TMP/coverage-ps.stdout")"
+  if [[ -n "$coverage_sh_json" && -n "$coverage_ps_json" ]]; then
+    pass "TEST-050 coverage outputs parse as JSON"
+  else
+    fail "TEST-050 coverage outputs parse as JSON"
+  fi
+  assert_equal "TEST-050 coverage canonical stdout and warning parity" "$coverage_sh_json" "$coverage_ps_json"
+  assert_equal "TEST-050 coverage exit and LASTEXITCODE parity" "$(<"$TMP/coverage-sh.exit")" "$(<"$TMP/coverage-ps.exit")"
 
-# Derive a unique extra argument from the shipped suite itself, feed equivalent
-# argv to both real runtimes, and compare behavior. Under the amended delivery
-# split the resolver cells are GREEN now; the protected live coverage twin's
-# cells remain designed RED until the staged candidate is human-applied.
-probe_digest="$(shasum -a 256 "$0" | awk '{print substr($1,1,12)}')"
-probe="parity-probe-$probe_digest"
-run_shell resolver-extra-sh "$RESOLVER_SH" \
-  --config "$RESOLVER_FIXTURE/config.yaml" \
-  --changed-paths-file "$RESOLVER_FIXTURE/changed-paths.txt" \
-  "--$probe"
-run_pwsh resolver-extra-ps "$RESOLVER_PS" \
-  -Config "$RESOLVER_FIXTURE/config.yaml" \
-  -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt" \
-  "-$probe"
-assert_equal "TEST-050 resolver extra-argument exit parity" \
-  "$(<"$TMP/resolver-extra-sh.exit")" "$(<"$TMP/resolver-extra-ps.exit")"
-assert_equal "TEST-050 resolver extra-argument category parity" \
-  "$(error_category resolver-extra-sh "$probe")" \
-  "$(error_category resolver-extra-ps "$probe")"
+  # Derive a unique extra argument from the shipped suite itself, feed equivalent
+  # argv to both real runtimes, and compare behavior. Under the amended delivery
+  # split the resolver cells are GREEN now; the protected live coverage twin's
+  # cells remain designed RED until the staged candidate is human-applied.
+  probe_digest="$(shasum -a 256 "$0" | awk '{print substr($1,1,12)}')"
+  probe="parity-probe-$probe_digest"
+  run_shell resolver-extra-sh "$RESOLVER_SH" \
+    --config "$RESOLVER_FIXTURE/config.yaml" \
+    --changed-paths-file "$RESOLVER_FIXTURE/changed-paths.txt" \
+    "--$probe"
+  run_pwsh resolver-extra-ps "$RESOLVER_PS" \
+    -Config "$RESOLVER_FIXTURE/config.yaml" \
+    -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt" \
+    "-$probe"
+  assert_equal "TEST-050 resolver extra-argument exit parity" \
+    "$(<"$TMP/resolver-extra-sh.exit")" "$(<"$TMP/resolver-extra-ps.exit")"
+  assert_equal "TEST-050 resolver extra-argument category parity" \
+    "$(error_category resolver-extra-sh "$probe")" \
+    "$(error_category resolver-extra-ps "$probe")"
 
-run_shell coverage-extra-sh "$COVERAGE_SH" \
-  --config "$COVERAGE_FIXTURE/config-required.yaml" \
-  --facet-manifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
-  --changed-paths-file "$COVERAGE_FIXTURE/changed-paths-clean.txt" \
-  "--$probe"
-run_pwsh coverage-extra-ps "$COVERAGE_PS" \
-  -Config "$COVERAGE_FIXTURE/config-required.yaml" \
-  -FacetManifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
-  -ChangedPathsFile "$COVERAGE_FIXTURE/changed-paths-clean.txt" \
-  "-$probe"
-assert_equal "TEST-050 coverage extra-argument exit parity" \
-  "$(<"$TMP/coverage-extra-sh.exit")" "$(<"$TMP/coverage-extra-ps.exit")"
-assert_equal "TEST-050 coverage extra-argument category parity" \
-  "$(error_category coverage-extra-sh "$probe")" \
-  "$(error_category coverage-extra-ps "$probe")"
+  run_shell coverage-extra-sh "$COVERAGE_SH" \
+    --config "$COVERAGE_FIXTURE/config-required.yaml" \
+    --facet-manifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
+    --changed-paths-file "$COVERAGE_FIXTURE/changed-paths-clean.txt" \
+    "--$probe"
+  run_pwsh coverage-extra-ps "$COVERAGE_PS" \
+    -Config "$COVERAGE_FIXTURE/config-required.yaml" \
+    -FacetManifest "$COVERAGE_FIXTURE/facet-manifest-full.json" \
+    -ChangedPathsFile "$COVERAGE_FIXTURE/changed-paths-clean.txt" \
+    "-$probe"
+  assert_equal "TEST-050 coverage extra-argument exit parity" \
+    "$(<"$TMP/coverage-extra-sh.exit")" "$(<"$TMP/coverage-extra-ps.exit")"
+  assert_equal "TEST-050 coverage extra-argument category parity" \
+    "$(error_category coverage-extra-sh "$probe")" \
+    "$(error_category coverage-extra-ps "$probe")"
 
-# Non-vacuity: both disposable PowerShell mutants remain correct for the
-# recognized invocation but diverge on the same real extra-argument oracle.
-# The first drops the automatic argument tail; the second forwards it but
-# discards the child process status. Neither mutant replaces a product path.
-export T006_REAL_RESOLVER="$RESOLVER_PS"
-cat >"$TMP/argument-drop-mutant.ps1" <<'PWSH'
+  # Non-vacuity: both disposable PowerShell mutants remain correct for the
+  # recognized invocation but diverge on the same real extra-argument oracle.
+  # The first drops the automatic argument tail; the second forwards it but
+  # discards the child process status. Neither mutant replaces a product path.
+  export T006_REAL_RESOLVER="$RESOLVER_PS"
+  cat >"$TMP/argument-drop-mutant.ps1" <<'PWSH'
 param([string]$Config, [string]$ChangedPathsFile)
 & $env:T006_REAL_RESOLVER -Config $Config -ChangedPathsFile $ChangedPathsFile
 exit $LASTEXITCODE
 PWSH
-cat >"$TMP/child-exit-mutant.ps1" <<'PWSH'
+  cat >"$TMP/child-exit-mutant.ps1" <<'PWSH'
 param([string]$Config, [string]$ChangedPathsFile)
 & $env:T006_REAL_RESOLVER -Config $Config -ChangedPathsFile $ChangedPathsFile @args
 exit 0
 PWSH
-run_pwsh mutant-drop-recognized "$TMP/argument-drop-mutant.ps1" \
-  -Config "$RESOLVER_FIXTURE/config.yaml" \
-  -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt"
-run_pwsh mutant-drop-extra "$TMP/argument-drop-mutant.ps1" \
-  -Config "$RESOLVER_FIXTURE/config.yaml" \
-  -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt" "-$probe"
-if [[ "$(canonical_json "$TMP/mutant-drop-recognized.stdout")" == "$resolver_sh_json" \
-   && "$(<"$TMP/mutant-drop-recognized.exit")" == "$(<"$TMP/resolver-sh.exit")" \
-   && ( "$(<"$TMP/mutant-drop-extra.exit")" != "$(<"$TMP/resolver-extra-sh.exit")" \
-     || "$(error_category mutant-drop-extra "$probe")" != "$(error_category resolver-extra-sh "$probe")" ) ]]; then
-  pass "TEST-050 disposable argument-drop mutant is detected"
+  run_pwsh mutant-drop-recognized "$TMP/argument-drop-mutant.ps1" \
+    -Config "$RESOLVER_FIXTURE/config.yaml" \
+    -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt"
+  run_pwsh mutant-drop-extra "$TMP/argument-drop-mutant.ps1" \
+    -Config "$RESOLVER_FIXTURE/config.yaml" \
+    -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt" "-$probe"
+  if [[ "$(canonical_json "$TMP/mutant-drop-recognized.stdout")" == "$resolver_sh_json" \
+     && "$(<"$TMP/mutant-drop-recognized.exit")" == "$(<"$TMP/resolver-sh.exit")" \
+     && ( "$(<"$TMP/mutant-drop-extra.exit")" != "$(<"$TMP/resolver-extra-sh.exit")" \
+       || "$(error_category mutant-drop-extra "$probe")" != "$(error_category resolver-extra-sh "$probe")" ) ]]; then
+    pass "TEST-050 disposable argument-drop mutant is detected"
+  else
+    fail "TEST-050 disposable argument-drop mutant is detected"
+  fi
+  run_pwsh mutant-exit-recognized "$TMP/child-exit-mutant.ps1" \
+    -Config "$RESOLVER_FIXTURE/config.yaml" \
+    -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt"
+  run_pwsh mutant-exit-extra "$TMP/child-exit-mutant.ps1" \
+    -Config "$RESOLVER_FIXTURE/config.yaml" \
+    -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt" "-$probe"
+  if [[ "$(canonical_json "$TMP/mutant-exit-recognized.stdout")" == "$resolver_sh_json" \
+     && "$(<"$TMP/mutant-exit-recognized.exit")" == "$(<"$TMP/resolver-sh.exit")" \
+     && ( "$(<"$TMP/mutant-exit-extra.exit")" != "$(<"$TMP/resolver-extra-sh.exit")" \
+       || "$(error_category mutant-exit-extra "$probe")" != "$(error_category resolver-extra-sh "$probe")" ) ]]; then
+    pass "TEST-050 disposable child-exit mutant is detected"
+  else
+    fail "TEST-050 disposable child-exit mutant is detected"
+  fi
+  unset T006_REAL_RESOLVER
 else
-  fail "TEST-050 disposable argument-drop mutant is detected"
+  skip 'TEST-050 cross-runtime parity block (PowerShell is not available on this host)'
 fi
-run_pwsh mutant-exit-recognized "$TMP/child-exit-mutant.ps1" \
-  -Config "$RESOLVER_FIXTURE/config.yaml" \
-  -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt"
-run_pwsh mutant-exit-extra "$TMP/child-exit-mutant.ps1" \
-  -Config "$RESOLVER_FIXTURE/config.yaml" \
-  -ChangedPathsFile "$RESOLVER_FIXTURE/changed-paths.txt" "-$probe"
-if [[ "$(canonical_json "$TMP/mutant-exit-recognized.stdout")" == "$resolver_sh_json" \
-   && "$(<"$TMP/mutant-exit-recognized.exit")" == "$(<"$TMP/resolver-sh.exit")" \
-   && ( "$(<"$TMP/mutant-exit-extra.exit")" != "$(<"$TMP/resolver-extra-sh.exit")" \
-     || "$(error_category mutant-exit-extra "$probe")" != "$(error_category resolver-extra-sh "$probe")" ) ]]; then
-  pass "TEST-050 disposable child-exit mutant is detected"
-else
-  fail "TEST-050 disposable child-exit mutant is detected"
-fi
-unset T006_REAL_RESOLVER
 
 # Suite names and acceptance inventory are read from the frozen specification,
 # so the audit cannot silently retain a hand-copied list when the contract moves.
@@ -371,6 +391,9 @@ else
 fi
 
 printf '\nResults: %d passed, %d failed\n' "$passed" "$failed"
+if (( skipped > 0 )); then
+  printf 'Skipped: %d (unmet host prerequisite)\n' "$skipped"
+fi
 if (( failed > 0 )); then
   exit 1
 fi
