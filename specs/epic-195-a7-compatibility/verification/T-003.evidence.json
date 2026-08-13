@@ -6,7 +6,7 @@
   "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
   "quality_report": "reports/quality-gate/epic-195-a7-compatibility/T-003.md",
   "verification_contract": "specs/epic-195-a7-compatibility/verification/T-003.contract.json",
-  "git_commit": "012abb4008e6f8121dcdb8e93f543a8b35f68d46",
+  "git_commit": "f77b4080b34f2177278cecfead8a06f1f2238d44",
   "git_generated_dirty": true,
   "build_env": {
     "os": "darwin",
@@ -45,7 +45,7 @@
     },
     {
       "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/regression.log",
-      "sha256": "5c3afd756639f4ce1208777c06375e7d269e00f8e5a5f844369887c338f7caab"
+      "sha256": "d0d03df666e91a56edda4e80278b56e286aeb8b20cd2bdedc1f74e9139f740ef"
     },
     {
       "path": "specs/epic-195-a7-compatibility/verification/qg-backfill/task-state.log",
