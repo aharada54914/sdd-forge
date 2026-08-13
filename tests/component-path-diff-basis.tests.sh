@@ -308,6 +308,12 @@ R24="$(git_repo_init repo24)"
   printf 'base\n' > src/desktop/a.ts
   git add -A && git commit -q -m base
   git -c protocol.file.allow=always submodule add -q "file://${R24_INNER}" vendor/inner >/dev/null 2>&1
+  # `submodule add` clones a fresh working tree, and repo-local config is
+  # never cloned, so vendor/inner carries no identity of its own. Case 2
+  # commits inside it; without this it falls back to hostname auto-detection
+  # and aborts on any machine that has no GLOBAL git identity configured.
+  git -C vendor/inner config user.email t@example.com
+  git -C vendor/inner config user.name Test
   git commit -q -m "add submodule"
 )
 BASE24A=$(cd "$R24" && git rev-parse HEAD)

@@ -278,6 +278,15 @@ New-Item -ItemType Directory -Path (Join-Path $r24 "src/desktop") | Out-Null
 Push-Location $r24
 git add -A; git commit -q -m base
 git -c protocol.file.allow=always submodule add -q "file://$r24Inner" vendor/inner *>$null
+# `submodule add` clones a fresh working tree, and repo-local config is never
+# cloned, so vendor/inner carries no identity of its own. Case 2 commits inside
+# it; without this it falls back to hostname auto-detection and aborts on any
+# machine that has no GLOBAL git identity configured. PowerShell does not stop
+# on that failure, so the omission degrades case 2 into a vacuous pass (the
+# HEAD~1..HEAD range collapses onto the submodule's own addition) instead of a
+# visible error.
+git -C vendor/inner config user.email t@example.com
+git -C vendor/inner config user.name Test
 git commit -q -m "add submodule"
 $base24a = (git rev-parse HEAD).Trim()
 Pop-Location

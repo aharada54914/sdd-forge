@@ -68,6 +68,12 @@ chmod +x "$pass_validator" "$fail_validator"
 clone_fixture() {
   local name="$1"
   git clone -q "$source_repo" "$TMP/$name"
+  # Repo-local config is never cloned, so the clone carries no identity even
+  # though $source_repo has one. The tamper case commits inside a clone;
+  # without this it falls back to hostname auto-detection and aborts on any
+  # machine that has no GLOBAL git identity configured.
+  git -C "$TMP/$name" config user.name rollback-test
+  git -C "$TMP/$name" config user.email rollback-test@example.invalid
   printf '%s\n' "$TMP/$name"
 }
 
