@@ -2,11 +2,11 @@
   "capture_scripts": [
     {
       "path": "tests/capture-golden-baseline.sh",
-      "sha256": "decc888e6eb316f29b4c9c54fd33744b667b61203c737b3650070da38052501c"
+      "sha256": "b50460310233a582b20963fe2c0d30b89cf72783ac701f5574f835458ea5bb03"
     },
     {
       "path": "tests/capture-golden-baseline.ps1",
-      "sha256": "7b7e77a577ff617cbf369f976f3cdffb7a94b74bd20685c72714923ed309ea66"
+      "sha256": "745557aefefff5fb883398004ee0d6a9435269e4bec142abbe241c6aaff53d2f"
     }
   ],
   "fixed_environment": {

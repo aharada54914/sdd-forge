@@ -91,7 +91,8 @@ def build_capture(repo,destination):
         scripts.append({"path":relative,"sha256":sha256(path)})
     targets=[{"name":name,"path":relative,"capture_format":capture_format,"sha256":sha256(destination/relative)} for name,relative,capture_format in TARGETS]
     manifest={"capture_scripts":scripts,"fixed_environment":{"LC_ALL":"C","TZ":"UTC","ambient_sdd_variables":[]},"pre_capability_commit_sha":PRE_CAPABILITY_SHA,"schema_version":SCHEMA_VERSION,"targets":targets}
-    (destination/"manifest.json").write_text(json.dumps(manifest,indent=2,sort_keys=True)+"\n",encoding="utf-8",newline="\n")
+    # write_bytes, not write_text(newline="\n"): that keyword is Python 3.10+. Byte-identical (json.dumps escapes CR) and still bypasses Windows newline translation.
+    (destination/"manifest.json").write_bytes((json.dumps(manifest,indent=2,sort_keys=True)+"\n").encode("utf-8"))
 def snapshot(path): return {item.relative_to(path).as_posix():item.read_bytes() for item in sorted(path.rglob("*")) if item.is_file()} if path.is_dir() else {}
 def main():
     repo=Path(sys.argv[1]).resolve(); mode=sys.argv[2]; baseline=repo/BASELINE_RELATIVE; canonical=baseline/"canonical"

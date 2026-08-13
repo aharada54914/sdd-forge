@@ -205,7 +205,11 @@ def build_capture(repo: Path, destination: Path) -> None:
         "schema_version": SCHEMA_VERSION,
         "targets": targets,
     }
-    (destination / "manifest.json").write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+    # write_bytes, not write_text(..., newline="\n"): that keyword is Python 3.10+, and this
+    # capture has to run under whatever python3 the platform ships (macOS system python is
+    # 3.9). Encoding here is byte-identical to what the keyword did -- json.dumps escapes CR,
+    # so the body is pure LF -- and still bypasses the Windows newline translation it guarded.
+    (destination / "manifest.json").write_bytes((json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode("utf-8"))
 
 
 def snapshot(path: Path) -> dict[str, bytes]:
