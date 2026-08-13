@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-seq0662",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-0662",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/integrated-summary.json",
+        "sha256": "f060e2fd2b5e432053ac42fce366d3b36e016e817c80cf680b5c3095b369ab4b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/precheck-result.json",
+        "sha256": "e823dbe8bbb263bc38afe8e8e54f26da5c66e3fc0e76d962ef5012eed5ad19e0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md",
+        "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/design.md",
+        "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/frontend-spec.md",
+        "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/infra-spec.md",
+        "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md",
+        "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/security-spec.md",
+        "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/tasks.md",
+        "sha256": "f12309aac5f7c1a323388c606f5541a89f63c2723a92f311b465a97f4a6ddf0a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/traceability.md",
+        "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/ux-spec.md",
+        "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risk tiers match actual scope. T-002 (Predicate DSL evaluator, Security Boundary B2 no-dynamic-evaluation), T-003 (Registry discovery and vendoring, Boundary B4 fail-closed), T-004 (Registry validator, Boundary B1 provider-neutrality plus referential integrity plus Gate-ID uniqueness), and T-006 (projection generator plus sole editor of the seven-path protected-file registration bundle, a repo-wide blast radius across generated invariants siblings) are Risk: high, each rationale citing risk-classification-policy.md's silent-defect-causes-material-harm criterion and confirmed by security-spec.md's Trust Boundaries table (B1-B4). T-001 (inert schema and data authoring, no runtime behavior), T-005 (digest generator, a derived checksum consumed downstream; its own Risk Rationale and security-spec.md's Data Classification table confirm T-004's validator, not this digest, is the trust boundary), and T-007 (test-only parity harness, whose Risk Rationale explicitly reasons through why high would be over-classification and low would be under-classification) are Risk: medium. None of the medium or low tasks touches authentication, authorization, payment, PII storage, migration, or an externally-visible network API (security-spec.md Authentication Flow: every actor is bound by the local OS-user and filesystem boundary; infra-spec.md: External Integrations is None, no cloud runtime), and no high-risk task is scoped to only UI, docs, or test-only changes."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks (T-002, T-003, T-004, T-006) carry a TDD-evidence Done-When item pairing explicit RED (failing-fixture) and GREEN (full-suite) evidence with a recorded independent quality-gate PASS verdict (tasks.md T-002/T-003/T-004/T-006 Done When, final bullet each; T-006's additionally requires confirmation the protected-file bundle was human-applied and verified). This satisfies both the Red-before-implementation requirement and an independent-review-verdict requirement recorded via this repository's quality-gate role, which the Lifecycle section (tasks.md) names as distinct from implement-task, since only that role may set a task Done. No task in this feature is Risk: critical, so the second-approver and signed-evidence-bundle item does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task's Done-When list exceeds 8 items (T-004 is the largest at 7 grouped bullets covering REQ-003's nine independently-testable checks a through i, deliberately bundled by related check-pair rather than exploded one item per checkbox). Every task's Scope section follows the same 3-part template (write acceptance checks first, CI resilience, suite and CI registration), and no task spans unrelated implementation areas or has a multi-phase title. No fragmentation found: each task authors one complete script plus wrapper pair plus test suite plus fixtures plus run-all registration, never an isolated single-function or single-file edit."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional (non-test-only) task's acceptance criteria in acceptance-tests.md include explicit error-path or rejection fixtures, not only happy-path coverage: T-001 / AC-001, AC-002, AC-004, AC-006, AC-037, AC-038 (additionalProperties-false rejections, conditional-required rejection, missing delivery_strategy/kind rejections); T-002 / AC-007, AC-008, AC-011, AC-012, AC-040 (fail-closed WARN cases, schema-error diagnostics for bad arity, forbidden operator, and disallowed field); T-003 / AC-027 (three version-mismatch fixtures, a neither-location-resolves fail-closed fixture, a vendored-copy-drift fixture); T-004 / AC-014 through AC-022 and AC-039 (nine independently-testable validator diagnostics, all failure-path checks by design); T-005 / AC-024 (unknown-ID and fragment-selector-required hard failures); T-006 / AC-026 (drift-detection negative canary). T-007 is a dedicated test task and is out of this check's scope by its own definition."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-007 is the only dedicated test task; its Scope text labels it integration-level, since each case spans at least two of the four scripts' wrapper pairs, and its two acceptance criteria (golden-fixture parity across all four scripts; three-runtime invocation parity) genuinely involve two or more components (four scripts across three simulated runtimes), matching an integration-test declaration. Every other task's embedded suite (schema-conformance, behavior-lock, uniqueness-lock, and similar labels per acceptance-tests.md's Test Type column) targets exactly the one script or module that task authors, matching a unit-level declaration; none is mislabeled as end-to-end (no complete user workflow exists in this CLI and contract-only feature, per ux-spec.md's no-UX-surface statement) or as acceptance without an AC reference (every TEST id maps one-to-one to an AC id per acceptance-tests.md's own renumbering discipline)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry an explicit Rollback field. T-002 and T-004 read: revert this task's commits; nothing protected is written directly. T-003 adds that the vendored copies remain ordinary agent-editable files until T-006's registration is human-applied. T-006 (sole editor of the protected-file registration bundle) goes further than a bare revert: it flags that its six staged files are never part of the agent's own commit history, so a plain git revert of T-006's commits would not touch anything already human-applied, and requires a revert PR to separately state whether an already-applied protected-file change must also be hand-reverted, and by whom."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only files multiple tasks touch are the explicitly shared, append-only resources named in Global Constraints: the run-all registration script pair, the staged CI workflow test.yml candidate under human-copy, its MANIFEST.sha256, and the shared fixture tree. Global Constraints states this ordering is followed even where two adjacent tasks have no functional dependency, because the shared-array and shared-file contention is itself the dependency, and every task's own Blockers field enforces the T-001-through-T-007 serialized order, matching this check's own legitimate-multi-task-scope-sharing exception. No two tasks claim the same file for an uncoordinated, non-blocked purpose: the seven newly-protected paths (Protected Files section) are each created once by T-001 or T-003 and are registered, not re-edited, by T-006's separate six-file registration bundle."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers entry traces to a stated functional or Global-Constraints (shared-resource) rationale in the task's own Depends-On prose, and none is spurious: for example T-005's Depends On explicitly marks T-002 and T-004 as serialized-only with no functional dependency, rather than silently asserting a false functional link, and T-006's Depends On likewise explicitly disclaims a functional dependency on T-004 and T-005 while stating the real one on T-001 and T-003. No task's Planned Files references an artifact produced by a task absent from its own Blockers: every existing-after-T-001, imports-registry-discovery-from-T-003, and reads-T-001's-validated-Registry cross-reference has its source task listed in that task's own Blockers. T-007's Blockers (T-002 through T-006) omit T-001 directly, but T-001 is still transitively guaranteed via T-002, which is itself blocked on T-001, so no integration-failure risk results from the omission."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All seven tasks (T-001 through T-007) are net-new authoring tasks; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation task."
+    }
+  ],
+  "findings": []
+}

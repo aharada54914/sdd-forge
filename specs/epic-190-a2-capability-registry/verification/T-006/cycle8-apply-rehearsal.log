@@ -1,0 +1,216 @@
+cycle8-apply-rehearsal (class-fix verification, full-surface)
+date: 2026-08-11T10:36:03Z
+host: Darwin 25.5.0
+repo HEAD: c8ac93a2 fix(epic-189-a1): evict the shared-workflow snapshot from the bundle (class fix)
+ruling: RT-20260811-002, 2026-08-11, option (b) — evict the shared-file
+snapshot from per-epic bundles (class fix). Pass condition for this
+rehearsal: NO apply path can remove live CI steps any more; the
+single-target leg that removed 137 lines / 18 steps in cycle 6 must
+now be a no-op or a refusal.
+
+================================================================
+PART A: NON-VACUITY of the amended assertions
+================================================================
+
+-- A1: phase2 TEST-013 18-entry pin: append the old workflow line as a 19th manifest entry --
+suite rc=1 (expected: 1)
+  FAIL: TEST-013 final manifest has exact ordered lowercase staged hashes
+  FAIL: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+
+-- A2: phase2 class lock: re-create the staged snapshot file (no manifest entry) --
+suite rc=1 (expected: 1)
+  FAIL: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+
+-- A3: phase2 WFI-016 inventory sync: append one byte to staged tests/guard-parity.tests.sh --
+suite rc=1 (expected: 1)
+  FAIL: TEST-013 final manifest has exact ordered lowercase staged hashes
+    out of sync: tests/guard-parity.tests.sh
+  FAIL: WFI-016 staged targets are byte-identical to live (no stale staging)
+
+-- A4: phase2 restore (pristine HEAD scratch) --
+suite rc=0 (expected: 0): phase2-guard-invariants.tests.sh: 35 passed, 0 failed
+
+-- A5: a1 class lock: re-add the old workflow line to the a1 manifest --
+suite rc=1 (expected: 1)
+  FAIL: staging: class lock: no repo-shared .github/workflows/test.yml manifest entry (snapshot evicted 2026-08-11) (expected [0], got [1])
+  FAIL: staging: every MANIFEST.sha256 entry has staged bytes at <stage>/<path> (expected [0], got [1])
+  FAIL: 2
+
+-- A6: a1 class lock: re-create the staged snapshot file (no manifest entry) --
+suite rc=1 (expected: 1)
+  FAIL: staging: class lock: no staged .github/workflows/test.yml snapshot file
+  FAIL: 1
+
+-- A7: a1 restore (pristine HEAD scratch) --
+suite rc=0 (expected: 0): PASS: 82 FAIL: 0 
+
+-- A8: ps1 twins, class-lock mutation (re-add manifest entry in both bundles) --
+a1 ps1 rc=1 (expected: 1)
+  FAIL: staging: class lock: no repo-shared .github/workflows/test.yml manifest entry (snapshot evicted 2026-08-11): expected [0], got [1]
+  FAIL: staging: every MANIFEST.sha256 entry has staged bytes at <stage>/<path>: expected [0], got [1]
+  FAIL: 2
+phase2 ps1 rc=1 with class-lock/manifest FAILs (macOS baseline has 9 platform FAILs; mutation must ADD these):
+  FAIL: TEST-013 final manifest has exact ordered lowercase staged hashes
+  FAIL: TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)
+phase2 ps1 total FAIL count: 11 (macOS pristine baseline: 9)
+
+================================================================
+PART B: APPLY REHEARSAL (real publisher, scratch trees)
+================================================================
+
+================================================================
+BUNDLE: epic-189-a1-project-context
+staging: specs/epic-189-a1-project-context/human-copy
+================================================================
+
+-- LEG 1: whole-batch apply via real apply-human-copy.sh --
+manifest entries: 17 ; workflow entry present: 0
+whole-batch apply rc=19
+  {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-lite/skills/lite-spec/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+  {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-lite/skills/lite-spec/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+LEG 1 OUTCOME: DENIED (fail-closed, rc=19).
+LEG 1 live workflow: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442) — zero CI-step removal possible on this leg.
+
+-- LEG 2: single-target workflow batch via real apply-human-copy.sh --
+   (cycle 6: this leg applied the stale snapshot cleanly, removing
+    137 lines / 18 named steps. Pass condition now: no-op or refusal.)
+LEG 2a (from current manifest): NO-OP BY CONSTRUCTION — the current
+  manifest has no .github/workflows/test.yml entry to select; a single-target workflow batch
+  cannot be built from this bundle's manifest at all.
+LEG 2b (adversarial replay of the evicted entry line):
+  single-target replay rc=10
+    {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for '.github/workflows/test.yml' is missing, is a symlink, or is unreadable under /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/cycle8-kHJr67/specs/epic-189-a1-project-context/human-copy"}
+    {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for '.github/workflows/test.yml' is missing, is a symlink, or is unreadable under /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/cycle8-kHJr67/specs/epic-189-a1-project-context/human-copy"}
+LEG 2 OUTCOME: REFUSED (rc=10), live workflow UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442).
+  The staged snapshot no longer exists; there is nothing stale to apply.
+
+-- LEG 3: full manifest-contract emulation (per-entry verify + whole-file replace) --
+LEG 3 diff of EVERY manifest target against pre-apply (live) bytes:
+  UNCHANGED: specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md (d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb)
+  UNCHANGED: plugins/sdd-quality-loop/references/guard-invariants.json (639fa2cc5ec9b02fded7266057e8e968dff839b3b6bbbbff4b43b158dae3a6c8)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (3a7b718d2d343609a5cc139cc4af895a43a835a05aa29f098a42cf0dde601dbd)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (26858e3ec91240632250d1ba31bca7f93e336a54a562cc96ba287ce7b3015590)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (5b152b9f9337f1ba67da69be850896d79a73d0462169eb1dc2cb1de71320f612)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (588f607bfc97486efa204f33f0634533edc0f3d613d86a3a98612aac424db344)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (b253ed97472f61f2b4357797f0c29934ca9b368b03a468840906ad23cd27eb9b)
+  UNCHANGED: plugins/sdd-ship/skills/ship/SKILL.md (ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d)
+  UNCHANGED: plugins/sdd-lite/skills/lite-spec/SKILL.md (c76fa6c294f7630857ac7c1d1aa57179c79823ad6401ba0d58e1f9619b0860a4)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/apply-human-copy.sh (c24357d541701a3d9a0dd8fbf99f2e2bec7ef64f6464e745107577b9de75e970)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1 (4b4eeaf3a53df2bb147f9355f155f6b189304fe6e2fb7f9a9c50ad5b6e0ea923)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py (b7f2feb691e3b32cc9d37af541844b92f38ec21d9a13b25d72a61b0cba6a5cd8)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py (a06f433d40a00252d7d17823df5ea3c74b834cb9d14f3fd1caee7c1ff21e4a74)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py (b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 (28edb5796a6b557666f34655430b83f62f1266fd0628b9e40bd4a5d444e44e6f)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (d0bdab976c1f7321503cc61205fd2dbcbbd37631492e6689a38b6f334447894a)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js (6e1e8c1a4225e36a593c61ae4f2d02a543f9f6f025569b31a3a9e966dce1f500)
+LEG 3 removals: total-lines-removed=0 changed-files=0 of 17 targets
+LEG 3 live workflow: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442)
+
+================================================================
+BUNDLE: epic-136-phase2-gates
+staging: specs/epic-136-phase2-gates/human-copy
+================================================================
+
+-- LEG 1: whole-batch apply via real apply-human-copy.sh --
+manifest entries: 18 ; workflow entry present: 0
+whole-batch apply rc=19
+  {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-ship/skills/ship/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+  {"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-ship/skills/ship/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+LEG 1 OUTCOME: DENIED (fail-closed, rc=19).
+LEG 1 live workflow: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442) — zero CI-step removal possible on this leg.
+
+-- LEG 2: single-target workflow batch via real apply-human-copy.sh --
+   (cycle 6: this leg applied the stale snapshot cleanly, removing
+    137 lines / 18 named steps. Pass condition now: no-op or refusal.)
+LEG 2a (from current manifest): NO-OP BY CONSTRUCTION — the current
+  manifest has no .github/workflows/test.yml entry to select; a single-target workflow batch
+  cannot be built from this bundle's manifest at all.
+LEG 2b (adversarial replay of the evicted entry line):
+  single-target replay rc=10
+    {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for '.github/workflows/test.yml' is missing, is a symlink, or is unreadable under /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/cycle8-baQgDe/specs/epic-136-phase2-gates/human-copy"}
+    {"status":"denied","category":"PRE_EXISTING_SYMLINK_DENIED","message":"staged candidate for '.github/workflows/test.yml' is missing, is a symlink, or is unreadable under /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/cycle8-baQgDe/specs/epic-136-phase2-gates/human-copy"}
+LEG 2 OUTCOME: REFUSED (rc=10), live workflow UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442).
+  The staged snapshot no longer exists; there is nothing stale to apply.
+
+-- LEG 3: full manifest-contract emulation (per-entry verify + whole-file replace) --
+LEG 3 diff of EVERY manifest target against pre-apply (live) bytes:
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py (d0bdab976c1f7321503cc61205fd2dbcbbd37631492e6689a38b6f334447894a)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js (6e1e8c1a4225e36a593c61ae4f2d02a543f9f6f025569b31a3a9e966dce1f500)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 (28edb5796a6b557666f34655430b83f62f1266fd0628b9e40bd4a5d444e44e6f)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh (1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/check-contract.ps1 (ca9183c7cacecdd12df0d6f5d077b021b316a907460c64db654d3046e3072937)
+  UNCHANGED: plugins/sdd-lite/references/risk-upgrade-policy.md (afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03)
+  UNCHANGED: plugins/sdd-lite/scripts/check-risk-upgrade.sh (192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45)
+  UNCHANGED: plugins/sdd-lite/scripts/check-risk-upgrade.ps1 (d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38)
+  UNCHANGED: plugins/sdd-lite/skills/lite-spec/SKILL.md (c76fa6c294f7630857ac7c1d1aa57179c79823ad6401ba0d58e1f9619b0860a4)
+  UNCHANGED: plugins/sdd-ship/skills/ship/SKILL.md (ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d)
+  UNCHANGED: plugins/sdd-quality-loop/references/guard-invariants.json (639fa2cc5ec9b02fded7266057e8e968dff839b3b6bbbbff4b43b158dae3a6c8)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (3a7b718d2d343609a5cc139cc4af895a43a835a05aa29f098a42cf0dde601dbd)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (26858e3ec91240632250d1ba31bca7f93e336a54a562cc96ba287ce7b3015590)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (5b152b9f9337f1ba67da69be850896d79a73d0462169eb1dc2cb1de71320f612)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (588f607bfc97486efa204f33f0634533edc0f3d613d86a3a98612aac424db344)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (b253ed97472f61f2b4357797f0c29934ca9b368b03a468840906ad23cd27eb9b)
+  UNCHANGED: tests/guard-parity.tests.sh (055c08bc6f7eeb807252b455346fe36d0286c16c2befc6d1582d5a38179e83c4)
+  UNCHANGED: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1 (e00f76b687b229fb80a7ce291b9e0ec5640f5c62d8906ea37721563a7b10010a)
+LEG 3 removals: total-lines-removed=0 changed-files=0 of 18 targets
+LEG 3 live workflow: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442)
+
+================================================================
+BUNDLE: epic-190-a2-capability-registry-own
+staging: specs/epic-190-a2-capability-registry/human-copy
+================================================================
+
+-- LEG 1: whole-batch apply via real apply-human-copy.sh --
+manifest entries: 7 ; workflow entry present: 1
+whole-batch apply rc=0
+  {"status":"ok","recovered":0,"targets":[".github/workflows/test.yml","plugins/sdd-quality-loop/references/guard-invariants.json","plugins/sdd-quality-loop/scripts/generate-guard-invariants.py","plugins/sdd-quality-loop/scripts/generated/guard_invariants.py","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh"]}
+LEG 1 OUTCOME: applied (rc=0).
+LEG 1 live workflow: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442) — zero CI-step removal possible on this leg.
+
+-- LEG 2: single-target workflow batch via real apply-human-copy.sh --
+   (cycle 6: this leg applied the stale snapshot cleanly, removing
+    137 lines / 18 named steps. Pass condition now: no-op or refusal.)
+LEG 2a (from current manifest): this bundle legitimately carries a
+  workflow entry (its own reviewed registration, staged bytes byte-
+  identical to live) — a single-target apply of it is a no-op:
+  current-entry single-target apply rc=0
+    {"status":"ok","recovered":0,"targets":[".github/workflows/test.yml"]}
+  live workflow after: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442) — no-op confirmed
+LEG 2b (adversarial replay of the evicted entry line):
+  single-target replay rc=12
+    {"status":"denied","category":"STAGED_CANDIDATE_HASH_MISMATCH","message":"staged candidate for '.github/workflows/test.yml' does not match the manifest's recorded sha256 (got a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442, want 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998)"}
+    {"status":"denied","category":"STAGED_CANDIDATE_HASH_MISMATCH","message":"staged candidate for '.github/workflows/test.yml' does not match the manifest's recorded sha256 (got a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442, want 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998)"}
+LEG 2 OUTCOME: REFUSED (rc=12), live workflow UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442).
+  This bundle's staged workflow equals live bytes, so the OLD stale
+  digest in the replayed line can never match again (hash mismatch).
+
+-- LEG 3: full manifest-contract emulation (per-entry verify + whole-file replace) --
+LEG 3 diff of EVERY manifest target against pre-apply (live) bytes:
+  UNCHANGED: .github/workflows/test.yml (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442)
+  UNCHANGED: plugins/sdd-quality-loop/references/guard-invariants.json (639fa2cc5ec9b02fded7266057e8e968dff839b3b6bbbbff4b43b158dae3a6c8)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py (3a7b718d2d343609a5cc139cc4af895a43a835a05aa29f098a42cf0dde601dbd)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py (26858e3ec91240632250d1ba31bca7f93e336a54a562cc96ba287ce7b3015590)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js (5b152b9f9337f1ba67da69be850896d79a73d0462169eb1dc2cb1de71320f612)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 (588f607bfc97486efa204f33f0634533edc0f3d613d86a3a98612aac424db344)
+  UNCHANGED: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh (b253ed97472f61f2b4357797f0c29934ca9b368b03a468840906ad23cd27eb9b)
+LEG 3 removals: total-lines-removed=0 changed-files=0 of 7 targets
+LEG 3 live workflow: UNCHANGED (a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442)
+
+-- phase2 Windows-only runner (apply-protected-files.ps1) contract emulation --
+runner embedded BootstrapTargets: 19 entries (R-10 frozen, workflow still listed)
+staged canonical phase2_human_copy_targets: 26 entries
+bundle MANIFEST.sha256: 18 lines
+bootstrap mode: Assert-SameOrder(runner 19, staged canonical 26) -> COUNT DIFFERS -> refusal (exit 2)
+normal mode: Get-ManifestDigests requires manifest lines (18) == live canonical targets (26) -> COUNT DIFFERS -> refusal (exit 2)
+Both runner modes were ALREADY fail-closed before this eviction (canonical went to 26 at cycle 5) and remain fail-closed after it: the runner cannot write the workflow, and the staged snapshot it would copy no longer exists.
+
+================================================================
+OVERALL VERDICT
+================================================================
+The evicted snapshot no longer exists in either sibling bundle; every
+apply path measured above either refuses or is a no-op on the live
+workflow. The cycle-6 hazard (single-target leg: 137 lines / 18 steps
+removed) is CLOSED: LEG 2a cannot be constructed and LEG 2b is refused
+with the live workflow byte-unchanged. Re-creating the snapshot is
+caught deterministically by the PART-A class locks in both suites.
+live repo tree untouched: 0 dirty paths (expected 0)

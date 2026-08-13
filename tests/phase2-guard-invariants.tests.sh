@@ -42,6 +42,12 @@ if run_generator "$source_loop" --check; then ok '--check accepts committed outp
 
 # TEST-013: the reviewed human-copy manifest is an exact ordered binding from
 # the fixed Phase 2 inventory to the staged source bytes.
+# 2026-08-11 (human ruling on RT-20260811-002, class fix): the repo-shared
+# .github/workflows/test.yml is EVICTED from this inventory. A per-epic staged
+# snapshot of a repo-shared file is structurally doomed to go stale and became
+# a deletion hazard on apply (measured: 137 lines / 18 named live steps). The
+# inventory is now 18 entries; the class lock below fails this suite if the
+# snapshot is ever re-added.
 phase2_targets=(
   'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py'
   'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js'
@@ -60,7 +66,6 @@ phase2_targets=(
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1'
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
   'tests/guard-parity.tests.sh'
-  '.github/workflows/test.yml'
   'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 )
 manifest="$stage/MANIFEST.sha256"
@@ -91,7 +96,17 @@ done
 [[ "$candidate_ok" == 1 ]] && ok 'TEST-013 staged batch contains each exact protected candidate' || bad 'TEST-013 staged batch contains each exact protected candidate'
 [[ "$manifest_ok" == 1 ]] && ok 'TEST-013 final manifest has exact ordered lowercase staged hashes' || bad 'TEST-013 final manifest has exact ordered lowercase staged hashes'
 
-ci="$stage/.github/workflows/test.yml"
+# Class lock (2026-08-11 human ruling, RT-20260811-002): the bundle must never
+# again snapshot the repo-shared CI workflow. Absence is asserted, not merely
+# unlisted, so a future re-adding fails here instead of rotting silently.
+wf_absent=1
+[[ -e "$stage/.github/workflows/test.yml" ]] && wf_absent=0
+if [[ -f "$manifest" ]] && grep -Fq '  .github/workflows/test.yml' "$manifest"; then wf_absent=0; fi
+[[ "$wf_absent" == 1 ]] && ok 'TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)' || bad 'TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)'
+
+# TEST-011 asserts the CI ordering invariant against the LIVE workflow (the
+# single source of truth after the 2026-08-11 eviction of the staged snapshot).
+ci="$root/.github/workflows/test.yml"
 if [[ -f "$ci" ]]; then
   checkout_line="$(grep -Fn 'uses: actions/checkout' "$ci" | head -n 1 | cut -d: -f1 || true)"
   validation_line="$(grep -Fn 'Install recorded Claude Code CLI' "$ci" | head -n 1 | cut -d: -f1 || true)"
@@ -105,12 +120,12 @@ if [[ -f "$ci" ]]; then
     && grep -A 5 -F 'Verify generated guard invariants (POSIX)' "$ci" | grep -Fq 'run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check' \
     && grep -A 5 -F 'Test Phase 2 guard invariants (pwsh)' "$ci" | grep -Fq "if: runner.os == 'Windows'" \
     && grep -A 5 -F 'Test Phase 2 guard invariants (bash)' "$ci" | grep -Fq "if: runner.os != 'Windows'"; then
-    ok 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards'
+    ok 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
   else
-    bad 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards'
+    bad 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
   fi
 else
-  bad 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards'
+  bad 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
 fi
 
 copy_tree "$work/one"
@@ -256,42 +271,28 @@ fi
 # application in the same change, so any divergence here is stale staging (the
 # 2b8a52f class that nearly reverted ten commits of CI definition) and must be
 # caught at commit time, not at the next apply.
+# 2026-08-11 (human ruling on RT-20260811-002, item 4 semantics): the check
+# iterates THIS BUNDLE's staging inventory (the TEST-013 list, which TEST-013
+# binds to MANIFEST.sha256 in order), not the canonical JSON's
+# phase2_human_copy_targets. epic-190-a2's registration turned that array into
+# a repository-wide protection registry (19 -> 26 entries); files another epic
+# stages in its own bundle are not this bundle's staging surface, and reading
+# the registry as this bundle's inventory made this check fail for the wrong
+# reason (seven "missing" entries that were never staged here).
 sync_ok=1
-sync_canonical="$stage/plugins/sdd-quality-loop/references/guard-invariants.json"
-sync_targets=""
-if [[ -f "$sync_canonical" ]]; then
-  # native_path is required: on Windows Git Bash python3 is a native
-  # interpreter that cannot open POSIX-style /c/... paths (same convention as
-  # every other python3 call in this suite). Guard the substitution so a
-  # python failure records a bad instead of killing the suite via set -e.
-  if ! sync_targets="$(python3 - "$(native_path "$sync_canonical")" <<'PY'
-import json, sys
-for t in json.load(open(sys.argv[1], encoding="utf-8"))["phase2_human_copy_targets"]:
-    print(t)
-PY
-)"; then
+for sync_target in "${phase2_targets[@]}"; do
+  if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
+    echo "  missing: $sync_target"
+    sync_ok=0
+    continue
+  fi
+  staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
+  live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
+  if [[ "$staged_digest" != "$live_digest" ]]; then
+    echo "  out of sync: $sync_target"
     sync_ok=0
   fi
-  while IFS= read -r sync_target; do
-    # Native Windows python emits CRLF on stdout; strip the trailing CR so
-    # target paths resolve (mirrors the runner's manifest CRLF normalization).
-    sync_target="${sync_target%$'\r'}"
-    [[ -n "$sync_target" ]] || continue
-    if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
-      echo "  missing: $sync_target"
-      sync_ok=0
-      continue
-    fi
-    staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
-    live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
-    if [[ "$staged_digest" != "$live_digest" ]]; then
-      echo "  out of sync: $sync_target"
-      sync_ok=0
-    fi
-  done <<< "$sync_targets"
-else
-  sync_ok=0
-fi
+done
 [[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' || bad 'WFI-016 staged targets are byte-identical to live (no stale staging)'
 
 echo "phase2-guard-invariants.tests.sh: $pass passed, $fail failed"

@@ -436,7 +436,12 @@ if ($env:SDD_PHASE2_RUNNER_CHILD -eq '1') {
 #>
 
 # TEST-013 Slice 3: isolated bootstrap validation only. The runner deliberately
-# stops after validating all 19 staged hashes; no fixture live target is copied.
+# stops after validating the staged hashes; no fixture live target is copied.
+# 2026-08-11 (human ruling on RT-20260811-002, class fix): the repo-shared
+# .github/workflows/test.yml is EVICTED from this inventory (18 entries now).
+# A per-epic staged snapshot of a repo-shared file is structurally doomed to
+# go stale and became a deletion hazard on apply (measured: 137 lines / 18
+# named live steps). The class lock below fails this suite if it is re-added.
 $bootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
@@ -455,13 +460,14 @@ $bootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh',
     'tests/guard-parity.tests.sh',
-    '.github/workflows/test.yml',
     'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 )
 $bootstrapStage = Join-Path $root 'specs/epic-136-phase2-gates/human-copy'
 $bootstrapRunner = Join-Path $bootstrapStage 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 $bootstrapManifest = Join-Path $bootstrapStage 'MANIFEST.sha256'
-$bootstrapCi = Join-Path $bootstrapStage '.github/workflows/test.yml'
+# TEST-011 asserts the CI ordering invariant against the LIVE workflow (the
+# single source of truth after the 2026-08-11 eviction of the staged snapshot).
+$liveCi = Join-Path $root '.github/workflows/test.yml'
 
 function Test-FinalStagedManifest {
     if (-not (Test-Path -LiteralPath $bootstrapManifest -PathType Leaf)) { return $false }
@@ -558,8 +564,19 @@ function Try-NewFixtureJunction([string]$Path, [string]$Target) {
 $allStagedCandidatesExist = (@($bootstrapTargets | Where-Object { -not (Test-Path -LiteralPath (Join-Path $bootstrapStage $_) -PathType Leaf) }).Count -eq 0)
 Assert-True $allStagedCandidatesExist 'TEST-013 staged batch contains each exact protected candidate'
 Assert-True (Test-FinalStagedManifest) 'TEST-013 final manifest has exact ordered lowercase staged hashes'
-if (Test-Path -LiteralPath $bootstrapCi -PathType Leaf) {
-    $ciText = Get-Content -Raw -LiteralPath $bootstrapCi
+
+# Class lock (2026-08-11 human ruling, RT-20260811-002): the bundle must never
+# again snapshot the repo-shared CI workflow. Absence is asserted, not merely
+# unlisted, so a future re-adding fails here instead of rotting silently.
+$stagedWorkflowSnapshot = Join-Path $bootstrapStage '.github/workflows/test.yml'
+$manifestHasWorkflowEntry = $false
+if (Test-Path -LiteralPath $bootstrapManifest -PathType Leaf) {
+    $manifestHasWorkflowEntry = (@([IO.File]::ReadAllLines($bootstrapManifest) | Where-Object { $_.EndsWith('  .github/workflows/test.yml') }).Count -ne 0)
+}
+Assert-True ((-not (Test-Path -LiteralPath $stagedWorkflowSnapshot)) -and (-not $manifestHasWorkflowEntry)) 'TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)'
+
+if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
+    $ciText = Get-Content -Raw -LiteralPath $liveCi
     $checkout = $ciText.IndexOf('uses: actions/checkout')
     $firstValidation = $ciText.IndexOf('Install recorded Claude Code CLI')
     $firstGuardSuite = $ciText.IndexOf('Test hook guards')
@@ -568,8 +585,8 @@ if (Test-Path -LiteralPath $bootstrapCi -PathType Leaf) {
     $windowsInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(pwsh\).*?if: runner\.os == 'Windows'.*?shell: pwsh.*?run: ./tests/phase2-guard-invariants\.tests\.ps1")
     $posixInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(bash\).*?if: runner\.os != 'Windows'.*?shell: bash.*?run: bash ./tests/phase2-guard-invariants\.tests\.sh")
     $generatorBeforeValidation = (($ciText.IndexOf('Verify generated guard invariants (Windows)') -gt $checkout) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -gt $checkout) -and ($ciText.IndexOf('Verify generated guard invariants (Windows)') -lt $firstValidation) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -lt $firstValidation) -and ($ciText.IndexOf('Verify generated guard invariants (Windows)') -lt $firstGuardSuite) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -lt $firstGuardSuite))
-    Assert-True (($checkout -ge 0) -and ($firstValidation -ge 0) -and ($firstGuardSuite -ge 0) -and $windowsGenerator -and $posixGenerator -and $windowsInvariantSuite -and $posixInvariantSuite -and $generatorBeforeValidation) 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards'
-} else { Bad 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards' }
+    Assert-True (($checkout -ge 0) -and ($firstValidation -ge 0) -and ($firstGuardSuite -ge 0) -and $windowsGenerator -and $posixGenerator -and $windowsInvariantSuite -and $posixInvariantSuite -and $generatorBeforeValidation) 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
+} else { Bad 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards' }
 
 function New-InstallationFixture {
     $fixture = Join-Path ([IO.Path]::GetTempPath()) ('phase2-install-' + [guid]::NewGuid().ToString())
@@ -583,6 +600,15 @@ function New-InstallationFixture {
     New-Item -ItemType Directory -Path $fixtureTests -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $root 'tests/phase2-guard-invariants.tests.ps1') -Destination $fixtureTests -Force
     Copy-Item -LiteralPath (Join-Path $root 'tests/phase2-guard-invariants.tests.sh') -Destination $fixtureTests -Force
+    # TEST-011 asserts against the LIVE workflow (the post-eviction single
+    # source of truth), so the runner's post-install child suites need it
+    # present inside the fixture tree. This is a runtime copy of the live
+    # bytes, never a committed snapshot -- it cannot go stale.
+    if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
+        $fixtureCi = Join-Path $fixture '.github/workflows/test.yml'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $fixtureCi) -Force | Out-Null
+        Copy-Item -LiteralPath $liveCi -Destination $fixtureCi -Force
+    }
     $fixtureStage = Join-Path $fixture 'specs/epic-136-phase2-gates/human-copy'
     $lines = @()
     foreach ($target in $bootstrapTargets) {
@@ -934,10 +960,15 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
 
 # WFI-016 followup (issue #207): every staged human-copy target must be
 # byte-identical to its live counterpart (twin of the bash sync check).
+# 2026-08-11 (human ruling on RT-20260811-002, item 4 semantics): the check
+# iterates THIS BUNDLE's staging inventory ($bootstrapTargets, bound to
+# MANIFEST.sha256 by TEST-013), not the canonical JSON's
+# phase2_human_copy_targets, which epic-190-a2's registration turned into a
+# repository-wide protection registry (19 -> 26 entries). Files another epic
+# stages in its own bundle are not this bundle's staging surface.
 $syncOk = $true
-$syncCanonical = Join-Path $bootstrapStage 'plugins/sdd-quality-loop/references/guard-invariants.json'
 try {
-    $syncTargets = @((Get-Content -Raw -LiteralPath $syncCanonical | ConvertFrom-Json).phase2_human_copy_targets)
+    $syncTargets = @($bootstrapTargets)
     if ($syncTargets.Count -eq 0) { $syncOk = $false }
     foreach ($syncTarget in $syncTargets) {
         $syncLive = Join-Path $root $syncTarget

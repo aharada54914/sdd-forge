@@ -43,6 +43,13 @@
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+    "contracts/capability-registry.schema.json",
+    "contracts/capability-registry.json",
+    "contracts/lite-upgrade-reason-catalog.json",
+    "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+    "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+    "plugins/sdd-quality-loop/contracts/capability-registry.json",
+    "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
@@ -82,14 +89,49 @@
   ],
   "shell": {
     "compound_re": "&&|\\|\\||;|\\|",
-    "write_arg_cmds": ["tee", "touch", "rm"],
-    "write_dest_cmds": ["cp", "mv"],
-    "ps_write_cmds": ["set-content", "out-file", "new-item", "remove-item"],
-    "indirect_cmds": ["eval", "xargs", "source", "sh", "bash", "zsh", "dash", "ksh"],
-    "unsafe_token_chars": ["$", "`", "(", ")", "{", "}", "*", "?", "[", "]"],
+    "write_arg_cmds": [
+      "tee",
+      "touch",
+      "rm"
+    ],
+    "write_dest_cmds": [
+      "cp",
+      "mv"
+    ],
+    "ps_write_cmds": [
+      "set-content",
+      "out-file",
+      "new-item",
+      "remove-item"
+    ],
+    "indirect_cmds": [
+      "eval",
+      "xargs",
+      "source",
+      "sh",
+      "bash",
+      "zsh",
+      "dash",
+      "ksh"
+    ],
+    "unsafe_token_chars": [
+      "$",
+      "`",
+      "(",
+      ")",
+      "{",
+      "}",
+      "*",
+      "?",
+      "[",
+      "]"
+    ],
     "redirect_token_re": "^(?:\\d*|&)(>>?)([\\s\\S]*)$",
     "fd_dup_re": "^&(?:\\d+|-)$",
-    "cd_cmds": ["cd", "pushd"],
+    "cd_cmds": [
+      "cd",
+      "pushd"
+    ],
     "sudo_write_re": "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b)",
     "read_only_start_re": "^\\s*(?:cat|ls|test|grep|stat|head|tail|rg)\\b"
   },
@@ -114,6 +156,13 @@
     "tests/guard-parity.tests.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+    "contracts/capability-registry.schema.json",
+    "contracts/capability-registry.json",
+    "contracts/lite-upgrade-reason-catalog.json",
+    "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+    "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+    "plugins/sdd-quality-loop/contracts/capability-registry.json",
+    "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
     "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
