@@ -8,7 +8,7 @@ references/deterministic-check-policy.md ("Keep the caller scoped to changed
 files"), and scanning captured product bytes would flag markers this feature
 never wrote.
 
-$ sh /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/capture-golden-baseline.sh tests/capture-golden-baseline.ps1 tests/promote-golden-baseline.sh tests/promote-golden-baseline.ps1 tests/golden-baseline-contract.tests.sh tests/golden-baseline-contract.tests.ps1 tests/run-all.sh tests/run-all.ps1
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/capture-golden-baseline.sh tests/capture-golden-baseline.ps1 tests/promote-golden-baseline.sh tests/promote-golden-baseline.ps1 tests/golden-baseline-contract.tests.sh tests/golden-baseline-contract.tests.ps1 tests/run-all.sh tests/run-all.ps1
 Placeholder scan passed.
 
 exit status: 0

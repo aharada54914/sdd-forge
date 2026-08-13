@@ -8,7 +8,7 @@ references/deterministic-check-policy.md ("Keep the caller scoped to changed
 files"), and scanning captured product bytes would flag markers this feature
 never wrote.
 
-$ sh /Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/compatibility-byte-identical.tests.sh tests/compatibility-byte-identical.tests.ps1 tests/install.tests.sh tests/install.tests.ps1 tests/uninstall.tests.sh tests/uninstall.tests.ps1 tests/run-all.sh tests/run-all.ps1
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/compatibility-byte-identical.tests.sh tests/compatibility-byte-identical.tests.ps1 tests/install.tests.sh tests/install.tests.ps1 tests/uninstall.tests.sh tests/uninstall.tests.ps1 tests/run-all.sh tests/run-all.ps1
 Placeholder scan passed.
 
 exit status: 0

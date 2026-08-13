@@ -24,8 +24,11 @@
 
 here=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 root=$(CDPATH= cd -- "$here/../../../.." && pwd)
-scripts="$root/plugins/sdd-quality-loop/scripts"
 cd "$root" || exit 1
+# Repo-relative, not "$root"-prefixed: every command line is echoed into the log
+# it produces, and an absolute path would make the evidence machine-specific and
+# break the byte-comparison that proves task-state.log has reached its fixed point.
+scripts="plugins/sdd-quality-loop/scripts"
 
 mkdir -p "$here/T-001" "$here/T-002" "$here/T-003"
 
@@ -35,17 +38,25 @@ failures=0
 # Writes the note, "$ <command>", the command's combined output, and its exit
 # status. Records a failure instead of aborting, so one red check still leaves a
 # complete set of logs to read.
+#
+# The log is assembled in a sibling temp file and moved into place only after the
+# command exits. That matters for task-state.log and nothing else: check-task-state
+# transitively hashes every artifact an evidence bundle names, and task-state.log
+# is one of them, so truncating the destination before the run would change the
+# bytes under the gate mid-flight and make it fail on its own output file.
 run() {
   log=$1
   note=$2
   shift 3  # drop log, note, and the literal "--"
+  tmp="$log.partial"
   {
     printf '%s\n' "$note"
     printf '\n$ %s\n' "$*"
-  } > "$log"
-  "$@" >> "$log" 2>&1
+  } > "$tmp"
+  "$@" >> "$tmp" 2>&1
   rc=$?
-  printf '\nexit status: %s\n' "$rc" >> "$log"
+  printf '\nexit status: %s\n' "$rc" >> "$tmp"
+  mv "$tmp" "$log"
   printf '%-62s exit=%s\n' "${log#"$root"/}" "$rc"
   [ "$rc" -eq 0 ] || failures=$((failures + 1))
 }

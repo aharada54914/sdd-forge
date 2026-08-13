@@ -1,0 +1,12 @@
+Whole-feature tasks.md state-machine gate. This single run is the evidence
+for all three tasks: check-task-state validates every task in the file at once,
+so there is one run, not three. It transitively runs check-evidence-bundle and
+check-contract for each Done task, which is why its output names them.
+
+$ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-195-a7-compatibility/tasks.md reports/quality-gate reports/implementation .
+Task state check FAILED:
+ - T-001 is Done but verification/T-001.evidence.json does not exist in specs/epic-195-a7-compatibility
+ - T-002 is Done but verification/T-002.evidence.json does not exist in specs/epic-195-a7-compatibility
+ - T-003 is Done but verification/T-003.evidence.json does not exist in specs/epic-195-a7-compatibility
+
+exit status: 1
