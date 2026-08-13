@@ -410,7 +410,8 @@ fi
 # candidate-only because later serialized tasks reuse it for pending staged
 # registrations after T-004's own steps have been human-applied. A later
 # task's explicit HUMAN APPLY STEP may likewise add a not-yet-live protected
-# candidate; those paths are derived from that task's text, never hand-listed.
+# candidate; those paths are derived from that task's text and are exempt only
+# while the candidate's unknown-argument guard is absent from the live file.
 if python3 -c "
 import hashlib
 import json
@@ -420,7 +421,7 @@ repo = Path('${REPO_ROOT}')
 manifest = Path('${HC_MANIFEST_191}')
 tasks = (repo / 'specs/epic-191-a3-path-ownership/tasks.md').read_text()
 t006 = tasks.split('## T-006', 1)[1]
-pending_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
+declared_human_apply = set(re.findall(r'human-copy/(plugins/[^\x60\s]+)', t006))
 live = json.load(open('${REPO_ROOT}/plugins/sdd-quality-loop/references/guard-invariants.json'))
 new = ('plugins/sdd-quality-loop/scripts/check-component-coverage.py',
        'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
@@ -442,9 +443,14 @@ for line in manifest.read_text().splitlines():
     candidate = manifest.parent / relative
     if not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
         raise SystemExit(f'candidate hash mismatch: {relative}')
-    if relative != '.github/workflows/test.yml' and relative not in pending_human_apply:
+    if relative != '.github/workflows/test.yml':
         applied = repo / relative
-        if not applied.is_file() or hashlib.sha256(applied.read_bytes()).hexdigest() != expected:
+        if not applied.is_file():
+            raise SystemExit(f'applied file missing: {relative}')
+        applied_bytes = applied.read_bytes()
+        guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
+        pending_human_apply = relative in declared_human_apply and not guard_applied
+        if not pending_human_apply and hashlib.sha256(applied_bytes).hexdigest() != expected:
             raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
 "; then

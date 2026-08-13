@@ -362,7 +362,7 @@ if ($liveContractPs1Text -match '"high"\s*=.*"check-component-coverage"' -and
 # T-004-owned protected rows must still match live. The shared workflow row
 # may carry a later serialized task's pending staged registration. Explicit
 # HUMAN APPLY STEP paths are derived from that later task's text and remain
-# candidate-only until the human application actually occurs.
+# candidate-only only while the candidate's argument guard is absent live.
 $liveGuardInvariants = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "plugins/sdd-quality-loop/references/guard-invariants.json") | ConvertFrom-Json
 $newSuffixes = @(
     "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
@@ -378,7 +378,7 @@ $manifestChecked = 0
 $liveChecked = 0
 $tasksText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot 'specs/epic-191-a3-path-ownership/tasks.md')
 $t006Text = ($tasksText -split '## T-006', 2)[1]
-$pendingHumanApply = @([regex]::Matches($t006Text, 'human-copy/(plugins/[^`\s]+)') | ForEach-Object { $_.Groups[1].Value })
+$declaredHumanApply = @([regex]::Matches($t006Text, 'human-copy/(plugins/[^`\s]+)') | ForEach-Object { $_.Groups[1].Value })
 $liveWorkflowText = Get-Content -Raw -LiteralPath (Join-Path $repoRoot '.github/workflows/test.yml')
 if (-not $liveWorkflowText.Contains('bash ./tests/check-component-coverage.tests.sh') -or
     -not $liveWorkflowText.Contains('./tests/check-component-coverage.tests.ps1')) {
@@ -393,12 +393,18 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     if (-not (Test-Path -LiteralPath $candidatePath)) { $manifestOk = $false; continue }
     $candidateHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $candidatePath).Hash.ToLowerInvariant()
     if ($candidateHash -cne $parts[0].Trim()) { $manifestOk = $false }
-    if ($relativePath -cne '.github/workflows/test.yml' -and $pendingHumanApply -cnotcontains $relativePath) {
+    if ($relativePath -cne '.github/workflows/test.yml') {
         $livePath = Join-Path $repoRoot $relativePath
         if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
+        $liveText = [System.IO.File]::ReadAllText($livePath)
+        $guardApplied = $liveText.Contains('if ($args.Count -gt 0)', [System.StringComparison]::Ordinal) -and
+            $liveText.Contains('unrecognized arguments:', [System.StringComparison]::Ordinal)
+        $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
         $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
-        if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
-        $liveChecked++
+        if (-not $pendingHumanApply) {
+            if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+            $liveChecked++
+        }
     }
     $manifestChecked++
 }

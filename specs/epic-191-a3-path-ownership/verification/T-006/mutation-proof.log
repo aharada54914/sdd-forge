@@ -2,20 +2,40 @@ MUTATION PROOF — DISPOSABLE FULL CLONE
 Precondition: T-006 worktree overlaid and staged coverage candidate copied to its live path only in the disposable clone.
 Protocol: violate one assertion family; require both harness twins to exit 1 and name the intended assertion; restore; require both harness twins to exit 0 with 21/0.
 
-MUTATION resolver-json: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION resolver-exit: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION resolver-argv: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION coverage-json: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION coverage-exit-LASTEXITCODE: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION coverage-argv: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION runner-registration: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION staged-manifest-binding: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION behavior-red-green-evidence: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION fixture-inventory: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION live-protected-workflow: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION changelog-registration: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
-MUTATION release-surface-synchronization: FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION resolver-json: intended assertion="TEST-050 resolver outputs parse as JSON"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION resolver-exit: intended assertion="TEST-050 resolver exit parity"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION resolver-argv: intended assertions="TEST-050 resolver extra-argument exit parity; TEST-050 resolver extra-argument category parity"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION coverage-json: intended assertion="TEST-050 coverage outputs parse as JSON"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION coverage-exit-LASTEXITCODE: intended assertion="TEST-050 coverage exit and LASTEXITCODE parity"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION coverage-argv: intended assertions="TEST-050 coverage extra-argument exit parity; TEST-050 coverage extra-argument category parity"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION runner-registration: intended assertions="TEST-047 all spec-declared suites are registered once in both runners and staged CI; TEST-051 parity harness self-registration"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION staged-manifest-binding: intended assertion="TEST-051 staged candidates match every manifest row"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION behavior-red-green-evidence: intended assertion="TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION fixture-inventory: intended assertion="TEST-047 glob, NFC-collision, and reference-only fixture inventory"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION live-protected-workflow: intended assertion="TEST-047 live protected workflow remains byte-unchanged"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION changelog-registration: intended assertion="TEST-048 task changelog registration survives release-heading replay"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
+MUTATION release-surface-synchronization: intended assertion="TEST-049 release surfaces are untouched or synchronized by bump-version"; FAIL-DETECTED bash=1 ps1=1; RESTORE GREEN bash=21/0 ps1=21/0
 
 The suites' own disposable argument-drop, child-exit, and missing-suite mutants also executed and were detected during every GREEN restoration. No mutant replaced a live product path in the production worktree.
 
 Setup note: an initial evidence mutation removed the verification directory and made the PowerShell harness abort during setup. That invalid run is excluded. The counted mutation retained an empty verification directory and produced the intended TEST-047 assertion failure in both twins.
+
+QUALITY GATE CYCLE 1 REMEDIATION — 2026-08-13
+Environment: macOS /bin/bash 3.2 with PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin; command -v rg returned no path. The PowerShell twin ran under the identical PATH.
+
+MUTATION exact-argument-name-drop: both applied PowerShell guards retained exit 2 and "unrecognized arguments" but omitted the probe name. Intended assertions="TEST-050 resolver extra-argument category parity; TEST-050 coverage extra-argument category parity". RED transcript in both twins: those two assertions alone were `not ok`; Results: 19 passed, 2 failed. RESTORE GREEN under the same no-rg PATH: bash=21/0 ps1=21/0.
+MUTATION post-apply-live-drift: after copying the staged coverage candidate to the live path, appended a behavior-neutral comment to that live file. Intended assertion="TEST-036.4: T-004 registration, staged-candidate integrity, or T-004-owned live byte identity". RED transcript: bash=45/1 with `applied hash mismatch: plugins/sdd-quality-loop/scripts/check-component-coverage.ps1`; ps1=46/1 with `manifestOk=False`. RESTORE GREEN: bash=46/0 ps1=47/0, including TEST-055.2b once.
+MUTATION exact-behavior-evidence-id: changed the GREEN evidence token TEST-032.1 to TEST-032.X while retaining the old behavior words. Intended assertion="TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence". RED transcript: bash=20/1 ps1=20/1. RESTORE GREEN: bash=21/0 ps1=21/0.
+MUTATION parity-runner-registration: removed the Bash parity runner row. Intended assertions="TEST-047 all spec-declared suites are registered once in both runners and staged CI; TEST-051 parity harness self-registration". RED transcript: bash=19/2 ps1=19/2. RESTORE GREEN: bash=21/0 ps1=21/0.
+MUTATION disposable-missing-suite-noop: made each harness's built-in runner mutation a no-op. Intended assertion="TEST-047 registration audit rejects a disposable missing-suite mutant". RED transcript: bash=20/1 ps1=20/1. RESTORE GREEN: bash=21/0 ps1=21/0.
+MUTATION nfc-fixture-id: changed AC-010's TEST-010 fixture id to TEST-999 in the disposable clone. Intended assertion="TEST-047 glob, NFC-collision, and reference-only fixture inventory". RED transcript: bash=20/1 ps1=20/1. RESTORE GREEN: bash=21/0 ps1=21/0.
+MUTATION release-version-desync: changed one marketplace version to 9.9.9. Intended assertion="TEST-049 release surfaces are untouched or synchronized by bump-version". RED transcript: bash=20/1 ps1=20/1. RESTORE GREEN: bash=21/0 ps1=21/0.
+MUTATION changelog-task-id: changed the T-006 token in the Issue #191 entry to T-XXX. Intended assertion="TEST-048 task changelog registration survives release-heading replay". RED transcript: bash=20/1 ps1=20/1. RESTORE GREEN: bash=21/0 ps1=21/0.
+
+Final no-rg transcripts:
+- production tree, Bash: Results: 19 passed, 2 failed (the two designed-red protected-coverage cells); exit 1.
+- production tree, PowerShell: Results: 19 passed, 2 failed (the same two cells); exit 1.
+- disposable applied tree, Bash: Results: 21 passed, 0 failed; exit 0.
+- disposable applied tree, PowerShell: Results: 21 passed, 0 failed; exit 0.
+
+Every remediation mutant was restored before the final GREEN runs. No mutant replaced a live product path in the production worktree.

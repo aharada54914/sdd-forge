@@ -23,3 +23,14 @@ Direct unknown-argument diagnostics:
 
 Manifest: shasum -a 256 -c passed all 13 rows.
 Protected/frozen checks: live coverage, live workflow, tasks.md, requirements.md, design.md, acceptance-tests.md, traceability.md, and the guard/check-contract protected bundle all had empty git diffs.
+
+QUALITY GATE CYCLE 1 REMEDIATION — 2026-08-13
+
+No-rg production environment (PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin; macOS /bin/bash 3.2):
+- bash tests/component-path-ownership-parity.tests.sh: exit 1; Results: 19 passed, 2 failed.
+- pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1: exit 1; Results: 19 passed, 2 failed.
+- Both twins named the same designed-red protected-coverage exit/category cells; no setup abort and no unbound-array error.
+
+Canonical coverage regressions after the bounded-exemption remediation:
+- /bin/bash tests/check-component-coverage.tests.sh: exit 0; Results: 46 passed, 0 failed.
+- pwsh -NoProfile -File tests/check-component-coverage.tests.ps1: exit 0; 47 passed, 0 failed; TEST-055.2b observed exactly once as PASS.

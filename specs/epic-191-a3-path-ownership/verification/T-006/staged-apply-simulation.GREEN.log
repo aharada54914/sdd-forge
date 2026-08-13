@@ -10,3 +10,25 @@ Exit: 0
 Results: 21 passed, 0 failed
 
 The production worktree's protected check-component-coverage.ps1 was not modified.
+
+QUALITY GATE CYCLE 1 REMEDIATION REPLAY — 2026-08-13
+Environment: macOS /bin/bash 3.2 with PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin; rg unavailable.
+
+Command: /bin/bash tests/component-path-ownership-parity.tests.sh
+Exit: 0
+Results: 21 passed, 0 failed
+
+Command: pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1
+Exit: 0
+Results: 21 passed, 0 failed
+
+Command: /bin/bash tests/check-component-coverage.tests.sh
+Exit: 0
+Results: 46 passed, 0 failed
+
+Command: pwsh -NoProfile -File tests/check-component-coverage.tests.ps1
+Exit: 0
+check-component-coverage.tests.ps1: 47 passed, 0 failed
+TEST-055.2b observed exactly once as PASS.
+
+The candidate was applied only inside the disposable clone. The production worktree's protected check-component-coverage.ps1 remained byte-unchanged.

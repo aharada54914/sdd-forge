@@ -62,7 +62,7 @@ error_category() {
   status="$(<"$TMP/$stem.exit")"
   if [[ "$status" == "0" ]]; then
     printf 'accepted'
-  elif rg -F -q -- "$probe" "$TMP/$stem.stderr"; then
+  elif grep -Fq -- "$probe" "$TMP/$stem.stderr"; then
     printf 'rejected-named-extra'
   elif [[ -s "$TMP/$stem.stderr" ]]; then
     sed -n '1{s/:.*//;p;}' "$TMP/$stem.stderr" | tr -d '\r\n'
@@ -75,10 +75,10 @@ registration_audit() {
   local run_sh="$1" run_ps="$2" workflow="$3" suite sh_count ps_count ci_sh_count ci_ps_count
   shift 3
   for suite in "$@"; do
-    sh_count="$(rg -F -c "tests/$suite.tests.sh" "$run_sh" 2>/dev/null || true)"
-    ps_count="$(rg -F -c "tests/$suite.tests.ps1" "$run_ps" 2>/dev/null || true)"
-    ci_sh_count="$(rg -F -c "tests/$suite.tests.sh" "$workflow" 2>/dev/null || true)"
-    ci_ps_count="$(rg -F -c "tests/$suite.tests.ps1" "$workflow" 2>/dev/null || true)"
+    sh_count="$(grep -Fc -- "tests/$suite.tests.sh" "$run_sh" 2>/dev/null || true)"
+    ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$run_ps" 2>/dev/null || true)"
+    ci_sh_count="$(grep -Fc -- "tests/$suite.tests.sh" "$workflow" 2>/dev/null || true)"
+    ci_ps_count="$(grep -Fc -- "tests/$suite.tests.ps1" "$workflow" 2>/dev/null || true)"
     if [[ "$sh_count" != "1" || "$ps_count" != "1" || "$ci_sh_count" != "1" || "$ci_ps_count" != "1" ]]; then
       return 1
     fi
@@ -220,7 +220,7 @@ unset T006_REAL_RESOLVER
 suite_bases=()
 while IFS= read -r suite; do
   suite_bases+=("$suite")
-done < <(rg -o 'tests/[a-z0-9-]+\.tests' "$TRACEABILITY" \
+done < <(grep -oE 'tests/[a-z0-9-]+\.tests' "$TRACEABILITY" \
   | sed 's#tests/##;s#\.tests##' | LC_ALL=C sort -u)
 if [[ "${#suite_bases[@]}" -gt 0 ]] \
   && registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$STAGED_WORKFLOW" "${suite_bases[@]}"; then
@@ -230,10 +230,10 @@ else
 fi
 
 parity_suite="$(basename "$0" .tests.sh)"
-if [[ "$(rg -F -c "tests/$parity_suite.tests.sh" "$ROOT/tests/run-all.sh" || true)" == "1" \
-   && "$(rg -F -c "tests/$parity_suite.tests.ps1" "$ROOT/tests/run-all.ps1" || true)" == "1" \
-   && "$(rg -F -c "tests/$parity_suite.tests.sh" "$STAGED_WORKFLOW" || true)" == "1" \
-   && "$(rg -F -c "tests/$parity_suite.tests.ps1" "$STAGED_WORKFLOW" || true)" == "1" ]]; then
+if [[ "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$ROOT/tests/run-all.sh" || true)" == "1" \
+   && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$ROOT/tests/run-all.ps1" || true)" == "1" \
+   && "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$STAGED_WORKFLOW" || true)" == "1" \
+   && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$STAGED_WORKFLOW" || true)" == "1" ]]; then
   pass "TEST-051 parity harness self-registration"
 else
   fail "TEST-051 parity harness self-registration"
@@ -262,26 +262,28 @@ else
   fail "TEST-047 registration audit rejects a disposable missing-suite mutant"
 fi
 
-ac047="$(rg '^\| AC-047 ' "$ACCEPTANCE")"
+ac047="$(grep '^| AC-047 ' "$ACCEPTANCE")"
 behavior_span="$(printf '%s\n' "$ac047" | sed -E 's/.*each of ([^|]+) has .*/\1/')"
 behavior_audit_ok=1
-green_corpus="$(find "$FEATURE_ROOT/verification" -type f -name '*GREEN*' -exec cat {} + 2>/dev/null)"
-red_corpus="$(find "$FEATURE_ROOT/verification" -type f -name '*RED*' -exec cat {} + 2>/dev/null)"
-suite_sources=()
-for suite in "${suite_bases[@]}"; do
-  suite_sources+=("$ROOT/tests/$suite.tests.sh" "$ROOT/tests/$suite.tests.ps1")
-done
-while IFS= read -r behavior; do
-  behavior="$(printf '%s' "$behavior" | xargs)"
-  [[ -n "$behavior" ]] || continue
-  stem="${behavior%%-*}"
-  if ! rg -i -q "(ok|Pass).*${stem}" "${suite_sources[@]}" \
-    || ! rg -i -q "(fail|Fail).*${stem}" "${suite_sources[@]}" \
-    || ! printf '%s' "$green_corpus" | rg -i -q "$stem" \
-    || ! printf '%s' "$red_corpus" | rg -i -q "$stem"; then
+behavior_contract=$'overlap|TEST-016.1|component-path-resolver|T-001/component-path-resolver\nunowned|TEST-015.1|component-path-resolver|T-001/component-path-resolver\nrename|TEST-022.1|component-path-diff-basis|T-002/component-path-diff-basis\nuntracked|TEST-020.1|component-path-diff-basis|T-002/component-path-diff-basis\nexclude-misuse|TEST-032.1|check-component-coverage|T-004/check-component-coverage\nshared-undeclared|TEST-031.2|check-component-coverage|T-004/check-component-coverage'
+declared_behavior_keys="$(printf '%s' "$behavior_span" | tr ',/' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | LC_ALL=C sort)"
+expected_behavior_keys="$(printf '%s\n' "$behavior_contract" | cut -d'|' -f1 | LC_ALL=C sort)"
+[[ "$declared_behavior_keys" == "$expected_behavior_keys" ]] || behavior_audit_ok=0
+while IFS='|' read -r behavior assertion suite evidence; do
+  sh_source="$ROOT/tests/$suite.tests.sh"
+  ps_source="$ROOT/tests/$suite.tests.ps1"
+  red_log="$FEATURE_ROOT/verification/$evidence.RED.log"
+  green_log="$FEATURE_ROOT/verification/$evidence.GREEN.log"
+  source_lines="$(grep -hF -- "$assertion:" "$sh_source" "$ps_source" 2>/dev/null || true)"
+  if ! printf '%s\n' "$source_lines" | grep -Ev '^[[:space:]]*#' | grep -Eiq '(^|[^[:alnum:]_])(ok|pass)[[:space:]]' \
+    || ! printf '%s\n' "$source_lines" | grep -Ev '^[[:space:]]*#' | grep -Eiq '(^|[^[:alnum:]_])fail[[:space:]]' \
+    || ! grep -Fq -- "$assertion:" "$red_log" \
+    || ! grep -Eq 'Results: [0-9]+ passed, [1-9][0-9]* failed' "$red_log" \
+    || ! grep -Fq -- "$assertion:" "$green_log" \
+    || ! grep -Eq 'Results: [0-9]+ passed, 0 failed' "$green_log"; then
     behavior_audit_ok=0
   fi
-done < <(printf '%s' "$behavior_span" | tr ',/' '\n')
+done <<< "$behavior_contract"
 if [[ "$behavior_audit_ok" == "1" ]]; then
   pass "TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence"
 else
@@ -293,20 +295,20 @@ while IFS='|' read -r _ ac _ test_id _; do
   ac="$(printf '%s' "$ac" | xargs)"
   test_id="$(printf '%s' "$test_id" | xargs | sed 's/TEST-//')"
   if [[ "$ac" =~ ^AC-00[6-9]$ ]] \
-    && ! find "$ROOT/tests/fixtures/component-path-ownership" -maxdepth 1 -type d -name "test-$test_id*" | rg -q .; then
+    && ! find "$ROOT/tests/fixtures/component-path-ownership" -maxdepth 1 -type d -name "test-$test_id*" | grep -q .; then
     fixture_audit_ok=0
   fi
 done < "$ACCEPTANCE"
-nfc_id="$(rg '^\| AC-010 ' "$ACCEPTANCE" | sed -E 's/.*\| TEST-([0-9]+) \|.*/\1/')"
-if ! find "$ROOT/tests/fixtures/component-path-ownership" -maxdepth 1 -type d -name "test-$nfc_id*" | rg -q .; then
+nfc_id="$(grep '^| AC-010 ' "$ACCEPTANCE" | sed -E 's/.*\| TEST-([0-9]+) \|.*/\1/')"
+if ! find "$ROOT/tests/fixtures/component-path-ownership" -maxdepth 1 -type d -name "test-$nfc_id*" | grep -q .; then
   fixture_audit_ok=0
 fi
-ac024="$(rg '^\| AC-024 ' "$ACCEPTANCE")"
+ac024="$(grep '^| AC-024 ' "$ACCEPTANCE")"
 ref_test="$(printf '%s' "$ac024" | sed -E 's/.*\| TEST-([0-9]+) \|.*/\1/')"
 ref_count="$(printf '%s' "$ac024" | sed -E 's/.*\(([0-9]+) fixtures\).*/\1/')"
 for ((i=1; i<=ref_count; i++)); do
-  if ! rg -F -q "TEST-$ref_test.$i" "$ROOT/tests/component-path-diff-basis.tests.sh" \
-    || ! rg -F -q "TEST-$ref_test.$i" "$ROOT/tests/component-path-diff-basis.tests.ps1"; then
+  if ! grep -Fq -- "TEST-$ref_test.$i" "$ROOT/tests/component-path-diff-basis.tests.sh" \
+    || ! grep -Fq -- "TEST-$ref_test.$i" "$ROOT/tests/component-path-diff-basis.tests.ps1"; then
     fixture_audit_ok=0
   fi
 done
@@ -352,16 +354,17 @@ for marketplace in "$ROOT/.claude-plugin/marketplace.json" "$ROOT/.agents/plugin
 done
 readme_version="$(sed -n 's/^v\([0-9][0-9.]*\).*/\1/p' "$ROOT/README.md" | head -1)"
 [[ "$readme_version" == "$shipped_version" ]] || release_sync=0
-rg -F -q "$shipped_version" "$ROOT/tests/repository-release-validation.tests.sh" || release_sync=0
+grep -Fq -- "$shipped_version" "$ROOT/tests/repository-release-validation.tests.sh" || release_sync=0
 if [[ "$version_mutation" == "0" || "$release_sync" == "1" ]]; then
   pass "TEST-049 release surfaces are untouched or synchronized by bump-version"
 else
   fail "TEST-049 release surfaces are untouched or synchronized by bump-version"
 fi
 
-task_id="$(rg '^\| T-006 ' "$TRACEABILITY" | head -1 | cut -d'|' -f2 | xargs)"
-issue_id="$(rg '^\| AC-048 ' "$ACCEPTANCE" | rg -o '#[0-9]+' | head -1)"
-if rg -U -q "${task_id}(.|\n){0,160}${issue_id}|${issue_id}(.|\n){0,160}${task_id}" "$ROOT/CHANGELOG.md"; then
+task_id="$(grep '^| T-006 ' "$TRACEABILITY" | head -1 | cut -d'|' -f2 | xargs)"
+issue_id="$(grep '^| AC-048 ' "$ACCEPTANCE" | grep -oE '#[0-9]+' | head -1)"
+changelog_flat="$(tr '\r\n' '  ' < "$ROOT/CHANGELOG.md")"
+if printf '%s\n' "$changelog_flat" | grep -Eq "${task_id}.{0,160}${issue_id}|${issue_id}.{0,160}${task_id}"; then
   pass "TEST-048 task changelog registration survives release-heading replay"
 else
   fail "TEST-048 task changelog registration survives release-heading replay"

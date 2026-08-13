@@ -230,18 +230,32 @@ exit 0
     $ac047 = Get-Content -LiteralPath $Acceptance | Where-Object { $_.StartsWith('| AC-047 ') }
     $behaviorSpan = [regex]::Match($ac047, 'each of (.+?) has ').Groups[1].Value
     $behaviors = @($behaviorSpan -split '[,/]' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
-    $suiteSourceText = ($suiteBases | ForEach-Object {
-        [System.IO.File]::ReadAllText((Join-Path $Root "tests/$_.tests.sh"))
-        [System.IO.File]::ReadAllText((Join-Path $Root "tests/$_.tests.ps1"))
-    }) -join "`n"
-    $greenText = (Get-ChildItem -LiteralPath (Join-Path $FeatureRoot 'verification') -Recurse -File -Filter '*GREEN*' | ForEach-Object { [System.IO.File]::ReadAllText($_.FullName) }) -join "`n"
-    $redText = (Get-ChildItem -LiteralPath (Join-Path $FeatureRoot 'verification') -Recurse -File -Filter '*RED*' | ForEach-Object { [System.IO.File]::ReadAllText($_.FullName) }) -join "`n"
+    $behaviorContract = @(
+        @{ Behavior = 'overlap'; Assertion = 'TEST-016.1'; Suite = 'component-path-resolver'; Evidence = 'T-001/component-path-resolver' }
+        @{ Behavior = 'unowned'; Assertion = 'TEST-015.1'; Suite = 'component-path-resolver'; Evidence = 'T-001/component-path-resolver' }
+        @{ Behavior = 'rename'; Assertion = 'TEST-022.1'; Suite = 'component-path-diff-basis'; Evidence = 'T-002/component-path-diff-basis' }
+        @{ Behavior = 'untracked'; Assertion = 'TEST-020.1'; Suite = 'component-path-diff-basis'; Evidence = 'T-002/component-path-diff-basis' }
+        @{ Behavior = 'exclude-misuse'; Assertion = 'TEST-032.1'; Suite = 'check-component-coverage'; Evidence = 'T-004/check-component-coverage' }
+        @{ Behavior = 'shared-undeclared'; Assertion = 'TEST-031.2'; Suite = 'check-component-coverage'; Evidence = 'T-004/check-component-coverage' }
+    )
     $behaviorAudit = $true
-    foreach ($behavior in $behaviors) {
-        $stem = $behavior.Split('-')[0]
-        if ($suiteSourceText -notmatch "(?i)(ok|Pass).*${stem}" -or
-            $suiteSourceText -notmatch "(?i)(fail|Fail).*${stem}" -or
-            $greenText -notmatch "(?i)$stem" -or $redText -notmatch "(?i)$stem") {
+    $declaredBehaviorKeys = ($behaviors | Sort-Object) -join "`n"
+    $expectedBehaviorKeys = ($behaviorContract.Behavior | Sort-Object) -join "`n"
+    if ($declaredBehaviorKeys -cne $expectedBehaviorKeys) { $behaviorAudit = $false }
+    foreach ($entry in $behaviorContract) {
+        $shSource = [System.IO.File]::ReadAllText((Join-Path $Root "tests/$($entry.Suite).tests.sh"))
+        $psSource = [System.IO.File]::ReadAllText((Join-Path $Root "tests/$($entry.Suite).tests.ps1"))
+        $sourceLines = @(($shSource + "`n" + $psSource) -split "`r?`n" | Where-Object {
+            -not $_.TrimStart().StartsWith('#') -and $_.Contains("$($entry.Assertion):", [System.StringComparison]::Ordinal)
+        })
+        $redText = [System.IO.File]::ReadAllText((Join-Path $FeatureRoot "verification/$($entry.Evidence).RED.log"))
+        $greenText = [System.IO.File]::ReadAllText((Join-Path $FeatureRoot "verification/$($entry.Evidence).GREEN.log"))
+        if (-not ($sourceLines | Where-Object { $_ -match '(^|[^A-Za-z0-9_])(ok|pass)\s' }) -or
+            -not ($sourceLines | Where-Object { $_ -match '(^|[^A-Za-z0-9_])fail\s' }) -or
+            -not $redText.Contains("$($entry.Assertion):", [System.StringComparison]::Ordinal) -or
+            $redText -notmatch 'Results: \d+ passed, [1-9]\d* failed' -or
+            -not $greenText.Contains("$($entry.Assertion):", [System.StringComparison]::Ordinal) -or
+            $greenText -notmatch 'Results: \d+ passed, 0 failed') {
             $behaviorAudit = $false
         }
     }
