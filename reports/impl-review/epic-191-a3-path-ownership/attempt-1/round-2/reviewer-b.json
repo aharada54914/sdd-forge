@@ -1,0 +1,85 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-b-a1r2-seq0329",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-191-a3-path-ownership-a1r2-0329",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+    {"path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "b4a23ecea16b293231c0e3c869e1478030e9751b5bd5c6538de56d0dd7985fec"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+    {"path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+    {"path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+    {"path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-2/precheck-result.json", "sha256": "1b4657fd4e1710f49c561adb97f079823dc4efa5332cadff89421375fab5a453"},
+    {"path": "reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-2/integrated-summary.json", "sha256": "c1343352c2676bc0090b6de70f32ab081b6d20dfb55ce3e57362ff4361b33a2f"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "Deterministic CLI script + CI Implementation Gate check + reference/ADR documentation for git-diff-based component path ownership resolution (no UI, no runtime service, no external integrations)",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every substantive decision in design.md's Design Decisions section (glob semantics, path/case normalization, shared_paths precedence and entry shape, EXCLUDED_MATCH evidence, Fail-2/Fail-4 mutual exclusivity, Fail-5 Gate-reachability, Fail-6 scope, capability-derived three-state Gate applicability, protected-gate-suffix registration, protected required-check-set registration, ownership_digest full-input binding, dual-runtime parity harness, T-001/T-002 non-hard-block, cross-cutting seed-inventory single-source) carries an explicit 'chosen because'/'corrected from an earlier draft' rationale (design.md lines 610-780). The Components table's technology choices (Python master + sh/ps1 wrappers) are justified by the INV-008 repository convention cited inline (design.md line 136-140). No inline decision found stated without rationale."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Open Questions section (lines 885-889) carries forward requirements.md OQ-002 and states OQ-001 is resolved. requirements.md OQ-002 (lines 1390-1399) states the adopted resolution explicitly: implementation is unblocked now against the documented field shape, and only T-001's own Done state is additionally gated on the fail-closed schema-conformance fixture (AC-011) -- a concrete resolution path with an implicit owner (the T-001 implementing task), not 'TBD'. design.md's own Design Decisions 'T-001/T-002 not hard-blocked...' (lines 750-765) restates this same owner/blocking-status/resolution-path substance. Not literally formatted with labeled 'Blocks Implementation:'/'Resolution Path:' fields, but the required substance (owner, non-blocking status, concrete resolution mechanism) is unambiguous and cross-referenced in two places."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-021, OQ-001/OQ-002), so the investigation-absent Major trigger does not apply. requirements.md's Assumptions (lines 1351-1386) each cite a Dependencies/INV-xxx/AC-011-style grounding (e.g. 'subject to the schema-conformance fixture (AC-011), which fails closed... until that schema artifact actually lands'). design.md's own added Assumption (lines 876-883) is grounded in a specific file:line citation (quality-gate/SKILL.md:30-204) and explicitly scoped as 'verified at Phase-2 implementation time, not asserted as unconditionally permanent.' No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md's Constraint Compliance table (lines 860-872) is present (TYPE-D primary check applies) and now carries 9 rows, including the three rows added since round 1: 'Cross-OS path semantics' (cross-referencing requirements.md Target Users lines 64-69 and design.md's Glob semantics / Path-case-normalization Design Decisions plus the REQ-009 parity harness), 'Submodule/symlink reference-only boundary' (cross-referencing requirements.md Security Boundaries and design.md Architecture/Security Boundaries/security-spec.md Trust Boundary B4), and 'Fail-6 credential exclusion' (cross-referencing requirements.md Security Boundaries bullet 5 and security-spec.md Secrets Management). Independent grep for constraint-signaling keywords ('must not', 'shall not', 'never reads', 'never dereferences', 'never descends', 'never trusts', 'must be identical') across requirements.md turned up no additional constraint that lacks a corresponding Constraint Compliance row or equivalent design.md/security-spec.md coverage. The round-1 Critical (three omitted constraints) is closed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Grep for response-time/throughput/concurrency/latency/SLA/numeric-threshold keywords across requirements.md returns no match (this is a deterministic, synchronous, local CLI-script feature with no runtime service, per design.md Technical Summary and infra-spec.md Scaling Strategy/SLO sections, both N/A)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Deployment / CI Plan (lines 832-858) now names: (a) deployment target -- the repository's existing GitHub Actions test.yml 3-OS lane and local dev script invocation (also infra-spec.md Environments table); (b) CI pipeline changes -- five new .sh/.ps1 suite pairs registered in tests/run-all.sh/.ps1 and staged into .github/workflows/test.yml via human-copy, explicitly 'No new CI job/matrix dimension is introduced'; (c) feature-flag/staged-rollout strategy -- the added paragraph explicitly cross-references the disabled-legacy/advisory/required capability-derived applicability model (ADR-0016) as 'the mechanism that governs whether the newly-registered required-check-set entry actually blocks a consuming project's Implementation Gate' and states this repository's own immediate adoption resolves to the safe, non-blocking disabled-legacy path via the ADR-0016 file-absence fallback (citing investigation.md INV-002/INV-018); (d) migration execution order -- not applicable, since Data Plan states no schema/database exists (see MIGRATION-PLANNED). The round-1 Major (missing staged-rollout cross-reference) is closed."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan now carries a 'Migration Strategy:' sub-field (lines 404-413) stating 'none. No database, no runtime storage, and no schema migration exists anywhere in this feature' (cross-referencing infra-spec.md's Data Residency and Retention section), and explains the three new data shapes (resolver output, ownership_digest, Gate evidence record) are each a net-new additive artifact consumed under quality-gate's existing evidence-bundle conventions, not a new storage/compatibility mechanism. This is functionally equivalent to the check's 'No data changes' PASS condition -- no column/table schema change is declared anywhere in Data Entities or Existing Data Affected."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's External Integrations section states 'None' with explicit rationale ('calls only local git plumbing commands and (T-003) a local Epic A1 canonicalizer utility -- no network call, no external service, no gh invocation'), consistent with infra-spec.md's Deployment Topology ('No cloud, no region, no network boundary') and security-spec.md's framing ('this feature's attack surface is entirely local'). The one cross-epic local-utility dependency named (Epic A1's canonicalizer) is not a network/cross-service integration; its unavailability failure behavior is nonetheless documented (Data Plan: 'BLOCKED until that utility exists'; Dependencies: 'REQ-005's task is blocked on Epic A1 shipping this utility'). No external system, third-party service, or cross-service API call is referenced in passing without this treatment."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Cross-Layer Dependencies table (lines 278-291) maps every REQ-001..REQ-009 to specific design.md content, and the Components table's Non-goals-respecting withdrawal of the earlier default-shared-paths.md reference document (line 147: 'removed from scope') shows scope correction rather than creep. No component, data model, or API endpoint in design.md lacks a corresponding requirements.md REQ/AC; conversely every requirements.md Goal (REQ-001..REQ-009) and User Story is covered by a named design.md component/section. Non-goals (Epic A1 schema, Epic A4 Facet Manifest schema, Epic A1 canonicalizer reimplementation, Capability Registry/Epic A2, Provider Bindings schema, A3-authored seed-list document) are each explicitly honored in Architecture/Components/Design Decisions, not silently reintroduced."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization changes (protected-file registration, required-check-set reachability, producer-digest tamper-evidence) and Gate-applicability trust derivation. Each has a concrete, named verification path: TEST-035/TEST-036 (reachability + protected-suffix registration proof), TEST-054/TEST-055 (producer-digest/evidence-conformance proof), TEST-026/TEST-027 (applicability-derivation truthful non-evaluation proof) -- all named in design.md Test Strategy and mirrored in security-spec.md's Security Tests table with REQ/AC cross-references (AC-035, AC-036, AC-054, AC-055, AC-026, AC-027). No PII, payment, or cross-service integration-failure surface is present (External Integrations: None), and this is not a fullstack feature (ux-spec.md/frontend-spec.md: N/A, no UI)."
+    }
+  ]
+}

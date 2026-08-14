@@ -1,0 +1,69 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-025",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "BLOCKED",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 6,
+    "auditor_a_pass_count": 2,
+    "auditor_a_verdict": "BLOCKED"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four elements present. (1) Metric row named: 'Item 5 of ## Verification Plan' commits to adding a 'task-stage rebinds attributable to a status transition' row to the retrospective's Improvement Verification Plan table (none exists today; the WFI is explicit about this). (2) Baseline/target: '## Verification Metric' states 'Baseline: 3 rebinds across 3 features in one session — an average of 1.0 per feature ... Target: 0'. (3) Cycles needed: 'measured over the next 3 features that complete the task decomposition review gate.' (4) Threshold: Target of 0 rebinds attributable solely to a Status: transition is an explicit, unambiguous threshold."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale: 'Observed directly, three times in one session, on three separate features' (epic-190-a2, epic-194-a6, epic-191-a3; task-stage attempts reached 5, 3, 5) — a recurring, systemic pattern, not an isolated one-off. Change scope: two scripts (plus .ps1 peers) with one new conditional, one new cross-checked field, and 5 new tests, explicitly narrowed ('The scope is deliberately narrow... does not touch the identity ledger or the reservation protocol'). Scope matches the evidence scale: neither a single-sentence patch for a systemic 3-for-3 pattern (under-scoped) nor a multi-file restructuring for an isolated friction (over-scoped)."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Checked all WFI-*.md files with Status: Verified (WFI-002, WFI-007, WFI-008, WFI-011, WFI-017) by reading each ## Proposed Change table. Target files: WFI-002 -> AGENTS.md; WFI-007 -> plugins/sdd-implementation/skills/{implement-task,implement-tasks,visual-verify-loop}/*, plugins/sdd-quality-loop/references/deterministic-check-policy.md, plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/AGENTS.template.md, plugins/sdd-lite/skills/lite-gate/SKILL.md (no change); WFI-008 -> specs/*/verification/EVIDENCE-LOSS.md, mcp/sdd-forge-mcp/*; WFI-011 -> AGENTS.md; WFI-017 -> plugins/sdd-implementation/scripts/validate-implementation-report.sh, tests/*. None overlap with WFI-025's targets (plugins/sdd-review-loop/scripts/task-review-precheck.sh{,.ps1}, plugins/sdd-quality-loop/scripts/validate-review-context-set.sh{,.ps1}, plugins/sdd-quality-loop/scripts/check-workflow-state.sh). No conflicts found."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The Proposed Change's Target File table (task-review-precheck.sh, validate-review-context-set.sh, and their .ps1 peers, plus an explicitly-unchanged check-workflow-state.sh) omits the file that actually constructs the reservation manifest validate-review-context-set.sh validates. That script's own usage line is 'manifest=$1' -- it consumes a manifest, it does not build one. I traced manifest construction to plugins/sdd-review-loop/skills/task-review-loop/SKILL.md STEP 2 and STEP 4, which instruct the orchestrating agent to assemble a 'Hash-verified allowed-input manifest including design.md, traceability.md, and plugins/sdd-review-loop/references/reviewer-calibration.md ... with current hashes' -- generic prose with no reference to precheck-result.json's tasks_sha256 or the new tasks_sha256_form field. No script under plugins/sdd-review-loop or plugins/sdd-quality-loop builds allowed_input_manifest programmatically (I searched for *manifest*/*reserve* scripts and found none that do this construction). The same SKILL.md demonstrates the author knows how to instruct copying a precheck-computed value when intended ('For full-profile features, copy the precheck's exact design_sha256, traceability_sha256, and four-entry layer_sha256 map into the top-level contract', SKILL.md:189-190) -- and tasks_sha256 is conspicuously absent from that list. validate-review-context-set.sh's own round-consistency comment ('A manifest freezes hashes at reservation time; the round's precheck-result.json froze them when the round opened. If the two disagree...') only makes sense if the manifest is computed independently of precheck-result.json, not copied from it -- corroborating the gap. Consequence: if task-review-precheck.sh is changed to record a normalized tasks_sha256 for mixed plans but task-review-loop/SKILL.md still instructs computing a fresh 'current hash' for the tasks.md manifest entry, the manifest will keep declaring the raw hash; validate-review-context-set.sh's form-aware comparison will then mismatch it, and every mid-flight task-stage reservation will fail closed -- the opposite of the stated Expected Effect. This is not a Category misclassification (the plugins/ carve-out is correctly satisfied here); it is an incomplete Target File list for a WFI that is otherwise correctly scoped, so the Expected Effect cannot realistically be achieved by modifying only the three currently-listed files."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Forbidden-term grep (wfi-category-guide.md Section 2 table) against ## Root Cause Hypothesis, ## Proposed Change (Change Description column), and ## Expected Effect returned zero hits; the only matches in the whole document are plugin script paths inside the Target File column, which the rule exempts. Separately verified the NO-PLUGIN-SCOPE-CREEP carve-out (wfi-auditor-a.md:129-159) from scratch: condition 1 (Category: plugin-improvement) is declared at WFI-025.md:20; condition 2 is met by the ## Category section's own text, 'This repository is the source of truth for the plugins named in ## Proposed Change, not a consuming project holding a vendored copy of them. The change is delivered as an ordinary commit to this repository' -- independently confirmed against the repo, which has .claude-plugin/marketplace.json and plugins/ at its root, i.e. this genuinely is the plugins' source repository, not a vendored copy; condition 3 is met by '## GitHub-Issue: Pending -- filed against this repository on human approval', an explicit statement of when the tracking issue is filed. All three conditions verified present. Also re-tested the Section 1 flowchart routing rather than accepting the WFI's self-classification: Q1 (measurement) -- reasoned NO, a hash/identity-binding check that grades nothing and feeds no retrospective or run-record metric is categorically different from a grader, gate threshold, or run-record definition; Q2 (human-process) -- NO, the change does not alter who approves or under what criteria; Q3 (cross-plugin handoff) -- YES, independently confirmed task-review-precheck.sh lives in plugins/sdd-review-loop while validate-review-context-set.sh and check-workflow-state.sh live in plugins/sdd-quality-loop, a genuine cross-plugin handoff matching the guide's own example. The flowchart correctly routes to plugin-improvement, not measurement."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Target of 0 rebinds attributable solely to a Status: transition, and the illustrative 'Average task-stage attempts per feature falls from 4.3 to 1.0', are both derived from re-computing the exact three observed cases (attempts 5, 3, 5 -> would have been 1, 1, 1 absent the binding fragility), not an unjustified extrapolation. The Verification Metric's actual measured target (0 rebinds attributable solely to status transitions) is precisely scoped to the root cause the change addresses and does not conflate it with attempts driven by legitimate content findings (e.g. the retrospective's own TASK-SIZE-driven round 2, FP-04), so the target is not implausibly optimistic relative to the evidence."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Problem Evidence is summarizable in 2-3 generic sentences (task-stage bindings on status-mixed plans break on every subsequent lifecycle transition because the producing side only emits raw-byte digests; this forced three unnecessary task decomposition review gate re-runs across three features in one session). Proposed Change table has three complete Target File / Change Description rows sufficient for an issue body. Expected Effect states a quantitative target ('Average task-stage attempts per feature falls from 4.3 to 1.0'). No empty or vague issue-body risk."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change: true is declared; all three sub-questions tested adversarially rather than accepted. (1) Does the change make a gate easier to satisfy without improving the underlying outcome? NO -- the normalized digest excludes only Status:/Approval:/Task-Review-Status:/Second Approval: fields, exactly the fields forms 1 (normalized_hash), 3, and 4 (rereview_normalized_hash) already elide today for any uniform-status plan; the raw form's incidental sensitivity to these fields on mixed plans is, per the WFI's own Root Cause Hypothesis, 'accidental in practice' rather than a designed defense, and task content (descriptions, dependencies, sizing, AC mapping -- what task-review actually judges) remains fully bound under the normalized form in every case. Tested circumvention of the tasks_sha256_form cross-check directly: precheck-result.json is itself a manifest entry subject to the unmodified, unconditional raw-hash-equality check for every path other than tasks.md, so its tasks_sha256_form field cannot be forged or substituted without independently failing that check; re-reading validate-review-context-set.sh's Change Description row ('every other manifest entry keeps the current strict raw-digest requirement') confirms it targets the generic per-entry raw-hash-equality loop itself, correctly scoped by path and by the verified form field, not merely the separate round-consistency check. (2) Non-decreasing guard: WFI states 'The change removes no gate, check or test. It adds one conditional on the producing side, one cross-check in the validator that does not exist today ..., and the five tests below, ... The count of deterministic checks strictly increases' -- verified consistent with the Proposed Change table and Verification Plan items 1-4. (3) Target-Metric independence: the Verification Metric (task-stage rebinds attributable to a status transition) is counted externally via task-review attempt-N artifact directories and commit history, not computed or self-reported by the modified scripts' own pass/fail logic -- it does not grade its own homework. All three sub-answers pass on independent testing."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Proposed Change",
+      "change": "Add a fourth row to the Target File table: `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md` (STEP 2 and STEP 4 manifest-construction instructions, and the .ps1-equivalent orchestration path if one exists) -- 'When constructing the reviewer's hash-verified allowed-input manifest entry for tasks.md, first read the round's precheck-result.json. If it declares tasks_sha256_form: normalized, use that file's tasks_sha256 value verbatim as the manifest entry's declared hash instead of computing a fresh hash of the live file. Otherwise (form raw or absent) compute the current raw hash of tasks.md as today.' Also audit whether any other reviewer-launch skill (spec-review-loop, impl-review-loop) independently reserves a task-stage manifest entry for tasks.md and needs the same instruction.",
+      "rationale": "validate-review-context-set.sh only validates a manifest supplied as its first argument; it does not build one, and no script in the repository constructs allowed_input_manifest programmatically. The manifest is assembled by the orchestrating agent per task-review-loop/SKILL.md's 'with current hashes' instruction, which today means a fresh raw sha256 of tasks.md and has no awareness of tasks_sha256_form. Without this revision, task-review-precheck.sh will start recording a normalized tasks_sha256 for mixed plans while the manifest keeps declaring the raw hash, so validate-review-context-set.sh's form-aware comparison will mismatch and every mid-flight task-stage reservation will fail closed -- the fix would not achieve its stated Expected Effect."
+    }
+  ]
+}

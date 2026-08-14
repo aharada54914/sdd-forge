@@ -1,0 +1,25 @@
+T-006 acceptance-first RED evidence (bash harness)
+Date: 2026-08-12
+Run ID: epic-191-a3-path-ownership-t006-20260812-codex-01
+Command: bash tests/component-path-ownership-parity.tests.sh
+Observed exit: 1
+Product state: real, unmodified product entry points from the current worktree
+
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+not ok - TEST-050 resolver extra-argument exit parity (shell=[2], pwsh=[0])
+not ok - TEST-050 resolver extra-argument category parity (shell=[rejected-named-extra], pwsh=[accepted])
+not ok - TEST-050 coverage extra-argument exit parity (shell=[2], pwsh=[0])
+not ok - TEST-050 coverage extra-argument category parity (shell=[rejected-named-extra], pwsh=[accepted])
+
+Results: 6 passed, 4 failed
+
+Interpretation: canonical JSON, ordinary exit propagation, warnings, and the
+PowerShell child status agree for recognized argv. Both Python-backed shell
+entries reject the derived unknown argument, while both PowerShell entries
+silently accept/drop it and continue successfully. This is the exact real-
+product argument-drop defect AC-050 requires the harness to detect.

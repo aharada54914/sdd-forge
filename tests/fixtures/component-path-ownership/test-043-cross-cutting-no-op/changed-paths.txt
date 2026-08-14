@@ -1,0 +1,6 @@
+specs/some-feature/requirements.md
+reports/quality-gate/2026-01-01.md
+docs/architecture/overview.md
+.github/workflows/example.yml
+tests/fixtures/some-fixture.json
+CHANGELOG.md

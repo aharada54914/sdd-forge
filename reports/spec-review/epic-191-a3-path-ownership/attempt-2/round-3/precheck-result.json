@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 2,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "10f1595a4496faa82db202297fb16fd7f3c79e74d11288cae76176b0d725a62e",
+  "acceptance_sha256": "2dbe99480b135d3e645a1a7987cdaf7d43eddcf690a62090b26fea5a24b496f4",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "9203e356ad2c0d572f9c4f810d75b6335236597548a3cb1d23b843f9a13274dc",
+  "edit_summary": "Amendment 2bb10bac closes the two a2r2 Major findings (AMBIGUITY + DOWNSTREAM-READINESS, one gap) per a human-directed ruling: requirements.md REQ-004 gains a present-but-malformed-config sub-bullet stating the Gate-side contract - on a sdd/project-context.yaml that exists but cannot be parsed, check-component-coverage itself exits non-zero with a diagnostic naming the parse failure and emits no evidence record; converting the caught parse exception into the ADR-0016 file-absence disabled-legacy fallback is forbidden (the fallback is for absence only), so check-contract's still-required check fails on the missing record and the pipeline stays red until the config is fixed. AC-035 is extended with this Gate-side half; acceptance-tests.md adds TEST-035d (Gate-side crash, both runtimes, explicitly distinct from TEST-035c's check-contract assertion); Edge Cases, Main Workflows step 4, and Security Boundaries carry matching dated extensions; REQ-001 states the resolver-side fail-closed load-time parse error as the class sweep's third member; scope notes pin 'always runs/always emits' as quantifying over the three derived states.",
+  "reset": false,
+  "generated_at": "2026-08-11T08:43:33Z"
+}

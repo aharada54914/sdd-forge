@@ -14,6 +14,12 @@
       "implementation_ref": "plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py"
     },
     {
+      "id": "check-component-coverage",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-component-coverage.py"
+    },
+    {
       "id": "publish-notes",
       "stage": "artifact",
       "blocking": false

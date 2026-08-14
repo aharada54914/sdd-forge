@@ -1,0 +1,15 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-191-a3-path-ownership",
+ "run_id": "task-orch-epic-191-a3-path-ownership-a7r2",
+ "verdict": "PASS",
+ "round": 2,
+ "attempt": 7,
+ "findings_critical": 0,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "PASS",
+ "reviewer_b_verdict": "PASS",
+ "verdict_note": "Provenance re-review (--provenance-rereview) round 2 of attempt 7: both reviewers PASS with zero FAIL findings (A: 14/14 PASS; B: 8 PASS / 1 SKIP). Round-1's sole Critical (AC-COVERAGE: the AC-056 traceability note ruled a post-hoc coverage claim) is confirmed closed by the amended explicit DEFERRAL RATIONALE in traceability.md \u2014 A judged it on its own merits as satisfying the check's fallback branch (frozen-tasks.md justification, named discharging artifacts TEST-056.1..6, the seq0683 quality-gate PASS, the WFI-023 supersession precedent, and a forward reconciliation rule). The frozen tasks.md body is byte-unchanged; only its two gate-recorded Status flips (T-004 Done @seq0681, T-001 Done @seq0683) and the traceability note differ from the attempt-6 pins. Clean PASS re-binds the task-stage provenance to the current bytes. The plan remains status-mixed (T-001/T-002/T-004/T-005 Done, T-003/T-006 Planned), so this binding is again raw-bytes."
+}
