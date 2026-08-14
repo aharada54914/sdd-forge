@@ -1,0 +1,910 @@
+cycle6-apply-rehearsal (full-surface)
+date: 2026-08-11T09:26:20Z
+host: Darwin 25.5.0
+repo HEAD: 3f442251 (fix(epic-136-phase3): restore T-006's four live steps to the T-003 staged-workflow candida)
+
+================================================================
+BUNDLE: epic-189-a1-project-context
+staging: specs/epic-189-a1-project-context/human-copy
+================================================================
+.github/workflows/test.yml: OK
+specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md: OK
+plugins/sdd-quality-loop/references/guard-invariants.json: OK
+plugins/sdd-quality-loop/scripts/generate-guard-invariants.py: OK
+plugins/sdd-quality-loop/scripts/generated/guard_invariants.py: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh: OK
+plugins/sdd-ship/skills/ship/SKILL.md: OK
+plugins/sdd-lite/skills/lite-spec/SKILL.md: OK
+plugins/sdd-quality-loop/scripts/apply-human-copy.sh: OK
+plugins/sdd-quality-loop/scripts/apply-human-copy.ps1: OK
+plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py: OK
+plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py: OK
+plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py: OK
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1: OK
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.py: OK
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.js: OK
+shasum -a 256 -c MANIFEST.sha256 (real staging dir) rc=0
+
+-- LEG 1: whole-batch apply via real apply-human-copy.sh --
+seeded 18/18 targets from live (pre-apply state)
+{"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-lite/skills/lite-spec/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+{"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-lite/skills/lite-spec/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+whole-batch apply rc=19
+LEG 1 OUTCOME: DENIED (fail-closed). No-write verified: 18/18 targets byte-equal to pre-apply.
+LEG 1 CLAIMS NOTHING about apply safety: a denied apply is not a zero-removal apply.
+
+-- LEG 2: single-target workflow batch via real apply-human-copy.sh --
+   (single-target batches are the sanctioned convention per the epic-189-a1
+    runbook; the LEG-1 DUPLICATE_BASENAME refusal does not protect this path)
+{"status":"ok","recovered":0,"targets":[".github/workflows/test.yml"]}
+single-target apply rc=0
+LEG 2 OUTCOME: applied. Diffing the workflow target:
+  CHANGED: .github/workflows/test.yml
+    pre-apply  (live): a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 (991 lines)
+    post-apply       : 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998 (854 lines)
+    removed lines: 137   added lines: 0
+    workflow step-name set: pre=120 post=102 REMOVED=18
+    removed step names:
+      - Test capability-registry-parity suite (bash)
+      - Test capability-registry-parity suite (pwsh)
+      - Test capability-registry-schema suite (bash)
+      - Test capability-registry-schema suite (pwsh)
+      - Test evaluate-predicate suite (bash)
+      - Test evaluate-predicate suite (pwsh)
+      - Test generate-gate-capabilities suite (bash)
+      - Test generate-gate-capabilities suite (pwsh)
+      - Test generate-registry-digest suite (bash)
+      - Test generate-registry-digest suite (pwsh)
+      - Test registry-discovery suite (bash)
+      - Test registry-discovery suite (pwsh)
+      - Test validate-capability-registry suite (bash)
+      - Test validate-capability-registry suite (pwsh)
+      - Verify generated gate-capabilities projection (POSIX)
+      - Verify generated gate-capabilities projection (Windows)
+      - Verify vendored contracts copy (POSIX)
+      - Verify vendored contracts copy (Windows)
+    ---- full unified diff (pre-apply -> post-apply) ----
+    --- /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/.github/workflows/test.yml	2026-08-11 10:27:24
+    +++ /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//cycle6-rehearsal-3189/epic-189-a1-project-context-leg2/.github/workflows/test.yml	2026-08-11 18:26:21
+    @@ -41,54 +41,6 @@
+             if: runner.os != 'Windows'
+             shell: bash
+             run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-026): drift lock for
+    -      # the generated gate-capabilities.json projection, mirroring the guard
+    -      # invariants --check steps immediately above (design.md Deployment / CI
+    -      # Plan; infra-spec.md CI/CD Sequence).
+    -      - name: Verify generated gate-capabilities projection (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      - name: Verify generated gate-capabilities projection (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-027, Done-When 3):
+    -      # drift lock for the VENDORED contracts copy under
+    -      # plugins/sdd-quality-loop/contracts/. This is the SECOND of the two
+    -      # --check steps tasks.md's Scope assigns to this task in one sentence
+    -      # (the projection generator's own --check step -- the step pair
+    -      # immediately above -- "and the vendoring step's `--check` step");
+    -      # RT-20260809-002 item 1 recorded its absence. Deliberately paraphrased
+    -      # rather than quoted verbatim: spelling out the projection step's exact
+    -      # `<script>.py --check` command string here would keep the suite's grep
+    -      # for that command satisfied even after the step itself were deleted,
+    -      # silently disarming the assertion. Do not re-introduce the literal.
+    -      # Release gate per design.md Deployment / CI Plan ("the
+    -      # vendoring/packaging step's own --check mode (P10, Registry discovery
+    -      # contract -- sha256 comparison of each canonical contracts/* file
+    -      # against its vendored plugins/sdd-quality-loop/contracts/* counterpart,
+    -      # as a release gate)") and infra-spec.md CI/CD Sequence.
+    -      #
+    -      # Deliberately a SEPARATE step from the projection drift lock above,
+    -      # not an extra command inside it: the two scripts compare disjoint
+    -      # artifact pairs (generated/gate-capabilities.json vs the canonical
+    -      # Registry; plugins/sdd-quality-loop/contracts/* vs contracts/*), so
+    -      # removing either step leaves the other's failure mode entirely
+    -      # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
+    -      # each of the two independently for exactly that reason.
+    -      - name: Verify vendored contracts copy (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+    -
+    -      - name: Verify vendored contracts copy (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+     
+           # pwsh steps run the test scripts directly: piping through tee changes
+           # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
+    @@ -658,95 +610,6 @@
+             shell: pwsh
+             run: ./tests/ship-track-selection-migration.tests.ps1
+     
+    -      # epic-190-a2-capability-registry (T-001..T-006): rebuilt against the
+    -      # post-3baadda5 parallel job split (this feature's own staged candidate
+    -      # predated that split and was stale against the 9-job/854-line live
+    -      # file it was meant to extend). Appended at the end of this job,
+    -      # alongside the other schema/generator suites already registered here
+    -      # (project-context-schema, canonicalize-sdd-yaml, etc.) since no prior
+    -      # task fixed a location before the split occurred.
+    -      - name: Test capability-registry-schema suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-schema.tests.sh
+    -
+    -      - name: Test capability-registry-schema suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-schema.tests.ps1
+    -
+    -      - name: Test evaluate-predicate suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/evaluate-predicate.tests.sh
+    -
+    -      - name: Test evaluate-predicate suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/evaluate-predicate.tests.ps1
+    -
+    -      - name: Test registry-discovery suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/registry-discovery.tests.sh
+    -
+    -      - name: Test registry-discovery suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/registry-discovery.tests.ps1
+    -
+    -      - name: Test validate-capability-registry suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/validate-capability-registry.tests.sh
+    -
+    -      - name: Test validate-capability-registry suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/validate-capability-registry.tests.ps1
+    -
+    -      - name: Test generate-registry-digest suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-registry-digest.tests.sh
+    -
+    -      - name: Test generate-registry-digest suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-registry-digest.tests.ps1
+    -
+    -      - name: Test generate-gate-capabilities suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-gate-capabilities.tests.sh
+    -
+    -      - name: Test generate-gate-capabilities suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-gate-capabilities.tests.ps1
+    -
+    -      # epic-190-a2-capability-registry T-007 (REQ-006, AC-031/AC-033): the
+    -      # cross-script parity and installed-layout invocation harness. Appended
+    -      # last, closing this feature's suite registration chain in task order.
+    -      # It shells out to bash, pwsh and node from either entry point, so both
+    -      # steps carry the same runtime expectations as the suites above.
+    -      - name: Test capability-registry-parity suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-parity.tests.sh
+    -
+    -      - name: Test capability-registry-parity suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-parity.tests.ps1
+    -
+       # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
+       # Node/TypeScript component: a read-only MCP server exposing SDD workflow
+       # state. Its tasks.md state-machine parser must stay shell-equivalent with
+    ---- end diff ----
+LEG 2 removals: lines=137 steps=18 changed-files=1
+
+-- LEG 3: full manifest-contract emulation (per-entry verify + whole-file replace) --
+   (this is what epic-136-phase2-gates' Windows-only apply-protected-files.ps1
+    and any manual manifest-driven application perform)
+seeded 18/18 targets from live (pre-apply state)
+emulated apply: 18/18 targets verified against the manifest digest and whole-file replaced
+LEG 3 diff of EVERY touched path against pre-apply (live) bytes:
+  CHANGED: .github/workflows/test.yml
+    pre-apply  (live): a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 (991 lines)
+    post-apply       : 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998 (854 lines)
+    removed lines: 137   added lines: 0
+    workflow step-name set: pre=120 post=102 REMOVED=18
+    removed step names:
+      - Test capability-registry-parity suite (bash)
+      - Test capability-registry-parity suite (pwsh)
+      - Test capability-registry-schema suite (bash)
+      - Test capability-registry-schema suite (pwsh)
+      - Test evaluate-predicate suite (bash)
+      - Test evaluate-predicate suite (pwsh)
+      - Test generate-gate-capabilities suite (bash)
+      - Test generate-gate-capabilities suite (pwsh)
+      - Test generate-registry-digest suite (bash)
+      - Test generate-registry-digest suite (pwsh)
+      - Test registry-discovery suite (bash)
+      - Test registry-discovery suite (pwsh)
+      - Test validate-capability-registry suite (bash)
+      - Test validate-capability-registry suite (pwsh)
+      - Verify generated gate-capabilities projection (POSIX)
+      - Verify generated gate-capabilities projection (Windows)
+      - Verify vendored contracts copy (POSIX)
+      - Verify vendored contracts copy (Windows)
+    ---- full unified diff (pre-apply -> post-apply) ----
+    --- /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/.github/workflows/test.yml	2026-08-11 10:27:24
+    +++ /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//cycle6-rehearsal-3189/epic-189-a1-project-context-leg3/.github/workflows/test.yml	2026-08-11 18:26:21
+    @@ -41,54 +41,6 @@
+             if: runner.os != 'Windows'
+             shell: bash
+             run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-026): drift lock for
+    -      # the generated gate-capabilities.json projection, mirroring the guard
+    -      # invariants --check steps immediately above (design.md Deployment / CI
+    -      # Plan; infra-spec.md CI/CD Sequence).
+    -      - name: Verify generated gate-capabilities projection (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      - name: Verify generated gate-capabilities projection (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-027, Done-When 3):
+    -      # drift lock for the VENDORED contracts copy under
+    -      # plugins/sdd-quality-loop/contracts/. This is the SECOND of the two
+    -      # --check steps tasks.md's Scope assigns to this task in one sentence
+    -      # (the projection generator's own --check step -- the step pair
+    -      # immediately above -- "and the vendoring step's `--check` step");
+    -      # RT-20260809-002 item 1 recorded its absence. Deliberately paraphrased
+    -      # rather than quoted verbatim: spelling out the projection step's exact
+    -      # `<script>.py --check` command string here would keep the suite's grep
+    -      # for that command satisfied even after the step itself were deleted,
+    -      # silently disarming the assertion. Do not re-introduce the literal.
+    -      # Release gate per design.md Deployment / CI Plan ("the
+    -      # vendoring/packaging step's own --check mode (P10, Registry discovery
+    -      # contract -- sha256 comparison of each canonical contracts/* file
+    -      # against its vendored plugins/sdd-quality-loop/contracts/* counterpart,
+    -      # as a release gate)") and infra-spec.md CI/CD Sequence.
+    -      #
+    -      # Deliberately a SEPARATE step from the projection drift lock above,
+    -      # not an extra command inside it: the two scripts compare disjoint
+    -      # artifact pairs (generated/gate-capabilities.json vs the canonical
+    -      # Registry; plugins/sdd-quality-loop/contracts/* vs contracts/*), so
+    -      # removing either step leaves the other's failure mode entirely
+    -      # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
+    -      # each of the two independently for exactly that reason.
+    -      - name: Verify vendored contracts copy (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+    -
+    -      - name: Verify vendored contracts copy (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+     
+           # pwsh steps run the test scripts directly: piping through tee changes
+           # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
+    @@ -658,95 +610,6 @@
+             shell: pwsh
+             run: ./tests/ship-track-selection-migration.tests.ps1
+     
+    -      # epic-190-a2-capability-registry (T-001..T-006): rebuilt against the
+    -      # post-3baadda5 parallel job split (this feature's own staged candidate
+    -      # predated that split and was stale against the 9-job/854-line live
+    -      # file it was meant to extend). Appended at the end of this job,
+    -      # alongside the other schema/generator suites already registered here
+    -      # (project-context-schema, canonicalize-sdd-yaml, etc.) since no prior
+    -      # task fixed a location before the split occurred.
+    -      - name: Test capability-registry-schema suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-schema.tests.sh
+    -
+    -      - name: Test capability-registry-schema suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-schema.tests.ps1
+    -
+    -      - name: Test evaluate-predicate suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/evaluate-predicate.tests.sh
+    -
+    -      - name: Test evaluate-predicate suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/evaluate-predicate.tests.ps1
+    -
+    -      - name: Test registry-discovery suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/registry-discovery.tests.sh
+    -
+    -      - name: Test registry-discovery suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/registry-discovery.tests.ps1
+    -
+    -      - name: Test validate-capability-registry suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/validate-capability-registry.tests.sh
+    -
+    -      - name: Test validate-capability-registry suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/validate-capability-registry.tests.ps1
+    -
+    -      - name: Test generate-registry-digest suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-registry-digest.tests.sh
+    -
+    -      - name: Test generate-registry-digest suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-registry-digest.tests.ps1
+    -
+    -      - name: Test generate-gate-capabilities suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-gate-capabilities.tests.sh
+    -
+    -      - name: Test generate-gate-capabilities suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-gate-capabilities.tests.ps1
+    -
+    -      # epic-190-a2-capability-registry T-007 (REQ-006, AC-031/AC-033): the
+    -      # cross-script parity and installed-layout invocation harness. Appended
+    -      # last, closing this feature's suite registration chain in task order.
+    -      # It shells out to bash, pwsh and node from either entry point, so both
+    -      # steps carry the same runtime expectations as the suites above.
+    -      - name: Test capability-registry-parity suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-parity.tests.sh
+    -
+    -      - name: Test capability-registry-parity suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-parity.tests.ps1
+    -
+       # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
+       # Node/TypeScript component: a read-only MCP server exposing SDD workflow
+       # state. Its tasks.md state-machine parser must stay shell-equivalent with
+    ---- end diff ----
+  identical: specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
+  identical: plugins/sdd-quality-loop/references/guard-invariants.json
+  identical: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+  identical: plugins/sdd-ship/skills/ship/SKILL.md
+  identical: plugins/sdd-lite/skills/lite-spec/SKILL.md
+  identical: plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+  identical: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+  identical: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+  identical: plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+  identical: plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+LEG 3 removals: lines=137 steps=18 entries=0 changed-files=1
+BUNDLE VERDICT: epic-189-a1-project-context -- REMOVALS PRESENT (applying this bundle deletes live content)
+
+================================================================
+BUNDLE: epic-136-phase2-gates
+staging: specs/epic-136-phase2-gates/human-copy
+================================================================
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.py: OK
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.js: OK
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1: OK
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh: OK
+plugins/sdd-quality-loop/scripts/check-contract.ps1: OK
+plugins/sdd-lite/references/risk-upgrade-policy.md: OK
+plugins/sdd-lite/scripts/check-risk-upgrade.sh: OK
+plugins/sdd-lite/scripts/check-risk-upgrade.ps1: OK
+plugins/sdd-lite/skills/lite-spec/SKILL.md: OK
+plugins/sdd-ship/skills/ship/SKILL.md: OK
+plugins/sdd-quality-loop/references/guard-invariants.json: OK
+plugins/sdd-quality-loop/scripts/generate-guard-invariants.py: OK
+plugins/sdd-quality-loop/scripts/generated/guard_invariants.py: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh: OK
+tests/guard-parity.tests.sh: OK
+.github/workflows/test.yml: OK
+specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1: OK
+shasum -a 256 -c MANIFEST.sha256 (real staging dir) rc=0
+
+-- LEG 1: whole-batch apply via real apply-human-copy.sh --
+seeded 19/19 targets from live (pre-apply state)
+{"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-ship/skills/ship/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+{"status":"denied","category":"DUPLICATE_BASENAME_IN_BATCH","message":"manifest target 'plugins/sdd-ship/skills/ship/SKILL.md' shares basename 'SKILL.md' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"}
+whole-batch apply rc=19
+LEG 1 OUTCOME: DENIED (fail-closed). No-write verified: 19/19 targets byte-equal to pre-apply.
+LEG 1 CLAIMS NOTHING about apply safety: a denied apply is not a zero-removal apply.
+
+-- LEG 2: single-target workflow batch via real apply-human-copy.sh --
+   (single-target batches are the sanctioned convention per the epic-189-a1
+    runbook; the LEG-1 DUPLICATE_BASENAME refusal does not protect this path)
+{"status":"ok","recovered":0,"targets":[".github/workflows/test.yml"]}
+single-target apply rc=0
+LEG 2 OUTCOME: applied. Diffing the workflow target:
+  CHANGED: .github/workflows/test.yml
+    pre-apply  (live): a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 (991 lines)
+    post-apply       : 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998 (854 lines)
+    removed lines: 137   added lines: 0
+    workflow step-name set: pre=120 post=102 REMOVED=18
+    removed step names:
+      - Test capability-registry-parity suite (bash)
+      - Test capability-registry-parity suite (pwsh)
+      - Test capability-registry-schema suite (bash)
+      - Test capability-registry-schema suite (pwsh)
+      - Test evaluate-predicate suite (bash)
+      - Test evaluate-predicate suite (pwsh)
+      - Test generate-gate-capabilities suite (bash)
+      - Test generate-gate-capabilities suite (pwsh)
+      - Test generate-registry-digest suite (bash)
+      - Test generate-registry-digest suite (pwsh)
+      - Test registry-discovery suite (bash)
+      - Test registry-discovery suite (pwsh)
+      - Test validate-capability-registry suite (bash)
+      - Test validate-capability-registry suite (pwsh)
+      - Verify generated gate-capabilities projection (POSIX)
+      - Verify generated gate-capabilities projection (Windows)
+      - Verify vendored contracts copy (POSIX)
+      - Verify vendored contracts copy (Windows)
+    ---- full unified diff (pre-apply -> post-apply) ----
+    --- /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/.github/workflows/test.yml	2026-08-11 10:27:24
+    +++ /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//cycle6-rehearsal-3189/epic-136-phase2-gates-leg2/.github/workflows/test.yml	2026-08-11 18:26:23
+    @@ -41,54 +41,6 @@
+             if: runner.os != 'Windows'
+             shell: bash
+             run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-026): drift lock for
+    -      # the generated gate-capabilities.json projection, mirroring the guard
+    -      # invariants --check steps immediately above (design.md Deployment / CI
+    -      # Plan; infra-spec.md CI/CD Sequence).
+    -      - name: Verify generated gate-capabilities projection (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      - name: Verify generated gate-capabilities projection (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-027, Done-When 3):
+    -      # drift lock for the VENDORED contracts copy under
+    -      # plugins/sdd-quality-loop/contracts/. This is the SECOND of the two
+    -      # --check steps tasks.md's Scope assigns to this task in one sentence
+    -      # (the projection generator's own --check step -- the step pair
+    -      # immediately above -- "and the vendoring step's `--check` step");
+    -      # RT-20260809-002 item 1 recorded its absence. Deliberately paraphrased
+    -      # rather than quoted verbatim: spelling out the projection step's exact
+    -      # `<script>.py --check` command string here would keep the suite's grep
+    -      # for that command satisfied even after the step itself were deleted,
+    -      # silently disarming the assertion. Do not re-introduce the literal.
+    -      # Release gate per design.md Deployment / CI Plan ("the
+    -      # vendoring/packaging step's own --check mode (P10, Registry discovery
+    -      # contract -- sha256 comparison of each canonical contracts/* file
+    -      # against its vendored plugins/sdd-quality-loop/contracts/* counterpart,
+    -      # as a release gate)") and infra-spec.md CI/CD Sequence.
+    -      #
+    -      # Deliberately a SEPARATE step from the projection drift lock above,
+    -      # not an extra command inside it: the two scripts compare disjoint
+    -      # artifact pairs (generated/gate-capabilities.json vs the canonical
+    -      # Registry; plugins/sdd-quality-loop/contracts/* vs contracts/*), so
+    -      # removing either step leaves the other's failure mode entirely
+    -      # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
+    -      # each of the two independently for exactly that reason.
+    -      - name: Verify vendored contracts copy (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+    -
+    -      - name: Verify vendored contracts copy (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+     
+           # pwsh steps run the test scripts directly: piping through tee changes
+           # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
+    @@ -658,95 +610,6 @@
+             shell: pwsh
+             run: ./tests/ship-track-selection-migration.tests.ps1
+     
+    -      # epic-190-a2-capability-registry (T-001..T-006): rebuilt against the
+    -      # post-3baadda5 parallel job split (this feature's own staged candidate
+    -      # predated that split and was stale against the 9-job/854-line live
+    -      # file it was meant to extend). Appended at the end of this job,
+    -      # alongside the other schema/generator suites already registered here
+    -      # (project-context-schema, canonicalize-sdd-yaml, etc.) since no prior
+    -      # task fixed a location before the split occurred.
+    -      - name: Test capability-registry-schema suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-schema.tests.sh
+    -
+    -      - name: Test capability-registry-schema suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-schema.tests.ps1
+    -
+    -      - name: Test evaluate-predicate suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/evaluate-predicate.tests.sh
+    -
+    -      - name: Test evaluate-predicate suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/evaluate-predicate.tests.ps1
+    -
+    -      - name: Test registry-discovery suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/registry-discovery.tests.sh
+    -
+    -      - name: Test registry-discovery suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/registry-discovery.tests.ps1
+    -
+    -      - name: Test validate-capability-registry suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/validate-capability-registry.tests.sh
+    -
+    -      - name: Test validate-capability-registry suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/validate-capability-registry.tests.ps1
+    -
+    -      - name: Test generate-registry-digest suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-registry-digest.tests.sh
+    -
+    -      - name: Test generate-registry-digest suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-registry-digest.tests.ps1
+    -
+    -      - name: Test generate-gate-capabilities suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-gate-capabilities.tests.sh
+    -
+    -      - name: Test generate-gate-capabilities suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-gate-capabilities.tests.ps1
+    -
+    -      # epic-190-a2-capability-registry T-007 (REQ-006, AC-031/AC-033): the
+    -      # cross-script parity and installed-layout invocation harness. Appended
+    -      # last, closing this feature's suite registration chain in task order.
+    -      # It shells out to bash, pwsh and node from either entry point, so both
+    -      # steps carry the same runtime expectations as the suites above.
+    -      - name: Test capability-registry-parity suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-parity.tests.sh
+    -
+    -      - name: Test capability-registry-parity suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-parity.tests.ps1
+    -
+       # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
+       # Node/TypeScript component: a read-only MCP server exposing SDD workflow
+       # state. Its tasks.md state-machine parser must stay shell-equivalent with
+    ---- end diff ----
+LEG 2 removals: lines=137 steps=18 changed-files=1
+
+-- LEG 3: full manifest-contract emulation (per-entry verify + whole-file replace) --
+   (this is what epic-136-phase2-gates' Windows-only apply-protected-files.ps1
+    and any manual manifest-driven application perform)
+seeded 19/19 targets from live (pre-apply state)
+emulated apply: 19/19 targets verified against the manifest digest and whole-file replaced
+LEG 3 diff of EVERY touched path against pre-apply (live) bytes:
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  identical: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+  identical: plugins/sdd-quality-loop/scripts/check-contract.ps1
+  identical: plugins/sdd-lite/references/risk-upgrade-policy.md
+  identical: plugins/sdd-lite/scripts/check-risk-upgrade.sh
+  identical: plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+  identical: plugins/sdd-lite/skills/lite-spec/SKILL.md
+  identical: plugins/sdd-ship/skills/ship/SKILL.md
+  identical: plugins/sdd-quality-loop/references/guard-invariants.json
+  identical: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+  identical: tests/guard-parity.tests.sh
+  CHANGED: .github/workflows/test.yml
+    pre-apply  (live): a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 (991 lines)
+    post-apply       : 8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998 (854 lines)
+    removed lines: 137   added lines: 0
+    workflow step-name set: pre=120 post=102 REMOVED=18
+    removed step names:
+      - Test capability-registry-parity suite (bash)
+      - Test capability-registry-parity suite (pwsh)
+      - Test capability-registry-schema suite (bash)
+      - Test capability-registry-schema suite (pwsh)
+      - Test evaluate-predicate suite (bash)
+      - Test evaluate-predicate suite (pwsh)
+      - Test generate-gate-capabilities suite (bash)
+      - Test generate-gate-capabilities suite (pwsh)
+      - Test generate-registry-digest suite (bash)
+      - Test generate-registry-digest suite (pwsh)
+      - Test registry-discovery suite (bash)
+      - Test registry-discovery suite (pwsh)
+      - Test validate-capability-registry suite (bash)
+      - Test validate-capability-registry suite (pwsh)
+      - Verify generated gate-capabilities projection (POSIX)
+      - Verify generated gate-capabilities projection (Windows)
+      - Verify vendored contracts copy (POSIX)
+      - Verify vendored contracts copy (Windows)
+    ---- full unified diff (pre-apply -> post-apply) ----
+    --- /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/.github/workflows/test.yml	2026-08-11 10:27:24
+    +++ /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T//cycle6-rehearsal-3189/epic-136-phase2-gates-leg3/.github/workflows/test.yml	2026-08-11 18:26:23
+    @@ -41,54 +41,6 @@
+             if: runner.os != 'Windows'
+             shell: bash
+             run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-026): drift lock for
+    -      # the generated gate-capabilities.json projection, mirroring the guard
+    -      # invariants --check steps immediately above (design.md Deployment / CI
+    -      # Plan; infra-spec.md CI/CD Sequence).
+    -      - name: Verify generated gate-capabilities projection (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      - name: Verify generated gate-capabilities projection (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py --check
+    -
+    -      # epic-190-a2-capability-registry T-006 (REQ-005 AC-027, Done-When 3):
+    -      # drift lock for the VENDORED contracts copy under
+    -      # plugins/sdd-quality-loop/contracts/. This is the SECOND of the two
+    -      # --check steps tasks.md's Scope assigns to this task in one sentence
+    -      # (the projection generator's own --check step -- the step pair
+    -      # immediately above -- "and the vendoring step's `--check` step");
+    -      # RT-20260809-002 item 1 recorded its absence. Deliberately paraphrased
+    -      # rather than quoted verbatim: spelling out the projection step's exact
+    -      # `<script>.py --check` command string here would keep the suite's grep
+    -      # for that command satisfied even after the step itself were deleted,
+    -      # silently disarming the assertion. Do not re-introduce the literal.
+    -      # Release gate per design.md Deployment / CI Plan ("the
+    -      # vendoring/packaging step's own --check mode (P10, Registry discovery
+    -      # contract -- sha256 comparison of each canonical contracts/* file
+    -      # against its vendored plugins/sdd-quality-loop/contracts/* counterpart,
+    -      # as a release gate)") and infra-spec.md CI/CD Sequence.
+    -      #
+    -      # Deliberately a SEPARATE step from the projection drift lock above,
+    -      # not an extra command inside it: the two scripts compare disjoint
+    -      # artifact pairs (generated/gate-capabilities.json vs the canonical
+    -      # Registry; plugins/sdd-quality-loop/contracts/* vs contracts/*), so
+    -      # removing either step leaves the other's failure mode entirely
+    -      # undetected. tests/generate-gate-capabilities.tests.{sh,ps1} assert
+    -      # each of the two independently for exactly that reason.
+    -      - name: Verify vendored contracts copy (Windows)
+    -        if: runner.os == 'Windows'
+    -        shell: pwsh
+    -        run: python ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+    -
+    -      - name: Verify vendored contracts copy (POSIX)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        run: python3 ./plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+     
+           # pwsh steps run the test scripts directly: piping through tee changes
+           # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
+    @@ -658,95 +610,6 @@
+             shell: pwsh
+             run: ./tests/ship-track-selection-migration.tests.ps1
+     
+    -      # epic-190-a2-capability-registry (T-001..T-006): rebuilt against the
+    -      # post-3baadda5 parallel job split (this feature's own staged candidate
+    -      # predated that split and was stale against the 9-job/854-line live
+    -      # file it was meant to extend). Appended at the end of this job,
+    -      # alongside the other schema/generator suites already registered here
+    -      # (project-context-schema, canonicalize-sdd-yaml, etc.) since no prior
+    -      # task fixed a location before the split occurred.
+    -      - name: Test capability-registry-schema suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-schema.tests.sh
+    -
+    -      - name: Test capability-registry-schema suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-schema.tests.ps1
+    -
+    -      - name: Test evaluate-predicate suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/evaluate-predicate.tests.sh
+    -
+    -      - name: Test evaluate-predicate suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/evaluate-predicate.tests.ps1
+    -
+    -      - name: Test registry-discovery suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/registry-discovery.tests.sh
+    -
+    -      - name: Test registry-discovery suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/registry-discovery.tests.ps1
+    -
+    -      - name: Test validate-capability-registry suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/validate-capability-registry.tests.sh
+    -
+    -      - name: Test validate-capability-registry suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/validate-capability-registry.tests.ps1
+    -
+    -      - name: Test generate-registry-digest suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-registry-digest.tests.sh
+    -
+    -      - name: Test generate-registry-digest suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-registry-digest.tests.ps1
+    -
+    -      - name: Test generate-gate-capabilities suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/generate-gate-capabilities.tests.sh
+    -
+    -      - name: Test generate-gate-capabilities suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/generate-gate-capabilities.tests.ps1
+    -
+    -      # epic-190-a2-capability-registry T-007 (REQ-006, AC-031/AC-033): the
+    -      # cross-script parity and installed-layout invocation harness. Appended
+    -      # last, closing this feature's suite registration chain in task order.
+    -      # It shells out to bash, pwsh and node from either entry point, so both
+    -      # steps carry the same runtime expectations as the suites above.
+    -      - name: Test capability-registry-parity suite (bash)
+    -        if: runner.os != 'Windows'
+    -        shell: bash
+    -        # Invoked via bash explicitly so the step does not depend on the
+    -        # committed exec bit (Windows-authored commits record mode 100644).
+    -        run: bash ./tests/capability-registry-parity.tests.sh
+    -
+    -      - name: Test capability-registry-parity suite (pwsh)
+    -        shell: pwsh
+    -        run: ./tests/capability-registry-parity.tests.ps1
+    -
+       # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
+       # Node/TypeScript component: a read-only MCP server exposing SDD workflow
+       # state. Its tasks.md state-machine parser must stay shell-equivalent with
+    ---- end diff ----
+  identical: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+LEG 3 removals: lines=137 steps=18 entries=0 changed-files=1
+BUNDLE VERDICT: epic-136-phase2-gates -- REMOVALS PRESENT (applying this bundle deletes live content)
+
+================================================================
+BUNDLE: epic-190-a2-capability-registry-own
+staging: specs/epic-190-a2-capability-registry/human-copy
+================================================================
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/references/guard-invariants.json: OK
+plugins/sdd-quality-loop/scripts/generate-guard-invariants.py: OK
+plugins/sdd-quality-loop/scripts/generated/guard_invariants.py: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1: OK
+plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh: OK
+shasum -a 256 -c MANIFEST.sha256 (real staging dir) rc=0
+
+-- LEG 1: whole-batch apply via real apply-human-copy.sh --
+seeded 7/7 targets from live (pre-apply state)
+{"status":"ok","recovered":0,"targets":[".github/workflows/test.yml","plugins/sdd-quality-loop/references/guard-invariants.json","plugins/sdd-quality-loop/scripts/generate-guard-invariants.py","plugins/sdd-quality-loop/scripts/generated/guard_invariants.py","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh"]}
+whole-batch apply rc=0
+LEG 1 OUTCOME: applied. Diffing every target:
+  identical: .github/workflows/test.yml
+  identical: plugins/sdd-quality-loop/references/guard-invariants.json
+  identical: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+LEG 1 removals: lines=0 steps=0 entries=0 changed-files=0
+
+-- LEG 2: single-target workflow batch via real apply-human-copy.sh --
+   (single-target batches are the sanctioned convention per the epic-189-a1
+    runbook; the LEG-1 DUPLICATE_BASENAME refusal does not protect this path)
+{"status":"ok","recovered":0,"targets":[".github/workflows/test.yml"]}
+single-target apply rc=0
+LEG 2 OUTCOME: applied. Diffing the workflow target:
+  identical: .github/workflows/test.yml
+LEG 2 removals: lines=0 steps=0 changed-files=0
+
+-- LEG 3: full manifest-contract emulation (per-entry verify + whole-file replace) --
+   (this is what epic-136-phase2-gates' Windows-only apply-protected-files.ps1
+    and any manual manifest-driven application perform)
+seeded 7/7 targets from live (pre-apply state)
+emulated apply: 7/7 targets verified against the manifest digest and whole-file replaced
+LEG 3 diff of EVERY touched path against pre-apply (live) bytes:
+  identical: .github/workflows/test.yml
+  identical: plugins/sdd-quality-loop/references/guard-invariants.json
+  identical: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  identical: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+LEG 3 removals: lines=0 steps=0 entries=0 changed-files=0
+BUNDLE VERDICT: epic-190-a2-capability-registry-own -- ZERO REMOVALS on the full emulated apply (every touched path compared)
+
+================================================================
+REHEARSAL OVERALL: changed files: 4; removed lines: 548; removed workflow steps: 72; removed array entries: 0; denied (vacuous) legs recorded: 2
+REHEARSAL OVERALL VERDICT: REMOVALS PRESENT -- the stale staged-workflow hazard is STILL ARMED

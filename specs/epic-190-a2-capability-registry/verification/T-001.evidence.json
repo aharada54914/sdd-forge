@@ -1,0 +1,39 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-190-a2-capability-registry",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "7ae6becda321666579d0cfea55c5a1316a541bc827d98362b2c58aff8c6fdc7b",
+  "quality_report": "reports/quality-gate/2026-07-23T003000Z.md",
+  "verification_contract": "specs/epic-190-a2-capability-registry/verification/T-001.contract.json",
+  "git_commit": "285821a18cbe9b5bba40a35ba2361bdb36a5e159",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-001.contract.json",
+      "sha256": "4b49fae005291c4a69b0da54d22e26f2d6af432ec8c540773d88579f881cfb27"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-23T003000Z.md",
+      "sha256": "088ff99114c79c26a52e3cb68711f3c84da1e2f3dd6b8e43b0139c230531af2c"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-zeta-impl",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-zeta-impl.py"
+    },
+    {
+      "id": "check-alpha-impl",
+      "stage": "implementation",
+      "blocking": false,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-alpha-impl.py"
+    },
+    {
+      "id": "check-promotion-only",
+      "stage": "promotion",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-promotion-only.py"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "second-capability",
+      "trigger": {
+        "any": [
+          { "scope": "affected_component", "field": "artifact_kinds", "operator": "contains", "value": "widget" }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": ["check-alpha-impl"],
+      "lite_policy": { "eligible": true, "upgrade_reasons": [] },
+      "minimum_enforcement": "advisory",
+      "delivery_strategy": { "kind": "direct" }
+    },
+    {
+      "id": "first-capability",
+      "trigger": {
+        "any": [
+          { "scope": "affected_component", "field": "artifact_kinds", "operator": "contains", "value": "durable_workflow" }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": ["check-zeta-impl", "check-promotion-only", "check-alpha-impl"],
+      "lite_policy": { "eligible": false, "upgrade_reasons": ["durable_workflow"] },
+      "minimum_enforcement": "required",
+      "delivery_strategy": { "kind": "durable-workflow" }
+    },
+    {
+      "id": "no-gates-capability",
+      "trigger": {
+        "any": [
+          { "scope": "affected_component", "field": "artifact_kinds", "operator": "contains", "value": "doc" }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "lite_policy": { "eligible": true, "upgrade_reasons": [] },
+      "minimum_enforcement": "advisory",
+      "delivery_strategy": { "kind": "direct" }
+    }
+  ]
+}

@@ -96,6 +96,13 @@ tests=(
   tests/guard-staging-exemption.tests.sh
   tests/design-sync-standing-consent.tests.sh
   tests/design-sync-scan.tests.sh
+  tests/capability-registry-schema.tests.sh
+  tests/evaluate-predicate.tests.sh
+  tests/registry-discovery.tests.sh
+  tests/validate-capability-registry.tests.sh
+  tests/generate-registry-digest.tests.sh
+  tests/generate-gate-capabilities.tests.sh
+  tests/capability-registry-parity.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

@@ -1,0 +1,11 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "no-ref-gate",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": []
+}
