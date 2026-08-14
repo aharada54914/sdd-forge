@@ -67,6 +67,20 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
      `red_evidence` + `green_evidence` for every test-type check.
+   - `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):
+     the Reverse Coverage Gate. Always runs to completion and always emits
+     a `check-component-coverage-verdict/v1` evidence record. Derives one
+     of three states from the project's `workflow.capability_enforcement`
+     (never from Facet Manifest file presence, ADR-0016): `disabled-legacy`
+     (zero evaluation, a real N/A record, exit 0 — this repository's own
+     current state, since no `project-context.yaml` exists yet),
+     `advisory` (full six-Fail-condition evaluation and recording, always
+     exit 0), `required` (identical evaluation, exit non-zero iff a Fail
+     condition triggers). This documented invocation is defense-in-depth,
+     not the reachability guarantee — `check-component-coverage` is
+     registered in `check-contract`'s own protected tier-minimum required-
+     check-set (INV-017), which is what actually closes the gap were this
+     line to be deleted or the check renamed.
    - `check-traceability` on `specs/<feature>/traceability.json`: every
      REQ → AC → TEST → evidence chain is intact (required for `high`/`critical`).
    For `Done` tasks, validate

@@ -1,0 +1,42 @@
+Class B analytical and mutation transcript — 2026-08-14
+
+Windows root cause established from code:
+- protected runner RegistryTargets: 26 entries
+- staged canonical phase2_human_copy_targets: 29 entries
+- live canonical phase2_human_copy_targets: 29 entries
+- missing in runner, exact canonical order: check-component-coverage.py, check-component-coverage.ps1, check-component-coverage.sh
+- BootstrapTargets remains correct at 18 entries and was not changed.
+- On Windows the runner reaches Assert-SameOrder and fails with "staged canonical bootstrap inventory target count differs" before copying.
+
+The nine success-dependent PowerShell assertions are lines 737, 764, 853, 861, 874, 905, 912, 918, and 945 in tests/phase2-guard-invariants.tests.ps1. The fixed-index rollback assertion invokes the runner twice, so POSIX shows ten Windows capability diagnostics for nine failed assertions.
+
+===== candidate mutation: remove check-component-coverage.ps1 from a disposable copy =====
+exit=1
+FAIL: RegistryTargets mismatch: candidate=28 canonical=29
+
+===== restored candidate =====
+exit=0
+GREEN: RegistryTargets exact-order match (29/29); BootstrapTargets exact-order match (18/18)
+sha256=bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5
+
+===== parser and encoding =====
+exit=0
+GREEN: PowerShell parser clean; ASCII; no BOM
+
+===== installed guard predicate =====
+path=specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+exit=2
+SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.
+
+path=specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+exit=2
+SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。
+[EN] SDD deterministic gate: agents must not modify gate scripts, hook configuration, or critical test files. These are part of the enforcement chain and cannot be bypassed by sudo.
+
+path=specs/epic-136-phase2-gates/human-copy/apply-protected-files.refresh-candidate-20260814.ps1
+exit=0
+<allow; no output>
+
+Conclusion: both protected runner paths are R-10 denied even under human-copy staging; the sibling candidate is allowed. No protected runner was edited. Final Windows 70/0 remains pending human application and Windows execution.
+

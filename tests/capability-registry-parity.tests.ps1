@@ -115,6 +115,7 @@ STAGED_SCRIPTS = [
     "generate-gate-capabilities.ps1",
     "registry_discovery.py", "canonicalize-sdd-yaml.py",
     "check-contract.py", "check-hook-activation-handshake.py",
+    "check-component-coverage.py",
 ]
 
 

@@ -1,0 +1,84 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-025",
+  "category": "workflow-correctness",
+  "cycle": 1,
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Problem Evidence's frequency claim is: \"Observed directly, three times in one session, on three separate features: - `epic-190-a2`: rebound at attempt-5 after T-007 reached Done. - `epic-194-a6`: rebound at attempt-3; ... Both reviewers independently raised that the replacement binding is mixed too and will need redoing. - `epic-191-a3`: rebound at attempt-5 after T-002 and T-005 reached Done.\" None of these three feature/attempt claims cites a row in the retrospective report or a file in docs/review-tickets/. The supplied retrospective_path (reports/retrospective/2026-08-05T145740Z-design-sync-consent.md) documents the unrelated 'design-sync-consent' feature and contains zero occurrences of 'epic-190', 'epic-194', 'epic-191', 'rebind', 'tasks_sha256', or 'reviewed_hash_accepted' (verified by grep). All 18 files under docs/review-tickets/ were grepped for the same terms with zero matches. The underlying events are real (git log --all shows commit 39065c9b 'fix(epic-190-a2): re-bind the task-stage evidence so workflow state validates' and commit b836a11e 'fix(epic-194-a6): re-bind the task stage after T-004 reached Done', and reports/task-review/epic-190-a2-capability-registry/attempt-5/... and reports/task-review/epic-194-a6-lite-integration/attempt-3/... exist in git history), but the WFI cites none of this — it narrates the claim in prose with no ID, path, or hash a reader can check against the two sanctioned evidence sources."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "\"the producing side — precheck and validator — only ever emits raw. The accepting side is more permissive than the producing side can exercise, so the durable forms are dead code in practice: reachable only by hand-authoring a manifest, which the validator then rejects for other reasons.\" This names a specific mechanism (an asymmetry between what the acceptor supports and what the producer ever emits), not a restatement of the symptom ('rebinds happen too often'), and matches the confirmed fact that task-review-precheck.sh:494 unconditionally computes the raw hash regardless of file state. Note: Problem Evidence's own gloss two paragraphs earlier ('forms 1/3/4 all require the file's statuses to be uniform') is imprecise — normalization is well-defined on any file; a raw binding only coincides with an invariant form when normalization happens to be a no-op (the file already sits in one of the three canonical uniform states) — but this imprecision lives in Problem Evidence's narration, not in the Root Cause Hypothesis section's actual claim, which is unaffected by the correction."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "\"Category: workflow-correctness\" (WFI-025.md:20) is not a value the category guide's flowchart (Section 1) recognizes — it admits only measurement, human-process, plugin-improvement, and app-dev-efficiency, and WFI-025 is the only WFI in the repository using 'workflow-correctness'. Applying the flowchart: the Proposed Change modifies exactly what a deterministic gate (check-workflow-state.sh's reviewed_hash_accepted, plus the scripts that produce its inputs) accepts as a valid binding — the WFI's own header states this under Meta-Change ('Changes what a deterministic gate accepts as a valid binding.'). That is the flowchart's first branch ('Does the Proposed Change touch graders, gate thresholds, retrospective or audit logic...?') = YES, which routes to Category: measurement (correctly paired here with the already-set Meta-Change: true — Section 1 states Meta-Change: true is 'always the case for Category: measurement'). Under measurement, Section 1 requires language rules to 'follow the underlying target (generic if plugin-side, concrete if project-side)'. All three modified scripts are plugin-side (task-review-precheck.sh resolves to plugins/sdd-review-loop/scripts/task-review-precheck.sh; validate-review-context-set.sh and check-workflow-state.sh both resolve to plugins/sdd-quality-loop/scripts/ — confirmed via `find`), so Section 2's generic-language rules should govern Root Cause Hypothesis, Proposed Change, and Expected Effect, but this cannot be certified as correctly applied while the Category field itself names an undefined value. Separately, `Mechanism: script` (WFI-025.md:24) is not in the Section 5 mechanism table (instructions | memory | tools | architecture | model-routing); scripts map to `tools`."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "## Proposed Change is not formatted as a Target File / Change Description table at all — it is a numbered prose list. Treating the three items as rows: Row 1: \"In `task-review-precheck.sh` / `.ps1`, when the plan's task statuses are not uniform, compute `tasks_sha256` as `normalized_hash` rather than raw...\"; Row 2: \"In `validate-review-context-set.sh` / `.ps1`, allow a `tasks.md` manifest entry to declare the normalized hash **only** when...\"; Row 3: \"Leave `check-workflow-state.sh` unchanged: it already accepts the normalized form.\" Each description is non-vague, but every named file resolves to a path inside plugins/ (plugins/sdd-review-loop/scripts/task-review-precheck.sh; plugins/sdd-quality-loop/scripts/validate-review-context-set.sh; plugins/sdd-quality-loop/scripts/check-workflow-state.sh — confirmed via `find`). Per the check definition, 'A row that names a path inside plugins/ is a Major finding regardless of description.'"
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "\"Concretely: `epic-191-a3` would have needed one binding instead of five, and `epic-194-a6` one instead of three.\" This names the metric being improved (task-stage bindings needed per feature) and states quantitative before/after values for two features, satisfying the check's literal criteria. Cross-reference: these same two examples' underlying sourcing is the subject of the EVIDENCE-CITED FAIL above, but that does not bear on this check's own name-a-metric/state-a-target criteria."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "\"Number of task-stage rebinds attributable solely to a `Status:` transition, measured over the next full epic run. Current value: 3 in a single session across three features. Target: 0.\" One primary metric is named and a quantitative target (0) is given, but (a) the baseline 'Current value: 3' is not traceable to reports/retrospective/2026-08-05T145740Z-design-sync-consent.md — the supplied retrospective report contains no rebind data of any kind (verified by grep for 'rebind', 'epic-190', 'epic-194', 'tasks_sha256' — zero matches), so the check's explicit requirement of a 'current baseline value from the retrospective report' is unmet; (b) 'measured over the next full epic run' is not a quantified checkpoint — unlike the example format ('after the next 2 features complete'), no feature count is given for what constitutes 'a full epic run'."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "All four Verification Plan items are software test-plan items (a precheck fixture test, a mutation non-vacuity test, an end-to-end check-workflow-state.sh test, and a scoped-exception negative test) — e.g. \"A new test in `tests/task-review-precheck.tests.{sh,ps1}`: build a fixture plan with mixed statuses...\" None of the four items references the retrospective report, the Review Gate Metrics table, or the Improvement Verification Plan table, or names which future retrospective cycle's metric row will be compared against this WFI's baseline (3) and target (0). The plan proves the code behaves correctly but never states how/where the retrospective process will pick up and report the rebind-count metric going forward."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "All three Proposed Change targets are inside plugins/: Row 1 targets `task-review-precheck.sh` / `.ps1` (resolves to plugins/sdd-review-loop/scripts/task-review-precheck.sh); Row 2 targets `validate-review-context-set.sh` / `.ps1` (resolves to plugins/sdd-quality-loop/scripts/validate-review-context-set.sh); Row 3 references `check-workflow-state.sh` (resolves to plugins/sdd-quality-loop/scripts/check-workflow-state.sh), confirmed via `find` in this worktree. Per the check definition, 'Any path inside plugins/ in the Target File column is a Major finding.'"
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Category / ## Mechanism",
+      "change": "Set `Category: measurement` (not `workflow-correctness`, which the flowchart does not recognize) and `Mechanism: tools` (not `script`, which is not in the Section 5 mechanism table). Keep `Meta-Change: true` unchanged — it is already correctly paired with the measurement branch, and its own inline comment ('Changes what a deterministic gate accepts as a valid binding') is itself the flowchart's Q1 trigger condition.",
+      "rationale": "Resolves the Critical CATEGORY-LANGUAGE-MATCH finding: under Section 1's flowchart, a change to what check-workflow-state.sh accepts as a valid binding is 'anything that MEASURES the workflow' (Q1 = YES), routing to Category: measurement. Correcting this also fixes which language regime governs the WFI (generic, since all three target scripts are plugin-side)."
+    },
+    {
+      "section": "## Problem Evidence",
+      "change": "Replace the unlinked feature/attempt narrative with explicit citations: `epic-190-a2` — commit `39065c9b` ('fix(epic-190-a2): re-bind the task-stage evidence so workflow state validates') and `reports/task-review/epic-190-a2-capability-registry/attempt-5/round-1/precheck-result.json`; `epic-194-a6` — commit `b836a11e` ('fix(epic-194-a6): re-bind the task stage after T-004 reached Done') and `reports/task-review/epic-194-a6-lite-integration/attempt-3/round-1/precheck-result.json`; `epic-191-a3` — `reports/task-review/epic-191-a3-path-ownership/attempt-5/round-1/precheck-result.json`. Since none of these are retrospective-report rows or docs/review-tickets/ files, also file an RT ticket documenting the three-feature rebind pattern so a future retrospective's Problem Evidence can cite an RT-ID directly.",
+      "rationale": "Resolves the Major EVIDENCE-CITED finding by making the three-feature frequency claim independently checkable against the two sanctioned evidence sources (retrospective rows, RT tickets) rather than unlinked prose."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Since `task-review-precheck.sh`, `validate-review-context-set.sh`, and `check-workflow-state.sh` all resolve to paths inside `plugins/`, they cannot be this WFI's Target File. Reformat the section as a Target File / Change Description table whose Target Files are project-side only, and route the three script edits through the plugin-side fix channel (e.g., a GitHub Issue per Section 4's template, or the plugin repo's own PR process) instead of listing them as this WFI's own Proposed Change.",
+      "rationale": "Resolves both the Major CHANGE-CONCRETE and Major NO-PLUGIN-SCOPE-CREEP findings: every current Target File is inside plugins/, which both checks classify as a Major finding regardless of description quality."
+    },
+    {
+      "section": "## Verification Metric",
+      "change": "State explicitly that baseline `3` is sourced from direct commit-log/session observation (commits `39065c9b`, `b836a11e`, and this worktree's epic-191-a3-path-ownership attempt history), not from the attached retrospective report, and note that the first retrospective completed after this WFI is applied must record this metric's baseline row for future comparability. Replace 'measured over the next full epic run' with a quantified checkpoint, e.g. 'after the next 3 features complete task-review.'",
+      "rationale": "Resolves the Major VERIFICATION-METRIC-DEFINED finding: the check requires a retrospective-sourced baseline and an unambiguous checkpoint, neither of which is currently satisfied."
+    },
+    {
+      "section": "## Verification Plan",
+      "change": "Add item 5: 'The next full-epic retrospective adds a `task-stage rebinds attributable to a Status: transition` row (counted by grepping the feature's git log for `re-bind the task stage` / `rebind` commit messages) to its Improvement Verification Plan table, compared against this WFI's baseline (3) and target (0).'",
+      "rationale": "Resolves the Minor VERIFICATION-PLAN-SPECIFIC finding: the plan currently verifies only the code change via tests and never names which retrospective metric row will confirm the improvement in the next cycle."
+    }
+  ]
+}

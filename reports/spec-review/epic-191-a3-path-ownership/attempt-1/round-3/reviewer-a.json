@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-a1r3-seq0324",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-a1r3-0324",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "4d366a371d43f8a7fa6b1290251dafeaa3d706022948bedae63ca66f9bee6ce4"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-3/precheck-result.json", "sha256": "c5814903c3db85fc1aaca279c2423c32f0ac2dc9ef86fbc23d4bbb0b5ea370a1"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001..REQ-009) resolves to one or more independently identified acceptance criteria with concrete, measurable pass/fail conditions (e.g. AC-001..AC-011 for REQ-001's glob/normalization/schema-conformance clauses, AC-026..AC-036+AC-052..AC-055 for REQ-004's three derived-state/Fail-1..6/reachability behaviors, AC-037..AC-041 for REQ-005's digest scope). acceptance-tests.md maps each AC 1:1 to a TEST ID with a concrete fixture/assertion description. No requirement in the Goals section lacks a measurable observable outcome."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All nine stated Goals (REQ-001 through REQ-009) have matching acceptance criteria: REQ-001->AC-001..011, REQ-002->AC-012..018, REQ-003->AC-019..025, REQ-004->AC-026..036 and AC-052..055, REQ-005->AC-037..041, REQ-006->AC-042..044, REQ-007->AC-045..047, REQ-008->AC-048..049, REQ-009->AC-050..051. acceptance-tests.md's table confirms every AC-001..AC-055 maps to a TEST-ID and cites its parent REQ."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete, externally observable artifacts: specific glob-match outcomes on named fixture paths (AC-001, AC-002, AC-007), exact exit codes and evidence-record state string values (AC-027, AC-028, AC-052, AC-053), byte-for-byte stdout JSON diffing between wrapper runtimes (AC-050), and file-existence/hash checks (AC-036, AC-054, AC-055). None rely on vague intent language without a concrete observable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes: project-context.yaml schema definition, Facet Manifest schema definition, Epic A1 canonicalizer reimplementation, Capability Registry/Registry gate projection, Provider Bindings file schema definition, and any change to sdd-hook-guard's own enforcement logic. Dependencies section further scopes exactly which cross-epic artifacts are hard vs. non-blocking dependencies."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicit: a dedicated Security Boundaries section covers protected-file tamper-evidence scope (two-tier defense per ADR-0019), credential-block exclusion for Provider Bindings, and submodule/symlink reference-only boundaries. A Roles and Permissions section fixes the human-only approval boundary for protected-file human-copy application and task Approval state. Compatibility/migration is covered by the fail-closed schema-conformance and cross-epic-template fixtures rather than left implicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section lists five concrete high-risk claims and each is paired with an explicit validation surface: a dedicated fixture/AC (e.g. AC-032 for the exclude-as-include invariant, AC-038/AC-040 for digest-vs-staleness selectivity, AC-011/AC-042/044's fail-closed discipline for the cross-epic coupling). No high-risk claim is left without a named acceptance criterion or fixture path."
+    }
+  ]
+}

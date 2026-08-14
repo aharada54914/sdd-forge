@@ -1,0 +1,5 @@
+src/desktop/app.ts
+src/desktop/generated/x.ts
+src/mobile/app.ts
+src/shared-ui/button.ts
+contracts/schema.json

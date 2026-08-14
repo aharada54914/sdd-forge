@@ -1,0 +1,192 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-191-a3-path-ownership",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "21853420bb4914935370c6c25c1c9f8c845eda55ee4a27c2a91d60804f239ac0",
+  "created": "2026-08-13T14:05:34Z",
+  "comment": "Default-FAIL verification contract for T-004 (high, tdd). Required set per risk-gate-matrix.md tier high. Independent quality-gate verdict: RUN-epic-191-a3-path-ownership-qg-T-004-seq0681, a fresh-session re-gate, verdict PASS, zero Critical, zero Major, four Minor (report reports/quality-gate/epic-191-a3-path-ownership/T-004.md). Focused suite: tests/check-component-coverage.tests.{sh,ps1}, re-run green at backfill time (bash 46/0 exit 0, pwsh 47/0 exit 0). BACKFILL, recorded as such. Every task in this feature reached Done before the per-task contract/evidence-bundle closeout convention applied to it, so no Done flip recorded a pair and check-task-state has reported the same twelve 'Done but verification/T-NNN.{evidence,contract}.json does not exist' diagnostics throughout -- the seq0697 and seq0698 quality gates both recorded that debt as pre-existing and not attributable to their task. This pair is populated post-hoc on 2026-08-13 following the sanctioned epic-190-a2 closeout pattern (commit f0940bd7, itself following fc827c29): the contract is populated from this task's own independent quality-gate report, and the evidence bundle is produced by plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh. Risk tier checked first: this task is not critical, so no HMAC signature is required (risk-gate-matrix.md makes signature and two-person critical-tier only) and none is claimed. Backfill-time re-execution at HEAD a6aee75e is transcribed in specs/epic-191-a3-path-ownership/verification/backfill-20260813-checks.log. Stack 'shell' waives lint/typecheck/build: this repository ships Python, shell, PowerShell and JS deliverables with no compile toolchain, no configured linter and no static type-checker. The check-component-coverage tier-minimum id is recorded present but not required: check-contract.py drops it from the high/critical minimum while sdd/project-context.yaml is absent (CAPABILITY_STATE_GATED_IDS), and that file does not exist in this repository, so the gate is structurally inert here and a passes:true entry for it would be fabricated. T-004 is this feature's Security-Sensitive task and the sole editor of both R-10 protected human-copy bundles. Both were human-applied and recorded on the branch at c1db8b57 (nine files) and the remaining two at 13b55315; the whole 13-row human-copy/MANIFEST.sha256 verifies against the live tree with exit 0, re-measured at backfill time. T-004 also owns check-component-coverage.py, the very gate that check-contract.py's CAPABILITY_STATE_GATED_IDS predicate governs -- which is why this contract, like its five siblings, records that id as inert rather than claiming a pass for it.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured for this repository's Python/shell/PowerShell/JS deliverables (stack: shell). Parse validity is exercised implicitly by every green run of both runtimes of this task's suite, re-confirmed at backfill time.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository's Python/shell/PowerShell/JS deliverables (stack: shell).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/epic-191-a3-path-ownership/T-004.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/epic-191-a3-path-ownership/verification/T-004/check-component-coverage.RED.log",
+      "green_evidence": "specs/epic-191-a3-path-ownership/verification/T-004/check-component-coverage.GREEN.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface. This feature's deliverables are local CLI scripts (resolve-component-paths, check-component-coverage), their shell/PowerShell twins, test suites and fixture trees, all operating only on local repository files and disposable fixture repos (design.md Global Constraints).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/epic-191-a3-path-ownership/T-004.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "specs/epic-191-a3-path-ownership/verification/T-004/check-component-coverage.RED.log",
+      "green_evidence": "specs/epic-191-a3-path-ownership/verification/T-004/check-component-coverage.GREEN.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-191-a3-path-ownership/verification/backfill-20260813-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/epic-191-a3-path-ownership/T-004.md",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Tier-minimum id gated off by check-contract.py's CAPABILITY_STATE_GATED_IDS: sdd/project-context.yaml does not exist in this repository, so check-component-coverage derives disabled-legacy, evaluates zero Fail conditions, consults no Facet Manifest and exits 0 unconditionally. Requiring a passes:true entry for a structurally inert gate is exactly the fabricated-pass footgun requirements.md warns against, so the id is recorded present and not required, per the predicate's own documented rationale.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile or build toolchain exists for this repository's Python/shell/PowerShell/JS deliverables (stack: shell).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-191-a3-path-ownership/verification/backfill-20260813-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-191-a3-path-ownership/verification/backfill-20260813-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application, UI or service. The deliverables are CLI entry points and test suites, fully exercised by the focused suite runs recorded above and by each quality gate's own independent re-execution.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; every task is net-new authoring with no prior version (Data Migration: none in each task). The saved RED/GREEN evidence and each gate's independent reproduction provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; every task's Planned Files are script, test, fixture, ADR, CHANGELOG or human-copy staging files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

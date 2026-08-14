@@ -50,6 +50,9 @@
     "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
     "plugins/sdd-quality-loop/contracts/capability-registry.json",
     "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh",
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1",
@@ -159,7 +162,10 @@
     "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
     "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
     "plugins/sdd-quality-loop/contracts/capability-registry.json",
-    "plugins/sdd-quality-loop/contracts/capability-registry.schema.json"
+    "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh"
   ],
   "epic_a1_targets": [
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

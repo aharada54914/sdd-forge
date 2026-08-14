@@ -1,0 +1,155 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 9,
+  "round": 1,
+  "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-a-a9r1-seq0693",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-191-a3-path-ownership-a9r1-0693",
+  "manifest": [
+    {
+      "path": "specs/epic-191-a3-path-ownership/requirements.md",
+      "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+      "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/design.md",
+      "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/tasks.md",
+      "sha256": "e4ad32c444bc4ea90ab6d96fa772dc8af6931a661c07ad1727856a1158acca87"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/traceability.md",
+      "sha256": "c7ef1baedfe82cc1c3c4efd9b0eaa6c00d51d1b6ec28236fa983c27662877c59"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+      "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+      "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+      "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+      "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-191-a3-path-ownership/attempt-9/round-1/precheck-result.json",
+      "sha256": "3334b24b1eb374ae515553ba4d458992af4925d5a93f893dda5a721031bc3d0c"
+    },
+    {
+      "path": "reports/task-review/epic-191-a3-path-ownership/attempt-9/round-1/dependency-graph.json",
+      "sha256": "148e7a52f2181ca4bbb09a94bafe68ae5dec00516c9ec83715e7351221148203"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-045/046/047 cited in Requirements fields resolve to real acceptance-tests.md rows. Commit 00744ac3 adds no new Requirements-field AC id (AC-050 appears only in Scope prose and resolves to a real row)."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All Blockers fields are None or comma-separated T-NNN lists, matching precheck blockers_format_valid: true. Untouched by commit 00744ac3."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-009 each appear in a task Requirements field. Unaffected by commit 00744ac3."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "traceability.md byte-identical to attempt-8 round-1 (same sha256). AC-056 deferral rationale re-affirmed."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task references a real REQ-NNN. T-006 Requirements field untouched."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title triggers the test/spec/verify pattern; T-006 is not exclusively test-file scope."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Post-implementation provenance re-review rule applied; all Approval/Status values valid; commit 00744ac3 changed neither field."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All Risk/Required-Workflow pairings match the risk matrix, consistent with precheck workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No undifferentiated duplicate AC primary-target claim; AC-050 remains T-006's sole claim."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers reference resolves to a real node in dependency-graph.json and matches its edges exactly."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Ran because BLOCKERS-FORMAT is PASS. The 11-edge graph is a DAG with valid topological order; no cycle."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "NEW defect introduced by commit 00744ac3 (2026-08-12 T-006 scope supersession) — judged fresh, not shielded by TYPE-H convergence since this text is not byte-identical to the attempt-8 round-1 PASS-bound T-006 section. The supersession's Planned Files list adds 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1 (existing, agent-editable — added by the 2026-08-12 scope supersession...)' and a matching Scope Commit A bullet authorizing a direct edit to that file. This contradicts tasks.md's own Protected Files section (situation 1, 'six already-protected files': 'plugins/sdd-quality-loop/references/guard-invariants.json gains three new protected_gate_suffixes entries (check-component-coverage.{sh,ps1,py})'; 'No task below writes any protected path directly. Every corrected copy is staged under specs/epic-191-a3-path-ownership/human-copy/<real-relative-path> with a MANIFEST.sha256 entry') and design.md's Components table, which marks 'check-component-coverage.sh / .ps1' Protected: 'yes, once registered (T-004)'. Live-repository verification confirms T-004's registration has already landed: plugins/sdd-quality-loop/references/guard-invariants.json:47 and plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4 currently list plugins/sdd-quality-loop/scripts/check-component-coverage.ps1 in protected_gate_suffixes/PROTECTED_GATE_SUFFIXES (consistent with T-004's Status: Done, whose Done-When required the Bundle-A human-apply step to be confirmed first). T-006's scope description is therefore incoherent as written: it labels a genuinely R-10-protected file 'agent-editable' with no human-copy staging path, no MANIFEST.sha256 entry, and no corresponding HUMAN APPLY STEP Done-When bullet (unlike T-004's own Bundle A/Bundle B precedent for the identical file family) — an implementer following this text as written would attempt a direct write to a protected path, which this feature's own governing rules forbid. By contrast the sibling Planned Files entry in the same bullet list, resolve-component-paths.ps1, is accurate: design.md's Components table marks it 'Protected? no', and grep confirms it carries no PROTECTED_GATE_SUFFIXES entry in the live repository — only the check-component-coverage.ps1 entry is defective. Evaluate the scope description, not only the title (SINGLE-CONCERN's own instruction): the scope-as-written does not hold together with this document's own protected-file regime for one of its two named files."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-006's Done-When list is unchanged by commit 00744ac3 (only Planned Files/Scope/Out-of-Scope text changed). Its applicable bullet already names a concrete test ID (TEST-050) and pass/fail behavior covering the newly-sanctioned wrapper fix's own observable outcome. Advisory: the Scope-level defect identified under SINGLE-CONCERN (missing staged-candidate/MANIFEST.sha256/HUMAN-APPLY-STEP Done-When bullet analogous to T-004's Bundle A/B) is a Scope/Planned-Files defect, not a Done-When vagueness defect as literally defined by this check, so it is not duplicated here."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md is byte-identical to the attempt-8 round-1 bound copy. All six task IDs appear in traceability.md's Task Mapping and Deliverables tables; all nine requirement IDs exist in requirements.md. Advisory (not a fail under this check's task-ID/requirement-ID-reference scope): T-006's Deliverables table row does not yet list the two PowerShell files the 2026-08-12 supersession added to Planned Files; this file-list staleness is outside this check's defined scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "SINGLE-CONCERN",
+      "severity": "Major",
+      "task_id": "T-006",
+      "finding": "NEW defect introduced by commit 00744ac3 (2026-08-12 T-006 scope supersession) — judged fresh, not shielded by TYPE-H convergence since this text is not byte-identical to the attempt-8 round-1 PASS-bound T-006 section. The supersession's Planned Files list adds 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1 (existing, agent-editable — added by the 2026-08-12 scope supersession...)' and a matching Scope Commit A bullet authorizing a direct edit to that file. This contradicts tasks.md's own Protected Files section (situation 1, 'six already-protected files': 'plugins/sdd-quality-loop/references/guard-invariants.json gains three new protected_gate_suffixes entries (check-component-coverage.{sh,ps1,py})'; 'No task below writes any protected path directly. Every corrected copy is staged under specs/epic-191-a3-path-ownership/human-copy/<real-relative-path> with a MANIFEST.sha256 entry') and design.md's Components table, which marks 'check-component-coverage.sh / .ps1' Protected: 'yes, once registered (T-004)'. Live-repository verification confirms T-004's registration has already landed: plugins/sdd-quality-loop/references/guard-invariants.json:47 and plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4 currently list plugins/sdd-quality-loop/scripts/check-component-coverage.ps1 in protected_gate_suffixes/PROTECTED_GATE_SUFFIXES (consistent with T-004's Status: Done, whose Done-When required the Bundle-A human-apply step to be confirmed first). T-006's scope description is therefore incoherent as written: it labels a genuinely R-10-protected file 'agent-editable' with no human-copy staging path, no MANIFEST.sha256 entry, and no corresponding HUMAN APPLY STEP Done-When bullet (unlike T-004's own Bundle A/Bundle B precedent for the identical file family) — an implementer following this text as written would attempt a direct write to a protected path, which this feature's own governing rules forbid. By contrast the sibling Planned Files entry in the same bullet list, resolve-component-paths.ps1, is accurate: design.md's Components table marks it 'Protected? no', and grep confirms it carries no PROTECTED_GATE_SUFFIXES entry in the live repository — only the check-component-coverage.ps1 entry is defective. Evaluate the scope description, not only the title (SINGLE-CONCERN's own instruction): the scope-as-written does not hold together with this document's own protected-file regime for one of its two named files."
+    }
+  ]
+}
