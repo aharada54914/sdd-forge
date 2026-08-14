@@ -15,4 +15,4 @@ ca0ccdcbdf39ffc37e005ef374ab4cd5ff32668aa0da142e9ed922a53e3f41ab  plugins/sdd-qu
 f264ff4fd64f3f9e709a24b2c3cb4daf03b5bd76d1d9557374aeab9e48e25994  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 35cbaa1c404e22435035d94e98655eb062d3027d1b98b81ee819ce4aa319eed3  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 055c08bc6f7eeb807252b455346fe36d0286c16c2befc6d1582d5a38179e83c4  tests/guard-parity.tests.sh
-54c3b3d192f2bd7784614ddd8b52e67b19d618ebed9794980a3936e67f06bde2  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
