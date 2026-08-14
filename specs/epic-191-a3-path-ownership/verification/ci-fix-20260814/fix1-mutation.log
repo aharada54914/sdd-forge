@@ -1,0 +1,74 @@
+### MUTATION PROOF (fix 1): the pwsh prerequisite guard is load-bearing
+### comment_id=3777341729  tests/component-path-ownership-parity.tests.sh
+2026-08-13T23:33:00Z
+Host HAS pwsh (PowerShell 7.6.2). 'unavailable' is simulated with a restricted PATH:
+  /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/nopwsh-bin -- 1643 tools symlinked from the real bindirs, every pwsh* entry omitted.
+  $ env -i PATH=<restricted> bash <suite>
+
+--- [0] RED: parent commit ca1dac14 source, in-tree, pwsh unavailable (the reported defect) ---
+not ok - TEST-050 resolver outputs parse as JSON
+not ok - TEST-050 resolver canonical stdout parity (shell=[{"affected_components":[],"context_binding":{"ownership_digest":"sha256:949dd48853f468d486f850d5a13d4179c19901b3228094189a27401ef87ac8d3"},"ownership_input":{"components":[{"id":"c1","paths":{"exclude":[],"include":["shared/**"]}},{"id":"c2","paths":{"exclude":[],"include":["shared/**"]}}],"matcher_semantics_version":"1.0.0","shared_paths":[]},"records":[{"classification":"OVERLAP","evidence":{"excluded_match":null},"normalized_path":"shared/x.ts","owning_components":["c1","c2"],"raw_path":"shared/x.ts"}],"resolver":{"rule_set_revision":"sha256:187cbe313ee5d533070598ed525a66a146cef9463dc72d3d5c2225cfa316b6f0","version":"1.1.0"}}], pwsh=[])
+not ok - TEST-050 resolver exit parity (shell=[0], pwsh=[127])
+not ok - TEST-050 coverage outputs parse as JSON
+not ok - TEST-050 coverage canonical stdout and warning parity (shell=[{"check_id":"check-component-coverage","fail_conditions":[{"detail":{"unowned_paths":[]},"id":"Fail-1","triggered":false},{"detail":{"missing_exclusive_owners":[]},"id":"Fail-2","triggered":false},{"detail":{"overlap_paths":[]},"id":"Fail-3","triggered":false},{"detail":{"missing_bounded_shared_owners":[]},"id":"Fail-4","triggered":false},{"detail":{"excluded_match_paths":[]},"id":"Fail-5","triggered":false},{"detail":{"status":"not-applicable (provider-bindings absent)"},"id":"Fail-6","triggered":false}],"manifest_status":"present","producer":{"script":"plugins/sdd-quality-loop/scripts/check-component-coverage.py","sha256":"f2ec1f5bff9aceca04fa51ae5f46d8774790b7e77b3f6b7befdc5076d8b49b45"},"schema":"check-component-coverage-verdict/v1","state":"required","warnings":["Fail-6: sdd/provider-bindings.yaml absent; recorded N/A"]}], pwsh=[])
+not ok - TEST-050 coverage exit and LASTEXITCODE parity (shell=[0], pwsh=[127])
+not ok - TEST-050 resolver extra-argument exit parity (shell=[2], pwsh=[127])
+not ok - TEST-050 resolver extra-argument category parity (shell=[rejected-named-extra], pwsh=[tests/component-path-ownership-parity.tests.sh])
+not ok - TEST-050 coverage extra-argument exit parity (shell=[2], pwsh=[127])
+not ok - TEST-050 coverage extra-argument category parity (shell=[rejected-named-extra], pwsh=[tests/component-path-ownership-parity.tests.sh])
+not ok - TEST-050 disposable argument-drop mutant is detected
+not ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 9 passed, 12 failed
+rc=1
+
+--- [1] MUTANT: guard condition forced true, so the pwsh block runs regardless ---
+114:if true; then  # MUTANT
+not ok - TEST-050 coverage extra-argument exit parity (shell=[2], pwsh=[127])
+not ok - TEST-050 coverage extra-argument category parity (shell=[rejected-named-extra], pwsh=[tests/component-path-ownership-parity.tests.sh])
+not ok - TEST-050 disposable argument-drop mutant is detected
+not ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 9 passed, 12 failed
+rc=1
+
+--- [2] RESTORED: guard in place, pwsh unavailable ---
+skip - TEST-050 cross-runtime parity block (PowerShell is not available on this host)
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 9 passed, 0 failed
+Skipped: 1 (unmet host prerequisite)
+rc=0
+
+--- [3] RESTORED: guard in place, pwsh AVAILABLE (no coverage lost: 21 = 9 + 12) ---
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 21 passed, 0 failed
+rc=0

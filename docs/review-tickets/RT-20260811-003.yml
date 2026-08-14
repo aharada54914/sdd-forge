@@ -1,0 +1,135 @@
+ticket_id: RT-20260811-003
+status: open
+type: cycle-limit-reached
+severity: critical
+review_cycles: 3
+target:
+  feature: "epic-191-a3-path-ownership"
+  task: "T-004"
+  files:
+    - "tests/check-component-coverage.tests.sh"
+    - "tests/check-component-coverage.tests.ps1"
+    - "reports/implementation/epic-191-a3-path-ownership/drafts/MANIFEST.sha256"
+    - "specs/epic-191-a3-path-ownership/human-copy/MANIFEST-NOTES.md"
+    - "specs/epic-191-a3-path-ownership/verification/T-004/check-component-coverage.GREEN.log"
+    - "reports/implementation/epic-191-a3-path-ownership/T-004.md"
+summary: "T-004 の QG cycle 上限 (3) 到達 (seq 0679, 1 Critical / 3 Major / 2 Minor)。cycle 2 の Critical (無条件 tier-minimum 登録) は人間裁定の conditional activation + 適用 (710d6746) で真に解消済みと実測確認され、プロダクト側は健全。4 件全てがテストスイート・証跡側の欠陥のため、修正 + fresh session での再ゲート 1 サイクルが必要"
+problem: |
+  cycle 3 (seq 0679, attempt 1) は 1 Critical / 3 Major / 2 Minor で
+  NEEDS_WORK。全件がタスク自身の検証面の欠陥で、成果物そのものの欠陥では
+  ない。
+
+  **プロダクトは健全 (これを先に明記する)。** 評価者は cycle 2 の Critical
+  が真に解消されたことをレポート転記ではなく実測で確認した:
+  `bash tests/gates.tests.sh` は 131 passed / 0 failed (CSG.1-.5 の
+  stuck-open / stuck-shut 両面の activation-boundary カバレッジ込み)。既存
+  high/critical 契約 94 件の再実行は 79 pass / 15 fail で、15 件の fail に
+  `check-component-coverage` 起因はゼロ (specs/ci-mcp と
+  specs/evidence-deep-verify の既存 missing-evidence)。activation 述語は
+  使い捨てツリーで 4 変種 (present-and-valid / unparseable /
+  schema-divergent / empty) すべて active、absent のみ inactive と実証され、
+  実体は `os.path.isfile` (check-contract.py:93-105) の fail-closed
+  file-presence で YAML パーサ不関与。
+  `shasum -a 256 -c specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256`
+  は 12/12 OK、`generate-guard-invariants.py --check` は exit 0。この実測を
+  根拠に tasks.md:778 の `Breaking API: no` は conditional gate の下で
+  substantively TRUE と裁定され、cycle 2 の裁定は反転した。
+
+  4 つの blocking findings (verbatim 要旨):
+
+  1. **[Critical] タスク自身のスイートが出荷状態で赤。**
+     `tests/check-component-coverage.tests.sh` は 38 passed / 3 failed
+     (exit 1)、`.ps1` は 38 passed / 2 failed。うち 2 アサーションは恒久
+     反転: TEST-036.3 は live check-contract が check を登録した「から」
+     落ち、TEST-055.1 は live ファイルが改竄証跡を正しく拒否する「から」
+     落ちる — 出荷後の世界では二度と通らない。スイートは
+     tests/run-all.sh:101 / run-all.ps1:60 と、適用済み live CI workflow
+     (human-copy/.github/workflows/test.yml:643-652 とバイト同一) に配線
+     済みのため、CI が両ランタイムで赤になる。pin 済み GREEN 証跡
+     (verification/T-004/check-component-coverage.GREEN.log) は
+     "41 passed, 0 failed" で終わっており、live 再実行と矛盾 —
+     Done-When 8 の GREEN artifact が出荷状態を記述していない。
+  2. **[Major] AC-035/AC-055 の「通る」アサーションが superseded 版に束縛。**
+     TEST-035.1 / TEST-055.2 / TEST-055.3 はいずれも
+     drafts/bundle-b/scripts/check-contract.py (裁定前の無条件候補、
+     sha256 5c0c3874…) を行使しており、出荷された conditional 版
+     (human-copy と live の両方が 252c6200…、`grep -c project-context` は
+     drafts 側 0 / 適用側 4) を一切見ていない。Security-Sensitive: true の
+     タスクで、出荷された tamper-evidence 拒否には通るテストが存在せず、
+     落ちるアサーション越しにしか観測できない。
+  3. **[Major] TEST-035c が未実装。** acceptance-tests.md:76 の要求
+     (present-but-malformed `sdd/project-context.yaml` — unparseable 変種と
+     schema-divergent 変種 — でもエントリ欠落契約は FAIL のまま、述語が
+     plain file presence で YAML パーサ不関与であることの証明) に対する
+     実装がツリー内のどこにもない (`grep -rl "TEST-035c" tests/` は空、
+     gates.tests.sh の CSG ブロックにも malformed ケースなし)。評価者は
+     live 挙動自体は fail-closed で正しいと自己確認済み — 欠けているのは
+     回帰ガード。
+  4. **[Major] stale な drafts apply-mapping が conditional gate を巻き戻す。**
+     drafts/MANIFEST.sha256 は依然として bundle-b/scripts/check-contract.{py,ps1}
+     (5c0c3874… / 9005f861…、無条件ペア) を live 保護パスへ写像し、
+     T-004.md の Unresolved Items #1 が同写像を逐語反復している。
+     human-copy/MANIFEST-NOTES.md:49 の「drafts コピーは Bundle A/B と
+     バイト同一」という主張は Bundle B について偽 (直接ハッシュで確認済み)。
+     この写像を適用すると high/critical 契約は 0/94、gates.tests.sh は
+     114/12 に戻る。
+
+  Minor 2 件: (a) T-004.md:1083-1104 の Session Handoff が cycle-2 時点の
+  まま (「Current Status: Blocked」+ 人間への 8 ファイル cp 指示 — 全て
+  実施済み)。(b) Gate 側 present-but-malformed テストのラベルが TEST-056 の
+  ままだが、2026-08-11 の spec 修正で TEST-056 は T-001 のリゾルバ側
+  criterion に再割当てされ、この節の ID は TEST-035d (traceability.md:97 /
+  acceptance-tests.md:77)。TEST-035d は「evidence record を一切 emit
+  しない」ことの assertion も要求するが、現行は exit == 2 と
+  disabled-legacy 不在しか見ていない (挙動自体は正しいと実測済み)。
+proposed_resolution: |
+  4 件とも agent 実施可能で、保護 live ファイルには一切触れない。
+
+  1. TEST-036.3 / TEST-036.4 / TEST-055.1 を post-apply の世界へ向け直す
+     (存在しないと主張していた enforcement は今や存在する)。
+  2. TEST-035.1 / TEST-055.2 / TEST-055.3 を superseded な drafts/bundle-b
+     候補から、適用済み conditional 成果物 (live check-contract.{py,ps1}、
+     human-copy MANIFEST でハッシュ束縛) へ再束縛する。
+  3. TEST-035c (malformed-config 回帰ペア: unparseable + schema-divergent、
+     使い捨て fixture ツリーのみ) を実装する。
+  4. stale な drafts/MANIFEST.sha256 の Bundle B 写像と
+     MANIFEST-NOTES.md:49 の byte-identical 主張を無害化する。
+     MANIFEST-NOTES.md 自身が human-copy/ を canonical staging と宣言し
+     drafts/MANIFEST.sha256 を superseded と記録済みであることを踏まえ、
+     epic-190 の class-fix 前例 (refreshed copy より eviction + 不在
+     assertion) の適用可否をここで判断すること。
+  5. あわせて Minor 2 件 (Session Handoff の現況化、TEST-056 →
+     TEST-035d のラベル整合 + no-record assertion 強化) を閉じ、
+     GREEN 証跡を実走で取り直す (手書き修正ではなく再実行)。
+
+  変更した全アサーションについて mutation で非空虚性を実証すること
+  (違反を作る → 落ちる → 復元 → green、記録を verification/ 配下へ)。
+
+  **重要 (共有ファイル):** `reports/implementation/epic-191-a3-path-ownership/drafts/MANIFEST.sha256`
+  は **T-002 (Status: Done)** が T-002.md の Outputs でハッシュ宣言して
+  いる。編集する場合は RT-20260809-001 の共有ファイル慣例に従い、同一
+  パス内で T-002.md の宣言も日付つきで更新すること。T-002 の Status と
+  Approval には触れないこと。
+
+  修正後、fresh session で T-004 の evaluator を 1 サイクル予約・起動する。
+  予約は必ず
+  `validate-review-context-set.sh <manifest> <repo-root> --reserve`
+  に行わせること (台帳への手書き追記は禁止)。attempt を上げて round 1 から
+  回すこと。実行前に T-004.md の Outputs を自タスクの commit 範囲に対する
+  `git diff --name-only` から再導出すること。
+
+  確認すべき点:
+  - スイートが両ランタイムで green (bash exit 0 / pwsh exit 0) であること
+  - AC-035/AC-055 の passing assertion が出荷された conditional 成果物を
+    行使していること (drafts への束縛ゼロ、`grep -c human-copy` 非ゼロ
+    または live パス直接行使)
+  - TEST-035c が malformed 2 変種で「check still required」を実証すること
+  - stale apply-mapping が適用不能化されており、それを守る assertion が
+    非空虚であること
+  - GREEN 証跡が出荷スイートの実走記録であること
+
+  **重要 (運用):** ゲート実行中に同じワークツリーへ書き込むエージェントを
+  走らせないこと。RT-20260810-001 / RT-20260810-002 / RT-20260811-001 が
+  記録しているとおり、並行書き込みはゲート実行中のハッシュ束縛を壊す。
+requires_human_decision: false
+created: 2026-08-11

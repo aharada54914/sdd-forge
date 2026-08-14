@@ -62,6 +62,9 @@ PHASE2_TARGETS = (
     "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
     "plugins/sdd-quality-loop/contracts/capability-registry.json",
     "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+    "plugins/sdd-quality-loop/scripts/check-component-coverage.sh",
 )
 BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",

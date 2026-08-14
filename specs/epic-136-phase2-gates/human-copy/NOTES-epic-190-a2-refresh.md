@@ -355,7 +355,7 @@ inventory authority (`:662-664`), so the eviction leaves it **fail-closed**: no
 apply path can remove anything, but a legitimate whole-bundle runner apply is
 impossible until a human refreshes it. A candidate sits beside it as
 `apply-protected-files.refresh-candidate-20260814.ps1`
-(sha256 `2b6a77bbb97122f1a897b3eabc3a03b1d2281360e23ffa64010a9dfbb8f5233f`).
+(sha256 `b73a245650a81ff786c69562bc0cc8fa087e79d8f26ade406a90181eee879118`).
 It makes exactly three changes:
 
 - **`Get-RepositoryRoot` is re-anchored.** This was a defect in the first draft
@@ -377,12 +377,12 @@ It makes exactly three changes:
   validates the INSTALLED LIVE canonical against that same pin. This is
   strictly stronger than the former staged/live equality check: it binds live
   to a reviewed immutable list instead of to another mutable snapshot.
-  `$RegistryTargets` itself is unchanged (26 entries).
+  `$RegistryTargets` itself is carried over unchanged from the runner this candidate was re-derived from (29 entries after epic-191).
 
 Verified before staging: PowerShell parser CLEAN; ASCII/no-BOM; `diff` against
 the protected runner is exactly the three changes above and nothing else;
 `$BootstrapTargets` == `MANIFEST.sha256` target order (12/12, exact);
-`$RegistryTargets` == live `phase2_human_copy_targets` (26/26, exact);
+`$RegistryTargets` == live `phase2_human_copy_targets` (29/29, exact);
 `$BootstrapTargets` is a subset of `$RegistryTargets`; none of the seven
 evicted paths appears in `$BootstrapTargets`; all seven still appear in
 `$RegistryTargets`.
@@ -423,8 +423,8 @@ byte-identical, and the manifest digest travels in the same commit):
 2. In `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256`, replace the
    digest on the final line (target
    `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`,
-   currently `54c3b3d1…`) with
-   `2b6a77bbb97122f1a897b3eabc3a03b1d2281360e23ffa64010a9dfbb8f5233f`.
+   currently `bd5d68b2…`) with
+   `b73a245650a81ff786c69562bc0cc8fa087e79d8f26ade406a90181eee879118`.
    No line is added, removed, or reordered.
 3. Delete `apply-protected-files.refresh-candidate-20260814.ps1`.
 4. Verify: `shasum -a 256 -c` against the manifest (12/12 OK) and
@@ -455,3 +455,75 @@ applies of them still succeed (exit 0). That is a no-op today only because
 staged == live; it re-arms the moment live advances. It is NOT closed here
 because doing so requires amending AC-021 in a hash-bound `acceptance-tests.md`
 — see the PR body and that bundle's own NOTES.
+> **Chronology.** The section below landed on `main` with epic-191 (PR #244):
+> it is the FIFTH firing of this class — epic-191 had to hand-refresh this
+> bundle's six registry-projection snapshots, and its runner pin, to keep CI
+> green. It is retained as the record of that event. The eviction documented
+> above supersedes it for those six files: there is nothing left to refresh.
+---
+
+## Registry-pin refresh candidate — prepared, awaiting human apply (2026-08-14, PR #244)
+
+The 2026-08-11 candidate above was applied, but its repository-wide
+`$RegistryTargets` pin has since fallen behind the canonical registry again.
+Both the staged and live `guard-invariants.json` authorities now contain 29
+`phase2_human_copy_targets`, while the protected runner still pins 26. The
+three missing entries, in canonical order, are:
+
+- `plugins/sdd-quality-loop/scripts/check-component-coverage.py`
+- `plugins/sdd-quality-loop/scripts/check-component-coverage.ps1`
+- `plugins/sdd-quality-loop/scripts/check-component-coverage.sh`
+
+On Windows the capability check succeeds, then the runner stops at its
+staged-canonical `Assert-SameOrder` check with `staged canonical bootstrap
+inventory target count differs`, before it can copy anything. That one stale
+pin accounts for the nine success-dependent failures at
+`tests/phase2-guard-invariants.tests.ps1` lines 737, 764, 853, 861, 874, 905,
+912, 918, and 945: bootstrap success, normal-update success, isolated-install
+success, complete staged-copy coverage, installed-guard denial, hard-link
+alias preservation, both held-handle substitution checks, and fixed-index
+rollback. The last assertion invokes the runner twice, which is why a POSIX
+rehearsal can print ten `Windows is required` diagnostics for nine skipped
+success paths.
+
+The corrected full-file candidate is
+`apply-protected-files.refresh-candidate-20260814.ps1` (sha256
+`bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5`).
+It is byte-for-byte the current protected runner except that the registry
+count comment changes from 26 to 29 and the three paths above are appended to
+`$RegistryTargets`. `$BootstrapTargets` remains the bundle's exact 18-entry
+inventory and must not change. The candidate is ASCII/no-BOM, parses cleanly,
+and its 29-entry registry pin is exact-order equal to both canonical
+authorities.
+
+The installed 1.10.0 guard predicate was executed against the exact paths on
+2026-08-14. It denied a `Write` to each protected runner with exit 2, even
+under `human-copy`, and allowed the sibling refresh-candidate path with exit
+0. Therefore an agent must not copy this candidate into either protected
+destination: a human apply is required.
+
+**Exact human apply steps** (from the repository root; do not use
+`--no-verify`):
+
+1. Review that the candidate differs from
+   `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` only by
+   the count comment and three registry paths listed above.
+2. Copy the candidate over BOTH protected copies:
+   - `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+   - `specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+3. In `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256`, replace the
+   final runner digest
+   `54c3b3d192f2bd7784614ddd8b52e67b19d618ebed9794980a3936e67f06bde2`
+   with
+   `bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5`.
+   Keep all 18 paths and their order unchanged.
+4. Delete `apply-protected-files.refresh-candidate-20260814.ps1` only after
+   both protected copies and the manifest row have been updated.
+5. Verify both protected copies are byte-identical with sha256 `bd5d68b2…dab5`,
+   run `shasum -a 256 -c` from the bundle directory (18/18 OK), and run
+   `bash tests/phase2-guard-invariants.tests.sh` (35/0).
+6. On Windows, run
+   `pwsh -NoProfile -File tests/phase2-guard-invariants.tests.ps1`; the
+   expected result is 70 passed / 0 failed. This environment cannot execute
+   the nine Windows-only install rehearsals, so that final observation must
+   come from a Windows host or CI.

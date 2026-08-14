@@ -1,0 +1,3 @@
+src/a/file.ts
+src/a/b/file.ts
+src/file.ts

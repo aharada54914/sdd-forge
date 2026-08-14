@@ -1,0 +1,64 @@
+### FIX 2 + FIX 3 VERIFICATION
+### comment_id=3777341725 (dispatcher option translation)
+### comment_id=3777341713 (--json advertised but unimplemented)
+2026-08-13T23:38:07Z
+
+Method: the dispatcher probes `command -v python3`. The restricted PATH below
+omits every python3* binary, so that probe fails and the dispatcher takes its
+PowerShell fallback branch. A plain `python` IS provided, because the .ps1
+twin shells out to canonicalize-sdd-yaml, which needs an interpreter of its own;
+without it every case dies on CANONICALIZER_RUNTIME_UNAVAILABLE before argument
+binding can be observed at all. Each case is then compared against the Python
+master run with the SAME argv: identical exit status and byte-identical
+canonical JSON is the proof that the translated PowerShell parameters bound to
+the same values.
+  restricted PATH: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/nopy3-bin
+  $ command -v python3  -> (not found)
+  $ command -v python   -> Python 3.14.5
+  $ command -v pwsh     -> PowerShell 7.6.2
+
+-- [A] baseline, no new options
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [B] --json  (comment 3: previously an unrecognized argument in BOTH runtimes)
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --json
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [C] --repo-root  (comment 2)
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --repo-root .
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [D] --source-rev + --target-rev  (comment 2)
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --source-rev HEAD~1 --target-rev HEAD --repo-root .
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [E] --include-untracked  (comment 2: unhandled entirely)
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --source-rev HEAD~1 --target-rev HEAD --repo-root . --include-untracked
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [F] --no-include-untracked  (comment 2: unhandled entirely)
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --source-rev HEAD~1 --target-rev HEAD --repo-root . --no-include-untracked
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [G] --diagnose + --provider-bindings  (comment 2)
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --diagnose --provider-bindings sdd/provider-bindings.yaml
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [H] --check-schema-conformance + --schema + --schema-contract (regression check)
+   argv: --check-schema-conformance --schema contracts/project-context.template.yaml --schema-contract contracts/project-context.schema.json
+   fallback(pwsh) rc=0   master(python3) rc=0
+   RESULT: BOUND -- exit parity and byte-identical canonical JSON
+
+-- [I] control: a genuinely unknown option must STILL be rejected
+   argv: --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --not-a-real-option
+   fallback(pwsh) rc=2   master(python3) rc=2
+   RESULT: BOUND -- exit parity, both non-JSON; fb-stderr=[usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: --not-a-real-op] py-stderr=[usage: resolve-component-paths.py [-h] [--config CONFIG]                                   [--changed-paths-file CHANGED]
+

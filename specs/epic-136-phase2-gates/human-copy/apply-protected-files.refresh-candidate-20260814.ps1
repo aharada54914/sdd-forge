@@ -17,9 +17,9 @@ Set-StrictMode -Version Latest
 # canonical guard-invariants.json, its generator, and the four generated
 # siblings -- are EVICTED for the same structural reason. They are repo-shared
 # with MANY writers: their live bytes change on every protected-path
-# registration by any epic (measured: three separate epics wrote the live
-# canonical), so a per-epic snapshot of them cannot stay fresh. This bundle
-# went stale twice in the week of 2026-08-11 for exactly that reason.
+# registration by any epic, so a per-epic snapshot of them cannot stay fresh.
+# Measured: this bundle's snapshots were hand-refreshed by epic-190-a2 and
+# again by epic-191 within four days, and the live registry went 26 -> 29.
 # 12 entries, bound to MANIFEST.sha256 in this exact order.
 $BootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
@@ -37,7 +37,7 @@ $BootstrapTargets = @(
 )
 # The repository-wide protection REGISTRY pin (canonical authority). Since
 # epic-190-a2's registration, phase2_human_copy_targets in the canonical
-# guard-invariants.json is a repository-wide registry (26 entries), not this
+# guard-invariants.json is a repository-wide registry (29 entries), not this
 # bundle's staging surface: it retains .github/workflows/test.yml (guard
 # protection continues after the snapshot eviction) and files other epics
 # stage in their own bundles (RT-20260811-002 item 4 semantics: per-bundle
@@ -69,24 +69,24 @@ $RegistryTargets = @(
     'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py',
     'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json',
     'plugins/sdd-quality-loop/contracts/capability-registry.json',
-    'plugins/sdd-quality-loop/contracts/capability-registry.schema.json'
+    'plugins/sdd-quality-loop/contracts/capability-registry.schema.json',
+    'plugins/sdd-quality-loop/scripts/check-component-coverage.py',
+    'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
+    'plugins/sdd-quality-loop/scripts/check-component-coverage.sh'
 )
 $HumanCopyPrefix = 'specs/epic-136-phase2-gates/human-copy'
 
 function Fail([string]$Message) { throw "apply-protected-files: $Message" }
 
 function Get-RepositoryRoot {
-    # 2026-08-14 class fix: the previous anchor was the STAGED canonical inside
-    # this bundle. That file is evicted, and anchoring on the canonical by name
-    # is now actively wrong -- the walk would run past the staging directory and
-    # match the LIVE canonical at the repository root, then strip three parents
-    # and return the repository's grandparent. The anchor is therefore the
-    # surviving staging marker: the directory holding BOTH this bundle's
-    # MANIFEST.sha256 and its runner. Both the outer and the nested staged copy
-    # of the runner reach that same directory by walking up, so both resolve to
-    # the same repository root, exactly as before the eviction.
     $current = Split-Path -Parent $PSCommandPath
     while (-not [string]::IsNullOrWhiteSpace($current)) {
+        # 2026-08-14 class fix: the staged canonical is evicted, so anchoring on
+        # it would run past the staging directory, match the LIVE canonical at the
+        # repository root and return the repository's grandparent. Anchor on the
+        # surviving staging marker instead: the directory holding BOTH this
+        # bundle's MANIFEST.sha256 and its runner. The outer and the nested staged
+        # copy both reach it by walking up, so both resolve to the same root.
         if ((Test-Path -LiteralPath (Join-Path $current 'MANIFEST.sha256') -PathType Leaf) -and
             (Test-Path -LiteralPath (Join-Path $current 'apply-protected-files.ps1') -PathType Leaf)) {
             $featureRoot = Split-Path -Parent $current
@@ -671,14 +671,10 @@ try {
     try { Add-Type -TypeDefinition $NativeSource -Language CSharp -ErrorAction Stop } catch { Fail ('native helper compilation failed: ' + $_.Exception.Message) }
     $session = New-Object AnchoredCopySession $repositoryRoot
 
-    # 2026-08-14 class fix: the staged canonical snapshot is EVICTED from this
-    # bundle, so it can no longer serve as the inventory authority. The
-    # reviewed $RegistryTargets pin above IS that authority now -- it is the
-    # same list the staged snapshot was only ever checked against, minus the
-    # snapshot's ability to go stale. In normal-update mode the INSTALLED LIVE
-    # canonical is validated against that same pin, which is strictly stronger
-    # than the former staged/live equality check: it binds live to a reviewed,
-    # immutable list rather than to another mutable snapshot.
+    # 2026-08-14 class fix: the staged canonical snapshot is evicted, so it can
+    # no longer serve as the inventory authority. The reviewed $RegistryTargets
+    # pin IS that authority now -- it is the same list the staged snapshot was
+    # only ever checked against, minus the snapshot's ability to go stale.
     foreach ($bundleTarget in $BootstrapTargets) {
         if ($RegistryTargets -notcontains $bundleTarget) { Fail 'bundle inventory target is missing from the registry pin' }
     }
