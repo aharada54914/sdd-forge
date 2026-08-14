@@ -119,23 +119,36 @@ printf '== runner apply-protected-files.ps1\n  exit=%s | %s\n' "$runner_rc" "$(t
 snapshot "$WORK/after"
 # A runner that refuses to start does no work, so its "no removals" reading is
 # vacuous -- exactly the false-all-clear shape the cycle-5 rehearsal produced.
-# Report it as SKIPPED and keep it out of the verdict rather than letting a
-# refusal read as a proven zero-removal apply.
-runner_leg='measured'
-if grep -q 'Windows is required' "$WORK/runner.out"; then
+# Classify STRICTLY by exit code AND diagnostic, so that only the two
+# recognised preflight refusals become SKIPPED and only a clean exit 0 is
+# measured. Anything else -- a missing pwsh (127), a crash, a partial apply --
+# is FAILED and fails the verdict. Without this, an unrecognised runner error
+# fell through to compare on an untouched tree and printed ZERO REMOVALS.
+runner_leg='FAILED'
+if [ "$runner_rc" -eq 2 ] && grep -q 'apply-protected-files: Windows is required' "$WORK/runner.out"; then
   echo "  [runner] SKIPPED: host is not Windows; the runner refused before copying anything, so this leg proves nothing"
   runner_leg='SKIPPED (non-Windows host)'
-elif grep -qE 'unable to locate this bundle staging directory|staged canonical' "$WORK/runner.out"; then
+elif [ "$runner_rc" -eq 2 ] && grep -qE 'unable to locate (this bundle staging directory|the staged canonical file) from the runner path' "$WORK/runner.out"; then
   echo "  [runner] SKIPPED: installed runner predates the refresh candidate and refused at startup; this leg proves nothing"
   runner_leg='SKIPPED (pre-refresh runner)'
-else
+elif [ "$runner_rc" -eq 0 ]; then
+  runner_leg='measured'
   compare "$WORK/before" "$WORK/after" "runner"
+else
+  echo "  [runner] FAILED: exit $runner_rc with no recognised preflight refusal; this leg is neither a skip nor a proven apply"
+  compare "$WORK/before" "$WORK/after" "runner (failed leg, state recorded)"
 fi
 
 echo
 echo "############ VERDICT ############"
 printf 'watched live paths: %s (plus the CI step-name set and every canonical array)\n' "$(watch_paths | wc -l | tr -d ' ')"
 printf 'leg 4 (bundle runner): %s\n' "$runner_leg"
+if [ "$runner_leg" = 'FAILED' ]; then
+  echo "RUNNER LEG FAILED: the runner exited nonzero without a recognised"
+  echo "preflight refusal, so no verdict can be issued for it. Removals counted"
+  echo "on the other legs: $removals."
+  exit 1
+fi
 if [ "$removals" -eq 0 ]; then
   echo "ZERO REMOVALS across every MEASURED leg: no live file deleted, no live"
   echo "line lost, no CI step lost, no registry key lost."

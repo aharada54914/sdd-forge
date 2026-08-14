@@ -380,7 +380,7 @@ It makes exactly three changes:
   `$RegistryTargets` itself is unchanged (26 entries).
 
 Verified before staging: PowerShell parser CLEAN; ASCII/no-BOM; `diff` against
-the protected runner is exactly the two changes above and nothing else;
+the protected runner is exactly the three changes above and nothing else;
 `$BootstrapTargets` == `MANIFEST.sha256` target order (12/12, exact);
 `$RegistryTargets` == live `phase2_human_copy_targets` (26/26, exact);
 `$BootstrapTargets` is a subset of `$RegistryTargets`; none of the seven
