@@ -120,10 +120,17 @@ repo_shared_evicted=(
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1'
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
 )
+# Guarding the grep with [[ -f "$manifest" ]] inside the loop made the manifest
+# half of every lock pass without reading anything if that path were ever wrong
+# -- silent vacuity, the exact mode these locks exist to prevent. Assert the
+# manifest once, loudly, then read it unconditionally.
+[[ -f "$manifest" ]] \
+  && ok 'TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)' \
+  || bad 'TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)'
 for evicted in "${repo_shared_evicted[@]}"; do
   evicted_absent=1
   [[ -e "$stage/$evicted" ]] && evicted_absent=0
-  if [[ -f "$manifest" ]] && grep -Fq "  $evicted" "$manifest"; then evicted_absent=0; fi
+  if grep -Fq "  $evicted" "$manifest" 2>/dev/null; then evicted_absent=0; fi
   [[ "$evicted_absent" == 1 ]] \
     && ok "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)" \
     || bad "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)"

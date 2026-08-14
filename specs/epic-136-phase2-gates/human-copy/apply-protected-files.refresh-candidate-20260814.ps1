@@ -87,6 +87,11 @@ function Get-RepositoryRoot {
         # surviving staging marker instead: the directory holding BOTH this
         # bundle's MANIFEST.sha256 and its runner. The outer and the nested staged
         # copy both reach it by walking up, so both resolve to the same root.
+        # COUPLING, recorded deliberately: this predicate names the runner, so
+        # it depends on the runner staying in $BootstrapTargets. If a future
+        # class fix ever evicts the runner too, drop the second test --
+        # MANIFEST.sha256 alone is bundle-local and is never a registry target,
+        # so it is a sufficient marker on its own.
         if ((Test-Path -LiteralPath (Join-Path $current 'MANIFEST.sha256') -PathType Leaf) -and
             (Test-Path -LiteralPath (Join-Path $current 'apply-protected-files.ps1') -PathType Leaf)) {
             $featureRoot = Split-Path -Parent $current

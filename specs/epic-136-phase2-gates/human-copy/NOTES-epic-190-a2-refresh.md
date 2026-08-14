@@ -325,7 +325,10 @@ Refresh-to-live only resets the clock; eviction removes the class.
     staged canonical now mutate the surfaces that survive eviction.
 
 **The guard's protection of these six paths is unchanged.** They remain in the
-live `protected_gate_suffixes` (77) and `phase2_human_copy_targets` (26); only
+live `protected_gate_suffixes` and `phase2_human_copy_targets` (77/26 when this
+section was written on 2026-08-14; 80/29 after epic-191 landed on `main` the
+same day — validate the refresh candidate against the CURRENT live arrays, not
+these figures); only
 the per-epic *snapshot* is gone. Verified: all seven evicted paths are still
 present in the runner's `$RegistryTargets` pin.
 
@@ -355,7 +358,7 @@ inventory authority (`:662-664`), so the eviction leaves it **fail-closed**: no
 apply path can remove anything, but a legitimate whole-bundle runner apply is
 impossible until a human refreshes it. A candidate sits beside it as
 `apply-protected-files.refresh-candidate-20260814.ps1`
-(sha256 `b73a245650a81ff786c69562bc0cc8fa087e79d8f26ade406a90181eee879118`).
+(sha256 `e3ac63eef4e5f64a7f272e83da653185821b9abb7de935b2108049129c1096a3`).
 It makes exactly three changes:
 
 - **`Get-RepositoryRoot` is re-anchored.** This was a defect in the first draft
@@ -424,7 +427,7 @@ byte-identical, and the manifest digest travels in the same commit):
    digest on the final line (target
    `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`,
    currently `bd5d68b2…`) with
-   `b73a245650a81ff786c69562bc0cc8fa087e79d8f26ade406a90181eee879118`.
+   `e3ac63eef4e5f64a7f272e83da653185821b9abb7de935b2108049129c1096a3`.
    No line is added, removed, or reordered.
 3. Delete `apply-protected-files.refresh-candidate-20260814.ps1`.
 4. Verify: `shasum -a 256 -c` against the manifest (12/12 OK) and
@@ -442,7 +445,7 @@ target inventory") enumerates 18 paths and states "No manifest entry may omit,
 add, or duplicate a target." That list already diverged from reality before
 this change — it contains `.github/workflows/test.yml` (evicted 2026-08-11) and
 omits `tests/guard-parity.tests.sh` (in the manifest), and the live
-`phase2_human_copy_targets` array it describes is 26, not 18. This change takes
+`phase2_human_copy_targets` array it describes is 29 today, not 18. This change takes
 the bundle manifest to 12, widening the same gap. `requirements.md` is a
 frozen, hash-bound spec document, so it is reported rather than edited; it
 belongs with the epic-189-a1 AC-021 item in the provenance re-review queue.

@@ -592,10 +592,13 @@ $repoSharedEvicted = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
 )
-$manifestLines = @()
-if (Test-Path -LiteralPath $bootstrapManifest -PathType Leaf) {
-    $manifestLines = @([IO.File]::ReadAllLines($bootstrapManifest))
-}
+# Reading the manifest only when it happens to exist made the manifest half of
+# every lock pass without reading anything if that path were ever wrong --
+# silent vacuity, the exact mode these locks exist to prevent. Assert it once,
+# loudly, then read it unconditionally.
+$manifestPresent = Test-Path -LiteralPath $bootstrapManifest -PathType Leaf
+Assert-True $manifestPresent 'TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)'
+$manifestLines = if ($manifestPresent) { @([IO.File]::ReadAllLines($bootstrapManifest)) } else { @('<manifest missing>') }
 foreach ($evicted in $repoSharedEvicted) {
     $snapshotPath = Join-Path $bootstrapStage $evicted
     $manifestHasEntry = (@($manifestLines | Where-Object { $_.EndsWith('  ' + $evicted) }).Count -ne 0)
