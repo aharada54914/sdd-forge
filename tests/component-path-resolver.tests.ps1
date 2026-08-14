@@ -848,26 +848,34 @@ if ((Select-String -LiteralPath $runAllSh -Pattern "component-path-resolver" -Qu
     Fail "TEST-045.4: component-path-resolver missing from run-all.sh/.ps1 registration"
 }
 
-# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1): Done-When 4
-# names the human-copy staged workflow candidate, not the superseded
-# reports/implementation/.../drafts/ copy this assertion used to verify.
-# The staged candidate must exist AND match its own MANIFEST.sha256 entry
-# byte-for-byte; see the bash twin's comment for the full rationale.
+# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1 to guard the
+# human-copy staged workflow candidate; REPLACED BY A CLASS LOCK 2026-08-14,
+# same shape as the epic-136-phase2 eviction in PR #268). The staged snapshot
+# of the repo-shared CI workflow is EVICTED: its live bytes change whenever
+# any epic touches the workflow, and on 2026-08-14 two unrelated CI-capacity
+# commits (#270, #271) broke the staged pair twice in one day. See the bash
+# twin's comment for the full rationale and the eviction membership test.
 $hcDir = Join-Path $repoRoot "specs/epic-191-a3-path-ownership/human-copy"
-$hcWorkflow = Join-Path $hcDir ".github/workflows/test.yml"
 $hcManifest = Join-Path $hcDir "MANIFEST.sha256"
-$expectedHc = ""
-if (Test-Path -LiteralPath $hcManifest) {
-    foreach ($line in (Get-Content -LiteralPath $hcManifest)) {
-        $parts = $line -split '\s+', 2
-        if ($parts.Count -eq 2 -and $parts[1].Trim() -ceq ".github/workflows/test.yml") { $expectedHc = $parts[0].Trim() }
+$repoSharedEvicted = @(".github/workflows/test.yml")
+$lockDetail = ""
+foreach ($evicted in $repoSharedEvicted) {
+    if (Test-Path -LiteralPath (Join-Path $hcDir $evicted)) {
+        $lockDetail = "$lockDetail staged-file:$evicted"
+    }
+    if (Test-Path -LiteralPath $hcManifest) {
+        foreach ($line in (Get-Content -LiteralPath $hcManifest)) {
+            $parts = $line -split '\s+', 2
+            if ($parts.Count -eq 2 -and $parts[1].Trim() -ceq $evicted) {
+                $lockDetail = "$lockDetail manifest-entry:$evicted"
+            }
+        }
     }
 }
-$actualHc = if (Test-Path -LiteralPath $hcWorkflow) { (Get-FileHash -Algorithm SHA256 -LiteralPath $hcWorkflow).Hash.ToLowerInvariant() } else { "" }
-if ($expectedHc -cne "" -and $actualHc -ceq $expectedHc) {
-    Ok "TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry"
+if ($lockDetail -ceq "") {
+    Ok "TEST-045.5 class lock: no repo-shared file is snapshotted in this bundle (no staged file, no manifest entry)"
 } else {
-    Fail "TEST-045.5: expected a hash-verified staged test.yml candidate in $hcDir (manifest entry='$expectedHc', on-disk='$actualHc')"
+    Fail "TEST-045.5 class lock: a repo-shared file is snapshotted in this bundle —$lockDetail"
 }
 
 # TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2; shallow-aware
@@ -895,11 +903,26 @@ $t001Commits = @(
 $isShallow = (& git -C $repoRoot rev-parse --is-shallow-repository 2>$null | Out-String).Trim()
 $missingCommit = ""
 if ($isShallow -ceq "true") {
-    $liveWfHash = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repoRoot ".github/workflows/test.yml")).Hash.ToLowerInvariant()
-    if ($expectedHc -cne "" -and $liveWfHash -ceq $expectedHc) {
-        Ok "TEST-045.6: (shallow checkout) live .github/workflows/test.yml is byte-identical to the human-applied staged candidate's MANIFEST.sha256 entry (content-level attribution form; pinned commits unavailable at depth 1)"
+    # Class fix 2026-08-14: the former shallow branch compared the live
+    # workflow to the (now evicted) staged snapshot's manifest entry. That
+    # comparison could not distinguish tampering from a legitimate change --
+    # #270 and #271 each broke it while changing nothing this task owns -- so
+    # it is replaced by the substance the staging existed to deliver: the live
+    # version-gates job must still register BOTH legs of this suite. Commit
+    # attribution genuinely cannot run at depth 1; the strict form in the
+    # else-branch covers it in every full-history checkout.
+    $liveWf = Join-Path $repoRoot ".github/workflows/test.yml"
+    $regMissing = ""
+    if (-not (Select-String -LiteralPath $liveWf -SimpleMatch -Pattern 'run: bash ./tests/component-path-resolver.tests.sh' -Quiet)) {
+        $regMissing = "$regMissing bash-leg"
+    }
+    if (-not (Select-String -LiteralPath $liveWf -SimpleMatch -Pattern 'run: ./tests/component-path-resolver.tests.ps1' -Quiet)) {
+        $regMissing = "$regMissing pwsh-leg"
+    }
+    if ($regMissing -ceq "") {
+        Ok "TEST-045.6: (shallow checkout) the live workflow still registers both legs of this suite (substance form; commit attribution needs full history and is covered by the strict form)"
     } else {
-        Fail "TEST-045.6: (shallow checkout) live workflow diverges from the staged candidate's manifest entry (live='$liveWfHash', manifest='$expectedHc')"
+        Fail "TEST-045.6: (shallow checkout) the live workflow no longer registers this suite --$regMissing"
     }
 } else {
     $workflowTouchers = @(& git -C $repoRoot log --format=%H -- .github/workflows/test.yml)
