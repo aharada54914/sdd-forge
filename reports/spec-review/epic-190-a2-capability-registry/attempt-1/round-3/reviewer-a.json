@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0324",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0324",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "925d139290a9ea2b4b042068eb9b438505063875fff663681b56584ae67c3112"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "13f6ec1f63fa86424a80ab5cde151c2f8b5afc31b5b57d90956ed9aa0df8c85c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-3/precheck-result.json", "sha256": "8564cc4ff8e0c880aec6d978ffd409ed43163abf5e3c7923cdf4f65dfedf8516"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each state concrete, fixture-testable criteria (schema field lists/types, DSL operator truth tables, nine named REQ-003(a-i) validator checks, digest fragment-selection API, projection header/discovery contract), all mapped 1:1 to AC-001..AC-039 and TEST-001..TEST-039 in acceptance-tests.md. Both prior-round gaps are now closed: review_check_ids has an explicit shape (Field Definitions: 'an array of non-empty strings (uniqueItems: true; may be []) ... shape mirrors gate_ids', AC-038/TEST-038) and capabilities[].id uniqueness is REQ-003(i)/AC-039/TEST-039, explicitly independent of gates[].id uniqueness (AC-014). No requirement remains unobservable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated Goal (REQ-001 through REQ-006, including all nine REQ-003 sub-checks) has at least one matching AC in acceptance-tests.md's table, cross-referenced by requirement column. REQ-003(i) (added since round 2) traces to AC-039; review_check_ids's shape traces to AC-038. No orphaned goal found."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 39 ACs describe externally observable, fixture-checkable outcomes (schema accept/reject, named diagnostic codes such as capability-id-duplicate/gate-id-duplicate/unregistered-script, digest equality, exit codes, discovery success/failure). Even the two non-standard rows (AC-034 spec-commit-bound manual review, AC-036 Phase-2-deferred) are explicit about their non-automated nature and give a concrete resolution/verification procedure rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes Epic A1's Project Context/canonicalizer, Epic A5's Resolver/Facet-Manifest binding, Capability Pack content authoring, freezing the upgrade-reason catalog or delivery_strategy.kind vocabulary, Artifact/Promotion Gate stage behavior, introducing a new plugin, writing any plugin/contract/test file in this commit, authoring tasks.md/traceability.md, and modifying AGENTS.md/workflow-state-registry.json in this commit. Dependencies section additionally states no dependency on Epic A3/A4. Boundary is explicit everywhere the feature could otherwise expand."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: schema/data (draft-07 JSON Schema, additionalProperties:false at fully-enumerated levels), compatibility (Python-master + sh/ps1/js wrapper convention, 3-runtime parity), security/provider-neutrality (REQ-003(g) Provider-name contamination scan), migration (protected-file registration must go through specs/.../human-copy/ + MANIFEST.sha256, never a direct edit), and approval boundary (Roles and Permissions: agent 'does not write \"Approved\" in any Status/approval field'; Spec-Review-Status stays Pending for a human to change; Impl-Review-Status/Spec-Review-Status gate tasks.md authoring per check-workflow-state.sh)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims each have a stated validation surface: the Epic A1 canonicalizer hard-dependency/blocked-task risk has AC-023/TEST-023 (status explicitly 'Planned (blocked on Epic A1's canonicalizer contract)'); the field-allowlist duplication risk has AC-011's drift-check fixture; the still-open, typo-dependent upgrade_reasons vocabulary (OQ-001) has REQ-003(h)/AC-022/TEST-022's fail-closed catalog check; the Gate-implementation-identity design proposal (OQ-004, 'this spec's own design proposal, not directly stated in decision v2/ADRs') has AC-016/AC-017/TEST-016/TEST-017's bidirectional fixture set; the discovery-contract complexity has AC-027's four-fixture-plus-vendored-drift-check surface."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "_generated": {
+    "source": "contracts/capability-registry.json",
+    "schema_version": 1,
+    "sha256": "e91b1fc0599a1854ba21e92e5dc485f5bc6cb48a52c65cc0ef7d18cf5dc5fcab",
+    "notice": "This file is generated. Do not edit."
+  },
+  "gates": [
+    {
+      "id": "check-alpha-impl",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-alpha-impl.py"
+    },
+    {
+      "id": "check-zeta-impl",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-zeta-impl.py"
+    }
+  ],
+  "capability_gate_map": {
+    "first-capability": [
+      "check-alpha-impl",
+      "check-zeta-impl"
+    ],
+    "no-gates-capability": [],
+    "second-capability": [
+      "check-alpha-impl"
+    ]
+  }
+}

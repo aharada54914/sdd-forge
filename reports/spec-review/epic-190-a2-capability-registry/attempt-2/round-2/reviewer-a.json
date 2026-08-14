@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0328",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0328",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "05b4ca2b6e59d376d658a791fa93d3ea5d5619638366bc561cdf062ebbee734b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-2/round-2/precheck-result.json", "sha256": "c71085f75c40755d4a1423d3a342813ee590e945131464549ba23798057997c2"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001..REQ-006) states a concrete, checkable shape or behavior rather than intent: REQ-001's schema fields/enums, REQ-002's operator arity/fail-closed/exists-exception rules (now a closed 8-token enum, requirements.md lines 223-230), REQ-003's nine independently identifiable validator checks (a-i), REQ-004's fragment-selection and determinism rules, REQ-005's header/discovery/protection contract, and REQ-006's test-registration obligations. The round-1 gap (REQ-002's forbidden-operator boundary had no matching AC/TEST) is closed: the enum-closure statement plus AC-040/TEST-040 give an implementer and verifier an unambiguous, independently testable decision point."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal (REQ-001..REQ-006) has at least one matching AC: REQ-001 -> AC-001..006, AC-037, AC-038; REQ-002 -> AC-007..013, AC-040; REQ-003(a-i) -> AC-014..022, AC-039; REQ-004 -> AC-023, AC-024; REQ-005 -> AC-025..029; REQ-006 -> AC-030..033. No Goal in requirements.md's Goals section lacks a corresponding Acceptance Criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete externally observable outcomes rather than intent: named diagnostics (e.g. AC-014 'gate-id-duplicate', AC-039 'capability-id-duplicate', AC-024 'unknown-fragment-id'/'fragment-selector-required'), specific fixture shapes and expected pass/fail results (AC-004's dedicated negative fixtures for a missing delivery_strategy key and a delivery_strategy object missing kind), and byte-level/exit-code assertions (AC-026's --check exit codes, AC-031's byte-identical wrapper output). No AC in this package is a vague statement of intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals is explicit and itemized: excludes implementing Epic A1's schema/canonicalizer, Epic A5's Resolver, any Capability Pack content, freezing the lite-upgrade-reason catalog or delivery_strategy.kind vocabulary, Artifact/Promotion Gate behavior, a new plugin, any actual code/contract/test file in this commit (AC-034), and authoring tasks.md/traceability.md or touching AGENTS.md/workflow-state-registry.json in this commit. Each boundary is tied to a concrete blocking mechanism (e.g. check-workflow-state.sh's hard-enforcement) rather than left implicit."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated where implied: data/versioning (schema=='capability-registry/v1', per-artifact version checks in REQ-005), security/provider-neutrality (REQ-003(g) Provider-name contamination scan, ADR-0018 boundary), migration/compatibility (REQ-005's script-relative discovery contract with git-root fallback and fail-closed diagnostics for standalone-installed contexts), and approval boundaries (Roles and Permissions section: Spec-Review-Status stays Pending, human maintainer required to approve and to run protected-file cp steps, agent explicitly barred from writing 'Approved')."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims each have a planned validation surface: the Provider-name-contamination boundary (first automated implementation of ADR-0018, INV-008) has AC-020/TEST-020 with per-category negative fixtures plus a clean-fixture false-positive check; the registry_digest determinism/fragment-identity claim has AC-024/AC-032/TEST-024/TEST-032 (stable-sort, dedupe, JCS/NFC vectors); the installed-plugin discovery contract has AC-027/TEST-027 (three runtime fixtures plus fail-closed/version-check fixtures); the Epic A1 dependency risk is explicitly recorded as a blocked task with a drift-check obligation (Dependencies, INV-004a, AC-011) rather than silently assumed. No high-risk claim in this package lacks a stated validation path, so SKIP does not apply."
+    }
+  ]
+}
