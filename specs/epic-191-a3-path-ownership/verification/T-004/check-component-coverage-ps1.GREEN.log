@@ -1,0 +1,68 @@
+=== TEST-026/027: applicability derivation, disabled-legacy ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2)
+ok: TEST-028.2: -FacetManifest omitted entirely is also a hard error
+=== TEST-029: -Diagnose never Gate-invoked ===
+ok: TEST-029.1: -Diagnose emits its own distinct schema, never the Gate's verdict schema
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes -Diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible'
+ok: TEST-034.1: absent provider-bindings records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-035d: a present-but-unparseable project-context.yaml is a recordless hard error, never disabled-legacy ===
+ok: TEST-035d.1: a config file that exists but fails to parse is a hard error (exit 2), never silently downgraded to disabled-legacy
+ok: TEST-035d.2: the diagnostic names the parse failure
+ok: TEST-035d.3: NO evidence record is emitted (empty stdout, no verdict schema tag anywhere) — nothing exists for an activated tier minimum to accept
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: pwsh: a post-parse config structural error (empty include list) is a hard error, exit 2 (matches python)
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: pwsh: capability_enforcement: Required (capital) is NOT matched as required (ordinal, case-sensitive), derives disabled-legacy (matches python)
+=== TEST-059: omitting both -ChangedPathsFile and -TargetRev is a hard error (reachability bypass closed) ===
+ok: TEST-059.1: required state, valid manifest, no -ChangedPathsFile/-TargetRev: hard error (exit 2), never a silent all-clear
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md documents check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.3: live check-contract.ps1 registers check-component-coverage in the high/critical tier minimums, gated by the conditional-activation predicate (the applied conditional artifact)
+ok: TEST-036.4: live guard-invariants.json carries the three check-component-coverage.* entries in both protected lists, and all 12 applied live files are byte-identical to their human-copy staged candidates
+ok: TEST-036.5: the LIVE generate-guard-invariants.py --check exits 0 against the applied live tree (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: with a present, schema-valid project-context.yaml, the LIVE check-contract.ps1 fails a high contract that omits check-component-coverage, naming the check (applied conditional registration, behavioral)
+=== TEST-035c: activation is fail-closed under a present-but-malformed project-context.yaml ===
+ok: TEST-035c.1 (control): with NO project-context.yaml, the same contract passes — the failures below are attributable to config presence alone
+ok: TEST-035c.2: a present-but-UNPARSEABLE project-context.yaml (tab indentation) still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+ok: TEST-035c.3: a present-but-SCHEMA-DIVERGENT project-context.yaml still activates the requirement — the contract lacking the entry fails naming check-component-coverage
+=== TEST-055: check-contract producer-digest verification (AC-055, pwsh side) ===
+ok: TEST-055.1: the LIVE, applied check-contract.ps1 REJECTS a tampered check-component-coverage producer.sha256, naming the mismatch (the delivered tamper-evidence rejection, behavioral on this runtime)
+ok: TEST-055.2: the LIVE, applied check-contract.ps1 PASSES a genuine, live-produced check-component-coverage evidence record (positive case — the pass is not stuck shut)
+ok: TEST-055.2b: the LIVE, applied check-contract pair defines the producer-digest verification pass on both runtimes (structural pin)
+ok: TEST-055.3: the superseded unconditional drafts/bundle-b check-contract candidate stays evicted (no files, no MANIFEST.sha256 mapping rows) — the stale apply channel cannot silently revert the conditional gate
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in run-all.sh and .ps1
+
+check-component-coverage.tests.ps1: 47 passed, 0 failed

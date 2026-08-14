@@ -127,6 +127,57 @@ task-review manifests, seq 0682/0683), and all historical `reports/`
 keep their bare `ADR-0025` references and resolve per § Legacy
 bare-number references.
 
+## 2026-08-12 duplicate-number resolution (branch-side note, fourth collision, at 0027)
+
+The same class recurred at 0027, and this instance was cross-branch: this
+feature branch (`feature/epic-191-a3-path-ownership`) independently
+authored `0027-component-path-ownership-resolver-semantics.md` (first
+drafted 2026-07-23, locally renumbered from a provisional 0025 slot to
+0027 on 2026-08-08 per that file's own Numbering note, at a time when
+0025/0026 were the only occupied numbers this branch could see). Separately
+and later, main resolved its own second file at 0025
+(`0025-risk-adaptive-adversarial-review-lane.md`) by moving it to
+**ADR-0027** on 2026-08-10 — a change this branch had not yet merged, so
+neither side could see the other's claim on 0027 until this audit.
+
+| Number | Kept file (main, unmerged here) | Renumbered file (this branch) |
+|---|---|---|
+| 0027 | `0027-risk-adaptive-adversarial-review-lane.md` | `0027-component-path-ownership-resolver-semantics.md` |
+
+Per the same rule as the prior three resolutions, the file that landed on
+main first keeps the number; this branch's file — never merged, so not yet
+"first" in main's history — moves to the next free number:
+
+- `0027-component-path-ownership-resolver-semantics.md` → **`0030-component-path-ownership-resolver-semantics.md`**
+
+0028 and 0029 were both already claimed elsewhere (`0028-live-host-proof-
+ed25519-signing.md` on `feature/epic-196-a8-integration`;
+`0029-registry-discovery-contract.md` on
+`feature/epic-190-a2-capability-registry`, itself the 2026-08-11
+resolution of a *third* collision at 0025 — see that branch's
+`docs/adr/README.md` for the full account). An all-refs audit
+(`git log --all --name-only` plus `git ls-tree` on every local and remote
+branch, 2026-08-12) found 0030 as the lowest number free across every ref.
+
+The only in-branch, non-frozen, non-hash-bound references that meant the
+component-path decision — `plugins/sdd-quality-loop/scripts/
+resolve-component-paths.py` (two comment references) — were updated to
+ADR-0030. The frozen `specs/epic-191-a3-path-ownership/` trio
+(`requirements.md`, `design.md`, `tasks.md`), `traceability.md` (pinned by
+the attempt-7 task-review manifests, seq 0684-0687), and all historical
+`reports/` and `docs/review-tickets/` records keep their bare `ADR-0027`
+references as accurate statements of what was true when each was written.
+
+**Reconciled on merge (2026-08-13).** When this section was written, this
+branch had not yet merged main's own 2026-08-10 and 2026-08-11 resolution
+sections, so it recorded only this branch's half of the fourth collision and
+deferred full reconciliation to the merge. That merge is this one. Main's two
+sections now stand above this one in date order, the Index below carries all
+four resolutions' rows, and every tombstone from both sides is kept. Main's
+2026-08-11 section had already anticipated this collision, naming it as one
+"not resolved here" that "falls due when that branch merges"; it is resolved
+here, exactly as both sides described.
+
 ## Legacy bare-number references
 
 Tombstone stubs resolve a *path* reference (e.g.
@@ -164,6 +215,8 @@ general rule above, without requiring a table update first.
 | `specs/local-env-mcp/**` and other artifacts referencing the no-exec probe allowlist (local-env-mcp's own decision) | `ADR-0004` | ADR-0004 (unchanged — the first-mover at this number keeps it) |
 | `specs/epic-190-a2-capability-registry/**` and its related `reports/` (implementation, impl-review, quality-gate) | `ADR-0025` (Registry Discovery Contract) | ADR-0029 |
 | `specs/epic-189-a1-project-context/**` and its related `reports/` | `ADR-0025` (human-copy transactional bundle) | ADR-0025 (unchanged — the incumbent at this number keeps it) |
+| `specs/epic-191-a3-path-ownership/**` and its related `reports/` and `docs/review-tickets/` | `ADR-0027` (component path ownership resolver semantics) | ADR-0030 |
+| Any artifact predating 2026-08-10 | `ADR-0027` (risk-adaptive adversarial review lane) | ADR-0027 (unchanged — main's incumbent at this number keeps it) |
 
 New work must always cite the current number or filename directly and
 must never rely on a bare legacy number.
@@ -204,4 +257,6 @@ must never rely on a bare legacy number.
 | 0025 | Risk-Adaptive Adversarial Review Lane — renumbered to ADR-0027 | (tombstone) |
 | 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
 | 0027 | Risk-Adaptive Adversarial Review Lane | Proposed |
+| 0027 | component-path-ownership-resolver-semantics — renumbered to ADR-0030 | (tombstone) |
 | 0029 | Registry Discovery Contract | Accepted |
+| 0030 | Component Path Ownership Resolver Semantics | Accepted |

@@ -35,7 +35,7 @@ $BootstrapTargets = @(
 )
 # The repository-wide protection REGISTRY pin (canonical authority). Since
 # epic-190-a2's registration, phase2_human_copy_targets in the canonical
-# guard-invariants.json is a repository-wide registry (26 entries), not this
+# guard-invariants.json is a repository-wide registry (29 entries), not this
 # bundle's staging surface: it retains .github/workflows/test.yml (guard
 # protection continues after the snapshot eviction) and files other epics
 # stage in their own bundles (RT-20260811-002 item 4 semantics: per-bundle
@@ -67,7 +67,10 @@ $RegistryTargets = @(
     'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py',
     'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json',
     'plugins/sdd-quality-loop/contracts/capability-registry.json',
-    'plugins/sdd-quality-loop/contracts/capability-registry.schema.json'
+    'plugins/sdd-quality-loop/contracts/capability-registry.schema.json',
+    'plugins/sdd-quality-loop/scripts/check-component-coverage.py',
+    'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1',
+    'plugins/sdd-quality-loop/scripts/check-component-coverage.sh'
 )
 $HumanCopyPrefix = 'specs/epic-136-phase2-gates/human-copy'
 

@@ -1,0 +1,15 @@
+{
+ "schema": "integrated-verdict/v1",
+ "stage": "task",
+ "feature": "epic-191-a3-path-ownership",
+ "run_id": "task-orch-epic-191-a3-path-ownership-a7r1",
+ "verdict": "NEEDS_WORK",
+ "round": 1,
+ "attempt": 7,
+ "findings_critical": 1,
+ "findings_major": 0,
+ "findings_minor": 0,
+ "reviewer_a_verdict": "BLOCKED",
+ "reviewer_b_verdict": "PASS",
+ "verdict_note": "Provenance re-review (--provenance-rereview) round 1 of attempt 7, opened to re-bind the task-stage provenance after two lifecycle Status flips recorded by independent quality-gate PASS verdicts (T-004 -> Done at seq0681, T-001 -> Done at seq0683; frozen tasks.md body otherwise byte-unchanged). Reviewer A: 13 PASS / 1 FAIL \u2014 one Critical (AC-COVERAGE: AC-056, added to acceptance-tests.md 2026-08-11, has no tasks.md anchor, and A ruled traceability.md's accompanying note a post-hoc coverage claim rather than a deferral rationale, so neither AC-COVERAGE branch is satisfied). Reviewer B: 8 PASS / 1 SKIP, zero FAIL. Integrated verdict NEEDS_WORK; the remedy path is a traceability.md note amendment (the frozen tasks.md body must stay untouched), then round 2."
+}

@@ -1,0 +1,39 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 2,
+  "round": 3,
+  "requirements_sha256": "10f1595a4496faa82db202297fb16fd7f3c79e74d11288cae76176b0d725a62e",
+  "acceptance_sha256": "2dbe99480b135d3e645a1a7987cdaf7d43eddcf690a62090b26fea5a24b496f4",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-a2r3-seq0667",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-a2r3-0667",
+      "allowed_input_manifest": [
+        {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "10f1595a4496faa82db202297fb16fd7f3c79e74d11288cae76176b0d725a62e"},
+        {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "2dbe99480b135d3e645a1a7987cdaf7d43eddcf690a62090b26fea5a24b496f4"},
+        {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+        {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-3/precheck-result.json", "sha256": "6e583d6239b32ae236805e9164d8cb335d6b7f597319b25b014c27eb0187e9ee"},
+        {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a2r3-seq0668",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a2r3-0668",
+      "allowed_input_manifest": [
+        {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "10f1595a4496faa82db202297fb16fd7f3c79e74d11288cae76176b0d725a62e"},
+        {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "2dbe99480b135d3e645a1a7987cdaf7d43eddcf690a62090b26fea5a24b496f4"},
+        {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+        {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-3/precheck-result.json", "sha256": "6e583d6239b32ae236805e9164d8cb335d6b7f597319b25b014c27eb0187e9ee"},
+        {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-3/integrated-summary.json", "sha256": "1397a60632db02a17aca6a2d3c231f76e0c97652915a928acf503f0b8a27acf6"},
+        {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    }
+  ],
+  "run_id": "spec-orchestrator-run-epic-191-a3-path-ownership-a2r3",
+  "verdict": "BLOCKED",
+  "warningCount": 0
+}
