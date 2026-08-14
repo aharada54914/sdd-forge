@@ -1,0 +1,436 @@
+Targeted regression rather than tests/run-all.sh, because run-all is
+structurally red in this repository until a human applies the staged human-copy
+CI patch (the deterministic-lane self-check fails closed by design), so a full
+run-all log would record a designed red and prove nothing about this task. The
+precedent is this feature's own verification/T-001/regression-targeted.log and
+verification/qg-backfill/regression.log.
+
+The suite list is T-004's own shipped suite plus its blast-radius neighbours:
+the three sibling suites sharing the run-all registration block T-004 edits, the
+cross-epic shared loop driver, and gates.tests.sh, which owns the
+risk-gate-matrix tier-minimum invariant this gate's own contract is validated
+against.
+
+$ sh -c 
+      rc=0
+      for s in tests/structural-compatibility.tests.sh \
+               tests/golden-baseline-contract.tests.sh \
+               tests/compatibility-byte-identical.tests.sh \
+               tests/install.tests.sh \
+               tests/uninstall.tests.sh \
+               tests/loop-driver.tests.sh \
+               tests/gates.tests.sh; do
+        echo "=========================================================="
+        echo "[RUN] $s"
+        echo "=========================================================="
+        bash "$s" || rc=1
+        echo
+      done
+      exit $rc
+
+==========================================================
+[RUN] tests/structural-compatibility.tests.sh
+==========================================================
+PASS: F1 corpus envelope matches the shipped schema
+PASS: F2 corpus envelope matches the shipped schema
+PASS: F3 corpus envelope matches the shipped schema
+PASS: F4 corpus envelope matches the shipped schema
+PASS: operator layer rejects a mis-cased shipped state
+PASS: language matching layer rejects a mis-cased shipped anchor
+PASS: fingerprinted Required Outputs injection anchor is unchanged
+PASS: full artifact paths and exact count derive from its shipped output surface
+PASS: full acceptance-tests.md frontmatter and ordered headings match its shipped template
+PASS: full acceptance-tests.md status field names match its shipped template
+PASS: full design.md frontmatter and ordered headings match its shipped template
+PASS: full design.md status field names match its shipped template
+PASS: full frontend-spec.md frontmatter and ordered headings match its shipped template
+PASS: full frontend-spec.md status field names match its shipped template
+PASS: full infra-spec.md frontmatter and ordered headings match its shipped template
+PASS: full infra-spec.md status field names match its shipped template
+PASS: full requirements.md frontmatter and ordered headings match its shipped template
+PASS: full requirements.md status field names match its shipped template
+PASS: full security-spec.md frontmatter and ordered headings match its shipped template
+PASS: full security-spec.md status field names match its shipped template
+PASS: full ux-spec.md frontmatter and ordered headings match its shipped template
+PASS: full ux-spec.md status field names match its shipped template
+PASS: full generated identifiers retain the shipped three-digit grammar
+PASS: full output contains no reserved artifact or reference vocabulary
+PASS: lite artifact paths and exact count derive from its shipped output surface
+PASS: lite design.md frontmatter and ordered headings match its shipped template
+PASS: lite design.md status field names match its shipped template
+PASS: lite requirements.md frontmatter and ordered headings match its shipped template
+PASS: lite requirements.md status field names match its shipped template
+PASS: lite tasks.md frontmatter and ordered headings match its shipped template
+PASS: lite tasks.md status field names match its shipped template
+PASS: lite generated identifiers retain the shipped three-digit grammar
+PASS: lite output contains no reserved artifact or reference vocabulary
+PASS: corpus artifact array order is comparison-irrelevant
+PASS: malformed frontmatter is a hard failure
+PASS: unrecognized heading grammar is a hard failure
+PASS: frontmatter order and permitted whitespace/line endings normalize
+PASS: frontmatter values remain comparison-significant
+PASS: heading level and document order remain comparison-significant
+SKIP: F4/AC-007 (Epic A4 ): Reserved-reference absence awaits Epic A4
+SKIP: F3/AC-042 (Epic A1 ): structural identity awaits Epic A1
+SKIP: F5/AC-043 (A1+A6 ): compound dependency not merged
+SKIP: F6/AC-043 (A1+A6 ): compound dependency not merged
+PASS: Bash aggregate runner registers this shipped suite
+40 passed, 0 failed
+
+==========================================================
+[RUN] tests/golden-baseline-contract.tests.sh
+==========================================================
+ok: capture and promote commands are executable
+ok: default capture matches canonical and is read-only
+ok: write-candidate writes an exact candidate without changing canonical
+ok: manifest records the pinned SHA, fixed environment, and every target/script hash
+ok: CI-set refuses with no file touched
+ok: approved-by-omitted refuses with no file touched
+ok: default capture exits non-zero on drift
+ok: guarded promotion copies candidate to canonical
+ok: manifest/counterpart mismatches fail closed
+ok: candidate output is gitignored
+10 passed, 0 failed
+
+==========================================================
+[RUN] tests/compatibility-byte-identical.tests.sh
+==========================================================
+ok: F1 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F1 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F1 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F1 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F1 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F1 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: F2 deterministic-script-output is byte-identical across two fixed-environment invocations and canonical
+ok: F2 exit-code is byte-identical across two fixed-environment invocations and canonical
+ok: F2 stdout-stderr is byte-identical across two fixed-environment invocations and canonical
+ok: F2 template-copy-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 schema-validator-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 install-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 uninstall-result is byte-identical across two fixed-environment invocations and canonical
+ok: F2 generated-directory-listing is byte-identical across two fixed-environment invocations and canonical
+ok: F2 plugin-manifest is byte-identical across two fixed-environment invocations and canonical
+ok: CLI cell none|present resolves identically from both live product contracts
+ok: CLI cell none|absent resolves identically from both live product contracts
+ok: CLI cell --full|present resolves identically from both live product contracts
+ok: CLI cell --full|absent resolves identically from both live product contracts
+ok: CLI cell --lite|present resolves identically from both live product contracts
+ok: CLI cell --lite|absent resolves identically from both live product contracts
+ok: negative self-check: canonical target bytes match the manifest sha256
+25 passed, 0 failed
+
+==========================================================
+[RUN] tests/install.tests.sh
+==========================================================
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: failure on registration removes incomplete fresh install
+ok: failure on registration restores pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.89lBYJodLw/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.89lBYJodLw/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.Orkx2NGE8G/installed
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.ezwnhAGnYK/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.fHS3eJWBKo/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: concurrent install blocked, succeeds after lock released
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.aecw0mGFhZ/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.7OD29doXm4/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.ahFvWykhov/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
+Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.7yzKvTSgjo/installed
+ok: --skip-mcp skips both MCP placement and registration
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.tjxshWNXuQ/installed
+Plugin registration was skipped because --target=FilesOnly.
+
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.PxDudiirgo/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: --mcp <list> installs valid names and rejects invalid/empty ones
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: Node < 20 warns and skips MCP only, plugin install continues
+ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning
+ok: missing Codex config.toml skips Codex MCP registration with a warning
+ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice
+ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice
+ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues
+ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues
+ok: T-003 install output is unaffected by project-context presence
+
+Results: 36 passed, 0 failed.
+
+==========================================================
+[RUN] tests/uninstall.tests.sh
+==========================================================
+ok: full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents
+ok: --keep-files preserves installed files while unregistering
+ok: --skip-agent-uninstall preserves shipped agent role files
+ok: subset --plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: --skip-plugin-uninstall proceeds when CLI is absent
+ok: idempotency: second uninstall exits 0
+ok: invalid plugin name rejected
+ok: invalid --target rejected
+ok: empty --install-root rejected
+ok: filesystem root rejected as --install-root
+ok: home directory rejected as --install-root
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: --mcp <list> selects MCP payload/registration removal
+ok: invalid --mcp name rejected
+ok: --mcp "" is rejected cleanly without an unbound variable crash
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys
+ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks
+ok: corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned
+ok: absent Cursor/VS Code dirs are skipped without error and without directory creation
+ok: FilesOnly skips CLI calls but removes files
+ok: T-003 uninstall output is unaffected by project-context presence
+
+Results: 25 passed, 0 failed.
+
+==========================================================
+[RUN] tests/loop-driver.tests.sh
+==========================================================
+=== TEST-005: loop_fixture_init (greenfield + brownfield) ===
+ok: TEST-005.1: loop_fixture_init greenfield succeeds
+ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.SANoG6) lies outside the repository working tree
+ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
+ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)
+ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
+ok: TEST-005.6: loop_fixture_init brownfield succeeds
+ok: TEST-005.7: brownfield fixture copies the caller-supplied seed content
+ok: TEST-005.8: brownfield fixture also synthesizes the genesis identity-ledger
+ok: TEST-005.9 (negative self-check): an unknown fixture profile fails loop_fixture_init
+=== TEST-006: drive_review_round (spec-review rounds 1->3) ===
+ok: TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.2: round-1 contract records verdict NEEDS_WORK
+ok: TEST-006.3: drive_review_round spec attempt 1 round 2 (NEEDS_WORK/Major) succeeds
+ok: TEST-006.4: drive_review_round spec attempt 1 round 3 (PASS/Minor) succeeds
+ok: TEST-006.5: round-3 contract records verdict PASS with warningCount 1 (Minor-only)
+ok: TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set
+ok: TEST-006.7 (negative self-check): a manifest referencing a nonexistent artifact (missing spec-review-contract.json) turns assert_prior_round_complete red
+=== TEST-007: assert_artifacts_schema / assert_terminal ===
+ok: TEST-007.1: assert_artifacts_schema passes on genuine, inventory-registered artifact schemas
+ok: TEST-007.2 (negative self-check): a jq-mutated artifact schema turns assert_artifacts_schema red
+ok: TEST-007.3: assert_terminal confirms spec-review's genuine PASS state matches the inventory
+ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (BLOCKED vs PASS) turns assert_terminal red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-driver.tests.sh: 22 passed, 0 failed, 3s elapsed
+
+==========================================================
+[RUN] tests/gates.tests.sh
+==========================================================
+=== C-06: Contract Type Strictness ===
+ok: C-06.1: reject string 'true' for required field
+ok: C-06.2: reject numeric 1 for passes field
+ok: C-06.3: reject directory as evidence
+ok: C-06.4: reject empty (0-byte) evidence file
+ok: C-06.5: valid contract with boolean types passes
+=== C-07: Done State Strictness ===
+ok: C-07.1: reject Done without contract.json
+ok: C-07.2: reject Done with empty contract.json
+ok: C-07.3: reject Done with mismatched contract task_id
+=== C-05: Sudo Approval Format ===
+ok: C-05.1: valid sudo format Approved (sudo ISO8601) passes
+ok: C-05.2: any Approved (...) annotation accepted (relaxed format)
+ok: C-05.3: sudo-format Approved allows Done status
+=== H-02: Evidence Bundle Round-Trip + git_commit Binding ===
+ok: H-02.1a: generate-evidence-bundle succeeds
+ok: H-02.1b: bundle file created at expected path
+ok: H-02.1c: check-evidence-bundle passes on generated bundle
+ok: H-02.1d: cross-feature PASS report is rejected
+ok: H-02.1e: empty bundle feature is rejected when contract has a feature
+ok: H-02.1f: bundle and contract feature mismatch is rejected
+ok: H-02.1g: duplicate quality report features are rejected
+ok: H-02.1h: incorrectly cased quality report feature is rejected
+ok: H-02.2: tampered artifact → check fails with sha256 mismatch
+ok: H-02.3: bogus git_commit → check-evidence-bundle fails
+ok: H-02.4: missing git_commit → check-evidence-bundle fails
+ok: H-02.5: bundle with ancestor git_commit still passes check
+=== T-002: check-risk ===
+ok: T-002.1: valid task with Risk: high and Rationale passes
+ok: T-002.2: missing Risk line fails
+ok: T-002.3: invalid Risk value fails
+ok: T-002.4: placeholder Risk: {{risk}} fails
+ok: T-002.5: empty Risk Rationale fails
+ok: T-002.6: missing Risk Rationale line fails
+ok: T-002.7: two valid tasks pass
+ok: T-002.8: two tasks, one invalid fails
+ok: T-002.9: nonexistent file fails with correct message
+ok: T-002.10: task-id arg selects one valid section
+ok: T-002.11: valid Risk: low passes
+ok: T-002.12: valid Risk: medium passes
+ok: T-002.13: valid Risk: critical passes
+ok: T-002.14: filter task-id not found fails closed
+ok: T-002.15: high risk without Required Workflow fails
+ok: T-002.16: high risk with acceptance-first fails (must be tdd)
+ok: T-002.17: critical risk without Required Workflow fails
+ok: T-002.18: high risk with Required Workflow: tdd passes
+ok: T-002.19: critical risk with Required Workflow: tdd passes
+ok: T-002.20: medium risk without Required Workflow passes (not over-enforced)
+=== T-003: risk-aware check-contract ===
+ok: T-003.1: LEGACY (no risk field) with baseline set passes
+ok: T-003.2: risk: low with required set passes (unit-tests optional)
+ok: T-003.3: risk: low with build required:false fails correctly
+ok: T-003.4: risk: medium missing acceptance-tests fails correctly
+ok: T-003.5: risk: medium with full required set passes
+ok: T-003.6: risk: high missing requirement-traceability fails correctly
+ok: T-003.7: risk: high with full required set passes
+ok: T-003.8: risk: critical with full required set passes
+ok: T-003.9: risk: 'severe' (invalid) fails correctly
+=== T-012: stack descriptor (compile-check applicability) ===
+ok: T-012.1: stack docs waives compile checks with reasons → passes
+ok: T-012.2: absent stack (=code) keeps build mandatory (backward compat)
+ok: T-012.3: stack docs cannot waive unit-tests (abuse blocked)
+ok: T-012.4: stack docs waiver still requires waiver_reason
+ok: T-012.5: explicit stack code keeps build mandatory
+ok: T-012.6: invalid stack value fails correctly
+ok: T-012.7: stack shell at high+tdd tier waives compile checks → passes
+=== T-004: Red→Green evidence enforcement ===
+ok: T-004.1: LEGACY (no risk, no required_workflow) passes without red/green
+ok: T-004.2: required_workflow: test-after (low) passes without red/green
+ok: T-004.3: required_workflow: tdd with valid red+green evidence passes
+ok: T-004.4: missing red_evidence fails with correct message
+ok: T-004.5: non-existent red_evidence file fails correctly
+ok: T-004.6: risk high with wrong required_workflow fails
+ok: T-004.7: risk high full tier set with tdd red+green passes
+=== T-005: check-traceability ===
+ok: T-005.1: valid traceability (req+acs+tests, no evidence) passes
+ok: T-005.2: empty acs array fails with correct message
+ok: T-005.3: empty tests array fails with correct message
+ok: T-005.4: missing evidence file fails correctly
+ok: T-005.5: evidence file present and non-empty passes
+ok: T-005.6: require-evidence mode without evidence fails correctly
+ok: T-005.7: require-evidence mode with evidence passes
+ok: T-005.8: invalid JSON fails with correct message
+ok: T-005.9: nonexistent file fails with correct message
+ok: T-005.10: empty links array fails with correct message
+ok: T-005.11: require-evidence + empty array fails closed
+=== T-006: evidence provenance ===
+ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
+ok: T-006.1b: legacy bundle file created at expected path
+ok: T-006.1c: check-evidence-bundle passes on legacy bundle (no risk field)
+ok: T-006.2a: generated bundle contains 'risk' field
+ok: T-006.2b: generated bundle contains 'spec_revision' field
+ok: T-006.2c: generated bundle contains 'build_env' field
+ok: T-006.2d: generated bundle contains 'builder' field
+ok: T-006.2e: generated bundle contains 'review_verdict' field
+ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
+ok: T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance
+ok: T-006.3c: spec_revision is valid 64-char hex
+ok: T-006.3d: review_verdict.verdict is PASS
+ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
+ok: T-006.5: high bundle with empty spec_revision fails check
+ok: T-006.6: risk mismatch (bundle vs contract) fails check
+ok: T-006.7: emptied bundle risk vs high contract fails closed
+=== T-007a: evidence bundle signing (critical risk) ===
+ok: T-007a.1a: generate-evidence-bundle succeeds for critical with key
+ok: T-007a.1b: critical bundle file created
+ok: T-007a.1c: critical bundle contains signature field
+ok: T-007a.1d: check-evidence-bundle passes on critical with matching key
+ok: T-007a.2: critical bundle without signature fails check
+ok: T-007a.3: tampered git_commit fails HMAC check
+ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails
+ok: T-007a.5: sigstore with SIGSTORE_VERIFIED env passes
+ok: T-007a.6: verify without key fails
+ok: T-007a.7: critical with dirty tree fails
+ok: T-007a.8: generate critical without key fails
+ok: T-007a.9: high-risk bundle without signature still passes
+ok: T-007a.10: legacy bundle without risk field still passes
+=== T-007b: Two-Person Approval (Critical Risk) ===
+ok: T-007b.1: critical Done without Second Approval fails with correct message
+ok: T-007b.2: critical Done with bare primary Approval fails (needs named)
+ok: T-007b.3: critical Done with same approver fails
+ok: T-007b.4: critical Done with sudo primary approver fails
+ok: T-007b.5: critical Done with alice + bob passes two-person rule
+ok: T-007b.6: non-critical Done without Second Approval passes (no enforcement)
+ok: T-007b.7: named Approval format accepted (not invalid)
+ok: T-007b.8: sudo Approval format still accepted (backward compat)
+=== T-003-CM: cross_model descriptor ===
+ok: CM.1: critical cross_model:required with passing check → passes
+ok: CM.2: cross_model:required missing cross-model-verification fails
+ok: CM.3: critical with cross_model absent (legacy) → passes (backward compat)
+ok: CM.4: critical cross_model:waived with waiver_reason → passes
+ok: CM.5: cross_model:bogus (invalid) fails correctly
+=== sdd-lite: check-task-state-lite ===
+ok: L1: Done with impl report + VERDICT:PASS report passes (no evidence.json required)
+ok: L2: Done with Approval: Draft fails (Approval required)
+ok: L3: Done with VERDICT: FAIL in quality-gate report fails
+ok: L4: Done with no impl report fails
+ok: L5: Duplicate task ID T-001 fails
+ok: L6: CRLF tasks.md with valid Done passes (CRLF parity)
+ok: R04-1: check-contract.sh exits 1 (fail-closed) when check-contract.py is missing
+
+====== Test Summary ======
+PASS: 126
+FAIL: 0
+==========================
+
+
+exit status: 0

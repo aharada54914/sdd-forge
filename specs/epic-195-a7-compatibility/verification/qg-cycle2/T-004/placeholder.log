@@ -1,0 +1,13 @@
+Scan scope is recorded here so the argument list is auditable rather than
+implied. The files are exactly the agent-editable production deliverables
+traceability.md's "Deliverables (Per Task)" table attributes to T-004, plus the
+two runner twins T-004 edits. Excluded on purpose:
+tests/fixtures/structural-fixture-corpus/, which is recorded product output (a
+fixture), not authored code -- check-placeholders is scoped to changed
+production files per references/deterministic-check-policy.md, and scanning
+recorded generation bytes would flag markers this feature never wrote.
+
+$ sh -c sh plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 tests/run-all.sh tests/run-all.ps1
+Placeholder scan passed.
+
+exit status: 0

@@ -1,0 +1,104 @@
+Cycle 1 Critical, re-tested by the gate host using cycle 1's own disproof
+method. The canonicalizer is made to FAIL to parse coherently -- the F1 corpus
+requirements.md artifact AND its shipped requirements.template.md are both set
+to unparseable seven-hash heading grammar -- so a twin that discards the
+canonicalizer exit status compares "" against "" and reports PASS.
+
+Three runs, all against scratch copies of the product surface under a temp root,
+never the live tree:
+  A. the delivered Bash twin      -- expected non-zero (it was always correct)
+  B. the delivered PowerShell twin -- expected non-zero (this is the fix)
+  C. the PRE-FIX PowerShell twin from the parent commit, under the IDENTICAL
+     condition -- expected ZERO, i.e. cycle 1's false GREEN reproduced, which is
+     what proves run B is testing the defect and not a vacuous condition.
+A non-zero C would mean this experiment never exercised the Critical at all.
+
+$ sh -c 
+      set -u
+      work=$(mktemp -d "${TMPDIR:-/tmp}/qg-t004-critical.XXXXXX")
+      copy_surface() {
+        d="$1"
+        mkdir -p "$d/tests/lib" "$d/tests/fixtures" \
+          "$d/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer" \
+          "$d/plugins/sdd-lite/skills/lite-spec" \
+          "$d/specs/epic-195-a7-compatibility"
+        for r in tests/run-all.sh tests/run-all.ps1 \
+                 tests/structural-compatibility.tests.sh tests/structural-compatibility.tests.ps1 \
+                 tests/lib/markdown-ast-canonicalizer.sh tests/lib/markdown-ast-canonicalizer.ps1 \
+                 plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md \
+                 plugins/sdd-lite/skills/lite-spec/SKILL.md \
+                 specs/epic-195-a7-compatibility/design.md \
+                 specs/epic-195-a7-compatibility/acceptance-tests.md \
+                 specs/epic-195-a7-compatibility/tasks.md; do
+          mkdir -p "$d/$(dirname "$r")"; cp "$r" "$d/$r"
+        done
+        cp -R tests/fixtures/structural-fixture-corpus "$d/tests/fixtures/"
+        cp -R plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates \
+          "$d/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/"
+        cp -R plugins/sdd-lite/templates "$d/plugins/sdd-lite/"
+      }
+      make_unparseable() {
+        d="$1"; c="$d/tests/fixtures/structural-fixture-corpus"
+        jq "(.artifacts[] | select(.path == \"requirements.md\").content) = \"####### Broken\n\"" \
+          "$c/f1-full.json" > "$c/f1-full.next" && mv "$c/f1-full.next" "$c/f1-full.json"
+        printf "%s\n" "####### Broken" \
+          > "$d/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md"
+      }
+      A="$work/post-fix"; mkdir -p "$A"; copy_surface "$A"; make_unparseable "$A"
+      B="$work/pre-fix";  mkdir -p "$B"; copy_surface "$B"
+      git show HEAD~1:tests/structural-compatibility.tests.ps1 > "$B/tests/structural-compatibility.tests.ps1"
+      make_unparseable "$B"
+
+      echo "--- A: delivered Bash twin, canonicalizer forced to fail to parse ---"
+      STRUCTURAL_COMPAT_REPO_ROOT="$A" bash "$A/tests/structural-compatibility.tests.sh" 2>&1 | tail -4
+      a_rc=${PIPESTATUS:-0}
+      STRUCTURAL_COMPAT_REPO_ROOT="$A" bash "$A/tests/structural-compatibility.tests.sh" >/dev/null 2>&1
+      a_rc=$?
+      echo "A exit=$a_rc (expected non-zero)"
+
+      echo
+      echo "--- B: delivered PowerShell twin, identical condition ---"
+      STRUCTURAL_COMPAT_REPO_ROOT="$A" pwsh -NoProfile -File "$A/tests/structural-compatibility.tests.ps1" 2>&1 \
+        | grep -E "canonicalizes without parse fallback|passed, .* failed" | tail -3
+      STRUCTURAL_COMPAT_REPO_ROOT="$A" pwsh -NoProfile -File "$A/tests/structural-compatibility.tests.ps1" >/dev/null 2>&1
+      b_rc=$?
+      echo "B exit=$b_rc (expected non-zero)"
+
+      echo
+      echo "--- C: PRE-FIX PowerShell twin from HEAD~1, identical condition ---"
+      STRUCTURAL_COMPAT_REPO_ROOT="$B" pwsh -NoProfile -File "$B/tests/structural-compatibility.tests.ps1" 2>&1 \
+        | grep -E "canonicalizes without parse fallback|passed, .* failed" | tail -3
+      STRUCTURAL_COMPAT_REPO_ROOT="$B" pwsh -NoProfile -File "$B/tests/structural-compatibility.tests.ps1" >/dev/null 2>&1
+      c_rc=$?
+      echo "C exit=$c_rc (expected ZERO: cycle 1 false GREEN reproduced)"
+
+      rm -rf "$work"
+      echo
+      if [ "$a_rc" -ne 0 ] && [ "$b_rc" -ne 0 ] && [ "$c_rc" -eq 0 ]; then
+        echo "CRITICAL-CLOSED: pre-fix twin false-GREENs, delivered twins both hard-fail"
+        true
+      else
+        echo "CRITICAL-NOT-CLOSED: unexpected exit codes"
+        false
+      fi
+
+--- A: delivered Bash twin, canonicalizer forced to fail to parse ---
+SKIP: F5/AC-043 (A1+A6 ): compound dependency not merged
+SKIP: F6/AC-043 (A1+A6 ): compound dependency not merged
+PASS: Bash aggregate runner registers this shipped suite
+39 passed, 1 failed
+A exit=1 (expected non-zero)
+
+--- B: delivered PowerShell twin, identical condition ---
+[31;1m[0m[36;1m[36;1m 126 | [0m …              [36;1mFail "$Track $Path canonicalizes without parse fallback"[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mFAIL: full requirements.md canonicalizes without parse fallback[0m
+39 passed, 1 failed
+B exit=1 (expected non-zero)
+
+--- C: PRE-FIX PowerShell twin from HEAD~1, identical condition ---
+40 passed, 0 failed
+C exit=0 (expected ZERO: cycle 1 false GREEN reproduced)
+
+CRITICAL-CLOSED: pre-fix twin false-GREENs, delivered twins both hard-fail
+
+exit status: 0
