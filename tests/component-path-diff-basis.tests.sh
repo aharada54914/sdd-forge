@@ -328,6 +328,8 @@ fi
 # Case 2: gitlink OID change (submodule pointer bump) -> reported
 (
   cd "$R24/vendor/inner"
+  git config user.email t@example.com
+  git config user.name Test
   git add -A && git commit -q -m "commit the dirty content"
 )
 (

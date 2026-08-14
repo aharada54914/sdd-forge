@@ -26,6 +26,19 @@ $script:failCount = 0
 function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
 function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
 
+function Assert-GitCommandSucceeded([string]$Operation) {
+    if ($LASTEXITCODE -ne 0) {
+        throw "component-path-diff-basis fixture git command failed: $Operation (exit $LASTEXITCODE)"
+    }
+}
+
+function Set-GitFixtureIdentity([string]$RepoDir) {
+    & git -C $RepoDir config user.email t@example.com
+    Assert-GitCommandSucceeded "configure user.email in $RepoDir"
+    & git -C $RepoDir config user.name Test
+    Assert-GitCommandSucceeded "configure user.name in $RepoDir"
+}
+
 $work = Join-Path ([IO.Path]::GetTempPath()) ("rcp-diffbasis." + [Guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Path $work | Out-Null
 $work = (Resolve-Path -LiteralPath $work).Path
@@ -48,13 +61,8 @@ function New-GitRepo {
     $dir = Join-Path $work $Name
     New-Item -ItemType Directory -Path $dir | Out-Null
     & git init -q -b main $dir | Out-Null
-    Push-Location $dir
-    try {
-        git config user.email t@example.com
-        git config user.name Test
-    } finally {
-        Pop-Location
-    }
+    Assert-GitCommandSucceeded "initialize $dir"
+    Set-GitFixtureIdentity $dir
     return $dir
 }
 
@@ -290,15 +298,20 @@ $submoduleRecord = $obj.records | Where-Object { $_.raw_path -eq "vendor/inner" 
 if ($null -eq $submoduleRecord) { Ok "TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported" } else { Fail "TEST-024.1: expected no record for vendor/inner" }
 
 # Case 2: gitlink OID change (pointer bump) -> reported
-Push-Location (Join-Path $r24 "vendor/inner")
-git add -A; git commit -q -m "commit the dirty content"
-Pop-Location
-Push-Location $r24
-git add vendor/inner
-git commit -q -m "bump submodule pointer"
-$base24b = (git rev-parse "HEAD~1").Trim()
-$target24b = (git rev-parse HEAD).Trim()
-Pop-Location
+$r24Submodule = Join-Path $r24 "vendor/inner"
+Set-GitFixtureIdentity $r24Submodule
+& git -C $r24Submodule add -A
+Assert-GitCommandSucceeded "stage the dirty submodule content"
+& git -C $r24Submodule commit -q -m "commit the dirty content"
+Assert-GitCommandSucceeded "commit the dirty submodule content"
+& git -C $r24 add vendor/inner
+Assert-GitCommandSucceeded "stage the submodule pointer bump"
+& git -C $r24 commit -q -m "bump submodule pointer"
+Assert-GitCommandSucceeded "commit the submodule pointer bump"
+$base24b = (& git -C $r24 rev-parse "HEAD~1").Trim()
+Assert-GitCommandSucceeded "resolve the pre-bump revision"
+$target24b = (& git -C $r24 rev-parse HEAD).Trim()
+Assert-GitCommandSucceeded "resolve the pointer-bump revision"
 $r = Invoke-ResolverGit $r24 $base24b $target24b
 if ((Get-Classification $r.Output "vendor/inner")) { Ok "TEST-024.2: a submodule gitlink OID change IS reported as a change" } else { Fail "TEST-024.2: expected a record for vendor/inner after the pointer bump" }
 
