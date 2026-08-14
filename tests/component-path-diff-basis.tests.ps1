@@ -23,8 +23,15 @@ $powerShell = (Get-Process -Id $PID).Path
 
 $script:passCount = 0
 $script:failCount = 0
+$script:skipCount = 0
 function Ok([string]$Name) { Write-Output "ok: $Name"; $script:passCount++ }
 function Fail([string]$Name) { Write-Output "FAIL: $Name"; $script:failCount++ }
+# Visible skip, following the precedent tests/component-path-ownership-parity
+# .tests.sh set: a case whose host prerequisite is unmet prints a `skip -`
+# line and is counted into a `Skipped:` tally at the bottom, so the omission
+# is stated in the output instead of being inferable only from a pass tally
+# that silently shrank.
+function Skip([string]$Name) { Write-Output "skip - $Name"; $script:skipCount++ }
 
 function Assert-GitCommandSucceeded([string]$Operation) {
     if ($LASTEXITCODE -ne 0) {
@@ -166,14 +173,49 @@ Push-Location $r21
 git add -A; git commit -q -m base
 $base21 = (git rev-parse HEAD).Trim()
 $tabName = "src/desktop/tab`tname.ts"
-"has a tab in the name" | Set-Content -LiteralPath $tabName -Encoding utf8
-git add -- $tabName
-Pop-Location
-$r = Invoke-ResolverGit $r21 $base21 $base21
-if ((Get-Classification $r.Output $tabName) -eq "EXCLUSIVE") {
-    Ok "TEST-021.1: a path containing a literal TAB round-trips correctly"
+
+# TAB is an ordinary byte in a POSIX filename, but Win32 reserves the whole
+# 0x00-0x1F control range in a path component, so on NTFS this fixture cannot
+# be created at all -- Set-Content throws "The filename, directory name, or
+# volume label syntax is incorrect." Under this file's
+# $ErrorActionPreference = "Stop" that terminated the entire suite right here,
+# and TEST-022..TEST-025, DEFECT-002 and the registration self-check were
+# never reached (GitHub Actions run 31755520663, job 94630322035, step
+# "Test component-path-diff-basis suite (pwsh)" on windows-latest).
+#
+# Probed as a filesystem CAPABILITY rather than branched on an OS name: the
+# suite attempts the real fixture and observes whether this host accepts the
+# name, so any host that can hold it always gets the stronger end-to-end
+# assertion and no hardcoded platform list has to be kept accurate. Only the
+# file creation is inside the probe -- a `git add` failure must stay a hard
+# error, since turning it into a skip would be exactly the silent loss of an
+# assertion this branch exists to prevent.
+$tabFixtureCreated = $false
+$tabFixtureSkipReason = ""
+try {
+    try {
+        "has a tab in the name" | Set-Content -LiteralPath $tabName -Encoding utf8
+        $tabFixtureCreated = $true
+    } catch {
+        $tabFixtureSkipReason = $_.Exception.Message
+    }
+    if ($tabFixtureCreated) {
+        & git add -- $tabName
+        Assert-GitCommandSucceeded "stage the TAB-named fixture file in $r21"
+    }
+} finally {
+    Pop-Location
+}
+
+if ($tabFixtureCreated) {
+    $r = Invoke-ResolverGit $r21 $base21 $base21
+    if ((Get-Classification $r.Output $tabName) -eq "EXCLUSIVE") {
+        Ok "TEST-021.1: a path containing a literal TAB round-trips correctly"
+    } else {
+        Fail "TEST-021.1: expected the TAB-containing path to round-trip and classify EXCLUSIVE"
+    }
 } else {
-    Fail "TEST-021.1: expected the TAB-containing path to round-trip and classify EXCLUSIVE"
+    Skip "TEST-021.1: end-to-end CLI round-trip of a TAB-containing path -- this host's filesystem will not create the fixture ($tabFixtureSkipReason). AC-021's TAB round-trip is NOT left unasserted here: TEST-021.3 below covers the same contract on this host as a direct call to the real parsing functions."
 }
 
 # Direct unit test of the real product function (same rationale as the bash
@@ -192,6 +234,62 @@ try {
         Ok "TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a direct call to the product function itself (dot-sourced from resolve-component-paths.ps1; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)"
     } else {
         Fail "TEST-021.2: ConvertTo-PathStrict threw but with the wrong diagnostic: $($_.Exception.Message)"
+    }
+}
+
+# TEST-021.3 is the same honest, clearly-labeled pattern as TEST-021.2 above,
+# applied to the other half of AC-021: where the host filesystem refuses to
+# hold a TAB-containing filename, the TAB round-trip is asserted by calling
+# the REAL parsing functions directly instead of being dropped. Invoke-GitRaw
+# is monkeypatched (dynamic call-time resolution, same mechanism TEST-023.2
+# and TEST-025.2 rely on) to return a canned `git diff --name-status -z` byte
+# stream whose single path carries a literal TAB, and the real Get-TrackedDiff
+# dot-sourced above is then called -- so the actual Split-NulBytes framing and
+# ConvertTo-PathStrict decode are what run, not a reproduction of their shape.
+# The original Invoke-GitRaw is restored afterward so no later test observes
+# the monkeypatch.
+#
+# Scope stated plainly rather than overclaimed: this proves the PARSING side
+# of the round-trip. That git itself emits such a path NUL-delimited under -z
+# is only covered by TEST-021.1's end-to-end fixture, which is why the
+# end-to-end case is preferred on every host that can create the file, and
+# this unit test runs only when it cannot. The two are mutually exclusive, so
+# AC-021's TAB round-trip is asserted exactly once and this suite's pass tally
+# is the same on every platform.
+if (-not $tabFixtureCreated) {
+    $script:cannedTabDiff = [System.Collections.Generic.List[byte]]::new()
+    $script:cannedTabDiff.AddRange([byte[]][System.Text.Encoding]::ASCII.GetBytes("A"))
+    $script:cannedTabDiff.Add(0)
+    $script:cannedTabDiff.AddRange([byte[]][System.Text.Encoding]::UTF8.GetBytes($tabName))
+    $script:cannedTabDiff.Add(0)
+    $originalInvokeGitRawForTab = ${function:Invoke-GitRaw}
+    function Invoke-GitRaw {
+        param([string]$RepoRoot, [string[]]$GitArgs)
+        return @{
+            ExitCode = 0
+            Stdout = $script:cannedTabDiff.ToArray()
+            Stderr = [byte[]]@()
+        }
+    }
+    try {
+        $tabDiff = Get-TrackedDiff -RepoRoot "/nonexistent" -BaselineOid "deadbeef"
+        if ($tabDiff.Entries.Count -eq 1 -and $tabDiff.Entries[0] -ceq $tabName) {
+            Ok "TEST-021.3: the real NUL-delimited framing keeps a literal TAB inside a single path token rather than splitting on it, confirmed via a direct call to the product's own Get-TrackedDiff (Split-NulBytes + ConvertTo-PathStrict) with Invoke-GitRaw monkeypatched to emit a canned -z record; substitutes for TEST-021.1 on a host whose filesystem cannot create the on-disk fixture"
+        } else {
+            Fail "TEST-021.3: expected exactly 1 entry byte-identical to the TAB-containing path, got $($tabDiff.Entries.Count) entries: $($tabDiff.Entries -join ' | ')"
+        }
+    } catch {
+        # A framing regression does not always surface as a wrong value: split
+        # the token on the TAB and the very next token is read as a status
+        # word, so the real Get-TrackedDiff throws "malformed status entry"
+        # instead of returning. Caught and reported as a FAIL rather than left
+        # to propagate, because under this file's $ErrorActionPreference =
+        # "Stop" an escaping throw would kill the suite here and take
+        # TEST-022..TEST-025 with it -- the same silent-loss failure mode this
+        # whole block exists to remove.
+        Fail "TEST-021.3: expected the TAB-containing path to survive NUL framing as a single token, but the real Get-TrackedDiff threw $($_.Exception.GetType().Name): $($_.Exception.Message)"
+    } finally {
+        ${function:Invoke-GitRaw} = $originalInvokeGitRawForTab
     }
 }
 
@@ -448,5 +546,8 @@ Remove-Item -Recurse -Force -LiteralPath $work -ErrorAction SilentlyContinue
 # ============================================================================
 Write-Output ""
 Write-Output "component-path-diff-basis.tests.ps1: $($script:passCount) passed, $($script:failCount) failed"
+if ($script:skipCount -gt 0) {
+    Write-Output "Skipped: $($script:skipCount) (unmet host prerequisite)"
+}
 if ($script:failCount -ne 0) { exit 1 }
 exit 0
