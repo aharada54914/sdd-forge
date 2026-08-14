@@ -1053,6 +1053,116 @@
 
 ### 追加
 
+- **Registry validator + provider-terms allowlist (Issue #190,
+  epic-190-a2-capability-registry T-004)**:
+  `plugins/sdd-quality-loop/scripts/validate-capability-registry.{py,sh,ps1}`
+  を新規追加。REQ-003(a-i) の9独立チェック
+  (gate-id-duplicate/implementation-ref-missing/unregistered-script/
+  pack-owns-gate-definition/stage-missing/dangling-gate-reference/
+  provider-name-detected/unknown-upgrade-reason/capability-id-duplicate)
+  を実装。Gate implementation identity схема(`.py` canonical参照のみ、
+  唯一の scan root、`check-` prefix 規則、`.sh`/`.ps1`/`.js` wrapper
+  grouping、symlink 解決)を含む。テスト分離のため `--repo-root` を
+  追加(デフォルトは registry_discovery 経由の git-root 解決、
+  checks (b)/(c)/(d) のファイルシステム依存をテスト用の隔離済み
+  fake repo で検証可能に)。併せて `plugins/sdd-quality-loop/
+  references/provider-terms.json`(cloud-provider/distribution-channel/
+  workflow-runtime-product-name の3カテゴリ)を新規追加。新スイート
+  `tests/validate-capability-registry.tests.sh` / `.ps1`(各23
+  checks)は TDD Red→Green で実装(RED: 常に成功を返す stub に対し
+  12/23 失敗確認 → GREEN: 23/23 合格)、9チェック各1つの
+  minimally-mutated fixture、check(c) の bidirectional
+  fixture set、check(i) の combined-duplicate fixture、
+  fully-clean fixture(全チェック合格を証明)を含む。REQ-005
+  share の AC-028 構造配置チェック(`plugins/sdd-capability/` 不在、
+  REQ-002..005 の全ファイルが `plugins/sdd-quality-loop/` 配下)も
+  スイート自身の setup assertion として実装。証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-004/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-003 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-004.md` を参照。
+- **Registry discovery contract + vendored-copy packaging (Issue #190,
+  epic-190-a2-capability-registry T-003)**: ADR-0029(2026-08-11 の
+  番号衝突解消まで ADR-0025)の三段階
+  script-relative 探索(`plugins/sdd-quality-loop/scripts/registry_discovery.py`、
+  T-004/T-005 が import する共有 helper)を実装。①自スクリプトの
+  symlink 解決済み実パスから `../contracts/<filename>` のパッケージ済み
+  コピーを最優先(ランタイム環境変数は一切参照しない)、②`git rev-parse
+  --show-toplevel`(`git` 不在時は `.git` 上方探索)フォールバック、
+  ③アーティファクトごとの独立バージョンチェック(Registry:
+  `schema=="capability-registry/v1"`、schema ファイル: `$schema` 存在+
+  `$id` 一致、catalog: `schema=="lite-upgrade-reason-catalog/v1"`)失敗時は
+  両方の試行パスを名指しした fail-closed 診断で非ゼロ終了(Security
+  Boundary B4)。併せて `vendor-capability-registry.{py,sh,ps1}`
+  (`generate-guard-invariants.py --check` と同型の no-write/sha256 比較
+  `--check` モード)を新規追加し、`contracts/*` の canonical 3ファイルを
+  `plugins/sdd-quality-loop/contracts/` へ実際にベンダリング。新スイート
+  `tests/registry-discovery.tests.sh` / `.ps1`(各21 checks)は TDD
+  Red→Green で実装(RED: 意図的に壊れた stub に対し 15/21 失敗確認 →
+  GREEN: 21/21 合格)、3ランタイム分の installed-layout fixture(うち1件は
+  symlink 経由起動で symlink 解決も検証)・3件のバージョン不一致
+  fixture・neither-location-resolves fixture・vendored-copy-drift
+  fixture を含む。証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-003/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-002 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-003.md` を参照。
+- **Predicate DSL evaluator (Issue #190, epic-190-a2-capability-registry
+  T-002)**: `plugins/sdd-quality-loop/scripts/evaluate-predicate.{py,sh,ps1}`
+  を新規追加(ADR-0020 完全実装、Python master + thin sh/ps1 wrapper、
+  INV-014)。closed 8演算子文法(`all`/`any`/`not`/`equals`/`not_equals`/
+  `contains`/`in`/`exists`)、`equals`/`not_equals`/`contains`/`in` の
+  fail-closed 一般則(missing path/null/type-mismatch → `false`+`WARN`、
+  例外を投げない)、`exists` の例外(存在すれば値に関わらず `true`、
+  不在なら `false`+`WARN`、型検査なし)、`all`(空→`true`)/`any`
+  (空→`false`)の non-short-circuit 評価、`not` の厳密単項アリティ+
+  真理値表(child=`warn` のときは素朴な否定ではなく `not` 結果も
+  `false` に倒す特別則)、`trigger`/`conditional_facets[].when` が
+  共有する単一評価器+単一フィールド許可リスト(第二の条件言語なし)を実装。
+  フィールド許可リストは Epic A1 の Project Context schema
+  未着地(investigation.md INV-004a)のため `--check-field-allowlist`
+  drift-check モード+fixture スタンドインで機構の正しさのみ先行証明。
+  新スイート `tests/evaluate-predicate.tests.sh` / `.ps1`(63 checks
+  each)は TDD Red→Green で実装(RED: 意図的に許容的な stub 実装に対し
+  50/63 失敗を確認 → GREEN: 全63 checks 合格)、証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-002/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-001 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-002.md` を参照。
+- **Capability Registry スキーマ・インスタンス・lite-upgrade-reason カタログ
+  (Issue #190, epic-190-a2-capability-registry T-001)**:
+  `contracts/capability-registry.schema.json`(draft-07、`contracts/
+  workflow-state-registry.schema.json` の `$id`/スタイル規約踏襲)を新規追加。
+  `gates[]`(`id`/`stage`/`blocking`必須、`stage: implementation` のときのみ
+  `implementation_ref` を条件必須の `if`/`then`)、`capabilities[]`
+  (`id`/`trigger`/`required_facets`/`conditional_facets`/`review_check_ids`/
+  `gate_ids`/`delivery_strategy` を `required` 明記、`lite_policy`/
+  `minimum_enforcement` のみ真に任意)、`trigger`/`conditional_facets[].when`
+  が共有する `#/definitions/predicate`(8演算子閉集合の `oneOf`、`not` は
+  単一子でアリティ1を構造的に強制)を全て `additionalProperties: false` で
+  実装。`contracts/capability-registry.json`(illustrative fixture、
+  INV-002)と `contracts/lite-upgrade-reason-catalog.json`
+  (ADR-0022 の5トークン初期セット)も新規追加。新スイート
+  `tests/capability-registry-schema.tests.sh` / `.ps1` は、schema
+  ファイルを汎用エンジンで解釈するのではなく jq/PowerShell で独立に
+  再実装した厳密predicate(`workflow-state-registry.tests.sh` と同じ
+  規約)で、6件の accept fixture と16件の reject fixture (TEST-001..006,
+  TEST-037, TEST-038 相当)を検証。受け入れ先行(acceptance-first)で RED
+  (各 reject fixture が意図的に緩い permissive スタンドイン schema には
+  誤って受理されることを証明)→ GREEN (正しい厳密predicateで全fixtureが
+  期待どおりの結果になることを確認)の順で実装、証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-001/` 配下の
+  `{red,green}-{sh,ps1}.log`。`tests/run-all.sh` / `tests/run-all.ps1`
+  へ自スイートを直接登録(grep 自己検査つき)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml`
+  + `MANIFEST.sha256` としてステージし、人間の `cp` 適用を待つ(適用前後で
+  ライブファイルの SHA-256 は不変)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-001.md` を参照。
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接

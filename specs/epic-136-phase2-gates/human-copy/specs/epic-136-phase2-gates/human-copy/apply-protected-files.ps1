@@ -8,6 +8,11 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
+# This bundle's staging inventory (the copy plan). 2026-08-11 human ruling on
+# RT-20260811-002 (class fix): the repo-shared .github/workflows/test.yml
+# snapshot is EVICTED from this bundle -- a per-epic staged snapshot of a
+# repo-shared file is structurally doomed to go stale and became a deletion
+# hazard on apply. 18 entries, bound to MANIFEST.sha256 in this exact order.
 $BootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
@@ -26,8 +31,43 @@ $BootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh',
     'tests/guard-parity.tests.sh',
-    '.github/workflows/test.yml',
     'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
+)
+# The repository-wide protection REGISTRY pin (canonical authority). Since
+# epic-190-a2's registration, phase2_human_copy_targets in the canonical
+# guard-invariants.json is a repository-wide registry (26 entries), not this
+# bundle's staging surface: it retains .github/workflows/test.yml (guard
+# protection continues after the snapshot eviction) and files other epics
+# stage in their own bundles (RT-20260811-002 item 4 semantics: per-bundle
+# staging inventory). The canonical authority check binds this exact ordered
+# pin; any registry change requires re-reviewing this runner.
+$RegistryTargets = @(
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1',
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh',
+    'plugins/sdd-quality-loop/scripts/check-contract.ps1',
+    'plugins/sdd-lite/references/risk-upgrade-policy.md',
+    'plugins/sdd-lite/scripts/check-risk-upgrade.sh',
+    'plugins/sdd-lite/scripts/check-risk-upgrade.ps1',
+    'plugins/sdd-lite/skills/lite-spec/SKILL.md',
+    'plugins/sdd-ship/skills/ship/SKILL.md',
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh',
+    'tests/guard-parity.tests.sh',
+    '.github/workflows/test.yml',
+    'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1',
+    'contracts/capability-registry.schema.json',
+    'contracts/capability-registry.json',
+    'contracts/lite-upgrade-reason-catalog.json',
+    'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py',
+    'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json',
+    'plugins/sdd-quality-loop/contracts/capability-registry.json',
+    'plugins/sdd-quality-loop/contracts/capability-registry.schema.json'
 )
 $HumanCopyPrefix = 'specs/epic-136-phase2-gates/human-copy'
 
@@ -621,14 +661,15 @@ try {
 
     $stagedCanonicalRelative = $HumanCopyPrefix + '/plugins/sdd-quality-loop/references/guard-invariants.json'
     $stagedTargets = @(Get-CanonicalTargets ($session.ReadUtf8File($stagedCanonicalRelative)) 'staged canonical file')
-    if ($Bootstrap) {
-        Assert-SameOrder $BootstrapTargets $stagedTargets 'staged canonical bootstrap inventory'
-        $targets = $BootstrapTargets
-    } else {
+    Assert-SameOrder $RegistryTargets $stagedTargets 'staged canonical bootstrap inventory'
+    foreach ($bundleTarget in $BootstrapTargets) {
+        if ($RegistryTargets -notcontains $bundleTarget) { Fail 'bundle inventory target is missing from the registry pin' }
+    }
+    if (-not $Bootstrap) {
         $liveTargets = @(Get-CanonicalTargets ($session.ReadUtf8File('plugins/sdd-quality-loop/references/guard-invariants.json')) 'installed live canonical file')
         Assert-SameOrder $liveTargets $stagedTargets 'staged/live canonical update inventory'
-        $targets = $liveTargets
     }
+    $targets = $BootstrapTargets
 
     $digests = Get-ManifestDigests ($session.ReadUtf8File($HumanCopyPrefix + '/MANIFEST.sha256')) $targets
     for ($index = 0; $index -lt $targets.Count; $index++) {

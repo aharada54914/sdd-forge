@@ -1,0 +1,65 @@
+cycle8-suites (post-eviction delivered tree)
+date: 2026-08-11T10:37:26Z
+repo HEAD: c8ac93a2 fix(epic-189-a1): evict the shared-workflow snapshot from the bundle (class fix)
+
+=== bash tests/phase2-guard-invariants.tests.sh ===
+rc=0
+ok: Node denies an unconsumed fixed-module export
+ok: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.sh: 35 passed, 0 failed
+
+=== bash tests/guard-invariants-epic-a1.tests.sh ===
+rc=0
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.ps1 twin exists
+PASS: 82
+FAIL: 0
+
+=== bash tests/capability-registry-parity.tests.sh ===
+rc=0
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+
+=== bash tests/deterministic-lane-selfcheck.tests.sh ===
+rc=1
+ok: TEST-020: the candidate's actions/checkout pins match the live workflow (applying it regresses no landed bump)
+
+deterministic-lane-selfcheck.tests.sh: 25 passed, 0 failed, 4 designed-red (pre-human-copy)
+
+=== pwsh -NoProfile -File tests/phase2-guard-invariants.tests.ps1 ===
+rc=1
+FAIL: TEST-013 bootstrap accepts literal-order canonical data and installs the exact batch
+FAIL: TEST-013 normal update validates only the installed live canonical authority
+FAIL: TEST-013 isolated install completes after full validation
+FAIL: TEST-013 isolated install copies every staged candidate in inventory order
+FAIL: TEST-013 post-install guard denies protected test.yml write
+FAIL: TEST-013 atomic rename preserves an out-of-inventory hard-link alias
+FAIL: TEST-013 held source handle denies late source substitution and supplies copied bytes
+FAIL: TEST-013 held destination parent denies late namespace substitution
+FAIL: TEST-013 fixed-index failure leaves exact new prefix and complete rollback restores every prior digest
+ok: WFI-016 staged targets are byte-identical to live (no stale staging)
+phase2-guard-invariants.tests.ps1: 61 passed, 9 failed
+
+=== pwsh -NoProfile -File tests/guard-invariants-epic-a1.tests.ps1 ===
+rc=0
+FAIL: 0
+PASS: 86
+FAIL: 0
+
+=== pwsh -NoProfile -File tests/capability-registry-parity.tests.ps1 ===
+rc=0
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+
+=== bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh ===
+rc=0
+workflow-state: ok
+
+=== baseline comparison (pre-eviction HEAD e52d02a6 -> post-eviction c8ac93a2+) ===
+phase2-guard-invariants.tests.sh : 33/1 rc=1 -> 35/0 rc=0 (WFI-016 green; +1 class lock; TEST-011 retargeted to live)
+phase2-guard-invariants.tests.ps1: 59/10 rc=1 -> 61/9 rc=1 (WFI-016 green; +1 class lock; the 9 remaining FAILs are the pre-existing macOS runner-platform failures, list unchanged from baseline; on Windows they trace to the R-10-frozen runner's embedded 19-entry list vs the 26-entry canonical, pre-existing since cycle 5)
+guard-invariants-epic-a1.tests.sh : 81/0 rc=0 -> 82/0 rc=0 (class lock replaces once-present assertion, +1 staged-file absence)
+guard-invariants-epic-a1.tests.ps1: 85/0 rc=0 -> 86/0 rc=0 (same)
+capability-registry-parity sh/ps1 : 22/0 rc=0 -> 22/0 rc=0 (both lanes, unchanged)
+deterministic-lane-selfcheck : 25/0/4 rc=1 -> 25/0/4 rc=1 (unchanged; rc=1 solely from TEST-020's documented designed-red window)
+check-workflow-state.sh : rc=0 -> rc=0 (workflow-state: ok)

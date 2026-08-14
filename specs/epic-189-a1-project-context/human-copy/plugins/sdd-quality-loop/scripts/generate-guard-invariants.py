@@ -55,6 +55,13 @@ PHASE2_TARGETS = (
     "tests/guard-parity.tests.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
+    "contracts/capability-registry.schema.json",
+    "contracts/capability-registry.json",
+    "contracts/lite-upgrade-reason-catalog.json",
+    "plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py",
+    "plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json",
+    "plugins/sdd-quality-loop/contracts/capability-registry.json",
+    "plugins/sdd-quality-loop/contracts/capability-registry.schema.json",
 )
 BASELINE_SUFFIXES = (
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",

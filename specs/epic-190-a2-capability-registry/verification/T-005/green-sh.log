@@ -1,0 +1,16 @@
+ok: TEST-023: implementation delegates canonicalization and contains no inline JCS/YAML parser
+ok: TEST-024(1): capability order and duplicates do not change the digest
+ok: TEST-024(2): capability selection includes its transitive gates and stable-sorts both arrays
+ok: TEST-024(3): direct gate selection is independent of capability references
+ok: TEST-024(4): both selector flags produce the deduped union
+ok: TEST-024(5): unknown capability is a hard unknown-fragment-id failure
+ok: TEST-024(6): unknown direct gate is a hard unknown-fragment-id failure
+ok: TEST-024(7): missing selector is a hard fragment-selector-required failure
+ok: TEST-024(8): --whole is content-sensitive
+ok: TEST-032(1): JCS key-order and numeric-format vectors are digest-identical
+ok: TEST-032(2): NFC composed/decomposed Registries are digest-identical
+ok: TEST-032(3): stable ordering is independent of gate input order and duplication
+ok: wrapper parity: sh/ps1/js emit byte-identical digests
+ok: run-all.sh registers this suite between T-004 and T-006
+---- summary: pass=14 fail=0 ----
+generate-registry-digest suite passed (14 checks)

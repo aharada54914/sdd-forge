@@ -1,0 +1,16 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "dup-gate",
+      "stage": "artifact",
+      "blocking": false
+    },
+    {
+      "id": "dup-gate",
+      "stage": "artifact",
+      "blocking": false
+    }
+  ],
+  "capabilities": []
+}

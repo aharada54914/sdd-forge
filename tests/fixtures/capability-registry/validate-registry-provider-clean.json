@@ -1,0 +1,26 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "durable-workflow-cap",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    }
+  ]
+}
