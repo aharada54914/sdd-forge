@@ -202,9 +202,15 @@ $liteDestName = "plugins/sdd-lite/skills/lite-spec/SKILL.md"
 # any task in this decomposition (BL-004) -- T-004 stages a draft
 # candidate instead -- so this hash holds until the human applies that
 # candidate (T-004 handoff; MANIFEST.sha256 step 3). After the apply, the
-# live file must instead be byte-identical to the reviewed staged
-# candidate: Test-038Staged accepts exactly those two states, so any
-# unreviewed drift of the protected file still fails.
+# live file is byte-identical to the reviewed staged candidate -- until
+# another feature's own human-applied change lands on the same shared
+# protected file (epic-189 T-012's Track Detection section arrived via
+# PR #229's merge, 2026-08-08, additions only). From then on no
+# whole-file hash can hold, so past the two whole-file states
+# Test-038Staged falls back to T-004's own payload: the exact Process
+# step-4 destination block the candidate changed must survive in the
+# live file, contiguous and byte-identical. Loss or drift of that block
+# still fails.
 $liteLiveSha256AtT001 = "40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74"
 
 function Get-LinesOrEmpty([string]$path) {
@@ -650,9 +656,27 @@ function Test-038Staged {
     }
     if (-not $found) { return $false }
     $liveHash = Get-Sha256OrNull $liteLivePath
-    # Two designed states (see $liteLiveSha256AtT001's comment): pre-apply
-    # the live file is untouched; post-apply it is the reviewed candidate.
-    return (($liveHash -eq $liteLiveSha256AtT001) -or ($liveHash -eq $draftHash))
+    # Three designed epochs (see $liteLiveSha256AtT001's comment):
+    # pre-apply the live file is untouched; applied-verbatim it is the
+    # reviewed candidate; once other features' human-applied changes land
+    # on the same shared protected file, whole-file identity cannot hold
+    # and the check falls back to T-004's own payload block. The fallback
+    # fires only after both whole-file comparisons miss, and requires the
+    # anchor to be unique in each file, so ambiguity fails closed.
+    if ($liveHash -eq $liteLiveSha256AtT001) { return $true }
+    if ($liveHash -eq $draftHash) { return $true }
+    $payloadAnchor = 'design.md` に記録される'
+    $draftLines = Get-LinesOrEmpty $dscDraftPath
+    $liveLines = Get-LinesOrEmpty $liteLivePath
+    if ($draftLines.Count -eq 0 -or $liveLines.Count -eq 0) { return $false }
+    $draftIdx = @(0..($draftLines.Count - 1) | Where-Object { $draftLines[$_].Contains($payloadAnchor) })
+    $liveIdx = @(0..($liveLines.Count - 1) | Where-Object { $liveLines[$_].Contains($payloadAnchor) })
+    if ($draftIdx.Count -ne 1 -or $liveIdx.Count -ne 1) { return $false }
+    if (($draftIdx[0] + 2) -ge $draftLines.Count) { return $false }
+    if (($liveIdx[0] + 2) -ge $liveLines.Count) { return $false }
+    $draftBlock = $draftLines[$draftIdx[0]..($draftIdx[0] + 2)] -join "`n"
+    $liveBlock = $liveLines[$liveIdx[0]..($liveIdx[0] + 2)] -join "`n"
+    return ($draftBlock -ceq $liveBlock)
 }
 if (Test-038Staged) {
     Test-Pass "TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)"

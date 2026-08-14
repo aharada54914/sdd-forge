@@ -1,0 +1,10 @@
+{
+  "schema": "capability-registry-parity-runtime/v1",
+  "runtime": "copilot-cli",
+  "description": "Simulated Copilot CLI installed-plugin context (TEST-033, AC-033). Same packaged-copy-only shape as the other two runtimes, at a third, distinct absolute install root so a path-dependent non-determinism defect in any of the four scripts would surface as a cross-runtime stdout or exit-code difference.",
+  "install_root_segments": ["home", ".copilot", "sdd-forge"],
+  "entry_root_segments": ["home", ".copilot", "sdd-forge"],
+  "entry_via_symlink": false,
+  "host_marker_path": "hooks/copilot-hooks.json",
+  "host_marker_content": "{\"hooks\": []}\n"
+}

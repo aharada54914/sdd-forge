@@ -1,0 +1,13 @@
+{
+  "schema": "project-context-fixture/v1-illustrative",
+  "fields": [
+    "artifact_kinds",
+    "runtime_classes",
+    "characteristics.pii",
+    "characteristics.ui",
+    "characteristics.auto_update",
+    "characteristics.local_persistence",
+    "distribution_channels",
+    "data_classification"
+  ]
+}

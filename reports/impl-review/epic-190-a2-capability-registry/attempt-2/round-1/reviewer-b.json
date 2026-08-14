@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-190-a2-capability-registry-impl-impl-reviewer-b-a2r1-seq0341",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-190-a2-capability-registry-a2r1-0341",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+    {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+    {"path": "specs/epic-190-a2-capability-registry/design.md", "sha256": "b7f2f8f414867c58601f1582e10c856b2dc4366fb97e95889aec7489d9b50958"},
+    {"path": "specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "specs/epic-190-a2-capability-registry/ux-spec.md", "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+    {"path": "specs/epic-190-a2-capability-registry/frontend-spec.md", "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+    {"path": "specs/epic-190-a2-capability-registry/infra-spec.md", "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+    {"path": "specs/epic-190-a2-capability-registry/security-spec.md", "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-190-a2-capability-registry/attempt-2/round-1/precheck-result.json", "sha256": "2395c04dcc8543ed86b99393bec10c2f51cc330c9a8771c662f44204a78370e6"},
+    {"path": "reports/impl-review/epic-190-a2-capability-registry/attempt-2/round-1/integrated-summary.json", "sha256": "76dcfadcd6ee4fe1063abcf925325f37eb1cda2164458e707a979059b1c5eb5e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural/technology decision in design.md carries an explicit rationale. Design Decisions section justifies 'contracts/ over sdd/' (framework-shipped vs. per-project instance data, matching contracts/agent-model-capabilities.v2.json precedent), the flat top-level gates[] array (ADR-0017's own schema example), delivery_strategy.kind as an open string (decision v2 explicitly reserves vocabulary-freezing to a later ADR, same pattern as ADR-0017's Artifact/Promotion Gate vocabulary), rejecting a new plugin (INV-015's per-Epic 3-environment packaging-cost analysis with no offsetting benefit), the Gate implementation identity mechanism (fixes ambiguity the first draft left undefined), and script-relative Registry discovery over ${CLAUDE_PLUGIN_ROOT} (INV-016: unverified for two of three runtimes). Components justifies the .js wrapper existing only for generate-registry-digest ('because it calls Epic A1's canonicalizer, which itself ships sh/ps1/js wrappers') and the JSON Schema draft-07 if/then for conditional-required implementation_ref ('avoiding a hand-rolled cross-field check where the schema language already provides one'). No inline decision found lacking a because/since-equivalent rationale."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Open Questions section gives every entry a named owner (OQ-001: Epic A6, ADR-0022 item 4; OQ-004: 'this spec's own author/reviewers'; the unlabeled fifth design-only question: 'implementation task owner for REQ-005's projection-generator task'), an explicit Blocks-Implementation statement ('Blocks Implementation: no' for each), and a resolution path (OQ-001: 'Epic A6 (or a human, ahead of Epic A6) extends contracts/lite-upgrade-reason-catalog.json with a new catalog_version'; the fifth question: 'proceed with the JSON-only default ... a human maintainer may override'). OQ-004 is recorded as already closed as a design decision, with its residual ADR-promotion question's resolution path stated in the cross-referenced Risks entry. No entry blocks implementation without a stated resolution path; no entry has an unnamed/'TBD' owner."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (hash-verified). All three design.md Assumptions entries are grounded: (1) the Epic A1 canonicalizer stable-interface assumption ties to Dependencies/INV-006 and REQ-004's explicit blocked status; (2) 'No Capability Pack exists yet' is grounded in INV-002's repository fact ('no capability-packs/ directory exists anywhere in this repository today'); (3) 'No new plugin manifest is needed' is grounded in INV-015's per-Epic packaging-cost analysis and the Design Decisions section's rejected-new-plugin ruling. No non-trivial assumption lacks grounding."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a ## Constraint Compliance section (Primary/TYPE-D path applies). Cross-checked requirements.md's explicit 'must not'/'never'/'shall' constraints (provider-neutrality/ADR-0018; implementation_ref always .py never a wrapper; wrapper-group non-collision; fragment-selection hard-failure/no-silent-default-to-whole; protected-file human-copy-only, never direct edit; Gate reads generated projection never the authoring Registry directly) against Constraint Compliance's four bullets (stage:implementation-only, no-file-touch/AC-034, no-new-plugin, forbidden-operator structural inexpressibility, no-real-provider-name, cross-runtime byte-identical output) and the API/Contract Plan sections that state each in full. grep of requirements.md for 'within N'/'maximum N'/'ms'/'compliant with'/'compatible with' returns zero matches — no performance/regulatory/compatibility numeric-threshold constraint exists to check. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. (Verified via grep for numeric thresholds, 'ms', 'performance', 'latency', 'throughput', 'concurrency', 'SLA' — zero matches. Consistent with infra-spec.md's Service Level Objectives: 'N/A — no live service to hold an availability/latency SLO.')"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Deployment / CI Plan names the deployment target (.github/workflows/test.yml, via human-copy, gaining a generate-gate-capabilities.py --check step, the vendoring/packaging step's own --check mode, and the eight new test-suite steps, mirroring the existing generate-guard-invariants.py --check precedent at test.yml:30,35) and states CI pipeline changes concretely; infra-spec.md's Environments table further details local-dev/CI/standalone-install targets. Feature-flag strategy is not applicable — this is a CI-gated static contract/script addition with no incremental user-facing rollout, and design.md does not claim otherwise. Migration execution order is correctly omitted because Data Plan states no database/migration exists at all (see MIGRATION-PLANNED) — this is consistent scoping, not an omission."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan states 'No database, no migration, no runtime storage' and 'No data is deleted or migrated; this is a net-new contract with no prior version' — functionally equivalent to this check's 'No data changes' pass condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's External Integrations section states 'None. Every deliverable is repository-internal (contract file + script); no network call, no external service, no Provider API' — consistent with security-spec.md's External Integrations: None and infra-spec.md's 'No region, no network boundary'. The only cross-component reference (Epic A1's canonicalizer) is an internal, same-repository module dependency, not a third-party/external system, and is nonetheless fully documented (Dependencies, Cross-Layer Dependencies, Assumptions: blocked status, pending I/O contract, adapter-if-shipped-differently fallback). No integration mentioned only in passing without detail."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components section maps to a named requirement (schema+instance -> REQ-001, evaluator -> REQ-002, validator -> REQ-003, digest generator -> REQ-004, projection generator+discovery contract -> REQ-005, provider-terms.json -> REQ-003(g), lite-upgrade-reason-catalog.json -> REQ-003(h)); no component, data model, or endpoint lacks a requirements.md anchor. Conversely every requirements.md Goal (REQ-001..REQ-006) and User Story is covered in design.md's Components/API Contract Plan/Test Strategy. Design System Compliance states 'Not applicable - no UI surface,' consistent with ux-spec.md/frontend-spec.md's own N/A declarations; no design-system/ directory exists in this repository and no UI component library or styling framework is introduced."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The design's residual high-risk surfaces beyond PERF-ADDRESSED/DEPLOYMENT-CONCRETE/MIGRATION-PLANNED are its four Security Boundaries (B1 provider-neutrality, B2 no-dynamic-evaluation, B3 protected-file integrity, B4 discovery fail-closed); each names a concrete, specifically-titled acceptance-test artifact in design.md's Test Strategy and security-spec.md's Security Tests table (B1 -> TEST-020, B2 -> TEST-011/TEST-012/TEST-040, B3 -> TEST-029, B4 -> TEST-026/TEST-027), each tied to a named tests/*.tests.sh/.tests.ps1 suite. No PII-handling, payment, or fullstack-critical-user-journey surface exists in this Epic (no UI; ux-spec.md/frontend-spec.md are N/A)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists in this repository (verified directly: `/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/domain` does not exist), so the Approved-domain-model applicability condition is absent. Per this check's own rule, recorded as skipped."
+    }
+  ]
+}
