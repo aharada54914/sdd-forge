@@ -76,9 +76,19 @@ $HumanCopyPrefix = 'specs/epic-136-phase2-gates/human-copy'
 function Fail([string]$Message) { throw "apply-protected-files: $Message" }
 
 function Get-RepositoryRoot {
+    # 2026-08-14 class fix: the previous anchor was the STAGED canonical inside
+    # this bundle. That file is evicted, and anchoring on the canonical by name
+    # is now actively wrong -- the walk would run past the staging directory and
+    # match the LIVE canonical at the repository root, then strip three parents
+    # and return the repository's grandparent. The anchor is therefore the
+    # surviving staging marker: the directory holding BOTH this bundle's
+    # MANIFEST.sha256 and its runner. Both the outer and the nested staged copy
+    # of the runner reach that same directory by walking up, so both resolve to
+    # the same repository root, exactly as before the eviction.
     $current = Split-Path -Parent $PSCommandPath
     while (-not [string]::IsNullOrWhiteSpace($current)) {
-        if (Test-Path -LiteralPath (Join-Path $current 'plugins/sdd-quality-loop/references/guard-invariants.json') -PathType Leaf) {
+        if ((Test-Path -LiteralPath (Join-Path $current 'MANIFEST.sha256') -PathType Leaf) -and
+            (Test-Path -LiteralPath (Join-Path $current 'apply-protected-files.ps1') -PathType Leaf)) {
             $featureRoot = Split-Path -Parent $current
             $specsRoot = Split-Path -Parent $featureRoot
             return [IO.Path]::GetFullPath((Split-Path -Parent $specsRoot))
@@ -87,7 +97,7 @@ function Get-RepositoryRoot {
         if ($parent -eq $current) { break }
         $current = $parent
     }
-    Fail 'unable to locate the staged canonical file from the runner path'
+    Fail 'unable to locate this bundle staging directory from the runner path'
 }
 
 function Get-ExecutionRoot {

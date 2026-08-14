@@ -144,9 +144,11 @@
 ############ LEG 4: bundle-specific runner ############
 == runner apply-protected-files.ps1
   exit=2 | apply-protected-files: Windows is required
-  [runner] changed=0  CI-steps-lost=0  registry-keys-lost=0
+  [runner] SKIPPED: host is not Windows; the runner refused before copying anything, so this leg proves nothing
 
 ############ VERDICT ############
 watched live paths: 25 (plus the CI step-name set and every canonical array)
-ZERO REMOVALS across every leg: no live file deleted, no live line lost,
-no CI step lost, no registry key lost.
+leg 4 (bundle runner): SKIPPED (non-Windows host)
+ZERO REMOVALS across every MEASURED leg: no live file deleted, no live
+line lost, no CI step lost, no registry key lost.
+NOTE: the runner leg was skipped and contributes NOTHING to this verdict.

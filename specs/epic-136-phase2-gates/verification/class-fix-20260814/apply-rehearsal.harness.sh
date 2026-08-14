@@ -114,16 +114,32 @@ echo
 echo "############ LEG 4: bundle-specific runner ############"
 snapshot "$WORK/before"
 pwsh -NoProfile -File "$B136/apply-protected-files.ps1" -RepositoryRoot "$R" >"$WORK/runner.out" 2>&1
-printf '== runner apply-protected-files.ps1\n  exit=%s | %s\n' "$?" "$(tail -n 1 "$WORK/runner.out" | cut -c1-100)"
+runner_rc=$?
+printf '== runner apply-protected-files.ps1\n  exit=%s | %s\n' "$runner_rc" "$(tail -n 1 "$WORK/runner.out" | cut -c1-100)"
 snapshot "$WORK/after"
-compare "$WORK/before" "$WORK/after" "runner"
+# A runner that refuses to start does no work, so its "no removals" reading is
+# vacuous -- exactly the false-all-clear shape the cycle-5 rehearsal produced.
+# Report it as SKIPPED and keep it out of the verdict rather than letting a
+# refusal read as a proven zero-removal apply.
+runner_leg='measured'
+if grep -q 'Windows is required' "$WORK/runner.out"; then
+  echo "  [runner] SKIPPED: host is not Windows; the runner refused before copying anything, so this leg proves nothing"
+  runner_leg='SKIPPED (non-Windows host)'
+elif grep -qE 'unable to locate this bundle staging directory|staged canonical' "$WORK/runner.out"; then
+  echo "  [runner] SKIPPED: installed runner predates the refresh candidate and refused at startup; this leg proves nothing"
+  runner_leg='SKIPPED (pre-refresh runner)'
+else
+  compare "$WORK/before" "$WORK/after" "runner"
+fi
 
 echo
 echo "############ VERDICT ############"
 printf 'watched live paths: %s (plus the CI step-name set and every canonical array)\n' "$(watch_paths | wc -l | tr -d ' ')"
+printf 'leg 4 (bundle runner): %s\n' "$runner_leg"
 if [ "$removals" -eq 0 ]; then
-  echo "ZERO REMOVALS across every leg: no live file deleted, no live line lost,"
-  echo "no CI step lost, no registry key lost."
+  echo "ZERO REMOVALS across every MEASURED leg: no live file deleted, no live"
+  echo "line lost, no CI step lost, no registry key lost."
+  [ "$runner_leg" = measured ] || echo "NOTE: the runner leg was skipped and contributes NOTHING to this verdict."
   exit 0
 fi
 echo "REMOVALS PRESENT: $removals"

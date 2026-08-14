@@ -355,8 +355,19 @@ inventory authority (`:662-664`), so the eviction leaves it **fail-closed**: no
 apply path can remove anything, but a legitimate whole-bundle runner apply is
 impossible until a human refreshes it. A candidate sits beside it as
 `apply-protected-files.refresh-candidate-20260814.ps1`
-(sha256 `4b75bc1df75d0295e2f92758af94ab4bf54b0ccdabf2c71effae89dd731cebf1`).
-It makes exactly two changes:
+(sha256 `2b6a77bbb97122f1a897b3eabc3a03b1d2281360e23ffa64010a9dfbb8f5233f`).
+It makes exactly three changes:
+
+- **`Get-RepositoryRoot` is re-anchored.** This was a defect in the first draft
+  of the candidate, caught in PR review. The old function located the
+  repository by walking up from the runner until it found
+  `<dir>/plugins/sdd-quality-loop/references/guard-invariants.json` — i.e. it
+  anchored on the STAGED canonical — then stripped three parents. With the
+  canonical evicted that walk runs past the staging directory, matches the
+  LIVE canonical at the repository root, and returns the repository's
+  grandparent. The anchor is now the surviving staging marker: the directory
+  holding BOTH this bundle's `MANIFEST.sha256` and its runner. Both the outer
+  and the nested staged copy still resolve to the same repository root.
 
 - `$BootstrapTargets` becomes this bundle's 12-entry inventory (the six
   evicted), byte-order-identical to `MANIFEST.sha256` and to the TEST-013 pin;
@@ -378,10 +389,30 @@ evicted paths appears in `$BootstrapTargets`; all seven still appear in
 
 **NOT verified, and this is a real gap:** the runner is Windows-only
 (`apply-protected-files: Windows is required`, exit 2 on macOS), so its install
-path could not be executed on the authoring host. The nine runner-emulation
-assertions in the ps1 suite are macOS platform failures both before and after
-this change (identical failure list). Their behaviour on windows-latest after
-the human apply is **unproven** and must be confirmed by CI.
+path could not be executed on the authoring host. Its behaviour on
+windows-latest after the human apply is **unproven** and must be confirmed by
+CI.
+
+> **CORRECTION (2026-08-14, PR #268 review + CI triage).** The first version of
+> this section claimed the nine runner-emulation assertions "are macOS platform
+> failures both before and after this change (identical failure list)". That is
+> true on macOS and **false on Windows**, where they had been green: PR #268's
+> `test (windows-latest)` job went red on exactly those nine, each with
+> `runner diagnostics (exit 2)`, because the INSTALLED runner still resolves
+> its root and inventory authority through the staged canonical this change
+> evicts. That is a regression introduced here, not a pre-existing condition,
+> and both Codex and CodeRabbit flagged it independently.
+>
+> The eviction and the runner refresh cannot land together — the runner is
+> guard-protected, so only a human can apply it. The suite therefore now
+> **gates** the runner install-path assertions behind a discriminator
+> (`$stagedCanonicalRelative` still present in the installed runner) and emits
+> a visible `skip - …` line, counted separately from passes, naming the
+> candidate to apply. The gate is self-retiring in both directions: while it
+> holds, the suite asserts the refresh candidate is present; once the human
+> applies it the discriminator goes false, the suite asserts the candidate has
+> been retired, and every gated assertion runs for real. Nothing can stay
+> silently skipped.
 
 **Human apply steps** (from the repository root; both copies must stay
 byte-identical, and the manifest digest travels in the same commit):
@@ -393,13 +424,28 @@ byte-identical, and the manifest digest travels in the same commit):
    digest on the final line (target
    `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`,
    currently `54c3b3d1…`) with
-   `4b75bc1df75d0295e2f92758af94ab4bf54b0ccdabf2c71effae89dd731cebf1`.
+   `2b6a77bbb97122f1a897b3eabc3a03b1d2281360e23ffa64010a9dfbb8f5233f`.
    No line is added, removed, or reordered.
 3. Delete `apply-protected-files.refresh-candidate-20260814.ps1`.
 4. Verify: `shasum -a 256 -c` against the manifest (12/12 OK) and
    `bash tests/phase2-guard-invariants.tests.sh` (41/0). On Windows, run
-   `tests/phase2-guard-invariants.tests.ps1` and record the actual result —
-   it is deliberately not predicted here.
+   `tests/phase2-guard-invariants.tests.ps1`: the skip gate will have retired
+   itself and the runner install-path assertions will execute for real for the
+   first time. Record the actual result — it is deliberately not predicted
+   here, because the runner's install path has never been exercised on a
+   Windows host with this candidate.
+
+### Known drift this change widens (frozen doc, not editable here)
+
+`specs/epic-136-phase2-gates/requirements.md:141-165` ("Protected Phase 2
+target inventory") enumerates 18 paths and states "No manifest entry may omit,
+add, or duplicate a target." That list already diverged from reality before
+this change — it contains `.github/workflows/test.yml` (evicted 2026-08-11) and
+omits `tests/guard-parity.tests.sh` (in the manifest), and the live
+`phase2_human_copy_targets` array it describes is 26, not 18. This change takes
+the bundle manifest to 12, widening the same gap. `requirements.md` is a
+frozen, hash-bound spec document, so it is reported rather than edited; it
+belongs with the epic-189-a1 AC-021 item in the provenance re-review queue.
 
 ### Sibling bundle NOT closed
 
