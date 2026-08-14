@@ -161,6 +161,13 @@ Set-Content -Encoding Utf8 -Path $script:panelistInput -Value "sanitized test in
 $panelistWorker = Join-Path $script:panelistStubPath "panelist-worker.ps1"
 @'
 $ErrorActionPreference = "Stop"
+# STUB_START_FILE records the instant this process ran its first statement, so
+# the harness can separate the stub's own launch cost (process creation plus
+# pwsh cold start, which sits INSIDE the runner's WaitForExit window) from the
+# delay the stub was asked to introduce.
+if ($env:STUB_START_FILE) {
+    Set-Content -Path $env:STUB_START_FILE -Value ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds())
+}
 if ($env:STUB_CALLED_FILE) { Set-Content -Path $env:STUB_CALLED_FILE -Value "called" }
 if ($env:STUB_PID_FILE) { Set-Content -Path $env:STUB_PID_FILE -Value $PID }
 
@@ -568,28 +575,80 @@ try {
     # ============================================================================
     # TEST-004(c): near-boundary successful completion, repeated five times
     # ============================================================================
-    # The stub is told to complete at an absolute instant 1200ms after the
-    # harness invokes the runner. The runner's WaitForExit window opens later
-    # (after the runner's own pwsh start-up), so the stub always finishes
-    # inside the 2000ms budget regardless of how slowly CI cold-starts pwsh —
-    # a fixed-duration sleep instead stacked the stub's start-up cost on top
-    # of the delay and intermittently overran the budget on hosted runners.
+    # The stub is told to complete at an absolute instant $nearBoundaryMarginMs
+    # before the earliest moment the runner's deadline can expire. The runner's
+    # WaitForExit window opens later (after the runner's own pwsh start-up), so
+    # the stub's *delay* never drifts with pwsh cold-start jitter — a
+    # fixed-duration sleep instead stacked the stub's start-up cost on top of
+    # the delay and intermittently overran the budget on hosted runners.
+    #
+    # What an absolute instant cannot absorb is everything ELSE the stub does
+    # inside the runner's WaitForExit window: its own process launch (cmd
+    # wrapper plus a cold pwsh) and its post-wake emit path. On a contended
+    # windows-latest leg that residue alone can exceed the whole 2s budget —
+    # run 31794702432 timed a gemini leg at elapsed_ms=5675, and run
+    # 31798613539 reproduced a 2s miss at elapsed_ms=2730 with
+    # stub_launch_ms=648, so launch is not always the culprit and the residue
+    # is not attributable to one stage.
+    #
+    # The budget is therefore escalated on failure while the near-boundary
+    # margin stays FIXED at $nearBoundaryMarginMs. That keeps the assertion
+    # sharp — a runner that kills a child more than that margin early, or
+    # loses its verdict, still fails at every budget, because the completion
+    # point tracks the budget — and absorbs only host jitter. Healthy hosts
+    # pass on the first 2s attempt and pay nothing.
     Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
-    $targetOffsetMs = 1200
+    $nearBoundaryMarginMs = 800
+    $nearBoundaryBudgetsSec = @(2, 4, 8)
     foreach ($runner in $panelistRunners) {
         for ($iteration = 1; $iteration -le 5; $iteration++) {
-            $caseRoot = Join-Path $workDir "boundary-$($runner.Name)-$iteration/specs"
-            $started = Get-MonotonicMilliseconds
-            $completeAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + $targetOffsetMs
-            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "2" `
-                -SpecRoot $caseRoot -StubEnvironment @{ STUB_COMPLETE_AT_EPOCH_MS = "$completeAt" }
-            $elapsed = (Get-MonotonicMilliseconds) - $started
-            $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
-            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=2000 target_offset_ms=$targetOffsetMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
-            if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
+            $succeeded = $false
+            $lastDetail = ""
+            for ($attempt = 0; $attempt -lt $nearBoundaryBudgetsSec.Count; $attempt++) {
+                $budgetSec = $nearBoundaryBudgetsSec[$attempt]
+                $deadlineMs = $budgetSec * 1000
+                $targetOffsetMs = $deadlineMs - $nearBoundaryMarginMs
+                $caseName = "boundary-$($runner.Name)-$iteration-${budgetSec}s"
+                $caseRoot = Join-Path $workDir "$caseName/specs"
+                $startFile = Join-Path $workDir "$caseName.stub-start"
+                $started = Get-MonotonicMilliseconds
+                $invokedAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+                $completeAt = $invokedAt + $targetOffsetMs
+                Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "$budgetSec" `
+                    -SpecRoot $caseRoot -StubEnvironment @{
+                        STUB_COMPLETE_AT_EPOCH_MS = "$completeAt"
+                        STUB_START_FILE           = $startFile
+                    }
+                $elapsed = (Get-MonotonicMilliseconds) - $started
+                $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
+                # Launch cost of the stub itself, measured from the harness
+                # clock; -1 means the stub never reached its first statement.
+                # Parsed defensively: this is diagnostic output, so an absent
+                # or half-written marker must not abort the suite under
+                # ErrorActionPreference = Stop.
+                $stubLaunchMs = -1
+                if (Test-Path $startFile) {
+                    $stubStartRaw = "$(Get-Content -Raw -LiteralPath $startFile)".Trim()
+                    $stubStartEpoch = [long]0
+                    if ([long]::TryParse($stubStartRaw, [ref]$stubStartEpoch)) {
+                        $stubLaunchMs = $stubStartEpoch - $invokedAt
+                    }
+                }
+                Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration attempt=$($attempt + 1) elapsed_ms=$elapsed deadline_ms=$deadlineMs target_offset_ms=$targetOffsetMs stub_launch_ms=$stubLaunchMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+                if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
+                    $succeeded = $true
+                    break
+                }
+                $lastDetail = "exit=$script:panelistExit verdict=$([int](Test-Path $verdict)) stub_launch_ms=$stubLaunchMs budget_ms=$deadlineMs"
+                if ($attempt -lt ($nearBoundaryBudgetsSec.Count - 1)) {
+                    $nextBudgetSec = $nearBoundaryBudgetsSec[$attempt + 1]
+                    Write-Host "note: TEST-004(c) $($runner.Name) iteration $iteration missed the ${budgetSec}s budget ($lastDetail); retrying at ${nextBudgetSec}s with the same ${nearBoundaryMarginMs}ms margin"
+                }
+            }
+            if ($succeeded) {
                 Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
             } else {
-                Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
+                Fail "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration ($lastDetail)"
             }
         }
     }
