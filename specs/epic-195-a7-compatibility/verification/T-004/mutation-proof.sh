@@ -9,6 +9,32 @@ trap 'rm -rf "$work"' EXIT
 passed=0
 failed=0
 
+normalize_diagnostic() {
+  perl -0777 -pe 's/\e\[[0-?]*[ -\/]*[@-~]//g; s/^[ \t]*\|[ \t]?//mg; s/[[:space:]]+//g'
+}
+
+diagnostic_matches() {
+  local output="$1" rc="$2" expected="$3" normalized_output normalized_expected
+  normalized_output="$(printf '%s' "$output" | normalize_diagnostic)"
+  normalized_expected="$(printf '%s' "$expected" | tr -d '[:space:]')"
+  [[ "$rc" -ne 0 ]] && grep -F "$normalized_expected" <<<"$normalized_output" >/dev/null
+}
+
+classifier_selftest() {
+  local expected wrapped
+  expected='FAIL: full requirements.md frontmatter and ordered headings match its shipped template'
+  wrapped="$(printf 'FAIL: full requirements.md frontmatter and \033[31;1morder\033[0m\n     | \033[32;1med\033[0m headings match its shipped template')"
+  diagnostic_matches "$wrapped" 1 "$expected"
+}
+
+if classifier_selftest; then
+  printf '%s\n' 'CLASSIFIER-SELFTEST: ANSI and wrapped diagnostic matched'
+else
+  printf '%s\n' 'CLASSIFIER-SELFTEST: ANSI or wrapped diagnostic did not match' >&2
+  exit 2
+fi
+[[ "${MUTATION_CLASSIFIER_SELFTEST_ONLY:-0}" != 1 ]] || exit 0
+
 copy_surface() {
   local destination="$1" relative
   mkdir -p "$destination/tests/lib" "$destination/tests/fixtures" \
@@ -101,6 +127,10 @@ mutate_case() {
     lite-artifact-leak) update_json "$corpus/f2-lite.json" --arg word "$blocked_two" '.artifacts[0].path = ($word | ascii_downcase) + ".md"' ;;
     corpus-bad-frontmatter) update_json "$corpus/f1-full.json" '.artifacts[0].content = "---\ntitle: broken\n"' ;;
     corpus-bad-heading) update_json "$corpus/f1-full.json" '.artifacts[0].content = "####### Broken\n"' ;;
+    corpus-and-template-bad-heading)
+      update_json "$corpus/f1-full.json" '(.artifacts[] | select(.path == "requirements.md").content) = "####### Broken\n"'
+      printf '%s\n' '####### Broken' > "$target_root/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md"
+      ;;
     parser-frontmatter-lenient)
       before="$(shasum -a 256 "$target_root/tests/lib/markdown-ast-canonicalizer.sh" | awk '{print $1}')"
       perl -0pi -e 's/if \(!failed && saw_frontmatter/if (0 && !failed && saw_frontmatter/' "$target_root/tests/lib/markdown-ast-canonicalizer.sh"
@@ -160,7 +190,7 @@ mutate_case() {
 }
 
 run_one() {
-  local id="$1" runtime="$2" expected="$3" target_root="$4" output normalized_output rc suite
+  local id="$1" runtime="$2" expected="$3" target_root="$4" output rc suite
   set +e
   if [[ "$runtime" == sh ]]; then
     suite="$target_root/tests/structural-compatibility.tests.sh"
@@ -172,8 +202,7 @@ run_one() {
     rc=$?
   fi
   set -e
-  normalized_output="$(tr '\n' ' ' <<<"$output" | sed -e 's/[[:space:]][[:space:]]*/ /g' -e 's/ | / /g')"
-  if [[ "$rc" -ne 0 ]] && grep -F "$expected" <<<"$normalized_output" >/dev/null; then
+  if diagnostic_matches "$output" "$rc" "$expected"; then
     printf 'MUTATION-KILLED: %s [%s] exit=%d evidence=%s\n' "$id" "$runtime" "$rc" "$expected"
     passed=$((passed + 1))
   else
@@ -222,8 +251,9 @@ run_pair full-reference 'FAIL: full output contains no '
 run_pair lite-reference 'FAIL: lite output contains no '
 run_pair full-artifact-leak 'FAIL: full output contains no '
 run_pair lite-artifact-leak 'FAIL: lite output contains no '
-run_pair corpus-bad-frontmatter 'markdown AST parse failure:'
-run_pair corpus-bad-heading 'markdown AST parse failure:'
+run_pair corpus-bad-frontmatter 'FAIL: full requirements.md canonicalizes without parse fallback'
+run_pair corpus-bad-heading 'FAIL: full requirements.md canonicalizes without parse fallback'
+run_pair corpus-and-template-bad-heading 'FAIL: full requirements.md canonicalizes without parse fallback'
 run_pair parser-frontmatter-lenient 'FAIL: malformed frontmatter is a hard failure'
 run_pair parser-heading-lenient 'FAIL: unrecognized heading grammar is a hard failure'
 run_pair normalize-key-order 'FAIL: frontmatter order and permitted whitespace/line endings normalize'

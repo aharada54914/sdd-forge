@@ -94,10 +94,16 @@ Assert-True 'fingerprinted Required Outputs injection anchor is unchanged' ($Act
 $Temp = Join-Path ([IO.Path]::GetTempPath()) ("structural-compat-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Temp | Out-Null
 try {
+    function Invoke-Canon([string]$Path) {
+        $global:LASTEXITCODE = 0
+        $Output = & $Canon $Path 2>$null | Out-String
+        $ExitCode = $LASTEXITCODE
+        [pscustomobject]@{ Text = $Output.Trim(); ExitCode = $ExitCode }
+    }
     function Invoke-CanonText([string]$Text, [string]$Name) {
         $Path = Join-Path $Temp $Name
         [IO.File]::WriteAllText($Path, $Text, [Text.UTF8Encoding]::new($false))
-        (& $Canon $Path | Out-String).Trim()
+        Invoke-Canon $Path
     }
     function Status-Fields([string]$Text) {
         [regex]::Matches($Text, '(?m)^([A-Za-z][A-Za-z0-9 -]*(?:Status|Approval)):\s.*$', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object { $_.Groups[1].Value } | Sort-Object -CaseSensitive -Unique
@@ -114,9 +120,14 @@ try {
             $TemplateText = Get-Content -LiteralPath $Template -Raw
             $Artifact = $Entry.artifacts | Where-Object { $_.path -ceq $Path }
             if ($null -eq $Artifact) { Fail "$Track corpus contains $Path"; continue }
-            $ExpectedAst = (& $Canon $Template | Out-String).Trim()
+            $ExpectedAst = Invoke-Canon $Template
             $ActualAst = Invoke-CanonText $Artifact.content ("corpus-" + $Path.Replace('/', '_'))
-            Assert-True "$Track $Path frontmatter and ordered headings match its shipped template" ($ExpectedAst -ceq $ActualAst)
+            if ($ExpectedAst.ExitCode -ne 0 -or $ActualAst.ExitCode -ne 0) {
+                Fail "$Track $Path canonicalizes without parse fallback"
+            }
+            else {
+                Assert-True "$Track $Path frontmatter and ordered headings match its shipped template" ($ExpectedAst.Text -ceq $ActualAst.Text)
+            }
             Assert-True "$Track $Path status field names match its shipped template" (((Status-Fields $TemplateText) -join "`n") -ceq ((Status-Fields $Artifact.content) -join "`n"))
         }
         $All = ($Entry.artifacts | ForEach-Object content) -join "`n"
@@ -145,12 +156,12 @@ try {
 
     $NormA = Invoke-CanonText "---`nzeta:  one`nalpha: two`n---`n# Heading   text `n" 'norm-a.md'
     $NormB = Invoke-CanonText "---`r`nalpha: two`r`nzeta: one `r`n---`r`n# Heading text`r`n" 'norm-b.md'
-    Assert-True 'frontmatter order and permitted whitespace/line endings normalize' ($NormA -ceq $NormB)
+    Assert-True 'frontmatter order and permitted whitespace/line endings normalize' ($NormA.ExitCode -eq 0 -and $NormB.ExitCode -eq 0 -and $NormA.Text -ceq $NormB.Text)
     $ValueChange = Invoke-CanonText "---`nalpha: changed`nzeta: one`n---`n# Heading text`n" 'value-change.md'
-    Assert-True 'frontmatter values remain comparison-significant' ($NormA -cne $ValueChange)
+    Assert-True 'frontmatter values remain comparison-significant' ($NormA.ExitCode -eq 0 -and $ValueChange.ExitCode -eq 0 -and $NormA.Text -cne $ValueChange.Text)
     $HeadingA = Invoke-CanonText "# First`n## Second`n" 'heading-a.md'
     $HeadingB = Invoke-CanonText "## Second`n# First`n" 'heading-b.md'
-    Assert-True 'heading level and document order remain comparison-significant' ($HeadingA -cne $HeadingB)
+    Assert-True 'heading level and document order remain comparison-significant' ($HeadingA.ExitCode -eq 0 -and $HeadingB.ExitCode -eq 0 -and $HeadingA.Text -cne $HeadingB.Text)
 
     foreach ($Pair in @(@('F4', $F4), @('F3', $F3))) {
         $Fixture = $Pair[0]; $Entry = $Pair[1]

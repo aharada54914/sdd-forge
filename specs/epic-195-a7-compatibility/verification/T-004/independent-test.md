@@ -1,6 +1,6 @@
 # T-004 Independent Test Record
 
-Date: 2026-08-12
+Date: 2026-08-12; remediation re-test 2026-08-14
 
 Role: independent tester
 
@@ -16,7 +16,8 @@ Verdict: PASS for the T-004 scoped verification. This is not a formal
 | both suites with `STRUCTURAL_COMPAT_REPO_ROOT` set to a newly created empty directory | PASS (negative case) — Bash exit 1 and PowerShell exit 1, each 0 passed / 9 failed on missing shipped product surfaces |
 | `cd specs/epic-195-a7-compatibility/human-copy && shasum -a 256 -c MANIFEST.sha256` | PASS — `.github/workflows/test.yml: OK` |
 | `bash specs/epic-195-a7-compatibility/verification/T-004/manifest-proof.sh` | PASS — corruption killed, restored candidate GREEN |
-| `bash specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.sh` | PASS — restored GREEN in both runtimes; 114 killed, 0 survived |
+| `bash specs/epic-195-a7-compatibility/verification/T-004/mutation-proof.sh` | PASS — restored GREEN in both runtimes; 116 killed, 0 survived, exit 0 |
+| `bash specs/epic-195-a7-compatibility/verification/T-004/classifier-proof.sh` | PASS — removing ANSI stripping and removing wrap compaction each fail at exit 2; restored classifier exits 0 |
 | `bash specs/epic-195-a7-compatibility/verification/T-004/depth1-proof.sh` | PASS — real depth-1 clone; mutation killed in both runtimes; restored GREEN at 40/0 each |
 | `bash specs/epic-195-a7-compatibility/verification/T-004/bump-replay-proof.sh` | PASS — real unchanged `scripts/bump-version.sh` replay from 1.14.0 to 1.14.1 in scratch; both suites remained 40/0 |
 
@@ -30,7 +31,7 @@ Verdict: PASS for the T-004 scoped verification. This is not a formal
   not embed a copied expected artifact body.
 - Assertions compare independently sourced product surfaces (recorded corpus
   versus shipped skills/templates/design/task records). They do not assert on a
-  value immediately created as the oracle. The fresh 114/0 mutation run kills
+  value immediately created as the oracle. The fresh 116/0 mutation run kills
   every assertion family, including artifact-order normalization and both
   WFI-012 mis-cased negative layers.
 - The suite has no network commands and performs no Git-history query. The
@@ -40,9 +41,25 @@ Verdict: PASS for the T-004 scoped verification. This is not a formal
   code. Malformed frontmatter and unrecognized heading grammar are hard
   failures, while permitted key order, whitespace, and line-ending differences
   normalize.
-- Saved RED evidence is genuine missing-product RED (`red-sh.log` and
-  `red-ps1.log`, exit 1); saved GREEN evidence is exit 0. The persisted mutation,
-  depth-1, manifest, and bump-replay logs agree with the fresh independent runs.
+- The original `red-sh.log` and `red-ps1.log` are retained as historical
+  missing-asset preflight records and are not used as the task's malformed-
+  corpus RED. The authoritative pre-fix `malformed-corpus-red.log` executes the
+  coherent malformed-corpus/template case: Bash kills it, PowerShell falsely
+  survives at 40/0, and the full harness exits 1 at 115/1. The restored mutation
+  log kills the same case in both runtimes and exits 0 at 116/0.
+- The ANSI- and width-independent classifier proof reproduces byte-for-byte.
+  The persisted mutation, GREEN, depth-1, manifest, and bump-replay logs agree
+  with the fresh independent checks.
+
+## Quality-gate cycle 1 remediation test
+
+The independent tester reran both focused twins at 40/0 and the classifier
+proof, then validated the complete persisted mutation transcript: exactly 116
+unique kills (58 Bash and 58 PowerShell), no survivor lines, both restored
+40/0 runs, and `EXIT_CODE=0`. The malformed RED contains exactly the one
+expected pre-fix PowerShell survivor and exits 1. The human-copy manifest
+verifies, `git diff --check` is clean, and the task plan, live workflow,
+protected gate tests, and fixture builders have no diff from HEAD.
 
 ## Limits
 

@@ -43,5 +43,5 @@ both are killed in `mutation-proof.log`.
 ## Result
 
 Focused Bash and PowerShell runs each pass 40 assertions. The final mutation
-run records 114 killed and zero survived, including both layer-specific
+run records 116 killed and zero survived, including both layer-specific
 mis-cased negatives and the benign corpus-array reorder control.
