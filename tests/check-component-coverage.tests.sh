@@ -443,15 +443,18 @@ for line in manifest.read_text().splitlines():
     candidate = manifest.parent / relative
     if not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
         raise SystemExit(f'candidate hash mismatch: {relative}')
-    if relative != '.github/workflows/test.yml':
-        applied = repo / relative
-        if not applied.is_file():
-            raise SystemExit(f'applied file missing: {relative}')
-        applied_bytes = applied.read_bytes()
-        guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
-        pending_human_apply = relative in declared_human_apply and not guard_applied
-        if not pending_human_apply and hashlib.sha256(applied_bytes).hexdigest() != expected:
-            raise SystemExit(f'applied hash mismatch: {relative}')
+    # The repo-shared CI workflow was exempted here while this bundle
+    # snapshotted it (a snapshot of a shared file cannot be compared to live).
+    # That entry was evicted 2026-08-14 and TEST-045.5's class lock now forbids
+    # its return, so the exemption became unreachable and is removed.
+    applied = repo / relative
+    if not applied.is_file():
+        raise SystemExit(f'applied file missing: {relative}')
+    applied_bytes = applied.read_bytes()
+    guard_applied = b'if (\$args.Count -gt 0)' in applied_bytes and b'unrecognized arguments:' in applied_bytes
+    pending_human_apply = relative in declared_human_apply and not guard_applied
+    if not pending_human_apply and hashlib.sha256(applied_bytes).hexdigest() != expected:
+        raise SystemExit(f'applied hash mismatch: {relative}')
 raise SystemExit(0)
 "; then
   ok "TEST-036.4: T-004's live registrations remain applied; every shared-manifest candidate hash verifies; and every T-004-owned protected row remains byte-identical live"
