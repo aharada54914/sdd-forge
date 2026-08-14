@@ -7,9 +7,9 @@
 | Feature | **Session-scoped, multi-feature** — Pillar A wave: `epic-190-a2-capability-registry`, `epic-191-a3-path-ownership`, `epic-193-a5-capability-resolver`, `epic-194-a6-lite-integration`, `epic-195-a7-compatibility`, plus main-branch health work (PRs #264–#267) |
 | Period | 2026-08-10 – 2026-08-14 |
 | Generated | 2026-08-14T034801Z |
-| Sample Size | 42 tasks across 6 feature specs (7+6+5+10+4+12 by `Status:` count), 21 quality-gate report files (0 retained under artifact rule 3), 7 review tickets, 1 WFI draft, 4 merged PRs, 6 open feature PRs |
+| Sample Size | 42 tasks across 6 feature specs (7+6+5+10+4+12 by `Status:` count), 21 quality-gate report files (0 retained under artifact rule 3), 7 review tickets, **2 WFI drafts (WFI-025, WFI-026)**, 4 merged PRs, 6 open feature PRs |
 | Data Completeness | **Partial** — see Data Exclusions. Every expected report root exists; 12 of 14 implementation reports across the two measured features are current-schema with `Task Attempt Count`. All 21 quality-gate reports fail artifact rule 3's association requirement. |
-| Confidence | **High** for FP-01, FP-02, FP-04, FP-06, FP-08, FP-09 (each ≥3 occurrences across ≥2 features, or deterministic and reproduced against named script lines). **Medium** for FP-03, FP-05, FP-07 (2 occurrences each, on independent surfaces). No single-occurrence observation creates a WFI. |
+| Confidence | **High** for FP-01, FP-02, FP-04, FP-06, FP-08, FP-09, FP-10 (each ≥3 occurrences across ≥2 features — or, for FP-10, ≥3 within one feature with deterministic grep evidence — or reproduced against named script lines). **Medium** for FP-03, FP-05, FP-07 (2 occurrences each, on independent surfaces). No single-occurrence observation creates a WFI. |
 
 ## Scope Note (read this before citing the document)
 
@@ -301,9 +301,43 @@ re-adding the file is caught mechanically rather than by review. PR #268 extends
 it to the registry-projection snapshot. Two bundles remain unconverted; a
 dedicated task was raised for them.
 
+### FP-10: A required deterministic check can be skipped without emitting any signal
+
+- **Evidence:** `WFI-026`. Three consecutive task gates in
+  `epic-195-a7-compatibility` reached a `Done` decision without running any of
+  the three checks that
+  `references/deterministic-check-policy.md:25-28` names as mandatory
+  "before any `Done` decision". Grepping the three reports **as first
+  committed** (`326ac939`, `513e0dc5`, `4c72053a`) for `check-contract`,
+  `check-evidence-bundle`, `check-task-state` and `check-traceability` returns
+  **0 matches in each**. All three carry `VERDICT: PASS`; `tasks.md:105,252,412`
+  record all three as `Status: Done`, at tiers medium / **high** / medium.
+- **Frequency:** 3 consecutive gates in 1 feature.
+- **Phase:** quality gate.
+- **Confidence:** High — deterministic, established by grepping the reports at
+  their original commits rather than their current state.
+- **Do Not Overfit:** Three separate gates, three separate ledger sequences
+  (662, 667, 671), three separate evaluator sessions, one of them at the **high**
+  risk tier. A single forgetful run would be an exception; three in a row is the
+  absence of a control.
+
+The mechanism is that the `Done` decision is **self-certified**: the gate report
+asserts its own compliance, and nothing independently verifies that the named
+checks executed. Skipping them therefore produces no failure, no warning, and no
+artifact — the run is indistinguishable from a compliant one.
+
+**This finding revises FP-01 and this document's own "What Held Up" section.**
+It was discovered after the first draft was written, while pushing the
+`epic-195` branch, and is recorded here rather than quietly folded in.
+
+FP-01 said the gate spent its cycles on the record of the work rather than the
+work. FP-10 supplies the mechanism: when the controls that would have caught a
+defective record never ran, the defect surfaces later, at a re-gate, as an
+evidence Major. The two are one causal chain, not two coincidences.
+
 ## Proposed Improvements
 
-Only `WFI-025` is filed. The remainder are **candidates**: they meet the
+`WFI-025` and `WFI-026` are filed. The remainder are **candidates**: they meet the
 evidence bar this document sets, but a WFI requires the `wfi-audit-cycle` and
 human approval, neither of which happened in this period. They are recorded so
 the next session does not re-derive them.
@@ -318,6 +352,7 @@ Problem column as evidence only.
 | WFI-ID | Status | Problem | Target (lane) |
 |---|---|---|---|
 | WFI-025 | **Draft** (filed; `Audit-Status: Not-Started`, `Audit-Attempt: 2`) | The only validator-legal task-plan binding is the one guaranteed to break on the next lifecycle flip — `validate-review-context-set.sh`, `task-review-precheck.sh:494`, `check-workflow-state.sh:169-234` (FP-06) | plugin-improvement → GitHub Issue |
+| WFI-026 | **Draft** (filed; `Audit-Status: Not-Started`, `Mechanism: tools`, `Meta-Change: true`) | The `Done` decision is self-certified, so skipping a mandatory deterministic check emits no signal; three consecutive `epic-195` gates reached Done having run none of them (FP-10) | plugin-improvement → GitHub Issue |
 | _candidate A_ | Not filed | `check-evidence-bundle.sh:201-231` requires `Task ID:`; retrospective artifact rule 3 requires `Task:`; rule 3 also requires one `Run ID` where re-gate produces many. Every shipped feature is unmeasurable (FP-02) | plugin-improvement → GitHub Issue |
 | _candidate B_ | Not filed | Reservation-scoped write exclusion is prose with no enforcement; two gate cycles died to concurrent writes (FP-03) | plugin-improvement → GitHub Issue |
 | _candidate C_ | Not filed | The shared-file staging class fix is applied per bundle; nothing prevents the next bundle from staging a file it does not own (FP-09) | plugin-improvement → GitHub Issue |
@@ -329,6 +364,7 @@ Problem column as evidence only.
 | WFI-ID | Expected Effect Metric | Baseline | Target | Next Checkpoint |
 |---|---|---|---|---|
 | WFI-025 | Task-plan bindings surviving a lifecycle flip without re-review (count) | 0 (structurally impossible) | > 0 | `epic-192` task review |
+| WFI-026 | Gates reaching `Done` with zero mandatory deterministic checks recorded (count) | 3 of 3 measured `epic-195` gates | 0 | `epic-195` T-004 re-gate |
 | candidate A | Quality-gate reports retained under artifact rule 3 (%) | 0 of 21 (4th consecutive period at 0) | ≥ 90 % | next per-feature retrospective |
 | candidate B | Gate cycles voided by concurrent writes (count per period) | 2 | 0 | `epic-195` T-004 re-gate |
 | candidate C | `human-copy` bundles staging a repo-shared file (count) | 2 remaining (of 4 originally) | 0 | PR #268 + follow-up task |
@@ -399,6 +435,13 @@ are what the workflow exists to do.
 - **13 tasks reached Done with zero product Criticals**, two features reached
   all-Done, and `main` was restored to zero real defects (PRs #264–#267 merged).
 
+**Qualification added after FP-10 was found.** Three of those thirteen Done
+decisions (`epic-195` T-001/T-002/T-003) ran none of the mandatory
+deterministic checks. "Zero product Criticals" therefore means *no Critical was
+found*, which is weaker than *no Critical exists* for those three tasks. The
+claim is left in place because it is what was measured, and qualified here
+rather than deleted.
+
 ## Outstanding Human Actions
 
 | Item | Why it needs a human |
@@ -412,9 +455,12 @@ are what the workflow exists to do.
 
 ## Closing Assessment
 
-The workflow's **detection** is in good order: zero product Criticals reached a
-verdict, every Major was independently reproduced rather than read, and reviewer
-roles refused both attempts to influence them.
+The workflow's **detection is good where it runs**: every Major that reached a
+verdict was independently reproduced rather than read, and reviewer roles
+refused both attempts to influence them. The qualifier matters — FP-10 shows
+three consecutive gates reaching `Done` having run none of the mandatory
+deterministic checks, so the encouraging finding "zero product Criticals" rests
+in part on controls that did not execute.
 
 Its **record-keeping is where the cost went**. All seven Majors were evidence
 defects, and one of them cost a task its Done flip. The measurement layer has now
@@ -428,3 +474,8 @@ of acting on an assumed structure rather than an observed one, one of which
 damaged the working tree and one of which produced the period's only Criticals.
 The gates require implementers to read before asserting. The orchestrator did
 not hold itself to that, and it was the most expensive gap in the period.
+
+FP-10 is the one to act on first. FP-02 makes the workflow unable to measure
+itself; FP-10 makes it unable to tell whether its own controls ran. Everything
+else in this document is a finding *produced by* the workflow, and their weight
+depends on that question having an answer.
