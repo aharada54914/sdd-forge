@@ -8,10 +8,20 @@ Three runs, all against scratch copies of the product surface under a temp root,
 never the live tree:
   A. the delivered Bash twin      -- expected non-zero (it was always correct)
   B. the delivered PowerShell twin -- expected non-zero (this is the fix)
-  C. the PRE-FIX PowerShell twin from the parent commit, under the IDENTICAL
-     condition -- expected ZERO, i.e. cycle 1's false GREEN reproduced, which is
-     what proves run B is testing the defect and not a vacuous condition.
+  C. the PRE-FIX PowerShell twin, under the IDENTICAL condition -- expected
+     ZERO, i.e. cycle 1's false GREEN reproduced, which is what proves run B is
+     testing the defect and not a vacuous condition.
 A non-zero C would mean this experiment never exercised the Critical at all.
+
+The pre-fix revision is resolved from the twin's own path history rather than
+written as a relative ref. An earlier version of this script used HEAD~1, which
+was correct only while HEAD was the remediation commit itself; once any further
+commit landed, HEAD~1 became the FIXED twin and the control would have silently
+agreed with run B instead of contradicting it. The seq0675 evaluator caught that
+off-by-one independently. The lookup below takes the second-newest commit that
+touched the twin, and the script aborts if that resolves to the same bytes as
+the delivered twin -- a control that is byte-identical to the subject proves
+nothing and must fail loudly rather than pass quietly.
 
 $ sh -c 
       set -u
@@ -44,9 +54,20 @@ $ sh -c
         printf "%s\n" "####### Broken" \
           > "$d/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md"
       }
+      twin=tests/structural-compatibility.tests.ps1
+      prefix_rev=$(git log --format=%H -- "$twin" | sed -n 2p)
+      if [ -z "$prefix_rev" ]; then
+        echo "CONTROL ERROR: cannot resolve a pre-fix revision of $twin"; exit 2
+      fi
+      echo "pre-fix revision under test: $prefix_rev^{commit} (second-newest commit touching $twin)"
+      if [ "$(git show "$prefix_rev:$twin" | shasum -a 256 | cut -d" " -f1)" = \
+           "$(shasum -a 256 "$twin" | cut -d" " -f1)" ]; then
+        echo "CONTROL ERROR: pre-fix twin is byte-identical to the delivered twin"; exit 2
+      fi
+
       A="$work/post-fix"; mkdir -p "$A"; copy_surface "$A"; make_unparseable "$A"
       B="$work/pre-fix";  mkdir -p "$B"; copy_surface "$B"
-      git show HEAD~1:tests/structural-compatibility.tests.ps1 > "$B/tests/structural-compatibility.tests.ps1"
+      git show "$prefix_rev:$twin" > "$B/$twin"
       make_unparseable "$B"
 
       echo "--- A: delivered Bash twin, canonicalizer forced to fail to parse ---"
@@ -82,6 +103,7 @@ $ sh -c
         false
       fi
 
+pre-fix revision under test: a4829db18cd732eb3bb7031460ae87c65f2b8f84^{commit} (second-newest commit touching tests/structural-compatibility.tests.ps1)
 --- A: delivered Bash twin, canonicalizer forced to fail to parse ---
 SKIP: F5/AC-043 (A1+A6 ): compound dependency not merged
 SKIP: F6/AC-043 (A1+A6 ): compound dependency not merged

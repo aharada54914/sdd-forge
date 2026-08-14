@@ -11,6 +11,12 @@
 # Usage:
 #   run-checks.sh              regenerate every log except task-state.log
 #   run-checks.sh task-state   regenerate only task-state.log
+#   run-checks.sh only <name>  regenerate only <name>.log (e.g. `only regression`)
+#
+# The `only` selector exists so the byte-reproducibility this header claims can
+# be re-checked for one stage without paying for the whole sweep: run a stage,
+# diff its log against the committed copy, and the claim is either true or it
+# is not.
 #
 # task-state.log is separate because it is self-referential: check-task-state
 # validates the very contract and bundle this gate produces, so it can only go
@@ -20,24 +26,54 @@
 # No log embeds a timestamp or an absolute path: a re-run must reproduce the
 # same bytes, and a clock value or a machine-specific path would invalidate the
 # evidence bundle hash on every re-run.
+#
+# One exception is handled rather than asserted away. tests/install.tests.sh
+# echoes its own mktemp scratch directory, which differs on every run, so a raw
+# regression.log is not byte-reproducible and would break the bundle hash. Every
+# log is therefore passed through scrub_volatile(), which rewrites only the
+# random component of a mktemp path to the literal <scratch>. Nothing else is
+# filtered: every ok:/PASS:/FAIL: line, count and exit status is the untouched
+# output of the command named in the log.
 
 here=$(CDPATH= cd -- "$(dirname "$0")" && pwd)
 root=$(CDPATH= cd -- "$here/../../../../.." && pwd)
 cd "$root" || exit 1
 out="specs/epic-195-a7-compatibility/verification/qg-cycle2/T-004"
 
+scrub_volatile() {
+  # Rewrite ONLY the random suffix mktemp appends. See the header note.
+  # Two generators produce one in this repository: a bare `mktemp -d` (tmp.
+  # plus 8+ alphanumerics) and this script's own `qg-t004-*.XXXXXX` templates.
+  sed -e 's#tmp\.[A-Za-z0-9]\{8,\}#tmp.<scratch>#g' \
+      -e 's#\(qg-t004-[a-z-]*\)\.[A-Za-z0-9]\{6\}#\1.<scratch>#g'
+}
+
+only_stage=""
+[ "${1:-}" = only ] && only_stage="${2:?run-checks.sh only <stage-name>}.log"
+
 run_log() {
-  # run_log <log-name> <preamble-file-or-dash> <command-string>
+  # run_log <log-name> <preamble-or-dash> <command-string>
+  if [ -n "$only_stage" ] && [ "$1" != "$only_stage" ]; then
+    return 0
+  fi
   log="$out/$1"
   preamble="$2"
   cmd="$3"
+  # Scratch file lives outside the evidence directory on purpose: a crash must
+  # never leave a stray artifact next to the logs the evidence bundle hashes.
+  raw="${TMPDIR:-/tmp}/qg-t004-runlog.$$"
   : > "$log"
   if [ "$preamble" != "-" ]; then
     printf '%s\n\n' "$preamble" >> "$log"
   fi
   printf '$ sh -c %s\n' "$cmd" >> "$log"
-  sh -c "$cmd" >> "$log" 2>&1
+  # Capture the COMMAND's exit status, not the scrubber's: POSIX sh has no
+  # PIPESTATUS, so a pipeline here would silently report sed's status and mask
+  # every failure this driver exists to surface.
+  sh -c "$cmd" > "$raw" 2>&1
   rc=$?
+  scrub_volatile < "$raw" >> "$log"
+  rm -f "$raw"
   printf '\nexit status: %d\n' "$rc" >> "$log"
   echo "[$1] exit status: $rc"
   return $rc
@@ -84,10 +120,20 @@ Three runs, all against scratch copies of the product surface under a temp root,
 never the live tree:
   A. the delivered Bash twin      -- expected non-zero (it was always correct)
   B. the delivered PowerShell twin -- expected non-zero (this is the fix)
-  C. the PRE-FIX PowerShell twin from the parent commit, under the IDENTICAL
-     condition -- expected ZERO, i.e. cycle 1's false GREEN reproduced, which is
-     what proves run B is testing the defect and not a vacuous condition.
-A non-zero C would mean this experiment never exercised the Critical at all." \
+  C. the PRE-FIX PowerShell twin, under the IDENTICAL condition -- expected
+     ZERO, i.e. cycle 1's false GREEN reproduced, which is what proves run B is
+     testing the defect and not a vacuous condition.
+A non-zero C would mean this experiment never exercised the Critical at all.
+
+The pre-fix revision is resolved from the twin's own path history rather than
+written as a relative ref. An earlier version of this script used HEAD~1, which
+was correct only while HEAD was the remediation commit itself; once any further
+commit landed, HEAD~1 became the FIXED twin and the control would have silently
+agreed with run B instead of contradicting it. The seq0675 evaluator caught that
+off-by-one independently. The lookup below takes the second-newest commit that
+touched the twin, and the script aborts if that resolves to the same bytes as
+the delivered twin -- a control that is byte-identical to the subject proves
+nothing and must fail loudly rather than pass quietly." \
 '
       set -u
       work=$(mktemp -d "${TMPDIR:-/tmp}/qg-t004-critical.XXXXXX")
@@ -119,9 +165,20 @@ A non-zero C would mean this experiment never exercised the Critical at all." \
         printf "%s\n" "####### Broken" \
           > "$d/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/requirements.template.md"
       }
+      twin=tests/structural-compatibility.tests.ps1
+      prefix_rev=$(git log --format=%H -- "$twin" | sed -n 2p)
+      if [ -z "$prefix_rev" ]; then
+        echo "CONTROL ERROR: cannot resolve a pre-fix revision of $twin"; exit 2
+      fi
+      echo "pre-fix revision under test: $prefix_rev^{commit} (second-newest commit touching $twin)"
+      if [ "$(git show "$prefix_rev:$twin" | shasum -a 256 | cut -d" " -f1)" = \
+           "$(shasum -a 256 "$twin" | cut -d" " -f1)" ]; then
+        echo "CONTROL ERROR: pre-fix twin is byte-identical to the delivered twin"; exit 2
+      fi
+
       A="$work/post-fix"; mkdir -p "$A"; copy_surface "$A"; make_unparseable "$A"
       B="$work/pre-fix";  mkdir -p "$B"; copy_surface "$B"
-      git show HEAD~1:tests/structural-compatibility.tests.ps1 > "$B/tests/structural-compatibility.tests.ps1"
+      git show "$prefix_rev:$twin" > "$B/$twin"
       make_unparseable "$B"
 
       echo "--- A: delivered Bash twin, canonicalizer forced to fail to parse ---"

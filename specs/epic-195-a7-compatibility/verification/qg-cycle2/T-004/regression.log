@@ -133,18 +133,18 @@ ok: failure on registration restores pre-existing install
 ok: invalid source directory rejected before touching existing install
 ok: invalid plugin name rejected
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.89lBYJodLw/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
 Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.89lBYJodLw/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
 Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
 ok: idempotency: second install exits 0, state consistent
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.Orkx2NGE8G/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
 Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
@@ -153,7 +153,7 @@ ok: codex agent install + malformed-role diagnostic
 ok: malformed source agent TOML rejected before deployment
 ok: authenticated remote install uses GitHub CLI token flow
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.ezwnhAGnYK/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
@@ -161,28 +161,28 @@ Set one of these environment variables for your MCP client before it starts ci-m
 ok: local source installs Git-tracked files only
 ok: untracked required release file is rejected before deployment
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.fHS3eJWBKo/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
 Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
 ok: lock: concurrent install blocked, succeeds after lock released
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.aecw0mGFhZ/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
 Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
 ok: lock: released on success — lock dir absent after install
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.7OD29doXm4/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
 Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN.
 ok: lock: stale lock with dead pid reclaimed — install succeeds
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.ahFvWykhov/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 
 ci-mcp needs a read-only GitHub token to call the GitHub Actions API.
@@ -199,13 +199,13 @@ ok: sdd-review-loop required paths: manifests and skills present
 ok: Claude manifest validation fails before marketplace registration
 ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.7yzKvTSgjo/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 ok: --skip-mcp skips both MCP placement and registration
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.tjxshWNXuQ/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 
-SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.PxDudiirgo/installed
+SDD plugins installed at: /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.<scratch>/installed
 Plugin registration was skipped because --target=FilesOnly.
 ok: --mcp <list> installs valid names and rejects invalid/empty ones
 ok: --plugins "" is rejected cleanly without an unbound variable crash
@@ -256,7 +256,7 @@ Results: 25 passed, 0 failed.
 ==========================================================
 === TEST-005: loop_fixture_init (greenfield + brownfield) ===
 ok: TEST-005.1: loop_fixture_init greenfield succeeds
-ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.SANoG6) lies outside the repository working tree
+ok: TEST-005.2: greenfield fixture root (/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.IW28ha) lies outside the repository working tree
 ok: TEST-005.3: greenfield genesis identity-ledger has exactly one well-formed record
 ok: TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)
 ok: TEST-005.5: loop_fixture_init writes no real repository path for the fixture feature
@@ -281,7 +281,7 @@ ok: TEST-007.4 (negative self-check): an end state contradicting the inventory (
 ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
 ok: TEST-017.2: suite completed within the 300s runtime budget
 
-loop-driver.tests.sh: 22 passed, 0 failed, 3s elapsed
+loop-driver.tests.sh: 22 passed, 0 failed, 2s elapsed
 
 ==========================================================
 [RUN] tests/gates.tests.sh
