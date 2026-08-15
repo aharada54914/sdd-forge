@@ -309,12 +309,12 @@ if should_run TEST-041; then
   run_all_ps1="$REPO_ROOT/tests/run-all.ps1"
   grep -Fxq '  tests/ownership-digest.tests.sh' "$run_all_sh" && wiring_count=$((wiring_count + 1))
   grep -Fq "'tests/ownership-digest.tests.ps1'" "$run_all_ps1" && wiring_count=$((wiring_count + 1))
-  grep -Fq 'bash ./tests/ownership-digest.tests.sh' "$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
-  grep -Fq './tests/ownership-digest.tests.ps1' "$REPO_ROOT/specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
+  grep -Fq 'bash ./tests/ownership-digest.tests.sh' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
+  grep -Fq './tests/ownership-digest.tests.ps1' "$REPO_ROOT/.github/workflows/test.yml" && wiring_count=$((wiring_count + 1))
   grep -Fq '`tests/ownership-digest.tests.sh` / `.ps1`' "$REPO_ROOT/specs/epic-191-a3-path-ownership/design.md" && wiring_count=$((wiring_count + 1))
   if is_mutated TEST-041; then wiring_count=4; printf 'MUTATION: TEST-041 removes one required registration from the observed inventory\n'; fi
   result=0; [ "$wiring_count" = 5 ] && result=1
-  check TEST-041 'both suites are wired in run-all, staged CI, and the design inventory' "$result"
+  check TEST-041 'both suites are wired in run-all, live CI, and the design inventory' "$result"
 fi
 
 if should_run TEST-048; then
