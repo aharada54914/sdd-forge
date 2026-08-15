@@ -194,11 +194,14 @@ $completeAtEpochMs = if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
 } else { 0 }
 if ($completeAtEpochMs -gt 0) {
     if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
-        # Start-Sleep can overshoot by hundreds of milliseconds on a contended
-        # windows-latest host. Spin only for this short boundary interval so
-        # scheduler jitter cannot turn an in-budget completion into a timeout.
-        while ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() -lt $completeAtEpochMs) {
-            [Threading.Thread]::SpinWait(10000)
+        # Use a kernel wait instead of Start-Sleep (which has shown large
+        # overshoots on windows-latest) or a busy spin (which can starve a
+        # two-core hosted runner across the ten consecutive boundary cases).
+        $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        if ($remainingMs -gt 0) {
+            $waitHandle = [Threading.ManualResetEvent]::new($false)
+            try { $null = $waitHandle.WaitOne([int]$remainingMs) }
+            finally { $waitHandle.Dispose() }
         }
     } else {
         $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
