@@ -53,6 +53,8 @@ tests=(
   tests/guard-parity.tests.sh
   tests/claude-bash-matcher.tests.sh
   tests/phase2-guard-invariants.tests.sh
+  tests/phase2-guard-tokenizer.tests.sh
+  tests/phase2-risk-upgrade.tests.sh
   tests/phase2-sudo-signature-static.tests.sh
   tests/self-improvement-guard.tests.sh
   tests/p0-hardening.tests.sh
