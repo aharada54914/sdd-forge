@@ -964,25 +964,48 @@ else
   fail "TEST-045.4: component-path-resolver missing from tests/run-all.sh/.ps1 registration"
 fi
 
-# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1): Done-When 4
-# names the human-copy staged workflow candidate, not the superseded
-# reports/implementation/.../drafts/ copy this assertion used to verify
-# (human-copy/MANIFEST-NOTES.md records the drafts detour as "never
-# necessary" and drafts/MANIFEST.sha256 as superseded). The assertion now
-# guards the real deliverable: the staged candidate must exist AND match its
-# own MANIFEST.sha256 entry byte-for-byte, so deleting the candidate,
-# deleting its manifest line, or letting the two diverge each turns this red.
+# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1 to guard the
+# human-copy staged workflow candidate; REPLACED BY A CLASS LOCK 2026-08-14,
+# same shape as the epic-136-phase2 eviction in PR #268).
+#
+# Membership test for eviction, taken from #268: a file belongs on the list
+# when its LIVE bytes can change without this epic changing. The CI workflow
+# qualifies twice over — any epic adds steps to it, and on 2026-08-14 two
+# unrelated CI-capacity commits (#270 raising the version-gates timeout
+# 20 -> 30, #271 raising it 30 -> 45) moved the live bytes and broke the
+# staged pair TWICE IN ONE DAY. Each break forced a manual two-file refresh
+# (43ec6e48, 80ce3165) that carried no information about this task.
+#
+# The snapshot had also already discharged its purpose: the human applied it
+# in 36298e91, so the live workflow carries T-001's CI registration. All the
+# snapshot was still doing was supplying a byte-comparison basis to
+# TEST-045.6's shallow form — an assertion with no discriminating power for
+# the property it claimed to check, because ANY legitimate change to the live
+# workflow broke it exactly as loudly as tampering would.
+#
+# Absence is asserted, not merely unlisted, so re-adding the snapshot fails
+# here instead of rotting silently. Both halves are checked: the staged file
+# must not exist AND the manifest must not carry an entry for it, so a
+# half-revert is caught too.
 HC_DIR="${REPO_ROOT}/specs/epic-191-a3-path-ownership/human-copy"
-HC_WORKFLOW="${HC_DIR}/.github/workflows/test.yml"
 HC_MANIFEST="${HC_DIR}/MANIFEST.sha256"
-expected_hc=""
-[ -f "$HC_MANIFEST" ] && expected_hc=$(awk '$2 == ".github/workflows/test.yml" {print $1}' "$HC_MANIFEST")
-actual_hc=""
-[ -f "$HC_WORKFLOW" ] && actual_hc=$(shasum -a 256 "$HC_WORKFLOW" | awk '{print $1}')
-if [ -n "$expected_hc" ] && [ -n "$actual_hc" ] && [ "$expected_hc" = "$actual_hc" ]; then
-  ok "TEST-045.5: the human-copy staged .github/workflows/test.yml candidate exists and matches its MANIFEST.sha256 entry"
+REPO_SHARED_EVICTED=".github/workflows/test.yml"
+lock_ok=1
+lock_detail=""
+for evicted in $REPO_SHARED_EVICTED; do
+  if [ -e "${HC_DIR}/${evicted}" ]; then
+    lock_ok=0
+    lock_detail="${lock_detail} staged-file:${evicted}"
+  fi
+  if [ -f "$HC_MANIFEST" ] && grep -Fq "  ${evicted}" "$HC_MANIFEST"; then
+    lock_ok=0
+    lock_detail="${lock_detail} manifest-entry:${evicted}"
+  fi
+done
+if [ "$lock_ok" = 1 ]; then
+  ok "TEST-045.5 class lock: no repo-shared file is snapshotted in this bundle (no staged file, no manifest entry)"
 else
-  fail "TEST-045.5: expected a hash-verified staged test.yml candidate in ${HC_DIR} (manifest entry='${expected_hc}', on-disk='${actual_hc}')"
+  fail "TEST-045.5 class lock: a repo-shared file is snapshotted in this bundle —${lock_detail}"
 fi
 
 # TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2; shallow-aware
@@ -1020,11 +1043,26 @@ fi
 T001_COMMITS="41881071d50ce2eca928f41eb07b4a2f084bacd2 f3ba917a2d70f098ec1e29938b52d780ec53ce3b 01df4cbd3b6ae23c8a2c1c264006f5c0cef02556 18624e543645ee578e34e92ae0e3684af626ec5d b0589e3202bf89834a70edbc3e413282b14f84fb 3eb2af61ab42c7528997c71dfae5a9a580e21189 87fe0452a0a0474631f26c7393381b48fe9d980c"
 is_shallow=$(git -C "$REPO_ROOT" rev-parse --is-shallow-repository 2>/dev/null || echo "unknown")
 if [ "$is_shallow" = "true" ]; then
-  live_wf_hash=$(shasum -a 256 "${REPO_ROOT}/.github/workflows/test.yml" | awk '{print $1}')
-  if [ -n "$expected_hc" ] && [ "$live_wf_hash" = "$expected_hc" ]; then
-    ok "TEST-045.6: (shallow checkout) live .github/workflows/test.yml is byte-identical to the human-applied staged candidate's MANIFEST.sha256 entry (content-level attribution form; pinned commits unavailable at depth 1)"
+  # Class fix 2026-08-14: the former shallow branch compared the live workflow
+  # to the (now evicted) staged snapshot's manifest entry. That comparison
+  # could not distinguish tampering from a legitimate change — #270 and #271
+  # each broke it while changing nothing this task owns — so it is replaced by
+  # the substance the staging existed to deliver: the live version-gates job
+  # must still register BOTH legs of this suite. That survives unrelated edits
+  # to the workflow (timeouts, other epics' steps) and fails if the
+  # registration is dropped. Commit-level attribution genuinely cannot run at
+  # depth 1; the strict form in the else-branch covers it in every
+  # full-history checkout (run-all, local, any full clone).
+  live_wf="${REPO_ROOT}/.github/workflows/test.yml"
+  reg_missing=""
+  grep -Fq 'run: bash ./tests/component-path-resolver.tests.sh' "$live_wf" \
+    || reg_missing="${reg_missing} bash-leg"
+  grep -Fq 'run: ./tests/component-path-resolver.tests.ps1' "$live_wf" \
+    || reg_missing="${reg_missing} pwsh-leg"
+  if [ -z "$reg_missing" ]; then
+    ok "TEST-045.6: (shallow checkout) the live workflow still registers both legs of this suite (substance form; commit attribution needs full history and is covered by the strict form)"
   else
-    fail "TEST-045.6: (shallow checkout) live workflow diverges from the staged candidate's manifest entry (live='${live_wf_hash}', manifest='${expected_hc}')"
+    fail "TEST-045.6: (shallow checkout) the live workflow no longer registers this suite —${reg_missing}"
   fi
 else
   workflow_touchers=$(git -C "$REPO_ROOT" log --format=%H -- .github/workflows/test.yml)

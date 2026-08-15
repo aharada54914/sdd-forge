@@ -12,7 +12,7 @@ FEATURE_ROOT="$ROOT/specs/epic-191-a3-path-ownership"
 ACCEPTANCE="$FEATURE_ROOT/acceptance-tests.md"
 TRACEABILITY="$FEATURE_ROOT/traceability.md"
 HUMAN_COPY="$FEATURE_ROOT/human-copy"
-STAGED_WORKFLOW="$HUMAN_COPY/.github/workflows/test.yml"
+LIVE_WORKFLOW="$ROOT/.github/workflows/test.yml"
 MANIFEST="$HUMAN_COPY/MANIFEST.sha256"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -243,17 +243,17 @@ while IFS= read -r suite; do
 done < <(grep -oE 'tests/[a-z0-9-]+\.tests' "$TRACEABILITY" \
   | sed 's#tests/##;s#\.tests##' | LC_ALL=C sort -u)
 if [[ "${#suite_bases[@]}" -gt 0 ]] \
-  && registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$STAGED_WORKFLOW" "${suite_bases[@]}"; then
-  pass "TEST-047 all spec-declared suites are registered once in both runners and staged CI"
+  && registration_audit "$ROOT/tests/run-all.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}"; then
+  pass "TEST-047 all spec-declared suites are registered once in both runners and live CI"
 else
-  fail "TEST-047 all spec-declared suites are registered once in both runners and staged CI"
+  fail "TEST-047 all spec-declared suites are registered once in both runners and live CI"
 fi
 
 parity_suite="$(basename "$0" .tests.sh)"
 if [[ "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$ROOT/tests/run-all.sh" || true)" == "1" \
    && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$ROOT/tests/run-all.ps1" || true)" == "1" \
-   && "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$STAGED_WORKFLOW" || true)" == "1" \
-   && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$STAGED_WORKFLOW" || true)" == "1" ]]; then
+   && "$(grep -Fc -- "tests/$parity_suite.tests.sh" "$LIVE_WORKFLOW" || true)" == "1" \
+   && "$(grep -Fc -- "tests/$parity_suite.tests.ps1" "$LIVE_WORKFLOW" || true)" == "1" ]]; then
   pass "TEST-051 parity harness self-registration"
 else
   fail "TEST-051 parity harness self-registration"
@@ -276,7 +276,7 @@ p = pathlib.Path(sys.argv[1])
 p.write_text(p.read_text().replace(sys.argv[2], '', 1))
 PY
 if [[ -n "$first_suite" ]] \
-  && ! registration_audit "$TMP/run-all-mutant.sh" "$ROOT/tests/run-all.ps1" "$STAGED_WORKFLOW" "${suite_bases[@]}"; then
+  && ! registration_audit "$TMP/run-all-mutant.sh" "$ROOT/tests/run-all.ps1" "$LIVE_WORKFLOW" "${suite_bases[@]}"; then
   pass "TEST-047 registration audit rejects a disposable missing-suite mutant"
 else
   fail "TEST-047 registration audit rejects a disposable missing-suite mutant"

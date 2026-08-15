@@ -393,18 +393,20 @@ foreach ($line in (Get-Content -LiteralPath $hcManifest191)) {
     if (-not (Test-Path -LiteralPath $candidatePath)) { $manifestOk = $false; continue }
     $candidateHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $candidatePath).Hash.ToLowerInvariant()
     if ($candidateHash -cne $parts[0].Trim()) { $manifestOk = $false }
-    if ($relativePath -cne '.github/workflows/test.yml') {
-        $livePath = Join-Path $repoRoot $relativePath
-        if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
-        $liveText = [System.IO.File]::ReadAllText($livePath)
-        $guardApplied = $liveText.Contains('if ($args.Count -gt 0)', [System.StringComparison]::Ordinal) -and
-            $liveText.Contains('unrecognized arguments:', [System.StringComparison]::Ordinal)
-        $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
-        $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
-        if (-not $pendingHumanApply) {
-            if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
-            $liveChecked++
-        }
+    # The repo-shared CI workflow was exempted here while this bundle
+    # snapshotted it; that entry was evicted 2026-08-14 and TEST-045.5's class
+    # lock forbids its return, so the exemption became unreachable and is
+    # removed. See the bash twin for the full rationale.
+    $livePath = Join-Path $repoRoot $relativePath
+    if (-not (Test-Path -LiteralPath $livePath)) { $manifestOk = $false; continue }
+    $liveText = [System.IO.File]::ReadAllText($livePath)
+    $guardApplied = $liveText.Contains('if ($args.Count -gt 0)', [System.StringComparison]::Ordinal) -and
+        $liveText.Contains('unrecognized arguments:', [System.StringComparison]::Ordinal)
+    $pendingHumanApply = $declaredHumanApply -ccontains $relativePath -and -not $guardApplied
+    $liveHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $livePath).Hash.ToLowerInvariant()
+    if (-not $pendingHumanApply) {
+        if ($liveHash -cne $parts[0].Trim()) { $manifestOk = $false }
+        $liveChecked++
     }
     $manifestChecked++
 }

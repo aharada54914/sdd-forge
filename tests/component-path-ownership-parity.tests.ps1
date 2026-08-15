@@ -12,7 +12,7 @@ $FeatureRoot = Join-Path $Root 'specs/epic-191-a3-path-ownership'
 $Acceptance = Join-Path $FeatureRoot 'acceptance-tests.md'
 $Traceability = Join-Path $FeatureRoot 'traceability.md'
 $HumanCopy = Join-Path $FeatureRoot 'human-copy'
-$StagedWorkflow = Join-Path $HumanCopy '.github/workflows/test.yml'
+$LiveWorkflow = Join-Path $Root '.github/workflows/test.yml'
 $Manifest = Join-Path $HumanCopy 'MANIFEST.sha256'
 $Tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("path-ownership-parity-" + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Tmp | Out-Null
@@ -193,14 +193,14 @@ exit 0
 
     $suiteMatches = Select-String -LiteralPath $Traceability -Pattern 'tests/[a-z0-9-]+\.tests' -AllMatches
     $suiteBases = @($suiteMatches.Matches.Value | ForEach-Object { $_.Substring(6, $_.Length - 12) } | Sort-Object -Unique)
-    if ($suiteBases.Count -gt 0 -and (Test-RegistrationAudit (Join-Path $Root 'tests/run-all.sh') (Join-Path $Root 'tests/run-all.ps1') $StagedWorkflow $suiteBases)) {
-        Pass 'TEST-047 all spec-declared suites are registered once in both runners and staged CI'
+    if ($suiteBases.Count -gt 0 -and (Test-RegistrationAudit (Join-Path $Root 'tests/run-all.sh') (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases)) {
+        Pass 'TEST-047 all spec-declared suites are registered once in both runners and live CI'
     } else {
-        Fail 'TEST-047 all spec-declared suites are registered once in both runners and staged CI'
+        Fail 'TEST-047 all spec-declared suites are registered once in both runners and live CI'
     }
 
     $paritySuite = [System.IO.Path]::GetFileName($PSCommandPath).Replace('.tests.ps1', '')
-    if (Test-RegistrationAudit (Join-Path $Root 'tests/run-all.sh') (Join-Path $Root 'tests/run-all.ps1') $StagedWorkflow @($paritySuite)) {
+    if (Test-RegistrationAudit (Join-Path $Root 'tests/run-all.sh') (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow @($paritySuite)) {
         Pass 'TEST-051 parity harness self-registration'
     } else {
         Fail 'TEST-051 parity harness self-registration'
@@ -221,7 +221,7 @@ exit 0
     $mutantText = [System.IO.File]::ReadAllText($mutantRunSh)
     $mutantText = [regex]::Replace($mutantText, [regex]::Escape("tests/$firstSuite.tests.sh"), '', 1)
     [System.IO.File]::WriteAllText($mutantRunSh, $mutantText)
-    if (-not (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $StagedWorkflow $suiteBases)) {
+    if (-not (Test-RegistrationAudit $mutantRunSh (Join-Path $Root 'tests/run-all.ps1') $LiveWorkflow $suiteBases)) {
         Pass 'TEST-047 registration audit rejects a disposable missing-suite mutant'
     } else {
         Fail 'TEST-047 registration audit rejects a disposable missing-suite mutant'
