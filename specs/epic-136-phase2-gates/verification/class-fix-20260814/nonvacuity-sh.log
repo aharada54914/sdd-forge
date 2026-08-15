@@ -1,0 +1,19 @@
+=================== lane: sh ===================
+  PASS  baseline (all evicted)                         vector: 7/7 as required
+  PASS  re-added STAGED FILE: .github/workflows/test.yml vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: .github/workflows/test.yml vector: 7/7 as required
+  PASS  re-added STAGED FILE: plugins/sdd-quality-loop/references/guard-invariants.json vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: plugins/sdd-quality-loop/references/guard-invariants.json vector: 7/7 as required
+  PASS  re-added STAGED FILE: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py vector: 7/7 as required
+  PASS  re-added STAGED FILE: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py vector: 7/7 as required
+  PASS  re-added STAGED FILE: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js vector: 7/7 as required
+  PASS  re-added STAGED FILE: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1 vector: 7/7 as required
+  PASS  re-added STAGED FILE: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh vector: 7/7 as required
+  PASS  re-added MANIFEST ENTRY: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh vector: 7/7 as required
+  PASS  restored (all evicted again)                   vector: 7/7 as required
+
+NON-VACUITY: every mutation flipped exactly its own lock to FAIL; restore returned all seven to ok. lane=sh

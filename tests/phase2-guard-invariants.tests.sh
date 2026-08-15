@@ -4,7 +4,16 @@ set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd -P)"
 stage="$root/specs/epic-136-phase2-gates/human-copy"
-source_loop="$stage/plugins/sdd-quality-loop"
+# 2026-08-14 class fix (extends the 2026-08-11 RT-20260811-002 ruling): the
+# canonical guard-invariants.json, its generator and the four generated
+# siblings are REPO-SHARED — their live bytes change whenever ANY epic
+# registers a protected path (measured: three separate epics wrote the live
+# canonical). A per-epic staged snapshot of such a file is structurally doomed
+# to go stale and become a deletion hazard on apply, so the snapshot is
+# EVICTED from this bundle and the LIVE plugin tree is the single source of
+# truth these tests exercise — the same retargeting TEST-011 received when the
+# repo-shared CI workflow was evicted.
+source_loop="$root/plugins/sdd-quality-loop"
 generator="$source_loop/scripts/generate-guard-invariants.py"
 outputs=(guard_invariants.py guard-invariants.generated.js guard-invariants.generated.ps1 guard-invariants.generated.sh)
 pass=0
@@ -33,7 +42,7 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
-[[ -f "$generator" ]] && ok 'staged stdlib generator exists' || bad 'staged stdlib generator exists'
+[[ -f "$generator" ]] && ok 'live stdlib generator exists' || bad 'live stdlib generator exists'
 for output in "${outputs[@]}"; do
   [[ -f "$source_loop/scripts/generated/$output" ]] && ok "committed native output exists: $output" || bad "committed native output exists: $output"
 done
@@ -45,9 +54,14 @@ if run_generator "$source_loop" --check; then ok '--check accepts committed outp
 # 2026-08-11 (human ruling on RT-20260811-002, class fix): the repo-shared
 # .github/workflows/test.yml is EVICTED from this inventory. A per-epic staged
 # snapshot of a repo-shared file is structurally doomed to go stale and became
-# a deletion hazard on apply (measured: 137 lines / 18 named live steps). The
-# inventory is now 18 entries; the class lock below fails this suite if the
-# snapshot is ever re-added.
+# a deletion hazard on apply (measured: 137 lines / 18 named live steps).
+# 2026-08-14: the same class fix is extended to the registry-projection files
+# (canonical guard-invariants.json, its generator, and the four generated
+# siblings). They are repo-shared with MANY writers: their live bytes change on
+# every protected-path registration by any epic, which is why this bundle went
+# stale twice in the same week and turned CI red on all three OSes. The
+# inventory is now 12 entries; the class lock below fails this suite if any
+# evicted snapshot is ever re-added.
 phase2_targets=(
   'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py'
   'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js'
@@ -59,12 +73,6 @@ phase2_targets=(
   'plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
   'plugins/sdd-lite/skills/lite-spec/SKILL.md'
   'plugins/sdd-ship/skills/ship/SKILL.md'
-  'plugins/sdd-quality-loop/references/guard-invariants.json'
-  'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
-  'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py'
-  'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js'
-  'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1'
-  'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
   'tests/guard-parity.tests.sh'
   'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 )
@@ -96,13 +104,37 @@ done
 [[ "$candidate_ok" == 1 ]] && ok 'TEST-013 staged batch contains each exact protected candidate' || bad 'TEST-013 staged batch contains each exact protected candidate'
 [[ "$manifest_ok" == 1 ]] && ok 'TEST-013 final manifest has exact ordered lowercase staged hashes' || bad 'TEST-013 final manifest has exact ordered lowercase staged hashes'
 
-# Class lock (2026-08-11 human ruling, RT-20260811-002): the bundle must never
-# again snapshot the repo-shared CI workflow. Absence is asserted, not merely
-# unlisted, so a future re-adding fails here instead of rotting silently.
-wf_absent=1
-[[ -e "$stage/.github/workflows/test.yml" ]] && wf_absent=0
-if [[ -f "$manifest" ]] && grep -Fq '  .github/workflows/test.yml' "$manifest"; then wf_absent=0; fi
-[[ "$wf_absent" == 1 ]] && ok 'TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)' || bad 'TEST-013 class lock: repo-shared .github/workflows/test.yml is not snapshotted in this bundle (no staged file, no manifest entry)'
+# Class lock (2026-08-11 human ruling, RT-20260811-002; extended 2026-08-14):
+# the bundle must never again snapshot a repo-shared file that live advances
+# independently of this epic. Absence is asserted, not merely unlisted, so a
+# future re-adding fails here instead of rotting silently. Membership test for
+# this list: the file's LIVE bytes can change without this epic changing —
+# the CI workflow (any epic adds steps) and the registry projection (any epic
+# registers a protected path).
+repo_shared_evicted=(
+  '.github/workflows/test.yml'
+  'plugins/sdd-quality-loop/references/guard-invariants.json'
+  'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py'
+  'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py'
+  'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js'
+  'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1'
+  'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
+)
+# Guarding the grep with [[ -f "$manifest" ]] inside the loop made the manifest
+# half of every lock pass without reading anything if that path were ever wrong
+# -- silent vacuity, the exact mode these locks exist to prevent. Assert the
+# manifest once, loudly, then read it unconditionally.
+[[ -f "$manifest" ]] \
+  && ok 'TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)' \
+  || bad 'TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)'
+for evicted in "${repo_shared_evicted[@]}"; do
+  evicted_absent=1
+  [[ -e "$stage/$evicted" ]] && evicted_absent=0
+  if grep -Fq "  $evicted" "$manifest" 2>/dev/null; then evicted_absent=0; fi
+  [[ "$evicted_absent" == 1 ]] \
+    && ok "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)" \
+    || bad "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)"
+done
 
 # TEST-011 asserts the CI ordering invariant against the LIVE workflow (the
 # single source of truth after the 2026-08-11 eviction of the staged snapshot).
@@ -186,7 +218,7 @@ mv "$io_canonical" "$io_canonical.backing"
 mkdir "$io_canonical"
 if check_fails "$work/io-error"; then ok '--check rejects canonical read I/O errors'; else bad '--check rejects canonical read I/O errors'; fi
 
-# TEST-012: staged guard candidates must use fixed generated-module loaders.
+# TEST-012: the live guard runtimes must use fixed generated-module loaders.
 scripts="$source_loop/scripts"
 assert_contains() {
   local path="$1" needle="$2" label="$3"
