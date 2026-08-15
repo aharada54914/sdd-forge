@@ -1,0 +1,135 @@
+{
+ "schema": "task-reviewer-b/v1",
+ "stage": "task",
+ "role": "task-reviewer-b",
+ "feature": "epic-191-a3-path-ownership",
+ "attempt": 9,
+ "round": 1,
+ "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-b-a9r1-seq0694",
+ "host_session_id": "SESS-task-task-reviewer-b-epic-191-a3-path-ownership-a9r1-0694",
+ "manifest": {
+  "allowed_inputs": [
+   {
+    "path": "specs/epic-191-a3-path-ownership/requirements.md",
+    "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+    "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/design.md",
+    "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/tasks.md",
+    "sha256": "e4ad32c444bc4ea90ab6d96fa772dc8af6931a661c07ad1727856a1158acca87"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/traceability.md",
+    "sha256": "c7ef1baedfe82cc1c3c4efd9b0eaa6c00d51d1b6ec28236fa983c27662877c59"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+    "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+    "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+    "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+   },
+   {
+    "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+    "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+   },
+   {
+    "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+    "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+   },
+   {
+    "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+    "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+   },
+   {
+    "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+    "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+   },
+   {
+    "path": "reports/task-review/epic-191-a3-path-ownership/attempt-9/round-1/precheck-result.json",
+    "sha256": "3334b24b1eb374ae515553ba4d458992af4925d5a93f893dda5a721031bc3d0c"
+   },
+   {
+    "path": "reports/task-review/epic-191-a3-path-ownership/attempt-9/round-1/integrated-summary.json",
+    "sha256": "480d385b2b7384ecab5e3c777e024b56bc869b2096b3132bacdb4f99d6d46979"
+   }
+  ]
+ },
+ "verdict": "NEEDS_WORK",
+ "checks": [
+  {
+   "id": "RISK-APPROPRIATE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "T-001..T-005 sections are byte-identical to the content bound by attempt-8/round-1's clean PASS (tasks.md sha256 at that binding, 9cdb6dc3..., matches git show 58273ad1:.../tasks.md exactly; the only subsequent change is commit 00744ac3, confined to the T-006 section). Per the TYPE-H convergence rule, RISK-APPROPRIATE for T-001..T-005 is carried forward as PASS (advisory: prior PASS evidence at reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json). T-006's NEW content (00744ac3: a carve-out sanctioning a minimal unknown-argument-rejection parity fix to resolve-component-paths.ps1/check-component-coverage.ps1) is judged fresh, not shielded: it does not touch authentication, authorization-as-a-new-surface, payment, PII, migration, or an externally-visible API contract in a way that would change the required tier -- T-006's Risk: high already meets/exceeds the bar the proximity rule would impose even if the touched check-component-coverage.py enforcement surface is counted as authorization-adjacent (it already required high per T-004's own Risk Rationale for the identical files). No under- or over-classification found."
+  },
+  {
+   "id": "HIGH-CRITICAL-EVIDENCE",
+   "result": "PASS",
+   "severity": "Critical",
+   "finding": "TYPE-D, freshly re-verified directly against the current tasks.md bytes (not carried by convergence). All four Risk: high tasks (T-001, T-002, T-004, T-006) carry a Done-When bullet requiring RED and GREEN evidence plus 'An independent quality-gate verdict records PASS' (T-004 additionally requires confirmation both human-copy bundles were applied/verified). T-006's Done-When section was not touched by commit 00744ac3 (only Planned Files, Scope Commit A, and the Out of Scope first bullet were edited) and still reads: 'TDD evidence recorded: RED (the negative self-check against a deliberately divergent .ps1 wrapper fixture, turning the harness red) and GREEN (both wrapper pairs parity-identical against the real wrappers). An independent quality-gate verdict records PASS.' This satisfies both required items via this repository's standard independent-evaluator convention. No task is Risk: critical, so the second-approver/signed-bundle requirement is not triggered."
+  },
+  {
+   "id": "TASK-SIZE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "T-001/T-004's bundled-deliverable sizing is unchanged since attempt-8's clean PASS (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json); each still carries its own 'Note on scope breadth' justification tied to design.md's binding bundling language. T-006's new content (00744ac3) adds exactly two Planned Files entries (resolve-component-paths.ps1, check-component-coverage.ps1) and one Scope Commit A bullet describing a single, explicitly 'minimal' unknown-argument-rejection behavior correction; T-006's Done-When item count is unchanged at 7 items (well under the >8 threshold) and the title/Goal still describe one coherent task (parity harness authorship + the defect it discovers), not a multi-phase 'design, implement, and test the entire X' pattern. No oversizing or fragmentation found."
+  },
+  {
+   "id": "EDGE-CASE-COVERAGE",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "T-001..T-005 coverage is unchanged since attempt-8's clean PASS (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json). T-006's new carve-out targets exactly the pre-existing edge-case criterion AC-050/TEST-050 ('the extra-argument parity cells... the four currently-RED assertions') and the mutation-based negative self-check (Done When, unchanged) remains the non-vacuity proof; no new functional surface is added without edge-case coverage."
+  },
+  {
+   "id": "TEST-TYPE-MATCH",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Unaffected by commit 00744ac3 -- no new test task or test type is introduced; the amendment only narrows an existing Out of Scope bullet and adds two Planned Files entries to the already-registered T-006 parity harness (component-path-ownership-parity.tests.sh/.ps1), which still exercises both product-wrapper pairs directly per REQ-009/AC-050. Carried forward for T-001..T-005 per convergence (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json)."
+  },
+  {
+   "id": "ROLLBACK-PLAN",
+   "result": "FAIL",
+   "severity": "Major",
+   "finding": "T-006's Rollback field is unchanged by commit 00744ac3 and still reads: 'revert this task's two commits; nothing protected is written directly (a revert PR states whether an already-applied test.yml step should be hand-reverted).' The same commit's new Planned Files entries add plugins/sdd-quality-loop/scripts/check-component-coverage.ps1 as '(existing, agent-editable -- added by the 2026-08-12 scope supersession...)' -- a direct agent edit, not human-copy staged. But tasks.md's own Protected Files section (item 3, unchanged) designates exactly this file family as one that 'BECOMES protected once registered... adding them to protected_gate_suffixes is effected via situation 1's staged edit', and T-004's own Planned Files entry for the same file (unchanged) reads 'check-component-coverage.ps1 (new, agent-editable -- twin; BECOMES protected once registered)'. T-004's Status is Done, and T-004's Done-When explicitly gates that state on a confirmed human-apply of Bundle A ('...confirmed before this task is marked Done'; Lifecycle: 'Only quality-gate may set Done') -- so by tasks.md's own internal logic the registration has already been applied, making check-component-coverage.{sh,ps1,py} genuinely R-10 protected content going forward. security-spec.md's B1 boundary row explicitly includes 'the new check-component-coverage.{sh,ps1,py} suffix registration itself (situation 3)' within the protected-content boundary, and its STRIDE B1 mitigation states 'No script this feature ships writes to a protected path directly; the only sanctioned path is human-copy staging.' T-006's own unchanged final Out of Scope bullet ('Any protected-file edit beyond staging this suite's own test.yml CI-step candidate') is therefore in direct tension with the new carve-out for this one file (resolve-component-paths.ps1 is unaffected -- design.md confirms it is never protected). The Rollback field was not updated to address how a direct edit to this now-protected file would be safely reverted, nor does it reconcile with the process contradiction the new Scope creates; as written, the rollback narrative for the newly-sanctioned change is absent."
+  },
+  {
+   "id": "SCOPE-DISJOINT",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "resolve-component-paths.ps1 is shared across T-001 (creates), T-002 (extends), and now T-006 (the new carve-out); check-component-coverage.ps1 is shared across T-004 (creates) and now T-006 (the new carve-out). In every case the Blockers field enforces the ordering (T-002 blocked by T-001; T-006 blocked by T-001, T-002, T-003, T-004), matching the 'legitimate multi-task scope sharing... provided the Blockers field enforces the ordering' exception -- no uncoordinated parallel overlap. (The distinct concern that check-component-coverage.ps1's edit channel -- direct vs. human-copy -- is now inconsistent with its own protected status is raised under ROLLBACK-PLAN, where the Rollback field's stale claim is the more precise fit.) CHANGELOG.md and the shared test.yml/MANIFEST.sha256 staging remain governed by the unchanged Global Constraints serialization; unaffected by commit 00744ac3."
+  },
+  {
+   "id": "DEPENDENCY-OVERLAP",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "T-006's Blockers (T-001, T-002, T-003, T-004) are unchanged by commit 00744ac3; the new carve-out reinforces rather than undermines this dependency, since T-006 must have T-001's and T-004's product wrapper files in existence before either driving them (harness) or correcting them (the new parity fix). No spurious or missing blocker introduced. Carried forward for T-001..T-005 per convergence (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json)."
+  },
+  {
+   "id": "BUGFIX-DIAGNOSTIC-PATH",
+   "result": "PASS",
+   "severity": "Major",
+   "finding": "Applicability changed since attempt-8 (there: SKIP, 'no bugfix or debugging task in scope'). Commit 00744ac3's new Scope Commit A bullet and Out of Scope narrative now explicitly scope a regression fix within T-006: 'a latent REQ-009 nonconformity present since each twin's birth commit.' This check therefore now applies and all three required elements are present and independently verifiable: (1) Reproduction evidence/exact symptom -- 'T-006's first genuine harness run (attempt 1, run epic-191-a3-path-ownership-t006-20260812-codex-01; RED logs .../component-path-ownership-parity.RED.log and ...-parity-ps1.RED.log)... both Python-backed shell entries reject an unrecognized argument with argparse's usage-error exit 2, while both .ps1 twins silently bind it into the unread automatic $args array... and exit 0.' (2) Diagnostic/root-cause step before implementation -- cites exact birth commits 41881071 (T-001) and 819baf2c (T-004), 'plain param() blocks, no [CmdletBinding()], no $args guard'; independently confirmed via git show against both commits and against the current param() blocks in resolve-component-paths.ps1 (line 33) and check-component-coverage.ps1 (line 7), both lacking [CmdletBinding()] and an $args guard, matching the claim exactly. (3) Regression/verification evidence proving the fix -- 'AC-050/TEST-050's extra-argument parity cells (the four currently-RED assertions) must turn GREEN under the unmodified harness expectation, and the disposable-mutant negative self-check remains required as the non-vacuity proof.' All three elements are concretely evidenced, not merely asserted."
+  }
+ ],
+ "findings": [
+  {
+   "check_id": "ROLLBACK-PLAN",
+   "severity": "Major",
+   "task_id": "T-006",
+   "finding": "T-006's unchanged Rollback field ('nothing protected is written directly') is contradicted by the 2026-08-12 scope supersession (commit 00744ac3), which adds plugins/sdd-quality-loop/scripts/check-component-coverage.ps1 to Planned Files as directly 'agent-editable' -- a file tasks.md's own Protected Files section (item 3) and T-004's Planned Files entry designate as one that 'BECOMES protected once registered', a registration T-004 (Status: Done, Done-When-gated on confirmed human-apply) has already completed per the document's own internal logic, and which security-spec.md's B1 boundary/STRIDE row (protected-content boundary includes 'the new check-component-coverage.{sh,ps1,py} suffix registration itself'; mitigation: 'No script this feature ships writes to a protected path directly') treats as protected going forward. This also sits in unreconciled tension with T-006's own unchanged final Out of Scope bullet ('Any protected-file edit beyond staging this suite's own test.yml CI-step candidate'). The Rollback field does not address how this newly-sanctioned direct edit would be safely reverted, so rollback consideration for the newly-added change is effectively absent."
+  }
+ ]
+}

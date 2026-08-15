@@ -1,0 +1,102 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-191-a3-path-ownership",
+  "task_id": "T-005",
+  "run_id": "RUN-epic-191-a3-path-ownership-qg-T-005-seq0657",
+  "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-005-0657",
+  "sequence": 657,
+  "previous_record_sha256": "eb2b74a0c456ce3da21540132338bbb13005f8c59b7e8913a04e0671ffcdd893",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "d6d4f80d8458085b7f6fc857df2aff555b6a88066c7256eb788d9610f1329cbf",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "0470072a0df6bd31f9ce81bbc3953ed09ee682072ab7fa797909abdd98f75ff8"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/T-005-remedy-1.md",
+      "sha256": "2d36f887011bce08fdddecb5775b6a82d73945b9dc50c92170fad73a567b4421"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/T-005.md",
+      "sha256": "a513944332a6078000ddc2e9747a87463b3cbddab874f87d2704d223fc080816"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+      "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/design.md",
+      "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+      "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+      "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/requirements.md",
+      "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+      "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/tasks.md",
+      "sha256": "cc11c2132623b483e50d7a25d9131800db4231a8c3d557eaa0167a60aa7c0b26"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/traceability.md",
+      "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+      "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-005/component-path-resolver-ps1.GREEN.log",
+      "sha256": "c8ae3331d1e979ffbde0b24daef507819b6371ec53c5fa8d20a0d3e5e31e9222"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-005/component-path-resolver-ps1.RED.log",
+      "sha256": "2baa6fa2c2c40787ef998f43ac0218b97e0069e6e6a16bfb5a1f9e1428c5e7a0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-005/component-path-resolver.GREEN.log",
+      "sha256": "3b0f367eaa2744a00885f88d16417582e2de7eda7aa2dba414145ad9fce08ecc"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-005/component-path-resolver.RED.log",
+      "sha256": "571872a2c072c5ab0c98cd2006bf12c4ad7482c1a2a5d94a2919c6521a0b1be9"
+    },
+    {
+      "path": "tests/component-path-resolver.tests.ps1",
+      "sha256": "6220383131ea15d68f6885cd1ed866882f02c572def5e42a06582ca763023a2d"
+    },
+    {
+      "path": "tests/component-path-resolver.tests.sh",
+      "sha256": "ab03017f92884b2211bfac8241909f9d177064732179c931d78c806b0e40edeb"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/changed-paths.txt",
+      "sha256": "6caeff1a641a7efe30f6a6d811e5f37511c8116834b9ec20a0f960160f59250c"
+    },
+    {
+      "path": "tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/config.yaml",
+      "sha256": "a6013506c26686b7ad26e54b189edf98ee5e297ac8a0e1c3983fde5d18e19ccb"
+    }
+  ]
+}

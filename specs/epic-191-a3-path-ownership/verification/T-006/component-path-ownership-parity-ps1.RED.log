@@ -1,0 +1,24 @@
+T-006 acceptance-first RED evidence (PowerShell harness)
+Date: 2026-08-12
+Run ID: epic-191-a3-path-ownership-t006-20260812-codex-01
+Command: pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1
+Observed exit: 1
+Product state: real, unmodified product entry points from the current worktree
+
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+not ok - TEST-050 resolver extra-argument exit parity (shell=[2], pwsh=[0])
+not ok - TEST-050 resolver extra-argument category parity (shell=[rejected-named-extra], pwsh=[accepted])
+not ok - TEST-050 coverage extra-argument exit parity (shell=[2], pwsh=[0])
+not ok - TEST-050 coverage extra-argument category parity (shell=[rejected-named-extra], pwsh=[accepted])
+
+Results: 6 passed, 4 failed
+
+Interpretation: the independently authored PowerShell harness reproduces the
+same four failures against the same real product pairs. It saves `$LASTEXITCODE`
+immediately after each subprocess; the ordinary coverage invocation proves
+that capture path before the unknown-argument comparison turns RED.

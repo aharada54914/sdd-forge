@@ -15,6 +15,9 @@ $tests = @(
     'tests/task-layer-review-inputs.tests.ps1',
     'tests/cross-model.tests.ps1',
     'tests/hooks.tests.ps1',
+    'tests/phase2-guard-tokenizer.tests.ps1',
+    'tests/phase2-risk-upgrade.tests.ps1',
+    'tests/phase2-sudo-signature.tests.ps1',
     'tests/scenario.tests.ps1',
     'tests/install.tests.ps1',
     'tests/uninstall.tests.ps1',
@@ -54,7 +57,19 @@ $tests = @(
     'tests/plugin-contracts-track-selection.tests.ps1',
     'tests/ship-track-selection-migration.tests.ps1',
     'tests/design-sync-standing-consent.tests.ps1',
-    'tests/design-sync-scan.tests.ps1'
+    'tests/design-sync-scan.tests.ps1',
+    'tests/capability-registry-schema.tests.ps1',
+    'tests/evaluate-predicate.tests.ps1',
+    'tests/registry-discovery.tests.ps1',
+    'tests/validate-capability-registry.tests.ps1',
+    'tests/generate-registry-digest.tests.ps1',
+    'tests/generate-gate-capabilities.tests.ps1',
+    'tests/capability-registry-parity.tests.ps1',
+    'tests/component-path-resolver.tests.ps1',
+    'tests/component-path-diff-basis.tests.ps1',
+    'tests/ownership-digest.tests.ps1',
+    'tests/check-component-coverage.tests.ps1',
+    'tests/component-path-ownership-parity.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

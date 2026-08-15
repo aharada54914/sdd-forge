@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-seq0321",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-0321",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "aa535843e3fcdceb4ba8d6de4ede86fd3509c6b674e241ca035ed0f8d21f5287"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "f110fd10ca7ca516a803a9c54cac032ad73537b0890ad3a4923748fd5721ca36"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "703cdccbefcc2a0f53e355ed39f2e44fe3e648c4079ecd9f095269366bcb84a1"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-1/precheck-result.json", "sha256": "430cff2a067e708ed0dbe09313bb930feb75fe7d6b9d20eb140227bfe493b178"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-1/integrated-summary.json", "sha256": "b0f8ee9d66fc2a793f1a0a1bb20a710aabef5bd3c0f9e2795252b0ef93ee05d1"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-004's Fail-6 definition and AC-033 both state: 'a binding that declares... adapter_paths... and whose glob... matches an EXCLUSIVE-owned changed path without the corresponding binding facet/binding revision also present in the same diff triggers Fail-6.' The terms 'binding facet' and 'binding revision' are never operationalized anywhere in requirements.md, acceptance-tests.md, or investigation.md -- no field, file, or artifact is named that constitutes 'the corresponding binding facet/revision' being 'present in the diff.' investigation.md's OQ-001 is marked Resolved and cites design.md's 'Fail-6 scope,' but the resolution text itself merely repeats the identical unelaborated phrase rather than defining it, so nothing in the reviewed artifact set confirms the ambiguity is closed. Downstream failure: an implementer/test-author cannot deterministically author the counter-evidence fixture for AC-033/TEST-033 (the 'Fail-6 does not fire because the revision IS present' case) without inventing what artifact or field constitutes that revision -- two implementers would plausibly diverge. This belongs to spec review because the operative Fail-6 trigger text is asserted directly in REQ-004 and restated as a normative acceptance criterion (AC-033), not deferred as an explicit open question. Severity is Major, not Critical, because Fail-6 is itself conditional (N/A with WARN when sdd/provider-bindings.yaml is absent, which investigation.md INV-004 confirms is the current repository state) and does not constitute a safety/workflow-boundary contradiction; it is an ambiguous requirement blocking one acceptance criterion's fixture authoring, not the whole package."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked the Goals/Non-goals/Dependencies/Field Definitions/Edge Cases/Security Boundaries sections against each other (e.g., disabled-legacy vs. advisory/required state definitions, Fail-2/Fail-4 mutual-exclusivity claim against REQ-002's shared_paths-precedence rule, REQ-006/Non-goals' single-canonical-seed-list framing, the six protected-file-registration counts across REQ-004/REQ-008/AC-036/investigation.md INV-015). All are internally consistent, including several passages that explicitly correct earlier drafts, indicating prior contradictions were already resolved. No direct conflict found between any requirement, acceptance criterion, constraint, or non-goal."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md maps AC-001..AC-055 to TEST-001..TEST-055 covering: empty diff sets, empty include lists, shared-zero-match, NFC-collision, unresolvable revs/unrelated histories, NUL-safe/invalid-UTF-8 path framing, cross-component renames and limit-exceeded fallback, all four submodule/symlink reference-only boundary cases, disabled-legacy truthful non-evaluation, manifest-required hard errors, advisory-non-blocking vs. required-blocking exit-code matrices, Fail-1..Fail-6 dedicated fixtures, and a full positive/negative selective-staleness matrix (AC-040) for ownership_digest. requirements.md's own Edge Cases section is fully mirrored by corresponding ACs/TESTs. Coverage is materially comprehensive for the negative/boundary/failure modes the requirements imply."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (5 items) each ties an unlanded cross-epic dependency to a specific fail-closed fixture rather than an unenforced note. Open Questions: OQ-001 (Fail-6 join rule) is marked Resolved with a concrete adapter_paths field decision; OQ-002 (whether T-001/T-002 hard-block on Epic A1) is explicitly resolved via a documented middle path. investigation.md's INV-001..INV-021 supply repository-state evidence for every dependency claim. No assumption was found floating unresolved and unflagged, apart from the narrower Fail-6 term-definition gap already captured under AMBIGUITY."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A genuine human-approval/irreversible-change boundary is in scope: Roles and Permissions states the implementing agent never writes a protected path directly and stages six files under human-copy/, while the human maintainer reviews and applies each staged human-copy candidate (cp + SHA-256 verification) and approves tasks (Approval: Draft -> Approved is a human-only action, never performed in this spec-phase package). This is testable: AC-036 requires the staged MANIFEST.sha256 entries to be correct, generate-guard-invariants.py --check to exit 0 against the staged tree, and live protected files to remain byte-identical before/after the feature's own commits. Security Boundaries and investigation.md INV-020 explicitly and correctly scope the reachability/tamper-evidence claim to the existing two-tier defense boundary (ADR-0019), avoiding an overclaim that would itself be a Critical contradiction."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Excluding the single bounded Fail-6 term-definition gap already reported under AMBIGUITY (a narrow, conditional sub-case -- Fail-6 is itself N/A/WARN when sdd/provider-bindings.yaml is absent, the current repository state per investigation.md INV-004 -- and investigation.md's own cross-reference indicates design.md already carries a 'Fail-6 scope' section addressing this area), the specification package gives an implementation-policy/design reviewer a complete, self-contained product-behavior surface: exact glob-matching algorithm with per-clause acceptance criteria, a fully normatively-fixed git-diff basis, a state-derivation model for the Gate with three exhaustively defined states and their exit-code/evidence contracts, an unconditional full-input digest-scope definition with an explicit selective-staleness matrix, and a fully enumerated protected-file registration plan with reachability and tamper-evidence claims explicitly scoped to an existing precedent (ADR-0019). No other missing product-behavior decision was identified that would force the next-stage reviewer to invent behavior."
+    }
+  ]
+}

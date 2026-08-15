@@ -1,0 +1,28 @@
+# GREEN evidence -- validate-capability-registry (pwsh)
+$ pwsh -NoProfile -File tests/validate-capability-registry.tests.ps1
+ok: TEST-028: plugins/sdd-capability/ does not exist
+ok: TEST-028: every REQ-002..005 script/reference file lives under plugins/sdd-quality-loop/
+ok: TEST-014: gate-id-duplicate detected
+ok: TEST-015: implementation-ref-missing (field absent) detected
+ok: TEST-015: implementation-ref-missing (path does not exist) detected
+ok: TEST-016/017: unregistered check-*.py master flagged
+ok: TEST-017(i): a properly-referenced master is not flagged
+ok: TEST-017(ii): a script outside the scan root is never flagged
+ok: TEST-017(iv): a non-check-* script under the scan root is never scanned
+ok: TEST-018: stage-missing re-asserted independent of schema
+ok: TEST-019: pack-owned gates.yaml detected repository-wide
+ok: TEST-020: provider-name-detected fires on a real provider term
+ok: TEST-020: provider-neutral vocabulary (durable_workflow) is not a false positive
+ok: TEST-021: dangling-gate-reference detected
+ok: TEST-022: unknown-upgrade-reason fails closed against the real catalog
+ok: TEST-039: capability-id-duplicate detected
+ok: TEST-039: combined fixture -- gate-id-duplicate surfaces
+ok: TEST-039: combined fixture -- capability-id-duplicate surfaces (neither masks the other)
+ok: fully-clean fixture: all 9 checks pass on valid input (negative proof)
+ok: self-registration: validate-capability-registry.tests.sh registered in tests/run-all.sh
+ok: self-registration: validate-capability-registry.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=23 fail=0 ----
+validate-capability-registry suite passed (23 checks)
+exit: 0

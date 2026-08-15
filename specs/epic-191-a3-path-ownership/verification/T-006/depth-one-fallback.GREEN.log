@@ -1,0 +1,12 @@
+REAL DEPTH-1 CLONE CONTENT FALLBACK
+Clone command shape: git clone --depth 1 file://<repository> <disposable-root>
+git rev-parse --is-shallow-repository: true
+Precondition: T-006 worktree overlaid and staged coverage candidate copied to its live path only in the disposable clone.
+
+Command: bash tests/component-path-ownership-parity.tests.sh
+Exit: 0
+Results: 21 passed, 0 failed
+
+Command: pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1
+Exit: 0
+Results: 21 passed, 0 failed

@@ -201,10 +201,10 @@ symlink_diagnostic="$(bash "$0" --coverage-fixture symlink 2>&1 || true)"
 [[ "$symlink_diagnostic" == "workflow-state: escape: registry-path-escape:"* ]] ||
   fail "escaping symlink was not rejected with registry-path-escape"
 
-rg -q '277a79d' "$RETROSPECTIVE" || fail "retrospective omits uninstall commit"
-rg -q 'uninstall\.sh|uninstall\.ps1' "$RETROSPECTIVE" || fail "retrospective omits implementation files"
-rg -q 'uninstall\.tests\.sh|uninstall\.tests\.ps1' "$RETROSPECTIVE" || fail "retrospective omits tests"
-rg -qi 'review provenance.*unavailable|provenance.*unavailable' "$RETROSPECTIVE" ||
+grep -q '277a79d' "$RETROSPECTIVE" || fail "retrospective omits uninstall commit"
+grep -Eq 'uninstall\.sh|uninstall\.ps1' "$RETROSPECTIVE" || fail "retrospective omits implementation files"
+grep -Eq 'uninstall\.tests\.sh|uninstall\.tests\.ps1' "$RETROSPECTIVE" || fail "retrospective omits tests"
+grep -Eqi 'review provenance.*unavailable|provenance.*unavailable' "$RETROSPECTIVE" ||
   fail "retrospective does not state unavailable review provenance"
 
 printf 'ok: workflow-state registry and bounded migration records are valid\n'

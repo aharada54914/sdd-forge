@@ -1,0 +1,29 @@
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories fail closed with a diagnostic
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once
+=== TEST-021: NUL-safe framing ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly
+ok: TEST-021.2: the real ConvertTo-PathStrict fails closed with a diagnostic on invalid UTF-8 bytes, confirmed via a direct call to the product function itself (dot-sourced from resolve-component-paths.ps1; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants
+ok: TEST-023.2: the real Get-TrackedDiff fails closed with the expected diagnostic on a too-many-files stderr warning, confirmed via a direct call to the product function itself with Invoke-GitRaw monkeypatched (mirrors the bash twin's monkeypatching of rcp._run_git on the real module)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported
+ok: TEST-024.2: a submodule gitlink OID change IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the untouched symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed, confirmed via a direct call to the real Get-ChangedPaths with Get-RepoFingerprint monkeypatched to never settle
+=== DEFECT-002: tab-indentation guard fails closed on a bare leading tab ===
+ok: DEFECT-002.1: a config using a bare leading tab for indentation fails closed with the tabs-not-supported diagnostic (real CLI invocation)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in run-all.sh and .ps1
+
+component-path-diff-basis.tests.ps1: 18 passed, 0 failed

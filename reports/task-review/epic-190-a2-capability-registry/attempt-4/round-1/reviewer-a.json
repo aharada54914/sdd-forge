@@ -1,0 +1,148 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-a-seq0661",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-190-a2-capability-registry-0661",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/dependency-graph.json",
+      "sha256": "505df17c641e2c746e8d8acaf745c835e46092586b13c14f504296f728e2bc59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/task-review/epic-190-a2-capability-registry/attempt-4/round-1/precheck-result.json",
+      "sha256": "e823dbe8bbb263bc38afe8e8e54f26da5c66e3fc0e76d962ef5012eed5ad19e0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md",
+      "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/design.md",
+      "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/frontend-spec.md",
+      "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/infra-spec.md",
+      "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md",
+      "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/security-spec.md",
+      "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/tasks.md",
+      "sha256": "f12309aac5f7c1a323388c606f5541a89f63c2723a92f311b465a97f4a6ddf0a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/traceability.md",
+      "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/ux-spec.md",
+      "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every AC-NNN cited in tasks.md Requirements fields (AC-001..AC-033, AC-037..AC-040) resolves to a matching row in acceptance-tests.md's AC table. No dangling AC ID found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All seven tasks' Blockers fields are bare 'None' (T-001) or comma-separated T-NNN lists (T-002: T-001; T-003: T-001, T-002; T-004: T-001, T-002, T-003; T-005: T-001, T-002, T-003, T-004; T-006: T-001, T-002, T-003, T-004, T-005; T-007: T-002, T-003, T-004, T-005, T-006). No range notation, no prose. Matches precheck-result.json's blockers_format_valid: true. The T-005/T-006 sections that were normalized (per the orchestrator's provenance-re-review note) now hold only bare task-ID lists with no leftover prose from the relocated Blocker-history text."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 (requirements.md Goals) each appear in at least one task's Requirements field: REQ-001->T-001, REQ-002->T-002, REQ-003->T-004, REQ-004->T-005, REQ-005->T-003/T-004/T-006, REQ-006->T-001..T-007 (share)."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-033 and AC-037..AC-040 are each claimed by a task's Requirements field (traceability.md Acceptance Mapping table confirms 1:1 Test->Task rows). AC-034, AC-035, AC-036 have no task but are recorded in traceability.md's 'Deferred / Non-Task Acceptance Criteria' table with a stated rationale (spec-commit-bound manual review record and Phase-1-satisfied audits), matching acceptance-tests.md's own documented exceptions."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task (T-001..T-007) cites at least one REQ-NNN in its Requirements field. No orphan task found."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-007 is the only task whose scope is exclusively test-file changes (Planned Files: tests/capability-registry-parity.tests.sh/.ps1, tests/fixtures/, tests/run-all.*, staged test.yml/MANIFEST.sha256 only; 'Breaking API: no ... it modifies no production script'), and it references AC-031/AC-033 in its Requirements field. No task title contains 'test'/'spec'/'verify'. No orphaned test task found."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Applying the post-implementation provenance re-review rule (orchestrator-declared): T-001..T-004 carry an Approval field value of 'Approved (sudo <timestamp>)' with Status Done; T-005/T-006 carry the same Approval-field shape with Status Implementation Complete; T-007 carries Approval Draft with Status Planned. Every Approval-field value is either Draft or the Approved-with-audit-mark form using a workflow-bypass-mode sudo timestamp, and every Status value is one of Planned/In Progress/Blocked/Implementation Complete/Done, matching the re-review-permitted status set."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All seven tasks declare Risk and Required Workflow matching the risk-gate-matrix pairing: T-001 medium/acceptance-first, T-002 high/tdd, T-003 high/tdd, T-004 high/tdd, T-005 medium/acceptance-first, T-006 high/tdd, T-007 medium/acceptance-first. precheck-result.json records workflow_match_precheck: PASS, confirming no mismatch."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No AC-NNN is listed under more than one task's literal Requirements field. Each of AC-001..AC-040 (excluding the deferred AC-034/035/036) appears in exactly one task's Requirements field (e.g. AC-030 appears only under T-006's Requirements field, even though traceability.md's Acceptance Mapping separately documents it as a cumulative, cross-task registration-procedure share)."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID referenced in a Blockers field (T-001..T-006) exists in dependency-graph.json's nodes array (T-001..T-007) and in tasks.md itself. No dangling task reference."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check ran. dependency-graph.json's 20 edges were traversed with a DFS cycle search (programmatically verified): every edge points from a higher-numbered task to a strictly lower-numbered task (T-002->T-001 ... T-007->T-002..T-006), forming a strict partial order with no path that revisits a node. No cycle found."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-001's 'schema, instance, and lite-upgrade-reason catalog', T-003's 'discovery contract and the vendored-copy packaging step', T-004's 'validator and the provider-terms allowlist', and T-006's 'projection generator and stage the protected-file registration' each connect clauses that are the same coherent Registry-authoring concern or mandatory, non-decouplable housekeeping (e.g. T-006's protected-file registration is Global Constraints' own required companion to the projection generator it protects; T-004's provider-terms.json is data consulted directly by the validator's own check (g)), not two independent feature concerns. No Major SINGLE-CONCERN violation found."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every Done When item across all seven tasks names a concrete TEST-NNN pass/fail outcome, a specific diagnostic ID, a file/artifact (e.g. MANIFEST.sha256 entry, staged test.yml candidate, generated gate-capabilities.json's _generated block), an exit-code/mtime assertion, a sha256 verification step, or an independent quality-gate verdict. No instance of 'ensure'/'consider'/'works correctly'/'verify is correct'/bare 'confirm'/'review' without an artifact outcome was found (grep-verified). No Done When item requires editing a review-frozen artifact (design.md/traceability.md/tasks.md body); no 'traceability.md' or 'tasks.md' edit target appears in any Done When or Scope section."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's Task Mapping table lists T-001..T-007; every requirement row (REQ-001..REQ-006) cites a canonical layer-spec anchor (security-spec.md#trust-boundaries; infra-spec.md#deployment-topology; infra-spec.md#cicd-sequence) that matches an actual heading in the corresponding hash-bound layer document (verified against the manifest-listed security-spec.md, infra-spec.md content). REQ-001..REQ-006 all exist in requirements.md. No dangling task or requirement reference in either direction."
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0326",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0326",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "704313265ee92a7eb81f842dc967ef9452ff52a34c3a8ff7b43f81a748d8be78"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "ce543ba950a65466f9c2a016929ee64e688d340612015f49361e41868418eeee"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-2/round-1/precheck-result.json", "sha256": "7bd5dfc2d3ffc1db6e9ce9718c3a01648ba3f05d3ee06fc9e66594e93fa04c7f"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each of REQ-001..REQ-006 states a concrete, checkable shape or behavior (exact required/optional field lists and enum values; per-operator truth tables and Evidence semantics; nine independently named REQ-003(a-i) validator checks with named diagnostics; the --capability-ids/--gate-ids/--whole fragment-selection contract with dedupe/stable-sort/hard-failure rules; the projection generator's --check mode; REQ-005's fail-closed discovery fallback chain), and every one is already mapped to at least one AC in requirements.md and a Planned or explicitly status-flagged TEST row in acceptance-tests.md. No in-scope requirement is stated only as unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goals-section REQ-NNN item has at least one matching Acceptance Criterion: REQ-001 -> AC-001..006, AC-037, AC-038; REQ-002 -> AC-007..013; REQ-003(a-i) -> AC-014..022, AC-039; REQ-004 -> AC-023, AC-024; REQ-005 -> AC-025..029; REQ-006 -> AC-030..033. No stated goal is left without a corresponding acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 39 ACs describe externally checkable outcomes: schema-validation pass/fail on named fixtures, evaluator return values plus Evidence-record shape, validator diagnostic codes (e.g. gate-id-duplicate, unregistered-script, capability-id-duplicate), generator --check exit codes, and discovery-contract fixture results. The two documented non-standard rows (AC-034's spec-commit-bound manual git-status review record, AC-036's Phase-2-deferred traceability audit) each still name a concrete inspectable target rather than vague intent, and acceptance-tests.md explains why each is handled outside the Planned-automated-test table."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes: implementing Epic A1's schema/canonicalizer or Epic A5's Resolver; authoring any Capability Pack content; freezing upgrade_reasons or delivery_strategy.kind vocabulary; implementing Artifact/Promotion Gate behavior; introducing a new plugin; writing any actual plugin/contract/generated/test file in this commit (AC-034 verifies this boundary); and authoring tasks.md/traceability.md in this commit, citing the specific enforcing mechanism (check-workflow-state.sh:681-682) and a same-session reference spec's matching convention."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: the Epic A1 hard-dependency blocking REQ-004's implementation task until a finalized canonicalizer contract exists (Dependencies, AC-023); the protected-file/human-copy approval boundary for guard-invariants.json and .github/workflows/test.yml changes (REQ-005, AC-029, AC-030); the Roles and Permissions approval boundary (the spec's author never sets Spec-Review-Status to Approved, only a human maintainer does); the Provider-name-contamination security check (REQ-003(g), AC-020); and the 3-runtime compatibility obligation (INV-015, AC-031/AC-033)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-002 states a safety-relevant claim with no matching validation surface: 'Every operator forbidden by ADR-0020 (regex, arbitrary JSONPath, shell, JS, Python, dynamic code, Provider API calls, time-/network-dependent conditions) must be structurally inexpressible in the DSL's own grammar, not merely undocumented.' Unlike every other REQ-002 sub-claim in this same package (each comparison operator's fail-closed behavior -> AC-007/AC-008; all/any empty-list and no-short-circuit -> AC-009; not's unary arity -> AC-012; field-allowlist drift -> AC-011; Evidence shape/ordering -> AC-013), acceptance-tests.md has no AC/TEST row asserting that an out-of-grammar operator token (e.g. an unlisted 'regex' or 'jsonpath' operator) is rejected as a schema/grammar error rather than silently accepted. Downstream failure mode: a task author building REQ-006's evaluator test suite has no acceptance criterion instructing them to add this fixture, so an implementation could pass every existing AC/TEST while leaving the operator field open enough to accept a forbidden token instead of rejecting it structurally, defeating the requirement's own 'not merely undocumented' guarantee. This belongs to spec review, not a later gate, because acceptance-tests.md's own established convention in this package is 1:1 AC-to-TEST coverage of every REQ-002 claim, and this is the sole stated safety guarantee in REQ-002 with no corresponding row -- a specification completeness gap, not a missing design/implementation detail. Severity is Major rather than Critical because the DSL's operator set is already closed to exactly 8 named tokens (REQ-002's own operator list), so forbidden operators are very likely already excluded as a byproduct of the schema's closed shape; this is a missing verification checkpoint for downstream task/test authors, not an unsafe mechanism already in the design."
+    }
+  ]
+}

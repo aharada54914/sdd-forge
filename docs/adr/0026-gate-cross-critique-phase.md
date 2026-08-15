@@ -19,7 +19,7 @@ one; a plausible-but-wrong FAIL costs a full extra round; and the one
 protocol in the repository built to catch exactly these failure modes
 (`skills/adversarial-review`, whose proving run re-calibrated four of five
 initial severities) is excluded from the gates by its own charter
-(`SKILL.md:25-26`) and by ADR-0025, which wires it *outside* them.
+(`SKILL.md:25-26`) and by ADR-0027, which wires it *outside* them.
 
 All three loops share the same structural seam: STEP 5 (merge verdicts)
 and STEP 6 (state-machine outcome) are adjacent in each skill, with both
@@ -77,7 +77,7 @@ Minor findings, where a critique has nothing of value to attack.
    protect. This is also the deliberate contrast with
    `skills/adversarial-review` Phase 3, where the orchestrator *does*
    adopt/reject findings — that protocol runs outside any deterministic
-   contract (ADR-0025), so it can afford synthesis authority the in-gate
+   contract (ADR-0027), so it can afford synthesis authority the in-gate
    phase must not have.
 
 4. **Failure containment.** If a resumed reviewer cannot be continued
@@ -119,7 +119,7 @@ Minor findings, where a critique has nothing of value to attack.
   re-running reviewers in fresh contexts, because a fresh context
   critiquing findings it never made is a different (weaker) property
   than mutual critique and should not silently impersonate it.
-- **Relationship to ADR-0025:** complements, not overlap — ADR-0025's
+- **Relationship to ADR-0027:** complements, not overlap — ADR-0027's
   lane reviews a whole branch diff from outside the gates before a PR;
   this phase attacks one round's findings inside a gate. A feature can
   trigger both, each for its own reason.

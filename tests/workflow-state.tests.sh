@@ -324,6 +324,48 @@ jq '(.manifest.allowed_inputs[]? |
 mv "$reference_doc_forged/reviewer.tmp" "$forged_reviewer_b"
 expect_rule "$reference_doc_forged" stage-provenance
 
+# WFI-024: a release artifact (e.g. the tarball repository-release-validation
+# .tests.sh builds by excluding .git) has no history at all, so the pinned-
+# commit fallback above has nothing to reconcile a manifest-recorded plugins/
+# hash against. The SAME forged input that reference-doc-forged (immediately
+# above) proves is REJECTED when git history is available must instead be
+# ACCEPTED when it is not: the comparison is not evaluable there, not failed.
+# This embeds a standalone copy of the checker (plus the schema it needs) at
+# the canonical relative depth inside a fixture with no git ancestor above
+# it, so plugins_git_history_available/Test-PluginsGitHistoryAvailable
+# genuinely observes "no history" rather than relying on $TMP happening to
+# sit outside a repository.
+reference_doc_forged_no_git="$(make_full_fixture reference-doc-forged-no-git)"
+no_git_task_contract="$reference_doc_forged_no_git/reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+jq '(.reviewers[].allowed_input_manifest[] |
+      select(.path | endswith("risk-gate-matrix.md")) | .sha256) = ("f" * 64)' \
+  "$no_git_task_contract" > "$reference_doc_forged_no_git/contract.tmp"
+mv "$reference_doc_forged_no_git/contract.tmp" "$no_git_task_contract"
+no_git_reviewer_b="$reference_doc_forged_no_git/reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-b.json"
+jq '(.manifest.allowed_inputs[]? |
+      select(.path | endswith("risk-gate-matrix.md")) | .sha256) = ("f" * 64)' \
+  "$no_git_reviewer_b" > "$reference_doc_forged_no_git/reviewer.tmp"
+mv "$reference_doc_forged_no_git/reviewer.tmp" "$no_git_reviewer_b"
+no_git_scripts="$reference_doc_forged_no_git/plugins/sdd-quality-loop/scripts"
+mkdir -p "$no_git_scripts" "$reference_doc_forged_no_git/contracts"
+cp "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  "$no_git_scripts/"
+cp "$ROOT/contracts/workflow-state-registry.schema.json" \
+  "$reference_doc_forged_no_git/contracts/"
+# Non-vacuity precondition: without a genuinely git-less fixture root, this
+# case would silently fall through to the same pinned-commit path that
+# reference-doc-forged already covers and prove nothing about "no history".
+if git -C "$reference_doc_forged_no_git" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  fail "reference-doc-forged-no-git fixture precondition not met: fixture root is inside a git work tree"
+fi
+no_git_sh_output="$(bash "$no_git_scripts/check-workflow-state.sh" \
+  --registry "$reference_doc_forged_no_git/specs/workflow-state-registry.json" 2>&1)" ||
+  fail "reference-doc-forged-no-git Shell fixture unexpectedly rejected: $no_git_sh_output"
+no_git_ps_output="$(pwsh -NoProfile -File "$no_git_scripts/check-workflow-state.ps1" \
+  --registry "$reference_doc_forged_no_git/specs/workflow-state-registry.json" 2>&1)" ||
+  fail "reference-doc-forged-no-git PowerShell fixture unexpectedly rejected: $no_git_ps_output"
+
 wrong_stage="$(make_full_fixture wrong-stage)"
 jq '.stage = "task"' \
   "$wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \

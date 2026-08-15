@@ -11,6 +11,11 @@ LITE_SKILL="${LITE_SPEC_SKILL:-$STAGE/plugins/sdd-lite/skills/lite-spec/SKILL.md
 SHIP_SKILL="${SHIP_SKILL:-$STAGE/plugins/sdd-ship/skills/ship/SKILL.md}"
 POWERSHELL="${POWERSHELL_EXE:-powershell.exe}"
 
+if ! command -v "$POWERSHELL" >/dev/null 2>&1 || ! command -v cygpath >/dev/null 2>&1; then
+  echo "SKIP: powershell.exe and cygpath are required for the cross-runtime risk corpus"
+  exit 0
+fi
+
 passed=0
 failed=0
 temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/phase2-risk-upgrade.XXXXXX")"

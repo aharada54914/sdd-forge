@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-a2r2-seq0665",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-a2r2-0665",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "ae87f0f246de8d2c3fdccafe71545bd6f5d4f40c4fba19aa8192134a57d0658c"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "d455fd5f8596c43b79fb92e42b6e18a95ac493d0789a61087679b657669b93e8"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-2/precheck-result.json", "sha256": "12e18ba0586ac206a2a079bf894fdd2e54ec5625c86a47f850f05716c13cc533"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-009 (requirements.md Goals) each state a deterministic, fixture-checkable behavior (e.g. REQ-001's glob/normalization clauses, REQ-003's git-diff baseline/rename/NUL-framing/single-writer contracts, REQ-004's three derived-state exit-code/evidence contract, REQ-005's full-input digest binding). Every clause is bound to a numbered AC (AC-001..AC-055) and TEST ID with a concrete fixture target, leaving no in-scope requirement stated only as intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goals entry maps to a contiguous AC range: REQ-001->AC-001..011, REQ-002->AC-012..018, REQ-003->AC-019..025, REQ-004->AC-026..036 plus AC-052..055, REQ-005->AC-037..041, REQ-006->AC-042..044, REQ-007->AC-045..047, REQ-008->AC-048..049, REQ-009->AC-050..051; acceptance-tests.md TEST-001..TEST-055 (plus TEST-035a/b/c) mirror this 1:1 per its own header note. No goal lacks a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete, externally checkable outcomes (exit codes, evidence-record fields such as `state: \"not-applicable (disabled-legacy)\"`, `producer.sha256`, specific fixture path sets, byte-for-byte stdout comparisons in AC-050) rather than intent statements. acceptance-tests.md's Test Target column names the exact suite/fixture for each row."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes redefining project-context.yaml/Facet Manifest schemas, the canonicalizer, Capability Registry/Registry gate projection, Provider Bindings' file schema, Epic A1's bootstrap flow, and any change to sdd-hook-guard's own enforcement logic; Dependencies further scopes exactly which protected-file edits are in-touch-surface (guard-invariants.json family, check-contract tier-minimum, risk-gate-matrix.md) versus out of scope."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries and Roles and Permissions state the human-approval boundary for protected-file human-copy candidates and task Approval (Draft->Approved is human-only, never performed in this spec-phase package), the two-tier defense-claim scope (footgun-prevention/tamper-evidence vs. adversarial-agent reachability, citing ADR-0019), and cross-platform case/normalization/path-separator constraints (REQ-001, REQ-009). The round-2 amendment resolves the prior contradiction by extending the 2026-08-11 supersession consistently into Main Workflows step 4 and Security Boundaries bullet 1, both now stating the disabled-legacy-state bypass gap and its fail-closed-for-malformed-file re-arm condition identically."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's five entries each cite a validation surface (AC-032 for the OVERLAP/EXCLUSIVE misclassification risk, AC-028/Assumptions for the Epic A4 forward-dependency hard-error risk, AC-038/AC-040 for the full-input digest blast-radius risk, AC-042/AC-044 for the seed-inventory coupling risk). The previously flagged high-risk claim — that the conditional-activation predicate could silently disarm the tier minimum on a malformed config — is now bound to a concrete three-way fixture: AC-035's 'fail-closed for a malformed config' clause plus Edge Cases' 2026-08-11 addition are both realized as TEST-035a/TEST-035b/TEST-035c in acceptance-tests.md, closing the gap between the claim and its planned validation surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists at the repository root (Glob for `domain/*` returned no files), so the Approved-domain-model precondition for this check is absent; per the role file this check is recorded as skipped."
+    }
+  ]
+}
