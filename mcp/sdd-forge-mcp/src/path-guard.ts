@@ -111,26 +111,49 @@ function isAllowlisted(root: SddRoot, resolvedPath: string): boolean {
   return false;
 }
 
-/** True if the resolved path's basename (or realpath) matches the denylist. */
-function isDenylisted(resolvedPath: string): boolean {
-  const lexicalBasename = resolvedPath.split(sep).pop() ?? resolvedPath;
-  if (DENYLISTED_BASENAMES.has(lexicalBasename)) {
+/** True if any path component beneath the project root matches a denylisted name. */
+function hasDenylistedComponent(root: SddRoot, candidatePath: string): boolean {
+  return relative(root.path, candidatePath)
+    .split(sep)
+    .some((component) => DENYLISTED_BASENAMES.has(component));
+}
+
+/** Resolves the evidence key once for callers that validate many paths. */
+function resolvedEvidenceKeyPath(): string | null {
+  try {
+    return realpathSync(evidenceKeyPath());
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * True if the lexical path or its resolved snapshot is beneath a denylisted
+ * component, or if the snapshot is the evidence signing key.
+ */
+function isDenylisted(
+  root: SddRoot,
+  lexicalPath: string,
+  knownRealPath?: string,
+  knownEvidenceKeyPath?: string | null,
+): boolean {
+  if (hasDenylistedComponent(root, lexicalPath)) {
     return true;
   }
-  // Re-check the real basename so a harmless-looking symlink cannot alias a
-  // denylisted entry. The evidence signing key is likewise denied through a
-  // differently-named symlink.
+
   try {
-    const realPath = realpathSync(resolvedPath);
-    const realBasename = realPath.split(sep).pop() ?? realPath;
-    if (DENYLISTED_BASENAMES.has(realBasename)) {
+    const realPath = knownRealPath ?? realpathSync(lexicalPath);
+    if (hasDenylistedComponent(root, realPath)) {
       return true;
     }
-    if (realPath === realpathSync(evidenceKeyPath())) {
+    const realEvidenceKeyPath =
+      knownEvidenceKeyPath === undefined ? resolvedEvidenceKeyPath() : knownEvidenceKeyPath;
+    if (realEvidenceKeyPath !== null && realPath === realEvidenceKeyPath) {
       return true;
     }
   } catch {
-    // evidence key does not exist on this machine — no additional match.
+    // A missing or concurrently removed path cannot add a denylist match here;
+    // the caller's existence/stat checks still fail closed.
   }
   return false;
 }
@@ -176,7 +199,7 @@ export function resolveGuarded(
     });
   }
 
-  if (isDenylisted(resolvedPath)) {
+  if (isDenylisted(root, joined, resolvedPath)) {
     return err("path-denied", "Path matches a denylisted file.", {
       rule: "denylist",
     });
@@ -307,6 +330,7 @@ export function listGuardedFilesWithDiagnostics(
 
   const files: string[] = [];
   const errors: GuardedListError[] = [];
+  const realEvidenceKeyPath = resolvedEvidenceKeyPath();
   const walk = (absDir: string, relPrefix: string): void => {
     let entries: string[];
     try {
@@ -331,7 +355,7 @@ export function listGuardedFilesWithDiagnostics(
         errors.push({ path: relEntryPath, reason: "Path is outside the allowlisted directories." });
         continue;
       }
-      if (isDenylisted(absEntryPath) || isDenylisted(realEntryPath)) {
+      if (isDenylisted(root, absEntryPath, realEntryPath, realEvidenceKeyPath)) {
         errors.push({ path: relEntryPath, reason: "Path matches a denylisted file." });
         continue;
       }
@@ -400,7 +424,7 @@ function resolveGuardedDirectory(
     });
   }
 
-  if (isDenylisted(resolvedPath)) {
+  if (isDenylisted(root, joined, resolvedPath)) {
     return err("path-denied", "Path matches a denylisted file.", {
       rule: "denylist",
     });
