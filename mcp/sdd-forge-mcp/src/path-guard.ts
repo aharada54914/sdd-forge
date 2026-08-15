@@ -113,14 +113,20 @@ function isAllowlisted(root: SddRoot, resolvedPath: string): boolean {
 
 /** True if the resolved path's basename (or realpath) matches the denylist. */
 function isDenylisted(resolvedPath: string): boolean {
-  const basename = resolvedPath.split(sep).pop() ?? resolvedPath;
-  if (DENYLISTED_BASENAMES.has(basename)) {
+  const lexicalBasename = resolvedPath.split(sep).pop() ?? resolvedPath;
+  if (DENYLISTED_BASENAMES.has(lexicalBasename)) {
     return true;
   }
-  // The evidence signing key is denied regardless of basename match, in case
-  // it is reached through a differently-named symlink.
+  // Re-check the real basename so a harmless-looking symlink cannot alias a
+  // denylisted entry. The evidence signing key is likewise denied through a
+  // differently-named symlink.
   try {
-    if (realpathSync(resolvedPath) === realpathSync(evidenceKeyPath())) {
+    const realPath = realpathSync(resolvedPath);
+    const realBasename = realPath.split(sep).pop() ?? realPath;
+    if (DENYLISTED_BASENAMES.has(realBasename)) {
+      return true;
+    }
+    if (realPath === realpathSync(evidenceKeyPath())) {
       return true;
     }
   } catch {
@@ -285,10 +291,10 @@ function errorMessage(error: unknown): string {
  * `try`/`catch` blocks below exist solely to collect genuine `readdirSync`/
  * `statSync` errors from inside a directory that has ALREADY passed the guard.
  *
- * The walk's own control flow is unchanged from `listGuardedFiles`: it still
- * `return`s past a top-level `readdirSync` failure and still `continue`s past
- * a per-entry `statSync` failure. This function adds visibility, not a
- * stricter or fail-fast walk.
+ * The walk returns past a top-level `readdirSync` failure and continues past
+ * per-entry `statSync` failures. It also re-applies the allowlist and denylist
+ * to every entry before descent so recursive listing cannot disclose names
+ * beneath a denied directory or through a symlink alias.
  */
 export function listGuardedFilesWithDiagnostics(
   root: SddRoot,
@@ -312,15 +318,25 @@ export function listGuardedFilesWithDiagnostics(
     for (const entry of entries) {
       const absEntryPath = join(absDir, entry);
       const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
+      let realEntryPath: string;
       let stats: ReturnType<typeof statSync>;
       try {
-        stats = statSync(absEntryPath);
+        realEntryPath = realpathSync(absEntryPath);
+        stats = statSync(realEntryPath);
       } catch (error) {
         errors.push({ path: relEntryPath, reason: errorMessage(error) });
         continue;
       }
+      if (!isAllowlisted(root, realEntryPath)) {
+        errors.push({ path: relEntryPath, reason: "Path is outside the allowlisted directories." });
+        continue;
+      }
+      if (isDenylisted(absEntryPath) || isDenylisted(realEntryPath)) {
+        errors.push({ path: relEntryPath, reason: "Path matches a denylisted file." });
+        continue;
+      }
       if (stats.isDirectory()) {
-        walk(absEntryPath, relEntryPath);
+        walk(realEntryPath, relEntryPath);
       } else if (stats.isFile()) {
         files.push(relEntryPath);
       }
@@ -344,8 +360,9 @@ export function listGuardedFilesWithDiagnostics(
  * use `listGuardedFilesWithDiagnostics` instead, which returns the same
  * `files` alongside a `GuardedListError[]` naming every failure.
  *
- * Exact signature and exact behavior preserved: this is a thin wrapper over
- * `listGuardedFilesWithDiagnostics` that discards the diagnostics.
+ * The signature is preserved: this is a thin wrapper over
+ * `listGuardedFilesWithDiagnostics` that discards diagnostics. Denylisted
+ * descendants are intentionally omitted from its output.
  */
 export function listGuardedFiles(root: SddRoot, relDir: string): string[] {
   return listGuardedFilesWithDiagnostics(root, relDir).files;

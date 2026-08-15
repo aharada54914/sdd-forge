@@ -31363,12 +31363,17 @@ function isAllowlisted(root, resolvedPath) {
   return false;
 }
 function isDenylisted(resolvedPath) {
-  const basename = resolvedPath.split(sep).pop() ?? resolvedPath;
-  if (DENYLISTED_BASENAMES.has(basename)) {
+  const lexicalBasename = resolvedPath.split(sep).pop() ?? resolvedPath;
+  if (DENYLISTED_BASENAMES.has(lexicalBasename)) {
     return true;
   }
   try {
-    if (realpathSync2(resolvedPath) === realpathSync2(evidenceKeyPath())) {
+    const realPath = realpathSync2(resolvedPath);
+    const realBasename = realPath.split(sep).pop() ?? realPath;
+    if (DENYLISTED_BASENAMES.has(realBasename)) {
+      return true;
+    }
+    if (realPath === realpathSync2(evidenceKeyPath())) {
       return true;
     }
   } catch {
@@ -31468,15 +31473,25 @@ function listGuardedFilesWithDiagnostics(root, relDir) {
     for (const entry of entries) {
       const absEntryPath = join(absDir, entry);
       const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
+      let realEntryPath;
       let stats;
       try {
-        stats = statSync2(absEntryPath);
+        realEntryPath = realpathSync2(absEntryPath);
+        stats = statSync2(realEntryPath);
       } catch (error51) {
         errors.push({ path: relEntryPath, reason: errorMessage(error51) });
         continue;
       }
+      if (!isAllowlisted(root, realEntryPath)) {
+        errors.push({ path: relEntryPath, reason: "Path is outside the allowlisted directories." });
+        continue;
+      }
+      if (isDenylisted(absEntryPath) || isDenylisted(realEntryPath)) {
+        errors.push({ path: relEntryPath, reason: "Path matches a denylisted file." });
+        continue;
+      }
       if (stats.isDirectory()) {
-        walk(absEntryPath, relEntryPath);
+        walk(realEntryPath, relEntryPath);
       } else if (stats.isFile()) {
         files.push(relEntryPath);
       }

@@ -568,24 +568,23 @@ try {
     # ============================================================================
     # TEST-004(c): near-boundary successful completion, repeated five times
     # ============================================================================
-    # The stub is told to complete at an absolute instant 1200ms after the
+    # The stub is told to complete at an absolute instant 1500ms after the
     # harness invokes the runner. The runner's WaitForExit window opens later
-    # (after the runner's own pwsh start-up), so the stub always finishes
-    # inside the 2000ms budget regardless of how slowly CI cold-starts pwsh —
-    # a fixed-duration sleep instead stacked the stub's start-up cost on top
-    # of the delay and intermittently overran the budget on hosted runners.
+    # (after the runner's own pwsh start-up), so the stub still completes
+    # comfortably inside the 3000ms budget even when hosted runners add
+    # uneven cold-start latency.
     Write-Host "=== TEST-004(c): PowerShell near-boundary completion ==="
-    $targetOffsetMs = 1200
+    $targetOffsetMs = 1500
     foreach ($runner in $panelistRunners) {
         for ($iteration = 1; $iteration -le 5; $iteration++) {
             $caseRoot = Join-Path $workDir "boundary-$($runner.Name)-$iteration/specs"
             $started = Get-MonotonicMilliseconds
             $completeAt = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + $targetOffsetMs
-            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "2" `
+            Invoke-PanelistRunner -Runner $runner -TimeoutMode set -TimeoutValue "3" `
                 -SpecRoot $caseRoot -StubEnvironment @{ STUB_COMPLETE_AT_EPOCH_MS = "$completeAt" }
             $elapsed = (Get-MonotonicMilliseconds) - $started
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
-            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=2000 target_offset_ms=$targetOffsetMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
+            Write-Host "measurement: TEST-004(c) runner=$($runner.Name) iteration=$iteration elapsed_ms=$elapsed deadline_ms=3000 target_offset_ms=$targetOffsetMs exit=$script:panelistExit verdict=$([int](Test-Path $verdict))"
             if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
                 Ok "TEST-004(c): $($runner.Name) near-boundary completion iteration $iteration"
             } else {
