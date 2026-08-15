@@ -300,22 +300,31 @@ mcp_selected() {
 }
 
 node_version_ok() {
-    # Returns 0 if `node` is on PATH and its major version is >= 20.
+    # Returns 0 if `node` is on PATH and its version is >= 22.19.0.
     if ! command -v node >/dev/null 2>&1; then
         echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
-    local version major
+    local version major minor patch
+    local minimum_major=22 minimum_minor=19 minimum_patch=0
     version="$(node --version 2>/dev/null)" || version=""
-    # Expected form: vNN.N.N
-    major="${version#v}"
-    major="${major%%.*}"
-    if [[ -z "$major" || ! "$major" =~ ^[0-9]+$ ]]; then
+    # Stable Node releases report vNN.N.N. Fail closed on any other shape.
+    if [[ ! "$version" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
         echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
-    if [[ "$major" -lt 20 ]]; then
-        echo "Warning: Node.js >= 20 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+    # Keep arithmetic within a predictable range on Bash 3.2 and newer.
+    if (( ${#BASH_REMATCH[1]} > 9 || ${#BASH_REMATCH[2]} > 9 || ${#BASH_REMATCH[3]} > 9 )); then
+        echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    major=$((10#${BASH_REMATCH[1]}))
+    minor=$((10#${BASH_REMATCH[2]}))
+    patch=$((10#${BASH_REMATCH[3]}))
+    if (( major < minimum_major ||
+          (major == minimum_major && minor < minimum_minor) ||
+          (major == minimum_major && minor == minimum_minor && patch < minimum_patch) )); then
+        echo "Warning: Node.js >= 22.19.0 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
         return 1
     fi
     return 0
@@ -403,7 +412,7 @@ upsert_mcp_json() {
     # output is stable 2-space JSON, so re-running produces a byte-identical
     # file. Fail-safes (security-spec B3): a present-but-invalid JSON file is
     # never overwritten (error notice, installer continues with other
-    # clients). Node >= 20 is guaranteed here by the MCP gate (MCP_NODE_OK).
+    # clients). Node >= 22.19.0 is guaranteed here by the MCP gate (MCP_NODE_OK).
     local client_label="$1"
     local config_file="$2"
     local top_key="$3"
@@ -832,7 +841,7 @@ STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 # have no local untracked state, so retain their complete archive layout.
 # The mcp/ tree is excluded here even though it is Git-tracked: MCP payload
 # placement is handled exclusively by place_mcp_servers (dist/ + package.json
-# only, gated by --skip-mcp / --mcp / the Node >= 20 check), so staging it
+# only, gated by --skip-mcp / --mcp / the Node >= 22.19.0 check), so staging it
 # unconditionally here would bypass that gating. tests/fixtures/ is excluded
 # too: it is Git-tracked test scaffolding, not part of the installed product,
 # and staging it here would pull test-only symlinks into every install

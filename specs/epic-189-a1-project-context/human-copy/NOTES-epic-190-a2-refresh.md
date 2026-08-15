@@ -155,3 +155,83 @@ What this closes: the 137-line / 18-step deletion hazard on this bundle's
 only reachable apply path (the single-target batch convention documented in
 `RUNBOOK-pr229.md`) — there is no stale snapshot left to apply. The
 remaining 17 entries and the RUNBOOK batches are unaffected.
+
+---
+
+## Class fix NOT extended here — blocked on a hash-bound AC (2026-08-14)
+
+The 2026-08-11 eviction covered the repo-shared CI workflow. The same class
+fired again on 2026-08-14 against a different repo-shared file — the canonical
+`guard-invariants.json` and its five projection siblings — turning PR #244's
+CI red on all six jobs across all three OSes. Those six files were EVICTED from
+`specs/epic-136-phase2-gates/human-copy/` under the same rationale. **They are
+deliberately NOT evicted from this bundle**, and this note records exactly why,
+so the next agent does not rediscover it the hard way.
+
+### This bundle is exposed to the same class
+
+Measured with the real publisher in a scratch tree (2026-08-14 rehearsal, leg
+group 3): a hand-crafted single-target apply of each of the six still succeeds
+against this bundle (`exit 0`), where the identical replay against
+epic-136-phase2's post-fix bundle is REFUSED (`exit 10`, staged candidate
+absent). Today that apply is a harmless no-op **only because staged == live**.
+It re-arms the moment any epic advances the live registry — which is routine:
+three separate epics have written the live canonical (`2b8a52f6`, `8297945a`,
+`025b2f0d`), and seven epic branches are in flight.
+
+Detection, meanwhile, is already wired: `TEST-022`'s `check_live`
+(`tests/guard-invariants-epic-a1.tests.sh:497-517`) hard-binds each of the six
+live files to *either* the pre-apply baseline *or* this bundle's staged bytes.
+When live advances, that assertion goes red — the same "CI red on an unrelated
+PR" symptom the class fix exists to remove.
+
+### Why eviction is blocked (and what would unblock it)
+
+Unlike epic-136-phase2 — whose pins live only in writable test files — this
+bundle's six staged files are named by **frozen, hash-bound specification
+documents** of a feature that is 13/13 tasks `Done`:
+
+1. **`specs/epic-189-a1-project-context/acceptance-tests.md`, AC-021 row.**
+   It requires, verbatim, the *staged* artefacts: "staged
+   `human-copy/.../guard-invariants.json` candidate's `protected_gate_suffixes`
+   includes every path in `PROTECTED-MANIFEST.md` … matching staged
+   `generate-guard-invariants.py` candidate's new `EPIC_A1_TARGETS` …
+   **staged-tree `--check` passes**". Deleting the staged tree makes AC-021
+   unverifiable as written. This file is hash-bound:
+   `check-workflow-state.sh:611` requires each verification contract to record
+   its sha256, and all 13 of this feature's `verification/T-*.contract.json`
+   do.
+2. **`security-spec.md`** names "staged-tree `generate-guard-invariants.py`
+   `--check` suite" and "TEST-021 (staged-tree `--check` proof)" as the
+   mitigation evidence of record for threat boundaries **B6** (generator
+   self-defence) and **B9** (publisher self-protection).
+3. **`traceability.md`, REQ-007 row** lists all six as Code Targets:
+   "`guard-invariants.json` (human-copy); `generate-guard-invariants.py`
+   (human-copy); `generated/guard_invariants.py` + 3 siblings (human-copy)".
+
+Evicting the files without amending those three documents would leave the
+specification declaring evidence that no longer exists. Amending them is a
+change to a frozen, hash-bound spec of a closed feature, which per repository
+rule goes through the **sanctioned provenance re-review path**, not an edit —
+so it is stopped here and reported rather than executed.
+
+What a future owner needs to decide, precisely:
+
+- amend the AC-021 row so its subject is the **LIVE** tree rather than the
+  staged snapshot (the post-apply state TEST-021's own second branch already
+  tolerates: "staged `protected_gate_suffixes` equals the live list (human
+  apply landed)"), plus the matching `security-spec.md` B6/B9 evidence cells
+  and `traceability.md` REQ-007 Code Target cells;
+- then evict the six, add the same seven-path ABSENCE class lock this bundle's
+  TEST-HARDEN already carries for the workflow, and retarget TEST-021/TEST-022
+  to live.
+
+No HMAC re-signing is involved: all 175 evidence bundles were scanned and none
+hash-declares any of the six staged paths (6 bundles carry a signature block;
+none covers this surface).
+
+Until that decision: this bundle's six registry-projection entries stay
+appliable and stay in sync by refresh. **Do not apply them when
+`tests/guard-invariants-epic-a1.tests.{sh,ps1}` is red on `TEST-022`** — that
+is the signal that the staged copies have gone stale and that applying them
+would un-protect whatever another epic has since registered.

@@ -4,8 +4,9 @@
  * — a guard denial, a top-level `readdirSync` failure, or a mid-walk
  * `readdirSync`/`statSync` failure — instead of collapsing all three into the
  * same `[]` that a genuinely empty, successfully-read directory returns. The
- * existing `listGuardedFiles` keeps its exact signature and exact behaviour
- * (BL-003) as a thin wrapper.
+ * existing `listGuardedFiles` keeps its exact signature as a thin wrapper.
+ * Issue #220 intentionally tightens one legacy behaviour: denylisted
+ * descendants (including symlink aliases) are omitted during recursive walks.
  *
  * Co-located with `denylist.test.ts` / `traversal-and-symlink.test.ts` because
  * that pair already owns `path-guard.ts`'s allowlist/denylist/traversal
@@ -187,6 +188,86 @@ test("TEST-005 sub-case (b3) (AC-005, security-spec B3): a denylisted directory 
   }
 });
 
+test("TEST-005 sub-case (b4) (AC-005, security-spec B3): a denylisted descendant reached during a recursive walk is skipped and reported", () => {
+  const { root, cleanup } = makeTempSddRoot("lgfd-denylisted-descendant");
+  try {
+    writeFile(root.path, "reports/parent/visible.txt", "visible\n");
+    writeFile(root.path, `reports/parent/${DENYLISTED_DIR_BASENAME}/leak.txt`, SECRET_MARKER);
+
+    const result = listGuardedFilesWithDiagnostics(root, "reports/parent");
+
+    assert.deepEqual(result.files, ["reports/parent/visible.txt"]);
+    assert.equal(result.errors.length, 1);
+    assert.equal(result.errors[0]?.path, `reports/parent/${DENYLISTED_DIR_BASENAME}`);
+    assert.equal(result.errors[0]?.reason, "Path matches a denylisted file.");
+    assert.doesNotMatch(JSON.stringify(result), /leak\\.txt|top-secret-contents-do-not-leak/);
+
+    assertWrapperIdentical(root, "reports/parent", "sub-case (b4)");
+  } finally {
+    cleanup();
+  }
+});
+
+test("TEST-005 sub-case (b5) (AC-005, security-spec B3): a symlink alias to a denylisted descendant is skipped and reported", (t) => {
+  const { root, cleanup } = makeTempSddRoot("lgfd-denylisted-symlink-descendant");
+  try {
+    writeFile(root.path, `reports/${DENYLISTED_DIR_BASENAME}/leak.txt`, SECRET_MARKER);
+    writeFile(root.path, "reports/parent/visible.txt", "visible\n");
+    try {
+      makeSymlink(
+        `${root.path}/reports/${DENYLISTED_DIR_BASENAME}`,
+        `${root.path}/reports/parent/safe-looking-alias`,
+      );
+    } catch (error) {
+      t.skip(`host refused to create a symlink: ${String(error)}`);
+      return;
+    }
+
+    const result = listGuardedFilesWithDiagnostics(root, "reports/parent");
+
+    assert.deepEqual(result.files, ["reports/parent/visible.txt"]);
+    assert.equal(result.errors.length, 1);
+    assert.equal(result.errors[0]?.path, "reports/parent/safe-looking-alias");
+    assert.equal(result.errors[0]?.reason, "Path matches a denylisted file.");
+    assert.doesNotMatch(JSON.stringify(result), /leak\.txt|top-secret-contents-do-not-leak/);
+
+    assertWrapperIdentical(root, "reports/parent", "sub-case (b5)");
+  } finally {
+    cleanup();
+  }
+});
+
+test("TEST-005 sub-case (b6) (AC-005, security-spec B3): a symlink alias outside the allowlist is skipped and reported", (t) => {
+  const fixture = makeTempSddRoot("lgfd-outside-symlink-descendant");
+  const external = makeTempSddRoot("lgfd-external-target");
+  try {
+    writeFile(fixture.root.path, "reports/parent/visible.txt", "visible\n");
+    writeFile(external.root.path, "reports/private/private-name.txt", SECRET_MARKER);
+    try {
+      makeSymlink(
+        `${external.root.path}/reports/private`,
+        `${fixture.root.path}/reports/parent/safe-looking-alias`,
+      );
+    } catch (error) {
+      t.skip(`host refused to create a symlink: ${String(error)}`);
+      return;
+    }
+
+    const result = listGuardedFilesWithDiagnostics(fixture.root, "reports/parent");
+
+    assert.deepEqual(result.files, ["reports/parent/visible.txt"]);
+    assert.equal(result.errors.length, 1);
+    assert.equal(result.errors[0]?.path, "reports/parent/safe-looking-alias");
+    assert.equal(result.errors[0]?.reason, "Path is outside the allowlisted directories.");
+    assert.doesNotMatch(JSON.stringify(result), /private-name\.txt|top-secret-contents-do-not-leak/);
+
+    assertWrapperIdentical(fixture.root, "reports/parent", "sub-case (b6)");
+  } finally {
+    fixture.cleanup();
+    external.cleanup();
+  }
+});
+
 test("TEST-005 sub-case (c1) (AC-005): a mid-walk statSync failure is reported while every readable sibling is still collected", (t) => {
   const { root, cleanup } = makeTempSddRoot("lgfd-midwalk-stat");
   try {
@@ -324,8 +405,9 @@ test("TEST-005 (AC-005): the three sub-cases are distinguishable by errors.lengt
 });
 
 // ---------------------------------------------------------------------------
-// TEST-006 (AC-006 / BL-003) — listGuardedFiles' behaviour is unchanged for
-// every fixture its 3 existing call sites' own suites already use.
+// TEST-006 (AC-006 / BL-003) — outside issue #220's intentional denylist
+// tightening, listGuardedFiles remains identical for every fixture its 3
+// existing call sites' own suites already use.
 // ---------------------------------------------------------------------------
 
 test("TEST-006 (AC-006): quality-report.ts's own aggregation fixture lists byte-identically through both functions", () => {

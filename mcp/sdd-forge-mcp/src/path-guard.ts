@@ -111,20 +111,49 @@ function isAllowlisted(root: SddRoot, resolvedPath: string): boolean {
   return false;
 }
 
-/** True if the resolved path's basename (or realpath) matches the denylist. */
-function isDenylisted(resolvedPath: string): boolean {
-  const basename = resolvedPath.split(sep).pop() ?? resolvedPath;
-  if (DENYLISTED_BASENAMES.has(basename)) {
+/** True if any path component beneath the project root matches a denylisted name. */
+function hasDenylistedComponent(root: SddRoot, candidatePath: string): boolean {
+  return relative(root.path, candidatePath)
+    .split(sep)
+    .some((component) => DENYLISTED_BASENAMES.has(component));
+}
+
+/** Resolves the evidence key once for callers that validate many paths. */
+function resolvedEvidenceKeyPath(): string | null {
+  try {
+    return realpathSync(evidenceKeyPath());
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * True if the lexical path or its resolved snapshot is beneath a denylisted
+ * component, or if the snapshot is the evidence signing key.
+ */
+function isDenylisted(
+  root: SddRoot,
+  lexicalPath: string,
+  knownRealPath?: string,
+  knownEvidenceKeyPath?: string | null,
+): boolean {
+  if (hasDenylistedComponent(root, lexicalPath)) {
     return true;
   }
-  // The evidence signing key is denied regardless of basename match, in case
-  // it is reached through a differently-named symlink.
+
   try {
-    if (realpathSync(resolvedPath) === realpathSync(evidenceKeyPath())) {
+    const realPath = knownRealPath ?? realpathSync(lexicalPath);
+    if (hasDenylistedComponent(root, realPath)) {
+      return true;
+    }
+    const realEvidenceKeyPath =
+      knownEvidenceKeyPath === undefined ? resolvedEvidenceKeyPath() : knownEvidenceKeyPath;
+    if (realEvidenceKeyPath !== null && realPath === realEvidenceKeyPath) {
       return true;
     }
   } catch {
-    // evidence key does not exist on this machine — no additional match.
+    // A missing or concurrently removed path cannot add a denylist match here;
+    // the caller's existence/stat checks still fail closed.
   }
   return false;
 }
@@ -170,7 +199,7 @@ export function resolveGuarded(
     });
   }
 
-  if (isDenylisted(resolvedPath)) {
+  if (isDenylisted(root, joined, resolvedPath)) {
     return err("path-denied", "Path matches a denylisted file.", {
       rule: "denylist",
     });
@@ -285,10 +314,10 @@ function errorMessage(error: unknown): string {
  * `try`/`catch` blocks below exist solely to collect genuine `readdirSync`/
  * `statSync` errors from inside a directory that has ALREADY passed the guard.
  *
- * The walk's own control flow is unchanged from `listGuardedFiles`: it still
- * `return`s past a top-level `readdirSync` failure and still `continue`s past
- * a per-entry `statSync` failure. This function adds visibility, not a
- * stricter or fail-fast walk.
+ * The walk returns past a top-level `readdirSync` failure and continues past
+ * per-entry `statSync` failures. It also re-applies the allowlist and denylist
+ * to every entry before descent so recursive listing cannot disclose names
+ * beneath a denied directory or through a symlink alias.
  */
 export function listGuardedFilesWithDiagnostics(
   root: SddRoot,
@@ -301,6 +330,7 @@ export function listGuardedFilesWithDiagnostics(
 
   const files: string[] = [];
   const errors: GuardedListError[] = [];
+  const realEvidenceKeyPath = resolvedEvidenceKeyPath();
   const walk = (absDir: string, relPrefix: string): void => {
     let entries: string[];
     try {
@@ -312,15 +342,25 @@ export function listGuardedFilesWithDiagnostics(
     for (const entry of entries) {
       const absEntryPath = join(absDir, entry);
       const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
+      let realEntryPath: string;
       let stats: ReturnType<typeof statSync>;
       try {
-        stats = statSync(absEntryPath);
+        realEntryPath = realpathSync(absEntryPath);
+        stats = statSync(realEntryPath);
       } catch (error) {
         errors.push({ path: relEntryPath, reason: errorMessage(error) });
         continue;
       }
+      if (!isAllowlisted(root, realEntryPath)) {
+        errors.push({ path: relEntryPath, reason: "Path is outside the allowlisted directories." });
+        continue;
+      }
+      if (isDenylisted(root, absEntryPath, realEntryPath, realEvidenceKeyPath)) {
+        errors.push({ path: relEntryPath, reason: "Path matches a denylisted file." });
+        continue;
+      }
       if (stats.isDirectory()) {
-        walk(absEntryPath, relEntryPath);
+        walk(realEntryPath, relEntryPath);
       } else if (stats.isFile()) {
         files.push(relEntryPath);
       }
@@ -344,8 +384,9 @@ export function listGuardedFilesWithDiagnostics(
  * use `listGuardedFilesWithDiagnostics` instead, which returns the same
  * `files` alongside a `GuardedListError[]` naming every failure.
  *
- * Exact signature and exact behavior preserved: this is a thin wrapper over
- * `listGuardedFilesWithDiagnostics` that discards the diagnostics.
+ * The signature is preserved: this is a thin wrapper over
+ * `listGuardedFilesWithDiagnostics` that discards diagnostics. Denylisted
+ * descendants are intentionally omitted from its output.
  */
 export function listGuardedFiles(root: SddRoot, relDir: string): string[] {
   return listGuardedFilesWithDiagnostics(root, relDir).files;
@@ -383,7 +424,7 @@ function resolveGuardedDirectory(
     });
   }
 
-  if (isDenylisted(resolvedPath)) {
+  if (isDenylisted(root, joined, resolvedPath)) {
     return err("path-denied", "Path matches a denylisted file.", {
       rule: "denylist",
     });

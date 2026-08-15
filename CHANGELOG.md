@@ -4,6 +4,10 @@
 
 ### Added
 
+- **Node runtime baseline migration**: MCP package engines and installer
+  gating now require Node.js >= 22.19.0, with CI updated to run the MCP
+  lanes on Node 22 and a limited Ubuntu Node 24 forward-compat check.
+
 - **Component path ownership dual-runtime parity (Issue #191,
   epic-191-a3-path-ownership T-006)**: added direct Bash/PowerShell product-
   wrapper parity coverage for canonical JSON, exit status, diagnostics, and
