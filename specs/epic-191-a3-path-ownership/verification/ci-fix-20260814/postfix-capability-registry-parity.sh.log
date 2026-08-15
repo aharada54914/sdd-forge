@@ -1,0 +1,27 @@
+### bash tests/capability-registry-parity.tests.sh (POST-FIX)
+2026-08-13T23:21:41Z
+ok: TEST-031(1): evaluate-predicate .sh/.ps1 stdout is byte-identical and matches the committed golden
+ok: TEST-031(2): validate-capability-registry .sh/.ps1 stdout is byte-identical and matches the committed golden
+ok: TEST-031(3): generate-registry-digest .sh/.ps1/.js stdout is byte-identical
+ok: TEST-031(4): the parity digest matches an independently reconstructed canonicalization of the same fixture Registry
+ok: TEST-031(5): generate-gate-capabilities .sh/.ps1 stdout is byte-identical
+ok: TEST-031(6): generate-gate-capabilities .sh/.ps1 write byte-identical projections matching the committed golden
+ok: TEST-033(1): evaluate-predicate yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(2): validate-capability-registry yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(3): generate-registry-digest yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(4): generate-gate-capabilities yields identical exit codes and stdout in all three installed-plugin contexts
+ok: TEST-033(5): generate-gate-capabilities writes an identical projection in all three installed-plugin contexts
+ok: TEST-033(6): generate-gate-capabilities --check exits zero in all three installed-plugin contexts, via both wrappers
+ok: TEST-033(7): no invocation in any of the three contexts fell back or failed closed on artifact discovery
+ok: non-vacuity canary: an injected cross-wrapper divergence is detected (content difference (172 vs 189 bytes))
+ok: self-registration: capability-registry-parity.tests.sh registered in tests/run-all.sh
+ok: self-registration: capability-registry-parity.tests.ps1 registered in tests/run-all.ps1
+ok: AC-030 (cumulative): the rebuilt CI workflow candidate carries every one of this feature's seven suite pairs in task order
+ok: AC-030 (cumulative): the rebuilt CI workflow candidate's sha256 matches its own MANIFEST.sha256.candidate entry
+ok: human-copy/ staged workflow carries every one of this feature's suite pairs in task order (human apply already landed)
+ok: human-copy: staged workflow sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: Done When #3: the live .github/workflows/test.yml is byte-unchanged relative to its committed state
+ok: Done When #3: no semver-looking version string was hand-mutated in this task's own files (grep self-check)
+---- summary: pass=22 fail=0 designed-red=0 ----
+capability-registry-parity suite passed (22 checks)
+rc=0

@@ -1,0 +1,87 @@
+=====================================================================
+RT-20260809-002 item 1 -- CI drift-lock --check independence mutation
+runtime: ps1   date: 2026-08-10T23:44:47Z
+repo: /Users/jrmag/Projects/active/sdd-forge-wt-epic-190   HEAD: 8fb56bfb5005c1a21dc3db2966750da0b7fa359d
+=====================================================================
+
+### Baseline (no mutation) -- both --check steps present
+
+ok: human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)
+ok: human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+---- summary: pass=23 fail=0 designed-red=0 ----
+
+### Mutation 1 -- REMOVE the vendoring --check step pair (staged human-copy/ workflow)
+
+MUTATION [vendor] on /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml
+  removed 2 step block(s) matching '- name: Verify vendored contracts copy' (Windows + POSIX halves and their comment run)
+  workflow sha256 a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 -> 0b2ee0302af892a33f5a95f78fc3f73d1de4d46a18d8f02c7558e36a62af3dbc
+  MANIFEST entry re-synced to the mutated bytes, so the manifest
+  self-consistency assertion cannot flip -- only the grep assertion
+  for the removed step's own command can.
+
+ok: human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)
+not ok: human-copy: staged workflow candidate is missing the vendoring drift-lock --check step (vendor-capability-registry.py --check)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+---- summary: pass=22 fail=1 designed-red=0 ----
+
+restored test.yml sha256=a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442
+restored MANIFEST.sha256 sha256=b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b
+
+### Mutation 2 -- REMOVE the projection --check step pair (staged human-copy/ workflow)
+
+MUTATION [projection] on /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml
+  removed 2 step block(s) matching '- name: Verify generated gate-capabilities projection' (Windows + POSIX halves and their comment run)
+  workflow sha256 a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 -> a53fef17ce9d5ead8100f1e1667d5927282d97f80d144de4679a62dc8acececb
+  MANIFEST entry re-synced to the mutated bytes, so the manifest
+  self-consistency assertion cannot flip -- only the grep assertion
+  for the removed step's own command can.
+
+ok: human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+ok: QG-fix: rebuilt CI workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+---- summary: pass=22 fail=0 designed-red=1 ----
+
+restored test.yml sha256=a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442
+restored MANIFEST.sha256 sha256=b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b
+
+### Mutation 3 -- REMOVE the vendoring --check step pair (drafts/ candidate workflow)
+
+MUTATION [vendor] on /Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/drafts/human-copy-candidate/.github/workflows/test.yml.candidate
+  removed 2 step block(s) matching '- name: Verify vendored contracts copy' (Windows + POSIX halves and their comment run)
+  workflow sha256 a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442 -> 0b2ee0302af892a33f5a95f78fc3f73d1de4d46a18d8f02c7558e36a62af3dbc
+  MANIFEST entry re-synced to the mutated bytes, so the manifest
+  self-consistency assertion cannot flip -- only the grep assertion
+  for the removed step's own command can.
+
+ok: human-copy: staged workflow candidate registers this suite's CI steps, including the --check drift-lock step (Scope)
+ok: human-copy: staged workflow candidate carries the vendoring drift-lock --check step (RT-20260809-002 item 1)
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256 (self-consistency only, not a freshness proof)
+ok: QG-fix: rebuilt CI workflow candidate carries the gate-capabilities --check step and the generate-registry-digest suite
+not ok: QG-fix: rebuilt CI workflow candidate is missing the vendoring drift-lock --check step (vendor-capability-registry.py --check)
+ok: QG-fix: rebuilt CI workflow candidate sha256 matches its own MANIFEST.sha256.candidate
+---- summary: pass=22 fail=1 designed-red=0 ----
+
+restored test.yml.candidate sha256=a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442
+restored MANIFEST.sha256.candidate sha256=b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b
+
+### Restore verification (sha256 must equal the pre-mutation values)
+
+RESTORED-OK  human-copy/.github/workflows/test.yml        a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442
+RESTORED-OK  human-copy/MANIFEST.sha256                   b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b
+RESTORED-OK  drafts/.../test.yml.candidate                a37a37956e6292b2a1625f16a843cc0b2923af8b4162fa4b2e0e7df873cb7442
+RESTORED-OK  drafts/.../MANIFEST.sha256.candidate         b7ce7f03ffd40d8310c2b4861573a3c6ae2c273b35681fd2b28bcb1d81a2f00b
+
+### Final unmutated suite run
+
+ok: Done When #4: no version string was hand-mutated in this task's production files (grep self-check)
+---- summary: pass=23 fail=0 designed-red=0 ----
+generate-gate-capabilities suite passed (23 checks)

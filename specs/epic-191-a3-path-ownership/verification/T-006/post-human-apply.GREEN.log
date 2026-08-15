@@ -1,0 +1,112 @@
+POST-HUMAN-APPLY VERIFICATION — 2026-08-13
+The human maintainer applied the staged check-component-coverage.ps1 parity-fix
+candidate and the staged .github/workflows/test.yml candidate to their live
+paths. This log records the verification of that apply, not an agent apply.
+
+Environment: macOS, /bin/bash 3.2, PowerShell 7.6.2,
+PATH=/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin.
+
+--------------------------------------------------------------------------
+1. Manifest verification
+--------------------------------------------------------------------------
+Command: shasum -a 256 -c specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256
+         (from the repository root — verifies the LIVE tree)
+Exit: 0
+Result: 13/13 OK
+
+Command: shasum -a 256 -c MANIFEST.sha256
+         (from inside human-copy/ — verifies the STAGED copies)
+Exit: 0
+Result: 13/13 OK
+
+Live and staged are therefore byte-identical across the whole manifest.
+
+Applied file hashes:
+  plugins/sdd-quality-loop/scripts/check-component-coverage.ps1
+    66e7737d2fe120e9ed9020f9894fadea1c7e284dd5cc242a09ab18b3874a8c97
+  .github/workflows/test.yml
+    804283f635dcaca9ee233127e1a805fe25b69eaee89d9799e145857cba14364a
+
+Command: python3 plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+Exit: 0
+
+--------------------------------------------------------------------------
+2. AC-050 coverage cells — the two legitimately designed-red assertions
+--------------------------------------------------------------------------
+Pre-apply (see component-path-ownership-parity{,-ps1}.DESIGNED-RED-UNTIL-APPLY.log):
+
+  not ok - TEST-050 coverage extra-argument exit parity (shell=[2], pwsh=[0])
+  not ok - TEST-050 coverage extra-argument category parity
+           (shell=[rejected-named-extra], pwsh=[accepted])
+
+Post-apply, both runtimes:
+
+  ok - TEST-050 coverage extra-argument exit parity
+  ok - TEST-050 coverage extra-argument category parity
+
+--------------------------------------------------------------------------
+3. Parity twins — post-apply, after the apply was committed
+--------------------------------------------------------------------------
+Command: bash tests/component-path-ownership-parity.tests.sh
+Exit: 0
+Results: 21 passed, 0 failed
+
+Command: pwsh -NoProfile -File tests/component-path-ownership-parity.tests.ps1
+Exit: 0
+Results: 21 passed, 0 failed
+
+Both twins match the staged-apply simulation's prediction (21/0) exactly.
+
+Note on ordering: run against the applied-but-uncommitted tree, both twins
+reported 20 passed / 1 failed. The single failure was TEST-047 "live protected
+workflow remains byte-unchanged", whose predicate is
+`git diff --quiet -- .github/workflows/test.yml` — a working-tree-vs-HEAD
+cleanliness check that proves no agent wrote the live protected file during the
+task's commits. It was red only because the human's apply had not yet been
+recorded on the branch. Committing the apply (the precedent set by c1db8b57)
+closes it. The assertion is doing exactly its job in both states.
+
+--------------------------------------------------------------------------
+4. T-004 twins — post-apply
+--------------------------------------------------------------------------
+Command: bash tests/check-component-coverage.tests.sh
+Exit: 0
+Results: 46 passed, 0 failed
+
+Command: pwsh -NoProfile -File tests/check-component-coverage.tests.ps1
+Exit: 0
+Results: 47 passed, 0 failed
+
+--------------------------------------------------------------------------
+5. Bounded exemption — re-confirmed LAPSED against the real applied state
+--------------------------------------------------------------------------
+TEST-036.4's exemption predicate is
+
+    pending_human_apply = relative in declared_human_apply and not guard_applied
+
+where guard_applied tests for the unknown-argument guard in the live file. With
+the apply landed the guard is present, so guard_applied is true, the exemption
+is closed, and the live-vs-manifest hash equality is enforced unconditionally.
+
+Probe (performed twice, restored byte-identical each time): one inert comment
+line appended to the live plugins/sdd-quality-loop/scripts/check-component-coverage.ps1,
+leaving the guard in place so the exemption cannot re-open.
+
+  Baseline hash: 66e7737d2fe120e9ed9020f9894fadea1c7e284dd5cc242a09ab18b3874a8c97
+  Drifted hash:  41a15870e6c0738979aebad6803061b58c682bb47debecba80b7b2888b551371
+
+Command: bash tests/check-component-coverage.tests.sh          (drifted tree)
+Exit: 1
+Results: 45 passed, 1 failed
+  FAIL: TEST-036.4: T-004 registration, staged-candidate integrity, or
+        T-004-owned live byte identity failed against .../MANIFEST.sha256
+
+Command: pwsh -NoProfile -File tests/check-component-coverage.tests.ps1  (drifted tree)
+Exit: 1
+Results: 46 passed, 1 failed
+  FAIL: TEST-036.4: ... (addOk=True manifestOk=False candidates=13 live=12)
+
+Restored hash after each probe: 66e7737d2fe120e9ed9020f9894fadea1c7e284dd5cc242a09ab18b3874a8c97
+
+Drifting the live protected file now turns both suites RED. The exemption that
+covered the pre-apply window has lapsed exactly as designed.

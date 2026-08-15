@@ -1,0 +1,10 @@
+{
+  "predicate": {
+    "scope": "affected_component",
+    "field": "characteristics.pii",
+    "operator": "exists"
+  },
+  "properties": {
+    "characteristics": {}
+  }
+}

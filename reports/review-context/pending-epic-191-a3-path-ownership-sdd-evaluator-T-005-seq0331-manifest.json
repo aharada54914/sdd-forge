@@ -1,0 +1,33 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-191-a3-path-ownership",
+  "task_id": "T-005",
+  "run_id": "RUN-epic-191-a3-path-ownership-quality-T-005-seq0331",
+  "host_session_id": "SESS-quality-sdd-evaluator-epic-191-a3-path-ownership-T-005-0331",
+  "sequence": 331,
+  "previous_record_sha256": "e0195def178b8820c4989c51a245583809ba5202e91f851129bad71d2ba5db87",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2b882db79962bf9a2a928cf3d206c9cc055bcf0c3b6211fb2d59f10df3a44b1a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    { "path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348" },
+    { "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5" },
+    { "path": "specs/epic-191-a3-path-ownership/design.md", "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5" },
+    { "path": "specs/epic-191-a3-path-ownership/tasks.md", "sha256": "1f8173e3ad2f8f652fb2044610a4b25f0d69738b4606e7627747916352e8f7f9" },
+    { "path": "specs/epic-191-a3-path-ownership/traceability.md", "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4" },
+    { "path": "specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6" },
+    { "path": "specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8" },
+    { "path": "specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0" },
+    { "path": "specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66" },
+    { "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md", "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542" },
+    { "path": "reports/implementation/epic-191-a3-path-ownership/T-005.md", "sha256": "a75145d8bfee20013ab7f49afa7b47dc6ce7f355adb73f4da754785380296ac3" },
+    { "path": "tests/component-path-resolver.tests.sh", "sha256": "9eeb7a7d03dd51168c4a5d76eade41d8a9647c59f9417f4a03feaa2f341320c2" },
+    { "path": "tests/component-path-resolver.tests.ps1", "sha256": "6970ed0f3e2c5d5c18fa324bd139c2c0cd388e7e7f5b131ea7878f9526a86d79" },
+    { "path": "tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/config.yaml", "sha256": "4d4b146b1078023582dc9ba9fcd23a037dfc9d93c712e46d69063456cabf374b" },
+    { "path": "tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/changed-paths.txt", "sha256": "6caeff1a641a7efe30f6a6d811e5f37511c8116834b9ec20a0f960160f59250c" }
+  ]
+}

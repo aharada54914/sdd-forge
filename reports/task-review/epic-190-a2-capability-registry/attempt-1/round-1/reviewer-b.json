@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-190-a2-capability-registry-task-task-reviewer-b-a1r1-seq0343",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-a1r1-0343",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"},
+      {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"},
+      {"path": "specs/epic-190-a2-capability-registry/design.md", "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"},
+      {"path": "specs/epic-190-a2-capability-registry/tasks.md", "sha256": "50d7806f1f1473546b2b741c1eff3ac28e5bfe791461d0f05f3b25e1ea2c7a07"},
+      {"path": "specs/epic-190-a2-capability-registry/traceability.md", "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"},
+      {"path": "specs/epic-190-a2-capability-registry/ux-spec.md", "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"},
+      {"path": "specs/epic-190-a2-capability-registry/frontend-spec.md", "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"},
+      {"path": "specs/epic-190-a2-capability-registry/infra-spec.md", "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"},
+      {"path": "specs/epic-190-a2-capability-registry/security-spec.md", "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json", "sha256": "8aca75feeccadadbbefec4d5efa52b8c6fe4c7c6063e60e7fea2e15fb86ec6e3"},
+      {"path": "reports/task-review/epic-190-a2-capability-registry/attempt-1/round-1/integrated-summary.json", "sha256": "ac7ca09d5570c4320b4aec9b4f985852dcacc992c2c3bec8146364d2075d3d47"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every task's Risk tier is individually justified against risk-classification-policy.md's actual tier language, cited by name in each task's own Risk Rationale. T-002/T-003/T-004/T-006 (Risk: high) each name a concrete sensitive/security boundary from design.md (B1-B4) and the policy's 'silent defect causes material harm' language, not merely asserted. T-001 (medium) and T-005 (medium) explicitly reason why they fall short of high ('touches no authentication, authorization, payment, PII storage, migration, or externally-visible runtime API' -- T-001; 'does not touch access-control, secrets, or a Gate-blocking surface' -- T-005). T-007 (medium) explicitly reasons why a test-only task avoids both over-classification ('high/critical would be over-classification per the policy's own guidance') and under-classification ('not low either... exercises real cross-runtime determinism behavior'). No task's Scope/Done When/Goal touches authentication, authorization, payment, PII storage (the schema's `characteristics.pii` is a classification-field name, not stored PII data -- Data Plan confirms 'No data is deleted or migrated; this is a net-new contract with no prior version'), data migration (every task states 'Data Migration: none'), or an externally-visible API contract (T-001 explicitly: 'a repository-internal, hand-edited data file, not a network-facing contract') while under-classified at low/medium."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. All four Risk: high tasks carry the required Done When evidence: T-002 'TDD evidence -- RED (each fail-closed/grammar-closure case against a deliberately permissive evaluator) and GREEN (the full suite against the correct evaluator). An independent quality-gate verdict records PASS.'; T-003 and T-004 use the identical RED/GREEN + independent-quality-gate-verdict pattern; T-006 additionally requires the verdict to confirm 'the protected-file bundle has been human-applied and verified.' 'Independent quality-gate verdict' satisfies 'a named second reviewer, not the implementing agent' given this repository's own established role separation stated in tasks.md's Lifecycle section (line 14-16): 'implement-task may set In Progress, Blocked, or Implementation Complete. Only quality-gate may set Done' -- quality-gate is a distinct role from the implementing agent by this project's own convention, not a self-certification. No task in this feature is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Scope-area counts: T-001=3, T-002=3, T-003=3, T-004=3, T-005=3, T-006=4 (T-006's 4th bullet, protected-file-bundle staging, is a deliberate, explicitly-justified consolidation -- Protected Files section states T-006 is made 'sole editor... staged via human-copy after T-001's and T-003's new files exist,' 'avoiding the staging race Global Constraints... calls out,' citing precedent 'mirroring the INV-015 pattern this repository already applies elsewhere'), T-007=3. Done-When item counts: T-001=4, T-002=6, T-003=5, T-004=7, T-005=5, T-006=5, T-007=4 -- none exceed 8. No task title implies multiple sequential phases beyond the standard 'author X + its own test suite' acceptance-first/TDD pattern applied uniformly across the feature. No fragmentation pattern: no three-or-more single-function/single-file-edit tasks, and no task whose entire scope is a bare rename."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every REQ's linked AC set (traceability.md Acceptance Mapping) includes at least one explicit rejection/fail-closed/edge-case scenario alongside its happy-path criteria: REQ-001/T-001 -- AC-004's dedicated missing-delivery_strategy-key and missing-kind-key negative fixtures, AC-001's additionalProperties:false extra-key rejection, AC-037/AC-038's malformed-entry rejections; REQ-002/T-002 -- AC-007's fail-closed missing-path/null/type-mismatch fixtures, AC-008's absent-path case, AC-012's malformed-not-node rejection, AC-040's forbidden-operator rejection; REQ-003/T-004 -- all nine checks (AC-014 through AC-022, AC-039) are themselves failure-diagnostic assertions (gate-id-duplicate, implementation-ref-missing, provider-name-detected, unknown-upgrade-reason, etc.); REQ-004/T-005 -- AC-024's unknown-fragment-id and fragment-selector-required hard failures; REQ-005/T-003+T-006 -- AC-027's three version-mismatch fixtures plus the neither-location-resolves fixture plus the vendored-copy-drift fixture, AC-026's hand-mutated-file drift-detection fixture. T-007 is itself a test-authoring task (parity/installed-layout harness), so it is exempt from this check's non-test-task scope."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-007 is the one task that self-declares an explicit test-type label -- 'Write the acceptance checks first (acceptance-first, integration-level -- each case spans at least two of the four scripts' wrapper pairs)' -- and its Depends On/Goal confirm the scope genuinely spans >=2 system components (evaluate-predicate T-002, validate-capability-registry T-004, generate-registry-digest T-005, generate-gate-capabilities T-006), matching the 'integration tests must involve at least two system components' bar. Every acceptance-tests.md row (TEST-001..TEST-040) references exactly one AC-NNN by the package's own stated 1:1 AC<->TEST renumbering (acceptance-tests.md header), satisfying 'acceptance tests must reference a specific AC-NNN.' No task mislabels a narrow single-module check as integration/end-to-end or vice versa."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All four Risk: high tasks carry an explicit Rollback: field: T-002 'revert this task's commit(s); nothing protected is written directly'; T-003 'revert this task's commit(s); the vendored copies and discovery module are additive and independently revertible'; T-004 'revert this task's commit(s); nothing protected is written directly'; T-006 (the most nuanced case, correctly handling its human-applied protected-file bundle) 'revert this task's commit(s)... The six staged protected-bundle files and .github/workflows/test.yml are NEVER part of the agent's own commit history (human-applied only) -- a revert PR must separately state whether any already-human-applied protected-file change should also be hand-reverted, and by whom.'"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Shared-resource files (tests/run-all.sh/.ps1, the staged specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml candidate, human-copy/MANIFEST.sha256) are edited by every task (T-001..T-007) but are append-only, and Global Constraints explicitly mandates 'Serialized order T-001 -> T-002 -> T-003 -> T-004 -> T-005 -> T-006 -> T-007 for every shared-resource append,' enforced via each task's own Blockers field (verified: T-002 Blockers T-001; T-003 Blockers T-001,T-002; T-004 Blockers T-001,T-002,T-003; T-005 Blockers T-001..T-004; T-006 Blockers T-001..T-005; T-007 Blockers T-002..T-006) -- matching the check's own 'legitimate multi-task scope sharing... provided the Blockers field enforces the ordering' exception. The one genuinely protected shared bundle (guard-invariants.json + its generated siblings) has a single declared sole editor: 'T-006 is the sole editor of this bundle within this feature' (Protected Files section), with T-001/T-003 creating the not-yet-protected prerequisite paths only. No two tasks list the same primary new implementation file (.py/.sh/.ps1/.json) with no blocking relationship."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Blockers entry across T-001..T-007 carries an explicit, individually-verifiable rationale distinguishing functional dependency from Global-Constraints-only shared-array-append ordering, and each is corroborated by the dependent task's own Must Read/Planned Files: T-003's functional dependency on T-001 (version-check fixtures assert against T-001's real file shapes) and T-002 (Global Constraints only, disclosed); T-004's functional dependency on T-003 (imports registry_discovery.py, confirmed in T-004's Must Read list); T-005's functional dependency on T-001 (fragments T-001's arrays) and T-003 (imports registry_discovery.py); T-006's functional dependency on T-001 (reads validated Registry; needs T-001's three contract paths) and T-003 (needs T-003's two vendored-copy paths to exist first for the protected-file registration), with T-004/T-005 correctly disclosed as Global-Constraints-only ('the projection generator reads the Registry directly, it does not invoke the validator as a subprocess'); T-007's functional dependency on T-002/T-004/T-005/T-006 (invokes all four scripts' wrapper pairs directly) with T-003 disclosed as Global-Constraints-only. No blocker lacks a stated logical basis, and no functional producer-consumer relationship is left undeclared."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All seven tasks (T-001..T-007) are net-new feature-authoring tasks (titles begin 'Author the...'); none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation per its title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": []
+}

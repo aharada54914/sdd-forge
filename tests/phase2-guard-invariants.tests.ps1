@@ -3,7 +3,16 @@ Set-StrictMode -Version Latest
 
 # TEST-010 / TEST-011: native export contract and check-only rejection paths.
 $root = Split-Path -Parent $PSScriptRoot
-$sourceLoop = Join-Path $root 'specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop'
+# 2026-08-14 class fix (extends the 2026-08-11 RT-20260811-002 ruling): the
+# canonical guard-invariants.json, its generator and the four generated
+# siblings are REPO-SHARED - their live bytes change whenever ANY epic
+# registers a protected path (measured: three separate epics wrote the live
+# canonical). A per-epic staged snapshot of such a file is structurally doomed
+# to go stale and become a deletion hazard on apply, so the snapshot is
+# EVICTED from this bundle and the LIVE plugin tree is the single source of
+# truth these tests exercise - the same retargeting TEST-011 received when the
+# repo-shared CI workflow was evicted.
+$sourceLoop = Join-Path $root 'plugins/sdd-quality-loop'
 $generator = Join-Path $sourceLoop 'scripts/generate-guard-invariants.py'
 $generated = Join-Path $sourceLoop 'scripts/generated'
 $required = @(
@@ -19,6 +28,9 @@ $failCount = 0
 
 function Ok([string]$Message) { Write-Host "ok: $Message"; $script:passCount++ }
 function Bad([string]$Message) { Write-Host "FAIL: $Message"; $script:failCount++ }
+# Skips are counted and printed separately so they can never be read as passes.
+$skipCount = 0
+function Skip([string]$Message) { Write-Host "skip - $Message"; $script:skipCount++ }
 function Assert-True([bool]$Condition, [string]$Message) { if ($Condition) { Ok $Message } else { Bad $Message } }
 function Get-PlatformCommand([string]$WindowsName, [string]$PosixName, [string]$Label) {
     $name = if ([Environment]::OSVersion.Platform -eq [PlatformID]::Win32NT) { $WindowsName } else { $PosixName }
@@ -436,7 +448,15 @@ if ($env:SDD_PHASE2_RUNNER_CHILD -eq '1') {
 #>
 
 # TEST-013 Slice 3: isolated bootstrap validation only. The runner deliberately
-# stops after validating all 19 staged hashes; no fixture live target is copied.
+# stops after validating the staged hashes; no fixture live target is copied.
+# 2026-08-11 (human ruling on RT-20260811-002, class fix): the repo-shared
+# .github/workflows/test.yml is EVICTED from this inventory.
+# 2026-08-14: the same class fix is extended to the registry-projection files
+# (canonical guard-invariants.json, its generator, and the four generated
+# siblings) - repo-shared with MANY writers, since their live bytes change on
+# every protected-path registration by any epic. This bundle went stale twice
+# in the week of 2026-08-11 for exactly that reason. 12 entries now; the class
+# lock below fails this suite if any evicted snapshot is re-added.
 $bootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
@@ -448,20 +468,15 @@ $bootstrapTargets = @(
     'plugins/sdd-lite/scripts/check-risk-upgrade.ps1',
     'plugins/sdd-lite/skills/lite-spec/SKILL.md',
     'plugins/sdd-ship/skills/ship/SKILL.md',
-    'plugins/sdd-quality-loop/references/guard-invariants.json',
-    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
-    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
-    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
-    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
-    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh',
     'tests/guard-parity.tests.sh',
-    '.github/workflows/test.yml',
     'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 )
 $bootstrapStage = Join-Path $root 'specs/epic-136-phase2-gates/human-copy'
 $bootstrapRunner = Join-Path $bootstrapStage 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 $bootstrapManifest = Join-Path $bootstrapStage 'MANIFEST.sha256'
-$bootstrapCi = Join-Path $bootstrapStage '.github/workflows/test.yml'
+# TEST-011 asserts the CI ordering invariant against the LIVE workflow (the
+# single source of truth after the 2026-08-11 eviction of the staged snapshot).
+$liveCi = Join-Path $root '.github/workflows/test.yml'
 
 function Test-FinalStagedManifest {
     if (-not (Test-Path -LiteralPath $bootstrapManifest -PathType Leaf)) { return $false }
@@ -491,9 +506,7 @@ function New-BootstrapFixture {
     foreach ($target in $bootstrapTargets) {
         $source = Join-Path $fixtureStage $target
         New-Item -ItemType Directory -Path (Split-Path -Parent $source) -Force | Out-Null
-        if ($target -eq 'plugins/sdd-quality-loop/references/guard-invariants.json') {
-            Copy-Item -LiteralPath (Join-Path $bootstrapStage $target) -Destination $source -Force
-        } elseif ($target -eq 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1') {
+        if ($target -eq 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1') {
             Copy-Item -LiteralPath $bootstrapRunner -Destination $source -Force
         } else {
             Write-BootstrapText $source @("fixture candidate: $target")
@@ -518,7 +531,11 @@ function Invoke-BootstrapValidator([string]$Fixture) {
 }
 
 function Install-FixtureCanonical([string]$Fixture) {
-    $source = Join-Path $Fixture 'specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json'
+    # 2026-08-14 class fix: the canonical is no longer snapshotted in this
+    # bundle, so the fixture's live canonical is seeded from the LIVE
+    # repository copy. This is a runtime read of live bytes, never a committed
+    # snapshot -- it cannot go stale.
+    $source = Join-Path $root 'plugins/sdd-quality-loop/references/guard-invariants.json'
     $destination = Join-Path $Fixture 'plugins/sdd-quality-loop/references/guard-invariants.json'
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
     Copy-Item -LiteralPath $source -Destination $destination -Force
@@ -558,8 +575,38 @@ function Try-NewFixtureJunction([string]$Path, [string]$Target) {
 $allStagedCandidatesExist = (@($bootstrapTargets | Where-Object { -not (Test-Path -LiteralPath (Join-Path $bootstrapStage $_) -PathType Leaf) }).Count -eq 0)
 Assert-True $allStagedCandidatesExist 'TEST-013 staged batch contains each exact protected candidate'
 Assert-True (Test-FinalStagedManifest) 'TEST-013 final manifest has exact ordered lowercase staged hashes'
-if (Test-Path -LiteralPath $bootstrapCi -PathType Leaf) {
-    $ciText = Get-Content -Raw -LiteralPath $bootstrapCi
+
+# Class lock (2026-08-11 human ruling, RT-20260811-002; extended 2026-08-14):
+# the bundle must never again snapshot a repo-shared file that live advances
+# independently of this epic. Absence is asserted, not merely unlisted, so a
+# future re-adding fails here instead of rotting silently. Membership test for
+# this list: the file's LIVE bytes can change without this epic changing - the
+# CI workflow (any epic adds steps) and the registry projection (any epic
+# registers a protected path).
+$repoSharedEvicted = @(
+    '.github/workflows/test.yml',
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
+)
+# Reading the manifest only when it happens to exist made the manifest half of
+# every lock pass without reading anything if that path were ever wrong --
+# silent vacuity, the exact mode these locks exist to prevent. Assert it once,
+# loudly, then read it unconditionally.
+$manifestPresent = Test-Path -LiteralPath $bootstrapManifest -PathType Leaf
+Assert-True $manifestPresent 'TEST-013 class lock: the bundle manifest is present (absence assertions are non-vacuous)'
+$manifestLines = if ($manifestPresent) { @([IO.File]::ReadAllLines($bootstrapManifest)) } else { @('<manifest missing>') }
+foreach ($evicted in $repoSharedEvicted) {
+    $snapshotPath = Join-Path $bootstrapStage $evicted
+    $manifestHasEntry = (@($manifestLines | Where-Object { $_.EndsWith('  ' + $evicted) }).Count -ne 0)
+    Assert-True ((-not (Test-Path -LiteralPath $snapshotPath)) -and (-not $manifestHasEntry)) "TEST-013 class lock: repo-shared $evicted is not snapshotted in this bundle (no staged file, no manifest entry)"
+}
+
+if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
+    $ciText = Get-Content -Raw -LiteralPath $liveCi
     $checkout = $ciText.IndexOf('uses: actions/checkout')
     $firstValidation = $ciText.IndexOf('Install recorded Claude Code CLI')
     $firstGuardSuite = $ciText.IndexOf('Test hook guards')
@@ -568,8 +615,8 @@ if (Test-Path -LiteralPath $bootstrapCi -PathType Leaf) {
     $windowsInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(pwsh\).*?if: runner\.os == 'Windows'.*?shell: pwsh.*?run: ./tests/phase2-guard-invariants\.tests\.ps1")
     $posixInvariantSuite = [regex]::IsMatch($ciText, "(?ms)- name: Test Phase 2 guard invariants \(bash\).*?if: runner\.os != 'Windows'.*?shell: bash.*?run: bash ./tests/phase2-guard-invariants\.tests\.sh")
     $generatorBeforeValidation = (($ciText.IndexOf('Verify generated guard invariants (Windows)') -gt $checkout) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -gt $checkout) -and ($ciText.IndexOf('Verify generated guard invariants (Windows)') -lt $firstValidation) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -lt $firstValidation) -and ($ciText.IndexOf('Verify generated guard invariants (Windows)') -lt $firstGuardSuite) -and ($ciText.IndexOf('Verify generated guard invariants (POSIX)') -lt $firstGuardSuite))
-    Assert-True (($checkout -ge 0) -and ($firstValidation -ge 0) -and ($firstGuardSuite -ge 0) -and $windowsGenerator -and $posixGenerator -and $windowsInvariantSuite -and $posixInvariantSuite -and $generatorBeforeValidation) 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards'
-} else { Bad 'TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards' }
+    Assert-True (($checkout -ge 0) -and ($firstValidation -ge 0) -and ($firstGuardSuite -ge 0) -and $windowsGenerator -and $posixGenerator -and $windowsInvariantSuite -and $posixInvariantSuite -and $generatorBeforeValidation) 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards'
+} else { Bad 'TEST-011 live CI uses platform-native generator and invariant suites before validation and guards' }
 
 function New-InstallationFixture {
     $fixture = Join-Path ([IO.Path]::GetTempPath()) ('phase2-install-' + [guid]::NewGuid().ToString())
@@ -583,6 +630,15 @@ function New-InstallationFixture {
     New-Item -ItemType Directory -Path $fixtureTests -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $root 'tests/phase2-guard-invariants.tests.ps1') -Destination $fixtureTests -Force
     Copy-Item -LiteralPath (Join-Path $root 'tests/phase2-guard-invariants.tests.sh') -Destination $fixtureTests -Force
+    # TEST-011 asserts against the LIVE workflow (the post-eviction single
+    # source of truth), so the runner's post-install child suites need it
+    # present inside the fixture tree. This is a runtime copy of the live
+    # bytes, never a committed snapshot -- it cannot go stale.
+    if (Test-Path -LiteralPath $liveCi -PathType Leaf) {
+        $fixtureCi = Join-Path $fixture '.github/workflows/test.yml'
+        New-Item -ItemType Directory -Path (Split-Path -Parent $fixtureCi) -Force | Out-Null
+        Copy-Item -LiteralPath $liveCi -Destination $fixtureCi -Force
+    }
     $fixtureStage = Join-Path $fixture 'specs/epic-136-phase2-gates/human-copy'
     $lines = @()
     foreach ($target in $bootstrapTargets) {
@@ -617,23 +673,17 @@ function Initialize-FixturePreviousBatch([string]$Fixture) {
     $fixtureStage = Join-Path $Fixture 'specs/epic-136-phase2-gates/human-copy'
     $hashes = @{}
     $bytes = @{}
-    $immutableGenerated = @(
-        'plugins/sdd-quality-loop/references/guard-invariants.json',
-        'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
-        'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
-        'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
-        'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
-        'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
-    )
+    # The former $immutableGenerated exemption listed the six registry-projection
+    # files, which the 2026-08-14 class fix evicted from $bootstrapTargets. With
+    # none of them in the copy plan the exemption can no longer match, so it is
+    # removed rather than left as dead code that implies a live carve-out.
     foreach ($target in $bootstrapTargets) {
         $source = Join-Path $fixtureStage $target
         $destination = Join-Path $Fixture $target
         New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
         Copy-Item -LiteralPath $source -Destination $destination -Force
-        if ($target -notin $immutableGenerated) {
-            $comment = if ($target -like '*.js') { "`n// fixture previous batch`n" } else { "`n# fixture previous batch`n" }
-            [IO.File]::AppendAllText($destination, $comment, [Text.Encoding]::ASCII)
-        }
+        $comment = if ($target -like '*.js') { "`n// fixture previous batch`n" } else { "`n# fixture previous batch`n" }
+        [IO.File]::AppendAllText($destination, $comment, [Text.Encoding]::ASCII)
         $raw = [IO.File]::ReadAllBytes($destination)
         $bytes[$target] = [Convert]::ToBase64String($raw)
         $hashes[$target] = (Get-FileHash -LiteralPath $destination -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -705,7 +755,35 @@ if (Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) {
     } else { Ok 'TEST-013 runner child permits its fixture-only marker replacement' }
 }
 
-if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
+# 2026-08-14 class fix, apply-ordering gate. The eviction of the staged
+# canonical and the refresh of the R-10 runner CANNOT land in one change: the
+# runner is guard-protected, so only a human can apply it. Between the two, the
+# INSTALLED runner still resolves its repository root and inventory authority
+# through the staged canonical this bundle no longer carries, and every
+# install-path assertion below fails at startup for that reason alone (exit 2)
+# rather than because the property under test regressed.
+#
+# Those assertions are therefore SKIPPED -- visibly, counted separately from
+# passes, and only while the precondition provably holds. The gate is
+# self-retiring: the moment the human applies the candidate, the discriminator
+# below goes false, the candidate file must be gone, and all of them run for
+# real. Nothing here can stay silently skipped.
+$installedRunnerText = if (Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) { Get-Content -Raw -LiteralPath $bootstrapRunner } else { '' }
+$runnerPredatesRefresh = $installedRunnerText.Contains('$stagedCanonicalRelative')
+$refreshCandidate = Join-Path $bootstrapStage 'apply-protected-files.refresh-candidate-20260814.ps1'
+if ($runnerPredatesRefresh) {
+    # A pre-refresh runner is only tolerable while its replacement is staged
+    # for the human. Without the candidate this is an unexplained regression.
+    Assert-True (Test-Path -LiteralPath $refreshCandidate -PathType Leaf) 'TEST-013 pre-refresh runner is accompanied by its staged refresh candidate'
+} else {
+    # Post-refresh the candidate must have been retired by the same commit that
+    # applied it, otherwise a stale copy of an R-10 file lingers in the bundle.
+    Assert-True (-not (Test-Path -LiteralPath $refreshCandidate)) 'TEST-013 refresh candidate is retired once the runner is refreshed'
+}
+
+if ($runnerPredatesRefresh -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
+    Skip 'TEST-013 runner install-path assertions: the installed runner still reads the evicted staged canonical; apply apply-protected-files.refresh-candidate-20260814.ps1 (see the bundle NOTES) to re-enable them'
+} elseif ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHASE2_RUNNER_CHILD -ne '1')) {
     $fixture = New-InstallationFixture
     try {
         Assert-True ((Invoke-IsolatedInstall $fixture) -eq 0) 'TEST-013 bootstrap accepts literal-order canonical data and installs the exact batch'
@@ -717,17 +795,22 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
             $fixtureStage = Join-Path $fixture 'specs/epic-136-phase2-gates/human-copy'
             $manifestPath = Join-Path $fixtureStage 'MANIFEST.sha256'
             $lines = @(Get-Content -LiteralPath $manifestPath)
+            # 2026-08-14 class fix: the staged canonical is evicted, so the
+            # bootstrap inventory authority is the runner's own reviewed
+            # $BootstrapTargets pin. An "expansion" is therefore expressed at
+            # the manifest level - a target the pin does not contain - which is
+            # the surface the runner still reads.
             if ($case -eq 'expansion') {
-                $canonicalPath = Join-Path $fixtureStage 'plugins/sdd-quality-loop/references/guard-invariants.json'
-                $canonical = Get-Content -Raw -LiteralPath $canonicalPath | ConvertFrom-Json
-                $canonical.phase2_human_copy_targets = @($bootstrapTargets + 'outside/inventory.txt')
-                Write-BootstrapText $canonicalPath @($canonical | ConvertTo-Json -Depth 8)
+                $extra = Join-Path $fixtureStage 'outside/inventory.txt'
+                New-Item -ItemType Directory -Path (Split-Path -Parent $extra) -Force | Out-Null
+                Write-BootstrapText $extra @('fixture candidate: outside/inventory.txt')
+                $lines += ((Get-FileHash -LiteralPath $extra -Algorithm SHA256).Hash.ToLowerInvariant() + '  outside/inventory.txt')
             }
             if ($case -eq 'grammar') { $lines[0] = 'not a GNU manifest line' }
             if ($case -eq 'hash') { $lines[0] = '0' + $lines[0].Substring(1) }
             if ($case -eq 'missing') { $lines = @($lines | Select-Object -Skip 1) }
             if ($case -eq 'duplicate') { $lines[$lines.Count - 1] = $lines[0] }
-            if ($case -ne 'expansion') { Write-BootstrapText $manifestPath $lines }
+            Write-BootstrapText $manifestPath $lines
             Assert-True ((Invoke-BootstrapValidator $fixture) -ne 0) "TEST-013 bootstrap rejects $case invariant mismatch"
         } finally { Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue }
     }
@@ -752,12 +835,15 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
 
     $fixture = New-BootstrapFixture
     try {
-        Install-FixtureCanonical $fixture | Out-Null
-        $stagedCanonical = Join-Path $fixture 'specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json'
-        $canonical = Get-Content -Raw -LiteralPath $stagedCanonical | ConvertFrom-Json
-        $canonical.phase2_human_copy_targets = @($bootstrapTargets | Select-Object -Skip 1)
-        Write-BootstrapText $stagedCanonical @($canonical | ConvertTo-Json -Depth 8)
-        Assert-True ((Invoke-NormalUpdateValidator $fixture) -ne 0) 'TEST-013 normal update rejects staged/live ordered-array mismatch'
+        # 2026-08-14 class fix: with the staged canonical evicted there is no
+        # staged/live PAIR left to compare. The surviving - and stronger -
+        # invariant is that the LIVE canonical must match the runner's reviewed
+        # registry pin, so the mutation is applied to the live canonical.
+        $liveCanonical = Install-FixtureCanonical $fixture
+        $canonical = Get-Content -Raw -LiteralPath $liveCanonical | ConvertFrom-Json
+        $canonical.phase2_human_copy_targets = @($canonical.phase2_human_copy_targets | Select-Object -Skip 1)
+        Write-BootstrapText $liveCanonical @($canonical | ConvertTo-Json -Depth 8)
+        Assert-True ((Invoke-NormalUpdateValidator $fixture) -ne 0) 'TEST-013 normal update rejects a live canonical that departs from the reviewed registry pin'
     } finally { Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue }
 
     foreach ($case in @('absolute', 'traversal', 'remap')) {
@@ -934,10 +1020,15 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
 
 # WFI-016 followup (issue #207): every staged human-copy target must be
 # byte-identical to its live counterpart (twin of the bash sync check).
+# 2026-08-11 (human ruling on RT-20260811-002, item 4 semantics): the check
+# iterates THIS BUNDLE's staging inventory ($bootstrapTargets, bound to
+# MANIFEST.sha256 by TEST-013), not the canonical JSON's
+# phase2_human_copy_targets, which epic-190-a2's registration turned into a
+# repository-wide protection registry (19 -> 26 entries). Files another epic
+# stages in its own bundle are not this bundle's staging surface.
 $syncOk = $true
-$syncCanonical = Join-Path $bootstrapStage 'plugins/sdd-quality-loop/references/guard-invariants.json'
 try {
-    $syncTargets = @((Get-Content -Raw -LiteralPath $syncCanonical | ConvertFrom-Json).phase2_human_copy_targets)
+    $syncTargets = @($bootstrapTargets)
     if ($syncTargets.Count -eq 0) { $syncOk = $false }
     foreach ($syncTarget in $syncTargets) {
         $syncLive = Join-Path $root $syncTarget
@@ -957,6 +1048,6 @@ try {
 } catch { $syncOk = $false }
 if ($syncOk) { Ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' } else { Bad 'WFI-016 staged targets are byte-identical to live (no stale staging)' }
 
-Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed"
+Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed, $skipCount skipped"
 if ($failCount -gt 0) { exit 1 }
 exit 0

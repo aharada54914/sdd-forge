@@ -833,14 +833,18 @@ STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 # The mcp/ tree is excluded here even though it is Git-tracked: MCP payload
 # placement is handled exclusively by place_mcp_servers (dist/ + package.json
 # only, gated by --skip-mcp / --mcp / the Node >= 20 check), so staging it
-# unconditionally here would bypass that gating.
+# unconditionally here would bypass that gating. tests/fixtures/ is excluded
+# too: it is Git-tracked test scaffolding, not part of the installed product,
+# and staging it here would pull test-only symlinks into every install
+# (install.ps1's staging loop refuses those on purpose; keep the two
+# installers selecting the same file set).
 if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
     # One tar pipeline instead of a mkdir+cp process pair per tracked file.
     # The create side reads the NUL-delimited tracked list, so content still
     # comes from the working tree, symlinks stay symlinks (as with cp -P),
     # untracked files still never leak in, and extraction recreates the
     # parent directories itself.
-    git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**' \
+    git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**' ':!tests/fixtures/**' \
         | (cd "$SOURCE_ROOT" && tar --null -T - -cf -) \
         | (cd "$STAGING_ROOT" && tar -xf -)
 else
