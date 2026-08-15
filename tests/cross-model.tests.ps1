@@ -193,8 +193,17 @@ $completeAtEpochMs = if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
     [long]$env:STUB_COMPLETE_AT_EPOCH_MS
 } else { 0 }
 if ($completeAtEpochMs -gt 0) {
-    $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
-    if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
+    if ($env:STUB_COMPLETE_BEFORE_DEADLINE_MS) {
+        # Start-Sleep can overshoot by hundreds of milliseconds on a contended
+        # windows-latest host. Spin only for this short boundary interval so
+        # scheduler jitter cannot turn an in-budget completion into a timeout.
+        while ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() -lt $completeAtEpochMs) {
+            [Threading.Thread]::SpinWait(10000)
+        }
+    } else {
+        $remainingMs = $completeAtEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        if ($remainingMs -gt 0) { Start-Sleep -Milliseconds ([int]$remainingMs) }
+    }
 }
 @{
     schema = "cross-model-verdict/v1"
