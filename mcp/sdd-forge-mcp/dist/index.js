@@ -31362,13 +31362,27 @@ function isAllowlisted(root, resolvedPath) {
   }
   return false;
 }
-function isDenylisted(resolvedPath) {
-  const basename = resolvedPath.split(sep).pop() ?? resolvedPath;
-  if (DENYLISTED_BASENAMES.has(basename)) {
+function hasDenylistedComponent(root, candidatePath) {
+  return relative(root.path, candidatePath).split(sep).some((component) => DENYLISTED_BASENAMES.has(component));
+}
+function resolvedEvidenceKeyPath() {
+  try {
+    return realpathSync2(evidenceKeyPath());
+  } catch {
+    return null;
+  }
+}
+function isDenylisted(root, lexicalPath, knownRealPath, knownEvidenceKeyPath) {
+  if (hasDenylistedComponent(root, lexicalPath)) {
     return true;
   }
   try {
-    if (realpathSync2(resolvedPath) === realpathSync2(evidenceKeyPath())) {
+    const realPath = knownRealPath ?? realpathSync2(lexicalPath);
+    if (hasDenylistedComponent(root, realPath)) {
+      return true;
+    }
+    const realEvidenceKeyPath = knownEvidenceKeyPath === void 0 ? resolvedEvidenceKeyPath() : knownEvidenceKeyPath;
+    if (realEvidenceKeyPath !== null && realPath === realEvidenceKeyPath) {
       return true;
     }
   } catch {
@@ -31395,7 +31409,7 @@ function resolveGuarded(root, relPath) {
       rule: "allowlist"
     });
   }
-  if (isDenylisted(resolvedPath)) {
+  if (isDenylisted(root, joined, resolvedPath)) {
     return err("path-denied", "Path matches a denylisted file.", {
       rule: "denylist"
     });
@@ -31457,6 +31471,7 @@ function listGuardedFilesWithDiagnostics(root, relDir) {
   }
   const files = [];
   const errors = [];
+  const realEvidenceKeyPath = resolvedEvidenceKeyPath();
   const walk = (absDir, relPrefix) => {
     let entries;
     try {
@@ -31468,15 +31483,25 @@ function listGuardedFilesWithDiagnostics(root, relDir) {
     for (const entry of entries) {
       const absEntryPath = join(absDir, entry);
       const relEntryPath = relPrefix.length > 0 ? `${relPrefix}/${entry}` : entry;
+      let realEntryPath;
       let stats;
       try {
-        stats = statSync2(absEntryPath);
+        realEntryPath = realpathSync2(absEntryPath);
+        stats = statSync2(realEntryPath);
       } catch (error51) {
         errors.push({ path: relEntryPath, reason: errorMessage(error51) });
         continue;
       }
+      if (!isAllowlisted(root, realEntryPath)) {
+        errors.push({ path: relEntryPath, reason: "Path is outside the allowlisted directories." });
+        continue;
+      }
+      if (isDenylisted(root, absEntryPath, realEntryPath, realEvidenceKeyPath)) {
+        errors.push({ path: relEntryPath, reason: "Path matches a denylisted file." });
+        continue;
+      }
       if (stats.isDirectory()) {
-        walk(absEntryPath, relEntryPath);
+        walk(realEntryPath, relEntryPath);
       } else if (stats.isFile()) {
         files.push(relEntryPath);
       }
@@ -31508,7 +31533,7 @@ function resolveGuardedDirectory(root, relPath) {
       rule: "allowlist"
     });
   }
-  if (isDenylisted(resolvedPath)) {
+  if (isDenylisted(root, joined, resolvedPath)) {
     return err("path-denied", "Path matches a denylisted file.", {
       rule: "denylist"
     });
