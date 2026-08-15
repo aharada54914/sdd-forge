@@ -186,14 +186,23 @@ function Test-NodeVersionOk {
         Write-Warning "Could not determine Node.js version. MCP server installation was skipped (plugin installation continues)."
         return $false
     }
-    $majorText = ($version.TrimStart("v") -split '\.')[0]
-    $major = 0
-    if (-not [int]::TryParse($majorText, [ref]$major)) {
+    $trimmedVersion = "$version".Trim()
+    if ($trimmedVersion -notmatch '^v?([0-9]+)\.([0-9]+)\.([0-9]+)$') {
         Write-Warning "Could not determine Node.js version (got '$version'). MCP server installation was skipped (plugin installation continues)."
         return $false
     }
-    if ($major -lt 20) {
-        Write-Warning "Node.js >= 20 is required for MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
+    $major = 0
+    $minor = 0
+    $patch = 0
+    if (-not [int]::TryParse($Matches[1], [ref]$major) -or
+        -not [int]::TryParse($Matches[2], [ref]$minor) -or
+        -not [int]::TryParse($Matches[3], [ref]$patch)) {
+        Write-Warning "Could not determine Node.js version (got '$version'). MCP server installation was skipped (plugin installation continues)."
+        return $false
+    }
+    $parsedVersion = [version]::new($major, $minor, $patch)
+    if ($parsedVersion -lt [version]"22.19.0") {
+        Write-Warning "Node.js >= 22.19.0 is required for MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
         return $false
     }
     return $true
@@ -275,7 +284,7 @@ function Update-McpJson {
     # preserving all other entries and unknown top-level keys. The output is
     # stable 2-space JSON, so re-running produces a byte-identical file. To
     # guarantee byte-parity with install.sh, the JSON handling is done by the
-    # SAME Node one-liner install.sh uses (Node >= 20 is guaranteed here by the
+    # SAME Node one-liner install.sh uses (Node >= 22.19.0 is guaranteed here by the
     # MCP gate / McpNodeOk). Fail-safes (security-spec B3): a present-but-invalid
     # JSON file is never overwritten (error notice, installer continues with
     # other clients).
@@ -630,7 +639,7 @@ try {
     if ($isLocalSource) {
         # The mcp/ tree is excluded here even though it is Git-tracked: MCP
         # payload placement is handled exclusively by Install-McpServerPayloads
-        # (dist/ + package.json only, gated by -SkipMcp / -Mcp / the Node >= 20
+        # (dist/ + package.json only, gated by -SkipMcp / -Mcp / the Node >= 22.19.0
         # check), so staging it unconditionally here would bypass that gating.
         # tests/fixtures/ is excluded too: it is Git-tracked test scaffolding,
         # not part of the installed product, and some fixtures are themselves
@@ -667,7 +676,7 @@ try {
         # Remote archive input is a trusted release artifact with no local
         # untracked state. Preserve its complete layout, excluding .git and
         # mcp/ (MCP payload placement is handled exclusively by
-        # Install-McpServerPayloads, gated by -SkipMcp / -Mcp / Node >= 20).
+        # Install-McpServerPayloads, gated by -SkipMcp / -Mcp / Node >= 22.19.0).
         foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" -and $_.Name -ne "mcp" })) {
             Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
         }

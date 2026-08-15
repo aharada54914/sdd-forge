@@ -1,3 +1,5 @@
+# SUPERSEDED TEST FIXTURE — DO NOT APPLY TO .github/workflows/test.yml.
+# This snapshot is retained only for epic-136 historical contract tests.
 name: Test installers and gates
 
 on:
