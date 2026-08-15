@@ -337,8 +337,21 @@ function Test-ValidateContract(
   $expectedAList.Add([pscustomobject]@{ path = $PrecheckPath; sha256 = $precheckFileHash })
   $expectedAList.Add([pscustomobject]@{ path = $calibration; sha256 = $calibrationHash })
   $investigationPath = Join-Path $specDir 'investigation.md'
-  if ((Test-Path -LiteralPath $investigationPath -PathType Leaf) -and -not (Test-IsSymlink $investigationPath)) {
-    $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = (Get-Sha256File $investigationPath) })
+  # WFI-027: audit the record, not the current filesystem. This function validates
+  # a contract that is already final -- for --reset, the previous attempt's
+  # terminal contract. An investigation.md created after that round ran cannot
+  # appear in it, and the contract must not be rewritten to claim otherwise, so
+  # keying the expectation on the file's presence on disk makes a finished record
+  # permanently unverifiable. Take the expectation from the contract, exactly as
+  # requirements/acceptance/calibration above already do. Non-vacuity is
+  # preserved: a hash recorded for only one reviewer leaves the other reviewer's
+  # array mismatched, and two different hashes collapse the count away from 1.
+  $investigationRecorded = @($reviewers |
+    ForEach-Object { @($_.allowed_input_manifest) } |
+    Where-Object { Test-OrdinalEqual $_.path $investigationPath } |
+    ForEach-Object { $_.sha256 } | Sort-Object -Unique)
+  if ($investigationRecorded.Count -eq 1) {
+    $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = $investigationRecorded[0] })
   }
   $expectedA = @($expectedAList | Sort-Object path)
   $expectedBList = [Collections.Generic.List[object]]::new()

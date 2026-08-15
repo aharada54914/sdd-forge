@@ -209,6 +209,31 @@ require_persisted_pass() {
   local precheck_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/precheck-result.json"
   local summary_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/integrated-summary.json"
   local investigation_path="specs/${FEATURE}/investigation.md"
+  # WFI-027: audit the record, not the current filesystem. A contract records the
+  # input set that existed when its round ran. An investigation.md created after
+  # that round cannot appear in it, and rewriting the contract to say otherwise
+  # would assert that those reviewers read a file that did not yet exist. So the
+  # trigger is what the contract declares, not what happens to be on disk now.
+  # Completeness for a NEW round -- "the round about to run must see today's
+  # investigation" -- is a reservation-time obligation, not an audit-time one.
+  local investigation_declared investigation_recorded_hash investigation_current_hash=""
+  investigation_declared="$(jq -r --arg path "$investigation_path" --arg repo "${repo_root}/" '
+    def relative_path:
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      else . end;
+    if any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == $path)
+    then "true" else "false" end' "$contract")"
+  investigation_recorded_hash="$(jq -r --arg path "$investigation_path" --arg repo "${repo_root}/" '
+    def relative_path:
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      else . end;
+    [.reviewers[]?.allowed_input_manifest[]? | select((.path | relative_path) == $path) | .sha256]
+    | unique | if length == 1 then .[0] else "" end' "$contract")"
+  if [[ -f "${repo_root}/${investigation_path}" ]]; then
+    investigation_current_hash="$(sha256 "${repo_root}/${investigation_path}")"
+  fi
   manifest_has() {
     local role="$1" path="$2" hash_one="$3" hash_two="${4:-}"
     jq -e --arg role "$role" --arg path "$path" --arg repo "${repo_root}/" \
@@ -238,8 +263,12 @@ require_persisted_pass() {
       manifest_has "$role" "specs/${FEATURE}/design.md" "$design_hash" "$design_current_hash" ||
         fail "persisted impl contract reviewer manifest is missing canonical design"
     fi
-    if [[ -f "${repo_root}/${investigation_path}" ]]; then
-      manifest_has "$role" "$investigation_path" "$(sha256 "${repo_root}/${investigation_path}")" ||
+    if [[ "$investigation_declared" == "true" ]]; then
+      # Non-vacuity: a contract that binds only one reviewer, or that records two
+      # different hashes for the same file, is still rejected here.
+      [[ -n "$investigation_recorded_hash" ]] ||
+        fail "persisted ${stage} contract records conflicting investigation hashes"
+      manifest_has "$role" "$investigation_path" "$investigation_recorded_hash" "$investigation_current_hash" ||
         fail "persisted ${stage} contract reviewer manifest is missing investigation evidence"
     fi
   done

@@ -229,8 +229,22 @@ validate_contract() {
     [[ "$(jq -r .calibration_sha256 "$precheck")" == "$calibration_hash" ]] || return 1
   fi
   expected_a="$(jq -cn --arg requirements "$(relative_to_repo "$requirements")" --arg requirements_hash "$requirements_hash" --arg acceptance "$(relative_to_repo "$acceptance")" --arg acceptance_hash "$acceptance_hash" --arg precheck "$(relative_to_repo "$precheck")" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$(relative_to_repo "$calibration")" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
-  if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
-    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$(sha256 "${spec_dir}/investigation.md")" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
+  # WFI-027: audit the record, not the current filesystem. This function validates
+  # a contract that is already final -- for --reset, the previous attempt's
+  # terminal contract. An investigation.md created after that round ran cannot
+  # appear in it, and the contract must not be rewritten to claim otherwise, so
+  # keying the expectation on the file's presence on disk makes a finished record
+  # permanently unverifiable. Take the expectation from the contract, exactly as
+  # requirements/acceptance/calibration above already do. Non-vacuity is
+  # preserved: a hash recorded for only one reviewer, or two different hashes for
+  # the same path, collapse to "" here and fail the comparison below.
+  local recorded_investigation
+  recorded_investigation="$(jq -r --arg investigation "${spec_dir}/investigation.md" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($investigation | relative_path) as $target |
+    [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $target) | .sha256] | unique | if length == 1 then .[0] else "" end' "$contract")"
+  if [[ -n "$recorded_investigation" ]]; then
+    is_sha256 "$recorded_investigation" || return 1
+    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$recorded_investigation" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
   expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
   actual_a="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'

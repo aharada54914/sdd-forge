@@ -304,6 +304,27 @@ while IFS=$'\t' read -r path expected_hash; do
     fail HASH "$role hash mismatch: $path"
 done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
 
+# WFI-027: completeness belongs here, not in the audit of a finished contract.
+# A persisted contract records the inputs that existed when its round ran and
+# cannot be rewritten to mention a file created later, so the downstream
+# prechecks key their investigation check on what the contract itself declares.
+# The obligation "a round must see the investigation that exists today" is
+# therefore enforced at the point a NEW round is admitted -- here. The hash is
+# already checked above; what is added is that the entry may not be omitted.
+# Only spec and impl are covered: path_is_authorized does not list
+# investigation.md for the task stage (:100), so requiring it there would make
+# every task reservation unsatisfiable.
+case "$stage" in
+  spec|impl)
+    investigation_rel="specs/${feature}/investigation.md"
+    if [[ -f "$repository_root/$investigation_rel" && ! -L "$repository_root/$investigation_rel" ]]; then
+      jq -e --arg p "$investigation_rel" \
+        'any(.allowed_input_manifest[]; .path == $p)' "$manifest" >/dev/null ||
+        fail PATH "$role omits existing investigation evidence: $investigation_rel"
+    fi
+    ;;
+esac
+
 # Round consistency. A manifest freezes hashes at reservation time; the round's
 # precheck-result.json froze them when the round opened. If the two disagree, a
 # reviewed document changed between the precheck and this reservation, so the two

@@ -339,4 +339,54 @@ grep -q 'allowed_input_manifest' "${agent_a}" || fail "reviewer A does not persi
 grep -q 'allowed_input_manifest' "${agent_b}" || fail "reviewer B does not persist its input manifest"
 grep -q 'reviewer-a.json' "${agent_b}" || fail "reviewer B lacks raw-report denial"
 
+# WFI-027 regression. An investigation.md created AFTER a round reached a
+# terminal verdict must not retroactively invalidate that round's contract. The
+# contract records the inputs that existed when it ran and must not be rewritten
+# to mention a later file -- that would assert its reviewers read something that
+# did not exist. Keying the check on the file's presence on disk therefore left
+# no command able to advance the feature: --reset refused with "previous
+# terminal contract is invalid", and impl-review-precheck refused with "missing
+# investigation evidence". Creating the file is exactly what an impl-review
+# ASSUMPTIONS-VALID finding asks the author to do, so the deadlock was reachable
+# by following the reviewer's own instruction.
+cleanup
+mkdir -p "${SPEC_DIR}"
+cat > "${SPEC_DIR}/requirements.md" <<'EOF'
+# Requirements
+
+Spec-Review-Status: Pending
+
+## Goals
+
+- Demonstrate the WFI-027 provenance boundary.
+EOF
+cat > "${SPEC_DIR}/acceptance-tests.md" <<'EOF'
+# Acceptance tests
+
+| AC-ID | Requirement | Status |
+|---|---|---|
+| AC-001 | REQ-001 | Planned |
+EOF
+"${PRECHECK}" "${FEATURE}" 1 1
+WFI027_ROUND="${REPORT_ROOT}/attempt-1/round-1"
+write_contract "${WFI027_ROUND}" PASS none
+# That round ran with no investigation.md, so its contract declares none.
+printf '# Investigation: fixture\n\n### INV-001 - fixture finding\n' \
+  > "${SPEC_DIR}/investigation.md"
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "WFI-027: reset rejected a terminal contract that predates investigation.md"
+rm -rf "${REPORT_ROOT}/attempt-2"
+
+# Non-vacuity, the other direction: once a contract DOES declare investigation
+# evidence it must bind BOTH reviewers. Recording it for reviewer A alone is
+# still rejected, so the relaxation above cannot be used to smuggle a
+# half-bound contract past the gate.
+wfi027_investigation_sha="$(sha256sum "${SPEC_DIR}/investigation.md" | awk '{print $1}')"
+tmp_contract="${WFI027_ROUND}/spec-review-contract.tmp"
+jq --arg p "${SPEC_DIR}/investigation.md" --arg h "${wfi027_investigation_sha}" \
+  '.reviewers[0].allowed_input_manifest += [{path:$p,sha256:$h}]' \
+  "${WFI027_ROUND}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${WFI027_ROUND}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
 echo "ok: spec review precheck enforces state, hashes, replay, reset, and safe paths"

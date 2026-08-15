@@ -187,10 +187,25 @@ function Require-Pass(
     if (-not (Test-ManifestEntry $reviewerA $previousSummaryPath @($previousSummaryHash))) { Fail "persisted impl contract does not bind reviewer A to the previous integrated summary" }
   }
   $investigationPath = "specs/$FeatureName/investigation.md"
-  if (Test-Path -LiteralPath (Join-Path $repoRoot $investigationPath) -PathType Leaf) {
-    $investigationHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $investigationPath) -Algorithm SHA256).Hash.ToLower()
+  # WFI-027: audit the record, not the current filesystem. A contract records the
+  # input set that existed when its round ran. An investigation.md created after
+  # that round cannot appear in it, and rewriting the contract to say otherwise
+  # would assert that those reviewers read a file that did not yet exist. So the
+  # trigger is what the contract declares, not what happens to be on disk now.
+  # Completeness for a NEW round is a reservation-time obligation, not this one.
+  $investigationRecorded = @($reviewers |
+    ForEach-Object { @($_.allowed_input_manifest) } |
+    Where-Object { Test-OrdinalEqual (Get-ManifestRelativePath $_.path $repoRoot) $investigationPath } |
+    ForEach-Object { $_.sha256 } | Sort-Object -Unique)
+  if ($investigationRecorded.Count -gt 0) {
+    # Non-vacuity: two different hashes for the same path is a malformed record.
+    if ($investigationRecorded.Count -ne 1) { Fail "persisted $Stage contract records conflicting investigation hashes" }
+    $investigationAllowed = @($investigationRecorded[0])
+    if (Test-Path -LiteralPath (Join-Path $repoRoot $investigationPath) -PathType Leaf) {
+      $investigationAllowed += (Get-FileHash -LiteralPath (Join-Path $repoRoot $investigationPath) -Algorithm SHA256).Hash.ToLower()
+    }
     foreach ($reviewer in $reviewers) {
-      if (-not (Test-ManifestEntry $reviewer $investigationPath @($investigationHash))) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
+      if (-not (Test-ManifestEntry $reviewer $investigationPath $investigationAllowed)) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
     }
   }
   if ($contract.attempt -ne $data.attempt -or $contract.round -ne $data.round -or -not (Test-OrdinalEqual $contract.verdict $data.verdict)) { Fail "persisted $Stage verdict and contract contradict each other" }

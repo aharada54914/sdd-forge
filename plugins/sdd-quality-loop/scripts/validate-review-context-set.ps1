@@ -271,6 +271,28 @@ try {
     }
 
     $inputs = @($document.allowed_input_manifest)
+
+    # WFI-027: completeness belongs here, not in the audit of a finished contract.
+    # A persisted contract records the inputs that existed when its round ran and
+    # cannot be rewritten to mention a file created later, so the downstream
+    # prechecks key their investigation check on what the contract itself
+    # declares. The obligation "a round must see the investigation that exists
+    # today" is therefore enforced at the point a NEW round is admitted -- here.
+    # Only spec and impl are covered: the role authorization table does not list
+    # investigation.md for the task stage, so requiring it there would make every
+    # task reservation unsatisfiable.
+    if ($document.stage -ceq 'spec' -or $document.stage -ceq 'impl') {
+        $investigationRel = "specs/$($document.feature)/investigation.md"
+        $investigationItem = Get-Item -LiteralPath (Join-Path $root $investigationRel) -Force -ErrorAction SilentlyContinue
+        if ($investigationItem -and -not $investigationItem.PSIsContainer -and -not $investigationItem.LinkType) {
+            $investigationDeclared = @($inputs | Where-Object {
+                $_.path -is [string] -and $_.path -ceq $investigationRel
+            })
+            if ($investigationDeclared.Count -eq 0) {
+                Fail-ReviewContext 'PATH' "$($document.role) omits existing investigation evidence: $investigationRel"
+            }
+        }
+    }
     $implementationReportPath = ''
     $evaluatorOutputs = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     if ("$($document.stage):$($document.role)" -ceq 'quality:sdd-evaluator') {
