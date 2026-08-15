@@ -55,10 +55,9 @@ const DIST_ENTRYPOINT = join(PACKAGE_ROOT, "dist", "index.js");
 const require = createRequire(import.meta.url);
 const INSPECTOR_CLI_ENTRYPOINT = join(
   dirname(require.resolve("@modelcontextprotocol/inspector/package.json")),
-  "clients",
-  "launcher",
+  "cli",
   "build",
-  "index.js",
+  "cli.js",
 );
 
 const INSPECTOR_TIMEOUT_MS = 30_000;
