@@ -1,0 +1,136 @@
+diff --git a/.github/workflows/test.yml b/.github/workflows/test.yml
+--- a/.github/workflows/test.yml
++++ b/.github/workflows/test.yml
+@@ -143,7 +143,9 @@ jobs:
+       - name: Test Phase 2 guard invariants (pwsh)
+         if: runner.os == 'Windows'
+         shell: pwsh
+-        run: ./tests/phase2-guard-invariants.tests.ps1
++        run: |
++          ./tests/phase2-guard-invariants.tests.ps1
++          ./tests/design-system-contract.tests.ps1
+-
++
+       - name: Test Phase 2 guard invariants (bash)
+         if: runner.os != 'Windows'
+@@ -231,6 +233,23 @@ jobs:
+         run: |
+           bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
++          bash tests/design-system-contract.tests.sh
+-
++
++      - name: Test guard dispatch fallback suite (bash)
++        shell: bash
++        run: bash ./tests/guard-dispatch-fallback.tests.sh
++
++      - name: Test guard negative corpus suite (bash)
++        shell: bash
++        run: bash ./tests/guard-negative-corpus.tests.sh
++
++      - name: Test deterministic-lane self-check suite (bash)
++        shell: bash
++        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
++
++      - name: Test workflow-scenarios suite (bash)
++        shell: bash
++        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
++
+       - name: Upload test logs
+         if: failure()
+         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+@@ -840,8 +859,8 @@ jobs:
+       - name: Set up Node.js
+         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+         with:
+-          node-version: "20"
++          node-version: "22.19.0"
+           cache: npm
+           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
+-
++
+       - name: Install dependencies
+@@ -866,7 +885,19 @@ jobs:
+       - name: Audit production dependencies
+         if: matrix.os == 'ubuntu-latest'
+         run: npm audit --omit=dev --audit-level=high
+-
++
++      - name: Set up Node.js 24 forward-compatibility check
++        if: matrix.os == 'ubuntu-latest'
++        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
++        with:
++          node-version: "24"
++          cache: npm
++          cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
++
++      - name: Run Node.js 24 forward-compatibility tests
++        if: matrix.os == 'ubuntu-latest'
++        run: npm ci && npm run typecheck && npm test
++
+   # B2 — exercise the SDD hook guard with the REAL CLI toolchains installed on
+   # each OS, through the exact command line each CLI's hook config invokes. This
+   # closes the gap that the unit/scenario suites only run the guard scripts in
+@@ -896,8 +927,8 @@ jobs:
+       - name: Set up Node.js
+         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+         with:
+-          node-version: "20"
++          node-version: "22.19.0"
+           cache: npm
+           cache-dependency-path: mcp/local-env-mcp/package-lock.json
+-
++
+       - name: Install dependencies
+@@ -923,7 +954,19 @@ jobs:
+       - name: Audit production dependencies
+         if: matrix.os == 'ubuntu-latest'
+         run: npm audit --omit=dev --audit-level=high
+-
++
++      - name: Set up Node.js 24 forward-compatibility check
++        if: matrix.os == 'ubuntu-latest'
++        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
++        with:
++          node-version: "24"
++          cache: npm
++          cache-dependency-path: mcp/local-env-mcp/package-lock.json
++
++      - name: Run Node.js 24 forward-compatibility tests
++        if: matrix.os == 'ubuntu-latest'
++        run: npm ci && npm run typecheck && npm test
++
+   # ci-mcp-tests — ci-mcp (mcp/ci-mcp/) is a read-only MCP server exposing
+   # GitHub Actions CI state (workflow runs, jobs, job logs, artifacts
+   # metadata) over a GET-only api.github.com client (ADR-0003 pattern, same
+@@ -948,8 +991,8 @@ jobs:
+       - name: Set up Node.js
+         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+         with:
+-          node-version: "20"
++          node-version: "22.19.0"
+           cache: npm
+           cache-dependency-path: mcp/ci-mcp/package-lock.json
+-
++
+       - name: Install dependencies
+@@ -979,7 +1022,19 @@ jobs:
+       - name: Audit production dependencies
+         if: matrix.os == 'ubuntu-latest'
+         run: npm audit --omit=dev --audit-level=high
+-
++
++      - name: Set up Node.js 24
++        if: matrix.os == 'ubuntu-latest'
++        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
++        with:
++          node-version: "24"
++          cache: npm
++          cache-dependency-path: mcp/ci-mcp/package-lock.json
++
++      - name: Run Node.js 24 forward-compatibility tests
++        if: matrix.os == 'ubuntu-latest'
++        run: npm ci && npm run typecheck && npm test
++
+   cli-hook-enforcement:
+     name: cli-hook-enforcement
+     strategy:

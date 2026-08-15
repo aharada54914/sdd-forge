@@ -260,3 +260,4 @@ must never rely on a bare legacy number.
 | 0027 | component-path-ownership-resolver-semantics — renumbered to ADR-0030 | (tombstone) |
 | 0029 | Registry Discovery Contract | Accepted |
 | 0030 | Component Path Ownership Resolver Semantics | Accepted |
+| 0031 | Node Runtime Baseline 22.19.0 | Accepted |
