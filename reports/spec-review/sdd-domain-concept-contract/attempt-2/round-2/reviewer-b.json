@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a2r2-seq0763",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a2r2-0763",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "80b41de351ed186fff2491f262073ba3d4950c6fb3ec8e152d28fce42dc6808a"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "d3d71347e171a691842c3227228a760676663b18b855198d63f6bee4eb16f2a5"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-2/precheck-result.json",
+      "sha256": "14ac64411e2241dc44be707bfd15f87e6defbc4195c2aaac27e744453861fd64"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-2/integrated-summary.json",
+      "sha256": "651d8b7faf8b09752496983bfd6fc2b02175b9b351b9e678e936bad9f916e857"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "concepts[] fields carry explicit type, required/optional flags, and concrete regex patterns (REQ-002: id `^CONCEPT-[A-Z][A-Z0-9-]*$`, name `^[A-Z][A-Za-z0-9]*$`, context `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`), and every minLength/minItems constraint is enumerated in the Field Definitions table with matching AC-018/019/023 fixtures naming the exact field. No term, actor, or state is left for two implementers to diverge on."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No conflict found between Goals/Non-goals/Roles and Permissions/Edge Cases. REQ-007's 'no v1/consumer changes' is consistently echoed by AC-002 (v1 file SHA drift lock), AC-015 (existing suite green + diff scope check), and INV-004/INV-009; the Non-goal disclaiming approval-enforcement machinery matches the Roles and Permissions section verbatim rather than contradicting it."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004(c) scopes the hand-rolled structural check to 'required 項目・パターン' only (no JSON-Schema engine per INV-005), and Edge Cases/AC-017 make fail-closed, stack-trace-free error output an explicit expectation — but that guarantee is tested only for two failure modes (syntactically broken JSON, oversized file). No requirement item, Edge Case entry, or coverage-matrix column addresses a syntactically valid JSON document where a field has the wrong JSON type (e.g., `concepts[].id` given as a number, `responsibilities` given as a string instead of an array). The Negative-path coverage matrix's five columns (キー欠落/空配列/空文字列/pattern違反/参照整合) all presuppose the key is present with the declared type; none tests a type mismatch. Because the validator is hand-rolled without a schema engine, this is exactly the class of input where two implementations plausibly diverge: one adds a defensive `isinstance` check before applying the id/name/context regex and reports a clean 1-line violation, another lets a bare regex/iteration call throw an unhandled exception on the wrong type, printing a raw stack trace that violates the Edge Cases fail-closed intent. No AC among AC-001..AC-023 supplies a wrong-type fixture, so no acceptance test would catch this divergence. This is a missing acceptance criterion for a material negative path implied by the validator's own stated purpose (US-002: 'コマンド一発で' detect authoring mistakes), which belongs to spec review because it is a gap in the acceptance-test negative-path coverage, not an implementation-architecture detail — hence Major per calibration ('missing observable acceptance criterion' / 'missing constraint')."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Open Questions section points to investigation.md's OQ-001..OQ-004, each carrying a proposal, with 'spec-review までに人間が確定する' as the resolution gate. Substantively: OQ-003 (essence required) is already encoded as Required=Yes in REQ-002/Field Definitions; OQ-004 (v2-only validator) is already encoded in REQ-004(b) and the Edge Cases v1-input error text; OQ-001 (v1 fate) is resolved by REQ-007's 'v1 は1バイトも変更しない' plus INV-009's 'v1 契約インスタンスは存在しない'; OQ-002 (CI/run-all registration) is resolved by INV-007's explicit statement 'Phase 0 の新スイートも同じ規約に従い、CI 登録の変更はスコープ外（OQ-002）'. All four assumptions are either resolved by investigation or already absorbed into REQ items, satisfying the check."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "Roles and Permissions explicitly states 'meta.status の Approved 書込に対する機械的強制は存在しない' and that Phase 0 changes nothing about this (INV-008: contracts/domain-contract.* is not hook-guard protected). The Non-goals list explicitly excludes building any approval-enforcement mechanism, deferring it to a future feature if needed. No approval, governance, or irreversible-change boundary is introduced or altered by this feature, so the explicit skip condition applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions table gives type/required/pattern for every concepts[] field; REQ-004 enumerates validator checks (a)-(i) exhaustively; acceptance-tests.md provides 23 ACs plus a self-auditing coverage matrix whose cell citations I independently verified against the AC table's own test-target text (e.g., AC-006 names 'concept id 重複', AC-011 names 'concept name 重複' within context, AC-022 separately names the two concept_id-pattern reference fields) and whose fixture tally (44 = 8 single-fixture ACs + 36 from AC-014/017/018/019/020/021/022/023's 7+2+3+3+4+7+2+8) recomputes correctly. A design reviewer would not need to invent product behavior for the schema/validator surface; the one gap I found is scoped under EDGE-CASE-COVERAGE rather than being a general readiness blocker."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met: INV-009 records 'sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）', so there is no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json to check bounded-context relations or canonical/forbidden-synonym usage against."
+    }
+  ]
+}

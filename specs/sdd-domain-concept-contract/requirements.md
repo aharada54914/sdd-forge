@@ -72,6 +72,10 @@ v1 → v2 のアーティファクト移行設計・二重バージョンロー�
   スコープ外。INV-009）。
 - `domain/` アーティファクト（Markdown 側）の生成・変更 — Phase 0 は
   契約（JSON スキーマ）とその検証系のみ。
+- `meta.status` の `Approved` 書込に対する機械的強制機構（hook-guard 保護
+  パスへの登録、承認 sidecar 等）の新設。INV-008 のとおり
+  `contracts/domain-contract.*` は現状 hook-guard 非保護であり、Phase 0 は
+  この状態を変更しない（Roles and Permissions 参照）。
 
 ## User Stories
 
@@ -95,12 +99,22 @@ boundedContext / contextRelation 定義を維持した上で、term にのみ
 `concept_id`（optional）を追加する。
 
 REQ-002: concept 定義は次を持つ。required: `id`（pattern
-`^CONCEPT-[A-Z][A-Z0-9-]*$`）、`name`（PascalCase）、`context`
-（kebab-case、宣言済み context 名を指すこと — 参照整合は validator が
-検査）、`definition`、`essence`、`responsibilities`（minItems 1）、
+`^CONCEPT-[A-Z][A-Z0-9-]*$`）、`name`（PascalCase。pattern
+`^[A-Z][A-Za-z0-9]*$` — 先頭大文字・以降は英数字のみ。数字と連続大文字
+（`APIOrder` 等）を許可し、区切り文字は許可しない）、`context`
+（kebab-case。pattern `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` — 先頭小文字・
+ハイフン区切りで空セグメントと先頭末尾ハイフンを許可しない。かつ宣言済み
+context 名を指すこと — 参照整合は validator が検査）、
+`definition`、`essence`、`responsibilities`（minItems 1）、
 `evidence`（minItems 1）。optional: `must_not_own[]`、
 `stakeholder_perspectives[]`（required: actor / concern）、
-`distinguished_from[]`（required: concept_id / reasons、reasons minItems 1）。
+`distinguished_from[]`（required: concept_id / reasons、reasons minItems 1。
+`concept_id` の pattern は本 REQ の `id` と同一）。
+すべての string 値（`definition`、`essence`、`responsibilities[]` /
+`evidence[]` / `must_not_own[]` / `reasons[]` の各要素、
+`stakeholder_perspectives[].actor` / `.concern`）は **minLength 1** とし、
+空文字列は invalid とする（pattern を持つ `id` / `name` / `context` は
+pattern 自体が空文字列を排除する）。
 concept は**単一コンテキスト所属**とする（設計根拠は design.md DD-1）。
 
 REQ-003: v2 の term 定義は v1 の 4 フィールドに `concept_id`（optional、
@@ -111,8 +125,13 @@ REQ-004: 決定論 validator `plugins/sdd-domain/scripts/
 validate-domain-contract.sh` / `.ps1` を追加する。入力は契約 JSON の
 パス 1 つ。検査項目: (a) JSON として可読、(b) `schema` 値が
 `domain-contract/v2`（それ以外は明示エラー — OQ-004 提案）、(c) スキーマ
-必須項目・パターンの構造検査（hand-rolled、外部依存なし — INV-005 の
-house pattern）、(d) concept id の重複、(e) `concept.context` の宙吊り、
+必須項目・**JSON 型適合**・パターンの構造検査（hand-rolled、外部依存なし
+— INV-005 の house pattern）。型適合とは、Field Definitions が宣言する型
+（string / array / object およびその要素型）と実際の JSON 型が一致すること
+を指し、不一致は他の構造違反と同じく 1 行 1 件の違反として非 0 終了で報告
+する。型検査は pattern・minLength・minItems の各検査に**先行**し、型が
+不一致の値に対してこれらを適用してはならない（生例外・スタックトレースの
+出力は Edge Cases の fail-closed 規定に反する）。(d) concept id の重複、(e) `concept.context` の宙吊り、
 (f) `distinguished_from.concept_id` の宙吊り、(g) `term.concept_id` の
 宙吊り、(h) 同一 concept 内で同一文字列が responsibilities と
 must_not_own の両方に出現する自己矛盾、(i) 同一 context 内の concept
@@ -143,16 +162,16 @@ INV-004 の consumer 4 系統・既存 `tests/sdd-domain/*.Tests.ps1` 11 スイ�
 | Field | Type | Required | 意味 |
 |---|---|---|---|
 | concepts[].id | string `^CONCEPT-[A-Z][A-Z0-9-]*$` | Yes | 概念の安定 ID。distinguished_from / term.concept_id の参照先 |
-| concepts[].name | string PascalCase | Yes | canonical name（概念につけた名前。概念そのものではない） |
-| concepts[].context | string kebab-case | Yes | 所属する bounded context（単一所属。DD-1） |
-| concepts[].definition | string | Yes | その概念が現実の何を切り取ったか |
-| concepts[].essence | string | Yes | 概念の本質の 1 行言語化（OQ-003 提案: required） |
-| concepts[].responsibilities[] | string[] minItems 1 | Yes | この概念が持ってよい責務 |
-| concepts[].must_not_own[] | string[] | No | この概念に載せてはならない責務（明示契約化） |
-| concepts[].stakeholder_perspectives[] | {actor, concern}[] | No | 関係者ごとの見え方（概念境界の発見根拠） |
-| concepts[].distinguished_from[] | {concept_id, reasons[]}[] | No | 別概念である理由の記録 |
-| concepts[].evidence[] | string[] minItems 1 | Yes | domain-story / event / issue 等への根拠参照 |
-| contexts[].terms[].concept_id | string | No | この term が名指す concept（v2 で追加） |
+| concepts[].name | string `^[A-Z][A-Za-z0-9]*$`（PascalCase） | Yes | canonical name（概念につけた名前。概念そのものではない） |
+| concepts[].context | string `^[a-z][a-z0-9]*(-[a-z0-9]+)*$`（kebab-case） | Yes | 所属する bounded context（単一所属。DD-1） |
+| concepts[].definition | string minLength 1 | Yes | その概念が現実の何を切り取ったか |
+| concepts[].essence | string minLength 1 | Yes | 概念の本質の 1 行言語化（OQ-003 提案: required） |
+| concepts[].responsibilities[] | string[] minItems 1、要素 minLength 1 | Yes | この概念が持ってよい責務 |
+| concepts[].must_not_own[] | string[]、要素 minLength 1 | No | この概念に載せてはならない責務（明示契約化） |
+| concepts[].stakeholder_perspectives[] | {actor, concern}[]、両者 required・minLength 1 | No | 関係者ごとの見え方（概念境界の発見根拠） |
+| concepts[].distinguished_from[] | {concept_id, reasons[]}[]、両者 required・concept_id は id と同 pattern・reasons minItems 1 かつ要素 minLength 1 | No | 別概念である理由の記録 |
+| concepts[].evidence[] | string[] minItems 1、要素 minLength 1 | Yes | domain-story / event / issue 等への根拠参照 |
+| contexts[].terms[].concept_id | string `^CONCEPT-[A-Z][A-Z0-9-]*$` | No | この term が名指す concept（v2 で追加） |
 
 ## Roles and Permissions
 
@@ -161,8 +180,14 @@ INV-004 の consumer 4 系統・既存 `tests/sdd-domain/*.Tests.ps1` 11 スイ�
 - validator の実行: 人間・エージェント・後続 Phase のゲート（読み取り
   専用・stdout/stderr のみ）。
 - 本 feature の成果物はいずれも hook-guard 保護対象外（INV-008）で
-  agent 編集可能。ただし承認系フィールドは扱わない（meta.status の
-  Approved 書込制御は既存どおり v1/v2 共通で hook guard と人間の責務）。
+  agent 編集可能。human-copy フロー（ADR 0011）は不要。
+- `meta.status` の `Approved` 書込に対する**機械的強制は存在しない**。
+  hook-guard の保護パス一覧には `contracts/domain-contract.*` が含まれず
+  （INV-008）、v1 契約についても同様である。したがって Phase 0 において
+  承認境界は**人間のレビュー運用のみ**が担保し、v2 スキーマは
+  `meta.status` を単なる列挙値フィールドとして定義するに留める。
+  承認強制機構の新設は本 feature の非目標であり、必要と判断された場合は
+  別 feature として起票する。
 
 ## Main Workflows
 
