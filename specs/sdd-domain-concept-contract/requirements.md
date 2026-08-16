@@ -147,7 +147,10 @@ display position、Placement concept が並び責務を持つ）、(c) 同名別
 コンテキスト横断正例（2 つの context に同名 concept）、(d) REQ-004 の
 検査項目 (d)〜(i) それぞれを 1 つずつ踏む負例、(e) **term → concept 連結の
 正例**（`contexts[].terms[].concept_id` が実在する concept の id を指し、
-validator が exit 0 で受理する fixture）。
+validator が exit 0 で受理する fixture）、(f) **optional 全欠落の正例**
+（concept が `must_not_own` / `stakeholder_perspectives` /
+`distinguished_from` の 3 キーをいずれも持たず、validator が exit 0 で
+受理する fixture — (a) の全 populate 正例と対をなす）。
 
 **正例の網羅規則**: Goals が宣言する各能力について、「正しく使ったときに
 受理される」ことを示す正例 fixture を最低 1 つ持たなければならない。負例

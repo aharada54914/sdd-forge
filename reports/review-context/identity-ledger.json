@@ -6939,6 +6939,15 @@
       "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a3r3-0771",
       "previous_record_sha256": "fb3526f98c05c8c188eeb51f1e4b14a441feb9b5bfd7b2c7568ec21517e6531d",
       "record_sha256": "87740e1e6cb21123783929b95cf9be1311912386cab2e74f6b7990eb45b4988d"
+    },
+    {
+      "sequence": 772,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a4r1-seq0772",
+      "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a4r1-0772",
+      "previous_record_sha256": "87740e1e6cb21123783929b95cf9be1311912386cab2e74f6b7990eb45b4988d",
+      "record_sha256": "6afa44854138b31bba092eaa436833b9634fef3ae5f7e0c54dadfc2f275e3ac6"
     }
   ]
 }
