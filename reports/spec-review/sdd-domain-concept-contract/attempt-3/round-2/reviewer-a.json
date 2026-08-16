@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a3r2-seq0768",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a3r2-0768",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "b549ca86e7835704b449a378c6a129ad0eddbc79bc16463aa0dfa5bc640c5a5c"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-2/precheck-result.json",
+      "sha256": "c47191bdabd15e680a23f1b9b964118294bb14e50bcf69851b9f2c6b6859f1c6"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each state concrete, measurable predicates (required key sets, three named regex patterns, minLength/minItems bounds, seven-item validator check list (a)-(i) with exit-code/1-line-per-violation output contract, byte-identical v1 non-modification). No requirement is stated only as intent; each maps to an observable validator behavior or a diffable artifact property (e.g. REQ-007's SHA-256 non-regression). No contradiction found across Goals/Non-goals/Edge Cases."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Positive-capability matrix row 'G1: optional フィールドは不在でも受理される | AC-004, AC-020 | optional 配列を持たない契約が exit 0 で通過する（AC-004 の Book/Bookshelf 正例と AC-020 末尾の不在 canary）' cites AC-004 as evidence that an optional field can be entirely absent, but AC-004's own Test Target reads: '同 suite: Book/Bookshelf 正例 fixture（Book.must_not_own に display position / Placement concept が並び責務）が通過' — i.e. Book.must_not_own is explicitly *populated* with 'display position' in that very fixture, the opposite of absent. AC-020's canary text ('あわせて、当該 optional 配列自体を持たない fixture（AC-004 の正例系）が exit 0 で通過することを示し...') is scoped to the two object-arrays discussed in AC-020's four preceding sub-fixtures (stakeholder_perspectives, distinguished_from — arrays whose elements have nested required sub-fields, which is what AC-020's own text is about); it does not name must_not_own, which is a plain string array with no nested required fields and therefore falls outside AC-020's stated scope. No AC in the table (AC-003, AC-004, AC-005, AC-013, AC-025) states a fixture where must_not_own is entirely omitted and the concept still passes. The row's own governing rule ('全称の記述を使う場合は...各要素が引用 AC の Test Target に名前で現れることを確認する') is therefore not honored for one of the three named optional fields. Downstream failure: REQ-005's fixture-corpus author, relying on this row as proof that the 'optional-absent' capability is already fixture-covered for all three optional fields (mirroring the immediately preceding 'optional 3 種の populate' row), could ship the corpus without ever exercising a must_not_own-entirely-absent-and-passing case — even though requirements.md's own Edge Cases section ('must_not_own が空/欠落: 有効（初期は責務だけ列挙し...）') requires this behavior. This is spec-review scope because it is exactly the matrix self-consistency audit this round's edit_summary claims to have completed (round-1's Major was the same class of overclaim on G1), and Major because it is a missing observable acceptance criterion for a stated capability, not a contradiction that makes the spec unreviewable."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC (AC-001..AC-025) specifies a concrete, externally checkable outcome: exit code, stderr content (field name / expected type / violation message), or a byte/hash comparison. Bounded-quantifier ACs (AC-014 7 fixtures, AC-018 3, AC-019 3, AC-020 4, AC-021 7, AC-022 2, AC-023 8, AC-024 29) enumerate each element by name and each enumeration's count matches the corresponding Field Definitions / REQ-002 declaration (e.g. AC-014's 7 required fields = the 7 'Yes'-required rows in Field Definitions; AC-023's 8 minLength targets = the 8 items REQ-002 lists as minLength-1). No vague-intent criterion found."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes concept-test skill/bootstrap, template/interviewer stage changes, reviewer A/B checks, reverse mode/C4, v1->v2 migration tooling, domain/ artifact generation, and mechanical enforcement of meta.status Approved — each with a phase pointer or explicit rationale (e.g. 'v1 → v2 の移行ツール・二重バージョンローダー（owner 決定により恒久的にスコープ外。INV-009）'). Roles and Permissions further states the approval boundary is human-only by explicit design, closing off an area that could otherwise silently expand into enforcement tooling."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicit: byte-for-byte v1/consumer non-modification quantified via SHA-256 drift lock (REQ-007, AC-002), security/data constraints in 'Security Boundaries' (content-as-data, no network access, no external dependencies beyond python3 stdlib json / ConvertFrom-Json, no secrets in fixtures), and the approval-boundary gap is stated as a known, deliberate non-goal rather than left ambiguous ('meta.status の Approved 書込に対する機械的強制は存在しない...承認境界は人間のレビュー運用のみが担保する')."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks R1-R3 each name a concrete future validation surface: R1 -> 'fixture corpus を先に書き、Phase 1 の判定4種が必要とするフィールドを受け入れテストで先取り検証する'; R2 -> 'REQ-006 のテストが schema ファイルの required/pattern 宣言と validator の挙動を同一 fixture で突き合わせる'; R3 -> 'REQ-006 の twin parity 検査（同一 fixture・同一 verdict）', which maps directly to AC-013. No high-risk claim is left without a stated mitigation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 states: 'sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'. Per calibration, this check applies only when the target project has a domain/ directory with domain/context-map.md recording Domain-Model-Status: Approved and a schema-valid domain/domain-contract.json; since domain/ is confirmed absent, the check is recorded as skipped."
+    }
+  ]
+}

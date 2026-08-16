@@ -145,7 +145,16 @@ INV-006 の規約踏襲）。最低限: (a) Purchase/Fulfillment の正例
 purchase price）、(b) Book/Bookshelf の正例（Book.must_not_own に
 display position、Placement concept が並び責務を持つ）、(c) 同名別概念の
 コンテキスト横断正例（2 つの context に同名 concept）、(d) REQ-004 の
-検査項目 (d)〜(i) それぞれを 1 つずつ踏む負例。
+検査項目 (d)〜(i) それぞれを 1 つずつ踏む負例、(e) **term → concept 連結の
+正例**（`contexts[].terms[].concept_id` が実在する concept の id を指し、
+validator が exit 0 で受理する fixture）。
+
+**正例の網羅規則**: Goals が宣言する各能力について、「正しく使ったときに
+受理される」ことを示す正例 fixture を最低 1 つ持たなければならない。負例
+（違反が拒否されること）だけでは、能力が実際に表現できることの証明に
+ならない。新しい能力を Goals に加えたときは、対応する正例を本 REQ の
+fixture 列挙と acceptance-tests.md の Positive-capability matrix の双方に
+追加する。
 
 REQ-006: `tests/sdd-domain/contract-v2-schema.Tests.ps1` を追加し、
 REQ-005 の全 fixture を validator（.ps1 側）と構造 assertion の両方で

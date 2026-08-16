@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a3r1-seq0766",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a3r1-0766",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "a7acb13de336c1ec7ac67d1c6449f4621c76f024296bdc91a197ab2d5e3ef75f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-1/precheck-result.json",
+      "sha256": "a4202b4523a7f4b70d2054783769d76c53c63bd1b33e8fac1af975290551ba3d"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each specify measurable, downstream-decidable criteria: exact required-field lists, regex patterns (id/name/context), exit-code semantics, stderr line-per-violation format, and byte-level non-regression for v1 (REQ-007). Every in-scope requirement gives an implementer/verifier a concrete pass/fail test."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md Positive-capability matrix row for G1 states the capability as 'concept の全 required フィールドと optional フィールドが表現できる' (all required AND optional fields are representable), citing AC-003 and AC-004. But that same row's own 'proves' column self-limits to 'must_not_own / distinguished_from / responsibilities を持つ契約が受理される（AC-003 が Fulfillment.must_not_own と相互 distinguished_from、AC-004 が Book.must_not_own を含む）' — it never mentions stakeholder_perspectives, an optional field declared in requirements.md's Field Definitions table (`concepts[].stakeholder_perspectives[] | {actor, concern}[]、両者 required・minLength 1 | No`). Scanning the entire AC table confirms no positive AC anywhere (AC-003, AC-004, AC-005, AC-025) populates stakeholder_perspectives with valid data; every mention of the field (AC-020 key-missing, AC-023 minLength, AC-024 type-mismatch) is negative-path only. So the row's claimed capability ('all optional fields representable') is broader than its own evidence, and no other row substitutes. A task author implementing TEST-003/TEST-004 has no AC obligating a positive stakeholder_perspectives fixture, so a schema/validator defect that incorrectly rejects a valid populated stakeholder_perspectives array would go undetected (a stuck-shut risk the spec is otherwise careful to canary for elsewhere, e.g. AC-018's pattern-boundary positives, AC-020's 'optional absent still passes' note). This is a Phase 1 acceptance-criteria completeness gap in the matrix itself, not something a later quality gate could catch after task authors have already built tests around the under-specified claim. Per calibration, 'missing observable acceptance criterion' is Major."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 25 ACs specify externally observable outcomes: exit code (0 or non-0), stderr content (field name, 1-line-per-violation), or structural assertion result. Negative ACs additionally specify which error text must distinguish adjacent failure modes (e.g. AC-014 key-missing vs AC-018 pattern vs AC-023 minLength), which is concretely checkable by a verifier."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes: concept-test skill/bootstrap (Phase 1), concept-model.template/interviewer changes (Phase 2), reviewer A/B check additions (Phase 3), reverse mode/C4 (Phase 4), v1->v2 migration tooling/dual-version loader (permanently out per owner decision, INV-009), domain/ Markdown artifact generation, and mechanical enforcement of meta.status Approved. The boundary between Phase 0 (this feature) and later phases is explicit and unambiguous."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly: additive-only change with byte-level non-regression for v1 (REQ-007), content-as-data / no network / no external dependency constraints (Security Boundaries), and the approval-boundary question is directly addressed rather than left implicit — Roles and Permissions states 'meta.status の Approved 書込に対する機械的強制は存在しない...承認境界は人間のレビュー運用のみが担保する' and cross-references INV-008 for why hook-guard does not protect these artifacts."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "R1 (concepts[] type insufficiency), R2 (hand-rolled validator vs schema drift), and R3 (sh/ps1 twin verdict mismatch) each name a concrete mitigation tied to a planned validation surface — R1 to the fixture corpus (REQ-005) preemptively covering Phase 1's 4 judgment types, R2 to REQ-006's drift-lock test, R3 to REQ-006's twin-parity test (also AC-013). All three high-risk claims have a connected validation surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped per check's explicit skip condition. investigation.md INV-009 records that sdd-forge itself has no `domain/` directory ('sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'), so there is no `domain/context-map.md` with Domain-Model-Status: Approved and no domain-contract.json to check Bounded-Context/terms conformance against."
+    }
+  ]
+}
