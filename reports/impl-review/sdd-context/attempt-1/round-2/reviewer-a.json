@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-sdd-context-impl-impl-reviewer-a-seq0690",
+  "host_session_id": "SESS-impl-impl-reviewer-a-sdd-context-0690",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context/requirements.md",
+      "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"
+    },
+    {
+      "path": "specs/sdd-context/acceptance-tests.md",
+      "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"
+    },
+    {
+      "path": "specs/sdd-context/design.md",
+      "sha256": "6697eb7c2c3115623cc6cafd556a832be763cf7b388acd91ebe8f80a6fee6c6e"
+    },
+    {
+      "path": "specs/sdd-context/investigation.md",
+      "sha256": "0a2aab891698260fa5308a33dd3950479ef8802c71312ea74e0da805268e116c"
+    },
+    {
+      "path": "specs/sdd-context/ux-spec.md",
+      "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"
+    },
+    {
+      "path": "specs/sdd-context/frontend-spec.md",
+      "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"
+    },
+    {
+      "path": "specs/sdd-context/infra-spec.md",
+      "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"
+    },
+    {
+      "path": "specs/sdd-context/security-spec.md",
+      "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-2/precheck-result.json",
+      "sha256": "de515e7bbd871983a4a3876690bb852e436c514a09023cb35d92bdd533a0123d"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-1/integrated-summary.json",
+      "sha256": "a8e28481df427d3eefba9e9d90cc79160d93da97d824035459a6643aa3224666"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 5-20) names top-level components (hook descriptors, hook-wrapper.mjs, Node core with detect-node/boundary detector/snapshot writer/session-start injector) and shows their directed call flow in the fenced diagram. Integration with existing components is stated: 'installed alongside the existing sdd-forge plugins and does not belong to sdd-ship' and 'No SDD state-machine code is modified' (lines 7-10), refined by Cross-Layer Dependencies (lines 184-188: 'sdd-ship documentation references this plugin for context compaction. No runtime dependency on other SDD plugins.'). Technology choices per layer: backend/core = single deterministic Node core (line 7; Decision Justification lines 107-110); data = file-based ## Storage Layout subsection (lines 27-32); infra/runtime = per-host wrapper descriptors (hooks/claude-hooks.json node exec, hooks/hooks.json sh, hooks/hooks.ps1 PowerShell, lines 13-19), detailed further in infra-spec.md Deployment Topology; frontend = explicitly N/A with rationale in frontend-spec.md ('no graphical frontend, no web runtime, no client-side state'). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Directed dependency graph built from ## Architecture (lines 12-20) and ## Components (lines 34-44): hook descriptors (hooks/claude-hooks.json, hooks/hooks.json, hooks/hooks.ps1) -> scripts/hook-wrapper.mjs -> Node core -> {detect-node, boundary detector, snapshot writer, session-start injector}. All edges point downstream from host to core; no back-edge to an upstream node exists. No cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] design.md has no '## Data Plan' heading (confirmed via full section-header scan: Architecture, Components, API / Contract Plan, Decision Justification, Test Strategy, Security Boundaries, External Integrations, Deployment / CI Plan, Cross-Layer Dependencies, Design Assumptions and Accepted Risks, Acceptance Criteria Traceability). Per precheck-result.json legacy_design=true, this absent template field (Data Entities: / Existing Data Affected: / Migration Strategy:) is a legacy-compat advisory, not a Major finding: the design.md predates this template requirement. The substance is present elsewhere: ## Storage Layout (lines 27-32) names the only artifacts written, and ## Deployment / CI Plan states 'Data migration: none... there is no database, no schema version, and no rolling-deploy or rollback ordering requirement' (lines 181-182), functioning as an explicit no-data-changes statement."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (design.md lines 46-101) enumerates all three hook contracts introduced by this feature (PreCompact, SessionStart, PostCompact) with input schema, output schema, side effects, and exit-code behavior for each, and explicitly addresses deprecation: 'No existing SDD endpoint, hook, validator rule, or state-machine artifact is deprecated, renamed, or given a breaking change; sdd-context is additive and callable only through the hook descriptors listed here' (lines 49-52). This is the section the author expanded for round 2 with per-hook input/output schemas. No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 131-135) states the plugin is read-only toward SDD artifacts, confines writes to two paths, forbids network/secrets/LLM use, and fails closed (exit 0). Treating security-spec.md as a normative refinement of design.md per this review's Inputs directive: its Trust Boundaries table (B1-B5) names every boundary crossed (host->wrapper->Node core->{.sdd/context, reports/context}, ->SDD source read-only, ->never network/secrets/LLM); its Authorization table states the authN/authZ decision point at each boundary; its Data Classification table confirms 'No credential, secret, .env value, private host conversation payload, or model-generated summary is written to any handoff artifact' (no PII is ever handled); its OWASP Mapping table addresses Broken Access Control, Injection, Software and Data Integrity Failures, and Security Misconfiguration. No contradiction found between design.md's summary and security-spec.md's detail. Minor non-blocking observation: design.md's own Security Boundaries section does not name security-spec.md by cross-reference."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "design.md has no 'Feature Type:' header field ([LEGACY COMPAT] gap under legacy_design=true). Inferring from content: frontend-spec.md states 'N/A - no change: sdd-context is a deterministic Node hook plugin... It ships no graphical frontend, no web runtime, and no client-side state,' and ux-spec.md records reasoned N/A for all graphical-UI sections. design.md itself has no '## Frontend Plan' or '## Backend Plan' section to cross-check against '## API / Contract Plan'. SKIP: feature has no frontend layer, equivalent in effect to a frontend-only/cli/library Feature Type for this check's purpose."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md lines 121-129) covers unit scope (snapshot writer with fixed fixtures; boundary detector across SAFE/UNSAFE/EMERGENCY_AUTO), integration scope (wrapper with node present/removed; cross-runtime bash/PowerShell parity), and a security-scan item. Acceptance-test approach is covered by ## Acceptance Criteria Traceability (lines 209-226, all AC-001..AC-016 mapped) and acceptance-tests.md's TEST-001..TEST-027 rows, each naming a concrete Pester file path (e.g., tests/sdd-context/boundary-safe.Tests.ps1). Concrete planned verification evidence is named in ## Deployment / CI Plan (lines 168-172): 'Add tests/sdd-context/*.Tests.ps1 to the repository's existing Pester test job in .github/workflows/test.yml' and 'Run validate-repository.ps1 against the triple manifests...'. Feature has no frontend layer (frontend-spec.md), so the fullstack E2E/user-journey sub-requirement does not apply; the PreCompact->SessionStart->PostCompact sequence is nonetheless covered by TEST-002/TEST-007/TEST-009 taken together. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in ## Architecture (hooks/claude-hooks.json, scripts/hook-wrapper.mjs, hooks/hooks.json, sh wrapper, hooks/hooks.ps1, detect-node, boundary detector, snapshot writer, session-start injector) is defined in ## Components (design.md lines 34-44), which names the same descriptor files and the Node-core script set with matching sub-names. ## API / Contract Plan only names the three hook events (PreCompact/SessionStart/PostCompact), which are themselves defined via the Architecture diagram and Components entries. design.md has no ## Frontend Plan or ## Backend Plan sections. No orphan component reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Decision Justification (design.md lines 102-119) states 'The implementation choices below are recorded in docs/adr/0031-context-handoff.md' and attributes three new architectural decisions to it (single deterministic Node core, POSIX sh + PowerShell wrappers, triple manifest discovery). The referenced path follows the required docs/adr/NNNN-<slug>.md convention. Per this round's explicit launch-context instruction, docs/adr/0031-context-handoff.md is outside this reviewer's allowed_input_manifest; this check is judged on design.md's own claim rather than failed for the ADR being unreadable from this boundary. This addresses the round-1 gap the author's round-2 change summary describes."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "ux-spec.md ## Design Tokens states 'N/A - ds_profile: none (repository has no design-system/)' (line 91), a source within this reviewer's manifest. design.md itself has no '## Design System Compliance' section, but this check applies only when the target project has a design-system/ directory; ux-spec.md's explicit statement establishes that condition is false. Recorded as skipped per the check's own applicability clause; PASS."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md contains no 'Bounded-Context:' field and no reference to a domain/ directory, domain/context-map.md, or domain-contract.json; design.md's Storage Layout and Cross-Layer Dependencies sections reference no aggregate/entity model. This check applies only when the project has an approved domain/context-map.md and schema-valid domain-contract.json; no such reference exists in any manifest input. Recorded as skipped per the check's own applicability clause; PASS."
+    }
+  ]
+}

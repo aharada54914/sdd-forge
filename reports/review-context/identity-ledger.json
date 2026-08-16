@@ -6201,6 +6201,24 @@
       "host_session_id": "SESS-impl-impl-reviewer-b-sdd-context-0689",
       "previous_record_sha256": "91da83814dbadabef760a7800215068f86de0a9a8b0076da6ab2cacc83b8658c",
       "record_sha256": "ed57dc7660a67e23f57b9295807dd46fed45af411792cff2af82f48b140c259c"
+    },
+    {
+      "sequence": 690,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-sdd-context-impl-impl-reviewer-a-seq0690",
+      "host_session_id": "SESS-impl-impl-reviewer-a-sdd-context-0690",
+      "previous_record_sha256": "ed57dc7660a67e23f57b9295807dd46fed45af411792cff2af82f48b140c259c",
+      "record_sha256": "05d9a49016256eef65b3ec263dc32a0c5640dc6a7fc28a6f578925af5d2264d3"
+    },
+    {
+      "sequence": 691,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-sdd-context-impl-impl-reviewer-b-seq0691",
+      "host_session_id": "SESS-impl-impl-reviewer-b-sdd-context-0691",
+      "previous_record_sha256": "05d9a49016256eef65b3ec263dc32a0c5640dc6a7fc28a6f578925af5d2264d3",
+      "record_sha256": "d309c31a32b6d32c84d629c58ac6b6bd73bf89c103b32ae0bcfb640d0477eb40"
     }
   ]
 }

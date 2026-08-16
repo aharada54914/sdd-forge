@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "sdd-context",
+  "run_id": "impl-orch-sddcontext-a1r2-20260816",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

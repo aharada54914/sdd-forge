@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-context-impl-impl-reviewer-b-seq0691",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-context-0691",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context/requirements.md",
+      "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"
+    },
+    {
+      "path": "specs/sdd-context/acceptance-tests.md",
+      "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"
+    },
+    {
+      "path": "specs/sdd-context/design.md",
+      "sha256": "6697eb7c2c3115623cc6cafd556a832be763cf7b388acd91ebe8f80a6fee6c6e"
+    },
+    {
+      "path": "specs/sdd-context/investigation.md",
+      "sha256": "0a2aab891698260fa5308a33dd3950479ef8802c71312ea74e0da805268e116c"
+    },
+    {
+      "path": "specs/sdd-context/ux-spec.md",
+      "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"
+    },
+    {
+      "path": "specs/sdd-context/frontend-spec.md",
+      "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"
+    },
+    {
+      "path": "specs/sdd-context/infra-spec.md",
+      "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"
+    },
+    {
+      "path": "specs/sdd-context/security-spec.md",
+      "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-2/precheck-result.json",
+      "sha256": "de515e7bbd871983a4a3876690bb852e436c514a09023cb35d92bdd533a0123d"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-2/integrated-summary.json",
+      "sha256": "73a11f588fb90725366974c6c54793db8466e10d3915a3bd7d3d1db8e4e39e89"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Decision Justification section (lines 102-119) states rationale for each named decision: single deterministic Node core (must satisfy AC-002 byte-identical output and cross-runtime consistency, removes divergence risk, no third-party runtime dependency), POSIX sh + PowerShell wrappers (Codex hooks can be shell-invoked and Windows/WSL can reach hooks through PowerShell; keeps behavior identical without duplicating detector or writer logic), and triple manifest discovery (Claude Code, Codex, and Copilot use different plugin discovery formats). These are inline rationales, not bare ADR references. A scan for undecorated will-use/chosen/selected decision phrasing in design.md returned no additional unjustified statements. Round-1 Major finding resolved."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no Open Questions section (header scan confirms only Architecture, Components, API / Contract Plan, Decision Justification, Test Strategy, Security Boundaries, External Integrations, Deployment / CI Plan, Cross-Layer Dependencies, Design Assumptions and Accepted Risks, Acceptance Criteria Traceability). requirements.md Open Questions states None, boundary semantics defined in REQ-003 and the ADR. No entry lacks owner/blocking-status/resolution-path because no entries exist. Under legacy_design true in precheck-result.json, an absent template section is at most a legacy-compat Minor note, not a basis for a Major finding here."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/sdd-context/investigation.md is now present with INV-001 (hook runtime input contract), INV-002 (Node 18+ implementation runtime), and INV-003 (write-path gitignore layout). design.md Design Assumptions and Accepted Risks section (lines 190-207) cites each of its three assumptions against the matching INV id with a mitigation and accepted-risk statement. Since investigation.md is present and every non-trivial assumption is grounded, the investigation-absent Major-finding condition does not apply. Round-1 Major finding resolved."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no Constraint Compliance section, so the fallback keyword scan applies. requirements.md constraint keywords surface Problem 4 (must not introduce a new failure mode by blocking or throwing), REQ-005 (must not read, consume, or require compact_summary), REQ-006 (never exit nonzero during the host compaction path), REQ-007 (never writes to protected workflow paths), and AC-013 (.sdd/context/ absent or read-only must not fail). Each is addressed: every hook section states Exit code always 0; PostCompact input object marks compact_summary deliberately not read/consumed/required/persisted citing REQ-005; Security Boundaries confines writes to .sdd/context/ and reports/context/ with no network/secrets. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. A keyword scan for response time, throughput, concurrency, latency, SLA, and numeric millisecond thresholds returned no matches."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Deployment / CI Plan section (lines 160-182) states target environments (Claude Code macOS/Linux node exec, Codex CLI macOS/Linux/WSL POSIX sh or PowerShell, Copilot CLI discovery-only placeholder), feature-flag policy (no runtime feature flag; activation is the explicit hook trust/install step), concrete CI changes (add tests/sdd-context Pester specs to the existing test job in .github/workflows/test.yml; run validate-repository.ps1 against the triple manifests, ADR index, gitignore entry, and sdd-ship doc cross-reference), and an explicit 6-step execution order. Migration execution order is stated not applicable with rationale: no database, no schema version, no rolling-deploy or rollback ordering requirement, consistent with a file-only plugin. Round-1 Major finding resolved."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no dedicated Data Plan header, but its Deployment / CI Plan section states the functional equivalent of No data changes: Data migration none, persistence is local files only, no database, no schema version, no rolling-deploy or rollback ordering requirement. No Data Entities or Existing Data Affected declaration involving column or table changes exists anywhere in design.md; the only persistence is local files under Storage Layout. No schema change is declared, so the migration-plan requirement does not trigger; the absent formal header is a legacy-template naming gap only given legacy_design true, not a substantive migration-planning gap."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md External Integrations section (lines 137-158) now lists each host runtime integration with descriptor path, format, and failure behavior for Claude Code, Codex, and Copilot, plus an explicit runtime-hook-interface-unavailable failure behavior entry. Combined with the API / Contract Plan per-hook input/output schemas, this satisfies name, contract, and failure-behavior for every integration referenced in the design. Round-1 Major finding resolved."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-001 through REQ-008 goal maps to a design.md element (triple manifest and hooks/scripts under Components; PreCompact/SessionStart/PostCompact contracts under API / Contract Plan; boundary detector under Architecture; graceful no-op via Exit code always 0 in every hook section; read-only/write-restricted behavior under Security Boundaries; documentation under Deployment / CI Plan step 4). No component, data model, or endpoint appears without a corresponding requirement; the PowerShell fallback wrapper is justified by the cross-runtime need documented in Problems item 3 and Decision Justification, not scope creep. The repository has no design-system directory and ux-spec.md/frontend-spec.md both record ds_profile none, so the design-system sub-check does not apply."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: hook execution in the host privilege context with write-path restrictions, and cross-runtime integration failure behavior across Claude Code, Codex, and Copilot. design.md Acceptance Criteria Traceability names concrete acceptance-test-backed validation paths: AC-011 security scan proving no network/secret/disallowed-write, AC-010 node-missing graceful no-op, and AC-013 missing-or-read-only directory degrading gracefully, each traceable to a named test file in acceptance-tests.md. Test Strategy item 5 (security scan: no network, no secret reads, no writes outside the allowed paths) is a concrete validation path named directly in design.md. No high-risk surface is left without a named validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the target project has no domain directory, so there is no domain/context-map.md with Domain-Model-Status Approved and no domain-contract.json to validate against. DOMAIN-CONFORMANCE does not apply."
+    }
+  ]
+}
