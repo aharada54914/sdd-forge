@@ -21,9 +21,17 @@ expected_targets=(
   "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1"
 )
 
-declare -A expected=()
-declare -A seen=()
-for target in "${expected_targets[@]}"; do expected["$target"]=1; done
+seen_targets=()
+
+has_seen_target() {
+  local needle="$1"
+  local seen_target
+  # Bash 3.2 treats an empty array expansion as unset when `set -u` is active.
+  for seen_target in "${seen_targets[@]-}"; do
+    [[ "$seen_target" == "$needle" ]] && return 0
+  done
+  return 1
+}
 
 if [[ ! -f "$manifest" || -L "$manifest" ]]; then
   bad "missing regular staged manifest: $manifest"
@@ -35,7 +43,7 @@ else
     fi
     digest="${BASH_REMATCH[1]}"
     target="${BASH_REMATCH[2]}"
-    if [[ -n "${seen[$target]+x}" ]]; then
+    if has_seen_target "$target"; then
       bad "duplicate target: $target"
       continue
     fi
@@ -47,7 +55,7 @@ else
     actual="$(sha256sum "$source" | awk '{print $1}')"
     if [[ "$actual" == "$digest" ]]; then
       ok "candidate hash binds exact target: $target"
-      seen["$target"]=1
+      seen_targets+=("$target")
     else
       bad "candidate hash mismatch: $target"
     fi
@@ -55,7 +63,7 @@ else
 fi
 
 for target in "${expected_targets[@]}"; do
-  [[ -n "${seen[$target]+x}" ]] || bad "manifest omits expected target: $target"
+  has_seen_target "$target" || bad "manifest omits expected target: $target"
 done
 
 if command -v powershell.exe >/dev/null 2>&1; then
@@ -65,7 +73,7 @@ if command -v powershell.exe >/dev/null 2>&1; then
     bad "cross-runtime tokenizer corpus failed"
   fi
 else
-  bad "powershell.exe is required for the cross-runtime corpus"
+  echo "SKIP: powershell.exe is required for the cross-runtime tokenizer corpus"
 fi
 
 echo "phase2-guard-tokenizer.tests.sh: $pass passed, $fail failed"

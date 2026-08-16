@@ -1,0 +1,102 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-191-a3-path-ownership",
+  "task_id": "T-002",
+  "run_id": "RUN-epic-191-a3-path-ownership-qg-T-002-seq0652",
+  "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-002-0652",
+  "sequence": 652,
+  "previous_record_sha256": "42f767eb0bc1903cd39cdaf3d3fad87768610cfa5822e9f7bd6f08fecfae5f0e",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "56edcc5ef9bc01397f5ef0a6475a506f85c6c688f875c2ee76bcac37a176f169",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+      "sha256": "ac49ac2b328e09eb8b4023103f214fafe510821f306294311aacef24e685d96a"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.py",
+      "sha256": "e6d50cd2a97697d3edba83f5d766518ec6ef82658a7dc45088717e538a2044a6"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/T-002.md",
+      "sha256": "18c67a09faf260cf27424bb77b92b41fc19062814a9ce542250c49e12c382b16"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/MANIFEST.sha256",
+      "sha256": "2076f8d7ba1ef1b249b462398b326085144f5a81614dad4eb489b0c4cd775c4e"
+    },
+    {
+      "path": "reports/implementation/epic-191-a3-path-ownership/drafts/component-path-diff-basis-ci-steps.yml",
+      "sha256": "65cfe2087ccad2a42a1022f561e0a0f2e63f229018e8752fe6c3ede1a19f1d1c"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+      "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/design.md",
+      "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+      "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+      "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/requirements.md",
+      "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+      "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/tasks.md",
+      "sha256": "cc11c2132623b483e50d7a25d9131800db4231a8c3d557eaa0167a60aa7c0b26"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/traceability.md",
+      "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+      "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis-ps1.RED.log",
+      "sha256": "ac21ba9dac208464d8a38e3d25a93deea1e96f056025ccad288dbc543783e335"
+    },
+    {
+      "path": "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis.RED.log",
+      "sha256": "ea3dc85edef383c73ad41daeaf4b27454141999e557a526dbdd8fa5f79f371a5"
+    },
+    {
+      "path": "tests/component-path-diff-basis.tests.ps1",
+      "sha256": "84a26559c279064c00b7d71e6ad26b177015a1ba0fd12d0b3994ae4bee79bca3"
+    },
+    {
+      "path": "tests/component-path-diff-basis.tests.sh",
+      "sha256": "93c34e85553c7580da37446d913e3f3154111da0e1c17dd40a46477c1935ed3e"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "b69e36da97e1ab87c6d2709557c69327274af11ee484f5f46adb2d91fc7d5a75"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "274d8d537fdd86ed7f40718da8ccaa68162c5cdebba09e306ff46507b279c473"
+    }
+  ]
+}

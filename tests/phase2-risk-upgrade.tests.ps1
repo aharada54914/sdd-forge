@@ -13,6 +13,13 @@ $liteSkill = if ($env:LITE_SPEC_SKILL) { $env:LITE_SPEC_SKILL } else { Join-Path
 $shipSkill = if ($env:SHIP_SKILL) { $env:SHIP_SKILL } else { Join-Path $stage 'plugins/sdd-ship/skills/ship/SKILL.md' }
 $bash = if ($env:BASH_EXE) { $env:BASH_EXE } else { 'bash.exe' }
 
+$requiredCommands = @($bash, 'powershell.exe', 'cygpath.exe')
+$missingCommands = @($requiredCommands | Where-Object { -not (Get-Command $_ -ErrorAction SilentlyContinue) })
+if ($missingCommands.Count -gt 0) {
+    Write-Host "SKIP: $($missingCommands -join ', ') required for the cross-runtime risk corpus"
+    exit 0
+}
+
 $passed = 0
 $failed = 0
 $tempDirectory = Join-Path ([IO.Path]::GetTempPath()) ("phase2-risk-upgrade-" + [Guid]::NewGuid().ToString('N'))

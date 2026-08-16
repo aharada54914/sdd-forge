@@ -1,0 +1,14 @@
+ok: TEST-025(1): generator exits 0 against a clean fixture Registry
+ok: TEST-025(2): fresh output is byte-identical to the golden expected projection
+ok: TEST-025(3): _generated block carries source/schema_version/sha256/notice correctly
+ok: TEST-025(4): no comment-line ('# Generated...') convention anywhere in the projection
+ok: TEST-025(5): capability_gate_map omits the promotion-stage gate (dangling-reference filtering), sorted, empty-array capability preserved
+ok: TEST-026(1): --check exits 0 against a freshly-regenerated, unmutated file
+ok: TEST-026(2): --check exits non-zero with a 'stale' diagnostic against a hand-mutated file
+ok: TEST-026(3): --check performs no filesystem write (mtime unchanged)
+ok: TEST-026(4): missing canonical Registry fails closed with a diagnostic
+ok: run-all.ps1 registers this suite
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=12 fail=0 ----
+generate-gate-capabilities suite passed (12 checks)

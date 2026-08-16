@@ -1,0 +1,12 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "bad-path-gate",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-this-does-not-exist.py"
+    }
+  ],
+  "capabilities": []
+}

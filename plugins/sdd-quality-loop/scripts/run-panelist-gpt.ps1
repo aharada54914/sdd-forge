@@ -42,7 +42,6 @@ $Effort      = ""
 $InputDigest = ""
 $ConsentKind = "human-flag"
 $PanelistTimeoutDefault = 600
-$PanelistTimeoutMaximum = 2147483
 
 $argIdx = 0
 $passedArgs = $args
@@ -200,15 +199,28 @@ Rules:
 
     $rawOutput = Join-Path $scratch "raw-output.txt"
     try {
-        $proc = Start-Process -FilePath $CodexCmd `
-            -ArgumentList $codexArgs `
-            -RedirectStandardInput  $combinedFile `
-            -RedirectStandardOutput $rawOutput `
-            -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
-            -PassThru -NoNewWindow
-        # WaitForExit takes Int32 milliseconds; clamp so a large but
-        # spec-valid timeout cannot overflow and skip the kill path.
-        $panelistWaitMs = if ($PanelistTimeout -gt $PanelistTimeoutMaximum) { [int]::MaxValue } else { $PanelistTimeout * 1000 }
+        # Use one deadline for process launch and waiting. Besides keeping
+        # startup inside the configured bound, the child-visible value lets
+        # boundary tests target the runner's real timeout clock.
+        $panelistDeadlineEpochMs = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() + ([long]$PanelistTimeout * 1000)
+        $hadDeadline = Test-Path Env:SDD_PANELIST_DEADLINE_EPOCH_MS
+        $savedDeadline = $env:SDD_PANELIST_DEADLINE_EPOCH_MS
+        $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
+        try {
+            $proc = Start-Process -FilePath $CodexCmd `
+                -ArgumentList $codexArgs `
+                -RedirectStandardInput  $combinedFile `
+                -RedirectStandardOutput $rawOutput `
+                -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
+                -PassThru -NoNewWindow
+        } finally {
+            if ($hadDeadline) { $env:SDD_PANELIST_DEADLINE_EPOCH_MS = $savedDeadline }
+            else { Remove-Item Env:SDD_PANELIST_DEADLINE_EPOCH_MS -ErrorAction SilentlyContinue }
+        }
+        # WaitForExit takes Int32 milliseconds; clamp the remaining portion of
+        # the absolute deadline so launch time cannot extend the timeout.
+        $remainingMs = $panelistDeadlineEpochMs - [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $panelistWaitMs = [int][Math]::Min([Math]::Max($remainingMs, 0), [int]::MaxValue)
         if (-not $proc.WaitForExit($panelistWaitMs)) {
             $proc.Kill($true)
             $proc.WaitForExit()

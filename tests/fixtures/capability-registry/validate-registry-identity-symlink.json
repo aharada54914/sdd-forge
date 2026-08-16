@@ -1,0 +1,12 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-via-symlink",
+      "stage": "implementation",
+      "blocking": true,
+      "implementation_ref": "plugins/sdd-quality-loop/scripts/check-registered-symlink.py"
+    }
+  ],
+  "capabilities": []
+}

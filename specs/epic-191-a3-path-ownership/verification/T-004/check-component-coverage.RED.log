@@ -1,0 +1,143 @@
+=== TEST-026: applicability derived from capability_enforcement, never manifest presence ===
+ok: TEST-026.1: a present Facet Manifest under disabled-legacy still records disabled-legacy, manifest never consulted
+=== TEST-027: disabled-legacy truthful non-evaluation ===
+ok: TEST-027.1: disabled-legacy performs zero Fail-condition evaluation and emits a real, schema-tagged record
+ok: TEST-027.2: disabled-legacy exits 0
+=== TEST-028: manifest-required hard error ===
+ok: TEST-028.1: a missing Facet Manifest in advisory state is a hard error (exit 2), distinct from exit 1 (an ordinary Fail trigger)
+ok: TEST-028.2: --facet-manifest omitted entirely in advisory/required state is also a hard error
+=== TEST-029: --diagnose never Gate-invoked ===
+ok: TEST-029.1: --diagnose emits its own distinct schema, never the Gate's check-component-coverage-verdict/v1
+ok: TEST-029.2: quality-gate/SKILL.md's ## Process never invokes --diagnose
+=== TEST-030: one fixture per Fail-1..6, identical advisory/required ===
+ok: TEST-030 (Fail-1): Fail-1 triggers identically in advisory and required
+ok: TEST-030 (Fail-2): Fail-2 triggers identically in advisory and required
+ok: TEST-030 (Fail-3): Fail-3 triggers identically in advisory and required
+ok: TEST-030 (Fail-4): Fail-4 triggers identically in advisory and required
+ok: TEST-030 (Fail-5): Fail-5 triggers identically in advisory and required
+ok: TEST-030 (Fail-6): Fail-6 triggers identically in advisory and required
+=== TEST-031: Fail-2/Fail-4 mutual exclusivity ===
+ok: TEST-031.1: an EXCLUSIVE-owner mismatch triggers Fail-2 only, never Fail-4
+ok: TEST-031.2: a bounded shared_paths shortfall triggers Fail-4 only, never Fail-2
+=== TEST-032: Fail-5 Gate-level reachability ===
+ok: TEST-032.1: an EXCLUDED_MATCH path reaches the Gate as a Fail-5 trigger (real runtime path, not only a resolver-level test)
+=== TEST-033/034: Fail-6 adapter_paths rule ===
+ok: TEST-033.1: an adapter_paths glob match against an EXCLUSIVE-owned path triggers Fail-6
+ok: TEST-033.2: a binding lacking adapter_paths is WARN 'evaluation not possible', never silently passing
+ok: TEST-034.1: absent sdd/provider-bindings.yaml records Fail-6 N/A with a WARN
+=== TEST-046: contracts/** bounded-shared Fail-4 fixture ===
+ok: TEST-046.1: contracts/** bounded-shared with an out-of-enumeration component (backend) missing from the manifest triggers Fail-4
+=== TEST-052/053: blocking behavior ===
+ok: TEST-052.1: advisory exits 0 despite a Fail-condition trigger
+ok: TEST-053.1: required exits non-zero (1) when a Fail condition triggers
+ok: TEST-053.2: required exits 0 when no Fail condition triggers
+=== TEST-054: evidence producer binding across all three states ===
+ok: TEST-054 (disabled-legacy): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (advisory): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054 (required): evidence carries schema, check_id, and a live-computed producer.sha256 matching the real on-disk script
+ok: TEST-054.4: a hand-tampered producer.sha256 is distinguishable from the live script's real hash (the self-check is not tautological)
+=== TEST-056: a present-but-unparseable project-context.yaml is a hard error, never disabled-legacy ===
+FAIL: TEST-056.1: expected exit 2 and no disabled-legacy downgrade, got exit=0 out={
+  "check_id": "check-component-coverage",
+  "fail_conditions": [],
+  "manifest_status": "not-consulted",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+  },
+  "schema": "check-component-coverage-verdict/v1",
+  "state": "not-applicable (disabled-legacy)",
+  "warnings": []
+}
+=== TEST-057: dual-runtime exit-code parity on a post-parse config structural error ===
+ok: TEST-057.1: python: a post-parse config structural error (empty include list) is a hard error, exit 2
+=== TEST-058: capability_enforcement case-sensitivity parity ('Required' != 'required') ===
+ok: TEST-058.1: python: capability_enforcement: Required (capital) is NOT matched as required (case-sensitive), derives disabled-legacy
+=== TEST-059: omitting both --changed-paths-file and --target-rev is a hard error (reachability bypass closed) ===
+FAIL: TEST-059.1: expected exit 2, got 0 (out={
+  "check_id": "check-component-coverage",
+  "fail_conditions": [
+    {
+      "detail": {
+        "unowned_paths": []
+      },
+      "id": "Fail-1",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "missing_exclusive_owners": []
+      },
+      "id": "Fail-2",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "overlap_paths": []
+      },
+      "id": "Fail-3",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "missing_bounded_shared_owners": []
+      },
+      "id": "Fail-4",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "excluded_match_paths": []
+      },
+      "id": "Fail-5",
+      "triggered": false
+    },
+    {
+      "detail": {
+        "status": "not-applicable (provider-bindings absent)"
+      },
+      "id": "Fail-6",
+      "triggered": false
+    }
+  ],
+  "manifest_status": "present",
+  "producer": {
+    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
+    "sha256": "d9414bfcdd9bc5f424561fc1eafaab47ea7916ca35733a875e2855621b4b0291"
+  },
+  "schema": "check-component-coverage-verdict/v1",
+  "state": "required",
+  "warnings": [
+    "Fail-6: sdd/provider-bindings.yaml absent; recorded N/A"
+  ]
+})
+=== TEST-036: protected-suffix registration + generator inventory ===
+ok: TEST-036.1: risk-gate-matrix.md's machine-form 'high =' required-check-set line itself (not just anywhere in the file) names check-component-coverage (live, unprotected, direct edit)
+ok: TEST-036.2: quality-gate/SKILL.md's ## Process section itself (not just anywhere in the file) documents check-component-coverage
+ok: TEST-036.3: live check-contract.{py,ps1}'s protected RISK_TIERS does NOT yet register check-component-coverage (documents the live reachability gap this Bundle B candidate closes)
+ok: TEST-036.4: the staged Bundle A candidate (drafts/bundle-a/) adds exactly the three check-component-coverage.* suffixes and DROPS NOTHING from either live protected_gate_suffixes or phase2_human_copy_targets (proven by direct set comparison, not asserted)
+ok: TEST-036.5: running the REAL generate-guard-invariants.py --check against the staged Bundle A candidate tree exits 0 (internal consistency proven, not asserted)
+=== TEST-035: reachability registration (two-tier defense scope) ===
+ok: TEST-035.1: the staged Bundle B candidate registers check-component-coverage in RISK_TIERS high AND critical on both runtimes (drafts/bundle-b/scripts/check-contract.{py,ps1}), ready for human-apply
+=== TEST-055: check-contract producer-digest verification (AC-055) ===
+ok: TEST-055.1 [documents the live gap]: the LIVE, unmodified check-contract.py accepts a tampered check-component-coverage producer.sha256 without complaint -- AC-055's producer-digest pass does not exist yet on the live file
+ok: TEST-055.2: the STAGED Bundle B candidate's new producer-digest pass REJECTS a tampered producer.sha256 (AC-054 negative clause / AC-055, proven against real check-component-coverage.py bytes, not a self-referential comparison)
+ok: TEST-055.3: the STAGED Bundle B candidate PASSES a genuine, live-produced check-component-coverage evidence record (positive case)
+=== registration self-check ===
+ok: check-component-coverage suite self-registers in tests/run-all.sh and .ps1
+
+Results: 39 passed, 2 failed.
+
+# NOTE: this RED log was captured 2026-08-09 against the code as it stood
+# before the quality-gate remediation fix in this same session (Critical 1
+# from reports/quality-gate/20260809T073000Z-epic-191-a3-path-ownership-T-004.md).
+# The two genuine failures above -- TEST-056.1 (fail-open: a project-context.yaml
+# that EXISTS but fails to parse silently downgrades to disabled-legacy,
+# exit 0, zero evaluation) and TEST-059.1 (reachability bypass: omitting both
+# --changed-paths-file and --target-rev in `required` state with a valid
+# manifest reads empty stdin and returns a conformant all-clear, exit 0,
+# binding no diff basis) -- are the live defects fixed immediately after this
+# log was captured. TEST-057.1 and TEST-058.1 already pass here because this
+# file only exercises python3 via the check-component-coverage.sh dispatcher;
+# the PowerShell twin (check-component-coverage-ps1.RED.log) captured at the
+# same time shows the corresponding pwsh-side failures for those two.

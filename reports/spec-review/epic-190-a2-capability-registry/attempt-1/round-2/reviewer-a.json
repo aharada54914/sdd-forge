@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0322",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0322",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "abdc2d073b7f491da5b5efcb4da251145978095169f1360804da0c165062bd16"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "ff4874720b1c145321e422ac8f0dbe75c2a93f30964e99002a3a2182ba9011ac"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-2/precheck-result.json", "sha256": "c06149bde985ae7adb7a7256ea627576da310bbd84e4f5e2f87209a43453e31a"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..006 is stated with concrete, checkable shape: REQ-001 fixes the schema's required/optional field split explicitly ('Every capabilities[] entry's required list is id, trigger, required_facets, conditional_facets, review_check_ids, gate_ids, and delivery_strategy; only lite_policy and minimum_enforcement are genuinely optional'), resolving round 1's minimum_enforcement contradiction. required_facets/conditional_facets now have a closed, testable shape ('conditional_facets is an array of objects, each exactly {facet: <Facet-ID string>, when: <Predicate DSL expression>} (additionalProperties: false; may be [])'), resolving round 1's entry-shape ambiguity, and is directly tested by AC-037/TEST-037. REQ-002's evaluator semantics (fail-closed rule, exists exception, not's unary arity, no-short-circuit) and REQ-003(a-h)'s eight independently named validator checks are each concrete and each maps to a fixture-testable AC. No in-scope requirement was found stated only as intent without an observable behavior."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's table maps AC-001..037 1:1 to REQ-001 (AC-001..006, AC-037), REQ-002 (AC-007..013), REQ-003(a-h) (AC-014..022), REQ-004 (AC-023..024), REQ-005 (AC-025..029), and REQ-006 (AC-030..033); User Stories' judgment-call-visibility goal is covered by AC-035. The only goal without a paired automated test, AC-034 (scope-boundary non-modification), is explicitly carried as a one-time manual review record rather than silently dropped, and AC-036 is explicitly deferred to Phase 2 rather than omitted."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete, externally observable outcomes rather than intent: named failure diagnostics (gate-id-duplicate, implementation-ref-missing, unregistered-script, pack-owns-gate-definition, provider-name-detected, dangling-gate-reference, unknown-upgrade-reason, unknown-fragment-id), exact boolean/exit-code outcomes (AC-007/008/009's WARN+false vs. true, AC-024/026's non-zero exit and byte-identical digest), and byte-identical output assertions (AC-025, AC-031, AC-033). No AC in this package is stated as an unmeasurable intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals lists seven explicit exclusions: Epic A1's schema/canonicalizer, Epic A5's Resolver/Facet Manifest binding, any Capability Pack content authoring, freezing lite_policy.upgrade_reasons vocabulary or delivery_strategy.kind vocabulary, Artifact/Promotion Gate stage behavior, introducing a new plugin, writing any plugin/contract/generated/test file in this commit (AC-034 enforces this boundary), and authoring tasks.md/traceability.md in this commit (with the check-workflow-state.sh hard-enforcement reason cited). Dependencies section also explicitly bounds Epic A2 away from Epic A3/A4 scope."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Approval boundary is explicit and consistent (requirements.md:3 'Spec-Review-Status: Pending'; Roles and Permissions: agent 'Does not write \"Approved\" in any Status/approval field ... Spec-Review-Status stays Pending, for a human to change'; Human maintainer 'reviews and approves ... changes Spec-Review-Status to Passed/Approved only after their own review'). Security/compatibility constraints are explicit: Provider-name-contamination validation (REQ-003(g)/AC-020, ADR-0018 boundary), protected-file human-copy procedure for guard-invariants.json changes (REQ-005/AC-029), and Epic A1's canonicalizer/schema as a stated blocking dependency with no silent substitution (Dependencies, AC-023). Migration risk is addressed by INV-002's repository-fact confirmation that no capability-packs/ directory exists yet, so the Registry/Pack split has no legacy data to migrate."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims each have a stated validation surface: the provider-name-contamination security boundary is validated by AC-020's per-category negative fixtures plus a clean-fixture false-positive check; the protected-file guard-invariants.json registration is validated by AC-029's three-part human-copy/MANIFEST.sha256/regenerated-file procedure; the Epic A1 canonicalizer external-dependency risk is validated by AC-023's design-conformance check and explicitly recorded as a blocked implementation task rather than silently assumed; the registry_digest determinism risk is validated by AC-024/AC-032's fragment-identity and JCS/NFC vector fixtures. No high-risk claim in this package was found without a corresponding acceptance criterion, manual-inspection target, or blocked-task record."
+    }
+  ]
+}

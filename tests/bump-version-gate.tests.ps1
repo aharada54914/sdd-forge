@@ -48,7 +48,11 @@ function New-Fixture {
     Remove-Item -LiteralPath (Join-Path $fixtureRoot "mcp/local-env-mcp/node_modules") -Recurse -Force -ErrorAction SilentlyContinue
 
     $fixtureRoot = (Resolve-Path -LiteralPath $fixtureRoot).Path
-    & git -C $fixtureRoot init -q
+    # core.longpaths=true: the fixture root already sits under a generated
+    # temp path, and some tracked paths under specs/ (e.g. the T-006/T-007
+    # human-copy-candidate tree) are long enough that the combination trips
+    # Windows MAX_PATH (260) inside git's own path handling.
+    & git -C $fixtureRoot -c core.longpaths=true init -q
     if ($LASTEXITCODE -ne 0) { throw "git init failed in $fixtureRoot" }
     return $fixtureRoot
 }
@@ -68,12 +72,33 @@ function Set-SuiteStub {
 # satisfies bump-version.sh's own pre-existing CHANGELOG-heading
 # precondition (scripts/bump-version.sh:38-42) so each case isolates the
 # NEW loop-gate precondition specifically.
+#
+# Twin of the Bash helper's two forms: rename "## Unreleased" when the
+# fixture has one, otherwise insert the heading after the "# Changelog"
+# title -- between a release and the next entry landing the real CHANGELOG
+# legitimately has no "## Unreleased", and a silent no-op rename would leave
+# every case failing on the CHANGELOG precondition rather than exercising
+# the loop gate. The postcondition is asserted either way.
 function Set-FixtureChangelogHeading {
     param([string]$FixtureRoot, [string]$Version)
     $path = Join-Path $FixtureRoot "CHANGELOG.md"
     $content = Get-Content -LiteralPath $path -Raw
-    $updated = $content -replace '(?m)^## Unreleased$', "## v$Version"
+    $heading = "## v$Version"
+    # .gitattributes pins every tracked text file to eol=lf, so LF-only
+    # anchors are exact here (no \r to step around).
+    if ($content -match '(?m)^## Unreleased$') {
+        $updated = $content -replace '(?m)^## Unreleased$', $heading
+    } elseif ($content -match '(?m)^# Changelog$') {
+        # Instance Replace: the static overload's 4th argument is
+        # RegexOptions, not a replacement count.
+        $updated = ([regex]'(?m)^# Changelog$').Replace($content, "# Changelog`n`n$heading", 1)
+    } else {
+        $updated = $content + "`n$heading`n"
+    }
     [System.IO.File]::WriteAllText($path, $updated, $utf8NoBom)
+    if ($updated -notmatch ('(?m)^' + [regex]::Escape($heading) + '( |$)')) {
+        throw "fixture setup failed: no `"$heading`" heading in $path"
+    }
 }
 
 # Set-FixtureBaseline -FixtureRoot <root> — commits the fixture's
@@ -81,9 +106,11 @@ function Set-FixtureChangelogHeading {
 # `git status --porcelain` call in this suite is measured against.
 function Set-FixtureBaseline {
     param([string]$FixtureRoot)
-    & git -C $FixtureRoot -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" add -A
+    # core.longpaths=true: see New-Fixture's git init above — this add/commit
+    # pair is the one that actually walks the long human-copy-candidate paths.
+    & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" add -A
     if ($LASTEXITCODE -ne 0) { throw "git add -A failed in $FixtureRoot" }
-    & git -C $FixtureRoot -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
+    & git -C $FixtureRoot -c core.longpaths=true -c user.email="bump-version-gate-tests@sdd-forge.invalid" -c user.name="bump-version-gate-tests" commit -q -m "fixture baseline"
     if ($LASTEXITCODE -ne 0) { throw "git commit failed in $FixtureRoot" }
 }
 
@@ -101,7 +128,8 @@ function Invoke-BumpVersion {
 
 function Get-FixturePorcelain {
     param([string]$FixtureRoot)
-    $out = & git -C $FixtureRoot status --porcelain
+    # core.longpaths=true: see New-Fixture's git init above.
+    $out = & git -C $FixtureRoot -c core.longpaths=true status --porcelain
     return ($out -join "`n")
 }
 
