@@ -1,92 +1,51 @@
 # HUMAN APPLY STEP — epic-192-a4-facet-manifest CI staging
 
-## Why this file exists (not the real path)
+## ステージング候補の場所（正規パス）
 
-`sdd-hook-guard.sh` rejects any write to
-`specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
-(the intended human-copy staging path) as a hard, sudo-immune deterministic
-gate denial, even though this task's own Protected Files section documents
-that exact path as agent-editable staging. The denial was reproduced 3
-times (Bash `cp`, Write tool ×2) and is tracked as a known guard defect
-(session task `task_b3fae260`, independently confirmed on Epic A1/A6 too;
-options under human consideration: (A) add a human-copy exemption to the
-guard, (B) apply via a non-protected proposal file + human copy — what this
-file is, or (C) rescope). Per operating instructions, no further workaround
-was attempted; this directory holds the **prepared content only**, for a
-human to review and apply.
+本 feature の CI 候補は正規の human-copy staging パスにあります:
 
-## What to apply
+- `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
+- `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256`
 
-`github-workflows-test.yml.PROPOSED` in this same directory is the complete,
-corrected `.github/workflows/test.yml` — the current live file
-(`.github/workflows/test.yml`, sha256
-`3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`) with
-exactly one insertion: T-001's two new CI step-pairs (`Test
-facet-manifest-schema suite (bash/pwsh)` and `Test facet-manifest-semantics
-suite (bash/pwsh)`), inserted immediately after the existing `Test
-model-freshness-check suite (pwsh)` step, matching this repository's
-established insertion-point convention for newly landed suites. Confirmed
-via `diff .github/workflows/test.yml
-specs/epic-192-a4-facet-manifest/human-copy/github-workflows-test.yml.PROPOSED`:
-the only diff is that pure insertion (see below) — no other line changed,
-reordered, or removed.
+以前ここに置かれていた `github-workflows-test.yml.PROPOSED` は、旧 guard が
+human-copy staging への書き込みを誤って拒否していた時期の回避ファイルであり、
+廃止しました。現行の installed guard (sdd-quality-loop v1.10.0+) は
+`specs/<feature>/human-copy/` への staging 書き込み免除を持つため、
+候補は正規パスに直接置かれています。
 
-```
-215a216,240
->       # epic-192-a4-facet-manifest T-001 (REQ-001/REQ-006): schema conformance
->       # + semantic checks for contracts/facet-manifest.schema.json /
->       # validate-facet-manifest.{py,sh,ps1}.
->       - name: Test facet-manifest-schema suite (bash)
->         if: runner.os != 'Windows'
->         shell: bash
->         run: bash ./tests/facet-manifest-schema.tests.sh
->
->       - name: Test facet-manifest-schema suite (pwsh)
->         shell: pwsh
->         run: ./tests/facet-manifest-schema.tests.ps1
->
->       - name: Test facet-manifest-semantics suite (bash)
->         if: runner.os != 'Windows'
->         shell: bash
->         run: bash ./tests/facet-manifest-semantics.tests.sh
->
->       - name: Test facet-manifest-semantics suite (pwsh)
->         shell: pwsh
->         run: ./tests/facet-manifest-semantics.tests.ps1
-```
+## 候補の内容
 
-## How to apply (human, outside any agent session)
+ベース: live `.github/workflows/test.yml`
+（2026-08-17 時点、origin/main マージ後の sha256
+`486828f097e12ff99a44afd113df7a2347578b74c872253e858311c1d6fe898d`）
+
+変更は **純挿入 1 箇所のみ**: epic-191 A3 ブロック末尾の
+`Test component-path-ownership parity suite (pwsh)` step の直後
+（`mcp-tests` ジョブの手前）に、T-001 の 2 スイート × (bash/pwsh) の
+4 step を挿入（計 +29 行、削除・並べ替えなし）:
+
+- `Test facet-manifest-schema suite (bash)` / `(pwsh)`
+- `Test facet-manifest-semantics suite (bash)` / `(pwsh)`
+
+両スイートは `tests/run-all.{sh,ps1}` に登録済みで、決定論的
+（LLM なし・ネットワークなし・`gh` なし・live sudo grant なし）です。
+
+## 適用手順（人間がエージェントセッション外で実行）
 
 ```sh
-cp specs/epic-192-a4-facet-manifest/human-copy/github-workflows-test.yml.PROPOSED \
+cd <repo root>
+cp specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml \
    .github/workflows/test.yml
-shasum -a 256 .github/workflows/test.yml
-# must equal:
 ```
 
-Expected post-apply hash of `.github/workflows/test.yml`:
-`fb3eae629068a37c46f86c9da8a3a87cf14548c3901ace2f49c2557e39bd5e34`
+## 適用後の検証
 
-Then re-run `bash tests/run-all.sh` / `pwsh tests/run-all.ps1` against the
-applied tree to confirm the two new suites execute cleanly in CI's own
-invocation style, before marking any task that depends on a green CI as
-`Done` (AGENTS.md Protected Files convention for this feature).
+```sh
+shasum -a 256 .github/workflows/test.yml
+# 期待値（MANIFEST.sha256 と一致すること）:
+# 53ae12d1122008aaebcc3cb445add7eeb7d48804b9fe3201b4707091ba68b408
+```
 
-## Proposal manifest
-
-| File | SHA-256 |
-|---|---|
-| `github-workflows-test.yml.PROPOSED` | `fb3eae629068a37c46f86c9da8a3a87cf14548c3901ace2f49c2557e39bd5e34` |
-| Live `.github/workflows/test.yml` (pre-apply, current) | `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4` |
-| Live `.github/workflows/test.yml` (expected post-apply) | `fb3eae629068a37c46f86c9da8a3a87cf14548c3901ace2f49c2557e39bd5e34` |
-
-## Status
-
-This is the **T-001** proposal only. If T-002/T-003/T-004/T-005 land CI
-steps of their own before this is applied, each will append its own steps
-to a freshly regenerated `.PROPOSED` file built from the then-current live
-`test.yml` plus all pending tasks' steps in landing order (T-001 → T-002 →
-... ), per this feature's Global Constraints serialization rule — not by
-editing this file after the fact once it is superseded. Check this
-directory's file mtimes / this feature's `tasks.md` Blocker notes for the
-most current proposal before applying.
+注意: 適用前に live `.github/workflows/test.yml` の sha256 が上記ベース値と
+異なる場合、live 側が先に進んでいます。その場合は本候補を最新 live を
+ベースに再構築してから適用してください（挿入内容は上記 4 step のみ）。
