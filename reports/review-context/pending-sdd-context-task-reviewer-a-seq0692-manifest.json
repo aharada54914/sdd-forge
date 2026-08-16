@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "sdd-context",
+  "run_id": "RUN-sdd-context-task-task-reviewer-a-seq0692",
+  "host_session_id": "SESS-task-task-reviewer-a-sdd-context-0692",
+  "sequence": 692,
+  "previous_record_sha256": "d309c31a32b6d32c84d629c58ac6b6bd73bf89c103b32ae0bcfb640d0477eb40",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "415144755c26a6382079dc79894e516db23fc263b229b6f10939d4f318716940",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context/requirements.md",
+      "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"
+    },
+    {
+      "path": "specs/sdd-context/acceptance-tests.md",
+      "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"
+    },
+    {
+      "path": "specs/sdd-context/design.md",
+      "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"
+    },
+    {
+      "path": "specs/sdd-context/tasks.md",
+      "sha256": "976bc2f767dd53e0634ba70dc01ab0057939e679fd8f5f606084c1c51f8028e6"
+    },
+    {
+      "path": "specs/sdd-context/traceability.md",
+      "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"
+    },
+    {
+      "path": "specs/sdd-context/ux-spec.md",
+      "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"
+    },
+    {
+      "path": "specs/sdd-context/frontend-spec.md",
+      "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"
+    },
+    {
+      "path": "specs/sdd-context/infra-spec.md",
+      "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"
+    },
+    {
+      "path": "specs/sdd-context/security-spec.md",
+      "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/sdd-context/attempt-1/round-1/precheck-result.json",
+      "sha256": "dc8a515247b823aead2bc5e9f96aa949ff13a412d7bfa9e991ee2448f55aa9aa"
+    },
+    {
+      "path": "reports/task-review/sdd-context/attempt-1/round-1/dependency-graph.json",
+      "sha256": "893220bc1bec33e519f8e6df46582ac441739f52e992c0a42a19e561b4cd46f0"
+    }
+  ]
+}

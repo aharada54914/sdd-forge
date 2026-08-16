@@ -1,0 +1,108 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "RUN-sdd-context-task-task-reviewer-a-seq0692",
+  "host_session_id": "SESS-task-task-reviewer-a-sdd-context-0692",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+    {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+    {"path": "specs/sdd-context/design.md", "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"},
+    {"path": "specs/sdd-context/tasks.md", "sha256": "976bc2f767dd53e0634ba70dc01ab0057939e679fd8f5f606084c1c51f8028e6"},
+    {"path": "specs/sdd-context/traceability.md", "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"},
+    {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+    {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+    {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+    {"path": "specs/sdd-context/security-spec.md", "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/sdd-context/attempt-1/round-1/precheck-result.json", "sha256": "dc8a515247b823aead2bc5e9f96aa949ff13a412d7bfa9e991ee2448f55aa9aa"},
+    {"path": "reports/task-review/sdd-context/attempt-1/round-1/dependency-graph.json", "sha256": "893220bc1bec33e519f8e6df46582ac441739f52e992c0a42a19e561b4cd46f0"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No dangling AC-NNN references. tasks.md Requirements: fields cite only REQ-NNN identifiers (T-001..T-008 each cite exactly one REQ-NNN, e.g. T-001 Requirements: REQ-001); no AC-NNN literal appears in any Requirements: field. Every AC-NNN that does appear elsewhere (Done When items: AC-001..AC-016, including sub-clauses AC-004(a-d), AC-005(a-e), AC-006, AC-015) resolves to a real row in acceptance-tests.md's AC table."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks (T-001..T-008) declare '### Blockers' followed by the literal string 'None' with no range notation or prose. Matches precheck-result.json's blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-008 (8 of 8) each appear in exactly one task's Requirements: field: T-001->REQ-001, T-002->REQ-002, T-003->REQ-003, T-004->REQ-004, T-005->REQ-005, T-006->REQ-006, T-007->REQ-007, T-008->REQ-008. No requirement is uncovered."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-001..AC-016 (16 of 16, including the AC-004(a-d)/AC-005(a-e)/AC-006/AC-015 sub-clauses) are each traced to exactly one task via a Done-When item naming the AC and its TEST-NNN, consistent with traceability.md's Task Mapping table: T-001->AC-001; T-002->AC-002,003,013; T-003->AC-004,005,006,015; T-004->AC-007,008,014,016; T-005->AC-009; T-006->AC-010; T-007->AC-011; T-008->AC-012."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks cite exactly one REQ-NNN in their Requirements: field; no task lacks a requirement reference."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task title contains 'test', 'spec', or 'verify' as a literal substring, and no task's scope is exclusively test-file changes (every task's Planned Files also include source or doc files). T-007 ('Write-boundary and no-exfiltration verification') is the closest candidate but its Planned Files also list hardening changes to plugins/sdd-context/scripts/*.mjs, and it references AC-011 via TEST-011 regardless. No orphaned test task found."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round 1, attempt 1 (pre-implementation): all 8 tasks declare 'Approval: Draft' and 'Status: Planned', matching the pre-implementation rule."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 8 tasks declare both Risk: and Required Workflow:, and every pairing matches the risk-gate-matrix: T-001/T-002/T-003/T-004/T-005 = medium/acceptance-first; T-006/T-007 = high/tdd; T-008 = low/test-after. Matches precheck-result.json's workflow_match_precheck: PASS."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Cross-checking traceability.md's Task Mapping table and each task's Done-When AC references: every AC-NNN is claimed as primary test target by exactly one task; no duplicates found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's Scope states 'every other task depends on this skeleton existing' (the plugin directory skeleton and manifest registration it creates), yet T-002 through T-008 each declare '### Blockers' / 'None', so that stated dependency is not reflected in any Blockers field. Separately, T-006's Out of Scope explicitly excludes 'The core logic the wrappers delegate to (T-002 through T-005)', confirming hook-wrapper.mjs (a T-006 Planned File) must invoke boundary-detector.mjs (T-003), snapshot-writer.mjs (T-002), session-start-injector.mjs (T-004), and post-compact-logger.mjs (T-005) at runtime -- yet T-006's Blockers field is also 'None'. dependency-graph.json confirms zero edges ('edges': []) despite these prose-stated dependencies. An implementer starting T-002..T-008 without T-001's skeleton in place, or starting T-006 without T-002..T-005's core modules in place, hits a missing-directory or missing-module condition the task decomposition does not sequence against. The Blockers fields are incomplete relative to the dependencies the tasks' own Scope/Out-of-Scope text asserts."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Runs because BLOCKERS-FORMAT is PASS. dependency-graph.json nodes=[T-001..T-008], edges=[] (every task's Blockers is 'None'). No path revisits a node; no cycle exists."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task addresses one coherent concern. T-001 ('Triple manifest discovery and plugin skeleton') couples manifest registration with directory-skeleton creation, but both are design.md's Deployment execution-order steps 1-2 bootstrapping the same discoverability concern -- mandatory housekeeping that cannot be decoupled, not two distinct feature concerns. T-006 ('Runtime wrappers and non-blocking node detection') couples wrapper descriptors with node detection, which design.md's Architecture treats as one wrapper layer (detect-node is a sibling under the wrapper, not a separate feature). T-007 and T-008's 'and'-joined titles connect sub-aspects of a single requirement each (REQ-007 security scan; REQ-008 documentation). No task joins two distinct feature concerns."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Every task (T-001 through T-008) includes the identical Done-When item 'traceability.md updated with T-NNN -> REQ-NNN mapping' (tasks.md:65, :131, :198, :265, :324, :391, :458, :524). traceability.md is a review-frozen artifact once the task-review gate passes, and per the Lifecycle section implementation begins only after Approval (Draft -> Approved -> In Progress), which itself requires this task-review gate to have already passed. So by the time any task's Done-When items are actually executed, traceability.md's body -- including its Task Mapping table -- will be frozen except for normalized status/approval fields, making 'updated with T-NNN -> REQ-NNN mapping' unsatisfiable as written. The mapping this item asks to add is, in fact, already present in the current traceability.md's Task Mapping table (e.g. the existing row 'T-001 | REQ-001 | AC-001 | ...'), so the item both targets a frozen artifact and describes content that predates the gate. Each of the 8 occurrences should instead name a non-frozen addendum record (e.g. an implementation-report cross-reference or a specs/sdd-context/verification/ entry)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task ID T-001..T-008 in tasks.md has a corresponding row in traceability.md's Task Mapping table; every REQ-NNN cited in traceability.md's main table (REQ-001..REQ-008) exists in requirements.md. Full-profile Layer Spec cells each carry a resolvable <layer>-spec.md#<section> anchor or a reasoned N/A: REQ-001/002/006->infra-spec.md#deployment-topology (section exists); REQ-003->'N/A -- cross-layer only: ...' (reasoned); REQ-004->ux-spec.md#interaction-sequence (exists); REQ-005->infra-spec.md#observability (exists); REQ-007->security-spec.md#trust-boundaries and #data-classification-and-protection (both exist); REQ-008->ux-spec.md#scope-and-user-journeys (exists). No dangling references in either direction."
+    }
+  ]
+}

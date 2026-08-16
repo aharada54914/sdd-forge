@@ -1,0 +1,80 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-sdd-context-task-task-reviewer-b-seq0693",
+  "host_session_id": "SESS-task-task-reviewer-b-sdd-context-0693",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+    {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+    {"path": "specs/sdd-context/design.md", "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"},
+    {"path": "specs/sdd-context/tasks.md", "sha256": "976bc2f767dd53e0634ba70dc01ab0057939e679fd8f5f606084c1c51f8028e6"},
+    {"path": "specs/sdd-context/traceability.md", "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"},
+    {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+    {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+    {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+    {"path": "specs/sdd-context/security-spec.md", "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+    {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+    {"path": "reports/task-review/sdd-context/attempt-1/round-1/precheck-result.json", "sha256": "dc8a515247b823aead2bc5e9f96aa949ff13a412d7bfa9e991ee2448f55aa9aa"},
+    {"path": "reports/task-review/sdd-context/attempt-1/round-1/integrated-summary.json", "sha256": "867ab0f6c14ae13179a17c57328ac01a45de9104d5e442d0e9e36fe0d70d2f65"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-006 (high) and T-007 (high, Security-Sensitive) are both defensible: T-006 runs inside the host's PreCompact/SessionStart/PostCompact dispatch path where 'a non-zero exit or a throw degrades the host agent itself' (silent-defect-causes-material-harm clause); T-007 directly implements write-path confinement / no-secret-reads / no-network verification, matching the 'access control'/'secrets handling' sensitive-surface list. T-008 (low) is scoped as pure documentation with no control-flow, data, or security change, matching the low-tier definition. T-001..T-005 (medium) touch discovery manifests, a file-only snapshot writer, a read-only boundary classifier, a stdout-only injector, and an append-only log -- none modify authentication, authorization, payment, PII, migration, or an existing externally-visible API contract per risk-classification-policy.md's sentinel list; design.md confirms 'No existing SDD endpoint, hook, validator rule, or state-machine artifact is deprecated, renamed, or given a breaking change.' Required Workflow fields also match the policy's tier derivation exactly: medium->acceptance-first (T-001..T-005), high->tdd (T-006, T-007), low->test-after (T-008)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Both high-risk tasks carry the required Done When items. T-006 Done When includes '[ ] Red->Green evidence captured (Required Workflow: tdd)' and '[ ] Independent review verdict recorded' plus '[ ] Provenance recorded with `spec_revision`'. T-007 Done When includes the same two items plus '[ ] Cross-model verification completed (Security-Sensitive: true)', consistent with risk-gate-matrix.md's opt-in cross-model control for high-tier security-sensitive tasks. No task in tasks.md declares Risk: critical, so the second-approver/signed-bundle requirement does not apply. No missing mandatory evidence item found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of the 8 tasks maps 1:1 to a single design.md component and a single REQ-NNN, and each Planned Files list centers on one primary implementation file (snapshot-writer.mjs, boundary-detector.mjs, session-start-injector.mjs, post-compact-logger.mjs) or one coherent cross-runtime concern (T-006's three thin hook descriptors delegating to one wrapper, per design.md's explicit 'wrappers only perform node detection and argv normalization' framing). Several tasks (T-002, T-003, T-004, T-006, T-007) have Done When lists nominally over 8 lines, but the excess consists of (a) an identical 6-item boilerplate block repeated verbatim across all 8 tasks and (b) already-consolidated AC-verification bullets that group multiple TEST-IDs under one AC line rather than listing them separately (e.g. T-003 groups 13 TEST-IDs into 3 bullets for AC-004/AC-005/AC-006+AC-015). No task's Scope spans more than 3 unrelated implementation areas, and no 3+ tasks reduce to single-function/single-file edits with no integration concern (T-005, the smallest task, still owns a distinct REQ-005 no-exfiltration-of-compact_summary contract, not an arbitrary split)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Functional tasks are heavily weighted toward edge/error paths: T-002 has AC-013 (`.sdd/context/` absent or read-only, TEST-022/TEST-023) alongside its happy-path AC-002/AC-003; T-003's entire AC-005 set (5 conditions) and AC-006/AC-015 upgrade logic are error/edge conditions by definition; T-004 has AC-008 (no handoff) and AC-014 (corrupt/partial handoff, TEST-024/TEST-025) alongside AC-007; T-005's AC-009 explicitly covers the absent/empty `compact_summary` degraded input; T-006 (AC-010, node absent) and T-007 (AC-011, fail-closed security scan) are edge-path tasks in their entirety. One narrower gap noted for completeness but not blocking: T-002's directory-unavailable edge case is traced explicitly to AC-013, but AC-013's text names only 'PreCompact'; T-005's Scope claims 'Exit 0 under every degraded condition' for PostCompact writes to the same `.sdd/context/` directory without a distinct AC/TEST-ID analogous to AC-013 for that write path -- this is a traceability completeness note, not an absence of edge-case coverage (AC-009 already supplies one qualifying edge case for T-005)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Declared test types in acceptance-tests.md match their scope: unit tests (TEST-001, TEST-003, TEST-004/013/014/027, TEST-005/015/016/017/018, TEST-006/019/020/021, TEST-012, TEST-026) each target a single module/artifact (one manifest set, one writer's shape logic, one detector's branch, one docs artifact, one selection-rule function) with no cross-component invocation implied. Integration tests (TEST-002, TEST-007, TEST-008, TEST-009, TEST-010, TEST-011, TEST-022/023, TEST-024/025) each exercise wrapper+filesystem or wrapper+multiple-hook-entry-point interaction, satisfying the 'at least two system components' bar. No test is labeled acceptance or end-to-end in this table, so the acceptance-must-cite-AC-NNN and e2e-must-traverse-a-full-workflow sub-rules have no applicable rows to violate."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-006 (Risk: high) and T-007 (Risk: high, Security-Sensitive: true) each contain no `Rollback:` field and no Done When item addressing safe reversion. T-006's Done When list has zero rollback-related entries; T-007's Done When list likewise has none. design.md records 'no runtime feature flag' as policy, and infra-spec.md's `## Rollback` section documents a feature-level revert-commit procedure, but neither task's own body references that procedure, a migration rollback script, or an explicit 'Rollback procedure documented and tested' Done When item. A downstream implementer or quality gate reading only tasks.md T-006/T-007 has no task-scoped, checkable rollback criterion for the two highest-risk tasks in this decomposition -- exactly the gap this check is designed to catch."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-007's Planned Files entry reads 'hardening changes to `plugins/sdd-context/scripts/*.mjs` as the scan requires' -- an unbounded glob over the exact primary implementation files T-002 (`snapshot-writer.mjs`), T-003 (`boundary-detector.mjs`), T-004 (`session-start-injector.mjs`), T-005 (`post-compact-logger.mjs`), and T-006 (`hook-wrapper.mjs`, `detect-node.mjs`) each own. T-007's Blockers field is 'None', so nothing enforces that T-002 through T-006 land before T-007 opens the same files for hardening edits. This does not meet the check's legitimate-sharing exception ('provided the Blockers field enforces the ordering'): if T-007 and, say, T-006 are worked concurrently, both may edit `hook-wrapper.mjs`/`detect-node.mjs` for different purposes (feature completion vs. security hardening) with no declared ordering to prevent a collision or silent overwrite."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Every one of T-001 through T-008 declares 'Blockers: None', yet several tasks' own Scope text states an explicit producer/consumer dependency on another task's output: T-002's Scope ends '...Consumes the boundary value produced by T-003' (no T-003 blocker declared); T-004's Scope ends '...Consumes the artefact written by T-002' (no T-002 blocker declared); T-006's Scope requires delegating 'to one wrapper per design.md `## Architecture`' whose Node core is detect-node/boundary-detector/snapshot-writer/session-start-injector built in T-002 through T-005 (no blockers on any of them); T-007's Scope is to 'Implement the security scan covering the whole hook execution path established by T-002 through T-006' and its Out of Scope note calls it verifying and hardening 'what they built' (no blockers on T-002 through T-006); and T-001's own Scope states 'every other task depends on this skeleton existing' yet no downstream task (T-002 through T-008) lists T-001 as a Blocker. Precheck-result.json's `blockers_format_valid: true` only confirms the Blockers field is syntactically well-formed, not that it reflects the real dependency graph the tasks' own text describes -- this is a distinct, unaddressed semantic gap. Left uncorrected, an orchestrator following the Blockers field alone could select T-002, T-004, T-006, or T-007 before their stated prerequisite exists, producing an unimplementable or unverifiable state."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001..T-008) decompose new-feature construction of the sdd-context plugin against Source Issue #137; none is scoped as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test resolution, or incident-remediation task by title, Goal, Scope, or Done When text."
+    }
+  ]
+}

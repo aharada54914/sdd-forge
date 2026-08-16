@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "sdd-context",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e",
+  "acceptance_sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665",
+  "design_sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58",
+  "tasks_sha256": "976bc2f767dd53e0634ba70dc01ab0057939e679fd8f5f606084c1c51f8028e6",
+  "traceability_sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be",
+  "layer_sha256": {
+    "ux-spec.md": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4",
+    "frontend-spec.md": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb",
+    "infra-spec.md": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5",
+    "security-spec.md": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"
+  },
+  "workflow_match_precheck": "ok",
+  "human_edit_summary": "Phase 2 authored in one pass by the orchestrator after impl review reached PASS. Eight tasks derived from design.md's Components and Deployment execution order, with risk tiers proposed against risk-classification-policy.md and Required Workflow derived from risk-gate-matrix.md. traceability.md was written to the six-column shape the layer-traceability validator parses rather than the ten-column template, and its supporting investigation table was demoted to a list because the validator inspects every requirement-keyed table row; both deviations are recorded in WFI-028. No human edit before review.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "none",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 5,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-sdd-context-a1r1",
+  "timestamp": "2026-08-16T02:20:00Z",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-sdd-context-task-task-reviewer-a-seq0692",
+      "host_session_id": "SESS-task-task-reviewer-a-sdd-context-0692",
+      "allowed_input_manifest": [
+        {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+        {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+        {"path": "specs/sdd-context/design.md", "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"},
+        {"path": "specs/sdd-context/tasks.md", "sha256": "976bc2f767dd53e0634ba70dc01ab0057939e679fd8f5f606084c1c51f8028e6"},
+        {"path": "specs/sdd-context/traceability.md", "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"},
+        {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+        {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+        {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+        {"path": "specs/sdd-context/security-spec.md", "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-1/precheck-result.json", "sha256": "dc8a515247b823aead2bc5e9f96aa949ff13a412d7bfa9e991ee2448f55aa9aa"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-1/dependency-graph.json", "sha256": "893220bc1bec33e519f8e6df46582ac441739f52e992c0a42a19e561b4cd46f0"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-sdd-context-task-task-reviewer-b-seq0693",
+      "host_session_id": "SESS-task-task-reviewer-b-sdd-context-0693",
+      "allowed_input_manifest": [
+        {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+        {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+        {"path": "specs/sdd-context/design.md", "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"},
+        {"path": "specs/sdd-context/tasks.md", "sha256": "976bc2f767dd53e0634ba70dc01ab0057939e679fd8f5f606084c1c51f8028e6"},
+        {"path": "specs/sdd-context/traceability.md", "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"},
+        {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+        {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+        {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+        {"path": "specs/sdd-context/security-spec.md", "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+        {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-1/precheck-result.json", "sha256": "dc8a515247b823aead2bc5e9f96aa949ff13a412d7bfa9e991ee2448f55aa9aa"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-1/integrated-summary.json", "sha256": "867ab0f6c14ae13179a17c57328ac01a45de9104d5e442d0e9e36fe0d70d2f65"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "sdd-context",
+  "attempt": 1,
+  "round": 1,
+  "nodes": ["T-001","T-002","T-003","T-004","T-005","T-006","T-007","T-008"],
+  "edges": [],
+  "generated_at": "2026-08-16T01:54:11Z"
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-context",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 5,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-sdd-context-a1r1"
+}
