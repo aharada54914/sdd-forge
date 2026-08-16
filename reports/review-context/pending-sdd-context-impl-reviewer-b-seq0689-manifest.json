@@ -1,0 +1,57 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "feature": "sdd-context",
+  "run_id": "RUN-sdd-context-impl-impl-reviewer-b-seq0689",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-context-0689",
+  "sequence": 689,
+  "previous_record_sha256": "91da83814dbadabef760a7800215068f86de0a9a8b0076da6ab2cacc83b8658c",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "e74c8a8151e2f0e13d13a7d1366d8d3d34ed13174d5fd529121ff4152ccd5d39",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context/requirements.md",
+      "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"
+    },
+    {
+      "path": "specs/sdd-context/acceptance-tests.md",
+      "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"
+    },
+    {
+      "path": "specs/sdd-context/design.md",
+      "sha256": "66fc24cd7fd2238d98c9ffeaa7a09c9273f27a0b59ac429f2729d2dac6036282"
+    },
+    {
+      "path": "specs/sdd-context/ux-spec.md",
+      "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"
+    },
+    {
+      "path": "specs/sdd-context/frontend-spec.md",
+      "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"
+    },
+    {
+      "path": "specs/sdd-context/infra-spec.md",
+      "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"
+    },
+    {
+      "path": "specs/sdd-context/security-spec.md",
+      "sha256": "3f440a0c48c19420d6cac2fc4ef09d91598312bbf3406a3618abd721fe2822fb"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-1/precheck-result.json",
+      "sha256": "655a02c3915b302380780a2d092610c931a8f293519812c084e618783a647e96"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-1/integrated-summary.json",
+      "sha256": "a8e28481df427d3eefba9e9d90cc79160d93da97d824035459a6643aa3224666"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "sdd-context",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "2bc9e7fdcd6e513aff9c014f8c45d080a117452b3845e219a84404f68b0fda0c",
+  "acceptance_sha256": "a3e9fa6a663b49094abe5a8daff32c8c854e18e76ce830ff38907b02c7590ea0",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-sdd-context-spec-spec-reviewer-a-seq0684",
+      "host_session_id": "SESS-spec-spec-reviewer-a-sdd-context-0684",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "reports/spec-review/sdd-context/attempt-1/round-1/precheck-result.json",
+          "sha256": "02304c74606cc33d26152053fca2ef14bdd8e9c8e2ba4ffe94be785d8dce658f"
+        },
+        {
+          "path": "specs/sdd-context/acceptance-tests.md",
+          "sha256": "a3e9fa6a663b49094abe5a8daff32c8c854e18e76ce830ff38907b02c7590ea0"
+        },
+        {
+          "path": "specs/sdd-context/requirements.md",
+          "sha256": "2bc9e7fdcd6e513aff9c014f8c45d080a117452b3845e219a84404f68b0fda0c"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-sdd-context-spec-spec-reviewer-b-seq0685",
+      "host_session_id": "SESS-spec-spec-reviewer-b-sdd-context-0685",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "reports/spec-review/sdd-context/attempt-1/round-1/integrated-summary.json",
+          "sha256": "f79eaebf6ded19933abbc3218da65a9618e80ea023a2c1d2cd13e9cedacc4296"
+        },
+        {
+          "path": "reports/spec-review/sdd-context/attempt-1/round-1/precheck-result.json",
+          "sha256": "02304c74606cc33d26152053fca2ef14bdd8e9c8e2ba4ffe94be785d8dce658f"
+        },
+        {
+          "path": "specs/sdd-context/acceptance-tests.md",
+          "sha256": "a3e9fa6a663b49094abe5a8daff32c8c854e18e76ce830ff38907b02c7590ea0"
+        },
+        {
+          "path": "specs/sdd-context/requirements.md",
+          "sha256": "2bc9e7fdcd6e513aff9c014f8c45d080a117452b3845e219a84404f68b0fda0c"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-sddcontext-a1r1-seq0684-0685",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

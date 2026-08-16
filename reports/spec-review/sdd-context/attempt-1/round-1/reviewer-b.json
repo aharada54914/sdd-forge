@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-context-spec-spec-reviewer-b-seq0685",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-context-0685",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context/requirements.md", "sha256": "2bc9e7fdcd6e513aff9c014f8c45d080a117452b3845e219a84404f68b0fda0c"},
+    {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "a3e9fa6a663b49094abe5a8daff32c8c854e18e76ce830ff38907b02c7590ea0"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/sdd-context/attempt-1/round-1/precheck-result.json", "sha256": "02304c74606cc33d26152053fca2ef14bdd8e9c8e2ba4ffe94be785d8dce658f"},
+    {"path": "reports/spec-review/sdd-context/attempt-1/round-1/integrated-summary.json", "sha256": "f79eaebf6ded19933abbc3218da65a9618e80ea023a2c1d2cd13e9cedacc4296"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004/AC-007 require SessionStart to print 'the first eligible task', but neither requirement nor acceptance test defines the eligibility rule (status ordering, blocked/Done treatment, or source of task list). An implementer cannot select the task and a verifier cannot assert AC-007's output. AC-006 requires detecting an 'auto-compaction signal', but Field Definitions only document `source` (compact value) and `compact_summary`; the signal that distinguishes auto-compaction from manual PreCompact is never specified, so the EMERGENCY_AUTO branch is under-determined. AC-004/AC-005 use overlapping conditions without precedence: 'bootstrap outputs are saved' (SAFE) can coexist with 'a task is In Progress' (UNSAFE), and 'all targeted tasks'/'BLOCKED stop' are undefined; this directly threatens REQ-003's exactly-one deterministic classification. These are Phase 1 boundary/observability ambiguities, not implementation details."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct safety/workflow-boundary contradiction found. REQ-006's never-exit-nonzero and AC-010's node-absent no-op are consistent; REQ-007's write/no-network/no-secret limits are consistently mirrored by AC-011; the non-goals do not conflict with the goals. Overlapping SAFE/UNSAFE conditions are treated as an ambiguity (AMBIGUITY check) rather than an explicit same-state contradiction."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Requirements' Edge Cases explicitly require '`.sdd/context/` is absent or read-only; the hook must not fail the compaction path' and '`handoff.json` is corrupt or partially written; SessionStart must fail soft', but the acceptance table contains no corresponding criterion/test for either behavior (AC-010 covers only missing node; AC-007/AC-008 cover only no-handoff). The verifier has no planned validation surface for two behaviors the spec declares as required, so those safety properties are untestable at this gate. The related auto-compaction-during-SAFE-state case is also unaddressed by AC-006."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three assumptions are explicit and each has a resolution path: hook input fields (`source`, optional `compact_summary`) are declared and REQ-005/AC-009 handle absence; Node 18+ absence is handled by REQ-006/AC-010; `.sdd/context/` git-ignored and `reports/context/` committable is a deterministic storage-configuration choice implementable without further product decision."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Hook installation/trust is a human-approval boundary in scope, and the spec covers it: Roles and Permissions assigns hook-trust responsibility to humans, REQ-008 requires documented trust procedures including Codex hook trust, and AC-012 makes that an observable acceptance criterion. The plugin remains read-only to SDD state with write/no-network/no-secret limits, so no irreversible workflow mutation is left without a boundary."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Task decomposition cannot proceed deterministically while 'first eligible task' and the auto-compaction signal are undefined (REQ-004/AC-006/AC-007), boundary precedence is unresolved (REQ-003/AC-004/AC-005), and two declared soft-fail edge cases lack acceptance criteria for later verification. These gaps belong to specification review because they concern what the acceptance contract must make observable before implementation/task authoring."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The repository root has no `domain/` directory (checked as the single permitted filesystem exception), so no domain conformance surface is in scope for this feature."
+    }
+  ]
+}

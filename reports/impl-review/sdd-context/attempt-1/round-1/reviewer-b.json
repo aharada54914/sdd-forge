@@ -1,0 +1,88 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-sdd-context-impl-impl-reviewer-b-seq0689",
+  "host_session_id": "SESS-impl-impl-reviewer-b-sdd-context-0689",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+    {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+    {"path": "specs/sdd-context/design.md", "sha256": "66fc24cd7fd2238d98c9ffeaa7a09c9273f27a0b59ac429f2729d2dac6036282"},
+    {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+    {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+    {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+    {"path": "specs/sdd-context/security-spec.md", "sha256": "3f440a0c48c19420d6cac2fc4ef09d91598312bbf3406a3618abd721fe2822fb"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-context/attempt-1/round-1/precheck-result.json", "sha256": "655a02c3915b302380780a2d092610c931a8f293519812c084e618783a647e96"},
+    {"path": "reports/impl-review/sdd-context/attempt-1/round-1/integrated-summary.json", "sha256": "a8e28481df427d3eefba9e9d90cc79160d93da97d824035459a6643aa3224666"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md Architecture/Components selects a single deterministic Node core, sh/PowerShell wrapper fallback, and triple-manifest discovery without any inline rationale (no because/since clause, comparison, or ADR reference that currently exists). The referenced ADR 0030-context-handoff.md is only planned in the Deployment / CI Plan, so it cannot justify the present architectural decisions. The implementer cannot distinguish a deliberate tradeoff from an arbitrary choice."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md `## Open Questions` states `None. Boundary semantics are defined in REQ-003 and the ADR.` There are no open questions to assign an owner or resolution path, so the resolvability condition is vacuous and satisfied."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "investigation.md absent; design has 3 non-trivial assumptions with no empirical grounding. Run investigate-codebase or add investigation.md. requirements.md `## Assumptions` lists (1) hook runtimes provide documented input fields, (2) Node 18+ is the implementation runtime, and (3) `.sdd/context/` is git-ignored while `reports/context/` is committable; none cite an INV-xxx reference, a stated technical-default basis in design.md, or an explicitly accepted risk."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md has no `## Constraint Compliance`, so the fallback scan applies. Requirements constraints (no network, no secret reads, read-only toward SDD source/state, graceful zero-exit under node absence/read-only/corrupt-handoff conditions) are addressed by design.md Security Boundaries, External Integrations, and Acceptance Criteria Traceability (AC-010, AC-011, AC-013, AC-014)."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md `## Deployment / CI Plan` is a four-bullet checklist (register manifests, add `.sdd/context/` to `.gitignore`, add ADR `0030-context-handoff.md`, cross-reference `sdd-ship` docs). It omits the required deployment target/environment, feature-flag strategy, concrete CI pipeline changes (new jobs, environment variables, secrets), and database migration execution order. This is a local plugin, so the deployment target and CI changes are implementable, but the plan leaves downstream CI/registry wiring ambiguous."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No schema changes found. design.md has no `## Data Plan` and declares no `Data Entities:` or `Existing Data Affected:` schema changes; the plugin is additive and file-based."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md `## External Integrations` lists Claude Code node exec, Codex shell plus PowerShell wrapper, and Copilot placeholder, but does not identify the integration contract (hook descriptor format/API or SDK version), or the failure behaviour when each runtime/hook interface is unavailable. REQ-006 requires graceful no-op when node is unavailable, but the design does not state contract details or failure behaviour for each host integration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md covers requirements goals REQ-001 through REQ-008 and traces every acceptance criterion AC-001 through AC-016 in `## Acceptance Criteria Traceability`. No component, data model, or API endpoint is introduced without a corresponding requirement; the design does not add LLM summarization, state-machine changes, network access, or secret reads."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` names deterministic snapshot unit fixtures, boundary detector unit tests, wrapper integration tests with node present/removed, cross-runtime bash/PowerShell tests, and a security scan. Security boundaries (injection, tampering, path escape, corrupt handoff, no-node path) map to TEST-002, TEST-003, TEST-004, TEST-005, TEST-006, TEST-010, and TEST-011 in acceptance-tests.md and security-spec.md."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists at the project root, so the check's `domain/context-map.md` and `domain/domain-contract.json` preconditions are absent."
+    }
+  ]
+}

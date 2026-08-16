@@ -103,6 +103,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
 - `specs/epic-190-a2-capability-registry/`
+- `specs/sdd-context/`
 
 ## Source Artifact Locations
 

@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-sdd-context-impl-impl-reviewer-a-seq0688",
+  "host_session_id": "SESS-impl-impl-reviewer-a-sdd-context-0688",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-context/requirements.md",
+      "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"
+    },
+    {
+      "path": "specs/sdd-context/acceptance-tests.md",
+      "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"
+    },
+    {
+      "path": "specs/sdd-context/design.md",
+      "sha256": "66fc24cd7fd2238d98c9ffeaa7a09c9273f27a0b59ac429f2729d2dac6036282"
+    },
+    {
+      "path": "specs/sdd-context/ux-spec.md",
+      "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"
+    },
+    {
+      "path": "specs/sdd-context/frontend-spec.md",
+      "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"
+    },
+    {
+      "path": "specs/sdd-context/infra-spec.md",
+      "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"
+    },
+    {
+      "path": "specs/sdd-context/security-spec.md",
+      "sha256": "3f440a0c48c19420d6cac2fc4ef09d91598312bbf3406a3618abd721fe2822fb"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-context/attempt-1/round-1/precheck-result.json",
+      "sha256": "655a02c3915b302380780a2d092610c931a8f293519812c084e618783a647e96"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture defines top-level component boundaries via the hook-descriptor to wrapper to Node core diagram; states integration with existing components (installed alongside existing sdd-forge plugins, does not belong to sdd-ship, no SDD state-machine code modified); technology choices are supplied by design.md (single deterministic Node core, sh/PowerShell wrapper, local file storage) and the normative layer specs (frontend-spec.md N/A tech stack, infra-spec.md local/CI environments, security-spec.md boundaries)."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Architecture diagram is a directed acyclic graph: hooks/claude-hooks.json -> scripts/hook-wrapper.mjs -> Node core; hooks/hooks.json -> sh/PowerShell wrapper -> scripts/hook-wrapper.mjs -> Node core -> {detect-node, boundary detector, snapshot writer, session-start injector}. No reverse or transitive cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field Data Plan absent; legacy design.md predates this template requirement. Storage Layout and REQ-007 still constrain data writes to .sdd/context/ and reports/context/."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan lists the three hook events (PreCompact, SessionStart, PostCompact) and their return payloads, but omits a per-event request/input schema. The hook input fields source, auto_compaction, and the explicit non-consumption of compact_summary appear in requirements.md Field Definitions, not in the API contract section. It also does not state that no existing endpoints are deprecated or breaking-changed. An implementer lacks a single authoritative hook input contract."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries states read-only SDD access, write confinement to .sdd/context/ and reports/context/, no network/secrets/LLM, and zero-exit failure handling. The normative security-spec.md supplies the required details: trust boundaries B1-B5, per-boundary AuthN/AuthZ, a data classification and protection table, and an OWASP Top 10 mapping."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no frontend surface. frontend-spec.md declares N/A - no change (no graphical frontend, no client-side state), and design.md has no ## Frontend Plan or ## Backend Plan. design.md has no explicit Feature Type header; the inferred cli/hook-plugin surface makes the check inapplicable."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy covers unit scope (deterministic snapshot writer, boundary detector), integration scope (wrappers with node present and node removed), cross-runtime scope (bash and PowerShell wrappers), and security scan. Acceptance verification is enumerated in acceptance-tests.md (TEST-001 through TEST-027 mapped to AC-001 through AC-016), and concrete CI execution (validate-repository.ps1 and tests/sdd-context/* Pester suites) is named in infra-spec.md."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All referenced components are defined in ## Components or the Architecture diagram: triple manifests, hooks/claude-hooks.json, hooks/hooks.json, plugins/sdd-context/scripts/*.mjs (including scripts/hook-wrapper.mjs), detect-node, boundary detector, snapshot writer, session-start injector, plugins/sdd-context/docs/, the sh/PowerShell wrapper, and Node core."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No ## Architecture Decision Records section is present, so no existing-ADR file verification applies. Deployment / CI Plan lists a new ADR (0030-context-handoff.md) for the runtime-adaptive hook integration, so the new-decision-without-ADR branch does not apply. The ADR file does not yet exist on disk; security-spec.md WFI-013 notes the identifier must be re-verified for the next-free number at drafting time."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: no design-system/ directory exists at the project root, so this check does not apply."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped: no domain/ directory exists at the project root, so this check does not apply."
+    }
+  ]
+}
