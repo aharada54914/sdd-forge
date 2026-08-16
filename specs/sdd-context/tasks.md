@@ -1,6 +1,6 @@
 # Tasks: sdd-context
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 ## Lifecycle
 
@@ -9,6 +9,12 @@ Task-Review-Status: Pending
 A task may enter `Blocked` from any active state. Humans approve tasks.
 `implement-task` may set `In Progress`, `Blocked`, or `Implementation Complete`.
 Only `quality-gate` may set `Done`.
+
+**`Blockers` is authoritative for execution order; document order is not.**
+T-002 declares T-003 as a blocker because the snapshot writer consumes the
+boundary value the classifier produces, so T-003 runs first despite appearing
+later in this document. The numbering follows REQ-001..REQ-008; the dependency
+graph follows the data flow.
 
 ## T-001 Triple manifest discovery and plugin skeleton
 
@@ -53,8 +59,8 @@ Register `./plugins/sdd-context` at version `1.14.0` in all three manifests per
 design.md `## Components`. Create the plugin directory skeleton (`scripts/`,
 `hooks/`, `docs/`) without implementing hook logic. Add `.sdd/context/` to
 `.gitignore` per INV-003, keeping `reports/context/` committable. This is step 1
-and step 2 of design.md's Deployment execution order; every other task depends on
-this skeleton existing.
+and step 2 of design.md's Deployment execution order, and is the blocker of
+every other task in this decomposition.
 
 ### Done When
 - [ ] Implementation complete
@@ -62,7 +68,8 @@ this skeleton existing.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-001 → REQ-001 mapping
+- [ ] Implementation report cross-references REQ-001 and the TEST-001 evidence
+      path under `specs/sdd-context/verification/`
 - [ ] AC-001 verified by TEST-001: all three manifests validate against their
       schemas/linters and reference `./plugins/sdd-context` at version `1.14.0`
 - [ ] `.sdd/context/` is git-ignored and `reports/context/` is not
@@ -119,8 +126,9 @@ carries the deterministic fields listed in AC-003 (boundary, feature/task status
 implementation-report presence, file-change indicator, timestamp source, artifact
 paths); `HANDOFF.md` is rendered from that JSON rather than assembled separately.
 Two consecutive invocations on an unchanged repository must be byte-identical.
-When `.sdd/context/` is absent or read-only, exit 0 with at most a warning and
-write nothing. Consumes the boundary value produced by T-003.
+This task owns the availability handling for `.sdd/context/`: when the directory
+is absent or read-only, exit 0 with at most a warning and write nothing. Consumes
+the boundary value produced by T-003, which is why T-003 blocks this task.
 
 ### Done When
 - [ ] Implementation complete
@@ -128,7 +136,8 @@ write nothing. Consumes the boundary value produced by T-003.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-002 → REQ-002 mapping
+- [ ] Implementation report cross-references REQ-002 and the TEST-002, TEST-003,
+      TEST-022, TEST-023 evidence paths under `specs/sdd-context/verification/`
 - [ ] AC-002 verified by TEST-002: two consecutive PreCompact invocations on an
       unchanged repository produce byte-identical output
 - [ ] AC-003 verified by TEST-003: handoff.json field shape, HANDOFF.md rendered
@@ -141,7 +150,7 @@ Boundary classification (T-003). SessionStart output (T-004). The wrapper and
 node detection that invoke this writer (T-006).
 
 ### Blockers
-None
+T-001, T-003
 
 ## T-003 Compaction boundary detector
 
@@ -187,7 +196,8 @@ AC-005, and the `EMERGENCY_AUTO` upgrade of AC-006 with the precedence
 the normal classification untouched, and `auto_compaction: true` with no UNSAFE
 condition present must still report `SAFE` (AC-015). Signals are task lifecycle
 status, implementation-report presence, and uncommitted/projected file changes
-only — no model judgement.
+only — no model judgement. This task produces the boundary value T-002 consumes,
+so it runs before T-002 despite the numbering.
 
 ### Done When
 - [ ] Implementation complete
@@ -195,7 +205,9 @@ only — no model judgement.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-003 → REQ-003 mapping
+- [ ] Implementation report cross-references REQ-003 and the TEST-004, TEST-005,
+      TEST-006, TEST-013 through TEST-021 and TEST-027 evidence paths under
+      `specs/sdd-context/verification/`
 - [ ] AC-004 verified by TEST-004, TEST-013, TEST-014, TEST-027 (all four SAFE
       conditions)
 - [ ] AC-005 verified by TEST-005, TEST-015, TEST-016, TEST-017, TEST-018 (all
@@ -207,7 +219,7 @@ only — no model judgement.
 Writing the snapshot (T-002). Reading it back on SessionStart (T-004).
 
 ### Blockers
-None
+T-001
 
 ## T-004 SessionStart recovery-context injection
 
@@ -254,7 +266,7 @@ AC-016 states: document order in `specs/<feature>/tasks.md`, an approval field
 already carrying the approved value, and `Status` equal to `Planned` or
 `In Progress`. Exit 0 and print nothing when no handoff exists, and exit 0
 emitting no recovery context when the handoff is corrupt or partially written.
-Consumes the artefact written by T-002.
+Consumes the artefact written by T-002, which is why T-002 blocks this task.
 
 ### Done When
 - [ ] Implementation complete
@@ -262,7 +274,9 @@ Consumes the artefact written by T-002.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-004 → REQ-004 mapping
+- [ ] Implementation report cross-references REQ-004 and the TEST-007, TEST-008,
+      TEST-024, TEST-025, TEST-026 evidence paths under
+      `specs/sdd-context/verification/`
 - [ ] AC-007 verified by TEST-007 and AC-008 by TEST-008
 - [ ] AC-014 verified by TEST-024 and TEST-025 (corrupt and partially written
       handoff both exit 0 with no recovery context)
@@ -272,7 +286,7 @@ Consumes the artefact written by T-002.
 Producing the handoff (T-002). Boundary classification (T-003).
 
 ### Blockers
-None
+T-001, T-002
 
 ## T-005 PostCompact compact-log record
 
@@ -312,8 +326,9 @@ reading the host's conversation summary.
 ### Scope
 Append one record to `.sdd/context/compact-log.jsonl` per invocation. Per REQ-005
 the `compact_summary` input must not be read, consumed, required, or persisted —
-absent or empty values are equally acceptable and neither is an error. Exit 0
-under every degraded condition.
+absent or empty values are equally acceptable and neither is an error (AC-009).
+Directory-availability handling for `.sdd/context/` is owned by T-002 under
+AC-013; this task reuses it rather than asserting its own coverage of that path.
 
 ### Done When
 - [ ] Implementation complete
@@ -321,7 +336,8 @@ under every degraded condition.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-005 → REQ-005 mapping
+- [ ] Implementation report cross-references REQ-005 and the TEST-009 evidence
+      path under `specs/sdd-context/verification/`
 - [ ] AC-009 verified by TEST-009: exactly one valid JSON line per invocation,
       no failure when `compact_summary` is absent or empty
 - [ ] The implementation demonstrably never reads `compact_summary` (assertion,
@@ -331,7 +347,7 @@ under every degraded condition.
 Snapshot generation (T-002) and recovery output (T-004).
 
 ### Blockers
-None
+T-001
 
 ## T-006 Runtime wrappers and non-blocking node detection
 
@@ -361,6 +377,13 @@ Data Migration: None
 
 Breaking API: None
 
+Rollback: Revert this task's commits per `infra-spec.md` `## Rollback` — the
+plugin directory and the marketplace/validate-repository expectations revert in
+one commit. There is no runtime feature flag (design.md `## Deployment / CI
+Plan`), so reversion removes the hook descriptors this task registered; with no
+descriptor present the host invokes nothing and its compaction path returns to
+its pre-task behaviour. Existing `.sdd/context/` files become inert.
+
 ### Goal
 Give all three host runtimes a descriptor that reaches the same Node core, and
 guarantee that a missing or unusable `node` degrades to a clean no-op instead of
@@ -371,6 +394,7 @@ failing the host's compaction.
 - specs/sdd-context/design.md
 - specs/sdd-context/acceptance-tests.md
 - specs/sdd-context/traceability.md
+- specs/sdd-context/infra-spec.md
 
 ### Scope
 Implement the Claude Code node-exec descriptor, the Codex POSIX `sh` descriptor,
@@ -380,7 +404,8 @@ wrapper call site before the core is invoked, per the AC-010 entry in the UI
 Integration Checklist — enforced in code, not by documentation. Every hook entry
 point exits 0 and emits at most a warning when `node` is absent. The wrappers
 perform no logic beyond detection and argv normalization so the three runtimes
-cannot drift.
+cannot drift. Delegates to the core built by T-002 through T-005, which is why
+all four block this task.
 
 ### Done When
 - [ ] Implementation complete
@@ -388,19 +413,23 @@ cannot drift.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-006 → REQ-006 mapping
+- [ ] Implementation report cross-references REQ-006 and the TEST-010 evidence
+      path under `specs/sdd-context/verification/`
 - [ ] AC-010 verified by TEST-010: with `node` absent from PATH every hook exits
       0 and emits at most a warning
 - [ ] Red→Green evidence captured (Required Workflow: tdd)
 - [ ] Independent review verdict recorded
 - [ ] Provenance recorded with `spec_revision`
+- [ ] Rollback verified: reverting this task's commits removes the hook
+      descriptors and restores the host's pre-task compaction behaviour, per
+      `infra-spec.md` `## Rollback`
 
 ### Out of Scope
 The core logic the wrappers delegate to (T-002 through T-005). The security
 assertion of the write boundary (T-007).
 
 ### Blockers
-None
+T-001, T-002, T-003, T-004, T-005
 
 ## T-007 Write-boundary and no-exfiltration verification
 
@@ -423,12 +452,23 @@ Required Workflow: tdd
 
 Requirements: REQ-007
 
-Planned Files: `tests/sdd-context/security-scan.Tests.ps1`, hardening changes to
-`plugins/sdd-context/scripts/*.mjs` as the scan requires
+Planned Files: `tests/sdd-context/security-scan.Tests.ps1`; hardening edits, only
+where the scan proves them necessary, to the six Node-core files this task's
+blockers deliver: `plugins/sdd-context/scripts/snapshot-writer.mjs`,
+`plugins/sdd-context/scripts/boundary-detector.mjs`,
+`plugins/sdd-context/scripts/session-start-injector.mjs`,
+`plugins/sdd-context/scripts/post-compact-logger.mjs`,
+`plugins/sdd-context/scripts/hook-wrapper.mjs`,
+`plugins/sdd-context/scripts/detect-node.mjs`
 
 Data Migration: None
 
 Breaking API: None
+
+Rollback: Revert this task's commits per `infra-spec.md` `## Rollback`. The scan
+is additive test surface, and any hardening edit is a narrowing of behaviour
+inside files T-002 through T-006 already delivered, so reverting restores those
+files to their post-T-006 state without removing the feature itself.
 
 ### Goal
 Prove, by executable scan rather than assertion in prose, that the hook execution
@@ -441,13 +481,16 @@ path makes no network calls, reads no secrets, and writes nowhere outside
 - specs/sdd-context/acceptance-tests.md
 - specs/sdd-context/traceability.md
 - specs/sdd-context/security-spec.md
+- specs/sdd-context/infra-spec.md
 
 ### Scope
 Implement the security scan covering the whole hook execution path established by
 T-002 through T-006, against the Trust Boundaries, Authorization, and Data
 Classification tables of security-spec.md. The scan must fail closed: an
 unclassifiable write target or an unexpected outbound call is a failure, not a
-warning. Any hardening the scan proves necessary is in scope for this task.
+warning. Hardening is limited to the six files listed under Planned Files, and
+only where the scan proves it necessary. T-006 blocks this task so that those
+files are complete before any hardening edit opens them.
 
 ### Done When
 - [ ] Implementation complete
@@ -455,20 +498,23 @@ warning. Any hardening the scan proves necessary is in scope for this task.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-007 → REQ-007 mapping
+- [ ] Implementation report cross-references REQ-007 and the TEST-011 evidence
+      path under `specs/sdd-context/verification/`
 - [ ] AC-011 verified by TEST-011: no network calls, no secret reads, no writes
       outside `.sdd/context/` and `reports/context/`
 - [ ] Red→Green evidence captured (Required Workflow: tdd)
 - [ ] Independent review verdict recorded
 - [ ] Provenance recorded with `spec_revision`
 - [ ] Cross-model verification completed (Security-Sensitive: true)
+- [ ] Rollback verified: reverting this task's commits restores the six Node-core
+      files to their post-T-006 state, per `infra-spec.md` `## Rollback`
 
 ### Out of Scope
 Implementing the hooks themselves (T-002 through T-006); this task verifies and
 hardens what they built.
 
 ### Blockers
-None
+T-001, T-006
 
 ## T-008 Install, trust, and storage-contract documentation
 
@@ -521,7 +567,8 @@ is the last step of that order.
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated with T-008 → REQ-008 mapping
+- [ ] Implementation report cross-references REQ-008 and the TEST-012 evidence
+      path under `specs/sdd-context/verification/`
 - [ ] AC-012 verified by TEST-012: documentation includes the Codex hook trust
       instructions and the storage/status contract
 - [ ] The documented trust path names `hooks/hooks.json` exactly
@@ -530,4 +577,4 @@ is the last step of that order.
 Any behavioural change to the hooks or the Node core.
 
 ### Blockers
-None
+T-001

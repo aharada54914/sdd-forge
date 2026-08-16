@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "sdd-context",
+  "attempt": 1,
+  "round": 2,
+  "requirements_sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e",
+  "acceptance_sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665",
+  "design_sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58",
+  "tasks_sha256": "f8db2ffee2ab48dbace677917db70191c5df0b13265458df23144768d8e82a60",
+  "traceability_sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be",
+  "layer_sha256": {
+    "ux-spec.md": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4",
+    "frontend-spec.md": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb",
+    "infra-spec.md": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5",
+    "security-spec.md": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"
+  },
+  "workflow_match_precheck": "ok",
+  "human_edit_summary": "Round-1 remediation of all five Major findings. Declared the real dependency graph in every Blockers field (T-001 blocks all others; T-003 blocks T-002; T-002 blocks T-004; T-002 through T-005 block T-006; T-006 blocks T-007) and added a Lifecycle note recording that Blockers is authoritative for execution order while document order is not, since T-002 depends on T-003 despite appearing first (DEPENDENCY-COMPLETE, DEPENDENCY-OVERLAP). Replaced the unsatisfiable traceability Done-When item in all eight tasks with an implementation-report cross-reference naming the verification evidence paths, since traceability.md freezes when this gate passes and already carried the mapping (OBSERVABLE-DONE). Bounded T-007's Planned Files to the six explicitly named Node-core files instead of a glob, relying on the new T-006 blocker to sequence the hardening edits (SCOPE-DISJOINT). Added a Rollback field and a task-scoped rollback Done-When item to T-006 and T-007, both citing infra-spec.md Rollback (ROLLBACK-PLAN). Narrowed T-005's Scope so it no longer claims degraded-write coverage that AC-013 assigns to T-002. No other edit.",
+  "prior_round_contract_sha256": "10c9537b9a31927c88bcc532c17d3aa788b407e6d2260d4d0f4edd99d79e6748",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS",
+  "run_id": "task-orch-sdd-context-a1r2",
+  "timestamp": "2026-08-16T03:05:00Z",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-sdd-context-task-task-reviewer-a-seq0694",
+      "host_session_id": "SESS-task-task-reviewer-a-sdd-context-0694",
+      "allowed_input_manifest": [
+        {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+        {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+        {"path": "specs/sdd-context/design.md", "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"},
+        {"path": "specs/sdd-context/tasks.md", "sha256": "f8db2ffee2ab48dbace677917db70191c5df0b13265458df23144768d8e82a60"},
+        {"path": "specs/sdd-context/traceability.md", "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"},
+        {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+        {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+        {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+        {"path": "specs/sdd-context/security-spec.md", "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-2/precheck-result.json", "sha256": "7c044dec9b55efe980f94d0e2503a3e50ab97ee0b432cd35c964f410c33b99f3"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-2/dependency-graph.json", "sha256": "fd46e9eeef4ec0dc4a4a8d22dbaa86bf80fbdbc548e4cd76ec20cd81d9cd9777"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-sdd-context-task-task-reviewer-b-seq0695",
+      "host_session_id": "SESS-task-task-reviewer-b-sdd-context-0695",
+      "allowed_input_manifest": [
+        {"path": "specs/sdd-context/requirements.md", "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"},
+        {"path": "specs/sdd-context/acceptance-tests.md", "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"},
+        {"path": "specs/sdd-context/design.md", "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"},
+        {"path": "specs/sdd-context/tasks.md", "sha256": "f8db2ffee2ab48dbace677917db70191c5df0b13265458df23144768d8e82a60"},
+        {"path": "specs/sdd-context/traceability.md", "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"},
+        {"path": "specs/sdd-context/ux-spec.md", "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"},
+        {"path": "specs/sdd-context/frontend-spec.md", "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"},
+        {"path": "specs/sdd-context/infra-spec.md", "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"},
+        {"path": "specs/sdd-context/security-spec.md", "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+        {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-2/precheck-result.json", "sha256": "7c044dec9b55efe980f94d0e2503a3e50ab97ee0b432cd35c964f410c33b99f3"},
+        {"path": "reports/task-review/sdd-context/attempt-1/round-2/integrated-summary.json", "sha256": "0031ba3c4218c748700b7bd7f0049d016bde2ab7735912e8afb73645acbe0169"}
+      ]
+    }
+  ]
+}

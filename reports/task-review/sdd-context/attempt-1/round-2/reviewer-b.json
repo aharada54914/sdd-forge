@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-context",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-sdd-context-task-task-reviewer-b-seq0695",
+  "host_session_id": "SESS-task-task-reviewer-b-sdd-context-0695",
+  "verdict": "PASS",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/sdd-context/requirements.md",
+        "sha256": "f24833217157f9132dbea0e3d20dc12ecbfc4ffe12c15856eacb02cfaafa978e"
+      },
+      {
+        "path": "specs/sdd-context/acceptance-tests.md",
+        "sha256": "97c531473cb163f28d5e8a39d7ae094979d3e261600b1ff40ca6ac1e61aec665"
+      },
+      {
+        "path": "specs/sdd-context/design.md",
+        "sha256": "e21577d8913d939457bc678938af0b5b34658860fd99bfa661aab126bfe36d58"
+      },
+      {
+        "path": "specs/sdd-context/tasks.md",
+        "sha256": "f8db2ffee2ab48dbace677917db70191c5df0b13265458df23144768d8e82a60"
+      },
+      {
+        "path": "specs/sdd-context/traceability.md",
+        "sha256": "dd04b37f4411ce9534f8b110003ee1b0d45d981ca0df72fe4c7ca81b430539be"
+      },
+      {
+        "path": "specs/sdd-context/ux-spec.md",
+        "sha256": "2733157125275b143b0f4e26e4a0e52e7f04824227bbb33d73bfc8752d25b0c4"
+      },
+      {
+        "path": "specs/sdd-context/frontend-spec.md",
+        "sha256": "0da260e57f4bb8635a63108fbb26bd66c5668057c779f8883ce8173ec61d94eb"
+      },
+      {
+        "path": "specs/sdd-context/infra-spec.md",
+        "sha256": "a78fdf95eb416b2f4aa43d57de6c41a00c511501b328ce8d7cc974d194e243f5"
+      },
+      {
+        "path": "specs/sdd-context/security-spec.md",
+        "sha256": "fcc9d80dfe3ec9c932178d3b1f1b18dd9a955515291edb2156143f05fa00b43e"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "reports/task-review/sdd-context/attempt-1/round-2/precheck-result.json",
+        "sha256": "7c044dec9b55efe980f94d0e2503a3e50ab97ee0b432cd35c964f410c33b99f3"
+      },
+      {
+        "path": "reports/task-review/sdd-context/attempt-1/round-2/integrated-summary.json",
+        "sha256": "0031ba3c4218c748700b7bd7f0049d016bde2ab7735912e8afb73645acbe0169"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001..T-005/T-008 declared medium/low touch no sentinel surface (no auth, payment, PII storage, migration, or externally-visible API contract; T-005 explicitly avoids persisting compact_summary rather than storing PII, T-001's manifest registration is Layer-classified Infrastructure per traceability.md). T-006 (Risk: high) and T-007 (Risk: high, Security-Sensitive: true) correctly sit at high because they run inside the host's compaction path and enforce the write/no-network/no-secret boundary (REQ-006/REQ-007) -- material-harm and secrets-handling sentinel surfaces. Neither high task is UI-copy/docs/test-only (T-006 touches hook descriptors + wrapper logic; T-007 touches a security scan plus conditional hardening of six core files), so no over-classification either."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-006 Done When includes 'Red->Green evidence captured' and 'Independent review verdict recorded'; T-007 Done When includes the same two items plus 'Cross-model verification completed' for its Security-Sensitive:true flag. No task is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each task maps to exactly one design.md ## Components entry (T-002 writer, T-003 detector, T-004 injector, T-005 logger, T-006 wrapper+detect-node, T-007 security scan) with Planned Files confined to that component. T-002/T-003/T-004/T-006/T-007 have Done-When counts of 9-12, above the 8-item indicator, but the excess bullets are risk-tier-mandated evidence items (per-AC verification lines, plus tdd Red->Green/independent-review/provenance/rollback/cross-model bullets required by risk-gate-matrix.md for high tasks) rather than additional implementation areas, so they do not evidence a task too large for one focused session. No fragmentation pattern (3+ single-function/file tasks, or a bare rename task) found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 has edge coverage via AC-013/TEST-022/TEST-023 (absent/read-only .sdd/context/); T-003 via AC-005 (five UNSAFE conditions) and AC-015 (auto_compaction true with no UNSAFE still SAFE); T-004 via AC-008 (no handoff) and AC-014/TEST-024/TEST-025 (corrupt/partial handoff.json); T-005's sole AC-009 embeds the edge case (no failure when compact_summary absent/empty); T-006 and T-007 are themselves dedicated edge/adversarial-path tasks (AC-010 node-absent, AC-011 security scan). T-001 is Layer-classified Infrastructure (traceability.md Layer Coverage row) and T-008 is documentation-only, both out of this check's functional scope."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Unit-declared tests (TEST-001, TEST-003, TEST-004..006, TEST-013..021, TEST-027, TEST-012) each target a single module/file (one manifest schema, snapshot shape, boundary-detector branches, docs content). Integration-declared tests (TEST-002, TEST-007..011) each exercise multiple components or filesystem-plus-logic paths (PreCompact wrapper+detector+writer determinism, SessionStart reading handoff+tasks.md, PostCompact write path, multi-hook node-absent behaviour, whole-execution-path security scan). No acceptance-tests.md row is labeled 'acceptance' or 'end-to-end' so the AC-NNN/complete-workflow requirements for those types do not apply; no mismatch found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-006 and T-007 both carry a Rollback: field plus a corresponding Done-When rollback item. Each cites infra-spec.md ## Rollback but states a task-scoped consequence distinct from the generic whole-feature text: T-006's reversion removes only the hook descriptors it registered (host invokes nothing, .sdd/context files become inert); T-007's reversion restores only the six node-core files to their post-T-006 state. This is a task-scoped criterion, not a bare restatement of the revert-everything default."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-007's Planned Files now names the exact six Node-core files individually owned by T-002..T-006, replacing the round-1 glob. The overlap is coordinated: T-007's Blockers (T-001, T-006) plus T-006's own Blockers (T-002, T-003, T-004, T-005) transitively order T-007 strictly after every task that produces those files, and T-007's Scope frames the touch as conditional hardening 'only where the scan proves them necessary' -- matching the check's stated legitimate pattern of a downstream task whose Blockers field enforces ordering. No other Planned Files list is claimed by two tasks without an equivalent ordering relationship."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task now declares Blockers (previously 'None' across the board), and each cross-checks against a genuine data/artifact dependency stated in Scope: T-002 blocked by T-003 (consumes the boundary value T-003 produces, matching design.md's PreCompact step order 'detector classifies' before 'snapshot writer generates'); T-004 blocked by T-002 (reads the handoff.json T-002 writes); T-006 blocked by T-002..T-005 (delegates to all four core modules, including the PostCompact path T-005 implements); T-007 blocked by T-006 (hardens files only after T-006's own dependency chain completes them). No spurious blocker (each cites a real producer/consumer relationship) and no missing blocker found (T-005 and T-008 reference design-fixed values/paths, not implementation artifacts, so they need not block on the tasks that build those artifacts). The new Lifecycle note documents Blockers as authoritative over document order and explains the T-002/T-003 ordering example."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001..T-008) implement net-new functionality for the new sdd-context plugin against REQ-001..REQ-008; none is scoped as bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

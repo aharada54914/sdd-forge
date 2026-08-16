@@ -6237,6 +6237,24 @@
       "host_session_id": "SESS-task-task-reviewer-b-sdd-context-0693",
       "previous_record_sha256": "2469b87fc1d82c6a87bf4d6e594230950d5b9ced66152f2f9590be39590a354c",
       "record_sha256": "e248efda6002d51fa1437744694b8bc89e1fc0d205c09112c73e32c0b969136c"
+    },
+    {
+      "sequence": 694,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-sdd-context-task-task-reviewer-a-seq0694",
+      "host_session_id": "SESS-task-task-reviewer-a-sdd-context-0694",
+      "previous_record_sha256": "e248efda6002d51fa1437744694b8bc89e1fc0d205c09112c73e32c0b969136c",
+      "record_sha256": "995b657f675946c806b75e444870ebdb3c7f5cc4c86e07b52ede91785c30ddda"
+    },
+    {
+      "sequence": 695,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-sdd-context-task-task-reviewer-b-seq0695",
+      "host_session_id": "SESS-task-task-reviewer-b-sdd-context-0695",
+      "previous_record_sha256": "995b657f675946c806b75e444870ebdb3c7f5cc4c86e07b52ede91785c30ddda",
+      "record_sha256": "62d29c72f1f5b63b1a9b84b0dad07105a7f0ef9ffddb5619ddb415a7ce4e970c"
     }
   ]
 }
