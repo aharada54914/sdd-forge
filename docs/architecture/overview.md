@@ -216,7 +216,7 @@ SDD Forge の「エージェントに勝手をさせない」仕組みは、性�
 2. 変更内容を `specs/<feature>/human-copy/MANIFEST.sha256` にハッシュ束縛する。GNU `sha256sum` 形式（`<64桁hex>` + 半角スペース 2 個 + リポジトリ相対パス）で、コミット順に 1 行 1 ターゲット。複数ターゲットは 1 トランザクションとして扱われます。
 3. **人間が** `plugins/sdd-quality-loop/scripts/apply-human-copy.{sh,ps1}` を実行して適用する。ステージング内容のハッシュがマニフェストと一致することを確認し、シンボリックリンクを 1 セグメントずつ拒否しながら anchored に辿り、ジャーナル付きの原子的 rename で公開します（設計の根拠は ADR-0011 / ADR-0025）。
 
-現在この方式で運用されているフィーチャーは `specs/` 配下に 14 件あり、すべて `human-copy/MANIFEST.sha256` を持ちます。
+現在 `specs/` 配下には `human-copy/` を持つフィーチャーが 14 件あります。うち 12 件はバッチ単位の `human-copy/MANIFEST.sha256` を、残る `epic-136-phase1-guards` と `second-approval-mask` はタスク単位の `human-copy/T-NNN.MANIFEST.sha256` を伴っています。
 
 ### (B) レビュー後の凍結 — 審査済みの内容を守る
 
