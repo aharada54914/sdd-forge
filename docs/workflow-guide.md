@@ -23,38 +23,38 @@
 
 ```mermaid
 flowchart TD
-    A([Issue / 要件]) --> B[investigate-codebase\n任意]
+    A([Issue / 要件]) --> B[investigate-codebase<br/>任意]
 
     subgraph p1["Phase 1 — 仕様・設計"]
-        C[sdd-bootstrap-interviewer\nPhase 1] --> D[(requirements.md\ndesign.md\nacceptance-tests.md)]
-        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\ndesign-system/ 保証と\nモックアップ確認ループ]
+        C[sdd-bootstrap-interviewer<br/>Phase 1] --> D[(requirements.md<br/>design.md<br/>acceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop<br/>design-system/ 保証と<br/>モックアップ確認ループ]
         DSL -.-> D
     end
 
     subgraph sr["仕様レビュー"]
-        S{spec-review-loop\n2体×最大3ラウンド}
+        S{spec-review-loop<br/>2体×最大3ラウンド}
         SR[人間: requirements.md / acceptance-tests.md 修正]
-        SX[人間: 仕様を抜本見直し\n--reset]
+        SX[人間: 仕様を抜本見直し<br/>--reset]
         S -- NEEDS_WORK --> SR --> S
         S -- BLOCKED --> SX --> S
     end
 
     subgraph ir["実装方針レビュー"]
-        E{impl-review-loop\n2体×最大3ラウンド}
+        E{impl-review-loop<br/>2体×最大3ラウンド}
         F[人間: design.md 修正]
-        G[人間: 設計を抜本見直し\n--reset]
+        G[人間: 設計を抜本見直し<br/>--reset]
         E -- NEEDS_WORK --> F --> E
         E -- BLOCKED --> G --> E
     end
 
     subgraph p2["Phase 2 — タスク分解"]
-        H[sdd-bootstrap-interviewer\nPhase 2] --> I[(tasks.md\ntraceability.md)]
+        H[sdd-bootstrap-interviewer<br/>Phase 2] --> I[(tasks.md<br/>traceability.md)]
     end
 
     subgraph tr["タスク分解レビュー"]
-        J{task-review-loop\n2体×最大3ラウンド}
+        J{task-review-loop<br/>2体×最大3ラウンド}
         K[人間: tasks.md 修正]
-        L[人間: タスク再設計\n--reset]
+        L[人間: タスク再設計<br/>--reset]
         J -- NEEDS_WORK --> K --> J
         J -- BLOCKED --> L --> J
     end
@@ -71,13 +71,13 @@ flowchart TD
     E -- PASS / PASS-with-warnings --> H
     I --> J
     J -- PASS / PASS-with-warnings --> M[人間: Approval: Approved]
-    M --> N[implement-task\nまたは implement-tasks]
-    N -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証・証跡保存]
+    M --> N[implement-task<br/>または implement-tasks]
+    N -. "UIタスク" .-> VVL[visual-verify-loop<br/>視覚検証・証跡保存]
     VVL -.-> O
-    N --> O[(実装コード\nテストコード\nimplementation report)]
+    N --> O[(実装コード<br/>テストコード<br/>implementation report)]
     O --> P
     P -- 全合格 --> R([Done])
-    P --> W[workflow-retrospective\nオプション]
+    P --> W[workflow-retrospective<br/>オプション]
     W --> T([WFI 承認・改善])
 
     style S fill:#dbeafe,stroke:#3b82f6
@@ -289,6 +289,8 @@ D6 テンプレートインタビューのいずれか）したうえで、ト�
 ## DDD アップストリームレーン（sdd-domain）
 
 Phase 1（仕様・設計）のさらに前段、Issue受領の直後に位置づけられる任意のオプトインレーン。`sdd-bootstrap` が起動する前に、プロジェクト全体で共有する承認済みドメインモデルを1回用意しておくためのものです。`domain/` が存在しない場合は本レーンの影響はゼロで、既存フローはバイト同一の成果物を生成します。
+
+> **導入方法の注意: `sdd-domain` はインストーラの対象外です。** `install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` の `--plugins` allowlist は6プラグインで、`sdd-domain` を含みません。両 marketplace（`.claude-plugin/marketplace.json` / `.agents/plugins/marketplace.json`）には v1.15.0 として登録済みなので、marketplace から個別に導入してください。allowlist と marketplace / 可視性契約のどちらを仕様とするかは [Issue #291](https://github.com/aharada54914/sdd-forge/issues/291) で追跡中です。
 
 ### 位置づけ
 

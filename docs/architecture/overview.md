@@ -79,7 +79,7 @@ flowchart TD
 図の読み方:
 
 - **実線** は起動・生成の経路、**点線** は助言・拒否といった非生成的な作用を表します。
-- marketplace は 2 ファイルあり、Claude Code は `.claude-plugin/marketplace.json` を、Codex CLI / Copilot CLI は `.agents/plugins/marketplace.json` を参照します。登録されているプラグインの集合は両者で同一（7 プラグイン）です。
+- marketplace は 2 ファイルあり、Claude Code は `.claude-plugin/marketplace.json` を、Codex CLI / Copilot CLI は `.agents/plugins/marketplace.json` を参照します。**marketplace に登録されているプラグインの集合**は両者で同一（7 プラグイン）です。ただしこれは「インストーラで導入できる集合」とは一致しません（下の注記を参照）。
 - Codex CLI 用のエージェントロール定義は marketplace とは別に `.codex/agents/sdd-*.toml`（4 ファイル）としてリポジトリ直下に置かれ、インストーラが `~/.codex/agents/` へ配置します。
 - `skills/adversarial-review/` は `plugins/` の外にある単独スキルで、どのプラグインマニフェストにも同梱されず、インストーラの配置対象外です（利用するには手動コピーが必要）。
 
@@ -95,7 +95,9 @@ flowchart TD
 | `sdd-implementation` | 承認済みタスクの実装レーン。単発実装・一括実装・バグ診断・視覚検証 | 4 | 0 | 5 | なし |
 | `sdd-quality-loop` | 独立検証と Done 判定、レビューチケット修正、クロスモデル検証、WFI 監査、ワークフロー回顧。**強制レイヤの本体** | 6 | 5 | 37 | **あり（3ホスト分）** |
 | `sdd-lite` | 社内・部署内アプリ向けの軽量トラック（要件/設計/タスクの 3 ファイル + 軽量ゲート） | 2 | 0 | 2 | なし |
-| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する | 5 | 2（`domain-reviewer-a/b`） | 1 | なし |
+| `sdd-domain` | DDD 上流レーン。プロジェクトに 1 回だけ承認済みドメインモデルを用意し、Phase 1 へ注入する（**インストーラ対象外**、下記注記） | 5 | 2（`domain-reviewer-a/b`） | 1 | なし |
+
+> **`sdd-domain` はインストーラでは導入できません。** `install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` の `--plugins` allowlist は 6 プラグインで、`sdd-domain` を含みません（両 marketplace には v1.15.0 として登録済み）。使う場合は marketplace から個別に導入します。allowlist と marketplace / 可視性契約のどちらを仕様とするかは [Issue #291](https://github.com/aharada54914/sdd-forge/issues/291) で追跡中です。
 
 合計: スキル **26**、エージェント **14**（+ Copilot 用ツイン 2: `sdd-investigator` と `sdd-evaluator` のみ）。スクリプト数は `.sh` / `.ps1` / `.py` / `.js` の実装を 1 つに数えた**ベース名**の数です（例: `check-contract` は `.sh`/`.ps1`/`.py` の 3 実装で 1 とカウント）。
 
@@ -147,7 +149,7 @@ flowchart TD
 3. **Codex 版だけが `interface{}` ブロックを持つ。** Codex CLI のプラグインカタログ表示（表示名・カテゴリ・能力一覧・既定プロンプト）に使われるメタデータで、他の 2 ホストには対応するフィールドがありません。
 4. **エージェントの供給経路も違う。** Copilot CLI 版だけが `agents` を明示し、Copilot 専用に書き下ろした `copilot-agents/` を指します。Copilot 用ツインが存在するのは `sdd-investigator` と `sdd-evaluator` の 2 体だけです。
 
-7 プラグイン × 3 マニフェスト = **21 ファイル**がバージョン同期の対象で、`scripts/bump-version.sh` がこの 21 ファイルに加えて 2 つの marketplace、README の現行リリース行、バージョンを直書きしているテスト資産をまとめて書き換え、最後に旧バージョン文字列が残っていないかを検証します（同スクリプト内のコメントは "18 files" と書かれていますが、実際の glob は 7 プラグイン分＝21 ファイルを走査します）。
+7 プラグイン × 3 マニフェスト = **21 ファイル**がバージョン同期の対象で、`scripts/bump-version.sh` がこの 21 ファイルに加えて 2 つの marketplace、README の現行リリース行、バージョンを直書きしているテスト資産をまとめて書き換え、最後に旧バージョン文字列が残っていないかを検証します。
 
 ---
 
@@ -157,12 +159,24 @@ SDD Forge の「エージェントに勝手をさせない」仕組みは、性�
 
 ### (a) PreToolUse フック — 実行前に止める
 
-`sdd-quality-loop/hooks/` の 3 ファイルが、ツール呼び出しの**直前**に 2 本のガードを差し込みます。
+`sdd-quality-loop/hooks/` の 3 ファイルが、ツール呼び出しの**直前**にガードを差し込みます。**防ぐ内容は 3 ホストで同一ですが、結線の形はホストごとに違います。**
 
-| ガード | matcher | 防ぐもの |
+差し込まれる検査:
+
+| 検査 | 防ぐもの |
+|---|---|
+| キルスイッチ | プロジェクトルート（および git ルートまでの親）に `AGENT_STOP` が存在する間、**すべてのツール使用を停止**。人間がファイルを消すまで再開しない |
+| 承認ガード / 保護パスガード | 自己承認（`Approval: Approved` の書込み）、WFI 承認（`Status: Approved`）、Codex エージェントロールの不正書込み、および保護パスへの書込みを拒否。シェル経由の迂回（リダイレクト・`tee`/`cp`/`mv`/`rm`、`eval`/`xargs` などの間接実行）も `guard-invariants.json` のパターン集合で検出 |
+
+ホストごとの結線:
+
+| フック定義 | エントリ数 | 結線 |
 |---|---|---|
-| `kill-switch` | `*`（全ツール） | プロジェクトルート（および git ルートまでの親）に `AGENT_STOP` が存在する間、**すべてのツール使用を停止**。人間がファイルを消すまで再開しない |
-| `sdd-hook-guard` | `Edit\|Write\|MultiEdit\|apply_patch\|Bash\|bash\|shell\|exec_command\|exec` | 自己承認（`Approval: Approved` の書込み）、WFI 承認（`Status: Approved`）、および保護パスへの書込みを拒否。シェル経由の迂回（リダイレクト・`tee`/`cp`/`mv`/`rm`、`eval`/`xargs` などの間接実行）も `guard-invariants.json` のパターン集合で検出 |
+| `claude-hooks.json`（Claude Code） | `PreToolUse` に **2 本** | ① `matcher: "*"` → `kill-switch.js`　② `matcher: "Edit\|Write\|MultiEdit\|apply_patch\|Bash\|bash\|shell\|exec_command\|exec"` → `sdd-hook-guard.js --emit exit` |
+| `hooks.json`（Codex CLI） | `PreToolUse` に **2 本** | 同上の 2 本を `kill-switch.sh` / `sdd-hook-guard.sh --emit exit`（Windows は `command_windows` の `.ps1`）で実行 |
+| `copilot-hooks.json`（Copilot CLI） | `preToolUse` に **1 本のみ** | `matcher` フィールド自体を持たず（＝全ツール対象）、`sdd-hook-guard.sh --emit copilot` だけを呼ぶ。キルスイッチの独立エントリは無い |
+
+Copilot CLI で 1 本しかなくても**機能は落ちていません**。`sdd-hook-guard` はどのランタイムでも「① キルスイッチ ② 承認ガード ③ エージェントロールガード」の 3 検査を自分の中で順に走らせる設計で（`sdd-hook-guard.py` の docstring がこれを正準として明記）、Claude / Codex 側の `kill-switch` エントリは全ツールを対象にした前段の重ねがけです。逆に言うと、上の matcher 表が当てはまるのは `claude-hooks.json` と `hooks.json` の 2 ファイルだけで、Copilot 版へそのまま一般化してはいけません。
 
 3 ホスト分の定義が必要な理由は §3 のとおりです。フックは**層防御であって最終防衛線ではありません**。Copilot CLI ではサブエージェント内でフックが発火しない既知の不具合があるなど、環境依存で無効化されうるためです。
 
@@ -230,13 +244,15 @@ SDD Forge の「エージェントに勝手をさせない」仕組みは、性�
 
 束縛はハッシュで行われ、レビュー契約 JSON に保存されます。
 
-| 契約ファイル | 保存されるハッシュ |
-|---|---|
-| `reports/spec-review/<feature>/attempt-N/round-M/spec-review-contract.json` | `requirements_sha256`、`acceptance_sha256` |
-| `reports/impl-review/.../impl-review-contract.json` | `requirements_sha256`、`acceptance_sha256`、`design_sha256`、`layer_sha256` |
-| `reports/task-review/.../task-review-contract.json` | `requirements_sha256`、`acceptance_sha256`、`tasks_sha256` |
+| 契約ファイル | 束縛されるハッシュ（`plugins/sdd-review-loop/templates/*-contract.template.json` の正準キー） | ラウンド連鎖 |
+|---|---|---|
+| `reports/spec-review/<feature>/attempt-N/round-M/spec-review-contract.json` | `requirements_sha256`、`acceptance_sha256` | **なし** |
+| `reports/impl-review/.../impl-review-contract.json` | `requirements_sha256`、`acceptance_sha256`、`design_sha256`、`layer_sha256` | あり |
+| `reports/task-review/.../task-review-contract.json` | `requirements_sha256`、`acceptance_sha256`、`design_sha256`、`tasks_sha256`、`traceability_sha256`、`layer_sha256` | あり |
 
-各契約はさらに、レビュアーごとの `allowed_input_manifest`（読んだ全ファイルの path + sha256）と `prior_round_contract_sha256` を持ち、ラウンド間の連鎖も検証されます。
+`layer_sha256` は 4 つのレイヤ仕様（`ux-spec.md` / `frontend-spec.md` / `infra-spec.md` / `security-spec.md`）をキーに持つオブジェクトです。task 契約が `traceability_sha256` を持つことで、上に挙げた「task-review 通過後に `traceability.md` が凍結される」束縛が実際に成立します。
+
+3 契約とも、レビュアーごとの `allowed_input_manifest`（読んだ全ファイルの path + sha256）を持ちます。一方 **ラウンド間の連鎖を検証する `prior_round_contract_sha256` を持つのは impl / task 契約だけで、spec 契約は持ちません** — `spec-review-contract.template.json` にフィールド自体が無く、`reports/spec-review/` 配下の既存 97 件すべてに存在しません。
 
 **凍結後に変更してよいのは status / approval 行だけです。** その正準定義は [`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`](../../plugins/sdd-quality-loop/scripts/check-workflow-state.sh) の `normalized_hash()`（188〜206 行付近）で、ステージごとに次のフィールドだけを既定値へ書き戻してからハッシュを取ります。
 
@@ -318,7 +334,7 @@ flowchart LR
 
 横断的な正準の置き場所（`AGENTS.md`「Source Artifact Locations」より）:
 
-- `docs/adr/NNNN-*.md` — すべての ADR。他の場所に ADR は置けません。現在の最大番号は **0031**（`0028` は意図的な欠番）。
+- `docs/adr/NNNN-*.md` — すべての ADR。他の場所に ADR は置けません。現在の最大番号は **0031**（`0028` は意図的な欠番）。番号は「作成時点の最大番号 + 1」で採番され再利用されないという規約ですが、実際には**番号の重複が残っています**（`0002` / `0003` / `0004` / `0027` が各 2 件、`0025` が 3 件。旧番号のファイルは tombstone として保持されているため）。番号列は連番でも一意でもないので、ADR は番号ではなくファイル名で参照してください。採番規約の正準は [`docs/adr/README.md`](../adr/README.md) です。
 - `contracts/` — API とデータの契約（22 ファイル）。
 - `docs/architecture/` — アーキテクチャ図とコンテキスト文書。**本書がその最初の 1 件です。**
 

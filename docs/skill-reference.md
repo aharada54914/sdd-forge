@@ -91,12 +91,15 @@ Source: https://github.com/example/repo/issues/42
 Use the ship skill for specs/<feature>/tasks.md
 ```
 
-**トラック検出（優先順）**
+**トラック検出（ADR-0023）**
 
-1. `--full` フラグ → FULL（acceptance-tests.md と traceability.md の存在確認）
-2. `--lite` フラグ → LITE
-3. AGENTS.md に `spec_profile: lite` → LITE
-4. デフォルト → FULL
+トラック解決は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の**両方が同一の表**に従います。v1.14.0 の ADR-0023 以降、**Project Context（`sdd/project-context.yaml`）が存在し妥当なら、CLI フラグは「より厳格な方向」にしか動かせません。** `spec_profile: lite` に対する `--full` は昇格（`PROMOTE_FULL`）として通りますが、`spec_profile: full` に対する `--lite` は緩和にあたるため `ERROR_STOP` で停止します。
+
+解決は「① 物理的存在（ファイルシステム検査のみ） → ② 承認の妥当性（`validate-approval-sidecar` が PASS） → ③ 優先順位」の3ステップをこの順で行い、**順序そのものが契約**です（①②をまとめると ADR-0023 が塞いだ fail-open が復活します）。
+
+`--full` / `--lite` / AGENTS.md の `spec_profile: lite` を優先順に評価する旧来の挙動は、`COMPATIBILITY_FALLBACK`、すなわち **Project Context が物理的に不在のケース（C1）に限られます**。`--full` 時の `acceptance-tests.md` / `traceability.md` の存在確認も、この C1 フォールバック時の挙動です。
+
+正準は [`PLUGIN-CONTRACTS.md` の Track Detection 節](../PLUGIN-CONTRACTS.md#track-detection-adr-0023)（HTML センチネル `<!-- sdd:track-selection-contract v1 -->` で囲まれた機械検査対象の6ケース表 C1–C6）と [workflow-guide.md「トラック選択契約（ADR-0023）」](workflow-guide.md#トラック選択契約adr-0023)です。**6ケース表はこのファイルに複製せず、必ず正準を参照してください。**
 
 **ゼロ引数起動**: AGENTS.md の `## Active Spec Directories` を読み、承認済みタスクが1件のみなら自動選択。複数ある場合はリスト表示して停止。
 
@@ -257,9 +260,11 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 | 環境 | フックファイル | 実装方式 | 注意点 |
 |---|---|---|---|
-| Claude Code | `hooks/hooks.json` | Node.js で Edit/Write/MultiEdit/apply_patch 登録 | — |
+| Claude Code | `hooks/claude-hooks.json` | Node.js で Edit/Write/MultiEdit/apply_patch 登録 | `plugin.json` の `"hooks"` が指すのはこのファイル |
 | Codex CLI | `hooks/hooks.json` + `command_windows` | shell / PowerShell。`plugin_hooks` フラグ必須 | apply_patch は `tool_input.command` で処理 |
 | Copilot CLI | `hooks/copilot-hooks.json` | stdout で JSON `permissionDecision` 返す | サブエージェント内で発火しない既知不具合 |
+
+**フック定義はホストごとに別ファイルです（共通の1ファイルではありません）。** `plugins/sdd-quality-loop/hooks/` には `claude-hooks.json` / `hooks.json` / `copilot-hooks.json` の3ファイルが実在し、`plugins/sdd-quality-loop/.claude-plugin/plugin.json` は `"hooks": "./hooks/claude-hooks.json"` を宣言しています。`hooks/hooks.json` は Codex 用です。
 
 **設計思想**
 
@@ -276,7 +281,7 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 - POSIX shell: `sh plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh --emit exit|copilot`
 - PowerShell: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/sdd-hook-guard.ps1 -Emit exit|copilot`
 - Python3: `PAYLOAD=... python3 scripts/sdd-hook-guard.py`
-- Node.js: Claude Code `hooks.json` で呼び出し
+- Node.js: Claude Code `hooks/claude-hooks.json` で呼び出し
 
 **Emit modes**
 
@@ -287,9 +292,11 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 
 ## 5. 決定論的スクリプト
 
-### スクリプト一覧（全52本）
+### スクリプト一覧（`plugins/` 配下 52本）
 
-決定論的スクリプトはリポジトリ全体で異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
+ワークフローが呼び出す決定論的スクリプトは、**`plugins/` 配下**に異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
+
+この 52本には `plugins/` 外のリポジトリ運用スクリプトは含みません。別途、`scripts/`（`apply-branch-protection` / `bump-version` / `check-sdd-structure` / `rollback-1.5.0`）とリポジトリ直下の `render-agent-frontmatter.{sh,ps1}` があります。後者は生成されるエージェント定義ファイルの単一の真実源として `contracts/agent-model-capabilities.*` の `role_defaults` を参照するもので、独立した契約節が [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) に置かれています。
 
 **ゲート系（`check-*`、13本）** — 判定を返し、失敗時に exit 1 でフェイルクローズします。
 
@@ -327,7 +334,7 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 | `validate-capability-registry` | sh / ps1 / py | Capability Registry の9つの独立チェック (a–i) を検証。失敗ごとに `registry: <check-id>: <detail>` を1行出力 |
 | `validate-facet-manifest` | sh / ps1 / py | Facet Manifest のスキーマ + セマンティクス検証 |
 | `validate-review-context-set` | sh / ps1 | レビュアー / 評価者の起動を時系列で1件ずつ検証（`--reserve` で予約）。コンテキスト独立性の強制点 |
-| `validate_path` | py | 共有パス検証ユーティリティ（`check-contract.py` / `check-evidence-bundle.py` が import）。import 失敗時、呼び出し側は exit 1 でフェイルクローズしなければならない |
+| `validate_path` | py | 共有パス検証ユーティリティ（`validate_evidence_path()`）。現在 import しているのは `check-contract.py` のみ。import 失敗時、呼び出し側は exit 1 でフェイルクローズしなければならない |
 
 **解決・正規化系（6本）** — 判定を返さず、正規化された事実や候補集合を返します。
 
@@ -371,7 +378,7 @@ Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator
 | `impl-review-precheck` | sdd-review-loop | sh / ps1 | 実装方針レビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
 | `task-review-precheck` | sdd-review-loop | sh / ps1 | タスクレビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
 | `review-contract-validate` | sdd-review-loop | sh / ps1 | 3つの review-loop precheck の可搬な共通基盤。契約 ID とレポートルートの検証後にのみ正準 JSON を出力 |
-| `validate-layer-traceability` | sdd-review-loop | py | `traceability.md` と `requirements.md` の層別トレーサビリティ整合を検証 |
+| `validate-layer-traceability` | sdd-review-loop | ps1 / py | `traceability.md` と `requirements.md` の層別トレーサビリティ整合を検証（`.ps1` は `.py` へ委譲せず独立実装） |
 
 以降は主要スクリプトの詳細です。ここに詳述が無いものは、各スクリプト先頭のコメント（`Usage:` 行と契約記述）が一次情報です。
 
@@ -838,7 +845,7 @@ PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在す�
 | `sdd-evaluator` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
 | `panelist-gpt` / `panelist-gemini` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | — (ツインなし) |
 | reviewer 系 (`spec` / `impl` / `task` / `domain`) ・`wfi-auditor` エージェント (10体) | ○ (サブエージェント) | — (ツインなし⁴) | — (ツインなし⁴) |
-| `hooks/hooks.json` (承認ガード / AGENT_STOP) | ○ | ○² (`plugin_hooks` フラグ必要) | ○³ (plugin `preToolUse`) |
+| フック定義 (承認ガード / AGENT_STOP) — ホストごとに別ファイル | ○ (`hooks/claude-hooks.json`) | ○² (`hooks/hooks.json`、`plugin_hooks` フラグ必要) | ○³ (`hooks/copilot-hooks.json`、plugin `preToolUse`) |
 | `disable-model-invocation` | ○ | — | ○ |
 | `context: fork` | ○ | — | — |
 

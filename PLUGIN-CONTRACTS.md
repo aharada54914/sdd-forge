@@ -428,10 +428,13 @@ candidates, not that the script attempted an illegal write.
 
 ## Plugin Dependency Declarations
 
-The `Depends On` column is the installer-declared dependency set, and is
-authoritative: `install.sh` and `install.ps1` resolve exactly these edges to a
-fixed point when auto-including plugins. Any change here must be made in all
-three places together. All seven shipped plugins have a row.
+The `Depends On` column is authoritative for the six plugins the installers
+handle (`sdd-bootstrap`, `sdd-ship`, `sdd-implementation`, `sdd-quality-loop`,
+`sdd-lite`, `sdd-review-loop`): `install.sh` and `install.ps1` resolve exactly
+those edges to a fixed point when auto-including plugins, so any change to them
+must be made in all three places together. `sdd-domain` is listed below for
+completeness only — it is outside the installer allowlist, so the column states
+no installer fact about it.
 
 | Plugin | Depends On | Notes |
 |--------|------------|-------|
@@ -441,7 +444,7 @@ three places together. All seven shipped plugins have a row.
 | sdd-implementation | (none) | invokes quality-gate at the implement-tasks handoff, but declares no installer dependency |
 | sdd-review-loop | (none) | standalone; auto-included by sdd-bootstrap, and transitively by sdd-lite and sdd-ship |
 | sdd-quality-loop | (none) | standalone; optionally reads `domain/domain-contract.json` via check-domain-conformance when present |
-| sdd-domain | (none) | standalone; produces `domain/` consumed optionally by sdd-bootstrap, sdd-review-loop, sdd-quality-loop |
+| sdd-domain | n/a — outside the installer allowlist | not installable via `--plugins`; obtained from the marketplace instead (see README). Standalone; produces `domain/` consumed optionally by sdd-bootstrap, sdd-review-loop, sdd-quality-loop. Whether it should join the allowlist is open in issue #291 |
 
 ---
 

@@ -41,14 +41,25 @@ open; once the fix lands, the automated precheck path is again mandatory.
 
 ### Post-review artifact freeze
 
-Once a review gate passes, its hash-bound artifacts (the design document
-after the design review gate; the task plan body and traceability document
-after the task decomposition review gate) are content-frozen except for the
-normalized status/approval fields. Sanctioned later updates — open-question
-resolutions, verification-status finalization — are recorded in non-frozen
-addenda (implementation reports, `specs/<feature>/verification/`, user
-documentation) instead of the frozen artifact, and task authors must scope
-Done When items accordingly. When an already-approved task's Done When names
+Once a review gate passes, its hash-bound artifacts are content-frozen except
+for the normalized status/approval fields. Each gate binds a different set:
+the specification review gate binds `requirements.md` and
+`acceptance-tests.md`; the implementation-policy (design) review gate binds
+`design.md`; the task decomposition review gate binds the task plan body and
+`traceability.md`. The design and task gates additionally bind all four layer
+specifications (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+`security-spec.md`) whenever that round's precheck recorded layer hashes, and
+the task gate re-binds `design.md`. A spec-stage freeze is not released by a
+later gate: `requirements.md` and `acceptance-tests.md` are re-checked at
+every later passed stage. The status/approval carve-out covers only the
+document each gate normalizes (`requirements.md`, `design.md`, the task
+plan); `acceptance-tests.md`, `traceability.md` and the layer specifications
+are bound by raw content hash, so any byte change to them breaks the gate.
+Sanctioned later updates — open-question resolutions, verification-status
+finalization — are recorded in non-frozen addenda (implementation reports,
+`specs/<feature>/verification/`, user documentation) instead of the frozen
+artifact, and task authors must scope Done When items accordingly. When an
+already-approved task's Done When names
 a frozen artifact, the Done When wording is amended to name the equivalent
 addendum record — a spec change requiring explicit human authorization,
 recorded in the task plan and re-bound by a post-implementation provenance
@@ -132,7 +143,8 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `contracts/` — API and data contracts
 - `docs/architecture/` — architecture diagrams and context documents
 - `reports/implementation/<task-id>.md`
-- `reports/quality-gate/<timestamp>.md` (names the task id)
+- `reports/quality-gate/<timestamp>-[<feature>-]<task-id>.md` (the task id is
+  part of the filename; reports predating this shape use earlier variants)
 - `docs/review-tickets/*.yml`
 
 ## Rules
