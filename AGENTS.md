@@ -104,6 +104,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/design-sync-consent/`
 - `specs/epic-190-a2-capability-registry/`
 - `specs/epic-191-a3-path-ownership/`
+- `specs/sdd-domain-concept-contract/`
 
 ## Source Artifact Locations
 

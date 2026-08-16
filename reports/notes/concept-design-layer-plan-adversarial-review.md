@@ -211,6 +211,12 @@ AC-C01〜C15 は維持した上で:
 
 ---
 
+## Decision record（2026-08-16, human / repository owner）
+
+**P-2 は撤回**: owner 回答「v1 資産はないから移行設計は不要」。v1 の `domain/` アーティファクトセット・v1 契約インスタンスは存在しないため、`domain-model upgrade` モード（CD-006b）・versioned stage table・AC-C16 / AC-C17 は計画から削除する。v1/v2 スキーマファイルの共存（§3 Phase 0）は維持し、consumer の v2 切替は各 Phase で一括に行う（二重バージョンローダーは作らない）。P-4 のうち v1 ドメインレビュー契約への audit-against-the-record 適用も同じ理由で不要になるが、`specs/<feature>/concept-test.{md,json}` の `validate-review-context-set` 登録（#288 再発防止）は将来の feature に対する措置として維持する。
+
+同日、親トラッキング issue #290 を起票し、Phase 0 を `specs/sdd-domain-concept-contract/` としてスペック化着手。
+
 ## §5 残課題
 
 1. Phase 0 着手時に、本書と原案を入力として親 issue（エピック）を起票し、Phase 1 feature から `sdd-bootstrap:bootstrap` でスペック化する。
