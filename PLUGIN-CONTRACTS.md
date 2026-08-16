@@ -187,8 +187,13 @@ Templates for all three artifacts live in
   map into these artifacts; the artifacts are always authoritative.
 - Consumers read the artifacts and never create or rewrite them. Conformance
   findings flow through review checklists and the advisory visual-verify-loop;
-  the deterministic `check-design-system` gate reports warn-level findings
-  until its error promotion (two releases after introduction).
+  the deterministic `check-design-system` gate
+  (`plugins/sdd-quality-loop/scripts/check-design-system.{sh,ps1}`) reports
+  warn-level findings and does not block. The gate was introduced in v1.8.0
+  with a stated promotion to error level two releases after introduction; as
+  of v1.15.0 that window has passed and the gate still runs warn-phase
+  (`SDD_DESIGN_SYSTEM_ENFORCE=error` escalates to failure on demand). The
+  promotion of the default remains a pending human decision.
 - Absence contract: when `design-system/` does not exist, every consumer skips
   with a recorded reason — absence never blocks a workflow.
 
@@ -251,8 +256,11 @@ per-feature `specs/<feature>/`):
   observation to their fixed check list; `check-domain-conformance`
   (`plugins/sdd-quality-loop/scripts/check-domain-conformance.{sh,ps1}`) is
   a warn-phase-only deterministic gate (`SDD_DOMAIN_ENFORCE=error`
-  escalates to failure; default flips to error two releases after
-  introduction, by human edit, mirroring `check-design-system`).
+  escalates to failure on demand). It was introduced in v1.9.0 with a
+  stated default flip to error two releases after introduction, by human
+  edit, mirroring `check-design-system`; as of v1.15.0 that window has
+  passed and the default is still `warn`. Flipping the default remains a
+  pending human decision.
   `workflow-retrospective` aggregates its warn findings into domain-drift
   metrics (term-deviation count, boundary-violation count) when they have
   been recorded in quality-gate reports.
@@ -268,7 +276,7 @@ per-feature `specs/<feature>/`):
 
 ---
 
-## `agent-model-capabilities/v2` registry schema (epic-159-pillar-c T-001)
+## `agent-model-capabilities/v2` registry schema (v1.11.0+, epic-159-pillar-c T-001)
 
 **Source**: `contracts/agent-model-capabilities.v2.json`
 **Consumers**: `plugins/sdd-implementation/scripts/select-agent-model.sh`/`.ps1`
@@ -363,7 +371,7 @@ mutation-based negative self-check (a scratch copy of v2 with a
 v1-required effort stripped from one model's `supported_efforts`) proving
 the parity assertion is live rather than vacuously true.
 
-## `render-agent-frontmatter` script contract (epic-159-pillar-c T-003)
+## `render-agent-frontmatter` script contract (v1.11.0+, epic-159-pillar-c T-003)
 
 **Source**: `render-agent-frontmatter.sh`/`.ps1` (repository root)
 **Reads**: `contracts/agent-model-capabilities.v2.json`'s `role_defaults`
@@ -420,20 +428,35 @@ candidates, not that the script attempted an illegal write.
 
 ## Plugin Dependency Declarations
 
+The `Depends On` column is the installer-declared dependency set, and is
+authoritative: `install.sh` and `install.ps1` resolve exactly these edges to a
+fixed point when auto-including plugins. Any change here must be made in all
+three places together. All seven shipped plugins have a row.
+
 | Plugin | Depends On | Notes |
 |--------|------------|-------|
-| sdd-ship | sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite | orchestrates all implementation and verification phases |
-| sdd-implementation | sdd-quality-loop | quality-gate invocation |
-| sdd-lite | sdd-quality-loop | check-task-state-lite mirrors check-task-state logic |
-| sdd-bootstrap | (none) | standalone; optionally consumes `domain/` via domain-sync when present |
+| sdd-ship | sdd-bootstrap, sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite | orchestrates all implementation and verification phases |
+| sdd-lite | sdd-bootstrap, sdd-implementation, sdd-quality-loop | check-task-state-lite mirrors check-task-state logic; transitively pulls in sdd-review-loop via sdd-bootstrap |
+| sdd-bootstrap | sdd-review-loop | pulls in the internal review loop; optionally consumes `domain/` via domain-sync when present |
+| sdd-implementation | (none) | invokes quality-gate at the implement-tasks handoff, but declares no installer dependency |
+| sdd-review-loop | (none) | standalone; auto-included by sdd-bootstrap, and transitively by sdd-lite and sdd-ship |
 | sdd-quality-loop | (none) | standalone; optionally reads `domain/domain-contract.json` via check-domain-conformance when present |
 | sdd-domain | (none) | standalone; produces `domain/` consumed optionally by sdd-bootstrap, sdd-review-loop, sdd-quality-loop |
 
 ---
 
-## Cross-Plugin Script References
+## Non-normative notes
 
-If a future refactoring merges `check-task-state-lite` into `check-task-state`
-(via `--lite` flag), sdd-lite would gain a runtime dependency on the
-sdd-quality-loop scripts directory. This dependency must be declared in
-`plugins/sdd-lite/.plugin/plugin.json` before the merge proceeds.
+Nothing in this section defines a contract. It records forward-looking
+considerations only; the normative interfaces are the sections above.
+
+### Future consideration — cross-plugin script references
+
+There is currently no cross-plugin script reference: sdd-lite ships its own
+`check-task-state-lite`, and no plugin reads another plugin's scripts
+directory at runtime. If a future refactoring were to merge
+`check-task-state-lite` into `check-task-state` (via a `--lite` flag),
+sdd-lite would at that point gain a runtime dependency on the
+sdd-quality-loop scripts directory, and that dependency would have to be
+declared in `plugins/sdd-lite/.plugin/plugin.json` before the merge
+proceeded. No such refactoring is planned or in progress.

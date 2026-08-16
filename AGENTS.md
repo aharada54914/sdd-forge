@@ -78,7 +78,10 @@ authorize plugin-internal changes. (WFI-004)
 
 ## Active Spec Directories
 
-Update this list whenever a new spec directory is bootstrapped:
+Update this list whenever a new spec directory is bootstrapped.
+This list must match `ls -d specs/*/` exactly; any directory missing here is
+invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
+
 - `specs/sdd-forge-refactor/`
 - `specs/claude-workflow-compatibility/`
 - `specs/sdd-forge-mcp/`
@@ -98,12 +101,25 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-159-pillar-d/`
 - `specs/epic-189-a1-project-context/`
 - `specs/epic-192-a4-facet-manifest/`
+- `specs/epic-136-phase3/`
 - `specs/epic-136-phase4-docs/`
+- `specs/epic-136-phase4-mcp/`
 - `specs/mcp-readonly-preflight/`
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
+- `specs/design-sync-scan/`
+- `specs/design-sync-standing-consent/`
 - `specs/epic-190-a2-capability-registry/`
 - `specs/epic-191-a3-path-ownership/`
+- `specs/cross-model-verification/`
+- `specs/evidence-deep-verify/`
+- `specs/p0-hardening/`
+- `specs/quality-loop-fixes/`
+- `specs/risk-adaptive-layer/`
+- `specs/sdd-diagnose/`
+- `specs/sdd-lite/`
+- `specs/second-approval-mask/`
+- `specs/uninstall-workflow/`
 
 ## Source Artifact Locations
 
@@ -171,7 +187,7 @@ T-006). (WFI-001)
 
 ### Author-time sweeps that replace case-by-case vigilance
 
-Five rules sharing one shape: a property easy to state once and easy to miss per
+Six rules sharing one shape: a property easy to state once and easy to miss per
 case. Each names the point in the workflow where the sweep is mandatory, so it is
 performed rather than remembered. They sit under one heading to keep this file
 from growing a heading per rule, and are kept distinct rather than merged because
