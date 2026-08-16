@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Release-state coupling in two CI gates**: the `version-gates` lane went
+  red on `main` immediately after the v1.15.0 release because two suites
+  asserted against the `## Unreleased` CHANGELOG heading that
+  `scripts/bump-version.sh` had just legitimately renamed.
+  `bump-version-gate.tests.{sh,ps1}` now inserts the fixture's version
+  heading when the copied CHANGELOG carries no `## Unreleased` section, and
+  asserts that postcondition instead of letting a no-op rename fail every
+  case on the CHANGELOG precondition; `ownership-digest.tests.{sh,ps1}`
+  TEST-048 now locates the T-003 entry in whichever release-notes section
+  holds it, still requiring both citations together in one section, the same
+  later-release exemption TEST-049 already documents.
+
 ## v1.15.0 (2026-08-16)
 
 ### Added
