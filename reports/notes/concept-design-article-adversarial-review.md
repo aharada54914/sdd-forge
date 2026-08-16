@@ -105,5 +105,5 @@ Done 条件: 既存 check ID 群（spec-reviewer-a.md:124 / spec-reviewer-b.md:1
 
 ## D. 未解決事項
 
-1. **ChatGPT 原案との照合**: 共有リンク本文が提供され次第、本計画（§C）との差分を取り、原案固有の項目を §A の判定基準で追加レビューする。
+1. **ChatGPT 原案との照合**: ~~共有リンク本文が提供され次第、本計画（§C）との差分を取り、原案固有の項目を §A の判定基準で追加レビューする。~~ → **解消（2026-08-16）**: 原案（Concept Design Layer 追加計画）の全文提供を受け、`reports/notes/concept-design-layer-plan-adversarial-review.md` として敵対的レビューと修正後計画を作成した。原案は本書 §C の W-1/W-2 を大きく上回るスコープ（domain-contract/v2 + Concept 一級要素化）であり、方向は支持、構造上の Critical 2 件・Major 6 件を修正した。本書 §C の W-2（domain/ 不在プロジェクト向けの advisory 観点）は原案のカバー範囲外のため、補完策として引き続き有効。
 2. W-2 の check ID 追加が `contracts/`（rollback contract、agent-model-capabilities）へ与える影響の調査。実装 spec の investigation 項目とする。
