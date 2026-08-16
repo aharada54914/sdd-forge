@@ -16,6 +16,8 @@
   holds it, still requiring both citations together in one section, the same
   later-release exemption TEST-049 already documents.
 
+## v1.15.0 (2026-08-16)
+
 ### Added
 
 - **Node runtime baseline migration**: MCP package engines and installer
