@@ -44,7 +44,7 @@
     },
     {
       "path": "reports/implementation/epic-192-a4-facet-manifest/T-001.md",
-      "sha256": "a7347367b4c4d6bd3fc1706b6204be0f293630ef37341999733ef47ac4b7e3f5"
+      "sha256": "0b4144cd0c350cb4aa451729fe4456b9839c80970c7328da1b220e5874451a85"
     },
     {
       "path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md",
@@ -73,10 +73,6 @@
     {
       "path": "specs/epic-192-a4-facet-manifest/infra-spec.md",
       "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"
-    },
-    {
-      "path": "specs/epic-192-a4-facet-manifest/investigation.md",
-      "sha256": "e82a67c5cb79f0be950500635642f69744df50400177e21f263de1a7fe83f17f"
     },
     {
       "path": "specs/epic-192-a4-facet-manifest/requirements.md",
