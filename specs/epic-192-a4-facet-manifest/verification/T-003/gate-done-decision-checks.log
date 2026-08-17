@@ -1,0 +1,17 @@
+===== T-003 gate Done-decision checks: 2026-08-17T05:59:44Z =====
+----- check-evidence-bundle T-003.evidence.json -----
+Verification contract passed for task T-003.
+Evidence bundle passed for task T-003.
+exit=0
+----- check-task-state (post-Done) -----
+Verification contract passed for task T-001.
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+Evidence bundle passed for task T-002.
+Verification contract passed for task T-003.
+Evidence bundle passed for task T-003.
+Task state check passed for 5 task(s).
+exit=0
+----- check-workflow-state (post-Done) -----
+workflow-state: ok
+exit=0
