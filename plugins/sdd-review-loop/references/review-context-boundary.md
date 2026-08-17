@@ -106,12 +106,12 @@ linking every record) is what matters, and an orphan does not break it.
 manifest. It is the gate's decision. If a file is in your manifest, it was
 authorized.
 
-**One case is actively confusing and is documented here so no one else re-derives
-it wrongly.** `impl-reviewer-a.md:43` says:
+**One case read as a contradiction and is documented here so no one else
+re-derives it wrongly.** Until 2026-08-01, `impl-reviewer-a.md` said:
 
 > Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
 
-But `impl-review-precheck.sh:207-210` **fails the round** unless impl-reviewer-a's
+while `impl-review-precheck.sh:251` **fails the round** unless impl-reviewer-a's
 manifest carries the *previous* round's `integrated-summary.json`, and
 `validate-review-context-set.sh` authorizes it for `impl-reviewer-a` with an
 explicit comment:
@@ -121,15 +121,25 @@ explicit comment:
 > required input is rejected as role-unlisted and impl-review can never pass at
 > round > 1.
 
-So the role text forbids reading a file the gate requires the role to carry. Both
-statements are load-bearing and they cannot both be followed.
+The role text forbade reading a file the gate required the role to carry. Both
+statements were load-bearing and could not both be followed.
 
-Until a human resolves this (see Open items), the operative reading is: the file's
-presence in the manifest is mandatory and correct; the role text's prohibition is
-about *reasoning from reviewer B's findings*, and `integrated-summary.json` carries
-counts and check IDs only, no narrative. A reviewer that notices the tension should
-disclose it — as the `epic-136-phase4-docs` sequence-411 reviewer did — rather than
-either blocking or silently ignoring its own role text.
+**This is resolved.** `fea5ccd0` narrowed the prohibition to `reviewer-b.json` and
+gave the role file the Issue #143 exception explicitly: at round > 1 reviewer A's
+manifest carries the previous round's `integrated-summary.json`, read as counts
+and check IDs only, with reasoning from reviewer B's findings still forbidden —
+which is the independence property the original line existed to protect.
+`impl-review-loop`'s SKILL.md STEP 2 and STEP 5 now state the same contract for
+the orchestrator that builds the manifest, and
+`tests/impl-review-round2-contract.tests.sh` holds the round-2 shape end to end,
+including that binding the previous round's summary to reviewer B instead is
+still rejected.
+
+The account above is kept rather than deleted because the contradiction was real
+for long enough to be re-reported as live from a stale branch two weeks after it
+was fixed. If you are looking at a role file that still carries the old wording,
+you are reading a checkout that predates `fea5ccd0` — check `git log` before
+filing it.
 
 `reviewer-a.json` and `reviewer-b.json` are a different matter: those are
 categorically forbidden in any manifest (`is_forbidden_review_output`), enforced by
@@ -162,10 +172,13 @@ to decide whether it applies at all.
    `--reserve` should rewrite the manifest's field after appending so the value a
    reviewer reads is checkable. The second is a behaviour change to a deterministic
    gate and is not made unilaterally.
-2. **`impl-reviewer-a.md:43` vs `impl-review-precheck.sh:207-210`.** The role file
-   is in `PROTECTED_GATE_SUFFIXES`, so an agent cannot edit it. A human decides
-   whether the role text gains the Issue #143 carve-out, or the precheck stops
-   requiring the file.
-3. **`impl-review-precheck.sh:368`** tells the caller to "provide `--edit-summary`"
-   when `design.md` is unchanged between rounds, but `:231` rejects every mode
-   except `--verify-inputs`. The message names a flag the script does not accept.
+
+Closed, and listed here so they are not re-derived from an old copy of this file:
+
+- **`impl-reviewer-a.md` vs the precheck's previous-round requirement.** Closed by
+  `fea5ccd0` (2026-08-01): the role text gained the Issue #143 carve-out. See the
+  section above.
+- **An `--edit-summary` message naming a flag the script did not accept.** No such
+  message exists in `impl-review-precheck.sh` any more, and mode acceptance
+  (`:275`) now admits `--verify-inputs` and `--provenance-rereview`, so neither
+  half of the claim still holds.
