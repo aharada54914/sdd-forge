@@ -12,7 +12,13 @@ SHA-256: `8b32c3f089724b24c0b2693595f1dab99f5bb757bcfac4547268160b77e394d9`
 
 The repository's deterministic guard prohibits agents from modifying the active
 workflow directly. A human must verify the base commit and digest, then apply
-the staged patch from the repository root:
+the staged patch from the repository root.
+
+Run this from the checkout that has **branch `claude/nifty-maxwell-928109`**
+checked out — the patch file is committed on that branch and exists nowhere
+else. The primary checkout at `/Users/jrmag/Projects/active/sdd-forge` is on a
+different branch and will report `can't open patch`. See
+`reports/notes/wfi-029-apply-steps.md` for the same note.
 
 ```bash
 shasum -a 256 docs/ci-staging/wfi-029-round2-contract-suite.patch

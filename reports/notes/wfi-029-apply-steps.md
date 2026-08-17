@@ -18,9 +18,23 @@ convention: `docs/ci-staging/wfi-029-round2-contract-suite.md`.
 
 ## Apply
 
+Run from the checkout that has **branch `claude/nifty-maxwell-928109`** checked
+out — the patch file is committed on that branch and exists nowhere else. At the
+time of writing that is the worktree
+`/Users/jrmag/Projects/active/sdd-forge/.claude/worktrees/nifty-maxwell-928109`;
+the primary checkout at `/Users/jrmag/Projects/active/sdd-forge` is on
+`claude/adversarial-review-plan-dhzsr1` and will report
+`can't open patch ... No such file or directory`. Confirm with
+`git worktree list` if the layout has changed since.
+
+Do not apply this in the dhzsr1 checkout even after fetching: that branch is 40
+commits behind `main` and carries unrelated in-progress work. These are
+repository-wide plugin files, so the change should travel with this branch's PR.
+
 ```bash
 set -euo pipefail
-WFI029_REPO=/Users/jrmag/Projects/active/sdd-forge
+WFI029_REPO="$(git rev-parse --show-toplevel)"
+test "$(git -C "$WFI029_REPO" rev-parse --abbrev-ref HEAD)" = claude/nifty-maxwell-928109
 WFI029_PATCH="$WFI029_REPO/reports/notes/wfi-029-impl-review-loop-instructions.patch"
 cd "$WFI029_REPO"
 test "$(shasum -a 256 "$WFI029_PATCH" | awk '{print $1}')" = c8cc355433a8530b53257e62ba5019567a45409c7a97914d083c4a2b43510214
