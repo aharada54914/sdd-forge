@@ -1,6 +1,10 @@
 # impl-review round-2 contract suite CI handoff
 
-Status: Pending human application
+Status: Applied 2026-08-17 on branch `claude/nifty-maxwell-928109`
+
+Applied by the repository owner alongside
+`reports/notes/wfi-029-impl-review-loop-instructions.patch`. `git apply --check -R`
+is clean and the workflow gained exactly the one expected line (+1/-0).
 
 Base commit: `fcb363d60d2e7f0b44672e4e558609b3a3b3898e`
 

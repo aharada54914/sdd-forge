@@ -1,6 +1,15 @@
 # WFI-029 apply and verify
 
-Status: Pending human application
+Status: Applied 2026-08-17 on branch `claude/nifty-maxwell-928109`
+
+Applied by the repository owner. `git apply` reported the expected shape
+(SKILL.md +97/-1, impl-reviewer-b.md +13/-0), the reverse check
+`git apply --check -R` is clean, `git diff --check` is clean, and all ten
+review-loop suites pass afterwards. Re-running `git apply` on an applied patch
+correctly fails with "patch does not apply"; that is idempotency, not damage —
+`git apply` is atomic, so a rejected re-run changes nothing.
+
+The steps below are retained as the record of what was applied and why.
 
 Base commit: `fcb363d60d2e7f0b44672e4e558609b3a3b3898e`
 
