@@ -27,6 +27,22 @@
   ステップ候補は T-001 の staged candidate に追記し、
   `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
   hash に更新した。
+- **Context Projection schema と validator (Issue #192,
+  epic-192-a4-facet-manifest T-003)**: `contracts/context-projection.
+  schema.json` (draft-07、`components` の再キー化形状 (`propertyNames`+
+  schema-typed `additionalProperties`)・`shared_paths[]` の bounded/
+  unbounded `oneOf` 分岐を固定、vendored copy を
+  `plugins/sdd-quality-loop/contracts/` に同梱) と、T-001/T-002 の
+  手書き draft-07 部分エンジンを踏襲した
+  `validate-context-projection.{py,sh,ps1}`（schema conformance のみ、
+  YAML/canonicalizer subprocess なし — 対象は既に JSON の
+  `project-context.resolved.json`）を追加。1 スイート
+  (`tests/context-projection-schema.tests.{sh,ps1}`、fixture 24 件、
+  35/35 assertion 両ランタイム一致)を `tests/run-all.{sh,ps1}` に登録し、
+  公式 draft-07 メタスキーマ検証と jsonschema 4.26.0 クロス検証を記録。CI
+  ステップ候補は T-002 の staged candidate に追記し、
+  `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
+  hash に更新した。
 
 ### Fixed
 
