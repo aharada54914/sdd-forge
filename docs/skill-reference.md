@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれる26のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite、sdd-domain）に含まれる26のスキル（＋ `plugins/` 外の単独スキル1件: [`skills/adversarial-review`](#skillsadversarial-reviewplugins-外の単独スキル)）の詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: 標準の feature workflow は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つで開始します。人間専用の補助コマンドを含む可視性契約は、この後の一覧を参照してください。
 
@@ -10,6 +10,11 @@
 |---|---|---|---|---|
 | **bootstrap** | **sdd-bootstrap** | **[公開] 仕様化フェーズのエントリーポイント（`/sdd-bootstrap:bootstrap`）。investigate/adopt/feature/bugfix/refactor/project モードをルーティング** | **—** | **ship** |
 | **ship** | **sdd-ship** | **[公開] 実装・品質保証フェーズのオーケストレーター（`/sdd-ship:ship`）。implement-tasks → quality-gate (or lite-gate) → workflow-retrospective を順次実行** | **bootstrap** | **—** |
+| **domain-model** | **sdd-domain** | **[公開] DDD 上流レーンのエントリーポイント（`/sdd-domain:domain-model`）。`new`（既定）/ `update` / `reverse` を domain-interviewer・update モードの限定再インタビュー・domain-reverse へルーティングし、`domain/` 成果物セットを sdd-bootstrap Phase 1 の手前で生成・維持する** | **—** | **domain-interviewer, domain-reverse, domain-review-loop** |
+| domain-interviewer | sdd-domain | 7段階の DDD インタビュー（Domain Story → Event Storming → Ubiquitous Language → Context Map → Domain Model (集約) → Domain Message Flow → C4 Container）を実行。各段階を次段階の開始前にディスクへチェックポイントし、段階ごとに `domain/domain-contract.json` を再生成。`domain/` 配下の唯一の書き込み者で、中断後は再開可能 | domain-model, domain-reverse (seed 経由) | domain-review-loop |
+| domain-reverse | sdd-domain | 既存コードベースに investigate-codebase を実行し、その investigation.md を候補ドメインモデル seed（候補 Bounded Context・ユビキタス言語用語・イベント/集約のヒント）へ変換。中間生成物のみで `domain/` には書き込まない | domain-model (`reverse` モード) | domain-interviewer |
+| domain-review-loop | sdd-domain | `domain/` 成果物セット（戦略/戦術）を `domain-reviewer-a/b` が独立レビューし、検証済み verdict を永続化。`Domain-Model-Status: Pending → Reviewed` に遷移できる唯一の機構（`Approved` は人間のみ）。承認後のドリフトも検出 | domain-interviewer | — (人間承認待ち) |
+| domain-sync | sdd-domain | Approved な `domain/` を検出し、正準の Bounded Context と用語を sdd-bootstrap Phase 1 の requirements.md / design.md へ注入。`domain/` 不在または未 Approved なら skip 行を1行だけ記録して継続し、仕様生成をブロックしない | sdd-bootstrap-interviewer [Phase 1 冒頭] | sdd-bootstrap-interviewer [Phase 1 生成] |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
@@ -86,12 +91,15 @@ Source: https://github.com/example/repo/issues/42
 Use the ship skill for specs/<feature>/tasks.md
 ```
 
-**トラック検出（優先順）**
+**トラック検出（ADR-0023）**
 
-1. `--full` フラグ → FULL（acceptance-tests.md と traceability.md の存在確認）
-2. `--lite` フラグ → LITE
-3. AGENTS.md に `spec_profile: lite` → LITE
-4. デフォルト → FULL
+トラック解決は `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の**両方が同一の表**に従います。v1.14.0 の ADR-0023 以降、**Project Context（`sdd/project-context.yaml`）が存在し妥当なら、CLI フラグは「より厳格な方向」にしか動かせません。** `spec_profile: lite` に対する `--full` は昇格（`PROMOTE_FULL`）として通りますが、`spec_profile: full` に対する `--lite` は緩和にあたるため `ERROR_STOP` で停止します。
+
+解決は「① 物理的存在（ファイルシステム検査のみ） → ② 承認の妥当性（`validate-approval-sidecar` が PASS） → ③ 優先順位」の3ステップをこの順で行い、**順序そのものが契約**です（①②をまとめると ADR-0023 が塞いだ fail-open が復活します）。
+
+`--full` / `--lite` / AGENTS.md の `spec_profile: lite` を優先順に評価する旧来の挙動は、`COMPATIBILITY_FALLBACK`、すなわち **Project Context が物理的に不在のケース（C1）に限られます**。`--full` 時の `acceptance-tests.md` / `traceability.md` の存在確認も、この C1 フォールバック時の挙動です。
+
+正準は [`PLUGIN-CONTRACTS.md` の Track Detection 節](../PLUGIN-CONTRACTS.md#track-detection-adr-0023)（HTML センチネル `<!-- sdd:track-selection-contract v1 -->` で囲まれた機械検査対象の6ケース表 C1–C6）と [workflow-guide.md「トラック選択契約（ADR-0023）」](workflow-guide.md#トラック選択契約adr-0023)です。**6ケース表はこのファイルに複製せず、必ず正準を参照してください。**
 
 **ゼロ引数起動**: AGENTS.md の `## Active Spec Directories` を読み、承認済みタスクが1件のみなら自動選択。複数ある場合はリスト表示して停止。
 
@@ -100,6 +108,30 @@ Use the ship skill for specs/<feature>/tasks.md
 ---
 
 > 内部スキル（sdd-adopt、investigate-codebase、implement-task 等）の詳細仕様は [`docs/contributor/skill-reference-detail.md`](contributor/skill-reference-detail.md) を参照してください。
+
+---
+
+### skills/adversarial-review（`plugins/` 外の単独スキル）
+
+**位置**
+
+`skills/adversarial-review/`（リポジトリ直下。`plugins/` 配下ではありません）
+
+**用途**
+
+相互批判（敵対的レビュー）プロトコル。互いに素なレンズを持つ2名のレビュアーが対象（差分 / PR / コードベース）をブラインドでレビューし、続いて互いの所見を per-finding の verdict（SUPPORT / PROPOSE-SEVERITY-CHANGE / PROPOSE-REJECT / SUPPLEMENT）で攻撃します。オーケストレーターが1本のレポートへ統合し、修正後は関与していない新規コンテキストのレビュアーが Phase R で修正を検証します。重大度のインフレ・一般的チェックリスト所見・過剰設計な修正・修正自体に混入した誤りといった、単独レビューでは見えない失敗モードを捕捉することが目的です。
+
+構成ファイル: `SKILL.md`（プロトコル・鉄則・復旧手順）、`references/reviewer-prompts.md`（レビュアー A / B・相互批判・修正検証のプロンプト雛形）、`templates/report-template.md`（統合レポート構造）。
+
+**通常のスキルとの違い（重要）**
+
+- **`plugins/` 配下ではないため、どのプラグインマニフェストにも同梱されず、インストーラでも配置されません。** 利用するには `skills/adversarial-review/` ディレクトリを Claude Code がスキルを探索する場所（`~/.claude/skills/adversarial-review/` または `<repo>/.claude/skills/adversarial-review/`）へ手動でコピーする必要があります。
+- 他のすべてのスキルと異なり、**可視性フラグ（`disable-model-invocation` / `user-invocable`）を持ちません**。前掲のスキル可視性契約（`tests/validate-repository.ps1` が強制、スキャン対象は `plugins/` のみ）の適用外です。
+- SDD のゲートレビュー（spec-review-loop / impl-review-loop / task-review-loop）の代替ではありません。これらは独自の決定論的契約を持つため、adversarial-review は使いません。
+
+**詳細は** `skills/adversarial-review/SKILL.md` **および同ディレクトリの** `README.md` **を参照。**
+
+---
 
 ## 3. サブエージェント
 
@@ -170,6 +202,42 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 
 ---
 
+### レビュー / 監査 / パネリスト エージェント（12体）
+
+エージェント定義は `plugins/*/agents/*.md` にあり、上記2体と合わせて全 **14体** です。残る12体は、以下の a/b ペア構造とパネル構造を取ります。
+
+| エージェント名 | 所属プラグイン | モデル | 役割 | 起動元スキル |
+|---|---|---|---|---|
+| `spec-reviewer-a` | sdd-review-loop | `sonnet` | 要件・受け入れ網羅レビュー（requirements.md / acceptance-tests.md） | spec-review-loop |
+| `spec-reviewer-b` | sdd-review-loop | `sonnet` | 仕様のリスク・曖昧性レビュー（A からは件数と ID のサマリのみ受領） | spec-review-loop |
+| `impl-reviewer-a` | sdd-review-loop | `sonnet` | Structural Soundness（design.md のアーキテクチャ / データ / API 網羅、セキュリティ境界、コンポーネント完全性） | impl-review-loop |
+| `impl-reviewer-b` | sdd-review-loop | `sonnet` | Implementability and Risk（決定の正当化、Open Question の解決可能性、前提の妥当性、性能 / デプロイ / 移行 / スコープ） | impl-review-loop |
+| `task-reviewer-a` | sdd-review-loop | `sonnet` | Structural Coverage（tasks.md の構造的完全性、依存整合、AC トレーサビリティ、観測可能な done-when） | task-review-loop |
+| `task-reviewer-b` | sdd-review-loop | `sonnet` | Quality and Risk（リスク階層の妥当性、タスクサイズ、エッジケース、テスト種別整合、ロールバック計画、スコープの排他性） | task-review-loop |
+| `domain-reviewer-a` | sdd-domain | `sonnet` | 戦略的健全性（コンテキスト境界、関係パターン、イベント網羅、用語の一意性） | domain-review-loop |
+| `domain-reviewer-b` | sdd-domain | `sonnet` | 戦術的実装可能性（不変条件の検証可能性、トランザクション境界の現実性、god aggregate / anemic model リスク） | domain-review-loop |
+| `wfi-auditor-a` | sdd-quality-loop | `sonnet` | WFI Proposal Quality Auditor（監査サイクル1）。証拠品質・根本原因の妥当性・カテゴリ整合の言語・具体的な変更案・測定可能な期待効果 | wfi-audit-cycle |
+| `wfi-auditor-b` | sdd-quality-loop | `sonnet` | WFI Impact and Risk Auditor（監査サイクル2）。検証計画の質・変更スコープの比例性・意図せぬ影響・実装可能性・言語遵守の2次確認 | wfi-audit-cycle |
+| `panelist-gpt`（`sdd-panelist-gpt`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの OpenAI/GPT ベンダースロット。サニタイズ済み入力バンドル1件から `cross-model-verdict/v1` JSON を返す | cross-model-verify |
+| `panelist-gemini`（`sdd-panelist-gemini`） | sdd-quality-loop | `inherit` | クロスモデル検証パネルの Google/Gemini ベンダースロット。同上 | cross-model-verify |
+
+**独立レビューのペア構造（ブラインドレビュー）**
+
+a/b ペアはいずれも「互いの結果を見ない」ことを前提に設計されています。
+
+- 両者とも fresh context（実装者・生成者と履歴を共有しない）・read-only（`tools: Read, Grep, Glob` ± `Bash`、`disallowedTools: Write, Edit, NotebookEdit`）で走ります。
+- レビュアー b は `disallowedPaths` により `reports/spec-review/**/reviewer-*.json`、`reports/impl-review/**/reviewer-*.json`、`reports/task-review/**/reviewer-*.json`（domain 系はさらに `reports/domain-review/**/reviewer-*.json`）の読み取りをブロックされ、a の生の所見に到達できません。b が a から受け取るのは**件数と ID だけのサマリ**であり、所見本文・重大度・根拠は渡りません。
+- `wfi-auditor-b` も同様に、サイクル1の生出力（`docs/workflow-improvements/WFI-*-audit-cycle-1.md` と `WFI-*-auditor-a.json`）をパスブロックされます。
+- パネリスト2体は互いの verdict も主評価者（`sdd-evaluator`）の verdict も見ない「BLIND」実行で、ベンダーの異なる独立 LLM として並列に走ります。
+
+これにより、3つのレビューループ（spec-review-loop / impl-review-loop / task-review-loop）と domain-review-loop・wfi-audit-cycle は、単一の視点への収束（相互の追認）を構造的に防いでいます。
+
+**Copilot / Codex でのツイン**
+
+Copilot 用の `*.agent.md` ツインは **`sdd-investigator` と `sdd-evaluator` の2体だけ**です（`plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md`、`plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md`）。**reviewer 系（spec / impl / task）・domain 系・wfi-auditor 系には Copilot 版がありません。** Codex 用の `.codex/agents/*.toml` は4体（`sdd-investigator`、`sdd-evaluator`、`sdd-panelist-gpt`、`sdd-panelist-gemini`）です。したがって Claude Code 以外の環境では、レビューループの各ペアはサブエージェントとしてではなく、新規コンテキストで同等の手順をインラインに実行する形で運用します。
+
+---
+
 ## 4. フックと強制レイヤ
 
 ### 不変条件
@@ -192,9 +260,11 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 
 | 環境 | フックファイル | 実装方式 | 注意点 |
 |---|---|---|---|
-| Claude Code | `hooks/hooks.json` | Node.js で Edit/Write/MultiEdit/apply_patch 登録 | — |
+| Claude Code | `hooks/claude-hooks.json` | Node.js で Edit/Write/MultiEdit/apply_patch 登録 | `plugin.json` の `"hooks"` が指すのはこのファイル |
 | Codex CLI | `hooks/hooks.json` + `command_windows` | shell / PowerShell。`plugin_hooks` フラグ必須 | apply_patch は `tool_input.command` で処理 |
 | Copilot CLI | `hooks/copilot-hooks.json` | stdout で JSON `permissionDecision` 返す | サブエージェント内で発火しない既知不具合 |
+
+**フック定義はホストごとに別ファイルです（共通の1ファイルではありません）。** `plugins/sdd-quality-loop/hooks/` には `claude-hooks.json` / `hooks.json` / `copilot-hooks.json` の3ファイルが実在し、`plugins/sdd-quality-loop/.claude-plugin/plugin.json` は `"hooks": "./hooks/claude-hooks.json"` を宣言しています。`hooks/hooks.json` は Codex 用です。
 
 **設計思想**
 
@@ -211,7 +281,7 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 - POSIX shell: `sh plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh --emit exit|copilot`
 - PowerShell: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/sdd-hook-guard.ps1 -Emit exit|copilot`
 - Python3: `PAYLOAD=... python3 scripts/sdd-hook-guard.py`
-- Node.js: Claude Code `hooks.json` で呼び出し
+- Node.js: Claude Code `hooks/claude-hooks.json` で呼び出し
 
 **Emit modes**
 
@@ -221,6 +291,96 @@ PASS は Critical 0・Major 0・かつ最低1つの実際の実行または行�
 ---
 
 ## 5. 決定論的スクリプト
+
+### スクリプト一覧（`plugins/` 配下 52本）
+
+ワークフローが呼び出す決定論的スクリプトは、**`plugins/` 配下**に異なるベース名で **52本**あります。うち **37本**が `plugins/sdd-quality-loop/scripts/` に、残る **15本**が他の5プラグインに置かれています。多くは同一契約を複数ランタイム（`.sh` / `.ps1` / `.py` / `.js`）で実装するか、または Python マスタへ委譲する薄いディスパッチャの組で提供されます。「提供ランタイム」列は、そのベース名で実在する拡張子です。
+
+この 52本には `plugins/` 外のリポジトリ運用スクリプトは含みません。別途、`scripts/`（`apply-branch-protection` / `bump-version` / `check-sdd-structure` / `rollback-1.5.0`）とリポジトリ直下の `render-agent-frontmatter.{sh,ps1}` があります。後者は生成されるエージェント定義ファイルの単一の真実源として `contracts/agent-model-capabilities.*` の `role_defaults` を参照するもので、独立した契約節が [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) に置かれています。
+
+**ゲート系（`check-*`、13本）** — 判定を返し、失敗時に exit 1 でフェイルクローズします。
+
+| スクリプト名 | 提供ランタイム | 目的 |
+|---|---|---|
+| `check-component-coverage` | sh / ps1 / py | Reverse Coverage Gate。コンポーネントのパス所有関係から網羅性を判定し、`check-component-coverage-verdict/v1` 証跡レコードを常に発行する。**v1.15.0 の新ゲートで、`high`/`critical` の必須チェックセットに登録済み** |
+| `check-contract` | sh / ps1 / py | Default-FAIL 検証契約 (JSON) の検証（[詳細](#check-contract)） |
+| `check-cross-model` | sh / ps1 | クロスモデル合意検証。パネリスト verdict と主評価者 verdict の突き合わせ |
+| `check-design-system` | sh / ps1 | デザインシステム準拠の warn フェーズゲート（[詳細](#check-design-system)） |
+| `check-domain-conformance` | sh / ps1 | ドメイン適合の warn フェーズゲート。`domain/` 不在時は exit 0 でスキップ |
+| `check-evidence-bundle` | sh / ps1 | Done 判定用 evidence bundle の存在・SHA-256・プロベナンス検証（[詳細](#check-evidence-bundle)） |
+| `check-hook-activation-handshake` | sh / ps1 / py | ホストカナリア方式のチャレンジ/レスポンスでフック実装が実際に発火しているかを検証 |
+| `check-placeholders` | sh / ps1 | placeholder / stub / generic-fallback 実装の検出（[詳細](#check-placeholders)） |
+| `check-quality-gate-cycle-limit` | sh / ps1 | 現 feature スコープの quality-gate 反復回数上限を強制（無限ループ防止） |
+| `check-risk` | sh / ps1 | `Risk:` 階層と `Risk Rationale:` の検証（[詳細](#check-risk)） |
+| `check-task-state` | sh / ps1 | tasks.md 状態機械の検証（[詳細](#check-task-state)） |
+| `check-traceability` | sh / ps1 | REQ→AC→TEST→証跡チェーンの検証（[詳細](#check-traceability)） |
+| `check-workflow-state` | sh / ps1 | `specs/workflow-state-registry.json` をもとにリポジトリ全体の SDD ワークフロー状態を検証（診断行は API 安定） |
+
+**生成系（`generate-*`、5本）** — 成果物・証跡・派生ファイルを決定論的に生成します。
+
+| スクリプト名 | 提供ランタイム | 目的 |
+|---|---|---|
+| `generate-approval-sidecar` | sh / ps1 / py | Project Context / Provider Binding の `context_sha256` を計算し、HMAC-SHA256 署名した承認サイドカーを `sdd/.staging/` へ**候補として**書き出す（人間 / CI 専用） |
+| `generate-evidence-bundle` | sh / ps1 | 検証契約と品質レポートから、参照成果物すべての SHA-256 を含むハッシュ検証済み evidence bundle を生成 |
+| `generate-gate-capabilities` | sh / ps1 / py | 正準 Registry (`contracts/capability-registry.json`) から `generated/gate-capabilities.json` を射影生成 |
+| `generate-guard-invariants` | py | `references/guard-invariants.json` から、各ランタイム native なガード不変条件モジュール (`generated/guard-invariants.generated.{sh,ps1,js}` / `guard_invariants.py`) をレンダリング |
+| `generate-registry-digest` | sh / ps1 / py / js | Capability Registry の選択フラグメントの正準ダイジェストを生成（NFC 正規化・RFC 8785・ハッシュ化は canonicalize-sdd-yaml へ委譲） |
+
+**検証系（`validate-*`、5本）** — 契約・マニフェスト・入力の妥当性を独立に再検証します。
+
+| スクリプト名 | 提供ランタイム | 目的 |
+|---|---|---|
+| `validate-approval-sidecar` | sh / ps1 / py | 承認サイドカーを対応する内容ファイルに対して独立再検証。最初の失敗で短絡 |
+| `validate-capability-registry` | sh / ps1 / py | Capability Registry の9つの独立チェック (a–i) を検証。失敗ごとに `registry: <check-id>: <detail>` を1行出力 |
+| `validate-facet-manifest` | sh / ps1 / py | Facet Manifest のスキーマ + セマンティクス検証 |
+| `validate-review-context-set` | sh / ps1 | レビュアー / 評価者の起動を時系列で1件ずつ検証（`--reserve` で予約）。コンテキスト独立性の強制点 |
+| `validate_path` | py | 共有パス検証ユーティリティ（`validate_evidence_path()`）。現在 import しているのは `check-contract.py` のみ。import 失敗時、呼び出し側は exit 1 でフェイルクローズしなければならない |
+
+**解決・正規化系（6本）** — 判定を返さず、正規化された事実や候補集合を返します。
+
+| スクリプト名 | 提供ランタイム | 目的 |
+|---|---|---|
+| `resolve-component-paths` | sh / ps1 / py | コンポーネントのパス所有関係リゾルバ。glob 意味論・正規化・exclusive/shared 分類・重複 / 未所有の検出 |
+| `canonicalize-sdd-yaml` | sh / ps1 / py / js | 制限付き YAML サブセット（または JSON）を解析し、RFC 8785 (JCS) 正準 JSON バイト列またはその SHA-256 を出力 |
+| `evaluate-predicate` | sh / ps1 / py | Predicate DSL 評価器。閉じた8演算子文法（all/any/not, equals/not_equals/contains/in/exists）をフェイルクローズ規則付きで評価 |
+| `detect-policy-weakening` | sh / ps1 / py | 候補 `project-context.yaml` / `provider-bindings.yaml` を**現在 APPROVED なアンカー**（git HEAD でも呼び出し側指定パスでもない）と比較し、9つの正準弱体化カテゴリへ分類 |
+| `detect-panel` | sh / ps1 | 利用可能な非 Anthropic パネリスト CLI を検出し、slug を改行区切りで列挙 |
+| `registry_discovery` | py | Registry 探索契約の共有ヘルパモジュール。パッケージ同梱コピー優先のフェイルクローズ解決順を実装 |
+
+**運用・強制系（8本）** — フック・停止・公開・記録・外部パネリスト実行を担います。
+
+| スクリプト名 | 提供ランタイム | 目的 |
+|---|---|---|
+| `sdd-hook-guard` | sh / ps1 / py / js | 統一 PreToolUse ガードのディスパッチャ（承認ガード / WFI 承認ガード。[詳細](#hook-guard-script)） |
+| `kill-switch` | sh / ps1 / js | `AGENT_STOP` が存在する間、全ツール呼び出しを停止する PreToolUse フック |
+| `apply-human-copy` | sh / ps1 | Anchored-publisher 相当の human-copy 公開ツール。sh / ps1 が**それぞれ独立に**完全な publisher ロジックを実装（Python マスタなし） |
+| `emit-run-record` | sh / ps1 | WFI 効果測定用の run record を決定論的に発行（feature slug・トラック・モデル・effort・プラグインバージョン） |
+| `vendor-capability-registry` | sh / ps1 / py | 正準の top-level `contracts/*` から `plugins/sdd-quality-loop/contracts/*` を再取り込み（vendored copy のドリフト検査 / リリースゲート） |
+| `prepare-panelist-input` | sh / ps1 | サニタイズ済みパネリスト入力バンドルを同意ゲート付きで準備 |
+| `run-panelist-gpt` | sh / ps1 | OpenAI GPT パネリストを `codex` CLI 経由で隔離スクラッチ内で実行 |
+| `run-panelist-gemini` | sh / ps1 | Google Gemini パネリストを `gemini` CLI 経由で隔離スクラッチ内で実行 |
+
+**他プラグインの決定論的スクリプト（15本）**
+
+| スクリプト名 | 所属プラグイン | 提供ランタイム | 目的 |
+|---|---|---|---|
+| `check-sdd-structure` | sdd-bootstrap | sh / ps1 | SDD ディレクトリ構造の preflight 検証（[詳細](#check-sdd-structure)） |
+| `design-sync-scan` | sdd-bootstrap | sh / ps1 | design-sync-loop のアップロード前 egress 衛生スキャン |
+| `domain-review-precheck` | sdd-domain | sh / ps1 | domain-review 遷移の決定論的前提・プロベナンスをレビュアー起動前に検証 |
+| `check-terminal-tier-resume` | sdd-implementation | sh / ps1 | `terminal-tier-recurrence` で Blocked になったタスクの再開可否を、永続化された `terminal-tier-resume/v1` 証跡から判定 |
+| `prepare-task-snapshot` | sdd-implementation | sh / ps1 | タスク入力の不変スナップショットを公開（ハッシュ束縛） |
+| `select-agent-model` | sdd-implementation | sh / ps1 | `contracts/agent-model-capabilities.json` を参照し、リスク階層・失敗履歴からエージェントのモデル / effort 階層を選択 |
+| `validate-implementation-report` | sdd-implementation | sh | 実装レポートの構造検証 |
+| `validate-task-input-manifest` | sdd-implementation | sh / ps1 | タスク入力マニフェスト（単体・バッチ）の検証。バッチはマニフェスト集合全体を起動前に検証 |
+| `check-risk-upgrade` | sdd-lite | sh / ps1 | lite トラックのローカルなリスク昇格チェック（リモート読み取りは一切行わない） |
+| `check-task-state-lite` | sdd-lite | sh / ps1 | lite 用の軽量状態ゲート（[詳細](#check-task-state-lite)） |
+| `spec-review-precheck` | sdd-review-loop | sh / ps1 | 仕様レビュー遷移の前提・プロベナンス検証 |
+| `impl-review-precheck` | sdd-review-loop | sh / ps1 | 実装方針レビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
+| `task-review-precheck` | sdd-review-loop | sh / ps1 | タスクレビュー遷移の前提・プロベナンス検証（attempt / round 単位） |
+| `review-contract-validate` | sdd-review-loop | sh / ps1 | 3つの review-loop precheck の可搬な共通基盤。契約 ID とレポートルートの検証後にのみ正準 JSON を出力 |
+| `validate-layer-traceability` | sdd-review-loop | ps1 / py | `traceability.md` と `requirements.md` の層別トレーサビリティ整合を検証（`.ps1` は `.py` へ委譲せず独立実装） |
+
+以降は主要スクリプトの詳細です。ここに詳述が無いものは、各スクリプト先頭のコメント（`Usage:` 行と契約記述）が一次情報です。
 
 ### check-sdd-structure
 
@@ -519,6 +679,110 @@ plugins/sdd-quality-loop/scripts/check-design-system.sh <project-root> [<design-
 plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-DesignMd <path>] [-ChangedFiles <paths...>]
 ```
 
+---
+
+### check-component-coverage
+
+**目的**
+
+Reverse Coverage Gate。v1.15.0 で追加された新ゲートで、`risk-gate-matrix.md` の `high` / `critical` 必須チェックセットに登録済みです（`high = medium ∪ { requirement-traceability, check-component-coverage }`）。分類ロジックとgit-diff 収集は再実装せず、同ディレクトリの `resolve-component-paths.py` の公開関数を直接 import します。標準ライブラリ以外に依存しません。
+
+**適用状態（3状態）**
+
+適用可否は Facet Manifest ファイルの有無ではなく、**`workflow.capability_enforcement` の値からのみ**導出されます（ADR-0016）。`advisory` が暗黙に `required` のブロッキング強度へ昇格することはありません。
+
+- `disabled-legacy`（`project-context.yaml` 不在、または当該フィールドが不在 / 不正）: 所有関係の Fail 条件評価をゼロ件で終え、実体のある N/A 証跡レコードを出力して exit 0。`--facet-manifest` は受理されるが存在確認はされない
+- `advisory`: `--facet-manifest` が構造上必須（不在・読み取り不能はハードエラーで専用の exit code）。6つの Fail 条件をすべて評価・記録するが、**どれがトリガーしても exit は常に 0**
+- `required`: 評価内容は `advisory` と同一だが、Fail 条件が1つでもトリガーしたときに限り非ゼロ exit
+
+いずれの状態でも**必ず最後まで走り切り**、`producer.sha256` バインディングを持つ `check-component-coverage-verdict/v1` 証跡レコードを常に発行します。
+
+**使用法**
+
+```bash
+sh plugins/sdd-quality-loop/scripts/check-component-coverage.sh \
+  --config <project-context.yaml> --facet-manifest <manifest> \
+  [--changed-paths-file <file>] [--source-rev HEAD] [--target-rev <rev>] [--repo-root <dir>]
+```
+
+`.sh` / `.ps1` は薄いディスパッチャ（python3 → pwsh/powershell → エラー終了）で、契約の一次情報は `check-component-coverage.py` です。
+
+---
+
+### resolve-component-paths
+
+**目的**
+
+コンポーネントのパス所有関係リゾルバ。glob 意味論・正規化・スキーマ適合（REQ-001）と、exclusive / shared 分類・overlap / unowned 検出・excluded-match 証跡（REQ-002）を実装します。`check-component-coverage` の基盤です。
+
+**重要な性質**
+
+分類結果は**データであって失敗ではありません**。出力 JSON に `UNOWNED` / `OVERLAP` が含まれていてもクリーンな resolve なら exit 0 で、分類結果を Gate Fail に変換するのは `check-component-coverage` だけです。非ゼロ exit になるのは config 形状エラー・未対応メタ文字パターン・NFC 衝突などです。
+
+**使用法**
+
+```bash
+# 分類モード（--changed-paths-file 省略時は stdin から改行区切りの生パスを読む）
+python3 plugins/sdd-quality-loop/scripts/resolve-component-paths.py \
+  --config <project-context.yaml> [--changed-paths-file <file>]
+
+# スキーマ適合モード（不在時はフェイルクローズ。スキップしない）
+python3 plugins/sdd-quality-loop/scripts/resolve-component-paths.py \
+  --check-schema-conformance [--schema contracts/project-context.template.yaml]
+```
+
+出力は全モードで JSON です（`--json` は受理される no-op）。
+
+---
+
+### apply-human-copy
+
+**目的**
+
+Anchored-publisher 相当の human-copy 公開ツール。ステージングされた候補ファイル群を、パス置換攻撃に耐える形で最終位置へ原子的に公開します。
+
+**設計上の特徴**
+
+- **Python マスタを持ちません。** `.sh` と `.ps1` が**それぞれ独立に**完全な publisher ロジックを実装しており、互いにディスパッチしません（T-007 のアーキテクチャ制約）
+- POSIX には `openat()` / `renameat()` の束縛が無いため、POSIX 側では「保持したディレクトリハンドル経由で相対パスを1セグメントずつ解決する」保証を、プロセス自身の作業ディレクトリ束縛（相対名に対する `chdir(2)`）で実現しています
+- 残存する窓（各セグメントの `-L` チェックと `cd` の間、および最終再チェックと `mv` システムコールの間）は単一のシステムコールでは閉じられず、これは FFI を持たない可搬 POSIX シェルで到達できる最強の保証である旨が明記されています。詳細は `docs/adr/0025-*`
+
+**使用法**
+
+```bash
+# 公開
+sh plugins/sdd-quality-loop/scripts/apply-human-copy.sh --staging-dir <dir> --manifest <file>
+
+# 引数なし: 起動時に必須のクラッシュリカバリ走査だけを実行して終了
+sh plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+```
+
+`--staging-dir` / `--manifest` を与えない起動は、トランザクショナルバンドル契約が定める**起動時必須のクラッシュリカバリ走査のみ**を行います。
+
+---
+
+### sdd-hook-guard
+
+統一 PreToolUse ガード（承認ガード / WFI 承認ガードの実体）。位置・実行方法・emit モードは [§4 Hook Guard Script](#hook-guard-script) を参照してください。`.sh` は POSIX ディスパッチャで、判定は隣接する Python または PowerShell のガードへ委譲されます。ガードが参照する不変条件は `references/guard-invariants.json` から `generate-guard-invariants.py` がレンダリングした `generated/guard-invariants.generated.{sh,ps1,js}` / `generated/guard_invariants.py` です。
+
+---
+
+### kill-switch
+
+**目的**
+
+PreToolUse フック。プロジェクトルートに `AGENT_STOP` が存在する間、すべてのツール呼び出しを停止します。人間が `AGENT_STOP` を作成すれば即座に停止し、削除すれば再開します。
+
+**動作**
+
+- ブロックは **exit 2** で行われ、日本語と英語の両方の警告メッセージを stderr に出力します
+- `CLAUDE_PROJECT_DIR` が設定されていればそのディレクトリと `.` を検査します
+- 未設定の場合は cwd から最大20階層まで親を遡り、各階層で `AGENT_STOP` を検査します。`.git`（ディレクトリ / worktree の `.git` ファイルの両方）に到達した時点で探索を打ち切ります
+
+**提供ランタイム**
+
+`kill-switch.sh` / `kill-switch.ps1` / `kill-switch.js`
+
 ## 6. テンプレート一覧
 
 ### sdd-bootstrap
@@ -579,7 +843,9 @@ plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-D
 | scripts (.sh / .ps1) | ○ | ○ | ○ |
 | `sdd-investigator` エージェント | ○ (`context: fork`) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
 | `sdd-evaluator` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
-| `hooks/hooks.json` (承認ガード / AGENT_STOP) | ○ | ○² (`plugin_hooks` フラグ必要) | ○³ (plugin `preToolUse`) |
+| `panelist-gpt` / `panelist-gemini` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | — (ツインなし) |
+| reviewer 系 (`spec` / `impl` / `task` / `domain`) ・`wfi-auditor` エージェント (10体) | ○ (サブエージェント) | — (ツインなし⁴) | — (ツインなし⁴) |
+| フック定義 (承認ガード / AGENT_STOP) — ホストごとに別ファイル | ○ (`hooks/claude-hooks.json`) | ○² (`hooks/hooks.json`、`plugin_hooks` フラグ必要) | ○³ (`hooks/copilot-hooks.json`、plugin `preToolUse`) |
 | `disable-model-invocation` | ○ | — | ○ |
 | `context: fork` | ○ | — | — |
 
@@ -588,6 +854,8 @@ plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-D
 ² Codex は `hooks/hooks.json` の `command` / `command_windows` を `plugin_hooks` フィーチャーフラグが有効な場合に読み込みます。`apply_patch` ペイロードは `sdd-hook-guard` が処理します。
 
 ³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。既知の不具合: サブエージェント内では発火しない場合があります。
+
+⁴ Copilot 用の `copilot-agents/*.agent.md` は `sdd-investigator` と `sdd-evaluator` の2体分しか存在せず、Codex 用の `.codex/agents/*.toml` は4体分（上記2体 + パネリスト2体）です。reviewer 系・domain 系・wfi-auditor 系にはどちらのツインもありません。これらの環境では、各ペアを新規コンテキストで同等の手順としてインライン実行し、`spec-review-precheck` / `impl-review-precheck` / `task-review-precheck` / `domain-review-precheck` と `validate-review-context-set` で独立性の前提を決定論的に確認してください。
 
 **フックは補助線 (defense in depth)。決定論的スクリプト (`check-contract` / `check-task-state`) が最終防衛線です。**
 
