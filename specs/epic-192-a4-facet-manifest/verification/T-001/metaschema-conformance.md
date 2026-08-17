@@ -52,24 +52,64 @@ keyword used in a valid position.
 
 As a second, independent confidence check (not required by design.md, but
 directly relevant since this feature's own validator is hand-rolled), every
-fixture under `tests/fixtures/facet-manifest/{schema,semantics}/` (41 files)
-was evaluated with `jsonschema.Draft7Validator(schema).iter_errors(doc)` and
-compared against `validate-facet-manifest.py`'s own schema-conformance exit
-code:
+fixture under `tests/fixtures/facet-manifest/{schema,semantics}/` (41 files
+at the time this cross-validation ran) was evaluated with
+`jsonschema.Draft7Validator(schema).iter_errors(doc)` and compared against
+`validate-facet-manifest.py`'s own schema-conformance exit code:
 
-- All 31 `schema/` fixtures: the reference validator's pass/fail verdict
-  matches this feature's hand-rolled engine's `schema-invalid`
-  pass/fail verdict on every fixture, with no disagreement.
-- All 10 `semantics/` fixtures: the reference validator reports all 10 as
-  schema-valid (expected — these fixtures exercise the four REQ-006
-  *semantic* checks, which are not draft-07 schema constructs at all), and
-  this feature's hand-rolled engine's own schema-conformance layer agrees
-  (reports no `schema-invalid` diagnostic for any of the 10); each is
-  correctly flagged only by its intended semantic check
-  (`resolved-gate-id-duplicate`, `facet-classification-conflict`,
-  `conditional-facet-duplicate`, or `array-not-stable-sorted`).
+- All 31 `schema/` fixtures (as they existed at cross-validation time): the
+  reference validator's pass/fail verdict matches this feature's hand-rolled
+  engine's `schema-invalid` pass/fail verdict on every fixture, with no
+  disagreement.
+- All 10 `semantics/` fixtures (as they existed at cross-validation time):
+  the reference validator reports all 10 as schema-valid (expected — these
+  fixtures exercise the four REQ-006 *semantic* checks, which are not
+  draft-07 schema constructs at all), and this feature's hand-rolled
+  engine's own schema-conformance layer agrees (reports no `schema-invalid`
+  diagnostic for any of the 10); each is correctly flagged only by its
+  intended semantic check (`resolved-gate-id-duplicate`,
+  `facet-classification-conflict`, `conditional-facet-duplicate`, or
+  `array-not-stable-sorted`).
 
 Full comparison transcript: `specs/epic-192-a4-facet-manifest/verification/T-001/metaschema-cross-validation.log`.
+
+**2026-08-17 recount (quality-gate cycle 2).** The counts above ("41
+files", "31 `schema/` fixtures") describe the fixture set as it stood when
+this one-time cross-validation was originally run, and had already gone
+stale by quality-gate cycle 2: further fixtures were added by intervening
+gate-cycle work without this file being updated. A fresh `find`/`ls` count
+taken during cycle-2 remediation (2026-08-17) measures:
+
+- `tests/fixtures/facet-manifest/schema/`: **48 files** (37 pre-existing +
+  11 added by cycle-2 remediation: 2 ECMA-262 trailing-newline regression
+  fixtures, 3 AC-006 `resolved_gates[]` missing-key fixtures, 4 AC-009
+  per-field malformed-digest fixtures, 1 AC-004 acceptance case, plus the
+  1-file net delta already present from earlier gate work — see
+  `git log --follow` on this directory for the itemized history).
+- `tests/fixtures/facet-manifest/semantics/`: **12 files** (10 pre-existing
+  + 2 added by cycle-2 remediation: `schema-invalid.json` for the
+  previously-missing AC-028 diagnostic-id row, and
+  `multi-diagnostic-ordering.json` for the determinism-ordering
+  regression).
+- Total: **60 files**.
+
+**Scope of this recount, stated precisely:** this note only corrects the
+stale *count* in the prose above. It does **not** claim the original
+`jsonschema`-reference cross-validation was re-run against the fixtures
+added after it (neither the pre-cycle-2 additions nor the 13 fixtures added
+in cycle-2 itself). Those newer fixtures are exercised exclusively by
+`tests/facet-manifest-schema.tests.sh`/`.ps1` and
+`tests/facet-manifest-semantics.tests.sh`/`.ps1` — i.e., by this feature's
+own hand-rolled engine's pass/fail behavior, verified directly against each
+fixture's expected diagnostic text/pointer — not by a second, independent
+`jsonschema`-library opinion. Re-running the full cross-validation against
+the current 60-fixture set was judged unnecessary for cycle-2 remediation
+(the fix under test, ECMA-262 `pattern` `$` semantics, is proven directly
+via the RED/GREEN evidence in
+`specs/epic-192-a4-facet-manifest/verification/T-001/gate-cycle2-red-green.log`,
+which exercises the actual shipped hand-rolled engine, not the reference
+implementation) but remains available as a follow-up if a future cycle
+wants a fresh independent opinion on the full fixture set.
 
 ## Conclusion
 

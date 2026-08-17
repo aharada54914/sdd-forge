@@ -71,8 +71,26 @@ Expect-Valid 'valid-base.json' 'TEST-002 positive baseline'
 # pre-canonical JSON fixture (see file header).
 Expect-Valid 'canonicalizer-roundtrip-valid.yaml' 'TEST-002 YAML round-trip (real canonicalizer subprocess)'
 
-foreach ($field in @('schema','feature','affected-components','required-facets','conditional-facets','resolved-gates','capabilities','lite-eligibility','context-binding','resolver')) {
-    Expect-Invalid "required-missing-$field.json" 'TEST-002' 'missing required property'
+# Field-specific needles (not the generic 'missing required property'
+# substring): each fixture below is verified (ad hoc, at suite-authoring
+# time) to omit exactly ONE top-level required field, and the needle pins
+# the validator's own quoting of that field name so a fixture that
+# regressed to omitting a *different* field would fail this assertion.
+$ReqFieldMap = [ordered]@{
+    'schema'              = 'schema'
+    'feature'              = 'feature'
+    'affected-components'  = 'affected_components'
+    'required-facets'      = 'required_facets'
+    'conditional-facets'   = 'conditional_facets'
+    'resolved-gates'       = 'resolved_gates'
+    'capabilities'         = 'capabilities'
+    'lite-eligibility'     = 'lite_eligibility'
+    'context-binding'      = 'context_binding'
+    'resolver'             = 'resolver'
+}
+foreach ($slug in $ReqFieldMap.Keys) {
+    $fieldJson = $ReqFieldMap[$slug]
+    Expect-Invalid "required-missing-$slug.json" 'TEST-002' "missing required property '$fieldJson'"
 }
 
 # TEST-003
@@ -85,6 +103,7 @@ Expect-Invalid 'duplicate-capabilities.json' 'TEST-003' 'uniqueItems violated'
 Expect-Invalid 'conditional-facet-applied-false-missing-reason.json' 'TEST-004' "missing required property 'reason'"
 Expect-Invalid 'conditional-facet-applied-true-with-reason.json' 'TEST-004' "matched a schema under 'not'"
 Expect-Valid 'conditional-facet-applied-true-valid.json' 'TEST-004'
+Expect-Valid 'conditional-facet-applied-false-with-reason-valid.json' 'TEST-004 acceptance case (applied: false WITH reason)'
 
 # TEST-005
 Expect-Invalid 'evidence-invalid-operator.json' 'TEST-005' 'expected one of'
@@ -94,6 +113,9 @@ Expect-Valid 'evidence-warn-with-reason-valid.json' 'TEST-005'
 # TEST-006
 Expect-Invalid 'resolved-gate-invalid-stage.json' 'TEST-006' 'expected one of'
 Expect-Valid 'resolved-gate-valid-multi.json' 'TEST-006'
+Expect-Invalid 'resolved-gate-missing-id.json' 'TEST-006' "missing required property 'id'"
+Expect-Invalid 'resolved-gate-missing-stage.json' 'TEST-006' "missing required property 'stage'"
+Expect-Invalid 'resolved-gate-missing-blocking.json' 'TEST-006' "missing required property 'blocking'"
 
 # TEST-007
 Expect-Invalid 'capability-minimum-enforcement-invalid-value.json' 'TEST-007' "expected const 'required'"
@@ -107,6 +129,13 @@ Expect-Valid 'lite-eligibility-empty-upgrade-reasons-valid.json' 'TEST-008'
 # TEST-009
 Expect-Invalid 'context-binding-malformed-digest.json' 'TEST-009' 'does not match pattern'
 Expect-Invalid 'context-binding-empty-dependency-pointers.json' 'TEST-009' '< minItems 1'
+
+# TEST-009 (per-field, AC-009): each context_binding digest field must
+# individually reject a malformed value, pinned by its own JSON Pointer.
+Expect-Invalid 'context-binding-full-context-revision-malformed-digest.json' 'TEST-009' '/context_binding/full_context_revision: does not match pattern'
+Expect-Invalid 'context-binding-projection-sha256-malformed-digest.json' 'TEST-009' '/context_binding/projection_sha256: does not match pattern'
+Expect-Invalid 'context-binding-registry-digest-malformed-digest.json' 'TEST-009' '/context_binding/registry_digest: does not match pattern'
+Expect-Invalid 'context-binding-ownership-digest-malformed-digest.json' 'TEST-009' '/context_binding/ownership_digest: does not match pattern'
 
 # TEST-010
 Expect-Invalid 'resolver-malformed-semver.json' 'TEST-010' 'does not match pattern'
@@ -124,6 +153,31 @@ Write-Host 'ok: TEST-041: covered by evidence-warn-{missing-reason,with-reason-v
 
 # TEST-048 (schema half)
 Expect-Invalid 'upgrade-reasons-duplicate.json' 'TEST-048' 'uniqueItems violated'
+
+# ECMA pattern semantics: trailing-newline digest/version rejected.
+# Draft-07 `pattern` follows ECMA-262 semantics: a non-multiline `$`
+# asserts end-of-string only. A naive regex `$` also matches immediately
+# before a trailing "\n", so a value like "sha256:<64hex>\n" must not be
+# silently accepted. Regression lock for the validator's
+# `_ecma_anchor`/`\Z` fix (verification/T-001/gate-cycle2-red-green.log
+# has RED/GREEN proof).
+Expect-Invalid 'context-binding-registry-digest-trailing-newline.json' 'ECMA pattern semantics: trailing-newline digest rejected' '/context_binding/registry_digest: does not match pattern'
+Expect-Invalid 'resolver-version-trailing-newline.json' 'ECMA pattern semantics: trailing-newline digest rejected' '/resolver/version: does not match pattern'
+
+# canonicalizer-invocation-failed regression lock: a nonexistent .yaml path
+# must surface the validator's own canonicalizer-invocation-failed
+# diagnostic (fail-closed YAML parse contract), not a traceback or a
+# silent pass. No fixture file needed -- the path is intentionally absent.
+$MissingYaml = Join-Path $Fixtures 'does-not-exist.yaml'
+$canonOut = & $Python $Validator --manifest $MissingYaml 2>&1
+$canonOutStr = ($canonOut -join "`n")
+if ($LASTEXITCODE -ne 0 -and $canonOutStr.Contains('facet-manifest: canonicalizer-invocation-failed:')) {
+    Write-Host "ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=$LASTEXITCODE, contains diagnostic)"
+    $script:Pass++
+} else {
+    Write-Host "FAIL: canonicalizer-invocation-failed: expected exit!=0 and diagnostic, got exit=$LASTEXITCODE output=[$canonOutStr]"
+    $script:Fail++
+}
 
 # TEST-034: REQ-007 placement regression
 $StructCheck = Join-Path $RepoRoot 'scripts/check-sdd-structure.sh'

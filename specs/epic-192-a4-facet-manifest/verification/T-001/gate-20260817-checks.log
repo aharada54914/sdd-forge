@@ -188,3 +188,24 @@ efd2f445c803cbf8080b4e68e36cb70f7afb522d9c5b06363bf703b07b65ccc4  plugins/sdd-qu
 Verification contract FAILED for task T-001:
  - check 'requirement-traceability' evidence file missing: reports/quality-gate/epic-192-a4-facet-manifest/T-001.md
 exit=1
+
+===== gate cycle 2 verification re-run: 2026-08-17T01:36:58Z =====
+----- bash tests/facet-manifest-schema.tests.sh -----
+
+facet-manifest-schema: 54 passed, 0 failed
+exit=0
+----- bash tests/facet-manifest-semantics.tests.sh -----
+
+facet-manifest-semantics: 15 passed, 0 failed
+exit=0
+----- pwsh schema twin -----
+
+facet-manifest-schema: 54 passed, 0 failed
+exit=0
+----- pwsh semantics twin -----
+
+facet-manifest-semantics: 15 passed, 0 failed
+exit=0
+----- check-placeholders on changed production file -----
+Placeholder scan passed.
+exit=0

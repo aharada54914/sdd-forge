@@ -85,10 +85,21 @@ expect_valid "valid-base.json" "TEST-002 positive baseline"
 # end-to-end instead of being deferred.
 expect_valid "canonicalizer-roundtrip-valid.yaml" "TEST-002 YAML round-trip (real canonicalizer subprocess)"
 
-for field in schema feature affected-components required-facets \
+# Field-specific needles (not the generic "missing required property"
+# substring): each fixture below is verified (ad hoc, at suite-authoring
+# time) to omit exactly ONE top-level required field, and the needle pins
+# the validator's own quoting of that field name so a fixture that
+# regressed to omitting a *different* field would fail this assertion.
+declare -a req_field_json=(schema feature affected_components required_facets \
+  conditional_facets resolved_gates capabilities lite_eligibility \
+  context_binding resolver)
+declare -a req_field_slug=(schema feature affected-components required-facets \
   conditional-facets resolved-gates capabilities lite-eligibility \
-  context-binding resolver; do
-  expect_invalid "required-missing-${field}.json" "TEST-002" "missing required property"
+  context-binding resolver)
+for i in "${!req_field_json[@]}"; do
+  field_json="${req_field_json[$i]}"
+  field_slug="${req_field_slug[$i]}"
+  expect_invalid "required-missing-${field_slug}.json" "TEST-002" "missing required property '${field_json}'"
 done
 
 # --- TEST-003: uniqueItems + empty-array acceptance (AC-003) ----------------
@@ -101,6 +112,7 @@ expect_invalid "duplicate-capabilities.json" "TEST-003" "uniqueItems violated"
 expect_invalid "conditional-facet-applied-false-missing-reason.json" "TEST-004" "missing required property 'reason'"
 expect_invalid "conditional-facet-applied-true-with-reason.json" "TEST-004" "matched a schema under 'not'"
 expect_valid "conditional-facet-applied-true-valid.json" "TEST-004"
+expect_valid "conditional-facet-applied-false-with-reason-valid.json" "TEST-004 acceptance case (applied: false WITH reason)"
 
 # --- TEST-005: Evidence-array-shape + out-of-enum operator (AC-005) --------
 expect_invalid "evidence-invalid-operator.json" "TEST-005" "expected one of"
@@ -110,6 +122,9 @@ expect_valid "evidence-warn-with-reason-valid.json" "TEST-005"
 # --- TEST-006: resolved_gates[] shape + stage enum (AC-006) -----------------
 expect_invalid "resolved-gate-invalid-stage.json" "TEST-006" "expected one of"
 expect_valid "resolved-gate-valid-multi.json" "TEST-006"
+expect_invalid "resolved-gate-missing-id.json" "TEST-006" "missing required property 'id'"
+expect_invalid "resolved-gate-missing-stage.json" "TEST-006" "missing required property 'stage'"
+expect_invalid "resolved-gate-missing-blocking.json" "TEST-006" "missing required property 'blocking'"
 
 # --- TEST-007: capability_minimum_enforcement const/absent + aggregate -----
 expect_invalid "capability-minimum-enforcement-invalid-value.json" "TEST-007" "expected const 'required'"
@@ -123,6 +138,13 @@ expect_valid "lite-eligibility-empty-upgrade-reasons-valid.json" "TEST-008"
 # --- TEST-009: digest pattern + minItems ------------------------------------
 expect_invalid "context-binding-malformed-digest.json" "TEST-009" "does not match pattern"
 expect_invalid "context-binding-empty-dependency-pointers.json" "TEST-009" "< minItems 1"
+
+# --- TEST-009 (per-field, AC-009): each context_binding digest field must
+# individually reject a malformed value, pinned by its own JSON Pointer ----
+expect_invalid "context-binding-full-context-revision-malformed-digest.json" "TEST-009" "/context_binding/full_context_revision: does not match pattern"
+expect_invalid "context-binding-projection-sha256-malformed-digest.json" "TEST-009" "/context_binding/projection_sha256: does not match pattern"
+expect_invalid "context-binding-registry-digest-malformed-digest.json" "TEST-009" "/context_binding/registry_digest: does not match pattern"
+expect_invalid "context-binding-ownership-digest-malformed-digest.json" "TEST-009" "/context_binding/ownership_digest: does not match pattern"
 
 # --- TEST-010: semver pattern ------------------------------------------------
 expect_invalid "resolver-malformed-semver.json" "TEST-010" "does not match pattern"
@@ -142,6 +164,31 @@ ok "TEST-041: covered by evidence-warn-{missing-reason,with-reason-valid} above"
 
 # --- TEST-048 (schema half): upgrade_reasons uniqueItems --------------------
 expect_invalid "upgrade-reasons-duplicate.json" "TEST-048" "uniqueItems violated"
+
+# --- ECMA pattern semantics: trailing-newline digest/version rejected ------
+# Draft-07 `pattern` follows ECMA-262 semantics: a non-multiline `$` asserts
+# end-of-string only. Python's bare `$` also matches immediately before a
+# trailing "\n", so a value like "sha256:<64hex>\n" must not be silently
+# accepted. Regression lock for the validator's `_ecma_anchor`/`\Z` fix
+# (verification/T-001/gate-cycle2-red-green.log has RED/GREEN proof).
+expect_invalid "context-binding-registry-digest-trailing-newline.json" "ECMA pattern semantics: trailing-newline digest rejected" "/context_binding/registry_digest: does not match pattern"
+expect_invalid "resolver-version-trailing-newline.json" "ECMA pattern semantics: trailing-newline digest rejected" "/resolver/version: does not match pattern"
+
+# --- canonicalizer-invocation-failed regression lock -------------------------
+# Deterministic: a nonexistent .yaml path must surface the validator's own
+# canonicalizer-invocation-failed diagnostic (fail-closed YAML parse
+# contract), not a Python traceback or a silent pass. No fixture file
+# needed -- the path is intentionally absent.
+missing_yaml="$FIXTURES/does-not-exist.yaml"
+set +e
+canon_out="$(run_validator "$missing_yaml" 2>&1)"
+canon_rc=$?
+set -e
+if [ "$canon_rc" -ne 0 ] && printf '%s' "$canon_out" | grep -qF "facet-manifest: canonicalizer-invocation-failed:"; then
+  ok "canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=$canon_rc, contains diagnostic)"
+else
+  fail "canonicalizer-invocation-failed: expected exit!=0 and diagnostic, got exit=$canon_rc output=[$canon_out]"
+fi
 
 # --- TEST-034: REQ-007 placement regression (AC-034) ------------------------
 STRUCT_CHECK="${REPO_ROOT}/scripts/check-sdd-structure.sh"
