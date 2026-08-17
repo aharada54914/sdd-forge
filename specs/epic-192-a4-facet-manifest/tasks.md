@@ -370,7 +370,7 @@ subprocess invocation is unaffected and can proceed to Done independently.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
 
-Approval: Draft
+Approval: Approved (human 2026-08-17T03:35Z)
 
 Status: Planned
 
@@ -543,7 +543,7 @@ Constraints, above.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
 
-Approval: Draft
+Approval: Approved (human 2026-08-17T03:35Z)
 
 Status: Planned
 
@@ -734,7 +734,7 @@ T-001, T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
 
-Approval: Draft
+Approval: Approved (human 2026-08-17T03:35Z)
 
 Status: Planned
 
@@ -938,7 +938,7 @@ T-001, T-002, T-003
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
 
-Approval: Draft
+Approval: Approved (human 2026-08-17T03:35Z)
 
 Status: Planned
 
