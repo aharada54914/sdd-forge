@@ -242,6 +242,21 @@ expect_valid "rekeyed-two-component-non-slug-id.json" "TEST-030"
 # generic 'type: object' check that happens to be satisfied.
 expect_invalid "components-still-array-shaped.json" "TEST-030" "/components: expected type 'object', got list"
 
+# --- AC-015 regression lock: components' own key vocabulary
+# (propertyNames: {"minLength": 1}) and value shape
+# (additionalProperties: {"$ref": "#/definitions/projectedComponent"}) are
+# both actually enforced by the validator, not merely present as inert
+# schema text (requirements.md:749-757; cycle-2 quality-gate finding,
+# Major-2: a mutation that deletes 'propertyNames', flips
+# 'additionalProperties' to 'true', and removes 'definitions' entirely left
+# the suite 35/35 green before this block existed -- see
+# verification/T-003/gate-c2-red-supplement.log for the mutation-kill
+# proof). Each fixture below pins its own JSON-Pointer needle.
+expect_invalid "components-empty-string-key.json" "AC-015 components propertyNames" "/components/: length 0 < minLength 1"
+expect_invalid "component-unknown-field.json" "AC-015 projectedComponent additionalProperties" "/components/desktop-client/bogus_field: additional property not allowed"
+expect_invalid "platform-targets-missing-architecture.json" "AC-015 projectedComponent \$ref (platform_targets required)" "/components/desktop-client/platform_targets/0/architecture: missing required property 'architecture'"
+expect_invalid "characteristics-pii-non-boolean.json" "AC-015 projectedComponent \$ref (characteristics type)" "/components/desktop-client/characteristics/pii: expected type 'boolean', got str"
+
 # --- TEST-042: shared_paths[] oneOf branch (AC-042) -------------------------
 expect_valid "shared-path-bounded-valid.json" "TEST-042 (bounded)"
 expect_valid "shared-path-unbounded-valid.json" "TEST-042 (unbounded)"
@@ -308,6 +323,29 @@ if [ "$canon_rc" -ne 0 ] && printf '%s' "$canon_out" | grep -qF "context-project
   ok "projection-unreadable: nonexistent .json path fails closed (exit=$canon_rc, contains diagnostic)"
 else
   fail "projection-unreadable: expected exit!=0 and diagnostic, got exit=$canon_rc output=[$canon_out]"
+fi
+
+# --- projection-unreadable regression lock: non-UTF-8 bytes (cycle-2 gate
+# remediation, evaluator seq0758 Major finding 1) -----------------------
+# `except (OSError, json.JSONDecodeError)` in load_projection()'s caller
+# let a non-UTF-8 byte stream (which fails the implicit UTF-8 text decode
+# inside `open(..., encoding="utf-8")` with a raw UnicodeDecodeError, a
+# ValueError subclass NOT a JSONDecodeError subclass) leak an unhandled
+# Python traceback instead of the 'projection-unreadable' diagnostic --
+# fixed to `except (OSError, ValueError)` (json.JSONDecodeError is itself a
+# ValueError subclass, so this still covers it). This fixture
+# (projection-non-utf8-bytes.bin) is a deliberately invalid-UTF-8 byte
+# sequence, not JSON at all -- the '.bin' extension is intentional so
+# check-placeholders.sh's binary-file detection skips scanning it.
+nonutf8_projection="$FIXTURES/projection-non-utf8-bytes.bin"
+nonutf8_out="$(run_validator "$nonutf8_projection")"
+nonutf8_rc=$?
+if [ "$nonutf8_rc" -ne 0 ] \
+   && printf '%s' "$nonutf8_out" | grep -qF "context-projection: projection-unreadable:" \
+   && ! printf '%s' "$nonutf8_out" | grep -qF "Traceback"; then
+  ok "projection-unreadable: non-UTF-8 byte input fails closed (exit=$nonutf8_rc, diagnostic present, no traceback)"
+else
+  fail "projection-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic, and no traceback, got exit=$nonutf8_rc output=[$nonutf8_out]"
 fi
 
 # --- Suite/CI registration self-check ---------------------------------------

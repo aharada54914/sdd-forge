@@ -380,7 +380,14 @@ def main(argv=None):
 
     try:
         document = load_projection(args.projection)
-    except (OSError, json.JSONDecodeError) as exc:
+    # ValueError covers json.JSONDecodeError (a ValueError subclass) AND
+    # UnicodeDecodeError (raised by the implicit UTF-8 text decode inside
+    # `open(..., encoding="utf-8")` when the input bytes are not valid
+    # UTF-8) -- catching only json.JSONDecodeError let a non-UTF-8 input
+    # leak an unhandled traceback instead of this diagnostic, violating the
+    # diagnostic determinism contract (a caller/CI parser expects a single
+    # `context-projection: <check-id>: <detail>` line, never a traceback).
+    except (OSError, ValueError) as exc:
         sys.stdout.write(f"context-projection: projection-unreadable: {exc}\n")
         return 1
 

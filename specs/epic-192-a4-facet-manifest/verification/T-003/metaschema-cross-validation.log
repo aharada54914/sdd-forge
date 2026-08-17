@@ -1,5 +1,9 @@
+AGREE: characteristics-pii-non-boolean.json -- reference_valid=False own_valid=False
+AGREE: component-unknown-field.json -- reference_valid=False own_valid=False
+AGREE: components-empty-string-key.json -- reference_valid=False own_valid=False
 AGREE: components-still-array-shaped.json -- reference_valid=False own_valid=False
 AGREE: multi-diagnostic-ordering.json -- reference_valid=False own_valid=False
+AGREE: platform-targets-missing-architecture.json -- reference_valid=False own_valid=False
 AGREE: provider-bindings-sha256-malformed-digest.json -- reference_valid=False own_valid=False
 AGREE: rekeyed-two-component-non-slug-id.json -- reference_valid=True own_valid=True
 AGREE: required-missing-components.json -- reference_valid=False own_valid=False
@@ -23,5 +27,16 @@ AGREE: workflow-missing-capability-enforcement.json -- reference_valid=False own
 AGREE: workflow-missing-spec-profile.json -- reference_valid=False own_valid=False
 AGREE: workflow-spec-profile-invalid.json -- reference_valid=False own_valid=False
 
-Total JSON fixtures compared: 24
+Total JSON fixtures compared: 28
 Disagreements: 1
+
+--- cycle-2 update (2026-08-17) -------------------------------------------
+Re-run after cycle-2 gate remediation (evaluator seq0758 Major-2) added four
+new JSON fixtures (characteristics-pii-non-boolean.json,
+component-unknown-field.json, components-empty-string-key.json,
+platform-targets-missing-architecture.json): 24 -> 28 JSON fixtures
+compared, 23 -> 27 agreements, disagreement count unchanged (1, the same
+pre-existing ECMA-262 `$` strictness case). The .bin fixture
+(projection-non-utf8-bytes.bin, cycle-2 Major-1 remediation) is not valid
+JSON and is excluded from this comparison by the `*.json` glob, matching
+this log's original scope (schema-conformance cross-validation only).

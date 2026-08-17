@@ -1,0 +1,51 @@
+ticket_id: RT-20260817-004
+status: open
+type: bug
+severity: major
+target:
+  feature: epic-192-a4-facet-manifest
+  task: T-005
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+    - plugins/sdd-quality-loop/scripts/validate-capability-summary.py
+summary: "非 UTF-8 入力で 3 validator すべてが traceback を漏らす（diagnostic determinism contract 違反、T-001/T-002 は Done 済み）"
+problem: |
+  seq0758（T-003）の quality-gate evaluator が validate-context-projection.py
+  の Major-1 として検出した例外捕捉漏れは、**同 feature の 3 validator すべてに
+  共通する横断欠陥**であることをゲートが実測で確認した。
+
+  原因: エントリポイントの `except (OSError, json.JSONDecodeError)` は
+  `UnicodeDecodeError`（`ValueError` 派生であり `json.JSONDecodeError` の
+  親クラスではない）を捕捉しない。該当行:
+    - validate-facet-manifest.py:538
+    - validate-capability-summary.py:430
+    - validate-context-projection.py:383（T-003 の cycle-2 で修正中）
+
+  実測（ゲートセッション、2026-08-17）:
+    printf '\xff\xfe not json' > probe.json
+    python3 .../validate-facet-manifest.py    --manifest probe.json
+      -> UnicodeDecodeError の traceback（絶対パス込み）
+    python3 .../validate-capability-summary.py --summary  probe.json
+      -> 同上
+
+  影響: design.md の Diagnostic determinism contract（1 診断 1 行・UTF-8・
+  LF のみ・生例外を出さない）と、各実装レポートが主張する fail-closed 契約に
+  違反する。exit は非零なので silent pass ではないが、出力契約が破れ、
+  絶対パスを含むトレースが標準エラーに出る。
+
+  ゲート運用上の教訓: T-001 は 3 サイクル、T-002 は 1 サイクルの独立評価を
+  通過したが、いずれの evaluator も**非 UTF-8 バイト列**を fail-closed
+  プローブに含めなかったため見逃した。T-003 の evaluator が初めて実施して
+  露見した。後続タスクの evaluator 指示には非 UTF-8 プローブを明示する。
+expected_fix:
+  - "3 validator すべてで `except (OSError, ValueError)` に修正する（json.JSONDecodeError は ValueError 派生なので包含される）"
+  - "各スイートに非 UTF-8 バイト列 fixture の回帰ロックを追加し、exit 非零・単一行診断・traceback 不出力を assert する"
+  - "T-001/T-002 は Done 済みのため、修正は T-005（REQ-006 の cross-cutting スコープ）で行い、両タスクの verification 成果物は再生成せず本チケットで追跡する"
+  - "quality-gate の fail-closed プローブ標準セットに非 UTF-8 入力を追加する（WFI 候補）"
+references:
+  - "RUN-epic-192-a4-facet-manifest-qg-T-003-seq0758 evaluator Major-1"
+  - "specs/epic-192-a4-facet-manifest/design.md Diagnostic determinism contract"
+  - "docs/review-tickets/RT-20260817-003.yml"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

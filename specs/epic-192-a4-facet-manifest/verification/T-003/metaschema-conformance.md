@@ -71,18 +71,22 @@ patching it directly out-of-scope.
 
 As a second, independent confidence check (not required by design.md, but
 directly relevant since this task's own validator is hand-rolled), every
-fixture under `tests/fixtures/facet-manifest/context-projection/` (24 JSON
-fixtures — this suite has no YAML fixture at all, since
+JSON fixture under `tests/fixtures/facet-manifest/context-projection/` (28
+JSON fixtures as of cycle-2 — this suite has no YAML fixture at all, since
 `validate-context-projection.py` never parses YAML, design.md's own
-`validate-context-projection` contract) was evaluated with
+`validate-context-projection` contract; the one non-JSON fixture,
+`projection-non-utf8-bytes.bin`, is deliberately invalid UTF-8 and is
+excluded from this JSON-only comparison) was evaluated with
 `jsonschema.Draft7Validator(schema).iter_errors(doc)` and compared against
 `validate-context-projection.py`'s own schema-conformance exit code.
 
 Full comparison transcript:
 `specs/epic-192-a4-facet-manifest/verification/T-003/metaschema-cross-validation.log`.
 
-23 of 24 fixtures agree exactly. The one disagreement is expected and
-intentional, not a defect:
+27 of 28 fixtures agree exactly (24 JSON fixtures at cycle-1 authoring time,
+23 agreeing; cycle-2 gate remediation, evaluator seq0758 Major-2, added four
+new JSON fixtures, all agreeing, for 28 total / 27 agreements). The one
+disagreement is expected and intentional, not a defect:
 
 - `source-sha256-trailing-newline.json` (`source_sha256:
   "sha256:1a2aa6f2...427\n"`): the reference `jsonschema` library reports

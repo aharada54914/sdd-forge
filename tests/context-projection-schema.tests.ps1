@@ -209,6 +209,21 @@ if ($ArtifactKinds.Count -eq 2 -and $ArtifactKinds[0] -eq 'executable' -and $Art
 Expect-Valid 'rekeyed-two-component-non-slug-id.json' 'TEST-030'
 Expect-Invalid 'components-still-array-shaped.json' 'TEST-030' "/components: expected type 'object', got list"
 
+# --- AC-015 regression lock: components' own key vocabulary
+# (propertyNames: {"minLength": 1}) and value shape
+# (additionalProperties: {"$ref": "#/definitions/projectedComponent"}) are
+# both actually enforced by the validator, not merely present as inert
+# schema text (requirements.md:749-757; cycle-2 quality-gate finding,
+# Major-2: a mutation that deletes 'propertyNames', flips
+# 'additionalProperties' to 'true', and removes 'definitions' entirely left
+# the suite green before this block existed -- see
+# verification/T-003/gate-c2-red-supplement.log for the mutation-kill
+# proof). Each fixture below pins its own JSON-Pointer needle.
+Expect-Invalid 'components-empty-string-key.json' 'AC-015 components propertyNames' "/components/: length 0 < minLength 1"
+Expect-Invalid 'component-unknown-field.json' 'AC-015 projectedComponent additionalProperties' "/components/desktop-client/bogus_field: additional property not allowed"
+Expect-Invalid 'platform-targets-missing-architecture.json' "AC-015 projectedComponent `$ref (platform_targets required)" "/components/desktop-client/platform_targets/0/architecture: missing required property 'architecture'"
+Expect-Invalid 'characteristics-pii-non-boolean.json' "AC-015 projectedComponent `$ref (characteristics type)" "/components/desktop-client/characteristics/pii: expected type 'boolean', got str"
+
 # --- TEST-042: shared_paths[] oneOf branch (AC-042) -------------------------
 Expect-Valid 'shared-path-bounded-valid.json' 'TEST-042 (bounded)'
 Expect-Valid 'shared-path-unbounded-valid.json' 'TEST-042 (unbounded)'
@@ -253,6 +268,19 @@ if ($CanonResult.Code -ne 0 -and $CanonResult.Out.Contains('context-projection: 
     $script:Pass++
 } else {
     Write-Host "FAIL: projection-unreadable: expected exit!=0 and diagnostic, got exit=$($CanonResult.Code) output=[$($CanonResult.Out)]"
+    $script:Fail++
+}
+
+# --- projection-unreadable regression lock: non-UTF-8 bytes (cycle-2 gate
+# remediation, evaluator seq0758 Major finding 1). See the .sh suite's own
+# header comment above this block for the full rationale.
+$NonUtf8Projection = Join-Path $Fixtures 'projection-non-utf8-bytes.bin'
+$NonUtf8Result = Invoke-Validator $NonUtf8Projection
+if ($NonUtf8Result.Code -ne 0 -and $NonUtf8Result.Out.Contains('context-projection: projection-unreadable:') -and -not $NonUtf8Result.Out.Contains('Traceback')) {
+    Write-Host "ok: projection-unreadable: non-UTF-8 byte input fails closed (exit=$($NonUtf8Result.Code), diagnostic present, no traceback)"
+    $script:Pass++
+} else {
+    Write-Host "FAIL: projection-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic, and no traceback, got exit=$($NonUtf8Result.Code) output=[$($NonUtf8Result.Out)]"
     $script:Fail++
 }
 
