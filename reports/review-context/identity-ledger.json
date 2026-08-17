@@ -6867,6 +6867,15 @@
       "host_session_id": "SESS-qg-epic-192-a4-facet-manifest-T-005-0763",
       "previous_record_sha256": "c6783063444d6a23ec6b69361576871919a565b5fa10b2e54ff19e4e23830e5f",
       "record_sha256": "bba9de95ba6ef87adcc32159dc05d2d3731117b5a1cbe7d1c95b93ab5b483c7f"
+    },
+    {
+      "sequence": 764,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-192-a4-facet-manifest-qg-T-005-seq0764",
+      "host_session_id": "SESS-qg-epic-192-a4-facet-manifest-T-005-0764",
+      "previous_record_sha256": "bba9de95ba6ef87adcc32159dc05d2d3731117b5a1cbe7d1c95b93ab5b483c7f",
+      "record_sha256": "8153a52fa040f6e3d26317d85261a551513182200166e3d13cbb891642d54feb"
     }
   ]
 }
