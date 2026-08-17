@@ -4,14 +4,19 @@
 
 ### Added
 
-- **Epic 194 T-001 human-copy runner candidate (#194)**: added a non-protected
-  feature-scoped runner draft and twin `.sh`/`.ps1` contract checks for the
-  exact four-target payload, ordinal control/digest handling, recursive payload
-  enumeration, anchored no-follow publication, hash and post-copy verification,
-  suite registration, and CI wiring. Because `.github/workflows/test.yml` and
-  the staged human-copy artifacts are protected, the runner and CI insertion
-  remain non-executable drafts for human application after the four-target / CI
-  target specification contradiction is resolved.
+- **Epic 194 T-001 human-copy runner, promoted to its canonical path (#194)**:
+  the feature-scoped `apply-protected-files.ps1` runner and its twin
+  `.sh`/`.ps1` contract checks (exact four-target payload, ordinal
+  control/digest handling, recursive payload enumeration, anchored no-follow
+  publication, hash and post-copy verification) now live at their real
+  `specs/epic-194-a6-lite-integration/human-copy/` destination -- the R-10
+  guard's `human-copy/` staging exemption was re-confirmed live, so the
+  earlier non-protected `drafts/`/`PROPOSED/*.PROPOSED` holding pens are
+  retired. T-002's (`check-risk-upgrade.sh`/`.ps1`, `risk-upgrade-policy.md`)
+  and T-003's (`lite-spec/SKILL.md`) already-tested payload, and a staged
+  `.github/workflows/test.yml` CI-registration candidate for all four of this
+  epic's tasks, are staged alongside it pending a human apply step (see
+  `specs/epic-194-a6-lite-integration/human-copy/README.md`).
 
 ### Fixed
 

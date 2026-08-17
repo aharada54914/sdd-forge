@@ -1,0 +1,4 @@
+89eb175a274f6ef08c33ae793866e5698b40ca21fa3b454701b0158bf6fe1acc  plugins/sdd-lite/scripts/check-risk-upgrade.sh
+6090a6337ef300dfa4f755e54fdbe605fe4229e46d570cb262be20de457e4902  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+dab10b8b7ed6e6e762db2b09fc73454700c47cc825fec3161b35bb16ad3be674  plugins/sdd-lite/references/risk-upgrade-policy.md
+1dcc9ad9fcabd0c3ea78c12bb66348bb9634c0196ed6ca0800a1c814f67346ae  plugins/sdd-lite/skills/lite-spec/SKILL.md

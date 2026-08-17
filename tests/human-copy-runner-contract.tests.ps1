@@ -43,11 +43,16 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$DefaultRunnerPath = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/drafts/apply-protected-files.ps1'
+# Canonical path (design.md Protected-File Statement): the R-10 guard's
+# human-copy staging exemption was re-confirmed live (this task's own
+# implementation report), so the runner under test is the real staged
+# artifact at specs/epic-194-a6-lite-integration/human-copy/, not the
+# earlier specs/epic-194-a6-lite-integration/drafts/ holding pen.
+$DefaultRunnerPath = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1'
 $RunnerPath = if ([string]::IsNullOrWhiteSpace($RunnerUnderTest)) { $DefaultRunnerPath } else { $RunnerUnderTest }
 $RunnerPath = (Resolve-Path -LiteralPath $RunnerPath).Path
 $FixtureCatalogPath = Join-Path $RepoRoot 'tests/fixtures/epic-194-human-copy/scenarios.json'
-$CiDraftPath = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/drafts/T-001-ci-steps.yml'
+$CiDraftPath = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml'
 
 $Script:Pass = 0
 $Script:Fail = 0
@@ -103,16 +108,23 @@ if ($ShT001 -ge 0 -and $ShT002 -ge 0 -and $ShT001 -lt $ShT002 -and $Ps1T001 -ge 
 }
 
 if (-not (Test-Path -LiteralPath $CiDraftPath -PathType Leaf)) {
-    Bad "TEST-000d: non-protected CI wiring draft is missing: $CiDraftPath"
+    Bad "TEST-000d: staged CI workflow candidate is missing: $CiDraftPath"
 } else {
     $CiDraft = Get-Content -LiteralPath $CiDraftPath -Raw
-    $HasShStep = $CiDraft.Contains('bash ./tests/human-copy-runner-contract.tests.sh')
-    $HasPs1Step = $CiDraft.Contains('./tests/human-copy-runner-contract.tests.ps1')
-    $HasInsertionPoint = $CiDraft.Contains('before: tests/check-risk-upgrade-byte-identical.tests.sh')
-    if ($HasShStep -and $HasPs1Step -and $HasInsertionPoint) {
-        Ok 'TEST-000d: CI draft contains both twin steps and the first-in-Epic-194 insertion point'
+    $HasShStep = $CiDraft.Contains('run: bash ./tests/human-copy-runner-contract.tests.sh')
+    $HasPs1Step = $CiDraft.Contains('run: ./tests/human-copy-runner-contract.tests.ps1')
+    # Ordering, not a draft-only marker string: the T-001 twin steps must sit
+    # before the T-002 suite's own steps in the staged candidate, the same
+    # "first in the Epic-194 serialized order" TEST-000c already proves for
+    # tests/run-all.{sh,ps1}. If T-002's suite is not staged here yet, the
+    # ordering check is vacuously satisfied (IndexOf returns -1).
+    $T001Index = $CiDraft.IndexOf('tests/human-copy-runner-contract.tests.sh', [StringComparison]::Ordinal)
+    $T002Index = $CiDraft.IndexOf('tests/check-risk-upgrade-byte-identical.tests.sh', [StringComparison]::Ordinal)
+    $OrderOk = ($T001Index -ge 0) -and (($T002Index -lt 0) -or ($T001Index -lt $T002Index))
+    if ($HasShStep -and $HasPs1Step -and $OrderOk) {
+        Ok 'TEST-000d: staged CI workflow candidate contains both twin steps first in the Epic-194 serialized order'
     } else {
-        Bad 'TEST-000d: CI draft is missing a twin step or the required insertion point'
+        Bad 'TEST-000d: staged CI workflow candidate is missing a twin step or is not ordered first among Epic-194 suites'
     }
 }
 
