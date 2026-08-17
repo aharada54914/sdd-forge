@@ -43,6 +43,7 @@ $tests = @(
     'tests/model-freshness-check.tests.ps1',
     'tests/facet-manifest-schema.tests.ps1',
     'tests/facet-manifest-semantics.tests.ps1',
+    'tests/capability-summary-schema.tests.ps1',
     'tests/design-system-contract.tests.ps1',
     'tests/project-context-schema.tests.ps1',
     'tests/canonicalize-sdd-yaml.tests.ps1',

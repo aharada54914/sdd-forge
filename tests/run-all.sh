@@ -83,6 +83,7 @@ tests=(
   tests/model-freshness-check.tests.sh
   tests/facet-manifest-schema.tests.sh
   tests/facet-manifest-semantics.tests.sh
+  tests/capability-summary-schema.tests.sh
   tests/project-context-schema.tests.sh
   tests/canonicalize-sdd-yaml.tests.sh
   tests/generate-approval-sidecar.tests.sh

@@ -840,6 +840,25 @@ jobs:
         shell: pwsh
         run: ./tests/facet-manifest-semantics.tests.ps1
 
+      # epic-192-a4-facet-manifest T-002 (REQ-002/REQ-006): schema
+      # conformance for contracts/capability-summary.schema.json /
+      # validate-capability-summary.{py,sh,ps1} (Lite-track-only, no
+      # semantic check beyond schema conformance). Registered in the live
+      # tests/run-all.{sh,ps1}; this staged candidate supplies its direct CI
+      # step. Deterministic: no LLM, no network, no `gh`, and no live sudo
+      # grant.
+
+      - name: Test capability-summary-schema suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/capability-summary-schema.tests.sh
+
+      - name: Test capability-summary-schema suite (pwsh)
+        shell: pwsh
+        run: ./tests/capability-summary-schema.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with
