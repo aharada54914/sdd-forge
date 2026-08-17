@@ -1,5 +1,38 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **Release-state coupling in two CI gates**: the `version-gates` lane went
+  red on `main` immediately after the v1.15.0 release because two suites
+  asserted against the `## Unreleased` CHANGELOG heading that
+  `scripts/bump-version.sh` had just legitimately renamed.
+  `bump-version-gate.tests.{sh,ps1}` now inserts the fixture's version
+  heading when the copied CHANGELOG carries no `## Unreleased` section, and
+  asserts that postcondition instead of letting a no-op rename fail every
+  case on the CHANGELOG precondition; `ownership-digest.tests.{sh,ps1}`
+  TEST-048 now locates the T-003 entry in whichever release-notes section
+  holds it, still requiring both citations together in one section, the same
+  later-release exemption TEST-049 already documents.
+
+### Corrections
+
+- **v1.15.0 の Node runtime baseline エントリの訂正**: v1.15.0 の
+  「Node runtime baseline migration」エントリは「CI updated to run the MCP
+  lanes on Node 22 and a limited Ubuntu Node 24 forward-compat check」と
+  記載しているが、この CI 側の変更は着地していない。実測では
+  `.github/workflows/test.yml` の MCP レーン 3 箇所 (843 / 899 / 951 行目)
+  はいずれも `node-version: "20"` のままであり、`.github/workflows/` 配下に
+  Node 24 のレーンは存在しない。当該変更は
+  `docs/ci-staging/node22-runtime-baseline.md` に staged された状態で
+  留まっており、同ファイル 3 行目は `Status: Pending human application`
+  (保護対象は `.github/workflows/test.yml`) と記載している。一方で
+  `mcp/ci-mcp`・`mcp/local-env-mcp`・`mcp/sdd-forge-mcp` の各
+  `package.json` は `engines.node: ">=22.19.0"` を宣言済みであるため、
+  出荷パッケージが要求する Node バージョンを CI が一度も実行していない
+  状態にある。v1.15.0 の記述自体はリリース済みの履歴として書き換えない。
+
 ## v1.15.0 (2026-08-16)
 
 ### Added

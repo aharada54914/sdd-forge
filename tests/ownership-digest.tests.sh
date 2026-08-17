@@ -318,12 +318,26 @@ if should_run TEST-041; then
 fi
 
 if should_run TEST-048; then
-  unreleased="$(awk '/^## Unreleased$/{u=1;next} /^## /{u=0} u{print}' "$REPO_ROOT/CHANGELOG.md")"
-  release_count=0
-  printf '%s' "$unreleased" | grep -Fq 'Issue #191' && printf '%s' "$unreleased" | grep -Fq 'epic-191-a3-path-ownership T-003' && release_count=1
-  if is_mutated TEST-048; then release_count=0; printf 'MUTATION: TEST-048 removes the T-003 Issue #191 Unreleased entry\n'; fi
+  # The entry is required to live in SOME single "## " release-notes section
+  # -- "## Unreleased" while pending, and the "## vX.Y.Z" section that same
+  # block becomes once scripts/bump-version.sh renames its heading. The
+  # rename, and every later release that pushes the section further down the
+  # file, is the one thing a sanctioned release legitimately does to this
+  # entry, so -- exactly as TEST-049 exempts a later release from its
+  # version-surface attribution -- position is not asserted. What is asserted
+  # is unchanged and still fails closed: both citations present, and present
+  # TOGETHER in one section, so the pair can never be satisfied by two
+  # unrelated releases each carrying half of it.
+  release_count="$(awk '
+    /^## /{issue=0; task=0; next}
+    index($0, "Issue #191"){issue=1}
+    index($0, "epic-191-a3-path-ownership T-003"){task=1}
+    issue && task{found=1; issue=0; task=0}
+    END{print found ? 1 : 0}
+  ' "$REPO_ROOT/CHANGELOG.md")"
+  if is_mutated TEST-048; then release_count=0; printf 'MUTATION: TEST-048 removes the T-003 Issue #191 release-notes entry\n'; fi
   result=0; [ "$release_count" -ge 1 ] && result=1
-  check TEST-048 'CHANGELOG has an Unreleased T-003 entry citing Issue #191' "$result"
+  check TEST-048 'CHANGELOG has a release-notes T-003 entry citing Issue #191' "$result"
 fi
 
 if should_run TEST-049; then
