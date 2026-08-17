@@ -328,16 +328,24 @@ components:
     }
 
     if (Should-Run 'TEST-048') {
-        $inUnreleased = $false; $hasIssue = $false; $hasTask = $false
+        # Twin of the Bash section-scoped scan: the entry must sit in SOME
+        # single '## ' release-notes section -- '## Unreleased' while pending,
+        # and the '## vX.Y.Z' section that same block becomes once
+        # scripts/bump-version.sh renames its heading. Position is not
+        # asserted, for the reason TEST-049 exempts a later release from its
+        # version-surface attribution; both citations are still required, and
+        # required together in one section, so two unrelated releases each
+        # carrying half of the pair can never satisfy it.
+        $found = $false; $hasIssue = $false; $hasTask = $false
         foreach ($line in [IO.File]::ReadAllLines((Join-Path $repoRoot 'CHANGELOG.md'))) {
-            if ($line -ceq '## Unreleased') { $inUnreleased = $true; continue }
-            if ($line.StartsWith('## ')) { $inUnreleased = $false }
-            if ($inUnreleased -and $line.Contains('Issue #191')) { $hasIssue = $true }
-            if ($inUnreleased -and $line.Contains('epic-191-a3-path-ownership T-003')) { $hasTask = $true }
+            if ($line.StartsWith('## ')) { $hasIssue = $false; $hasTask = $false; continue }
+            if ($line.Contains('Issue #191')) { $hasIssue = $true }
+            if ($line.Contains('epic-191-a3-path-ownership T-003')) { $hasTask = $true }
+            if ($hasIssue -and $hasTask) { $found = $true; $hasIssue = $false; $hasTask = $false }
         }
-        $releaseCount = if ($hasIssue -and $hasTask) { 1 } else { 0 }
-        if (Is-Mutated 'TEST-048') { $releaseCount = 0; Write-Output 'MUTATION: TEST-048 removes the T-003 Issue #191 Unreleased entry' }
-        Record 'TEST-048' 'CHANGELOG has an Unreleased T-003 entry citing Issue #191' ($releaseCount -ge 1)
+        $releaseCount = if ($found) { 1 } else { 0 }
+        if (Is-Mutated 'TEST-048') { $releaseCount = 0; Write-Output 'MUTATION: TEST-048 removes the T-003 Issue #191 release-notes entry' }
+        Record 'TEST-048' 'CHANGELOG has a release-notes T-003 entry citing Issue #191' ($releaseCount -ge 1)
     }
 
     if (Should-Run 'TEST-049') {

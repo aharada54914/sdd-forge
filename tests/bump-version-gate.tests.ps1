@@ -72,12 +72,33 @@ function Set-SuiteStub {
 # satisfies bump-version.sh's own pre-existing CHANGELOG-heading
 # precondition (scripts/bump-version.sh:38-42) so each case isolates the
 # NEW loop-gate precondition specifically.
+#
+# Twin of the Bash helper's two forms: rename "## Unreleased" when the
+# fixture has one, otherwise insert the heading after the "# Changelog"
+# title -- between a release and the next entry landing the real CHANGELOG
+# legitimately has no "## Unreleased", and a silent no-op rename would leave
+# every case failing on the CHANGELOG precondition rather than exercising
+# the loop gate. The postcondition is asserted either way.
 function Set-FixtureChangelogHeading {
     param([string]$FixtureRoot, [string]$Version)
     $path = Join-Path $FixtureRoot "CHANGELOG.md"
     $content = Get-Content -LiteralPath $path -Raw
-    $updated = $content -replace '(?m)^## Unreleased$', "## v$Version"
+    $heading = "## v$Version"
+    # .gitattributes pins every tracked text file to eol=lf, so LF-only
+    # anchors are exact here (no \r to step around).
+    if ($content -match '(?m)^## Unreleased$') {
+        $updated = $content -replace '(?m)^## Unreleased$', $heading
+    } elseif ($content -match '(?m)^# Changelog$') {
+        # Instance Replace: the static overload's 4th argument is
+        # RegexOptions, not a replacement count.
+        $updated = ([regex]'(?m)^# Changelog$').Replace($content, "# Changelog`n`n$heading", 1)
+    } else {
+        $updated = $content + "`n$heading`n"
+    }
     [System.IO.File]::WriteAllText($path, $updated, $utf8NoBom)
+    if ($updated -notmatch ('(?m)^' + [regex]::Escape($heading) + '( |$)')) {
+        throw "fixture setup failed: no `"$heading`" heading in $path"
+    }
 }
 
 # Set-FixtureBaseline -FixtureRoot <root> — commits the fixture's
