@@ -17,32 +17,32 @@ v1.15.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD�
 
 ```mermaid
 flowchart TD
-    A([Issue / 要件]) --> B[investigate-codebase\n任意・refactor は必須]
+    A([Issue / 要件]) --> B[investigate-codebase<br/>任意・refactor は必須]
 
     subgraph ph1["Phase 1 — 仕様・設計"]
-        C[sdd-bootstrap\nPhase 1] --> D1[(requirements.md\ndesign.md\nacceptance-tests.md)]
-        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\nデザイン確認ループ]
+        C[sdd-bootstrap<br/>Phase 1] --> D1[(requirements.md<br/>design.md<br/>acceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop<br/>デザイン確認ループ]
         DSL -.-> D1
     end
 
     subgraph sr["仕様レビュー"]
-        S{spec-review-loop\n2体×最大3ラウンド}
+        S{spec-review-loop<br/>2体×最大3ラウンド}
         SR[人間: requirements.md / acceptance-tests.md 修正 / --reset]
         S -- NEEDS_WORK / BLOCKED --> SR --> S
     end
 
     subgraph ir["実装方針レビュー"]
-        E{impl-review-loop\n2体×最大3ラウンド}
+        E{impl-review-loop<br/>2体×最大3ラウンド}
         F[人間: design.md 修正 / --reset]
         E -- NEEDS_WORK / BLOCKED --> F --> E
     end
 
     subgraph ph2["Phase 2 — タスク分解"]
-        G[sdd-bootstrap\nPhase 2] --> H[(tasks.md\ntraceability.md)]
+        G[sdd-bootstrap<br/>Phase 2] --> H[(tasks.md<br/>traceability.md)]
     end
 
     subgraph tr["タスク分解レビュー"]
-        I{task-review-loop\n2体×最大3ラウンド}
+        I{task-review-loop<br/>2体×最大3ラウンド}
         J[人間: tasks.md 修正 / --reset]
         I -- NEEDS_WORK / BLOCKED --> J --> I
     end
@@ -65,7 +65,7 @@ flowchart TD
     H --> I
     I -- PASS / PASS-with-warnings --> K
     K --> L
-    L -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証]
+    L -. "UIタスク" .-> VVL[visual-verify-loop<br/>視覚検証]
     VVL -.-> M
     L --> M
     M -- 全合格 --> O([Done])
@@ -90,10 +90,10 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A([開始]) --> B[lite-spec\n要件 / 設計 / タスク生成]
+    A([開始]) --> B[lite-spec<br/>要件 / 設計 / タスク生成]
     B --> C[人間: 単一承認]
     C --> D[implement-task]
-    D --> E[lite-gate\n品質保証]
+    D --> E[lite-gate<br/>品質保証]
     E --> F([Done])
 
     style C fill:#fef3c7,stroke:#f59e0b
@@ -102,7 +102,7 @@ flowchart LR
 
 ## Getting Started
 
-プラグインのインストールと運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
+プラグインのインストール手順は本ファイルの [インストール](#インストール) 節を、運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
 
 `install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
@@ -145,6 +145,66 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 
 導入オプション（詳細と トラブルシュート）は [USERGUIDE.md](USERGUIDE.md#mcp-サーバー) を参照してください。
 
+## インストール
+
+リポジトリ直下の `install.sh`（macOS / Linux）または `install.ps1`（Windows）を実行します。プラグイン本体を INSTALL_ROOT に配置し、各 CLI（Codex / Claude / Copilot）へ marketplace とプラグインを登録し、Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）と MCP サーバーを設定します。
+
+```bash
+# macOS / Linux — 既定（sdd-bootstrap,sdd-ship + 依存の自動解決、MCP 3種すべて）
+./install.sh
+
+# 手元のクローンからインストールする（ダウンロードを行わない）
+./install.sh --source-directory .
+
+# 対象環境とプラグインを絞る
+./install.sh --target Claude --plugins sdd-bootstrap,sdd-lite
+
+# MCP サーバーを入れない / 一部だけ入れる
+./install.sh --skip-mcp
+./install.sh --mcp sdd-forge-mcp,local-env-mcp
+```
+
+```powershell
+# Windows
+./install.ps1
+./install.ps1 -SourceDirectory .
+./install.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-lite
+./install.ps1 -SkipMcp
+```
+
+主なオプション（`.sh` / `.ps1` 共通、PowerShell は `-CamelCase`）:
+
+| オプション | 説明 |
+|---|---|
+| `--repository <owner/repo>` | 取得元リポジトリ。既定は `aharada54914/sdd-forge` |
+| `--ref <ref>` | 取得する ref。既定は `main` |
+| `--install-root <path>` | インストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
+| `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 登録をスキップしファイル配置のみ |
+| `--plugins <comma>` | 対象プラグイン。既定は **`sdd-bootstrap,sdd-ship`**（全プラグインではありません） |
+| `--skip-plugin-install` | CLI へのプラグイン登録をスキップ |
+| `--skip-agent-install` | Codex エージェント TOML のコピーをスキップ |
+| `--source-directory <path>` | ダウンロードの代わりにローカルディレクトリを使用 |
+| `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
+| `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
+
+`--plugins` に指定できる名前は次の 6 つです: `sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop`。
+
+**依存は自動解決されます。** 指定したプラグインが依存するプラグインは固定点に達するまで自動的に追加されます（自動追加された分は警告として表示されます）。
+
+| 指定したプラグイン | 自動的に追加される依存 |
+|---|---|
+| `sdd-bootstrap` | `sdd-review-loop` |
+| `sdd-lite` | `sdd-bootstrap` / `sdd-implementation` / `sdd-quality-loop` |
+| `sdd-ship` | `sdd-bootstrap` / `sdd-review-loop` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` |
+
+したがって既定の `sdd-bootstrap,sdd-ship` を指定した場合、実際には 6 プラグインすべてが導入されます。
+
+> **`sdd-domain` はインストーラの対象外です。** `--plugins` が受け付ける allowlist（`install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` で共通）には `sdd-domain` が含まれておらず、インストーラ経由では導入できません。DDD アップストリームレーンを使う場合は、marketplace（`.claude-plugin/marketplace.json` / `.agents/plugins/marketplace.json`。いずれにも `sdd-domain` は登録済みです）から個別にインストールしてください。
+
+**Node.js の要件**: 同梱の MCP サーバー（`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`）はいずれも `engines.node >= 22.19.0` を要求します。`node` が PATH に無い場合やバージョンが 22.19.0 未満の場合、**MCP の配置・登録のみが警告付きでスキップされ、プラグイン本体のインストールは継続します**。
+
+**その他の前提**: リモートからのインストールには GitHub CLI で認証済みのセッション（`gh auth login`）が必要です。`--source-directory` を使う場合は不要です。環境変数 `SDD_CODEX_HOME` / `SDD_CURSOR_DIR` / `SDD_VSCODE_USER_DIR` で、それぞれ `~/.codex` / `~/.cursor` / VS Code ユーザープロファイルの位置を上書きできます。
+
 ## アンインストール
 
 `install.sh` / `install.ps1` が登録した内容を取り消します。各 CLI（Codex / Claude / Copilot）からプラグインと marketplace を解除し、インストール済みファイル（既定では `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`）と Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）を削除します。
@@ -171,11 +231,15 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 
 | オプション | 説明 |
 |---|---|
-| `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
-| `--plugins <comma>` | 対象プラグイン。既定は全プラグイン |
+| `--install-root <path>` | 削除対象のインストール先。既定は `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`（Windows は `%LOCALAPPDATA%\sdd-plugins`） |
+| `--marketplace-name <name>` | 登録済み marketplace 名。既定は `sdd-plugins` |
+| `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。既定は `All`。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
+| `--plugins <comma>` | 対象プラグイン。`sdd-bootstrap` / `sdd-ship` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` から選択。既定はこの 6 件すべて |
 | `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
-| `--skip-plugin-uninstall` | CLI からの登録解除をスキップ |
+| `--skip-plugin-uninstall` | CLI からのプラグイン／marketplace 登録解除をスキップ |
 | `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |
+| `--mcp <comma>` | 対象 MCP サーバー。`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` から選択。既定は 3 件すべて |
+| `--skip-mcp-uninstall` | MCP の実体削除・登録解除をスキップ |
 
 登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。Codex エージェントロールは **本プロジェクトがインストールしたファイルのみ** を削除し、利用者自身が `~/.codex/agents/` に置いたファイルは（`sdd-*` という名前のものを含め）削除しません。また `--plugins` で一部のみ指定した場合は marketplace を削除しません（marketplace を消すと、そこからインストールされた他のプラグインも巻き添えで消えるため）。
 
@@ -185,7 +249,7 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 - **実装方針レビューループ (`impl-review-loop`)**: design.md に対して `impl-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
 - **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
 - **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
-- **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
+- **DDD アップストリームレーン (`sdd-domain`)**: Phase 1 のさらに前段で、`/sdd-domain:domain-model` がドメインストーリー・イベントストーミング・ユビキタス言語・コンテキストマップ・集約・メッセージフロー・C4コンテナの7段階インタビューを実施し、人間承認済みの `domain/` 配下のドメインモデルを生成します。`domain-reviewer-a/b` の2体レビュー + クロスモデル検証を経て人間が承認すると、`domain-sync` が承認済みコンテキスト・用語を bootstrap の Phase 1 出力に注入し、`check-domain-conformance`（warn 開始の決定論ゲート）が仕様のドメイン整合性を検査します。`domain/` が存在しない場合は全フック・ゲートがスキップされ、既存ワークフローへの影響はゼロです。**なお `sdd-domain` は `install.sh` / `install.ps1` の `--plugins` allowlist に含まれておらず、インストーラ経由では導入できません**（両 marketplace には登録済みのため、marketplace から個別にインストールしてください）。詳細は [docs/workflow-guide.md の「DDD アップストリームレーン（sdd-domain）」](docs/workflow-guide.md#ddd-アップストリームレーンsdd-domain)をご覧ください。
 - **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
 - **統一デザインシステム統合**: UI アプリでは `ds_profile: custom` を選ぶと、プロジェクト直下の `design-system/`（W3C DTCG 準拠 design-tokens.json・design-system.md・ui-patterns.md）を契約として生成・強制します。仕様段階は `design-sync-loop`（ui-ux-pro-max シード生成 / Figma DTCG 取込 / claude.ai/design 確認ループ）、実装段階は `visual-verify-loop`（Claude Preview / wpf-visual-verify による視覚検証）、品質検証は `check-design-system`（warn 開始の決定論ゲート）の3層で支えます。a11y 基準は WCAG 2.2 AA。非 UI プロジェクトへのオーバーヘッドはゼロです。
 - **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
@@ -201,12 +265,18 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 
 | ドキュメント | 対象読者・目的 |
 |---|---|
-| [README](README.md) (本ファイル) | 概要とフロー図 |
+| [README](README.md) (本ファイル) | 概要とフロー図、インストール／アンインストール手順 |
+| [USERGUIDE.md](USERGUIDE.md) | MCP サーバー / エージェントルーティングのリファレンス |
+| [AGENTS.md](AGENTS.md) | エージェント向けのリポジトリ規約 |
+| [PLUGIN-CONTRACTS.md](PLUGIN-CONTRACTS.md) | プラグイン間の契約 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/skill-reference.md](docs/skill-reference.md) | 26スキル・エージェント・フック・スクリプトの詳細 |
+| [docs/architecture/overview.md](docs/architecture/overview.md) | リポジトリ全体のアーキテクチャ |
+| [docs/skill-reference.md](docs/skill-reference.md) | 26スキル（＋ `plugins/` 外の単独スキル1件）・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
+| [docs/adr/README.md](docs/adr/README.md) | ADR 索引と採番規約 |
+| [docs/contributor/](docs/contributor/) | 貢献者向け詳細（[workflow-detail.md](docs/contributor/workflow-detail.md) / [skill-reference-detail.md](docs/contributor/skill-reference-detail.md) / [release-runbook.md](docs/contributor/release-runbook.md)） |
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
 | [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |
 | [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
