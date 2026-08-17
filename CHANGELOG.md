@@ -65,6 +65,33 @@
   登録。CI ステップ候補は T-003 の staged candidate に追記し、
   `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
   hash に更新した。
+- **Vendored-copy drift ゲート拡張 + cross-script parity suite (Issue #192,
+  epic-192-a4-facet-manifest T-005、FINAL)**: Epic A2 の
+  `vendor-capability-registry.py --check`（実在確認済みの既存 `--check`
+  機構）を `facet-manifest.schema.json`/`capability-summary.schema.json`/
+  `context-projection.schema.json` の 3 ファイルへ追加のみで拡張（新規
+  スクリプトは作成せず）。`tests/facet-manifest-parity.tests.{sh,ps1}`
+  を新設し、T-001〜T-004 の 4 スクリプト全ての `.py`/`.sh`/`.ps1` 呼び出し
+  を suites 1-5 の全 fixture（Windows 形式のバックスラッシュパス引数と
+  `compare-facet-manifest-staleness` 自身の exit-3 stderr チャンネルを
+  含む）に対して実行し、stdout/stderr/exit code の byte-identical parity
+  を検証。4 スクリプト×3 ランタイムのインストール済みレイアウト discovery
+  fixture（vendored copy のみ・monorepo `contracts/` なし・到達可能な
+  `.git` なし）、Epic A2 の provider-neutrality allowlist に対する 3
+  schema + 4 スクリプト source のスキャン（clean/dirty fixture 付き）も
+  実装。1 スイート (178/178 assertion 両ランタイム完全一致) を
+  `tests/run-all.{sh,ps1}` に登録し、この feature の 6 スイート全てを
+  網羅する FINAL な CI ステップ候補を
+  `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
+  として staged し、`MANIFEST.sha256`/`APPLY-INSTRUCTIONS.md` を更新した。
+  併せて、T-001〜T-004 の quality-gate 教訓として
+  `validate-facet-manifest.py`/`validate-capability-summary.py` の
+  非 UTF-8 入力時の未捕捉トレースバック（`except (OSError,
+  json.JSONDecodeError)` を `except (OSError, ValueError)` へ）と、
+  `compare-facet-manifest-staleness.py` の sibling-import ガードが
+  `SystemExit` を捕捉していなかった欠陥（`except Exception` を
+  `except (Exception, SystemExit)` へ）を修正し、各修正に回帰テストを
+  追加した。
 
 ### Fixed
 
