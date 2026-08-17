@@ -1,24 +1,21 @@
-=== gate-time checks for T-001 (epic-192-a4-facet-manifest) ===
-date: 2026-08-17T00:16:25Z
-HEAD: 96e92983eae7a765eb60d0460c8938ff7fc72480
-git status --short (expect empty):
-?? specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log
+T-001 quality-gate cycle-3 remediation — suite + placeholder-scan evidence
+Generated: 2026-08-17T01:58:12Z
 
------ bash tests/facet-manifest-schema.tests.sh -----
+=== bash tests/facet-manifest-schema.tests.sh ===
 ok: TEST-001: $schema is draft-07
-ok: TEST-001: $id present (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
+ok: TEST-001: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
 ok: TEST-002 positive baseline: valid-base.json valid (exit 0, no diagnostics)
 ok: TEST-002 YAML round-trip (real canonicalizer subprocess): canonicalizer-roundtrip-valid.yaml valid (exit 0, no diagnostics)
-ok: TEST-002: required-missing-schema.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-feature.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-affected-components.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-required-facets.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-conditional-facets.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-resolved-gates.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-capabilities.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-lite-eligibility.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-context-binding.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-resolver.json invalid as expected (contains 'missing required property')
+ok: TEST-002: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: TEST-002: required-missing-feature.json invalid as expected (contains 'missing required property 'feature'')
+ok: TEST-002: required-missing-affected-components.json invalid as expected (contains 'missing required property 'affected_components'')
+ok: TEST-002: required-missing-required-facets.json invalid as expected (contains 'missing required property 'required_facets'')
+ok: TEST-002: required-missing-conditional-facets.json invalid as expected (contains 'missing required property 'conditional_facets'')
+ok: TEST-002: required-missing-resolved-gates.json invalid as expected (contains 'missing required property 'resolved_gates'')
+ok: TEST-002: required-missing-capabilities.json invalid as expected (contains 'missing required property 'capabilities'')
+ok: TEST-002: required-missing-lite-eligibility.json invalid as expected (contains 'missing required property 'lite_eligibility'')
+ok: TEST-002: required-missing-context-binding.json invalid as expected (contains 'missing required property 'context_binding'')
+ok: TEST-002: required-missing-resolver.json invalid as expected (contains 'missing required property 'resolver'')
 ok: TEST-003: empty-arrays-valid.json valid (exit 0, no diagnostics)
 ok: TEST-003: duplicate-affected-components.json invalid as expected (contains 'uniqueItems violated')
 ok: TEST-003: duplicate-required-facets.json invalid as expected (contains 'uniqueItems violated')
@@ -26,18 +23,27 @@ ok: TEST-003: duplicate-capabilities.json invalid as expected (contains 'uniqueI
 ok: TEST-004: conditional-facet-applied-false-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
 ok: TEST-004: conditional-facet-applied-true-with-reason.json invalid as expected (contains 'matched a schema under 'not'')
 ok: TEST-004: conditional-facet-applied-true-valid.json valid (exit 0, no diagnostics)
+ok: TEST-004 acceptance case (applied: false WITH reason): conditional-facet-applied-false-with-reason-valid.json valid (exit 0, no diagnostics)
 ok: TEST-005: evidence-invalid-operator.json invalid as expected (contains 'expected one of')
 ok: TEST-005: evidence-warn-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
 ok: TEST-005: evidence-warn-with-reason-valid.json valid (exit 0, no diagnostics)
 ok: TEST-006: resolved-gate-invalid-stage.json invalid as expected (contains 'expected one of')
 ok: TEST-006: resolved-gate-valid-multi.json valid (exit 0, no diagnostics)
+ok: TEST-006: resolved-gate-missing-id.json invalid as expected (contains 'missing required property 'id'')
+ok: TEST-006: resolved-gate-missing-stage.json invalid as expected (contains 'missing required property 'stage'')
+ok: TEST-006: resolved-gate-missing-blocking.json invalid as expected (contains 'missing required property 'blocking'')
 ok: TEST-007: capability-minimum-enforcement-invalid-value.json invalid as expected (contains 'expected const 'required'')
 ok: TEST-007: capability-minimum-enforcement-absent-valid.json valid (exit 0, no diagnostics)
 ok: TEST-007: capability-minimum-enforcement-aggregate-valid.json valid (exit 0, no diagnostics)
 ok: TEST-008: lite-eligibility-missing-upgrade-reasons.json invalid as expected (contains 'missing required property 'upgrade_reasons'')
 ok: TEST-008: lite-eligibility-empty-upgrade-reasons-valid.json valid (exit 0, no diagnostics)
+ok: TEST-008: lite-eligibility-missing-eligible.json invalid as expected (contains 'missing required property 'eligible'')
 ok: TEST-009: context-binding-malformed-digest.json invalid as expected (contains 'does not match pattern')
 ok: TEST-009: context-binding-empty-dependency-pointers.json invalid as expected (contains '< minItems 1')
+ok: TEST-009: context-binding-full-context-revision-malformed-digest.json invalid as expected (contains '/context_binding/full_context_revision: does not match pattern')
+ok: TEST-009: context-binding-projection-sha256-malformed-digest.json invalid as expected (contains '/context_binding/projection_sha256: does not match pattern')
+ok: TEST-009: context-binding-registry-digest-malformed-digest.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: TEST-009: context-binding-ownership-digest-malformed-digest.json invalid as expected (contains '/context_binding/ownership_digest: does not match pattern')
 ok: TEST-010: resolver-malformed-semver.json invalid as expected (contains 'does not match pattern')
 ok: TEST-010: resolver-valid-semver.json valid (exit 0, no diagnostics)
 ok: TEST-011: decision-doc-v2-section16-worked-example.json valid (exit 0, no diagnostics)
@@ -46,13 +52,16 @@ ok: TEST-018: dependency-pointer-malformed-rfc6901.json invalid as expected (con
 ok: TEST-017/018: dependency-pointer-all-roots-valid.json valid (exit 0, no diagnostics)
 ok: TEST-041: covered by evidence-warn-{missing-reason,with-reason-valid} above
 ok: TEST-048: upgrade-reasons-duplicate.json invalid as expected (contains 'uniqueItems violated')
+ok: ECMA pattern semantics: trailing-newline digest rejected: context-binding-registry-digest-trailing-newline.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline digest rejected: resolver-version-trailing-newline.json invalid as expected (contains '/resolver/version: does not match pattern')
+ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=1, contains diagnostic)
 ok: TEST-034: facet-manifest.yaml/capability-summary.yaml alongside specs/<feature>/ files does not break check-sdd-structure.sh
 ok: self-registration: tests/run-all.sh lists this suite
 
-facet-manifest-schema: 43 passed, 0 failed
-exit=0
+facet-manifest-schema: 55 passed, 0 failed
 
------ bash tests/facet-manifest-semantics.tests.sh -----
+=== bash tests/facet-manifest-semantics.tests.sh ===
+ok: TEST-028: schema-invalid.json invalid as expected (contains 'facet-manifest: schema-invalid:')
 ok: TEST-028: resolved-gate-id-duplicate.json invalid as expected (contains 'facet-manifest: resolved-gate-id-duplicate:')
 ok: TEST-028: facet-classification-conflict.json invalid as expected (contains 'facet-manifest: facet-classification-conflict:')
 ok: TEST-028: conditional-facet-duplicate.json invalid as expected (contains 'facet-manifest: conditional-facet-duplicate:')
@@ -64,27 +73,27 @@ ok: array-not-stable-sorted: capabilities-not-sorted.json invalid as expected (c
 ok: array-not-stable-sorted / AC-048 semantic half: upgrade-reasons-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /lite_eligibility/upgrade_reasons:')
 ok: array-not-stable-sorted: conditional-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /conditional_facets:')
 ok: array-not-stable-sorted: resolved-gates-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /resolved_gates:')
-ok: determinism: single-diagnostic fixture emits exactly one line
+ok: determinism: single-diagnostic fixture emits exactly one line, matching expected text exactly
+ok: determinism: multi-diagnostic fixture emits 4 lines in exact (check-id, pointer) ascending order
 ok: self-registration: tests/run-all.sh lists this suite
 
-facet-manifest-semantics: 13 passed, 0 failed
-exit=0
+facet-manifest-semantics: 15 passed, 0 failed
 
------ pwsh -NoProfile -File tests/facet-manifest-schema.tests.ps1 -----
+=== pwsh -NoProfile -File tests/facet-manifest-schema.tests.ps1 ===
 ok: TEST-001: $schema is draft-07
-ok: TEST-001: $id present (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
+ok: TEST-001: $id exact match (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
 ok: TEST-002 positive baseline: valid-base.json valid (exit 0, no diagnostics)
 ok: TEST-002 YAML round-trip (real canonicalizer subprocess): canonicalizer-roundtrip-valid.yaml valid (exit 0, no diagnostics)
-ok: TEST-002: required-missing-schema.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-feature.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-affected-components.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-required-facets.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-conditional-facets.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-resolved-gates.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-capabilities.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-lite-eligibility.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-context-binding.json invalid as expected (contains 'missing required property')
-ok: TEST-002: required-missing-resolver.json invalid as expected (contains 'missing required property')
+ok: TEST-002: required-missing-schema.json invalid as expected (contains 'missing required property 'schema'')
+ok: TEST-002: required-missing-feature.json invalid as expected (contains 'missing required property 'feature'')
+ok: TEST-002: required-missing-affected-components.json invalid as expected (contains 'missing required property 'affected_components'')
+ok: TEST-002: required-missing-required-facets.json invalid as expected (contains 'missing required property 'required_facets'')
+ok: TEST-002: required-missing-conditional-facets.json invalid as expected (contains 'missing required property 'conditional_facets'')
+ok: TEST-002: required-missing-resolved-gates.json invalid as expected (contains 'missing required property 'resolved_gates'')
+ok: TEST-002: required-missing-capabilities.json invalid as expected (contains 'missing required property 'capabilities'')
+ok: TEST-002: required-missing-lite-eligibility.json invalid as expected (contains 'missing required property 'lite_eligibility'')
+ok: TEST-002: required-missing-context-binding.json invalid as expected (contains 'missing required property 'context_binding'')
+ok: TEST-002: required-missing-resolver.json invalid as expected (contains 'missing required property 'resolver'')
 ok: TEST-003: empty-arrays-valid.json valid (exit 0, no diagnostics)
 ok: TEST-003: duplicate-affected-components.json invalid as expected (contains 'uniqueItems violated')
 ok: TEST-003: duplicate-required-facets.json invalid as expected (contains 'uniqueItems violated')
@@ -92,18 +101,27 @@ ok: TEST-003: duplicate-capabilities.json invalid as expected (contains 'uniqueI
 ok: TEST-004: conditional-facet-applied-false-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
 ok: TEST-004: conditional-facet-applied-true-with-reason.json invalid as expected (contains 'matched a schema under 'not'')
 ok: TEST-004: conditional-facet-applied-true-valid.json valid (exit 0, no diagnostics)
+ok: TEST-004 acceptance case (applied: false WITH reason): conditional-facet-applied-false-with-reason-valid.json valid (exit 0, no diagnostics)
 ok: TEST-005: evidence-invalid-operator.json invalid as expected (contains 'expected one of')
 ok: TEST-005: evidence-warn-missing-reason.json invalid as expected (contains 'missing required property 'reason'')
 ok: TEST-005: evidence-warn-with-reason-valid.json valid (exit 0, no diagnostics)
 ok: TEST-006: resolved-gate-invalid-stage.json invalid as expected (contains 'expected one of')
 ok: TEST-006: resolved-gate-valid-multi.json valid (exit 0, no diagnostics)
+ok: TEST-006: resolved-gate-missing-id.json invalid as expected (contains 'missing required property 'id'')
+ok: TEST-006: resolved-gate-missing-stage.json invalid as expected (contains 'missing required property 'stage'')
+ok: TEST-006: resolved-gate-missing-blocking.json invalid as expected (contains 'missing required property 'blocking'')
 ok: TEST-007: capability-minimum-enforcement-invalid-value.json invalid as expected (contains 'expected const 'required'')
 ok: TEST-007: capability-minimum-enforcement-absent-valid.json valid (exit 0, no diagnostics)
 ok: TEST-007: capability-minimum-enforcement-aggregate-valid.json valid (exit 0, no diagnostics)
 ok: TEST-008: lite-eligibility-missing-upgrade-reasons.json invalid as expected (contains 'missing required property 'upgrade_reasons'')
 ok: TEST-008: lite-eligibility-empty-upgrade-reasons-valid.json valid (exit 0, no diagnostics)
+ok: TEST-008: lite-eligibility-missing-eligible.json invalid as expected (contains 'missing required property 'eligible'')
 ok: TEST-009: context-binding-malformed-digest.json invalid as expected (contains 'does not match pattern')
 ok: TEST-009: context-binding-empty-dependency-pointers.json invalid as expected (contains '< minItems 1')
+ok: TEST-009: context-binding-full-context-revision-malformed-digest.json invalid as expected (contains '/context_binding/full_context_revision: does not match pattern')
+ok: TEST-009: context-binding-projection-sha256-malformed-digest.json invalid as expected (contains '/context_binding/projection_sha256: does not match pattern')
+ok: TEST-009: context-binding-registry-digest-malformed-digest.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: TEST-009: context-binding-ownership-digest-malformed-digest.json invalid as expected (contains '/context_binding/ownership_digest: does not match pattern')
 ok: TEST-010: resolver-malformed-semver.json invalid as expected (contains 'does not match pattern')
 ok: TEST-010: resolver-valid-semver.json valid (exit 0, no diagnostics)
 ok: TEST-011: decision-doc-v2-section16-worked-example.json valid (exit 0, no diagnostics)
@@ -112,13 +130,16 @@ ok: TEST-018: dependency-pointer-malformed-rfc6901.json invalid as expected (con
 ok: TEST-017/018: dependency-pointer-all-roots-valid.json valid (exit 0, no diagnostics)
 ok: TEST-041: covered by evidence-warn-{missing-reason,with-reason-valid} above
 ok: TEST-048: upgrade-reasons-duplicate.json invalid as expected (contains 'uniqueItems violated')
+ok: ECMA pattern semantics: trailing-newline digest rejected: context-binding-registry-digest-trailing-newline.json invalid as expected (contains '/context_binding/registry_digest: does not match pattern')
+ok: ECMA pattern semantics: trailing-newline digest rejected: resolver-version-trailing-newline.json invalid as expected (contains '/resolver/version: does not match pattern')
+ok: canonicalizer-invocation-failed: nonexistent .yaml path fails closed (exit=1, contains diagnostic)
 ok: TEST-034: facet-manifest.yaml/capability-summary.yaml alongside specs/<feature>/ files does not break check-sdd-structure.sh
 ok: self-registration: tests/run-all.ps1 lists this suite
 
-facet-manifest-schema: 43 passed, 0 failed
-exit=0
+facet-manifest-schema: 55 passed, 0 failed
 
------ pwsh -NoProfile -File tests/facet-manifest-semantics.tests.ps1 -----
+=== pwsh -NoProfile -File tests/facet-manifest-semantics.tests.ps1 ===
+ok: TEST-028: schema-invalid.json invalid as expected (contains 'facet-manifest: schema-invalid:')
 ok: TEST-028: resolved-gate-id-duplicate.json invalid as expected (contains 'facet-manifest: resolved-gate-id-duplicate:')
 ok: TEST-028: facet-classification-conflict.json invalid as expected (contains 'facet-manifest: facet-classification-conflict:')
 ok: TEST-028: conditional-facet-duplicate.json invalid as expected (contains 'facet-manifest: conditional-facet-duplicate:')
@@ -130,93 +151,11 @@ ok: array-not-stable-sorted: capabilities-not-sorted.json invalid as expected (c
 ok: array-not-stable-sorted / AC-048 semantic half: upgrade-reasons-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /lite_eligibility/upgrade_reasons:')
 ok: array-not-stable-sorted: conditional-facets-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /conditional_facets:')
 ok: array-not-stable-sorted: resolved-gates-not-sorted.json invalid as expected (contains 'facet-manifest: array-not-stable-sorted: /resolved_gates:')
-ok: determinism: single-diagnostic fixture emits exactly one line
+ok: determinism: single-diagnostic fixture emits exactly one line, matching expected text exactly
+ok: determinism: multi-diagnostic fixture emits 4 lines in exact (check-id, pointer) ascending order
 ok: self-registration: tests/run-all.ps1 lists this suite
 
-facet-manifest-semantics: 13 passed, 0 failed
-exit=0
+facet-manifest-semantics: 15 passed, 0 failed
 
------ bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/epic-192-a4-facet-manifest/tasks.md -----
-Risk check passed for 5 task(s).
-exit=0
-
------ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh contracts/facet-manifest.schema.json plugins/sdd-quality-loop/contracts/facet-manifest.schema.json plugins/sdd-quality-loop/scripts/validate-facet-manifest.py plugins/sdd-quality-loop/scripts/validate-facet-manifest.sh plugins/sdd-quality-loop/scripts/validate-facet-manifest.ps1 -----
-Placeholder scan FAILED (1 finding(s)):
- - plugins/sdd-quality-loop/scripts/validate-facet-manifest.py:32:keywords, and are not implemented here (Discovery contract checks
-Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
-exit=1
-
------ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh -----
-workflow-state: ok
-exit=0
-
------ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-192-a4-facet-manifest/tasks.md -----
-Task state check passed for 5 task(s).
-exit=0
-
------ bash plugins/sdd-quality-loop/scripts/check-component-coverage.sh -----
-{
-  "check_id": "check-component-coverage",
-  "fail_conditions": [],
-  "manifest_status": "not-consulted",
-  "producer": {
-    "script": "plugins/sdd-quality-loop/scripts/check-component-coverage.py",
-    "sha256": "f2ec1f5bff9aceca04fa51ae5f46d8774790b7e77b3f6b7befdc5076d8b49b45"
-  },
-  "schema": "check-component-coverage-verdict/v1",
-  "state": "not-applicable (disabled-legacy)",
-  "warnings": []
-}
-exit=0
-
-=== end gate-time checks ===
-
-===== gate cycle 1 safe-fix re-run: 2026-08-17T00:20:51Z =====
-safe fix per auto-fix-policy (formatting/comment-only): validate-facet-manifest.py module docstring reworded to clear the check-placeholders ci-pattern false positive; behavior unchanged
------ re-run check-placeholders -----
+=== bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/validate-facet-manifest.py ===
 Placeholder scan passed.
-exit=0
------ re-run focused suites after safe fix -----
-facet-manifest-schema: 43 passed, 0 failed
-exit=0
-facet-manifest-semantics: 13 passed, 0 failed
-exit=0
-efd2f445c803cbf8080b4e68e36cb70f7afb522d9c5b06363bf703b07b65ccc4  plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
-
-===== gate check-contract run: 2026-08-17T00:24:22Z =====
------ bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-192-a4-facet-manifest/verification/T-001.contract.json -----
-Verification contract FAILED for task T-001:
- - check 'requirement-traceability' evidence file missing: reports/quality-gate/epic-192-a4-facet-manifest/T-001.md
-exit=1
-
-===== gate cycle 2 verification re-run: 2026-08-17T01:36:58Z =====
------ bash tests/facet-manifest-schema.tests.sh -----
-
-facet-manifest-schema: 54 passed, 0 failed
-exit=0
------ bash tests/facet-manifest-semantics.tests.sh -----
-
-facet-manifest-semantics: 15 passed, 0 failed
-exit=0
------ pwsh schema twin -----
-
-facet-manifest-schema: 54 passed, 0 failed
-exit=0
------ pwsh semantics twin -----
-
-facet-manifest-semantics: 15 passed, 0 failed
-exit=0
------ check-placeholders on changed production file -----
-Placeholder scan passed.
-exit=0
-
-===== gate cycle 3 verification re-run: 2026-08-17T02:00:28Z =====
-facet-manifest-schema: 55 passed, 0 failed
-exit=0
-facet-manifest-semantics: 15 passed, 0 failed
-exit=0
-facet-manifest-schema: 55 passed, 0 failed
-exit=0
-facet-manifest-semantics: 15 passed, 0 failed
-exit=0
-unreleased-192-hit: - **Facet Manifest schema と validator (Issue #192,

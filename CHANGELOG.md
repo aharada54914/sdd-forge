@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### Added
+
+- **Facet Manifest schema と validator (Issue #192,
+  epic-192-a4-facet-manifest T-001)**: `contracts/facet-manifest.schema.json`
+  (draft-07、vendored copy を `plugins/sdd-quality-loop/contracts/` に同梱)
+  と手書き draft-07 部分エンジンの `validate-facet-manifest.{py,sh,ps1}`
+  を追加。schema conformance と semantic checks の 2 スイート
+  (`tests/facet-manifest-{schema,semantics}.tests.{sh,ps1}`、fixture 60 件)
+  を `tests/run-all.{sh,ps1}` に登録し、公式 draft-07 メタスキーマ検証と
+  jsonschema 4.26.0 クロス検証で相違なしを記録。CI ステップ候補は
+  `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
+  として staged 済みで `MANIFEST.sha256` に hash 束縛されている。
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
@@ -36,17 +49,6 @@
 ## v1.15.0 (2026-08-16)
 
 ### Added
-
-- **Facet Manifest schema と validator (Issue #192,
-  epic-192-a4-facet-manifest T-001)**: `contracts/facet-manifest.schema.json`
-  (draft-07、vendored copy を `plugins/sdd-quality-loop/contracts/` に同梱)
-  と手書き draft-07 部分エンジンの `validate-facet-manifest.{py,sh,ps1}`
-  を追加。schema conformance と semantic checks の 2 スイート
-  (`tests/facet-manifest-{schema,semantics}.tests.{sh,ps1}`、fixture 47 件)
-  を `tests/run-all.{sh,ps1}` に登録し、公式 draft-07 メタスキーマ検証と
-  jsonschema 4.26.0 クロス検証で相違なしを記録。CI ステップ候補は
-  `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
-  として staged 済みで `MANIFEST.sha256` に hash 束縛されている。
 
 - **Node runtime baseline migration**: MCP package engines and installer
   gating now require Node.js >= 22.19.0, with CI updated to run the MCP

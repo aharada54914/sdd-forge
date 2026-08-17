@@ -64,10 +64,11 @@ if [ "$schema_dollar_schema" = "http://json-schema.org/draft-07/schema#" ]; then
 else
   fail "TEST-001: \$schema expected draft-07, got '$schema_dollar_schema'"
 fi
-if [ -n "$schema_id" ]; then
-  ok "TEST-001: \$id present ($schema_id)"
+expected_schema_id="https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json"
+if [ "$schema_id" = "$expected_schema_id" ]; then
+  ok "TEST-001: \$id exact match ($schema_id)"
 else
-  fail "TEST-001: \$id missing"
+  fail "TEST-001: \$id expected '$expected_schema_id', got '$schema_id'"
 fi
 
 # --- TEST-002: required-field matrix (AC-002) -------------------------------
@@ -134,6 +135,9 @@ expect_valid "capability-minimum-enforcement-aggregate-valid.json" "TEST-007"
 # --- TEST-008: lite_eligibility required, upgrade_reasons absent rejected --
 expect_invalid "lite-eligibility-missing-upgrade-reasons.json" "TEST-008" "missing required property 'upgrade_reasons'"
 expect_valid "lite-eligibility-empty-upgrade-reasons-valid.json" "TEST-008"
+
+# --- AC-008 (1st clause): lite_eligibility.eligible absent rejected --------
+expect_invalid "lite-eligibility-missing-eligible.json" "TEST-008" "missing required property 'eligible'"
 
 # --- TEST-009: digest pattern + minItems ------------------------------------
 expect_invalid "context-binding-malformed-digest.json" "TEST-009" "does not match pattern"

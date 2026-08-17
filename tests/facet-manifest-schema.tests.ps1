@@ -58,10 +58,11 @@ if ($schemaJson.'$schema' -eq 'http://json-schema.org/draft-07/schema#') {
 } else {
     Write-Host "FAIL: TEST-001: `$schema expected draft-07, got '$($schemaJson.'$schema')'"; $script:Fail++
 }
-if ($schemaJson.'$id') {
-    Write-Host "ok: TEST-001: `$id present ($($schemaJson.'$id'))"; $script:Pass++
+$ExpectedSchemaId = 'https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json'
+if ($schemaJson.'$id' -ceq $ExpectedSchemaId) {
+    Write-Host "ok: TEST-001: `$id exact match ($($schemaJson.'$id'))"; $script:Pass++
 } else {
-    Write-Host 'FAIL: TEST-001: $id missing'; $script:Fail++
+    Write-Host "FAIL: TEST-001: `$id expected '$ExpectedSchemaId', got '$($schemaJson.'$id')'"; $script:Fail++
 }
 
 # TEST-002
@@ -125,6 +126,9 @@ Expect-Valid 'capability-minimum-enforcement-aggregate-valid.json' 'TEST-007'
 # TEST-008
 Expect-Invalid 'lite-eligibility-missing-upgrade-reasons.json' 'TEST-008' "missing required property 'upgrade_reasons'"
 Expect-Valid 'lite-eligibility-empty-upgrade-reasons-valid.json' 'TEST-008'
+
+# AC-008 (1st clause): lite_eligibility.eligible absent rejected
+Expect-Invalid 'lite-eligibility-missing-eligible.json' 'TEST-008' "missing required property 'eligible'"
 
 # TEST-009
 Expect-Invalid 'context-binding-malformed-digest.json' 'TEST-009' 'does not match pattern'

@@ -11,13 +11,13 @@
   ],
   "conditional_facets": [
     {
-      "facet": "docs-patterns",
+      "facet": "ui-patterns",
       "applied": false,
-      "reason": "no user-facing documentation deliverable in this feature",
+      "reason": "no UI surface in this feature",
       "evidence": [
         {
           "operator": "exists",
-          "path": "/components/desktop-client/docs_layer",
+          "path": "/components/desktop-client/ui_layer",
           "outcome": "no-match"
         }
       ]
@@ -35,7 +35,6 @@
   ],
   "capability_minimum_enforcement": "required",
   "lite_eligibility": {
-    "eligible": false,
     "upgrade_reasons": [
       "missing-security-spec"
     ]

@@ -41,7 +41,7 @@
     ]
   },
   "context_binding": {
-    "full_context_revision": "sha256:not-64-hex",
+    "full_context_revision": "sha256:05004b813c07c09600c2f3e40177fc8793d19eaca07dc2c4f6a2d1aff13b21",
     "dependency_pointers": [
       "/components/desktop-client/artifact_kinds",
       "/workflow/capability_enforcement"
