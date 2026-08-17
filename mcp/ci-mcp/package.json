@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Read-only MCP server exposing GitHub Actions CI state (workflow runs, jobs, job logs, artifacts metadata). GET-only against api.github.com; no write capability.",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.19.0"
   },
   "scripts": {
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
@@ -19,10 +19,10 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@modelcontextprotocol/inspector": "0.22.0",
-    "@types/node": "^20.19.0",
+    "@modelcontextprotocol/inspector": "2.2.0",
+    "@types/node": "^26.2.0",
     "ajv": "^8.20.0",
-    "esbuild": "^0.28.1",
-    "typescript": "^5.9.0"
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
   }
 }

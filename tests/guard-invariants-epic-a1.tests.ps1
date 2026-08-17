@@ -390,14 +390,21 @@ if (Test-Path -LiteralPath $ManifestSha -PathType Leaf) {
     $badLines = @($shaLines | Where-Object { $_ -notmatch '^[0-9a-f]{64}  [^ ].*$' })
     Assert-Eq $badLines.Count 0 'staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>'
 
-    # The CI-staging entry belongs to a later task, which owns refreshing it.
-    # T-009 must neither drop nor duplicate it. Its digest is validated against
-    # the staged bytes by the per-entry loop below, so pinning a literal digest
-    # here would assert nothing extra while breaking the moment that later task
-    # legitimately refreshes the entry - which is exactly what happened when
-    # T-010 appended its own CI step (human ruling, 2026-08-04).
+    # Class lock (2026-08-11 human ruling, RT-20260811-002): the repo-shared
+    # .github/workflows/test.yml snapshot is EVICTED from this bundle. The old
+    # "present exactly once" assertion (human ruling, 2026-08-04) protected a
+    # per-epic snapshot that QG measured as a deletion hazard: applying the
+    # stale copy removed 137 lines / 18 named live CI steps. ABSENCE is
+    # asserted - not merely unlisted - so a future re-adding fails here
+    # instead of rotting silently. The live workflow is the single source of
+    # truth; this bundle registers CI steps only via the live file.
     $wfLine = @($shaLines | Where-Object { $_.EndsWith('  .github/workflows/test.yml') })
-    Assert-Eq $wfLine.Count 1 'staging: the CI-staging .github/workflows/test.yml entry is present exactly once'
+    Assert-Eq $wfLine.Count 0 'staging: class lock: no repo-shared .github/workflows/test.yml manifest entry (snapshot evicted 2026-08-11)'
+    if (-not (Test-Path -LiteralPath (Join-Path $Stage '.github/workflows/test.yml'))) {
+        Test-Pass 'staging: class lock: no staged .github/workflows/test.yml snapshot file'
+    } else {
+        Test-Fail 'staging: class lock: no staged .github/workflows/test.yml snapshot file' 'staged snapshot present'
+    }
 
     $missing = 0
     $mismatched = 0

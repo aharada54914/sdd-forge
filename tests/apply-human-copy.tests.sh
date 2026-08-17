@@ -1843,6 +1843,85 @@ else
 fi
 
 # ===========================================================================
+# TEST-CI-EXEC-BIT: every tests/*.sh a GitHub workflow invokes BARE (as
+# `./tests/x.sh`, with no `bash`/`sh` interpreter prefix) must carry its
+# executable bit -- in the live tree AND in every human-copy staging area
+# that stages it.
+#
+# Why this lives in THIS suite: the mode-preservation contract proven above
+# (TEST-MODE-PRESERVE; apply-human-copy.sh:687-694) makes the STAGED
+# candidate's mode authoritative -- "the live target's pre-existing mode is
+# deliberately NEVER consulted". So a candidate committed 100644 does not
+# merely risk stripping the live exec bit when a human applies the bundle; it
+# strips it deterministically. That is exactly how 710d6746 demoted
+# tests/gates.tests.sh to 100644 (raw diff `:100755 100644 16b490ad d5e5f712
+# M`), which made test.yml's bare `./tests/gates.tests.sh` step die on
+# "Permission denied" -- exit 126 on ubuntu, 1 on macOS -- before a single one
+# of that suite's assertions ran. 8985356d restored the live bit; the
+# assertions below close the staging-side hole that would reintroduce it.
+#
+# The bare-invocation list is DERIVED from the workflows on every run, never
+# hard-coded, so adding, renaming, or re-prefixing a step cannot leave a stale
+# allowlist behind. Steps naming an explicit interpreter (`bash ./tests/x.sh`)
+# are skipped on purpose: their exit status does not depend on the mode. That
+# is also why this suite is a safe host -- test.yml runs it as
+# `bash ./tests/apply-human-copy.tests.sh`, so a mode loss can never silence
+# the very check that detects mode loss.
+#
+# Deliberately sh-only, with no twin in tests/apply-human-copy.tests.ps1: the
+# executable bit is a POSIX/git file-mode concept that a Windows checkout does
+# not carry, so a PowerShell port would either assert nothing or assert
+# something false on the Windows leg.
+# ===========================================================================
+
+ci_bare_invoked=$(
+  cat "$ROOT"/.github/workflows/*.yml 2>/dev/null | awk '
+    {
+      line = $0
+      sub(/^[[:space:]]+/, "", line)
+      sub(/^-[[:space:]]+/, "", line)
+      sub(/^run:[[:space:]]*/, "", line)
+      sub(/^[[:space:]]+/, "", line)
+      split(line, tok, /[[:space:]]/)
+      candidate = tok[1]
+      if (candidate ~ /^\.?\/?tests\/[A-Za-z0-9._-]+\.sh$/) {
+        sub(/^\.\//, "", candidate)
+        print candidate
+      }
+    }
+  ' | sort -u
+)
+ci_bare_count=$(printf '%s\n' "$ci_bare_invoked" | grep -c '[^[:space:]]')
+
+# Non-vacuity: an empty derivation would let every assertion below pass by
+# iterating zero times. Fail loudly instead -- that state means the workflows
+# changed shape and this check needs re-teaching, not that the repo is clean.
+if [ "$ci_bare_count" -ge 1 ]; then
+  pass "TEST-CI-EXEC-BIT derivation is non-vacuous ($ci_bare_count bare-invoked tests/*.sh found across .github/workflows/)"
+else
+  fail "TEST-CI-EXEC-BIT derivation is non-vacuous (found 0 bare-invoked tests/*.sh; the workflow shape changed, so the mode assertions below would pass vacuously)"
+fi
+
+for rel in $ci_bare_invoked; do
+  if [ -x "$ROOT/$rel" ]; then
+    pass "TEST-CI-EXEC-BIT live $rel is executable (a workflow invokes it bare)"
+  else
+    fail "TEST-CI-EXEC-BIT live $rel is executable (a workflow invokes it bare) -- mode $(mode_of_t "$ROOT/$rel" 2>/dev/null || echo missing)"
+  fi
+done
+
+for rel in $ci_bare_invoked; do
+  for staged in "$ROOT"/specs/*/human-copy/"$rel"; do
+    [ -f "$staged" ] || continue
+    if [ -x "$staged" ]; then
+      pass "TEST-CI-EXEC-BIT staged ${staged#"$ROOT"/} is executable (its mode is what an apply publishes onto live $rel)"
+    else
+      fail "TEST-CI-EXEC-BIT staged ${staged#"$ROOT"/} is executable (its mode is what an apply publishes onto live $rel) -- mode $(mode_of_t "$staged" 2>/dev/null || echo missing); applying this bundle would strip the live exec bit and break CI"
+    fi
+  done
+done
+
+# ===========================================================================
 # Self-registration (design.md Test Strategy item 11; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================

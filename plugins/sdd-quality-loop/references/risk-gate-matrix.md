@@ -87,9 +87,33 @@ not by the contract required-set — they are listed in the matrix for completen
 ```
 low      = { lint, typecheck, build, placeholder-scan, task-state-check }
 medium   = low      ∪ { unit-tests, acceptance-tests, regression }
-high     = medium   ∪ { requirement-traceability }      # + tdd red/green, provenance via other gates
+high     = medium   ∪ { requirement-traceability, check-component-coverage }
 critical = high                                         # + signature, two-person via other gates
 ```
+
+- `check-component-coverage` (epic-191-a3-path-ownership T-004, REQ-004):
+  the Reverse Coverage Gate. Added to the `high`/`critical` machine-form
+  required-check-set above for reachability (INV-017) — this line is LIVE.
+  **`check-contract`'s own protected, hardcoded tier-minimum set is NOT yet
+  live** — `check-contract.*` is already R-10 protected, so the matching
+  edit is staged as a candidate under
+  `reports/implementation/epic-191-a3-path-ownership/drafts/bundle-b/`
+  (`check-contract.{py,ps1}`, with its own machine-readable `MANIFEST.sha256`)
+  pending human `cp` + SHA-256 verification into the real, protected paths.
+  Until that human-apply step happens, `check-contract` does NOT enforce
+  `check-component-coverage` for any `high`/`critical` contract —
+  `tests/gates.tests.sh` T-003.7 is positive proof of this: a `high`-risk
+  contract that omits `check-component-coverage` still passes today. Once
+  applied, the staged candidate is kept textually equal to this line per
+  `tests/gates.tests.sh` T-003's existing invariant, and additionally gains
+  a producer-digest verification pass (AC-055) that independently
+  recomputes `check-component-coverage.py`'s live sha256 and rejects a
+  `passes:true` evidence entry whose recorded `producer.sha256` does not
+  match. This registration exists so that suffix-protecting
+  `check-component-coverage.*`'s
+  own content does not, by itself, stop an agent from deleting or renaming
+  the unprotected `quality-gate/SKILL.md` invocation line — the
+  required-check-set closes that reachability gap independently.
 
 Notes:
 - `low` deliberately omits `unit-tests` from the required set (test-after); it is

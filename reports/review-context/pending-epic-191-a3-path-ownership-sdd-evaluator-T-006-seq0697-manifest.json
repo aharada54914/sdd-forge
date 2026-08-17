@@ -1,0 +1,162 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "epic-191-a3-path-ownership",
+ "task_id": "T-006",
+ "run_id": "RUN-epic-191-a3-path-ownership-qg-T-006-seq0697",
+ "host_session_id": "SESS-qg-epic-191-a3-path-ownership-T-006-0697",
+ "sequence": 697,
+ "previous_record_sha256": "ead5131e3f8c3661923006bdf3a9352cf8d30395f6e737b5941081ed9aa6ee72",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "aa9545088e6805bc4b2b203819a70b9580fca6c0d6bf4198bec1928f6ca1202f",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "CHANGELOG.md",
+   "sha256": "2076d6046498ff554c871f947a0f364995b83ac9bb4acda871434f8c306ee5e1"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1",
+   "sha256": "159e7740969ac4367b5dcc815d58cc11b582940f7bac0b4b99cd060b88f3db46"
+  },
+  {
+   "path": "reports/implementation/epic-191-a3-path-ownership/T-001.md",
+   "sha256": "94e1adf00e6a6aa87e701460b2be9e05e210301922ebe604ead9f00f10f3216a"
+  },
+  {
+   "path": "reports/implementation/epic-191-a3-path-ownership/T-002.md",
+   "sha256": "cba1a66c9ac365c7e4d358e7d0d2a1b714da90d8af9cff3deee011810ceaeaa9"
+  },
+  {
+   "path": "reports/implementation/epic-191-a3-path-ownership/T-003.md",
+   "sha256": "ba4656f48014320d79498548e99bc0f38282794be20a93e95abc78a2cdb6bf51"
+  },
+  {
+   "path": "reports/implementation/epic-191-a3-path-ownership/T-004.md",
+   "sha256": "32cf133e8e8ac22bfd0d46d0ecf940613920d35230568a129f8851c9d3b89581"
+  },
+  {
+   "path": "reports/implementation/epic-191-a3-path-ownership/T-005.md",
+   "sha256": "4809ea1eea371fd70f4b752b7949685113b2ba25d3ec33649f8d433bdba6383b"
+  },
+  {
+   "path": "reports/implementation/epic-191-a3-path-ownership/T-006.md",
+   "sha256": "7f12c9f1438e8c9eefb2badb48e4aa6220b18b1836860dc4ea478a4f5917e134"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+   "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/design.md",
+   "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+   "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml",
+   "sha256": "804283f635dcaca9ee233127e1a805fe25b69eaee89d9799e145857cba14364a"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256",
+   "sha256": "2b39d860450424d48dae2d934edba3613a33a6a4fe5289116d7376899cb60c46"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/human-copy/plugins/sdd-quality-loop/scripts/check-component-coverage.ps1",
+   "sha256": "66e7737d2fe120e9ed9020f9894fadea1c7e284dd5cc242a09ab18b3874a8c97"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+   "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/requirements.md",
+   "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+   "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/tasks.md",
+   "sha256": "947675096901ebfb7321d6eb70457c4fde882f1a7a035fe307f111c3cec5d79f"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/traceability.md",
+   "sha256": "c7ef1baedfe82cc1c3c4efd9b0eaa6c00d51d1b6ec28236fa983c27662877c59"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+   "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/component-path-ownership-parity-ps1.DESIGNED-RED-UNTIL-APPLY.log",
+   "sha256": "c2345409656ac3fc6606db7ee313083e16a67020d79429c93e51f0a2af3c0dd0"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/component-path-ownership-parity-ps1.RED.log",
+   "sha256": "2ada1200976b8159818ac423ae0d75e6b29e165f0f7bdd706132be3a084071ce"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/component-path-ownership-parity.DESIGNED-RED-UNTIL-APPLY.log",
+   "sha256": "d6e577908098e5b32baec4852af86f6370d68f5fa96e7ced4f46847d9072689e"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/component-path-ownership-parity.RED.log",
+   "sha256": "54c8a9aed27b9fb41719b2374f912b5159e12e8bd34c820048b63f63356ba776"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/depth-one-fallback.GREEN.log",
+   "sha256": "1017190b4aa40764e097bcda7e579b81f8940f3b0a7e7771ba6a5b9365d6bc53"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/mutation-proof.log",
+   "sha256": "7ebb26250146633d90f03a4a9a1455d7281415e25d54e2f029f1d85770b8959b"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/real-bump-replay.GREEN.log",
+   "sha256": "fc41b80fc79cd45ad8490cc02859b5da2d7fc490009f25c80a411e607c511cfc"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/regression.GREEN.log",
+   "sha256": "1129fa33313c7d8cf8c720673c5a4ffdc6fd540c7b0ee303e193946295fccffd"
+  },
+  {
+   "path": "specs/epic-191-a3-path-ownership/verification/T-006/staged-apply-simulation.GREEN.log",
+   "sha256": "e4d9856d43d5045cc6a2d7931ef02374974de42fd7022026a770b2dee99f010a"
+  },
+  {
+   "path": "tests/check-component-coverage.tests.ps1",
+   "sha256": "09b3caf64d31cb59139f23cc7aa43110662849e8c698c1367327ff0fabb7759e"
+  },
+  {
+   "path": "tests/check-component-coverage.tests.sh",
+   "sha256": "4be31af65c42885210e27e5035622d7be9fa8ca85d3b7351245e95e25d89ed08"
+  },
+  {
+   "path": "tests/component-path-ownership-parity.tests.ps1",
+   "sha256": "4bbfb7b0fcd7a188dc9d5526e37be30ff3109cdaca6490a59ea47413541d77fc"
+  },
+  {
+   "path": "tests/component-path-ownership-parity.tests.sh",
+   "sha256": "bcd6dc7cac2f2893cc959dabca03364349e0c4fb95bc51859e6826b7c6efc3d2"
+  },
+  {
+   "path": "tests/run-all.ps1",
+   "sha256": "81743e14e5bd6a63dd23b0a2008e18af65c3e44e1e3c45c440b21d637608e97b"
+  },
+  {
+   "path": "tests/run-all.sh",
+   "sha256": "e6036330819be5860f6dbfd9658eaa3ab38c338627f25cf92c24b5feb891f0d7"
+  }
+ ]
+}

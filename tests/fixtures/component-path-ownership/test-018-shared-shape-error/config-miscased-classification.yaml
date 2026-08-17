@@ -1,0 +1,5 @@
+schema: sdd-project-context/v1
+components: []
+shared_paths:
+  - pattern: "specs/**"
+    classification: Cross-Cutting

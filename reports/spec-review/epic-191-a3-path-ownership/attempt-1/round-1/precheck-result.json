@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "aa535843e3fcdceb4ba8d6de4ede86fd3509c6b674e241ca035ed0f8d21f5287",
+  "acceptance_sha256": "f110fd10ca7ca516a803a9c54cac032ad73537b0890ad3a4923748fd5721ca36",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "f92d652d1e42c27a7c565c87195e296631b37989673f23fec6fde6588ef4fc8e",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-21T21:44:19Z"
+}

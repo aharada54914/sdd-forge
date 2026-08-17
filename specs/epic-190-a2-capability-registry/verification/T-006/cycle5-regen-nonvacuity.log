@@ -1,0 +1,18 @@
+========================================================================
+BUNDLE epic-189-a1-project-context
+  baseline --check                                        rc=0 (expect 0)
+  tamper guard_invariants.py                              rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.generated.js                    rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.generated.ps1                   rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.generated.sh                    rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.json (schema_version 1->2)      rc=1 ; restore rc=0 ; bytes-restored=True  OK
+========================================================================
+BUNDLE epic-136-phase2-gates
+  baseline --check                                        rc=0 (expect 0)
+  tamper guard_invariants.py                              rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.generated.js                    rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.generated.ps1                   rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.generated.sh                    rc=1 ; restore rc=0 ; bytes-restored=True  OK
+  tamper guard-invariants.json (schema_version 1->2)      rc=1 ; restore rc=0 ; bytes-restored=True  OK
+========================================================================
+NON-VACUITY OVERALL: PROVEN

@@ -398,6 +398,14 @@
       "profile": "full"
     },
     {
+      "feature": "epic-190-a2-capability-registry",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-191-a3-path-ownership",
+      "profile": "full"
+    },
+    {
       "feature": "epic-193-a5-capability-resolver",
       "profile": "full"
     }

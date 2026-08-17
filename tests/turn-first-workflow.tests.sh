@@ -94,7 +94,7 @@ for needle in \
   'Chat history or compaction summaries alone are forbidden handoff input' \
   'Reviewer and evaluator fallback is forbidden' \
   'performed by checked-in scripts'; do
-  rg -Fq "$needle" "$IMPLEMENT_TASKS" || fail "implement-tasks omits policy text: $needle"
+  grep -Fq "$needle" "$IMPLEMENT_TASKS" || fail "implement-tasks omits policy text: $needle"
 done
 for needle in \
   'The sole exception is an implementation batch' \
@@ -103,7 +103,7 @@ for needle in \
   'mandatory on every capable host' \
   'reviewers/evaluators never receive this' \
   'exception.'; do
-  rg -Fq "$needle" "$DELEGATION_POLICY" || fail "delegation policy omits exception boundary: $needle"
+  grep -Fq "$needle" "$DELEGATION_POLICY" || fail "delegation policy omits exception boundary: $needle"
 done
 
 WORK="$(mktemp -d)"
@@ -276,10 +276,10 @@ for needle in \
   'Set the selected task to `In Progress`.' \
   'Re-evaluate the eligible set' \
   'loop back to step 1'; do
-  rg -Fq "$needle" "$WORK/rollback/implement-tasks-1.4.0.md" ||
+  grep -Fq "$needle" "$WORK/rollback/implement-tasks-1.4.0.md" ||
     fail "restored 1.4.0 loop omits: $needle"
 done
-if rg -Fq 'launch exactly one fresh implementation agent' "$WORK/rollback/implement-tasks-1.4.0.md"; then
+if grep -Fq 'launch exactly one fresh implementation agent' "$WORK/rollback/implement-tasks-1.4.0.md"; then
   fail "restored 1.4.0 loop unexpectedly contains 1.5.0 launch orchestration"
 fi
 
@@ -307,7 +307,7 @@ for needle in \
   '**Current Status**' \
   '**Next Action**' \
   '**Unresolved Items**'; do
-  rg -Fq "$needle" "$IMPLEMENTATION_REPORT_TEMPLATE" ||
+  grep -Fq "$needle" "$IMPLEMENTATION_REPORT_TEMPLATE" ||
     fail "implementation report template omits: $needle"
 done
 

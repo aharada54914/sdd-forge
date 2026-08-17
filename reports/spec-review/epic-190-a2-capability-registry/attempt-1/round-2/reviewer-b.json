@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0323",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0323",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "abdc2d073b7f491da5b5efcb4da251145978095169f1360804da0c165062bd16"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "ff4874720b1c145321e422ac8f0dbe75c2a93f30964e99002a3a2182ba9011ac"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-2/precheck-result.json", "sha256": "c06149bde985ae7adb7a7256ea627576da310bbd84e4f5e2f87209a43453e31a"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-2/integrated-summary.json", "sha256": "2cb3bdc7e47dcf09d6af9e0437044af049ec6dd639b570607d9025f19f22de70"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:174-175 lists `review_check_ids` as a required capabilities[] field, but unlike every sibling required field (required_facets, conditional_facets, gate_ids, delivery_strategy -- each with a dedicated Field Definitions entry, e.g. lines 701-715, 736-743), review_check_ids has zero type/shape/emptiness specification anywhere in requirements.md. Two implementers authoring capability-registry.schema.json could independently choose array-of-strings vs. object, differing uniqueItems/emptiness rules, and differing referential-integrity treatment, with nothing in the spec to arbitrate. Separately, requirements.md never states whether capabilities[].id itself must be unique: REQ-003(a)/AC-014 only require Gate-ID uniqueness over the top-level gates[] array, and investigation.md INV-003 explicitly narrows 'Gate ID一意' to 'a single array's uniqueness constraint, not a cross-capability de-duplication problem' without ever stating whether Capability-ID duplication is in- or out-of-scope, despite the Overview's 'sole machine-readable source of truth' premise (requirements.md:14-17) and INV-001's quoted decision-v2 'duplicate検査' deliverable item. This is the same category of gap AC-037/TEST-037 just closed for required_facets/conditional_facets in this round, left unaddressed for these two fields, and would cause two implementers to build materially different schemas/validators."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The round-1 minimum_enforcement contradiction is resolved and consistent throughout requirements.md: the top-level gates array is defined only as (id, stage, blocking, implementation_ref) with no minimum_enforcement (line 168-169), while minimum_enforcement is scoped exclusively to capabilities[] as an optional, literal-string-'required' field (lines 176-189, 495-499, AC-005). No other direct requirement/AC/non-goal conflict was found across requirements.md and acceptance-tests.md (e.g. AC-004/AC-005's optionality contrast, delivery_strategy's required-presence-but-open-vocabulary treatment, and the DSL field placement in AC-006 are each internally consistent)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md has no TEST/AC exercising review_check_ids' shape, emptiness, or an invalid-value case anywhere in the 37-row table -- a material coverage gap given AC-037/TEST-037 (line 61) just closed exactly this style of gap for required_facets/conditional_facets by adding non-string-element and malformed-entry fixtures. Likewise there is no duplicate-capabilities[].id negative fixture anywhere in the suite; only AC-014/TEST-014 (line 39) covers duplicate gates[].id. Given decision v2's 'sole machine-readable source of truth' framing quoted in the Overview and INV-001, a missing Capability-ID-uniqueness fixture is a material negative-path gap analogous to the Gate-ID-uniqueness test that already exists for the sibling identifier field."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's Open Questions section (OQ-001..OQ-004) each carry an explicit resolution status: OQ-002 and OQ-003 are RESOLVED by orchestrator ruling 2026-07-22 with the ruling's rationale recorded; OQ-001 is 'partially resolved' via REQ-003(h)'s new versioned-catalog validator check, with the remaining vocabulary-freezing decision explicitly deferred to Epic A6 (Non-goals); OQ-004 is closed via the concretely-specified Gate implementation identity schema (REQ-003(c)/AC-016/AC-017). AC-035 additionally requires a Phase-1 cross-reference audit confirming every OQ is traced from the relevant REQ/AC. No assumption was found left silently unresolved and unmarked; the review_check_ids/capability-ID-uniqueness gaps identified above are undocumented definitional omissions rather than acknowledged-but-open assumptions, so they are captured under AMBIGUITY/EDGE-CASE-COVERAGE rather than here to avoid double-counting the same evidence under a mismatched check per the calibration's no-severity-inflation rule."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md's Roles and Permissions section defines a testable human-approval boundary: Spec-Review-Status remains Pending, changeable only by a human maintainer after their own review (lines 767-769), and every protected-file change (guard-invariants.json registration, .github/workflows/test.yml registration) must be staged through specs/epic-190-a2-capability-registry/human-copy/ + MANIFEST.sha256 rather than a direct edit, with the human's cp step itself SHA-256-verified before the corresponding task can be marked Done (lines 770-776). AC-029/TEST-029 make this concretely testable in three parts (staged candidate exists with correct MANIFEST entry; live protected file stays byte-identical until the human applies it; post-cp verification the new paths appear in regenerated output)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The two gaps identified under AMBIGUITY (review_check_ids' undefined type/shape/validation, and capabilities[].id's undefined uniqueness requirement) mean a downstream design reviewer would have to invent both the JSON Schema type for a required Registry field and a uniqueness-enforcement policy decision that decision v2's own 'sole machine-readable source of truth' premise implies matters, rather than being handed a fully specified shape as this spec now provides for every other required field (required_facets, conditional_facets, gate_ids, delivery_strategy, lite_policy, minimum_enforcement). This is exactly the invented-product-behavior risk this check is meant to catch, and mirrors the precise category of issue round 1 already flagged and round 2 fixed for the sibling facet fields -- it was simply not extended to these two remaining fields."
+    }
+  ]
+}

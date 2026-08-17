@@ -492,16 +492,11 @@ fi
 # check fails until a human/agent deliberately edits the allowlist down to
 # 0 entries (a reviewable acknowledgement, not a silent drift); new defect
 # -> this check fails immediately, surfacing the regression. At today's
-# known state (the ONE gap this same run's TEST-014-GREEN discovers --
-# sdd-bootstrap-interviewer/SKILL.md's own missing directive, Unresolved
-# Items in this task's implementation report) the allowlist has exactly 1
-# entry, so this pin PASSES today without hiding the discovered defect's
-# own visibility (record_defect()'s own line above is still printed
-# unconditionally, regardless of this pin's own result).
+# known state, this gap is closed, so the allowlist should be empty and any
+# future regression will fail immediately instead of being masked by a
+# stale expected-defect count.
 # ---------------------------------------------------------------------------
-KNOWN_DEFECT_ALLOWLIST=(
-    "sdd-bootstrap-interviewer/SKILL.md Intake And Investigation step 2: no accepted fetched-content-is-data/context-not-instructions/commands directive (TEST-014-GREEN)"
-)
+KNOWN_DEFECT_ALLOWLIST=()
 EXPECTED_DEFECTS="${#KNOWN_DEFECT_ALLOWLIST[@]}"
 if [ "$DEFECTS_RECORDED" -eq "$EXPECTED_DEFECTS" ]; then
     ok "TEST-014 (defect-count pin): DEFECTS_RECORDED (${DEFECTS_RECORDED}) matches the known-defect allowlist's own size (${EXPECTED_DEFECTS})"

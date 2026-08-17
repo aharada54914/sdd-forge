@@ -1,0 +1,13 @@
+{
+  "predicate": {
+    "not": {
+      "scope": "affected_component",
+      "field": "data_classification",
+      "operator": "equals",
+      "value": "public"
+    }
+  },
+  "properties": {
+    "data_classification": "internal"
+  }
+}

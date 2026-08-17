@@ -1,0 +1,15 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-191-a3-path-ownership",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-orchestrator-a1r1",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 1,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "BLOCKED",
+  "verdict_note": "Per impl-review-loop SKILL.md STEP 6 (round-aware state machine): round 1 of 3, Critical/Major findings present -> outcome is NEEDS_WORK (human/remedy round), not a terminal BLOCKED. Reviewer-b's own self-reported role-local verdict is BLOCKED per its fixed per-reviewer formula (any Critical FAIL in its own checks), which is independent of this round-aware integrated verdict. Terminal BLOCKED is reserved for round == 3 with Critical/Major findings still unresolved."
+}

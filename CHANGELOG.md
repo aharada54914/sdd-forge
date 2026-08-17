@@ -24,6 +24,171 @@
 
 ### Fixed
 
+- **Release-state coupling in two CI gates**: the `version-gates` lane went
+  red on `main` immediately after the v1.15.0 release because two suites
+  asserted against the `## Unreleased` CHANGELOG heading that
+  `scripts/bump-version.sh` had just legitimately renamed.
+  `bump-version-gate.tests.{sh,ps1}` now inserts the fixture's version
+  heading when the copied CHANGELOG carries no `## Unreleased` section, and
+  asserts that postcondition instead of letting a no-op rename fail every
+  case on the CHANGELOG precondition; `ownership-digest.tests.{sh,ps1}`
+  TEST-048 now locates the T-003 entry in whichever release-notes section
+  holds it, still requiring both citations together in one section, the same
+  later-release exemption TEST-049 already documents.
+
+### Corrections
+
+- **v1.15.0 の Node runtime baseline エントリの訂正**: v1.15.0 の
+  「Node runtime baseline migration」エントリは「CI updated to run the MCP
+  lanes on Node 22 and a limited Ubuntu Node 24 forward-compat check」と
+  記載しているが、この CI 側の変更は着地していない。実測では
+  `.github/workflows/test.yml` の MCP レーン 3 箇所 (843 / 899 / 951 行目)
+  はいずれも `node-version: "20"` のままであり、`.github/workflows/` 配下に
+  Node 24 のレーンは存在しない。当該変更は
+  `docs/ci-staging/node22-runtime-baseline.md` に staged された状態で
+  留まっており、同ファイル 3 行目は `Status: Pending human application`
+  (保護対象は `.github/workflows/test.yml`) と記載している。一方で
+  `mcp/ci-mcp`・`mcp/local-env-mcp`・`mcp/sdd-forge-mcp` の各
+  `package.json` は `engines.node: ">=22.19.0"` を宣言済みであるため、
+  出荷パッケージが要求する Node バージョンを CI が一度も実行していない
+  状態にある。v1.15.0 の記述自体はリリース済みの履歴として書き換えない。
+
+## v1.15.0 (2026-08-16)
+
+### Added
+
+- **Node runtime baseline migration**: MCP package engines and installer
+  gating now require Node.js >= 22.19.0, with CI updated to run the MCP
+  lanes on Node 22 and a limited Ubuntu Node 24 forward-compat check.
+
+- **Component path ownership dual-runtime parity (Issue #191,
+  epic-191-a3-path-ownership T-006)**: added direct Bash/PowerShell product-
+  wrapper parity coverage for canonical JSON, exit status, diagnostics, and
+  unknown-argument pass-through across the resolver and reverse-coverage
+  pairs. The resolver PowerShell twin now rejects unknown arguments with the
+  Python master's exit-2 contract; the protected coverage twin fix and the
+  parity suite's CI steps are hash-bound under the feature's `human-copy/`
+  staging tree for human application.
+
+- **Full-input ownership digest (Issue #191,
+  epic-191-a3-path-ownership T-003)**: `resolve-component-paths` now hashes
+  every declared component include/exclude rule, every bounded or
+  cross-cutting shared-path rule, and the matcher-semantics version through
+  the repository canonicalizer. Both resolver runtimes emit the identical
+  digest in ADR-0021's `context_binding` together with resolver provenance;
+  dedicated Bash/PowerShell acceptance suites pin full-input behavior,
+  selective-staleness semantics, the six-row freshness matrix, and staged
+  CI/run-all wiring.
+
+- **component path ownership resolver の A1 契約追従完了 (Issue #191,
+  epic-191-a3-path-ownership T-001)**: `resolve-component-paths.{py,sh,ps1}`
+  を landed 済みの `contracts/project-context.schema.json` /
+  `project-context.template.yaml` に適合させ、`components[].id`、空の
+  `components: []`、bounded/cross-cutting `shared_paths` の排他的形状を
+  fail-closed で検証する。グロブ、raw-byte sort、分類、exclude 証跡、
+  大文字小文字を区別する契約検査を Bash/PowerShell twin で固定し、ADR は
+  drafting-time の番号再検証により `0027` とした。CI ステップ候補は
+  `specs/epic-191-a3-path-ownership/human-copy/.github/workflows/test.yml`
+  として staged 済みで `MANIFEST.sha256` に hash 束縛されている
+  (2026-08-11 訂正: 旧文「保護領域への書込みを避けるため CI ステップ候補は
+  実装レポート配下の hash 検証済みドラフトに記録した」は HEAD の実態と
+  矛盾していた — human-copy 候補はこのタスク自身の初回書込み `41881071`
+  以来実在し、ガードの staging 免除により書込み可能。旧ドラフト経由の
+  記録は superseded)。この 2026-08-08 エントリは v1.11.0 の T-001 記録に残る
+  「A1 未着地」「human-copy staging 未作成」という当時の状態を現在状態に
+  ついてのみ訂正し、リリース履歴自体は変更しない。
+
+- **Reverse Coverage Gate と --diagnose (Issue #191,
+  epic-191-a3-path-ownership T-004)**: `plugins/sdd-quality-loop/scripts/
+  check-component-coverage.{py,ps1,sh}` を新規追加(Python master + 独立
+  PowerShell twin + 薄い bash dispatcher、INV-008)。常に完走し常に
+  `check-component-coverage-verdict/v1` エビデンスレコード(`producer.sha256`
+  同梱)を出力する。`workflow.capability_enforcement` の値(ADR-0016)から
+  `disabled-legacy`/`advisory`/`required` の三状態を導出し(Facet Manifest
+  の有無からは導出しない)、`disabled-legacy` は評価ゼロで実 N/A・exit 0、
+  `advisory`/`required` は Facet Manifest 構造的必須(欠落は exit 2、
+  Fail 発火時の exit 1 と明確に区別)で六つの Fail 条件(UNOWNED /
+  EXCLUSIVE owner 欠落 / OVERLAP / bounded shared_paths owner 欠落 /
+  resolver の `EXCLUDED_MATCH` エビデンス到達 / Provider Adapter/Binding
+  drift)を全評価し、`required` のみ Fail 発火時 exit 1。非 Gate の
+  `resolve-component-paths --diagnose`/`-Diagnose` サブコマンドを両
+  resolver twin に追加(独自 schema、Gate の schema とは別、
+  `quality-gate/SKILL.md` からは呼ばれない)。`risk-gate-matrix.md`
+  (`high`/`critical` 必須チェックセットへ追加)・`quality-gate/SKILL.md`
+  (`## Process` への記載)を直接編集(いずれも非保護ファイル、defense-in-depth
+  として文書化するのみで実際の到達保証は required-check-set 登録そのもの)。
+  新スイート `tests/check-component-coverage.tests.sh` / `.ps1`
+  (TEST-026〜036、TEST-046、TEST-052〜055)を、Epic A4/A1 の実スキーマに
+  一切依存しない自己完結フィクスチャ Facet Manifest / Provider Bindings
+  で駆動し、両ランタイムで29/29 green(このタスクの Scope 内では外部依存
+  ブロックなし)。`tests/run-all.sh` / `.ps1` へ自己登録。R-10 保護ファイル
+  である Bundle A(`guard-invariants.json`・`generate-guard-invariants.py`・
+  `generated/*` 4件)・Bundle B(`check-contract.{sh,ps1,py}`)への
+  human-copy staging、および `.github/workflows/test.yml` への本タスク
+  分 CI ステップ追加は、T-001/T-002 と同一の Claude Code PreToolUse フック
+  (`sdd-hook-guard.sh`)によりブロックされ本コミットには含まれていない。
+  Bundle A の候補内容は実際の `generate-guard-invariants.py` をスクラッチ
+  作業コピーへ適用して生成・`--check` で内部整合性検証済み、Bundle B は
+  必要な変更内容を仕様として正確に記述(いずれも
+  `reports/implementation/epic-191-a3-path-ownership/T-004.md` の
+  Unresolved Items 参照)。
+
+- **git-diff basis collector (Issue #191, epic-191-a3-path-ownership
+  T-002)**: `plugins/sdd-quality-loop/scripts/resolve-component-paths.{py,ps1}`
+  に `--source-rev`/`--target-rev`/`--include-untracked`/`--repo-root` を
+  追加し、実 git 差分から変更パス集合を収集する経路を新設(T-001 の
+  `--changed-paths-file`/stdin 経路は `--target-rev` 省略時の代替として
+  存続)。`git rev-parse --verify <rev>^{commit}` で source/target を
+  commit OID に解決してから `git merge-base` を計算し、解決不能な rev や
+  共通祖先のない履歴は fail-closed。`baseline..worktree`(staged +
+  unstaged)+ `git ls-files --others --exclude-standard -z`(untracked)を
+  それぞれ一度だけ収集し、全ての path 列挙コマンドを NUL 区切りの生バイト
+  として解析(改行分割は一切行わない、不正 UTF-8 バイト列は fail-closed)。
+  リネームは固定閾値(類似度 50%)・固定 `diff.renameLimit`(1000)・
+  `--no-ext-diff` で追跡し、rename 前後のパスを独立に分類、component
+  境界を跨ぐリネームは `diff_basis.renames[].cross_component: true` として
+  明示。submodule/symlink は `--ignore-submodules=dirty` により
+  「dirty だが pointer 未変更」は完全に無視、gitlink OID 変更・symlink
+  自身の target-text 変更は報告、symlink が指す先の内容のみの変更は
+  symlink 自身のパスには一切現れない(実ディスポーザブル fixture リポジトリ
+  で四ケース全て検証)。単一書き手/TOCTOU スナップショット(HEAD OID +
+  ポーセリン status のハッシュ)を収集開始前後で比較し、不一致は1回だけ
+  リトライしてから fail-closed。新スイート
+  `tests/component-path-diff-basis.tests.sh` / `.ps1`(TEST-019〜025、
+  test 実行時に mktemp 配下へ使い捨て git リポジトリを作成、本リポジトリ
+  自身の履歴は一切使わない)を追加し、両ランタイムで17/17 green
+  (Epic A1/A4 への外部依存なし、T-001/T-005と異なりこのタスク自体は
+  完全 green)。`tests/run-all.sh` / `.ps1` へ自己登録。R-10 保護ファイル
+  である `.github/workflows/test.yml` への human-copy staging は
+  T-001 と同一の Claude Code PreToolUse フック(`sdd-hook-guard.sh`)に
+  よりブロックされ本コミットには含まれていない
+  (`reports/implementation/epic-191-a3-path-ownership/T-002.md` の
+  Unresolved Items 参照、既報告のブロッカーの再現であり新規事象ではない)。
+
+- **cross-epic cross-cutting seed inventory 検証 (Issue #191,
+  epic-191-a3-path-ownership T-005)**: `tests/component-path-resolver.tests.sh`
+  / `.ps1`(T-001既登録のスイート、新規スイート・新規 `tests/run-all.sh`
+  / `.ps1` 登録・`.github/workflows/test.yml` 追加ステップは一切なし)に
+  TEST-042/TEST-042-negative/TEST-043/TEST-044 を追加。Epic A1 の
+  `contracts/project-context.template.yaml` の `shared_paths` cross-cutting
+  セクションが `specs/**`・`reports/**`・`docs/**`・`.github/**`・
+  `tests/fixtures/**`・`CHANGELOG.md` の六項目に厳密一致し `contracts/**`
+  が含まれないことを検証する唯一の正典ソースとして扱い、A3 側は競合する
+  seed-list ドキュメントを一切持たない(REQ-006)。TEST-043 は
+  `tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/`
+  という自己完結フィクスチャで、六項目に触れる diff がゼロ declared
+  owners でも Fail-1(UNOWNED)を絶対に誘発しないことを実証(今日時点で
+  green)。TEST-042/TEST-044 は Epic A1 の実アーティファクトを直接読む
+  ため、それが着地するまで恒久的に red(T-001 の TEST-011.3 と同一の
+  意図された外部依存性ブロック、バグではない、再確認済み:
+  `contracts/project-context.template.yaml` は本コミット時点でも不在)。
+  TEST-042-negative は inventory-conformance チェック関数
+  (`check_inventory_conformance` / `Test-InventoryConformance`)を
+  意図的に誤った seed set に対して実行し、チェックが恒常的に true を
+  返す vacuous な実装でないことを証明(acceptance-first の RED エビデンス)。
+
+### Fixed
+
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,
   staged candidate)**: `apply-human-copy.sh`/`.ps1` が publish 時に staged
   ファイルのモードを保持せず、全ターゲットが 0600 で着地するバグを修正
@@ -1110,6 +1275,154 @@
   報告書の内容を直接適用し、ハッシュ一致を確認する必要がある。
   詳細は `reports/implementation/epic-193-a5-capability-resolver/T-001.md`
   を参照。
+- **Registry validator + provider-terms allowlist (Issue #190,
+  epic-190-a2-capability-registry T-004)**:
+  `plugins/sdd-quality-loop/scripts/validate-capability-registry.{py,sh,ps1}`
+  を新規追加。REQ-003(a-i) の9独立チェック
+  (gate-id-duplicate/implementation-ref-missing/unregistered-script/
+  pack-owns-gate-definition/stage-missing/dangling-gate-reference/
+  provider-name-detected/unknown-upgrade-reason/capability-id-duplicate)
+  を実装。Gate implementation identity схема(`.py` canonical参照のみ、
+  唯一の scan root、`check-` prefix 規則、`.sh`/`.ps1`/`.js` wrapper
+  grouping、symlink 解決)を含む。テスト分離のため `--repo-root` を
+  追加(デフォルトは registry_discovery 経由の git-root 解決、
+  checks (b)/(c)/(d) のファイルシステム依存をテスト用の隔離済み
+  fake repo で検証可能に)。併せて `plugins/sdd-quality-loop/
+  references/provider-terms.json`(cloud-provider/distribution-channel/
+  workflow-runtime-product-name の3カテゴリ)を新規追加。新スイート
+  `tests/validate-capability-registry.tests.sh` / `.ps1`(各23
+  checks)は TDD Red→Green で実装(RED: 常に成功を返す stub に対し
+  12/23 失敗確認 → GREEN: 23/23 合格)、9チェック各1つの
+  minimally-mutated fixture、check(c) の bidirectional
+  fixture set、check(i) の combined-duplicate fixture、
+  fully-clean fixture(全チェック合格を証明)を含む。REQ-005
+  share の AC-028 構造配置チェック(`plugins/sdd-capability/` 不在、
+  REQ-002..005 の全ファイルが `plugins/sdd-quality-loop/` 配下)も
+  スイート自身の setup assertion として実装。証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-004/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-003 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-004.md` を参照。
+- **Registry discovery contract + vendored-copy packaging (Issue #190,
+  epic-190-a2-capability-registry T-003)**: ADR-0029(2026-08-11 の
+  番号衝突解消まで ADR-0025)の三段階
+  script-relative 探索(`plugins/sdd-quality-loop/scripts/registry_discovery.py`、
+  T-004/T-005 が import する共有 helper)を実装。①自スクリプトの
+  symlink 解決済み実パスから `../contracts/<filename>` のパッケージ済み
+  コピーを最優先(ランタイム環境変数は一切参照しない)、②`git rev-parse
+  --show-toplevel`(`git` 不在時は `.git` 上方探索)フォールバック、
+  ③アーティファクトごとの独立バージョンチェック(Registry:
+  `schema=="capability-registry/v1"`、schema ファイル: `$schema` 存在+
+  `$id` 一致、catalog: `schema=="lite-upgrade-reason-catalog/v1"`)失敗時は
+  両方の試行パスを名指しした fail-closed 診断で非ゼロ終了(Security
+  Boundary B4)。併せて `vendor-capability-registry.{py,sh,ps1}`
+  (`generate-guard-invariants.py --check` と同型の no-write/sha256 比較
+  `--check` モード)を新規追加し、`contracts/*` の canonical 3ファイルを
+  `plugins/sdd-quality-loop/contracts/` へ実際にベンダリング。新スイート
+  `tests/registry-discovery.tests.sh` / `.ps1`(各21 checks)は TDD
+  Red→Green で実装(RED: 意図的に壊れた stub に対し 15/21 失敗確認 →
+  GREEN: 21/21 合格)、3ランタイム分の installed-layout fixture(うち1件は
+  symlink 経由起動で symlink 解決も検証)・3件のバージョン不一致
+  fixture・neither-location-resolves fixture・vendored-copy-drift
+  fixture を含む。証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-003/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-002 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-003.md` を参照。
+- **Predicate DSL evaluator (Issue #190, epic-190-a2-capability-registry
+  T-002)**: `plugins/sdd-quality-loop/scripts/evaluate-predicate.{py,sh,ps1}`
+  を新規追加(ADR-0020 完全実装、Python master + thin sh/ps1 wrapper、
+  INV-014)。closed 8演算子文法(`all`/`any`/`not`/`equals`/`not_equals`/
+  `contains`/`in`/`exists`)、`equals`/`not_equals`/`contains`/`in` の
+  fail-closed 一般則(missing path/null/type-mismatch → `false`+`WARN`、
+  例外を投げない)、`exists` の例外(存在すれば値に関わらず `true`、
+  不在なら `false`+`WARN`、型検査なし)、`all`(空→`true`)/`any`
+  (空→`false`)の non-short-circuit 評価、`not` の厳密単項アリティ+
+  真理値表(child=`warn` のときは素朴な否定ではなく `not` 結果も
+  `false` に倒す特別則)、`trigger`/`conditional_facets[].when` が
+  共有する単一評価器+単一フィールド許可リスト(第二の条件言語なし)を実装。
+  フィールド許可リストは Epic A1 の Project Context schema
+  未着地(investigation.md INV-004a)のため `--check-field-allowlist`
+  drift-check モード+fixture スタンドインで機構の正しさのみ先行証明。
+  新スイート `tests/evaluate-predicate.tests.sh` / `.ps1`(63 checks
+  each)は TDD Red→Green で実装(RED: 意図的に許容的な stub 実装に対し
+  50/63 失敗を確認 → GREEN: 全63 checks 合格)、証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-002/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-001 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-002.md` を参照。
+- **Capability Registry スキーマ・インスタンス・lite-upgrade-reason カタログ
+  (Issue #190, epic-190-a2-capability-registry T-001)**:
+  `contracts/capability-registry.schema.json`(draft-07、`contracts/
+  workflow-state-registry.schema.json` の `$id`/スタイル規約踏襲)を新規追加。
+  `gates[]`(`id`/`stage`/`blocking`必須、`stage: implementation` のときのみ
+  `implementation_ref` を条件必須の `if`/`then`)、`capabilities[]`
+  (`id`/`trigger`/`required_facets`/`conditional_facets`/`review_check_ids`/
+  `gate_ids`/`delivery_strategy` を `required` 明記、`lite_policy`/
+  `minimum_enforcement` のみ真に任意)、`trigger`/`conditional_facets[].when`
+  が共有する `#/definitions/predicate`(8演算子閉集合の `oneOf`、`not` は
+  単一子でアリティ1を構造的に強制)を全て `additionalProperties: false` で
+  実装。`contracts/capability-registry.json`(illustrative fixture、
+  INV-002)と `contracts/lite-upgrade-reason-catalog.json`
+  (ADR-0022 の5トークン初期セット)も新規追加。新スイート
+  `tests/capability-registry-schema.tests.sh` / `.ps1` は、schema
+  ファイルを汎用エンジンで解釈するのではなく jq/PowerShell で独立に
+  再実装した厳密predicate(`workflow-state-registry.tests.sh` と同じ
+  規約)で、6件の accept fixture と16件の reject fixture (TEST-001..006,
+  TEST-037, TEST-038 相当)を検証。受け入れ先行(acceptance-first)で RED
+  (各 reject fixture が意図的に緩い permissive スタンドイン schema には
+  誤って受理されることを証明)→ GREEN (正しい厳密predicateで全fixtureが
+  期待どおりの結果になることを確認)の順で実装、証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-001/` 配下の
+  `{red,green}-{sh,ps1}.log`。`tests/run-all.sh` / `tests/run-all.ps1`
+  へ自スイートを直接登録(grep 自己検査つき)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml`
+  + `MANIFEST.sha256` としてステージし、人間の `cp` 適用を待つ(適用前後で
+  ライブファイルの SHA-256 は不変)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-001.md` を参照。
+
+- **component path ownership resolver — グロブ意味論と分類 (Issue #191,
+  epic-191-a3-path-ownership T-001)**: `plugins/sdd-quality-loop/scripts/
+  resolve-component-paths.{py,sh,ps1}` を新規追加。`project-context.yaml`
+  の `components[].paths.{include,exclude}` / `shared_paths[]` を読み、
+  変更パス群を `EXCLUSIVE` / `SHARED_BOUNDED` / `SHARED_CROSS_CUTTING` /
+  `OVERLAP` / `UNOWNED` に分類する。`**` はゼロ以上の完全セグメント(ゼロ
+  セグメントの `a/**/b` が `a/b` に一致するケースを含む)、裸の `*` は
+  単一セグメント内のみ、`?`/`[...]` 等の未対応メタ文字は load 時に
+  fail-closed で拒否。パターン/パスは比較専用に Unicode NFC 正規化し、
+  raw path のバイト列自体は出力の identity として保持(NFC 衝突は
+  fail-closed のコリジョンエラー)。マッチングは常にバイト単位で
+  大文字小文字を区別。component 自身の `exclude` は同一 component の
+  `include` に絶対に優先し(Fail-5 不変条件)、その結果 UNOWNED になった
+  パスには `EXCLUDED_MATCH` エビデンスタグを付与。`shared_paths` は
+  bounded(`components:` 明示リスト)/cross-cutting(`classification:
+  cross-cutting`)の二者択一で、両方または どちらも無い設定は
+  fail-closed。YAML パーサーは本リポジトリの CI が PyYAML 等の外部
+  依存を一切インストールしないため独自実装の制限付きサブセット
+  (ADR-0020 の restricted-DSL 方針を踏襲、ADR-0025 に記録)。
+  Epic A1 の正式スキーマ(`contracts/project-context.template.yaml`)
+  との適合性チェック(`--check-schema-conformance`)は AC-011 により
+  当該アーティファクトが存在しない間 fail-closed で恒常的に赤のまま
+  (Epic A1 未着地の間の意図された挙動、バグではない)。
+  新スイート `tests/component-path-resolver.tests.sh` / `.ps1`
+  (TEST-001〜018 + TEST-045、`tests/fixtures/component-path-ownership/`
+  配下の静的フィクスチャで駆動)を追加し `tests/run-all.sh` /
+  `tests/run-all.ps1` へ自己登録。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CI
+  ステップ(bash/pwsh 両レーン)を反映した補正版の human-copy staging を
+  試みたが、インストール済み Claude Code の PreToolUse フック
+  (`sdd-hook-guard.sh`)が human-copy/ 配下でも `test.yml` という
+  basename を無条件にブロックしたため本コミットには含まれていない
+  (`specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256` に
+  詳細と再現手順を記録、`reports/implementation/
+  epic-191-a3-path-ownership/T-001.md` のBlockersも参照)。
+  ADR-0025 でグロブ意味論・優先順位・六つのFail条件定義を記録。
+
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
