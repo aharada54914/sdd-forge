@@ -859,6 +859,26 @@ jobs:
         shell: pwsh
         run: ./tests/capability-summary-schema.tests.ps1
 
+      # epic-192-a4-facet-manifest T-003 (REQ-003/REQ-006): schema
+      # conformance for contracts/context-projection.schema.json /
+      # validate-context-projection.{py,sh,ps1} (re-keying proof, RFC 6901
+      # pointer resolution, shared_paths[] oneOf branch; no YAML/
+      # canonicalizer subprocess -- this validator's target is already
+      # JSON). Registered in the live tests/run-all.{sh,ps1}; this staged
+      # candidate supplies its direct CI step. Deterministic: no LLM, no
+      # network, no `gh`, and no live sudo grant.
+
+      - name: Test context-projection-schema suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/context-projection-schema.tests.sh
+
+      - name: Test context-projection-schema suite (pwsh)
+        shell: pwsh
+        run: ./tests/context-projection-schema.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

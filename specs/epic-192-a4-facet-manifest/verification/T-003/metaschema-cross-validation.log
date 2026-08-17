@@ -1,0 +1,27 @@
+AGREE: components-still-array-shaped.json -- reference_valid=False own_valid=False
+AGREE: multi-diagnostic-ordering.json -- reference_valid=False own_valid=False
+AGREE: provider-bindings-sha256-malformed-digest.json -- reference_valid=False own_valid=False
+AGREE: rekeyed-two-component-non-slug-id.json -- reference_valid=True own_valid=True
+AGREE: required-missing-components.json -- reference_valid=False own_valid=False
+AGREE: required-missing-schema.json -- reference_valid=False own_valid=False
+AGREE: required-missing-shared-paths.json -- reference_valid=False own_valid=False
+AGREE: required-missing-source-sha256.json -- reference_valid=False own_valid=False
+AGREE: required-missing-workflow.json -- reference_valid=False own_valid=False
+AGREE: schema-invalid-const.json -- reference_valid=False own_valid=False
+AGREE: shared-path-both-rejected.json -- reference_valid=False own_valid=False
+AGREE: shared-path-bounded-valid.json -- reference_valid=True own_valid=True
+AGREE: shared-path-missing-pattern.json -- reference_valid=False own_valid=False
+AGREE: shared-path-neither-rejected.json -- reference_valid=False own_valid=False
+AGREE: shared-path-unbounded-valid.json -- reference_valid=True own_valid=True
+AGREE: source-omission-empty-valid.json -- reference_valid=True own_valid=True
+AGREE: source-sha256-malformed-digest.json -- reference_valid=False own_valid=False
+DISAGREE: source-sha256-trailing-newline.json -- reference_valid=True own_valid=False
+AGREE: workflow-artifact-layout-invalid.json -- reference_valid=False own_valid=False
+AGREE: workflow-capability-enforcement-invalid.json -- reference_valid=False own_valid=False
+AGREE: workflow-missing-artifact-layout.json -- reference_valid=False own_valid=False
+AGREE: workflow-missing-capability-enforcement.json -- reference_valid=False own_valid=False
+AGREE: workflow-missing-spec-profile.json -- reference_valid=False own_valid=False
+AGREE: workflow-spec-profile-invalid.json -- reference_valid=False own_valid=False
+
+Total JSON fixtures compared: 24
+Disagreements: 1
