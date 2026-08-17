@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a4r1-seq0772",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a4r1-0772",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "985899644b99be188e53489b35dd17034f9eb4a9cc646da30cc3ae70e54a49da"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-1/precheck-result.json",
+      "sha256": "ca0c015bdbea79b55384ac314990b918b729d5e3c5a846437220f98212bae5d0"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every requirement (REQ-001..REQ-007) resolves to a concretely measurable check: REQ-001/002 to schema-file structural assertions (AC-001, AC-003, AC-014, AC-018..024), REQ-003 to term.concept_id validity/dangling checks (AC-009, AC-022(2), AC-025), REQ-004(a)-(i) each to a named AC (AC-017, AC-012, AC-014/016/018-024, AC-006..011) with exit-code and stderr-line contracts, REQ-005(a)-(f) to specific fixtures (verified upstream below), REQ-006 to AC-013 twin parity, REQ-007 to AC-002 (SHA-256 drift lock) and AC-015 (unmodified v1 suite green). No requirement lacks an observable pass/fail signal."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five Goals (G1-G5 in requirements.md) have matching rows in the Positive-capability matrix: G1 -> AC-001/003/004/026, G2 -> AC-025, G3 -> AC-005/AC-013 plus AC-003/004/005/025/026/AC-018-boundary, G4 -> AC-003/004/005/025/026, G5 -> AC-002/AC-015. Verified REQ-005(a)-(f) upstream realization against the cited ACs: (a) 'Order concept が purchase 責務のみ・Fulfillment concept が delivery 責務のみ・相互 distinguished_from・Fulfillment.must_not_own に purchase price' (requirements.md line 143-144) is reproduced verbatim in AC-003's Test Target (line 12); (b) 'Book.must_not_own に display position、Placement concept が並び責務を持つ' (line 145) is reproduced and explicitly marked 'そのまま実現する' in AC-004 (line 13); (c) cross-context same-name -> AC-005 (line 14); (d) REQ-004(d)-(i) each get one negative fixture -> AC-006..AC-011 (lines 15-20), 1:1; (e) term->concept positive -> AC-025 (line 34); (f) all-optional-absent positive -> AC-026 (line 35), matching 'must_not_own・stakeholder_perspectives・distinguished_from の3キーをいずれも持たず' verbatim. The stated fixture tally in the Negative-path matrix Notes ('負例 fixture の総数は73件...7+2+3+3+4+7+2+8+29') was independently recomputed against each cited AC's own declared per-fixture count (AC-014=7, AC-017=2, AC-018=3, AC-019=3, AC-020=4, AC-021=7, AC-022=2, AC-023=8, AC-024=29, sum=65, plus 8 single-fixture ACs AC-006..012+AC-016=8, total 73) and is internally consistent."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Positive-capability matrix row 'G3: validator が正当な契約を誤検知しない' cites, in its '正例 AC' (positive-AC) column: 'AC-003, AC-004, AC-005, AC-025, AC-026, AC-018 の境界正例' (line 54). AC-018's own Test Type in the AC table is 'negative fixture (pattern 違反)' (line 27), not a positive criterion. The same matrix's preamble explicitly bars this: '負例 AC はここでは根拠にならない（違反が拒否されることは、正用が通ることを含意しない）' (lines 41-42), repeated in the 充足規則 as '負例 AC は根拠にならない。違反が拒否されることは、正用が受理されることを含意しない' (line 66). Compounding this, AC-018's Test Target states the boundary values are shown accepted 'AC-003 の正例 fixture 系で受理される' (line 27), but the document's own Notes section instead attributes them to 'TEST-018 の境界正例（`APIOrder` / `order-taking-2`）' (line 143) — a direct location contradiction as to which suite entry (TEST-003 or TEST-018) actually carries the fixture proving this. Neither location gives these two positive fixtures the explicit 'N fixture — (1)(2)...' enumeration used for every other multi-part item in this document (contrast AC-018's own '3 fixture で個別に証明する' for its negative content at the same line, or AC-017/019/020/021/022/023/024's identical enumeration convention). AC-003's own Test Target (line 12) never mentions `APIOrder` or `order-taking-2`, so nothing currently obligates AC-003's fixture to carry them. Downstream failure mode: a task author implementing TEST-018/TEST-003 has no single authoritative instruction for how many boundary-positive fixtures exist or where they live, so this specific pattern-non-over-rejection claim risks going unimplemented while the matrix still records it as proven. This is a specification-level ambiguity in acceptance-tests.md's own cross-reference structure (not an implementation-review or task-decomposition matter), and it violates the matrix's own stated eligibility rule for the '正例 AC' column, which is why it is Major rather than a best-practice nicety."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section explicitly excludes 7 adjacent surfaces (concept-test skill/bootstrap, concept-model.template.md/interviewer stage changes, reviewer A/B checks, reverse mode/C4, v1->v2 migration tooling/dual-version loader 'owner 決定により恒久的にスコープ外', domain/ Markdown artifact generation, and mechanical enforcement of meta.status Approved). Roles and Permissions further states explicitly that approval-mechanism creation is out of scope: '承認強制機構の新設は本 feature の非目標であり、必要と判断された場合は別 feature として起票する' (line 201-202). Edge Cases bound concepts=[] as invalid and single-vs-cross-context name collision behavior explicitly. No open-ended expansion surface is left unaddressed."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicit: compatibility/migration ('v1 資産は存在しないものとして扱い...v1 → v2 のアーティファクト移行設計・二重バージョンローダーは作らない', line 26-28, and REQ-007's byte-identical guarantee), security (Security Boundaries section: content-as-data, no network access, no external deps beyond python3 stdlib json / ConvertFrom-Json, no secrets in fixtures), and approval boundary (Roles and Permissions: 'meta.status の Approved 書込に対する機械的強制は存在しない...承認境界は人間のレビュー運用のみが担保', line 196-200, grounded in investigation.md INV-008). Assumptions section also records and bounds a process deviation (hook-activation CAPABILITY_RUNTIME_UNAVAILABLE) with an explicit forward constraint: 'spec-review 以降のゲートは hook 有効環境で実行すること' (line 244)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three declared risks carry an explicit validation surface: R1 (concepts[] type insufficiency) -> 'fixture corpus を先に書き、Phase 1 の判定4種...が必要とするフィールドを受け入れテストで先取り検証する'; R2 (validator/schema drift) -> 'REQ-006 のテストが schema ファイルの required/pattern 宣言と validator の挙動を同一 fixture で突き合わせる'; R3 (sh/ps1 twin mismatch) -> 'REQ-006 の twin parity 検査（同一 fixture・同一 verdict）', concretely realized as AC-013. No high-risk claim in this spec lacks a named acceptance-criterion or fixture-based validation path."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 records: 'sdd-forge 自身に `domain/` ディレクトリは存在せず（ルート直下確認）', and requirements.md's own Non-goals list '`domain/` アーティファクト（Markdown 側）の生成・変更' as out of scope for this feature. There is no `domain/context-map.md` with `Domain-Model-Status: Approved` and no schema-valid `domain/domain-contract.json` in the target project, so the DOMAIN-CONFORMANCE skip condition applies and the check is recorded as skipped rather than evaluated."
+    }
+  ]
+}

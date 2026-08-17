@@ -6948,6 +6948,33 @@
       "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a4r1-0772",
       "previous_record_sha256": "87740e1e6cb21123783929b95cf9be1311912386cab2e74f6b7990eb45b4988d",
       "record_sha256": "6afa44854138b31bba092eaa436833b9634fef3ae5f7e0c54dadfc2f275e3ac6"
+    },
+    {
+      "sequence": 773,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a4r1-seq0773",
+      "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a4r1-0773",
+      "previous_record_sha256": "6afa44854138b31bba092eaa436833b9634fef3ae5f7e0c54dadfc2f275e3ac6",
+      "record_sha256": "6171c50aad64cf1d73416f9647b1a1a2403b90d5023986219773699118e7aeee"
+    },
+    {
+      "sequence": 774,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a4r2-seq0774",
+      "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a4r2-0774",
+      "previous_record_sha256": "6171c50aad64cf1d73416f9647b1a1a2403b90d5023986219773699118e7aeee",
+      "record_sha256": "1aa375fef12a6e68cd4983ec30db699c63b2579875a921ef8f81482c3033d63b"
+    },
+    {
+      "sequence": 775,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a4r2-seq0775",
+      "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a4r2-0775",
+      "previous_record_sha256": "1aa375fef12a6e68cd4983ec30db699c63b2579875a921ef8f81482c3033d63b",
+      "record_sha256": "872b6bfd2687d9b254ba61e7dff71c6da9005daf908134fff4f6d2f3c981bc47"
     }
   ]
 }

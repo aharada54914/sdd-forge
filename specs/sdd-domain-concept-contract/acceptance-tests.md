@@ -9,7 +9,7 @@ namespace).
 |---|---|---|---|---|---|
 | AC-001 | REQ-001 | TEST-001 | structural (schema file) | `tests/sdd-domain/contract-v2-schema.Tests.ps1`: `contracts/domain-contract.v2.schema.json` が存在し、draft-07・`schema` const `domain-contract/v2`・root required `schema`/`meta`/`contexts`/`concepts` を宣言し、meta 定義が v1 と同形（version/status/generated_from）である | Planned |
 | AC-002 | REQ-001, REQ-007 | TEST-002 | non-regression (byte 比較) | 同 suite: `contracts/domain-contract.v1.schema.json` の SHA-256 が本 feature 開始時点の値と一致（v1 無変更の drift lock） | Planned |
-| AC-003 | REQ-002, REQ-005(a) | TEST-003 | positive fixture (全 optional フィールド populate) | 同 suite: Purchase/Fulfillment 正例 fixture（Order=purchase 責務のみ / Fulfillment=delivery 責務のみ / 相互 distinguished_from / Fulfillment.must_not_own に purchase price）が構造 assertion と validator (.ps1) の両方を exit 0 で通過。本 fixture の各 concept は **required 7 フィールド `id` / `name` / `context` / `definition` / `essence` / `responsibilities` / `evidence` をすべて備え**、かつ **optional フィールドをすべて populate した状態**とし、`must_not_own`・`distinguished_from` に加えて `stakeholder_perspectives` に有効な `{actor, concern}` を最低 1 件含める（例: actor=購買担当 / concern=価格と数量、actor=出荷担当 / concern=配送先と期日）。通過後に当該 3 フィールドの値が入力どおり保持されていることを確認し、optional フィールドの**受理経路**が空虚でないこと（stuck-shut でないこと）を証明する。optional 不在の受理は AC-026 が担う | Planned |
+| AC-003 | REQ-002, REQ-005(a) | TEST-003 | positive fixture (全 optional フィールド populate) | 同 suite: Purchase/Fulfillment 正例 fixture（Order=purchase 責務のみ / Fulfillment=delivery 責務のみ / 相互 distinguished_from / Fulfillment.must_not_own に purchase price）が構造 assertion と validator (.ps1) の両方を exit 0 で通過。本 fixture の各 concept は **required 7 フィールド `id` / `name` / `context` / `definition` / `essence` / `responsibilities` / `evidence` をすべて備え**、かつ **optional フィールドをすべて populate した状態**とし、`must_not_own`・`distinguished_from` に加えて `stakeholder_perspectives` に有効な `{actor, concern}` を最低 1 件含める（例: actor=購買担当 / concern=価格と数量、actor=出荷担当 / concern=配送先と期日）。通過後に当該 3 フィールドの値が入力どおり保持されていることを確認し、optional フィールドの**受理経路**が空虚でないこと（stuck-shut でないこと）を証明する。あわせて **pattern 境界の正例**として、fixture 系に name が `APIOrder`（連続大文字）の concept と、名前が `order-taking-2`（数字セグメント）の context を含め、いずれも受理されることを確認する（AC-018 の pattern 負例 3 件と対をなし、pattern が過剰に厳しくないことを証明する）。optional 不在の受理は AC-026 が担う | Planned |
 | AC-004 | REQ-005(b) | TEST-004 | positive fixture | 同 suite: Book/Bookshelf 正例 fixture（`Book.must_not_own` に display position / Placement concept が並び責務）が構造 assertion と validator (.ps1) の両方を exit 0 で通過。REQ-005(b) の fixture 内容指定（Book.must_not_own = display position、Placement が並び責務）をそのまま実現する | Planned |
 | AC-005 | REQ-002, REQ-005(c) | TEST-005 | positive fixture (P-7 representability) | 同 suite: 2 つの context に同名 concept（例: order-taking の Order と shipping の Order）を持つ fixture が通過し、両 concept の id は異なる | Planned |
 | AC-006 | REQ-004(d) | TEST-006 | negative fixture | 同 suite: concept id 重複 fixture を validator が非 0 で拒否し、標準エラーに重複 id を名指しする | Planned |
@@ -24,7 +24,7 @@ namespace).
 | AC-015 | REQ-007 | TEST-015 | non-regression (既存スイート) | 既存 `tests/sdd-domain/contract-schema.Tests.ps1`（v1）を無変更のまま実行して green。加えて review 時チェックとして、本 feature の diff が INV-004 の consumer 4 系統・既存 11 スイートに触れていないことを確認 | Planned |
 | AC-016 | REQ-001, REQ-004(c) | TEST-016 | negative fixture (空配列) | 同 suite: `concepts` が空配列（`[]`）の fixture を validator が非 0 で拒否し、標準エラーに `concepts` が最低 1 件必要である旨を名指しする。root required を満たす（`concepts` キー自体は存在する）状態で minItems 1 が効くことを示し、キー欠落の検査と区別する | Planned |
 | AC-017 | REQ-004(a) | TEST-017 | negative fixture (fail-closed) | 同 suite: 異常入力に対し validator が fail-closed で非 0 終了し、部分的な検査結果を標準出力に出さない（best-effort パースをしない）。2 fixture で個別に証明する — (1) 構文的に壊れた JSON（途中で切れた本文）、(2) 10MB を超えるファイル。いずれも標準エラーは 1 行 1 件の違反列挙形式を保ち、スタックトレースや処理系の生例外を出さない | Planned |
-| AC-018 | REQ-002, REQ-004(c) | TEST-018 | negative fixture (pattern 違反) | 同 suite: REQ-002 の 3 パターンそれぞれに違反する fixture を validator が非 0 で拒否し、標準エラーに違反フィールド名を名指しする。3 fixture で個別に証明する — (1) `id` が `^CONCEPT-[A-Z][A-Z0-9-]*$` に不適合（例 `concept-order`）、(2) `name` が `^[A-Z][A-Za-z0-9]*$` に不適合（例 `order_item`）、(3) `context` が `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` に不適合（例 `Order-Taking`）。あわせて境界の正例として `APIOrder`（連続大文字）と `order-taking-2`（数字セグメント）が AC-003 の正例 fixture 系で受理されることを示し、パターンが過剰に厳しくないことを証明する | Planned |
+| AC-018 | REQ-002, REQ-004(c) | TEST-018 | negative fixture (pattern 違反) | 同 suite: REQ-002 の 3 パターンそれぞれに違反する fixture を validator が非 0 で拒否し、標準エラーに違反フィールド名を名指しする。3 fixture で個別に証明する — (1) `id` が `^CONCEPT-[A-Z][A-Z0-9-]*$` に不適合（例 `concept-order`）、(2) `name` が `^[A-Z][A-Za-z0-9]*$` に不適合（例 `order_item`）、(3) `context` が `^[a-z][a-z0-9]*(-[a-z0-9]+)*$` に不適合（例 `Order-Taking`）。境界の正例（`APIOrder` / `order-taking-2` の受理）は本 AC の対象外であり、AC-003 が名指しで義務づける | Planned |
 | AC-019 | REQ-002, REQ-004(c) | TEST-019 | negative fixture (minItems 違反) | 同 suite: minItems 1 を宣言する 3 配列について空配列 fixture を拒否し、標準エラーに当該配列名を名指しする。3 fixture — (1) `responsibilities` 空配列、(2) `evidence` 空配列、(3) `distinguished_from[].reasons` 空配列。キー欠落（AC-014）と空配列が別経路であることを、エラー文言で区別する | Planned |
 | AC-020 | REQ-002, REQ-004(c) | TEST-020 | negative fixture (optional 内 nested required 欠落) | 同 suite: optional なオブジェクト配列を**持つ場合に**その内側で required となるフィールドの欠落を拒否する。4 fixture — (1) `stakeholder_perspectives[].actor` 欠落、(2) `stakeholder_perspectives[].concern` 欠落、(3) `distinguished_from[].concept_id` 欠落、(4) `distinguished_from[].reasons` 欠落。当該 optional 配列自体を持たない場合の受理は AC-026 が担うため本 AC では扱わず、本 AC は「配列が存在する場合にその内側の required が効く」ことのみを証明する | Planned |
 | AC-021 | REQ-001, REQ-004(c) | TEST-021 | negative fixture (root/meta required キー欠落) | 同 suite: root の required 4 キーと meta の required 3 キーそれぞれの欠落を拒否し、標準エラーに欠落キー名を名指しする。7 fixture — (1) `schema` 欠落、(2) `meta` 欠落、(3) `contexts` 欠落、(4) `concepts` 欠落、(5) `meta.version` 欠落、(6) `meta.status` 欠落、(7) `meta.generated_from` 欠落。`concepts` キー欠落（本 AC (4)）と `concepts` 空配列（AC-016）が別経路であることを、エラー文言で区別する | Planned |
@@ -51,7 +51,7 @@ AC 表を更新する。
 | G1: optional フィールド 3 種は **1 つも持たなくても**受理される | AC-026 | AC-026 の本文が名指しする `must_not_own` / `stakeholder_perspectives` / `distinguished_from` の 3 キーをいずれも欠落させた契約が exit 0 で通過する（AC-003 と対をなし、optional の 2 状態を網羅する） |
 | G2: term → concept の連結を表現できる | **AC-025** | term.concept_id が実在 concept を指す契約が受理され、スキーマが当該フィールドを optional + pattern 付きで宣言し、値が保持される |
 | G3: 異なる context 間の同名 concept を許可する | AC-005 | 2 つの context に同名 concept を持つ契約が受理され、両者の id が異なる（同一 context 内重複を拒否する AC-011 と対をなす） |
-| G3: validator が正当な契約を誤検知しない | AC-003, AC-004, AC-005, AC-025, AC-026, AC-018 の境界正例 | 引用した 6 系統（Purchase/Fulfillment・Book/Bookshelf・同名別概念・term 連結・optional 全欠落・pattern 境界）がいずれも exit 0。境界値 `APIOrder`（連続大文字）と `order-taking-2`（数字セグメント）が pattern に受理される |
+| G3: validator が正当な契約を誤検知しない | AC-003, AC-004, AC-005, AC-025, AC-026 | 引用した 5 AC の正例系（Purchase/Fulfillment＋pattern 境界・Book/Bookshelf・同名別概念・term 連結・optional 全欠落）がいずれも exit 0。境界値 `APIOrder`（連続大文字）と `order-taking-2`（数字セグメント）の受理は AC-003 の本文が名指しで義務づける |
 | G3: sh/ps1 twins が同一判定を返す | AC-013 | 正例・負例の全 fixture で exit code と違反件数が一致 |
 | G4: fixture corpus が後続 Phase で再利用可能な形で存在する | AC-003, AC-004, AC-005, AC-025, AC-026 | Purchase/Fulfillment・Book/Bookshelf・同名別概念・term 連結・optional 全欠落の 5 系統の正例が揃う（REQ-005 (a)(b)(c)(e)(f) に対応。(d) は負例群 AC-006..AC-011 が担う） |
 | G5: v1 と既存 consumer を変更しない | AC-002, AC-015 | v1 スキーマの SHA-256 が不変で、既存 v1 スイートが無変更のまま green |
@@ -140,9 +140,10 @@ Notes:
   8 件 = AC-006..012 の 7 件 + AC-016、複数 fixture の AC が 65 件 =
   7+2+3+3+4+7+2+8+29。この値は AC 表の宣言から導出したものであり、AC を
   増減したら再計算する）。
-- TEST-018 の境界正例（`APIOrder` / `order-taking-2`）は、pattern が
-  stuck-shut（正当な名前を誤って拒否する）方向に壊れていないことの証明で
-  あり、負例 3 件と対をなす。
+- TEST-003 の境界正例（`APIOrder` / `order-taking-2` — AC-003 の本文が
+  名指しで義務づける）は、pattern が stuck-shut（正当な名前を誤って拒否
+  する）方向に壊れていないことの証明であり、TEST-018 の負例 3 件と対を
+  なす。
 - TEST-017(2) の 10MB fixture は mktemp スコープで生成し（リポジトリに
   恒久ファイルを追加しない）、生成コストを抑えるため内容はパディングで
   よい。サイズ閾値そのものを validator に実装するか、単に大きな入力でも
