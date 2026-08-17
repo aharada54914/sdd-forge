@@ -440,6 +440,40 @@ else
 fi
 
 # =============================================================================
+# RT-20260817-005 item 1: the sibling-import guard (`except Exception`) does
+# NOT catch `SystemExit` (it subclasses BaseException directly, not
+# Exception) -- a sibling module whose own top-level code calls sys.exit(N)
+# at import time previously escaped this guard entirely and propagated as
+# raw exit N with NO diagnostic on either channel, silently colliding with
+# this contract's own fixed 0/1/2/3 exit-code enum (e.g. sys.exit(2) would
+# be indistinguishable from a legitimate `blocked` verdict to a caller that
+# only inspects the exit code). Fixed to `except (Exception, SystemExit)`.
+# Reproduced the same way as Major-3 above: copy ONLY the comparator into a
+# scratch directory, but this time ALSO plant a corrupted sibling
+# validate-facet-manifest.py whose only top-level statement is
+# `sys.exit(7)` -- a distinct scenario from Major-3's "sibling absent"
+# (ImportError) case, since SystemExit is raised only once the sibling
+# module DOES load and its own code chooses to abort.
+# =============================================================================
+sysexit_scratch="$(mktemp -d)"
+cp "$COMPARATOR" "$sysexit_scratch/compare-facet-manifest-staleness.py"
+printf 'import sys\nsys.exit(7)\n' > "$sysexit_scratch/validate-facet-manifest.py"
+python3 "$sysexit_scratch/compare-facet-manifest-staleness.py" \
+  --old-manifest "$FIXTURES/base-old.json" --new-manifest "$FIXTURES/base-old.json" \
+  "${DEFAULT_FLAGS[@]}" >"$STDOUT_FILE" 2>"$STDERR_FILE"
+sysexit_rc=$?
+sysexit_stdout="$(cat "$STDOUT_FILE")"
+sysexit_stderr="$(cat "$STDERR_FILE")"
+rm -rf "$sysexit_scratch"
+if [ "$sysexit_rc" = "3" ] && [ -z "$sysexit_stdout" ] \
+   && printf '%s' "$sysexit_stderr" | grep -qF "facet-manifest-staleness: validator-import-failed:" \
+   && ! printf '%s' "$sysexit_stderr" | grep -qF "Traceback"; then
+  ok "RT-20260817-005(1) lock: a sibling validate-facet-manifest.py calling sys.exit(7) at import time fails closed on exit=3 (never raw exit=7), stdout empty, diagnostic present, no traceback"
+else
+  fail "RT-20260817-005(1) lock: expected exit=3 (never raw sys.exit(7)) stdout=[] diagnostic 'validator-import-failed', no traceback; got exit=$sysexit_rc stdout=[$sysexit_stdout] stderr=[$sysexit_stderr]"
+fi
+
+# =============================================================================
 # seq0761 Minor-5: Specification Difference #4 confirmation -- design.md's
 # own "(and no coarser one)" clause (Invocation section) is logically
 # equivalent to "the coarsest changed component determines the tier," so

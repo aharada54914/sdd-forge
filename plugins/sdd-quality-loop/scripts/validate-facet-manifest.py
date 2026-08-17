@@ -535,7 +535,13 @@ def main(argv=None):
     except CanonicalizerError as exc:
         sys.stdout.write(f"facet-manifest: canonicalizer-invocation-failed: {exc}\n")
         return 1
-    except (OSError, json.JSONDecodeError) as exc:
+    # ValueError covers json.JSONDecodeError AND UnicodeDecodeError (both
+    # ValueError subclasses) -- a non-UTF-8 --manifest input must surface
+    # this diagnostic, never an unhandled Python traceback (T-001..T-004
+    # quality-gate lesson -- RT-20260817-004; not a design.md/tasks.md
+    # instruction; validate-context-projection.py/compare-facet-manifest-
+    # staleness.py already carried this fix, this was the one remaining gap).
+    except (OSError, ValueError) as exc:
         sys.stdout.write(f"facet-manifest: manifest-unreadable: {exc}\n")
         return 1
 

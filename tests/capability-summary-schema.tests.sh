@@ -203,6 +203,35 @@ else
   fail "canonicalizer-invocation-failed: expected exit!=0 and diagnostic, got exit=$canon_rc output=[$canon_out]"
 fi
 
+# --- summary-unreadable regression lock: non-UTF-8 bytes (RT-20260817-004 --
+# T-001..T-004 quality-gate lesson: `except (OSError, json.JSONDecodeError)`
+# in main()'s --summary .json branch let a non-UTF-8 byte stream (which
+# fails the implicit UTF-8 text decode inside `open(..., encoding="utf-8")`
+# with a raw UnicodeDecodeError, a ValueError subclass NOT a JSONDecodeError
+# subclass) leak an unhandled Python traceback instead of the
+# 'summary-unreadable' diagnostic -- fixed to `except (OSError, ValueError)`
+# (json.JSONDecodeError is itself a ValueError subclass, so this still
+# covers it); validate-context-projection.py/compare-facet-manifest-
+# staleness.py already carried this fix, this suite locks the last gap) ----
+nonutf8_summary="$FIXTURES/summary-non-utf8-bytes.bin"
+set +e
+nonutf8_out="$(run_validator "$nonutf8_summary" 2>&1)"
+nonutf8_rc=$?
+set -e
+if [ "$nonutf8_rc" -ne 0 ] \
+   && printf '%s' "$nonutf8_out" | grep -qF "capability-summary: summary-unreadable:" \
+   && ! printf '%s' "$nonutf8_out" | grep -qF "Traceback"; then
+  ok "summary-unreadable: non-UTF-8 byte input fails closed (exit=$nonutf8_rc, single-line diagnostic, no traceback)"
+else
+  fail "summary-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic, no traceback, got exit=$nonutf8_rc output=[$nonutf8_out]"
+fi
+nonutf8_line_count="$(printf '%s\n' "$nonutf8_out" | wc -l | tr -d ' ')"
+if [ "$nonutf8_line_count" = "1" ]; then
+  ok "summary-unreadable: non-UTF-8 byte input diagnostic is exactly one line"
+else
+  fail "summary-unreadable: non-UTF-8 byte input expected exactly one diagnostic line, got $nonutf8_line_count: [$nonutf8_out]"
+fi
+
 # --- Suite/CI registration self-check ---------------------------------------
 if grep -qF "tests/capability-summary-schema.tests.sh" "${REPO_ROOT}/tests/run-all.sh"; then
   ok "self-registration: tests/run-all.sh lists this suite"

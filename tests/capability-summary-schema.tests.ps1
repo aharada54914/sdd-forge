@@ -178,6 +178,33 @@ if ($LASTEXITCODE -ne 0 -and $canonOutStr.Contains('capability-summary: canonica
     $script:Fail++
 }
 
+# summary-unreadable regression lock: non-UTF-8 bytes (RT-20260817-004 --
+# T-001..T-004 quality-gate lesson: `except (OSError, json.JSONDecodeError)`
+# in main()'s --summary .json branch let a non-UTF-8 byte stream leak an
+# unhandled Python traceback instead of the 'summary-unreadable'
+# diagnostic -- fixed to `except (OSError, ValueError)` (json.JSONDecodeError
+# is itself a ValueError subclass, so this still covers it);
+# validate-context-projection.py/compare-facet-manifest-staleness.py
+# already carried this fix, this suite locks the last gap.
+$NonUtf8Summary = Join-Path $Fixtures 'summary-non-utf8-bytes.bin'
+$nonUtf8Out = & $Python $Validator --summary $NonUtf8Summary 2>&1
+$nonUtf8OutStr = ($nonUtf8Out -join "`n")
+if ($LASTEXITCODE -ne 0 -and $nonUtf8OutStr.Contains('capability-summary: summary-unreadable:') -and -not $nonUtf8OutStr.Contains('Traceback')) {
+    Write-Host "ok: summary-unreadable: non-UTF-8 byte input fails closed (exit=$LASTEXITCODE, single-line diagnostic, no traceback)"
+    $script:Pass++
+} else {
+    Write-Host "FAIL: summary-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic, no traceback, got exit=$LASTEXITCODE output=[$nonUtf8OutStr]"
+    $script:Fail++
+}
+$nonUtf8LineCount = ($nonUtf8Out | Measure-Object).Count
+if ($nonUtf8LineCount -eq 1) {
+    Write-Host 'ok: summary-unreadable: non-UTF-8 byte input diagnostic is exactly one line'
+    $script:Pass++
+} else {
+    Write-Host "FAIL: summary-unreadable: non-UTF-8 byte input expected exactly one diagnostic line, got $nonUtf8LineCount`: [$nonUtf8OutStr]"
+    $script:Fail++
+}
+
 # self-registration
 $runAll = Get-Content (Join-Path $RepoRoot 'tests/run-all.ps1') -Raw
 if ($runAll.Contains('tests/capability-summary-schema.tests.ps1')) {

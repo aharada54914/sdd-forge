@@ -295,10 +295,19 @@ def main(argv=None):
     # (ImportError, SyntaxError inside the sibling file, FileNotFoundError,
     # etc. are all possible failure shapes for a corrupted/missing sibling)
     # -- anything that prevents the module from loading must be reported,
-    # not selectively caught.
+    # not selectively caught. `Exception` alone does NOT cover `SystemExit`
+    # (it subclasses BaseException directly, not Exception) -- a sibling
+    # module that calls sys.exit(N) at import time (e.g. a corrupted install
+    # whose own top-level code aborts) previously escaped this guard
+    # entirely and propagated as exit N with no diagnostic on either
+    # channel, silently colliding with this contract's own fixed exit-code
+    # enum (0/1/2/3) -- e.g. sys.exit(2) from the sibling would be
+    # indistinguishable from this script's own `blocked` verdict (T-005
+    # quality-gate lesson, RT-20260817-005 item 1; not a design.md/tasks.md
+    # instruction).
     try:
         vfm = _load_vfm()
-    except Exception as exc:  # noqa: BLE001 -- see comment above
+    except (Exception, SystemExit) as exc:  # noqa: BLE001 -- see comment above
         return _emit_error("validator-import-failed", str(exc))
 
     try:

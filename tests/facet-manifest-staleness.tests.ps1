@@ -356,6 +356,35 @@ if ($siblingCode -eq 3 -and [string]::IsNullOrEmpty($siblingStdout) -and $siblin
 }
 
 # =============================================================================
+# RT-20260817-005 item 1: the sibling-import guard (`except Exception`) does
+# NOT catch `SystemExit` (it subclasses BaseException directly, not
+# Exception) -- a sibling module whose own top-level code calls sys.exit(N)
+# at import time previously escaped this guard entirely and propagated as
+# raw exit N with NO diagnostic on either channel. Fixed to
+# `except (Exception, SystemExit)`. Reproduced like Major-3 above but with a
+# corrupted sibling validate-facet-manifest.py whose only top-level
+# statement is `sys.exit(7)`.
+# =============================================================================
+$sysExitScratch = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+Copy-Item $Comparator (Join-Path $sysExitScratch.FullName 'compare-facet-manifest-staleness.py') -ErrorAction SilentlyContinue
+Set-Content -Path (Join-Path $sysExitScratch.FullName 'validate-facet-manifest.py') -Value "import sys`nsys.exit(7)`n" -NoNewline
+$sysExitArgs = @('--old-manifest', (Join-Path $Fixtures 'base-old.json'), '--new-manifest', (Join-Path $Fixtures 'base-old.json')) + $DefaultFlags
+& $Python (Join-Path $sysExitScratch.FullName 'compare-facet-manifest-staleness.py') @sysExitArgs 1> $StdoutFile.FullName 2> $StderrFile.FullName
+$sysExitCode = $LASTEXITCODE
+$sysExitStdout = (Get-Content $StdoutFile.FullName -Raw)
+$sysExitStderr = (Get-Content $StderrFile.FullName -Raw)
+if ($null -eq $sysExitStdout) { $sysExitStdout = '' }
+if ($null -eq $sysExitStderr) { $sysExitStderr = '' }
+Remove-Item -Recurse -Force $sysExitScratch.FullName -ErrorAction SilentlyContinue
+if ($sysExitCode -eq 3 -and [string]::IsNullOrEmpty($sysExitStdout) -and $sysExitStderr.Contains('facet-manifest-staleness: validator-import-failed:') -and -not $sysExitStderr.Contains('Traceback')) {
+    Write-Host 'ok: RT-20260817-005(1) lock: a sibling validate-facet-manifest.py calling sys.exit(7) at import time fails closed on exit=3 (never raw exit=7), stdout empty, diagnostic present, no traceback'
+    $script:Pass++
+} else {
+    Write-Host "FAIL: RT-20260817-005(1) lock: expected exit=3 (never raw sys.exit(7)) stdout=[] diagnostic 'validator-import-failed', no traceback; got exit=$sysExitCode stdout=[$sysExitStdout] stderr=[$sysExitStderr]"
+    $script:Fail++
+}
+
+# =============================================================================
 # seq0761 Minor-5: Specification Difference #4 confirmation -- design.md's
 # own "(and no coarser one)" clause is logically equivalent to "the
 # coarsest changed component determines the tier." Locked with a genuine

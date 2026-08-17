@@ -183,6 +183,33 @@ if ($LASTEXITCODE -ne 0 -and $canonOutStr.Contains('facet-manifest: canonicalize
     $script:Fail++
 }
 
+# manifest-unreadable regression lock: non-UTF-8 bytes (RT-20260817-004 --
+# T-001..T-004 quality-gate lesson: `except (OSError, json.JSONDecodeError)`
+# in main()'s --manifest .json branch let a non-UTF-8 byte stream leak an
+# unhandled Python traceback instead of the 'manifest-unreadable'
+# diagnostic -- fixed to `except (OSError, ValueError)` (json.JSONDecodeError
+# is itself a ValueError subclass, so this still covers it);
+# validate-context-projection.py/compare-facet-manifest-staleness.py
+# already carried this fix, this suite locks the last gap.
+$NonUtf8Manifest = Join-Path $Fixtures 'manifest-non-utf8-bytes.bin'
+$nonUtf8Out = & $Python $Validator --manifest $NonUtf8Manifest 2>&1
+$nonUtf8OutStr = ($nonUtf8Out -join "`n")
+if ($LASTEXITCODE -ne 0 -and $nonUtf8OutStr.Contains('facet-manifest: manifest-unreadable:') -and -not $nonUtf8OutStr.Contains('Traceback')) {
+    Write-Host "ok: manifest-unreadable: non-UTF-8 byte input fails closed (exit=$LASTEXITCODE, single-line diagnostic, no traceback)"
+    $script:Pass++
+} else {
+    Write-Host "FAIL: manifest-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic, no traceback, got exit=$LASTEXITCODE output=[$nonUtf8OutStr]"
+    $script:Fail++
+}
+$nonUtf8LineCount = ($nonUtf8Out | Measure-Object).Count
+if ($nonUtf8LineCount -eq 1) {
+    Write-Host 'ok: manifest-unreadable: non-UTF-8 byte input diagnostic is exactly one line'
+    $script:Pass++
+} else {
+    Write-Host "FAIL: manifest-unreadable: non-UTF-8 byte input expected exactly one diagnostic line, got $nonUtf8LineCount`: [$nonUtf8OutStr]"
+    $script:Fail++
+}
+
 # TEST-034: REQ-007 placement regression
 $StructCheck = Join-Path $RepoRoot 'scripts/check-sdd-structure.sh'
 $Work = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
