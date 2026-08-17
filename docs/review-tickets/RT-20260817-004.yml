@@ -19,7 +19,17 @@ problem: |
   親クラスではない）を捕捉しない。該当行:
     - validate-facet-manifest.py:538
     - validate-capability-summary.py:430
-    - validate-context-projection.py:383（T-003 の cycle-2 で修正中）
+    - validate-context-projection.py:383（T-003 の cycle-2 で修正済み。修正後は
+      コメント 6 行の追加により :389 が該当行）
+
+  運用上の注意（seq0760 evaluator の指摘）: 本チケットの修正対象である
+  validate-facet-manifest.py / validate-capability-summary.py は tasks.md の
+  T-005 Planned Files（:993-1010）に列挙されていない。tasks.md は task-review
+  後に凍結・hash-bound であるため、T-005 実装者が Planned Files に厳密に従うと
+  この 2 ファイルを編集できない。T-005 着手時に、(a) Planned Files の解釈を
+  cross-cutting スコープとして人間が確認するか、(b) 本チケットを独立の
+  fix-by-review-ticket 作業として T-005 とは別に実施するか、いずれかを先に
+  決めること。
 
   実測（ゲートセッション、2026-08-17）:
     printf '\xff\xfe not json' > probe.json
