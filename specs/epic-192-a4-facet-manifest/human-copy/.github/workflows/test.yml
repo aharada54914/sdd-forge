@@ -879,6 +879,27 @@ jobs:
         shell: pwsh
         run: ./tests/context-projection-schema.tests.ps1
 
+      # epic-192-a4-facet-manifest T-004 (REQ-004/REQ-005/REQ-006):
+      # compare-facet-manifest-staleness.{py,sh,ps1} -- the staleness
+      # comparator's REQ-004 Policy-Weakening branch table (fail-closed on
+      # `indeterminate`), REQ-005's patch/minor/minor-rule-set/major
+      # resolver-version-bump tiers, and the `<status>:<reason>` stdout /
+      # exit-0/1/2/3 / stderr-only-diagnostic-channel CLI contract.
+      # Registered in the live tests/run-all.{sh,ps1}; this staged candidate
+      # supplies its direct CI step. Deterministic: no LLM, no network, no
+      # `gh`, and no live sudo grant.
+
+      - name: Test facet-manifest-staleness suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/facet-manifest-staleness.tests.sh
+
+      - name: Test facet-manifest-staleness suite (pwsh)
+        shell: pwsh
+        run: ./tests/facet-manifest-staleness.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with
