@@ -43,6 +43,25 @@
   ステップ候補は T-002 の staged candidate に追記し、
   `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
   hash に更新した。
+- **Facet Manifest staleness comparator (Issue #192,
+  epic-192-a4-facet-manifest T-004)**:
+  `compare-facet-manifest-staleness.{py,sh,ps1}` を追加 — REQ-004 の
+  Policy-Weakening fail-closed 契約（`--projection-weakening`/
+  `--registry-weakening`/`--ownership-weakening` の 3 フラグは省略不可の
+  必須三値入力、省略は `indeterminate` の代替表現ではなく引数エラー
+  exit 3）と REQ-005 の 3 段階 `resolver.version` ポリシー（patch/minor/
+  major、同一バージョンでの `rule_set_revision` 変更用に独立した
+  `minor-rule-set` 入力）を design.md の 5 分岐優先順位表通りに実装。
+  `<status>:<reason>` を stdout に一行、exit 0/1/2 は fresh/stale/blocked
+  に固定マップ、引数・schema-invalid・resolver-version-bump 不整合は
+  stderr のみへの exit 3 診断で分離。`validate-facet-manifest.py` の
+  schema-conformance チェックを同ディレクトリ import で再利用し、両
+  `--old-manifest`/`--new-manifest` を比較前に検証。1 スイート
+  (`tests/facet-manifest-staleness.tests.{sh,ps1}`、fixture 18 件、
+  46/46 assertion 両ランタイム完全一致)を `tests/run-all.{sh,ps1}` に
+  登録。CI ステップ候補は T-003 の staged candidate に追記し、
+  `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
+  hash に更新した。
 
 ### Fixed
 
