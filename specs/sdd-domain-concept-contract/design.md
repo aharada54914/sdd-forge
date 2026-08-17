@@ -86,7 +86,8 @@ Concept Governance へのオプトイン）。
 validate-domain-contract.sh / .ps1     ← Phase 0 で新設（決定論）
   1. JSON parse (fail-closed)
   2. schema 値 dispatch (v2 以外は明示エラー)
-  3. 構造検査 (required / pattern / minItems)
+  3. 構造検査 (型適合 → required / pattern / minLength / minItems。
+     REQ-004(c) の先行規定どおり、型不一致の値には後続検査を適用しない)
   4. 相互参照検査 (d)〜(i)
         │ exit 0
         ▼
@@ -100,21 +101,36 @@ Phase 3: reviewer 記録照合）— 本 feature ではまだ接続しない
   非 0 + 1 行の原因表示（fail-closed、best-effort 解釈をしない）。
 - 検査違反: 検出した**全件**を `RULE-ID: message` 形式で列挙してから
   非 0 終了（最初の 1 件で打ち切らない — 手書き作成者の修正ループを
-  1 回で済ませるため）。RULE-ID は `V2-DUP-CONCEPT-ID` /
-  `V2-DANGLING-CONTEXT` / `V2-DANGLING-DISTINCTION` / `V2-DANGLING-TERM` /
-  `V2-SELF-CONTRADICTION` / `V2-DUP-NAME-IN-CONTEXT` / `V2-SCHEMA-*`
-  （構造検査）とする。
+  1 回で済ませるため）。RULE-ID:
+  - 相互参照系: `V2-DUP-CONCEPT-ID` / `V2-DANGLING-CONTEXT` /
+    `V2-DANGLING-DISTINCTION` / `V2-DANGLING-TERM` /
+    `V2-SELF-CONTRADICTION` / `V2-DUP-NAME-IN-CONTEXT`
+  - 構造系（検査経路ごとに別 ID — AC-014/016/018/019/021/023/024 が
+    エラー文言での経路判別を要求するため）: `V2-TYPE-MISMATCH`（型不一致。
+    フィールド名と期待型を message に含め、型検査は他の構造検査に先行）/
+    `V2-MISSING-KEY`（required キー欠落）/ `V2-PATTERN`（pattern 不適合）/
+    `V2-EMPTY-ARRAY`（minItems 違反）/ `V2-EMPTY-STRING`（minLength 違反）
+  - バージョン: `V2-WRONG-SCHEMA`（v1 等の明示拒否 — DD-6）
 
 ## Test Strategy
 
-acceptance-tests.md の TEST-001..015。設計上の要点:
+acceptance-tests.md の TEST-001..026。設計上の要点:
 
 - **drift lock 2 種**: TEST-002（v1 ファイルの SHA-256）と TEST-001 の
   構造 assertion（v2 スキーマ宣言と validator 挙動の突き合わせ）。
   WFI-028（template と validator の乖離）と同型の事故を負例 fixture で
   先回りして拘束する。
-- **非空虚性**: 負例は 1 検査 1 fixture（TEST-006..012/014）。どの検査が
-  効いたかを RULE-ID で判別する。
+- **非空虚性**: 負例は 1 検査 1 fixture で計 73 件
+  （TEST-006..012/014/016..024。キー欠落・空配列・空文字列・pattern・
+  型不一致・参照整合の各経路を個別に踏む）。どの検査が効いたかを RULE-ID
+  で判別する。網羅性の判定基準は acceptance-tests.md の 2 枚のマトリクス
+  （Positive-capability / Negative-path）の空白セル不在。
+- **正例 5 系統**: TEST-003（全 optional populate + pattern 境界値
+  `APIOrder` / `order-taking-2`）/ TEST-004（REQ-005(b) 指定内容）/
+  TEST-005（同名別概念）/ TEST-025（term→concept 連結）/ TEST-026
+  （optional 全欠落）。正例の「値が保持されている」確認は suite 側の
+  構造 assertion が担う（validator は exit code と stderr のみを出力し、
+  パース結果を出力しない — DD-7）。
 - **twin parity**: TEST-013 が全 fixture で sh/ps1 の verdict 一致を検査。
   bash 不在ホストは named SKIP（既存規約）。
 - 新スイートの CI/run-all 登録は行わない（INV-007 の現状規約。OQ-002）。
@@ -133,6 +149,6 @@ acceptance-tests.md の TEST-001..015。設計上の要点:
 
 - OQ-001（v1 ファイルの最終処遇）は Phase 3 で判断 — 本設計は削除にも
   恒久共存にも耐える（DD-3 の非結合）。
-- OQ-003（essence required）は提案どおり required で設計。spec-review で
-  覆った場合はスキーマと TEST-014 の該当 fixture を optional 化するだけで
-  済む（他の検査と独立）。
+- OQ-003（essence required）は提案どおり required で**確定**
+  （spec-review attempt 4 で PASS。REQ-002 / Field Definitions / AC-014 に
+  反映済み）。
