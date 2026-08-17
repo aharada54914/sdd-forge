@@ -900,6 +900,29 @@ jobs:
         shell: pwsh
         run: ./tests/facet-manifest-staleness.tests.ps1
 
+      # epic-192-a4-facet-manifest T-005 (REQ-006, AC-031/AC-032/AC-033/
+      # AC-043; REQ-008 share AC-035): the FINAL suite this feature adds --
+      # cross-script, cross-runtime `.py`/`.sh`/`.ps1` byte-identical parity
+      # across all four scripts and every fixture from suites 1-5,
+      # installed-layout discovery (packaged-copy-only, no monorepo
+      # contracts/, no reachable .git), the six-suite registration proof,
+      # and the provider-neutrality scan across all three schema files and
+      # four scripts' own source. Registered in the live tests/run-all.
+      # {sh,ps1}; this staged candidate supplies its direct CI step -- the
+      # last of this feature's six suite-registration pairs. Deterministic:
+      # no LLM, no network, no `gh`, and no live sudo grant.
+
+      - name: Test facet-manifest-parity suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/facet-manifest-parity.tests.sh
+
+      - name: Test facet-manifest-parity suite (pwsh)
+        shell: pwsh
+        run: ./tests/facet-manifest-parity.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

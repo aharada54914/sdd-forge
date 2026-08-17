@@ -1,0 +1,186 @@
+T-005 mutation-resistance proof
+================================
+
+Procedure: for each mutation below, the production file was edited in
+place (via a Python string-replace script, not a raw sed/patch, so the
+exact substring boundaries are visible), the affected suite was run to
+confirm it goes RED, and the file was then restored from a pre-mutation
+copy and confirmed byte-identical via `diff -q`/sha256 before moving to the
+next mutation. All five mutations were applied and reverted sequentially
+against the real repository files (never a scratch copy) -- `git status`
+and `git diff` were checked clean of residue after each round-trip, and
+the full six-suite set (facet-manifest-schema, facet-manifest-semantics,
+capability-summary-schema, context-projection-schema, facet-manifest-
+staleness, facet-manifest-parity) was re-run green on both runtimes after
+the last mutation was reverted (see green-sh.log / green-ps1.log).
+
+--------------------------------------------------------------------------
+Mutation 1 -- RT-20260817-004 revert (validate-facet-manifest.py)
+--------------------------------------------------------------------------
+Reverts the `except (OSError, ValueError)` fix back to the pre-fix
+`except (OSError, json.JSONDecodeError)`, which does NOT catch
+UnicodeDecodeError (a ValueError subclass, not a JSONDecodeError subclass).
+
+$ diff -u vfm.orig.py plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+--- vfm.orig.py
++++ plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+@@ -541,7 +541,7 @@
+     # quality-gate lesson -- RT-20260817-004; not a design.md/tasks.md
+     # instruction; validate-context-projection.py/compare-facet-manifest-
+     # staleness.py already carried this fix, this was the one remaining gap).
+-    except (OSError, ValueError) as exc:
++    except (OSError, json.JSONDecodeError) as exc:
+         sys.stdout.write(f"facet-manifest: manifest-unreadable: {exc}\n")
+         return 1
+
+Result: `bash tests/facet-manifest-schema.tests.sh` -- 55 passed, 2 FAILED
+(was 57 passed, 0 failed on the unmutated tree):
+  FAIL: manifest-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic,
+        no traceback, got exit=1 output=[Traceback (most recent call last): ...]
+  FAIL: manifest-unreadable: non-UTF-8 byte input expected exactly one
+        diagnostic line, got 16: [Traceback (most recent call last): ...]
+Restored: `diff -q vfm.orig.py validate-facet-manifest.py` -> files identical
+(no output, exit 0).
+
+--------------------------------------------------------------------------
+Mutation 2 -- RT-20260817-004 revert (validate-capability-summary.py)
+--------------------------------------------------------------------------
+Same fix, same revert, on the sibling script.
+
+$ diff -u vcs.orig.py plugins/sdd-quality-loop/scripts/validate-capability-summary.py
+--- vcs.orig.py
++++ plugins/sdd-quality-loop/scripts/validate-capability-summary.py
+@@ -433,7 +433,7 @@
+     # quality-gate lesson -- RT-20260817-004; not a design.md/tasks.md
+     # instruction; validate-context-projection.py/compare-facet-manifest-
+     # staleness.py already carried this fix, this was the one remaining gap).
+-    except (OSError, ValueError) as exc:
++    except (OSError, json.JSONDecodeError) as exc:
+         sys.stdout.write(f"capability-summary: summary-unreadable: {exc}\n")
+         return 1
+
+Result: `bash tests/capability-summary-schema.tests.sh` -- 22 passed, 2 FAILED
+(was 24 passed, 0 failed on the unmutated tree):
+  FAIL: summary-unreadable: non-UTF-8 byte input expected exit!=0, diagnostic,
+        no traceback, got exit=1 output=[Traceback (most recent call last): ...
+        UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0:
+        invalid start byte]
+  FAIL: summary-unreadable: non-UTF-8 byte input expected exactly one
+        diagnostic line, got 16: [Traceback (most recent call last): ...]
+Restored: `diff -q vcs.orig.py validate-capability-summary.py` -> files
+identical (no output, exit 0).
+
+--------------------------------------------------------------------------
+Mutation 3 -- RT-20260817-005 item 1 revert (compare-facet-manifest-staleness.py)
+--------------------------------------------------------------------------
+Reverts `except (Exception, SystemExit)` back to `except Exception`, which
+does NOT catch SystemExit (SystemExit subclasses BaseException directly,
+not Exception).
+
+$ diff -u cfms.orig.py plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py
+--- cfms.orig.py
++++ plugins/sdd-quality-loop/scripts/compare-facet-manifest-staleness.py
+@@ -307,7 +307,7 @@
+     # instruction).
+     try:
+         vfm = _load_vfm()
+-    except (Exception, SystemExit) as exc:  # noqa: BLE001 -- see comment above
++    except Exception as exc:  # noqa: BLE001 -- see comment above
+         return _emit_error("validator-import-failed", str(exc))
+
+     try:
+
+Result: `bash tests/facet-manifest-staleness.tests.sh` -- 48 passed, 1 FAILED
+(was 49 passed, 0 failed on the unmutated tree):
+  FAIL: RT-20260817-005(1) lock: expected exit=3 (never raw sys.exit(7))
+        stdout=[] diagnostic 'validator-import-failed', no traceback; got
+        exit=7 stdout=[] stderr=[]
+This is the exact regression the fix closes: the corrupted-sibling scratch
+fixture's raw `sys.exit(7)` leaked straight through as the process exit
+code, with NO diagnostic on either channel, once the `SystemExit` arm was
+removed.
+Restored: `diff -q cfms.orig.py compare-facet-manifest-staleness.py` -> files
+identical (no output, exit 0).
+
+--------------------------------------------------------------------------
+Mutation 4 -- inject real drift into a vendored schema copy
+--------------------------------------------------------------------------
+Appends one trailing space (no newline) to the vendored
+plugins/sdd-quality-loop/contracts/facet-manifest.schema.json, changing its
+sha256 while the canonical contracts/facet-manifest.schema.json is left
+untouched.
+
+sha256 before: 81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51
+
+$ diff -u vendored-fm.orig.json plugins/sdd-quality-loop/contracts/facet-manifest.schema.json
+--- vendored-fm.orig.json
++++ plugins/sdd-quality-loop/contracts/facet-manifest.schema.json
+@@ -132,3 +132,4 @@
+     }
+   }
+ }
++
+\ No newline at end of file
+
+$ python3 plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+vendor-capability-registry: vendored copies are stale: facet-manifest.schema.json
+exit=1
+
+Restored: sha256 after restore: 81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51
+(matches sha256 before -- byte-identical). Re-ran --check afterward:
+  vendor-capability-registry: vendored copies match their canonical sources; no drift.
+
+--------------------------------------------------------------------------
+Mutation 5 -- revert the T-005 ARTIFACTS extension itself, re-inject the
+SAME drift as Mutation 4 (proves the extension, not just --check's
+existing mechanism, is load-bearing)
+--------------------------------------------------------------------------
+$ diff -u vcr.orig.py plugins/sdd-quality-loop/scripts/vendor-capability-registry.py
+--- vcr.orig.py
++++ plugins/sdd-quality-loop/scripts/vendor-capability-registry.py
+@@ -42,14 +42,6 @@
+     "capability-registry.json",
+     "capability-registry.schema.json",
+     "lite-upgrade-reason-catalog.json",
+-    # epic-192-a4-facet-manifest T-005 (REQ-006, design.md Deployment / CI
+-    # Plan: "reuses Epic A2's already-CI-wired vendored-copy `--check` mode
+-    # ... extended to cover three more filenames, not a new mechanism").
+-    # Additive only -- none of the three ARTIFACTS entries above changed
+-    # behavior.
+-    "facet-manifest.schema.json",
+-    "capability-summary.schema.json",
+-    "context-projection.schema.json",
+ )
+
+With the extension reverted, the identical one-byte drift from Mutation 4
+was re-applied to plugins/sdd-quality-loop/contracts/facet-manifest.schema.json,
+and `--check` was re-run:
+
+$ python3 plugins/sdd-quality-loop/scripts/vendor-capability-registry.py --check
+vendor-capability-registry: vendored copies match their canonical sources; no drift.
+exit=0
+
+This is a FALSE NEGATIVE: real drift is present but silently unreported --
+proving the T-005 extension (not merely the pre-existing `--check`
+mechanism) is what makes the three new schema files' drift detectable.
+
+Restored (both files): vendor-capability-registry.py `diff -q` -> identical;
+vendored facet-manifest.schema.json sha256 -> matches the Mutation 4 "before"
+value. Re-ran --check one final time on the fully-restored tree:
+  vendor-capability-registry: vendored copies match their canonical sources; no drift.
+
+--------------------------------------------------------------------------
+Post-mutation repository state
+--------------------------------------------------------------------------
+`git status --short` against plugins/sdd-quality-loop/scripts/ and
+plugins/sdd-quality-loop/contracts/ after all five mutations were reverted
+showed only the four INTENDED T-005 modifications (validate-facet-
+manifest.py, validate-capability-summary.py, compare-facet-manifest-
+staleness.py, vendor-capability-registry.py) -- no residual mutation
+artifacts, no stray .bak files, and no diff against contracts/*.schema.json
+(the vendored copies round-tripped byte-identically).
+
+All six suites (facet-manifest-schema, facet-manifest-semantics,
+capability-summary-schema, context-projection-schema, facet-manifest-
+staleness, facet-manifest-parity) were re-run green, both runtimes, after
+the last restore -- see green-sh.log / green-ps1.log.

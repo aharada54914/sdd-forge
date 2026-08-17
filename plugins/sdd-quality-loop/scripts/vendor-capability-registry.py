@@ -4,7 +4,12 @@ ADR-0029's vendored-copy drift check / release gate).
 
 Refreshes `plugins/sdd-quality-loop/contracts/*` from the canonical
 top-level `contracts/*` originals (capability-registry.json,
-capability-registry.schema.json, lite-upgrade-reason-catalog.json).
+capability-registry.schema.json, lite-upgrade-reason-catalog.json, and, as
+of epic-192-a4-facet-manifest T-005, facet-manifest.schema.json,
+capability-summary.schema.json, context-projection.schema.json -- the
+extend-in-place path design.md's Deployment / CI Plan names, re-verified
+present in this checkout at T-005 implementation-start time rather than
+authoring a second, parallel `--check` mechanism).
 
 Usage:
     vendor-capability-registry.py           writes the vendored copies.
@@ -37,6 +42,14 @@ ARTIFACTS = (
     "capability-registry.json",
     "capability-registry.schema.json",
     "lite-upgrade-reason-catalog.json",
+    # epic-192-a4-facet-manifest T-005 (REQ-006, design.md Deployment / CI
+    # Plan: "reuses Epic A2's already-CI-wired vendored-copy `--check` mode
+    # ... extended to cover three more filenames, not a new mechanism").
+    # Additive only -- none of the three ARTIFACTS entries above changed
+    # behavior.
+    "facet-manifest.schema.json",
+    "capability-summary.schema.json",
+    "context-projection.schema.json",
 )
 
 
