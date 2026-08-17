@@ -56,9 +56,12 @@
   に固定マップ、引数・schema-invalid・resolver-version-bump 不整合は
   stderr のみへの exit 3 診断で分離。`validate-facet-manifest.py` の
   schema-conformance チェックを同ディレクトリ import で再利用し、両
-  `--old-manifest`/`--new-manifest` を比較前に検証。1 スイート
-  (`tests/facet-manifest-staleness.tests.{sh,ps1}`、fixture 18 件、
-  46/46 assertion 両ランタイム完全一致)を `tests/run-all.{sh,ps1}` に
+  `--old-manifest`/`--new-manifest` を比較前に検証。この import は遅延・
+  例外包囲されており、sibling validator が欠落・破損している場合は
+  `validator-import-failed` を stderr へ 1 行出して exit 3 で閉じる
+  （exit 1 = `stale` 判定として偽装しない）。1 スイート
+  (`tests/facet-manifest-staleness.tests.{sh,ps1}`、fixture 24 件、
+  48/48 assertion 両ランタイム完全一致)を `tests/run-all.{sh,ps1}` に
   登録。CI ステップ候補は T-003 の staged candidate に追記し、
   `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
   hash に更新した。
