@@ -1,0 +1,173 @@
+--- a/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
++++ b/plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
+@@ -87,6 +87,22 @@
+ - Path to precheck-result.json.
+ - Hash-verified allowed-input manifest including
+   `plugins/sdd-review-loop/references/reviewer-calibration.md`.
++- `specs/<feature>/investigation.md` whenever that file exists. Reviewer A
++  reads it as supporting evidence and carries its INV-xxx IDs forward; it is
++  never authority over requirements.md. `task-review-precheck.sh` fails the
++  task stage unless the persisted contract binds it in BOTH reviewer
++  manifests, so omitting it produces evidence the next gate rejects.
++- At round 2 and round 3 only: the PREVIOUS round's
++  `reports/impl-review/<feature>/attempt-<M>/round-<N-1>/integrated-summary.json`.
++  This is the Issue #143 exception stated in `impl-reviewer-a.md` — the file
++  carries reviewer A's own check IDs and counts and no reviewer-b narrative,
++  so binding it does not breach the A/B isolation this loop is built on.
++  Reviewer A reads it as counts and check IDs only and must not reason from
++  reviewer-b's findings. Both gates require it: `impl-review-precheck.sh`
++  fails the round without it, and `task-review-precheck.sh` fails the task
++  stage unless it appears in reviewer A's manifest specifically. Binding it
++  to reviewer B instead is not a substitute — the contract allowlist admits
++  the previous round's summary for reviewer A alone.
+
+ The agent reads inputs itself and writes:
+ `reports/impl-review/<feature>/attempt-<M>/round-<N>/reviewer-a.json`
+@@ -135,6 +151,10 @@
+ - Path to integrated-summary.json.
+ - Hash-verified allowed-input manifest including
+   `plugins/sdd-review-loop/references/reviewer-calibration.md`.
++- `specs/<feature>/investigation.md` whenever that file exists. Reviewer B
++  reads it to check INV-xxx grounding. The task stage's precheck requires it
++  in reviewer B's manifest too; a contract that binds it for only one reviewer
++  is rejected.
+
+ impl-reviewer-b has `disallowedPaths` covering reviewer-a.json. The agent reads
+ its own inputs and writes:
+@@ -188,10 +208,27 @@
+ `host_session_id` values and canonical, hash-verified allowed-input manifests.
+ Each reviewer manifest must include every input the reviewer is instructed to
+ read, including `plugins/sdd-review-loop/references/reviewer-calibration.md`.
++Whenever `specs/<feature>/investigation.md` exists, both manifests must include
++it as well.
+ For full-profile features, both manifests must also include `ux-spec.md`,
+ `frontend-spec.md`, `infra-spec.md`, and `security-spec.md`, using the hashes
+ recorded in `precheck-result.json`; copy that map to the contract's
+ `layer_sha256` field.
++
++Round-dependent manifest contract:
++- Reviewer B's manifest binds the CURRENT round's `integrated-summary.json`,
++  in every round.
++- In rounds 2 and 3, reviewer A's manifest additionally binds the PREVIOUS
++  round's `attempt-<M>/round-<N-1>/integrated-summary.json`. In round 1 it must
++  not — there is none.
++- That previous-round summary belongs to reviewer A alone. Binding it to
++  reviewer B instead is rejected: the contract allowlist admits round N-1's
++  summary for reviewer A only.
++- A round > 1 contract that omits it is rejected by `task-review-precheck.sh`
++  with "persisted impl reviewer-a manifest is missing previous-round summary",
++  which strands the feature before task review even though this stage reported
++  PASS. `tests/impl-review-round2-contract.tests.sh` holds this shape.
++
+ Persist both artifacts in the same round directory; downstream prechecks reject
+ missing, stale, or incomplete predecessor contracts before creating evidence.
+
+@@ -238,7 +275,13 @@
+    `reports/impl-review/<feature>/`.
+ 2. The existing attempt-M directory remains as-is (archive by convention).
+ 3. Create `reports/impl-review/<feature>/attempt-<M+1>/round-1/`.
+-4. Change `Impl-Review-Status:` in design.md header to `Pending`.
++4. Change `Impl-Review-Status:` in design.md header to `Pending` — but ONLY
++   while `specs/<feature>/tasks.md` does not yet exist. Once it does,
++   `check-workflow-state.sh` rejects a Pending impl status: its task-lifecycle
++   rule requires every stage to read `Passed` once any task is Approved or past
++   Planned, so `--reset` is unreachable for that feature and halts at
++   `task-lifecycle`. Use the provenance re-review path below instead and leave
++   the header at `Passed`.
+ 5. Proceed from STEP 1 with attempt = M+1, round = 1.
+
+ ## Re-Invocation After Human Edits
+@@ -255,7 +298,60 @@
+ When `Impl-Review-Status: Passed` is set in design.md, the task decomposition
+ phase (Phase 2) is unblocked. The sdd-bootstrap-interviewer will read this field
+ before generating tasks.md and halt if it is not Passed.
++
++## Post-Implementation Provenance Re-Review
++
++When impl-stage review evidence must be re-bound after Phase 2 has begun
++(evidence-schema drift, an incomplete reviewer input manifest, a stale contract
++hash), `--reset` is not the route: STEP 7 step 4 would write
++`Impl-Review-Status: Pending`, which `check-workflow-state.sh` rejects once
++`tasks.md` exists. Run a re-binding attempt instead. This re-binds existing PASS
++evidence to the current artifact hashes; it is never a first-time review and
++never a findings waiver.
+
++1. Start a new attempt: attempt = M+1, round = 1. Do NOT clear
++   `Impl-Review-Status:` from design.md — it stays `Passed`.
++   `impl-review-precheck.sh` refuses `--provenance-rereview` unless design.md
++   declares `Passed`, precisely so the header is not flipped.
++2. Run the precheck with the re-review flag:
++   `impl-review-precheck.sh <feature> <M+1> 1 --provenance-rereview`
++   (PowerShell: `-ProvenanceRereview`). The flag requires at least one prior
++   persisted impl-review PASS verdict for the feature, and downgrades the
++   canonical workflow-state check from fatal to advisory — the stale evidence
++   being re-bound is the reason the re-review runs. Every other precheck
++   enforcement is unchanged.
++3. Invoke both reviewers per STEP 2 and STEP 4 with the complete input set,
++   including `investigation.md` when present and, for a full-profile feature,
++   all four layer specs in each reviewer manifest. Declare the invocation a
++   post-implementation provenance re-review.
++4. Merge verdicts and write the contract per STEP 5.
++5. After the contract is persisted, run
++   `plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature <slug>`
++   and require exit 0 before reporting completion.
++
++TYPE-H convergence rule (provenance re-review only): a TYPE-H check that
++would raise a NEW finding against content byte-identical — modulo
++human-authorized status/approval/pointer lines — to content bound by a
++prior attempt's persisted impl-review PASS evidence is recorded as PASS,
++with the observation carried as an advisory inside the check's finding
++text (citing the prior PASS evidence path), never as a FAIL finding of
++any severity. TYPE-D checks are unaffected. Rationale: frozen content
++cannot be edited to satisfy heuristic re-judgments, so fresh-instance
++TYPE-H calibration variance would otherwise make the re-review
++non-convergent (each round an independent draw, with round 3 terminal).
++This is the same rule `task-review-loop`'s SKILL.md applies at the task
++stage. It is stated here so the two stages do not differ silently: both
++impl reviewer role files tag every check TYPE-H or TYPE-D, so the rule is
++well-formed at this stage too. Note that flipping `Impl-Review-Status:`
++between `Passed` and `Pending` changes design.md's SHA-256 without changing
++its content — a status-line-only difference is exactly the case this rule
++treats as byte-identical.
++
++Controlled re-binding boundary: a provenance re-review re-binds review
++evidence to the current artifact hashes; it does not license content changes
++to frozen artifacts. Sanctioned post-review updates go to non-frozen addenda
++per AGENTS.md (see ADR 0007).
++
+ ## Boundaries
+
+ - Never self-approve any finding. Findings from reviewers are facts; the
+--- a/plugins/sdd-review-loop/agents/impl-reviewer-b.md
++++ b/plugins/sdd-review-loop/agents/impl-reviewer-b.md
+@@ -78,12 +78,22 @@
+ `plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before
+ emitting any FAIL finding. In particular:
+ - Cite exact artifact evidence for each finding.
+ - Do not duplicate precheck-owned invocation/status failures.
++- In legacy design mode, absent template fields become `[LEGACY COMPAT]` Minor
++  advisories where this prompt says so, not Major/Critical findings.
+ - Do not require live build, coverage, E2E, git, checkpoint, or learning
+   workflows; require only concrete planned evidence inside design.md.
+ - Use SKIP for scoped checks when their risk surface is absent and the check
+   defines a skip condition.
+
++# Legacy Design Mode
++
++Read precheck-result.json. If it contains `"legacy_design": true`:
++- Any check whose required template field is absent in design.md is NOT a finding.
++- Instead, emit a `[LEGACY COMPAT]` Minor advisory: "Field <X> absent; legacy
++  design.md predates this template requirement."
++- All other checks still run normally on whatever content is present.
++
+ # Checks
+
+ All checks default to FAIL. Emit PASS only when you can cite specific evidence.
+@@ -318,4 +318,7 @@
+ - If you cannot read a required input file, emit BLOCKED with finding
+   "Required input missing: <path>".
+ - When integrated-summary.json is absent (round 1), skip any check that
+   references prior-round findings and note "round 1: no prior summary".
++- Legacy compat: if `legacy_design: true` in precheck-result.json, emit
++  [LEGACY COMPAT] Minor advisories instead of Major/Critical for absent
++  template fields.
