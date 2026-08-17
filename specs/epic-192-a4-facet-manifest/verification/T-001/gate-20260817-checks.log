@@ -220,3 +220,8 @@ exit=0
 facet-manifest-semantics: 15 passed, 0 failed
 exit=0
 unreleased-192-hit: - **Facet Manifest schema と validator (Issue #192,
+
+===== gate check-contract run: 2026-08-17T02:16:45Z =====
+----- bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-192-a4-facet-manifest/verification/T-001.contract.json -----
+Verification contract passed for task T-001.
+exit=0
