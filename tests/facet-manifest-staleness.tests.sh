@@ -273,12 +273,13 @@ expect_error base-old.json schema-invalid-manifest.json schema-invalid "/new-man
   "TEST-044 schema-invalid --new-manifest" \
   --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump none
 
-# --- Exit-code-to-status mapping: one fixture per exit code (0/1/2), each
-# already exercised above under its own AC/TEST id -- restated here to make
-# TEST-044's own "a fixture per exit code" clause independently visible. --
-ok "TEST-044 exit-0 mapping: proven by TEST-019 above (fresh -> exit 0)"
-ok "TEST-044 exit-1 mapping: proven by TEST-020 above (stale -> exit 1)"
-ok "TEST-044 exit-2 mapping: proven by TEST-023 above (blocked -> exit 2)"
+# --- Exit-code-to-status mapping: one fixture per exit code (0/1/2). NOT
+# re-asserted here as its own `ok` line (seq0761 Minor-4: an unconditional
+# `ok "...proven by..."` call is a vacuous assertion that inflates the
+# passing tally without checking anything itself) -- the mapping is already
+# checked by expect_verdict's own exit-code comparison inside TEST-019
+# (fresh -> exit 0), TEST-020 (stale -> exit 1), and TEST-023 (blocked ->
+# exit 2) above; this is a cross-reference comment, not a duplicate check.
 
 # --- manifest-unreadable: nonexistent --old-manifest path (fail-closed,
 # never a Python traceback) -------------------------------------------------
@@ -330,15 +331,132 @@ expect_error base-old.json registry-digest-only-new.json resolver-version-bump-i
   "TEST-046 minor-rule-set declared against an unchanged rule_set_revision" \
   --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump minor-rule-set
 
+# --- TEST-046 (seq0761 Minor-6 remediation): patch declared against an
+# actual MAJOR diff (the pre-existing suite only covered a patch-vs-minor
+# mismatch; this closes the patch-vs-major direction) ----------------------
+expect_error base-old.json major-bump-new.json resolver-version-bump-inconsistent \
+  "declared 'patch' but the two manifests' own resolver block actually differs at tier 'major'" \
+  "TEST-046 patch declared against an actual major diff" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump patch
+
 # --- Positive fixture per tier: a consistent declaration is accepted and
 # proceeds to the ordinary branch table (each already exercised above under
-# its own REQ-004/REQ-005 AC/TEST id; restated here under TEST-046's own
-# "positive fixture per tier" clause) --------------------------------------
-ok "TEST-046 positive 'none': proven by TEST-019 above (declared none, actual none, proceeds)"
-ok "TEST-046 positive 'patch': proven by TEST-025 above (declared patch, actual patch, proceeds)"
-ok "TEST-046 positive 'minor': proven by TEST-026(1) above (declared minor, actual minor, proceeds)"
-ok "TEST-046 positive 'minor-rule-set': proven by TEST-045(2) above (declared minor-rule-set, actual minor-rule-set, proceeds)"
-ok "TEST-046 positive 'major': proven by TEST-027(1) above (declared major, actual major, proceeds)"
+# its own REQ-004/REQ-005 AC/TEST id). NOT re-asserted here as its own `ok`
+# line (seq0761 Minor-4: see the TEST-044 exit-code-mapping comment above
+# for the same reasoning) -- proven by TEST-019 ('none'), TEST-025
+# ('patch'), TEST-026(1) ('minor'), TEST-045(2) ('minor-rule-set'), and
+# TEST-027(1) ('major').
+
+# =============================================================================
+# seq0761 Major-1: branch 2 (major-forced) must precede branch 4 (ordinary
+# comparison) -- a fixture with a major bump, a changed digest (not-
+# weakened, so it does not Block), AND a genuinely differing semantic
+# output. If branch 2 were moved after branch 4 (or removed), this fixture
+# would report stale:semantic-output-changed instead of the pinned
+# stale:major-version-forced -- the reason string itself is the mutation-
+# resistant part of this assertion, not just the stale/exit=1 status.
+# =============================================================================
+expect_verdict base-old.json major-bump-semantic-changed-new.json stale major-version-forced \
+  "Major-1 lock: major-forced precedes ordinary comparison even when both a digest and semantic output differ" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump major
+
+# =============================================================================
+# seq0761 Major-2: every one of REQ-004's 9 semantic-output fields must be
+# individually mutation-locked. conditional_facets/resolved_gates/
+# capability_minimum_enforcement/capabilities are already locked above
+# (TEST-021/020/022/TEST-039's own capabilities diff); this closes the
+# remaining 5: affected_components, required_facets, lite_eligibility
+# (fixture-level, end to end through the CLI) and feature (fixture-level;
+# schema-valid to vary, unlike `schema` itself) and schema (a `classify()`
+# unit-level check below, since the schema's own `const` keyword makes it
+# IMPOSSIBLE to construct two independently schema-valid documents that
+# differ in `schema` -- any such fixture would be rejected at branch 0
+# before ever reaching branch 4, so this field can only be locked by
+# calling the comparison function directly, bypassing schema validation).
+# =============================================================================
+expect_verdict base-old.json feature-change-new.json stale semantic-output-changed \
+  "Major-2 lock: 'feature' is a compared semantic-output field" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump none
+
+expect_verdict base-old.json affected-components-change-new.json stale semantic-output-changed \
+  "Major-2 lock: 'affected_components' is a compared semantic-output field" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump none
+
+expect_verdict base-old.json required-facets-change-new.json stale semantic-output-changed \
+  "Major-2 lock: 'required_facets' is a compared semantic-output field" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump none
+
+expect_verdict base-old.json lite-eligibility-change-new.json stale semantic-output-changed \
+  "Major-2 lock: 'lite_eligibility' is a compared semantic-output field" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump none
+
+# 'schema' field lock: classify() called directly (bypassing the CLI's own
+# branch-0 schema-conformance gate, which a real `schema` const-value
+# mismatch could never pass on both sides simultaneously). This exercises
+# the exact same SEMANTIC_FIELDS tuple / _semantic_output()/classify()
+# machinery the CLI path uses -- only the schema-validation front door is
+# skipped, not the comparison logic itself.
+schema_field_check="$(python3 -c "
+import importlib.util, json, copy, sys
+spec = importlib.util.spec_from_file_location('cfms', '$COMPARATOR')
+cfms = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cfms)
+base = json.load(open('$FIXTURES/base-old.json'))
+new = copy.deepcopy(base)
+new['schema'] = 'sdd-facet-manifest/v2'
+weakening = {'projection': 'not-weakened', 'registry': 'not-weakened', 'ownership': 'not-weakened'}
+status, reason = cfms.classify(base, new, weakening, 'minor')
+print('OK' if (status, reason) == ('stale', 'semantic-output-changed') else 'FAIL status=%r reason=%r' % (status, reason))
+")"
+if [ "$schema_field_check" = "OK" ]; then
+  ok "Major-2 lock: 'schema' is a compared semantic-output field (classify() unit check, schema's own const keyword forbids a real fixture pair)"
+else
+  fail "Major-2 lock: 'schema' field check failed: $schema_field_check"
+fi
+
+# =============================================================================
+# seq0761 Major-3: the sibling validate-facet-manifest.py import must fail
+# closed (exit 3, stderr-only diagnostic, no traceback), never as an
+# unhandled traceback that exits with Python's own default code 1 --
+# indistinguishable from a legitimate `stale` verdict to a caller that
+# branches on exit code alone. Reproduced by copying ONLY the comparator
+# script (not its sibling) into a scratch directory and invoking it there.
+# =============================================================================
+sibling_scratch="$(mktemp -d)"
+cp "$COMPARATOR" "$sibling_scratch/compare-facet-manifest-staleness.py"
+python3 "$sibling_scratch/compare-facet-manifest-staleness.py" \
+  --old-manifest "$FIXTURES/base-old.json" --new-manifest "$FIXTURES/base-old.json" \
+  "${DEFAULT_FLAGS[@]}" >"$STDOUT_FILE" 2>"$STDERR_FILE"
+sibling_rc=$?
+sibling_stdout="$(cat "$STDOUT_FILE")"
+sibling_stderr="$(cat "$STDERR_FILE")"
+rm -rf "$sibling_scratch"
+if [ "$sibling_rc" = "3" ] && [ -z "$sibling_stdout" ] \
+   && printf '%s' "$sibling_stderr" | grep -qF "facet-manifest-staleness: validator-import-failed:" \
+   && ! printf '%s' "$sibling_stderr" | grep -qF "Traceback"; then
+  ok "Major-3 lock: missing sibling validate-facet-manifest.py fails closed (exit=3, stdout empty, diagnostic present, no traceback)"
+else
+  fail "Major-3 lock: expected exit=3 stdout=[] diagnostic 'validator-import-failed', no traceback; got exit=$sibling_rc stdout=[$sibling_stdout] stderr=[$sibling_stderr]"
+fi
+
+# =============================================================================
+# seq0761 Minor-5: Specification Difference #4 confirmation -- design.md's
+# own "(and no coarser one)" clause (Invocation section) is logically
+# equivalent to "the coarsest changed component determines the tier," so
+# this is not an open interpretive question; it is a direct consequence of
+# the contract text already resolving it. Locked with a genuine
+# multi-component version change (1.1.0 -> 1.2.5, both minor and patch
+# differ): declaring `patch` (a coarser-than-actual claim) is rejected;
+# declaring `minor` (the coarsest actually-changed component) is accepted.
+# =============================================================================
+expect_error base-old.json multi-component-bump-new.json resolver-version-bump-inconsistent \
+  "declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor'" \
+  "multi-component semver lock: patch declared against a minor+patch actual diff is rejected" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump patch
+
+expect_verdict base-old.json multi-component-bump-new.json stale semantic-output-changed \
+  "multi-component semver lock: minor (the coarsest actually-changed component) is accepted and proceeds" \
+  --projection-weakening not-weakened --registry-weakening not-weakened --ownership-weakening not-weakened --resolver-version-bump minor
 
 # =============================================================================
 # Suite/CI registration self-check

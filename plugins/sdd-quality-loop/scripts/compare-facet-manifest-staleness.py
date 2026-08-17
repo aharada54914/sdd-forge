@@ -66,6 +66,22 @@ same-directory sibling-module import (`importlib.util.spec_from_file_
 location`), matching `check-component-coverage.py`'s own established
 same-directory-import precedent for this repository, rather than a
 subprocess re-invocation or a second, independent schema engine.
+
+The sibling import is LAZY (deferred to `_load_vfm()`, called from `main()`
+after argument parsing), not a module-level side effect. A module-level
+import means any failure to load the sibling (missing file, syntax error,
+a broken install) raises before `main()` -- and therefore before
+`argparse` -- even runs, which (1) breaks `--help` (it would crash with a
+traceback instead of printing usage and exiting 0) and (2) is fatal to the
+Python process with an *unhandled* traceback and Python's own default exit
+code 1 -- which this contract reserves exclusively for the `stale` verdict
+(design.md Exit codes: "a caller can branch on exit code alone... 0 =
+fresh, 1 = stale, 2 = blocked"). An installation defect must never be
+indistinguishable from a legitimate `stale` verdict to a caller that only
+inspects the exit code; `_load_vfm()`'s own caller in `main()` catches any
+failure and reports it on the same exit-3/stderr-only diagnostic channel
+every other "this is not a verdict" condition already uses (T-004
+quality-gate finding, seq0761 Major-3).
 """
 import argparse
 import importlib.util as _il_util
@@ -74,12 +90,26 @@ import sys
 
 _SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
 
-_vfm_spec = _il_util.spec_from_file_location(
-    "_sdd_validate_facet_manifest",
-    os.path.join(_SCRIPT_DIR, "validate-facet-manifest.py"),
-)
-vfm = _il_util.module_from_spec(_vfm_spec)
-_vfm_spec.loader.exec_module(vfm)
+_VFM_MODULE = None
+
+
+def _load_vfm():
+    """Lazily import validate-facet-manifest.py (same-directory sibling).
+    Cached after the first successful call. Raises on any failure -- the
+    caller (main()) is responsible for turning that into the exit-3/stderr
+    diagnostic channel; this function itself never touches stdout/stderr."""
+    global _VFM_MODULE
+    if _VFM_MODULE is not None:
+        return _VFM_MODULE
+    spec = _il_util.spec_from_file_location(
+        "_sdd_validate_facet_manifest",
+        os.path.join(_SCRIPT_DIR, "validate-facet-manifest.py"),
+    )
+    module = _il_util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _VFM_MODULE = module
+    return module
+
 
 CHECK_ID = "facet-manifest-staleness"
 
@@ -255,6 +285,21 @@ def main(argv=None):
         args = parser.parse_args(argv)
     except _ArgumentError as exc:
         return _emit_error("argument-error", str(exc))
+
+    # Lazy sibling import, deferred until after argument parsing (see module
+    # docstring): a missing/broken validate-facet-manifest.py must fail
+    # closed on the exit-3/stderr diagnostic channel, never as an unhandled
+    # traceback that Python itself would exit with code 1 -- indistinguishable
+    # from a legitimate `stale` verdict to a caller that branches on exit
+    # code alone (seq0761 Major-3). Exception type is intentionally broad
+    # (ImportError, SyntaxError inside the sibling file, FileNotFoundError,
+    # etc. are all possible failure shapes for a corrupted/missing sibling)
+    # -- anything that prevents the module from loading must be reported,
+    # not selectively caught.
+    try:
+        vfm = _load_vfm()
+    except Exception as exc:  # noqa: BLE001 -- see comment above
+        return _emit_error("validator-import-failed", str(exc))
 
     try:
         old_doc = vfm.load_manifest(args.old_manifest)

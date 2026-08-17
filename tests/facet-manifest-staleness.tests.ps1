@@ -211,9 +211,11 @@ Expect-Error 'base-old.json' 'schema-invalid-manifest.json' 'schema-invalid' "/n
   'TEST-044 schema-invalid --new-manifest' `
   @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'none')
 
-Write-Host 'ok: TEST-044 exit-0 mapping: proven by TEST-019 above (fresh -> exit 0)'; $script:Pass++
-Write-Host 'ok: TEST-044 exit-1 mapping: proven by TEST-020 above (stale -> exit 1)'; $script:Pass++
-Write-Host 'ok: TEST-044 exit-2 mapping: proven by TEST-023 above (blocked -> exit 2)'; $script:Pass++
+# Exit-code-to-status mapping (fresh->0/stale->1/blocked->2) is NOT
+# re-asserted here as its own Write-Host+Pass++ (seq0761 Minor-4: an
+# unconditional pass line is a vacuous assertion) -- already checked by
+# Expect-Verdict's own exit-code comparison inside TEST-019/TEST-020/
+# TEST-023 above.
 
 $missing = Invoke-Comparator (@('--old-manifest', (Join-Path $Fixtures 'does-not-exist.json'), '--new-manifest', (Join-Path $Fixtures 'base-old.json')) + $DefaultFlags)
 if ($missing.Code -eq 3 -and $missing.Stderr.Contains('facet-manifest-staleness: manifest-unreadable: old-manifest:')) {
@@ -253,11 +255,122 @@ Expect-Error 'base-old.json' 'registry-digest-only-new.json' 'resolver-version-b
   'TEST-046 minor-rule-set declared against an unchanged rule_set_revision' `
   @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'minor-rule-set')
 
-Write-Host "ok: TEST-046 positive 'none': proven by TEST-019 above (declared none, actual none, proceeds)"; $script:Pass++
-Write-Host "ok: TEST-046 positive 'patch': proven by TEST-025 above (declared patch, actual patch, proceeds)"; $script:Pass++
-Write-Host "ok: TEST-046 positive 'minor': proven by TEST-026(1) above (declared minor, actual minor, proceeds)"; $script:Pass++
-Write-Host "ok: TEST-046 positive 'minor-rule-set': proven by TEST-045(2) above (declared minor-rule-set, actual minor-rule-set, proceeds)"; $script:Pass++
-Write-Host "ok: TEST-046 positive 'major': proven by TEST-027(1) above (declared major, actual major, proceeds)"; $script:Pass++
+# seq0761 Minor-6: patch declared against an actual MAJOR diff (previously
+# only a patch-vs-minor mismatch fixture existed).
+Expect-Error 'base-old.json' 'major-bump-new.json' 'resolver-version-bump-inconsistent' `
+  "declared 'patch' but the two manifests' own resolver block actually differs at tier 'major'" `
+  'TEST-046 patch declared against an actual major diff' `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'patch')
+
+# Positive fixture per tier: proven by TEST-019 ('none'), TEST-025
+# ('patch'), TEST-026(1) ('minor'), TEST-045(2) ('minor-rule-set'), and
+# TEST-027(1) ('major') above -- NOT re-asserted as its own vacuous
+# Write-Host+Pass++ (seq0761 Minor-4).
+
+# =============================================================================
+# seq0761 Major-1: branch 2 (major-forced) must precede branch 4 (ordinary
+# comparison). A fixture with a major bump, a changed digest (not-weakened,
+# so no Block), AND a genuinely differing semantic output -- the pinned
+# reason `major-version-forced` (not `semantic-output-changed`) is the
+# mutation-resistant part of this assertion.
+# =============================================================================
+Expect-Verdict 'base-old.json' 'major-bump-semantic-changed-new.json' 'stale' 'major-version-forced' `
+  'Major-1 lock: major-forced precedes ordinary comparison even when both a digest and semantic output differ' `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'major')
+
+# =============================================================================
+# seq0761 Major-2: every one of REQ-004's 9 semantic-output fields
+# individually mutation-locked. conditional_facets/resolved_gates/
+# capability_minimum_enforcement/capabilities are already locked above; this
+# closes affected_components/required_facets/lite_eligibility/feature
+# (fixture-level) and schema (classify() unit-level check -- `schema`'s own
+# `const` keyword makes a real two-sided-schema-valid fixture impossible).
+# =============================================================================
+Expect-Verdict 'base-old.json' 'feature-change-new.json' 'stale' 'semantic-output-changed' `
+  "Major-2 lock: 'feature' is a compared semantic-output field" `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'none')
+
+Expect-Verdict 'base-old.json' 'affected-components-change-new.json' 'stale' 'semantic-output-changed' `
+  "Major-2 lock: 'affected_components' is a compared semantic-output field" `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'none')
+
+Expect-Verdict 'base-old.json' 'required-facets-change-new.json' 'stale' 'semantic-output-changed' `
+  "Major-2 lock: 'required_facets' is a compared semantic-output field" `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'none')
+
+Expect-Verdict 'base-old.json' 'lite-eligibility-change-new.json' 'stale' 'semantic-output-changed' `
+  "Major-2 lock: 'lite_eligibility' is a compared semantic-output field" `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'none')
+
+$schemaFieldCheckScript = @"
+import importlib.util, json, copy
+spec = importlib.util.spec_from_file_location('cfms', r'$Comparator')
+cfms = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(cfms)
+base = json.load(open(r'$(Join-Path $Fixtures 'base-old.json')'))
+new = copy.deepcopy(base)
+new['schema'] = 'sdd-facet-manifest/v2'
+weakening = {'projection': 'not-weakened', 'registry': 'not-weakened', 'ownership': 'not-weakened'}
+status, reason = cfms.classify(base, new, weakening, 'minor')
+print('OK' if (status, reason) == ('stale', 'semantic-output-changed') else 'FAIL status=%r reason=%r' % (status, reason))
+"@
+$schemaFieldRaw = ($schemaFieldCheckScript | & $Python - 2>&1 | Out-String)
+if ($null -eq $schemaFieldRaw) { $schemaFieldRaw = '' }
+$schemaFieldResult = $schemaFieldRaw.Trim()
+if ($schemaFieldResult -eq 'OK') {
+    Write-Host "ok: Major-2 lock: 'schema' is a compared semantic-output field (classify() unit check, schema's own const keyword forbids a real fixture pair)"
+    $script:Pass++
+} else {
+    Write-Host "FAIL: Major-2 lock: 'schema' field check failed: $schemaFieldResult"
+    $script:Fail++
+}
+
+# =============================================================================
+# seq0761 Major-3: the sibling validate-facet-manifest.py import must fail
+# closed (exit 3, stderr-only diagnostic, no traceback). Reproduced by
+# copying ONLY the comparator script (not its sibling) into a scratch
+# directory and invoking it there.
+# =============================================================================
+$siblingScratch = New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid().ToString()))
+# -ErrorAction SilentlyContinue: this Copy-Item's own SOURCE
+# ($Comparator) is the very file a RED run (comparator absent) is testing
+# the suite's tolerance for -- if it doesn't exist, Copy-Item must not
+# abort the whole script under $ErrorActionPreference='Stop'; the
+# subsequent python invocation against the (then also-missing)
+# destination naturally reports its own real failure below instead.
+Copy-Item $Comparator (Join-Path $siblingScratch.FullName 'compare-facet-manifest-staleness.py') -ErrorAction SilentlyContinue
+$siblingArgs = @('--old-manifest', (Join-Path $Fixtures 'base-old.json'), '--new-manifest', (Join-Path $Fixtures 'base-old.json')) + $DefaultFlags
+& $Python (Join-Path $siblingScratch.FullName 'compare-facet-manifest-staleness.py') @siblingArgs 1> $StdoutFile.FullName 2> $StderrFile.FullName
+$siblingCode = $LASTEXITCODE
+$siblingStdout = (Get-Content $StdoutFile.FullName -Raw)
+$siblingStderr = (Get-Content $StderrFile.FullName -Raw)
+if ($null -eq $siblingStdout) { $siblingStdout = '' }
+if ($null -eq $siblingStderr) { $siblingStderr = '' }
+Remove-Item -Recurse -Force $siblingScratch.FullName -ErrorAction SilentlyContinue
+if ($siblingCode -eq 3 -and [string]::IsNullOrEmpty($siblingStdout) -and $siblingStderr.Contains('facet-manifest-staleness: validator-import-failed:') -and -not $siblingStderr.Contains('Traceback')) {
+    Write-Host 'ok: Major-3 lock: missing sibling validate-facet-manifest.py fails closed (exit=3, stdout empty, diagnostic present, no traceback)'
+    $script:Pass++
+} else {
+    Write-Host "FAIL: Major-3 lock: expected exit=3 stdout=[] diagnostic 'validator-import-failed', no traceback; got exit=$siblingCode stdout=[$siblingStdout] stderr=[$siblingStderr]"
+    $script:Fail++
+}
+
+# =============================================================================
+# seq0761 Minor-5: Specification Difference #4 confirmation -- design.md's
+# own "(and no coarser one)" clause is logically equivalent to "the
+# coarsest changed component determines the tier." Locked with a genuine
+# multi-component version change (1.1.0 -> 1.2.5): declaring `patch` is
+# rejected; declaring `minor` (the coarsest actually-changed component) is
+# accepted.
+# =============================================================================
+Expect-Error 'base-old.json' 'multi-component-bump-new.json' 'resolver-version-bump-inconsistent' `
+  "declared 'patch' but the two manifests' own resolver block actually differs at tier 'minor'" `
+  'multi-component semver lock: patch declared against a minor+patch actual diff is rejected' `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'patch')
+
+Expect-Verdict 'base-old.json' 'multi-component-bump-new.json' 'stale' 'semantic-output-changed' `
+  'multi-component semver lock: minor (the coarsest actually-changed component) is accepted and proceeds' `
+  @('--projection-weakening', 'not-weakened', '--registry-weakening', 'not-weakened', '--ownership-weakening', 'not-weakened', '--resolver-version-bump', 'minor')
 
 # =============================================================================
 # Suite/CI registration self-check
