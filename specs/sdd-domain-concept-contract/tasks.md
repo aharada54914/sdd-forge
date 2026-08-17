@@ -162,7 +162,7 @@ Commit B (documentation):
 
 ### Blockers
 
-None.
+None
 
 ## T-002 Author the validator twins: parse, dispatch, and structural checks
 
@@ -224,6 +224,10 @@ non-zero. Author the structural negative fixtures (65) in the suite.
 
 ### Scope
 
+Ordering: this task follows T-001 because the structural pass enforces the
+declaration T-001 writes, and the suite file T-001 creates is where these
+fixtures live.
+
 Commit A (implementation — TDD Red→Green):
 - Write the acceptance checks first and capture the Red run: AC-017 (2
   fixtures — truncated JSON, >10MB file: non-zero, one-line stderr, no
@@ -283,8 +287,7 @@ Commit B (documentation):
 
 ### Blockers
 
-Depends on T-001: the structural pass enforces the declaration T-001 writes,
-and the drift-lock suite file T-001 creates is where these fixtures live.
+T-001
 
 ## T-003 Add the cross-reference integrity checks to the validator twins
 
@@ -338,6 +341,10 @@ fixtures.
 
 ### Scope
 
+Ordering: this task follows T-002 because these checks extend the same two
+script files and run after the structural pass in the design.md pipeline
+order.
+
 Commit A (implementation — TDD Red→Green):
 - Write the acceptance checks first and capture the Red run: AC-006
   (duplicate concept id, stderr naming the duplicated id), AC-007 (dangling
@@ -385,8 +392,7 @@ Commit B (documentation):
 
 ### Blockers
 
-Depends on T-002: these checks extend the same two script files and run after
-the structural pass in the design.md pipeline order.
+T-002
 
 ## T-004 Complete the positive corpus, twin parity, and non-regression closure
 
@@ -437,6 +443,10 @@ fixture in the corpus.
   (T-002/T-003 output — the twins under parity test)
 
 ### Scope
+
+Ordering: this task follows T-002 and T-003 because the parity harness and
+the positive corpus exercise the complete validator, and the 73-fixture tally
+can only be verified once both negative-fixture tasks have landed.
 
 Commit A (positive corpus + parity + non-regression):
 - Author the acceptance checks: AC-003 (Purchase/Fulfillment fixture with all
@@ -499,6 +509,4 @@ Commit B (documentation):
 
 ### Blockers
 
-Depends on T-002 and T-003: the parity harness and the positive corpus
-exercise the complete validator, and the 73-fixture tally can only be
-verified once both negative-fixture tasks have landed.
+T-002, T-003
