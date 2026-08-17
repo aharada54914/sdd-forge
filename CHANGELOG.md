@@ -78,10 +78,11 @@
   を検証。4 スクリプト×3 ランタイムのインストール済みレイアウト discovery
   fixture（vendored copy のみ・monorepo `contracts/` なし・到達可能な
   `.git` なし）、Epic A2 の provider-neutrality allowlist に対する 3
-  schema + 4 スクリプト source のスキャン（clean/dirty fixture 付き）も
-  実装。1 スイート (178/178 assertion 両ランタイム完全一致) を
-  `tests/run-all.{sh,ps1}` に登録し、この feature の 6 スイート全てを
-  網羅する FINAL な CI ステップ候補を
+  schema + 12 スクリプトファイル（4 スクリプト×`.py`/`.sh`/`.ps1`）の
+  スキャン（clean/dirty/lambda-dirty fixture 付き）も実装。1 スイート
+  (329/329 assertion 両ランタイム完全一致) を `tests/run-all.{sh,ps1}` に
+  登録し、この feature の 6 スイート全てを網羅する FINAL な CI ステップ
+  候補を
   `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
   として staged し、`MANIFEST.sha256`/`APPLY-INSTRUCTIONS.md` を更新した。
   併せて、T-001〜T-004 の quality-gate 教訓として
@@ -91,7 +92,14 @@
   `compare-facet-manifest-staleness.py` の sibling-import ガードが
   `SystemExit` を捕捉していなかった欠陥（`except Exception` を
   `except (Exception, SystemExit)` へ）を修正し、各修正に回帰テストを
-  追加した。
+  追加した。**seq0763 quality-gate 是正（同日）**: `.ps1` twin の
+  `Start-Process -RedirectStandardOutput/-RedirectStandardError` が CRLF を
+  LF へ無音正規化する欠陥（Critical）を発見し、`System.Diagnostics.Process`
+  + `BaseStream.CopyToAsync` によるバイト捕捉へ全面書き換え、明示的な
+  「CR バイト非含有」アサーションを新設。provider-neutrality スキャンの
+  `lambda` 語まるごと除外が実際の汚染を見逃す欠陥（Major）を発見し、
+  `key=lambda` イディオムのみをマスクする方式へ修正。fixture 件数の
+  非空虚性ガード・RED 証跡 3 分岐化も追加し、329/329 へ拡大した。
 
 ### Fixed
 

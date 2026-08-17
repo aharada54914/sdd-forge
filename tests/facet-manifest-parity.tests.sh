@@ -93,34 +93,93 @@ check_parity() {
   cmp -s "$OUT/$slot.py.out" "$OUT/$slot.ps1.out" || problems="$problems ps1-stdout-diff"
   cmp -s "$OUT/$slot.py.err" "$OUT/$slot.sh.err" || problems="$problems sh-stderr-diff"
   cmp -s "$OUT/$slot.py.err" "$OUT/$slot.ps1.err" || problems="$problems ps1-stderr-diff"
-  # Free the capture files immediately -- with ~130 cases x 6 files each this
-  # keeps the mktemp tree small across the whole suite run.
   if [ -z "$problems" ]; then
     ok "$label (exit=$py_rc, stdout/stderr byte-identical across .py/.sh/.ps1)"
   else
     fail "$label --$problems (py_rc=$py_rc sh_rc=$sh_rc ps1_rc=$ps1_rc)"
   fi
+
+  # Explicit LF-only assertion (seq0763 Critical remediation on the .ps1
+  # twin's own capture mechanism; kept here in the bash twin for label-for-
+  # label parity with the .ps1 twin's own new assertion), SEPARATE from the
+  # byte-parity assertion above: none of the six captured files may contain
+  # a raw CR (0x0D) byte -- design.md's diagnostic-determinism contract and
+  # AC-031's own "the .ps1 wrapper's own output stays LF-only on Windows"
+  # clause, checked directly rather than only inferred from byte-parity (a
+  # CR-for-CR-identical-but-still-CRLF triple would pass the byte-parity
+  # check above yet still violate this contract). Bash's own `>`/`2>` file
+  # redirection never normalizes bytes, so this check is meaningful as-is
+  # here; the .ps1 twin needed a raw-byte process-capture rewrite first for
+  # the identical check to be meaningful there (see that file's header).
+  local cr_hits=""
+  for f in "$OUT/$slot.py.out" "$OUT/$slot.py.err" "$OUT/$slot.sh.out" "$OUT/$slot.sh.err" "$OUT/$slot.ps1.out" "$OUT/$slot.ps1.err"; do
+    if LC_ALL=C grep -q "$(printf '\r')" "$f" 2>/dev/null; then
+      cr_hits="$cr_hits $(basename "$f")"
+    fi
+  done
+  if [ -z "$cr_hits" ]; then
+    ok "$label (LF-only: no CR byte in any of .py/.sh/.ps1 stdout/stderr)"
+  else
+    fail "$label -- CR byte(s) found in:$cr_hits"
+  fi
+
+  # Free the capture files immediately -- with ~130 cases x 6 files each this
+  # keeps the mktemp tree small across the whole suite run.
   rm -f "$OUT/$slot".*.out "$OUT/$slot".*.err
 }
 
 # --- validate-facet-manifest: every fixture in suites 1-2 (schema +
 # semantics) -----------------------------------------------------------------
+facet_manifest_fixture_list="$(find "$FIXTURES_SCHEMA" "$FIXTURES_SEMANTICS" -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.bin' \) | sort)"
+facet_manifest_fixture_count="$(printf '%s\n' "$facet_manifest_fixture_list" | grep -c .)"
+# seq0763 Minor-2: minimum-fixture-count non-vacuity guard -- if this glob
+# silently returned zero (a fixture directory renamed/emptied out from under
+# this suite), the loop below would run zero times and the suite would stay
+# green with fewer assertions, not fail. 50 is comfortably below the 62
+# fixtures present as of this task's own authoring, so a routine future
+# fixture addition/removal within that margin does not need this suite
+# edited, but a directory going empty or nearly empty does trip it.
+if [ "$facet_manifest_fixture_count" -ge 50 ]; then
+  ok "TEST-031 non-vacuity guard: facet-manifest schema+semantics fixture count is $facet_manifest_fixture_count (>= 50 expected)"
+else
+  fail "TEST-031 non-vacuity guard: facet-manifest schema+semantics fixture count is $facet_manifest_fixture_count, expected >= 50 -- the suite may have silently shrunk"
+fi
 while IFS= read -r fixture; do
   check_parity "TEST-031 validate-facet-manifest: $(basename "$fixture")" \
     validate-facet-manifest --manifest "$fixture"
-done < <(find "$FIXTURES_SCHEMA" "$FIXTURES_SEMANTICS" -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.bin' \) | sort)
+done <<EOF
+$facet_manifest_fixture_list
+EOF
 
 # --- validate-capability-summary: every fixture in suite 3 -----------------
+summary_fixture_list="$(find "$FIXTURES_SUMMARY" -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.bin' \) | sort)"
+summary_fixture_count="$(printf '%s\n' "$summary_fixture_list" | grep -c .)"
+if [ "$summary_fixture_count" -ge 10 ]; then
+  ok "TEST-031 non-vacuity guard: capability-summary fixture count is $summary_fixture_count (>= 10 expected)"
+else
+  fail "TEST-031 non-vacuity guard: capability-summary fixture count is $summary_fixture_count, expected >= 10 -- the suite may have silently shrunk"
+fi
 while IFS= read -r fixture; do
   check_parity "TEST-031 validate-capability-summary: $(basename "$fixture")" \
     validate-capability-summary --summary "$fixture"
-done < <(find "$FIXTURES_SUMMARY" -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.bin' \) | sort)
+done <<EOF
+$summary_fixture_list
+EOF
 
 # --- validate-context-projection: every fixture in suite 4 -----------------
+projection_fixture_list="$(find "$FIXTURES_PROJECTION" -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.bin' \) | sort)"
+projection_fixture_count="$(printf '%s\n' "$projection_fixture_list" | grep -c .)"
+if [ "$projection_fixture_count" -ge 20 ]; then
+  ok "TEST-031 non-vacuity guard: context-projection fixture count is $projection_fixture_count (>= 20 expected)"
+else
+  fail "TEST-031 non-vacuity guard: context-projection fixture count is $projection_fixture_count, expected >= 20 -- the suite may have silently shrunk"
+fi
 while IFS= read -r fixture; do
   check_parity "TEST-031 validate-context-projection: $(basename "$fixture")" \
     validate-context-projection --projection "$fixture"
-done < <(find "$FIXTURES_PROJECTION" -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.bin' \) | sort)
+done <<EOF
+$projection_fixture_list
+EOF
 
 # --- compare-facet-manifest-staleness: every distinct (old, new, flags)
 # invocation suite 5 (facet-manifest-staleness.tests.sh) exercises, so every
@@ -157,6 +216,11 @@ STALENESS_CASES=(
   "base-old.json|major-bump-new.json|not-weakened|not-weakened|not-weakened|patch"
   "manifest-non-utf8-bytes.bin|base-old.json|not-weakened|not-weakened|not-weakened|none"
 )
+if [ "${#STALENESS_CASES[@]}" -ge 20 ]; then
+  ok "TEST-031 non-vacuity guard: compare-facet-manifest-staleness case-table length is ${#STALENESS_CASES[@]} (>= 20 expected)"
+else
+  fail "TEST-031 non-vacuity guard: compare-facet-manifest-staleness case-table length is ${#STALENESS_CASES[@]}, expected >= 20 -- the case table may have silently shrunk"
+fi
 for case_row in "${STALENESS_CASES[@]}"; do
   IFS='|' read -r old new proj reg own bump <<<"$case_row"
   check_parity "TEST-031 compare-facet-manifest-staleness: $old vs $new ($proj/$reg/$own/$bump)" \
@@ -372,43 +436,67 @@ fi
 
 # =============================================================================
 # TEST-043: provider-neutrality scan.
+#
+# seq0763 Major remediation: the earlier revision excluded the WHOLE term
+# "lambda" from the four scripts' own source scan, which let a genuine
+# contamination string like `LAMBDA_DEPLOY_TARGET = "lambda"` slip through
+# undetected -- an unconditional word exclusion drops the allowlist's
+# detection power by 1/16 (one of Epic A2's 16 terms), and the exclusion
+# itself drifted from what requirements.md/acceptance-tests.md actually
+# authorize as the false-positive defense (a CLEAN FIXTURE, not a term
+# exclusion). Fixed to IDIOM-level masking: only the exact `key=lambda`
+# keyword-argument idiom (the one, sole legitimate occurrence in all four
+# scripts -- `sorted(diags, key=lambda d: (d.check_id, d.pointer))`, T-001's
+# diagnostic-determinism-contract implementation, reused verbatim by
+# T-002/T-003/T-004) is masked out of the text BEFORE scanning; every other
+# occurrence of the word "lambda" anywhere in the source -- including a
+# quoted string literal like `"lambda"` -- is scanned normally against the
+# full, unexcluded 16-term allowlist.
 # =============================================================================
 scan_terms() {
   # $1 = file to scan against Epic A2's own provider-neutrality allowlist.
-  # $2 = comma-joined additional excluded terms (optional; empty = none).
-  # Whole-word match (regex \b...\b, case-insensitive), not a bare substring
-  # search: a bare substring match would flag, e.g., any English word merely
-  # containing "s3" as a run of characters. Prints a comma-joined list of
-  # matched terms, empty if none.
-  python3 - "$1" "$PROVIDER_TERMS" "${2:-}" <<'PY'
+  # Whole-word match (regex \b...\b, case-insensitive) after idiom-level
+  # masking, not a bare substring search: a bare substring match would flag,
+  # e.g., any English word merely containing "s3" as a run of characters.
+  # Prints a comma-joined list of matched terms, empty if none.
+  python3 - "$1" "$PROVIDER_TERMS" <<'PY'
 import json
 import re
 import sys
 
-target_path, terms_path, excluded_raw = sys.argv[1], sys.argv[2], sys.argv[3]
-excluded = {t.strip().lower() for t in excluded_raw.split(",") if t.strip()}
+target_path, terms_path = sys.argv[1], sys.argv[2]
 doc = json.load(open(terms_path, encoding="utf-8"))
 terms = []
 for category_terms in doc.get("categories", {}).values():
     terms.extend(category_terms)
-text = open(target_path, encoding="utf-8", errors="replace").read().lower()
+text = open(target_path, encoding="utf-8", errors="replace").read()
+# Idiom-level mask: ONLY the `key=lambda` keyword-argument idiom (Python's
+# own reserved keyword used as a sort key, never a provider-name reference)
+# is removed from the scanned text -- a standalone "lambda" anywhere else
+# (e.g. a quoted string literal) is left untouched and fully scannable.
+masked = re.sub(r"key\s*=\s*lambda\b", "key=__PY_LAMBDA_KEYWORD_IDIOM__", text)
+masked_lower = masked.lower()
 hits = []
 for term in terms:
     lowered = term.lower()
-    if lowered in excluded:
-        continue
-    if re.search(r"\b" + re.escape(lowered) + r"\b", text):
+    if re.search(r"\b" + re.escape(lowered) + r"\b", masked_lower):
         hits.append(term)
 print(",".join(hits))
 PY
 }
 
-# The three schema files have no legitimate reason to contain ANY allowlist
-# term, including a bare language keyword -- scanned with no exclusions.
-PROVIDER_NEUTRALITY_SCHEMA_TARGETS="$REPO_ROOT/contracts/facet-manifest.schema.json $REPO_ROOT/contracts/capability-summary.schema.json $REPO_ROOT/contracts/context-projection.schema.json"
-for target in $PROVIDER_NEUTRALITY_SCHEMA_TARGETS; do
+# seq0763 Minor-1: "the four scripts' source" (security-spec.md) means each
+# script's full .py/.sh/.ps1 triple, not the .py master alone -- the .sh/
+# .ps1 wrappers are thin forwarders with no `lambda` idiom of their own, so
+# they need no masking, but they are still in-scope scan targets.
+PROVIDER_NEUTRALITY_TARGETS="$REPO_ROOT/contracts/facet-manifest.schema.json $REPO_ROOT/contracts/capability-summary.schema.json $REPO_ROOT/contracts/context-projection.schema.json \
+$SCRIPTS/validate-facet-manifest.py $SCRIPTS/validate-facet-manifest.sh $SCRIPTS/validate-facet-manifest.ps1 \
+$SCRIPTS/validate-capability-summary.py $SCRIPTS/validate-capability-summary.sh $SCRIPTS/validate-capability-summary.ps1 \
+$SCRIPTS/validate-context-projection.py $SCRIPTS/validate-context-projection.sh $SCRIPTS/validate-context-projection.ps1 \
+$SCRIPTS/compare-facet-manifest-staleness.py $SCRIPTS/compare-facet-manifest-staleness.sh $SCRIPTS/compare-facet-manifest-staleness.ps1"
+for target in $PROVIDER_NEUTRALITY_TARGETS; do
   if [ -f "$target" ]; then
-    hits="$(scan_terms "$target" "")"
+    hits="$(scan_terms "$target")"
     if [ -z "$hits" ]; then
       ok "TEST-043: $(basename "$target") contains no provider-neutrality-allowlist term"
     else
@@ -419,43 +507,30 @@ for target in $PROVIDER_NEUTRALITY_SCHEMA_TARGETS; do
   fi
 done
 
-# The four scripts' own Python SOURCE additionally excludes the single term
-# "lambda" (workflow_runtime_product_name category): all four scripts share
-# the `sorted(diags, key=lambda d: (d.check_id, d.pointer))` idiom (T-001's
-# own diagnostic-determinism-contract implementation, reused verbatim by
-# T-002/T-003/T-004) -- Python's own reserved keyword for an anonymous
-# function, spelled identically to, but semantically unrelated to, the AWS
-# Lambda product name. None of these four scripts reference any cloud
-# provider or product; excluding this one language keyword from the SOURCE
-# scan (never from the schema scan above, which has no such collision) is
-# the correct fix, not a scope-narrowing of the check itself.
-PROVIDER_NEUTRALITY_SCRIPT_TARGETS="$SCRIPTS/validate-facet-manifest.py $SCRIPTS/validate-capability-summary.py $SCRIPTS/validate-context-projection.py $SCRIPTS/compare-facet-manifest-staleness.py"
-for target in $PROVIDER_NEUTRALITY_SCRIPT_TARGETS; do
-  if [ -f "$target" ]; then
-    hits="$(scan_terms "$target" "lambda")"
-    if [ -z "$hits" ]; then
-      ok "TEST-043: $(basename "$target") contains no provider-neutrality-allowlist term (Python's own 'lambda' keyword excluded)"
-    else
-      fail "TEST-043: $(basename "$target") contains provider-neutrality-allowlist term(s): $hits"
-    fi
-  else
-    fail "TEST-043: scan target missing: $target"
-  fi
-done
-
 # Dirty fixture: proves the scan mechanism itself actually detects
 # contamination (a non-vacuity canary for the "no hit" assertions above).
-dirty_hits="$(scan_terms "$FIXTURES_PARITY/provider-neutrality-dirty.txt" "")"
+dirty_hits="$(scan_terms "$FIXTURES_PARITY/provider-neutrality-dirty.txt")"
 if [ -n "$dirty_hits" ]; then
   ok "TEST-043 non-vacuity canary: the dirty fixture is correctly flagged ($dirty_hits)"
 else
   fail "TEST-043 non-vacuity canary: the dirty fixture (deliberately containing a provider term) was NOT flagged -- the scan is vacuous"
 fi
 
+# seq0763 Major regression lock: a `NAME = "lambda"  # Lambda ...`-shaped
+# assignment (the evaluator's own dirty-fixture pattern) must still be
+# flagged even though it is NOT the masked `key=lambda` idiom -- proves the
+# idiom-level mask does not over-mask a genuine standalone occurrence.
+lambda_dirty_hits="$(scan_terms "$FIXTURES_PARITY/provider-neutrality-lambda-dirty.txt")"
+if printf '%s' "$lambda_dirty_hits" | grep -qE '(^|,)lambda(,|$)'; then
+  ok "TEST-043 lambda-idiom-mask regression lock: a standalone quoted 'lambda' string-literal assignment (not the key=lambda idiom) is correctly flagged ($lambda_dirty_hits)"
+else
+  fail "TEST-043 lambda-idiom-mask regression lock: expected 'lambda' to be flagged in the standalone-assignment fixture, got [$lambda_dirty_hits] -- the idiom mask is over-masking"
+fi
+
 # Clean fixture: proves this feature's own vocabulary (e.g.
 # distribution_channels, a real field this feature's own context-projection
 # schema already carries) does not false-positive.
-clean_hits="$(scan_terms "$FIXTURES_PARITY/provider-neutrality-clean.txt" "")"
+clean_hits="$(scan_terms "$FIXTURES_PARITY/provider-neutrality-clean.txt")"
 if [ -z "$clean_hits" ]; then
   ok "TEST-043: the clean fixture (this feature's own provider-neutral vocabulary) produces no false positive"
 else

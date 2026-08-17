@@ -6,13 +6,67 @@ place (via a Python string-replace script, not a raw sed/patch, so the
 exact substring boundaries are visible), the affected suite was run to
 confirm it goes RED, and the file was then restored from a pre-mutation
 copy and confirmed byte-identical via `diff -q`/sha256 before moving to the
-next mutation. All five mutations were applied and reverted sequentially
+next mutation. All seven mutations were applied and reverted sequentially
 against the real repository files (never a scratch copy) -- `git status`
 and `git diff` were checked clean of residue after each round-trip, and
 the full six-suite set (facet-manifest-schema, facet-manifest-semantics,
 capability-summary-schema, context-projection-schema, facet-manifest-
 staleness, facet-manifest-parity) was re-run green on both runtimes after
 the last mutation was reverted (see green-sh.log / green-ps1.log).
+
+seq0763 evaluator remediation (2026-08-17) added Mutations 6-7 below, both
+run AFTER the Critical/Major fixes that made them possible to catch at all:
+Mutation 6 is the evaluator's own reproduction (CR injected into
+validate-capability-summary.ps1) demonstrating the Critical fix -- the
+.ps1 twin's process-capture mechanism was rewritten from PowerShell's
+Start-Process -RedirectStandardOutput/-RedirectStandardError (confirmed,
+empirically, to silently normalize CRLF -> LF and append a missing trailing
+newline on the way into the capture file -- see "Critical fix evidence"
+immediately below) to raw System.Diagnostics.Process + BaseStream.
+CopyToAsync byte capture, and an explicit LF-only (no-CR-byte) assertion
+was added to BOTH runtimes' parity suites. Mutation 7 demonstrates the
+Major fix -- the provider-neutrality scan's "lambda" handling was changed
+from a blind whole-term exclusion (which hid a real contamination string
+identical in shape to Mutation 7 below) to an idiom-level mask that only
+removes the literal `key=lambda` sort-key idiom, leaving every other
+"lambda" occurrence (including a quoted string-literal assignment) fully
+scannable.
+
+--------------------------------------------------------------------------
+Critical fix evidence -- Start-Process redirection silently normalizes
+line endings (measured directly on this host, BEFORE any suite mutation)
+--------------------------------------------------------------------------
+A child process was made to write exactly 8 raw bytes, `A\r\nB\nC\r\n`
+(mixed CRLF/LF, no trailing newline after the final `\r\n`... actually
+ending in `\r\n`) via `sys.stdout.buffer.write(...)` (no text-mode
+translation on the writer's own side):
+
+$ python3 -c 'import sys; sys.stdout.buffer.write(b"A\r\nB\nC\r\n")' | xxd
+00000000: 410d 0a42 0a43 0d0a                      A..B.C..
+(8 bytes, 2 CR bytes, confirmed via direct pipe capture -- ground truth)
+
+Captured via the suite's OLD mechanism (PowerShell `Start-Process
+-RedirectStandardOutput <file>`):
+  byte count: 6
+  bytes: 65,10,66,10,67,10                          (A\nB\nC\n -- BOTH CR
+                                                       bytes silently
+                                                       stripped)
+
+Captured via the suite's NEW mechanism (`System.Diagnostics.Process` +
+`StandardOutput.BaseStream` read into a byte buffer, no Start-Process):
+  byte count: 8
+  bytes: 65,13,10,66,10,67,13,10                     (A\r\nB\nC\r\n --
+                                                       byte-for-byte
+                                                       identical to the
+                                                       ground truth)
+
+This confirms the evaluator's Critical finding exactly as reported: the
+OLD `.ps1` twin's own capture mechanism destroyed every CR byte before
+this suite's byte-comparison ever ran, making the whole TEST-031 contract
+(and the new LF-only assertion) structurally blind to a CRLF-emitting
+`.ps1` wrapper on the runtime where it matters most (Windows, where the
+staged CI's bash parity step is `if: runner.os != 'Windows'` and only the
+`.ps1` twin runs at all).
 
 --------------------------------------------------------------------------
 Mutation 1 -- RT-20260817-004 revert (validate-facet-manifest.py)
@@ -170,15 +224,134 @@ value. Re-ran --check one final time on the fully-restored tree:
   vendor-capability-registry: vendored copies match their canonical sources; no drift.
 
 --------------------------------------------------------------------------
+Mutation 6 (seq0763 Critical remediation) -- CR injected into
+validate-capability-summary.ps1 (the evaluator's own reproduction)
+--------------------------------------------------------------------------
+$ diff -u vcs-ps1.orig.ps1 plugins/sdd-quality-loop/scripts/validate-capability-summary.ps1
+--- vcs-ps1.orig.ps1
++++ plugins/sdd-quality-loop/scripts/validate-capability-summary.ps1
+@@ -20,5 +20,6 @@
+     exit 1
+ }
+
++[Console]::Out.Write([char]13)
+ & $python.Path $Target @args
+ exit $LASTEXITCODE
+
+Result BEFORE this session's Critical fix (reported by the seq0763
+evaluator, not independently re-measured against the old code since it has
+already been replaced): bash `facet-manifest-parity.tests.sh` went
+163 passed/15 failed against the (then) 178-assertion suite; the `.ps1`
+twin stayed the full 178 passed/0 failed -- the mutation was completely
+invisible to the runtime it targets most.
+
+Result AFTER this session's Critical fix, same mutation, against the
+current 329-assertion suite:
+
+`bash tests/facet-manifest-parity.tests.sh`: 300 passed, 29 FAILED
+(was 329 passed, 0 failed on the unmutated tree) -- 14 capability-summary
+fixtures x 2 assertions each (byte-parity + LF-only) = 28, plus 1 from
+TEST-032's own `(ps1)` installed-layout-discovery case = 29:
+  FAIL: TEST-031 validate-capability-summary: canonicalizer-roundtrip-valid.yaml -- ps1-stdout-diff (py_rc=0 sh_rc=0 ps1_rc=0)
+  FAIL: TEST-031 validate-capability-summary: canonicalizer-roundtrip-valid.yaml -- CR byte(s) found in: c63.ps1.out
+  FAIL: TEST-031 validate-capability-summary: decision-doc-v2-section6-worked-example.json -- ps1-stdout-diff (py_rc=0 sh_rc=0 ps1_rc=0)
+  FAIL: TEST-031 validate-capability-summary: decision-doc-v2-section6-worked-example.json -- CR byte(s) found in: c64.ps1.out
+  FAIL: TEST-031 validate-capability-summary: extra-property-facet-manifest-ref-invalid.json -- ps1-stdout-diff (py_rc=1 sh_rc=1 ps1_rc=1)
+  FAIL: TEST-031 validate-capability-summary: extra-property-facet-manifest-ref-invalid.json -- CR byte(s) found in: c65.ps1.out
+  ... (23 more, one pair per remaining capability-summary fixture, plus
+      the TEST-032 (ps1) installed-layout-discovery case)
+
+`pwsh -NoProfile -File tests/facet-manifest-parity.tests.ps1`, SAME
+mutation, SAME tree: 300 passed, 29 FAILED -- EXACT parity with the bash
+result above (same 29 labels, same failure reasons):
+  FAIL: TEST-031 validate-capability-summary: canonicalizer-roundtrip-valid.yaml -- ps1-stdout-diff (py_rc=0 sh_rc=0 ps1_rc=0)
+  FAIL: TEST-031 validate-capability-summary: canonicalizer-roundtrip-valid.yaml -- CR byte(s) found in: ps1-stdout
+  FAIL: TEST-031 validate-capability-summary: decision-doc-v2-section6-worked-example.json -- ps1-stdout-diff (py_rc=0 sh_rc=0 ps1_rc=0)
+  FAIL: TEST-031 validate-capability-summary: decision-doc-v2-section6-worked-example.json -- CR byte(s) found in: ps1-stdout
+  FAIL: TEST-031 validate-capability-summary: extra-property-facet-manifest-ref-invalid.json -- ps1-stdout-diff (py_rc=1 sh_rc=1 ps1_rc=1)
+  FAIL: TEST-031 validate-capability-summary: extra-property-facet-manifest-ref-invalid.json -- CR byte(s) found in: ps1-stdout
+  ... (23 more, same shape)
+
+This is the headline proof of the Critical remediation: the identical
+mutation that was completely invisible to the OLD `.ps1` twin (178/0
+green) is now caught by BOTH runtimes with EXACT parity (29 failures
+each) under the NEW raw-byte capture mechanism.
+
+Restored: `diff -q vcs-ps1.orig.ps1 validate-capability-summary.ps1` ->
+files identical (no output, exit 0); `git diff --stat
+plugins/sdd-quality-loop/scripts/validate-capability-summary.ps1` -> no
+output (byte-unchanged relative to HEAD).
+
+--------------------------------------------------------------------------
+Mutation 7 (seq0763 Major remediation) -- standalone "lambda" string-
+literal contamination in validate-facet-manifest.py (the evaluator's own
+dirty-fixture pattern)
+--------------------------------------------------------------------------
+$ diff -u vfm-lambda.orig.py plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+--- vfm-lambda.orig.py
++++ plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+@@ -43,6 +43,7 @@
+ Diagnostic = namedtuple("Diagnostic", ["check_id", "pointer", "message"])
+
+ SCHEMA_FILENAME = "facet-manifest.schema.json"
++LAMBDA_DEPLOY_TARGET = "lambda"  # Lambda function name for the packaged validator
+
+
+ class CanonicalizerError(Exception):
+
+Result BEFORE this session's Major fix (reported by the seq0763 evaluator):
+178/0 fully green -- the OLD blind exclusion of the whole term "lambda"
+from the four scripts' source scan hid this injected contamination
+completely, regardless of the fact that it is a standalone provider-name
+string literal, not the `key=lambda` sort-key idiom the exclusion was
+meant to cover.
+
+Result AFTER this session's Major fix (idiom-level masking, not a term
+exclusion), same mutation, against the current 329-assertion suite:
+
+`bash tests/facet-manifest-parity.tests.sh`: 328 passed, 1 FAILED:
+  FAIL: TEST-043: validate-facet-manifest.py contains provider-neutrality-allowlist term(s): lambda
+
+`pwsh -NoProfile -File tests/facet-manifest-parity.tests.ps1`, SAME
+mutation, SAME tree: 328 passed, 1 FAILED -- identical label and reason:
+  FAIL: TEST-043: validate-facet-manifest.py contains provider-neutrality-allowlist term(s): lambda
+
+Restored: `diff -q vfm-lambda.orig.py validate-facet-manifest.py` -> files
+identical (no output, exit 0); `git diff --stat
+plugins/sdd-quality-loop/scripts/validate-facet-manifest.py` -> no output.
+
+--------------------------------------------------------------------------
+Three Done-When RED branches (mismatched wrapper / missing vendored copy /
+provider-name-contaminated script), re-captured against the current
+329-assertion suite
+--------------------------------------------------------------------------
+See verification/T-005/red-sh.log and red-ps1.log for the full transcripts
+of all three branches, both runtimes:
+  Branch 1 (mismatched wrapper, validate-facet-manifest.sh): 265
+    passed/64 FAILED both runtimes, exact parity.
+  Branch 2 (missing vendored copy, plugins/sdd-quality-loop/contracts/
+    facet-manifest.schema.json moved out of the tree): 328 passed/1
+    FAILED both runtimes, exact parity (the `vendor-capability-
+    registry.py --check` assertion).
+  Branch 3 (provider-name-contaminated script): same as Mutation 7 above,
+    328 passed/1 FAILED both runtimes, exact parity.
+Each mutation in this section was reverted immediately after its capture
+and confirmed byte-identical (`diff -q` / `git diff --stat` reporting no
+change) before the next one began.
+
+--------------------------------------------------------------------------
 Post-mutation repository state
 --------------------------------------------------------------------------
 `git status --short` against plugins/sdd-quality-loop/scripts/ and
-plugins/sdd-quality-loop/contracts/ after all five mutations were reverted
-showed only the four INTENDED T-005 modifications (validate-facet-
+plugins/sdd-quality-loop/contracts/ after all seven mutations were
+reverted showed only the five INTENDED modifications (validate-facet-
 manifest.py, validate-capability-summary.py, compare-facet-manifest-
-staleness.py, vendor-capability-registry.py) -- no residual mutation
-artifacts, no stray .bak files, and no diff against contracts/*.schema.json
-(the vendored copies round-tripped byte-identically).
+staleness.py, vendor-capability-registry.py, and this task's own
+tests/facet-manifest-parity.tests.{sh,ps1}) -- no residual mutation
+artifacts, no stray .bak files, and no diff against
+plugins/sdd-quality-loop/contracts/*.schema.json (the vendored copies
+round-tripped byte-identically) or
+plugins/sdd-quality-loop/scripts/validate-capability-summary.ps1.
 
 All six suites (facet-manifest-schema, facet-manifest-semantics,
 capability-summary-schema, context-projection-schema, facet-manifest-
