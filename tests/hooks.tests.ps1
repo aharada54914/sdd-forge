@@ -752,6 +752,14 @@ Approval: Draft
     $r = Invoke-GuardPs $secondShell
     Assert "ps: shell appends Second Approval to tasks.md -> deny (exit 2)" ($r.Code -eq 2)
 
+    # REGRESSION: a shell command writing ONLY "Second Approval: Approved" (no
+    # separate primary "Approval: Approved") must report the Second-Approval
+    # reason (never bypassed by sudo), not the primary Approval reason
+    # (sudo-bypassable). The bash-command branch previously matched the raw
+    # "Approval:\s*Approved" regex without subtracting Second-Approval hits.
+    $r = Invoke-GuardPs $secondShell "copilot"
+    Assert "ps: shell writes ONLY Second Approval -> reports Second-Approval reason, not primary" ($r.Code -eq 0 -and $r.Out -like "*must not set 'Second Approval: Approved'*")
+
     $node = Get-Command node -ErrorAction SilentlyContinue
     if ($node) {
         $r = Invoke-GuardNode $wfiApprove

@@ -530,7 +530,12 @@ def approval_increases(payload):
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
-        if "tasks.md" in cmd.lower() and APPROVAL_RE.search(cmd):
+        # Use count() (which subtracts Second Approval matches) rather than a
+        # raw APPROVAL_RE search, so a command that only writes "Second
+        # Approval: Approved" is not misclassified as a primary approval
+        # (which would surface the sudo-bypassable APPROVAL_MSG instead of
+        # the never-bypassable SECOND_APPROVAL_MSG).
+        if "tasks.md" in cmd.lower() and count(cmd) > 0:
             return True
         return False
 
