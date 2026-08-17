@@ -41,14 +41,25 @@ open; once the fix lands, the automated precheck path is again mandatory.
 
 ### Post-review artifact freeze
 
-Once a review gate passes, its hash-bound artifacts (the design document
-after the design review gate; the task plan body and traceability document
-after the task decomposition review gate) are content-frozen except for the
-normalized status/approval fields. Sanctioned later updates — open-question
-resolutions, verification-status finalization — are recorded in non-frozen
-addenda (implementation reports, `specs/<feature>/verification/`, user
-documentation) instead of the frozen artifact, and task authors must scope
-Done When items accordingly. When an already-approved task's Done When names
+Once a review gate passes, its hash-bound artifacts are content-frozen except
+for the normalized status/approval fields. Each gate binds a different set:
+the specification review gate binds `requirements.md` and
+`acceptance-tests.md`; the implementation-policy (design) review gate binds
+`design.md`; the task decomposition review gate binds the task plan body and
+`traceability.md`. The design and task gates additionally bind all four layer
+specifications (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+`security-spec.md`) whenever that round's precheck recorded layer hashes, and
+the task gate re-binds `design.md`. A spec-stage freeze is not released by a
+later gate: `requirements.md` and `acceptance-tests.md` are re-checked at
+every later passed stage. The status/approval carve-out covers only the
+document each gate normalizes (`requirements.md`, `design.md`, the task
+plan); `acceptance-tests.md`, `traceability.md` and the layer specifications
+are bound by raw content hash, so any byte change to them breaks the gate.
+Sanctioned later updates — open-question resolutions, verification-status
+finalization — are recorded in non-frozen addenda (implementation reports,
+`specs/<feature>/verification/`, user documentation) instead of the frozen
+artifact, and task authors must scope Done When items accordingly. When an
+already-approved task's Done When names
 a frozen artifact, the Done When wording is amended to name the equivalent
 addendum record — a spec change requiring explicit human authorization,
 recorded in the task plan and re-bound by a post-implementation provenance
@@ -78,7 +89,10 @@ authorize plugin-internal changes. (WFI-004)
 
 ## Active Spec Directories
 
-Update this list whenever a new spec directory is bootstrapped:
+Update this list whenever a new spec directory is bootstrapped.
+This list must match `ls -d specs/*/` exactly; any directory missing here is
+invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
+
 - `specs/sdd-forge-refactor/`
 - `specs/claude-workflow-compatibility/`
 - `specs/sdd-forge-mcp/`
@@ -98,11 +112,26 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-159-pillar-d/`
 - `specs/epic-189-a1-project-context/`
 - `specs/epic-192-a4-facet-manifest/`
+- `specs/epic-136-phase3/`
 - `specs/epic-136-phase4-docs/`
+- `specs/epic-136-phase4-mcp/`
 - `specs/mcp-readonly-preflight/`
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
 - `specs/epic-196-a8-integration/`
+- `specs/design-sync-scan/`
+- `specs/design-sync-standing-consent/`
+- `specs/epic-190-a2-capability-registry/`
+- `specs/epic-191-a3-path-ownership/`
+- `specs/cross-model-verification/`
+- `specs/evidence-deep-verify/`
+- `specs/p0-hardening/`
+- `specs/quality-loop-fixes/`
+- `specs/risk-adaptive-layer/`
+- `specs/sdd-diagnose/`
+- `specs/sdd-lite/`
+- `specs/second-approval-mask/`
+- `specs/uninstall-workflow/`
 
 ## Source Artifact Locations
 
@@ -115,7 +144,8 @@ Update this list whenever a new spec directory is bootstrapped:
 - `contracts/` — API and data contracts
 - `docs/architecture/` — architecture diagrams and context documents
 - `reports/implementation/<task-id>.md`
-- `reports/quality-gate/<timestamp>.md` (names the task id)
+- `reports/quality-gate/<timestamp>-[<feature>-]<task-id>.md` (the task id is
+  part of the filename; reports predating this shape use earlier variants)
 - `docs/review-tickets/*.yml`
 
 ## Rules
@@ -170,7 +200,7 @@ T-006). (WFI-001)
 
 ### Author-time sweeps that replace case-by-case vigilance
 
-Five rules sharing one shape: a property easy to state once and easy to miss per
+Six rules sharing one shape: a property easy to state once and easy to miss per
 case. Each names the point in the workflow where the sweep is mandatory, so it is
 performed rather than remembered. They sit under one heading to keep this file
 from growing a heading per rule, and are kept distinct rather than merged because

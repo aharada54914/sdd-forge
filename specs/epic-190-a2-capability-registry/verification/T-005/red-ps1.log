@@ -1,0 +1,16 @@
+not ok: TEST-023: canonicalizer delegation/source inspection failed
+not ok: TEST-024(1): capability order/duplicate independence failed
+not ok: TEST-024(2): capability fragment differs from the golden fragment
+ok: TEST-024(3): direct gate selection is independent of capability references
+not ok: TEST-024(4): combined-selector union differs from the golden fragment
+ok: TEST-024(5): unknown capability is a hard unknown-fragment-id failure
+ok: TEST-024(6): unknown direct gate is a hard unknown-fragment-id failure
+ok: TEST-024(7): missing selector is a hard fragment-selector-required failure
+ok: TEST-024(8): --whole is content-sensitive
+ok: TEST-032(1): JCS key-order and numeric-format vectors are digest-identical
+ok: TEST-032(2): NFC composed/decomposed Registries are digest-identical
+not ok: TEST-032(3): stable ordering vector failed
+ok: wrapper parity: sh/ps1/js emit byte-identical digests
+not ok: run-all.ps1 does not register this suite
+---- summary: pass=8 fail=6 ----
+generate-registry-digest suite FAILED (8 passed, 6 failed)

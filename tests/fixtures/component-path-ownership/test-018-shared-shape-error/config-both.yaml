@@ -1,0 +1,10 @@
+components:
+  - id: c1
+    paths:
+      include:
+        - "a/**"
+shared_paths:
+  - pattern: "x/**"
+    components:
+      - c1
+    classification: cross-cutting

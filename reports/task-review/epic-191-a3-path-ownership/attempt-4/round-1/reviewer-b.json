@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 4,
+  "round": 1,
+  "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-b-seq0646",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-191-a3-path-ownership-0646",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "25b813a2a7c991c58088b690887a82a3b66e5ea84588aa3af319abab1aa3c79d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/task-review/epic-191-a3-path-ownership/attempt-4/round-1/integrated-summary.json",
+        "sha256": "db08734284a17c2ee50efd953b132c98092c3553a170873faa28d0f84954e1c0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/task-review/epic-191-a3-path-ownership/attempt-4/round-1/precheck-result.json",
+        "sha256": "0413c98d70893cef3edbdc39db72c863eb456e09d5972e2df74bbcf329eb933b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md",
+        "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/design.md",
+        "sha256": "db5b99e9d78be8fa806b9fb679ef144d99f79d73a1f14acc2c16e6397c20afc5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/frontend-spec.md",
+        "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/infra-spec.md",
+        "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md",
+        "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/security-spec.md",
+        "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/tasks.md",
+        "sha256": "cc11c2132623b483e50d7a25d9131800db4231a8c3d557eaa0167a60aa7c0b26"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/traceability.md",
+        "sha256": "51a8242335b47a4c9b743aadeb2f9fb17f48d77b476f9a37af3222303e3a2ca4"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/ux-spec.md",
+        "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 6 tasks' Risk tiers match their scope, verified against the current working-tree tasks.md (lines 145-1243). T-001 (line 153, high) is the deterministic classifier every downstream Fail condition depends on ('a silent misclassification... defeats the entire purpose of the Reverse Coverage Gate', lines 155-169), matching the policy's 'silent defect causes material harm' clause. T-002 (line 363, high) implements the git-diff basis AND the submodule/symlink reference-only boundary security-spec.md names as B4 (security-spec.md line 51). T-004 (line 687, high, Security-Sensitive: true) is the sole task editing the R-10 protected guard-invariants.json/generate-guard-invariants.py/generated-siblings bundle and the check-contract.{sh,ps1,py} required-check-set bundle -- design.md Global Constraints line 799 confirms 'T-004 is the sole editor' -- an access-control/enforcement-chain surface. T-006 (line 1100, high) cites explicit precedent to specs/epic-159-pillar-c/tasks.md T-005 (behavior-preservation proof); although T-006's Planned Files (lines 1134-1147) are test-only, I evaluated this as the most borderline case and found it is the feature's sole live proof mechanism for cross-runtime behavioral identity, interacting with the protected .github/workflows/test.yml staging surface -- not the cosmetic/trivial 'test-only' the over-classification rule targets. T-003 (line 529, medium) and T-005 (line 963, medium) each carry a Risk Rationale explicitly arguing bounded blast radius and no access-control/Gate-blocking surface. No task touches auth/payment/PII storage/data-migration while classified low/medium."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks (T-001 Done-When 'TDD evidence' bullet ~lines 323-326; T-002 ~lines 507-509; T-004 ~lines 921-925; T-006 ~lines 1229-1232) each require both RED and GREEN evidence plus 'An independent quality-gate verdict records PASS' -- quality-gate is a distinct evaluating role from implement-task per security-spec.md's Authorization table (line 81: 'only quality-gate (or lite-gate) may mark a Task Done'), satisfying the independent-review-verdict requirement. No task carries Risk: critical (grep of all 6 Risk: lines confirms high/high/medium/high/medium/high), so the second-approver/signed-evidence-bundle sub-requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (5 nominal areas, lines 191-220) and T-004 (6 nominal areas incl. two protected-file bundles, lines 728-773) exceed the naive 'three distinct areas' indicator, but each carries a task-authored 'Note on scope breadth (task-review round 1, TASK-SIZE)' (T-001 lines 328-339; T-004 lines 927-940) citing design.md's own frozen (Impl-Review-Status: Passed) bundling decision -- independently confirmed via design.md line 799 ('T-004 is the sole editor (via human-copy)') and line 801-803 (same for check-contract/risk-gate-matrix.md): splitting T-004's protected-file staging across tasks would reintroduce the human-copy race design.md explicitly avoids. Both notes are backed by the structural two-commit landing plan (Global Constraints, tasks.md lines 94-102). Done-When top-level bullet counts stay at or under 8 for every task (T-001: 6, T-002: 4, T-003: 3, T-004: 8, T-005: 7, T-006: 7, counted directly from the current tasks.md). No task title implies unrelated sequential phases; no fragmentation pattern (3+ single-function tasks, or a bare rename-only task) exists."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Cross-checked directly against the current acceptance-tests.md (all 139 lines read): every functional task maps to ACs with explicit fail-closed/negative-path coverage, not just happy path. T-001 -> AC-006 (unsupported-metacharacter rejection), AC-008 (empty-include config error), AC-010 (NFC-collision fail-closed), AC-011 (schema-conformance FAILS closed on absence), AC-013/AC-014 (exclude-as-include Fail-5 invariant + EXCLUDED_MATCH evidence), AC-018 (shared_paths shape rejection). T-002 -> AC-019 (unresolvable-rev fail-closed), AC-021 (invalid-UTF-8 fail-closed), AC-023 (rename-limit-exceeded fail-closed), AC-024 (4 submodule/symlink cases), AC-025 (TOCTOU fail-closed). T-003 -> AC-038 (staleness-exclusion negative case), AC-039/AC-040 (regression + 6-row matrix). T-004 -> AC-028 (manifest-required hard error), AC-031 (Fail-2/4 mutual exclusivity), AC-035 (reachability-bypass attempt still fails), AC-055 (tamper/substitution rejection). T-005 -> AC-042/AC-044 (FAIL-closed while artifact absent/divergent). T-006 -> AC-050 (mutation-based negative self-check)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's table (lines 10-66, all read) ties every TEST-001..TEST-055 1:1 to a specific AC-NNN. The descriptive Test Type labels match actual scope: AC-050/AC-051 ('dual-runtime parity (product wrapper direct)', T-006, line 61) genuinely spans two components -- the .sh and .ps1 runtimes of each product wrapper pair, fed identical fixture+argv and diffed directly -- an integration-level test, not mislabeled as a narrow unit check. AC-024's submodule/symlink 4-case test and AC-021's NUL-framing test (T-002, lines 79-81) both exercise the git-diff collector against real disposable fixture git repos, module-boundary-appropriate. No test task's declared scope is narrower or broader than its stated type."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit Rollback: field, confirmed by direct read of the current tasks.md: T-001 (line 228, revert both commits, notes ADR-0025 removal), T-002 (line 433), T-004 (line 783, explicitly notes the nine staged protected candidates + test.yml are human-applied only, so 'a revert PR must separately state whether an already-applied protected-file change should also be hand-reverted, and by whom'), T-006 (line 1153). T-003 and T-005 (medium, not strictly required) also carry Rollback fields (lines 594, 1016)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every multi-task shared-file surface is single-owner or Blockers-ordered, confirmed against the current tasks.md Global Constraints (lines 92-141): resolve-component-paths.{py,sh,ps1} is edited T-001->T-002->T-003->T-004 in that literal Blockers chain (lines 519, 675, 953); tests/run-all.{sh,ps1} and the staged human-copy/.github/workflows/test.yml + MANIFEST.sha256 follow the identical Global-Constraints-mandated serialization T-001->T-002->T-003->T-004->T-006, each task's own Blockers field enforcing that order; guard-invariants.json/generate-guard-invariants.py/generated siblings and check-contract.{sh,ps1,py}/risk-gate-matrix.md are single-owner (T-004 sole editor per Global Constraints lines 128-133), touched by no other task's Planned Files. CHANGELOG.md is touched by all 6 tasks but Global Constraints (lines 101-102) mandate each lands its OWN new ## Unreleased block, never an append. tests/fixtures/component-path-ownership/ is a shared directory each task extends with its own distinct subtree, ordered via the same Blockers chain. No uncoordinated overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers match logical need in every case checked: T-002<-T-001 (line 519, functional: collector code lands in the same resolve-component-paths.py file T-001 creates); T-003<-T-001,T-002 (line 675, functional: needs T-001's declared config plus T-002's already-landed collector-stage edit to the same shared script -- design.md Architecture lines 78-85 confirms the digest emitter is the pipeline's third stage); T-004<-T-001,T-002,T-003 (line 953) -- T-004's own text is transparent that T-003 is 'not a functional dependency -- the Gate's Fail conditions do not consume ownership_digest' (lines 718-720), included solely for shared registration-array serialization, not disguised as functional; T-005<-T-001 (line 1088, shares T-001's suite/fixture); T-006<-T-001,T-002,T-003,T-004 (line 1243, needs both product wrapper pairs functionally complete, incl. T-003's digest field in the diffed stdout JSON). No missing-blocker case found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 6 tasks (T-001..T-006) are net-new feature-construction tasks (resolver, diff collector, digest emitter, Reverse Coverage Gate, cross-epic validation, parity harness); none is titled, scoped, or Done-When-gated as a bugfix, regression fix, debugging session, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

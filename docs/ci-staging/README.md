@@ -1,5 +1,22 @@
 # Combined CI-staging candidate
 
+> **Superseded — do not apply this candidate to current `main`.** The live
+> workflow has advanced since this snapshot was assembled, so replacing the
+> protected workflow with `test-yml-combined-candidate.yml` would remove
+> already-landed jobs and steps. For the Node runtime migration and the two
+> currently failing CI-reachability self-checks, use the base-bound patch and
+> verification instructions in `node22-runtime-baseline.md` instead.
+
+The older epic-136 Phase 3 candidate at
+`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+is also superseded. It remains only as a historical contract-test fixture;
+never copy it over the live workflow. Its former application manifest has
+been retired in place. Current workflow changes must use a current-base,
+digest-bound patch such as `node22-runtime-baseline.patch`.
+
+The remainder of this file is retained as historical context for the older
+candidate; its authoring-time claims do not describe the current workflow.
+
 `test-yml-combined-candidate.yml` is a staged replacement for
 `.github/workflows/test.yml`, rebuilt on top of the live workflow as merged by
 PR #229 (epic-189-a1-project-context, 854 lines). Earlier candidates at this
@@ -59,16 +76,9 @@ applying the single-suite candidate. Under the OQ-5 merge option, apply this
 combined candidate instead; once applied, the single-suite candidate is
 superseded.
 
-## Apply and verify
+## Retired application path
 
-From the repository root, run:
-
-```sh
-cp docs/ci-staging/test-yml-combined-candidate.yml .github/workflows/test.yml
-shasum -a 256 -c docs/ci-staging/MANIFEST.sha256
-git add .github/workflows/test.yml docs/ci-staging/
-git commit -m "ci: register design system and design sync test suites"
-```
-
-On a platform without `shasum`, use an equivalent SHA-256 manifest checker such
-as `sha256sum -c docs/ci-staging/MANIFEST.sha256`.
+Do not copy this snapshot to `.github/workflows/test.yml`. Its former checksum
+and executable application commands have been removed because the snapshot is
+not a superset of the live workflow. The only current application instructions
+are the base-commit and digest checks in `node22-runtime-baseline.md`.

@@ -1,0 +1,63 @@
+ticket_id: RT-20260810-001
+status: open
+type: cycle-limit-reached
+severity: major
+review_cycles: 3
+target:
+  feature: "epic-191-a3-path-ownership"
+  task: "T-002"
+  files:
+    - "tests/component-path-diff-basis.tests.ps1"
+    - "specs/epic-191-a3-path-ownership/verification/T-002/component-path-diff-basis-ps1.GREEN.log"
+    - "CHANGELOG.md"
+summary: "T-002 の QG cycle 上限 (3) 到達。cycle 3 の Major は verdict 後に是正済みのため、fresh session での再ゲート 1 サイクルのみが必要"
+problem: |
+  cycle 3 (seq 0654) は Major 3 件で NEEDS_WORK。実装本体は健全と確認されて
+  おり、3 件とも証跡側の欠陥だった。
+
+  1. AC-023 が PowerShell 側で未検証だった。TEST-023.2 がソーステキストの
+     正規表現で、rename-limit 分岐を到達不能にしても 18/0 のままだった
+     (Python 側の同等変異は捕捉される)。INV-008 により ps1 は独立実装なので
+     Python のカバレッジは移らない。
+  2. ps1 の RED ログが出荷済みテストと矛盾していた。TEST-021.2 / TEST-025.2 が
+     「実プロダクト関数を呼ばない」と記載したままで、実測は 17/1。Done-When 4 は
+     永続化された RED 証跡について定義されているため Major。
+  3. CHANGELOG.md が未宣言で、Done-When 3 がその内容について定義されている
+     にもかかわらずゲートから読めなかった。
+
+  3 件とも verdict 後に是正済み (`729ef563`, `9d75e475`):
+  - TEST-023.2 は dot-source して `Invoke-GitRaw` を git 実物の
+    too-many-files stderr に差し替え、実 `Get-TrackedDiff` を呼んで
+    `GitDiffError` を検査する形へ。dead-code 変異で 17/1 に落ちることを実証
+  - ps1 RED ログは 5 軸すべて実走で再取得 (手書き修正ではない)
+  - CHANGELOG.md を宣言。さらに v1.11.0 節に座礁していたエントリを
+    `## Unreleased` へ移動 (着地日がリリース切り後であることを確認のうえ)
+  - 副次: dot-source が製品の `-RepoRoot` を取り込みテスト側 `$repoRoot` を
+    `"."` に再束縛していた問題も解消 (リポジトリルート以外から実行すると
+    登録チェックがクラッシュしていた)
+
+  評価者自身が「両ブロッカーとも agent 可能、人間不要」と明言している。
+
+  なお cycle 3 の評価者は、3 サイクル通じたパターンとして「毎回、名指しされた
+  成果物だけを直し、同種の隣接成果物を確認していない」と指摘した。これは
+  オーケストレータの指示の問題であり、今回の是正ではクラス単位
+  (CHANGELOG 全エントリ、GREEN ログ全件) で閉じている。
+proposed_resolution: |
+  fresh session で T-002 の evaluator を 1 サイクル予約・起動する。
+  予約は必ず `validate-review-context-set.sh <manifest> <repo-root> --reserve`
+  に行わせること (台帳への手書き追記は禁止。契約が通らない限り予約が存在
+  しない状態を保つため)。
+
+  確認すべき点:
+  - TEST-023.2 が実行型になっており、dead-code 変異で落ちること
+  - ps1 RED ログの記述が現行テストの挙動と一致すること
+  - CHANGELOG.md の `## Unreleased` に #191 エントリがあること
+  - 5 つの fail-closed 軸が両ランタイムで判別すること
+
+  PASS なら quality-gate として Status: Done を記録する。
+
+  重要 (運用): ゲート実行中に同じワークツリーへ書き込むエージェントを
+  走らせないこと。今セッションでは並行書き込みによりゲート実行中に
+  ハッシュ束縛が壊れ、T-001 と T-005 で Major を誘発した。
+requires_human_decision: false
+created: 2026-08-10

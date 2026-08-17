@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { parseActiveSpecDirectories, parseRequiredWorkflow } from "../../src/parsers/agents-md.js";
+import type { RequiredWorkflowStep } from "../../src/parsers/agents-md.js";
 import { makeTempSddRoot, writeFile } from "../test-helpers.js";
 import { makeRealRepoRoot } from "./test-helpers.js";
 
@@ -36,8 +37,8 @@ test("real repo: Required Workflow has numbered steps with non-empty text", () =
   }
   // Steps should be in ascending numeric order as written in AGENTS.md.
   for (let i = 1; i < result.data.length; i += 1) {
-    const prev = result.data[i - 1];
-    const curr = result.data[i];
+    const prev: RequiredWorkflowStep | undefined = result.data[i - 1];
+    const curr: RequiredWorkflowStep | undefined = result.data[i];
     assert.ok(prev !== undefined && curr !== undefined && curr.step > prev.step);
   }
 });

@@ -1,0 +1,12 @@
+{
+  "predicate": {
+    "not": {
+      "scope": "affected_component",
+      "field": "characteristics.pii",
+      "operator": "exists"
+    }
+  },
+  "properties": {
+    "characteristics": {}
+  }
+}

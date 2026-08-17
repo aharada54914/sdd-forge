@@ -15,44 +15,46 @@
 
 内部スキル（`implement-task`、`quality-gate` 等）は `sdd-ship` が自動的に呼び出します。
 
+どちらのトラックが選ばれるかは、`--lite` / `--full` フラグだけでなく Project Context の `spec_profile` にも依存します（v1.14.0 / ADR-0023）。詳細は [トラック選択契約（ADR-0023）](#トラック選択契約adr-0023) を参照してください。
+
 ---
 
 ## 全体フロー図 (feature / fullstack)
 
 ```mermaid
 flowchart TD
-    A([Issue / 要件]) --> B[investigate-codebase\n任意]
+    A([Issue / 要件]) --> B[investigate-codebase<br/>任意]
 
     subgraph p1["Phase 1 — 仕様・設計"]
-        C[sdd-bootstrap-interviewer\nPhase 1] --> D[(requirements.md\ndesign.md\nacceptance-tests.md)]
-        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\ndesign-system/ 保証と\nモックアップ確認ループ]
+        C[sdd-bootstrap-interviewer<br/>Phase 1] --> D[(requirements.md<br/>design.md<br/>acceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop<br/>design-system/ 保証と<br/>モックアップ確認ループ]
         DSL -.-> D
     end
 
     subgraph sr["仕様レビュー"]
-        S{spec-review-loop\n2体×最大3ラウンド}
+        S{spec-review-loop<br/>2体×最大3ラウンド}
         SR[人間: requirements.md / acceptance-tests.md 修正]
-        SX[人間: 仕様を抜本見直し\n--reset]
+        SX[人間: 仕様を抜本見直し<br/>--reset]
         S -- NEEDS_WORK --> SR --> S
         S -- BLOCKED --> SX --> S
     end
 
     subgraph ir["実装方針レビュー"]
-        E{impl-review-loop\n2体×最大3ラウンド}
+        E{impl-review-loop<br/>2体×最大3ラウンド}
         F[人間: design.md 修正]
-        G[人間: 設計を抜本見直し\n--reset]
+        G[人間: 設計を抜本見直し<br/>--reset]
         E -- NEEDS_WORK --> F --> E
         E -- BLOCKED --> G --> E
     end
 
     subgraph p2["Phase 2 — タスク分解"]
-        H[sdd-bootstrap-interviewer\nPhase 2] --> I[(tasks.md\ntraceability.md)]
+        H[sdd-bootstrap-interviewer<br/>Phase 2] --> I[(tasks.md<br/>traceability.md)]
     end
 
     subgraph tr["タスク分解レビュー"]
-        J{task-review-loop\n2体×最大3ラウンド}
+        J{task-review-loop<br/>2体×最大3ラウンド}
         K[人間: tasks.md 修正]
-        L[人間: タスク再設計\n--reset]
+        L[人間: タスク再設計<br/>--reset]
         J -- NEEDS_WORK --> K --> J
         J -- BLOCKED --> L --> J
     end
@@ -69,13 +71,13 @@ flowchart TD
     E -- PASS / PASS-with-warnings --> H
     I --> J
     J -- PASS / PASS-with-warnings --> M[人間: Approval: Approved]
-    M --> N[implement-task\nまたは implement-tasks]
-    N -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証・証跡保存]
+    M --> N[implement-task<br/>または implement-tasks]
+    N -. "UIタスク" .-> VVL[visual-verify-loop<br/>視覚検証・証跡保存]
     VVL -.-> O
-    N --> O[(実装コード\nテストコード\nimplementation report)]
+    N --> O[(実装コード<br/>テストコード<br/>implementation report)]
     O --> P
     P -- 全合格 --> R([Done])
-    P --> W[workflow-retrospective\nオプション]
+    P --> W[workflow-retrospective<br/>オプション]
     W --> T([WFI 承認・改善])
 
     style S fill:#dbeafe,stroke:#3b82f6
@@ -288,6 +290,8 @@ D6 テンプレートインタビューのいずれか）したうえで、ト�
 
 Phase 1（仕様・設計）のさらに前段、Issue受領の直後に位置づけられる任意のオプトインレーン。`sdd-bootstrap` が起動する前に、プロジェクト全体で共有する承認済みドメインモデルを1回用意しておくためのものです。`domain/` が存在しない場合は本レーンの影響はゼロで、既存フローはバイト同一の成果物を生成します。
 
+> **導入方法の注意: `sdd-domain` はインストーラの対象外です。** `install.sh` / `install.ps1` / `uninstall.sh` / `uninstall.ps1` の `--plugins` allowlist は6プラグインで、`sdd-domain` を含みません。両 marketplace（`.claude-plugin/marketplace.json` / `.agents/plugins/marketplace.json`）には v1.15.0 として登録済みなので、marketplace から個別に導入してください。allowlist と marketplace / 可視性契約のどちらを仕様とするかは [Issue #291](https://github.com/aharada54914/sdd-forge/issues/291) で追跡中です。
+
 ### 位置づけ
 
 ```text
@@ -347,6 +351,70 @@ sdd-domain は機能単位ではなくプロジェクト単位で運用します
 ### 既存フローへの影響
 
 `domain/` が存在しないプロジェクトでは、domain-sync・DOMAIN-CONFORMANCE チェック・check-domain-conformance のすべてが1行のスキップ記録を残して何もしません。既存の bootstrap Phase 1 やレビューループの成果物は変化しません。可視性契約: 公開されるのは `/sdd-domain:domain-model` のみで、`domain-interviewer` / `domain-reverse` / `domain-review-loop` / `domain-sync` は内部スキル（`user-invocable: false`）です。
+
+---
+
+## トラック選択契約（ADR-0023）
+
+フルトラックと lite トラックのどちらで実行するかは、`/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の**両方が同一の表**に従って解決します。v1.14.0 で ADR-0023 が入るまでは CLI フラグ（`--full` / `--lite`）が最優先でしたが、現在は **Project Context が存在する場合、フラグは「より厳格な方向」にしか動かせません**。
+
+### 判定の入力: `spec_profile`
+
+正準は `sdd/project-context.yaml` の `workflow.spec_profile` で、値は `full` か `lite` のいずれかです（`contracts/project-context.schema.json`）。
+
+```yaml
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full        # full | lite
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: advisory
+```
+
+解決は次の 3 ステップを**この順で**行います。順序そのものが契約であり、ステップ 1 と 2 をまとめて「使える Project Context があるか」の 1 つの判定にしてはいけません。まとめてしまうと、検証を失敗させられる攻撃者が旧来のフラグ優先挙動を取り戻せてしまいます（ADR-0023 が塞いだ fail-open）。
+
+1. **物理的存在** — `sdd/project-context.yaml` がディスク上に存在するか。ファイルシステムの検査のみで判定し、バリデータの結果でこれを代用しない。
+2. **承認の妥当性** — 存在する場合のみ、`validate-approval-sidecar`（REQ-005）が PASS することを確認する。PASS するまで中身は一切信用しない。
+3. **優先順位** — 「存在し、かつ妥当」な Project Context だけが ADR-0023 の規則に到達する。
+
+### 6 ケースの解決表
+
+| ケース | Project Context | フラグ | 解決 |
+|---|---|---|---|
+| C1 | 物理的に不在 | `--full` / `--lite` / なし | `COMPATIBILITY_FALLBACK` |
+| C2 | 存在するが REQ-005 検証に失敗 | `--full` / `--lite` / なし | `PROJECT_CONTEXT_INVALID` |
+| C3 | 存在し妥当、`spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | 存在し妥当、`spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | 存在し妥当、`spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | 存在し妥当、`spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+- `PROMOTE_FULL`（C3） — フラグが宣言済みプロファイルより厳格なので、`full` として実行する。エラーにはならない。
+- `NO_OP_LITE` / `NO_OP_FULL`（C4 / C6） — フラグが宣言済みプロファイルと一致しているので、そのプロファイルのトラックをそのまま実行する。
+
+### Project Context が無い場合の互換フォールバック
+
+**C1 のときだけ** `COMPATIBILITY_FALLBACK` に到達します。挙動は ADR-0023 以前の契約と完全に同じで、先に一致したものが勝ちます。
+
+| 優先度 | 条件 | 結果 |
+|---|---|---|
+| 1 | `--full` フラグあり | **フル**トラック。`specs/<feature>/acceptance-tests.md` と `specs/<feature>/traceability.md` の存在を検証し、どちらか欠けていれば停止 |
+| 2 | `--lite` フラグあり | **lite** トラック |
+| 3 | `AGENTS.md` のいずれかの行に `spec_profile: lite` がある | **lite** トラック |
+| 4 | いずれにも該当しない | **フル**トラック（既定） |
+
+選択されたトラックは、最初のタスクを開始する**前**に必ず出力されます（例: `[sdd-ship] Track: lite (--lite override)`）。意図と違うトラックが選ばれた場合は Ctrl-C で中断し、正しいフラグを付けて再実行してください。
+
+### `--lite` が `spec_profile` と矛盾する場合（`ERROR_STOP`）
+
+C5 — Project Context が存在し妥当で `spec_profile: full` を宣言しているのに `--lite` が渡された場合、これは宣言済みプロファイルを**緩める**方向の指定なので、`ERROR_STOP` として停止します。
+
+- どのタスクも開始せずに停止する。
+- 次のメッセージを出力する: `[sdd-ship] ERROR_STOP: --lite cannot downgrade a Project Context declaring spec_profile: full. Re-run without --lite.`
+- **黙って無視することも、黙って受け入れることもしない。** コピペされた古い `--lite` で `full` プロジェクトが lite 相当の検証に落ちる事故を、失敗として即座に可視化するのが狙いです。
+- 対処は `--lite` を外して再実行するか、`spec_profile` 自体を（承認手続きを経て）変更すること。
+
+参考として C2（`PROJECT_CONTEXT_INVALID`）も停止系です。Project Context は存在するが承認が検証できない（サイドカー欠落・スキーマ違反・ハッシュ不一致・HMAC 不一致・未登録/重複の承認者・`effective_at` 未到達）場合、C1 のフォールバックへ落ちることも、暗黙に `full` / `lite` を選ぶこともせず、その名前を報告して停止します。
+
+> 本節の正準ソースは [`PLUGIN-CONTRACTS.md`](../PLUGIN-CONTRACTS.md) の Track Detection 節と [`docs/adr/0023-track-selection-contract-migration.md`](adr/0023-track-selection-contract-migration.md) です。
 
 ---
 

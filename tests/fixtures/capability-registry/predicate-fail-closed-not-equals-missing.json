@@ -1,0 +1,9 @@
+{
+  "predicate": {
+    "scope": "affected_component",
+    "field": "data_classification",
+    "operator": "not_equals",
+    "value": "internal"
+  },
+  "properties": {}
+}

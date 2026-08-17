@@ -1,0 +1,10 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "no-stage-gate",
+      "blocking": true
+    }
+  ],
+  "capabilities": []
+}
