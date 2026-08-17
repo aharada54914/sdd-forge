@@ -1,3 +1,5 @@
+# SUPERSEDED SNAPSHOT — DO NOT APPLY TO .github/workflows/test.yml.
+# Retained only for historical context; use node22-runtime-baseline.patch.
 name: Test installers and gates
 
 on:

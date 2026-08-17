@@ -1,0 +1,152 @@
+{
+  "task_id": "T-006",
+  "feature": "epic-190-a2-capability-registry",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "7ae6becda321666579d0cfea55c5a1316a541bc827d98362b2c58aff8c6fdc7b",
+  "created": "2026-08-11T11:16:02Z",
+  "comment": "Default-FAIL verification contract for T-006 (high, tdd), populated at the seq0681 PASS after eight review attempts (nine evaluator reservations: 664, 666, 669, 674, 678, 679, 680, 681 plus one abandoned). Cycles 5-8 ran on explicit human direction recorded in docs/review-tickets/RT-20260811-002.yml; cycle 8 (this one) under human_ruling_2, option (b): evict the repo-shared .github/workflows/test.yml snapshot from both sibling bundles (class fix), cross-epic pin amendments explicitly authorized. Populated from the independent quality-gate evaluator's own verification results, recorded verbatim in reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md (Run ID RUN-epic-190-a2-capability-registry-qg-T-006-seq0681, reserved identity-ledger sequence 681, review-context manifest reports/review-context/pending-epic-190-a2-capability-registry-sdd-evaluator-T-006-seq0681-manifest.json, 84 hash-verified inputs). Verdict: PASS, zero Critical, zero Major, three Minor findings (all record-only closure-sweep items: AC-030 'eight pairs' spec-text drift with seven pairs delivered and registered; the MUT-6 job-set-superset blind spot in tests/generate-gate-capabilities.tests.sh reproduced by the evaluator; and epic-189-a1's frozen spec-layer references to the evicted staged workflow path, measured consequence-free — zero byte-pins across 2689 tracked files, all a1 tasks Done, class lock catches re-adds). The evaluator independently: discharged the ledger-reconstruction launch gate (681-record chain walk, brute-forced record-hash formula, byte-equal reservation replay in a git archive HEAD scratch tree); re-ran T-006's own suite both runtimes (generate-gate-capabilities pass=23 fail=0 designed-red=0, sh and ps1) plus the sibling and parity suites (phase2-guard-invariants sh 35/0 rc=0, ps1 61/9 with the nine pre-existing macOS runner-platform failures name-identical to the pre-fix baseline; guard-invariants-epic-a1 82/0 and 86/0; capability-registry-parity 22/0/0 both lanes; deterministic-lane-selfcheck 25/0/4 with rc=1 solely from TEST-020's documented designed-red window; guard-staging-exemption 33/0; apply-human-copy 247/0); proved the class locks non-vacuous in all four lanes by mutation (re-added manifest line and re-created staged snapshot each flip the suites red, restore returns green); exercised every apply path with the real publisher (whole-batch sibling applies denied exit 19 DUPLICATE_BASENAME_IN_BATCH with zero writes; adversarial replay of the evicted manifest entry denied rc=10 'staged candidate is missing' with the live workflow byte-unchanged at a37a3795; full manifest-contract emulation zero removals on 18/17/7 targets); re-measured the WFI-016 history per-commit (34/0 at 6277cde0 and 340f0149, 33/1 at 36339788, 35/0 at HEAD) confirming the seq0680 Major is factually corrected by the dated addenda; verified AC-025/AC-026 generator semantics directly (--check clean-pass no-write, drift detection, fail-closed on missing Registry) and the AC-029 human-apply state (all seven registered paths live in both guard arrays, staged copies hash-match live); and re-derived the 73-row Outputs table from the fourteen task commits (0 undeclared, 0 over-declared, 0 stale). TDD red/green evidence below cites T-006's own recorded RED->GREEN cycle (sh authoritative, ps1 twin logs at red-ps1.log/green-ps1.log, both re-runnable and re-run green by the evaluator at HEAD). check-task-state exits 1 repo-wide on the pre-existing T-005/T-007 missing contract/evidence debt (4 items, recorded by the seq0679/seq0680/seq0681 gates alike, not attributable to T-006); T-006's own row is valid and this contract plus its evidence bundle are populated at the Done flip so the debt does not grow. Stack: shell waives lint/typecheck/build (no compile toolchain for this repository's Python/shell/PowerShell deliverables).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's Python/shell/PowerShell deliverables (stack: shell); the evaluator's re-execution of the 23-check suite across both runtimes exercises parse validity implicitly.",
+      "requirement_ids": ["REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository's Python/shell/PowerShell deliverables.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-006", "AC-025", "AC-026"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-006/red-sh.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-006/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; the generator and suites operate only on local repository files and disposable scratch trees.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-006", "AC-025", "AC-026", "AC-029", "AC-030"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-006/red-sh.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-006/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-006"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-006/red-sh.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-006/green-sh.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for this repository's Python/shell/PowerShell deliverables.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/20260811T111350Z-epic-190-a2-capability-registry-T-006.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's deliverables are a generator script, its generated projection, test suites, and a human-copy staging bundle, fully covered by the focused/regression suite runs and the apply rehearsals.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-006 is net-new authoring, not a refactor/bugfix. Where differential reasoning was load-bearing (the WFI-016 regression history, the ps1 platform-failure baseline), the evaluator built it from git history per-commit and it is recorded in the quality report.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are script/test/staging files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

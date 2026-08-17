@@ -1,0 +1,21 @@
+=== controls (must stay green in both depths) ===
+control-full             shallow=false  Results: 73 passed, 0 failed.
+    ok: TEST-045.5 class lock: no repo-shared file is snapshotted in this bundle (no staged file, no manifest entry)
+control-shallow          shallow=true   Results: 73 passed, 0 failed.
+    ok: TEST-045.6: (shallow checkout) the live workflow still registers both legs of this suite (substance form; commit attribution needs full history an
+
+=== M1: re-add the staged snapshot file only (half-revert) ===
+M1-staged-file           shallow=false  Results: 72 passed, 1 failed.
+    FAIL: TEST-045.5 class lock: a repo-shared file is snapshotted in this bundle — staged-file:.github/workflows/test.yml
+
+=== M2: re-add the manifest entry only (other half-revert) ===
+M2-manifest-entry        shallow=false  Results: 72 passed, 1 failed.
+    FAIL: TEST-045.5 class lock: a repo-shared file is snapshotted in this bundle — manifest-entry:.github/workflows/test.yml
+
+=== M3: drop the bash-leg registration from the live workflow ===
+M3-bash-leg              shallow=true   Results: 72 passed, 1 failed.
+    FAIL: TEST-045.6: (shallow checkout) the live workflow no longer registers this suite — bash-leg
+
+=== M4: drop the pwsh-leg registration from the live workflow ===
+M4-pwsh-leg              shallow=true   Results: 72 passed, 1 failed.
+    FAIL: TEST-045.6: (shallow checkout) the live workflow no longer registers this suite — pwsh-leg

@@ -1,0 +1,54 @@
+### FIX 2+3 VERIFICATION: dispatcher fallback with python3 UNAVAILABLE
+### comment_id=3777341725 (option translation) + 3777341713 (--json)
+2026-08-13T23:36:44Z
+restricted PATH omits every python* binary; pwsh present, so the dispatcher
+takes its PowerShell fallback branch. Verified: $ command -v python3 -> not found.
+
+== [A] baseline: recognized classification invocation ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [B] --json (comment 3: was 'unrecognized argument') ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --json
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [C] --repo-root ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --repo-root .
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [D] --source-rev / --target-rev (git-diff basis) ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --source-rev HEAD~1 --target-rev HEAD --repo-root .
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [E] --include-untracked ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --source-rev HEAD~1 --target-rev HEAD --repo-root . --include-untracked
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [F] --no-include-untracked ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --source-rev HEAD~1 --target-rev HEAD --repo-root . --no-include-untracked
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [G] --diagnose / --provider-bindings ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --diagnose --provider-bindings sdd/provider-bindings.yaml
+  rc=1
+  stdout: 
+  stderr: Write-Error: /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-quality-loop/scripts/resolve-component-paths.ps1:1335 Line | 1335 |      Write-Error ("resolve-component-paths: $($_.Exception.Message)")      |                                               ~~~~~~~~~~~~~~~~~~~~      | resol
+
+== [H] control: a genuinely unknown option must still be rejected (exit 2) ==
+$ plugins/sdd-quality-loop/scripts/resolve-component-paths.sh --config tests/fixtures/component-path-ownership/test-016-overlap/config.yaml --changed-paths-file tests/fixtures/component-path-ownership/test-016-overlap/changed-paths.txt --not-a-real-option
+  rc=2
+  stdout: 
+  stderr: usage: resolve-component-paths.ps1 [options] resolve-component-paths.ps1: error: unrecognized arguments: --not-a-real-option 
+

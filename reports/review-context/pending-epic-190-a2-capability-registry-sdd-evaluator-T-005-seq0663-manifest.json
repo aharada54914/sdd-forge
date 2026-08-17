@@ -1,0 +1,114 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-190-a2-capability-registry",
+  "task_id": "T-005",
+  "run_id": "RUN-epic-190-a2-capability-registry-qg-T-005-seq0663",
+  "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-005-0663",
+  "sequence": 663,
+  "previous_record_sha256": "438eb11c0ae18e335236c3c308003ff9800476710f2960b8bb2ccfa63eaaf615",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ee0107266f17d03aaab0b4caa24aaec8634f789320d4da583fd12bad2bddd013",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.js",
+      "sha256": "675b6add2a3abb482741c82ad6626fee93bcfd55aacb48545318dd19f2b7415b"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.ps1",
+      "sha256": "0f507c043ed60221dbcb2fef4487efa7f6b1f51809b98b2d655e0a589b416bdf"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.py",
+      "sha256": "8608ca514643545dc10c0a03da1f93f492693713f5786106b949bc4509ce1e6c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/generate-registry-digest.sh",
+      "sha256": "251f7c67f9f4b9d77130555ca7ddced4ec44744bf271faf875170812980e29ce"
+    },
+    {
+      "path": "reports/implementation/epic-190-a2-capability-registry/T-005.md",
+      "sha256": "bc60768f04dcf30e1bb4906104a8a938a8bcaea2b8f406e3d538bdc9bfee77cd"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/acceptance-tests.md",
+      "sha256": "591758ccdbf8051e671298f9992e163e2415c816dcf958af1af3ff99327b406b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/design.md",
+      "sha256": "f1b199548d9489332b48d1c21add4fceec94304feb9be9956ca9f946326eb47c"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/frontend-spec.md",
+      "sha256": "84cfc8b1e366b080d9816ca3c1f460d5c65319afdba45c10e0048c6af58b5793"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/infra-spec.md",
+      "sha256": "513ef3830a36cb363055dd394f6853ff1bb4b9a3a2b71349a77a922f75ba8f96"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/requirements.md",
+      "sha256": "8a0fe646420ba9a53dd175a0c2e85c69cbca5f24c7e899eb3bc69cc1c2bfac97"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/security-spec.md",
+      "sha256": "e86aac2fb2c553d80dc87d48bb85cad87d7f229f1fa3eaaeffa3adb6f1c2e92e"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/tasks.md",
+      "sha256": "76653d907ca05d6f3350cfaf622def5ed4cbf39b9df989506feaa792238f50f9"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/traceability.md",
+      "sha256": "52ec15a9ea970fbe02faab55c680a0815089cde7e323e97ffa94c426959978b6"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/ux-spec.md",
+      "sha256": "da99611776c6bbdcc347f3aeb5b2127fe8f657c5b0eff7e771a009a4483b84c5"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-005/ci-registration-draft.md",
+      "sha256": "45b4661a48cebaac48a5679e1268e773a497f21a9efe658ec898c7605795a99a"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-005/green-ps1.log",
+      "sha256": "28c86bf6ebd48e0ad90e22262dff59d1ecd73474a91b2e5e3a43f46d4e3a8daf"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-005/green-sh.log",
+      "sha256": "922ad33e3487d0ac0485834cec5a941e9197b36451fcced1e25354d4acc8455b"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-005/red-ps1.log",
+      "sha256": "de05066e8df11697f40ed59905f375f0a372447c4337cdf0e423ff9a0daef67c"
+    },
+    {
+      "path": "specs/epic-190-a2-capability-registry/verification/T-005/red-sh.log",
+      "sha256": "44b6cc712a23732441b1a9c117719525b0f608eb421eb9b12d81d57bfb157b55"
+    },
+    {
+      "path": "tests/generate-registry-digest.tests.ps1",
+      "sha256": "8a4e09a23b5a0f30df6f412de5e9dd32c5421d37b3461ad89020af602c32fa91"
+    },
+    {
+      "path": "tests/generate-registry-digest.tests.sh",
+      "sha256": "ce283e315c687b6ab0e83d8789cb226ed4c9df0152217e4230ddecc251d64fa5"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "2bb23baf4dcd7173972078679a89be01f2de3cf8e53aa6325864e55be3928628"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "99dbb3515fabe6d7b90f0d4106f2be7dd3d22ef085098893d799fbf67a15e9f8"
+    }
+  ]
+}

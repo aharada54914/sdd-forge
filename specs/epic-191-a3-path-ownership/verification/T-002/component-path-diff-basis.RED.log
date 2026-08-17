@@ -1,0 +1,276 @@
+TDD RED evidence for T-002 (tests/component-path-diff-basis.tests.sh),
+captured post-hoc during quality-gate remediation
+(reports/quality-gate/20260809T074500Z-epic-191-a3-path-ownership-T-002.md
+Critical finding: implementation, tests, and GREEN logs landed together in a
+single commit `ef151bdd`, with no RED commit anywhere in this feature's
+history for this suite).
+
+Methodology: rather than fabricate a RED log by editing a GREEN one, this
+captures GENUINE red runs against `resolve-component-paths.py` with one
+fail-closed check deliberately removed at a time -- reproducing, for real,
+the state this suite would have observed before each corresponding
+fail-closed clause existed. Each of the 5 named fail-closed axes
+(unresolvable rev, invalid UTF-8, rename-limit-exceeded, TOCTOU,
+submodule/symlink reference-only) is isolated in its own run against an
+otherwise-correct implementation, then reverted before the next run, so each
+run's failure is attributable to exactly one removed check and not to
+interaction between multiple simultaneous defects. `git diff --stat` was
+confirmed empty (implementation byte-identical to the real, correct,
+currently-shipping code) both before this sequence started and after each
+individual revert -- the product code that ships is untouched by this
+evidence-capture process.
+
+Every run below is the REAL suite (tests/component-path-diff-basis.tests.sh)
+executed against the REAL CLI dispatcher (resolve-component-paths.sh ->
+resolve-component-paths.py on this host), not a hand-edited transcript.
+Axes 3 and 4 abort partway through the suite: their corresponding assertions
+(TEST-023.2, TEST-025.2) are direct unit tests invoked without an `if`
+guard in the suite script, so under `set -euo pipefail` a non-zero exit from
+that direct invocation terminates the whole script immediately -- this is
+itself genuine, reproducible behavior of the suite as authored, not an
+artifact of this capture process.
+
+STALENESS LABEL (added during cycle-3 remediation, 2026-08-09): this capture
+predates commit `83561379` ("close the two defects found in passing and left
+unfixed"), which added the DEFECT-002 tab-indentation-guard axis (REQ-001) to
+this suite. Every per-axis transcript below, and the final confirmation, are
+therefore against the suite's PRE-DEFECT-002 baseline of 17 total assertions
+(16 passed + 1 failed per mutated axis; 17 passed + 0 failed at rest) -- none
+of them include a "=== DEFECT-002 ===" block, and that omission is correct
+for what this file actually captured, not a defect in this file. The
+evidence for axes 1/2/3/4/5 (TEST-019/021/023/024/025) below is still
+historically accurate for the suite shape at the time it was captured and is
+not being rewritten. It does not exercise DEFECT-002.1, which did not exist
+yet. For a RED capture against the CURRENT 18-assertion baseline (including
+DEFECT-002.1 in every transcript), see the sibling
+`component-path-diff-basis-ps1.RED.log`, which was re-captured after
+DEFECT-002 landed.
+
+================================================================================
+AXIS 1 of 5: unresolvable rev (AC-019)
+Mutation: resolve_commit_oid()'s `if code != 0: raise GitDiffError(...)`
+check removed (resolve-component-paths.py, function resolve_commit_oid).
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+FAIL: TEST-019.2: expected non-zero exit + diagnostic, got exit=1 err=resolve-component-paths: no merge-base between 9a65880b3edcd5316689874b7b95171e7917ff23 and  (unrelated histories?): fatal: Not a valid object name
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported as a change
+ok: TEST-024.2: a submodule gitlink OID change (pointer bump) IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path (reference-only, never dereferenced)
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the (untouched) symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds (no retry needed)
+OK: collect_changed_paths retries exactly once then fails closed on a persistent mismatch
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1
+
+Results: 16 passed, 1 failed.
+exit=1
+
+Note: the failure surfaces as a WRONG diagnostic ("no merge-base ...") from
+the downstream compute_merge_base() check rather than as a clean success --
+this is the genuine, honest consequence of removing only the
+"unresolvable rev" fail-closed check while leaving the sibling
+"no merge-base" check intact: the bogus rev's oid resolves to an empty
+string instead of raising, which then fails a *different* fail-closed check
+with the *wrong* message, exactly the kind of undiagnosable failure the
+removed check exists to prevent. TEST-019.2 correctly identifies this as a
+regression (grep for "unresolvable rev" does not match).
+
+Reverted after this run; confirmed via `git diff --stat` (empty) and a
+follow-up green run (17 passed, 0 failed) before starting axis 2.
+
+================================================================================
+AXIS 2 of 5: invalid UTF-8 (AC-021)
+Mutation: _decode_path_strict()'s `except UnicodeDecodeError: raise
+GitDiffError(...)` replaced with `raw.decode("utf-8", "replace")` (silent
+replacement instead of failing closed).
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+FAIL: expected GitDiffError for invalid UTF-8 bytes
+FAIL: TEST-021.2: _decode_path_strict did not fail closed on invalid UTF-8 bytes as expected
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported as a change
+ok: TEST-024.2: a submodule gitlink OID change (pointer bump) IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path (reference-only, never dereferenced)
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the (untouched) symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds (no retry needed)
+OK: collect_changed_paths retries exactly once then fails closed on a persistent mismatch
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1
+
+Results: 16 passed, 1 failed.
+exit=1
+
+Reverted after this run; confirmed via `git diff --stat` (empty).
+
+================================================================================
+AXIS 3 of 5: rename-limit-exceeded (AC-023)
+Mutation: collect_tracked_diff()'s `if "too many files" in err_text or
+"rename detection was skipped" in err_text: raise GitDiffError(...)` block
+removed (resolve-component-paths.py, function collect_tracked_diff).
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+FAIL: expected GitDiffError
+exit=1
+
+The suite aborts here (`set -euo pipefail`): TEST-023.2's python3 unit-test
+invocation is not wrapped in an `if` guard in the suite script, so its
+non-zero exit terminates the whole run immediately after printing this
+"FAIL" line, before the suite's own `ok "TEST-023.2: ..."` /
+`fail "TEST-023.2: ..."` wrapper or the final Results summary ever execute.
+This is genuine behavior of the suite as authored (confirmed unchanged by
+this remediation), not truncation by this capture process -- it is itself
+proof the axis's own regression is caught, just via an abrupt script exit
+rather than a tallied FAIL line.
+
+Reverted after this run; confirmed via `git diff --stat` (empty) and a
+follow-up green run (17 passed, 0 failed) before starting axis 4.
+
+================================================================================
+AXIS 4 of 5: single-writer/TOCTOU (AC-025)
+Mutation: collect_changed_paths()'s fingerprint-capture/retry-once-then-
+fail-closed loop removed; reduced to a single unguarded pass (resolve-
+component-paths.py, function collect_changed_paths).
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported as a change
+ok: TEST-024.2: a submodule gitlink OID change (pointer bump) IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path (reference-only, never dereferenced)
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the (untouched) symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds (no retry needed)
+FAIL: expected GitDiffError after a persistent fingerprint mismatch
+exit=1
+
+The suite aborts here for the same reason as axis 3: TEST-025.2's python3
+unit-test invocation is unguarded, so `set -e` terminates the run
+immediately after this FAIL line. Genuine: with the retry loop removed,
+collect_changed_paths() never calls the monkeypatched
+`_capture_fingerprint` at all, so the always-different fingerprint the test
+injects is never observed and no exception is raised -- exactly the silent
+"return a mixed-snapshot result instead of failing closed" defect this axis
+exists to prevent.
+
+Reverted after this run; confirmed via `git diff --stat` (empty) and a
+follow-up green run (17 passed, 0 failed) before starting axis 5.
+
+================================================================================
+AXIS 5 of 5: submodule/symlink reference-only (AC-024)
+Mutation: `--ignore-submodules=dirty` removed from collect_tracked_diff()'s
+`git diff` invocation (resolve-component-paths.py, function
+collect_tracked_diff).
+================================================================================
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+FAIL: TEST-024.1: expected no record for vendor/inner, got: {
+  "classification": "UNOWNED",
+  "evidence": {
+    "excluded_match": null
+  },
+  "normalized_path": "vendor/inner",
+  "owning_components": [],
+  "raw_path": "vendor/inner"
+}
+ok: TEST-024.2: a submodule gitlink OID change (pointer bump) IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path (reference-only, never dereferenced)
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the (untouched) symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds (no retry needed)
+OK: collect_changed_paths retries exactly once then fails closed on a persistent mismatch
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1
+
+Results: 16 passed, 1 failed.
+exit=1
+
+Reverted after this run; confirmed via `git diff --stat` (empty).
+
+================================================================================
+Final confirmation: `git diff --stat
+plugins/sdd-quality-loop/scripts/resolve-component-paths.py` is empty (the
+shipping implementation was never left mutated), and the unmodified suite
+reruns clean:
+
+Results: 17 passed, 0 failed.
+================================================================================

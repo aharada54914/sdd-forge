@@ -1,0 +1,1200 @@
+#!/usr/bin/env bash
+# component-path-resolver.tests.sh — epic-191-a3-path-ownership T-001.
+# Exercises resolve-component-paths.sh (the dispatcher; goes through
+# resolve-component-paths.py on any host with python3) against the fixture
+# tree at tests/fixtures/component-path-ownership/, independently proving
+# each glob-matching clause id (REQ-001, AC-001..AC-011) and each
+# classification/Fail rule (REQ-002, AC-012..AC-018), per
+# specs/epic-191-a3-path-ownership/tasks.md T-001 Done When.
+#
+# TEST-011 schema conformance is fail-closed: both the JSON Schema contract
+# and its canonical YAML template must exist and match the parser contract.
+set -euo pipefail
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+SCRIPT="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/resolve-component-paths.sh"
+FIXTURES="${REPO_ROOT}/tests/fixtures/component-path-ownership"
+PASS=0
+FAIL=0
+
+ok()   { echo "ok: $*";   PASS=$((PASS+1)); }
+fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
+
+# jq output is unconditionally scrubbed of CR bytes per Global Constraints'
+# CI-resilience convention (Windows-authored fixture round-trips).
+jqf() { jq "$@" | tr -d '\r'; }
+
+resolve() {
+  # $1 = config path, $2 = changed-paths file (may not exist -> stdin empty)
+  if [ -f "$2" ]; then
+    "$SCRIPT" --config "$1" --changed-paths-file "$2"
+  else
+    printf '' | "$SCRIPT" --config "$1"
+  fi
+}
+
+classification_of() {
+  # $1 = json output, $2 = raw_path
+  printf '%s' "$1" | jqf -r --arg p "$2" '.records[] | select(.raw_path == $p) | .classification'
+}
+
+# ============================================================================
+# TEST-001 (AC-001): ** crosses "/" boundaries, including the direct case
+# ============================================================================
+echo "=== TEST-001: ** crosses / boundaries ==="
+out=$(resolve "${FIXTURES}/test-001-doublestar/config.yaml" "${FIXTURES}/test-001-doublestar/changed-paths.txt")
+[ "$(classification_of "$out" "src/desktop/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-001.1: src/desktop/** matches src/desktop/file.ts (direct child)" \
+  || fail "TEST-001.1: expected EXCLUSIVE for src/desktop/file.ts"
+[ "$(classification_of "$out" "src/desktop/sub/deep/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-001.2: src/desktop/** matches src/desktop/sub/deep/file.ts (nested, crosses /)" \
+  || fail "TEST-001.2: expected EXCLUSIVE for nested path"
+
+# ============================================================================
+# TEST-002 (AC-002): bare * confined to one segment, never crosses "/"
+# ============================================================================
+echo "=== TEST-002: bare * confined to one path segment ==="
+out=$(resolve "${FIXTURES}/test-002-singlestar/config.yaml" "${FIXTURES}/test-002-singlestar/changed-paths.txt")
+[ "$(classification_of "$out" "src/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-002.1: src/*.ts matches src/file.ts" \
+  || fail "TEST-002.1: expected EXCLUSIVE for src/file.ts"
+[ "$(classification_of "$out" "src/sub/file.ts")" = "UNOWNED" ] \
+  && ok "TEST-002.2: src/*.ts does NOT match src/sub/file.ts (bare * never crosses /)" \
+  || fail "TEST-002.2: expected UNOWNED for src/sub/file.ts"
+
+# TEST-002.3..002.5: the only bare-`*` pattern above is "src/*.ts", where the
+# `*` sits at the end of a segment (matching zero-or-more non-"/" chars up to
+# the extension). That leaves the "`*` as its own whole segment" shape
+# (`src/*/file.ts`) completely unexercised, so a mutation at
+# resolve-component-paths.py:333 (`if seg == "**":`) that also accepts a
+# lone `seg == "*"` -- making a bare `*` segment cross "/" and match a
+# zero-or-more-segments span exactly like "**" -- reproduces TEST-002.1/.2's
+# expected output unchanged and survives undetected. This fixture uses
+# "src/*/file.ts" and asserts all three segment-count cases the mutation
+# would flip: exactly one intervening segment must match (bare `*` matches
+# one segment), zero and two intervening segments must not.
+out=$(resolve "${FIXTURES}/test-002b-star-one-segment/config.yaml" "${FIXTURES}/test-002b-star-one-segment/changed-paths.txt")
+[ "$(classification_of "$out" "src/a/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-002.3: src/*/file.ts matches src/a/file.ts (exactly one intervening segment)" \
+  || fail "TEST-002.3: expected EXCLUSIVE for src/a/file.ts"
+[ "$(classification_of "$out" "src/a/b/file.ts")" = "UNOWNED" ] \
+  && ok "TEST-002.4: src/*/file.ts does NOT match src/a/b/file.ts (bare * segment does not cross /, unlike **)" \
+  || fail "TEST-002.4: expected UNOWNED for src/a/b/file.ts"
+[ "$(classification_of "$out" "src/file.ts")" = "UNOWNED" ] \
+  && ok "TEST-002.5: src/*/file.ts does NOT match src/file.ts (bare * segment requires exactly one segment, unlike **'s zero-segment case)" \
+  || fail "TEST-002.5: expected UNOWNED for src/file.ts"
+
+# ============================================================================
+# TEST-003 (AC-003): backslash-authored pattern normalizes identically to /
+# ============================================================================
+echo "=== TEST-003: backslash pattern normalization ==="
+out=$(resolve "${FIXTURES}/test-003-backslash/config.yaml" "${FIXTURES}/test-003-backslash/changed-paths.txt")
+[ "$(classification_of "$out" "src/desktop/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-003.1: backslash-separated pattern matches slash-separated path" \
+  || fail "TEST-003.1: expected EXCLUSIVE via backslash-normalized pattern"
+
+# ============================================================================
+# TEST-004 (AC-004): NFD-encoded path matches NFC-encoded pattern (matching
+# only — see TEST-010 for raw-identity preservation)
+# ============================================================================
+echo "=== TEST-004: NFC-normalized matching ==="
+out=$(resolve "${FIXTURES}/test-004-nfc-match/config.yaml" "${FIXTURES}/test-004-nfc-match/changed-paths.txt")
+count=$(printf '%s' "$out" | jqf -r '.records | length')
+cls=$(printf '%s' "$out" | jqf -r '.records[0].classification')
+[ "$count" = "1" ] && [ "$cls" = "EXCLUSIVE" ] \
+  && ok "TEST-004.1: NFD-encoded raw path matches NFC-encoded 'café/**' pattern" \
+  || fail "TEST-004.1: expected exactly 1 EXCLUSIVE record, got count=$count cls=$cls"
+
+# ============================================================================
+# TEST-005 (AC-005): byte-wise case-sensitive matching regardless of host OS
+# ============================================================================
+echo "=== TEST-005: case-sensitive matching ==="
+out=$(resolve "${FIXTURES}/test-005-case-sensitive/config.yaml" "${FIXTURES}/test-005-case-sensitive/changed-paths.txt")
+[ "$(classification_of "$out" "Src/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-005.1: 'Src/**' matches 'Src/file.ts'" \
+  || fail "TEST-005.1: expected EXCLUSIVE for Src/file.ts"
+[ "$(classification_of "$out" "src/file.ts")" = "UNOWNED" ] \
+  && ok "TEST-005.2: 'Src/**' does NOT match 'src/file.ts' (case differs)" \
+  || fail "TEST-005.2: expected UNOWNED for src/file.ts (case-sensitive miss)"
+
+# ============================================================================
+# TEST-006 (AC-006): unsupported glob metacharacters rejected fail-closed at
+# config-load time
+# ============================================================================
+echo "=== TEST-006: unsupported metacharacter rejected fail-closed ==="
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-006-unsupported-metachar/config.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "unsupported glob metacharacter"; then
+  ok "TEST-006.1: '[abc]' pattern rejected fail-closed at load time (exit $code)"
+else
+  fail "TEST-006.1: expected non-zero exit + diagnostic, got exit=$code err=$err"
+fi
+
+QUESTION_CONFIG=$(mktemp)
+printf '%s\n' 'components:' '  - id: c1' '    paths:' '      include:' '        - "src/?.ts"' > "$QUESTION_CONFIG"
+set +e
+err=$(printf '' | "$SCRIPT" --config "$QUESTION_CONFIG" 2>&1)
+code=$?
+set -e
+rm -f "$QUESTION_CONFIG"
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "unsupported glob metacharacter"; then
+  ok "TEST-006.2: '?' pattern rejected fail-closed at load time (exit $code)"
+else
+  fail "TEST-006.2: expected non-zero exit + diagnostic, got exit=$code err=$err"
+fi
+
+# ============================================================================
+# TEST-007 (AC-007): "**" zero-segment case — a/**/b matches literal a/b
+# ============================================================================
+echo "=== TEST-007: ** zero-segment case ==="
+out=$(resolve "${FIXTURES}/test-007-zero-segment/config.yaml" "${FIXTURES}/test-007-zero-segment/changed-paths.txt")
+[ "$(classification_of "$out" "a/b")" = "EXCLUSIVE" ] \
+  && ok "TEST-007.1: 'a/**/b' matches literal 'a/b' (zero intervening segments)" \
+  || fail "TEST-007.1: expected EXCLUSIVE for a/b"
+[ "$(classification_of "$out" "a/x/b")" = "EXCLUSIVE" ] \
+  && ok "TEST-007.2: 'a/**/b' also matches 'a/x/b' (one intervening segment)" \
+  || fail "TEST-007.2: expected EXCLUSIVE for a/x/b"
+[ "$(classification_of "$out" "a/c")" = "UNOWNED" ] \
+  && ok "TEST-007.3: 'a/**/b' does not match unrelated 'a/c'" \
+  || fail "TEST-007.3: expected UNOWNED for a/c"
+
+# ============================================================================
+# TEST-008 (AC-008): empty changed-paths resolves vacuously; a component
+# with an empty include list is a config-load-time error (never conflated
+# with a runtime UNOWNED result)
+# ============================================================================
+echo "=== TEST-008: empty-set clauses ==="
+out=$(resolve "${FIXTURES}/test-008-empty-sets/config.yaml" "${FIXTURES}/test-008-empty-sets/changed-paths.txt")
+count=$(printf '%s' "$out" | jqf -r '.records | length')
+[ "$count" = "0" ] \
+  && ok "TEST-008.1: empty changed-paths diff resolves vacuously (0 records, no error)" \
+  || fail "TEST-008.1: expected 0 records for empty diff, got $count"
+
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-008-empty-include/config.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "empty paths.include"; then
+  ok "TEST-008.2: component with empty include list is a config-load-time error"
+else
+  fail "TEST-008.2: expected non-zero exit + empty-include diagnostic, got exit=$code err=$err"
+fi
+
+# ============================================================================
+# TEST-009 (AC-009): a shared_paths entry matching zero changed paths in a
+# given resolve triggers no crash / no special record (Fail-4 needs an
+# actual match — Fail-4 itself is T-004's Gate concern, not this resolver's)
+# ============================================================================
+echo "=== TEST-009: shared_paths zero-match this resolve ==="
+out=$(resolve "${FIXTURES}/test-009-shared-zero-match/config.yaml" "${FIXTURES}/test-009-shared-zero-match/changed-paths.txt")
+[ "$(classification_of "$out" "a/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-009.1: a shared_paths entry that matches nothing this resolve does not disturb ordinary classification" \
+  || fail "TEST-009.1: expected EXCLUSIVE for a/file.ts"
+
+# ============================================================================
+# TEST-010 (AC-010): NFC-collision fail-closed + raw-identity preservation +
+# stable sort over raw path bytes
+# ============================================================================
+echo "=== TEST-010: NFC collision, raw identity, stable sort ==="
+set +e
+err=$(resolve "${FIXTURES}/test-010-nfc-collision/config.yaml" "${FIXTURES}/test-010-nfc-collision/changed-paths.txt" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "NFC-normalization collision"; then
+  ok "TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed"
+else
+  fail "TEST-010.1: expected non-zero exit + collision diagnostic, got exit=$code err=$err"
+fi
+
+out=$(resolve "${FIXTURES}/test-004-nfc-match/config.yaml" "${FIXTURES}/test-004-nfc-match/changed-paths.txt")
+# `jq -r` always appends its own trailing newline to raw string output; the
+# fixture file's single line also ends in one trailing "\n" byte — so
+# comparing both od dumps as-is (neither side stripped) is the correct,
+# symmetric byte comparison here.
+raw_bytes=$(printf '%s' "$out" | jqf -r '.records[0].raw_path' | od -An -tx1 | tr -d ' \n')
+orig_bytes=$(od -An -tx1 "${FIXTURES}/test-004-nfc-match/changed-paths.txt" | tr -d ' \n')
+if [ "$raw_bytes" = "$orig_bytes" ]; then
+  ok "TEST-010.2: output raw_path preserves the original NFD byte sequence exactly (not the NFC comparison key)"
+else
+  fail "TEST-010.2: raw_path bytes diverged from the source fixture's original bytes"
+fi
+
+out=$(resolve "${FIXTURES}/test-010b-stable-sort/config.yaml" "${FIXTURES}/test-010b-stable-sort/changed-paths.txt")
+order=$(printf '%s' "$out" | jqf -r '[.records[].raw_path] | join(",")')
+# The fixture's "e<COMBINING ACUTE ACCENT>/a.ts" entry is NFD-encoded (raw
+# bytes 65 cc 81), distinct from the fixture's other non-ASCII entry
+# "é/nonascii.ts" which is precomposed NFC (raw bytes c3 a9). Without an NFD
+# entry, raw-byte order and NFC-normalized order are indistinguishable for
+# this fixture (every other byte here sorts identically either way) and the
+# sort key at resolve-component-paths.py:596 could be swapped from
+# `raw_path` to `normalized_path` undetected: normalizing the NFD entry to
+# NFC would move it from between "a/lower.ts" and "f/b.ts" (raw order) to
+# after "z/last.ts" (NFC order, since C3 > 0x7A), inverting its position
+# relative to "f/b.ts". Both non-ASCII byte sequences are built via printf
+# hex escapes rather than typed directly, so this source file stays 7-bit
+# ASCII and the two forms cannot be silently re-normalized by an editor.
+expected=$(printf 'A/upper.ts,a/lower.ts,e\xcc\x81/a.ts,f/b.ts,z/last.ts,\xc3\xa9/nonascii.ts')
+[ "$order" = "$expected" ] \
+  && ok "TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes (incl. an NFD/NFC-distinguishing pair)" \
+  || fail "TEST-010.3: expected raw UTF-8 byte order '$expected', got '$order'"
+
+# ============================================================================
+# TEST-011 (AC-011): A1 schema conformance — FAIL-closed on absence, never a
+# skip; validates field-name/type/version conformance when present.
+# ============================================================================
+echo "=== TEST-011: A1 schema-conformance fixture ==="
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance --schema "${FIXTURES}/nonexistent-schema.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.1: schema-conformance check reports fail-closed non-zero when the artifact is absent (behavior proof)"
+else
+  fail "TEST-011.1: expected non-zero + conformant:false for an absent schema artifact"
+fi
+
+CONFORMANT_SCHEMA="$(mktemp -d)"
+CONFORMANT_SCHEMA_ROOT="$(cd "$CONFORMANT_SCHEMA" && pwd -P)"
+cat > "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" << 'EOF'
+schema: sdd-project-context/v1
+components: []
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "contracts/**"
+    components:
+      - example
+EOF
+cat > "${CONFORMANT_SCHEMA_ROOT}/schema.json" << 'EOF'
+{
+  "properties": {
+    "schema": {"const": "sdd-project-context/v1"},
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "paths"],
+        "properties": {
+          "id": {"type": "string"},
+          "paths": {"type": "object", "properties": {
+            "include": {"type": "array", "items": {"type": "string"}},
+            "exclude": {"type": "array", "items": {"type": "string"}}
+          }}
+        }
+      }
+    },
+    "shared_paths": {"type": "array", "items": {
+      "type": "object",
+      "required": ["pattern"],
+      "oneOf": [
+        {"required": ["components"], "properties": {"components": {"type": "array", "items": {"type": "string"}}}},
+        {"required": ["classification"], "properties": {"classification": {"const": "cross-cutting"}}}
+      ]
+    }}
+  }
+}
+EOF
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/schema.json" 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 0 ] && printf '%s' "$out" | grep -q '"conformant": true'; then
+  ok "TEST-011.2: exact schema version/types and canonical components: [] report conformant:true"
+else
+  fail "TEST-011.2: expected exact version/types plus components: [] to conform, got code=$code out=$out"
+fi
+
+sed 's/sdd-project-context\/v1/sdd-project-context\/v2/' \
+  "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" > "${CONFORMANT_SCHEMA_ROOT}/wrong-version.yaml"
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/wrong-version.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/schema.json" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.2a: wrong project-context schema version is rejected fail-closed"
+else
+  fail "TEST-011.2a: wrong project-context schema version was not rejected"
+fi
+
+sed 's/"type": "string"/"type": "number"/' \
+  "${CONFORMANT_SCHEMA_ROOT}/schema.json" > "${CONFORMANT_SCHEMA_ROOT}/wrong-types.json"
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/wrong-types.json" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.2b: divergent project-context field types are rejected fail-closed"
+else
+  fail "TEST-011.2b: divergent project-context field types were not rejected"
+fi
+
+sed 's/"id":/"ID":/' \
+  "${CONFORMANT_SCHEMA_ROOT}/schema.json" > "${CONFORMANT_SCHEMA_ROOT}/wrong-field-name.json"
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/wrong-field-name.json" 2>&1)
+code=$?
+set -e
+rm -rf "$CONFORMANT_SCHEMA_ROOT"
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed"
+else
+  fail "TEST-011.2c: mis-cased schema-contract field name was not rejected"
+fi
+
+# TEST-011.3 — Epic A1's canonical artifacts have LANDED (merged to main),
+# so this is now an ordinary green assertion on the real contract, not the
+# documented expected-RED it was while A1 was outstanding. AC-011 still
+# requires it to FAIL closed (never skip, never pass via a stand-in) if the
+# artifact ever goes missing again — TEST-011.6 below is the positive
+# control proving that fail-closed path is still live.
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 0 ]; then
+  ok "TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract"
+else
+  fail "TEST-011.3: A1's landed template no longer conforms: $out"
+fi
+
+# TEST-011.4 (AC-011) — the substantive schema-conformance assertion: A1's
+# template is validated as an INSTANCE against contracts/project-context.schema.json,
+# not merely parsed and shape-checked. Before this, no A3 script referenced
+# A1's JSON Schema at all, so AC-011's "schema conformance" framing was
+# never actually performed.
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 0 ] && printf '%s' "$out" | grep -q 'validates against contracts/project-context.schema.json'; then
+  ok "TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json"
+else
+  fail "TEST-011.4: schema-conformance did not perform instance validation against A1's JSON Schema: $out"
+fi
+
+# TEST-011.5 (AC-011) — negative control for TEST-011.4: an instance that
+# violates A1's schema is rejected fail-closed. Uses the exact legacy shape
+# this epic diverged on (`name` instead of A1's required `id`, which A1
+# rejects under "additionalProperties": false).
+INSTANCE_VIOLATION=$(mktemp)
+cat > "$INSTANCE_VIOLATION" << 'EOF'
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: advisory
+components:
+  - name: legacy-keyed-component
+    paths:
+      include:
+        - "src/c1/**"
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+EOF
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance --schema "$INSTANCE_VIOLATION" 2>&1)
+code=$?
+set -e
+rm -f "$INSTANCE_VIOLATION"
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q "missing required field 'id'"; then
+  ok "TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed"
+else
+  fail "TEST-011.5: a schema-violating instance was not rejected: $out"
+fi
+
+# TEST-011.6 (AC-011) — positive control that the FAIL-closed-on-absence
+# discipline is still live now that the artifact exists (the old inline
+# `[ ! -f ]` expected-failure branches are gone; absence must still be red,
+# never a skip).
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${REPO_ROOT}/contracts/does-not-exist.template.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.6: an absent schema artifact still FAILS closed (never a skip)"
+else
+  fail "TEST-011.6: absent schema artifact did not fail closed: $out"
+fi
+
+# TEST-011.7: the ordinary resolve path enforces A1's canonical `id` field,
+# not only the special schema-conformance path.
+LEGACY_CONFIG_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/component-path-legacy.XXXXXX")
+legacy_key='na'
+legacy_key="${legacy_key}me"
+cat > "${LEGACY_CONFIG_ROOT}/config.yaml" <<EOF
+schema: sdd-project-context/v1
+components:
+  - ${legacy_key}: legacy-component
+    paths:
+      include:
+        - "src/**"
+shared_paths: []
+EOF
+set +e
+out=$(printf '' | "$SCRIPT" --config "${LEGACY_CONFIG_ROOT}/config.yaml" 2>&1)
+code=$?
+set -e
+rm -rf "$LEGACY_CONFIG_ROOT"
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q "legacy 'name' is not supported"; then
+  ok "TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field"
+else
+  fail "TEST-011.7: ordinary resolve accepted legacy name, exit=$code out=$out"
+fi
+
+# TEST-011.8: the canonical declaration is preserved in ownership_input for
+# the later digest-binding task; it must not be rewritten to the pre-A1 key.
+out=$(resolve "${FIXTURES}/test-012-exclusive/config.yaml" "${FIXTURES}/test-012-exclusive/changed-paths.txt")
+if printf '%s' "$out" | jqf -e '.ownership_input.components[0] | has("id") and (has("na" + "me") | not)' >/dev/null; then
+  ok "TEST-011.8: ownership_input preserves canonical component id"
+else
+  fail "TEST-011.8: ownership_input rewrote canonical component id: $out"
+fi
+
+# ============================================================================
+# TEST-012 (AC-012): single-component (include - exclude) match -> EXCLUSIVE
+# ============================================================================
+echo "=== TEST-012: EXCLUSIVE classification ==="
+out=$(resolve "${FIXTURES}/test-012-exclusive/config.yaml" "${FIXTURES}/test-012-exclusive/changed-paths.txt")
+[ "$(classification_of "$out" "src/c1/file.ts")" = "EXCLUSIVE" ] \
+  && ok "TEST-012.1: single-component match classifies EXCLUSIVE" \
+  || fail "TEST-012.1: expected EXCLUSIVE"
+owner=$(printf '%s' "$out" | jqf -r '.records[0].owning_components[0]')
+[ "$owner" = "c1" ] \
+  && ok "TEST-012.2: EXCLUSIVE record names the owning component" \
+  || fail "TEST-012.2: expected owning_components == [c1], got $owner"
+
+# ============================================================================
+# TEST-013/TEST-014 (AC-013/AC-014): Fail-5 exclude-as-include invariant +
+# EXCLUDED_MATCH evidence tag
+# ============================================================================
+echo "=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ==="
+out=$(resolve "${FIXTURES}/test-013-014-exclude-invariant/config.yaml" "${FIXTURES}/test-013-014-exclude-invariant/changed-paths.txt")
+[ "$(classification_of "$out" "src/c1/generated/x.ts")" = "UNOWNED" ] \
+  && ok "TEST-013.1: a path inside C's own exclude is never attributed to C, even though include also matched" \
+  || fail "TEST-013.1: expected UNOWNED (Fail-5 invariant)"
+evidence_comp=$(printf '%s' "$out" | jqf -r '.records[0].evidence.excluded_match[0].component')
+evidence_pattern=$(printf '%s' "$out" | jqf -r '.records[0].evidence.excluded_match[0].pattern')
+[ "$evidence_comp" = "c1" ] && [ "$evidence_pattern" = "src/c1/generated/**" ] \
+  && ok "TEST-014.1: the UNOWNED record carries an EXCLUDED_MATCH evidence tag naming the excluding component + pattern" \
+  || fail "TEST-014.1: expected excluded_match evidence [c1, src/c1/generated/**], got [$evidence_comp, $evidence_pattern]"
+
+# ============================================================================
+# TEST-015 (AC-015): zero-component match, no shared_paths -> UNOWNED
+# (ordinary case: no EXCLUDED_MATCH evidence, since no include ever matched)
+# ============================================================================
+echo "=== TEST-015: UNOWNED (Fail-1), ordinary case ==="
+out=$(resolve "${FIXTURES}/test-015-unowned/config.yaml" "${FIXTURES}/test-015-unowned/changed-paths.txt")
+[ "$(classification_of "$out" "unrelated/file.txt")" = "UNOWNED" ] \
+  && ok "TEST-015.1: a path matching no component's include classifies UNOWNED" \
+  || fail "TEST-015.1: expected UNOWNED"
+evidence=$(printf '%s' "$out" | jqf -r '.records[0].evidence.excluded_match')
+[ "$evidence" = "null" ] \
+  && ok "TEST-015.2: an ordinary UNOWNED record (no include ever matched) carries no EXCLUDED_MATCH evidence" \
+  || fail "TEST-015.2: expected excluded_match == null, got $evidence"
+
+# ============================================================================
+# TEST-016 (AC-016): two-or-more-component match, no shared_paths -> OVERLAP
+# ============================================================================
+echo "=== TEST-016: OVERLAP (Fail-3) ==="
+out=$(resolve "${FIXTURES}/test-016-overlap/config.yaml" "${FIXTURES}/test-016-overlap/changed-paths.txt")
+[ "$(classification_of "$out" "shared/x.ts")" = "OVERLAP" ] \
+  && ok "TEST-016.1: a path matching two components' include classifies OVERLAP" \
+  || fail "TEST-016.1: expected OVERLAP"
+owners=$(printf '%s' "$out" | jqf -c -r '.records[0].owning_components | sort')
+[ "$owners" = '["c1","c2"]' ] \
+  && ok "TEST-016.2: OVERLAP record names every residual owner" \
+  || fail "TEST-016.2: expected owning_components == [c1,c2], got $owners"
+
+# ============================================================================
+# TEST-017 (AC-017): shared_paths match exempts from OVERLAP/UNOWNED
+# classification regardless of how many component includes also match
+# ============================================================================
+echo "=== TEST-017: shared_paths exemption ==="
+out=$(resolve "${FIXTURES}/test-017-shared-exempt/config.yaml" "${FIXTURES}/test-017-shared-exempt/changed-paths.txt")
+[ "$(classification_of "$out" "contracts/zero.json")" = "SHARED_CROSS_CUTTING" ] \
+  && ok "TEST-017.1: shared_paths precedence applies with zero matching component includes" \
+  || fail "TEST-017.1: expected SHARED_CROSS_CUTTING with zero owners"
+[ "$(classification_of "$out" "contracts/one/schema.json")" = "SHARED_CROSS_CUTTING" ] \
+  && ok "TEST-017.2: shared_paths precedence applies with one matching component include" \
+  || fail "TEST-017.2: expected SHARED_CROSS_CUTTING with one owner"
+[ "$(classification_of "$out" "contracts/two/schema.json")" = "SHARED_CROSS_CUTTING" ] \
+  && ok "TEST-017.3: shared_paths precedence applies with two matching component includes" \
+  || fail "TEST-017.3: expected SHARED_CROSS_CUTTING with two owners"
+
+# ============================================================================
+# TEST-018 (AC-018): shared_paths both-or-neither shape is a fail-closed
+# configuration error, distinct from the six Gate Fail conditions
+# ============================================================================
+echo "=== TEST-018: shared_paths shape fail-closed ==="
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-018-shared-shape-error/config-both.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "never both or neither"; then
+  ok "TEST-018.1: shared_paths entry with BOTH components and classification is rejected fail-closed"
+else
+  fail "TEST-018.1: expected non-zero exit + shape diagnostic, got exit=$code err=$err"
+fi
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-018-shared-shape-error/config-neither.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "never both or neither"; then
+  ok "TEST-018.2: shared_paths entry with NEITHER components nor classification is rejected fail-closed"
+else
+  fail "TEST-018.2: expected non-zero exit + shape diagnostic, got exit=$code err=$err"
+fi
+
+# WFI-012 operator-layer negative: the Python master compares the contract
+# literal case-sensitively, so the PowerShell twin must not accept this input
+# through its default case-insensitive -eq/-ne behavior.
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-018-shared-shape-error/config-miscased-classification.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "unsupported classification"; then
+  ok "TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed"
+else
+  fail "TEST-018.3: expected exact-case classification rejection, got exit=$code err=$err"
+fi
+
+# WFI-012 language-feature negative: PowerShell's [ordered] map is
+# case-insensitive unless constructed with an ordinal comparer. A mis-cased
+# contract field must therefore be rejected explicitly by both twins.
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-018-shared-shape-error/config-miscased-components.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "config.components must be a list"; then
+  ok "TEST-018.4: mis-cased Components field is rejected fail-closed"
+else
+  fail "TEST-018.4: expected exact-case field-name rejection, got exit=$code err=$err"
+fi
+
+# ============================================================================
+# TEST-042/043/044 (AC-042/043/044, REQ-006, T-005): cross-epic
+# cross-cutting seed inventory — Epic A1's contracts/project-context.template.yaml
+# is the SOLE canonical source of the default cross-cutting seed list; A3
+# authors no competing list of its own (Non-goals). These cases extend
+# T-001's already-registered component-path-resolver suite (no new
+# tests/run-all.sh/.ps1 or .github/workflows/test.yml entry — T-005 shares
+# T-001's suite/fixture tree, design.md Global Constraints).
+#
+# TEST-042 and TEST-044 read Epic A1's REAL, canonical template artifact
+# directly (never a stand-in/copy). Epic A1 (#189) has now MERGED, so that
+# artifact is a tracked repository file and both cases are ordinary green
+# assertions on the real contract; they were documented expected-RED only
+# while A1 was outstanding. AC-042 still requires them to FAIL closed
+# (never skip, never a stand-in) if the artifact ever disappears, which is
+# what the `[ ! -f ]` guards below now report as a regression.
+# ============================================================================
+# Shared inventory-conformance check, factored out so it can be proven
+# against BOTH the real A1 template (TEST-042) and deliberately wrong local
+# fixtures (TEST-042-negative, the acceptance-first RED evidence this
+# task's Required Workflow calls for) — this is the same logic in both
+# calls, not a re-implementation that could silently diverge.
+#
+# T-005 quality-gate finding (Major, reports/quality-gate/epic-191-a3-path-ownership/T-005.md):
+# a prior version of this check did a fixed-string/regex-escaped substring
+# grep, which caught a MISSING entry and the one specific extra
+# `contracts/**` case, but did not reject an ARBITRARY extra cross-cutting
+# entry ("no more") or a CANONICAL entry wrongly classified as bounded
+# instead of cross-cutting ("no differently classified") — both of which
+# AC-042 explicitly requires this fixture to fail on. Remedied here by
+# parsing the actual shared_paths structure (reusing
+# resolve-component-paths.py's own restricted-YAML parser, not a
+# second, potentially-diverging implementation) and asserting SET EQUALITY
+# between the template's cross-cutting patterns and the canonical six —
+# a single assertion that catches missing, extra, AND misclassified
+# entries simultaneously (a canonical pattern declared bounded is neither
+# absent from shared_paths nor cross-cutting, so it fails the same
+# equality check either way).
+check_inventory_conformance() {
+  # $1 = template path (real or fixture). Returns 0 (conformant) or 1
+  # (non-conformant), printing the mismatch reason to stdout on rejection;
+  # never a skip on a present file.
+  tpl="$1"
+  python3 - "$tpl" "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/resolve-component-paths.py" << 'PYEOF'
+import importlib.util
+import sys
+
+tpl_path, resolver_path = sys.argv[1], sys.argv[2]
+spec = importlib.util.spec_from_file_location("rcp", resolver_path)
+rcp = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(rcp)
+
+CANONICAL = {"specs/**", "reports/**", "docs/**", ".github/**", "tests/fixtures/**", "CHANGELOG.md"}
+
+with open(tpl_path, "r", encoding="utf-8") as fh:
+    text = fh.read()
+try:
+    data = rcp.parse_minimal_yaml(text)
+except rcp.ConfigError as exc:
+    print(f"template could not be parsed: {exc}")
+    sys.exit(1)
+
+shared_paths = data.get("shared_paths")
+if not isinstance(shared_paths, list):
+    print("template has no top-level 'shared_paths' list")
+    sys.exit(1)
+
+cross_cutting_patterns = set()
+misclassified = []
+for entry in shared_paths:
+    if not isinstance(entry, dict):
+        continue
+    pattern = entry.get("pattern")
+    classification = entry.get("classification")
+    components = entry.get("components")
+    if pattern in CANONICAL and (classification != "cross-cutting" or components is not None):
+        misclassified.append(pattern)
+    if classification == "cross-cutting":
+        cross_cutting_patterns.add(pattern)
+
+if misclassified:
+    print(f"canonical entries wrongly classified as bounded (not cross-cutting): {sorted(misclassified)}")
+    sys.exit(1)
+if cross_cutting_patterns != CANONICAL:
+    missing = CANONICAL - cross_cutting_patterns
+    extra = cross_cutting_patterns - CANONICAL
+    print(f"cross-cutting set mismatch: missing={sorted(missing)} extra={sorted(extra)}")
+    sys.exit(1)
+print("conformant")
+sys.exit(0)
+PYEOF
+}
+
+echo "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
+A1_TEMPLATE="${REPO_ROOT}/contracts/project-context.template.yaml"
+if [ ! -f "$A1_TEMPLATE" ]; then
+  fail "TEST-042: A1's canonical template has LANDED and is a tracked repository artifact; its absence at ${A1_TEMPLATE} is now a regression, not an expected pre-A1 state"
+elif check_inventory_conformance "$A1_TEMPLATE" >/dev/null; then
+  ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, none misclassified, and contracts/** is not among them (a bounded contracts/** entry is accepted, not required absent, per requirements.md:1046 and AC-046)"
+else
+  fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set: $(check_inventory_conformance "$A1_TEMPLATE")"
+fi
+
+echo "=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ==="
+WRONG_SEED_MISSING_PLUS_EXTRA=$(mktemp)
+cat > "$WRONG_SEED_MISSING_PLUS_EXTRA" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: "contracts/**"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_MISSING_PLUS_EXTRA" >/dev/null; then
+  fail "TEST-042-negative.1: a seed set with missing entries + wrongly-included contracts/** should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**"
+fi
+rm -f "$WRONG_SEED_MISSING_PLUS_EXTRA"
+
+# Sub-case the QG finding specifically named: an ARBITRARY 7th extra
+# cross-cutting entry, with all six canonical entries otherwise present
+# and correctly classified — a pure "no more" violation the old
+# substring-grep check would have missed entirely.
+WRONG_SEED_EXTRA_ONLY=$(mktemp)
+cat > "$WRONG_SEED_EXTRA_ONLY" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+  - pattern: "vendor/**"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_EXTRA_ONLY" >/dev/null; then
+  fail "TEST-042-negative.2: a seed set with all six canonical entries PLUS one arbitrary extra (vendor/**) should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')"
+fi
+rm -f "$WRONG_SEED_EXTRA_ONLY"
+
+# Sub-case the QG finding specifically named: a canonical pattern present
+# but wrongly classified as BOUNDED (components: [...]) instead of
+# cross-cutting — a pure "no differently classified" violation the old
+# substring-grep check would have missed entirely (the pattern string
+# itself is still present in the file, just under the wrong shape).
+WRONG_SEED_MISCLASSIFIED=$(mktemp)
+cat > "$WRONG_SEED_MISCLASSIFIED" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    components:
+      - some-component
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_MISCLASSIFIED" >/dev/null; then
+  fail "TEST-042-negative.3: specs/** declared bounded (components:) instead of cross-cutting should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')"
+fi
+rm -f "$WRONG_SEED_MISCLASSIFIED"
+
+# T-005 quality-gate finding (Major, cycle 2, reports/quality-gate/20260809T081500Z-epic-191-a3-path-ownership-T-005.md):
+# these three sub-cases are shaped to reproduce the specific structural
+# blind spots the PowerShell twin's first remedy still had -- a
+# hand-rolled line scanner that (1) compared classification
+# case-insensitively, (2) tracked no shared_paths: block so entries under
+# an unrelated key still counted, and (3) only recognised block-form
+# components:, missing an inline form. .1-.3 above are shaped to exactly
+# what a structure-aware parser already caught even before this cycle's
+# fix; these three are shaped to what only a genuinely structural parse
+# catches, so the suite itself can surface a regression back to
+# line-scanning in future.
+
+# Cycle-2 sub-case: a case-DIVERGENT classification literal. The resolver
+# itself is case-sensitive (TEST-018.3 proves 'Cross-Cutting' is rejected
+# fail-closed with exit 1, "unsupported classification"), so an
+# inventory-conformance check that accepted it would be a false green over
+# a configuration the product hard-errors on.
+WRONG_SEED_CASE_DIVERGENT=$(mktemp)
+cat > "$WRONG_SEED_CASE_DIVERGENT" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: Cross-Cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_CASE_DIVERGENT" >/dev/null; then
+  fail "TEST-042-negative.4: a case-divergent 'Cross-Cutting' classification (the resolver itself rejects fail-closed) should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.4: the check correctly rejects a case-divergent classification literal"
+fi
+rm -f "$WRONG_SEED_CASE_DIVERGENT"
+
+# Cycle-2 sub-case: all six canonical entries relocated under an unrelated
+# top-level key, with the real shared_paths left empty. A check that scans
+# every line for "- pattern:" regardless of which top-level key it falls
+# under would wrongly see all six as present.
+WRONG_SEED_MISPLACED_KEY=$(mktemp)
+cat > "$WRONG_SEED_MISPLACED_KEY" << 'WRONGEOF'
+shared_paths: []
+old_shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_MISPLACED_KEY" >/dev/null; then
+  fail "TEST-042-negative.5: six entries relocated under 'old_shared_paths:' with the real shared_paths empty should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.5: the check correctly rejects entries relocated under a key other than 'shared_paths'"
+fi
+rm -f "$WRONG_SEED_MISPLACED_KEY"
+
+# Cycle-2 sub-case: a canonical entry combining classification:
+# cross-cutting with an inline components: [x] -- an invalid shape a
+# structure-blind line scanner's HasComponents flag never saw (it only
+# recognised block-form components:), so the entry read as plain
+# cross-cutting and the check missed the extra field entirely.
+#
+# Block form, deliberately. An inline `components: [x]` is rejected by the
+# restricted parser before the entry ever reaches components detection, so
+# the sub-case would fail closed on a parse error rather than on the logic
+# it is named for -- and a mutation deleting the detection clause would
+# survive it. A quality gate proved exactly that. Block form is parsed, so
+# the fixture now exercises the branch it claims to guard.
+WRONG_SEED_INLINE_COMPONENTS=$(mktemp)
+cat > "$WRONG_SEED_INLINE_COMPONENTS" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+    components:
+      - some-component
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_INLINE_COMPONENTS" >/dev/null; then
+  fail "TEST-042-negative.6: a canonical entry combining classification: cross-cutting with a block-form components: list should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.6: the check correctly rejects a canonical entry combining classification: cross-cutting with a block-form components: list"
+fi
+rm -f "$WRONG_SEED_INLINE_COMPONENTS"
+
+echo "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
+# TEST-043.0 — AC-043 is specifically about a diff "with zero components
+# declared to own them" (requirements.md AC-043). This fixture previously
+# declared a dummy component while the pass message claimed zero owners,
+# which made the headline assertion vacuous and hid the fact that the
+# resolver rejected an empty `components` list outright. Assert the
+# fixture's actual precondition so the claim and the fixture agree.
+if grep -Eq '^components:[[:space:]]*\[\][[:space:]]*$' \
+     "${FIXTURES}/test-043-cross-cutting-no-op/config.yaml"; then
+  ok "TEST-043.0: the no-op fixture really does declare zero component owners (components: [])"
+else
+  fail "TEST-043.0: fixture claims zero declared component owners but does not declare 'components: []'"
+fi
+out=$(resolve "${FIXTURES}/test-043-cross-cutting-no-op/config.yaml" "${FIXTURES}/test-043-cross-cutting-no-op/changed-paths.txt")
+all_cross_cutting=1
+for p in specs/some-feature/requirements.md reports/quality-gate/2026-01-01.md docs/architecture/overview.md .github/workflows/example.yml tests/fixtures/some-fixture.json CHANGELOG.md; do
+  cls=$(classification_of "$out" "$p")
+  if [ "$cls" != "SHARED_CROSS_CUTTING" ]; then
+    all_cross_cutting=0
+    fail "TEST-043: expected SHARED_CROSS_CUTTING for $p, got $cls"
+  fi
+done
+if [ "$all_cross_cutting" -eq 1 ]; then
+  ok "TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED"
+fi
+
+echo "=== TEST-044: day-one cross-epic integration proof (A1 template) ==="
+if [ ! -f "$A1_TEMPLATE" ]; then
+  fail "TEST-044: A1's canonical template has LANDED and is a tracked repository artifact; its absence at ${A1_TEMPLATE} is now a regression, not an expected pre-A1 state"
+else
+  DAYONE_PATHS_FILE=$(mktemp)
+  printf 'specs/epic-example/requirements.md\nreports/quality-gate/2026-01-01.md\n' > "$DAYONE_PATHS_FILE"
+  set +e
+  dayone_out=$(resolve "$A1_TEMPLATE" "$DAYONE_PATHS_FILE" 2>&1)
+  dayone_code=$?
+  set -e
+  rm -f "$DAYONE_PATHS_FILE"
+  if [ "$dayone_code" -eq 0 ] \
+     && [ "$(classification_of "$dayone_out" "specs/epic-example/requirements.md")" != "UNOWNED" ] \
+     && [ "$(classification_of "$dayone_out" "reports/quality-gate/2026-01-01.md")" != "UNOWNED" ]; then
+    ok "TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change"
+  else
+    fail "TEST-044: day-one integration against A1's landed template failed (exit=$dayone_code, or an ordinary day-one change tripped Fail-1)"
+  fi
+fi
+
+# ============================================================================
+# Coverage gap fix (quality-gate T-001 finding 3, not a formal TEST-NNN/AC-NNN
+# id -- every TEST-001..TEST-055 slot is already assigned in
+# acceptance-tests.md, one-to-one, to a different AC): the top-level
+# `affected_components` field (resolve-component-paths.py:598, design.md:358
+# Data Plan -- "the union of all EXCLUSIVE ... " owners and bounded-shared-
+# touched components) had zero assertion coverage anywhere in this suite;
+# replacing its computation with a bare `[]` reproduced every existing
+# fixture's expected records/classifications unchanged and survived the full
+# suite. This is the exact field the Reverse Coverage Gate (T-004) consumes,
+# so an empty result would silently skip all per-component review coverage.
+#
+# The fixture below deliberately keeps "alpha" and "beta" in disjoint roles
+# -- alpha is EXCLUSIVE-owner-only, beta is bounded-shared-touched-only --
+# so the assertion actually exercises BOTH sides of the
+# `exclusive_owners | bounded_shared_touched` union: a fixture where the same
+# component appeared on both sides (e.g. base-tree below) would not catch a
+# mutation that dropped one side of the union, since the other side alone
+# would already reproduce the same result set.
+# ============================================================================
+echo "=== Coverage: affected_components unions EXCLUSIVE + bounded-shared ==="
+out=$(resolve "${FIXTURES}/test-affected-components-mixed/config.yaml" "${FIXTURES}/test-affected-components-mixed/changed-paths.txt")
+affected=$(printf '%s' "$out" | jqf -c '.affected_components')
+[ "$affected" = '["alpha","beta"]' ] \
+  && ok "COVERAGE-AFFECTED-COMPONENTS: affected_components == [\"alpha\",\"beta\"] (EXCLUSIVE-only alpha unioned with bounded-shared-only beta)" \
+  || fail "COVERAGE-AFFECTED-COMPONENTS: expected affected_components [\"alpha\",\"beta\"], got '$affected'"
+
+# ============================================================================
+# TEST-045 (AC-045): fixture-tree base shape (>=2 overlapping components,
+# nested excluded subtree, bounded shared_paths entry); suite/CI
+# self-registration proof; live test.yml byte-unchanged proof.
+# ============================================================================
+echo "=== TEST-045: fixture-tree base shape + suite/CI registration ==="
+out=$(resolve "${FIXTURES}/base-tree/config.yaml" "${FIXTURES}/base-tree/changed-paths.txt")
+[ "$(classification_of "$out" "src/shared-ui/button.ts")" = "OVERLAP" ] \
+  && ok "TEST-045.1: base fixture tree has >=2 components with an overlapping candidate owned path" \
+  || fail "TEST-045.1: expected OVERLAP for src/shared-ui/button.ts"
+[ "$(classification_of "$out" "src/desktop/generated/x.ts")" = "UNOWNED" ] \
+  && ok "TEST-045.2: base fixture tree has a nested excluded subtree" \
+  || fail "TEST-045.2: expected UNOWNED for src/desktop/generated/x.ts"
+[ "$(classification_of "$out" "contracts/schema.json")" = "SHARED_BOUNDED" ] \
+  && ok "TEST-045.3: base fixture tree has a bounded shared_paths entry" \
+  || fail "TEST-045.3: expected SHARED_BOUNDED for contracts/schema.json"
+
+if grep -q "component-path-resolver" "${REPO_ROOT}/tests/run-all.sh" \
+   && grep -q "component-path-resolver" "${REPO_ROOT}/tests/run-all.ps1"; then
+  ok "TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1"
+else
+  fail "TEST-045.4: component-path-resolver missing from tests/run-all.sh/.ps1 registration"
+fi
+
+# TEST-045.5 (repointed 2026-08-11 per RT-20260811-001 Major 1 to guard the
+# human-copy staged workflow candidate; REPLACED BY A CLASS LOCK 2026-08-14,
+# same shape as the epic-136-phase2 eviction in PR #268).
+#
+# Membership test for eviction, taken from #268: a file belongs on the list
+# when its LIVE bytes can change without this epic changing. The CI workflow
+# qualifies twice over — any epic adds steps to it, and on 2026-08-14 two
+# unrelated CI-capacity commits (#270 raising the version-gates timeout
+# 20 -> 30, #271 raising it 30 -> 45) moved the live bytes and broke the
+# staged pair TWICE IN ONE DAY. Each break forced a manual two-file refresh
+# (43ec6e48, 80ce3165) that carried no information about this task.
+#
+# The snapshot had also already discharged its purpose: the human applied it
+# in 36298e91, so the live workflow carries T-001's CI registration. All the
+# snapshot was still doing was supplying a byte-comparison basis to
+# TEST-045.6's shallow form — an assertion with no discriminating power for
+# the property it claimed to check, because ANY legitimate change to the live
+# workflow broke it exactly as loudly as tampering would.
+#
+# Absence is asserted, not merely unlisted, so re-adding the snapshot fails
+# here instead of rotting silently. Both halves are checked: the staged file
+# must not exist AND the manifest must not carry an entry for it, so a
+# half-revert is caught too.
+HC_DIR="${REPO_ROOT}/specs/epic-191-a3-path-ownership/human-copy"
+HC_MANIFEST="${HC_DIR}/MANIFEST.sha256"
+REPO_SHARED_EVICTED=".github/workflows/test.yml"
+lock_ok=1
+lock_detail=""
+for evicted in $REPO_SHARED_EVICTED; do
+  if [ -e "${HC_DIR}/${evicted}" ]; then
+    lock_ok=0
+    lock_detail="${lock_detail} staged-file:${evicted}"
+  fi
+  if [ -f "$HC_MANIFEST" ] && grep -Fq "  ${evicted}" "$HC_MANIFEST"; then
+    lock_ok=0
+    lock_detail="${lock_detail} manifest-entry:${evicted}"
+  fi
+done
+if [ "$lock_ok" = 1 ]; then
+  ok "TEST-045.5 class lock: no repo-shared file is snapshotted in this bundle (no staged file, no manifest entry)"
+else
+  fail "TEST-045.5 class lock: a repo-shared file is snapshotted in this bundle —${lock_detail}"
+fi
+
+# TEST-045.6 (replaced 2026-08-11 per RT-20260811-001 Major 2; shallow-aware
+# form 2026-08-11 per seq0682): the original assertion
+# (`git diff --quiet -- .github/workflows/test.yml`) compared the working
+# tree to HEAD and was structurally incapable of observing a COMMITTED
+# change — proven vacuous on this branch, where the live workflow gained 41
+# lines in the human-apply commit c1db8b57 while the assertion stayed green.
+# Done-When 4's clause is about attribution ("the LIVE test.yml is
+# byte-unchanged before/after this task's own commits"), checked in two
+# environment-appropriate forms, NEVER skipped:
+#
+# - FULL HISTORY (local checkouts, run-all, any full clone; also CI's `test`
+#   and `mcp-tests` jobs which opt into fetch-depth: 0): the strict
+#   commit-attribution form — none of T-001's pinned commits may appear in
+#   the live workflow's touch history, fail-closed if any pinned commit is
+#   absent (a grafted or corrupt history must fail, not pass vacuously).
+#   Mutation-proven: injecting c1db8b57 turns this red.
+# - SHALLOW CHECKOUT (the `version-gates` CI job this suite is registered
+#   in uses actions/checkout's DEFAULT depth-1 clone — its checkout step has
+#   no fetch-depth; a prior revision of this comment falsely claimed CI
+#   checks out with fetch-depth: 0, and the seq0682 gate proved the strict
+#   form exits 1 there): the pinned commits are structurally absent, so the
+#   check falls back to the content-level attribution form — the live
+#   workflow must be byte-identical to the human-applied staged candidate's
+#   MANIFEST.sha256 entry. Any unattributed change to the live workflow
+#   (T-001's or anyone's) breaks that equality, so the fallback still
+#   discriminates; it is weaker only in that it cannot name the offending
+#   commit. Mutation-proven in a real depth-1 clone.
+#
+# Maintenance rule: every commit later attributed to T-001 must be appended
+# to T001_COMMITS below (a commit cannot pin its own hash, so the commit
+# that edits this list is itself covered only by the content-level form and
+# TEST-045.5 until a successor appends it).
+T001_COMMITS="41881071d50ce2eca928f41eb07b4a2f084bacd2 f3ba917a2d70f098ec1e29938b52d780ec53ce3b 01df4cbd3b6ae23c8a2c1c264006f5c0cef02556 18624e543645ee578e34e92ae0e3684af626ec5d b0589e3202bf89834a70edbc3e413282b14f84fb 3eb2af61ab42c7528997c71dfae5a9a580e21189 87fe0452a0a0474631f26c7393381b48fe9d980c"
+is_shallow=$(git -C "$REPO_ROOT" rev-parse --is-shallow-repository 2>/dev/null || echo "unknown")
+if [ "$is_shallow" = "true" ]; then
+  # Class fix 2026-08-14: the former shallow branch compared the live workflow
+  # to the (now evicted) staged snapshot's manifest entry. That comparison
+  # could not distinguish tampering from a legitimate change — #270 and #271
+  # each broke it while changing nothing this task owns — so it is replaced by
+  # the substance the staging existed to deliver: the live version-gates job
+  # must still register BOTH legs of this suite. That survives unrelated edits
+  # to the workflow (timeouts, other epics' steps) and fails if the
+  # registration is dropped. Commit-level attribution genuinely cannot run at
+  # depth 1; the strict form in the else-branch covers it in every
+  # full-history checkout (run-all, local, any full clone).
+  live_wf="${REPO_ROOT}/.github/workflows/test.yml"
+  reg_missing=""
+  grep -Fq 'run: bash ./tests/component-path-resolver.tests.sh' "$live_wf" \
+    || reg_missing="${reg_missing} bash-leg"
+  grep -Fq 'run: ./tests/component-path-resolver.tests.ps1' "$live_wf" \
+    || reg_missing="${reg_missing} pwsh-leg"
+  if [ -z "$reg_missing" ]; then
+    ok "TEST-045.6: (shallow checkout) the live workflow still registers both legs of this suite (substance form; commit attribution needs full history and is covered by the strict form)"
+  else
+    fail "TEST-045.6: (shallow checkout) the live workflow no longer registers this suite —${reg_missing}"
+  fi
+else
+  workflow_touchers=$(git -C "$REPO_ROOT" log --format=%H -- .github/workflows/test.yml)
+  attribution_violation=""
+  missing_commit=""
+  for c in $T001_COMMITS; do
+    if ! git -C "$REPO_ROOT" cat-file -e "${c}^{commit}" 2>/dev/null; then
+      missing_commit="$c"
+    elif printf '%s\n' "$workflow_touchers" | grep -q "^${c}\$"; then
+      attribution_violation="$c"
+    fi
+  done
+  if [ -z "$missing_commit" ] && [ -z "$attribution_violation" ]; then
+    ok "TEST-045.6: no T-001 commit appears in the live .github/workflows/test.yml touch history (commit-attribution check, fail-closed on missing pinned commits in a full-history checkout)"
+  else
+    fail "TEST-045.6: live workflow attribution check failed (missing commit='${missing_commit}', T-001 commit touching the live workflow='${attribution_violation}')"
+  fi
+fi
+
+# AC-049-SELFCHECK (added 2026-08-11, closing the seq0680 Minor;
+# shallow-aware form 2026-08-11 per seq0682): Done-When 5 requires a grep
+# self-check that no version string was mutated outside a
+# scripts/bump-version.sh invocation (AC-049 share). Two
+# environment-appropriate forms, never skipped:
+# - FULL HISTORY: none of T-001's pinned commits touched a version-carrying
+#   surface (plugins/*/{.claude-plugin,.codex-plugin,.plugin}/plugin.json,
+#   tests/validate-repository.ps1); CHANGELOG.md is legitimately touched —
+#   an `## Unreleased` entry is not a version-string mutation. Fail-closed
+#   on a missing pinned commit.
+# - SHALLOW CHECKOUT (depth-1 version-gates CI job; commit inspection
+#   structurally impossible): the plugin.json "version" fields — the
+#   surfaces scripts/bump-version.sh synchronizes as one atomic set — must
+#   all carry a single identical value. A stray hand-edit outside
+#   bump-version desynchronizes the set and turns this red; a genuine
+#   bump-version run keeps it green.
+if [ "$is_shallow" = "true" ]; then
+  version_sync=$(python3 -c "
+import json, glob
+vals = sorted({json.load(open(p))['version']
+               for pat in ('plugins/*/.claude-plugin/plugin.json',
+                           'plugins/*/.codex-plugin/plugin.json',
+                           'plugins/*/.plugin/plugin.json')
+               for p in glob.glob('${REPO_ROOT}/' + pat)})
+print(str(len(vals)) + ':' + ','.join(vals))
+")
+  if [ "${version_sync%%:*}" = "1" ]; then
+    ok "AC-049-SELFCHECK: (shallow checkout) all plugin.json version fields carry one identical value (${version_sync#*:}) — the bump-version-synchronized surface set is not desynchronized by a stray mutation"
+  else
+    fail "AC-049-SELFCHECK: (shallow checkout) plugin.json version fields are desynchronized: ${version_sync}"
+  fi
+else
+  version_surface_touch=""
+  for c in $T001_COMMITS; do
+    if git -C "$REPO_ROOT" cat-file -e "${c}^{commit}" 2>/dev/null; then
+      touched=$(git -C "$REPO_ROOT" show --name-only --format= "$c" | grep -E '(^|/)plugin\.json$|^tests/validate-repository\.ps1$' || true)
+      [ -n "$touched" ] && version_surface_touch="${c}:$(printf '%s' "$touched" | tr '\n' ',')"
+    fi
+  done
+  if [ -z "$missing_commit" ] && [ -z "$version_surface_touch" ]; then
+    ok "AC-049-SELFCHECK: no T-001 commit mutated a version-carrying surface (plugin.json manifests / validate-repository.ps1) outside a scripts/bump-version.sh invocation"
+  else
+    fail "AC-049-SELFCHECK: version-carrying surface touched outside bump-version (missing commit='${missing_commit}', touch='${version_surface_touch}')"
+  fi
+fi
+
+# TEST-045.7 — this suite's fixture corpus is keyed on Epic A1's canonical
+# `id`, not this epic's pre-A1 `name`. A1's schema requires `id` under
+# "additionalProperties": false, so a `name`-keyed component is INVALID
+# against A1 (TEST-011.5 proves the rejection). The resolver rejects that
+# legacy key, and A3's fixtures must demonstrate the
+# canonical shape.
+legacy_named=$(grep -rl '^[[:space:]]*-[[:space:]]*name:' "${FIXTURES}" 2>/dev/null || true)
+if [ -z "$legacy_named" ]; then
+  ok "TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key"
+else
+  fail "TEST-045.7: fixtures still use the pre-A1 'name' key: $(printf '%s' "$legacy_named" | tr '\n' ' ')"
+fi
+
+# ============================================================================
+# TEST-056 (AC-056, added 2026-08-11 per the a2r3-driven spec amendment):
+# resolver-side present-but-malformed config is fail-closed. With a --config
+# file that EXISTS but cannot be parsed, resolve-component-paths — plain AND
+# --diagnose (same script, same parser) — exits non-zero with a diagnostic
+# naming the parse failure, before any matching or classification work. No
+# fallback is tolerated: the resolver has no applicability derivation and no
+# disabled-legacy state, so a caught parse exception has nothing to convert
+# into. Three malformed classes, each built in a disposable fixture tree
+# only (never a live path): tab indentation, top-level non-mapping, and an
+# unsupported/unterminated flow construct. This row asserts the RESOLVER's
+# behaviour (REQ-001); the Gate's own recordless crash on the same fixture
+# class is TEST-035d in tests/check-component-coverage.tests.{sh,ps1}.
+# Note (label reconciliation, acceptance-tests.md Notes 2026-08-11): the
+# coverage suite historically carried a suite-internal label "TEST-056" for
+# the Gate-side case; that label is renamed TEST-035d there, so the ID
+# TEST-056 now belongs unambiguously to this resolver-side block.
+# ============================================================================
+echo "=== TEST-056: present-but-malformed --config fails closed (plain and --diagnose) ==="
+T056_DIR=$(mktemp -d)
+printf 'components:\n\t- id: bad\n' > "${T056_DIR}/malformed-tab.yaml"
+printf -- '- just\n- a list\n' > "${T056_DIR}/malformed-nonmap.yaml"
+printf 'components: [unclosed\n' > "${T056_DIR}/malformed-unclosed.yaml"
+
+check_056() {
+  # $1=sub-id  $2=config  $3=mode ("" or --diagnose)  $4=required diagnostic fragment
+  local sub="$1" cfg="$2" mode="$3" frag="$4" out code label
+  label="plain"
+  [ -n "$mode" ] && label="--diagnose"
+  set +e
+  if [ -n "$mode" ]; then
+    out=$(printf '' | "$SCRIPT" --config "$cfg" "$mode" 2>&1)
+  else
+    out=$(printf '' | "$SCRIPT" --config "$cfg" 2>&1)
+  fi
+  code=$?
+  set -e
+  if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q "config error" && printf '%s' "$out" | grep -q "$frag"; then
+    ok "TEST-056.${sub}: present-but-malformed config ($(basename "$cfg"), ${label}) exits non-zero naming the parse failure"
+  else
+    fail "TEST-056.${sub}: expected non-zero exit + 'config error' + '${frag}' for $(basename "$cfg") (${label}); got exit=${code} out=${out}"
+  fi
+}
+check_056 1 "${T056_DIR}/malformed-tab.yaml"      ""          "tabs"
+check_056 2 "${T056_DIR}/malformed-tab.yaml"      "--diagnose" "tabs"
+check_056 3 "${T056_DIR}/malformed-nonmap.yaml"   ""          "must be a mapping"
+check_056 4 "${T056_DIR}/malformed-nonmap.yaml"   "--diagnose" "must be a mapping"
+check_056 5 "${T056_DIR}/malformed-unclosed.yaml" ""          "unsupported YAML construct"
+check_056 6 "${T056_DIR}/malformed-unclosed.yaml" "--diagnose" "unsupported YAML construct"
+rm -rf "${T056_DIR}"
+
+# ============================================================================
+# Summary
+# ============================================================================
+echo ""
+echo "Results: ${PASS} passed, ${FAIL} failed."
+[ "$FAIL" -eq 0 ]

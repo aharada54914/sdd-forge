@@ -54,6 +54,8 @@ tests=(
   tests/guard-parity.tests.sh
   tests/claude-bash-matcher.tests.sh
   tests/phase2-guard-invariants.tests.sh
+  tests/phase2-guard-tokenizer.tests.sh
+  tests/phase2-risk-upgrade.tests.sh
   tests/phase2-sudo-signature-static.tests.sh
   tests/self-improvement-guard.tests.sh
   tests/p0-hardening.tests.sh
@@ -100,6 +102,18 @@ tests=(
   tests/golden-baseline-contract.tests.sh
   tests/compatibility-byte-identical.tests.sh
   tests/structural-compatibility.tests.sh
+  tests/capability-registry-schema.tests.sh
+  tests/evaluate-predicate.tests.sh
+  tests/registry-discovery.tests.sh
+  tests/validate-capability-registry.tests.sh
+  tests/generate-registry-digest.tests.sh
+  tests/generate-gate-capabilities.tests.sh
+  tests/capability-registry-parity.tests.sh
+  tests/component-path-resolver.tests.sh
+  tests/component-path-diff-basis.tests.sh
+  tests/ownership-digest.tests.sh
+  tests/check-component-coverage.tests.sh
+  tests/component-path-ownership-parity.tests.sh
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

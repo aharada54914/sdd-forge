@@ -40,10 +40,12 @@
 #   ADR-0019-item-3 categories are represented, concretely or as a
 #   reservation.
 # TEST-HARDEN staging integrity: MANIFEST.sha256 grammar, digest agreement
-#   with the staged bytes, preservation of the pre-existing
-#   .github/workflows/test.yml entry (which belongs to a later task and
-#   must not be disturbed by this one), the nested self-path manifest copy
-#   being byte-identical to the canonical one, and the frozen
+#   with the staged bytes, ABSENCE of any repo-shared
+#   .github/workflows/test.yml snapshot (evicted 2026-08-11 under the human
+#   ruling on RT-20260811-002 — a per-epic snapshot of a repo-shared file is
+#   structurally doomed to go stale and became a deletion hazard; the class
+#   fix asserts absence so re-adding fails), the nested self-path manifest
+#   copy being byte-identical to the canonical one, and the frozen
 #   PHASE2_TARGETS/BASELINE_SUFFIXES constants being untouched.
 set -u
 
@@ -523,15 +525,22 @@ if [ -f "$MANIFEST_SHA" ]; then
   BAD_LINES=$(grep -cvE '^[0-9a-f]{64}  [^ ].*$' "$MANIFEST_SHA" || :)
   assert_eq "$BAD_LINES" "0" "staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>"
 
-  # The CI-staging entry belongs to a later task, which owns refreshing it.
-  # T-009 must neither drop nor duplicate it. Its digest is validated against
-  # the staged bytes by the per-entry loop below, so pinning a literal digest
-  # here would assert nothing extra while breaking the moment that later task
-  # legitimately refreshes the entry — which is exactly what happened when
-  # T-010 appended its own CI step (human ruling, 2026-08-04).
+  # Class lock (2026-08-11 human ruling, RT-20260811-002): the repo-shared
+  # .github/workflows/test.yml snapshot is EVICTED from this bundle. The old
+  # "present exactly once" assertion (human ruling, 2026-08-04) protected a
+  # per-epic snapshot that QG measured as a deletion hazard: applying the
+  # stale copy removed 137 lines / 18 named live CI steps. ABSENCE is
+  # asserted — not merely unlisted — so a future re-adding fails here
+  # instead of rotting silently. The live workflow is the single source of
+  # truth; this bundle registers CI steps only via the live file.
   WF_COUNT=$(grep -cF '  .github/workflows/test.yml' "$MANIFEST_SHA" || :)
-  assert_eq "$WF_COUNT" "1" \
-    "staging: the CI-staging .github/workflows/test.yml entry is present exactly once"
+  assert_eq "$WF_COUNT" "0" \
+    "staging: class lock: no repo-shared .github/workflows/test.yml manifest entry (snapshot evicted 2026-08-11)"
+  if [ ! -e "$STAGE/.github/workflows/test.yml" ]; then
+    pass "staging: class lock: no staged .github/workflows/test.yml snapshot file"
+  else
+    fail "staging: class lock: no staged .github/workflows/test.yml snapshot file"
+  fi
 
   # Every entry's digest must match the staged bytes at <stage>/<path>.
   mismatched=0

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 9,
+  "round": 2,
+  "run_id": "RUN-epic-191-a3-path-ownership-task-task-reviewer-b-a9r2-seq0696",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-191-a3-path-ownership-a9r2-0696",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-191-a3-path-ownership/requirements.md",
+        "sha256": "7237cd133e817713028d83394c836819fd04de12c0ee5d89a75b989cce4fa939"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/acceptance-tests.md",
+        "sha256": "8f47775bee958d9f5ba59e3e84e5cea306b8f6ecb381faaeb6b0d662d76f28e0"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/design.md",
+        "sha256": "8e5752a852d7b9ed057f406f1191801499fd99dc347a1a57a0fdb7ce0e4f0ec9"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/tasks.md",
+        "sha256": "9e482e42a5a044f282164e9c376acd86ce60da7fee69cd66860e249268ac71bd"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/traceability.md",
+        "sha256": "c7ef1baedfe82cc1c3c4efd9b0eaa6c00d51d1b6ec28236fa983c27662877c59"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/ux-spec.md",
+        "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/frontend-spec.md",
+        "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/infra-spec.md",
+        "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"
+      },
+      {
+        "path": "specs/epic-191-a3-path-ownership/security-spec.md",
+        "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "reports/task-review/epic-191-a3-path-ownership/attempt-9/round-2/precheck-result.json",
+        "sha256": "a83dc4d476602aeff2547f0f1a6e235de6a3c5703a5a28e010cd09978d4d1165"
+      },
+      {
+        "path": "reports/task-review/epic-191-a3-path-ownership/attempt-9/round-2/integrated-summary.json",
+        "sha256": "02d740025590800ff275eebffd18b4c6e6842a43e385f118772af44e68d12c7c"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001..T-005 sections and the document header/Protected Files/Lifecycle/Global Constraints sections (lines 1-1091) are byte-identical to the content bound by attempt-8/round-1's clean PASS (git diff 58273ad1..HEAD on tasks.md touches only lines 1134+, all inside T-006). Per the TYPE-H convergence rule, RISK-APPROPRIATE for that unchanged content is carried forward as PASS (advisory: prior PASS evidence at reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json). T-006's round-2 diff (commit 9c4a672c, the a9r1 remediation) is judged fresh: it only changes the DELIVERY MECHANISM of the already-sanctioned parity correction (direct edit for the unprotected resolve-component-paths.ps1; human-copy staged candidate + MANIFEST.sha256 entry for the R-10-protected check-component-coverage.ps1, verified against the live guard-invariants.json which does list this suffix under protected_gate_suffixes at line 47). This does not touch a new sentinel surface (auth/payment/PII/migration/external API) and T-006's Risk: high (Risk Rationale unchanged) already meets/exceeds the bar. No under- or over-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D, freshly re-verified directly against current tasks.md bytes. All four Risk: high tasks (T-001, T-002, T-004, T-006) carry a Done-When bullet requiring RED and GREEN TDD evidence plus an independent quality-gate verdict recording PASS. T-006's Done-When TDD-evidence bullet is unchanged by the round-2 commit and still present verbatim; the round-2 diff only added a new HUMAN APPLY STEP bullet, it did not remove or weaken this one. No task is Risk: critical, so the second-approver/signed-bundle requirement is not triggered."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-006's Done When section now has exactly 8 checkbox items (counted directly against the current section text: the acceptance-test proofs, the staged CI-workflow candidate, the new HUMAN APPLY STEP for the coverage-pair candidate, the CHANGELOG entry, the version-string grep self-check, and the TDD-evidence bullet) -- at, not over, the greater-than-eight Major-finding threshold. Scope Commit A still describes one coherent correction (now split by delivery channel across two files, not a new implementation area) plus the pre-existing harness-authorship/registration-audit/CI-wiring work; Commit B remains the single CHANGELOG bullet. T-001..T-005's bundled-deliverable sizing is unchanged since attempt-8's clean PASS (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json). No oversizing or fragmentation found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Unaffected in substance by the round-2 commit: T-006's carve-out still targets exactly the pre-existing edge-case criterion AC-050/TEST-050 (acceptance-tests.md's AC-050 row covers dual-runtime parity including the argument-drop/exit-code defect this correction fixes), and the mutation-based negative self-check (Done When, unchanged) remains the non-vacuity proof. T-001..T-005 coverage is unchanged since attempt-8's clean PASS (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Unaffected by the round-2 commit -- no new test task or test type is introduced; the diff only changes which file-edit channel (direct vs. human-copy staged) delivers an already-sanctioned correction, and adds one Planned Files/MANIFEST note. T-006's registered suite still exercises both product-wrapper pairs directly per REQ-009/AC-050. Carried forward for T-001..T-005 per convergence (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The a9r1 remediation directly resolves round-1's ROLLBACK-PLAN FAIL (reports/task-review/epic-191-a3-path-ownership/attempt-9/round-1/reviewer-b.json). Verified fresh against current tasks.md and the live repo: (1) Planned Files now lists the coverage-pair correction under the human-copy staged path (a 'staged candidate, agent-editable' entry naming the specs/.../human-copy/... mirror), not as a direct 'agent-editable' edit of the real path -- this reconciles it with the file's genuinely protected status (confirmed live: the guard-invariants.json protected-suffix list does include this exact .ps1 suffix, at the line number tasks.md itself cites), with tasks.md's own Protected Files item 3 ('BECOMES protected once registered'), with T-004 (Status: Done, registration already human-applied per its own Done-When gate), and with security-spec.md's B1 row/STRIDE mitigation ('No script this feature ships writes to a protected path directly; the only sanctioned path is human-copy staging'). (2) The Rollback field is updated to state the staged candidate '-- should be hand-reverted, and by whom' alongside the pre-existing test.yml language, and separately notes the direct resolve-component-paths.ps1 edit (confirmed unprotected: design.md's Components table lists it 'no' under the protected column) 'reverts with the task's own commits' -- mirroring T-004's own established Rollback-field convention for its human-copy bundles ('a revert PR must separately state whether any already-human-applied protected-file change should also be hand-reverted, and by whom'). (3) Done When gained an explicit HUMAN APPLY STEP bullet (cp + SHA-256 verify against the manifest + parity-harness re-run to GREEN, 'confirmed before this task is marked Done'), matching T-004's own Bundle A/B precedent, and explicitly states the LIVE protected file stays byte-unchanged across this task's commits. (4) The Out of Scope carve-out and its final bullet now both say 'staged'/'staged candidate' rather than a bare direct edit, removing the tension with the Out of Scope bullet that round 1 flagged. All four elements the round-1 finding cited as unreconciled are now internally consistent. No rollback gap remains for T-006."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "resolve-component-paths.ps1 remains shared across T-001 (creates), T-002 (extends), and T-006 (direct parity-fix edit), with Blockers enforcing the ordering (T-002 blocked by T-001; T-006 blocked by T-001, T-002, T-003, T-004). The real check-component-coverage.ps1 path is created by T-004 only; T-006 no longer claims a direct edit to it -- T-006's edit target is now the distinct human-copy staged mirror path, which no other task's Planned Files lists (grep confirms this staged path appears only within T-006's own section, in two places). No uncoordinated parallel overlap. CHANGELOG.md and the shared test.yml/MANIFEST staging remain governed by the unchanged Global Constraints serialization; unaffected by the round-2 commit."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-006's Blockers (T-001, T-002, T-003, T-004) are unchanged by the round-2 commit; the delivery-split still depends on T-004 having created check-component-coverage.ps1 and (per T-004's own Done-When gate) already having its protected-suffix registration human-applied, before T-006 can meaningfully stage a correction against it. No spurious or missing blocker introduced by the round-2 diff. Carried forward for T-001..T-005 per convergence (advisory: reports/task-review/epic-191-a3-path-ownership/attempt-8/round-1/reviewer-b.json)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Applicable since round 1 (T-006's Out of Scope carve-out scopes a regression fix within an otherwise-non-bugfix task). All three required elements remain present and unweakened by the round-2 diff, which only adds the delivery-split narrative on top of them: (1) Reproduction evidence -- the RED-log citations (the two named RED log paths under this task's verification directory, from the cited attempt-1 harness run) are byte-unchanged in the Out of Scope bullet. (2) Diagnostic/root-cause step -- the birth-commit citations for T-001 and T-004 ('plain param() blocks, no CmdletBinding, no args guard') are byte-unchanged. (3) Regression/verification evidence -- AC-050/TEST-050's extra-argument parity cells turning GREEN remains required, now made more precise: the resolver-pair cells turn GREEN on the direct edit alone, and the coverage-pair cells' GREEN is explicitly gated on the new HUMAN APPLY STEP being confirmed before Done. All three elements remain concretely evidenced."
+    }
+  ],
+  "findings": []
+}

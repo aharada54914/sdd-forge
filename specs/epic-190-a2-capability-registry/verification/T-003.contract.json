@@ -1,0 +1,152 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-190-a2-capability-registry",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "7ae6becda321666579d0cfea55c5a1316a541bc827d98362b2c58aff8c6fdc7b",
+  "created": "2026-07-23T01:30:00Z",
+  "comment": "Default-FAIL verification contract for T-003 (high, tdd). Required set = medium ∪ {requirement-traceability} per risk-gate-matrix.md; tdd requires non-empty red_evidence + green_evidence on unit-tests/acceptance-tests (TDD_TEST_IDS). Populated from the independent quality-gate evaluator's own verification results, recorded verbatim in reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md (Run ID RUN-epic-190-a2-capability-registry-qg-T-003-seq0346, reserved identity-ledger sequence 346, review-context manifest reports/review-context/pending-epic-190-a2-capability-registry-sdd-evaluator-T-003-seq0346-manifest.json): the evaluator independently reran both runtimes' 21-check suites (exit 0, 21/0 both lanes), confirmed the RED log's 15 failures per runtime were substantive (not vacuous) against two deliberately broken stubs, performed line-by-line comparison of registry_discovery.py against design.md's Registry discovery contract (REQ-005) section including the non-obvious terminal-fail-closed design choice, confirmed the vendored plugins/sdd-quality-loop/contracts/* copies are byte-identical to their canonical contracts/* sources, confirmed the live .github/workflows/test.yml is byte-identical across the implementer's commits while the staged human-copy candidate matches its MANIFEST.sha256 entry, and verified Security Boundary B4 (discovery fail-closed, no silent fallback to a stale or absent artifact). Verdict: PASS, zero Critical, zero Major, zero Minor -- this epic's first fully clean gate with no findings at all. Stack: shell waives lint/typecheck/build (no compile toolchain for this repository's Python/shell/PowerShell deliverables).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's Python/shell/PowerShell deliverables (stack: shell); the evaluator's re-execution of both wrapper scripts across 21 checks each exercises parse validity implicitly.",
+      "requirement_ids": ["REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository's Python/shell/PowerShell deliverables.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; the evaluator drives only local, disposable, offline mktemp-constructed layouts against the real CLI (Global Constraints).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006"],
+      "red_evidence": "specs/epic-190-a2-capability-registry/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-190-a2-capability-registry/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for this repository's Python/shell/PowerShell deliverables.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/2026-07-23T0000Z-epic-190-a2-capability-registry-T-003.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's deliverables are a discovery module and a vendoring CLI, fully covered by the focused/regression suite runs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task. The change is a wholly new, additive module and script with no prior version; the saved TDD RED/GREEN evidence provides the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are script/test/fixture files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

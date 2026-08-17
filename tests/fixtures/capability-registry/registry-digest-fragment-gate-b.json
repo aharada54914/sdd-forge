@@ -1,0 +1,6 @@
+{
+  "capabilities": [],
+  "gates": [
+    {"id": "gate-b", "weight": 2, "label": "beta"}
+  ]
+}

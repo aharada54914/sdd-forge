@@ -78,7 +78,7 @@ cat > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/package.json" <<'MCPPKG'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22.19.0" }
 }
 MCPPKG
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -103,7 +103,7 @@ cat > "${SOURCE_FIXTURE}/mcp/local-env-mcp/package.json" <<'MCPPKG2'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22.19.0" }
 }
 MCPPKG2
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -128,7 +128,7 @@ cat > "${SOURCE_FIXTURE}/mcp/ci-mcp/package.json" <<'MCPPKG3'
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=22.19.0" }
 }
 MCPPKG3
 # Files that must NOT be copied into the install root (node_modules/src/tests).
@@ -1433,7 +1433,7 @@ if ! echo "$_v4_out" | grep -qi "plugin"; then
 fi
 [[ $_v4_ok -eq 1 ]] && ok "--plugins \"\" is rejected cleanly without an unbound variable crash"
 
-# Scenario (w): missing Node >= 20 warns and skips MCP only; plugins still install.
+# Scenario (w): unsupported Node warns and skips MCP only; plugins still install.
 _w_root="$(mktemp -d)"
 _w_install="${_w_root}/installed"
 _w_bin="${_w_root}/bin"
@@ -1456,7 +1456,7 @@ _w_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root 
 export PATH="$_w_orig_path"
 _w_ok=1
 [[ $_w_failed -eq 0 ]] || { fail "old Node (w): installer exited non-zero despite MCP-only skip"; _w_ok=0; }
-[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed despite Node < 20"; _w_ok=0; }
+[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed below Node 22.19.0"; _w_ok=0; }
 for p in $ALL_PLUGINS; do
     [[ -f "${_w_install}/plugins/${p}/.codex-plugin/plugin.json" ]] || { fail "old Node (w): plugin not copied despite MCP-only skip: $p"; _w_ok=0; }
 done
@@ -1465,11 +1465,50 @@ if ! echo "$_w_out" | grep -qi "node"; then
     _w_ok=0
 fi
 rm -rf "$_w_root"
-[[ $_w_ok -eq 1 ]] && ok "Node < 20 warns and skips MCP only, plugin install continues"
+[[ $_w_ok -eq 1 ]] && ok "unsupported Node warns and skips MCP only, plugin install continues"
 
-# Scenario (w2): Node < 20 edge at the boundary (v18.x) for the DEFAULT
-# multi-MCP install. requirements.md Edge Cases: "Node < 20 → 既存の MCP 配置
-# ゲート(MCP_NODE_OK)により配置・登録とも行わない". A v18.x shim ahead of the
+# Scenario (w1): enforce the exact supported MCP runtime floor. Node 22.18.x
+# and malformed output must fail closed, while
+# Node 22.19.0 and the current Node 24 LTS line remain supported.
+for _w1_case in "v22.18.0:reject" "v22.19.0:accept" "v24.0.0:accept" "v22.19.0-rc.1:reject" "v999999999999999999999.0.0:reject" "not-a-version:reject"; do
+    _w1_version="${_w1_case%%:*}"
+    _w1_expected="${_w1_case##*:}"
+    _w1_root="$(mktemp -d)"
+    _w1_install="${_w1_root}/installed"
+    _w1_bin="${_w1_root}/bin"
+    _w1_log="${_w1_root}/commands.log"
+    _w1_orig_path="$PATH"
+    make_fake_commands "$_w1_bin" "$_w1_log"
+    cat > "${_w1_bin}/node" <<NODESHIM_BOUNDARY
+#!/bin/sh
+if [ "\$1" = "--version" ]; then
+    echo "${_w1_version}"
+    exit 0
+fi
+exit 0
+NODESHIM_BOUNDARY
+    chmod +x "${_w1_bin}/node"
+    export PATH="${_w1_bin}:${_w1_orig_path}"
+    _w1_failed=0
+    _w1_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w1_install" --target FilesOnly 2>&1)" || _w1_failed=1
+    export PATH="$_w1_orig_path"
+    _w1_ok=1
+    [[ $_w1_failed -eq 0 ]] || { fail "Node boundary (w1): installer exited non-zero for ${_w1_version}"; _w1_ok=0; }
+    if [[ "$_w1_expected" == "accept" ]]; then
+        for _w1_mcp in sdd-forge-mcp local-env-mcp ci-mcp; do
+            [[ -f "${_w1_install}/mcp/${_w1_mcp}/package.json" ]] || { fail "Node boundary (w1): ${_w1_version} did not install ${_w1_mcp}"; _w1_ok=0; }
+        done
+    else
+        [[ ! -e "${_w1_install}/mcp" ]] || { fail "Node boundary (w1): ${_w1_version} installed MCP below the supported floor"; _w1_ok=0; }
+        echo "$_w1_out" | grep -qi "node" || { fail "Node boundary (w1): ${_w1_version} did not emit a Node warning"; _w1_ok=0; }
+    fi
+    rm -rf "$_w1_root"
+    [[ $_w1_ok -eq 1 ]] && ok "Node boundary ${_w1_version} is ${_w1_expected}ed"
+done
+
+# Scenario (w2): an unsupported v18.x runtime for the DEFAULT multi-MCP
+# install. The MCP gate skips placement and registration below Node 22.19.0.
+# A v18.x shim ahead of the
 # real node on PATH must cause NO placement of EITHER MCP and NO Claude/Codex
 # registration, while a warning mentioning Node is printed. --target All +
 # fake claude/codex shims + a present config.toml would otherwise register.
@@ -1496,7 +1535,7 @@ export PATH="${_w2_bin}:${_w2_orig_path}"
 export SDD_CODEX_HOME="${_w2_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
-# T-007 gating: seeded Cursor / VS Code configs must be untouched when Node < 20.
+# T-007 gating: seeded Cursor / VS Code configs must be untouched below Node 22.19.0.
 export SDD_CURSOR_DIR="${_w2_root}/cursor"
 export SDD_VSCODE_USER_DIR="${_w2_root}/vscode-user"
 mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
@@ -1512,17 +1551,17 @@ if [[ -z "$_w2_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_C
 if [[ -z "$_w2_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_w2_orig_vscode_dir"; fi
 _w2_ok=1
 [[ $_w2_failed -eq 0 ]] || { fail "old Node v18 (w2): installer exited non-zero despite MCP-only skip"; _w2_ok=0; }
-[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed despite Node < 20"; _w2_ok=0; }
+[[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed below Node 22.19.0"; _w2_ok=0; }
 if [[ -f "$_w2_log" ]] && grep -qF "claude mcp add" "$_w2_log"; then
-    fail "old Node v18 (w2): claude mcp add was invoked despite Node < 20"
+    fail "old Node v18 (w2): claude mcp add was invoked below Node 22.19.0"
     _w2_ok=0
 fi
 if grep -qE "sdd-forge-mcp|local-env-mcp|ci-mcp" "${_w2_root}/codex-home/config.toml" 2>/dev/null; then
-    fail "old Node v18 (w2): Codex config.toml was modified despite Node < 20"
+    fail "old Node v18 (w2): Codex config.toml was modified below Node 22.19.0"
     _w2_ok=0
 fi
-cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified despite Node < 20"; _w2_ok=0; }
-cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified despite Node < 20"; _w2_ok=0; }
+cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified below Node 22.19.0"; _w2_ok=0; }
+cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified below Node 22.19.0"; _w2_ok=0; }
 if ! echo "$_w2_out" | grep -qi "node"; then
     fail "old Node v18 (w2): expected warning mentioning Node was not printed"
     _w2_ok=0
