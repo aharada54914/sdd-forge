@@ -15,7 +15,7 @@
 
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
@@ -43,19 +43,33 @@ const PACKAGE_ROOT = findPackageRoot(THIS_FILE_DIR);
 const DIST_ENTRYPOINT = join(PACKAGE_ROOT, "dist", "index.js");
 const SDD_FORGE_REPO_ROOT = dirname(dirname(PACKAGE_ROOT));
 
-/**
- * Absolute path to the inspector's CLI entry script, resolved through the
- * package's own manifest. Spawning it with `process.execPath` (instead of
- * `npx`) keeps the invocation portable: Windows has no `npx` executable —
- * only an `npx.cmd` shim that `spawnSync` cannot start without a shell.
- */
 const require = createRequire(import.meta.url);
-const INSPECTOR_CLI_ENTRYPOINT = join(
-  dirname(require.resolve("@modelcontextprotocol/inspector/package.json")),
-  "cli",
-  "build",
-  "cli.js",
-);
+
+/**
+ * Absolute path to the inspector's executable entry script, read from the
+ * `bin` field of the package's own manifest rather than hard-coded to one
+ * release's layout: the script sits at `cli/build/cli.js` in inspector 0.x
+ * and at `clients/launcher/build/index.js` in 2.x, and both accept the
+ * leading `--cli` flag this suite passes. Spawning it with
+ * `process.execPath` (instead of `npx`) keeps the invocation portable:
+ * Windows has no `npx` executable — only an `npx.cmd` shim that
+ * `spawnSync` cannot start without a shell.
+ */
+function resolveInspectorCliEntrypoint(): string {
+  const manifestPath = require.resolve("@modelcontextprotocol/inspector/package.json");
+  const { bin } = JSON.parse(readFileSync(manifestPath, "utf-8")) as {
+    bin?: string | Record<string, string | undefined>;
+  };
+  const binRelativePath = typeof bin === "string" ? bin : bin?.["mcp-inspector"];
+  if (binRelativePath === undefined) {
+    throw new Error(
+      `@modelcontextprotocol/inspector's manifest (${manifestPath}) declares no 'mcp-inspector' bin entry`,
+    );
+  }
+  return join(dirname(manifestPath), binRelativePath);
+}
+
+const INSPECTOR_CLI_ENTRYPOINT = resolveInspectorCliEntrypoint();
 
 // 120s, not 30s: the real-repo smoke legs scan the whole repository through a
 // spawned CLI, and PR #229's Windows CI showed the scan legitimately exceeding
@@ -90,7 +104,18 @@ interface InspectorInvocation {
   status: number | null;
 }
 
-/** Runs the inspector CLI (`--cli node dist/index.js --root <repo> <extraArgs...>`) and returns parsed stdout JSON. */
+/**
+ * Runs the inspector CLI (`--cli node dist/index.js --root <repo> -- <extraArgs...>`)
+ * and returns parsed stdout JSON.
+ *
+ * The bare `--` separates the spawned server's own arguments from the
+ * inspector's: inspector 2.x otherwise stops collecting server arguments at
+ * the first token beginning with `-`, which silently swallows `--root` and
+ * leaves the server resolving its repository root from the CLI's cwd
+ * (`rootSource: "cwd"`, this package rather than the repository) instead.
+ * Inspector 0.x honours the same separator, so the invocation is correct on
+ * both.
+ */
 function runInspector(extraArgs: readonly string[]): InspectorInvocation {
   const result = spawnSync(
     process.execPath,
@@ -101,6 +126,7 @@ function runInspector(extraArgs: readonly string[]): InspectorInvocation {
       DIST_ENTRYPOINT,
       "--root",
       SDD_FORGE_REPO_ROOT,
+      "--",
       ...extraArgs,
     ],
     {
