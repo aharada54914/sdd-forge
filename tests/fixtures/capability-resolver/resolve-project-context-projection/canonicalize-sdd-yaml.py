@@ -20,6 +20,15 @@ behaves per SDD_T002_PROJECTION_MODE:
 The two failure modes emit an `UPSTREAM_SECRET` marker so the caller can
 assert M8 (upstream stderr is never copied into the Resolver's own
 diagnostic). There is no default mode: an unset variable fails closed.
+
+T-003 note: once the resolver's own step 6 (`registry_digest`) lands, a
+SECOND, later JSON-mode canonicalizer invocation reaches this same stub (via
+`generate-registry-digest --whole`'s own identical canonicalizer call) after
+step 3's own capture has already happened. This stub captures only the
+FIRST JSON-mode call it sees per process tree, so step 3's own capture is
+never clobbered by that later, unrelated call -- it still delegates every
+JSON-mode call (including that later one) to the real canonicalizer either
+way.
 """
 import os
 from pathlib import Path
@@ -55,7 +64,8 @@ def main():
     if not json_mode:
         return delegate(argv)
 
-    shutil.copyfile(argv[0], str(CAPTURE))
+    if not CAPTURE.exists():
+        shutil.copyfile(argv[0], str(CAPTURE))
     mode = os.environ.get("SDD_T002_PROJECTION_MODE", "")
     if mode == "passthrough":
         return delegate(argv)

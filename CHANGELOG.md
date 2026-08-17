@@ -21,6 +21,32 @@
   **必要な人間アクション: この 4 件をレビューして適用すること。** 適用まで
   live の `plugins/**` と live の `.github/workflows/test.yml` は
   byte-unchanged で、この機能はまだ実行経路に入らない。
+- **Capability Resolver steps 4-9 (Issue #193, epic-193-a5 T-003)**:
+  `resolve-component-paths` 呼び出し、ADR-0025 Registry discovery +
+  `validate-capability-registry`、`registry_digest`
+  (`generate-registry-digest --whole`)、Capability ごと・affected
+  component ごとの trigger 評価と matched Capability の
+  conditional-facet 評価（いずれも `evaluate-predicate` 実呼び出し）、
+  および any-branch WARN チェック（B2 の拡張スコープ）を実装。
+  既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
+  （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
+  が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段の
+  診断行 5 種・6 invocation
+  （`affected-component-resolution-failed` /
+  `contract-discovery-failed` / `registry-validation-failed` /
+  `dependency-subprocess-failed` / `dsl-warn-on-matched-capability`
+  ×2 fixture）を追加し、sh/ps1 とも **102 passed / 0 failed**
+  （T-002 由来の既存 96 assertion を含む）。TDD RED は同一ドライバ・
+  同一フィクスチャ集合を T-002 時点の実装（steps 0-3 のみ）に対して
+  実行し、sh/ps1 とも 78 passed / 24 failed で新規 6 fixture のみが
+  一貫して失敗することを確認済み。
+  R-10 保護対象の適用候補のうち `resolve-project-context.py` を
+  steps 4-9 分だけ更新し、`.sh`/`.ps1`/`.github/workflows/test.yml` は
+  byte-unchanged（新規 CI 登録なし）。`MANIFEST.sha256` は
+  `resolve-project-context.py` の 1 エントリのみ更新し、
+  `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
+  **必要な人間アクション: T-002 と共通の staged candidate 4 件（うち
+  1 件がこの更新差分）をレビューして適用すること。**
 
 ### Fixed
 
