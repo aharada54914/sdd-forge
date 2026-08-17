@@ -1,6 +1,6 @@
 # Design: sdd-domain-concept-contract
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: additive contract + deterministic validator + test corpus
 （プラグイン挙動の変更なし）
 
