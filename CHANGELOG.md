@@ -4,6 +4,20 @@
 
 ### Added
 
+- **Epic A7 canonical event-trace schema (Issue #195, T-005)**: extended
+  the existing `loop-inventory/v1` registry and shared Bash/PowerShell
+  loop driver in place rather than building a new mechanism — added an
+  additive, optional `capability_applicability` field to the `quality-gate`
+  entry only (registry stays at 8 entries) and three new driver functions,
+  `_loop_trace_emit`/`assert_capability_applicability`/`assert_event_trace`
+  (`Write-LoopTraceEvent`/`Test-CapabilityApplicability`/`Test-EventTrace`
+  on the PowerShell twin), implementing the `compatibility-event-trace/v1`
+  collector/comparator contract. `assert_terminal`/`assert_artifacts_schema`
+  stay byte-identical to their pre-task form; `tests/loop-inventory.tests.{sh,ps1}`
+  gain `TEST-008`/`TEST-009` covering the field shape, the trace lifecycle
+  reset, monotonic sequencing, all four trace-identity mismatch dimensions,
+  and comparator purity.
+
 - **Epic A7 structural compatibility suite (Issue #195, T-004)**: added
   offline Bash and PowerShell structural gates for the full seven-file and
   lite three-file profiles, a versioned recorded-response corpus, and strict
