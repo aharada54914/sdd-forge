@@ -14,6 +14,19 @@
   jsonschema 4.26.0 クロス検証で相違なしを記録。CI ステップ候補は
   `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
   として staged 済みで `MANIFEST.sha256` に hash 束縛されている。
+- **Capability Summary schema と validator (Issue #192,
+  epic-192-a4-facet-manifest T-002)**: `contracts/capability-summary.
+  schema.json` (draft-07、Lite トラック専用の 6 フィールドのみ、vendored
+  copy を `plugins/sdd-quality-loop/contracts/` に同梱) と、T-001 の
+  手書き draft-07 部分エンジンを踏襲した
+  `validate-capability-summary.{py,sh,ps1}`（schema conformance のみ、
+  semantic check なし）を追加。1 スイート
+  (`tests/capability-summary-schema.tests.{sh,ps1}`、fixture 13 件、
+  22/22 assertion 両ランタイム一致)を `tests/run-all.{sh,ps1}` に登録し、
+  公式 draft-07 メタスキーマ検証と jsonschema 4.26.0 クロス検証を記録。CI
+  ステップ候補は T-001 の staged candidate に追記し、
+  `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
+  hash に更新した。
 
 ### Fixed
 
