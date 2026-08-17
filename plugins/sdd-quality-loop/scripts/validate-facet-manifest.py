@@ -29,8 +29,8 @@ additionalProperties (bool or schema), properties, propertyNames, pattern,
 enum, const, uniqueItems, minItems, minLength, if/then/else, not, oneOf,
 boolean subschema values, items, $ref/definitions (same-document fragments
 only). `$schema`/`$id`/`title` are annotation keywords, not constraint
-keywords, and are not implemented here (Discovery contract checks
-`$schema`/`$id` separately).
+keywords, and are intentionally outside this engine's constraint set
+(Discovery contract checks `$schema`/`$id` separately).
 """
 import argparse
 import json
