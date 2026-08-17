@@ -1,17 +1,29 @@
 # CODEOWNERS for sdd-forge
 #
-# This file maps critical paths to code owner team(s).
-# The owner placeholders below MUST be replaced with actual GitHub team or user handles
-# before this config takes effect.
+# This config is live. @aharada54914 is the repository owner
+# (github.com/aharada54914/sdd-forge), not a placeholder — the four rules below
+# are in effect today and require that owner's approval to merge changes under
+# the paths they name.
 #
-# To update CODEOWNERS:
-#   1. Replace @aharada54914 with the actual team slug (e.g., @sdd-forge/maintainers)
-#      or individual GitHub handle (e.g., @alice).
-#   2. Commit and push to activate.
+# Coverage — exactly four paths are owned:
+#   /plugins/sdd-quality-loop/scripts/     gate scripts and guards
+#   /plugins/sdd-quality-loop/references/  gate reference data
+#   /.github/                              CI/CD and governance
+#   /specs/                                specification and risk policy
 #
-# Owner assignment strategy:
-# - security-critical paths require explicit approval from assigned owners before merge
-# - all paths default to the primary maintainer team
+# There is NO `*` catch-all rule. Every path outside those four is unowned, so
+# changes to it need no CODEOWNERS approval. Adding a catch-all would change
+# approval requirements repository-wide; treat it as a deliberate policy
+# decision, not a cleanup.
+#
+# Known coverage gaps, noted for future consideration (NOT currently owned —
+# listing them here does not grant ownership):
+#   /plugins/sdd-quality-loop/hooks/  /contracts/  /mcp/  /install.sh
+#   /install.ps1  /tests/validate-repository.ps1  /plugins/sdd-review-loop/agents/
+#
+# Optional future change: the individual handle could be swapped for a team slug
+# (e.g., @sdd-forge/maintainers) to spread review load. This is not a
+# prerequisite for anything below — the current handle works as written.
 
 # Security-critical: quality-loop gate scripts and guards
 /plugins/sdd-quality-loop/scripts/         @aharada54914

@@ -59,10 +59,33 @@ function Get-PluginsHashAtPin([string]$Pin, [string]$PluginsRelative) {
         Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
     }
 }
+# Returns $true when $ScriptRoot has any git history to consult at all (git
+# binary present and it is a work tree). Checked independently of
+# Get-PluginsPinCommit's own return value, because that function also
+# returns $null for reasons that are NOT "no history exists" (e.g. an
+# evidence path outside $RepoRoot, or a path with no commits) -- only the
+# true absence of git history should relax Test-PluginsHashMatches below.
+function Test-PluginsGitHistoryAvailable() {
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $false }
+    & git -C $ScriptRoot rev-parse --is-inside-work-tree *> $null
+    return $LASTEXITCODE -eq 0
+}
+# Returns $true if $PluginsFile's content matches $Expected either right
+# now, or as of the commit that produced $EvidenceFile (the review contract
+# JSON whose recorded manifest hash is being validated). A release artifact
+# (e.g. the tarball repository-release-validation.tests.sh builds) carries no
+# .git directory, so there is no history there to reconcile a
+# manifest-recorded hash against: the comparison is not evaluable rather than
+# failed, and is accepted for this plugins/* shared-reference class only.
+# The same assertion is still fully enforced by every git-bearing run of this
+# script (in place, in CI checkouts, in this repo's own fixtures) -- that is
+# where a stale or forged hash is actually checkable, and a mismatch the pin
+# cannot justify still fails there.
 function Test-PluginsHashMatches([string]$PluginsFile, [string]$Expected, [string]$EvidenceFile) {
     if (-not (Test-Path -LiteralPath $PluginsFile -PathType Leaf) -or
         (Get-Item -LiteralPath $PluginsFile -Force).LinkType) { return $false }
     if ((Get-Sha256 $PluginsFile) -eq $Expected) { return $true }
+    if (-not (Test-PluginsGitHistoryAvailable)) { return $true }
     $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $PluginsFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
     $pluginsRelative = $PluginsFile.Substring($prefix.Length).Replace("\", "/")

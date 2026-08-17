@@ -1,0 +1,28 @@
+# RED evidence -- validate-capability-registry (pwsh), against a deliberately permissive stub
+$ pwsh -NoProfile -File tests/validate-capability-registry.tests.ps1
+ok: TEST-028: plugins/sdd-capability/ does not exist
+ok: TEST-028: every REQ-002..005 script/reference file lives under plugins/sdd-quality-loop/
+not ok: TEST-014: gate-id-duplicate detected: expected non-zero exit + diagnostic containing 'registry: gate-id-duplicate: dup-gate' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-015: implementation-ref-missing (field absent) detected: expected non-zero exit + diagnostic containing 'registry: implementation-ref-missing: no-ref-gate' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-015: implementation-ref-missing (path does not exist) detected: expected non-zero exit + diagnostic containing 'registry: implementation-ref-missing: bad-path-gate' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-016/017: unregistered check-*.py master flagged: expected non-zero exit + diagnostic containing 'registry: unregistered-script: plugins/sdd-quality-loop/scripts/check-unregistered.py' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+ok: TEST-017(i): a properly-referenced master is not flagged
+ok: TEST-017(ii): a script outside the scan root is never flagged
+ok: TEST-017(iv): a non-check-* script under the scan root is never scanned
+not ok: TEST-018: stage-missing re-asserted independent of schema: expected non-zero exit + diagnostic containing 'registry: stage-missing: no-stage-gate' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-019: pack-owned gates.yaml detected repository-wide: expected non-zero exit + diagnostic containing 'registry: pack-owns-gate-definition: capability-packs/some-pack/gates.yaml' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-020: provider-name-detected fires on a real provider term: expected non-zero exit + diagnostic containing 'registry: provider-name-detected:' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+ok: TEST-020: provider-neutral vocabulary (durable_workflow) is not a false positive
+not ok: TEST-021: dangling-gate-reference detected: expected non-zero exit + diagnostic containing 'registry: dangling-gate-reference: dangling-cap -> nonexistent-gate-id' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-022: unknown-upgrade-reason fails closed against the real catalog: expected non-zero exit + diagnostic containing 'registry: unknown-upgrade-reason: bad-reason-cap -> 'not_a_real_reason'' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-039: capability-id-duplicate detected: expected non-zero exit + diagnostic containing 'registry: capability-id-duplicate: dup-cap' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-039: combined fixture -- gate-id-duplicate surfaces: expected non-zero exit + diagnostic containing 'registry: gate-id-duplicate: dup-gate-combo' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+not ok: TEST-039: combined fixture -- capability-id-duplicate surfaces (neither masks the other): expected non-zero exit + diagnostic containing 'registry: capability-id-duplicate: dup-cap-combo' -- actual (rc=0): validate-capability-registry: all 9 checks passed.
+ok: fully-clean fixture: all 9 checks pass on valid input (negative proof)
+ok: self-registration: validate-capability-registry.tests.sh registered in tests/run-all.sh
+ok: self-registration: validate-capability-registry.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged workflow candidate registers this suite's CI steps
+ok: human-copy: staged workflow candidate sha256 matches MANIFEST.sha256
+---- summary: pass=11 fail=12 ----
+validate-capability-registry suite FAILED (11 passed, 12 failed)
+exit: 1

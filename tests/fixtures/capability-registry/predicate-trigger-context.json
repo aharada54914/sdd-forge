@@ -1,0 +1,18 @@
+{
+  "predicate": {
+    "any": [
+      {
+        "scope": "affected_component",
+        "field": "artifact_kinds",
+        "operator": "contains",
+        "value": "durable_workflow"
+      }
+    ]
+  },
+  "properties": {
+    "artifact_kinds": [
+      "durable_workflow",
+      "cli_tool"
+    ]
+  }
+}

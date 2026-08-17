@@ -1,0 +1,200 @@
+############ LEG 1: whole-batch, both bundles ############
+== whole-batch epic-136-phase2
+  exit=127 (expected 19) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 19, got 127
+  [whole-batch epic-136-phase2] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== whole-batch epic-189-a1
+  exit=127 (expected 19) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 19, got 127
+  [whole-batch epic-189-a1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ LEG 2: single-target, EVERY manifest entry ############
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/check-contract.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-quality-loop/scripts/check-contract.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/references/risk-upgrade-policy.md
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-lite/references/risk-upgrade-policy.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.sh
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-lite/scripts/check-risk-upgrade.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-lite/skills/lite-spec/SKILL.md
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-lite/skills/lite-spec/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: plugins/sdd-ship/skills/ship/SKILL.md
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: plugins/sdd-ship/skills/ship/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: tests/guard-parity.tests.sh
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: tests/guard-parity.tests.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-136-phase2-gates :: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-136-phase2-gates :: specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/references/guard-invariants.json
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/references/guard-invariants.json] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-ship/skills/ship/SKILL.md
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-ship/skills/ship/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-lite/skills/lite-spec/SKILL.md
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-lite/skills/lite-spec/SKILL.md] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [single epic-189-a1-project-context :: plugins/sdd-quality-loop/scripts/sdd-hook-guard.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ LEG 3: adversarial replay of every EVICTED line ############
+# The 2026-08-11 hazard shape: hand-craft the deleted manifest line and
+# apply it as a single-target batch. Must be REFUSED (candidate absent).
+== REPLAY 136 :: .github/workflows/test.yml
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: .github/workflows/test.yml] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/references/guard-invariants.json
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: plugins/sdd-quality-loop/references/guard-invariants.json] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generate-guard-invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard_invariants.py] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+  exit=127 (expected 10) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 10, got 127
+  [REPLAY 136 :: plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh] changed=0  CI-steps-lost=0  registry-keys-lost=0
+== REPLAY 189 :: 
+  exit=127 (expected 0) | sh: /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge--claude-worktrees-zealo
+    **** PUBLISHER LEG FAILED: expected exit 0, got 127
+  [REPLAY 189 :: ] changed=0  CI-steps-lost=0  registry-keys-lost=0
+
+############ LEG 4: bundle-specific runner ############
+== runner apply-protected-files.ps1
+  exit=2 | apply-protected-files: Windows is required
+  [runner] SKIPPED: host is not Windows; the runner refused before copying anything, so this leg proves nothing
+
+############ VERDICT ############
+watched live paths: 25 (plus the CI step-name set and every canonical array)
+leg 4 (bundle runner): SKIPPED (non-Windows host)
+publisher legs with an unexpected exit code: 45
+PUBLISHER LEGS FAILED: 45 leg(s) did not produce the
+outcome they declared, so no zero-removal claim can be made from this
+run. Removals counted anyway: 0.

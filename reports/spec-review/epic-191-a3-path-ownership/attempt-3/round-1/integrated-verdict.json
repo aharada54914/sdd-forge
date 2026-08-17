@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-191-a3-path-ownership",
+  "attempt": 3,
+  "round": 1,
+  "verdict": "PASS",
+  "warningCount": 0,
+  "reviewer_a_run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-a3r1-seq0669",
+  "reviewer_b_run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a3r1-seq0670",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-a3r1-0669",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a3r1-0670",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  }
+}

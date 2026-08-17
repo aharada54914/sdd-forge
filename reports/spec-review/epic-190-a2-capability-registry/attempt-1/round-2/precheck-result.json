@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "abdc2d073b7f491da5b5efcb4da251145978095169f1360804da0c165062bd16",
+  "acceptance_sha256": "ff4874720b1c145321e422ac8f0dbe75c2a93f30964e99002a3a2182ba9011ac",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "211ab40faca84c0ddc890ce4cc8df3fde1522c266060be1bc1aa9285b525997b",
+  "edit_summary": "Resolved minimum_enforcement capabilities[]/gates[] contradiction and required_facets/conditional_facets entry-shape ambiguity from round 1 review.",
+  "reset": false,
+  "generated_at": "2026-07-21T16:15:05Z"
+}

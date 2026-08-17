@@ -1,0 +1,18 @@
+workflow:
+  capability_enforcement: advisory
+components:
+  - id: desktop
+    paths:
+      include:
+        - "src/desktop/**"
+      exclude:
+        - "src/desktop/generated/**"
+  - id: mobile
+    paths:
+      include:
+        - "src/mobile/**"
+shared_paths:
+  - pattern: "contracts/**"
+    components:
+      - desktop
+      - mobile

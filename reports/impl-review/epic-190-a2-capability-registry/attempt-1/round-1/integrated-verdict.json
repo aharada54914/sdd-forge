@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "BLOCKED",
+  "findings_critical": 1,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic190a2capabilityregistry-a1r1"
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-191-a3-path-ownership-0320",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "aa535843e3fcdceb4ba8d6de4ede86fd3509c6b674e241ca035ed0f8d21f5287"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "f110fd10ca7ca516a803a9c54cac032ad73537b0890ad3a4923748fd5721ca36"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "703cdccbefcc2a0f53e355ed39f2e44fe3e648c4079ecd9f095269366bcb84a1"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/spec-review/epic-191-a3-path-ownership/attempt-1/round-1/precheck-result.json", "sha256": "430cff2a067e708ed0dbe09313bb930feb75fe7d6b9d20eb140227bfe493b178"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Critical", "finding": "Every REQ-001..REQ-009 decomposes into explicit numbered AC-001..AC-055 with mechanically checkable behavior (exit codes, literal evidence 'state' strings, fail-closed diagnostics), and acceptance-tests.md maps each AC 1:1 to a TEST-ID with a concrete test target (e.g. AC-011->TEST-011 fail-closed schema-conformance fixture, AC-054->TEST-054 checks the literal 'schema: check-component-coverage-verdict/v1' and producer.sha256 fields). No in-scope requirement is left as bare intent."},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major", "finding": "Goals section enumerates REQ-001..REQ-009; each has a contiguous AC block in requirements.md (REQ-001->AC-001..011, REQ-002->AC-012..018, REQ-003->AC-019..025, REQ-004->AC-026..036 plus AC-052..055, REQ-005->AC-037..041, REQ-006->AC-042..044, REQ-007->AC-045..047, REQ-008->AC-048..049, REQ-009->AC-050..051). No goal is left untraced."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major", "finding": "Acceptance criteria are stated as externally observable exit codes, literal evidence-record field values (AC-027's state: 'not-applicable (disabled-legacy)', AC-054's schema string and producer.sha256), and fixture-triggerable classifications (EXCLUSIVE/OVERLAP/UNOWNED/EXCLUDED_MATCH) rather than vague intent statements."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major", "finding": "Non-goals lists six explicit exclusions (project-context.yaml schema, Facet Manifest schema, canonicalizer reimplementation, Capability Registry/Registry gate projection, Provider Bindings file schema, sdd-hook-guard.py enforcement-logic changes), each cross-referenced to the owning epic, closing the boundaries this feature could otherwise expand into."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Major", "finding": "Material constraints are explicit: data/git-diff framing (REQ-003 NUL-safe parsing, single-writer/TOCTOU snapshot), cross-platform compatibility (case-sensitivity, NFC normalization, backslash normalization), security (Security Boundaries: protected-file precedent, producer-digest tamper-evidence, credentials never read), and approval boundaries (Roles and Permissions: human-copy cp+SHA-256 verification and Approval Draft->Approved are human-only, never performed in this spec-phase package)."},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major", "finding": "Risks section names five high-risk claims (resolver mis-classification, Epic A4 forward-dependency premature activation, human-copy registration window, ownership_digest blast-radius, cross-epic seed-inventory coupling) and ties each to a concrete validation surface -- a dedicated AC/fixture (AC-032 Fail-5 dedicated fixture; AC-038/AC-040 selective-stale matrix) or an explicit fail-closed/hard-error behavior documented in Assumptions. Not SKIP: both risk claims and validation surfaces are present."}
+  ]
+}

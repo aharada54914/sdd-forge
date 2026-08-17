@@ -98,10 +98,32 @@ stub_suite() {
 # bump-version.sh's own pre-existing CHANGELOG-heading precondition
 # (scripts/bump-version.sh:38-42) so each case isolates the NEW loop-gate
 # precondition specifically (design.md API/Contract Plan step 3).
+#
+# Renames the fixture's "## Unreleased" heading when there is one. Between a
+# release and the next entry landing, the real CHANGELOG legitimately has no
+# such heading (scripts/bump-version.sh has just renamed it), and the plain
+# rename would then no-op silently and leave every case failing on the
+# CHANGELOG precondition instead of exercising the loop gate -- so the
+# heading is inserted after the "# Changelog" title in that state. Either
+# way the postcondition is asserted, never assumed: no heading, no fixture.
 rename_changelog_heading() {
   local fixture_root="$1" version="$2"
-  sed -i.bak "s/^## Unreleased\$/## v${version}/" "${fixture_root}/CHANGELOG.md"
-  rm -f "${fixture_root}/CHANGELOG.md.bak"
+  local changelog="${fixture_root}/CHANGELOG.md"
+  if grep -q '^## Unreleased$' "$changelog"; then
+    sed -i.bak "s/^## Unreleased\$/## v${version}/" "$changelog"
+    rm -f "${changelog}.bak"
+  else
+    awk -v heading="## v${version}" '
+      !done && /^# Changelog$/ { print; print ""; print heading; done = 1; next }
+      { print }
+      END { if (!done) { print ""; print heading } }
+    ' "$changelog" > "${changelog}.new"
+    mv "${changelog}.new" "$changelog"
+  fi
+  if ! grep -Eq "^## v${version//./\\.}( |\$)" "$changelog"; then
+    printf 'fixture setup failed: no "## v%s" heading in %s\n' "$version" "$changelog" >&2
+    exit 1
+  fi
 }
 
 # commit_fixture_baseline <fixture_root> — commits the fixture's

@@ -1,22 +1,13 @@
-# SDD Plugins User Guide (移転しました)
+# SDD Forge リファレンス — MCP サーバーとエージェントモデルルーティング
 
-本ガイドは再構成され、複数のドキュメントに分割されました。以下の表を参考に、新しいドキュメントをご参照ください。
+本書は SDD Forge の 2 つの領域についての**詳細リファレンス（正準）**です。
 
-| 旧セクション | 新しい場所 |
-|---|---|
-| 1. 全体ワークフロー | [docs/workflow-guide.md](docs/workflow-guide.md) |
-| 2. どのSkillを使うか | [docs/skill-reference.md](docs/skill-reference.md) |
-| 3. Compatibility Matrix | [docs/skill-reference.md](docs/skill-reference.md) |
-| 4. 決定論的ゲートの使い方 | [docs/skill-reference.md](docs/skill-reference.md) |
-| 5. refactorモードと差分テスト | [docs/workflow-guide.md](docs/workflow-guide.md) |
-| 6-7. 開発例 | [docs/workflow-guide.md](docs/workflow-guide.md) (正常系フロー) |
-| 8. 中断後の再開 | [docs/workflow-guide.md](docs/workflow-guide.md) (異常系) |
-| 9. GitHubとGitLab | [docs/workflow-guide.md](docs/workflow-guide.md) |
-| 10. Blockedになる条件 | [docs/workflow-guide.md](docs/workflow-guide.md) (異常系) |
-| 11. バージョン移行ガイド | [CHANGELOG.md](CHANGELOG.md) |
-| 12. トラブルシューティング | [docs/troubleshooting.md](docs/troubleshooting.md) |
+- **MCP サーバー 3 種**（`sdd-forge-mcp` / `local-env-mcp` / `ci-mcp`）の導入・登録・ツール仕様・セキュリティ境界・エラーコード・ロールバック手順
+- **エージェントモデルルーティング**（`select-agent-model` の `--effort-policy`）の既定挙動
 
-**初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
+MCP サーバーについては、[README.md](README.md) の「MCP サーバー」節が3サーバーの概要を、[docs/architecture/overview.md](docs/architecture/overview.md) の §6 がアーキテクチャ全体における位置づけを扱っており、どちらも導入オプション・トークン設定・登録手順といった詳細は本書へリンクしています。本書はそのリンク先として、全ツールの入出力・エラーコード・フェイルセーフ挙動・ロールバック手順までを収めています。
+
+SDD のワークフロー手順・Skill の選び方・トラブルシューティングは別ドキュメントに分割済みで、対応表は末尾の [旧ユーザーガイドからの移行先](#旧ユーザーガイドからの移行先) にまとめてあります。**SDD の使い方を初めて学ぶ方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 
 ## エージェントモデルルーティング — Effort Policy
 
@@ -36,6 +27,16 @@ epic-159-pillar-c Phase 2) 以降、既定値が `matrix` になった
 MCP サーバーが提供する情報は SDD ワークフローに対して常に **助言的（advisory）** です。エージェントは各 tool の応答を判断材料として利用しますが、それによって `tasks.md` の Approval / Status 判定や品質ゲートの合否確認といったファイルベースの手続きを自動的に進めたり、その判定を上書きしたりすることはありません。SDD ワークフローの決定権は常にファイルベースの手続き側にあり、MCP はそれを補助する情報源にとどまります。
 
 また、この read-only な助言層としての位置づけを維持するため、write tool（状態を変更・作成・進行させる tool）をこれらの MCP サーバーに追加しない方針を継続しています。以下の `sdd-forge-mcp` / `local-env-mcp` / `ci-mcp` はいずれも読み取り専用の tool のみを登録しており、将来の機能拡張であってもこの方針は変わりません。
+
+3 つのサーバーの概要と、各ツール契約（入出力スキーマ）の正準ソースは以下のとおりです。契約スキーマはいずれもリポジトリ直下の `contracts/` 配下にあります。
+
+| サーバー | ツール数 | 契約の正準ソース |
+|---|---|---|
+| `sdd-forge-mcp` | 14種（core 8 + evidence 6）、resources 5種 | [`contracts/sdd-forge-mcp-tools.v1.schema.json`](contracts/sdd-forge-mcp-tools.v1.schema.json) |
+| `local-env-mcp` | 3種 | [`contracts/local-env-mcp-tools.v1.schema.json`](contracts/local-env-mcp-tools.v1.schema.json) |
+| `ci-mcp` | 5種 | [`contracts/ci-mcp-tools.v1.schema.json`](contracts/ci-mcp-tools.v1.schema.json) |
+
+いずれのサーバーも **Node.js >= 22.19.0**（`package.json` の `engines.node`）を必要とします。
 
 ### sdd-forge-mcp
 
@@ -62,11 +63,11 @@ MCP サーバーが提供する情報は SDD ワークフローに対して常�
 |---|---|
 | （既定） | MCP サーバーを配置し、`--target` に応じて Claude / Codex / Cursor / VS Code に登録 |
 | `--skip-mcp` | すべての MCP サーバーの配置・登録をスキップ |
-| `--mcp sdd-forge-mcp,local-env-mcp` | 配置・登録する MCP を明示的に選択（有効値: `sdd-forge-mcp`, `local-env-mcp`） |
+| `--mcp sdd-forge-mcp,local-env-mcp,ci-mcp` | 配置・登録する MCP を明示的に選択（有効値: `sdd-forge-mcp`, `local-env-mcp`, `ci-mcp`。省略時は 3 件すべて） |
 
-**Node.js 要件**: Node >= 20 が PATH 上に必要です。`node` が見つからない、またはメジャーバージョンが 20 未満の場合、MCP サーバーの配置・登録のみが警告付きでスキップされます（plugin 本体のインストールは継続します）。
+**Node.js 要件**: Node >= 22.19.0 が PATH 上に必要です。`node` が見つからない、または 22.19.0 未満の場合、MCP サーバーの配置・登録のみが警告付きでスキップされます（plugin 本体のインストールは継続します）。
 
-### 対象リポジトリの指定
+#### 対象リポジトリの指定
 
 MCP サーバーがどのリポジトリを SDD ルートとして扱うかは、以下の優先順位で決まります。
 
@@ -76,7 +77,7 @@ MCP サーバーがどのリポジトリを SDD ルートとして扱うかは�
 
 リポジトリ外から呼び出す場合のみ、利用者が `--root` または `SDD_FORGE_ROOT` を設定してください。
 
-#### tools（13種）
+#### tools（14種）
 
 **core（8種）**
 
@@ -205,8 +206,8 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 
 **ロールバック手順**:
 
-1. `./uninstall.sh --mcp sdd-forge-mcp,local-env-mcp`（または `--skip-mcp-uninstall` を付けずに通常のフル uninstall）を実行すると、Claude / Codex / Cursor / VS Code への登録解除と配置済みファイルの削除が行われます
-   - 登録解除時は、installer が管理するエントリ（`sdd-forge-mcp`・`local-env-mcp`）のみを削除し、他のユーザー定義エントリは無傷です
+1. `./uninstall.sh --mcp sdd-forge-mcp,local-env-mcp,ci-mcp`（または `--skip-mcp-uninstall` を付けずに通常のフル uninstall。`--mcp` 省略時は 3 件すべてが対象）を実行すると、Claude / Codex / Cursor / VS Code への登録解除と配置済みファイルの削除が行われます
+   - 登録解除時は、installer が管理するエントリ（`sdd-forge-mcp`・`local-env-mcp`・`ci-mcp`）のみを削除し、他のユーザー定義エントリは無傷です
 2. リポジトリ側で MCP サーバー自体の変更を戻したい場合は、該当コミットを revert してください（`dist/` も同一コミットに含まれるため、revert だけで成果物も戻ります）
 3. 次回 install 時に `--skip-mcp` を付けることで、MCP サーバーなしでの再導入も可能です
 
@@ -226,7 +227,7 @@ installer は以下のクライアントに自動的に `local-env-mcp` を登�
 | `list_run_artifacts` | `owner`?, `repo`?, `runId`（必須） | `{ kind: "run-artifacts", artifacts: Artifact[] }`（メタデータのみ、バイナリ本体は返さない。`expired: true` は正常データ） |
 | `get_job_log` | `owner`?, `repo`?, `jobId`（必須） | `{ kind: "job-log", jobId, log, truncated, returnedBytes }`（256 KiB＝262144 バイトを超えるログは末尾優先で truncate。UTF-8 文字境界を跨がない安全な切り出し） |
 
-各ツールの入力スキーマは `.strict()` で、action/method/body を受け取るフィールドは一切存在しません（write 誘発フィールドの構造的排除）。契約の正準ソースは `mcp/ci-mcp/contracts/ci-mcp-tools.v1.schema.json` です。
+各ツールの入力スキーマは `.strict()` で、action/method/body を受け取るフィールドは一切存在しません（write 誘発フィールドの構造的排除）。契約の正準ソースは [`contracts/ci-mcp-tools.v1.schema.json`](contracts/ci-mcp-tools.v1.schema.json)（リポジトリ直下の `contracts/` 配下）です。
 
 #### セキュリティ境界
 
@@ -318,7 +319,7 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 
 - クライアント設定ディレクトリが存在しない場合（クライアント未導入）: そのクライアントのみ登録をスキップし、他のクライアントの登録は継続します
 - 設定ファイルが壊れた JSON の場合: 上書きしない（データ破壊を防止）。エラー通知を表示し、該当クライアントの登録のみ中断します
-- Node.js が PATH 上にない、またはメジャーバージョンが 20 未満の場合: MCP サーバーの配置・登録のみが警告付きでスキップされます（plugin 本体のインストールは継続します）
+- Node.js が PATH 上にない、または 22.19.0 未満の場合: MCP サーバーの配置・登録のみが警告付きでスキップされます（plugin 本体のインストールは継続します）
 
 **ロールバック手順**:
 
@@ -341,3 +342,21 @@ claude mcp add ci-mcp --scope user -- node <install-root>/mcp/ci-mcp/dist/index.
 | `upstream-error` | GitHub API が 403（rate limit 以外）/5xx/予期しないステータスを返した、またはネットワーク障害が発生した |
 | `rate-limited` | GitHub API のレート制限に到達した（403 + レート制限ヘッダ、または 429） |
 | `auth-missing` | `CI_MCP_GITHUB_TOKEN`/`GH_READONLY_TOKEN`/`GITHUB_TOKEN` のいずれも設定されていない、または GitHub API が 401 を返した |
+
+## 旧ユーザーガイドからの移行先
+
+本書はかつて「SDD Plugins User Guide」として SDD の使い方全般を扱っていましたが、その内容は再構成され、複数のドキュメントに分割されました。現在の本書に残っているのは、上記の MCP サーバーとエージェントモデルルーティングのリファレンスのみです。旧セクションをお探しの場合は以下の表を参照してください。
+
+| 旧セクション | 新しい場所 |
+|---|---|
+| 1. 全体ワークフロー | [docs/workflow-guide.md](docs/workflow-guide.md) |
+| 2. どのSkillを使うか | [docs/skill-reference.md](docs/skill-reference.md) |
+| 3. Compatibility Matrix | [docs/skill-reference.md](docs/skill-reference.md) |
+| 4. 決定論的ゲートの使い方 | [docs/skill-reference.md](docs/skill-reference.md) |
+| 5. refactorモードと差分テスト | [docs/workflow-guide.md](docs/workflow-guide.md) |
+| 6-7. 開発例 | [docs/workflow-guide.md](docs/workflow-guide.md) (正常系フロー) |
+| 8. 中断後の再開 | [docs/workflow-guide.md](docs/workflow-guide.md) (異常系) |
+| 9. GitHubとGitLab | [docs/workflow-guide.md](docs/workflow-guide.md) |
+| 10. Blockedになる条件 | [docs/workflow-guide.md](docs/workflow-guide.md) (異常系) |
+| 11. バージョン移行ガイド | [CHANGELOG.md](CHANGELOG.md) |
+| 12. トラブルシューティング | [docs/troubleshooting.md](docs/troubleshooting.md) |

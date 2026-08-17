@@ -1,0 +1,27 @@
+### GREEN(1a): pwsh AVAILABLE, after the prerequisite guard
+2026-08-13T23:31:37Z
+$ bash tests/component-path-ownership-parity.tests.sh
+ok - TEST-050 resolver outputs parse as JSON
+ok - TEST-050 resolver canonical stdout parity
+ok - TEST-050 resolver exit parity
+ok - TEST-050 coverage outputs parse as JSON
+ok - TEST-050 coverage canonical stdout and warning parity
+ok - TEST-050 coverage exit and LASTEXITCODE parity
+ok - TEST-050 resolver extra-argument exit parity
+ok - TEST-050 resolver extra-argument category parity
+ok - TEST-050 coverage extra-argument exit parity
+ok - TEST-050 coverage extra-argument category parity
+ok - TEST-050 disposable argument-drop mutant is detected
+ok - TEST-050 disposable child-exit mutant is detected
+ok - TEST-047 all spec-declared suites are registered once in both runners and staged CI
+ok - TEST-051 parity harness self-registration
+ok - TEST-051 staged candidates match every manifest row
+ok - TEST-047 registration audit rejects a disposable missing-suite mutant
+ok - TEST-047 spec-declared behavior branches have positive and red-then-fixed evidence
+ok - TEST-047 glob, NFC-collision, and reference-only fixture inventory
+ok - TEST-047 live protected workflow remains byte-unchanged
+ok - TEST-049 release surfaces are untouched or synchronized by bump-version
+ok - TEST-048 task changelog registration survives release-heading replay
+
+Results: 21 passed, 0 failed
+rc=0

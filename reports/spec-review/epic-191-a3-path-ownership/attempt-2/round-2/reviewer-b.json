@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-191-a3-path-ownership-spec-spec-reviewer-b-a2r2-seq0666",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-191-a3-path-ownership-a2r2-0666",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-191-a3-path-ownership/requirements.md", "sha256": "ae87f0f246de8d2c3fdccafe71545bd6f5d4f40c4fba19aa8192134a57d0658c"},
+    {"path": "specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "d455fd5f8596c43b79fb92e42b6e18a95ac493d0789a61087679b657669b93e8"},
+    {"path": "specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-2/precheck-result.json", "sha256": "12e18ba0586ac206a2a079bf894fdd2e54ec5625c86a47f850f05716c13cc533"},
+    {"path": "reports/spec-review/epic-191-a3-path-ownership/attempt-2/round-2/integrated-summary.json", "sha256": "36b64338f428b35cc75db8b201cd109924a239c45c3185de677658670fbb1bda"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-004's applicability derivation (~line 432-433, and the disabled-legacy sub-bullet ~471-485) ties the Gate's config read to 'the ADR-0016 file-absence fallback' only; investigation.md INV-016 confirms that fallback is used 'ONLY for the compatibility case where project-context.yaml itself is absent' -- never for a file that is present but malformed/unparseable. Meanwhile the 2026-08-11 amendment (Problems ~168-171, AC-035 ~1030-1042) pins down, in careful detail, that check-contract's OWN tier-minimum predicate must stay 'file presence, not a re-derived three-way state' and be 'fail-closed for a malformed config' specifically because 'a caught parse exception... could silently conclude disabled-legacy and turn the minimum off.' Requirements.md never states the equivalent rule for the Gate itself: if the Gate's own YAML read throws on a malformed sdd/project-context.yaml, one implementer could hard-crash (no evidence, correctly failing check-contract), while an equally reasonable implementer could catch that exception and reuse the file-absence fallback code path, emitting a genuine 'passes:true'/'state: not-applicable (disabled-legacy)' record. Because AC-055's producer-digest check only verifies the evidence's producer.sha256 (script identity), not config validity, that genuine record would satisfy AC-035's active tier-minimum requirement even though the config was broken and no real ownership evaluation ran -- silently reopening, for the Gate's own config read, the exact 'caught parse exception... disarms the minimum' regression Problems/AC-035 explicitly guard against for check-contract. This is a downstream-mismatch ambiguity, not a stated contradiction (no two passages assert incompatible facts outright), so Major per calibration's severity table ('ambiguous requirement... missing constraint... high-risk claim with no planned validation surface')."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The a2r1 Critical finding (Main Workflows step 4 and Security Boundaries bullet 1 not extending the 2026-08-11 conditional-activation supersession) is resolved: both sections now carry matching 'Superseded in part (2026-08-11, human-directed)' clauses (requirements.md ~1339-1358, ~1448-1470) stating, consistently with Problems (~137-177) and AC-035 (~1024-1060), that while sdd/project-context.yaml is absent the required-check-set does not catch an unprotected quality-gate/SKILL.md edit, and that the guarantee re-arms -- fail-closed for a malformed file -- once the file lands. Checked REQ-004, Problems, Dependencies, Main Workflows, Security Boundaries, Edge Cases, and AC-035 against each other and found no remaining direct conflict in stated facts; the residual issue found (AMBIGUITY above) is an unaddressed interaction, not two passages asserting incompatible claims."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md TEST-001..055 cover essentially every negative path/boundary/failure mode requirements.md names: config-load-time errors (TEST-006/008/018), unresolvable rev / unrelated-histories / rename-limit-exceeded / TOCTOU (TEST-019/023/025), invalid-UTF-8 and NUL-safe framing (TEST-021), NFC collisions (TEST-010), all six Fail conditions (TEST-030-034), disabled-legacy/advisory/required boundaries (TEST-026-028,052-053), schema/inventory FAIL-closed-on-absence fixtures (TEST-011,042,044), and the newly added TEST-035a/b/c three-way activation-boundary fixture (absent/present-valid/present-malformed) added by this round's amendment. This is a comprehensive negative-path surface; the specific gap identified under AMBIGUITY is a root-cause definitional gap in requirements.md rather than a missing-test symptom, since TEST-035c only exercises check-contract against synthetic evidence bundles, not an undefined behavior."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every cross-epic assumption in requirements.md's Assumptions section (Epic A1 schema stability, canonicalizer availability, Epic A4 Facet Manifest shape, Epic A1's project-context.template.yaml) is either bound to a deterministic fail-closed fixture (AC-011 for schema conformance, AC-042/AC-044 for the template inventory) rather than left as a silent assumption, or explicitly tracked as a documented blocker (REQ-005/AC-037 on the canonicalizer). OQ-001 is marked Resolved with its normative rule folded into Fail-6/AC-033; OQ-002 is resolved via an explicit 'middle path' decision (proceed against documented shape now, hard-block T-001 Done via AC-011). No open assumption is left unmarked."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This feature is in scope for an approval boundary: Roles and Permissions requires a human maintainer to apply every staged human-copy candidate (cp + SHA-256 verification) before a registering task reaches Done, and 'Approval: Draft -> Approved is a human-only action, never performed in this spec-phase package.' This boundary is testable, not merely asserted: AC-036/TEST-036 requires '(d) a post-human-copy self-registration grep confirms the three check-component-coverage.* entries are present,' and AC-047/TEST-047 requires a '.github/workflows/test.yml human-copy proof for the five new suites' CI steps' -- both verify the human-applied end state rather than assuming it. Not a SKIP condition."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The same gap identified under AMBIGUITY leaves a security-relevant product decision unmade: what check-component-coverage.py itself must do when its own --config project-context.yaml is present but malformed (crash vs. reuse the file-absence disabled-legacy fallback). Because requirements.md pins this down in exacting detail for the sibling mechanism (check-contract's file-presence predicate, AC-035/Problems) but not for the Gate reading the same file, a design/implementation-policy reviewer inheriting this spec would have to invent this behavior themselves rather than verify an implementation against a stated requirement -- and the choice made determines whether AC-035's stated 'fail-closed for a malformed config' guarantee actually holds end-to-end. This is exactly the kind of missing product behavior DOWNSTREAM-READINESS exists to catch before handoff to implementation-policy review."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists anywhere in this repository (glob domain/* and **/domain/context-map.md both returned no matches), so the target project does not have an Approved domain/context-map.md with a schema-valid domain/domain-contract.json. Per the check's explicit skip condition, this check is recorded as skipped rather than evaluated."
+    }
+  ]
+}
