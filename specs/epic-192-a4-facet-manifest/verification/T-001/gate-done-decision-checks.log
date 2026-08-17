@@ -1,0 +1,18 @@
+===== gate Done-decision checks: 2026-08-17T02:18:16Z =====
+(recorded verbatim from the gate session console; run after commit
+d88e20f7 flipped T-001 to Done and the evidence bundle was regenerated
+against that clean tree. Kept as a separate per-phase log per
+RT-20260817-002's generational-hygiene note.)
+
+----- check-evidence-bundle T-001.evidence.json -----
+Verification contract passed for task T-001.
+Evidence bundle passed for task T-001.
+exit=0
+----- check-task-state (post-Done) -----
+Verification contract passed for task T-001.
+Evidence bundle passed for task T-001.
+Task state check passed for 5 task(s).
+exit=0
+----- check-workflow-state (post-Done) -----
+workflow-state: ok
+exit=0
