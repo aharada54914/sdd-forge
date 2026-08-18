@@ -19,6 +19,24 @@
   0's first task; the cross-reference validator and the rest of the fixture
   corpus land in T-002 through T-005.
 
+- **Domain contract v2 validator twins (Issue #290, sdd-domain-concept-contract
+  T-002)**: added `plugins/sdd-domain/scripts/validate-domain-contract.sh` and
+  `.ps1`, the deterministic sh/ps1 twin pair that checks a
+  `domain-contract/v2` file. This task lands the untrusted-input boundary:
+  fail-closed acquisition and JSON parse (a missing argument, a non-existent
+  path, a directory, an unreadable file, a syntactically broken body, and any
+  input above the 10 MiB ceiling each exit non-zero with a single
+  `RULE-ID: message` line on stderr, nothing on stdout, and no stack trace or
+  raw interpreter exception), and `schema`-value dispatch that rejects a
+  `domain-contract/v1` contract by name with `V2-WRONG-SCHEMA`. It also
+  establishes the shared skeleton the rest of the validator is built on: one
+  violation accumulator, one stderr emitter, and exit 0 or 1 only -- never a
+  partial verdict. No external dependency is introduced (the `.sh` side is a
+  single `python3` stdlib invocation, the `.ps1` side uses `ConvertFrom-Json`
+  and stays Windows PowerShell 5.1-safe). The structural checks and the
+  cross-reference integrity checks append to that same accumulator in T-003
+  and T-004.
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
