@@ -10,8 +10,8 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$SkillProposed = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/PROPOSED/lite-spec-SKILL.md.PROPOSED'
-$CheckRiskUpgrade = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/PROPOSED/check-risk-upgrade.ps1.PROPOSED'
+$SkillProposed = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md'
+$CheckRiskUpgrade = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
 $LiveShipSkill = Join-Path $RepoRoot 'plugins/sdd-ship/skills/ship/SKILL.md'
 $PowerShell = (Get-Process -Id $PID).Path
 

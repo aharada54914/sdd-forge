@@ -2,13 +2,13 @@
 # (epic-194-a6-lite-integration, T-002, design.md Test Strategy item 14,
 # TEST-014, AC-028, Blocker [B4]). PowerShell twin of
 # check-risk-upgrade-ineligible-no-reasons.tests.sh -- see that file's
-# header for the interim SUT-path note.
+# header for the canonical staged human-copy SUT-path note.
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
-$Sut = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/PROPOSED/check-risk-upgrade.ps1.PROPOSED'
+$Sut = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
 $PowerShell = (Get-Process -Id $PID).Path
 
 $Script:Pass = 0

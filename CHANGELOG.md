@@ -18,6 +18,31 @@
   epic's tasks, are staged alongside it pending a human apply step (see
   `specs/epic-194-a6-lite-integration/human-copy/README.md`).
 
+- **Epic 194 T-002 `check-risk-upgrade` Capability-derived trigger merge,
+  staged (#194)**: `check-risk-upgrade.sh`/`.ps1` gain an optional
+  `--capability-reasons <fragment-path>` / `-CapabilityReasons
+  <fragment-path>` second argument -- omitted, the script stays
+  byte-identical to today; supplied-and-valid, every matched
+  `eligible:false` Capability's own `upgrade_reasons` tokens (or, if empty,
+  a synthetic `ineligible:<id>` token) merge into `triggers=`, keyword-derived
+  tokens first; supplied-but-unreadable/malformed/shape-invalid, the script
+  fails closed (`exit 2`, no trigger output), distinct from the omitted-argument
+  case. `risk-upgrade-policy.md` documents the extended two-source contract.
+  Staged at its canonical `specs/epic-194-a6-lite-integration/human-copy/`
+  path pending the human apply step (T-001's runner); not yet applied to the
+  live `plugins/sdd-lite/**` path.
+
+- **Epic 194 T-003 `lite-spec`'s Risk-Upgrade Gate, Capability-derived Block,
+  staged (#194)**: `lite-spec/SKILL.md`'s Risk-Upgrade Gate section gains a
+  pre-generation step that assembles every Registry Capability matched
+  against a Project-Context-declared component into T-002's own
+  trigger-fragment shape and passes it to the extended `check-risk-upgrade`,
+  Blocking (`exit 10`, `full-required: ...`, non-overridable by `--lite`)
+  before any `specs/<feature>/` file is created -- the existing `ship`-time
+  recheck remains an unmodified, independent second stage. Staged at its
+  canonical `specs/epic-194-a6-lite-integration/human-copy/` path pending
+  the human apply step; not yet applied to the live path.
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went

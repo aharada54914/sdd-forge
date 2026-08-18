@@ -1,4 +1,4 @@
-### check-risk-upgrade-byte-identical.tests.sh ###
+### check-risk-upgrade-byte-identical.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 ok: TEST-007-clean: exit code identical (0)
 ok: TEST-007-clean: stdout byte-identical
 ok: TEST-007-auth: exit code identical (10)
@@ -18,7 +18,7 @@ ok: TEST-007-unavailable: stdout byte-identical
 
 Results: 16 passed, 0 failed
 
-### check-risk-upgrade-capability-merge.tests.sh (against .PROPOSED extended script) ###
+### check-risk-upgrade-capability-merge.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-008a: clean source + mixed fragment merges correctly ===
 ok: TEST-008a: exits 10 (a Capability-derived trigger fired)
 ok: TEST-008a: output matches exact expected merge (array order, synthetic token, eligible:true excluded)
@@ -34,7 +34,7 @@ ok: TEST-009c: no Predicate-DSL/Registry-matching call found in the staged scrip
 
 Results: 8 passed, 0 failed
 
-### check-risk-upgrade-fragment-fail-closed.tests.sh (against .PROPOSED extended script) ###
+### check-risk-upgrade-fragment-fail-closed.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-013a: unreadable (missing) fragment path ===
 ok: TEST-013a: exits 2
 ok: TEST-013a: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
@@ -58,7 +58,7 @@ ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible) -- fa
 
 Results: 13 passed, 0 failed
 
-### check-risk-upgrade-ineligible-no-reasons.tests.sh (against .PROPOSED extended script) ###
+### check-risk-upgrade-ineligible-no-reasons.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-014a: eligible:false, upgrade_reasons key absent ===
 ok: TEST-014a: exits 10
 ok: TEST-014a: synthetic ineligible:<id> token produced (never silently empty)
@@ -70,7 +70,8 @@ ok: TEST-014c: exits 10
 ok: TEST-014c: no-reasons entry's synthetic token appears in its own array position, not dropped
 
 Results: 6 passed, 0 failed
-### check-risk-upgrade-byte-identical.tests.ps1 ###
+
+### check-risk-upgrade-byte-identical.tests.ps1 (pwsh, against canonical staged human-copy candidate, pending human-apply) ###
 ok: TEST-007-clean: exit code identical (0)
 ok: TEST-007-clean: stdout byte-identical
 ok: TEST-007-auth: exit code identical (10)
@@ -90,7 +91,7 @@ ok: TEST-007-unavailable: stdout byte-identical
 
 Results: 16 passed, 0 failed
 
-### check-risk-upgrade-capability-merge.tests.ps1 (against .PROPOSED extended script) ###
+### check-risk-upgrade-capability-merge.tests.ps1 (pwsh, against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-008a: clean source + mixed fragment merges correctly ===
 ok: TEST-008a: exits 10
 ok: TEST-008a: output matches exact expected merge
@@ -106,7 +107,7 @@ ok: TEST-009c: no Predicate-DSL/Registry-matching call found
 
 Results: 8 passed, 0 failed
 
-### check-risk-upgrade-fragment-fail-closed.tests.ps1 (against .PROPOSED extended script) ###
+### check-risk-upgrade-fragment-fail-closed.tests.ps1 (pwsh, against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-013a: unreadable (missing) fragment path ===
 ok: TEST-013a: exits 2
 ok: TEST-013a: prints the dedicated fragment-invalid diagnostic
@@ -130,7 +131,7 @@ ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible)
 
 Results: 13 passed, 0 failed
 
-### check-risk-upgrade-ineligible-no-reasons.tests.ps1 (against .PROPOSED extended script) ###
+### check-risk-upgrade-ineligible-no-reasons.tests.ps1 (pwsh, against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-014a: eligible:false, upgrade_reasons key absent ===
 ok: TEST-014a: exits 10
 ok: TEST-014a: synthetic ineligible:<id> token produced

@@ -402,7 +402,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
 Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
-Status: Blocked
+Status: Implementation Complete
 
 Blocker (recorded 2026-07-22T15:39:07Z, a6-impl2): same root cause as T-001's
 own Blocker note (R-10 guard suffix-match with no `human-copy/` staging
@@ -644,7 +644,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
 Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
-Status: Blocked
+Status: Implementation Complete
 
 Blocker (recorded 2026-07-22T15:39:07Z, a6-impl2): same root cause as
 T-001's/T-002's own Blocker notes — this task's own single staged target

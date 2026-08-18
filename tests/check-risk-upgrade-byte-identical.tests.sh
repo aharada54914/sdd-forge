@@ -7,19 +7,21 @@
 # across the existing six-row keyword-scan fixture set reused as a
 # regression baseline, plus a clean (no-match) fixture.
 #
-# NOTE (interim, pending human-copy staging unlock — see tasks.md T-001
-# Blockers): the extended script under test lives at the .PROPOSED staging
-# path below, not yet at the live plugins/sdd-lite/scripts/ path, because
-# the R-10 guard currently denies staging it there (or applying it to the
-# live path) with no human-copy exception. Once a human applies T-001's
-# runner against this task's real staged payload, SUT below becomes the
-# live path; this suite's assertions do not change, since they already
-# require byte-for-byte parity with the live script.
+# NOTE: the extended script under test lives at its canonical staged
+# human-copy path below, not yet at the live plugins/sdd-lite/scripts/ path
+# -- the R-10 guard's human-copy/ staging exemption is confirmed live
+# (specs/epic-194-a6-lite-integration/human-copy/README.md), so this is the
+# canonical `specs/<feature>/human-copy/<repo-relative-path>` candidate T-001
+# migrated out of the earlier non-suffix-matching `.PROPOSED` workaround.
+# Once a human applies T-001's runner against this task's real staged
+# payload, SUT below becomes the live path; this suite's assertions do not
+# change, since they already require byte-for-byte parity with the live
+# script.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 LIVE="${REPO_ROOT}/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
-SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/PROPOSED/check-risk-upgrade.sh.PROPOSED"
+SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
 PASS=0
 FAIL=0
 

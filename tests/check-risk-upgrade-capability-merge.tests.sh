@@ -11,13 +11,12 @@
 # staged script calls no Predicate-DSL/Registry-matching function of its
 # own -- confirmed by grep, not behavioral execution.
 #
-# NOTE (interim, pending human-copy staging unlock -- see tasks.md T-001
-# Blockers): SUT is the .PROPOSED staging path; see
+# NOTE: SUT is the canonical staged human-copy path; see
 # check-risk-upgrade-byte-identical.tests.sh for the same note.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
-SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/PROPOSED/check-risk-upgrade.sh.PROPOSED"
+SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
 PASS=0
 FAIL=0
 

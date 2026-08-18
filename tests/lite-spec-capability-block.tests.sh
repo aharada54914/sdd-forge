@@ -19,15 +19,14 @@
 #      contract, same exit-code/message-shape as an existing keyword-match
 #      fixture (AC-019).
 #
-# NOTE (interim, pending human-copy staging unlock -- see tasks.md T-001
-# Blockers): the SKILL.md text under test is the .PROPOSED staging content,
-# and the check-risk-upgrade SUT is T-002's own .PROPOSED extended script
-# (already covered by its own suite).
+# NOTE: the SKILL.md text under test is the canonical staged human-copy
+# content, and the check-risk-upgrade SUT is T-002's own canonical staged
+# extended script (already covered by its own suite).
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
-SKILL_PROPOSED="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/PROPOSED/lite-spec-SKILL.md.PROPOSED"
-CHECK_RISK_UPGRADE="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/PROPOSED/check-risk-upgrade.sh.PROPOSED"
+SKILL_PROPOSED="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md"
+CHECK_RISK_UPGRADE="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
 LIVE_SHIP_SKILL="${REPO_ROOT}/plugins/sdd-ship/skills/ship/SKILL.md"
 PASS=0
 FAIL=0
