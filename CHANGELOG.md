@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+### Added
+
+- **Domain contract v2 schema (Issue #290, sdd-domain-concept-contract T-001)**:
+  added `contracts/domain-contract.v2.schema.json`, a standalone draft-07
+  schema declaring `concepts[]` as a first-class, required top-level array
+  alongside the existing `contexts[]` / `relations[]` shape, so a bounded
+  context's concepts (their responsibilities, non-responsibilities, and the
+  evidence that distinguishes them from neighboring concepts) can be
+  expressed in the machine-readable contract. The v1
+  `boundedContext` / `term` / `aggregate` / `contextRelation` definitions are
+  duplicated in-file rather than referenced from
+  `contracts/domain-contract.v1.schema.json`, so v1 stays byte-identical and
+  has no new consumer; `tests/sdd-domain/contract-v2-schema.Tests.ps1` pins
+  the new schema's shape and locks v1's SHA-256 against drift. This is Phase
+  0's first task; the cross-reference validator and the rest of the fixture
+  corpus land in T-002 through T-005.
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
