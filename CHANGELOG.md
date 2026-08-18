@@ -37,6 +37,26 @@
   cross-reference integrity checks append to that same accumulator in T-003
   and T-004.
 
+- **Domain contract v2 structural checks (Issue #290,
+  sdd-domain-concept-contract T-003)**: `validate-domain-contract.sh` and
+  `.ps1` now enforce the v2 declaration itself -- REQ-004 step (c) -- in the
+  order REQ-004(c) fixes: JSON type conformance first, then required-key
+  presence, then pattern, minLength and minItems. A value whose JSON type does
+  not match the type `requirements.md` `## Field Definitions` declares is
+  recorded as `V2-TYPE-MISMATCH` (carrying the field path and the expected
+  type) and is then excluded from the later checks, so a mistyped field can
+  never reach a regex or a length test and surface as a raw interpreter
+  exception -- the fail-closed rule `security-spec.md` names. Absent required
+  keys report `V2-MISSING-KEY`, pattern failures `V2-PATTERN`, `minItems`
+  failures `V2-EMPTY-ARRAY`, and `minLength` failures `V2-EMPTY-STRING`, each
+  naming the offending field path so adjacent failure paths stay textually
+  distinguishable. Every violation in a contract is enumerated rather than
+  stopping at the first. Sixty-two negative fixtures in
+  `tests/sdd-domain/contract-v2-schema.Tests.ps1` exercise one check apiece on
+  both twins, alongside a base-acceptance fixture proving each negative differs
+  from an accepted contract at exactly one point. The cross-reference integrity
+  checks and the reference-field patterns land in T-004.
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went

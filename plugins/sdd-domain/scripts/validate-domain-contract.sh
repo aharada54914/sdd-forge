@@ -40,6 +40,7 @@ fi
 python3 - "$1" <<'PY'
 import json
 import os
+import re
 import sys
 
 # The oversized-input ceiling (requirements.md Edge Cases: a contract file
@@ -52,6 +53,20 @@ EXPECTED_SCHEMA = "domain-contract/v2"
 
 # Longest interpolated fragment allowed in one violation message.
 MESSAGE_VALUE_LIMIT = 120
+
+# The three patterns requirements.md `## Field Definitions` declares (T-003,
+# REQ-002). Each is kept in two forms: the declared source text, which is what
+# a violation message quotes back to the author, and the compiled form used to
+# test a value. The compiled form is anchored with \A ... \Z rather than
+# ^ ... $ because a Python `$` also matches immediately before a trailing
+# newline, which would accept "Order\n" as a valid concept name. Keep both
+# forms identical to the $Concept*/$Context* pair in the .ps1 twin.
+CONCEPT_ID_PATTERN_TEXT = "^CONCEPT-[A-Z][A-Z0-9-]*$"
+CONCEPT_ID_RE = re.compile(r"\ACONCEPT-[A-Z][A-Z0-9-]*\Z")
+CONCEPT_NAME_PATTERN_TEXT = "^[A-Z][A-Za-z0-9]*$"
+CONCEPT_NAME_RE = re.compile(r"\A[A-Z][A-Za-z0-9]*\Z")
+CONTEXT_PATTERN_TEXT = "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+CONTEXT_RE = re.compile(r"\A[a-z][a-z0-9]*(-[a-z0-9]+)*\Z")
 
 # The single violation accumulator. Every check appends `RULE-ID: message`
 # strings here; nothing writes to stderr directly. Exit status is 1 when this
@@ -104,17 +119,244 @@ def finish():
     sys.exit(1 if violations else 0)
 
 
-def check_structure(document, add_violation):
-    """REQ-004(c) -- required keys, JSON type conformance, pattern, minLength,
-    minItems, in that order (type conformance precedes the rest).
+def type_matches(value, expected):
+    """Does `value`'s JSON type equal the type Field Definitions declares?
 
-    EXTENSION POINT owned by T-003. Append violations through `add_violation`;
-    do not write to stderr and do not exit from here. Runs only after the
-    document has been admitted as domain-contract/v2 by the dispatch above.
-    Rule ids: V2-TYPE-MISMATCH / V2-MISSING-KEY / V2-PATTERN /
-    V2-EMPTY-ARRAY / V2-EMPTY-STRING (design.md Error Handling).
+    `bool` is deliberately not accepted as a number: json_type_name reports it
+    as "boolean", and no declared field has a boolean type.
     """
-    return
+    if expected == "string":
+        return isinstance(value, str)
+    if expected == "array":
+        return isinstance(value, list)
+    if expected == "object":
+        return isinstance(value, dict)
+    return False
+
+
+def check_member(container, key, expected, path, add_violation,
+                 required=True, at_root=False):
+    """The single type-then-presence gate every declared member passes through.
+
+    This function is where REQ-004(c)'s precedence rule lives: it returns the
+    value ONLY when the member is present and its JSON type conforms. Every
+    caller treats a `None` return as "stop -- do not run pattern, minLength or
+    minItems on this value", which is what keeps a mistyped field away from a
+    regex or a len() and out of a raw interpreter exception.
+    """
+    if key not in container:
+        if required:
+            if at_root:
+                add_violation(
+                    "V2-MISSING-KEY",
+                    "%s: required key is absent at the contract root" % path,
+                )
+            else:
+                add_violation("V2-MISSING-KEY", "%s: required key is absent" % path)
+        return None
+    value = container[key]
+    if not type_matches(value, expected):
+        add_violation(
+            "V2-TYPE-MISMATCH",
+            "%s: expected %s, found %s" % (path, expected, json_type_name(value)),
+        )
+        return None
+    return value
+
+
+def check_pattern(value, compiled, pattern_text, path, add_violation):
+    if compiled.match(value) is None:
+        add_violation(
+            "V2-PATTERN",
+            "%s: value %s does not match %s" % (path, safe(value), pattern_text),
+        )
+
+
+def check_non_empty_string(value, path, add_violation):
+    if len(value) == 0:
+        add_violation(
+            "V2-EMPTY-STRING",
+            "%s: value is an empty string; at least one character is required" % path,
+        )
+
+
+def check_string_array(values, path, add_violation, min_items_one):
+    """minItems, then per-element type, then per-element minLength."""
+    if min_items_one and len(values) == 0:
+        add_violation(
+            "V2-EMPTY-ARRAY",
+            "%s: array is empty; at least one entry is required" % path,
+        )
+        return
+    for index, item in enumerate(values):
+        item_path = "%s[%d]" % (path, index)
+        if not isinstance(item, str):
+            add_violation(
+                "V2-TYPE-MISMATCH",
+                "%s: expected string, found %s" % (item_path, json_type_name(item)),
+            )
+            continue
+        check_non_empty_string(item, item_path, add_violation)
+
+
+def check_object_array(values, path, add_violation, member_check):
+    """Walks an array of objects, reporting any element that is not an object
+    and handing the ones that are to `member_check`. An element that fails the
+    type check is never handed on, so its required-key checks never run on a
+    non-object (REQ-004(c) precedence, one level down)."""
+    for index, entry in enumerate(values):
+        entry_path = "%s[%d]" % (path, index)
+        if not isinstance(entry, dict):
+            add_violation(
+                "V2-TYPE-MISMATCH",
+                "%s: expected object, found %s" % (entry_path, json_type_name(entry)),
+            )
+            continue
+        member_check(entry, entry_path)
+
+
+def check_concept(concept, path, add_violation):
+    """One concepts[] element against requirements.md `## Field Definitions`."""
+    value = check_member(concept, "id", "string", path + ".id", add_violation)
+    if value is not None:
+        check_pattern(value, CONCEPT_ID_RE, CONCEPT_ID_PATTERN_TEXT,
+                      path + ".id", add_violation)
+
+    value = check_member(concept, "name", "string", path + ".name", add_violation)
+    if value is not None:
+        check_pattern(value, CONCEPT_NAME_RE, CONCEPT_NAME_PATTERN_TEXT,
+                      path + ".name", add_violation)
+
+    value = check_member(concept, "context", "string", path + ".context", add_violation)
+    if value is not None:
+        check_pattern(value, CONTEXT_RE, CONTEXT_PATTERN_TEXT,
+                      path + ".context", add_violation)
+
+    for key in ("definition", "essence"):
+        member_path = "%s.%s" % (path, key)
+        value = check_member(concept, key, "string", member_path, add_violation)
+        if value is not None:
+            check_non_empty_string(value, member_path, add_violation)
+
+    for key in ("responsibilities", "evidence"):
+        member_path = "%s.%s" % (path, key)
+        value = check_member(concept, key, "array", member_path, add_violation)
+        if value is not None:
+            check_string_array(value, member_path, add_violation, True)
+
+    # must_not_own is optional and declares no minItems: an absent key and an
+    # empty array are both valid (requirements.md Edge Cases).
+    member_path = path + ".must_not_own"
+    value = check_member(concept, "must_not_own", "array", member_path,
+                         add_violation, required=False)
+    if value is not None:
+        check_string_array(value, member_path, add_violation, False)
+
+    member_path = path + ".stakeholder_perspectives"
+    value = check_member(concept, "stakeholder_perspectives", "array", member_path,
+                         add_violation, required=False)
+    if value is not None:
+        def check_perspective(entry, entry_path):
+            for key in ("actor", "concern"):
+                field_path = "%s.%s" % (entry_path, key)
+                text = check_member(entry, key, "string", field_path, add_violation)
+                if text is not None:
+                    check_non_empty_string(text, field_path, add_violation)
+
+        check_object_array(value, member_path, add_violation, check_perspective)
+
+    member_path = path + ".distinguished_from"
+    value = check_member(concept, "distinguished_from", "array", member_path,
+                         add_violation, required=False)
+    if value is not None:
+        def check_distinction(entry, entry_path):
+            # This pass fixes only the declared JSON type of concept_id. Its
+            # pattern is AC-022 and its dangling-reference check is AC-008,
+            # both allocated to T-004 (tasks.md Negative Fixture Allocation).
+            check_member(entry, "concept_id", "string",
+                         entry_path + ".concept_id", add_violation)
+            reasons_path = entry_path + ".reasons"
+            reasons = check_member(entry, "reasons", "array", reasons_path,
+                                   add_violation)
+            if reasons is not None:
+                check_string_array(reasons, reasons_path, add_violation, True)
+
+        check_object_array(value, member_path, add_violation, check_distinction)
+
+
+def check_contexts(contexts, add_violation):
+    """The one member requirements.md `## Field Definitions` declares inside
+    the contexts subtree is `contexts[].terms[].concept_id` -- the v2 addition
+    (REQ-003). The v1-inherited boundedContext / term shape around it is
+    declared by the schema file but is outside this pass's authority table and
+    outside the Negative-path coverage matrix, so a non-conforming intermediate
+    is walked past here rather than reported."""
+    for index, entry in enumerate(contexts):
+        if not isinstance(entry, dict):
+            continue
+        terms = entry.get("terms")
+        if not isinstance(terms, list):
+            continue
+        for term_index, term in enumerate(terms):
+            if not isinstance(term, dict):
+                continue
+            if "concept_id" not in term:
+                continue
+            check_member(
+                term,
+                "concept_id",
+                "string",
+                "contexts[%d].terms[%d].concept_id" % (index, term_index),
+                add_violation,
+                required=False,
+            )
+
+
+def check_structure(document, add_violation):
+    """REQ-004(c) -- JSON type conformance, then required-key presence, then
+    pattern, minLength and minItems; a value whose type does not conform is
+    recorded and then excluded from the later checks.
+
+    Owned by T-003. Appends through `add_violation` only: it does not write to
+    stderr and does not exit. Runs only after the document has been admitted as
+    domain-contract/v2 by the dispatch below. Rule ids: V2-TYPE-MISMATCH /
+    V2-MISSING-KEY / V2-PATTERN / V2-EMPTY-ARRAY / V2-EMPTY-STRING (design.md
+    Error Handling).
+    """
+    # `schema` is deliberately absent from this pass: admission has already
+    # established that it is present, a string, and equal to domain-contract/v2,
+    # so re-checking it here would emit that violation twice.
+    meta = check_member(document, "meta", "object", "meta", add_violation,
+                        at_root=True)
+    if meta is not None:
+        check_member(meta, "version", "string", "meta.version", add_violation)
+        check_member(meta, "status", "string", "meta.status", add_violation)
+        check_member(meta, "generated_from", "array", "meta.generated_from",
+                     add_violation)
+
+    contexts = check_member(document, "contexts", "array", "contexts",
+                            add_violation, at_root=True)
+    if contexts is not None:
+        check_contexts(contexts, add_violation)
+
+    concepts = check_member(document, "concepts", "array", "concepts",
+                            add_violation, at_root=True)
+    if concepts is not None:
+        if len(concepts) == 0:
+            # minItems 1 -- distinct from the absent-key path above, which is
+            # why the rule id differs (AC-016 versus AC-021(4)).
+            add_violation(
+                "V2-EMPTY-ARRAY",
+                "concepts: array is empty; at least one entry is required",
+            )
+        else:
+            check_object_array(
+                concepts,
+                "concepts",
+                add_violation,
+                lambda entry, entry_path: check_concept(entry, entry_path,
+                                                        add_violation),
+            )
 
 
 def check_cross_references(document, add_violation):

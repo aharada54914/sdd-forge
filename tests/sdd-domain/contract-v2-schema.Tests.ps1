@@ -530,3 +530,563 @@ Describe "validate-domain-contract v2 version dispatch (TEST-012, AC-012, REQ-00
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# T-003 (Issue #290, sdd-domain-concept-contract Phase 0): the ordered
+# structural check pass, REQ-004 step (c), in both validator twins.
+#
+# requirements.md `## Field Definitions` is the authority for every type,
+# pattern, required flag, minItems and minLength asserted below. REQ-004(c)
+# fixes the ORDER -- JSON type conformance first, then required-key presence,
+# then pattern / minLength / minItems -- and a value whose type does not
+# conform must be recorded and then EXCLUDED from the later checks, so that a
+# mistyped field can never reach a regex or a length test and raise a raw
+# interpreter exception (security-spec.md fail-closed rule).
+#
+# Fixture allocation for this task (tasks.md `## Negative Fixture
+# Allocation`): exactly 62 negative fixtures -- AC-024 x29, AC-014 x7,
+# AC-021 x7, AC-023 x8, AC-020 x4, AC-018 x3, AC-019 x3, AC-016 x1. The
+# base-acceptance check and the two-violation enumeration check are the
+# tasks.md `### Done When` non-vacuity and enumeration items, NOT additional
+# negative fixtures from that allocation table -- the same convention T-002
+# used for its argument / path-error checks.
+#
+# AC-021 (1) `schema` absent and AC-024 (1) `schema` not a string are the two
+# fixtures whose behaviour T-002's admission dispatch already implements; they
+# are authored here against that existing behaviour rather than re-checked in
+# the structural pass, which would double-report them.
+#
+# Every fixture is ONE single-point mutation of a common, fully valid base
+# contract expressed as here-string tokens and expanded into a per-test
+# temporary file the test deletes again (DD-5, INV-006). No permanent fixture
+# directory is added. All fixture vocabulary is synthetic Purchase /
+# Fulfillment domain nouns; no credential, token, personal, or customer-derived
+# string appears in any of them (security-spec.md).
+# ---------------------------------------------------------------------------
+
+# Token table for the structural fixture corpus. `%TOKEN%` placeholders are
+# expanded repeatedly until the body is literal JSON. Because a token name is
+# always delimited by `%` on both sides and no token value contains a bare
+# `%`, no token name can be confused with another.
+$structuralFixtureTokens = [ordered]@{
+    ROOT                   = '{%R_SCHEMA%%R_META%%R_CONTEXTS%%R_CONCEPTS%"relations": []}'
+    R_SCHEMA               = '"schema": %SCHEMA_VALUE%, '
+    SCHEMA_VALUE           = '"domain-contract/v2"'
+    R_META                 = '"meta": %META%, '
+    META                   = '{"version": %M_VERSION%, "status": %M_STATUS%, "generated_from": %M_GENERATED_FROM%}'
+    M_VERSION              = '"1.0.0"'
+    M_STATUS               = '"Pending"'
+    M_GENERATED_FROM       = '["domain/domain-story.md"]'
+    META_NO_VERSION        = '{"status": "Pending", "generated_from": ["domain/domain-story.md"]}'
+    META_NO_STATUS         = '{"version": "1.0.0", "generated_from": ["domain/domain-story.md"]}'
+    META_NO_GENERATED_FROM = '{"version": "1.0.0", "status": "Pending"}'
+    R_CONTEXTS             = '"contexts": %CONTEXTS%, '
+    CONTEXTS               = '[{"name": "order-taking", "description": "Where a purchase promise is recorded.", "terms": [{"canonical": "Order", "definition": "A recorded purchase promise.", "concept_id": %T_CONCEPT_ID%}], "aggregates": []}]'
+    CONTEXTS_PLAIN         = '[{"name": "order-taking", "description": "Where a purchase promise is recorded.", "terms": [{"canonical": "Order", "definition": "A recorded purchase promise."}], "aggregates": []}]'
+    T_CONCEPT_ID           = '"CONCEPT-ORDER"'
+    R_CONCEPTS             = '"concepts": %CONCEPTS%, '
+    CONCEPTS               = '[%CONCEPT_MAIN%, %CONCEPT_SECOND%]'
+    CONCEPT_MAIN           = '{%C_ID%%C_NAME%%C_CONTEXT%%C_DEFINITION%%C_ESSENCE%%C_RESPONSIBILITIES%%C_EVIDENCE%%C_STAKEHOLDER%%C_DISTINGUISHED%"must_not_own": %C_MUST_NOT_OWN%}'
+    CONCEPT_SECOND         = '{"id": "CONCEPT-FULFILLMENT", "name": "Fulfillment", "context": "order-taking", "definition": "The unit of delivery for a recorded promise.", "essence": "what and how much is delivered", "responsibilities": ["delivery quantity"], "evidence": ["domain-story:activity-4"]}'
+    C_ID                   = '"id": "CONCEPT-ORDER", '
+    C_NAME                 = '"name": "Order", '
+    C_CONTEXT              = '"context": "order-taking", '
+    C_DEFINITION           = '"definition": "The promise to buy, as recorded at order time.", '
+    C_ESSENCE              = '"essence": "what was promised and at what price", '
+    C_RESPONSIBILITIES     = '"responsibilities": ["purchase intent"], '
+    C_EVIDENCE             = '"evidence": ["domain-story:activity-1"], '
+    C_STAKEHOLDER          = '"stakeholder_perspectives": [{"actor": "purchasing", "concern": "price and quantity"}], '
+    C_DISTINGUISHED        = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT", "reasons": ["different lifecycle"]}], '
+    C_MUST_NOT_OWN         = '["delivery quantity"]'
+}
+
+function New-StructuralFixtureJson {
+    # Expands the token table into one fixture body. `Override` replaces the
+    # named tokens; every other token keeps its base value, so each fixture
+    # differs from a fully valid contract at exactly one point. An unknown
+    # token name, or a token left unexpanded, throws instead of silently
+    # producing a fixture that does not exercise the intended check.
+    param([hashtable]$Override)
+    $table = @{}
+    foreach ($key in $structuralFixtureTokens.Keys) {
+        $table[$key] = [string]$structuralFixtureTokens[$key]
+    }
+    if ($null -ne $Override) {
+        foreach ($key in $Override.Keys) {
+            if (-not $table.ContainsKey($key)) { throw ("unknown fixture token: " + $key) }
+            $table[$key] = [string]$Override[$key]
+        }
+    }
+    $text = '%ROOT%'
+    for ($pass = 0; $pass -lt 12; $pass++) {
+        $changed = $false
+        foreach ($key in @($table.Keys)) {
+            $token = '%' + $key + '%'
+            if ($text.Contains($token)) {
+                $text = $text.Replace($token, $table[$key])
+                $changed = $true
+            }
+        }
+        if (-not $changed) { break }
+    }
+    if ($text.Contains('%')) { throw ("unexpanded fixture token remains in: " + $text) }
+    return $text
+}
+
+function New-StructuralFixtureFile {
+    # Ephemeral expansion of one fixture (DD-5, INV-006). The file name is hex
+    # and ASCII hyphens only -- no byte in 0x00-0x1F, which is legal on POSIX
+    # but illegal on Win32 and would kill the whole .ps1 side there.
+    param([hashtable]$Override)
+    $path = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-v2-t003-" + [guid]::NewGuid().ToString("N") + ".json")
+    [System.IO.File]::WriteAllText($path, (New-StructuralFixtureJson -Override $Override), (New-Object System.Text.UTF8Encoding($false)))
+    return $path
+}
+
+function Assert-StructuralViolation {
+    # The shape every structural negative fixture must satisfy (DD-7): exit 1,
+    # nothing on stdout, no stack trace or raw interpreter exception anywhere
+    # on stderr, exactly ONE `RULE-ID: <field path>: ...` line for the check
+    # under test, and no line at all carrying any rule id the check must stay
+    # textually distinguishable from. The forbidden-rule assertions are what
+    # prove REQ-004(c)'s precedence (a type failure is not reported as a
+    # pattern or minLength failure) and the AC-014 / AC-016 / AC-019 / AC-023
+    # requirement that adjacent failure paths be told apart by their wording.
+    param($Result, [string]$RuleId, [string]$FieldPath, [string[]]$ForbiddenRuleIds, [string]$LineMustMatch)
+    $Result.ExitCode | Should Be 1
+    $Result.StdOut.Length | Should Be 0
+    $Result.StdErr | Should Not Match "Traceback"
+    $Result.StdErr | Should Not Match "Exception"
+    $Result.StdErr | Should Not Match "CategoryInfo"
+    $Result.StdErr | Should Not Match "FullyQualifiedErrorId"
+    $Result.StdErr | Should Not Match "ScriptStackTrace"
+    $Result.StdErr | Should Not Match "at <ScriptBlock>"
+    $Result.StdErr | Should Not Match "^\s+\+ "
+    $lines = @(Get-StdErrViolationLines -Result $Result)
+    # -cmatch, not -match: the rule ids and the declared patterns are
+    # case-significant and PowerShell's -match is case-insensitive.
+    $expectedPrefix = "^" + [regex]::Escape($RuleId + ": " + $FieldPath + ":")
+    $matched = @($lines | Where-Object { $_ -cmatch $expectedPrefix })
+    $matched.Count | Should Be 1
+    if (-not [string]::IsNullOrEmpty($LineMustMatch)) {
+        $matched[0] | Should Match $LineMustMatch
+    }
+    foreach ($forbidden in $ForbiddenRuleIds) {
+        @($lines | Where-Object { $_ -cmatch ("^" + [regex]::Escape($forbidden) + ":") }).Count | Should Be 0
+    }
+}
+
+function New-StructuralFixtureCase {
+    param(
+        [string]$Ac,
+        [string]$Case,
+        [hashtable]$Override,
+        [string]$Rule,
+        [string]$Field,
+        [string[]]$Forbidden = @(),
+        [string]$LineMustMatch = ""
+    )
+    return New-Object PSObject -Property @{
+        Ac            = $Ac
+        Case          = $Case
+        Override      = $Override
+        Rule          = $Rule
+        Field         = $Field
+        Forbidden     = $Forbidden
+        LineMustMatch = $LineMustMatch
+    }
+}
+
+# --- The 62 structural negative fixtures ------------------------------------
+#
+# AC-024 (29): one per field that declares a JSON type. (9)(10)(11) must be
+# reported as type violations rather than pattern violations and (17)(18)(19)
+# as type violations rather than minLength violations -- that is the direct
+# proof of REQ-004(c)'s precedence rule, expressed as a forbidden rule id.
+$structuralFixtures = @(
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(1) root schema is not a string" `
+        -Override @{ SCHEMA_VALUE = '2' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "schema" -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(2) root meta is not an object" `
+        -Override @{ META = '"1.0.0"' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "meta" -Forbidden @("V2-MISSING-KEY") `
+        -LineMustMatch "expected object, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(3) root contexts is not an array" `
+        -Override @{ CONTEXTS = '"order-taking"' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "contexts" -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(4) root concepts is not an array" `
+        -Override @{ CONCEPTS = '"CONCEPT-ORDER"'; CONTEXTS = '%CONTEXTS_PLAIN%' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts" -Forbidden @("V2-EMPTY-ARRAY", "V2-MISSING-KEY") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(5) meta.version is not a string" `
+        -Override @{ M_VERSION = '100' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "meta.version" -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(6) meta.status is not a string" `
+        -Override @{ M_STATUS = 'true' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "meta.status" -LineMustMatch "expected string, found boolean"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(7) meta.generated_from is neither a string nor the declared array" `
+        -Override @{ M_GENERATED_FROM = '7' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "meta.generated_from" -Forbidden @("V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected array, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(8) a concepts[] element is not an object" `
+        -Override @{ CONCEPTS = '[%CONCEPT_MAIN%, %CONCEPT_SECOND%, 42]' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[2]" -Forbidden @("V2-MISSING-KEY") `
+        -LineMustMatch "expected object, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(9) concepts[].id is not a string -- reported as a type violation, not a pattern violation" `
+        -Override @{ C_ID = '"id": 42, '; CONTEXTS = '%CONTEXTS_PLAIN%' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].id" -Forbidden @("V2-PATTERN") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(10) concepts[].name is not a string -- reported as a type violation, not a pattern violation" `
+        -Override @{ C_NAME = '"name": 42, ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].name" -Forbidden @("V2-PATTERN") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(11) concepts[].context is not a string -- reported as a type violation, not a pattern violation" `
+        -Override @{ C_CONTEXT = '"context": 42, ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].context" -Forbidden @("V2-PATTERN") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(12) concepts[].definition is not a string" `
+        -Override @{ C_DEFINITION = '"definition": 42, ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].definition" -Forbidden @("V2-EMPTY-STRING") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(13) concepts[].essence is not a string" `
+        -Override @{ C_ESSENCE = '"essence": 42, ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].essence" -Forbidden @("V2-EMPTY-STRING") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(14) concepts[].responsibilities is not an array" `
+        -Override @{ C_RESPONSIBILITIES = '"responsibilities": "purchase intent", ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].responsibilities" -Forbidden @("V2-EMPTY-ARRAY", "V2-EMPTY-STRING") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(15) concepts[].evidence is not an array" `
+        -Override @{ C_EVIDENCE = '"evidence": "domain-story:activity-1", ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].evidence" -Forbidden @("V2-EMPTY-ARRAY", "V2-EMPTY-STRING") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(16) concepts[].must_not_own is not an array" `
+        -Override @{ C_MUST_NOT_OWN = '"delivery quantity"' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].must_not_own" -Forbidden @("V2-EMPTY-ARRAY", "V2-EMPTY-STRING") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation" `
+        -Override @{ C_RESPONSIBILITIES = '"responsibilities": [42], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].responsibilities[0]" -Forbidden @("V2-EMPTY-STRING", "V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation" `
+        -Override @{ C_EVIDENCE = '"evidence": [42], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].evidence[0]" -Forbidden @("V2-EMPTY-STRING", "V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation" `
+        -Override @{ C_MUST_NOT_OWN = '[42]' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].must_not_own[0]" -Forbidden @("V2-EMPTY-STRING", "V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(20) concepts[].stakeholder_perspectives is not an array" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": "purchasing", ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].stakeholder_perspectives" -Forbidden @("V2-MISSING-KEY", "V2-EMPTY-STRING") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(21) a stakeholder_perspectives element is not an object" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [42], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].stakeholder_perspectives[0]" -Forbidden @("V2-MISSING-KEY", "V2-EMPTY-STRING") `
+        -LineMustMatch "expected object, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(22) stakeholder_perspectives[].actor is not a string" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"actor": 42, "concern": "price and quantity"}], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].stakeholder_perspectives[0].actor" -Forbidden @("V2-EMPTY-STRING") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(23) stakeholder_perspectives[].concern is not a string" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"actor": "purchasing", "concern": 42}], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].stakeholder_perspectives[0].concern" -Forbidden @("V2-EMPTY-STRING") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(24) concepts[].distinguished_from is not an array" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": "CONCEPT-FULFILLMENT", ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].distinguished_from" -Forbidden @("V2-MISSING-KEY", "V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(25) a distinguished_from element is not an object" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [42], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].distinguished_from[0]" -Forbidden @("V2-MISSING-KEY", "V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected object, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(26) distinguished_from[].concept_id is not a string" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": 42, "reasons": ["different lifecycle"]}], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].distinguished_from[0].concept_id" -Forbidden @("V2-PATTERN") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(27) distinguished_from[].reasons is not an array" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT", "reasons": "different lifecycle"}], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].distinguished_from[0].reasons" -Forbidden @("V2-EMPTY-ARRAY", "V2-EMPTY-STRING") `
+        -LineMustMatch "expected array, found string"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(28) a distinguished_from[].reasons element is not a string" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT", "reasons": [42]}], ' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "concepts[0].distinguished_from[0].reasons[0]" -Forbidden @("V2-EMPTY-STRING", "V2-EMPTY-ARRAY") `
+        -LineMustMatch "expected string, found number"),
+    (New-StructuralFixtureCase -Ac "AC-024" -Case "(29) contexts[].terms[].concept_id is not a string" `
+        -Override @{ T_CONCEPT_ID = '42' } `
+        -Rule "V2-TYPE-MISMATCH" -Field "contexts[0].terms[0].concept_id" -Forbidden @("V2-PATTERN") `
+        -LineMustMatch "expected string, found number"),
+
+    # AC-014 (7): each required concept key absent. The key-absent wording must
+    # be distinguishable from the invalid-value paths (AC-018 pattern, AC-023
+    # empty string), so V2-TYPE-MISMATCH must not appear.
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(1) concepts[].id is absent" `
+        -Override @{ C_ID = ''; CONTEXTS = '%CONTEXTS_PLAIN%' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].id" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(2) concepts[].name is absent" `
+        -Override @{ C_NAME = '' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].name" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(3) concepts[].context is absent" `
+        -Override @{ C_CONTEXT = '' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].context" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(4) concepts[].definition is absent" `
+        -Override @{ C_DEFINITION = '' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].definition" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(5) concepts[].essence is absent" `
+        -Override @{ C_ESSENCE = '' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].essence" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(6) concepts[].responsibilities is absent" `
+        -Override @{ C_RESPONSIBILITIES = '' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].responsibilities" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+    (New-StructuralFixtureCase -Ac "AC-014" -Case "(7) concepts[].evidence is absent" `
+        -Override @{ C_EVIDENCE = '' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].evidence" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+
+    # AC-021 (7): each root and meta required key absent. (4) must be
+    # distinguishable from AC-016's empty concepts array by its rule id.
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(1) root schema is absent" `
+        -Override @{ R_SCHEMA = '' } `
+        -Rule "V2-MISSING-KEY" -Field "schema" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(2) root meta is absent" `
+        -Override @{ R_META = '' } `
+        -Rule "V2-MISSING-KEY" -Field "meta" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(3) root contexts is absent" `
+        -Override @{ R_CONTEXTS = '' } `
+        -Rule "V2-MISSING-KEY" -Field "contexts" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(4) root concepts is absent -- a different path from the empty concepts array" `
+        -Override @{ R_CONCEPTS = ''; CONTEXTS = '%CONTEXTS_PLAIN%' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(5) meta.version is absent" `
+        -Override @{ META = '%META_NO_VERSION%' } `
+        -Rule "V2-MISSING-KEY" -Field "meta.version" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(6) meta.status is absent" `
+        -Override @{ META = '%META_NO_STATUS%' } `
+        -Rule "V2-MISSING-KEY" -Field "meta.status" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-021" -Case "(7) meta.generated_from is absent" `
+        -Override @{ META = '%META_NO_GENERATED_FROM%' } `
+        -Rule "V2-MISSING-KEY" -Field "meta.generated_from" -Forbidden @("V2-TYPE-MISMATCH")),
+
+    # AC-023 (8): every string that declares minLength 1, as an empty string.
+    # (3)(4)(5)(8) keep the array non-empty so the minItems path (AC-019)
+    # cannot be what fired.
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(1) concepts[].definition is an empty string" `
+        -Override @{ C_DEFINITION = '"definition": "", ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].definition" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(2) concepts[].essence is an empty string" `
+        -Override @{ C_ESSENCE = '"essence": "", ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].essence" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(3) a concepts[].responsibilities element is an empty string" `
+        -Override @{ C_RESPONSIBILITIES = '"responsibilities": [""], ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].responsibilities[0]" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(4) a concepts[].evidence element is an empty string" `
+        -Override @{ C_EVIDENCE = '"evidence": [""], ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].evidence[0]" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(5) a concepts[].must_not_own element is an empty string" `
+        -Override @{ C_MUST_NOT_OWN = '[""]' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].must_not_own[0]" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(6) stakeholder_perspectives[].actor is an empty string" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"actor": "", "concern": "price and quantity"}], ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].stakeholder_perspectives[0].actor" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(7) stakeholder_perspectives[].concern is an empty string" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"actor": "purchasing", "concern": ""}], ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].stakeholder_perspectives[0].concern" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY")),
+    (New-StructuralFixtureCase -Ac "AC-023" -Case "(8) a distinguished_from[].reasons element is an empty string" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT", "reasons": [""]}], ' } `
+        -Rule "V2-EMPTY-STRING" -Field "concepts[0].distinguished_from[0].reasons[0]" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+
+    # AC-020 (4): required fields nested INSIDE the optional object arrays. The
+    # optional array is present in every case -- the acceptance case where the
+    # array is absent entirely is AC-026, owned by T-005.
+    (New-StructuralFixtureCase -Ac "AC-020" -Case "(1) stakeholder_perspectives[].actor is absent" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"concern": "price and quantity"}], ' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].stakeholder_perspectives[0].actor" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-020" -Case "(2) stakeholder_perspectives[].concern is absent" `
+        -Override @{ C_STAKEHOLDER = '"stakeholder_perspectives": [{"actor": "purchasing"}], ' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].stakeholder_perspectives[0].concern" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-020" -Case "(3) distinguished_from[].concept_id is absent" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"reasons": ["different lifecycle"]}], ' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].distinguished_from[0].concept_id" -Forbidden @("V2-TYPE-MISMATCH")),
+    (New-StructuralFixtureCase -Ac "AC-020" -Case "(4) distinguished_from[].reasons is absent" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT"}], ' } `
+        -Rule "V2-MISSING-KEY" -Field "concepts[0].distinguished_from[0].reasons" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-ARRAY")),
+
+    # AC-018 (3): the three REQ-002 patterns. The accepting boundary cases
+    # (APIOrder, order-taking-2) are AC-003, owned by T-005.
+    (New-StructuralFixtureCase -Ac "AC-018" -Case "(1) concepts[].id does not match the concept-id pattern" `
+        -Override @{ C_ID = '"id": "concept-order", '; CONTEXTS = '%CONTEXTS_PLAIN%' } `
+        -Rule "V2-PATTERN" -Field "concepts[0].id" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-018" -Case "(2) concepts[].name does not match the PascalCase pattern" `
+        -Override @{ C_NAME = '"name": "order_item", ' } `
+        -Rule "V2-PATTERN" -Field "concepts[0].name" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-018" -Case "(3) concepts[].context does not match the kebab-case pattern" `
+        -Override @{ C_CONTEXT = '"context": "Order-Taking", ' } `
+        -Rule "V2-PATTERN" -Field "concepts[0].context" -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING")),
+
+    # AC-019 (3): the three arrays declaring minItems 1, empty. Distinguished
+    # from key absence (AC-014 / AC-020) by rule id.
+    (New-StructuralFixtureCase -Ac "AC-019" -Case "(1) concepts[].responsibilities is an empty array" `
+        -Override @{ C_RESPONSIBILITIES = '"responsibilities": [], ' } `
+        -Rule "V2-EMPTY-ARRAY" -Field "concepts[0].responsibilities" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-019" -Case "(2) concepts[].evidence is an empty array" `
+        -Override @{ C_EVIDENCE = '"evidence": [], ' } `
+        -Rule "V2-EMPTY-ARRAY" -Field "concepts[0].evidence" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-EMPTY-STRING")),
+    (New-StructuralFixtureCase -Ac "AC-019" -Case "(3) distinguished_from[].reasons is an empty array" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-FULFILLMENT", "reasons": []}], ' } `
+        -Rule "V2-EMPTY-ARRAY" -Field "concepts[0].distinguished_from[0].reasons" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-EMPTY-STRING")),
+
+    # AC-016 (1): the concepts key is present, so root required is satisfied
+    # and minItems 1 is what must fire.
+    (New-StructuralFixtureCase -Ac "AC-016" -Case "(1) concepts is an empty array" `
+        -Override @{ CONCEPTS = '[]'; CONTEXTS = '%CONTEXTS_PLAIN%' } `
+        -Rule "V2-EMPTY-ARRAY" -Field "concepts" -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY"))
+)
+
+Describe "T-003 structural negative fixture allocation (tasks.md Negative Fixture Allocation table)" {
+
+    It "contributes exactly 62 negative fixtures" {
+        $structuralFixtures.Count | Should Be 62
+    }
+
+    It "allocates 29 fixtures to AC-024 (type mismatch)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-024" }).Count | Should Be 29
+    }
+
+    It "allocates 7 fixtures to AC-014 (concept required key absent)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-014" }).Count | Should Be 7
+    }
+
+    It "allocates 7 fixtures to AC-021 (root and meta required key absent)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-021" }).Count | Should Be 7
+    }
+
+    It "allocates 8 fixtures to AC-023 (minLength)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-023" }).Count | Should Be 8
+    }
+
+    It "allocates 4 fixtures to AC-020 (nested required inside an optional array)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-020" }).Count | Should Be 4
+    }
+
+    It "allocates 3 fixtures to AC-018 (pattern)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-018" }).Count | Should Be 3
+    }
+
+    It "allocates 3 fixtures to AC-019 (minItems)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-019" }).Count | Should Be 3
+    }
+
+    It "allocates 1 fixture to AC-016 (empty concepts array)" {
+        @($structuralFixtures | Where-Object { $_.Ac -eq "AC-016" }).Count | Should Be 1
+    }
+
+    It "gives every fixture a distinct contract body (no fixture silently duplicates another)" {
+        $bodies = @($structuralFixtures | ForEach-Object { New-StructuralFixtureJson -Override $_.Override })
+        @($bodies | Sort-Object -Unique).Count | Should Be 62
+    }
+
+    It "keeps every fixture body well-formed JSON, so only the declared structural defect is under test" {
+        foreach ($structuralCase in $structuralFixtures) {
+            $body = New-StructuralFixtureJson -Override $structuralCase.Override
+            { ConvertFrom-Json -InputObject $body } | Should Not Throw
+        }
+    }
+}
+
+Describe "validate-domain-contract structural pass -- base fixture acceptance (non-vacuity for the 62 negatives)" {
+
+    # Not one of the 62 allocated negative fixtures and not an AC-003..AC-026
+    # positive: this is the non-vacuity guard that every negative fixture
+    # differs from an ACCEPTED contract at exactly one point, so a rejection
+    # cannot be attributed to anything but the mutation under test.
+
+    It "ps1 twin: accepts the unmutated base contract with exit 0 and no output at all" {
+        $fixturePath = New-StructuralFixtureFile -Override @{}
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts the unmutated base contract with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-StructuralFixtureFile -Override @{}
+        try {
+            $result = Invoke-ValidatorSh -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "validate-domain-contract structural check pass (TEST-014/016/018/019/020/021/023/024, REQ-004(c))" {
+
+    foreach ($structuralCase in $structuralFixtures) {
+        $caseLabel = $structuralCase.Ac + " " + $structuralCase.Case
+
+        It ("ps1 twin -- " + $caseLabel) {
+            $fixturePath = New-StructuralFixtureFile -Override $structuralCase.Override
+            try {
+                Assert-StructuralViolation -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath) `
+                    -RuleId $structuralCase.Rule -FieldPath $structuralCase.Field `
+                    -ForbiddenRuleIds $structuralCase.Forbidden -LineMustMatch $structuralCase.LineMustMatch
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+
+        It ("sh twin -- " + $caseLabel) -Skip:(-not $shTwinAvailable) {
+            $fixturePath = New-StructuralFixtureFile -Override $structuralCase.Override
+            try {
+                Assert-StructuralViolation -Result (Invoke-ValidatorSh -ContractPath $fixturePath) `
+                    -RuleId $structuralCase.Rule -FieldPath $structuralCase.Field `
+                    -ForbiddenRuleIds $structuralCase.Forbidden -LineMustMatch $structuralCase.LineMustMatch
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+    }
+}
+
+Describe "validate-domain-contract structural pass enumerates every violation (design.md Error Handling, DD-7)" {
+
+    # tasks.md `### Done When` enumeration item, not one of the 62 allocated
+    # fixtures: two INDEPENDENT defects in one contract must produce two
+    # stderr lines, proving the pass does not stop at the first violation.
+    $enumerationOverride = @{ C_NAME = '"name": 42, '; C_DEFINITION = '"definition": "", ' }
+
+    It "ps1 twin: a contract with two independent violations produces exactly two stderr lines" {
+        $fixturePath = New-StructuralFixtureFile -Override $enumerationOverride
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+            $result.ExitCode | Should Be 1
+            $result.StdOut.Length | Should Be 0
+            $lines = @(Get-StdErrViolationLines -Result $result)
+            $lines.Count | Should Be 2
+            @($lines | Where-Object { $_ -cmatch "^V2-TYPE-MISMATCH: concepts\[0\]\.name:" }).Count | Should Be 1
+            @($lines | Where-Object { $_ -cmatch "^V2-EMPTY-STRING: concepts\[0\]\.definition:" }).Count | Should Be 1
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: a contract with two independent violations produces exactly two stderr lines" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-StructuralFixtureFile -Override $enumerationOverride
+        try {
+            $result = Invoke-ValidatorSh -ContractPath $fixturePath
+            $result.ExitCode | Should Be 1
+            $result.StdOut.Length | Should Be 0
+            $lines = @(Get-StdErrViolationLines -Result $result)
+            $lines.Count | Should Be 2
+            @($lines | Where-Object { $_ -cmatch "^V2-TYPE-MISMATCH: concepts\[0\]\.name:" }).Count | Should Be 1
+            @($lines | Where-Object { $_ -cmatch "^V2-EMPTY-STRING: concepts\[0\]\.definition:" }).Count | Should Be 1
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
