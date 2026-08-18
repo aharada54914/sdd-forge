@@ -81,7 +81,7 @@ total.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/290
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-18T15:08:24Z)
 
 Status: Planned
 
@@ -187,7 +187,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/290
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-18T15:08:24Z)
 
 Status: Planned
 
@@ -310,7 +310,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/290
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-18T15:08:24Z)
 
 Status: Planned
 
@@ -431,7 +431,7 @@ T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/290
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-18T15:08:24Z)
 
 Status: Planned
 
@@ -547,7 +547,7 @@ T-003
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/290
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-18T15:08:24Z)
 
 Status: Planned
 
