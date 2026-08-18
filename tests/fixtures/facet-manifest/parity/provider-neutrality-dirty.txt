@@ -1,0 +1,8 @@
+This fixture deliberately embeds a cloud-provider name from Epic A2's own
+provider-neutrality allowlist (plugins/sdd-quality-loop/references/
+provider-terms.json), so TEST-043's own scan mechanism can be proven to
+actually detect contamination (a non-vacuity canary for the "no hit"
+assertion against the real schema/script files elsewhere in this suite).
+
+deployment_target: aws
+runtime: azure-functions

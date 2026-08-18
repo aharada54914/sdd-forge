@@ -1,0 +1,13 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "source_sha256": "sha256:53c71f99194a0cf09b9b849d0544bc098475cf3e23c1b0e0469ae7a413d27d52",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "lite-three-file",
+    "capability_enforcement": "required"
+  },
+  "components": {},
+  "shared_paths": [
+    { "pattern": "^shared/.*", "components": ["desktop-client", "cli-core"] }
+  ]
+}

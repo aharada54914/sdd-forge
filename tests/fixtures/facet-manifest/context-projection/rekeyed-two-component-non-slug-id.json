@@ -1,0 +1,39 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "source_sha256": "sha256:1a2aa6f232f159ead64b95ead12846d35cf4f77180c78d796ab09e257dd58427",
+  "provider_bindings_sha256": "sha256:b37c7a8c03562ac0f118af3407d995968ff573c799a06840464991331b9a8b9d",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "facet-native",
+    "capability_enforcement": "required"
+  },
+  "components": {
+    "desktop-client": {
+      "artifact_kinds": ["executable", "installer"],
+      "runtime_classes": ["desktop"],
+      "platform_targets": [
+        { "os": "darwin", "architecture": "arm64" }
+      ],
+      "characteristics": {
+        "pii": false,
+        "ui": true,
+        "auto_update": true,
+        "local_persistence": true,
+        "long_running": false,
+        "replayable": false,
+        "human_in_the_loop": true
+      },
+      "distribution_channels": ["direct-download"],
+      "data_classification": ["internal"],
+      "provider_binding_ids": ["desktop-provider"],
+      "paths": {
+        "include": ["apps/desktop-client/**"],
+        "exclude": ["apps/desktop-client/**/*.test.ts"]
+      }
+    },
+    "Desktop/App": {
+      "artifact_kinds": ["binary"]
+    }
+  },
+  "shared_paths": []
+}

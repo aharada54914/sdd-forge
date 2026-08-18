@@ -1,0 +1,34 @@
+ticket_id: RT-20260817-001
+status: open
+type: test-gap
+severity: minor
+target:
+  feature: epic-192-a4-facet-manifest
+  task: T-005
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+summary: "Discovery contract の $schema/$id 照合が未実装（docstring は別経路の存在を示唆するが実装がどこにも無い）"
+problem: |
+  design.md:796-799 と security-spec.md B4 は Discovery contract の一部として
+  「per-artifact version check: present `$schema` keyword and a matching
+  `$id`」を要求するが、validate-facet-manifest.py の load_schema() は探索して
+  json.load するだけで $schema/$id を照合しない。docstring（:31-33）の
+  「Discovery contract checks `$schema`/`$id` separately」に対応する実装経路は
+  リポジトリのどこにも存在しない（TEST-001 はスキーマ文書のフィールド存在を
+  見るだけで Discovery の照合ではない）。seq0754 の quality-gate evaluator が
+  Minor（requires_human_decision: true — スコープ裁定）として検出。
+  acceptance-tests.md は AC-032/TEST-032（Discovery contract の検証）を T-005
+  の parity/discovery スイート所管としているため、本ゲート（T-001）では
+  Deferred と分類し、T-005 実装時に $schema/$id 照合の実装とテストを行うこと。
+expected_fix:
+  - "T-005 で Discovery contract の per-artifact version check（$schema 存在 + $id 一致）を validate-facet-manifest.py の load_schema() 経路（または T-005 の discovery scanner）に実装する"
+  - "AC-032/TEST-032 の fixture で照合失敗（$schema 欠落 / $id 不一致）が fail-closed になることを両ランタイムで assert する"
+  - "実装位置が T-005 スコープ外と裁定された場合は tasks.md の所管を人間が更新する"
+references:
+  - "specs/epic-192-a4-facet-manifest/design.md:796-799"
+  - "specs/epic-192-a4-facet-manifest/security-spec.md (B4)"
+  - "specs/epic-192-a4-facet-manifest/acceptance-tests.md (AC-032/TEST-032)"
+  - "RUN-epic-192-a4-facet-manifest-qg-T-001-seq0754 evaluator finding (Minor)"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1
