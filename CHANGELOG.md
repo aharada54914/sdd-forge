@@ -4,6 +4,22 @@
 
 ### Added
 
+- **Epic A7 capability run-record payload (Issue #195, T-009)**: extended
+  `emit-run-record.sh`/`.ps1` with `--capability-enforcement
+  <disabled-legacy|advisory|required>`/`--capability-block-id <id>`
+  (`-CapabilityEnforcement`/`-CapabilityBlockId` on the PowerShell twin),
+  gated by a new `emit_capability` flag independent of the existing
+  `emit_v2` (`--effort-*`) gating. The no-flag `sdd-run-record/v1` heredoc
+  stays byte-identical (AC-011); `--effort-*`-only output is unchanged
+  `v2` with no `capability` key; `--capability-enforcement` supplied
+  without any `--effort-*` flag is a usage error (non-zero exit, no
+  `$out` file written, AC-033); both families together add an additive
+  `capability` object (`{enforcement, block_id}`, `block_id` `null` when
+  not supplied) alongside the existing `effort` object (AC-012).
+  `tests/emit-run-record-feature-scope.tests.{sh,ps1}` gain the
+  four-flag-combination matrix plus the capability-only golden negative
+  and a case-sensitive mis-cased-enum rejection case.
+
 - **Epic A7 canonical event-trace schema (Issue #195, T-005)**: extended
   the existing `loop-inventory/v1` registry and shared Bash/PowerShell
   loop driver in place rather than building a new mechanism — added an
