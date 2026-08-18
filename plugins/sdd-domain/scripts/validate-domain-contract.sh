@@ -359,18 +359,227 @@ def check_structure(document, add_violation):
             )
 
 
+def reference_well_formed(value, path, add_violation):
+    """Is this reference value a well-formed concept id?
+
+    A reference whose value does not match the concept-id pattern is a
+    MALFORMED reference, which is a different defect from a well-formed
+    reference that resolves to nothing (AC-022 versus AC-008 / AC-009). It is
+    reported here as V2-PATTERN, in the wording check_pattern already uses,
+    and is then excluded from resolution. That is REQ-004(c)'s precedence idea
+    one level further down: type before pattern, pattern before reference
+    resolution. A reader can therefore always tell which of the two defects
+    fired, and neither value is ever reported twice.
+    """
+    if CONCEPT_ID_RE.match(value) is not None:
+        return True
+    check_pattern(value, CONCEPT_ID_RE, CONCEPT_ID_PATTERN_TEXT, path, add_violation)
+    return False
+
+
+def declared_string_values(entries, key):
+    """The set of `key` values across an array of objects.
+
+    Only entries that are objects whose `key` is present and a string are
+    indexed. A value that is not a string was already reported by the
+    structural pass and can never be equal to a well-formed reference, so
+    leaving it out changes no verdict. Membership is raw string equality, so
+    the index is case-significant.
+    """
+    found = set()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        value = entry.get(key)
+        if isinstance(value, str):
+            found.add(value)
+    return found
+
+
 def check_cross_references(document, add_violation):
     """REQ-004(d)-(i) -- duplicate concept ids, dangling concept.context,
     dangling distinguished_from.concept_id, dangling term.concept_id,
     responsibilities/must_not_own self-contradiction, duplicate concept name
-    within one context.
+    within one context. Also the pattern check for the two reference fields
+    that share the concept-id pattern (AC-022), which T-003 left here so that
+    the malformed and unresolvable cases could be told apart in one place.
 
-    EXTENSION POINT owned by T-004. Same rules as check_structure: append
-    through `add_violation` only. Rule ids: V2-DUP-CONCEPT-ID /
-    V2-DANGLING-CONTEXT / V2-DANGLING-DISTINCTION / V2-DANGLING-TERM /
-    V2-SELF-CONTRADICTION / V2-DUP-NAME-IN-CONTEXT.
+    Owned by T-004. Same rules as check_structure: append through
+    `add_violation` only; it does not write to stderr and does not exit. Rule
+    ids: V2-DUP-CONCEPT-ID / V2-DANGLING-CONTEXT / V2-DANGLING-DISTINCTION /
+    V2-DANGLING-TERM / V2-SELF-CONTRADICTION / V2-DUP-NAME-IN-CONTEXT, plus
+    V2-PATTERN for a malformed reference (design.md Error Handling).
+
+    These six checks are why this validator exists rather than a JSON Schema
+    run: draft-07 cannot express referential integrity (DD-1, INV-003).
     """
-    return
+    concepts = document.get("concepts")
+    contexts = document.get("contexts")
+    concepts_declared = isinstance(concepts, list)
+    contexts_declared = isinstance(contexts, list)
+
+    # The two referent indexes, each built only when the array it comes from
+    # really is an array. When `concepts` or `contexts` is absent or mistyped
+    # the structural pass has already reported that root cause; resolving
+    # references against an index that could not be built would add a cascade
+    # of derived failures naming fields the author did not get wrong.
+    declared_concept_ids = None
+    if concepts_declared:
+        declared_concept_ids = declared_string_values(concepts, "id")
+    declared_context_names = None
+    if contexts_declared:
+        declared_context_names = declared_string_values(contexts, "name")
+
+    if concepts_declared:
+        # --- (d) duplicate concept id -------------------------------------
+        # Raw string equality, case-significant: CONCEPT-ORDER and
+        # concept-order are different ids (and the second is separately a
+        # pattern violation). The message names the duplicated id (AC-006).
+        seen_ids = set()
+        for index, concept in enumerate(concepts):
+            if not isinstance(concept, dict):
+                continue
+            identifier = concept.get("id")
+            if not isinstance(identifier, str):
+                continue
+            if identifier in seen_ids:
+                add_violation(
+                    "V2-DUP-CONCEPT-ID",
+                    "concepts[%d].id: id %s is already declared by an earlier concept; concept ids must be unique"
+                    % (index, safe(identifier)),
+                )
+            else:
+                seen_ids.add(identifier)
+
+        # --- (e) dangling concept.context ---------------------------------
+        if declared_context_names is not None:
+            for index, concept in enumerate(concepts):
+                if not isinstance(concept, dict):
+                    continue
+                context_name = concept.get("context")
+                if not isinstance(context_name, str):
+                    continue
+                if CONTEXT_RE.match(context_name) is None:
+                    # Malformed, not unresolvable. The structural pass already
+                    # reported this value as V2-PATTERN; reporting it again as
+                    # a dangling reference would blur the two defects.
+                    continue
+                if context_name not in declared_context_names:
+                    add_violation(
+                        "V2-DANGLING-CONTEXT",
+                        "concepts[%d].context: context %s is not declared in contexts"
+                        % (index, safe(context_name)),
+                    )
+
+        # --- (f) dangling distinguished_from.concept_id -------------------
+        # Pattern first (AC-022), then the self-reference case, then
+        # resolution. requirements.md Edge Cases makes a concept pointing at
+        # its own id invalid as part of this same check.
+        for index, concept in enumerate(concepts):
+            if not isinstance(concept, dict):
+                continue
+            own_id = concept.get("id")
+            distinctions = concept.get("distinguished_from")
+            if not isinstance(distinctions, list):
+                continue
+            for entry_index, distinction in enumerate(distinctions):
+                if not isinstance(distinction, dict):
+                    continue
+                reference = distinction.get("concept_id")
+                if not isinstance(reference, str):
+                    continue
+                path = "concepts[%d].distinguished_from[%d].concept_id" % (index, entry_index)
+                if not reference_well_formed(reference, path, add_violation):
+                    continue
+                if isinstance(own_id, str) and reference == own_id:
+                    add_violation(
+                        "V2-DANGLING-DISTINCTION",
+                        "%s: %s is the concept's own id; a concept cannot be distinguished from itself"
+                        % (path, safe(reference)),
+                    )
+                    continue
+                if declared_concept_ids is not None and reference not in declared_concept_ids:
+                    add_violation(
+                        "V2-DANGLING-DISTINCTION",
+                        "%s: %s does not resolve to any declared concept id"
+                        % (path, safe(reference)),
+                    )
+
+    # --- (g) dangling contexts[].terms[].concept_id ------------------------
+    if contexts_declared and declared_concept_ids is not None:
+        for index, entry in enumerate(contexts):
+            if not isinstance(entry, dict):
+                continue
+            terms = entry.get("terms")
+            if not isinstance(terms, list):
+                continue
+            for term_index, term in enumerate(terms):
+                if not isinstance(term, dict):
+                    continue
+                if "concept_id" not in term:
+                    continue
+                reference = term["concept_id"]
+                if not isinstance(reference, str):
+                    continue
+                path = "contexts[%d].terms[%d].concept_id" % (index, term_index)
+                if not reference_well_formed(reference, path, add_violation):
+                    continue
+                if reference not in declared_concept_ids:
+                    add_violation(
+                        "V2-DANGLING-TERM",
+                        "%s: %s does not resolve to any declared concept id"
+                        % (path, safe(reference)),
+                    )
+
+    if concepts_declared:
+        # --- (h) responsibilities / must_not_own self-contradiction --------
+        # REQ-004(h) says the same STRING, so the comparison is exact: not
+        # case-folded, not trimmed, not otherwise normalized. Each distinct
+        # colliding string is reported once even if must_not_own repeats it.
+        for index, concept in enumerate(concepts):
+            if not isinstance(concept, dict):
+                continue
+            responsibilities = concept.get("responsibilities")
+            forbidden = concept.get("must_not_own")
+            if not isinstance(responsibilities, list):
+                continue
+            if not isinstance(forbidden, list):
+                continue
+            owned = set(item for item in responsibilities if isinstance(item, str))
+            reported = set()
+            for item in forbidden:
+                if not isinstance(item, str):
+                    continue
+                if item not in owned or item in reported:
+                    continue
+                reported.add(item)
+                add_violation(
+                    "V2-SELF-CONTRADICTION",
+                    "concepts[%d]: %s appears in both responsibilities and must_not_own"
+                    % (index, safe(item)),
+                )
+
+        # --- (i) duplicate concept name inside ONE context -----------------
+        # The key is the (context, name) pair. That pairing is exactly what
+        # makes the same name in two DIFFERENT contexts legal (requirements.md
+        # Edge Cases, INV-012) while a repeat inside one context is not.
+        seen_names = set()
+        for index, concept in enumerate(concepts):
+            if not isinstance(concept, dict):
+                continue
+            name = concept.get("name")
+            context_name = concept.get("context")
+            if not isinstance(name, str) or not isinstance(context_name, str):
+                continue
+            key = (context_name, name)
+            if key in seen_names:
+                add_violation(
+                    "V2-DUP-NAME-IN-CONTEXT",
+                    "concepts[%d].name: name %s is already declared by another concept in context %s; names must be unique within a context"
+                    % (index, safe(name), safe(context_name)),
+                )
+            else:
+                seen_names.add(key)
 
 
 def run(path):

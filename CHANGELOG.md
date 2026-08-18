@@ -57,6 +57,33 @@
   from an accepted contract at exactly one point. The cross-reference integrity
   checks and the reference-field patterns land in T-004.
 
+- **Domain contract v2 cross-reference integrity checks (Issue #290,
+  sdd-domain-concept-contract T-004)**: `validate-domain-contract.sh` and
+  `.ps1` now enforce REQ-004 steps (d) through (i) -- the referential
+  integrity a draft-07 schema cannot express, and the reason this validator
+  exists rather than a plain JSON Schema run. A contract is rejected when two
+  concepts declare the same `id` (`V2-DUP-CONCEPT-ID`, naming the duplicated
+  id), when `concepts[].context` names a context no `contexts[]` entry
+  declares (`V2-DANGLING-CONTEXT`), when `distinguished_from[].concept_id`
+  points at an undeclared concept or at the concept's own id
+  (`V2-DANGLING-DISTINCTION`, with distinct wording for the two cases), when
+  `contexts[].terms[].concept_id` points at an undeclared concept
+  (`V2-DANGLING-TERM`), when one concept lists the identical string in both
+  `responsibilities` and `must_not_own` (`V2-SELF-CONTRADICTION`, compared by
+  exact string equality -- not case-folded, not trimmed), and when two
+  concepts share a `name` inside one context (`V2-DUP-NAME-IN-CONTEXT`). The
+  same `name` in two different contexts stays valid, which is what lets the
+  order-taking `Order` and the shipping `Order` be modelled as the distinct
+  concepts they are. The two reference fields that share the concept-id
+  pattern are now pattern-checked as well, and a malformed reference is
+  reported as `V2-PATTERN` rather than as a dangling one -- a value that is
+  the wrong shape and a value that resolves to nothing are different defects,
+  and the validator keeps them textually apart. Eight negative fixtures and
+  two accepted control contracts in
+  `tests/sdd-domain/contract-v2-schema.Tests.ps1` exercise these paths on both
+  twins. The positive corpus, the twin-parity check, and the non-regression
+  closure land in T-005.
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went

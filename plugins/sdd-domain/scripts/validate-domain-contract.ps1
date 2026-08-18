@@ -388,18 +388,234 @@ function Invoke-StructureCheck {
     }
 }
 
+function Test-ReferenceWellFormed {
+    # Is this reference value a well-formed concept id?
+    #
+    # A reference whose value does not match the concept-id pattern is a
+    # MALFORMED reference, which is a different defect from a well-formed
+    # reference that resolves to nothing (AC-022 versus AC-008 / AC-009). It is
+    # reported here as V2-PATTERN, in the wording Test-DeclaredPattern already
+    # uses, and is then excluded from resolution. That is REQ-004(c)'s
+    # precedence idea one level further down: type before pattern, pattern
+    # before reference resolution. A reader can therefore always tell which of
+    # the two defects fired, and neither value is ever reported twice.
+    param([string]$Value, [string]$Path)
+    if ([System.Text.RegularExpressions.Regex]::IsMatch($Value, $ConceptIdMatchPattern)) { return $true }
+    Test-DeclaredPattern -Value $Value -MatchPattern $ConceptIdMatchPattern `
+        -PatternText $ConceptIdPatternText -Path $Path
+    return $false
+}
+
+function Get-JsonStringMember {
+    # The member value when it is present AND a JSON string; $null otherwise.
+    param($Object, [string]$Name)
+    if (-not (Test-ContractMemberPresent $Object $Name)) { return $null }
+    $value = Get-ContractValue $Object $Name
+    if (-not ($value -is [string])) { return $null }
+    return $value
+}
+
+function Get-JsonArrayMember {
+    # The member value when it is present AND a JSON array; $null otherwise.
+    # Comma-wrapped on return so that an EMPTY array survives as an empty
+    # array instead of unrolling to $null and reading as an absent key.
+    param($Object, [string]$Name)
+    if (-not (Test-ContractMemberPresent $Object $Name)) { return $null }
+    $value = Get-ContractValue $Object $Name
+    if (-not (Test-JsonTypeMatches -Value $value -Expected 'array')) { return $null }
+    return ,$value
+}
+
+function Get-DeclaredStringValueSet {
+    # The set of $Name values across an array of objects.
+    #
+    # Only entries that are objects whose $Name is present and a string are
+    # indexed. A value that is not a string was already reported by the
+    # structural pass and can never be equal to a well-formed reference, so
+    # leaving it out changes no verdict. HashSet[string] uses the ordinal
+    # comparer, so the index is case-significant -- matching the .sh twin's
+    # raw string equality. Comma-wrapped on return: a HashSet is enumerable
+    # and would otherwise unroll to its elements.
+    param($Entries, [string]$Name)
+    $found = New-Object 'System.Collections.Generic.HashSet[string]'
+    for ($index = 0; $index -lt $Entries.Count; $index++) {
+        $entry = $Entries[$index]
+        if (-not (Test-IsJsonObject $entry)) { continue }
+        $value = Get-JsonStringMember -Object $entry -Name $Name
+        if ($null -eq $value) { continue }
+        [void]$found.Add($value)
+    }
+    return ,$found
+}
+
 function Invoke-CrossReferenceCheck {
     # REQ-004(d)-(i) -- duplicate concept ids, dangling concept.context,
     # dangling distinguished_from.concept_id, dangling term.concept_id,
     # responsibilities/must_not_own self-contradiction, duplicate concept name
-    # within one context.
+    # within one context. Also the pattern check for the two reference fields
+    # that share the concept-id pattern (AC-022), which T-003 left here so that
+    # the malformed and unresolvable cases could be told apart in one place.
     #
-    # EXTENSION POINT owned by T-004. Same rules as Invoke-StructureCheck:
-    # append through Add-Violation only. Rule ids: V2-DUP-CONCEPT-ID /
-    # V2-DANGLING-CONTEXT / V2-DANGLING-DISTINCTION / V2-DANGLING-TERM /
-    # V2-SELF-CONTRADICTION / V2-DUP-NAME-IN-CONTEXT.
+    # Owned by T-004. Same rules as Invoke-StructureCheck: append through
+    # Add-Violation only; it does not write to stderr and does not exit. Rule
+    # ids: V2-DUP-CONCEPT-ID / V2-DANGLING-CONTEXT / V2-DANGLING-DISTINCTION /
+    # V2-DANGLING-TERM / V2-SELF-CONTRADICTION / V2-DUP-NAME-IN-CONTEXT, plus
+    # V2-PATTERN for a malformed reference (design.md Error Handling).
+    #
+    # These six checks are why this validator exists rather than a JSON Schema
+    # run: draft-07 cannot express referential integrity (DD-1, INV-003).
     param($Document)
-    return
+
+    $concepts = Get-JsonArrayMember -Object $Document -Name 'concepts'
+    $contexts = Get-JsonArrayMember -Object $Document -Name 'contexts'
+    $conceptsDeclared = ($null -ne $concepts)
+    $contextsDeclared = ($null -ne $contexts)
+
+    # The two referent indexes, each built only when the array it comes from
+    # really is an array. When `concepts` or `contexts` is absent or mistyped
+    # the structural pass has already reported that root cause; resolving
+    # references against an index that could not be built would add a cascade
+    # of derived failures naming fields the author did not get wrong.
+    $declaredConceptIds = $null
+    if ($conceptsDeclared) {
+        $declaredConceptIds = Get-DeclaredStringValueSet -Entries $concepts -Name 'id'
+    }
+    $declaredContextNames = $null
+    if ($contextsDeclared) {
+        $declaredContextNames = Get-DeclaredStringValueSet -Entries $contexts -Name 'name'
+    }
+
+    if ($conceptsDeclared) {
+        # --- (d) duplicate concept id -------------------------------------
+        # Raw string equality, case-significant: CONCEPT-ORDER and
+        # concept-order are different ids (and the second is separately a
+        # pattern violation). The message names the duplicated id (AC-006).
+        $seenIds = New-Object 'System.Collections.Generic.HashSet[string]'
+        for ($index = 0; $index -lt $concepts.Count; $index++) {
+            $concept = $concepts[$index]
+            if (-not (Test-IsJsonObject $concept)) { continue }
+            $identifier = Get-JsonStringMember -Object $concept -Name 'id'
+            if ($null -eq $identifier) { continue }
+            if (-not $seenIds.Add($identifier)) {
+                Add-Violation 'V2-DUP-CONCEPT-ID' (('concepts[{0}].id: id ' -f $index) + (ConvertTo-SafeText $identifier) + ' is already declared by an earlier concept; concept ids must be unique')
+            }
+        }
+
+        # --- (e) dangling concept.context ---------------------------------
+        if ($null -ne $declaredContextNames) {
+            for ($index = 0; $index -lt $concepts.Count; $index++) {
+                $concept = $concepts[$index]
+                if (-not (Test-IsJsonObject $concept)) { continue }
+                $contextName = Get-JsonStringMember -Object $concept -Name 'context'
+                if ($null -eq $contextName) { continue }
+                if (-not ([System.Text.RegularExpressions.Regex]::IsMatch($contextName, $ContextMatchPattern))) {
+                    # Malformed, not unresolvable. The structural pass already
+                    # reported this value as V2-PATTERN; reporting it again as
+                    # a dangling reference would blur the two defects.
+                    continue
+                }
+                if (-not $declaredContextNames.Contains($contextName)) {
+                    Add-Violation 'V2-DANGLING-CONTEXT' (('concepts[{0}].context: context ' -f $index) + (ConvertTo-SafeText $contextName) + ' is not declared in contexts')
+                }
+            }
+        }
+
+        # --- (f) dangling distinguished_from.concept_id -------------------
+        # Pattern first (AC-022), then the self-reference case, then
+        # resolution. requirements.md Edge Cases makes a concept pointing at
+        # its own id invalid as part of this same check.
+        for ($index = 0; $index -lt $concepts.Count; $index++) {
+            $concept = $concepts[$index]
+            if (-not (Test-IsJsonObject $concept)) { continue }
+            $ownId = Get-JsonStringMember -Object $concept -Name 'id'
+            $distinctions = Get-JsonArrayMember -Object $concept -Name 'distinguished_from'
+            if ($null -eq $distinctions) { continue }
+            for ($entryIndex = 0; $entryIndex -lt $distinctions.Count; $entryIndex++) {
+                $distinction = $distinctions[$entryIndex]
+                if (-not (Test-IsJsonObject $distinction)) { continue }
+                $reference = Get-JsonStringMember -Object $distinction -Name 'concept_id'
+                if ($null -eq $reference) { continue }
+                $referencePath = 'concepts[{0}].distinguished_from[{1}].concept_id' -f $index, $entryIndex
+                if (-not (Test-ReferenceWellFormed -Value $reference -Path $referencePath)) { continue }
+                if (($null -ne $ownId) -and [string]::Equals($reference, $ownId, [StringComparison]::Ordinal)) {
+                    Add-Violation 'V2-DANGLING-DISTINCTION' ($referencePath + ': ' + (ConvertTo-SafeText $reference) + " is the concept's own id; a concept cannot be distinguished from itself")
+                    continue
+                }
+                if (($null -ne $declaredConceptIds) -and (-not $declaredConceptIds.Contains($reference))) {
+                    Add-Violation 'V2-DANGLING-DISTINCTION' ($referencePath + ': ' + (ConvertTo-SafeText $reference) + ' does not resolve to any declared concept id')
+                }
+            }
+        }
+    }
+
+    # --- (g) dangling contexts[].terms[].concept_id ------------------------
+    if ($contextsDeclared -and ($null -ne $declaredConceptIds)) {
+        for ($index = 0; $index -lt $contexts.Count; $index++) {
+            $entry = $contexts[$index]
+            if (-not (Test-IsJsonObject $entry)) { continue }
+            $terms = Get-JsonArrayMember -Object $entry -Name 'terms'
+            if ($null -eq $terms) { continue }
+            for ($termIndex = 0; $termIndex -lt $terms.Count; $termIndex++) {
+                $term = $terms[$termIndex]
+                if (-not (Test-IsJsonObject $term)) { continue }
+                $reference = Get-JsonStringMember -Object $term -Name 'concept_id'
+                if ($null -eq $reference) { continue }
+                $termPath = 'contexts[{0}].terms[{1}].concept_id' -f $index, $termIndex
+                if (-not (Test-ReferenceWellFormed -Value $reference -Path $termPath)) { continue }
+                if (-not $declaredConceptIds.Contains($reference)) {
+                    Add-Violation 'V2-DANGLING-TERM' ($termPath + ': ' + (ConvertTo-SafeText $reference) + ' does not resolve to any declared concept id')
+                }
+            }
+        }
+    }
+
+    if ($conceptsDeclared) {
+        # --- (h) responsibilities / must_not_own self-contradiction --------
+        # REQ-004(h) says the same STRING, so the comparison is exact: not
+        # case-folded, not trimmed, not otherwise normalized. Each distinct
+        # colliding string is reported once even if must_not_own repeats it.
+        for ($index = 0; $index -lt $concepts.Count; $index++) {
+            $concept = $concepts[$index]
+            if (-not (Test-IsJsonObject $concept)) { continue }
+            $responsibilities = Get-JsonArrayMember -Object $concept -Name 'responsibilities'
+            if ($null -eq $responsibilities) { continue }
+            $forbidden = Get-JsonArrayMember -Object $concept -Name 'must_not_own'
+            if ($null -eq $forbidden) { continue }
+            $owned = New-Object 'System.Collections.Generic.HashSet[string]'
+            for ($itemIndex = 0; $itemIndex -lt $responsibilities.Count; $itemIndex++) {
+                $item = $responsibilities[$itemIndex]
+                if ($item -is [string]) { [void]$owned.Add($item) }
+            }
+            $reported = New-Object 'System.Collections.Generic.HashSet[string]'
+            for ($itemIndex = 0; $itemIndex -lt $forbidden.Count; $itemIndex++) {
+                $item = $forbidden[$itemIndex]
+                if (-not ($item -is [string])) { continue }
+                if (-not $owned.Contains($item)) { continue }
+                if (-not $reported.Add($item)) { continue }
+                Add-Violation 'V2-SELF-CONTRADICTION' (('concepts[{0}]: ' -f $index) + (ConvertTo-SafeText $item) + ' appears in both responsibilities and must_not_own')
+            }
+        }
+
+        # --- (i) duplicate concept name inside ONE context -----------------
+        # Names are indexed per context. That pairing is exactly what makes
+        # the same name in two DIFFERENT contexts legal (requirements.md Edge
+        # Cases, INV-012) while a repeat inside one context is not.
+        $namesByContext = New-Object 'System.Collections.Generic.Dictionary[string,System.Collections.Generic.HashSet[string]]'
+        for ($index = 0; $index -lt $concepts.Count; $index++) {
+            $concept = $concepts[$index]
+            if (-not (Test-IsJsonObject $concept)) { continue }
+            $conceptName = Get-JsonStringMember -Object $concept -Name 'name'
+            if ($null -eq $conceptName) { continue }
+            $owningContext = Get-JsonStringMember -Object $concept -Name 'context'
+            if ($null -eq $owningContext) { continue }
+            if (-not $namesByContext.ContainsKey($owningContext)) {
+                $namesByContext[$owningContext] = New-Object 'System.Collections.Generic.HashSet[string]'
+            }
+            if (-not $namesByContext[$owningContext].Add($conceptName)) {
+                Add-Violation 'V2-DUP-NAME-IN-CONTEXT' (('concepts[{0}].name: name ' -f $index) + (ConvertTo-SafeText $conceptName) + ' is already declared by another concept in context ' + (ConvertTo-SafeText $owningContext) + '; names must be unique within a context')
+            }
+        }
+    }
 }
 
 function Invoke-Validation {

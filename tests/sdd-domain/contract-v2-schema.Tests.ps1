@@ -1090,3 +1090,393 @@ Describe "validate-domain-contract structural pass enumerates every violation (d
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# T-004 (Issue #290, sdd-domain-concept-contract Phase 0): the cross-reference
+# integrity pass, REQ-004 steps (d) through (i), in both validator twins,
+# plus the pattern check for the two reference fields that share the concept-id
+# pattern (AC-022 -- left to this task by T-003).
+#
+# The six checks are the entire reason this validator exists rather than a
+# plain JSON Schema run: draft-07 cannot express referential integrity
+# (design.md DD-1, INV-003), so duplicate ids, dangling context /
+# distinguished_from / term references, self-contradictory responsibility
+# sets, and within-context name collisions are caught here or nowhere.
+#
+# Fixture allocation for this task (tasks.md `## Negative Fixture
+# Allocation`): exactly 8 negative fixtures -- AC-006 x1, AC-007 x1, AC-008 x1,
+# AC-009 x1, AC-010 x1, AC-011 x1, AC-022 x2. The two positive control
+# contracts below (same name in two different contexts; a case- and
+# whitespace-differing near-duplicate responsibility) are the tasks.md
+# `### Done When` cross-context-permissiveness and exact-string-equality
+# items, NOT additional negative fixtures from that allocation table -- the
+# same convention T-002 used for its argument / path-error checks and T-003
+# for its base-acceptance and enumeration checks.
+#
+# Every fixture is built from the SAME base contract token table and the same
+# expander T-003 authored, so a T-004 negative and a T-003 negative are both
+# single-point mutations of one accepted contract, and the base-acceptance
+# check above is the non-vacuity guard for both corpora (DD-5, INV-006 --
+# fixtures stay ephemeral, no permanent fixture directory is added). All
+# fixture vocabulary is synthetic Purchase / Fulfillment / Book domain nouns;
+# no credential, token, personal, or customer-derived string appears in any of
+# them (security-spec.md).
+#
+# Two discriminations are load-bearing and are asserted as forbidden rule ids
+# rather than merely described:
+#   1. A malformed reference (AC-022) is a PATTERN violation; a well-formed
+#      but unresolvable reference (AC-008 / AC-009) is a DANGLING violation.
+#      Neither fixture may produce the other's rule id.
+#   2. The same concept `name` in two DIFFERENT contexts is not a violation at
+#      all (requirements.md Edge Cases, INV-012). Only same-name-same-context
+#      is. The negative proof is here; the positive proof is T-005's AC-005.
+# ---------------------------------------------------------------------------
+
+function New-CrossReferenceFixtureFile {
+    # Ephemeral expansion of one T-004 fixture through T-003's token expander
+    # (DD-5, INV-006). The file name is hex and ASCII hyphens only -- no byte
+    # in 0x00-0x1F, which is legal on POSIX but illegal on Win32 and would kill
+    # the whole .ps1 side there.
+    param([hashtable]$Override)
+    $path = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-v2-t004-" + [guid]::NewGuid().ToString("N") + ".json")
+    [System.IO.File]::WriteAllText($path, (New-StructuralFixtureJson -Override $Override), (New-Object System.Text.UTF8Encoding($false)))
+    return $path
+}
+
+function New-CrossReferenceExpectation {
+    param([string]$Rule, [string]$FieldPath, [string]$LineMustMatch = "")
+    return New-Object PSObject -Property @{
+        Rule          = $Rule
+        FieldPath     = $FieldPath
+        LineMustMatch = $LineMustMatch
+    }
+}
+
+function New-CrossReferenceFixtureCase {
+    param(
+        [string]$Ac,
+        [string]$Case,
+        [hashtable]$Override,
+        [object[]]$Expected,
+        [string[]]$Forbidden = @()
+    )
+    return New-Object PSObject -Property @{
+        Ac        = $Ac
+        Case      = $Case
+        Override  = $Override
+        Expected  = $Expected
+        Forbidden = $Forbidden
+    }
+}
+
+function Assert-CrossReferenceViolations {
+    # The shape every cross-reference negative fixture must satisfy (DD-7):
+    # exit 1, nothing on stdout, no stack trace or raw interpreter exception
+    # anywhere on stderr, and stderr carrying EXACTLY the expected violation
+    # lines -- no more and no fewer. The total-line assertion is strict here
+    # (unlike T-003's presence-scoped helper) because every fixture below is a
+    # single-point mutation whose complete expected output is known: a stray
+    # extra line would mean a cross-reference check fired on a value the
+    # mutation did not touch.
+    param($Result, [object[]]$Expected, [string[]]$ForbiddenRuleIds)
+    $Result.ExitCode | Should Be 1
+    $Result.StdOut.Length | Should Be 0
+    $Result.StdErr | Should Not Match "Traceback"
+    $Result.StdErr | Should Not Match "Exception"
+    $Result.StdErr | Should Not Match "CategoryInfo"
+    $Result.StdErr | Should Not Match "FullyQualifiedErrorId"
+    $Result.StdErr | Should Not Match "ScriptStackTrace"
+    $Result.StdErr | Should Not Match "at <ScriptBlock>"
+    $Result.StdErr | Should Not Match "^\s+\+ "
+    $lines = @(Get-StdErrViolationLines -Result $Result)
+    $lines.Count | Should Be $Expected.Count
+    foreach ($expectation in $Expected) {
+        # -cmatch, not -match: the rule ids and the declared patterns are
+        # case-significant and PowerShell's -match is case-insensitive.
+        $expectedPrefix = "^" + [regex]::Escape($expectation.Rule + ": " + $expectation.FieldPath + ":")
+        $matched = @($lines | Where-Object { $_ -cmatch $expectedPrefix })
+        $matched.Count | Should Be 1
+        if (-not [string]::IsNullOrEmpty($expectation.LineMustMatch)) {
+            @($matched | Where-Object { $_ -cmatch $expectation.LineMustMatch }).Count | Should Be 1
+        }
+    }
+    foreach ($forbidden in $ForbiddenRuleIds) {
+        @($lines | Where-Object { $_ -cmatch ("^" + [regex]::Escape($forbidden) + ":") }).Count | Should Be 0
+    }
+}
+
+# --- The 8 cross-reference negative fixtures --------------------------------
+
+$crossReferenceFixtures = @(
+    # AC-006 (1), REQ-004(d): a third concept re-uses the id concepts[0]
+    # already declared. Its `name` is distinct so that the duplicate-id check
+    # is unambiguously what fired, and every reference in the contract still
+    # resolves.
+    (New-CrossReferenceFixtureCase -Ac "AC-006" -Case "(1) two concepts declare the same id -- stderr names the duplicated id" `
+        -Override @{ CONCEPTS = '[%CONCEPT_MAIN%, %CONCEPT_SECOND%, {"id": "CONCEPT-ORDER", "name": "Placement", "context": "order-taking", "definition": "Where a book sits on a shelf.", "essence": "where an item is placed", "responsibilities": ["shelf position"], "evidence": ["domain-story:activity-7"]}]' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-DUP-CONCEPT-ID" -FieldPath "concepts[2].id" `
+                -LineMustMatch "id CONCEPT-ORDER is already declared by an earlier concept")
+        ) `
+        -Forbidden @("V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-PATTERN", "V2-DUP-NAME-IN-CONTEXT", "V2-DANGLING-CONTEXT", "V2-DANGLING-DISTINCTION", "V2-DANGLING-TERM")),
+
+    # AC-007 (1), REQ-004(e): `shipping` is a well-formed kebab-case context
+    # name -- so the pattern check cannot be what fires -- but no contexts[]
+    # entry declares it.
+    (New-CrossReferenceFixtureCase -Ac "AC-007" -Case "(1) concepts[].context names a context no contexts[] entry declares" `
+        -Override @{ C_CONTEXT = '"context": "shipping", ' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-DANGLING-CONTEXT" -FieldPath "concepts[0].context" `
+                -LineMustMatch "context shipping is not declared in contexts")
+        ) `
+        -Forbidden @("V2-PATTERN", "V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-DUP-NAME-IN-CONTEXT", "V2-DUP-CONCEPT-ID")),
+
+    # AC-008 (1), REQ-004(f): ONE fixture carrying both sub-cases the AC names
+    # -- entry [0] points at the concept's own id (requirements.md Edge Cases
+    # declares a distinguished_from entry that points at its own concept
+    # invalid), entry [1] points at an id no concept declares. Both are well
+    # formed, so neither can be reported as
+    # a pattern violation; the two messages differ so a reader can tell the
+    # self-reference from the unresolvable reference.
+    (New-CrossReferenceFixtureCase -Ac "AC-008" -Case "(1) distinguished_from points at the concept itself and at an undeclared id" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "CONCEPT-ORDER", "reasons": ["a concept is never distinguished from itself"]}, {"concept_id": "CONCEPT-GHOST", "reasons": ["no concept declares this id"]}], ' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-DANGLING-DISTINCTION" -FieldPath "concepts[0].distinguished_from[0].concept_id" `
+                -LineMustMatch "is the concept's own id; a concept cannot be distinguished from itself"),
+            (New-CrossReferenceExpectation -Rule "V2-DANGLING-DISTINCTION" -FieldPath "concepts[0].distinguished_from[1].concept_id" `
+                -LineMustMatch "CONCEPT-GHOST does not resolve to any declared concept id")
+        ) `
+        -Forbidden @("V2-PATTERN", "V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-DANGLING-TERM", "V2-DUP-CONCEPT-ID")),
+
+    # AC-009 (1), REQ-003 / REQ-004(g): a well-formed term reference to an id
+    # no concept declares.
+    (New-CrossReferenceFixtureCase -Ac "AC-009" -Case "(1) contexts[].terms[].concept_id names an id no concept declares" `
+        -Override @{ T_CONCEPT_ID = '"CONCEPT-GHOST"' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-DANGLING-TERM" -FieldPath "contexts[0].terms[0].concept_id" `
+                -LineMustMatch "CONCEPT-GHOST does not resolve to any declared concept id")
+        ) `
+        -Forbidden @("V2-PATTERN", "V2-TYPE-MISMATCH", "V2-MISSING-KEY", "V2-DANGLING-DISTINCTION", "V2-DANGLING-CONTEXT")),
+
+    # AC-010 (1), REQ-004(h): the identical string "purchase intent" is both a
+    # responsibility of concepts[0] and one of its must_not_own entries. Exact
+    # string equality -- the accepted near-duplicate control below proves the
+    # comparison is neither case-folded nor whitespace-normalized.
+    (New-CrossReferenceFixtureCase -Ac "AC-010" -Case "(1) one concept lists the identical string in responsibilities and must_not_own" `
+        -Override @{ C_MUST_NOT_OWN = '["purchase intent"]' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-SELF-CONTRADICTION" -FieldPath "concepts[0]" `
+                -LineMustMatch "purchase intent appears in both responsibilities and must_not_own")
+        ) `
+        -Forbidden @("V2-TYPE-MISMATCH", "V2-EMPTY-STRING", "V2-EMPTY-ARRAY", "V2-MISSING-KEY", "V2-DUP-NAME-IN-CONTEXT")),
+
+    # AC-011 (1), REQ-004(i): two concepts carrying the name `Order` in the one
+    # context `order-taking`. Their ids stay distinct so the duplicate-id check
+    # cannot be what fired.
+    (New-CrossReferenceFixtureCase -Ac "AC-011" -Case "(1) two concepts share a name inside one context" `
+        -Override @{ CONCEPT_SECOND = '{"id": "CONCEPT-FULFILLMENT", "name": "Order", "context": "order-taking", "definition": "The unit of delivery for a recorded promise.", "essence": "what and how much is delivered", "responsibilities": ["delivery quantity"], "evidence": ["domain-story:activity-4"]}' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-DUP-NAME-IN-CONTEXT" -FieldPath "concepts[1].name" `
+                -LineMustMatch "name Order is already declared by another concept in context order-taking")
+        ) `
+        -Forbidden @("V2-DUP-CONCEPT-ID", "V2-TYPE-MISMATCH", "V2-PATTERN", "V2-MISSING-KEY", "V2-DANGLING-CONTEXT")),
+
+    # AC-022 (1 of 2), REQ-004(c) applied to a reference field: the value is
+    # malformed rather than unresolvable, so it must be reported as a PATTERN
+    # violation and the dangling check must not also fire on it.
+    (New-CrossReferenceFixtureCase -Ac "AC-022" -Case "(1) distinguished_from[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference" `
+        -Override @{ C_DISTINGUISHED = '"distinguished_from": [{"concept_id": "concept-order", "reasons": ["different lifecycle"]}], ' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-PATTERN" -FieldPath "concepts[0].distinguished_from[0].concept_id" `
+                -LineMustMatch "value concept-order does not match")
+        ) `
+        -Forbidden @("V2-DANGLING-DISTINCTION", "V2-DANGLING-TERM", "V2-TYPE-MISMATCH", "V2-MISSING-KEY")),
+
+    # AC-022 (2 of 2): the same discrimination on the other reference field.
+    (New-CrossReferenceFixtureCase -Ac "AC-022" -Case "(2) contexts[].terms[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference" `
+        -Override @{ T_CONCEPT_ID = '"concept-order"' } `
+        -Expected @(
+            (New-CrossReferenceExpectation -Rule "V2-PATTERN" -FieldPath "contexts[0].terms[0].concept_id" `
+                -LineMustMatch "value concept-order does not match")
+        ) `
+        -Forbidden @("V2-DANGLING-TERM", "V2-DANGLING-DISTINCTION", "V2-TYPE-MISMATCH", "V2-MISSING-KEY"))
+)
+
+# --- The two positive control contracts (tasks.md `### Done When`) -----------
+
+# Cross-context permissiveness: the SAME concept name in two DIFFERENT
+# contexts must not be reported by the AC-011 duplicate-name check
+# (requirements.md Edge Cases, INV-012). This is the negative proof -- that
+# the check does not fire; T-005's AC-005 owns the positive capability proof.
+$crossContextSameNameOverride = @{
+    CONTEXTS       = '[{"name": "order-taking", "description": "Where a purchase promise is recorded.", "terms": [{"canonical": "Order", "definition": "A recorded purchase promise.", "concept_id": "CONCEPT-ORDER"}], "aggregates": []}, {"name": "shipping", "description": "Where a recorded promise is delivered.", "terms": [], "aggregates": []}]'
+    CONCEPT_SECOND = '{"id": "CONCEPT-FULFILLMENT", "name": "Order", "context": "shipping", "definition": "The unit of delivery for a recorded promise.", "essence": "what and how much is delivered", "responsibilities": ["delivery quantity"], "evidence": ["domain-story:activity-4"]}'
+}
+
+# Exact string equality for REQ-004(h): neither entry equals "purchase intent"
+# as a string, though one differs only in case and the other only in
+# surrounding whitespace. A case-folding or trimming comparison would reject
+# this contract; an exact one accepts it.
+$exactStringEqualityOverride = @{ C_MUST_NOT_OWN = '["Purchase Intent", " purchase intent "]' }
+
+Describe "T-004 cross-reference negative fixture allocation (tasks.md Negative Fixture Allocation table)" {
+
+    It "contributes exactly 8 negative fixtures" {
+        $crossReferenceFixtures.Count | Should Be 8
+    }
+
+    It "allocates 1 fixture to AC-006 (duplicate concept id)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-006" }).Count | Should Be 1
+    }
+
+    It "allocates 1 fixture to AC-007 (dangling concept.context)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-007" }).Count | Should Be 1
+    }
+
+    It "allocates 1 fixture to AC-008 (dangling distinguished_from.concept_id, self-reference included)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-008" }).Count | Should Be 1
+    }
+
+    It "allocates 1 fixture to AC-009 (dangling term.concept_id)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-009" }).Count | Should Be 1
+    }
+
+    It "allocates 1 fixture to AC-010 (responsibilities / must_not_own self-contradiction)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-010" }).Count | Should Be 1
+    }
+
+    It "allocates 1 fixture to AC-011 (duplicate name within one context)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-011" }).Count | Should Be 1
+    }
+
+    It "allocates 2 fixtures to AC-022 (reference-field pattern violations)" {
+        @($crossReferenceFixtures | Where-Object { $_.Ac -eq "AC-022" }).Count | Should Be 2
+    }
+
+    It "gives every fixture a distinct contract body (no fixture silently duplicates another)" {
+        # -CaseSensitive: two fixture bodies differing only in the case of a
+        # reference value are genuinely different fixtures here, so the
+        # default case-insensitive uniqueness test would under-count them.
+        $bodies = @($crossReferenceFixtures | ForEach-Object { New-StructuralFixtureJson -Override $_.Override })
+        @($bodies | Sort-Object -Unique -CaseSensitive).Count | Should Be 8
+    }
+
+    It "keeps every fixture body well-formed JSON, so only the declared cross-reference defect is under test" {
+        foreach ($crossCase in $crossReferenceFixtures) {
+            $body = New-StructuralFixtureJson -Override $crossCase.Override
+            { ConvertFrom-Json -InputObject $body } | Should Not Throw
+        }
+    }
+
+    It "makes every fixture a real mutation of the accepted base contract" {
+        # -ceq, not `Should Not Be`: Pester's Be compares case-insensitively,
+        # and the AC-022 (2) fixture differs from the base contract ONLY in the
+        # case of its term reference value -- which is precisely the mutation
+        # under test.
+        $baseBody = New-StructuralFixtureJson -Override @{}
+        foreach ($crossCase in $crossReferenceFixtures) {
+            ((New-StructuralFixtureJson -Override $crossCase.Override) -ceq $baseBody) | Should Be $false
+        }
+    }
+}
+
+Describe "validate-domain-contract cross-reference integrity pass (TEST-006/007/008/009/010/011/022, REQ-004(d)-(i))" {
+
+    foreach ($crossCase in $crossReferenceFixtures) {
+        $crossLabel = $crossCase.Ac + " " + $crossCase.Case
+
+        It ("ps1 twin -- " + $crossLabel) {
+            $fixturePath = New-CrossReferenceFixtureFile -Override $crossCase.Override
+            try {
+                Assert-CrossReferenceViolations -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath) `
+                    -Expected $crossCase.Expected -ForbiddenRuleIds $crossCase.Forbidden
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+
+        It ("sh twin -- " + $crossLabel) -Skip:(-not $shTwinAvailable) {
+            $fixturePath = New-CrossReferenceFixtureFile -Override $crossCase.Override
+            try {
+                Assert-CrossReferenceViolations -Result (Invoke-ValidatorSh -ContractPath $fixturePath) `
+                    -Expected $crossCase.Expected -ForbiddenRuleIds $crossCase.Forbidden
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+    }
+}
+
+Describe "validate-domain-contract permits the same concept name in different contexts (tasks.md Done When; INV-012)" {
+
+    It "the control contract really does carry one name in two different contexts (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject (New-StructuralFixtureJson -Override $crossContextSameNameOverride)
+        $names = @($document.concepts | ForEach-Object { $_.name })
+        $contexts = @($document.concepts | ForEach-Object { $_.context })
+        $names.Count | Should Be 2
+        $names[0] | Should Be $names[1]
+        $contexts[0] | Should Not Be $contexts[1]
+        @($document.concepts | ForEach-Object { $_.id } | Sort-Object -Unique).Count | Should Be 2
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-CrossReferenceFixtureFile -Override $crossContextSameNameOverride
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-CrossReferenceFixtureFile -Override $crossContextSameNameOverride
+        try {
+            $result = Invoke-ValidatorSh -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "validate-domain-contract compares responsibilities and must_not_own by exact string equality (REQ-004(h))" {
+
+    It "the control contract's must_not_own entries differ from the responsibility only in case and surrounding whitespace (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject (New-StructuralFixtureJson -Override $exactStringEqualityOverride)
+        $responsibilities = @($document.concepts[0].responsibilities)
+        $forbidden = @($document.concepts[0].must_not_own)
+        $responsibilities[0] | Should Be "purchase intent"
+        $forbidden.Count | Should Be 2
+        @($forbidden | Where-Object { $_ -ceq "purchase intent" }).Count | Should Be 0
+        @($forbidden | Where-Object { $_.Trim().ToLowerInvariant() -ceq "purchase intent" }).Count | Should Be 2
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-CrossReferenceFixtureFile -Override $exactStringEqualityOverride
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-CrossReferenceFixtureFile -Override $exactStringEqualityOverride
+        try {
+            $result = Invoke-ValidatorSh -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
