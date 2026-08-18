@@ -92,11 +92,11 @@ sequenceDiagram
   SYN-->>CI: PASS/FAIL, independent of AC-015's own live-host status (AC-017 structural separation)
   CI->>DRIFT: (future) run in mode=verify, wired inside REQ-002's own matrix cells (AC-024)
   DRIFT-->>CI: PASS (installed_synced) / FAIL (installed_drifted or not_installed)
-  Note over D,LIVE: Before Epic A1 merges: AC-006/AC-015/AC-016 record a valid, allowlisted SKIP\n(design.md SKIP Allowlist Activation Gate) — not a required CI gate yet.
-  D->>LIVE: (future, once Epic A1 merges) operator + independent reviewer attend a real CLI session per semantic cell, or an automated capture script runs plus a required reviewer countersignature
+  Note over D,LIVE: Before the SKIP Allowlist Activation Gate activates a case (owning task started AND Epic A1's artifacts exist on main): AC-006/AC-015/AC-016 record a valid, allowlisted SKIP\n(design.md SKIP Allowlist Activation Gate) — not a required CI gate yet.
+  D->>LIVE: (future, once the SKIP Allowlist Activation Gate activates the case) operator + independent reviewer attend a real CLI session per semantic cell, or an automated capture script runs plus a required reviewer countersignature
   LIVE-->>AGG: commits tests/hook-activation-live-proof/<matrix_cell>.json (live-host-verification-record/v1)
-  CI->>AGG: (future, once Epic A1 merges) validate-live-host-proof — Done gate + release gate
-  AGG-->>CI: discharged (exit 0) / pending (exit 0, only before Epic A1 merges) / named error code (non-zero)
+  CI->>AGG: (future, once the SKIP Allowlist Activation Gate activates the case) validate-live-host-proof — Done gate + release gate
+  AGG-->>CI: discharged (exit 0) / pending (exit 0, only before the gate activates the case) / named error code (non-zero)
   CI-->>D: PASS / FAIL
 ```
 
@@ -131,21 +131,27 @@ identical `.github/workflows/test.yml` human-copy staging convention this
 repository's own protected-file rule already requires for that file
 (traceability.md's own Infrastructure Layer Coverage row: "stage their
 `.github/workflows/test.yml` CI steps via human-copy"), never a direct
-agent edit to the live workflow file. Before Epic A1 merges, REQ-003's
+agent edit to the live workflow file. Before the SKIP Allowlist
+Activation Gate's own two-clause predicate activates a case, REQ-003's
 live-host proof is not a required CI gate blocking merges of this
-epic's own future PRs; once Epic A1 merges (machine-detected by the
-SKIP Allowlist Activation Gate's own existence-based activation
-predicate, design.md), `validate-live-host-proof` becomes both this
-epic's own Done gate and a required release gate (design.md Deployment
-/ CI Plan) — closing the "live-host proof can stay unverified while the
-suite stays green" gap an earlier draft of this design left open.
+epic's own future PRs; that window is never merely "before Epic A1
+merges" — clause (a) of the predicate additionally requires the case's
+own owning task (T-005 for AC-006, T-008 for AC-015/AC-016) to have
+started, so a case can stay a valid `SKIP` for a period after Epic A1
+actually merges (design.md Risks). Once the gate activates a case
+(machine-detected by the SKIP Allowlist Activation Gate's own two-clause
+activation predicate, design.md), `validate-live-host-proof` becomes both
+this epic's own Done gate and a required release gate (design.md
+Deployment / CI Plan) — closing the "live-host proof can stay unverified
+while the suite stays green" gap an earlier draft of this design left
+open.
 
 ## Environments
 
 | Environment | URL | Auth | Trigger | Classification | Promotion Rule |
 |---|---|---|---|---|---|
 | local dev (monorepo checkout, macOS) | `tests/` + `plugins/sdd-quality-loop/scripts/` + `plugins/sdd-review-loop/references/` + `specs/epic-196-a8-integration/` (repo-relative) | OS user (filesystem) | manual suite invocation (`tests/run-all.sh`/`.ps1`, `tests/install-uninstall-matrix.tests.sh` with no `--target`, or a single suite file) — the fast-iteration REQ-002 local-macOS pass (design.md Test Strategy item 2) | internal | PR + CI green |
-| CI (GitHub Actions `test.yml`, existing 3-OS matrix, unmodified topology) | N/A — ephemeral runner | GitHub Actions default | push / PR | internal | required check before merge; REQ-003's live-host proof is not a required gate until Epic A1 merges (Deployment / CI Plan, above) |
+| CI (GitHub Actions `test.yml`, existing 3-OS matrix, unmodified topology) | N/A — ephemeral runner | GitHub Actions default | push / PR | internal | required check before merge; REQ-003's live-host proof is not a required gate until the SKIP Allowlist Activation Gate activates the case — never merely until Epic A1 merges (Deployment / CI Plan, above) |
 | Live-host session (human-attended, or an automated capture script once confirmed, real installed `claude`/`codex`/`copilot` toolchain) | N/A — a real, human-operated or scripted CLI session, not a CI runner | operator identity + independent-reviewer identity, resolved against the Trusted-Signer Registry (`a8-trusted-signers.json`) | manual, scheduled per REQ-003's own five semantic matrix cells (Live-Host Semantic Matrix, design.md) | internal | committed only as a fortified `live-host-verification-record/v1`, countersigned by an independent reviewer distinct from the operator (design.md Data Plan Signing Contract) |
 | staging / production | N/A | — | — | — | N/A — no runtime service, no cloud deployment (design.md External Integrations: no target beyond the three CLIs and the repository's own existing installer network path) |
 
@@ -217,7 +223,7 @@ itself defines, not a schema migration."
 
 | Logs | Traces | Metrics | Alert | Owner | Runbook |
 |---|---|---|---|---|---|
-| Suite `PASS`/`FAIL`/`SKIP` lines per suite; `check-installed-plugin-drift`'s own `state` diagnostic (`not_installed`/`installed_synced`/`installed_drifted`); `validate-live-host-proof`'s own named error-code diagnostics (`ERR_MISSING_CELL`, `ERR_STALE_SKIP`, `ERR_NONCE_REUSED`, etc. — API / Contract Plan, design.md) | N/A — no distributed request; single-process CLI/test-suite invocation per run, except the live-host session itself, whose own `host_session_id`/`host_event_id` fields (design.md Data Plan) are the closest analog to a trace ID | N/A — no running service to emit a metric; CI's existing pass/fail signal on the registered suites, plus `validate-live-host-proof`'s own `discharged`/`pending`/error-code aggregate, is the closest observable signal | CI failure on any registered `.tests.sh`/`.tests.ps1` pair; a non-zero `check-installed-plugin-drift` exit in `mode: verify`; any non-zero `validate-live-host-proof` exit once Epic A1 merges (Deployment / CI Plan, above) | Implementation task owner | design.md describes no logging/tracing/runbook infrastructure beyond these suite diagnostics and the named validator error codes; `docs/troubleshooting.md`'s own existing "フックが発火しない" entry (INV-012) remains the operator-facing runbook for a non-firing hook this epic's own fixtures reproduce and observe, not a new runbook this package authors |
+| Suite `PASS`/`FAIL`/`SKIP` lines per suite; `check-installed-plugin-drift`'s own `state` diagnostic (`not_installed`/`installed_synced`/`installed_drifted`); `validate-live-host-proof`'s own named error-code diagnostics (`ERR_MISSING_CELL`, `ERR_STALE_SKIP`, `ERR_NONCE_REUSED`, etc. — API / Contract Plan, design.md) | N/A — no distributed request; single-process CLI/test-suite invocation per run, except the live-host session itself, whose own `host_session_id`/`host_event_id` fields (design.md Data Plan) are the closest analog to a trace ID | N/A — no running service to emit a metric; CI's existing pass/fail signal on the registered suites, plus `validate-live-host-proof`'s own `discharged`/`pending`/error-code aggregate, is the closest observable signal | CI failure on any registered `.tests.sh`/`.tests.ps1` pair; a non-zero `check-installed-plugin-drift` exit in `mode: verify`; any non-zero `validate-live-host-proof` exit once the SKIP Allowlist Activation Gate activates the case (Deployment / CI Plan, above) | Implementation task owner | design.md describes no logging/tracing/runbook infrastructure beyond these suite diagnostics and the named validator error codes; `docs/troubleshooting.md`'s own existing "フックが発火しない" entry (INV-012) remains the operator-facing runbook for a non-firing hook this epic's own fixtures reproduce and observe, not a new runbook this package authors |
 
 ## Cost Estimate
 

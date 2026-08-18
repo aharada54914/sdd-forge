@@ -1,6 +1,6 @@
 # Design: epic-196-a8-integration
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: test-infrastructure specification (Phase 1 — no code)
 
 ## Technical Summary
@@ -33,7 +33,7 @@ flowchart TB
   subgraph REQ001["REQ-001: Cross-runtime handoff E2E"]
     FIX["tests/fixtures/cross-runtime-handoff/ (fixture project)"]
     HANDOFF["tests/cross-runtime-handoff.tests.sh / .tests.ps1"]
-    CANARY["hook-activation canary case (SKIP until Epic A1)"]
+    CANARY["hook-activation canary case (SKIP; see Activation Gate for the two-clause trigger)"]
   end
 
   subgraph REQ002["REQ-002: Install/uninstall matrix"]
@@ -94,7 +94,7 @@ Phase-1 package builds none of them.
 | `tests/install-uninstall-matrix.tests.sh` / `.ps1` | Drives REQ-002's install→verify→uninstall→verify cycle across the four `--target` values; calls `install.sh`/`uninstall.sh` (POSIX) or `install.ps1`/`uninstall.ps1` (Windows) unmodified | sh/PowerShell | new | No |
 | `tests/cli-hook-enforcement.ps1` (extended) | Existing synthetic/regression hook-guard check (INV-013); this epic adds the Codex `plugin_hooks` flag-state matrix and the Copilot subagent non-firing case as new assertions in the SAME file, preserving its existing assertions unmodified | PowerShell | existing, extended | No |
 | `tests/hook-activation-live-proof/` | Per-semantic-cell live-host proof records (fortified `live-host-verification-record/v1`), one file per one of the five REQ-003 semantic matrix cells (`Claude-active`, `Codex-enabled-active`, `Codex-disabled-expected-unavailable`, `Copilot-primary-active`, `Copilot-subagent-expected-unavailable`), produced by an automated capture script where confirmed available, else by an operator + independent reviewer following REQ-006's fortified record format | JSON | new | No |
-| `plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}` | Aggregate REQ-003/AC-028 Done-gate check: loads all five semantic-cell `live-host-verification-record/v1` files, re-verifies each record's nonce uniqueness, hash bindings, and two-party attestation signatures, and exits non-zero on any missing, post-A1-merge `SKIP`, `FAIL`, stale (expired/mismatched nonce or session), config-digest-mismatch, or duplicate-nonce record | sh/PowerShell (thin wrappers over a shared aggregation routine) | new | No (never generates a `live-host-verification-record/v1` itself; performs exactly one lock-guarded, atomic, idempotent write — marking a consumed nonce's own `consumed_by_record` field in the Nonce Issuance Ledger, Data Plan — and is otherwise read-only, per the Protected-File Statement's own exception) |
+| `plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}` | Aggregate REQ-003/AC-028 Done-gate check: loads all five semantic-cell `live-host-verification-record/v1` files, re-verifies each record's nonce uniqueness, hash bindings, and two-party attestation signatures, and exits non-zero on any missing, post-activation (SKIP Allowlist Activation Gate) `SKIP`, `FAIL`, stale (expired/mismatched nonce or session), config-digest-mismatch, or duplicate-nonce record | sh/PowerShell (thin wrappers over a shared aggregation routine) | new | No (never generates a `live-host-verification-record/v1` itself; performs exactly one lock-guarded, atomic, idempotent write — marking a consumed nonce's own `consumed_by_record` field in the Nonce Issuance Ledger, Data Plan — and is otherwise read-only, per the Protected-File Statement's own exception) |
 | `tests/path-lineending-regression.tests.sh` / `.ps1` | Drives the REQ-004 pairwise covering Windows-path × CRLF-LF × NFC-NFD combination matrix against this epic's own Unicode-normalization contract | sh/PowerShell | new | No |
 | `plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.{sh,ps1}` | REQ-005 drift check: compares an installed plugin cache (platform-correct default) against the repository's own install/uninstall-touched source surface (`plugins/**` plus copied/generated scripts, manifests, agent-role, and hook-config files) by content hash, in both a standalone preflight mode and a stricter post-install verify mode | sh/PowerShell (thin wrappers over a shared comparison routine, matching the repository's own `sdd-hook-guard` multi-runtime-wrapper precedent) | new | No (read-only comparison tool; never a guard-invariants target itself since it has no write path) |
 | `plugins/sdd-review-loop/references/a8-skip-allowlist.json` | REQ-003/A7-precedent SKIP-governance manifest: this epic's own exact allowlisted-SKIP records (AC-006/AC-015/AC-016), each bound to an Epic A1 canonical-artifact activation predicate (SKIP Allowlist Activation Gate, below) | JSON | new | No |
@@ -203,10 +203,13 @@ with no UI surface.
   further depends on that same script being the sole issuer of the
   `live-host-verification-record/v1.nonce` field (Data Plan) — this
   package never invents its own competing nonce-issuance mechanism; until
-  Epic A1 merges, AC-006/AC-015/AC-016 stay `SKIP` per the
-  `a8-skip-allowlist.json` manifest (SKIP Allowlist Activation Gate,
-  above), which this package's own instance of the Epic A7-established
-  SKIP-governance precedent registers against.
+  each case's own SKIP Allowlist Activation Gate predicate activates it
+  (never merely until Epic A1 merges — the gate's own two-clause
+  predicate, SKIP Allowlist Activation Gate, above, additionally requires
+  the case's own owning task to have started), AC-006/AC-015/AC-016 stay
+  `SKIP` per the `a8-skip-allowlist.json` manifest, which this package's
+  own instance of the Epic A7-established SKIP-governance precedent
+  registers against.
 - `validate-live-host-proof` (AC-028; API/Contract Plan) depends on all
   five `tests/hook-activation-live-proof/<matrix_cell>.json` records
   existing in the fortified schema shape before it can report a
@@ -314,9 +317,9 @@ has become stale under the SKIP Allowlist Activation Gate (below); a
 `SKIP` step whose `upstream_commit` no longer matches the allowlist's own
 recorded Epic A1 fingerprint sets `coverage_complete: false` and the
 top-level `result` to `FAIL`, so a stale SKIP can never keep this trace
-green after Epic A1 merges (closing the "missing validator/CI entry
-point" gap the Blocker-level live-host finding also names for the
-adjacent live-host proof surface).
+green once the SKIP Allowlist Activation Gate has activated the case
+(closing the "missing validator/CI entry point" gap the Blocker-level
+live-host finding also names for the adjacent live-host proof surface).
 
 #### Fixture Contract (AC-001; resolves the "generic Markdown/YAML fixture" gap)
 
@@ -468,10 +471,13 @@ Code's own MCP surfaces use.
 
 #### SKIP Representation (resolves the "pre-A1 SKIP unrepresentable" Major finding)
 
-Before Epic A1 merges, this epic's own aggregate validator must accept a
-placeholder record per semantic cell rather than requiring a real session
-that cannot yet happen. `verdict: "SKIP"` is this placeholder's own
-value, distinguished from `PASS`/`FAIL` and gated as follows:
+Before the SKIP Allowlist Activation Gate activates a case (below —
+never merely before Epic A1 merges, since activation also requires the
+case's own owning task to have started), this epic's own aggregate
+validator must accept a placeholder record per semantic cell rather than
+requiring a real session that cannot yet happen. `verdict: "SKIP"` is
+this placeholder's own value, distinguished from `PASS`/`FAIL` and gated
+as follows:
 
 - **Required fields when `verdict == "SKIP"`**: only `schema`,
   `matrix_cell`, `runtime`, `check`, `invocation_mode` (`manual`),
@@ -490,14 +496,14 @@ value, distinguished from `PASS`/`FAIL` and gated as follows:
   or fabricated session evidence.
 - **Three distinct validator states per cell**, never conflated: (1)
   **missing** — no record file exists for that `matrix_cell` at all
-  (`ERR_MISSING_CELL`, always a hard failure); (2) **valid pre-merge
+  (`ERR_MISSING_CELL`, always a hard failure); (2) **valid pre-activation
   SKIP** — a schema-valid `SKIP` record whose `skip_reason` cites a
   `a8-skip-allowlist.json` entry the SKIP Allowlist Activation Gate has
   not yet activated (accepted; the aggregate reports `pending`, not
   `discharged`, for AC-028 — a `pending` aggregate is not itself a Done
-  gate failure before Epic A1 merges, per Design Decisions); (3) **stale
-  post-merge SKIP** — an otherwise schema-valid `SKIP` record whose own
-  allowlist entry the Activation Gate has now activated
+  gate failure before the gate activates the case, per Design Decisions);
+  (3) **stale post-activation SKIP** — an otherwise schema-valid `SKIP`
+  record whose own allowlist entry the Activation Gate has now activated
   (`ERR_STALE_SKIP`, a hard failure, matching Epic A7's own
   stale-SKIP-hard-fail precedent this package already adopts, SKIP
   Allowlist Activation Gate above).
@@ -536,7 +542,7 @@ either branch). Type/format constraints:
 | `operator`, `reviewer` | non-empty string, required (non-null) even when `verdict == SKIP`; `operator != reviewer`; each must equal the Trusted-Signer Registry's own `identity` value for its corresponding `*_key_id` (`ERR_SIGNER_IDENTITY_MISMATCH` otherwise) |
 | `operator_key_id`, `reviewer_key_id` | must each resolve to a distinct entry in the Trusted-Signer Registry (below); `operator_key_id != reviewer_key_id`; the registry's own `public_key` bytes for the two entries must also differ (`ERR_SIGNER_KEY_COLLISION` otherwise — a defense-in-depth check independent of the key-ID string comparison) |
 | `plugin_hooks_flag` | enum `enabled`/`disabled`/`not_applicable`; required (non-null) in every record, including `SKIP` |
-| `verdict` | enum `PASS`/`FAIL`/`SKIP`; for `-active` cells a `PASS` means denial observed, for `-expected-unavailable` cells a `PASS` means correctly-detected unavailability observed; `SKIP` is valid only pre-Epic-A1-merge (SKIP Representation, above) |
+| `verdict` | enum `PASS`/`FAIL`/`SKIP`; for `-active` cells a `PASS` means denial observed, for `-expected-unavailable` cells a `PASS` means correctly-detected unavailability observed; `SKIP` is valid only before the SKIP Allowlist Activation Gate activates the case (SKIP Representation, above) — never merely pre-Epic-A1-merge |
 | `skip_reason` | non-null and citing a current `a8-skip-allowlist.json` entry iff `verdict == SKIP`; null otherwise |
 | `operator_signature`, `reviewer_signature` | verify against each signer's own domain-separated signing target (Signing Contract, below) under the corresponding `*_key_id`'s registered public key; required (non-null) even when `verdict == SKIP` |
 
@@ -968,7 +974,8 @@ names — not `plugins/**` alone:
   fixture, emits `cross-runtime-handoff-trace/v1` to stdout/a named file,
   non-zero exit on any step `FAIL` or on `coverage_complete: false` (a
   fresh, allowlisted `SKIP` step never contributes to a non-zero exit; a
-  stale post-A1-merge `SKIP` does, per the schema above — matching the
+  `SKIP` that the SKIP Allowlist Activation Gate's own two-clause
+  predicate has activated (below) does, per the schema above — matching the
   existing `loop-inventory` SKIP-governance precedent Epic A7 established,
   INV-005 of that package, extended with the staleness check this
   package's own SKIP Allowlist Activation Gate, below, adds).
@@ -1008,10 +1015,11 @@ names — not `plugins/**` alone:
   Registry (Data Plan, above). Reports one of three aggregate states:
   `discharged` (every cell has a `PASS`-per-its-own-Done-condition record,
   fully validated; exit 0); `pending` (every cell is either `discharged`-
-  eligible or a valid pre-merge `SKIP` per the SKIP Representation
+  eligible or a valid pre-activation `SKIP` per the SKIP Representation
   subsection, and no cell is `FAIL`/invalid/stale — exit 0, since
-  `pending` before Epic A1 merges is this epic's own expected state, never
-  itself a Done-gate failure); or a hard failure (exit non-zero) with one
+  `pending` before the SKIP Allowlist Activation Gate activates the case
+  is this epic's own expected state, never itself a Done-gate failure);
+  or a hard failure (exit non-zero) with one
   of the named error codes (`ERR_MISSING_CELL`, `ERR_SCHEMA_INVALID`,
   `ERR_CELL_RUNTIME_MISMATCH`, `ERR_FEATURE_CONFIG_MISMATCH`,
   `ERR_NONCE_UNKNOWN`, `ERR_NONCE_REUSED`, `ERR_NONCE_CELL_MISMATCH`,
@@ -1057,7 +1065,8 @@ names — not `plugins/**` alone:
    never a free-text description a Phase 2/3 implementer must interpret;
    the canary case (AC-006) is a distinct step inside the same trace,
    `SKIP`ped, against the SKIP Allowlist Activation Gate (below), until
-   Epic A1 merges.
+   that gate's own two-clause predicate activates it (never merely until
+   Epic A1 merges).
 2. **REQ-002 matrix drive, local** — a single local macOS invocation of
    `tests/install-uninstall-matrix.tests.sh` with no `--target` runs all
    four cells sequentially (AC-007–AC-009) against the Target × Phase ×
@@ -1095,8 +1104,11 @@ names — not `plugins/**` alone:
    or by an operator + independent reviewer (REQ-006 record format,
    fortified per the Data Plan's `live-host-verification-record/v1`);
    results land under `tests/hook-activation-live-proof/<matrix_cell>.json`.
-   `SKIP` (citing Epic A1's tracking issue) is valid only until Epic A1
-   merges (AC-015); a `SKIP` surviving after Epic A1 merges, or any
+   `SKIP` (citing Epic A1's tracking issue) is valid only until the SKIP
+   Allowlist Activation Gate's own two-clause predicate activates the case
+   (below; never merely until Epic A1 merges — clause (a) additionally
+   requires the case's own owning task to have started) (AC-015); a
+   `SKIP` surviving after activation, or any
    missing/stale/`FAIL`/digest-mismatched/duplicate-nonce record, is a
    hard failure the aggregate `validate-live-host-proof` check (item 10)
    reports non-zero on — matching Epic A7's own AC-035(a) SKIP-governance
@@ -1253,13 +1265,22 @@ reference without an A8-specific instance of it:
   leaving that task's own approved contract unsatisfiable (its Done When
   requires the case to remain a non-failing `SKIP`, while (b) alone
   would already demand a hard failure). Per-case ownership: AC-006's
-  substantive verification is the live-host proof, which the
-  Automated/Manual Classification Table above assigns to **T-005's
-  exclusive scope**; T-001 carries AC-006 presence-only, so AC-006's
-  `SKIP` stays non-failing for the whole of T-001 regardless of Epic
-  A1's merge state, and activates when T-005 starts. AC-015 and AC-016
-  activate with the tasks that seed their own allowlist entries (T-008
-  onward). The artifacts clause (b) requires are
+  substantive verification is the live-host proof, which tasks.md's own
+  T-001 Out of Scope entry names as **T-005's exclusive scope** directly
+  ("The REQ-003 live-host proof itself, the semantic 5-cell matrix, and
+  the aggregate validator (T-005) — this task only registers the canary's
+  presence and its `SKIP` state," tasks.md T-001 Out of Scope) — never the
+  Automated/Manual Classification Table above, which carries no
+  task-ownership column and never names a task; T-001 carries AC-006
+  presence-only, so AC-006's `SKIP` stays non-failing for the whole of
+  T-001 regardless of Epic A1's merge state, and activates when T-005
+  starts. AC-015 and AC-016 both activate when **T-008** starts — a single,
+  determinate task, never an open-ended range: tasks.md's own Protected
+  Files section fixes T-008 as the sole task that appends the
+  `AC-015`/`AC-016` entries to `a8-skip-allowlist.json` (T-001 seeds
+  `AC-006` only), and T-008's own Planned Files/Scope author the five
+  draft `SKIP` records citing the `AC-015` entry and wire the `AC-016`
+  five-consumer inventory. The artifacts clause (b) requires are
   `check-hook-activation-handshake.{py,sh,ps1}` for AC-006 and
   AC-015, the five consumer entry-point files (INV-007) for AC-016 —
   machine-detected by a plain file-existence check against `main`'s
@@ -1290,6 +1311,24 @@ reference without an A8-specific instance of it:
   stale/unknown/drifted-SKIP hard-fail requirement
   (`specs/epic-195-a7-compatibility/requirements.md:210-227`) rather than
   merely citing it.
+- **Relationship to requirements.md's own SKIP language**: requirements.md
+  AC-006 states the case is named `SKIP` "until Epic A1 merges"
+  (requirements.md:283-287). That sentence describes the *justification
+  window* — the period during which citing Epic A1's still-unmerged
+  tracking issue as the reason for `SKIP` remains truthful — never this
+  gate's own mechanical trigger for when a still-present `SKIP` becomes a
+  hard failure. The mechanical trigger a reader must apply is this
+  section's own two-clause Activation predicate, above, which requirements.
+  md's own Main Workflows item 7 already anticipates by naming a *task*,
+  not the merge event itself, as the acting mechanism: "As Epic A1
+  merges, a follow-up task un-skips AC-006/AC-015/AC-016"
+  (requirements.md:665-670). Read together, requirements.md's AC-006 and
+  Workflow item 7 are consistent with, not contradicted by, this gate's
+  clause (a) — the apparent contradiction arises only when AC-006's own
+  justification-window sentence is misread as a second, competing
+  mechanical trigger. This design.md section, not requirements.md AC-006's
+  sentence or acceptance-tests.md's own restatement of it, is the single
+  normative source for when a `SKIP` becomes a hard failure.
 
 ## Automated / Manual Classification Table (REQ-006; AC-025)
 
@@ -1477,13 +1516,19 @@ its full, broadened coverage surface (Coverage Scope, Data Plan).
   split fixed above (Test Strategy items 2–3) documented in the job's own
   step name so a future maintainer never confuses the fast local pass with
   full cross-OS coverage.
-- Before Epic A1 merges, REQ-003's live-host proof is NOT a required CI
+- Before the SKIP Allowlist Activation Gate's own two-clause predicate
+  activates a case, REQ-003's live-host proof is NOT a required CI
   gate blocking merges of this epic's own future PRs — an allowlisted
   `SKIP` (SKIP Allowlist Activation Gate, above) is valid until then
-  (Design Decisions). Once Epic A1 merges (machine-detected by the
-  allowlist's own activation predicate), `validate-live-host-proof`
-  (API/Contract Plan; Test Strategy item 10) becomes both this epic's own
-  Done gate and a required release gate — un-skipping and actually
+  (Design Decisions). Because that predicate requires BOTH the case's own
+  owning task to have started AND Epic A1's canonical artifacts to exist
+  on `main`, this window is never merely "before Epic A1 merges" — a case
+  can stay a valid, non-failing `SKIP` for a period after Epic A1 actually
+  merges, for as long as its own owning task has not yet started (Risks,
+  below). Once the gate activates a case (machine-detected by the
+  allowlist's own two-clause activation predicate), `validate-live-host-
+  proof` (API/Contract Plan; Test Strategy item 10) becomes both this
+  epic's own Done gate and a required release gate — un-skipping and actually
   producing all five semantic-cell live-host records (AC-028) is no
   longer an open-ended, best-effort follow-up but a wired, non-zero-exit
   CI check, closing the "live-host proof can stay unverified while the
@@ -1544,3 +1589,25 @@ Phase-1 `check-sdd-structure.sh` six-`missing:` deviation). Design-time
 mitigation for the first two: the schema-level `automated`/`manual`
 distinction (Data Plan) and the structural synthetic/live-host separation
 (Design Decisions, AC-017) respectively.
+
+- **New risk (introduced by this round's SKIP Allowlist Activation Gate
+  revision)**: because activation clause (a) requires the case's own
+  owning task to have started, AC-006/AC-015/AC-016 can each remain a
+  valid, non-failing `SKIP` for an unbounded period after Epic A1's own
+  canonical artifacts actually land on `main`, for as long as that case's
+  owning task (T-005 for AC-006, T-008 for AC-015/AC-016) has not yet
+  started. This is a deliberate, accepted trade-off, not an oversight:
+  dropping clause (a) reverts to the single-clause, artifact-existence-only
+  predicate this revision replaces, which activates the moment Epic A1
+  merges regardless of task state and — as it did for AC-006 against
+  T-001's own approved Done When — can make an already-approved task's
+  contract unsatisfiable (SKIP Allowlist Activation Gate, above). The
+  compensating control is structural rather than mechanical: T-005 and
+  T-008 are both already `Approval: Approved` (tasks.md) and sit on this
+  package's own critical serialized/blocked-on task chain (Global
+  Constraints, tasks.md), so an indefinitely-delayed activation would
+  require an already-approved, critical-path task to never be started —
+  this design does not itself add an automated staleness alarm for an
+  "approved but never started" owning task, and none is planned in this
+  package's own tasks.md. security-spec.md's B3 Trust Boundary and STRIDE
+  analysis state this residual risk explicitly.
