@@ -1,6 +1,6 @@
 # Design: epic-196-a8-integration
 
-Impl-Review-Status: Passed
+Impl-Review-Status: Pending
 Feature Type: test-infrastructure specification (Phase 1 — no code)
 
 ## Technical Summary
@@ -1243,9 +1243,24 @@ reference without an A8-specific instance of it:
   `check-hook-activation-handshake.{py,sh,ps1}` and the five consumer
   entry points, at that commit).
 - **Activation predicate**: a case is "activated" (i.e. its own `SKIP`
-  becomes a hard failure if still present) exactly when every canonical
-  artifact that case depends on exists at its own fixed repo-relative
-  path on `main` — `check-hook-activation-handshake.{py,sh,ps1}` for
+  becomes a hard failure if still present) exactly when BOTH of the
+  following hold: **(a)** the task that owns that case's *substantive*
+  verification has started, and **(b)** every canonical artifact that
+  case depends on exists at its own fixed repo-relative path on `main`.
+  Clause (a) scopes activation to the task that can actually act on it.
+  Without it a case activates the moment an upstream epic merges, which
+  can be — and for AC-006 was — *before* the owning task is approved,
+  leaving that task's own approved contract unsatisfiable (its Done When
+  requires the case to remain a non-failing `SKIP`, while (b) alone
+  would already demand a hard failure). Per-case ownership: AC-006's
+  substantive verification is the live-host proof, which the
+  Automated/Manual Classification Table above assigns to **T-005's
+  exclusive scope**; T-001 carries AC-006 presence-only, so AC-006's
+  `SKIP` stays non-failing for the whole of T-001 regardless of Epic
+  A1's merge state, and activates when T-005 starts. AC-015 and AC-016
+  activate with the tasks that seed their own allowlist entries (T-008
+  onward). The artifacts clause (b) requires are
+  `check-hook-activation-handshake.{py,sh,ps1}` for AC-006 and
   AC-015, the five consumer entry-point files (INV-007) for AC-016 —
   machine-detected by a plain file-existence check against `main`'s
   current tree, never by commit-ancestry alone. A squash-merge or rebase
