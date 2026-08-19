@@ -24,6 +24,34 @@
   byte-identity regression lock on `assert_terminal`/`Test-LoopTerminal`
   intact.
 
+- **Epic A7 orchestration-event trace: TEST-019 (Issue #195, T-007)**: added
+  `TEST-019` to `tests/loop-escalation.tests.sh`/`.ps1` (no case-number
+  collision on either twin — both suites' own next available case after
+  the pre-existing `TEST-018` prefix-collision case genuinely is `019`),
+  asserting a Context-absent (F1) `quality-gate-outcome` +
+  `done-transition` event trace against a new committed golden fixture,
+  `tests/fixtures/compatibility-event-trace/f1-quality-gate-escalation-blocked.json`,
+  via `assert_event_trace`/`Test-EventTrace`: three real
+  `quality-gate-outcome:escalation` decisions recorded from the test case
+  itself immediately after each real decision (this suite's own
+  `check-quality-gate-cycle-limit.sh`/`.ps1` Escalate-Human decision,
+  `next_tier: "human"`, plus `select-agent-model.sh`/`.ps1`'s
+  lightweight->standard and standard->strong decisions — design.md's own
+  producer table names both scripts as this producer's call sites), then
+  exactly one `quality-gate-outcome:capability-applicability` event (F1's
+  own `disabled-legacy` fixture state, always last within the kind), then
+  `done-transition:assert-terminal` recorded from the test case itself,
+  immediately after its own `assert_terminal`/`Test-LoopTerminal` call on
+  the chain's real `terminal-tier` `BLOCKED` outcome — the same
+  T-006-established pattern, keeping `assert_terminal`/`Test-LoopTerminal`
+  byte-identical. The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
+  leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
+  AC-027) is a named `SKIP` until Epic A1 merges — that producer's own
+  call site is design.md's own explicitly-cited future task, unwired
+  anywhere in the tree — with both fixture variants genuinely constructed
+  via T-001's `build_fixture` so the `SKIP` is not a hand-waved
+  placeholder.
+
 - **Epic A7 capability run-record payload (Issue #195, T-009)**: extended
   `emit-run-record.sh`/`.ps1` with `--capability-enforcement
   <disabled-legacy|advisory|required>`/`--capability-block-id <id>`

@@ -1,0 +1,40 @@
+[
+  {
+    "kind": "quality-gate-outcome",
+    "producer": "quality-gate-outcome:escalation",
+    "seq": 1,
+    "value": {
+      "next_tier": "human"
+    }
+  },
+  {
+    "kind": "quality-gate-outcome",
+    "producer": "quality-gate-outcome:escalation",
+    "seq": 2,
+    "value": {
+      "next_tier": "standard"
+    }
+  },
+  {
+    "kind": "quality-gate-outcome",
+    "producer": "quality-gate-outcome:escalation",
+    "seq": 3,
+    "value": {
+      "next_tier": "strong"
+    }
+  },
+  {
+    "kind": "quality-gate-outcome",
+    "producer": "quality-gate-outcome:capability-applicability",
+    "seq": 4,
+    "value": {
+      "applicability": "not-applicable (disabled-legacy)"
+    }
+  },
+  {
+    "kind": "done-transition",
+    "producer": "done-transition:assert-terminal",
+    "seq": 5,
+    "value": "BLOCKED"
+  }
+]
