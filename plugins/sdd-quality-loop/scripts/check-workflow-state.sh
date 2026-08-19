@@ -252,6 +252,32 @@ manifest_has_reviewed_hash() {
   fi
   return 1
 }
+# The traceability matrix is the only task-stage input besides the task plan
+# that carries a field the workflow is designed to advance: each requirement
+# row's final cell records that requirement's delivery status. Binding the
+# whole file froze that column too -- no full-profile feature has ever moved a
+# row off the authoring-time default. This rewrites ONLY that one cell, and
+# only when it already holds a value from the closed lifecycle vocabulary the
+# state registry pins, so every other byte of every row -- code targets, test
+# IDs, evidence paths -- still participates in the digest, and a body edit
+# matches neither form. An out-of-vocabulary value is a body edit, not a
+# lifecycle transition, and stays bound.
+# The recorded digest is taken at authoring time, when every cell already holds
+# the default, so the recorded raw digest and this normalized digest coincide
+# there; that is why no producing-side field is needed.
+# The trailing [[:space:]]* absorbs a CR, so CRLF input round-trips without a
+# literal \r escape (BSD sed has none).
+traceability_normalized_hash() {
+  local file="$1"
+  LC_ALL=C sed -E \
+    -e 's/^(\|[[:space:]]*REQ-.*\|)([[:space:]]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([[:space:]]*\|[[:space:]]*)$/\1\2Planned\4/' \
+    "$file" | sha256_stream
+}
+traceability_hash_accepted() {
+  local candidate="$1" raw="$2" normalized="$3"
+  [[ -n "$candidate" ]] || return 1
+  [[ "$candidate" == "$raw" || "$candidate" == "$normalized" ]]
+}
 manifest_has_hash() {
   local contract="$1" suffix="$2" expected="$3" recorded_root="$4"
   jq -e --arg suffix "$suffix" --arg expected "$expected" \
@@ -675,11 +701,15 @@ validate_passed_stage() {
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       [[ -f "$traceability" && ! -L "$traceability" ]] ||
         diagnostic "$feature" stage-provenance "task traceability input is missing or linked"
-      local traceability_hash
+      local traceability_hash traceability_normalized
       traceability_hash="$(sha256_file "$traceability")"
-      [[ "$(jq -r '.traceability_sha256 // empty' "$precheck")" == "$traceability_hash" &&
-         "$(jq -r '.traceability_sha256 // empty' "$contract")" == "$traceability_hash" ]] ||
+      traceability_normalized="$(traceability_normalized_hash "$traceability")"
+      if ! traceability_hash_accepted "$(jq -r '.traceability_sha256 // empty' "$precheck")" \
+             "$traceability_hash" "$traceability_normalized" ||
+         ! traceability_hash_accepted "$(jq -r '.traceability_sha256 // empty' "$contract")" \
+             "$traceability_hash" "$traceability_normalized"; then
         diagnostic "$feature" stage-provenance "task traceability hash is stale"
+      fi
       local task_design_hash
       task_design_hash="$(sha256_file "$feature_dir/design.md")"
       [[ "$(jq -r '.design_sha256 // empty' "$precheck")" == "$task_design_hash" &&
@@ -688,6 +718,7 @@ validate_passed_stage() {
       manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" ||
         diagnostic "$feature" stage-provenance "task reviewer manifests omit design"
       manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
+      manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_normalized" "$recorded_root" ||
         diagnostic "$feature" stage-provenance "task reviewer manifests omit traceability"
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
         diagnostic "$feature" stage-provenance "task layer precheck manifest is incomplete"

@@ -134,6 +134,26 @@ function Get-RereviewNormalizedHash([string]$Path, [string]$Status) {
     try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
+# Twin of traceability_normalized_hash() in check-workflow-state.sh. Rewrites
+# only each REQ row's final delivery-status cell, and only over the closed
+# lifecycle vocabulary; every other byte still participates in the digest.
+# [^\S\r\n] is horizontal whitespace only, so the explicit (\r?)$ keeps CRLF
+# input byte-identical -- matching the convention of the functions above.
+function Get-TraceabilityNormalizedHash([string]$Path) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace(
+        $text,
+        '(?m)^(\|[^\S\r\n]*REQ-.*\|)([^\S\r\n]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([^\S\r\n]*\|[^\S\r\n]*)(\r?)$',
+        '${1}${2}Planned${4}${5}')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+function Test-TraceabilityHash([string]$Candidate, [string]$Raw, [string]$Normalized) {
+    if ([string]::IsNullOrEmpty($Candidate)) { return $false }
+    return ($Candidate -eq $Raw -or $Candidate -eq $Normalized)
+}
 function Get-Header([string]$Path, [string]$Header) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return "" }
     $match = [regex]::Match([IO.File]::ReadAllText($Path), "(?m)^$([regex]::Escape($Header)):\s*(\S+)")
@@ -880,7 +900,9 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 Stop-WorkflowState $Feature "stage-provenance" "task traceability input is missing or linked"
             }
             $traceabilityHash = Get-Sha256 $traceability
-            if ([string]$precheckData.traceability_sha256 -ne $traceabilityHash -or [string]$contract.traceability_sha256 -ne $traceabilityHash) {
+            $traceabilityNormalized = Get-TraceabilityNormalizedHash $traceability
+            if (-not (Test-TraceabilityHash ([string]$precheckData.traceability_sha256) $traceabilityHash $traceabilityNormalized) -or
+                -not (Test-TraceabilityHash ([string]$contract.traceability_sha256) $traceabilityHash $traceabilityNormalized)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task traceability hash is stale"
             }
             $taskDesign = Join-Path $FeatureDir "design.md"
@@ -891,7 +913,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             if (-not (Test-ManifestHash $contract "/specs/$Feature/design.md" $taskDesignHash $RepoRoot)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit design"
             }
-            if (-not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityHash $RepoRoot)) {
+            if (-not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityHash $RepoRoot) -and
+                -not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityNormalized $RepoRoot)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit traceability"
             }
             $expectedLayers = @("ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")
