@@ -20,10 +20,11 @@ Codex:
 Use the implement-task skill for specs/<feature>/tasks.md#T-001
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-implementation:implement-task specs/<feature>/tasks.md#T-001
+```
+/sdd-ship:ship
 ```
 
 ## Preconditions
