@@ -6,8 +6,8 @@
   "spec_revision": "fe58e6d899a1385cf001065441b0f60a22cd2d94cf451052a827a9e93224c4c1",
   "quality_report": "reports/quality-gate/20260819T042254Z.md",
   "verification_contract": "specs/sdd-domain-concept-contract/verification/T-001.contract.json",
-  "git_commit": "b0d4bf078ed77d683837f28a47432ee2bf691cf9",
-  "git_generated_dirty": true,
+  "git_commit": "f5de88a8990ff402e88900d5481ed481d61b1a95",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
