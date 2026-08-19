@@ -281,21 +281,29 @@ fi
 
 # ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
 # Security Boundary B1 (security-spec.md): verifies every path the
-# implementation report's own "## Outputs" table declares is present in the
-# bundle's --input root with a matching SHA-256, BEFORE sanitization/digest
-# computation ever runs — a completeness gap means no digest line can ever
-# print (a structural property: the sanitize/write/print code below is
-# simply never reached on a gap, not a conditional guard around it).
+# implementation report's own "## Outputs" table declares is present, with
+# a matching SHA-256, under the --input root OR the --project-root, BEFORE
+# sanitization/digest computation ever runs — a completeness gap means no
+# digest line can ever print (a structural property: the sanitize/write/
+# print code below is simply never reached on a gap, not a conditional
+# guard around it).
 #
 # Reuses the "## Outputs" heading + "| `path` | `hash` |" row shape
 # validate-review-context-set.sh:63-74's evaluator_output_is_declared already
 # establishes, applied in the OPPOSITE direction: instead of checking one
 # caller-supplied path against the table, this iterates every row and
-# containment-checks each declared path against the bundle's OWN --input
-# root FIRST — reusing that same site's path_is_authorized containment
-# discipline — a path that would resolve outside is a gap, NEVER read
+# containment-checks each declared path against a candidate root FIRST —
+# reusing that same site's path_is_authorized containment discipline — a
+# path that would resolve outside the root being tried is never read
 # (never opened, never hashed), before existence/hash is verified for paths
-# that pass containment.
+# that pass containment. Real implementation reports declare rows relative
+# to project_root (the same convention generate-evidence-bundle/
+# check-evidence-bundle use); this script's own pre-existing fixtures
+# declare rows relative to input_path. Both are tried — input_path first
+# (preserving today's exact behavior for existing callers), project_root
+# only on a miss — and whichever root actually resolves a row must
+# independently pass containment under that root; a row never escapes the
+# root it resolved under.
 #
 # Convention, not a new flag (Breaking API: no — CLI flags are unchanged):
 # the implementation report path is derived from --task/--feature/
@@ -332,6 +340,46 @@ _ppi_is_canonical_declared_path() {
     esac
 }
 
+# Resolve one declared-output row under a single candidate root, applying
+# the same containment discipline (component-walk symlink guard) whichever
+# root is being tried — a row must never escape the root it resolved under.
+# POSIX sh has no return-by-value, so the result is communicated via the
+# globals _ppi_row_state ("matched"|"escaped"|"absent") and, only when
+# matched, _ppi_row_candidate (the resolved file path).
+_ppi_resolve_row_under_root() {
+    _rr_row_path="$1"
+    _rr_root="$2"
+
+    # Component-walk containment: no symbolic link anywhere between the
+    # candidate root and the candidate may be followed (mirrors
+    # validate-review-context-set.sh's own symlink-component-walk).
+    _rr_current="${_rr_root%/}"
+    _rr_escaped=0
+    _rr_old_ifs="$IFS"
+    IFS='/'
+    set -- $_rr_row_path
+    IFS="$_rr_old_ifs"
+    for _rr_component in "$@"; do
+        _rr_current="${_rr_current}/${_rr_component}"
+        if [ -L "$_rr_current" ]; then
+            _rr_escaped=1
+        fi
+    done
+
+    if [ "$_rr_escaped" = "1" ]; then
+        _ppi_row_state="escaped"
+        return
+    fi
+
+    _rr_candidate="${_rr_root%/}/${_rr_row_path}"
+    if [ ! -L "$_rr_candidate" ] && [ -f "$_rr_candidate" ]; then
+        _ppi_row_state="matched"
+        _ppi_row_candidate="$_rr_candidate"
+    else
+        _ppi_row_state="absent"
+    fi
+}
+
 check_declared_outputs_completeness() {
     _impl_report="${project_root}/reports/implementation/${feature}/${task_id}.md"
     [ -f "$_impl_report" ] || return 0
@@ -347,37 +395,38 @@ check_declared_outputs_completeness() {
             continue
         fi
 
-        # Component-walk containment: no symbolic link anywhere between the
-        # bundle root and the candidate may be followed (mirrors
-        # validate-review-context-set.sh's own symlink-component-walk).
-        _current="${input_path%/}"
-        _outside_root=0
-        _old_ifs="$IFS"
-        IFS='/'
-        set -- $_row_path
-        IFS="$_old_ifs"
-        for _component in "$@"; do
-            _current="${_current}/${_component}"
-            if [ -L "$_current" ]; then
-                _outside_root=1
-            fi
-        done
+        # Real implementation reports declare rows relative to project_root
+        # (the same convention generate-evidence-bundle/check-evidence-bundle
+        # use), while this script's own fixtures predate that convention and
+        # declare rows relative to input_path. Try input_path first (today's
+        # behavior, unchanged); only on a miss there, retry under
+        # project_root. Whichever root actually resolves the row
+        # independently passes the same containment guard above.
+        _ppi_resolve_row_under_root "$_row_path" "$input_path"
+        _row_escaped_input=0
+        [ "$_ppi_row_state" = "escaped" ] && _row_escaped_input=1
 
-        if [ "$_outside_root" = "1" ]; then
-            _gaps="${_gaps}prepare-panelist-input: declared output resolves outside input root: ${_row_path}
+        if [ "$_ppi_row_state" = "matched" ]; then
+            _candidate="$_ppi_row_candidate"
+        else
+            _ppi_resolve_row_under_root "$_row_path" "$project_root"
+
+            if [ "$_ppi_row_state" = "matched" ]; then
+                _candidate="$_ppi_row_candidate"
+            elif [ "$_row_escaped_input" = "1" ] || [ "$_ppi_row_state" = "escaped" ]; then
+                _gaps="${_gaps}prepare-panelist-input: declared output resolves outside input root: ${_row_path}
 "
-            continue
+                continue
+            else
+                _gaps="${_gaps}prepare-panelist-input: declared output missing from bundle: ${_row_path}
+"
+                continue
+            fi
         fi
 
-        _candidate="${input_path%/}/${_row_path}"
-        if [ ! -L "$_candidate" ] && [ -f "$_candidate" ]; then
-            _actual_hash="$(_ppi_sha256_file "$_candidate")"
-            if [ "$_actual_hash" != "$_row_hash" ]; then
-                _gaps="${_gaps}prepare-panelist-input: declared output hash mismatch: ${_row_path}
-"
-            fi
-        else
-            _gaps="${_gaps}prepare-panelist-input: declared output missing from bundle: ${_row_path}
+        _actual_hash="$(_ppi_sha256_file "$_candidate")"
+        if [ "$_actual_hash" != "$_row_hash" ]; then
+            _gaps="${_gaps}prepare-panelist-input: declared output hash mismatch: ${_row_path}
 "
         fi
     done < <(awk '
