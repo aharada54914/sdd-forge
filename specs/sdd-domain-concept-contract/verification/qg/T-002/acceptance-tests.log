@@ -4,207 +4,207 @@ Executing all tests in 'tests/sdd-domain/contract-v2-schema.Tests.ps1'
 Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
 
   Describing domain-contract.v2.schema.json shape (TEST-001, AC-001)
-    [+] the v2 schema file exists 24ms
+    [+] the v2 schema file exists 19ms
     [+] parses as valid JSON 14ms
 
     Context once parsed
-      [+] declares draft-07 4ms
+      [+] declares draft-07 3ms
       [+] declares the domain-contract/v2 schema const 2ms
-      [+] declares root required schema/meta/contexts/concepts, exactly those four 15ms
-      [+] declares a v1-shaped meta definition (version/status/generated_from) 12ms
+      [+] declares root required schema/meta/contexts/concepts, exactly those four 6ms
+      [+] declares a v1-shaped meta definition (version/status/generated_from) 13ms
       [+] declares concepts as a required top-level array with minItems 1 3ms
       [+] duplicates the v1 boundedContext/term/aggregate/contextRelation definitions in-file (DD-3) and adds a concept definition 4ms
       [+] does not $ref the v1 schema file (DD-3: definitions are duplicated, not cross-referenced) 1ms
       [+] declares contexts[].terms[].concept_id as optional with the concept-id pattern (REQ-003) 2ms
 
   Describing domain-contract.v1.schema.json byte-identity drift lock (TEST-002, AC-002, REQ-007)
-    [+] the v1 schema file still exists 1ms
+    [+] the v1 schema file still exists 3ms
     [+] v1 schema file SHA-256 equals the recorded feature-start baseline 3ms
 
   Describing validate-domain-contract twins exist (TEST-017/TEST-012 preconditions, REQ-004)
     [+] the .sh twin exists 1ms
-    [+] the .ps1 twin exists 1ms
+    [+] the .ps1 twin exists 3ms
 
   Describing validate-domain-contract fail-closed input handling (TEST-017, AC-017, REQ-004(a))
 
     Context fixture 1 of 2 -- syntactically broken JSON (truncated body)
-      [+] ps1 twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 551ms
-      [+] sh twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 52ms
+      [+] ps1 twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 553ms
+      [+] sh twin: exits 1 with one V2-PARSE line, no stdout, no stack trace 54ms
 
     Context fixture 2 of 2 -- a file larger than the 10 MiB ceiling
       [+] the fixture really does exceed the ceiling (non-vacuity) 31ms
-      [+] ps1 twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 538ms
-      [+] sh twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 60ms
+      [+] ps1 twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 553ms
+      [+] sh twin: exits 1 with one V2-INPUT-TOO-LARGE line, no stdout, no stack trace 66ms
 
   Describing validate-domain-contract argument and path errors (REQ-004(a), Edge Cases fail-closed)
 
     Context no argument
-      [+] ps1 twin: exits 1 with one V2-USAGE line 508ms
-      [+] sh twin: exits 1 with one V2-USAGE line 25ms
+      [+] ps1 twin: exits 1 with one V2-USAGE line 531ms
+      [+] sh twin: exits 1 with one V2-USAGE line 33ms
 
     Context a path that does not exist
-      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FOUND line 528ms
-      [+] sh twin: exits 1 with one V2-INPUT-NOT-FOUND line 44ms
+      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FOUND line 579ms
+      [+] sh twin: exits 1 with one V2-INPUT-NOT-FOUND line 50ms
 
     Context a path that is a directory, not a contract file
-      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FILE line 536ms
-      [+] sh twin: exits 1 with one V2-INPUT-NOT-FILE line 52ms
+      [+] ps1 twin: exits 1 with one V2-INPUT-NOT-FILE line 541ms
+      [+] sh twin: exits 1 with one V2-INPUT-NOT-FILE line 58ms
 
     Context a regular file the process may not read (POSIX mode 000)
-      [+] ps1 twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 569ms
-      [+] sh twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 81ms
+      [+] ps1 twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 593ms
+      [+] sh twin: exits 1 with one V2-INPUT-UNREADABLE line [SKIPPED when chmod is unavailable or ineffective] 93ms
 
   Describing validate-domain-contract v2 version dispatch (TEST-012, AC-012, REQ-004(b), DD-6)
     [+] the v1 fixture really declares domain-contract/v1 (non-vacuity) 1ms
-    [+] ps1 twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 543ms
-    [+] sh twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 44ms
+    [+] ps1 twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 573ms
+    [+] sh twin: rejects a domain-contract/v1 contract with one V2-WRONG-SCHEMA line naming the v2-only constraint 48ms
 
   Describing T-003 structural negative fixture allocation (tasks.md Negative Fixture Allocation table)
     [+] contributes exactly 62 negative fixtures 0ms
     [+] allocates 29 fixtures to AC-024 (type mismatch) 0ms
-    [+] allocates 7 fixtures to AC-014 (concept required key absent) 0ms
-    [+] allocates 7 fixtures to AC-021 (root and meta required key absent) 1ms
-    [+] allocates 8 fixtures to AC-023 (minLength) 1ms
-    [+] allocates 4 fixtures to AC-020 (nested required inside an optional array) 1ms
-    [+] allocates 3 fixtures to AC-018 (pattern) 1ms
+    [+] allocates 7 fixtures to AC-014 (concept required key absent) 2ms
+    [+] allocates 7 fixtures to AC-021 (root and meta required key absent) 0ms
+    [+] allocates 8 fixtures to AC-023 (minLength) 0ms
+    [+] allocates 4 fixtures to AC-020 (nested required inside an optional array) 0ms
+    [+] allocates 3 fixtures to AC-018 (pattern) 0ms
     [+] allocates 3 fixtures to AC-019 (minItems) 0ms
     [+] allocates 1 fixture to AC-016 (empty concepts array) 0ms
-    [+] gives every fixture a distinct contract body (no fixture silently duplicates another) 9ms
-    [+] keeps every fixture body well-formed JSON, so only the declared structural defect is under test 17ms
+    [+] gives every fixture a distinct contract body (no fixture silently duplicates another) 11ms
+    [+] keeps every fixture body well-formed JSON, so only the declared structural defect is under test 18ms
 
   Describing validate-domain-contract structural pass -- base fixture acceptance (non-vacuity for the 62 negatives)
-    [+] ps1 twin: accepts the unmutated base contract with exit 0 and no output at all 575ms
-    [+] sh twin: accepts the unmutated base contract with exit 0 and no output at all 49ms
+    [+] ps1 twin: accepts the unmutated base contract with exit 0 and no output at all 599ms
+    [+] sh twin: accepts the unmutated base contract with exit 0 and no output at all 47ms
 
   Describing validate-domain-contract structural check pass (TEST-014/016/018/019/020/021/023/024, REQ-004(c))
-    [+] ps1 twin -- AC-024 (1) root schema is not a string 533ms
-    [+] sh twin -- AC-024 (1) root schema is not a string 46ms
-    [+] ps1 twin -- AC-024 (2) root meta is not an object 571ms
+    [+] ps1 twin -- AC-024 (1) root schema is not a string 560ms
+    [+] sh twin -- AC-024 (1) root schema is not a string 50ms
+    [+] ps1 twin -- AC-024 (2) root meta is not an object 592ms
     [+] sh twin -- AC-024 (2) root meta is not an object 49ms
-    [+] ps1 twin -- AC-024 (3) root contexts is not an array 564ms
-    [+] sh twin -- AC-024 (3) root contexts is not an array 45ms
-    [+] ps1 twin -- AC-024 (4) root concepts is not an array 543ms
-    [+] sh twin -- AC-024 (4) root concepts is not an array 44ms
-    [+] ps1 twin -- AC-024 (5) meta.version is not a string 569ms
-    [+] sh twin -- AC-024 (5) meta.version is not a string 44ms
-    [+] ps1 twin -- AC-024 (6) meta.status is not a string 559ms
-    [+] sh twin -- AC-024 (6) meta.status is not a string 44ms
-    [+] ps1 twin -- AC-024 (7) meta.generated_from is neither a string nor the declared array 560ms
-    [+] sh twin -- AC-024 (7) meta.generated_from is neither a string nor the declared array 46ms
-    [+] ps1 twin -- AC-024 (8) a concepts[] element is not an object 566ms
-    [+] sh twin -- AC-024 (8) a concepts[] element is not an object 45ms
-    [+] ps1 twin -- AC-024 (9) concepts[].id is not a string -- reported as a type violation, not a pattern violation 565ms
-    [+] sh twin -- AC-024 (9) concepts[].id is not a string -- reported as a type violation, not a pattern violation 45ms
-    [+] ps1 twin -- AC-024 (10) concepts[].name is not a string -- reported as a type violation, not a pattern violation 561ms
-    [+] sh twin -- AC-024 (10) concepts[].name is not a string -- reported as a type violation, not a pattern violation 44ms
-    [+] ps1 twin -- AC-024 (11) concepts[].context is not a string -- reported as a type violation, not a pattern violation 559ms
-    [+] sh twin -- AC-024 (11) concepts[].context is not a string -- reported as a type violation, not a pattern violation 46ms
-    [+] ps1 twin -- AC-024 (12) concepts[].definition is not a string 562ms
-    [+] sh twin -- AC-024 (12) concepts[].definition is not a string 46ms
-    [+] ps1 twin -- AC-024 (13) concepts[].essence is not a string 564ms
-    [+] sh twin -- AC-024 (13) concepts[].essence is not a string 45ms
-    [+] ps1 twin -- AC-024 (14) concepts[].responsibilities is not an array 561ms
-    [+] sh twin -- AC-024 (14) concepts[].responsibilities is not an array 45ms
-    [+] ps1 twin -- AC-024 (15) concepts[].evidence is not an array 562ms
-    [+] sh twin -- AC-024 (15) concepts[].evidence is not an array 46ms
-    [+] ps1 twin -- AC-024 (16) concepts[].must_not_own is not an array 556ms
-    [+] sh twin -- AC-024 (16) concepts[].must_not_own is not an array 45ms
-    [+] ps1 twin -- AC-024 (17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation 565ms
-    [+] sh twin -- AC-024 (17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation 46ms
-    [+] ps1 twin -- AC-024 (18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation 565ms
-    [+] sh twin -- AC-024 (18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation 45ms
-    [+] ps1 twin -- AC-024 (19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation 568ms
-    [+] sh twin -- AC-024 (19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation 45ms
-    [+] ps1 twin -- AC-024 (20) concepts[].stakeholder_perspectives is not an array 565ms
-    [+] sh twin -- AC-024 (20) concepts[].stakeholder_perspectives is not an array 46ms
-    [+] ps1 twin -- AC-024 (21) a stakeholder_perspectives element is not an object 560ms
-    [+] sh twin -- AC-024 (21) a stakeholder_perspectives element is not an object 45ms
-    [+] ps1 twin -- AC-024 (22) stakeholder_perspectives[].actor is not a string 576ms
-    [+] sh twin -- AC-024 (22) stakeholder_perspectives[].actor is not a string 52ms
-    [+] ps1 twin -- AC-024 (23) stakeholder_perspectives[].concern is not a string 577ms
-    [+] sh twin -- AC-024 (23) stakeholder_perspectives[].concern is not a string 44ms
-    [+] ps1 twin -- AC-024 (24) concepts[].distinguished_from is not an array 563ms
-    [+] sh twin -- AC-024 (24) concepts[].distinguished_from is not an array 45ms
-    [+] ps1 twin -- AC-024 (25) a distinguished_from element is not an object 562ms
-    [+] sh twin -- AC-024 (25) a distinguished_from element is not an object 45ms
-    [+] ps1 twin -- AC-024 (26) distinguished_from[].concept_id is not a string 564ms
-    [+] sh twin -- AC-024 (26) distinguished_from[].concept_id is not a string 67ms
-    [+] ps1 twin -- AC-024 (27) distinguished_from[].reasons is not an array 605ms
-    [+] sh twin -- AC-024 (27) distinguished_from[].reasons is not an array 50ms
-    [+] ps1 twin -- AC-024 (28) a distinguished_from[].reasons element is not a string 586ms
-    [+] sh twin -- AC-024 (28) a distinguished_from[].reasons element is not a string 45ms
-    [+] ps1 twin -- AC-024 (29) contexts[].terms[].concept_id is not a string 563ms
-    [+] sh twin -- AC-024 (29) contexts[].terms[].concept_id is not a string 44ms
-    [+] ps1 twin -- AC-014 (1) concepts[].id is absent 573ms
-    [+] sh twin -- AC-014 (1) concepts[].id is absent 47ms
-    [+] ps1 twin -- AC-014 (2) concepts[].name is absent 564ms
-    [+] sh twin -- AC-014 (2) concepts[].name is absent 44ms
-    [+] ps1 twin -- AC-014 (3) concepts[].context is absent 563ms
-    [+] sh twin -- AC-014 (3) concepts[].context is absent 45ms
-    [+] ps1 twin -- AC-014 (4) concepts[].definition is absent 563ms
-    [+] sh twin -- AC-014 (4) concepts[].definition is absent 46ms
-    [+] ps1 twin -- AC-014 (5) concepts[].essence is absent 559ms
-    [+] sh twin -- AC-014 (5) concepts[].essence is absent 44ms
-    [+] ps1 twin -- AC-014 (6) concepts[].responsibilities is absent 561ms
-    [+] sh twin -- AC-014 (6) concepts[].responsibilities is absent 44ms
-    [+] ps1 twin -- AC-014 (7) concepts[].evidence is absent 561ms
-    [+] sh twin -- AC-014 (7) concepts[].evidence is absent 45ms
-    [+] ps1 twin -- AC-021 (1) root schema is absent 524ms
-    [+] sh twin -- AC-021 (1) root schema is absent 45ms
-    [+] ps1 twin -- AC-021 (2) root meta is absent 573ms
-    [+] sh twin -- AC-021 (2) root meta is absent 44ms
-    [+] ps1 twin -- AC-021 (3) root contexts is absent 563ms
-    [+] sh twin -- AC-021 (3) root contexts is absent 44ms
-    [+] ps1 twin -- AC-021 (4) root concepts is absent -- a different path from the empty concepts array 549ms
-    [+] sh twin -- AC-021 (4) root concepts is absent -- a different path from the empty concepts array 44ms
-    [+] ps1 twin -- AC-021 (5) meta.version is absent 566ms
-    [+] sh twin -- AC-021 (5) meta.version is absent 46ms
-    [+] ps1 twin -- AC-021 (6) meta.status is absent 561ms
-    [+] sh twin -- AC-021 (6) meta.status is absent 45ms
-    [+] ps1 twin -- AC-021 (7) meta.generated_from is absent 559ms
-    [+] sh twin -- AC-021 (7) meta.generated_from is absent 45ms
-    [+] ps1 twin -- AC-023 (1) concepts[].definition is an empty string 565ms
-    [+] sh twin -- AC-023 (1) concepts[].definition is an empty string 45ms
-    [+] ps1 twin -- AC-023 (2) concepts[].essence is an empty string 562ms
-    [+] sh twin -- AC-023 (2) concepts[].essence is an empty string 45ms
-    [+] ps1 twin -- AC-023 (3) a concepts[].responsibilities element is an empty string 564ms
-    [+] sh twin -- AC-023 (3) a concepts[].responsibilities element is an empty string 45ms
-    [+] ps1 twin -- AC-023 (4) a concepts[].evidence element is an empty string 559ms
-    [+] sh twin -- AC-023 (4) a concepts[].evidence element is an empty string 46ms
-    [+] ps1 twin -- AC-023 (5) a concepts[].must_not_own element is an empty string 564ms
-    [+] sh twin -- AC-023 (5) a concepts[].must_not_own element is an empty string 45ms
-    [+] ps1 twin -- AC-023 (6) stakeholder_perspectives[].actor is an empty string 564ms
-    [+] sh twin -- AC-023 (6) stakeholder_perspectives[].actor is an empty string 45ms
-    [+] ps1 twin -- AC-023 (7) stakeholder_perspectives[].concern is an empty string 562ms
-    [+] sh twin -- AC-023 (7) stakeholder_perspectives[].concern is an empty string 46ms
-    [+] ps1 twin -- AC-023 (8) a distinguished_from[].reasons element is an empty string 560ms
-    [+] sh twin -- AC-023 (8) a distinguished_from[].reasons element is an empty string 45ms
-    [+] ps1 twin -- AC-020 (1) stakeholder_perspectives[].actor is absent 563ms
-    [+] sh twin -- AC-020 (1) stakeholder_perspectives[].actor is absent 45ms
-    [+] ps1 twin -- AC-020 (2) stakeholder_perspectives[].concern is absent 559ms
-    [+] sh twin -- AC-020 (2) stakeholder_perspectives[].concern is absent 45ms
-    [+] ps1 twin -- AC-020 (3) distinguished_from[].concept_id is absent 557ms
-    [+] sh twin -- AC-020 (3) distinguished_from[].concept_id is absent 45ms
-    [+] ps1 twin -- AC-020 (4) distinguished_from[].reasons is absent 557ms
-    [+] sh twin -- AC-020 (4) distinguished_from[].reasons is absent 45ms
-    [+] ps1 twin -- AC-018 (1) concepts[].id does not match the concept-id pattern 571ms
-    [+] sh twin -- AC-018 (1) concepts[].id does not match the concept-id pattern 44ms
-    [+] ps1 twin -- AC-018 (2) concepts[].name does not match the PascalCase pattern 570ms
-    [+] sh twin -- AC-018 (2) concepts[].name does not match the PascalCase pattern 45ms
-    [+] ps1 twin -- AC-018 (3) concepts[].context does not match the kebab-case pattern 569ms
-    [+] sh twin -- AC-018 (3) concepts[].context does not match the kebab-case pattern 45ms
-    [+] ps1 twin -- AC-019 (1) concepts[].responsibilities is an empty array 559ms
-    [+] sh twin -- AC-019 (1) concepts[].responsibilities is an empty array 45ms
-    [+] ps1 twin -- AC-019 (2) concepts[].evidence is an empty array 563ms
-    [+] sh twin -- AC-019 (2) concepts[].evidence is an empty array 46ms
-    [+] ps1 twin -- AC-019 (3) distinguished_from[].reasons is an empty array 565ms
-    [+] sh twin -- AC-019 (3) distinguished_from[].reasons is an empty array 45ms
-    [+] ps1 twin -- AC-016 (1) concepts is an empty array 547ms
-    [+] sh twin -- AC-016 (1) concepts is an empty array 44ms
+    [+] ps1 twin -- AC-024 (3) root contexts is not an array 582ms
+    [+] sh twin -- AC-024 (3) root contexts is not an array 47ms
+    [+] ps1 twin -- AC-024 (4) root concepts is not an array 564ms
+    [+] sh twin -- AC-024 (4) root concepts is not an array 48ms
+    [+] ps1 twin -- AC-024 (5) meta.version is not a string 586ms
+    [+] sh twin -- AC-024 (5) meta.version is not a string 48ms
+    [+] ps1 twin -- AC-024 (6) meta.status is not a string 587ms
+    [+] sh twin -- AC-024 (6) meta.status is not a string 48ms
+    [+] ps1 twin -- AC-024 (7) meta.generated_from is neither a string nor the declared array 582ms
+    [+] sh twin -- AC-024 (7) meta.generated_from is neither a string nor the declared array 50ms
+    [+] ps1 twin -- AC-024 (8) a concepts[] element is not an object 585ms
+    [+] sh twin -- AC-024 (8) a concepts[] element is not an object 48ms
+    [+] ps1 twin -- AC-024 (9) concepts[].id is not a string -- reported as a type violation, not a pattern violation 581ms
+    [+] sh twin -- AC-024 (9) concepts[].id is not a string -- reported as a type violation, not a pattern violation 49ms
+    [+] ps1 twin -- AC-024 (10) concepts[].name is not a string -- reported as a type violation, not a pattern violation 587ms
+    [+] sh twin -- AC-024 (10) concepts[].name is not a string -- reported as a type violation, not a pattern violation 49ms
+    [+] ps1 twin -- AC-024 (11) concepts[].context is not a string -- reported as a type violation, not a pattern violation 583ms
+    [+] sh twin -- AC-024 (11) concepts[].context is not a string -- reported as a type violation, not a pattern violation 50ms
+    [+] ps1 twin -- AC-024 (12) concepts[].definition is not a string 578ms
+    [+] sh twin -- AC-024 (12) concepts[].definition is not a string 49ms
+    [+] ps1 twin -- AC-024 (13) concepts[].essence is not a string 584ms
+    [+] sh twin -- AC-024 (13) concepts[].essence is not a string 48ms
+    [+] ps1 twin -- AC-024 (14) concepts[].responsibilities is not an array 584ms
+    [+] sh twin -- AC-024 (14) concepts[].responsibilities is not an array 50ms
+    [+] ps1 twin -- AC-024 (15) concepts[].evidence is not an array 580ms
+    [+] sh twin -- AC-024 (15) concepts[].evidence is not an array 49ms
+    [+] ps1 twin -- AC-024 (16) concepts[].must_not_own is not an array 581ms
+    [+] sh twin -- AC-024 (16) concepts[].must_not_own is not an array 48ms
+    [+] ps1 twin -- AC-024 (17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation 583ms
+    [+] sh twin -- AC-024 (17) a concepts[].responsibilities element is not a string -- reported as a type violation, not a minLength violation 49ms
+    [+] ps1 twin -- AC-024 (18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation 587ms
+    [+] sh twin -- AC-024 (18) a concepts[].evidence element is not a string -- reported as a type violation, not a minLength violation 48ms
+    [+] ps1 twin -- AC-024 (19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation 584ms
+    [+] sh twin -- AC-024 (19) a concepts[].must_not_own element is not a string -- reported as a type violation, not a minLength violation 48ms
+    [+] ps1 twin -- AC-024 (20) concepts[].stakeholder_perspectives is not an array 582ms
+    [+] sh twin -- AC-024 (20) concepts[].stakeholder_perspectives is not an array 50ms
+    [+] ps1 twin -- AC-024 (21) a stakeholder_perspectives element is not an object 583ms
+    [+] sh twin -- AC-024 (21) a stakeholder_perspectives element is not an object 50ms
+    [+] ps1 twin -- AC-024 (22) stakeholder_perspectives[].actor is not a string 585ms
+    [+] sh twin -- AC-024 (22) stakeholder_perspectives[].actor is not a string 48ms
+    [+] ps1 twin -- AC-024 (23) stakeholder_perspectives[].concern is not a string 583ms
+    [+] sh twin -- AC-024 (23) stakeholder_perspectives[].concern is not a string 48ms
+    [+] ps1 twin -- AC-024 (24) concepts[].distinguished_from is not an array 579ms
+    [+] sh twin -- AC-024 (24) concepts[].distinguished_from is not an array 50ms
+    [+] ps1 twin -- AC-024 (25) a distinguished_from element is not an object 584ms
+    [+] sh twin -- AC-024 (25) a distinguished_from element is not an object 48ms
+    [+] ps1 twin -- AC-024 (26) distinguished_from[].concept_id is not a string 581ms
+    [+] sh twin -- AC-024 (26) distinguished_from[].concept_id is not a string 48ms
+    [+] ps1 twin -- AC-024 (27) distinguished_from[].reasons is not an array 581ms
+    [+] sh twin -- AC-024 (27) distinguished_from[].reasons is not an array 49ms
+    [+] ps1 twin -- AC-024 (28) a distinguished_from[].reasons element is not a string 581ms
+    [+] sh twin -- AC-024 (28) a distinguished_from[].reasons element is not a string 49ms
+    [+] ps1 twin -- AC-024 (29) contexts[].terms[].concept_id is not a string 581ms
+    [+] sh twin -- AC-024 (29) contexts[].terms[].concept_id is not a string 48ms
+    [+] ps1 twin -- AC-014 (1) concepts[].id is absent 585ms
+    [+] sh twin -- AC-014 (1) concepts[].id is absent 48ms
+    [+] ps1 twin -- AC-014 (2) concepts[].name is absent 581ms
+    [+] sh twin -- AC-014 (2) concepts[].name is absent 49ms
+    [+] ps1 twin -- AC-014 (3) concepts[].context is absent 579ms
+    [+] sh twin -- AC-014 (3) concepts[].context is absent 48ms
+    [+] ps1 twin -- AC-014 (4) concepts[].definition is absent 581ms
+    [+] sh twin -- AC-014 (4) concepts[].definition is absent 49ms
+    [+] ps1 twin -- AC-014 (5) concepts[].essence is absent 583ms
+    [+] sh twin -- AC-014 (5) concepts[].essence is absent 48ms
+    [+] ps1 twin -- AC-014 (6) concepts[].responsibilities is absent 581ms
+    [+] sh twin -- AC-014 (6) concepts[].responsibilities is absent 48ms
+    [+] ps1 twin -- AC-014 (7) concepts[].evidence is absent 586ms
+    [+] sh twin -- AC-014 (7) concepts[].evidence is absent 48ms
+    [+] ps1 twin -- AC-021 (1) root schema is absent 543ms
+    [+] sh twin -- AC-021 (1) root schema is absent 48ms
+    [+] ps1 twin -- AC-021 (2) root meta is absent 589ms
+    [+] sh twin -- AC-021 (2) root meta is absent 48ms
+    [+] ps1 twin -- AC-021 (3) root contexts is absent 580ms
+    [+] sh twin -- AC-021 (3) root contexts is absent 48ms
+    [+] ps1 twin -- AC-021 (4) root concepts is absent -- a different path from the empty concepts array 559ms
+    [+] sh twin -- AC-021 (4) root concepts is absent -- a different path from the empty concepts array 48ms
+    [+] ps1 twin -- AC-021 (5) meta.version is absent 579ms
+    [+] sh twin -- AC-021 (5) meta.version is absent 50ms
+    [+] ps1 twin -- AC-021 (6) meta.status is absent 602ms
+    [+] sh twin -- AC-021 (6) meta.status is absent 48ms
+    [+] ps1 twin -- AC-021 (7) meta.generated_from is absent 581ms
+    [+] sh twin -- AC-021 (7) meta.generated_from is absent 49ms
+    [+] ps1 twin -- AC-023 (1) concepts[].definition is an empty string 582ms
+    [+] sh twin -- AC-023 (1) concepts[].definition is an empty string 47ms
+    [+] ps1 twin -- AC-023 (2) concepts[].essence is an empty string 584ms
+    [+] sh twin -- AC-023 (2) concepts[].essence is an empty string 48ms
+    [+] ps1 twin -- AC-023 (3) a concepts[].responsibilities element is an empty string 582ms
+    [+] sh twin -- AC-023 (3) a concepts[].responsibilities element is an empty string 50ms
+    [+] ps1 twin -- AC-023 (4) a concepts[].evidence element is an empty string 580ms
+    [+] sh twin -- AC-023 (4) a concepts[].evidence element is an empty string 48ms
+    [+] ps1 twin -- AC-023 (5) a concepts[].must_not_own element is an empty string 583ms
+    [+] sh twin -- AC-023 (5) a concepts[].must_not_own element is an empty string 49ms
+    [+] ps1 twin -- AC-023 (6) stakeholder_perspectives[].actor is an empty string 580ms
+    [+] sh twin -- AC-023 (6) stakeholder_perspectives[].actor is an empty string 49ms
+    [+] ps1 twin -- AC-023 (7) stakeholder_perspectives[].concern is an empty string 581ms
+    [+] sh twin -- AC-023 (7) stakeholder_perspectives[].concern is an empty string 49ms
+    [+] ps1 twin -- AC-023 (8) a distinguished_from[].reasons element is an empty string 580ms
+    [+] sh twin -- AC-023 (8) a distinguished_from[].reasons element is an empty string 49ms
+    [+] ps1 twin -- AC-020 (1) stakeholder_perspectives[].actor is absent 583ms
+    [+] sh twin -- AC-020 (1) stakeholder_perspectives[].actor is absent 48ms
+    [+] ps1 twin -- AC-020 (2) stakeholder_perspectives[].concern is absent 583ms
+    [+] sh twin -- AC-020 (2) stakeholder_perspectives[].concern is absent 52ms
+    [+] ps1 twin -- AC-020 (3) distinguished_from[].concept_id is absent 582ms
+    [+] sh twin -- AC-020 (3) distinguished_from[].concept_id is absent 49ms
+    [+] ps1 twin -- AC-020 (4) distinguished_from[].reasons is absent 585ms
+    [+] sh twin -- AC-020 (4) distinguished_from[].reasons is absent 49ms
+    [+] ps1 twin -- AC-018 (1) concepts[].id does not match the concept-id pattern 583ms
+    [+] sh twin -- AC-018 (1) concepts[].id does not match the concept-id pattern 48ms
+    [+] ps1 twin -- AC-018 (2) concepts[].name does not match the PascalCase pattern 591ms
+    [+] sh twin -- AC-018 (2) concepts[].name does not match the PascalCase pattern 49ms
+    [+] ps1 twin -- AC-018 (3) concepts[].context does not match the kebab-case pattern 586ms
+    [+] sh twin -- AC-018 (3) concepts[].context does not match the kebab-case pattern 49ms
+    [+] ps1 twin -- AC-019 (1) concepts[].responsibilities is an empty array 585ms
+    [+] sh twin -- AC-019 (1) concepts[].responsibilities is an empty array 48ms
+    [+] ps1 twin -- AC-019 (2) concepts[].evidence is an empty array 579ms
+    [+] sh twin -- AC-019 (2) concepts[].evidence is an empty array 48ms
+    [+] ps1 twin -- AC-019 (3) distinguished_from[].reasons is an empty array 580ms
+    [+] sh twin -- AC-019 (3) distinguished_from[].reasons is an empty array 49ms
+    [+] ps1 twin -- AC-016 (1) concepts is an empty array 560ms
+    [+] sh twin -- AC-016 (1) concepts is an empty array 48ms
 
   Describing validate-domain-contract structural pass enumerates every violation (design.md Error Handling, DD-7)
-    [+] ps1 twin: a contract with two independent violations produces exactly two stderr lines 570ms
-    [+] sh twin: a contract with two independent violations produces exactly two stderr lines 44ms
+    [+] ps1 twin: a contract with two independent violations produces exactly two stderr lines 590ms
+    [+] sh twin: a contract with two independent violations produces exactly two stderr lines 48ms
 
   Describing T-004 cross-reference negative fixture allocation (tasks.md Negative Fixture Allocation table)
     [+] contributes exactly 8 negative fixtures 0ms
@@ -216,83 +216,128 @@ Executing script tests/sdd-domain/contract-v2-schema.Tests.ps1
     [+] allocates 1 fixture to AC-011 (duplicate name within one context) 0ms
     [+] allocates 2 fixtures to AC-022 (reference-field pattern violations) 0ms
     [+] gives every fixture a distinct contract body (no fixture silently duplicates another) 0ms
-    [+] keeps every fixture body well-formed JSON, so only the declared cross-reference defect is under test 2ms
-    [+] makes every fixture a real mutation of the accepted base contract 1ms
+    [+] keeps every fixture body well-formed JSON, so only the declared cross-reference defect is under test 3ms
+    [+] makes every fixture a real mutation of the accepted base contract 2ms
 
   Describing validate-domain-contract cross-reference integrity pass (TEST-006/007/008/009/010/011/022, REQ-004(d)-(i))
-    [+] ps1 twin -- AC-006 (1) two concepts declare the same id -- stderr names the duplicated id 579ms
-    [+] sh twin -- AC-006 (1) two concepts declare the same id -- stderr names the duplicated id 49ms
-    [+] ps1 twin -- AC-007 (1) concepts[].context names a context no contexts[] entry declares 573ms
-    [+] sh twin -- AC-007 (1) concepts[].context names a context no contexts[] entry declares 48ms
-    [+] ps1 twin -- AC-008 (1) distinguished_from points at the concept itself and at an undeclared id 571ms
-    [+] sh twin -- AC-008 (1) distinguished_from points at the concept itself and at an undeclared id 51ms
-    [+] ps1 twin -- AC-009 (1) contexts[].terms[].concept_id names an id no concept declares 578ms
-    [+] sh twin -- AC-009 (1) contexts[].terms[].concept_id names an id no concept declares 48ms
-    [+] ps1 twin -- AC-010 (1) one concept lists the identical string in responsibilities and must_not_own 582ms
-    [+] sh twin -- AC-010 (1) one concept lists the identical string in responsibilities and must_not_own 51ms
-    [+] ps1 twin -- AC-011 (1) two concepts share a name inside one context 629ms
-    [+] sh twin -- AC-011 (1) two concepts share a name inside one context 48ms
-    [+] ps1 twin -- AC-022 (1) distinguished_from[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 587ms
-    [+] sh twin -- AC-022 (1) distinguished_from[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 51ms
-    [+] ps1 twin -- AC-022 (2) contexts[].terms[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 596ms
+    [+] ps1 twin -- AC-006 (1) two concepts declare the same id -- stderr names the duplicated id 596ms
+    [+] sh twin -- AC-006 (1) two concepts declare the same id -- stderr names the duplicated id 52ms
+    [+] ps1 twin -- AC-007 (1) concepts[].context names a context no contexts[] entry declares 589ms
+    [+] sh twin -- AC-007 (1) concepts[].context names a context no contexts[] entry declares 49ms
+    [+] ps1 twin -- AC-008 (1) distinguished_from points at the concept itself and at an undeclared id 590ms
+    [+] sh twin -- AC-008 (1) distinguished_from points at the concept itself and at an undeclared id 50ms
+    [+] ps1 twin -- AC-009 (1) contexts[].terms[].concept_id names an id no concept declares 591ms
+    [+] sh twin -- AC-009 (1) contexts[].terms[].concept_id names an id no concept declares 50ms
+    [+] ps1 twin -- AC-010 (1) one concept lists the identical string in responsibilities and must_not_own 586ms
+    [+] sh twin -- AC-010 (1) one concept lists the identical string in responsibilities and must_not_own 49ms
+    [+] ps1 twin -- AC-011 (1) two concepts share a name inside one context 586ms
+    [+] sh twin -- AC-011 (1) two concepts share a name inside one context 49ms
+    [+] ps1 twin -- AC-022 (1) distinguished_from[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 590ms
+    [+] sh twin -- AC-022 (1) distinguished_from[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 49ms
+    [+] ps1 twin -- AC-022 (2) contexts[].terms[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 588ms
     [+] sh twin -- AC-022 (2) contexts[].terms[].concept_id violates the concept-id pattern -- a pattern violation, not a dangling reference 49ms
 
   Describing validate-domain-contract permits the same concept name in different contexts (tasks.md Done When; INV-012)
-    [+] the control contract really does carry one name in two different contexts (non-vacuity) 1ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 589ms
-    [+] sh twin: accepts it with exit 0 and no output at all 46ms
+    [+] the control contract really does carry one name in two different contexts (non-vacuity) 3ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 583ms
+    [+] sh twin: accepts it with exit 0 and no output at all 47ms
 
   Describing validate-domain-contract compares responsibilities and must_not_own by exact string equality (REQ-004(h))
     [+] the control contract's must_not_own entries differ from the responsibility only in case and surrounding whitespace (non-vacuity) 3ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 580ms
-    [+] sh twin: accepts it with exit 0 and no output at all 53ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 575ms
+    [+] sh twin: accepts it with exit 0 and no output at all 47ms
 
   Describing validate-domain-contract accepts the Purchase/Fulfillment positive fixture with pattern boundary values (TEST-003, AC-003, REQ-002, REQ-005(a))
-    [+] the fixture really carries all 7 required fields on Order, all 3 optional fields populated, and the two pattern boundary values (non-vacuity) 5ms
-    [+] APIOrder and order-taking-2 satisfy the schema-declared regex patterns directly (non-vacuity for the boundary claim, AC-018's paired positive) 2ms
-    [+] the optional fields' VALUES survive as input -- must_not_own, stakeholder_perspectives, distinguished_from (REQ-005(a) preservation) 5ms
+    [+] the fixture really carries all 7 required fields on Order, all 3 optional fields populated, and the two pattern boundary values (non-vacuity) 3ms
+    [+] APIOrder and order-taking-2 satisfy the schema-declared regex patterns directly (non-vacuity for the boundary claim, AC-018's paired positive) 1ms
+    [+] the optional fields' VALUES survive as input -- must_not_own, stakeholder_perspectives, distinguished_from (REQ-005(a) preservation) 4ms
     [+] Fulfillment.must_not_own names purchase price, and the two concepts are mutually distinguished_from each other 0ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 611ms
-    [+] sh twin: accepts it with exit 0 and no output at all 50ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 586ms
+    [+] sh twin: accepts it with exit 0 and no output at all 46ms
 
   Describing validate-domain-contract accepts the Book/Bookshelf positive fixture (TEST-004, AC-004, REQ-005(b))
     [+] the fixture realizes REQ-005(b) exactly: Book.must_not_own carries display position, Placement holds the ordering responsibility (non-vacuity) 1ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 586ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 582ms
     [+] sh twin: accepts it with exit 0 and no output at all 47ms
 
   Describing validate-domain-contract accepts two contexts carrying the same concept name with distinct ids (TEST-005, AC-005, REQ-002, REQ-005(c))
-    [+] the fixture really carries one name in two different contexts with distinct ids (non-vacuity) 1ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 588ms
-    [+] sh twin: accepts it with exit 0 and no output at all 47ms
+    [+] the fixture really carries one name in two different contexts with distinct ids (non-vacuity) 2ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 573ms
+    [+] sh twin: accepts it with exit 0 and no output at all 46ms
 
   Describing validate-domain-contract accepts a term-to-concept link and preserves it (TEST-025, AC-025, REQ-001, REQ-003, REQ-005(e))
-    [+] the v2 schema declares term.concept_id as optional with the concept-id pattern (structural assertion, AC-025 part a) 0ms
-    [+] the fixture's term.concept_id really does resolve to a declared concept id (non-vacuity) 2ms
-    [+] the value survives validation -- re-reading the fixture after the validator runs shows concept_id unchanged (AC-025 part b) 596ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 587ms
-    [+] sh twin: accepts it with exit 0 and no output at all 46ms
+    [+] the v2 schema declares term.concept_id as optional with the concept-id pattern (structural assertion, AC-025 part a) 2ms
+    [+] the fixture's term.concept_id really does resolve to a declared concept id (non-vacuity) 0ms
+    [+] the value survives validation -- re-reading the fixture after the validator runs shows concept_id unchanged (AC-025 part b) 570ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 572ms
+    [+] sh twin: accepts it with exit 0 and no output at all 48ms
 
   Describing validate-domain-contract accepts a concept missing all three optional fields (TEST-026, AC-026, REQ-002, REQ-005(f))
     [+] the fixture's concept really has none of must_not_own, stakeholder_perspectives, distinguished_from (non-vacuity) 1ms
-    [+] ps1 twin: accepts it with exit 0 and no output at all 571ms
+    [+] ps1 twin: accepts it with exit 0 and no output at all 573ms
     [+] sh twin: accepts it with exit 0 and no output at all 48ms
 
   Describing T-005 optional two-state pairing (tasks.md Done When: optional fields are truly optional, not accidentally required)
     [+] AC-003's Order concept populates all 3 optional fields and AC-026's concept populates none of them 1ms
 
   Describing T-005 negative fixture grand total (tasks.md Negative Fixture Allocation; acceptance-tests.md tally)
-    [+] T-002 contributes exactly 3 negative fixtures (AC-017 x2, AC-012 x1) 28ms
-    [+] T-003 contributes exactly 62 and T-004 contributes exactly 8 (restated here for the sum below) 1ms
-    [+] the full negative corpus totals exactly 73 fixtures -- a divergence means a fixture was dropped or duplicated 21ms
+    [+] T-002 contributes exactly 3 negative fixtures (AC-017 x2, AC-012 x1) 30ms
+    [+] T-003 contributes exactly 62 and T-004 contributes exactly 8 (restated here for the sum below) 3ms
+    [+] the full negative corpus totals exactly 73 fixtures -- a divergence means a fixture was dropped or duplicated 19ms
 
   Describing validate-domain-contract twin parity across the full fixture corpus (TEST-013, AC-013, REQ-004, REQ-006)
-    [+] the full corpus totals 78 fixtures (5 positive families + 73 negative fixtures) 21ms
-    [+] every fixture in the corpus produces an identical exit code and violation count on both twins [SKIPPED when bash/python3 is absent from PATH] 48.61s
+    [+] the full corpus totals 78 fixtures (5 positive families + 73 negative fixtures) 22ms
+    [+] every fixture in the corpus produces an identical exit code and violation count on both twins [SKIPPED when bash/python3 is absent from PATH] 48.73s
 
   Describing domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ-007)
     [+] the v1 suite file still exists 0ms
-    [+] there really are exactly eleven pre-existing tests/sdd-domain/ suite files besides this one (non-vacuity) 5ms
-    [+] the unmodified v1 suite runs green under Pester 4.10.1 in a fresh process 1.69s
-    [+] this feature's diff against main touches none of the four INV-004 v1 consumers or the eleven pre-existing suites [SKIPPED when git is absent from PATH] 106ms
-Tests completed in 104.47s
-Tests Passed: 232, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0 
+    [+] there really are exactly eleven pre-existing tests/sdd-domain/ suite files besides this one (non-vacuity) 4ms
+    [+] the unmodified v1 suite runs green under Pester 4.10.1 in a fresh process 1.6s
+    [+] this feature's diff against main touches none of the four INV-004 v1 consumers or the eleven pre-existing suites [SKIPPED when git is absent from PATH] 87ms
+
+  Describing RT-20260819-001 fixture corpus integrity (non-vacuity for the parity checks below)
+    [+] the corpus holds exactly 16 classes -- 13 that must reject, 3 that must stay accepted 1ms
+    [+] every fixture really does differ from the unmutated base contract 1ms
+    [+] the three raw-control-byte fixtures really do carry a byte in 0x00-0x1F, and no other fixture does 3ms
+
+  Describing RT-20260819-001 base contract stays accepted (the fix must not pass by rejecting everything)
+    [+] ps1 twin: accepts the unmutated base contract with exit 0 and no output at all 635ms
+    [+] sh twin: accepts the unmutated base contract with exit 0 and no output at all [SKIPPED when bash/python3 is absent from PATH] 48ms
+
+  Describing RT-20260819-001 ps1 twin parse verdict (REQ-004(a) fail-closed parse)
+    [+] ps1 twin -- class 01 trailing comma in an object 542ms
+    [+] ps1 twin -- class 02 trailing comma in an array 543ms
+    [+] ps1 twin -- class 03 single-quoted key 526ms
+    [+] ps1 twin -- class 04 single-quoted value 532ms
+    [+] ps1 twin -- class 05 unquoted key 528ms
+    [+] ps1 twin -- class 06 embedded NUL byte 545ms
+    [+] ps1 twin -- class 07 leading NUL byte 527ms
+    [+] ps1 twin -- class 08 block comment 529ms
+    [+] ps1 twin -- class 09 line comment after the document 600ms
+    [+] ps1 twin -- class 10 raw control character inside a string 542ms
+    [+] ps1 twin -- class 11 leading-zero number 531ms
+    [+] ps1 twin -- class 12 hexadecimal number 531ms
+    [+] ps1 twin -- class 13 a second value after the document 545ms
+    [+] ps1 twin -- class 14 NaN literal (json.loads accepts it; over-rejecting is a new divergence) 610ms
+    [+] ps1 twin -- class 15 Infinity literal (json.loads accepts it; over-rejecting is a new divergence) 584ms
+    [+] ps1 twin -- class 16 duplicate object key (json.loads accepts it, last value wins) 574ms
+
+  Describing RT-20260819-001 sh/ps1 verdict parity (REQ-006, design.md DD-7)
+    [+] both twins -- class 01 trailing comma in an object [SKIPPED when bash/python3 is absent from PATH] 591ms
+    [+] both twins -- class 02 trailing comma in an array [SKIPPED when bash/python3 is absent from PATH] 587ms
+    [+] both twins -- class 03 single-quoted key [SKIPPED when bash/python3 is absent from PATH] 571ms
+    [+] both twins -- class 04 single-quoted value [SKIPPED when bash/python3 is absent from PATH] 584ms
+    [+] both twins -- class 05 unquoted key [SKIPPED when bash/python3 is absent from PATH] 574ms
+    [+] both twins -- class 06 embedded NUL byte [SKIPPED when bash/python3 is absent from PATH] 589ms
+    [+] both twins -- class 07 leading NUL byte [SKIPPED when bash/python3 is absent from PATH] 578ms
+    [+] both twins -- class 08 block comment [SKIPPED when bash/python3 is absent from PATH] 574ms
+    [+] both twins -- class 09 line comment after the document [SKIPPED when bash/python3 is absent from PATH] 588ms
+    [+] both twins -- class 10 raw control character inside a string [SKIPPED when bash/python3 is absent from PATH] 583ms
+    [+] both twins -- class 11 leading-zero number [SKIPPED when bash/python3 is absent from PATH] 578ms
+    [+] both twins -- class 12 hexadecimal number [SKIPPED when bash/python3 is absent from PATH] 579ms
+    [+] both twins -- class 13 a second value after the document [SKIPPED when bash/python3 is absent from PATH] 626ms
+    [+] both twins -- class 14 NaN literal (json.loads accepts it; over-rejecting is a new divergence) [SKIPPED when bash/python3 is absent from PATH] 673ms
+    [+] both twins -- class 15 Infinity literal (json.loads accepts it; over-rejecting is a new divergence) [SKIPPED when bash/python3 is absent from PATH] 626ms
+    [+] both twins -- class 16 duplicate object key (json.loads accepts it, last value wins) [SKIPPED when bash/python3 is absent from PATH] 631ms
+Tests completed in 125.06s
+Tests Passed: 269, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0 
