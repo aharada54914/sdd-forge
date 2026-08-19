@@ -1909,7 +1909,19 @@ Describe "validate-domain-contract accepts a term-to-concept link and preserves 
         $termDef = $contract.definitions.term
         $termRequired = @($termDef.required)
         ($termRequired -ccontains "concept_id") | Should Be $false
-        $termDef.properties.concept_id.pattern | Should Be '^CONCEPT-[A-Z][A-Z0-9-]*$'
+        # AC-025 part (a) requires the term link's pattern to be IDENTICAL to
+        # the concept id's pattern -- a relationship between two declarations,
+        # not a resemblance to a literal. Comparing only against a literal let
+        # the two drift apart undetected: widening concepts[].id alone admits
+        # ids that no term may legally reference, and the suite stayed green.
+        # -ceq because a case-inverted pattern is a real drift and Pester 4's
+        # `Should Be` is case-insensitive (`Should BeExactly` is not).
+        $conceptIdPattern = $contract.definitions.concept.properties.id.pattern
+        ($termDef.properties.concept_id.pattern -ceq $conceptIdPattern) | Should Be $true
+        # Pin the shared value too, case-sensitively, so a coordinated drift of
+        # BOTH declarations is caught as well as a divergent one.
+        $termDef.properties.concept_id.pattern | Should BeExactly '^CONCEPT-[A-Z][A-Z0-9-]*$'
+        $conceptIdPattern | Should BeExactly '^CONCEPT-[A-Z][A-Z0-9-]*$'
     }
 
     It "the fixture's term.concept_id really does resolve to a declared concept id (non-vacuity)" {
