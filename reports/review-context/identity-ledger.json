@@ -7173,6 +7173,15 @@
       "host_session_id": "SESS-qg-sdd-domain-concept-contract-T-005-0797",
       "previous_record_sha256": "4a0c740c52786172705fdcdee593b12b98588ae33a2ac0d0053e59ac5f773ed2",
       "record_sha256": "3735d97d8c055c01d3cb945796a70e22212053137be784625b4332ab6e07921d"
+    },
+    {
+      "sequence": 798,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-sdd-domain-concept-contract-qg-T-005-seq0798",
+      "host_session_id": "SESS-qg-sdd-domain-concept-contract-T-005-0798",
+      "previous_record_sha256": "3735d97d8c055c01d3cb945796a70e22212053137be784625b4332ab6e07921d",
+      "record_sha256": "648729a9b0f7dffb8dd1dc47d2094951d024c74efc0e41fc0a9407226b0dc9ee"
     }
   ]
 }
