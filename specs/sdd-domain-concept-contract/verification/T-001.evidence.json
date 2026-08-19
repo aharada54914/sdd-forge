@@ -6,7 +6,7 @@
   "spec_revision": "fe58e6d899a1385cf001065441b0f60a22cd2d94cf451052a827a9e93224c4c1",
   "quality_report": "reports/quality-gate/20260819T042254Z.md",
   "verification_contract": "specs/sdd-domain-concept-contract/verification/T-001.contract.json",
-  "git_commit": "f5de88a8990ff402e88900d5481ed481d61b1a95",
+  "git_commit": "92b8458777660146ac36fdcf6005e0c20f16cfe5",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -23,7 +23,7 @@
     "verdict": "PASS",
     "critical": 0,
     "major": 0,
-    "minor": 0,
+    "minor": 2,
     "reviewer": "sdd-evaluator"
   },
   "artifacts": [
@@ -33,7 +33,7 @@
     },
     {
       "path": "reports/quality-gate/20260819T042254Z.md",
-      "sha256": "a90eb48d8e4e331254a0d65d797f0ba55baeba11fab146ad862ea244cf31f5df"
+      "sha256": "0c82ee697722241a4f97853c7fdd1f708a63038e9866489b7cd1d49d1a938dcc"
     },
     {
       "path": "specs/sdd-domain-concept-contract/verification/qg/T-001/acceptance-tests.log",
