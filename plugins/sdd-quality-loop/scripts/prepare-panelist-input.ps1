@@ -220,21 +220,29 @@ if ((Get-Item $InputPath).PSIsContainer) {
 
 # ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
 # Security Boundary B1 (security-spec.md): verifies every path the
-# implementation report's own "## Outputs" table declares is present in the
-# bundle's --input root with a matching SHA-256, BEFORE sanitization/digest
-# computation ever runs — a completeness gap means no digest line can ever
-# print (a structural property: the sanitize/write/print code below is
-# simply never reached on a gap, not a conditional guard around it).
+# implementation report's own "## Outputs" table declares is present, with
+# a matching SHA-256, under the --input root OR the --project-root, BEFORE
+# sanitization/digest computation ever runs — a completeness gap means no
+# digest line can ever print (a structural property: the sanitize/write/
+# print code below is simply never reached on a gap, not a conditional
+# guard around it).
 #
 # Native re-implementation of the same "## Outputs" heading + "| `path` |
 # `hash` |" row shape validate-review-context-set.sh:63-74's
 # evaluator_output_is_declared already establishes, applied in the OPPOSITE
 # direction: instead of checking one caller-supplied path against the
 # table, this iterates every row and containment-checks each declared path
-# against the bundle's OWN --input root FIRST — reusing that same site's
+# against a candidate root FIRST — reusing that same site's
 # path_is_authorized containment discipline — a path that would resolve
-# outside is a gap, NEVER read (never opened, never hashed), before
-# existence/hash is verified for paths that pass containment.
+# outside the root being tried is never read (never opened, never hashed),
+# before existence/hash is verified for paths that pass containment. Real
+# implementation reports declare rows relative to project_root (the same
+# convention generate-evidence-bundle/check-evidence-bundle use); this
+# script's own pre-existing fixtures declare rows relative to InputRoot.
+# Both are tried — InputRoot first (preserving today's exact behavior for
+# existing callers), ProjectRoot only on a miss — and whichever root
+# actually resolves a row must independently pass containment under that
+# root; a row never escapes the root it resolved under.
 #
 # Convention, not a new flag (Breaking API: no — CLI flags are unchanged):
 # the implementation report path is derived from --task/--feature/
@@ -254,6 +262,36 @@ function Test-DeclaredOutputCanonicalPath {
     if ($Path.Contains("\")) { return $false }
     if ($Path -match "(^|/)\.\.?(/|$)") { return $false }
     return $true
+}
+
+# Resolve one declared-output row under a single candidate root, applying
+# the same containment discipline (component-walk symlink guard) whichever
+# root is being tried — a row must never escape the root it resolved
+# under. Returns @{ State = "Matched"|"Escaped"|"Absent"; Candidate = ... }
+# (Candidate is set only when State is "Matched").
+function Resolve-DeclaredOutputRow {
+    param([string]$RowPath, [string]$Root)
+
+    # Component-walk containment: no symbolic link anywhere between the
+    # candidate root and the candidate may be followed (mirrors
+    # validate-review-context-set.sh's own symlink-component-walk).
+    $current = $Root.TrimEnd('/', '\')
+    $escaped = $false
+    foreach ($component in ($RowPath -split '/')) {
+        $current = "$current/$component"
+        $item = Get-Item -LiteralPath $current -ErrorAction SilentlyContinue
+        if ($item -and $item.LinkType) { $escaped = $true }
+    }
+    if ($escaped) {
+        return @{ State = "Escaped"; Candidate = $null }
+    }
+
+    $candidate = Join-Path $Root $RowPath
+    $candidateItem = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
+    if ($candidateItem -and (-not $candidateItem.PSIsContainer) -and (-not $candidateItem.LinkType)) {
+        return @{ State = "Matched"; Candidate = $candidate }
+    }
+    return @{ State = "Absent"; Candidate = $null }
 }
 
 function Invoke-DeclaredOutputsCompletenessCheck {
@@ -284,30 +322,30 @@ function Invoke-DeclaredOutputsCompletenessCheck {
             continue
         }
 
-        # Component-walk containment: no symbolic link anywhere between the
-        # bundle root and the candidate may be followed (mirrors
-        # validate-review-context-set.sh's own symlink-component-walk).
-        $current = $InputRoot.TrimEnd('/', '\')
-        $outsideRoot = $false
-        foreach ($component in ($rowPath -split '/')) {
-            $current = "$current/$component"
-            $item = Get-Item -LiteralPath $current -ErrorAction SilentlyContinue
-            if ($item -and $item.LinkType) { $outsideRoot = $true }
-        }
-        if ($outsideRoot) {
-            $gaps.Add("declared output resolves outside input root: $rowPath")
-            continue
+        # Try InputRoot first (unchanged default behavior); only on a miss
+        # there, retry under ProjectRoot.
+        $inputResult = Resolve-DeclaredOutputRow -RowPath $rowPath -Root $InputRoot
+        $escapedUnderInput = ($inputResult.State -eq "Escaped")
+
+        if ($inputResult.State -eq "Matched") {
+            $candidate = $inputResult.Candidate
+        } else {
+            $projectResult = Resolve-DeclaredOutputRow -RowPath $rowPath -Root $ProjectRoot
+
+            if ($projectResult.State -eq "Matched") {
+                $candidate = $projectResult.Candidate
+            } elseif ($escapedUnderInput -or ($projectResult.State -eq "Escaped")) {
+                $gaps.Add("declared output resolves outside input root: $rowPath")
+                continue
+            } else {
+                $gaps.Add("declared output missing from bundle: $rowPath")
+                continue
+            }
         }
 
-        $candidate = Join-Path $InputRoot $rowPath
-        $candidateItem = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
-        if ($candidateItem -and (-not $candidateItem.PSIsContainer) -and (-not $candidateItem.LinkType)) {
-            $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLower()
-            if ($actualHash -ne $rowHash) {
-                $gaps.Add("declared output hash mismatch: $rowPath")
-            }
-        } else {
-            $gaps.Add("declared output missing from bundle: $rowPath")
+        $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLower()
+        if ($actualHash -ne $rowHash) {
+            $gaps.Add("declared output hash mismatch: $rowPath")
         }
     }
 
