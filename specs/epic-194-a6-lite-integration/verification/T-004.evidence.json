@@ -6,8 +6,8 @@
   "spec_revision": "2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437",
   "quality_report": "reports/quality-gate/20260809T100000Z-epic-194-a6-lite-integration-T-004.md",
   "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-004.contract.json",
-  "git_commit": "b2502ec10a564697243f91bf6ddc8d235e473c98",
-  "git_generated_dirty": true,
+  "git_commit": "794a2ab53d24058b1de4511069b512fec1d14b86",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
