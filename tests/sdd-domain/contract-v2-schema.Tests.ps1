@@ -2647,3 +2647,338 @@ Describe "T-003 REQ-002 anchor regression -- a trailing newline is rejected by b
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# RT-20260819-002 (review ticket, severity major, target T-004): a JSON member
+# whose key differs from the declared key ONLY IN CASE must be invisible to
+# BOTH twins.
+#
+# The .sh twin reads members with python `dict.get` / `in`, which is ordinal.
+# The .ps1 twin read them with `$Object.PSObject.Properties[$Name]`, which is
+# CASE-INSENSITIVE, so `Test-ContractMemberPresent` and `Get-ContractValue`
+# resolved keys the .sh twin does not. T-004's cross-reference pass consumes
+# both helpers -- through `Get-JsonStringMember`, `Get-JsonArrayMember` and
+# `Get-DeclaredStringValueSet` -- which turned that latent difference into an
+# EXIT CODE divergence, in BOTH directions:
+#
+#   * fail-open -- `contexts[0]` spelled "Name", `concepts[0]` spelled "ID", or
+#     the contract root spelled "Schema": .sh rejects, .ps1 returned 0 and
+#     accepted a contract REQ-004(b)/(e)/(g) requires rejected.
+#   * inverted  -- `concepts[0]` spelled "Must_Not_Own", or a term spelled
+#     "Concept_Id": .sh accepts, because ordinally the OPTIONAL member is
+#     simply absent, while .ps1 found the shadowed key and rejected.
+#
+# Both directions are covered below, so the parity property is locked in each
+# polarity rather than assumed from one example.
+#
+# This is NOT the already-adjudicated ConvertFrom-Json key-casing class. That
+# one needs BOTH spellings present in ONE document, is rejected at the
+# object-build step before any member is read, and OVER-rejects. Each fixture
+# here carries exactly ONE spelling, parses cleanly on both twins, and diverges
+# at property lookup. The corpus-integrity block asserts that separation
+# directly, and the final block pins the adjudicated class so the two cannot be
+# confused later.
+#
+# Every case pins the EXACT stderr both twins must emit, not merely that the
+# two twins agree with each other. That is deliberate: the surviving mutant
+# this block also closes replaces the DECLARED-VALUE REFERENT INDEX with a
+# case-insensitive comparer on BOTH twins at once
+# (`[System.StringComparer]::OrdinalIgnoreCase` on .ps1, upper/lower
+# duplication on .sh), which a pure twin-agreement check cannot detect because
+# both twins move together. The two `referent` cases below fail the moment
+# either twin's declared-id or declared-context index stops being ordinal: each
+# declares a referent whose only difference from the reference is CASE, so a
+# case-folding index silently resolves it and drops the dangling line.
+#
+# These are RT-20260819-002 regression fixtures, NOT additions to tasks.md's
+# `## Negative Fixture Allocation` table: the T-002 / T-003 / T-004 counts
+# (3 / 62 / 8), the 73-fixture negative total and the 78-fixture AC-013 parity
+# corpus above are all deliberately left untouched. This follows the
+# RT-20260819-001 and T-003 anchor-regression precedent of keeping
+# out-of-allocation regression fixtures in their own list with their own
+# constructor.
+#
+# Every fixture is ONE single-point mutation of the same base contract the
+# structural pass already proves is ACCEPTED at exit 0, expanded through the
+# token-table expander T-003 authored, so a verdict cannot be attributed to
+# anything but the mutation under test. Fixtures stay ephemeral (DD-5,
+# INV-006): each is written to a per-test temporary file the test deletes again
+# in a finally block, and no permanent fixture directory is added. The fixture
+# FILE NAME stays hex and ASCII hyphens only -- a byte in 0x00-0x1F is legal in
+# a POSIX path but illegal on Win32 and would kill the whole .ps1 side there.
+# All fixture vocabulary is the same synthetic Purchase / Fulfillment domain
+# nouns; no credential, token, personal, or customer-derived string appears in
+# any of them (security-spec.md).
+# ---------------------------------------------------------------------------
+
+# Overridden token bodies. Nested `%TOKEN%` references are left in place rather
+# than inlined so each fixture keeps tracking the base token table: the
+# expander runs to a fixed point, so a nested token still expands.
+
+# contexts[0] spells its name "Name", so `contexts[0].name` is ordinally absent
+# and BOTH concepts' `context` references dangle.
+$caseKeyContextsNameKey = '[{"Name": "order-taking", "description": "Where a purchase promise is recorded.", "terms": [{"canonical": "Order", "definition": "A recorded purchase promise.", "concept_id": %T_CONCEPT_ID%}], "aggregates": []}]'
+
+# A term spells its link "Concept_Id" and points at an id no concept declares.
+# `concept_id` is OPTIONAL, so ordinally this contract is simply a term without
+# a concept link -- valid. Only a case-folding lookup finds the dangling value.
+$caseKeyTermConceptIdKey = '[{"name": "order-taking", "description": "Where a purchase promise is recorded.", "terms": [{"canonical": "Order", "definition": "A recorded purchase promise.", "Concept_Id": "CONCEPT-MISSING"}], "aggregates": []}]'
+
+# contexts[0].name differs from the context both concepts reference ONLY in
+# case. Ordinally the reference does not resolve; a case-folding referent index
+# resolves it and drops both V2-DANGLING-CONTEXT lines.
+$caseKeyContextsNameCaseVariant = '[{"name": "Order-Taking", "description": "Where a purchase promise is recorded.", "terms": [{"canonical": "Order", "definition": "A recorded purchase promise.", "concept_id": %T_CONCEPT_ID%}], "aggregates": []}]'
+
+# concepts[0] spells its optional list "Must_Not_Own". Ordinally must_not_own
+# is absent, so the REQ-004(h) self-contradiction check never runs; a
+# case-folding lookup finds it and reports a contradiction the .sh twin does
+# not see.
+$caseKeyMustNotOwnKey = '{%C_ID%%C_NAME%%C_CONTEXT%%C_DEFINITION%%C_ESSENCE%%C_RESPONSIBILITIES%%C_EVIDENCE%%C_STAKEHOLDER%%C_DISTINGUISHED%"Must_Not_Own": %C_MUST_NOT_OWN%}'
+
+# The contract root spells its discriminator "Schema". This exercises the
+# REQ-004(b) dispatch, whose presence test is `Test-ContractMemberPresent`.
+$caseKeySchemaKey = '{"Schema": %SCHEMA_VALUE%, %R_META%%R_CONTEXTS%%R_CONCEPTS%"relations": []}'
+
+function New-CaseKeyParityCase {
+    # $Expected is the EXACT stderr text BOTH twins must produce for this
+    # fixture -- "" when the contract must be accepted. $Marker is an ordinal
+    # literal that must appear in this fixture body and must NOT appear in the
+    # unmutated base, which is what proves the mutation actually landed and
+    # that the case cannot pass vacuously against an unmutated copy.
+    param(
+        [string]$Class,
+        [string]$Polarity,
+        [int]$ExitCode,
+        [string]$Expected,
+        [string]$Marker,
+        [hashtable]$Override
+    )
+    return New-Object PSObject -Property @{
+        Class    = $Class
+        Polarity = $Polarity
+        ExitCode = $ExitCode
+        Expected = $Expected
+        Marker   = $Marker
+        Override = $Override
+        Json     = (New-StructuralFixtureJson -Override $Override)
+    }
+}
+
+$caseKeyDanglingContextPair = "V2-DANGLING-CONTEXT: concepts[0].context: context order-taking is not declared in contexts`n" +
+                              "V2-DANGLING-CONTEXT: concepts[1].context: context order-taking is not declared in contexts"
+$caseKeyDanglingTermLine = "V2-DANGLING-TERM: contexts[0].terms[0].concept_id: CONCEPT-ORDER does not resolve to any declared concept id"
+
+$caseKeyParityCases = @(
+    # --- fail-open polarity: .sh rejected, .ps1 returned 0 ------------------
+    (New-CaseKeyParityCase -Class 'fail-open (1) contexts[0] spells its name "Name"' -Polarity "fail-open" `
+        -ExitCode 1 -Expected $caseKeyDanglingContextPair -Marker '"Name":' `
+        -Override @{ CONTEXTS = $caseKeyContextsNameKey }),
+    (New-CaseKeyParityCase -Class 'fail-open (2) concepts[0] spells its id "ID"' -Polarity "fail-open" `
+        -ExitCode 1 -Expected ("V2-MISSING-KEY: concepts[0].id: required key is absent`n" + $caseKeyDanglingTermLine) -Marker '"ID":' `
+        -Override @{ C_ID = '"ID": "CONCEPT-ORDER", ' }),
+    (New-CaseKeyParityCase -Class 'fail-open (3) the contract root spells its discriminator "Schema"' -Polarity "fail-open" `
+        -ExitCode 1 -Expected "V2-MISSING-KEY: schema: required key is absent at the contract root" -Marker '"Schema":' `
+        -Override @{ ROOT = $caseKeySchemaKey }),
+    # --- inverted polarity: .sh accepted, .ps1 rejected ---------------------
+    (New-CaseKeyParityCase -Class 'inverted (1) concepts[0] spells its optional list "Must_Not_Own"' -Polarity "inverted" `
+        -ExitCode 0 -Expected "" -Marker '"Must_Not_Own":' `
+        -Override @{ CONCEPT_MAIN = $caseKeyMustNotOwnKey; C_MUST_NOT_OWN = '["purchase intent"]' }),
+    (New-CaseKeyParityCase -Class 'inverted (2) a term spells its optional link "Concept_Id"' -Polarity "inverted" `
+        -ExitCode 0 -Expected "" -Marker '"Concept_Id":' `
+        -Override @{ CONTEXTS = $caseKeyTermConceptIdKey }),
+    # --- referent-index locks: these FAIL if either twin's declared-value ---
+    # --- index stops being ordinal (the surviving mutant) -------------------
+    (New-CaseKeyParityCase -Class 'referent (1) the declared concept id differs from the term reference only in case' -Polarity "referent" `
+        -ExitCode 1 -Expected ("V2-PATTERN: concepts[0].id: value CONCEPT-Order does not match ^CONCEPT-[A-Z][A-Z0-9-]*$`n" + $caseKeyDanglingTermLine) -Marker '"CONCEPT-Order"' `
+        -Override @{ C_ID = '"id": "CONCEPT-Order", ' }),
+    (New-CaseKeyParityCase -Class 'referent (2) the declared context name differs from the concept reference only in case' -Polarity "referent" `
+        -ExitCode 1 -Expected $caseKeyDanglingContextPair -Marker '"Order-Taking"' `
+        -Override @{ CONTEXTS = $caseKeyContextsNameCaseVariant })
+)
+
+function Assert-CaseKeyParityVerdict {
+    # The shape ONE twin must produce for one case-variant fixture: the exact
+    # exit code, nothing on stdout, no interpreter noise, and stderr equal BYTE
+    # FOR BYTE to the single expected text shared by both twins.
+    param($Result, $CaseKeyCase)
+    $Result.StdOut.Length | Should Be 0
+    $Result.StdErr | Should Not Match "Traceback"
+    $Result.StdErr | Should Not Match "Exception"
+    $Result.StdErr | Should Not Match "CategoryInfo"
+    $Result.StdErr | Should Not Match "FullyQualifiedErrorId"
+    $Result.StdErr | Should Not Match "ScriptStackTrace"
+    $Result.StdErr | Should Not Match "at <ScriptBlock>"
+    $Result.StdErr | Should Not Match "^\s+\+ "
+    $Result.ExitCode | Should Be $CaseKeyCase.ExitCode
+    $text = (@(Get-StdErrViolationLines -Result $Result) -join "`n")
+    # Reported first for a readable failure message, then pinned
+    # case-sensitively -- `Should Be` alone is case-insensitive, and every rule
+    # id and field path here is case-significant.
+    $text | Should Be $CaseKeyCase.Expected
+    ($text -ceq $CaseKeyCase.Expected) | Should Be $true
+}
+
+Describe "RT-20260819-002 case-variant key fixture corpus integrity (non-vacuity for the parity checks below)" {
+
+    It "the corpus holds exactly 7 cases -- 3 fail-open, 2 inverted, 2 referent-index locks" {
+        $caseKeyParityCases.Count | Should Be 7
+        # -ceq inside Where-Object: PowerShell's -eq is case-insensitive.
+        @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "fail-open" }).Count | Should Be 3
+        @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "inverted" }).Count | Should Be 2
+        @($caseKeyParityCases | Where-Object { $_.Polarity -ceq "referent" }).Count | Should Be 2
+    }
+
+    It "both polarities really are represented -- some case must reject and some must accept" {
+        # Without this the block could degenerate into a one-sided corpus that
+        # a validator rejecting (or accepting) everything would satisfy.
+        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 1 }).Count | Should Be 5
+        @($caseKeyParityCases | Where-Object { $_.ExitCode -eq 0 }).Count | Should Be 2
+    }
+
+    It "every fixture body is distinct and really is a mutation of the accepted base contract" {
+        $baseBody = New-StructuralFixtureJson -Override @{}
+        # -CaseSensitive: Sort-Object -Unique is case-insensitive by default,
+        # and these fixtures differ from one another precisely in key CASE.
+        @($caseKeyParityCases | ForEach-Object { $_.Json } | Sort-Object -Unique -CaseSensitive).Count | Should Be 7
+        foreach ($caseKeyCase in $caseKeyParityCases) {
+            # -ceq, not `Should Not Be`: Pester's Be compares case-insensitively
+            # and would call a case-only mutation identical to the base.
+            ($caseKeyCase.Json -ceq $baseBody) | Should Be $false
+        }
+    }
+
+    It "every fixture carries its case-variant marker, and the unmutated base carries none of them" {
+        $baseBody = New-StructuralFixtureJson -Override @{}
+        foreach ($caseKeyCase in $caseKeyParityCases) {
+            # Ordinal Contains, never -match or -like: the whole point is case.
+            $caseKeyCase.Json.Contains($caseKeyCase.Marker) | Should Be $true
+            $baseBody.Contains($caseKeyCase.Marker) | Should Be $false
+        }
+    }
+
+    It "every fixture parses cleanly, which is what separates this class from the adjudicated ConvertFrom-Json class" {
+        # ConvertFrom-Json throws only when ONE document carries two keys
+        # differing in case. Each fixture carries exactly one spelling, so this
+        # assertion is also a direct check that no fixture has drifted into the
+        # over-rejecting class pinned in the final block below.
+        foreach ($caseKeyCase in $caseKeyParityCases) {
+            { ConvertFrom-Json -InputObject $caseKeyCase.Json } | Should Not Throw
+        }
+    }
+
+    It "no fixture body holds a raw byte in 0x00-0x1F, so none of them can be diverted to the V2-PARSE path" {
+        foreach ($caseKeyCase in $caseKeyParityCases) {
+            $bytes = [System.Text.Encoding]::ASCII.GetBytes($caseKeyCase.Json)
+            @($bytes | Where-Object { [int]$_ -lt 32 }).Count | Should Be 0
+        }
+    }
+}
+
+Describe "RT-20260819-002 base contract stays accepted (this block must not pass by rejecting everything)" {
+
+    It "ps1 twin: accepts the unmutated base contract with exit 0 and no output at all" {
+        $fixture = New-EphemeralContractFile -Content (New-StructuralFixtureJson -Override @{})
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixture
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixture
+        }
+    }
+
+    It "sh twin: accepts the unmutated base contract with exit 0 and no output at all [SKIPPED when bash/python3 is absent from PATH]" -Skip:(-not $shTwinAvailable) {
+        $fixture = New-EphemeralContractFile -Content (New-StructuralFixtureJson -Override @{})
+        try {
+            $result = Invoke-ValidatorSh -ContractPath $fixture
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixture
+        }
+    }
+}
+
+Describe "RT-20260819-002 a case-variant key is resolved by neither twin (REQ-004(b)/(e)/(g), REQ-006)" {
+
+    foreach ($caseKeyCase in $caseKeyParityCases) {
+        $caseKeyLabel = $caseKeyCase.Class
+
+        It ("ps1 twin -- " + $caseKeyLabel) {
+            $fixture = New-EphemeralContractFile -Content $caseKeyCase.Json
+            try {
+                Assert-CaseKeyParityVerdict -Result (Invoke-ValidatorPs1 -ContractPath $fixture) -CaseKeyCase $caseKeyCase
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+
+        It ("sh twin -- " + $caseKeyLabel + " [SKIPPED when bash/python3 is absent from PATH]") -Skip:(-not $shTwinAvailable) {
+            $fixture = New-EphemeralContractFile -Content $caseKeyCase.Json
+            try {
+                Assert-CaseKeyParityVerdict -Result (Invoke-ValidatorSh -ContractPath $fixture) -CaseKeyCase $caseKeyCase
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+
+        It ("both twins agree byte for byte -- " + $caseKeyLabel + " [SKIPPED when bash/python3 is absent from PATH]") -Skip:(-not $shTwinAvailable) {
+            $fixture = New-EphemeralContractFile -Content $caseKeyCase.Json
+            try {
+                $ps1Result = Invoke-ValidatorPs1 -ContractPath $fixture
+                $shResult = Invoke-ValidatorSh -ContractPath $fixture
+
+                $ps1Result.StdOut.Length | Should Be 0
+                $shResult.StdOut.Length | Should Be 0
+                $ps1Result.ExitCode | Should Be $shResult.ExitCode
+
+                $ps1Text = (@(Get-StdErrViolationLines -Result $ps1Result) -join "`n")
+                $shText = (@(Get-StdErrViolationLines -Result $shResult) -join "`n")
+                # Reported first for a readable failure message, then pinned
+                # case-sensitively -- `Should Be` alone is case-insensitive.
+                $ps1Text | Should Be $shText
+                ($ps1Text -ceq $shText) | Should Be $true
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+    }
+}
+
+Describe "RT-20260819-002 the adjudicated ConvertFrom-Json key-casing class stays where it was (scope boundary)" {
+
+    # This block does NOT assert twin parity, and that is deliberate. A single
+    # document carrying BOTH `id` and `ID` is the separately adjudicated class:
+    # python's json.loads keeps both keys and the .sh twin accepts the document,
+    # while ConvertFrom-Json refuses to BUILD the object at all and the .ps1
+    # twin fails closed with V2-PARSE. That divergence is out of this ticket's
+    # scope; it is pinned here so a later change cannot quietly move this
+    # ticket's under-rejecting class into it, or vice versa.
+    $caseKeyBothSpellingsJson = New-StructuralFixtureJson -Override @{ C_ID = '"id": "CONCEPT-ORDER", "ID": "CONCEPT-SHADOW", ' }
+
+    It "ConvertFrom-Json still refuses to build an object carrying both 'id' and 'ID'" {
+        { ConvertFrom-Json -InputObject $caseKeyBothSpellingsJson } | Should Throw
+    }
+
+    It "so the ps1 twin rejects that document at the parse step, before any member is read" {
+        $fixture = New-EphemeralContractFile -Content $caseKeyBothSpellingsJson
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixture
+            $result.ExitCode | Should Be 1
+            $result.StdOut.Length | Should Be 0
+            $lines = @(Get-StdErrViolationLines -Result $result)
+            $lines.Count | Should Be 1
+            ($lines[0] -ceq 'V2-PARSE: input is not well-formed JSON and was not parsed further') | Should Be $true
+        } finally {
+            Remove-EphemeralPath -Path $fixture
+        }
+    }
+
+    It "the fixtures in this ticket's own corpus are NOT in that class -- none carries two spellings of one key" {
+        foreach ($caseKeyCase in $caseKeyParityCases) {
+            { ConvertFrom-Json -InputObject $caseKeyCase.Json } | Should Not Throw
+        }
+    }
+}

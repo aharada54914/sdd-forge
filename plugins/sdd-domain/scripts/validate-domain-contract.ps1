@@ -137,10 +137,47 @@ function Get-JsonProperty {
     return $property.Value
 }
 
+function Find-ContractMember {
+    # ORDINAL member lookup (RT-20260819-002). `PSObject.Properties[$Name]`
+    # indexes CASE-INSENSITIVELY, so it resolved keys the .sh twin does not:
+    # that twin reads members with python `dict.get` / `in`, which is ordinal.
+    # The difference was inert until T-004's cross-reference pass consumed
+    # these helpers, at which point it became an exit-code divergence in both
+    # directions -- .ps1 accepting a contract whose `contexts[0]` was spelled
+    # "Name" (REQ-004(e)), and .ps1 rejecting one whose OPTIONAL
+    # `must_not_own` was spelled "Must_Not_Own" and is, ordinally, simply
+    # absent. Walking the collection with [StringComparison]::Ordinal makes
+    # this twin resolve exactly the keys the .sh twin resolves (REQ-006,
+    # design.md DD-7).
+    #
+    # Duplicate case-variant names: the FIRST match in enumeration order wins.
+    # That case is not reachable through this script -- ConvertFrom-Json
+    # REFUSES to build an object whose keys differ only in case, so such a
+    # document is already rejected as V2-PARSE before any member is read -- so
+    # this is a determinism guarantee rather than a live path. First-match is
+    # chosen because it is the value python's `dict.get` returns for the same
+    # document, and because both callers below share this one function and so
+    # can never disagree about WHICH member matched.
+    #
+    # A linear walk replaces an O(1) hash index. Contract objects carry a
+    # handful of members and the validator runs once per file, so the cost is
+    # not measurable; correctness across the twins is the requirement.
+    #
+    # PS5.1-safe: no ::new(), no ternary, no null-coalescing, no .NET 5+ API.
+    param($Object, [string]$Name)
+    if ($null -eq $Object) { return $null }
+    foreach ($property in $Object.PSObject.Properties) {
+        if ([string]::Equals($property.Name, $Name, [StringComparison]::Ordinal)) {
+            return $property
+        }
+    }
+    return $null
+}
+
 function Test-ContractMemberPresent {
     param($Object, [string]$Name)
     if ($null -eq $Object) { return $false }
-    return ($null -ne $Object.PSObject.Properties[$Name])
+    return ($null -ne (Find-ContractMember -Object $Object -Name $Name))
 }
 
 function Complete-Validation {
@@ -162,9 +199,13 @@ function Get-ContractValue {
     # indistinguishable from an absent key -- which would report a minItems
     # violation as a type or key violation. The leading comma wraps the value
     # so that exactly one object is emitted whatever its type.
+    #
+    # Resolution goes through Find-ContractMember, so this read is ORDINAL and
+    # selects the same member Test-ContractMemberPresent reported present
+    # (RT-20260819-002).
     param($Object, [string]$Name)
     if ($null -eq $Object) { return $null }
-    $property = $Object.PSObject.Properties[$Name]
+    $property = Find-ContractMember -Object $Object -Name $Name
     if ($null -eq $property) { return $null }
     return ,$property.Value
 }
