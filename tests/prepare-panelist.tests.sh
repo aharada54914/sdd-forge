@@ -164,6 +164,20 @@ write_impl_report() {
     } > "${dir}/${task_id}.md"
 }
 
+# ── TEST-039..044 helpers (declaration-commit fallback for shared/living
+# files, drifted after the implementation report was written) ──────────────
+
+# Initialize a real git repo at $1, hermetic from ambient operator identity/
+# signing config so the fixture's commits never depend on it.
+git_init_scratch_repo() {
+    local root="$1"
+    mkdir -p "$root"
+    git -C "$root" init -q
+    git -C "$root" config user.email "test@example.invalid"
+    git -C "$root" config user.name "Prepare Panelist Test"
+    git -C "$root" config commit.gpgsign false
+}
+
 # ============================================================================
 # PP-001: No consent → fail closed (no tasks.md flag, no SDD_SUDO)
 # ============================================================================
@@ -1127,6 +1141,300 @@ if [ ! -f "${D038}/out.txt" ]; then
     ok "TEST-038d: bundle file not written"
 else
     fail "TEST-038d: bundle file must not be written"
+fi
+
+# ============================================================================
+# TEST-039: a project-root-relative row whose worktree content has DRIFTED
+# (a later sibling commit edited the shared file after the implementation
+# report was written) is re-checked against the tree as of the report's own
+# DECLARATION COMMIT — the commit that last touched the report itself —
+# and, verified there, accepted with a distinct, non-silent stderr notice
+# naming the row and exit 0 + a printed digest. Models the real defect this
+# feature fixes: CHANGELOG.md/tasks.md-shaped shared, living files.
+# ============================================================================
+
+echo "=== TEST-039: worktree-drifted row verified at declaration commit ==="
+
+D039="${WORK}/pp039"
+mkdir -p "${D039}/input"
+git_init_scratch_repo "${D039}"
+write_tasks_with_consent "${D039}/tasks.md" "T-004"
+printf 'shared file v1\n' > "${D039}/shared.txt"
+HASH039_V1="$(sha256_of "${D039}/shared.txt")"
+write_impl_report "${D039}" "cross-model-verification" "T-004" \
+    "$(printf 'shared.txt\t%s' "$HASH039_V1")"
+git -C "${D039}" add -A
+git -C "${D039}" commit -q -m "declare shared.txt v1"
+
+# A later sibling task edits the shared file; the report itself is
+# untouched, so its declaration commit is still the commit above.
+printf 'shared file v2 (drifted by a sibling task)\n' > "${D039}/shared.txt"
+git -C "${D039}" add -A
+git -C "${D039}" commit -q -m "sibling task drifts shared.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D039}/input" \
+    --tasks-file "${D039}/tasks.md" \
+    --project-root "${D039}" \
+    --out "${D039}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-039a: drifted-but-verified-at-declaration-commit row → exit 0"
+else
+    fail "TEST-039a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-039b: digest printed"
+else
+    fail "TEST-039b: expected a printed digest, got: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -q "declared output verified at declaration commit" && \
+   echo "${PP_OUTPUT}" | grep -qF "shared.txt"; then
+    ok "TEST-039c: distinct drift notice printed, naming shared.txt"
+else
+    fail "TEST-039c: expected a declaration-commit drift notice naming shared.txt, got: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-040: a project-root-relative row whose worktree content still
+# matches the declared hash (never drifted) exits 0 and prints NO drift
+# notice — proves the notice does not become background noise on every
+# git-backed report, only on rows the fast path actually had to fall back
+# past.
+# ============================================================================
+
+echo "=== TEST-040: undrifted project-root row → exit 0, NO drift notice ==="
+
+D040="${WORK}/pp040"
+mkdir -p "${D040}/input"
+git_init_scratch_repo "${D040}"
+write_tasks_with_consent "${D040}/tasks.md" "T-004"
+printf 'stable content\n' > "${D040}/stable.txt"
+HASH040="$(sha256_of "${D040}/stable.txt")"
+write_impl_report "${D040}" "cross-model-verification" "T-004" \
+    "$(printf 'stable.txt\t%s' "$HASH040")"
+git -C "${D040}" add -A
+git -C "${D040}" commit -q -m "declare stable.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D040}/input" \
+    --tasks-file "${D040}/tasks.md" \
+    --project-root "${D040}" \
+    --out "${D040}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-040a: undrifted row → exit 0"
+else
+    fail "TEST-040a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -q "declared output verified at declaration commit"; then
+    ok "TEST-040b: no drift notice printed for a row that matched the worktree"
+else
+    fail "TEST-040b: drift notice must not print when the worktree already matches. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-041: a row mismatched at BOTH the worktree AND the declaration
+# commit still fails closed with the unchanged "hash mismatch" message —
+# proves the declaration-commit fallback does not degenerate into accepting
+# anything just because a commit exists.
+# ============================================================================
+
+echo "=== TEST-041: row mismatched at both worktree and declaration commit → fail closed ==="
+
+D041="${WORK}/pp041"
+mkdir -p "${D041}/input"
+git_init_scratch_repo "${D041}"
+write_tasks_with_consent "${D041}/tasks.md" "T-004"
+printf 'actual content at report time\n' > "${D041}/mismatch.txt"
+write_impl_report "${D041}" "cross-model-verification" "T-004" \
+    "$(printf 'mismatch.txt\t%s' "$(wrong_hash)")"
+git -C "${D041}" add -A
+git -C "${D041}" commit -q -m "declare mismatch.txt with a wrong hash"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D041}/input" \
+    --tasks-file "${D041}/tasks.md" \
+    --project-root "${D041}" \
+    --out "${D041}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-041a: mismatched at both worktree and declaration commit → nonzero exit"
+else
+    fail "TEST-041a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qF "declared output hash mismatch: mismatch.txt"; then
+    ok "TEST-041b: unchanged 'hash mismatch' message text"
+else
+    fail "TEST-041b: expected unchanged hash-mismatch message, got: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -q "declared output verified at declaration commit"; then
+    ok "TEST-041c: no drift notice printed (declaration commit did not verify either)"
+else
+    fail "TEST-041c: drift notice must not print when the declaration commit also mismatches. Output: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D041}/out.txt" ]; then
+    ok "TEST-041d: bundle file not written"
+else
+    fail "TEST-041d: bundle file must not be written"
+fi
+
+# ============================================================================
+# TEST-042: a row absent under both roots, AND absent at the declaration
+# commit (a path that was declared but never actually created, or removed
+# before the report was ever committed) still fails closed with the
+# unchanged "missing from bundle" message.
+# ============================================================================
+
+echo "=== TEST-042: row absent under both roots and at declaration commit → fail closed ==="
+
+D042="${WORK}/pp042"
+mkdir -p "${D042}/input"
+git_init_scratch_repo "${D042}"
+write_tasks_with_consent "${D042}/tasks.md" "T-004"
+write_impl_report "${D042}" "cross-model-verification" "T-004" \
+    "$(printf 'never-existed.txt\t%s' "$(wrong_hash)")"
+git -C "${D042}" add -A
+git -C "${D042}" commit -q -m "declare a row for a file that was never created"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D042}/input" \
+    --tasks-file "${D042}/tasks.md" \
+    --project-root "${D042}" \
+    --out "${D042}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-042a: absent under both roots and at declaration commit → nonzero exit"
+else
+    fail "TEST-042a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qF "declared output missing from bundle: never-existed.txt"; then
+    ok "TEST-042b: unchanged 'missing from bundle' message text"
+else
+    fail "TEST-042b: expected unchanged missing-from-bundle message, got: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D042}/out.txt" ]; then
+    ok "TEST-042c: bundle file not written"
+else
+    fail "TEST-042c: bundle file must not be written"
+fi
+
+# ============================================================================
+# TEST-043: the implementation report itself is UNCOMMITTED (added to a git
+# repo with other history, but the report file is untracked) — `git log -1
+# -- <report>` finds no commit, so the declaration-commit fallback is
+# inert and behaviour is identical to today: unchanged "hash mismatch" gap,
+# no invented pass.
+# ============================================================================
+
+echo "=== TEST-043: uncommitted implementation report → declaration-commit fallback inert ==="
+
+D043="${WORK}/pp043"
+mkdir -p "${D043}/input"
+git_init_scratch_repo "${D043}"
+write_tasks_with_consent "${D043}/tasks.md" "T-004"
+printf 'unrelated\n' > "${D043}/unrelated.txt"
+git -C "${D043}" add unrelated.txt tasks.md
+git -C "${D043}" commit -q -m "unrelated commit; implementation report not yet committed"
+
+printf 'drifted content\n' > "${D043}/shared.txt"
+write_impl_report "${D043}" "cross-model-verification" "T-004" \
+    "$(printf 'shared.txt\t%s' "$(wrong_hash)")"
+# Deliberately NOT committed — the report is untracked.
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D043}/input" \
+    --tasks-file "${D043}/tasks.md" \
+    --project-root "${D043}" \
+    --out "${D043}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-043a: uncommitted report → nonzero exit (no invented pass)"
+else
+    fail "TEST-043a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qF "declared output hash mismatch: shared.txt"; then
+    ok "TEST-043b: unchanged 'hash mismatch' message text"
+else
+    fail "TEST-043b: expected unchanged hash-mismatch message, got: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -q "declared output verified at declaration commit"; then
+    ok "TEST-043c: no drift notice printed (report has no declaration commit)"
+else
+    fail "TEST-043c: drift notice must not print without a declaration commit. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-044: a row that escapes --project-root via a symlinked component is
+# STILL rejected even when the git history at the declaration commit would,
+# byte-for-byte, verify the same relative path — proves containment (the
+# b3f6d1a9 symlink component-walk guard) gates BEFORE the declaration-
+# commit fallback is even attempted, so a symlink escape can never be
+# laundered through git history.
+# ============================================================================
+
+echo "=== TEST-044: symlink-escape under --project-root not bypassed by declaration-commit fallback ==="
+
+D044="${WORK}/pp044"
+mkdir -p "${D044}/input" "${D044}/linkdir"
+git_init_scratch_repo "${D044}"
+write_tasks_with_consent "${D044}/tasks.md" "T-004"
+SENTINEL044="SENTINEL-TEST044-DO-NOT-LEAK-$$"
+printf '%s\n' "$SENTINEL044" > "${D044}/linkdir/secret.txt"
+HASH044="$(sha256_of "${D044}/linkdir/secret.txt")"
+write_impl_report "${D044}" "cross-model-verification" "T-004" \
+    "$(printf 'linkdir/secret.txt\t%s' "$HASH044")"
+git -C "${D044}" add -A
+git -C "${D044}" commit -q -m "declare linkdir/secret.txt as a plain file"
+
+# A later change replaces linkdir with a symlink pointing outside the
+# project root. The content at the same relative path, at the declaration
+# commit above, still hash-matches the original declaration — the
+# adversarial shape this test targets: containment must gate before any
+# declaration-commit fallback is attempted, or a symlink escape could be
+# laundered through history.
+rm -rf "${D044}/linkdir"
+mkdir -p "${D044}/outside"
+printf '%s\n' "$SENTINEL044" > "${D044}/outside/secret.txt"
+ln -s "${D044}/outside" "${D044}/linkdir"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D044}/input" \
+    --tasks-file "${D044}/tasks.md" \
+    --project-root "${D044}" \
+    --out "${D044}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-044a: symlink escape → nonzero exit even though declaration-commit content would match"
+else
+    fail "TEST-044a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -q "declared output verified at declaration commit"; then
+    ok "TEST-044b: declaration-commit fallback never attempted (no notice) — containment gates first"
+else
+    fail "TEST-044b: declaration-commit fallback must not run past a symlink escape. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qF "$SENTINEL044"; then
+    ok "TEST-044c: sentinel content does not appear in output"
+else
+    fail "TEST-044c: SENTINEL LEAK via declaration-commit fallback bypassing symlink containment"
+fi
+if [ ! -f "${D044}/out.txt" ]; then
+    ok "TEST-044d: bundle file not written"
+else
+    fail "TEST-044d: bundle file must not be written"
 fi
 
 # ============================================================================

@@ -314,12 +314,51 @@ fi
 # the completeness check is a no-op (preserves BL-007/BL-008/BL-009 for
 # every caller that predates this convention, e.g. this script's own
 # existing test fixtures).
+#
+# Declaration-commit fallback (staleness of shared, living files): a row
+# that is absent, or hash-mismatched, under project_root after both roots
+# have been tried is not necessarily a lie — CHANGELOG.md and a feature's
+# own tasks.md are declared as whole-file hashes but are shared files every
+# sibling task edits after this report was written, so an accurate
+# declaration goes stale the moment the next task commits. Rather than
+# recording a commit in the report schema, the "declaration commit" (the
+# commit that last modified the implementation report ITSELF) is derived
+# with git and the row is re-checked against the tree as of that commit —
+# same pattern, same rationale as check-workflow-state.sh's
+# plugins_pin_commit/plugins_hash_at_pin for plugins/ reference docs. Only
+# rows that resolved (or were validly attempted, never escaped) under
+# project_root qualify: that root IS the repo root git commands run from,
+# so row_path is already a repository-relative git-show argument with no
+# translation. A row that only matched under --input has no such form and
+# is never retried this way — see check_declared_outputs_completeness. Every
+# acceptance via this path prints a distinct stderr notice (never silent);
+# it must never become a way for a check to quietly stop verifying content
+# it claims to verify.
 
 _ppi_sha256_file() {
     if command -v sha256sum >/dev/null 2>&1; then
         sha256sum "$1" | awk '{print $1}'
     elif command -v shasum >/dev/null 2>&1; then
         shasum -a 256 "$1" | awk '{print $1}'
+    else
+        printf 'prepare-panelist-input: SHA-256 tool unavailable\n' >&2
+        exit 2
+    fi
+}
+
+# Same digest, read from stdin — used for hashing a `git show` blob without
+# a temp file. If the upstream `git show` in the pipe failed (bad ref, path
+# absent at that commit), stdin is empty and this simply hashes the empty
+# string, which will not equal any real declared hash — the caller's plain
+# string comparison is enough to fail closed; a POSIX sh pipeline cannot
+# observe git's own exit code past the pipe, so this is deliberate, not an
+# oversight (same acceptance already made by check-workflow-state.sh's
+# plugins_hash_at_pin for the identical git-show-into-hash shape).
+_ppi_sha256_stream() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum | awk '{print $1}'
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 | awk '{print $1}'
     else
         printf 'prepare-panelist-input: SHA-256 tool unavailable\n' >&2
         exit 2
@@ -380,6 +419,69 @@ _ppi_resolve_row_under_root() {
     fi
 }
 
+# Lazily derive & cache the "declaration commit" — the commit that last
+# modified the implementation report itself. Computed at most once per
+# invocation (a report with no git history, or no git binary at all, still
+# only pays for one failed lookup, not one per row that needs it). Sets the
+# globals _ppi_decl_commit_checked/_ppi_decl_commit and returns success only
+# when a commit was found.
+_ppi_decl_commit_checked=0
+_ppi_decl_commit=""
+
+_ppi_declaration_commit() {
+    if [ "$_ppi_decl_commit_checked" = "1" ]; then
+        [ -n "$_ppi_decl_commit" ]
+        return
+    fi
+    _ppi_decl_commit_checked=1
+    if command -v git >/dev/null 2>&1 && \
+       git -C "$project_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+        _ppi_decl_commit="$(git -C "$project_root" log -1 --format='%H' -- \
+            "reports/implementation/${feature}/${task_id}.md" 2>/dev/null)"
+    fi
+    [ -n "$_ppi_decl_commit" ]
+}
+
+# Verify a declared-outputs row against the tree AS OF the declaration
+# commit. Caller contract: row_path must already be known project-root-
+# relative (only called for rows resolved, or validly attempted and merely
+# absent — never escaped — under project_root; see
+# check_declared_outputs_completeness). Prints a distinct stderr notice and
+# returns success ONLY on a verified match — never silently, per the
+# WFI-017 regression this guards against (a strict matcher that skipped
+# rows with no diagnostic and five files went missing from a manifest). Any
+# other outcome (no declaration commit, path absent at that commit, content
+# still mismatched) returns failure so the caller keeps the unchanged gap
+# message.
+_ppi_verify_at_declaration_commit() {
+    _vdc_row_path="$1"
+    _vdc_row_hash="$2"
+
+    _ppi_declaration_commit || return 1
+
+    # git show's own status must be consulted, not just its bytes. Piping it
+    # straight into the hasher discards the status, and a failed show emits an
+    # empty stream — which hashes to the sha256 of nothing. A task that
+    # legitimately declares an empty output would then be accepted here for a
+    # path that does not exist at the declaration commit at all, while the
+    # PowerShell twin (which checks its own exit code) rejects it. Writing the
+    # bytes out first keeps the two twins agreeing for the same reason rather
+    # than by coincidence.
+    _vdc_blob="${TMPDIR:-/tmp}/ppi-decl-$$"
+    if ! git -C "$project_root" show "${_ppi_decl_commit}:${_vdc_row_path}" \
+            >"$_vdc_blob" 2>/dev/null; then
+        rm -f "$_vdc_blob"
+        return 1
+    fi
+    _vdc_hash="$(_ppi_sha256_stream <"$_vdc_blob")"
+    rm -f "$_vdc_blob"
+    [ "$_vdc_hash" = "$_vdc_row_hash" ] || return 1
+
+    printf 'prepare-panelist-input: declared output verified at declaration commit %s: %s (drifted since)\n' \
+        "$(printf '%s' "$_ppi_decl_commit" | cut -c1-7)" "$_vdc_row_path" >&2
+    return 0
+}
+
 check_declared_outputs_completeness() {
     _impl_report="${project_root}/reports/implementation/${feature}/${task_id}.md"
     [ -f "$_impl_report" ] || return 0
@@ -406,6 +508,7 @@ check_declared_outputs_completeness() {
         _row_escaped_input=0
         [ "$_ppi_row_state" = "escaped" ] && _row_escaped_input=1
 
+        _row_project_relative=0
         if [ "$_ppi_row_state" = "matched" ]; then
             _candidate="$_ppi_row_candidate"
         else
@@ -413,11 +516,21 @@ check_declared_outputs_completeness() {
 
             if [ "$_ppi_row_state" = "matched" ]; then
                 _candidate="$_ppi_row_candidate"
+                _row_project_relative=1
             elif [ "$_row_escaped_input" = "1" ] || [ "$_ppi_row_state" = "escaped" ]; then
                 _gaps="${_gaps}prepare-panelist-input: declared output resolves outside input root: ${_row_path}
 "
                 continue
             else
+                # Absent under both roots. _row_path already passed the
+                # canonical-path check above and did not escape under
+                # project_root (only "absent" — never attempted-and-
+                # escaped), so it is a valid repository-relative path to
+                # re-check against the declaration commit before giving up
+                # (see _ppi_verify_at_declaration_commit).
+                if _ppi_verify_at_declaration_commit "$_row_path" "$_row_hash"; then
+                    continue
+                fi
                 _gaps="${_gaps}prepare-panelist-input: declared output missing from bundle: ${_row_path}
 "
                 continue
@@ -426,6 +539,10 @@ check_declared_outputs_completeness() {
 
         _actual_hash="$(_ppi_sha256_file "$_candidate")"
         if [ "$_actual_hash" != "$_row_hash" ]; then
+            if [ "$_row_project_relative" = "1" ] && \
+               _ppi_verify_at_declaration_commit "$_row_path" "$_row_hash"; then
+                continue
+            fi
             _gaps="${_gaps}prepare-panelist-input: declared output hash mismatch: ${_row_path}
 "
         fi
