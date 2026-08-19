@@ -1,0 +1,82 @@
+ticket_id: RT-20260819-001
+status: open
+type: defect
+severity: critical
+target:
+  feature: sdd-domain-concept-contract
+  task: T-002
+  files:
+    - plugins/sdd-domain/scripts/validate-domain-contract.ps1
+    - tests/sdd-domain/contract-v2-schema.Tests.ps1
+summary: >-
+  The ps1 validator twin accepts syntactically invalid JSON and exits 0, so it
+  declares an invalid contract VALID while the sh twin correctly rejects it.
+problem: |
+  REQ-004(a) requires a fail-closed JSON parse, and design.md's output contract
+  requires both twins to agree. The sh twin parses with python3 `json.loads`,
+  which is strict. The ps1 twin parses with `ConvertFrom-Json`
+  (validate-domain-contract.ps1:211), which is lenient and accepts several
+  documents that RFC 8259 forbids. The result is a verdict-level divergence:
+  the same file is INVALID to one twin and VALID to the other.
+
+  Reproduced independently by the quality gate, against BOTH T-002's exact
+  committed bytes (1cfbbbe6) and the current tree after T-003/T-004:
+
+    # a structurally complete v2 contract that both twins accept at exit 0,
+    # with one trailing comma added before the closing brace
+    $ bash plugins/sdd-domain/scripts/validate-domain-contract.sh trailing-comma.json
+    V2-PARSE: input is not well-formed JSON and was not parsed further
+    exit=1
+    $ pwsh -NoProfile -File plugins/sdd-domain/scripts/validate-domain-contract.ps1 trailing-comma.json
+    exit=0            # <-- accepts invalid JSON
+
+    # same contract with an embedded NUL byte
+    $ bash  ... nul-byte.json   -> V2-PARSE ... exit=1
+    $ pwsh  ... nul-byte.json   -> exit=0
+
+  Four classes were demonstrated by the evaluator, all invalid per RFC 8259 and
+  all sh=reject(1) / ps1=accept(0): embedded NUL byte, trailing comma, leading
+  NUL bytes, single-quoted key.
+
+  Why this matters rather than being cosmetic:
+  - security-spec.md states that a validator which "silently passes an invalid
+    contract would weaken every downstream gate built on it", and lists
+    fail-closed parsing of invalid JSON as a required property.
+  - T-002's own Risk Rationale cites this untrusted-input boundary as the
+    justification for its `high` tier.
+  - It is PowerShell-version-independent: it is `ConvertFrom-Json` leniency, so
+    Windows PowerShell 5.1 will behave no better.
+  - It will not be caught downstream. T-005's AC-013 twin-parity corpus contains
+    no fixture of this class, so the divergence survives the whole feature.
+
+  Scope note recorded in T-002's favour: the two AC-017 fixtures T-002 was
+  allocated (truncated JSON, >10 MiB) DO pass on both twins, so the literal
+  Done When wording is satisfied. No consumer is wired in Phase 0, so there is
+  no live exploitation path today. The defect is nevertheless squarely inside
+  REQ-004(a), which is T-002's own requirement.
+expected_fix:
+  - Add a strictness gate to the ps1 twin so its parse verdict matches
+    python3 `json.loads`. Candidate approach - reject control bytes appearing
+    outside string literals before parsing, then re-validate the document
+    against strict JSON rules. The fix must stay inside the PS5.1-safe subset
+    (no Test-Json, which is PS6+ only) and must not introduce an external
+    dependency.
+  - Follow Required Workflow tdd - capture a genuine failing run before the
+    fix, since this task is Risk high.
+  - Add AC-017-class negative fixtures pinning at least the trailing-comma and
+    embedded-NUL cases, asserted against BOTH twins, so the parity property is
+    locked rather than assumed.
+  - Keep the existing shared skeleton intact - one accumulator, one
+    `RULE-ID: message` emitter, nothing on stdout, a single top-level exit.
+  - Do not change the sh twin - it is already correct.
+references:
+  - specs/sdd-domain-concept-contract/requirements.md (REQ-004(a), Edge Cases)
+  - specs/sdd-domain-concept-contract/security-spec.md (fail-closed parsing)
+  - specs/sdd-domain-concept-contract/design.md (DD-7 output contract)
+  - specs/sdd-domain-concept-contract/acceptance-tests.md (AC-017, AC-013)
+  - plugins/sdd-domain/scripts/validate-domain-contract.ps1 (line 211)
+  - plugins/sdd-domain/scripts/validate-domain-contract.sh (line 169)
+  - reports/quality-gate/20260819T052000Z.md
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1
