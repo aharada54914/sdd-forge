@@ -259,3 +259,29 @@ if ! jq -e '[.frozen_artifact_done_when[] | select(.task == "T-002") | .item]
   exit 1
 fi
 echo "ok: task review precheck joins Done When continuation lines"
+
+# Twin parity, driven from the suite that owns the fixture. A green PowerShell
+# adapter that never saw these inputs would prove nothing -- and a silently
+# divergent twin is how a detector ends up reporting different candidates on
+# Windows than on POSIX.
+if command -v pwsh >/dev/null 2>&1; then
+  sh_frozen="$(jq -S -c '.frozen_artifact_done_when' \
+    "${REPORT_DIR}/attempt-1/round-1/precheck-result.json")"
+  rm -rf "${REPORT_DIR}/attempt-1/round-1"
+  (
+    cd "${REPO_ROOT}"
+    pwsh -NoProfile -File plugins/sdd-review-loop/scripts/task-review-precheck.ps1 \
+      -Feature "${FEATURE}" -Attempt 1 -Round 1 >/dev/null
+  ) || { echo "PowerShell precheck failed while emitting frozen_artifact_done_when" >&2; exit 1; }
+  ps_frozen="$(jq -S -c '.frozen_artifact_done_when' \
+    "${REPORT_DIR}/attempt-1/round-1/precheck-result.json")"
+  if [[ "${sh_frozen}" != "${ps_frozen}" ]]; then
+    echo "twins disagree on frozen_artifact_done_when:" >&2
+    echo "  sh  = ${sh_frozen}" >&2
+    echo "  ps1 = ${ps_frozen}" >&2
+    exit 1
+  fi
+  echo "ok: task review precheck twins agree on frozen-artifact Done When items"
+else
+  echo "skip - pwsh is not on PATH; frozen-artifact Done When twin parity not exercised"
+fi
