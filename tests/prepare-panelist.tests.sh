@@ -912,6 +912,224 @@ else
 fi
 
 # ============================================================================
+# TEST-033: project-root-relative declared output resolves via the
+# --project-root fallback when it is absent under --input. Real
+# implementation reports declare rows relative to project_root (the same
+# convention generate-evidence-bundle/check-evidence-bundle use), not
+# --input — this is the exact defect this fix addresses; before the fix
+# every such row was reported "missing from bundle" and the check could
+# never pass against a real report.
+# ============================================================================
+
+echo "=== TEST-033: project-root-relative declared output resolves via fallback ==="
+
+D033="${WORK}/pp033"
+mkdir -p "${D033}/input" "${D033}/other"
+write_tasks_with_consent "${D033}/tasks.md" "T-004"
+printf 'other artifact content\n' > "${D033}/other/artifact.txt"
+HASH033="$(sha256_of "${D033}/other/artifact.txt")"
+write_impl_report "${D033}" "cross-model-verification" "T-004" \
+    "$(printf 'other/artifact.txt\t%s' "$HASH033")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D033}/input" \
+    --tasks-file "${D033}/tasks.md" \
+    --project-root "${D033}" \
+    --out "${D033}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-033a: project-root-relative row not present under --input resolves via fallback → exit 0"
+else
+    fail "TEST-033a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-033b: digest printed on project-root fallback success"
+else
+    fail "TEST-033b: expected a printed digest, got: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-035: declared output absent under BOTH --input and --project-root
+# still fails closed with the unchanged "missing from bundle" message —
+# proves the two-root fallback does not degenerate into accepting anything.
+# (TEST-034 is intentionally not added: TEST-014/TEST-017 already cover an
+# --input-relative row still resolving under the unchanged first-try path.)
+# ============================================================================
+
+echo "=== TEST-035: declared output missing under both roots → fail closed ==="
+
+D035="${WORK}/pp035"
+mkdir -p "${D035}/input"
+write_tasks_with_consent "${D035}/tasks.md" "T-004"
+write_impl_report "${D035}" "cross-model-verification" "T-004" \
+    "$(printf 'nowhere.txt\t%s' "$(wrong_hash)")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D035}/input" \
+    --tasks-file "${D035}/tasks.md" \
+    --project-root "${D035}" \
+    --out "${D035}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-035a: missing under both roots → nonzero exit"
+else
+    fail "TEST-035a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qF "declared output missing from bundle: nowhere.txt"; then
+    ok "TEST-035b: unchanged 'missing from bundle' message text"
+else
+    fail "TEST-035b: expected unchanged missing-from-bundle message, got: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-035c: no digest line printed"
+else
+    fail "TEST-035c: digest must not print. Output: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D035}/out.txt" ]; then
+    ok "TEST-035d: bundle file not written"
+else
+    fail "TEST-035d: bundle file must not be written"
+fi
+
+# ============================================================================
+# TEST-036: hash mismatch on a row resolved via the --project-root fallback
+# still fails closed (mirrors TEST-016's --input-root case, for the NEW
+# fallback root).
+# ============================================================================
+
+echo "=== TEST-036: hash-mismatch on project-root-fallback row → fail closed ==="
+
+D036="${WORK}/pp036"
+mkdir -p "${D036}/input" "${D036}/other"
+write_tasks_with_consent "${D036}/tasks.md" "T-004"
+printf 'real other content for hash mismatch\n' > "${D036}/other/artifact.txt"
+write_impl_report "${D036}" "cross-model-verification" "T-004" \
+    "$(printf 'other/artifact.txt\t%s' "$(wrong_hash)")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D036}/input" \
+    --tasks-file "${D036}/tasks.md" \
+    --project-root "${D036}" \
+    --out "${D036}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-036a: hash-mismatch on project-root fallback row → nonzero exit"
+else
+    fail "TEST-036a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qF "declared output hash mismatch: other/artifact.txt"; then
+    ok "TEST-036b: unchanged 'hash mismatch' message text"
+else
+    fail "TEST-036b: expected hash-mismatch message, got: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D036}/out.txt" ]; then
+    ok "TEST-036c: bundle file not written on project-root-fallback hash mismatch"
+else
+    fail "TEST-036c: bundle file must not be written on a hash-mismatch gap"
+fi
+
+# ============================================================================
+# TEST-037: a row that would escape --input via a symlinked component is
+# still rejected — containment holds for the --input root even though a
+# --project-root fallback now exists.
+# ============================================================================
+
+echo "=== TEST-037: symlink-escape under --input root → fail closed (containment) ==="
+
+D037="${WORK}/pp037"
+mkdir -p "${D037}/input" "${D037}/outside"
+write_tasks_with_consent "${D037}/tasks.md" "T-004"
+SENTINEL037="SENTINEL-TEST037-DO-NOT-LEAK-$$"
+printf '%s\n' "$SENTINEL037" > "${D037}/outside/secret.txt"
+HASH037="$(sha256_of "${D037}/outside/secret.txt")"
+ln -s "${D037}/outside" "${D037}/input/linkdir"
+write_impl_report "${D037}" "cross-model-verification" "T-004" \
+    "$(printf 'linkdir/secret.txt\t%s' "$HASH037")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D037}/input" \
+    --tasks-file "${D037}/tasks.md" \
+    --project-root "${D037}" \
+    --out "${D037}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-037a: symlink escape under --input → nonzero exit"
+else
+    fail "TEST-037a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-037b: no digest line printed"
+else
+    fail "TEST-037b: digest must not print. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qF "$SENTINEL037"; then
+    ok "TEST-037c: sentinel content does not appear in output"
+else
+    fail "TEST-037c: SENTINEL LEAK via --input symlink escape"
+fi
+if [ ! -f "${D037}/out.txt" ]; then
+    ok "TEST-037d: bundle file not written"
+else
+    fail "TEST-037d: bundle file must not be written"
+fi
+
+# ============================================================================
+# TEST-038: a row absent under --input but reachable ONLY via a symlinked
+# component under --project-root must still be rejected by the fallback's
+# OWN containment guard — proves the project-root retry independently
+# re-applies the symlink component-walk rather than skipping it.
+# ============================================================================
+
+echo "=== TEST-038: symlink-escape under --project-root fallback → fail closed ==="
+
+D038="${WORK}/pp038"
+mkdir -p "${D038}/input" "${D038}/outside"
+write_tasks_with_consent "${D038}/tasks.md" "T-004"
+SENTINEL038="SENTINEL-TEST038-DO-NOT-LEAK-$$"
+printf '%s\n' "$SENTINEL038" > "${D038}/outside/secret.txt"
+HASH038="$(sha256_of "${D038}/outside/secret.txt")"
+ln -s "${D038}/outside" "${D038}/linkdir"
+write_impl_report "${D038}" "cross-model-verification" "T-004" \
+    "$(printf 'linkdir/secret.txt\t%s' "$HASH038")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D038}/input" \
+    --tasks-file "${D038}/tasks.md" \
+    --project-root "${D038}" \
+    --out "${D038}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-038a: symlink escape under --project-root fallback → nonzero exit"
+else
+    fail "TEST-038a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-038b: no digest line printed"
+else
+    fail "TEST-038b: digest must not print. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qF "$SENTINEL038"; then
+    ok "TEST-038c: sentinel content does not appear in output"
+else
+    fail "TEST-038c: SENTINEL LEAK via --project-root symlink escape"
+fi
+if [ ! -f "${D038}/out.txt" ]; then
+    ok "TEST-038d: bundle file not written"
+else
+    fail "TEST-038d: bundle file must not be written"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 
