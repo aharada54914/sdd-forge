@@ -6,8 +6,8 @@
   "spec_revision": "9ff491157cbdb28e0f5cbdcb9d0c29b70aca0f29d8bbde7ff2df20c1fdd62b8b",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-002.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-002.contract.json",
-  "git_commit": "e8ffc4c92b59f652fc1603f03dd2cc43476031a7",
-  "git_generated_dirty": true,
+  "git_commit": "7d8f18e8fe14536f8abf9b2974b0209fc90a7174",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
