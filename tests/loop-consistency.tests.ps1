@@ -392,6 +392,70 @@ try {
     }
 
     # -------------------------------------------------------------------
+    # TEST-019 (T-006 / Issue #195 / epic-195-a7-compatibility REQ-003,
+    # AC-022/AC-023/AC-024/AC-026/AC-032): Context-absent round event trace
+    # vs. golden trace, via Test-EventTrace.
+    #
+    # Numbered TEST-019 on this lane, not TEST-018: this file's own
+    # PowerShell-only "TEST-018" (above) is a pre-existing, unrelated
+    # same-turn-edit-plus-reset regression case (parity coverage for
+    # tests/spec-review-loop.tests.sh, which has no PowerShell twin of its
+    # own) that already occupies that case number in this file. The bash
+    # twin's own next-available number after TEST-017 really is TEST-018
+    # (tests/loop-consistency.tests.sh has no such case), so the bash suite
+    # names this case TEST-018 per tasks.md T-006/acceptance-tests.md
+    # AC-032's own literal text ("TEST-018 in tests/loop-consistency.tests.sh");
+    # this lane's own next-available number is TEST-019 instead. Both cases
+    # exercise the identical assertions, golden-trace fixture, and AC set.
+    # -------------------------------------------------------------------
+    Write-Host "=== TEST-019: Context-absent round event trace matches the golden trace (AC-022, AC-023, AC-024, AC-026, AC-032) ==="
+
+    $eventTraceGolden = Join-Path $repoRoot "tests/fixtures/compatibility-event-trace/f1-spec-round1-pass.json"
+
+    if (-not (Test-Path -LiteralPath $specPrecheckPs1 -PathType Leaf)) {
+        Write-Host "SKIP: TEST-019: spec-review-precheck.ps1 not found at $specPrecheckPs1 (same gap as TEST-008's own spec leg)"
+    } else {
+        $eventFeature = "loop-consistency-event-$PID"
+        if (Initialize-LoopFixture -Profile "greenfield" -Feature $eventFeature) {
+            Test-Ok "TEST-019.1: loop_fixture_init (Context-absent event-trace fixture) succeeds"
+            $cleanupRoots.Add($script:LoopFixtureRoot)
+        } else {
+            Test-Fail "TEST-019.1: loop_fixture_init (Context-absent event-trace fixture) failed"
+        }
+        $eventRoot = $script:LoopFixtureRoot
+
+        if (Invoke-DriveReviewRound -Stage "spec" -Attempt 1 -Round 1 -Verdict "PASS" -Severity "none") {
+            Test-Ok "TEST-019.2 (AC-032): Context-absent round drives a single spec-review round (PASS/none) green"
+        } else {
+            Test-Fail "TEST-019.2 (AC-032): Context-absent round failed to drive spec-review round 1"
+        }
+
+        $terminalOk = $false
+        if (Test-LoopTerminal -LoopId "spec-review" -Observed "PASS") {
+            Test-Ok "TEST-019.3: observed end state PASS matches the loop-inventory terminal"
+            $terminalOk = $true
+        } else {
+            Test-Fail "TEST-019.3: observed end state does not match the loop-inventory terminal (PASS)"
+        }
+        # done-transition:assert-terminal (AC-026): recorded here, immediately
+        # after Test-LoopTerminal's own comparison, rather than inside
+        # Test-LoopTerminal itself -- tests/loop-inventory.tests.ps1's own
+        # TEST-009.2 regression lock (T-005) keeps Test-LoopTerminal
+        # byte-identical to its pre-T-006 form (see the bash twin and this
+        # task's implementation report, "Specification Differences").
+        if ($terminalOk) {
+            $doneValueJson = & jq -cn --arg v "PASS" '$v'
+            [void](Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson ([string]$doneValueJson))
+        }
+
+        if (Test-EventTrace -GoldenTracePath $eventTraceGolden) {
+            Test-Ok "TEST-019.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via Test-EventTrace"
+        } else {
+            Test-Fail "TEST-019.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace does not match the recorded golden trace"
+        }
+    }
+
+    # -------------------------------------------------------------------
     # TEST-017 (AC-017): runtime budget
     # -------------------------------------------------------------------
     Write-Host "=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=$script:LoopSuiteBudgetSeconds) ==="

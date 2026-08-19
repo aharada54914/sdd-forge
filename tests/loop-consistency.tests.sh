@@ -21,6 +21,18 @@
 #   TEST-017 — runtime budget: measured wall-clock printed in the summary
 #     line, self-FAIL above LOOP_SUITE_BUDGET_SECONDS, threshold-0 negative
 #     self-check.
+#   TEST-018 (T-006 / Issue #195 / epic-195-a7-compatibility REQ-003,
+#     AC-022/AC-023/AC-024/AC-026/AC-032) — drives a single Context-absent
+#     spec-review round (F1: greenfield fixture, round 1, PASS/none) through
+#     the shared driver and asserts the observed skill-order,
+#     review-loop-presence, and approval-checkpoint event kinds match a
+#     committed golden trace via assert_event_trace (the single oracle
+#     T-005 authored); done-transition is asserted last in the round's own
+#     event sub-sequence, emitted from this case immediately after its own
+#     assert_terminal call (never from inside assert_terminal itself,
+#     which tests/loop-inventory.tests.sh's own TEST-009.2 regression lock
+#     keeps byte-identical to its pre-T-006 form — see this task's
+#     implementation report, "Specification Differences").
 #
 # OQ-5 (task-review-precheck.sh:219-222, require_persisted_pass reading
 # impl-review artifacts for stage "impl"): read-only inspected during this
@@ -423,6 +435,62 @@ else
   loop_validator_skip "TEST-010.3"
   loop_validator_skip "TEST-010.4"
   loop_validator_skip "TEST-010.5"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-018 (T-006 / AC-022, AC-023, AC-024, AC-026, AC-032): Context-absent
+# round event trace vs. golden trace, via assert_event_trace
+# ---------------------------------------------------------------------------
+echo "=== TEST-018: Context-absent round event trace matches the golden trace (AC-022, AC-023, AC-024, AC-026, AC-032) ==="
+
+EVENT_TRACE_GOLDEN="${REPO_ROOT}/tests/fixtures/compatibility-event-trace/f1-spec-round1-pass.json"
+
+EVENT_FEATURE="loop-consistency-event-$$"
+if loop_fixture_init greenfield "$EVENT_FEATURE"; then
+  ok "TEST-018.1: loop_fixture_init (Context-absent event-trace fixture) succeeds"
+  CLEANUP_ROOTS+=("$LOOP_FIXTURE_ROOT")
+else
+  fail "TEST-018.1: loop_fixture_init (Context-absent event-trace fixture) failed"
+fi
+EVENT_ROOT="${LOOP_FIXTURE_ROOT:-}"
+LOOP_FIXTURE_ROOT="$EVENT_ROOT"; LOOP_FIXTURE_FEATURE="$EVENT_FEATURE"
+export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
+
+if loop_validator_capability_probe; then
+if drive_review_round spec 1 1 PASS none; then
+  ok "TEST-018.2 (AC-032): Context-absent round drives a single spec-review round (PASS/none) green"
+else
+  fail "TEST-018.2 (AC-032): Context-absent round failed to drive spec-review round 1"
+fi
+
+TERMINAL_OK=0
+if assert_terminal spec-review PASS; then
+  ok "TEST-018.3: observed end state PASS matches the loop-inventory terminal"
+  TERMINAL_OK=1
+else
+  fail "TEST-018.3: observed end state does not match the loop-inventory terminal (PASS)"
+fi
+# done-transition:assert-terminal (AC-026): recorded here, immediately after
+# assert_terminal's own comparison, rather than inside assert_terminal
+# itself -- tests/loop-inventory.tests.sh's own TEST-009.2 regression lock
+# (T-005) keeps assert_terminal byte-identical to its pre-T-006 form, so
+# this case records the identical event (same kind/producer/value/position
+# in the trace) from its own call site instead of design.md's literal
+# in-function placement (this task's implementation report, "Specification
+# Differences").
+if [[ "$TERMINAL_OK" -eq 1 ]]; then
+  _loop_trace_emit done-transition done-transition:assert-terminal "$(jq -cn --arg v PASS '$v')" || true
+fi
+
+if assert_event_trace "$EVENT_TRACE_GOLDEN"; then
+  ok "TEST-018.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via assert_event_trace"
+else
+  fail "TEST-018.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace does not match the recorded golden trace"
+fi
+else
+  loop_validator_skip "TEST-018.2"
+  loop_validator_skip "TEST-018.3"
+  loop_validator_skip "TEST-018.4"
 fi
 
 # ---------------------------------------------------------------------------

@@ -4,6 +4,26 @@
 
 ### Added
 
+- **Epic A7 orchestration-event trace: TEST-018 (Issue #195, T-006)**: wired
+  T-005's `_loop_trace_emit`/`Write-LoopTraceEvent` collector into the
+  shared driver's own named producer call sites — `skill-order:invocation`
+  (each stage-script invocation), `approval-checkpoint:reserve` (each
+  `_loop_reserve_review_context`/`Invoke-LoopReserveReviewContext` call),
+  and `review-loop-presence:stage-dispatch` (`drive_review_round`/
+  `Invoke-DriveReviewRound`'s own successful dispatch) — and added
+  `TEST-018` to `tests/loop-consistency.tests.sh` (`TEST-019` on the
+  PowerShell twin, where the case number `018` was already taken by a
+  pre-existing, unrelated same-turn-edit-plus-reset regression), driving a
+  single Context-absent spec-review round and comparing the observed trace
+  against a new committed golden fixture,
+  `tests/fixtures/compatibility-event-trace/f1-spec-round1-pass.json`, via
+  `assert_event_trace`/`Test-EventTrace`. `done-transition:assert-terminal`
+  is recorded from the test case itself, immediately after its own
+  `assert_terminal`/`Test-LoopTerminal` call, rather than inside that
+  function, to keep `tests/loop-inventory.tests.{sh,ps1}`'s own `TEST-009.2`
+  byte-identity regression lock on `assert_terminal`/`Test-LoopTerminal`
+  intact.
+
 - **Epic A7 capability run-record payload (Issue #195, T-009)**: extended
   `emit-run-record.sh`/`.ps1` with `--capability-enforcement
   <disabled-legacy|advisory|required>`/`--capability-block-id <id>`

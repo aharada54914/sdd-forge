@@ -601,9 +601,18 @@ loop_impl_chain_skip() {
 
 # _loop_reserve_review_context <stage> <role> <feature> <manifest-json-array>
 # Unchanged public contract from A2/#142: always reserves (extends the
-# identity-ledger chain).
+# identity-ledger chain). T-006 (design.md "Per-kind producer call sites")
+# adds the approval-checkpoint:reserve event at this function's own return,
+# recorded only on a successful reservation.
 _loop_reserve_review_context() {
+  local stage="$1" role="$2" rc
   _loop_review_context_call "$1" "$2" "$3" "$4" reserve
+  rc=$?
+  if [[ "$rc" -eq 0 ]]; then
+    _loop_trace_emit approval-checkpoint approval-checkpoint:reserve \
+      "$(jq -cn --arg stage "$stage" --arg role "$role" '{stage:$stage, role:$role}')" || return 1
+  fi
+  return "$rc"
 }
 
 # ---------------------------------------------------------------------------
@@ -800,6 +809,7 @@ _loop_drive_spec_round() {
     precheck_args+=("--edit-summary=round-${round}-edit")
   fi
 
+  _loop_trace_emit skill-order skill-order:invocation "$(jq -cn --arg v "$script_rel" '$v')" || return 1
   ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
 
   local round_dir="${LOOP_FIXTURE_ROOT}/reports/spec-review/${feature}/attempt-${attempt}/round-${round}"
@@ -1082,6 +1092,7 @@ _loop_drive_impl_round() {
     printf '\n<!-- loop-driver round %s edit -->\n' "$round" >> "$design"
   fi
 
+  _loop_trace_emit skill-order skill-order:invocation "$(jq -cn --arg v "$script_rel" '$v')" || return 1
   ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
 
   local round_dir="${LOOP_FIXTURE_ROOT}/reports/impl-review/${feature}/attempt-${attempt}/round-${round}"
@@ -1290,6 +1301,7 @@ _loop_drive_task_round() {
     printf '\n<!-- loop-driver round %s edit -->\n' "$round" >> "$tasks"
   fi
 
+  _loop_trace_emit skill-order skill-order:invocation "$(jq -cn --arg v "$script_rel" '$v')" || return 1
   ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
 
   local round_dir="${LOOP_FIXTURE_ROOT}/reports/task-review/${feature}/attempt-${attempt}/round-${round}"
@@ -1464,6 +1476,7 @@ _loop_drive_domain_round() {
     precheck_args+=("--edit-summary=round-${round}-edit")
   fi
 
+  _loop_trace_emit skill-order skill-order:invocation "$(jq -cn --arg v "$script_rel" '$v')" || return 1
   ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
 
   local round_dir="${LOOP_FIXTURE_ROOT}/reports/domain-review/attempt-${attempt}/round-${round}"
@@ -1497,16 +1510,26 @@ drive_review_round() {
       *) echo "drive_review_round: cannot default severity for verdict '${verdict}'; pass it explicitly" >&2; return 1 ;;
     esac
   fi
+  local rc
   case "$stage" in
-    spec) _loop_drive_spec_round "$attempt" "$round" "$verdict" "$severity" ;;
-    impl) _loop_drive_impl_round "$attempt" "$round" "$verdict" "$severity" ;;
-    task) _loop_drive_task_round "$attempt" "$round" "$verdict" "$severity" ;;
-    domain) _loop_drive_domain_round "$attempt" "$round" "$verdict" "$severity" ;;
+    spec) _loop_drive_spec_round "$attempt" "$round" "$verdict" "$severity"; rc=$? ;;
+    impl) _loop_drive_impl_round "$attempt" "$round" "$verdict" "$severity"; rc=$? ;;
+    task) _loop_drive_task_round "$attempt" "$round" "$verdict" "$severity"; rc=$? ;;
+    domain) _loop_drive_domain_round "$attempt" "$round" "$verdict" "$severity"; rc=$? ;;
     *)
       echo "drive_review_round: unknown stage: ${stage}" >&2
       return 1
       ;;
   esac
+  # T-006 (design.md "Per-kind producer call sites"): review-loop-presence
+  # fires once per stage actually driven, only when the stage's own
+  # invocation completed successfully -- absence is the signal for a stage
+  # never dispatched, never a placeholder event.
+  if [[ "$rc" -eq 0 ]]; then
+    _loop_trace_emit review-loop-presence review-loop-presence:stage-dispatch \
+      "$(jq -cn --arg s "$stage" '$s')" || return 1
+  fi
+  return "$rc"
 }
 
 # ---------------------------------------------------------------------------

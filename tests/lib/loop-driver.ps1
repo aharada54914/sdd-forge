@@ -414,7 +414,13 @@ function Invoke-LoopReviewContextCall {
 
 function Invoke-LoopReserveReviewContext {
     param([string]$Stage, [string]$Role, [string]$Feature, [string]$ManifestEntries)
-    return (Invoke-LoopReviewContextCall $Stage $Role $Feature $ManifestEntries "reserve")
+    $ok = Invoke-LoopReviewContextCall $Stage $Role $Feature $ManifestEntries "reserve"
+    if ($ok) {
+        $valueJson = & jq -cn --arg stage $Stage --arg role $Role '{stage:$stage, role:$role}'
+        if ($LASTEXITCODE -ne 0) { return $false }
+        if (-not (Write-LoopTraceEvent -Kind approval-checkpoint -Producer approval-checkpoint:reserve -ValueJson ([string]$valueJson))) { return $false }
+    }
+    return $ok
 }
 
 # Test-LoopBidirectionalInvariant -Stage <s> -Role <r> -Feature <f> -ManifestEntries <json>
@@ -595,6 +601,9 @@ function Invoke-LoopDriveSpecRound {
         $precheckArgs += "--edit-summary=round-$Round-edit"
     }
 
+    $skillOrderValue = & jq -cn --arg v $scriptRelSh '$v'
+    if ($LASTEXITCODE -ne 0) { return $false }
+    if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
     & $scriptPath @precheckArgs | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
@@ -824,6 +833,9 @@ function Invoke-LoopDriveImplRound {
         Add-Content -LiteralPath $design -Value "`n<!-- loop-driver round $Round edit -->`n"
     }
 
+    $skillOrderValue = & jq -cn --arg v $scriptRel '$v'
+    if ($LASTEXITCODE -ne 0) { return $false }
+    if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
     & $scriptPath $feature $Attempt $Round | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
@@ -997,6 +1009,9 @@ function Invoke-LoopDriveTaskRound {
         Add-Content -LiteralPath $tasks -Value "`n<!-- loop-driver round $Round edit -->`n"
     }
 
+    $skillOrderValue = & jq -cn --arg v $scriptRel '$v'
+    if ($LASTEXITCODE -ne 0) { return $false }
+    if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
     & $scriptPath $feature $Attempt $Round | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
@@ -1140,6 +1155,9 @@ function Invoke-LoopDriveDomainRound {
         $precheckArgs += "--edit-summary=round-$Round-edit"
     }
 
+    $skillOrderValue = & jq -cn --arg v $scriptRel '$v'
+    if ($LASTEXITCODE -ne 0) { return $false }
+    if (-not (Write-LoopTraceEvent -Kind skill-order -Producer skill-order:invocation -ValueJson ([string]$skillOrderValue))) { return $false }
     & $scriptPath @precheckArgs | Out-Null
     if ($LASTEXITCODE -ne 0) { return $false }
 
@@ -1181,16 +1199,26 @@ function Invoke-DriveReviewRound {
             default { Write-Error "Invoke-DriveReviewRound: cannot default severity for verdict '$Verdict'; pass it explicitly"; return $false }
         }
     }
+    $ok = $false
     switch ($Stage) {
-        "spec" { return (Invoke-LoopDriveSpecRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
-        "impl" { return (Invoke-LoopDriveImplRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
-        "task" { return (Invoke-LoopDriveTaskRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
-        "domain" { return (Invoke-LoopDriveDomainRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
+        "spec" { $ok = (Invoke-LoopDriveSpecRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
+        "impl" { $ok = (Invoke-LoopDriveImplRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
+        "task" { $ok = (Invoke-LoopDriveTaskRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
+        "domain" { $ok = (Invoke-LoopDriveDomainRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
         default {
             Write-Error "Invoke-DriveReviewRound: unknown stage: $Stage"
             return $false
         }
     }
+    # T-006 (design.md "Per-kind producer call sites"): review-loop-presence
+    # fires once per stage actually driven, only on a successful dispatch --
+    # absence is the signal for a stage never dispatched.
+    if ($ok) {
+        $valueJson = & jq -cn --arg s $Stage '$s'
+        if ($LASTEXITCODE -ne 0) { return $false }
+        if (-not (Write-LoopTraceEvent -Kind review-loop-presence -Producer review-loop-presence:stage-dispatch -ValueJson ([string]$valueJson))) { return $false }
+    }
+    return $ok
 }
 
 # ---------------------------------------------------------------------------
