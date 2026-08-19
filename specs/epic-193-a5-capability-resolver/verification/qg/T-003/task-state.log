@@ -1,0 +1,31 @@
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check FAILED:
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+ - T-002 is Done but verification/T-002.evidence.json does not exist in specs/epic-193-a5-capability-resolver
+ - T-002 is Done but verification/T-002.contract.json does not exist in specs/epic-193-a5-capability-resolver
+Exit: 1
+
+FINDING (not caused by T-003, cannot be remediated within T-003's own
+scope): check-task-state.sh validates every task's own lifecycle state
+against the ENTIRE tasks.md file, not just the task named. T-002 was
+flipped to Status: Done (commit 33e1b04c) without ever creating
+specs/epic-193-a5-capability-resolver/verification/T-002.contract.json or
+T-002.evidence.json -- a top-level evidence bundle T-001 carries but T-002
+never did (confirmed: only a T-002/ subdirectory of plain .log files
+exists, no T-002.contract.json/T-002.evidence.json anywhere in this
+branch's history per `find` and `git log`). T-003's own diff touches no
+file under that path. Re-run independently: reverting ONLY tasks.md's
+T-003 Status: line back to Planned does not change this outcome (T-002's
+gap is unconditional), confirming the failure is structural, not a
+side-effect of T-003's own one lifecycle edit.
+
+Because task-state-check has no waiver path (BASELINE_IDS in
+check-contract.py; only lint/typecheck/build are stack-waivable per
+risk-gate-matrix.md's Stack descriptor), this contract's own
+"task-state-check" entry is recorded honestly below as passes:false,
+required:true -- which will itself cause check-contract to report FAILED
+for this contract until T-002's evidence-bundle gap is closed (out of
+T-003's own scope; T-002 is Done/out of scope per this run's own
+instructions).

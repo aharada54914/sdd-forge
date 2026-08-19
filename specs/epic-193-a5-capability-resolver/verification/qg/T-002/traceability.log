@@ -1,0 +1,43 @@
+Requirement-traceability check (manual -- no traceability.json exists for
+this feature, only traceability.md; check-traceability.sh requires JSON
+input and was not run), re-verified at current HEAD (e8ffc4c9) as part of
+reconstructing T-002's missing verification artifacts (2026-08-19):
+
+- tasks.md T-002 Requirements line -> REQ-001 (steps 0-3 share), REQ-002
+  (share -- five of sixteen rows), REQ-003 (state derivation, in full),
+  REQ-005 (share), REQ-006 (share -- item e's five rows), REQ-008 (share).
+  All six present in requirements.md (grep hit counts: REQ-001=38,
+  REQ-002=60, REQ-003=14, REQ-005=11, REQ-006=5, REQ-008=4) and named
+  explicitly for T-002 in traceability.md's own REQ table rows
+  (traceability.md:8-12) and Task Mapping table row (traceability.md:58).
+- AC-010..AC-015 (this task's own five-rows share) and AC-038/AC-041 are
+  present in acceptance-tests.md (grep hit counts: AC-010=1, AC-011=2,
+  AC-012=2, AC-013=1, AC-014=1, AC-015=1, AC-038=3, AC-041=1) and
+  traceability.md's Acceptance Mapping table names T-002 explicitly on
+  every one of those rows (traceability.md:81-86, 109, 112), including
+  AC-015 and AC-041 as T-002's own sole owner (no share).
+- Implemented: tests/resolve-project-context-block.tests.{sh,ps1} (T-002's
+  own creation of the shared suite file) plus
+  tests/resolve-project-context-block-check.py's own T-002 fixture set --
+  disabled-legacy-invocation, workflow-combination-invalid (two rows),
+  project-context-validation-failed, canonicalizer-invocation-failed,
+  dependency-output-malformed, plus the four projection-only invocations
+  (projection-two-components, projection-omits-components,
+  projection-canonicalizer-invocation-failed,
+  projection-dependency-output-malformed) -- ten of T-002's own
+  invocations, confirmed executed and passing in this same verification
+  run: see qg/T-002/focused-tests-sh.log / focused-tests-ps1.log (102
+  passed, 0 failed overall in the now-shared file, including all ten
+  T-002 invocations).
+- Not independently re-verified in this pass (out of scope for this
+  reconstruction, and already covered by the seq0670 gate's own
+  Evidence Matrix): REQ-003's own byte-identity lock against Epic A4's
+  REQ-003 authority (spec-assigned to T-005 per the seq0670 report's own
+  Cannot-Verify Items), and the full requirement/AC set for T-003/T-004/
+  T-007's own separate shares of REQ-001/REQ-002/REQ-005/REQ-006/AC-010
+  through AC-014/AC-038, which are those tasks' own scope, not T-002's.
+
+Result: PASS -- every requirement and acceptance criterion tasks.md's
+T-002 Requirements line and traceability.md's own Task/Acceptance Mapping
+tables assign to T-002 is present in the spec documents, named for T-002
+in traceability.md, and exercised by currently-passing tests.

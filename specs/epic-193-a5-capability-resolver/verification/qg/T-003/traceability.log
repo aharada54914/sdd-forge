@@ -1,0 +1,33 @@
+Requirement-traceability check (manual — no traceability.json exists for
+this feature, only traceability.md; check-traceability.sh requires JSON
+input and was not run) passed for T-003:
+
+ - tasks.md T-003 Requirements line -> REQ-001 (steps 4-9 share), REQ-002
+   (share — five more of sixteen rows), REQ-004 (share), REQ-005 (share),
+   REQ-006 (share), REQ-008 (share). All six present in requirements.md
+   (grep hit counts: REQ-001=18, REQ-002=17, REQ-004=10, REQ-005=6,
+   REQ-006=4, REQ-008=2) and in traceability.md's REQ table rows, which
+   name T-003 explicitly in the REQ-001 and REQ-002 rows' own Code Target
+   cells ("steps 4-9 ... fan-out — T-003") and in the Task Mapping table's
+   own T-003 row (traceability.md:59).
+ - AC-010..AC-015 (this task's own five-rows share) and AC-038 (share) are
+   present in acceptance-tests.md (grep hit counts: AC-010=1, AC-011=2,
+   AC-012=2, AC-013=1, AC-014=1, AC-015=1, AC-038=3) and TEST-010..TEST-015
+   / TEST-038 are present there too (hit counts: TEST-010=5, TEST-011=1,
+   TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2).
+ - Implemented: tests/resolve-project-context-block-check.py's own
+   run_t003_case() function (line 247) and its CASE_NAMES list (line
+   160-165) enumerate exactly T-003's own six fixtures --
+   affected-component-resolution-failed, contract-discovery-failed,
+   registry-validation-failed, dependency-subprocess-failed,
+   dsl-warn-unmatched-trigger, dsl-warn-matched-nondetermining -- each
+   invoked from both tests/resolve-project-context-block.tests.sh and
+   .ps1 (thin dispatchers onto the shared Python driver). Confirmed
+   executed and passing in this same verification run: see
+   focused-tests-sh.log / focused-tests-ps1.log (102 passed, 0 failed,
+   both runtimes, including all six T-003 fixtures x the four assertions
+   they each carry).
+ - Not independently re-verified in this pass: REQ-004/REQ-005/REQ-006/
+   REQ-008's own OTHER task rows (T-001, T-002, T-004, etc.) -- those are
+   shared REQ ids spanning multiple tasks' own scope, out of T-003's own
+   diff, per tasks.md Global Constraints.
