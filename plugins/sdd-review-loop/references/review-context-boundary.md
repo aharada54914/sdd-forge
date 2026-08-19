@@ -50,6 +50,7 @@ and the appended record is the *extension*.
 | `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:284-301`) | **yes** — and read nothing outside it |
 | `allowed_input_manifest[].sha256` | equality against the file on disk (`:302-304`) | **yes** — this is the substantive integrity check |
 | `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:154`, `:268-282`) | **yes** |
+| `gate_report_declaration` (quality stage only, OPTIONAL) | shape (`:184-190`); the named document must be a canonical, symlink-free, regular file under `reports/quality-gate/` and must hash to the pinned `sha256` before any row is read from it (`:333-350`); its `## Post-Fix Artifacts` rows then authorize manifest entries the frozen implementation report cannot describe (`:93-99`, WFI-036) | **yes** -- it is a second authorization source, so confirm it is the gate report for the cycle you were launched for |
 
 ## `identity_ledger_sha256`: do not re-verify
 

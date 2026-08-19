@@ -60,10 +60,18 @@ is_forbidden_review_output() {
     [[ "$path" =~ (^|/)reviewer-[ab]\.json$ ]]
 }
 
+# WFI-036. A declaration channel is one markdown document plus one section
+# heading. Two channels exist: the frozen implementation report's `## Outputs`
+# table, and -- only when the manifest explicitly names and hash-pins one --
+# the gate report's `## Post-Fix Artifacts` table. Both are matched by exact
+# row equality, so both are hash-checked identically.
 evaluator_output_is_declared() {
-  local path=$1 expected_hash=$2 report=$3
-  awk -v expected_path="$path" -v expected_hash="$expected_hash" '
-    /^## Outputs[[:space:]]*$/ { in_outputs = 1; next }
+  local path=$1 expected_hash=$2 report=$3 heading=$4
+  awk -v expected_path="$path" -v expected_hash="$expected_hash" -v heading="$heading" '
+    index($0, heading) == 1 && substr($0, length(heading) + 1) ~ /^[[:space:]]*$/ {
+      in_outputs = 1
+      next
+    }
     in_outputs && /^##[[:space:]]/ { exit }
     in_outputs {
       expected_line = "| `" expected_path "` | `" expected_hash "` |"
@@ -71,6 +79,23 @@ evaluator_output_is_declared() {
     }
     END { exit(found ? 0 : 1) }
   ' "$report"
+}
+
+# WFI-036 second channel. Consulted only when the manifest named a gate report
+# AND that document's own live SHA-256 already matched the pinned value -- that
+# verification happens in the quality:sdd-evaluator block below, before any row
+# here is read. Nothing is scanned or discovered: an unnamed, undeclared or
+# stale gate report authorizes nothing.
+#
+# A gate report never authorizes another gate report. Post-fix artifacts are
+# source, test and evidence files; handing an evaluator a prior verdict would
+# defeat the fresh-context requirement it is launched under.
+gate_report_output_is_declared() {
+  local path=$1 expected_hash=$2
+  [[ -n "$gate_report_declaration_path" ]] || return 1
+  [[ "$path" != reports/quality-gate/* ]] || return 1
+  evaluator_output_is_declared "$path" "$expected_hash" \
+    "$repository_root/$gate_report_declaration_path" '## Post-Fix Artifacts'
 }
 
 path_is_authorized() {
@@ -112,7 +137,9 @@ path_is_authorized() {
         [[ "$path" == plugins/sdd-quality-loop/references/quality-gate-calibration.md ]] ||
         [[ "$path" == "$implementation_report_path" ]] ||
         evaluator_output_is_declared \
-          "$path" "$expected_hash" "$repository_root/$implementation_report_path"
+          "$path" "$expected_hash" \
+          "$repository_root/$implementation_report_path" '## Outputs' ||
+        gate_report_output_is_declared "$path" "$expected_hash"
       ;;
     domain:domain-reviewer-a|domain:domain-reviewer-b)
       [[ "$path" =~ ^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
@@ -150,8 +177,17 @@ jq -e '
   type == "object" and
   (
     (.stage == "quality" and
-      ((keys | sort) == ((base_keys + ["task_id"]) | sort)) and
-      (.task_id | type == "string" and test("^T-[0-9]{3}$"))) or
+      (((keys | sort) == ((base_keys + ["task_id"]) | sort)) or
+        ((keys | sort) ==
+          ((base_keys + ["task_id", "gate_report_declaration"]) | sort))) and
+      (.task_id | type == "string" and test("^T-[0-9]{3}$")) and
+      (if has("gate_report_declaration") then
+        (.gate_report_declaration |
+          type == "object" and
+          ((keys | sort) == ["path", "sha256"]) and
+          (.path | type == "string" and length > 0) and
+          (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))
+      else true end)) or
     (.stage != "quality" and ((keys | sort) == (base_keys | sort)))
   ) and
   .schema == "review-context-invocation/v2" and
@@ -185,6 +221,15 @@ previous_record_sha256=$(jq -r '.previous_record_sha256' "$manifest" | tr -d '\r
 bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
 task_id=''
 [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
+# WFI-036. Optional, quality-only, and inert unless present: the contract check
+# above rejects the key outright on any other stage.
+gate_report_declaration_path=''
+gate_report_declaration_sha256=''
+if [[ "$stage" == quality ]] &&
+  jq -e 'has("gate_report_declaration")' "$manifest" >/dev/null 2>&1; then
+  gate_report_declaration_path=$(jq -r '.gate_report_declaration.path' "$manifest" | tr -d '\r')
+  gate_report_declaration_sha256=$(jq -r '.gate_report_declaration.sha256' "$manifest" | tr -d '\r')
+fi
 
 case "$stage:$role" in
   spec:spec-reviewer-a|spec:spec-reviewer-b|impl:impl-reviewer-a|impl:impl-reviewer-b|task:task-reviewer-a|task:task-reviewer-b|quality:sdd-evaluator|domain:domain-reviewer-a|domain:domain-reviewer-b) ;;
@@ -279,6 +324,30 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
     fail PATH 'sdd-evaluator implementation report heading does not match task ID'
   grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+
+  # WFI-036. The named gate report is a declaration source, not a manifest
+  # input. It is verified in full here -- canonical path, confined to the gate's
+  # own report namespace, no symlink component, regular file, and byte-exact
+  # SHA-256 against the pinned value -- before a single table row is read from
+  # it during authorization below.
+  if [[ -n "$gate_report_declaration_path" ]]; then
+    is_canonical_path "$gate_report_declaration_path" ||
+      fail PATH "sdd-evaluator gate-report declaration is not a canonical repository-relative path: $gate_report_declaration_path"
+    [[ "$gate_report_declaration_path" =~ ^reports/quality-gate/[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*\.md$ ]] ||
+      fail PATH "sdd-evaluator gate-report declaration is not a quality-gate report: $gate_report_declaration_path"
+    gate_report_component="$repository_root"
+    IFS='/' read -r -a gate_report_components <<< "$gate_report_declaration_path"
+    for component in "${gate_report_components[@]}"; do
+      gate_report_component="$gate_report_component/$component"
+      [[ ! -L "$gate_report_component" ]] ||
+        fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link: $gate_report_declaration_path"
+    done
+    gate_report_absolute="$repository_root/$gate_report_declaration_path"
+    [[ -f "$gate_report_absolute" && ! -L "$gate_report_absolute" ]] ||
+      fail PATH "sdd-evaluator gate-report declaration is missing or is not a regular file: $gate_report_declaration_path"
+    [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]] ||
+      fail HASH "sdd-evaluator gate-report declaration hash mismatch: $gate_report_declaration_path"
+  fi
 fi
 
 while IFS=$'\t' read -r path expected_hash; do
