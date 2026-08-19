@@ -84,6 +84,38 @@
   twins. The positive corpus, the twin-parity check, and the non-regression
   closure land in T-005.
 
+- **Domain contract v2 positive corpus, twin parity, and non-regression
+  closure (Issue #290, sdd-domain-concept-contract T-005)**: completes Phase
+  0 of the Concept Design Layer. `tests/sdd-domain/contract-v2-schema.Tests.ps1`
+  gains the five positive fixture families REQ-005 requires -- a
+  Purchase/Fulfillment contract with all seven required concept fields and
+  all three optional fields (`must_not_own`, `stakeholder_perspectives`,
+  `distinguished_from`) populated, including the two pattern boundary values
+  `APIOrder` (consecutive uppercase) and `order-taking-2` (a digit segment);
+  a Book/Bookshelf contract where `Book.must_not_own` carries display
+  position and a `Placement` concept holds the ordering responsibility; two
+  contexts carrying the same concept name under distinct ids; a
+  `contexts[].terms[].concept_id` link that resolves to a declared concept;
+  and a concept carrying none of the three optional fields -- each accepted
+  with exit 0 by both validator twins, with the populated fields' values
+  reasserted from the fixture's own source text (the validator emits only an
+  exit code and stderr, never a parse result). Together the populated and
+  all-absent fixtures prove neither optional field was accidentally made
+  required. A twin-parity harness runs the complete 78-fixture corpus (the
+  5 positive families plus all 73 negative fixtures T-002/T-003/T-004
+  authored) through both `validate-domain-contract.sh` and `.ps1`, asserting
+  an identical exit code and violation count on every one; the check is a
+  named Pester skip, not a silent pass, on a host without `bash` on PATH. The
+  unmodified v1 suite (`tests/sdd-domain/contract-schema.Tests.ps1`) is run
+  in a fresh process and asserted green, and this feature's diff against
+  `main` is asserted to touch none of the four INV-004 v1 consumers or the
+  eleven pre-existing `tests/sdd-domain/` suites, closing REQ-007's
+  additive-only guarantee. The suite's negative fixture count is asserted to
+  total exactly 73, matching the Negative Fixture Allocation table (T-002 3
+  + T-003 62 + T-004 8). No change to either validator twin or to the v2
+  schema file was needed or made -- every positive fixture was accepted on
+  first execution.
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went

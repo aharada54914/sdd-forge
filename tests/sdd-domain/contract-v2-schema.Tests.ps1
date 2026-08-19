@@ -1480,3 +1480,675 @@ Describe "validate-domain-contract compares responsibilities and must_not_own by
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# T-005 (Issue #290, sdd-domain-concept-contract Phase 0): the positive
+# fixture corpus (REQ-005), the twin-parity harness across the full 78-item
+# corpus (REQ-006, AC-013), and the REQ-007 non-regression closure (AC-015).
+#
+# The positive corpus proves the validator is not stuck-shut: a fully
+# populated contract, an all-optionals-absent contract, a cross-context
+# same-name contract, a term-to-concept link, and the two pattern boundary
+# values must all be accepted with exit 0. Per this task's Out of Scope, no
+# change to either validator twin or to the schema file is made here -- if
+# any of the five families below were rejected, that would be a defect in
+# T-002, T-003, or T-004, reported rather than worked around.
+#
+# Every fixture is a heredoc here-string, mktemp-scoped through the SAME
+# New-EphemeralContractFile / Remove-EphemeralPath pair T-002 authored (DD-5,
+# INV-006 -- no permanent fixture directory is added). All fixture vocabulary
+# is synthetic Purchase / Fulfillment / Book / Placement domain nouns; no
+# credential, token, personal, or customer-derived string appears in any of
+# them (security-spec.md).
+# ---------------------------------------------------------------------------
+
+# The four INV-004 v1 consumers (investigation.md INV-004) and the eleven
+# pre-existing tests/sdd-domain/ suites (this feature's own suite,
+# contract-v2-schema.Tests.ps1, is excluded -- it is this feature's output,
+# not a pre-existing suite). Used by the AC-015 non-regression closure below.
+$inv004ConsumerPaths = @(
+    "plugins/sdd-domain/skills/domain-sync/SKILL.md",
+    "plugins/sdd-domain/agents/domain-reviewer-a.md",
+    "plugins/sdd-domain/skills/domain-interviewer/SKILL.md",
+    "plugins/sdd-quality-loop/scripts/check-domain-conformance.sh"
+)
+$preExistingSuitePaths = @(
+    "tests/sdd-domain/absence-regression.Tests.ps1",
+    "tests/sdd-domain/artifact-set.Tests.ps1",
+    "tests/sdd-domain/check-domain-conformance.Tests.ps1",
+    "tests/sdd-domain/contract-schema.Tests.ps1",
+    "tests/sdd-domain/cross-model-gate.Tests.ps1",
+    "tests/sdd-domain/domain-review-loop.Tests.ps1",
+    "tests/sdd-domain/domain-sync.Tests.ps1",
+    "tests/sdd-domain/drift-metrics.Tests.ps1",
+    "tests/sdd-domain/reverse-seed.Tests.ps1",
+    "tests/sdd-domain/template-language.Tests.ps1",
+    "tests/sdd-domain/update-mode.Tests.ps1"
+)
+$v1SuiteTestsPath = Join-Path $repositoryRoot "tests/sdd-domain/contract-schema.Tests.ps1"
+$gitCommand = Get-Command git -ErrorAction SilentlyContinue
+$gitAvailable = ($null -ne $gitCommand)
+
+# --- The 5 positive fixture bodies (here-strings, DD-5) ---------------------
+
+# AC-003 (REQ-002, REQ-005(a)): Order carries all 7 required fields and all 3
+# optional fields populated (must_not_own, stakeholder_perspectives,
+# distinguished_from), Fulfillment mirrors it with must_not_own naming
+# purchase price, and the two are mutually distinguished_from each other. A
+# third concept APIOrder (consecutive-uppercase name) inside a third context
+# order-taking-2 (digit segment) supplies the pattern boundary positives
+# AC-003 also requires.
+$fixtureAc003PurchaseFulfillment = @'
+{
+  "schema": "domain-contract/v2",
+  "meta": { "version": "1.0.0", "status": "Pending", "generated_from": ["domain/domain-story.md"] },
+  "contexts": [
+    {
+      "name": "order-taking",
+      "description": "Where the purchase promise is made.",
+      "terms": [
+        { "canonical": "Order", "definition": "A recorded purchase promise.", "concept_id": "CONCEPT-ORDER" }
+      ],
+      "aggregates": []
+    },
+    {
+      "name": "shipping",
+      "description": "Where a recorded promise is delivered.",
+      "terms": [],
+      "aggregates": []
+    },
+    {
+      "name": "order-taking-2",
+      "description": "A second order-taking style context, proving the digit-segment context pattern is accepted.",
+      "terms": [],
+      "aggregates": []
+    }
+  ],
+  "concepts": [
+    {
+      "id": "CONCEPT-ORDER",
+      "name": "Order",
+      "context": "order-taking",
+      "definition": "The promise to buy, as recorded at order time.",
+      "essence": "what was promised and at what price",
+      "responsibilities": ["purchase intent", "purchase price"],
+      "must_not_own": ["delivery quantity", "delivery state"],
+      "stakeholder_perspectives": [
+        { "actor": "purchasing", "concern": "price and quantity" },
+        { "actor": "shipping", "concern": "destination and delivery date" }
+      ],
+      "distinguished_from": [
+        { "concept_id": "CONCEPT-FULFILLMENT", "reasons": ["different reason for change", "different lifecycle", "different stakeholder perspective"] }
+      ],
+      "evidence": ["domain-story:activity-1"]
+    },
+    {
+      "id": "CONCEPT-FULFILLMENT",
+      "name": "Fulfillment",
+      "context": "shipping",
+      "definition": "The unit of delivery for a recorded promise.",
+      "essence": "what and how much is delivered",
+      "responsibilities": ["delivery quantity", "delivery state"],
+      "must_not_own": ["purchase price", "purchase intent"],
+      "stakeholder_perspectives": [
+        { "actor": "warehouse", "concern": "what remains to be delivered" }
+      ],
+      "distinguished_from": [
+        { "concept_id": "CONCEPT-ORDER", "reasons": ["different reason for change", "different lifecycle", "different stakeholder perspective"] }
+      ],
+      "evidence": ["domain-story:activity-4"]
+    },
+    {
+      "id": "CONCEPT-APIORDER",
+      "name": "APIOrder",
+      "context": "order-taking-2",
+      "definition": "The API representation of the order, exercising the concept-name pattern boundary.",
+      "essence": "the API client's view of the order",
+      "responsibilities": ["API payload shape"],
+      "evidence": ["domain-story:activity-9"]
+    }
+  ],
+  "relations": []
+}
+'@
+
+# AC-004 (REQ-005(b)): Book.must_not_own names display position; Placement
+# holds the ordering responsibility (display position and shelf ordering).
+$fixtureAc004BookBookshelf = @'
+{
+  "schema": "domain-contract/v2",
+  "meta": { "version": "1.0.0", "status": "Pending", "generated_from": ["domain/domain-story.md"] },
+  "contexts": [
+    {
+      "name": "shelving",
+      "description": "Where books are physically arranged on a shelf.",
+      "terms": [],
+      "aggregates": []
+    }
+  ],
+  "concepts": [
+    {
+      "id": "CONCEPT-BOOK",
+      "name": "Book",
+      "context": "shelving",
+      "definition": "A single physical or catalog copy of a title.",
+      "essence": "what title and copy this is",
+      "responsibilities": ["title", "author", "isbn"],
+      "must_not_own": ["display position", "shelf ordering"],
+      "distinguished_from": [
+        { "concept_id": "CONCEPT-PLACEMENT", "reasons": ["different reason for change", "different lifecycle"] }
+      ],
+      "evidence": ["domain-story:activity-2"]
+    },
+    {
+      "id": "CONCEPT-PLACEMENT",
+      "name": "Placement",
+      "context": "shelving",
+      "definition": "Where a book currently sits on a shelf.",
+      "essence": "which shelf and position a book occupies",
+      "responsibilities": ["display position", "shelf ordering"],
+      "distinguished_from": [
+        { "concept_id": "CONCEPT-BOOK", "reasons": ["different reason for change", "different lifecycle"] }
+      ],
+      "evidence": ["domain-story:activity-3"]
+    }
+  ],
+  "relations": []
+}
+'@
+
+# AC-005 (REQ-002, REQ-005(c)): the concept name Order appears in two
+# different contexts under two distinct ids -- the positive pair to T-004's
+# AC-011 negative (same name inside ONE context).
+$fixtureAc005CrossContextSameName = @'
+{
+  "schema": "domain-contract/v2",
+  "meta": { "version": "1.0.0", "status": "Pending", "generated_from": ["domain/domain-story.md"] },
+  "contexts": [
+    { "name": "order-taking", "description": "Where the purchase promise is made.", "terms": [], "aggregates": [] },
+    { "name": "shipping", "description": "Where a recorded promise is delivered.", "terms": [], "aggregates": [] }
+  ],
+  "concepts": [
+    {
+      "id": "CONCEPT-ORDER-PURCHASE",
+      "name": "Order",
+      "context": "order-taking",
+      "definition": "The promise to buy, as recorded at order time.",
+      "essence": "what was promised and at what price",
+      "responsibilities": ["purchase intent"],
+      "evidence": ["domain-story:activity-1"]
+    },
+    {
+      "id": "CONCEPT-ORDER-SHIPPING",
+      "name": "Order",
+      "context": "shipping",
+      "definition": "The unit of delivery tracked inside the shipping context, locally called an order.",
+      "essence": "what the warehouse is told to move",
+      "responsibilities": ["warehouse pick list"],
+      "evidence": ["domain-story:activity-5"]
+    }
+  ],
+  "relations": []
+}
+'@
+
+# AC-025 (REQ-001, REQ-003, REQ-005(e)): contexts[].terms[].concept_id
+# resolves to a declared concept id.
+$fixtureAc025TermConceptLink = @'
+{
+  "schema": "domain-contract/v2",
+  "meta": { "version": "1.0.0", "status": "Pending", "generated_from": ["domain/domain-story.md"] },
+  "contexts": [
+    {
+      "name": "order-taking",
+      "description": "Where the purchase promise is made.",
+      "terms": [
+        { "canonical": "Order", "definition": "A recorded purchase promise.", "concept_id": "CONCEPT-ORDER" }
+      ],
+      "aggregates": []
+    }
+  ],
+  "concepts": [
+    {
+      "id": "CONCEPT-ORDER",
+      "name": "Order",
+      "context": "order-taking",
+      "definition": "The promise to buy, as recorded at order time.",
+      "essence": "what was promised and at what price",
+      "responsibilities": ["purchase intent"],
+      "evidence": ["domain-story:activity-1"]
+    }
+  ],
+  "relations": []
+}
+'@
+
+# AC-026 (REQ-002, REQ-005(f)): the concept carries none of must_not_own,
+# stakeholder_perspectives, distinguished_from -- the pair to AC-003's
+# all-populated positive.
+$fixtureAc026OptionalAbsent = @'
+{
+  "schema": "domain-contract/v2",
+  "meta": { "version": "1.0.0", "status": "Pending", "generated_from": ["domain/domain-story.md"] },
+  "contexts": [
+    { "name": "order-taking", "description": "Where the purchase promise is made.", "terms": [], "aggregates": [] }
+  ],
+  "concepts": [
+    {
+      "id": "CONCEPT-ORDER",
+      "name": "Order",
+      "context": "order-taking",
+      "definition": "The promise to buy, as recorded at order time.",
+      "essence": "what was promised and at what price",
+      "responsibilities": ["purchase intent"],
+      "evidence": ["domain-story:activity-1"]
+    }
+  ],
+  "relations": []
+}
+'@
+
+function Assert-PositiveFixtureAccepted {
+    # The shape every positive fixture must satisfy: exit 0 and NOTHING on
+    # either stream (DD-7 -- a well-formed, fully valid contract produces no
+    # violation lines at all).
+    param($Result)
+    $Result.ExitCode | Should Be 0
+    $Result.StdOut.Length | Should Be 0
+    $Result.StdErr.Length | Should Be 0
+}
+
+Describe "validate-domain-contract accepts the Purchase/Fulfillment positive fixture with pattern boundary values (TEST-003, AC-003, REQ-002, REQ-005(a))" {
+
+    It "the fixture really carries all 7 required fields on Order, all 3 optional fields populated, and the two pattern boundary values (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc003PurchaseFulfillment
+        $order = @($document.concepts | Where-Object { $_.id -ceq "CONCEPT-ORDER" })[0]
+        foreach ($key in @("id", "name", "context", "definition", "essence", "responsibilities", "evidence")) {
+            (Get-PropSafe $order $key) | Should Not Be $null
+        }
+        @(Get-PropSafe $order "must_not_own").Count | Should BeGreaterThan 0
+        @(Get-PropSafe $order "stakeholder_perspectives").Count | Should BeGreaterThan 0
+        @(Get-PropSafe $order "distinguished_from").Count | Should BeGreaterThan 0
+
+        $apiOrder = @($document.concepts | Where-Object { $_.name -ceq "APIOrder" })
+        $apiOrder.Count | Should Be 1
+        $orderTaking2 = @($document.contexts | Where-Object { $_.name -ceq "order-taking-2" })
+        $orderTaking2.Count | Should Be 1
+        $apiOrder[0].context | Should Be "order-taking-2"
+    }
+
+    It "APIOrder and order-taking-2 satisfy the schema-declared regex patterns directly (non-vacuity for the boundary claim, AC-018's paired positive)" {
+        $contract = Get-Content -Raw -Encoding Utf8 $v2SchemaPath | ConvertFrom-Json
+        $namePattern = $contract.definitions.concept.properties.name.pattern
+        $contextPattern = $contract.definitions.concept.properties.context.pattern
+        [System.Text.RegularExpressions.Regex]::IsMatch("APIOrder", $namePattern) | Should Be $true
+        [System.Text.RegularExpressions.Regex]::IsMatch("order-taking-2", $contextPattern) | Should Be $true
+    }
+
+    It "the optional fields' VALUES survive as input -- must_not_own, stakeholder_perspectives, distinguished_from (REQ-005(a) preservation)" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc003PurchaseFulfillment
+        $order = @($document.concepts | Where-Object { $_.id -ceq "CONCEPT-ORDER" })[0]
+
+        $mustNotOwn = @($order.must_not_own)
+        $mustNotOwn.Count | Should Be 2
+        ($mustNotOwn -ccontains "delivery quantity") | Should Be $true
+        ($mustNotOwn -ccontains "delivery state") | Should Be $true
+
+        $distinguished = @($order.distinguished_from)
+        $distinguished.Count | Should Be 1
+        $distinguished[0].concept_id | Should Be "CONCEPT-FULFILLMENT"
+        $reasons = @($distinguished[0].reasons)
+        $reasons.Count | Should Be 3
+        ($reasons -ccontains "different reason for change") | Should Be $true
+        ($reasons -ccontains "different lifecycle") | Should Be $true
+        ($reasons -ccontains "different stakeholder perspective") | Should Be $true
+
+        $perspectives = @($order.stakeholder_perspectives)
+        $perspectives.Count | Should BeGreaterThan 0
+        $purchasingPerspective = @($perspectives | Where-Object { $_.actor -ceq "purchasing" })
+        $purchasingPerspective.Count | Should Be 1
+        $purchasingPerspective[0].concern | Should Be "price and quantity"
+    }
+
+    It "Fulfillment.must_not_own names purchase price, and the two concepts are mutually distinguished_from each other" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc003PurchaseFulfillment
+        $fulfillment = @($document.concepts | Where-Object { $_.id -ceq "CONCEPT-FULFILLMENT" })[0]
+        $fulfillmentMustNotOwn = @($fulfillment.must_not_own)
+        ($fulfillmentMustNotOwn -ccontains "purchase price") | Should Be $true
+        $fulfillment.distinguished_from[0].concept_id | Should Be "CONCEPT-ORDER"
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc003PurchaseFulfillment
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc003PurchaseFulfillment
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorSh -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "validate-domain-contract accepts the Book/Bookshelf positive fixture (TEST-004, AC-004, REQ-005(b))" {
+
+    It "the fixture realizes REQ-005(b) exactly: Book.must_not_own carries display position, Placement holds the ordering responsibility (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc004BookBookshelf
+        $book = @($document.concepts | Where-Object { $_.name -ceq "Book" })[0]
+        $placement = @($document.concepts | Where-Object { $_.name -ceq "Placement" })[0]
+        $book | Should Not Be $null
+        $placement | Should Not Be $null
+
+        $bookMustNotOwn = @($book.must_not_own)
+        ($bookMustNotOwn -ccontains "display position") | Should Be $true
+
+        $placementResponsibilities = @($placement.responsibilities)
+        ($placementResponsibilities -ccontains "display position") | Should Be $true
+        ($placementResponsibilities -ccontains "shelf ordering") | Should Be $true
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc004BookBookshelf
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc004BookBookshelf
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorSh -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "validate-domain-contract accepts two contexts carrying the same concept name with distinct ids (TEST-005, AC-005, REQ-002, REQ-005(c))" {
+
+    It "the fixture really carries one name in two different contexts with distinct ids (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc005CrossContextSameName
+        $orders = @($document.concepts | Where-Object { $_.name -ceq "Order" })
+        $orders.Count | Should Be 2
+        ($orders[0].context -ceq $orders[1].context) | Should Be $false
+        ($orders[0].id -ceq $orders[1].id) | Should Be $false
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc005CrossContextSameName
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc005CrossContextSameName
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorSh -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "validate-domain-contract accepts a term-to-concept link and preserves it (TEST-025, AC-025, REQ-001, REQ-003, REQ-005(e))" {
+
+    It "the v2 schema declares term.concept_id as optional with the concept-id pattern (structural assertion, AC-025 part a)" {
+        $contract = Get-Content -Raw -Encoding Utf8 $v2SchemaPath | ConvertFrom-Json
+        $termDef = $contract.definitions.term
+        $termRequired = @($termDef.required)
+        ($termRequired -ccontains "concept_id") | Should Be $false
+        $termDef.properties.concept_id.pattern | Should Be '^CONCEPT-[A-Z][A-Z0-9-]*$'
+    }
+
+    It "the fixture's term.concept_id really does resolve to a declared concept id (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc025TermConceptLink
+        $term = $document.contexts[0].terms[0]
+        $term.concept_id | Should Be "CONCEPT-ORDER"
+        $conceptIds = @($document.concepts | ForEach-Object { $_.id })
+        ($conceptIds -ccontains $term.concept_id) | Should Be $true
+    }
+
+    It "the value survives validation -- re-reading the fixture after the validator runs shows concept_id unchanged (AC-025 part b)" {
+        # The validator emits only exit code and stderr, never a parse result
+        # (DD-7), so "survives validation" is checked by re-reading the
+        # fixture's OWN source text after invoking the validator against it,
+        # not by inspecting any validator output.
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc025TermConceptLink
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+            $result.ExitCode | Should Be 0
+            $reread = Get-Content -Raw -Encoding Utf8 -LiteralPath $fixturePath | ConvertFrom-Json
+            $reread.contexts[0].terms[0].concept_id | Should Be "CONCEPT-ORDER"
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc025TermConceptLink
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc025TermConceptLink
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorSh -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "validate-domain-contract accepts a concept missing all three optional fields (TEST-026, AC-026, REQ-002, REQ-005(f))" {
+
+    It "the fixture's concept really has none of must_not_own, stakeholder_perspectives, distinguished_from (non-vacuity)" {
+        $document = ConvertFrom-Json -InputObject $fixtureAc026OptionalAbsent
+        $concept = $document.concepts[0]
+        foreach ($key in @("must_not_own", "stakeholder_perspectives", "distinguished_from")) {
+            (Get-PropSafe $concept $key) | Should Be $null
+        }
+    }
+
+    It "ps1 twin: accepts it with exit 0 and no output at all" {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc026OptionalAbsent
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorPs1 -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+
+    It "sh twin: accepts it with exit 0 and no output at all" -Skip:(-not $shTwinAvailable) {
+        $fixturePath = New-EphemeralContractFile -Content $fixtureAc026OptionalAbsent
+        try {
+            Assert-PositiveFixtureAccepted -Result (Invoke-ValidatorSh -ContractPath $fixturePath)
+        } finally {
+            Remove-EphemeralPath -Path $fixturePath
+        }
+    }
+}
+
+Describe "T-005 optional two-state pairing (tasks.md Done When: optional fields are truly optional, not accidentally required)" {
+
+    It "AC-003's Order concept populates all 3 optional fields and AC-026's concept populates none of them" {
+        $populated = ConvertFrom-Json -InputObject $fixtureAc003PurchaseFulfillment
+        $order = @($populated.concepts | Where-Object { $_.id -ceq "CONCEPT-ORDER" })[0]
+        @($order.must_not_own).Count | Should BeGreaterThan 0
+        @($order.stakeholder_perspectives).Count | Should BeGreaterThan 0
+        @($order.distinguished_from).Count | Should BeGreaterThan 0
+
+        $absent = ConvertFrom-Json -InputObject $fixtureAc026OptionalAbsent
+        $concept = $absent.concepts[0]
+        foreach ($key in @("must_not_own", "stakeholder_perspectives", "distinguished_from")) {
+            (Get-PropSafe $concept $key) | Should Be $null
+        }
+    }
+}
+
+# --- AC-013 twin parity across the full 78-fixture corpus -------------------
+
+function Get-T005NegativeFixtureBodies {
+    # The 73 negative fixtures T-002 (3), T-003 (62) and T-004 (8) authored,
+    # gathered from their EXISTING definitions without touching any of them.
+    # T-002's 3 are referenced directly by the variables/function that task
+    # already defined; T-003's 62 and T-004's 8 are re-expanded through the
+    # SAME token-table expander those tasks authored
+    # (New-StructuralFixtureJson), so this list can never silently diverge
+    # from what those tasks' own Describe blocks actually exercise.
+    $bodies = New-Object System.Collections.ArrayList
+    [void]$bodies.Add($fixtureTruncatedJson)
+    [void]$bodies.Add((New-OversizedContractFixture -TargetBytes ($maxContractBytes + 1)))
+    [void]$bodies.Add($fixtureV1Contract)
+    foreach ($structuralCase in $structuralFixtures) {
+        [void]$bodies.Add((New-StructuralFixtureJson -Override $structuralCase.Override))
+    }
+    foreach ($crossCase in $crossReferenceFixtures) {
+        [void]$bodies.Add((New-StructuralFixtureJson -Override $crossCase.Override))
+    }
+    return ,$bodies
+}
+
+$t005PositiveFixtureBodies = @(
+    $fixtureAc003PurchaseFulfillment,
+    $fixtureAc004BookBookshelf,
+    $fixtureAc005CrossContextSameName,
+    $fixtureAc025TermConceptLink,
+    $fixtureAc026OptionalAbsent
+)
+
+function Get-T005FullParityCorpus {
+    $bodies = New-Object System.Collections.ArrayList
+    foreach ($body in $t005PositiveFixtureBodies) { [void]$bodies.Add($body) }
+    foreach ($body in (Get-T005NegativeFixtureBodies)) { [void]$bodies.Add($body) }
+    return ,$bodies
+}
+
+Describe "T-005 negative fixture grand total (tasks.md Negative Fixture Allocation; acceptance-tests.md tally)" {
+
+    It "T-002 contributes exactly 3 negative fixtures (AC-017 x2, AC-012 x1)" {
+        @($fixtureTruncatedJson, (New-OversizedContractFixture -TargetBytes ($maxContractBytes + 1)), $fixtureV1Contract).Count | Should Be 3
+    }
+
+    It "T-003 contributes exactly 62 and T-004 contributes exactly 8 (restated here for the sum below)" {
+        $structuralFixtures.Count | Should Be 62
+        $crossReferenceFixtures.Count | Should Be 8
+    }
+
+    It "the full negative corpus totals exactly 73 fixtures -- a divergence means a fixture was dropped or duplicated" {
+        (Get-T005NegativeFixtureBodies).Count | Should Be 73
+    }
+}
+
+Describe "validate-domain-contract twin parity across the full fixture corpus (TEST-013, AC-013, REQ-004, REQ-006)" {
+
+    It "the full corpus totals 78 fixtures (5 positive families + 73 negative fixtures)" {
+        (Get-T005FullParityCorpus).Count | Should Be 78
+    }
+
+    It "every fixture in the corpus produces an identical exit code and violation count on both twins [SKIPPED when bash/python3 is absent from PATH]" -Skip:(-not $shTwinAvailable) {
+        $corpus = Get-T005FullParityCorpus
+        $mismatches = New-Object System.Collections.ArrayList
+        foreach ($body in $corpus) {
+            $fixturePath = New-EphemeralContractFile -Content $body
+            try {
+                $ps1Result = Invoke-ValidatorPs1 -ContractPath $fixturePath
+                $shResult = Invoke-ValidatorSh -ContractPath $fixturePath
+                $ps1Lines = @(Get-StdErrViolationLines -Result $ps1Result)
+                $shLines = @(Get-StdErrViolationLines -Result $shResult)
+                if (($ps1Result.ExitCode -ne $shResult.ExitCode) -or ($ps1Lines.Count -ne $shLines.Count)) {
+                    [void]$mismatches.Add(("exit ps1={0} sh={1}; violation-count ps1={2} sh={3}" -f $ps1Result.ExitCode, $shResult.ExitCode, $ps1Lines.Count, $shLines.Count))
+                }
+            } finally {
+                Remove-EphemeralPath -Path $fixturePath
+            }
+        }
+        ($mismatches -join "`n") | Should Be ""
+        $mismatches.Count | Should Be 0
+    }
+}
+
+# --- AC-015 non-regression closure -------------------------------------------
+
+function Invoke-V1SuiteRun {
+    # Runs the UNMODIFIED v1 suite in a fresh pwsh/PowerShell child process
+    # under the same Pester version this suite itself uses (AC-015, REQ-007).
+    # A separate process, not a nested Invoke-Pester call inside this
+    # already-running Pester session, so the v1 run's state cannot leak into
+    # or be affected by this suite's own Run phase.
+    $runnerPath = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-v2-t005-v1runner-" + [guid]::NewGuid().ToString("N") + ".ps1")
+    $runnerBody = @"
+`$ErrorActionPreference = 'Stop'
+Import-Module Pester -RequiredVersion 4.10.1
+`$result = Invoke-Pester -Script '$v1SuiteTestsPath' -PassThru -Show None
+Write-Output ('RESULT ' + `$result.PassedCount + ' ' + `$result.FailedCount)
+"@
+    [System.IO.File]::WriteAllText($runnerPath, $runnerBody, (New-Object System.Text.UTF8Encoding($false)))
+    try {
+        $arguments = '-NoProfile -NonInteractive -File "{0}"' -f $runnerPath
+        return Invoke-CapturedProcess -FilePath $powerShellHostPath -ArgumentString $arguments
+    } finally {
+        Remove-EphemeralPath -Path $runnerPath
+    }
+}
+
+Describe "domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ-007)" {
+
+    It "the v1 suite file still exists" {
+        Test-Path $v1SuiteTestsPath | Should Be $true
+    }
+
+    It "there really are exactly eleven pre-existing tests/sdd-domain/ suite files besides this one (non-vacuity)" {
+        $preExistingSuitePaths.Count | Should Be 11
+        $onDisk = @(Get-ChildItem -Path (Join-Path $repositoryRoot "tests/sdd-domain") -Filter "*.Tests.ps1" |
+            Where-Object { $_.Name -cne "contract-v2-schema.Tests.ps1" } |
+            ForEach-Object { "tests/sdd-domain/" + $_.Name } |
+            Sort-Object)
+        $onDisk.Count | Should Be 11
+        $expected = @($preExistingSuitePaths | Sort-Object)
+        for ($i = 0; $i -lt $onDisk.Count; $i++) {
+            $onDisk[$i] | Should Be $expected[$i]
+        }
+    }
+
+    It "the unmodified v1 suite runs green under Pester 4.10.1 in a fresh process" {
+        $result = Invoke-V1SuiteRun
+        $result.ExitCode | Should Be 0
+        # Recorded baseline (task brief): 8 passed / 0 failed. Asserted
+        # exactly, not merely "0 failed", so a silent addition or removal of
+        # a v1 check -- which REQ-007 forbids -- is caught too.
+        $result.StdOut | Should Match "^RESULT 8 0\s*$"
+    }
+
+    It "this feature's diff against main touches none of the four INV-004 v1 consumers or the eleven pre-existing suites [SKIPPED when git is absent from PATH]" -Skip:(-not $gitAvailable) {
+        Push-Location $repositoryRoot
+        try {
+            $diffOutput = & $gitCommand.Source diff --name-only "main...HEAD" 2>$null
+        } finally {
+            Pop-Location
+        }
+        $changedPaths = @($diffOutput | Where-Object { $_.Length -gt 0 })
+        # Non-vacuity: a branch reporting zero changed files would make the
+        # exclusion check below vacuously true.
+        $changedPaths.Count | Should BeGreaterThan 0
+        $forbidden = @($inv004ConsumerPaths + $preExistingSuitePaths)
+        $violations = @($forbidden | Where-Object { $changedPaths -ccontains $_ })
+        ($violations -join ", ") | Should Be ""
+        $violations.Count | Should Be 0
+    }
+}
