@@ -1,0 +1,166 @@
+From: WFI-030 rows two and three — frozen-artifact Done When detection
+Subject: [PATCH] feat(review-loop): record Done When items naming a frozen artifact
+
+Human-applied patch. All three files are protected role or gate artifacts (the
+two precheck twins become protected once WFI-037 step (a) lands), so an agent
+may stage this diff but may not apply it.
+See docs/workflow-improvements/WFI-030.md.
+
+Apply with:
+    git apply reports/notes/wfi-030b-frozen-done-when-detection.patch
+
+Companion to reports/notes/wfi-030-traceability-status-normalization.patch,
+which covers row one. The two are independent and may be applied in either
+order.
+
+DETECTION ONLY. The precheck exit code is unchanged by a non-empty
+frozen_artifact_done_when array. Measured over all 34 task plans in this
+repository the trigger fires on 6 items, 3 of them real:
+
+  sdd-domain-concept-contract  T-002:289  T-003:412  T-004:529   real
+  epic-136-phase3              T-001:363                        false positive
+  epic-136-phase4-mcp          T-004:1224                       false positive
+  sdd-domain                   T-006:542                        false positive
+
+The false positives cite a frozen filename parenthetically next to an unrelated
+write verb. They are the same grammatical shape as the real items, so a hard
+precheck failure at 3-in-6 would block half the plans it fires on. Adjudication
+moves to the review gate instead.
+
+A line-at-a-time scan finds only 1 of the 3 real items: T-003 and T-004 wrap
+across a continuation line, putting the artifact name and the verb on different
+lines. Both twins join continuation lines before matching.
+
+Verification performed: the scan reproduces exactly the 6 rows above, with
+correct task IDs and first-line numbers, over specs/*/tasks.md. The twin-parity
+and fixture tests of WFI-030's Verification Plan items 5-8 are NOT yet written.
+Do not treat this patch as verified until they run.
+
+--- a/plugins/sdd-review-loop/scripts/task-review-precheck.sh
++++ b/plugins/sdd-review-loop/scripts/task-review-precheck.sh
+@@ -355,6 +355,40 @@
+ fi
+ 
+ [[ "${workflow_match_precheck}" != "FAIL" ]] || fail "Risk/Required Workflow mismatches must be fixed before creating evidence"
++
++# ──────────────────────────────────────────────────────────────────────────────
++# STEP 2b: Record Done When items that name a review-frozen artifact (WFI-030)
++# ──────────────────────────────────────────────────────────────────────────────
++# Detection only -- this never changes the exit code. The frozen-artifact rule
++# in the task decomposition review gate's structural-coverage role is a Major
++# finding evaluated by reviewer judgement alone; nothing deterministic backed
++# it, and a review that reasoned past it sealed an unsatisfiable item into a
++# hash-bound plan. Measured over this repository the trigger fires on 6 items,
++# 3 of them real, so it records rather than fails; the reviewer adjudicates
++# each entry.
++# Items wrap across continuation lines, so lines are joined into whole items
++# before matching: a line-at-a-time scan finds only 1 of the 3 known cases.
++frozen_done_when_tsv="$(awk '
++  function flush(   l) {
++    if (item == "") return
++    l = item
++    if (l ~ /traceability\.md|design\.md|tasks\.md/ &&
++        l ~ /(^|[^a-zA-Z])(record|records|update|updates|add|write|edit|append)([^a-zA-Z]|$)/)
++      printf "%s\t%d\t%s\n", task, itemline, l
++    item = ""
++  }
++  /^##[ \t]+T-[0-9]+/ { flush(); task = $2; sub(/[^A-Za-z0-9-].*$/, "", task); inblk = 0 }
++  /Done When/ { flush(); inblk = 1; next }
++  /^(##|###)[ \t]/ || /^[A-Za-z][A-Za-z ]*:/ { flush(); inblk = 0 }
++  !inblk { next }
++  /^- \[/ { flush(); item = $0; itemline = FNR; next }
++  /^[ \t]+[^ \t]/ { if (item != "") { sub(/^[ \t]+/, " "); item = item $0 }; next }
++  { flush() }
++  END { flush() }
++' "${TASKS_MD}")"
++frozen_done_when_json="$(printf '%s' "${frozen_done_when_tsv}" |
++  jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {task: .[0], line: (.[1]|tonumber), item: .[2]})')"
++[[ -n "${frozen_done_when_json}" ]] || frozen_done_when_json='[]'
+ 
+ # ──────────────────────────────────────────────────────────────────────────────
+ # STEP 3: Parse Blockers fields and build dependency-graph.json
+@@ -620,6 +652,7 @@
+   "acceptance_sha256": "${acceptance_sha256}",
+   "design_sha256": "${design_sha256}",
+   "traceability_sha256": "${traceability_sha256}",
++  "frozen_artifact_done_when": ${frozen_done_when_json},
+   "layer_sha256": ${layer_sha256},
+   "input_sha256": "${input_sha256}",
+   "generated_at": "${generated_at}"
+--- a/plugins/sdd-review-loop/scripts/task-review-precheck.ps1
++++ b/plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+@@ -314,6 +314,36 @@
+ if (-not (Test-Path -LiteralPath $riskScript -PathType Leaf)) { Fail 'shared risk gate is missing' }
+ & $riskScript -TasksPath $tasks
+ if ($LASTEXITCODE -ne 0) { Fail 'Risk/Required Workflow mismatches must be fixed before creating evidence' }
++# WFI-030 STEP 2b, twin of the awk block in task-review-precheck.sh. Detection
++# only: the exit code is unaffected by a non-empty result. Continuation lines
++# are joined into whole items before matching, because two of the three known
++# real cases put the artifact name and the write verb on different lines.
++$fdwLines = [IO.File]::ReadAllLines($tasks)
++$fdwItems = @(); $fdwTask = ''; $fdwIn = $false; $fdwCur = $null
++for ($fdwI = 0; $fdwI -lt $fdwLines.Count; $fdwI++) {
++  $fdwL = $fdwLines[$fdwI]
++  if ($fdwL -match '^##\s+(T-\d+)') {
++    if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
++    $fdwTask = $Matches[1]; $fdwIn = $false; continue
++  }
++  if ($fdwL -match 'Done When') {
++    if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
++    $fdwIn = $true; continue
++  }
++  if ($fdwL -match '^(##|###)\s' -or $fdwL -match '^[A-Za-z][A-Za-z ]*:') {
++    if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
++    $fdwIn = $false; continue
++  }
++  if (-not $fdwIn) { continue }
++  if ($fdwL -match '^- \[') {
++    if ($fdwCur) { $fdwItems += $fdwCur }
++    $fdwCur = [ordered]@{ task = $fdwTask; line = ($fdwI + 1); item = $fdwL }; continue
++  }
++  if ($fdwL -match '^[ \t]+\S') { if ($fdwCur) { $fdwCur.item = $fdwCur.item + ' ' + $fdwL.TrimStart() }; continue }
++  if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
++}
++if ($fdwCur) { $fdwItems += $fdwCur }
++$frozenDoneWhen = @($fdwItems | Where-Object { $_.item -match '(traceability|design|tasks)\.md' -and $_.item -match '(^|[^a-zA-Z])(record|records|update|updates|add|write|edit|append)([^a-zA-Z]|$)' })
+ $inputMaterial = if ($fullProfile) {
+   $layerJson = $layerHashes | ConvertTo-Json -Compress
+   "$tasksHash`:$requirementsHash`:$acceptanceHash`:$designHash`:$traceabilityHash`:$layerJson"
+@@ -325,5 +351,5 @@
+ try { [ordered]@{schema='review-contract/v1';stage='task';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;input_sha256=$inputHash;run_id='task-precheck';verdict='PASS'}|ConvertTo-Json -Compress|Set-Content -LiteralPath $temporaryContract -Encoding utf8NoBOM; & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -Feature $Feature -Attempt $Attempt -Round $Round -Stage task -ReportRoot (Join-Path $root "reports/task-review/$Feature") -Contract $temporaryContract | Out-Null } finally { Remove-Item -LiteralPath $temporaryContract -Force -ErrorAction SilentlyContinue }
+ New-Item -ItemType Directory -Path $report | Out-Null
+ $graph=[ordered]@{schema='dependency-graph/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;nodes=$nodes;edges=$edges;generated_at=[DateTime]::UtcNow.ToString('o')}; $graph|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path $report 'dependency-graph.json') -Encoding utf8NoBOM
+-[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
++[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;frozen_artifact_done_when=$frozenDoneWhen;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
+ Write-Output "task-review-precheck: complete. Output written to $report/"
+--- a/plugins/sdd-review-loop/agents/task-reviewer-a.md
++++ b/plugins/sdd-review-loop/agents/task-reviewer-a.md
+@@ -237,5 +237,28 @@
+ passes. Such an item must instead name a non-frozen addendum record (an
+ implementation report, `specs/<feature>/verification/`, or user documentation).
+ A Done When item scoped to edit a frozen artifact is a Major finding.
++
++"Normalized status/approval fields" above means something exact, and different
++per artifact. Do not reason from a normalization that is not implemented — the
++persisted-state validator normalizes, at the task stage:
++
++| Artifact | Fields the validator normalizes before hashing |
++|---|---|
++| `tasks.md` | the `Status:`, `Approval:` and `Task-Review-Status:` header lines |
++| `traceability.md` | each requirement row's final delivery-status cell, and only when it already holds one of `Planned`, `In Progress`, `Implementation Complete`, `Done`, `Blocked` |
++| `design.md` | none — every byte is bound |
++| the four layer specs | none — every byte is bound |
++
++Anything outside that table is a body edit, including a delivery-status cell set
++to a value outside the listed vocabulary.
++
++The round's `precheck-result.json` carries a `frozen_artifact_done_when` array
++listing every Done When item whose text names a frozen artifact together with a
++write verb. It is a detector, not a verdict: roughly half its entries are items
++that merely cite a frozen artifact as a source. Your `OBSERVABLE-DONE` finding
++must address **every** entry individually, naming its task ID and stating
++whether the item is satisfiable without editing the frozen artifact and why.
++An `OBSERVABLE-DONE` entry that leaves any flagged item unaddressed is itself a
++Major finding.
+ 
+ ## TRACEABILITY-SYNC (Major, TYPE-D)
