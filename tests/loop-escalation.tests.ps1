@@ -641,6 +641,104 @@ mktemp repo-root.
     }
 
     # -------------------------------------------------------------------
+    # TEST-019.10 (T-008 / Issue #195 / epic-195-a7-compatibility AC-004,
+    # AC-021; OQ-001 item (b)) -- Resolver-non-invocation spy-harness. See
+    # the bash twin's own TEST-019.10 header comment for the full mechanism
+    # and activation-condition rationale (a PATH-shadowed spy on Epic A5's
+    # own resolve-project-context.sh path, proven first against a direct
+    # invocation before being run -- vacuously today -- against the F1/
+    # F3-invalid/F4-invalid fixtures).
+    # -------------------------------------------------------------------
+    Write-Host "=== TEST-019.10 (AC-004, AC-021): Resolver-non-invocation spy-harness (named SKIP until Epic A5 merges) ==="
+
+    $spyDir = Join-Path ([IO.Path]::GetTempPath()) ("resolver-spy." + [Guid]::NewGuid().ToString("N"))
+    New-Item -ItemType Directory -Path $spyDir | Out-Null
+    $cleanupRoots.Add($spyDir)
+    $spyLog = Join-Path $spyDir "invocations.log"
+    New-Item -ItemType File -Path $spyLog -Force | Out-Null
+    $spyScript = Join-Path $spyDir "resolve-project-context.sh"
+    @"
+#!/usr/bin/env bash
+printf '%s\n' "`$*" >> "$spyLog"
+exit 0
+"@ | Set-Content -LiteralPath $spyScript -NoNewline -Encoding utf8
+if ($IsWindows -ne $true) { chmod +x $spyScript }
+
+$originalPath = $env:PATH
+$env:PATH = "${spyDir}:${originalPath}"
+try {
+    & $spyScript --probe | Out-Null
+    $spyLineCount = @(Get-Content -LiteralPath $spyLog).Count
+    if ($LASTEXITCODE -eq 0 -and $spyLineCount -eq 1) {
+        Test-Ok "TEST-019.10a (negative self-check): the spy-harness mechanism itself records a direct invocation (no false negative)"
+    } else {
+        Test-Fail "TEST-019.10a (negative self-check): the spy-harness mechanism failed to record a direct invocation"
+    }
+    Set-Content -LiteralPath $spyLog -Value $null -NoNewline
+
+    $spyF1Rc = 0; $spyF3Rc = 0; $spyF4Rc = 0
+    try { $spyF1Root = build_fixture absent absent disabled-legacy valid none; $cleanupRoots.Add($spyF1Root) } catch { $spyF1Rc = 1 }
+    try { $spyF3Root = build_fixture present absent advisory PROJECT_CONTEXT_INVALID --full; $cleanupRoots.Add($spyF3Root) } catch { $spyF3Rc = 1 }
+    try { $spyF4Root = build_fixture present absent required PROJECT_CONTEXT_INVALID --full; $cleanupRoots.Add($spyF4Root) } catch { $spyF4Rc = 1 }
+
+    if ($spyF1Rc -eq 0 -and $spyF3Rc -eq 0 -and $spyF4Rc -eq 0) {
+        $spyInvocations = @(Get-Content -LiteralPath $spyLog).Count
+        $a5MergedForSpy = Test-Path -LiteralPath (Join-Path $repoRoot "specs/epic-193-a5-capability-resolver") -PathType Container
+        if ($a5MergedForSpy) {
+            Test-Fail "TEST-019.10b (AC-004, AC-021): Epic A5 has merged but no real Resolver-non-invocation fixture is wired against a live caller yet -- promote this SKIP in a follow-on task (observed $spyInvocations invocation(s))"
+        } else {
+            Write-Host "SKIP: TEST-019.10b: AC-004/AC-021 Resolver-non-invocation spy-harness against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; AC-021 additionally needs Epic A1, already merged into this tree) and no caller anywhere in the tree yet invokes resolve-project-context.sh at all (SKIP-with-activation until Epic A5's caller insertion point is implemented, design.md Test Strategy item 6). The spy observes $spyInvocations invocation(s) across the F1/F3-invalid/F4-invalid fixture construction above -- a VACUOUSLY true zero, not evidence of correct non-invocation policy, since no call site exists yet to have been correctly declined; reported for provenance only."
+        }
+    } else {
+        Test-Fail "TEST-019.10b: build_fixture could not construct the F1/F3-invalid/F4-invalid fixtures needed to even name this SKIP (rc: F1=$spyF1Rc, F3=$spyF3Rc, F4=$spyF4Rc)"
+    }
+} finally {
+    $env:PATH = $originalPath
+}
+
+    # -------------------------------------------------------------------
+    # TEST-019.11 (T-008 / Issue #195 / epic-195-a7-compatibility AC-037;
+    # OQ-001 item (c)) -- a REQ-002 Block surfaces as a visible
+    # skip-stop-message:stop event in the trace, never a silent fallback.
+    # See the bash twin's own TEST-019.11 header comment for the full
+    # mechanism and activation-condition rationale.
+    # -------------------------------------------------------------------
+    Write-Host "=== TEST-019.11 (AC-037): REQ-002 Block surfaces, never falls back silently (named SKIP until Epic A5 merges) ==="
+
+    function Test-A5SkipStopMessagePresent {
+        $trace = $script:_LOOP_EVENT_TRACE | & jq -e 'any(.[]; .kind == "skip-stop-message" and .producer == "skip-stop-message:stop")' 2>$null
+        return ($LASTEXITCODE -eq 0)
+    }
+
+    $a5SavedTrace = $script:_LOOP_EVENT_TRACE
+    $a5SavedSeq = $script:_LOOP_EVENT_SEQ
+    $script:_LOOP_EVENT_TRACE = '[]'
+    $script:_LOOP_EVENT_SEQ = 0
+
+    if (Test-A5SkipStopMessagePresent) {
+        Test-Fail "TEST-019.11a (negative self-check): a silently-falling-back Block (no skip-stop-message:stop event) was incorrectly reported as surfaced"
+    } else {
+        Test-Ok "TEST-019.11a (negative self-check): a silently-falling-back Block (no skip-stop-message:stop event) is correctly detected as NOT surfaced"
+    }
+
+    if ((Write-LoopTraceEvent -Kind skip-stop-message -Producer skip-stop-message:stop -ValueJson '"disabled-legacy-invocation"') -and
+        (Test-A5SkipStopMessagePresent)) {
+        Test-Ok "TEST-019.11b (negative self-check): a Block that correctly surfaces (skip-stop-message:stop recorded) is detected as surfaced"
+    } else {
+        Test-Fail "TEST-019.11b (negative self-check): a correctly-surfaced Block was NOT detected"
+    }
+
+    $script:_LOOP_EVENT_TRACE = $a5SavedTrace
+    $script:_LOOP_EVENT_SEQ = $a5SavedSeq
+
+    $a5MergedForBlock = Test-Path -LiteralPath (Join-Path $repoRoot "specs/epic-193-a5-capability-resolver") -PathType Container
+    if ($a5MergedForBlock) {
+        Test-Fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
+    } else {
+        Write-Host "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree) and the skip-stop-message:stop producer call site does not exist anywhere in the tree yet (same unwired-producer reasoning as TEST-019.8/.9); SKIP-with-activation until Epic A5 merges (design.md Test Strategy item 6)"
+    }
+
+    # -------------------------------------------------------------------
     # TEST-017 (AC-017): runtime budget
     # -------------------------------------------------------------------
     Write-Host "=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=$script:LoopSuiteBudgetSeconds) ==="

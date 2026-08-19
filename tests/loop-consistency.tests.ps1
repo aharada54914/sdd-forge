@@ -456,6 +456,119 @@ try {
     }
 
     # -------------------------------------------------------------------
+    # TEST-019.5 (T-008 / Issue #195 / epic-195-a7-compatibility AC-036;
+    # OQ-001 item (a)) -- anchor-fingerprint drift check against the live
+    # sdd-bootstrap-interviewer/SKILL.md, adopting Epic A5's own design.md
+    # item 10(a) fixture directly (FP-A5-CALLER-CONTRACT-10:
+    # specs/epic-193-a5-capability-resolver/design.md:1886-1915). See the
+    # bash twin's own TEST-018.5 header comment for the full mechanism and
+    # activation-condition rationale; identical algorithm here (sha256 of a
+    # fixed inclusive line-range window, LF-joined, no trailing newline,
+    # plus the target heading's own 1-based ordinal position among every
+    # ##/### heading in document order).
+    #
+    # TEST-019.5a/.5b prove the checker function itself first against
+    # deliberately-constructed positive/negative fixtures (Scope: "a
+    # deliberately drifted anchor window ... before the implementation"),
+    # unconditionally live and gating pass/fail normally. TEST-019.5c then
+    # runs the SAME checker against the live SKILL.md, reported for
+    # provenance only -- AC-036's own Test Type (acceptance-tests.md) fixes
+    # this as a named SKIP until Epic A5 merges, matching design.md Test
+    # Strategy item 6 ("once Epic A5's caller insertion point is
+    # implemented," never merely once the digest happens to still match).
+    # -------------------------------------------------------------------
+    Write-Host "=== TEST-019.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
+
+    function Test-A5AnchorFingerprint {
+        param(
+            [string]$FilePath, [int]$Start, [int]$End, [string]$ExpectedSha,
+            [string]$ExpectedHeading, [int]$ExpectedOrdinal
+        )
+        if (-not (Test-Path -LiteralPath $FilePath -PathType Leaf)) {
+            return @{ Match = $false; Detail = "file not found: $FilePath" }
+        }
+        $lines = Get-Content -LiteralPath $FilePath
+        $windowLines = $lines[($Start - 1)..($End - 1)] | ForEach-Object { $_ -replace "`r$", "" }
+        $window = ($windowLines -join "`n")
+        $actualSha = Get-LoopSha256Text $window
+        $headings = @($lines | Where-Object { $_ -match '^#{2,3} ' })
+        $ordinal = 0
+        for ($i = 0; $i -lt $headings.Count; $i++) {
+            if ($headings[$i] -eq $ExpectedHeading) { $ordinal = $i + 1; break }
+        }
+        $isMatch = ($actualSha -eq $ExpectedSha) -and ($ordinal -eq $ExpectedOrdinal)
+        if ($isMatch) {
+            return @{ Match = $true; Detail = "MATCH sha256=$actualSha ordinal=$ordinal" }
+        } else {
+            return @{ Match = $false; Detail = "DRIFT sha256=$actualSha (expected $ExpectedSha) ordinal=$ordinal (expected $ExpectedOrdinal)" }
+        }
+    }
+
+    $a5AnchorDir = Join-Path ([IO.Path]::GetTempPath()) ("a5-anchor." + [Guid]::NewGuid().ToString("N"))
+    New-Item -ItemType Directory -Path $a5AnchorDir | Out-Null
+    $cleanupRoots.Add($a5AnchorDir)
+
+    $a5SkillGood = Join-Path $a5AnchorDir "skill-good.md"
+    @"
+# Heading Zero
+
+## Section One
+
+### Full-Profile Layer Interview
+
+Body text unrelated to any check.
+"@ | Set-Content -LiteralPath $a5SkillGood -NoNewline -Encoding utf8
+
+    $a5GoodWindowLines = (Get-Content -LiteralPath $a5SkillGood)[2..6] | ForEach-Object { $_ -replace "`r$", "" }
+    $a5GoodSha = Get-LoopSha256Text (($a5GoodWindowLines) -join "`n")
+
+    $a5PositiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillGood -Start 3 -End 7 -ExpectedSha $a5GoodSha -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 2
+    if ($a5PositiveResult.Match) {
+        Test-Ok "TEST-019.5a (positive self-check): the anchor-fingerprint checker matches a non-drifted window and ordinal"
+    } else {
+        Test-Fail "TEST-019.5a (positive self-check): the anchor-fingerprint checker rejected a non-drifted window and ordinal ($($a5PositiveResult.Detail))"
+    }
+
+    # Negative fixture (Scope: "a deliberately drifted anchor window"): line
+    # 2 (blank in skill-good.md) becomes a new heading here, and lines 3-7
+    # are otherwise byte-identical to skill-good.md's own lines 3-7 -- the
+    # exact "heading moved to a different position without changing its own
+    # immediate neighboring lines" regression A5's own design text names as
+    # this revision's own proof case. A sha256-only comparison of the SAME
+    # window (3-7) would wrongly report a MATCH here; only the ordinal
+    # check (the target heading is now 3rd, not 2nd) detects this drift.
+    $a5SkillDrifted = Join-Path $a5AnchorDir "skill-drifted.md"
+    @"
+# Heading Zero
+## Extra Section (inserted -- shifts the ordinal, window untouched)
+## Section One
+
+### Full-Profile Layer Interview
+
+Body text unrelated to any check.
+"@ | Set-Content -LiteralPath $a5SkillDrifted -NoNewline -Encoding utf8
+
+    $a5NegativeResult = Test-A5AnchorFingerprint -FilePath $a5SkillDrifted -Start 3 -End 7 -ExpectedSha $a5GoodSha -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 2
+    if ($a5NegativeResult.Match) {
+        Test-Fail "TEST-019.5b (negative self-check): the anchor-fingerprint checker did NOT detect a heading relocated ahead of an otherwise byte-identical window (sha256-only would have missed this)"
+    } else {
+        Test-Ok "TEST-019.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window"
+    }
+
+    $a5SkillMd = Join-Path $repoRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+    $a5LiveResult = Test-A5AnchorFingerprint -FilePath $a5SkillMd -Start 54 -End 64 -ExpectedSha "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" -ExpectedHeading "### Full-Profile Layer Interview" -ExpectedOrdinal 3
+    $a5Merged = Test-Path -LiteralPath (Join-Path $repoRoot "specs/epic-193-a5-capability-resolver") -PathType Container
+    if ($a5Merged) {
+        if ($a5LiveResult.Match) {
+            Test-Ok "TEST-019.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
+        } else {
+            Test-Fail "TEST-019.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"
+        }
+    } else {
+        Write-Host "SKIP: TEST-019.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: $($a5LiveResult.Detail)"
+    }
+
+    # -------------------------------------------------------------------
     # TEST-017 (AC-017): runtime budget
     # -------------------------------------------------------------------
     Write-Host "=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=$script:LoopSuiteBudgetSeconds) ==="

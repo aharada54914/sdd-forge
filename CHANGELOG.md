@@ -52,6 +52,33 @@
   via T-001's `build_fixture` so the `SKIP` is not a hand-waved
   placeholder.
 
+- **Epic A7 deferred Epic A5 fixture assertions (Issue #195, T-008)**:
+  authored Epic A5's own three deferred `resolve-project-context-caller-
+  contract` fixture assertions (design.md item 10(a)/(b)/(c), OQ-001)
+  inside the existing `TEST-018`/`TEST-019` suites, never a new suite
+  file: `TEST-018.5`/`TEST-019.5` (anchor-fingerprint drift, AC-036) in
+  `tests/loop-consistency.tests.{sh,ps1}`, and `TEST-019.10`/`TEST-019.11`
+  (Resolver-non-invocation spy-harness, AC-004/AC-021; REQ-002
+  Block-surfaces-not-fallback, AC-037) in
+  `tests/loop-escalation.tests.{sh,ps1}`. Each sub-case's own checker
+  mechanism is proven first against a deliberately-constructed
+  negative fixture (a heading relocated ahead of an otherwise
+  byte-identical anchor window; a spy that would report a false
+  negative; a Block that silently falls back with no
+  `skip-stop-message:stop` event) — these self-checks are unconditionally
+  live and gate pass/fail normally. The production-fixture comparison
+  itself remains a named `SKIP` in every sub-case, per tasks.md T-008's
+  own Scope and acceptance-tests.md's own Test Type column ("named SKIP
+  until Epic A5 merges" / "until Epic A1 AND Epic A5 merge"): a local ad
+  hoc probe (`specs/epic-193-a5-capability-resolver/` presence in the
+  tree) stands in for `merged(A5)` until T-010's own allowlist manifest
+  exists. The anchor-fingerprint sub-case's informational recomputation
+  against the live `sdd-bootstrap-interviewer/SKILL.md` found the digest
+  has already drifted from Epic A5's own recorded citation
+  (`FP-A5-CALLER-CONTRACT-10`) even though the heading's own ordinal
+  position has not — reported for provenance only, since AC-036's own
+  activation condition is unmet regardless.
+
 - **Epic A7 capability run-record payload (Issue #195, T-009)**: extended
   `emit-run-record.sh`/`.ps1` with `--capability-enforcement
   <disabled-legacy|advisory|required>`/`--capability-block-id <id>`

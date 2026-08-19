@@ -494,6 +494,123 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# TEST-018.5 (T-008 / Issue #195 / epic-195-a7-compatibility AC-036; OQ-001
+# item (a)) -- anchor-fingerprint drift check against the live
+# sdd-bootstrap-interviewer/SKILL.md, adopting Epic A5's own design.md item
+# 10(a) fixture directly (FP-A5-CALLER-CONTRACT-10:
+# specs/epic-193-a5-capability-resolver/design.md:1886-1915). Recomputes,
+# against a given file, (i) the sha256 of a fixed inclusive line-range
+# window (LF-normalized, joined by a single \n, no trailing newline -- this
+# package's own Cross-epic fingerprint algorithm, design.md Design
+# Decisions) and (ii) a given heading's own 1-based ordinal position among
+# every ##/### heading in that file, in document order -- item 10(a)'s own
+# two-part check ("replacing an earlier revision's bare heading-text-still-
+# exists check, which could not detect the heading moving to a different
+# position while its own text stayed unchanged").
+#
+# TEST-018.5a/.5b prove the checker function itself first, against
+# deliberately-constructed positive/negative fixtures (Scope: "a
+# deliberately drifted anchor window ... before the implementation") -- .5b
+# moves the identical heading text to a different ordinal position without
+# changing its own immediate neighboring lines, the exact regression A5's
+# own design text names as this revision's own proof case. Both assertions
+# are unconditionally live (they test only this suite's own checker, never
+# Epic A5's own unmerged code) and gate pass/fail normally.
+#
+# TEST-018.5c then runs the SAME checker against the live SKILL.md,
+# comparing to A5's own recorded citation (sha256:
+# d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64, ordinal
+# 3). AC-036's own Test Type (acceptance-tests.md) fixes this as a named
+# SKIP until Epic A5 merges -- design.md Test Strategy item 6 places
+# activation at "once Epic A5's caller insertion point is implemented," not
+# merely once the digest happens to still match (the window legitimately
+# changes once A5's own caller-integration lands there), so this comparison
+# is reported for provenance only and never gates pass/fail. A local ad hoc
+# probe (specs/epic-193-a5-capability-resolver/ presence in this tree)
+# stands in for the activation condition until T-010's own allowlist
+# manifest exists (tasks.md T-008 Scope).
+# ---------------------------------------------------------------------------
+echo "=== TEST-018.5 (AC-036): anchor-fingerprint drift check (named SKIP until Epic A5 merges) ==="
+
+_a5_anchor_fingerprint_check() {
+  # $1=file $2=start-line $3=end-line $4=expected-sha256 $5=expected-heading-line $6=expected-ordinal
+  local file="$1" start="$2" end="$3" expected_sha="$4" expected_heading="$5" expected_ordinal="$6"
+  local window actual_sha ordinal
+  [[ -f "$file" ]] || return 1
+  window="$(sed -n "${start},${end}p" "$file" | sed 's/\r$//')" || return 1
+  actual_sha="$(printf '%s' "$window" | _loop_sha256_text)" || return 1
+  ordinal="$(grep -nE '^#{2,3} ' "$file" | cut -d: -f2- | grep -nFx -m1 "$expected_heading" | cut -d: -f1)" || true
+  if [[ "$actual_sha" == "$expected_sha" && "$ordinal" == "$expected_ordinal" ]]; then
+    echo "MATCH sha256=$actual_sha ordinal=$ordinal"
+    return 0
+  else
+    echo "DRIFT sha256=$actual_sha (expected $expected_sha) ordinal=${ordinal:-absent} (expected $expected_ordinal)"
+    return 1
+  fi
+}
+
+A5_ANCHOR_DIR="$(mktemp -d "${TMPDIR:-/tmp}/a5-anchor.XXXXXX")"
+CLEANUP_ROOTS+=("$A5_ANCHOR_DIR")
+cat > "${A5_ANCHOR_DIR}/skill-good.md" <<'A5EOF'
+# Heading Zero
+
+## Section One
+
+### Full-Profile Layer Interview
+
+Body text unrelated to any check.
+A5EOF
+A5_GOOD_WINDOW="$(sed -n '3,7p' "${A5_ANCHOR_DIR}/skill-good.md" | sed 's/\r$//')"
+A5_GOOD_SHA="$(printf '%s' "$A5_GOOD_WINDOW" | _loop_sha256_text)"
+
+if _a5_anchor_fingerprint_check "${A5_ANCHOR_DIR}/skill-good.md" 3 7 "$A5_GOOD_SHA" "### Full-Profile Layer Interview" 2 >/dev/null; then
+  ok "TEST-018.5a (positive self-check): the anchor-fingerprint checker matches a non-drifted window and ordinal"
+else
+  fail "TEST-018.5a (positive self-check): the anchor-fingerprint checker rejected a non-drifted window and ordinal"
+fi
+
+# Negative fixture (Scope: "a deliberately drifted anchor window"): line 2
+# (blank in skill-good.md) becomes a new heading here, and lines 3-7 are
+# otherwise byte-identical to skill-good.md's own lines 3-7 -- the exact
+# "heading moved to a different position without changing its own immediate
+# neighboring lines" regression A5's own design text names as this
+# revision's own proof case. A sha256-only comparison of the SAME window
+# (3-7) would wrongly report a MATCH here (the window bytes are identical);
+# only the ordinal check (the target heading is now 3rd, not 2nd, among all
+# ##/### headings) detects this drift -- proving why item 10(a) requires
+# both halves, not sha256 alone.
+cat > "${A5_ANCHOR_DIR}/skill-drifted.md" <<'A5EOF'
+# Heading Zero
+## Extra Section (inserted -- shifts the ordinal, window untouched)
+## Section One
+
+### Full-Profile Layer Interview
+
+Body text unrelated to any check.
+A5EOF
+if _a5_anchor_fingerprint_check "${A5_ANCHOR_DIR}/skill-drifted.md" 3 7 "$A5_GOOD_SHA" "### Full-Profile Layer Interview" 2 >/dev/null; then
+  fail "TEST-018.5b (negative self-check): the anchor-fingerprint checker did NOT detect a heading relocated ahead of an otherwise byte-identical window (sha256-only would have missed this)"
+else
+  ok "TEST-018.5b (negative self-check): the anchor-fingerprint checker correctly detects a heading relocated ahead of an otherwise byte-identical window"
+fi
+
+A5_SKILL_MD="${REPO_ROOT}/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
+A5_LIVE_RESULT="$(_a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
+  "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
+  "### Full-Profile Layer Interview" 3 2>&1)" || true
+if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
+  if _a5_anchor_fingerprint_check "$A5_SKILL_MD" 54 64 \
+      "d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64" \
+      "### Full-Profile Layer Interview" 3 >/dev/null; then
+    ok "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint matches FP-A5-CALLER-CONTRACT-10 (Epic A5 merged)"
+  else
+    fail "TEST-018.5c (AC-036): live SKILL.md anchor fingerprint has drifted from FP-A5-CALLER-CONTRACT-10 (Epic A5 has merged -- this is a real regression)"
+  fi
+else
+  echo "SKIP: TEST-018.5c: AC-036 anchor-fingerprint drift check against the live SKILL.md -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; design.md Test Strategy item 6, 'once Epic A5's caller insertion point is implemented' -- never merely once the digest happens to still match); current informational recomputation: ${A5_LIVE_RESULT}"
+fi
+
+# ---------------------------------------------------------------------------
 # TEST-017 (AC-017): runtime budget
 # ---------------------------------------------------------------------------
 echo "=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=${LOOP_SUITE_BUDGET_SECONDS}) ==="
