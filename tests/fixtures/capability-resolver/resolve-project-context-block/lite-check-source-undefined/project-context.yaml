@@ -1,0 +1,12 @@
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: lite
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: comp-a
+    characteristics:
+      pii: true
+    paths:
+      include:
+        - "comp-a/**"

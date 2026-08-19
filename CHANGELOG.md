@@ -47,6 +47,37 @@
   `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
   **必要な人間アクション: T-002 と共通の staged candidate 4 件（うち
   1 件がこの更新差分）をレビューして適用すること。**
+- **Capability Resolver steps 10-13 (Issue #193, epic-193-a5 T-004)**:
+  track branch（`full` は Facet Manifest、`lite` は Capability Summary、
+  同一 invocation で両方 staging されることはない — B4）、Resolver
+  Evidence 組み立て（`context_binding.dependency_pointers[]` の RFC 6901
+  正準導出、`resolver.version`/`resolver.rule_set_revision` の単一
+  ソース化 — B9）、staged 済み全アーティファクトの出力スキーマ自己検証
+  （Resolver Evidence 自身が失敗した場合は一切書き込まない唯一の例外を
+  含む — B3）、および pre-publication snapshot recheck（`ownership_digest`
+  だけでなく `affected_components` 集合も再導出して比較する — B8）を実装。
+  既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
+  （共有ドライバは `tests/resolve-project-context-block-check.py`）に、
+  この段の診断行 3 種・4 invocation（`lite-check-source-undefined` /
+  `output-schema-validation-failed` ×2 fixture[AC-055 の Evidence 自身
+  失敗 / 非 Evidence アーティファクト失敗] / `snapshot-generation-mismatch`
+  [digest-mismatch 側の最初の 1 fixture]）を追加し、sh/ps1 とも
+  **121 passed / 0 failed**（T-002/T-003 由来の既存 102 assertion を
+  含む）。TDD RED は同一ドライバ・同一フィクスチャ集合を T-003 時点の
+  実装（steps 0-9 のみ）に対して実行し、sh/ps1 とも 107 passed / 14 failed
+  で新規 4 fixture のみが一貫して失敗することを確認済み。Epic A4 の
+  `capability-summary.schema.json`/`context-projection.schema.json` は
+  このブランチにまだ着地していないため、この suite 自身の
+  test-harness-only スタンドインを新規フィクスチャとして追加(本番コード
+  側は ADR-0025 discovery 経由で実 contracts/ を読むので、Epic A4 着地後
+  はそのまま実スキーマを解決する)。
+  R-10 保護対象の適用候補のうち `resolve-project-context.py` を
+  steps 10-13 分だけ更新し、`.sh`/`.ps1`/`.github/workflows/test.yml` は
+  byte-unchanged（新規 CI 登録なし）。`MANIFEST.sha256` は
+  `resolve-project-context.py` の 1 エントリのみ更新し、
+  `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
+  **必要な人間アクション: T-002/T-003 と共通の staged candidate 4 件
+  （うち 1 件がこの更新差分）をレビューして適用すること。**
 
 ### Fixed
 

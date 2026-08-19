@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/resolver-evidence.schema.json",
+  "title": "T-004 test-harness-only stand-in: a deliberately unsatisfiable resolver-evidence.schema.json, overlaid on top of the real one for exactly this one fixture, so a genuinely well-formed Resolver Evidence instance fails this invocation's own step-12 self-check (TEST-055 sub-case a).",
+  "type": "object",
+  "required": ["__t004_test_only_impossible_field__"]
+}

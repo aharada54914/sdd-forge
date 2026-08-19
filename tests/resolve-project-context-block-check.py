@@ -50,6 +50,30 @@ Four sections:
    pair, rather than hand-transcribing its own Evidence JSON Schema output
    -- the same "recompute via the real dependency" discipline section 2
    already uses for `source_sha256`.
+5. T-004's own three new Block diagnostic-id rows (steps 10-13, four
+   invocations -- `output-schema-validation-failed` gets two fixtures per
+   AC-055's own dual-artifact-scope): `lite-check-source-undefined`,
+   `output-schema-validation-failed` (sub-case a: Resolver Evidence itself
+   fails; sub-case b: a non-Evidence staged artifact fails), and the first,
+   digest-mismatch `snapshot-generation-mismatch` fixture. Two of Epic A4's
+   own three governing output schemas this stage's step 12 self-validates
+   against (`context-projection.schema.json`, `capability-summary.
+   schema.json`) are not yet landed on this branch (Epic A4's own PR has
+   not merged here; T-003's own Dependency Preflight already recorded the
+   identical gap for its own, narrower scope) -- `install_t003_dependencies`
+   below plants this suite's own test-harness-only stand-in copies (their
+   real Epic A4 field shapes, transcribed verbatim from `specs/
+   epic-192-a4-facet-manifest/design.md`'s own frozen API/Contract Plan;
+   `facet-manifest.schema.json` and `resolver-evidence.schema.json` are
+   both real, already-landed contracts and are copied as-is) into every
+   fixture's own isolated `contracts/` directory, exactly like this
+   driver's own already-established "real dependency plus one
+   deliberately-failing stub/schema" pattern. `capability-summary.
+   schema.json` is planted for completeness/future reuse but is never
+   actually exercised by any of this task's own four fixtures below (each
+   is deliberately shaped to Block, or to fail, before step 12 would ever
+   reach a Capability Summary schema check -- see T-004's own
+   implementation report for the exact reasoning).
 """
 
 import argparse
@@ -163,6 +187,10 @@ ALL_CASE_NAMES = (
         "dependency-subprocess-failed",
         "dsl-warn-unmatched-trigger",
         "dsl-warn-matched-nondetermining",
+        "lite-check-source-undefined",
+        "output-schema-validation-failed-evidence",
+        "output-schema-validation-failed-artifact",
+        "snapshot-generation-mismatch",
     ]
 )
 
@@ -180,6 +208,17 @@ LITE_CATALOG_REAL = ROOT / "contracts/lite-upgrade-reason-catalog.json"
 PROVIDER_TERMS_REAL = ROOT / "plugins/sdd-quality-loop/references/provider-terms.json"
 EVALUATE_PREDICATE_REAL = ROOT / "plugins/sdd-quality-loop/scripts/evaluate-predicate.py"
 EMPTY_REGISTRY_PATH = PROJECTION_FIXTURES / "capability-registry-empty.json"
+
+# T-004 (steps 10-13): step 12's own four governing output schemas.
+# `facet-manifest.schema.json`/`resolver-evidence.schema.json` are real,
+# already-landed contracts; `context-projection.schema.json`/`capability-
+# summary.schema.json` are this suite's own test-harness-only stand-ins
+# for Epic A4's own two not-yet-landed schemas (see module docstring,
+# section 5).
+FACET_MANIFEST_SCHEMA_REAL = ROOT / "contracts/facet-manifest.schema.json"
+RESOLVER_EVIDENCE_SCHEMA_REAL = SCHEMA
+CONTEXT_PROJECTION_SCHEMA_STANDIN = PROJECTION_FIXTURES / "context-projection.schema.json"
+CAPABILITY_SUMMARY_SCHEMA_STANDIN = PROJECTION_FIXTURES / "capability-summary.schema.json"
 
 
 def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, registry_capabilities_path=None):
@@ -200,6 +239,18 @@ def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, regist
     shutil.copy2(LITE_CATALOG_REAL, contracts / "lite-upgrade-reason-catalog.json")
     if registry_capabilities_path is not None:
         shutil.copy2(registry_capabilities_path, contracts / "capability-registry.json")
+    # T-004 (step 12): every governing output schema this stage may
+    # self-validate against, planted unconditionally so a fixture that
+    # legitimately reaches step 10-13 (a success path, or one of T-004's
+    # own new Block fixtures) can discover them via the identical
+    # packaged-then-git-root ADR-0025 order `_discover_governing_schema`
+    # uses -- these fixture repos only ever populate the git-root
+    # location, matching this driver's own already-established
+    # `install_scripts`/`_discover_registry` convention.
+    shutil.copy2(FACET_MANIFEST_SCHEMA_REAL, contracts / "facet-manifest.schema.json")
+    shutil.copy2(RESOLVER_EVIDENCE_SCHEMA_REAL, contracts / "resolver-evidence.schema.json")
+    shutil.copy2(CONTEXT_PROJECTION_SCHEMA_STANDIN, contracts / "context-projection.schema.json")
+    shutil.copy2(CAPABILITY_SUMMARY_SCHEMA_STANDIN, contracts / "capability-summary.schema.json")
 
 
 def git_commit_all(repo, message):
@@ -365,6 +416,127 @@ def run_t003_case(kind, case_name, counts):
         counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
 
         check_evidence_schema(counts, evidence_path, case_name)
+        unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
+        counts.check(unchanged, f"{case_name}: no partial live artifact")
+
+
+# --- T-004 (steps 10-13) additions ------------------------------------------
+
+
+def run_t004_case(kind, case_name, counts):
+    """T-004's own four new Block-suite invocations (steps 10-13):
+    `lite-check-source-undefined`, the two `output-schema-validation-
+    failed` sub-cases (AC-055), and the first, digest-mismatch
+    `snapshot-generation-mismatch` fixture. Every real dependency this
+    stage invokes (`resolve-component-paths`, Registry discovery +
+    `validate-capability-registry`, `generate-registry-digest --whole`,
+    `evaluate-predicate`) is a REAL subprocess, matching T-003's own
+    established discipline -- except where a fixture deliberately swaps
+    in a failing stub/schema for exactly the one dependency this fixture
+    exists to break."""
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t004-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = install_scripts(repo)
+        feature_dir, sentinels = plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+
+        state = "advisory"
+        expected_capability_evaluations = []
+        stub_name = None
+        registry_capabilities_path = EMPTY_REGISTRY_PATH
+        target_oid_extra_commit = False
+
+        if case_name == "lite-check-source-undefined":
+            state = "required"
+            registry_capabilities_path = fixture_dir / "capability-registry.json"
+            target_oid_extra_commit = True
+            expected_id = "lite-check-source-undefined"
+            expected_detail = (
+                "matched Capability 'cap-lite' has no lite_policy.required_lite_checks "
+                "source while capability_enforcement is required"
+            )
+        elif case_name == "output-schema-validation-failed-evidence":
+            expected_id = "output-schema-validation-failed"
+            expected_detail = "resolver-evidence.yaml failed its own defensive output schema self-validation"
+        elif case_name == "output-schema-validation-failed-artifact":
+            expected_id = "output-schema-validation-failed"
+            expected_detail = "the staged context-projection artifact failed its own defensive output schema self-validation"
+        elif case_name == "snapshot-generation-mismatch":
+            stub_name = "generate-registry-digest.py"
+            expected_id = "snapshot-generation-mismatch"
+            expected_detail = (
+                "a pre-publication recheck of the Project Context, Registry, or "
+                "ownership-source snapshot detected drift since this invocation's own snapshot"
+            )
+        else:
+            raise AssertionError(f"unknown T-004 case: {case_name}")
+
+        install_t003_dependencies(
+            repo, scripts, fixture_dir, stub_name=stub_name,
+            registry_capabilities_path=registry_capabilities_path,
+        )
+        # T-004's own two output-schema-validation-failed fixtures each
+        # overlay exactly one governing schema with a deliberately
+        # unsatisfiable stand-in, on top of the otherwise-real/stand-in set
+        # `install_t003_dependencies` just planted.
+        if (fixture_dir / "resolver-evidence.schema.json").is_file():
+            shutil.copy2(fixture_dir / "resolver-evidence.schema.json", repo / "contracts/resolver-evidence.schema.json")
+        if (fixture_dir / "context-projection.schema.json").is_file():
+            shutil.copy2(fixture_dir / "context-projection.schema.json", repo / "contracts/context-projection.schema.json")
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        target_oid = base_oid
+
+        if target_oid_extra_commit:
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+            predicate = {"scope": "affected_component", "field": "characteristics.pii", "operator": "equals", "value": True}
+            properties = {"characteristics": {"pii": True}}
+            result, evidence_nodes = real_evaluate_predicate(predicate, properties)
+            expected_capability_evaluations = [{
+                "capability_id": "cap-lite",
+                "matched": result,
+                "trigger_evaluations": [{"component_id": "comp-a", "result": result, "evidence": evidence_nodes}],
+                "conditional_facet_evaluations": [],
+            }]
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, target_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+
+        expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
+            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+
+        if case_name == "output-schema-validation-failed-evidence":
+            # B3's sole exception: nothing is written to any live path at
+            # all, not even a best-effort Evidence instance.
+            counts.check(not evidence_path.exists(), f"{case_name}: no Resolver Evidence written (B3)")
+        else:
+            evidence, parse_error = read_evidence(evidence_path)
+            expected = {
+                "schema": "sdd-resolver-evidence/v1",
+                "feature": "example-feature",
+                "capability_evaluations": sorted(expected_capability_evaluations, key=lambda e: e["capability_id"]),
+                "diagnostics": [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
+                "state": state,
+            }
+            counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
+            check_evidence_schema(counts, evidence_path, case_name)
+
         unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
         counts.check(unchanged, f"{case_name}: no partial live artifact")
 
@@ -681,6 +853,13 @@ def main():
             "dsl-warn-matched-nondetermining",
         ):
             run_t003_case(args.launcher, case_name, counts)
+        for case_name in (
+            "lite-check-source-undefined",
+            "output-schema-validation-failed-evidence",
+            "output-schema-validation-failed-artifact",
+            "snapshot-generation-mismatch",
+        ):
+            run_t004_case(args.launcher, case_name, counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capability Resolver, implementation stages T-002+T-003 (steps 0-9).
+"""Capability Resolver, implementation stages T-002+T-003+T-004 (steps 0-13).
 
 T-002 validates CLI input, derives Resolver state, obtains a single canonical
 Project Context snapshot, and assembles/canonicalizes the Context Projection
@@ -9,11 +9,16 @@ discovery + validation (ADR-0025 discovery + `validate-capability-registry`),
 `registry_digest` (`generate-registry-digest --whole`), per-Capability/
 per-affected-component trigger evaluation, matched-Capability
 conditional-facet evaluation (both via `evaluate-predicate`), and the
-any-branch WARN check (steps 4-9). Every step 4-9 result is staged in memory
-only -- T-004 assembles the track branch and Resolver Evidence for a clean
-resolve and performs output schema self-validation and the pre-publication
-recheck (steps 10-13); T-007 layers the crash-recovery scan and the journaled
-publication transaction (step 14) onto this same script.
+any-branch WARN check (steps 4-9). T-004 completes the staged-only pipeline:
+the track branch (Facet Manifest on `full`, Capability Summary on `lite`,
+never both -- B4), Resolver Evidence assembly (context_binding/resolver
+provenance canonicalization, B9), output schema self-validation against
+every staged artifact's own governing schema (B3), and the pre-publication
+snapshot recheck (B8 TOCTOU) (steps 10-13). Every step 0-13 result is staged
+in memory only -- a clean resolve (exit 0) writes nothing to any live path;
+T-007 layers the crash-recovery scan and the journaled publication
+transaction (step 14) onto this same script, the sole component with any
+live-filesystem write of its own.
 """
 
 import argparse
@@ -31,6 +36,30 @@ EXIT_BLOCK = 1
 EXIT_USAGE = 2
 FEATURE_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 EVIDENCE_SCHEMA = "sdd-resolver-evidence/v1"
+
+# T-004 (steps 10-13): resolver.version/resolver.rule_set_revision
+# single-source-of-truth + canonical-preimage rules (Data Plan "B9", no
+# upstream rule fixed either). RESOLVER_VERSION is this feature's own
+# single source of truth -- the .sh/.ps1 dispatchers never read, duplicate,
+# or independently derive it, so .py/.sh/.ps1 parity (REQ-005/AC-023) is
+# structural. Mutated only via scripts/bump-version.sh (REQ-008/AC-034),
+# matching Epic A3's own identical `resolve-component-paths.py:
+# RESOLVER_VERSION` precedent. RULE_SET_REVISION is the sha256 of a fixed,
+# versioned canonical string identifying *which revision of this feature's
+# own orchestration rule set* (union-match, WARN-Block scope, facet-name
+# aggregation, the REQ-002 Block taxonomy) produced a given Resolver
+# Evidence instance -- never a hash of any input file, so it is identical
+# across every invocation of the same Resolver revision.
+RESOLVER_VERSION = "1.0.0"
+RULE_SET_STRING = "sdd-resolver-rule-set/v1"
+RULE_SET_REVISION = "sha256:" + hashlib.sha256(RULE_SET_STRING.encode("utf-8")).hexdigest()
+
+# T-004 step 12's own governing-schema filenames (ADR-0025 discovery,
+# `_discover_governing_schema` below).
+FACET_MANIFEST_SCHEMA_FILENAME = "facet-manifest.schema.json"
+CAPABILITY_SUMMARY_SCHEMA_FILENAME = "capability-summary.schema.json"
+CONTEXT_PROJECTION_SCHEMA_FILENAME = "context-projection.schema.json"
+RESOLVER_EVIDENCE_SCHEMA_FILENAME = "resolver-evidence.schema.json"
 
 
 class CanonicalizerFailed(Exception):
@@ -71,6 +100,31 @@ class DependencyOutputMalformed(Exception):
     """A dependency subprocess exited zero but its own stdout does not
     parse as the JSON/digest shape that dependency's own contract promises
     (B3)."""
+
+
+class LiteCheckSourceUndefined(Exception):
+    """Step 10b's own Block condition (B5-narrowed): `spec_profile ==
+    lite`, `capability_enforcement == required`, and at least one matched
+    Capability's own `lite_policy.required_lite_checks` key is absent.
+    Carries that Capability's own id for the diagnostic detail."""
+
+
+class OutputSchemaValidationFailed(Exception):
+    """Step 12 (B3): a staged artifact failed its own defensive output
+    schema self-validation. `artifact_name` is one of "resolver-evidence"
+    (the sole case where nothing is written to any live path at all),
+    "context-projection", "facet-manifest", or "capability-summary"."""
+
+    def __init__(self, artifact_name):
+        super().__init__(artifact_name)
+        self.artifact_name = artifact_name
+
+
+class SnapshotGenerationMismatch(Exception):
+    """Step 13 (B8 TOCTOU): the pre-publication recheck of the Project
+    Context/Registry/ownership-source snapshot, including a fresh
+    re-derivation of `affected_components` (not only `ownership_digest`),
+    no longer matches this invocation's own step-2/4/5-6 snapshot."""
 
 
 def _reject_json_constant(token):
@@ -455,6 +509,437 @@ def _projection(document, source_sha256):
     }
 
 
+# ---------------------------------------------------------------------------
+# T-004 (steps 10-13): track branch, Resolver Evidence assembly, output
+# schema self-validation, pre-publication snapshot recheck.
+# ---------------------------------------------------------------------------
+
+
+def _rfc6901_escape(token):
+    return token.replace("~", "~0").replace("/", "~1")
+
+
+def _dependency_pointers(affected_components):
+    """B9 (Data Plan, no upstream rule fixed this): exactly `/workflow`
+    plus one RFC-6901-escaped `/components/<id>` pointer per affected
+    component (never every component the Project Context declares), the
+    resulting set stable-sorted and de-duplicated. `/shared_paths` is
+    never included (Data Plan, "dependency_pointers[] -- canonical
+    derivation rule")."""
+    pointers = {"/workflow"}
+    for component_id in affected_components:
+        pointers.add("/components/" + _rfc6901_escape(component_id))
+    return sorted(pointers)
+
+
+def _required_facets(registry_document, matched_capability_ids):
+    capabilities_by_id = {c["id"]: c for c in registry_document.get("capabilities", [])}
+    facets = set()
+    for capability_id in matched_capability_ids:
+        facets.update(capabilities_by_id.get(capability_id, {}).get("required_facets", []))
+    return sorted(facets)
+
+
+def _resolved_gates(registry_document, matched_capability_ids):
+    """Every matched Capability's own `gate_ids[]`, resolved via a
+    Resolver-side join against the discovered Registry's own `gates[]`, at
+    any `stage` value -- this feature does not filter to
+    `stage: implementation` only (Design Decisions, "resolved_gates[]
+    includes ... at any stage value")."""
+    capabilities_by_id = {c["id"]: c for c in registry_document.get("capabilities", [])}
+    gates_by_id = {g["id"]: g for g in registry_document.get("gates", [])}
+    seen = set()
+    resolved = []
+    for capability_id in matched_capability_ids:
+        for gate_id in capabilities_by_id.get(capability_id, {}).get("gate_ids", []):
+            if gate_id in seen or gate_id not in gates_by_id:
+                continue
+            seen.add(gate_id)
+            gate = gates_by_id[gate_id]
+            resolved.append({"id": gate_id, "stage": gate["stage"], "blocking": gate["blocking"]})
+    resolved.sort(key=lambda entry: entry["id"])
+    return resolved
+
+
+def _capability_minimum_enforcement(registry_document, matched_capability_ids):
+    """The `max()` (logical OR, since `"required"` is the schema's own
+    only non-absent value) of every matched Capability's own
+    `minimum_enforcement` -- the key is omitted entirely (never a false-ish
+    placeholder) when no matched Capability names it, matching the
+    Facet Manifest schema's own optional, `const: "required"`-only field."""
+    capabilities_by_id = {c["id"]: c for c in registry_document.get("capabilities", [])}
+    for capability_id in matched_capability_ids:
+        if capabilities_by_id.get(capability_id, {}).get("minimum_enforcement") == "required":
+            return "required"
+    return None
+
+
+def _lite_eligibility(registry_document, matched_capability_ids):
+    """The aggregate `{eligible, upgrade_reasons}` signal both 10a's own
+    Facet Manifest field and 10b's own `full_upgrade_required` derive
+    from: `eligible` is the AND of every matched Capability's own
+    `lite_policy.eligible` (a single non-lite-eligible matched Capability
+    forces the aggregate non-eligible, the identical union/soundness
+    argument this feature's own Design Decisions already apply to
+    `trigger`/`when` matching, one level higher); `upgrade_reasons` is the
+    stable-sorted, de-duplicated union of every matched Capability's own
+    `lite_policy.upgrade_reasons`. Zero matched Capabilities is vacuously
+    `{eligible: true, upgrade_reasons: []}` (Edge Cases, "zero affected
+    components" -- the identical vacuous shape applies here since an empty
+    AND is true and an empty union is `[]`)."""
+    capabilities_by_id = {c["id"]: c for c in registry_document.get("capabilities", [])}
+    eligible = True
+    reasons = set()
+    for capability_id in matched_capability_ids:
+        policy = capabilities_by_id.get(capability_id, {}).get("lite_policy") or {}
+        if not policy.get("eligible", True):
+            eligible = False
+        reasons.update(policy.get("upgrade_reasons", []))
+    return {"eligible": eligible, "upgrade_reasons": sorted(reasons)}
+
+
+def _aggregate_conditional_facets(capability_evaluations):
+    """Step 10a's own cross-Capability facet-name aggregation (Design
+    Decisions "facet-name aggregation, predicate-instance keyed", B7).
+    Aggregates, per distinct `facet` name, across every predicate instance
+    `(capability_id, declaration_index)` -- Registry-wide, across every
+    matched Capability -- whose own `conditional_facets[declaration_index].
+    facet` equals that name: `applied` is the OR of every contributing
+    instance's own `applied` (step 8's own per-instance union-match
+    result); `evidence` is the concatenation of every contributing
+    `(capability_id, declaration_index, component_id)` triple's own
+    evaluation-node array, ordered `capability_id`-then-`declaration_
+    index`-then-`component_id` ascending; `reason` (present iff
+    `applied: false`) names every contributing predicate instance in the
+    identical ascending order."""
+    contributions = {}
+    for entry in capability_evaluations:
+        if not entry.get("matched"):
+            continue
+        for cfe in entry.get("conditional_facet_evaluations", []):
+            contributions.setdefault(cfe["facet"], []).append(
+                (entry["capability_id"], cfe["declaration_index"], cfe["applied"], cfe["evaluations"])
+            )
+
+    result = []
+    for facet in sorted(contributions):
+        instances = sorted(contributions[facet], key=lambda instance: (instance[0], instance[1]))
+        applied = any(instance[2] for instance in instances)
+        evidence = []
+        for _capability_id, _declaration_index, _applied, evaluations in instances:
+            for evaluation in sorted(evaluations, key=lambda e: e["component_id"]):
+                evidence.extend(evaluation["evidence"])
+        node = {"facet": facet, "applied": applied, "evidence": evidence}
+        if not applied:
+            names = ", ".join(f"{cid}[{idx}]" for cid, idx, _a, _e in instances)
+            node["reason"] = (
+                "no contributing predicate instance's conditional facet matched "
+                f"any affected component (contributing: {names})"
+            )
+        result.append(node)
+    return result
+
+
+def _assemble_facet_manifest(feature, affected_components, registry_document, capability_evaluations, context_binding, resolver_block):
+    """Step 10a: Full-track Facet Manifest assembly (staged only)."""
+    matched_ids = sorted(entry["capability_id"] for entry in capability_evaluations if entry["matched"])
+    manifest = {
+        "schema": "sdd-facet-manifest/v1",
+        "feature": feature,
+        "affected_components": sorted(set(affected_components)),
+        "required_facets": _required_facets(registry_document, matched_ids),
+        "conditional_facets": _aggregate_conditional_facets(capability_evaluations),
+        "resolved_gates": _resolved_gates(registry_document, matched_ids),
+        "capabilities": matched_ids,
+        "lite_eligibility": _lite_eligibility(registry_document, matched_ids),
+        "context_binding": context_binding,
+        "resolver": resolver_block,
+    }
+    enforcement = _capability_minimum_enforcement(registry_document, matched_ids)
+    if enforcement is not None:
+        manifest["capability_minimum_enforcement"] = enforcement
+    return manifest
+
+
+def _assemble_capability_summary(feature, registry_document, capability_evaluations, state):
+    """Step 10b: Lite-track Capability Summary assembly (staged only).
+    Raises LiteCheckSourceUndefined (B5-narrowed) iff `state == "required"`
+    and at least one matched Capability's own `lite_policy.
+    required_lite_checks` key is absent; under `advisory`, an absent key
+    contributes an empty `[]` instead."""
+    capabilities_by_id = {c["id"]: c for c in registry_document.get("capabilities", [])}
+    matched_ids = sorted(entry["capability_id"] for entry in capability_evaluations if entry["matched"])
+    required_lite_checks = set()
+    for capability_id in matched_ids:
+        lite_policy = capabilities_by_id.get(capability_id, {}).get("lite_policy") or {}
+        if "required_lite_checks" in lite_policy:
+            required_lite_checks.update(lite_policy["required_lite_checks"])
+        elif state == "required":
+            raise LiteCheckSourceUndefined(capability_id)
+        # else: advisory (or a non-required state) -- absent contributes [].
+    lite_eligibility = _lite_eligibility(registry_document, matched_ids)
+    return {
+        "schema": "sdd-capability-summary/v1",
+        "feature": feature,
+        "track": "lite",
+        "capabilities": matched_ids,
+        "required_lite_checks": sorted(required_lite_checks),
+        "full_upgrade_required": not lite_eligibility["eligible"],
+    }
+
+
+def _assemble_context_binding(source_sha256, affected_components, projection_sha256, registry_digest, ownership_digest):
+    return {
+        "full_context_revision": source_sha256,
+        "dependency_pointers": _dependency_pointers(affected_components),
+        "projection_sha256": projection_sha256,
+        "registry_digest": registry_digest,
+        "ownership_digest": ownership_digest,
+    }
+
+
+def _resolver_block():
+    return {"version": RESOLVER_VERSION, "rule_set_revision": RULE_SET_REVISION}
+
+
+def _assemble_resolver_evidence(feature, state, capability_evaluations, context_binding, resolver_block):
+    """Step 11: Resolver Evidence assembly (staged only) for a clean
+    resolve -- `diagnostics: []` (no Block condition fired through step
+    10), every `capability_evaluations[]` entry from steps 7-8 in full."""
+    return {
+        "schema": EVIDENCE_SCHEMA,
+        "feature": feature,
+        "state": state,
+        "context_binding": context_binding,
+        "resolver": resolver_block,
+        "capability_evaluations": sorted(capability_evaluations, key=lambda entry: entry["capability_id"]),
+        "diagnostics": [],
+    }
+
+
+# --- Step 12: output schema self-validation (B3) --------------------------
+#
+# A hand-rolled, stdlib-only draft-07 subset engine -- reimplemented locally
+# rather than imported, mirroring Epic A4's own `validate-facet-manifest.py`
+# engine closely enough to validate against the identical governing schema
+# documents ($ref, if/then/else, oneOf, propertyNames, pattern, uniqueItems,
+# minItems). Resolver Evidence's own self-check has no external validator
+# script to shell out to at all -- `validate-resolver-evidence` is T-008's
+# own, not-yet-built deliverable -- so this feature's own step 12 validates
+# every governing schema (Facet Manifest/Capability Summary/Context
+# Projection/Resolver Evidence) the identical, uniform, in-process way.
+
+
+def _draft7_type_matches(value, type_spec):
+    if isinstance(type_spec, list):
+        return any(_draft7_type_matches(value, entry) for entry in type_spec)
+    if type_spec == "object":
+        return isinstance(value, dict)
+    if type_spec == "array":
+        return isinstance(value, list)
+    if type_spec == "string":
+        return isinstance(value, str)
+    if type_spec == "integer":
+        return isinstance(value, int) and not isinstance(value, bool)
+    if type_spec == "number":
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    if type_spec == "boolean":
+        return isinstance(value, bool)
+    if type_spec == "null":
+        return value is None
+    return False
+
+
+def _draft7_resolve_ref(ref, root_schema):
+    if not ref.startswith("#/"):
+        raise ValueError(f"unsupported $ref (not a same-document fragment): {ref}")
+    node = root_schema
+    for part in ref[2:].split("/"):
+        node = node[part.replace("~1", "/").replace("~0", "~")]
+    return node
+
+
+def _draft7_matches(instance, schema, root_schema):
+    probe = []
+    _draft7_validate(instance, schema, root_schema, "", probe)
+    return not probe
+
+
+def _draft7_validate(instance, schema, root_schema, pointer, diags):
+    if schema is True:
+        return
+    if schema is False:
+        diags.append(pointer)
+        return
+    if "$ref" in schema:
+        _draft7_validate(instance, _draft7_resolve_ref(schema["$ref"], root_schema), root_schema, pointer, diags)
+        return
+    if "const" in schema and instance != schema["const"]:
+        diags.append(pointer)
+        return
+    if "enum" in schema and instance not in schema["enum"]:
+        diags.append(pointer)
+        return
+    if "type" in schema and not _draft7_type_matches(instance, schema["type"]):
+        diags.append(pointer)
+        return
+    if "oneOf" in schema:
+        matches = sum(1 for branch in schema["oneOf"] if _draft7_matches(instance, branch, root_schema))
+        if matches != 1:
+            diags.append(pointer)
+    if "if" in schema:
+        if _draft7_matches(instance, schema["if"], root_schema):
+            if "then" in schema:
+                _draft7_validate(instance, schema["then"], root_schema, pointer, diags)
+        elif "else" in schema:
+            _draft7_validate(instance, schema["else"], root_schema, pointer, diags)
+    if isinstance(instance, str):
+        if "pattern" in schema and not re.search(schema["pattern"], instance):
+            diags.append(pointer)
+        if "minLength" in schema and len(instance) < schema["minLength"]:
+            diags.append(pointer)
+    if isinstance(instance, dict):
+        for required_key in schema.get("required", []):
+            if required_key not in instance:
+                diags.append(f"{pointer}/{required_key}")
+        properties = schema.get("properties", {})
+        for key, value in instance.items():
+            if key in properties:
+                _draft7_validate(value, properties[key], root_schema, f"{pointer}/{key}", diags)
+        if "propertyNames" in schema:
+            for key in instance:
+                _draft7_validate(key, schema["propertyNames"], root_schema, f"{pointer}/{key}", diags)
+        additional = schema.get("additionalProperties", True)
+        if additional is not True:
+            extra_keys = [key for key in instance if key not in properties]
+            if additional is False:
+                for key in extra_keys:
+                    diags.append(f"{pointer}/{key}")
+            else:
+                for key in extra_keys:
+                    _draft7_validate(instance[key], additional, root_schema, f"{pointer}/{key}", diags)
+    if isinstance(instance, list):
+        if "items" in schema:
+            items_schema = schema["items"]
+            for index, element in enumerate(instance):
+                _draft7_validate(element, items_schema, root_schema, f"{pointer}/{index}", diags)
+        if schema.get("uniqueItems"):
+            seen = []
+            for index, element in enumerate(instance):
+                canonical = json.dumps(element, sort_keys=True)
+                if canonical in seen:
+                    diags.append(f"{pointer}/{index}")
+                else:
+                    seen.append(canonical)
+        if "minItems" in schema and len(instance) < schema["minItems"]:
+            diags.append(pointer)
+
+
+def _draft7_conforms(document, schema):
+    diags = []
+    _draft7_validate(document, schema, schema, "", diags)
+    return not diags
+
+
+def _discover_governing_schema(script_dir, repo_root, filename):
+    """Step 12's own ADR-0025-style discovery for a governing output
+    schema: the packaged, script-relative `contracts/` copy first, then
+    the git-root `contracts/` fallback -- the identical two-step order
+    `registry_discovery.discover_artifact` already uses for the Registry
+    (step 5), reimplemented locally here rather than reused, since that
+    shared module's own `VERSION_CHECKS` table is closed to Epic A2's own
+    three registry-family filenames and this feature's own Global
+    Constraints forbid editing any file under `plugins/**`, including
+    `registry_discovery.py` itself. A resolution failure maps to the
+    identical `contract-discovery-failed` diagnostic REQ-002 already names
+    for "any of Epic A4's three schemas" failing this same procedure."""
+    packaged = script_dir.parent / "contracts" / filename
+    if packaged.is_file():
+        return packaged
+    git_path = repo_root / "contracts" / filename
+    if git_path.is_file():
+        return git_path
+    raise ContractDiscoveryFailed(f"{filename} not found at the packaged or git-root contracts/ location")
+
+
+def _load_governing_schema(script_dir, repo_root, filename):
+    path = _discover_governing_schema(script_dir, repo_root, filename)
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ContractDiscoveryFailed(f"{filename} could not be read/parsed: {exc}")
+
+
+def _self_validate_output(script_dir, repo_root, evidence, context_projection, track_artifact, track_artifact_schema_filename, track_artifact_name):
+    """Step 12 (B3). Resolver Evidence (already staged, step 11) is
+    re-validated FIRST -- if it is itself the artifact that fails, the
+    caller must write NOTHING to any live path, not even a best-effort,
+    fields-omitted Evidence instance (the sole exception to REQ-002's
+    "Evidence always emitted" rule). Context Projection (staged at step 3
+    on every invocation, regardless of track) is checked next, then the
+    track-exclusive artifact (Facet Manifest on `full`, Capability Summary
+    on `lite`) last -- if either check after Evidence's own fails,
+    Resolver Evidence itself (already independently schema-valid) is still
+    written normally as this Block's own record."""
+    evidence_schema = _load_governing_schema(script_dir, repo_root, RESOLVER_EVIDENCE_SCHEMA_FILENAME)
+    if not _draft7_conforms(evidence, evidence_schema):
+        raise OutputSchemaValidationFailed("resolver-evidence")
+
+    projection_schema = _load_governing_schema(script_dir, repo_root, CONTEXT_PROJECTION_SCHEMA_FILENAME)
+    if not _draft7_conforms(context_projection, projection_schema):
+        raise OutputSchemaValidationFailed("context-projection")
+
+    track_schema = _load_governing_schema(script_dir, repo_root, track_artifact_schema_filename)
+    if not _draft7_conforms(track_artifact, track_schema):
+        raise OutputSchemaValidationFailed(track_artifact_name)
+
+
+def _pre_publication_recheck(script_dir, args, absolute_config, source_sha256, affected_components, ownership_digest, registry_digest):
+    """Step 13 (B8 TOCTOU, Data Plan gives the digest-derivation
+    mechanism). Re-reads the Project Context, re-invokes `resolve-
+    component-paths` for a FRESH `ownership_digest` and a FRESH
+    `affected_components` set (B8 correction -- `ownership_digest` alone
+    cannot detect a diff-only generation change), and re-derives
+    `registry_digest`; any digest mismatch, or any `affected_components`
+    set difference (even with every digest, including `ownership_digest`,
+    still matching), raises SnapshotGenerationMismatch. This function
+    performs no live write of any kind -- the values it recomputes are
+    used only for this comparison; a passing recheck changes nothing this
+    invocation has already computed."""
+    try:
+        fresh_canonical, _fresh_document = _canonicalize(absolute_config, "yaml")
+    except (CanonicalizerFailed, CanonicalizerOutputMalformed):
+        raise SnapshotGenerationMismatch("project context recheck canonicalization failed")
+    fresh_source_sha256 = "sha256:" + hashlib.sha256(fresh_canonical).hexdigest()
+
+    try:
+        fresh_affected_components, fresh_ownership_digest = _run_resolve_component_paths(script_dir, args)
+    except (AffectedComponentResolutionFailed, DependencyOutputMalformed):
+        raise SnapshotGenerationMismatch("affected-component recheck failed")
+
+    try:
+        fresh_registry_digest = _generate_registry_digest_whole(script_dir)
+    except (CanonicalizerFailed, DependencySubprocessFailed, DependencyOutputMalformed):
+        raise SnapshotGenerationMismatch("registry_digest recheck failed")
+
+    if (
+        fresh_source_sha256 != source_sha256
+        or fresh_ownership_digest != ownership_digest
+        or fresh_registry_digest != registry_digest
+        or set(fresh_affected_components) != set(affected_components)
+    ):
+        raise SnapshotGenerationMismatch("snapshot recheck detected drift")
+
+
+def _block_no_write(diagnostic_id, detail):
+    """Step 12's own sole exception (B3): Resolver Evidence itself failed
+    its own schema self-validation, so this invocation writes NOTHING to
+    any live path at all, not even a best-effort record."""
+    sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
+    return EXIT_BLOCK
+
+
 def main(argv=None):
     args = _parse_args(argv)
     config_path = Path(args.config)
@@ -517,11 +1002,11 @@ def main(argv=None):
     finally:
         projection_input.unlink(missing_ok=True)
 
-    # T-002's own steps 0-3 staged values, retained in memory only.
-    _staged_context_snapshot = canonical_context
-    _staged_projection = canonical_projection
-    _projection_sha256 = "sha256:" + hashlib.sha256(canonical_projection).hexdigest()
-    del _staged_context_snapshot, _staged_projection, _projection_sha256
+    # T-002's own steps 0-3 staged values, retained in memory for T-004's
+    # own step 11 (context_binding.projection_sha256, below); the raw
+    # canonicalized bytes themselves are not needed past this point.
+    projection_sha256 = "sha256:" + hashlib.sha256(canonical_projection).hexdigest()
+    del canonical_context, canonical_projection
 
     script_dir = Path(__file__).resolve().parent
     repo_relative_config = _repo_relative(absolute_config, repo_root)
@@ -587,15 +1072,74 @@ def main(argv=None):
         detail = "a predicate evaluation produced an outcome: warn evidence node"
         return _block(repo_root, args.feature, "dsl-warn-on-matched-capability", detail, state, capability_evaluations)
 
-    # T-003 owns staging only through step 9. These values are deliberately
-    # retained in memory for T-004's own steps 10-13 (track branch, Resolver
-    # Evidence assembly, output schema self-validation, pre-publication
-    # recheck) and never written live here.
-    _staged_capability_evaluations = capability_evaluations
-    _staged_registry_digest = registry_digest
-    _staged_ownership_digest = ownership_digest
-    _staged_affected_components = affected_components
-    del _staged_capability_evaluations, _staged_registry_digest, _staged_ownership_digest, _staged_affected_components
+    # Step 10: track branch, decided here, before any publication (B4).
+    context_binding = _assemble_context_binding(
+        source_sha256, affected_components, projection_sha256, registry_digest, ownership_digest,
+    )
+    resolver_block = _resolver_block()
+
+    if workflow["spec_profile"] == "full":
+        # 10a: Full track -- Facet Manifest assembly. No Capability Summary
+        # is staged on this track (B4).
+        track_artifact = _assemble_facet_manifest(
+            args.feature, affected_components, registry_document, capability_evaluations,
+            context_binding, resolver_block,
+        )
+        track_artifact_schema_filename = FACET_MANIFEST_SCHEMA_FILENAME
+        track_artifact_name = "facet-manifest"
+    else:
+        # 10b: Lite track -- Capability Summary assembly only. No Facet
+        # Manifest and no published Context Projection on this track (B4).
+        try:
+            track_artifact = _assemble_capability_summary(
+                args.feature, registry_document, capability_evaluations, state,
+            )
+        except LiteCheckSourceUndefined as exc:
+            capability_id = exc.args[0]
+            detail = (
+                f"matched Capability {capability_id!r} has no lite_policy.required_lite_checks "
+                "source while capability_enforcement is required"
+            )
+            return _block(repo_root, args.feature, "lite-check-source-undefined", detail, state, capability_evaluations)
+        track_artifact_schema_filename = CAPABILITY_SUMMARY_SCHEMA_FILENAME
+        track_artifact_name = "capability-summary"
+
+    # Step 11: Resolver Evidence assembly (staged only).
+    evidence = _assemble_resolver_evidence(args.feature, state, capability_evaluations, context_binding, resolver_block)
+
+    # Step 12: output schema self-validation (B3).
+    try:
+        _self_validate_output(
+            script_dir, repo_root, evidence, parsed_projection,
+            track_artifact, track_artifact_schema_filename, track_artifact_name,
+        )
+    except ContractDiscoveryFailed as exc:
+        detail = f"governing output schema discovery failed: {exc}"
+        return _block(repo_root, args.feature, "contract-discovery-failed", detail, state, capability_evaluations)
+    except OutputSchemaValidationFailed as exc:
+        if exc.artifact_name == "resolver-evidence":
+            detail = "resolver-evidence.yaml failed its own defensive output schema self-validation"
+            return _block_no_write("output-schema-validation-failed", detail)
+        detail = f"the staged {exc.artifact_name} artifact failed its own defensive output schema self-validation"
+        return _block(repo_root, args.feature, "output-schema-validation-failed", detail, state, capability_evaluations)
+
+    # Step 13: pre-publication snapshot recheck (B8 TOCTOU).
+    try:
+        _pre_publication_recheck(
+            script_dir, args, absolute_config, source_sha256, affected_components, ownership_digest, registry_digest,
+        )
+    except SnapshotGenerationMismatch:
+        detail = (
+            "a pre-publication recheck of the Project Context, Registry, or "
+            "ownership-source snapshot detected drift since this invocation's own snapshot"
+        )
+        return _block(repo_root, args.feature, "snapshot-generation-mismatch", detail, state, capability_evaluations)
+
+    # T-004 owns staging only through step 13 -- step 14's own journaled
+    # publication transaction (T-007's own scope) is the sole component
+    # with any live-filesystem write of its own. A clean resolve here
+    # writes nothing to any live path.
+    del track_artifact, evidence
     return 0
 
 
