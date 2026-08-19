@@ -180,6 +180,27 @@ function Write-ImplReport {
     Set-Content -Encoding Utf8 -Path (Join-Path $dir "$TaskId.md") -Value ($lines -join "`n")
 }
 
+# ── TEST-039..044 helpers (declaration-commit fallback for shared/living
+# files, drifted after the implementation report was written) ──────────────
+
+function New-PpiGitScratchRepo {
+    param([string]$Root)
+    New-Item -ItemType Directory -Path $Root -Force | Out-Null
+    & git -C $Root init -q
+    if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git init failed: $Root" }
+    & git -C $Root config user.email "test@example.invalid"
+    & git -C $Root config user.name "Prepare Panelist Test"
+    & git -C $Root config commit.gpgsign false
+}
+
+function Invoke-PpiGitCommit {
+    param([string]$Root, [string]$Message, [string[]]$Paths = @("-A"))
+    & git -C $Root add @Paths
+    if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git add failed: $Root" }
+    & git -C $Root commit -q -m $Message
+    if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git commit failed: $Root" }
+}
+
 # ============================================================================
 # PP-001: No consent → fail closed
 # ============================================================================
@@ -1039,6 +1060,302 @@ if (-not $symlink038Created) {
         ok "TEST-038d: bundle file not written"
     } else {
         fail "TEST-038d: bundle file must not be written"
+    }
+}
+
+# ============================================================================
+# TEST-039: a project-root-relative row whose worktree content has DRIFTED
+# (a later sibling commit edited the shared file after the implementation
+# report was written) is re-checked against the tree as of the report's own
+# DECLARATION COMMIT -- the commit that last touched the report itself --
+# and, verified there, accepted with a distinct, non-silent stderr notice
+# naming the row and exit 0 + a printed digest. Models the real defect this
+# feature fixes: CHANGELOG.md/tasks.md-shaped shared, living files.
+# ============================================================================
+
+Write-Host "=== TEST-039: worktree-drifted row verified at declaration commit ==="
+
+$d = Join-Path $Work "pp039"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "shared file v1" -NoNewline
+$hash039v1 = Get-Sha256OfFile (Join-Path $d "shared.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("shared.txt") -Hashes @($hash039v1)
+Invoke-PpiGitCommit -Root $d -Message "declare shared.txt v1"
+
+# A later sibling task edits the shared file; the report itself is
+# untouched, so its declaration commit is still the commit above.
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "shared file v2 (drifted by a sibling task)" -NoNewline
+Invoke-PpiGitCommit -Root $d -Message "sibling task drifts shared.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-039a: drifted-but-verified-at-declaration-commit row -> exit 0"
+} else {
+    fail "TEST-039a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ([regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+    ok "TEST-039b: digest printed"
+} else {
+    fail "TEST-039b: expected a printed digest, got: $($script:PP_Output)"
+}
+if (($script:PP_Output -match "declared output verified at declaration commit") -and
+    ($script:PP_Output -match [regex]::Escape("shared.txt"))) {
+    ok "TEST-039c: distinct drift notice printed, naming shared.txt"
+} else {
+    fail "TEST-039c: expected a declaration-commit drift notice naming shared.txt, got: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-040: a project-root-relative row whose worktree content still
+# matches the declared hash (never drifted) exits 0 and prints NO drift
+# notice -- proves the notice does not become background noise on every
+# git-backed report, only on rows the fast path actually had to fall back
+# past.
+# ============================================================================
+
+Write-Host "=== TEST-040: undrifted project-root row -> exit 0, NO drift notice ==="
+
+$d = Join-Path $Work "pp040"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "stable.txt") -Value "stable content" -NoNewline
+$hash040 = Get-Sha256OfFile (Join-Path $d "stable.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("stable.txt") -Hashes @($hash040)
+Invoke-PpiGitCommit -Root $d -Message "declare stable.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-040a: undrifted row -> exit 0"
+} else {
+    fail "TEST-040a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+    ok "TEST-040b: no drift notice printed for a row that matched the worktree"
+} else {
+    fail "TEST-040b: drift notice must not print when the worktree already matches. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-041: a row mismatched at BOTH the worktree AND the declaration
+# commit still fails closed with the unchanged "hash mismatch" message --
+# proves the declaration-commit fallback does not degenerate into accepting
+# anything just because a commit exists.
+# ============================================================================
+
+Write-Host "=== TEST-041: row mismatched at both worktree and declaration commit -> fail closed ==="
+
+$d = Join-Path $Work "pp041"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "mismatch.txt") -Value "actual content at report time" -NoNewline
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("mismatch.txt") -Hashes @((Get-WrongHash))
+Invoke-PpiGitCommit -Root $d -Message "declare mismatch.txt with a wrong hash"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-041a: mismatched at both worktree and declaration commit -> nonzero exit"
+} else {
+    fail "TEST-041a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output hash mismatch: mismatch.txt")) {
+    ok "TEST-041b: unchanged 'hash mismatch' message text"
+} else {
+    fail "TEST-041b: expected unchanged hash-mismatch message, got: $($script:PP_Output)"
+}
+if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+    ok "TEST-041c: no drift notice printed (declaration commit did not verify either)"
+} else {
+    fail "TEST-041c: drift notice must not print when the declaration commit also mismatches. Output: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-041d: bundle file not written"
+} else {
+    fail "TEST-041d: bundle file must not be written"
+}
+
+# ============================================================================
+# TEST-042: a row absent under both roots, AND absent at the declaration
+# commit (a path that was declared but never actually created) still fails
+# closed with the unchanged "missing from bundle" message.
+# ============================================================================
+
+Write-Host "=== TEST-042: row absent under both roots and at declaration commit -> fail closed ==="
+
+$d = Join-Path $Work "pp042"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("never-existed.txt") -Hashes @((Get-WrongHash))
+Invoke-PpiGitCommit -Root $d -Message "declare a row for a file that was never created"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-042a: absent under both roots and at declaration commit -> nonzero exit"
+} else {
+    fail "TEST-042a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output missing from bundle: never-existed.txt")) {
+    ok "TEST-042b: unchanged 'missing from bundle' message text"
+} else {
+    fail "TEST-042b: expected unchanged missing-from-bundle message, got: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-042c: bundle file not written"
+} else {
+    fail "TEST-042c: bundle file must not be written"
+}
+
+# ============================================================================
+# TEST-043: the implementation report itself is UNCOMMITTED (added to a git
+# repo with other history, but the report file is untracked) -- `git log -1
+# -- <report>` finds no commit, so the declaration-commit fallback is inert
+# and behaviour is identical to today: unchanged "hash mismatch" gap, no
+# invented pass.
+# ============================================================================
+
+Write-Host "=== TEST-043: uncommitted implementation report -> declaration-commit fallback inert ==="
+
+$d = Join-Path $Work "pp043"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "unrelated.txt") -Value "unrelated" -NoNewline
+Invoke-PpiGitCommit -Root $d -Message "unrelated commit; implementation report not yet committed" -Paths @("unrelated.txt", "tasks.md")
+
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "drifted content" -NoNewline
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("shared.txt") -Hashes @((Get-WrongHash))
+# Deliberately NOT committed -- the report is untracked.
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-043a: uncommitted report -> nonzero exit (no invented pass)"
+} else {
+    fail "TEST-043a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output hash mismatch: shared.txt")) {
+    ok "TEST-043b: unchanged 'hash mismatch' message text"
+} else {
+    fail "TEST-043b: expected unchanged hash-mismatch message, got: $($script:PP_Output)"
+}
+if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+    ok "TEST-043c: no drift notice printed (report has no declaration commit)"
+} else {
+    fail "TEST-043c: drift notice must not print without a declaration commit. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-044: a row that escapes --project-root via a symlinked component is
+# STILL rejected even when the git history at the declaration commit would,
+# byte-for-byte, verify the same relative path -- proves containment (the
+# b3f6d1a9 symlink component-walk guard) gates BEFORE the declaration-
+# commit fallback is even attempted, so a symlink escape can never be
+# laundered through git history.
+# ============================================================================
+
+Write-Host "=== TEST-044: symlink-escape under --project-root not bypassed by declaration-commit fallback ==="
+
+$d = Join-Path $Work "pp044"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "linkdir") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$sentinel044 = "SENTINEL-TEST044-DO-NOT-LEAK-$PID"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "linkdir/secret.txt") -Value $sentinel044
+$hash044 = Get-Sha256OfFile (Join-Path $d "linkdir/secret.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("linkdir/secret.txt") -Hashes @($hash044)
+Invoke-PpiGitCommit -Root $d -Message "declare linkdir/secret.txt as a plain file"
+
+# A later change replaces linkdir with a symlink pointing outside the
+# project root. The content at the same relative path, at the declaration
+# commit above, still hash-matches the original declaration -- the
+# adversarial shape this test targets: containment must gate before any
+# declaration-commit fallback is attempted, or a symlink escape could be
+# laundered through history.
+Remove-Item -Recurse -Force (Join-Path $d "linkdir")
+New-Item -ItemType Directory -Path (Join-Path $d "outside") -Force | Out-Null
+Set-Content -Encoding Utf8 -Path (Join-Path $d "outside/secret.txt") -Value $sentinel044
+$symlink044Created = $true
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $d "linkdir") -Target (Join-Path $d "outside") -ErrorAction Stop | Out-Null
+} catch {
+    $symlink044Created = $false
+}
+
+if (-not $symlink044Created) {
+    ok "TEST-044: symlink creation unsupported/unprivileged on this host -- skip (runs where symlinks are permitted)"
+} else {
+    Invoke-Prepare @(
+        "--task", "T-004", "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--project-root", $d,
+        "--out", (Join-Path $d "out.txt")
+    )
+
+    if ($script:PP_Exit -ne 0) {
+        ok "TEST-044a: symlink escape -> nonzero exit even though declaration-commit content would match"
+    } else {
+        fail "TEST-044a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+        ok "TEST-044b: declaration-commit fallback never attempted (no notice) -- containment gates first"
+    } else {
+        fail "TEST-044b: declaration-commit fallback must not run past a symlink escape. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch [regex]::Escape($sentinel044)) {
+        ok "TEST-044c: sentinel content does not appear in output"
+    } else {
+        fail "TEST-044c: SENTINEL LEAK via declaration-commit fallback bypassing symlink containment"
+    }
+    if (-not (Test-Path (Join-Path $d "out.txt"))) {
+        ok "TEST-044d: bundle file not written"
+    } else {
+        fail "TEST-044d: bundle file must not be written"
     }
 }
 
