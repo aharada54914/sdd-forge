@@ -2420,3 +2420,230 @@ Describe "RT-20260819-001 sh/ps1 verdict parity (REQ-006, design.md DD-7)" {
         }
     }
 }
+
+# ---------------------------------------------------------------------------
+# T-003 REQ-002 pattern ANCHOR regression.
+#
+# The three REQ-002 patterns are COMPILED with \A ... \Z (.sh, Python) and
+# \A ... \z (.ps1, .NET) rather than ^ ... $, while the text quoted back to the
+# author stays ^ ... $. That asymmetry is deliberate and load-bearing:
+# contracts/domain-contract.v2.schema.json declares these patterns for JSON
+# Schema draft-07, whose `pattern` keyword is ECMA-262 WITHOUT the multiline
+# flag, where `$` matches END OF INPUT only -- so the schema REJECTS "Order\n"
+# as a concepts[].name. Python's `$` and .NET's `$` both ALSO match
+# immediately before a final newline, so a twin anchored ^ ... $ would ACCEPT
+# a value the schema it implements rejects.
+#
+# That behaviour shipped with zero regression protection: reverting either
+# twin's three anchors to ^ ... $ left the whole suite green, because no
+# fixture anywhere carried a trailing-newline value. The checks below close
+# that hole -- each one FAILS if its twin's anchors are reverted.
+#
+# These are anchor-regression fixtures, NOT additions to tasks.md's
+# `## Negative Fixture Allocation` table: the T-002 / T-003 / T-004 counts
+# (3 / 62 / 8), the AC-018 allocation of 3, the 73-fixture negative total and
+# the 78-fixture AC-013 parity corpus above are all deliberately left
+# untouched. This follows the RT-20260819-001 precedent of keeping
+# out-of-allocation regression fixtures in their own list.
+#
+# Every fixture is ONE single-point mutation of the same base contract the
+# structural pass already proves is ACCEPTED at exit 0, expanded through the
+# expander T-003 authored, and each is PAIRED with an otherwise byte-identical
+# control carrying no newline that must still be ACCEPTED -- so this block
+# cannot pass by rejecting everything. Fixtures stay ephemeral (DD-5,
+# INV-006): each is written to a per-test temporary file the test deletes
+# again in a finally block, and no permanent fixture directory is added. The
+# fixture FILE NAME stays hex and ASCII hyphens only.
+#
+# The trailing newline is carried as the two-character JSON escape \n inside
+# the string value, never as a raw 0x0A byte: a raw control byte inside a JSON
+# string is invalid JSON and would be rejected at the PARSE step, which would
+# exercise V2-PARSE instead of the anchors. The corpus-integrity block below
+# asserts that directly, both at the byte level and by decoding the fixture.
+# All fixture vocabulary is the same synthetic Purchase / Fulfillment domain
+# nouns; no credential, token, personal, or customer-derived string appears in
+# any of them (security-spec.md).
+# ---------------------------------------------------------------------------
+
+function New-AnchorRegressionCase {
+    # $Value is the accepted, newline-free value. The rejecting body is the
+    # SAME value with a trailing JSON `\n` escape appended, so the two bodies
+    # differ at exactly those two characters and at nothing else. $Extra
+    # carries any additional token the pair BOTH need -- the id case retargets
+    # CONTEXTS to CONTEXTS_PLAIN so mutating concepts[0].id cannot also dangle
+    # the terms[].concept_id link and report a second, unrelated violation.
+    param(
+        [string]$Field,
+        [string]$Token,
+        [string]$Property,
+        [string]$Value,
+        [string]$PatternText,
+        [hashtable]$Extra = @{}
+    )
+    $accepted = @{}
+    $rejected = @{}
+    foreach ($extraKey in $Extra.Keys) {
+        $accepted[$extraKey] = [string]$Extra[$extraKey]
+        $rejected[$extraKey] = [string]$Extra[$extraKey]
+    }
+    $accepted[$Token] = '"' + $Property + '": "' + $Value + '", '
+    $rejected[$Token] = '"' + $Property + '": "' + $Value + '\n", '
+    return New-Object PSObject -Property @{
+        Field        = $Field
+        Property     = $Property
+        Value        = $Value
+        PatternText  = $PatternText
+        AcceptedJson = (New-StructuralFixtureJson -Override $accepted)
+        RejectedJson = (New-StructuralFixtureJson -Override $rejected)
+    }
+}
+
+$anchorRegressionCases = @(
+    (New-AnchorRegressionCase -Field "concepts[0].id" -Token "C_ID" -Property "id" `
+        -Value "CONCEPT-ORDER" -PatternText '^CONCEPT-[A-Z][A-Z0-9-]*$' `
+        -Extra @{ CONTEXTS = '%CONTEXTS_PLAIN%' }),
+    (New-AnchorRegressionCase -Field "concepts[0].name" -Token "C_NAME" -Property "name" `
+        -Value "Order" -PatternText '^[A-Z][A-Za-z0-9]*$'),
+    (New-AnchorRegressionCase -Field "concepts[0].context" -Token "C_CONTEXT" -Property "context" `
+        -Value "order-taking" -PatternText '^[a-z][a-z0-9]*(-[a-z0-9]+)*$')
+)
+
+function Assert-AnchorRegressionRejected {
+    # The shape a trailing-newline fixture must produce on EITHER twin: exit 1,
+    # nothing on stdout, no interpreter noise, and exactly one V2-PATTERN line
+    # naming the field under test whose message quotes the DECLARED ^ ... $
+    # source text back to the author. A twin re-anchored to ^ ... $ accepts the
+    # value instead and emits no such line, which fails the Count assertion.
+    param($Result, $AnchorCase)
+    $Result.ExitCode | Should Be 1
+    $Result.StdOut.Length | Should Be 0
+    $Result.StdErr | Should Not Match "Traceback"
+    $Result.StdErr | Should Not Match "Exception"
+    $Result.StdErr | Should Not Match "CategoryInfo"
+    $Result.StdErr | Should Not Match "FullyQualifiedErrorId"
+    $Result.StdErr | Should Not Match "ScriptStackTrace"
+    $Result.StdErr | Should Not Match "at <ScriptBlock>"
+    $Result.StdErr | Should Not Match "^\s+\+ "
+    $lines = @(Get-StdErrViolationLines -Result $Result)
+    # -cmatch, never -match: the rule ids and field paths are case-significant
+    # and PowerShell's -match is case-insensitive.
+    $expectedPrefix = "^" + [regex]::Escape("V2-PATTERN: " + $AnchorCase.Field + ":")
+    $matched = @($lines | Where-Object { $_ -cmatch $expectedPrefix })
+    $matched.Count | Should Be 1
+    $expectedTail = " does not match " + $AnchorCase.PatternText
+    $matched[0].EndsWith($expectedTail, [System.StringComparison]::Ordinal) | Should Be $true
+}
+
+Describe "T-003 REQ-002 anchor regression fixture integrity (non-vacuity for the anchor checks below)" {
+
+    It "the block holds exactly 3 cases -- one per REQ-002 pattern field -- with distinct field paths" {
+        $anchorRegressionCases.Count | Should Be 3
+        # -CaseSensitive: Sort-Object -Unique is case-insensitive by default.
+        @($anchorRegressionCases | ForEach-Object { $_.Field } | Sort-Object -Unique -CaseSensitive).Count | Should Be 3
+    }
+
+    It "each rejecting body carries the newline as a two-character JSON escape and holds no raw 0x00-0x1F byte" {
+        foreach ($anchorCase in $anchorRegressionCases) {
+            $bytes = [System.Text.Encoding]::ASCII.GetBytes($anchorCase.RejectedJson)
+            $controlBytes = @($bytes | Where-Object { [int]$_ -lt 32 })
+            $controlBytes.Count | Should Be 0
+            # The escape is present in the rejecting body and absent from the
+            # accepted control, and the two differ by exactly those 2 chars.
+            $escapeToken = '\n'
+            $anchorCase.RejectedJson.Contains($escapeToken) | Should Be $true
+            $anchorCase.AcceptedJson.Contains($escapeToken) | Should Be $false
+            ($anchorCase.RejectedJson.Length - $anchorCase.AcceptedJson.Length) | Should Be 2
+        }
+    }
+
+    It "each rejecting body really decodes to a value ending in a real newline, and its control does not" {
+        foreach ($anchorCase in $anchorRegressionCases) {
+            $rejectedDoc = ConvertFrom-Json $anchorCase.RejectedJson
+            $acceptedDoc = ConvertFrom-Json $anchorCase.AcceptedJson
+            $rejectedConcept = @(Get-PropSafe -Obj $rejectedDoc -Name "concepts")[0]
+            $acceptedConcept = @(Get-PropSafe -Obj $acceptedDoc -Name "concepts")[0]
+            $rejectedValue = [string](Get-PropSafe -Obj $rejectedConcept -Name $anchorCase.Property)
+            $acceptedValue = [string](Get-PropSafe -Obj $acceptedConcept -Name $anchorCase.Property)
+            ($rejectedValue -ceq ($anchorCase.Value + [string][char]10)) | Should Be $true
+            ($acceptedValue -ceq $anchorCase.Value) | Should Be $true
+        }
+    }
+}
+
+Describe "T-003 REQ-002 anchor regression -- newline-free values stay accepted (this block must not pass by rejecting everything)" {
+
+    foreach ($anchorCase in $anchorRegressionCases) {
+        $anchorLabel = $anchorCase.Field
+
+        It ("ps1 twin accepts the newline-free control for " + $anchorLabel) {
+            $fixture = New-EphemeralContractFile -Content $anchorCase.AcceptedJson
+            try {
+                $result = Invoke-ValidatorPs1 -ContractPath $fixture
+                $result.ExitCode | Should Be 0
+                $result.StdOut.Length | Should Be 0
+                $result.StdErr.Length | Should Be 0
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+
+        It ("sh twin accepts the newline-free control for " + $anchorLabel + " [SKIPPED when bash/python3 is absent from PATH]") -Skip:(-not $shTwinAvailable) {
+            $fixture = New-EphemeralContractFile -Content $anchorCase.AcceptedJson
+            try {
+                $result = Invoke-ValidatorSh -ContractPath $fixture
+                $result.ExitCode | Should Be 0
+                $result.StdOut.Length | Should Be 0
+                $result.StdErr.Length | Should Be 0
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+    }
+}
+
+Describe "T-003 REQ-002 anchor regression -- a trailing newline is rejected by both twins (draft-07 pattern is non-multiline ECMA-262)" {
+
+    foreach ($anchorCase in $anchorRegressionCases) {
+        $anchorLabel = $anchorCase.Field
+
+        It ("ps1 twin rejects a trailing newline in " + $anchorLabel + " -- FAILS if \A ... \z is reverted to ^ ... $") {
+            $fixture = New-EphemeralContractFile -Content $anchorCase.RejectedJson
+            try {
+                Assert-AnchorRegressionRejected -Result (Invoke-ValidatorPs1 -ContractPath $fixture) -AnchorCase $anchorCase
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+
+        It ("sh twin rejects a trailing newline in " + $anchorLabel + " -- FAILS if \A ... \Z is reverted to ^ ... $ [SKIPPED when bash/python3 is absent from PATH]") -Skip:(-not $shTwinAvailable) {
+            $fixture = New-EphemeralContractFile -Content $anchorCase.RejectedJson
+            try {
+                Assert-AnchorRegressionRejected -Result (Invoke-ValidatorSh -ContractPath $fixture) -AnchorCase $anchorCase
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+
+        It ("both twins agree byte for byte on the trailing newline in " + $anchorLabel + " [SKIPPED when bash/python3 is absent from PATH]") -Skip:(-not $shTwinAvailable) {
+            $fixture = New-EphemeralContractFile -Content $anchorCase.RejectedJson
+            try {
+                $ps1Result = Invoke-ValidatorPs1 -ContractPath $fixture
+                $shResult = Invoke-ValidatorSh -ContractPath $fixture
+
+                $ps1Result.StdOut.Length | Should Be 0
+                $shResult.StdOut.Length | Should Be 0
+                $ps1Result.ExitCode | Should Be $shResult.ExitCode
+
+                $ps1Text = (@(Get-StdErrViolationLines -Result $ps1Result) -join "`n")
+                $shText = (@(Get-StdErrViolationLines -Result $shResult) -join "`n")
+                # Reported first for a readable failure message, then pinned
+                # case-sensitively -- `Should Be` alone is case-insensitive.
+                $ps1Text | Should Be $shText
+                ($ps1Text -ceq $shText) | Should Be $true
+                ($ps1Text -ceq ("V2-PATTERN: " + $anchorCase.Field + ": value " + $anchorCase.Value + "  does not match " + $anchorCase.PatternText)) | Should Be $true
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+    }
+}
