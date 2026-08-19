@@ -253,6 +253,87 @@ if ((Get-Item $InputPath).PSIsContainer) {
 # the completeness check is a no-op (preserves BL-007/BL-008/BL-009 for
 # every caller that predates this convention, e.g. this script's own
 # existing test fixtures).
+#
+# Declaration-commit fallback (staleness of shared, living files): a row
+# that is absent, or hash-mismatched, under ProjectRoot after both roots
+# have been tried is not necessarily a lie -- CHANGELOG.md and a feature's
+# own tasks.md are declared as whole-file hashes but are shared files every
+# sibling task edits after this report was written, so an accurate
+# declaration goes stale the moment the next task commits. Rather than
+# recording a commit in the report schema, the "declaration commit" (the
+# commit that last modified the implementation report ITSELF) is derived
+# with git and the row is re-checked against the tree as of that commit --
+# same pattern, same rationale as check-workflow-state.ps1's
+# Get-PluginsPinCommit/Get-PluginsHashAtPin for plugins/ reference docs.
+# Only rows that resolved (or were validly attempted, never escaped) under
+# ProjectRoot qualify: that root IS the repo root git commands run from, so
+# rowPath is already a repository-relative git-show argument with no
+# translation. A row that only matched under InputRoot has no such form and
+# is never retried this way -- see Invoke-DeclaredOutputsCompletenessCheck.
+# Every acceptance via this path prints a distinct stderr notice (never
+# silent); it must never become a way for a check to quietly stop verifying
+# content it claims to verify.
+
+$script:PpiDeclCommitChecked = $false
+$script:PpiDeclCommit = $null
+
+# Lazily derive & cache the declaration commit. Computed at most once per
+# invocation (a report with no git history, or no git binary at all, still
+# only pays for one failed lookup, not one per row that needs it).
+function Get-PpiDeclarationCommit {
+    param([string]$ProjectRoot, [string]$Feature, [string]$TaskId)
+
+    if ($script:PpiDeclCommitChecked) { return $script:PpiDeclCommit }
+    $script:PpiDeclCommitChecked = $true
+    $script:PpiDeclCommit = $null
+
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $null }
+    & git -C $ProjectRoot rev-parse --is-inside-work-tree *> $null
+    if ($LASTEXITCODE -ne 0) { return $null }
+
+    $reportRelPath = "reports/implementation/$Feature/$TaskId.md"
+    $result = & git -C $ProjectRoot log -1 --format='%H' -- $reportRelPath 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $result) { return $null }
+    $script:PpiDeclCommit = [string]$result
+    return $script:PpiDeclCommit
+}
+
+# Verify a declared-outputs row against the tree AS OF the declaration
+# commit. Caller contract: RowPath must already be known project-root-
+# relative (only called for rows resolved, or validly attempted and merely
+# absent -- never escaped -- under ProjectRoot; see
+# Invoke-DeclaredOutputsCompletenessCheck). Prints a distinct stderr notice
+# and returns $true ONLY on a verified match -- never silently, per the
+# WFI-017 regression this guards against (a strict matcher that skipped
+# rows with no diagnostic and five files went missing from a manifest). Any
+# other outcome (no declaration commit, path absent at that commit, content
+# still mismatched) returns $false so the caller keeps the unchanged gap
+# message.
+function Test-DeclaredOutputAtDeclarationCommit {
+    param([string]$ProjectRoot, [string]$Feature, [string]$TaskId, [string]$RowPath, [string]$RowHash)
+
+    $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+    if (-not $commit) { return $false }
+
+    # Redirect the blob straight to a temp file and hash the file so the
+    # comparison is byte-exact -- capturing external-command stdout through
+    # the PowerShell pipeline can alter encoding or line endings, which
+    # would corrupt the sha256 (same reasoning as check-workflow-state.ps1's
+    # Get-PluginsHashAtPin).
+    $tempFile = [IO.Path]::GetTempFileName()
+    try {
+        & git -C $ProjectRoot show "${commit}:${RowPath}" > $tempFile 2>$null
+        if ($LASTEXITCODE -ne 0) { return $false }
+        $actualHash = (Get-FileHash -LiteralPath $tempFile -Algorithm SHA256).Hash.ToLower()
+    } finally {
+        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+    }
+    if ($actualHash -ne $RowHash) { return $false }
+
+    $shortCommit = $commit.Substring(0, [Math]::Min(7, $commit.Length))
+    [Console]::Error.WriteLine("prepare-panelist-input: declared output verified at declaration commit ${shortCommit}: ${RowPath} (drifted since)")
+    return $true
+}
 
 function Test-DeclaredOutputCanonicalPath {
     param([string]$Path)
@@ -327,6 +408,7 @@ function Invoke-DeclaredOutputsCompletenessCheck {
         $inputResult = Resolve-DeclaredOutputRow -RowPath $rowPath -Root $InputRoot
         $escapedUnderInput = ($inputResult.State -eq "Escaped")
 
+        $rowIsProjectRelative = $false
         if ($inputResult.State -eq "Matched") {
             $candidate = $inputResult.Candidate
         } else {
@@ -334,10 +416,20 @@ function Invoke-DeclaredOutputsCompletenessCheck {
 
             if ($projectResult.State -eq "Matched") {
                 $candidate = $projectResult.Candidate
+                $rowIsProjectRelative = $true
             } elseif ($escapedUnderInput -or ($projectResult.State -eq "Escaped")) {
                 $gaps.Add("declared output resolves outside input root: $rowPath")
                 continue
             } else {
+                # Absent under both roots. rowPath already passed the
+                # canonical-path check above and did not escape under
+                # ProjectRoot (only "absent" -- never attempted-and-
+                # escaped), so it is a valid repository-relative path to
+                # re-check against the declaration commit before giving up
+                # (see Test-DeclaredOutputAtDeclarationCommit).
+                if (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash) {
+                    continue
+                }
                 $gaps.Add("declared output missing from bundle: $rowPath")
                 continue
             }
@@ -345,6 +437,10 @@ function Invoke-DeclaredOutputsCompletenessCheck {
 
         $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLower()
         if ($actualHash -ne $rowHash) {
+            if ($rowIsProjectRelative -and
+                (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash)) {
+                continue
+            }
             $gaps.Add("declared output hash mismatch: $rowPath")
         }
     }
