@@ -1,0 +1,180 @@
+{
+  "task_id": "T-005",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
+  "created": "2026-08-19T00:00:00Z",
+  "comment": "Preflight verification contract for the T-005 quality gate, authored by the coder session preparing this task for gate review (T-004's contract is the schema this one matches; risk/required_workflow/stack/spec_revision follow its own pattern exactly). Every check started at passes=false and was flipped only after this session RAN its command at the current HEAD and inspected the saved output -- the implementation report (reports/implementation/epic-195-a7-compatibility/T-005.md) was treated as a claim, not trusted outright. Every passing check's evidence field points at a coder-*.log this session produced fresh under specs/epic-195-a7-compatibility/verification/T-005/, never at an implementer-authored log, with one deliberate exception: red_evidence/green_evidence on the tdd-required unit-tests/acceptance-tests rows point at the implementer's own red-sh.log/red-ps1.log/green-sh.log/green-ps1.log, because those RED captures were reconstructed by the T-005 implementation session via a scratch-copy technique (45dda57f^ driver/registry content + current tests) that this session independently re-verified rather than re-executed -- a RED capture made honest after the fact by re-running it now would be GREEN, since the fix already exists in the tree, so re-creating it would manufacture a false artifact. Risk high and Required Workflow tdd are transcribed from tasks.md#T-005 (Security Boundary B2: tests/loops/loop-inventory.json, tests/lib/loop-driver.{sh,ps1}).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- T-005's deliverables are tests/loops/loop-inventory.json (a JSON registry) and the POSIX-shell/PowerShell twins tests/lib/loop-driver.{sh,ps1}/tests/loop-inventory.tests.{sh,ps1}. This repository configures no shell linter and no JSON linter (no shellcheck, no PSScriptAnalyzer, no jsonlint invocation in tests/run-all.{sh,ps1} or .github/workflows/test.yml), so there is no lint command whose output could be recorded. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- shell and PowerShell are untyped and this repository configures no static type-check command for either runtime. tests/loops/loop-inventory.json's shape (including the new, additive capability_applicability field) is enforced by TEST-008's own schema-validation assertions in tests/loop-inventory.tests.{sh,ps1}, not by a type checker. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-005/coder-acceptance-rerun.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "specs/epic-195-a7-compatibility/verification/T-005/red-sh.log",
+      "green_evidence": "specs/epic-195-a7-compatibility/verification/T-005/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No service or network integration is in T-005's scope. The one cross-process interaction -- tests/loop-inventory.tests.{sh,ps1} reading the registry and driving the new driver functions through jq/ConvertFrom-Json -- is exercised end to end by the acceptance run, not by a separate integration layer.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-005/coder-acceptance-rerun.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "specs/epic-195-a7-compatibility/verification/T-005/red-ps1.log",
+      "green_evidence": "specs/epic-195-a7-compatibility/verification/T-005/green-ps1.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-005/coder-regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-005/coder-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no compile or bundle step exists for shell/PowerShell scripts and a JSON registry; there is no dist/ artifact and design.md's Deployment / CI Plan records no build obligation for this task. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-005/coder-placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-005/coder-task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application, service, or UI. T-005's deliverable is a registry field plus library functions consumed by a batch test suite; the acceptance run invokes both entry points for real in both runtimes, so a separate smoke run would duplicate the acceptance evidence rather than add to it.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature and T-005 is additive tooling (an optional, additive registry field and new, independent driver functions) rather than a change to existing behavior, so no differential obligation attaches (references/differential-test-policy.md). assert_terminal/assert_artifacts_schema byte-identity is verified directly (Done When), which is a stronger, task-specific guarantee than a generic differential baseline would add.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface. traceability.md's Layer Coverage records UX and Frontend as reasoned N/A for the whole feature: 'no GUI, view, dialog, menu item, or human interactive shell surface'.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none -- this repository carries no design-system/ directory and T-005 touches no UI-layer file, so check-design-system's warn-phase conditional control does not activate (risk-gate-matrix.md footnote 4).",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
