@@ -697,4 +697,121 @@ done
 [[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
   fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
 
+# ── WFI-030: traceability delivery-status normalization ──────────────────────
+# The task-stage binding hashes traceability.md whole-file. Its per-requirement
+# delivery-status cell is the one field the workflow is designed to advance as
+# tasks complete, so a change confined to that cell -- and only over the closed
+# lifecycle vocabulary the state registry pins -- must be absorbed the way
+# tasks.md's Status: header already is. Every other byte stays bound.
+#
+# The fixture source carries no layer_sha256, so the task-stage traceability
+# block at check-workflow-state.sh:675 would be skipped entirely. These cases
+# build the full-profile task state the block requires, which is why they do
+# more setup than the fixtures above.
+wfi030_sha() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'; else shasum -a 256 "$1" | awk '{print $1}'; fi; }
+
+# Rewrite every REQ row's delivery-status cell to $2, over the closed vocabulary
+# only. Mirrors the normalization under test, so the fixture can be put into the
+# authoring-time state the precheck really records.
+wfi030_set_status() {
+  LC_ALL=C sed -E -i.bak \
+    "s/^(\| REQ-.*\|)([[:space:]]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([[:space:]]*\|[[:space:]]*)\$/\\1\\2$2\\4/" "$1"
+  rm -f "$1.bak"
+}
+
+wfi030_fixture() {
+  local root round specs trace layer extra layers pairs
+  root="$(make_full_fixture "$1")"
+  round="$(latest_task_round_dir "$root")"
+  specs="$root/specs/workflow-state-integrity"
+  trace="$specs/traceability.md"
+  # Authoring-time state: every delivery-status cell at the default. This is the
+  # state a real precheck captures, and the property the tolerance relies on --
+  # a matrix recorded with live statuses does not gain it.
+  wfi030_set_status "$trace" Planned
+  for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+    printf '# %s\n\nWFI-030 fixture layer spec.\n' "${layer%.md}" > "$specs/$layer"
+  done
+  layers="$({ for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+      printf '%s\t%s\n' "$layer" "$(wfi030_sha "$specs/$layer")"
+    done; } | jq -R -s -c 'split("\n")|map(select(length>0)|split("\t")|{(.[0]):.[1]})|add')"
+  # The precheck must be rewritten before the manifest is, because the manifest
+  # also binds the precheck file's own hash.
+  jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" --argjson l "$layers" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l' \
+    "$round/precheck-result.json" > "$round/precheck-result.json.new"
+  mv "$round/precheck-result.json.new" "$round/precheck-result.json"
+  pairs="$({
+    printf 'specs/workflow-state-integrity/traceability.md\t%s\n' "$(wfi030_sha "$trace")"
+    printf 'specs/workflow-state-integrity/design.md\t%s\n' "$(wfi030_sha "$specs/design.md")"
+    for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+      printf 'specs/workflow-state-integrity/%s\t%s\n' "$layer" "$(wfi030_sha "$specs/$layer")"
+    done
+    printf '%s/precheck-result.json\t%s\n' "${round#"$root"/}" "$(wfi030_sha "$round/precheck-result.json")"
+  })"
+  extra="$(printf '%s' "$pairs" | jq -R -s -c 'split("\n")|map(select(length>0)|split("\t")|{path:.[0],sha256:.[1]})')"
+  # Upsert, not append: check-workflow-state.sh:473 rejects a manifest with any
+  # duplicate path, and the source contract already lists traceability.md.
+  jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" \
+    --argjson l "$layers" --argjson extra "$extra" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l
+     | ($extra | map({key: .path, value: .sha256}) | from_entries) as $ov
+     | .reviewers |= map(
+         (.allowed_input_manifest // []) as $m
+         | .allowed_input_manifest = (
+             ($m | map(if $ov[.path] then .sha256 = $ov[.path] else . end))
+             + ($extra | map(. as $e | select(([$m[].path] | index($e.path)) == null)))))' \
+    "$round/task-review-contract.json" > "$round/task-review-contract.json.new"
+  mv "$round/task-review-contract.json.new" "$round/task-review-contract.json"
+  # Each reviewer's own recorded manifest must cover everything the contract
+  # claims it reviewed, so the same entries are upserted there.
+  local reviewer
+  for reviewer in reviewer-a reviewer-b; do
+    [[ -f "$round/$reviewer.json" ]] || continue
+    # reviewer-a records .manifest as a bare array; reviewer-b records
+    # .manifest.allowed_inputs inside an object. Handle both shapes.
+    jq --argjson extra "$extra" \
+      'def upsert($ov; $m):
+         (($m // []) | map(if $ov[.path] then .sha256 = $ov[.path] else . end))
+         + ($extra | map(. as $e | select(([($m // [])[].path] | index($e.path)) == null)));
+       ($extra | map({key: .path, value: .sha256}) | from_entries) as $ov
+       | if (.manifest | type) == "object"
+         then .manifest.allowed_inputs = upsert($ov; .manifest.allowed_inputs)
+         else .manifest = upsert($ov; .manifest) end' \
+      "$round/$reviewer.json" > "$round/$reviewer.json.new"
+    mv "$round/$reviewer.json.new" "$round/$reviewer.json"
+  done
+  printf '%s\n' "$root"
+}
+
+# Baseline: the task-stage traceability block is now reached (layer_sha256 is
+# populated) and the untouched matrix validates on both twins. Without this the
+# three cases below could pass vacuously by never entering the block.
+wfi030_base="$(wfi030_fixture wfi030-base)"
+expect_valid "$wfi030_base"
+
+# A delivery-status transition inside the closed vocabulary is absorbed. This is
+# the case the WFI exists to create; before the change it failed with
+# stage-provenance on both twins.
+wfi030_flip="$(wfi030_fixture wfi030-flip)"
+wfi030_set_status "$wfi030_flip/specs/workflow-state-integrity/traceability.md" Done
+expect_valid "$wfi030_flip"
+
+# A value outside the closed vocabulary is a body edit, not a lifecycle
+# transition, and stays bound. Without this case the tolerance would read as
+# "the last cell is unbound", which is not what was implemented.
+wfi030_outside="$(wfi030_fixture wfi030-outside)"
+LC_ALL=C sed -E -i.bak 's/^(\| REQ-.*\|)([[:space:]]*)Planned([[:space:]]*\|[[:space:]]*)$/\1\2Delivered\3/' \
+  "$wfi030_outside/specs/workflow-state-integrity/traceability.md"
+rm -f "$wfi030_outside/specs/workflow-state-integrity/traceability.md.bak"
+expect_rule "$wfi030_outside" stage-provenance
+
+# Every non-status byte stays bound: an edit to any other cell still fails. This
+# is the anti-Goodhart control -- coverage of the status column must not have
+# been bought by unbinding the row.
+wfi030_body="$(wfi030_fixture wfi030-body)"
+printf '\n<!-- WFI-030 body edit outside every delivery-status cell -->\n' \
+  >> "$wfi030_body/specs/workflow-state-integrity/traceability.md"
+expect_rule "$wfi030_body" stage-provenance
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'
