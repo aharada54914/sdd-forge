@@ -800,6 +800,248 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
     fail "TEST-032e: bundle file must not be written on a path-traversal gap"
 }
 
+# ============================================================================
+# TEST-033: project-root-relative declared output resolves via the
+# --project-root fallback when it is absent under --input. Real
+# implementation reports declare rows relative to project_root (the same
+# convention generate-evidence-bundle/check-evidence-bundle use), not
+# --input — this is the exact defect this fix addresses; before the fix
+# every such row was reported "missing from bundle" and the check could
+# never pass against a real report.
+# ============================================================================
+
+Write-Host "=== TEST-033: project-root-relative declared output resolves via fallback ==="
+
+$d = Join-Path $Work "pp033"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "other") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "other/artifact.txt") -Value "other artifact content"
+$hash033 = Get-Sha256OfFile (Join-Path $d "other/artifact.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("other/artifact.txt") -Hashes @($hash033)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-033a: project-root-relative row not present under --input resolves via fallback -> exit 0"
+} else {
+    fail "TEST-033a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ([regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+    ok "TEST-033b: digest printed on project-root fallback success"
+} else {
+    fail "TEST-033b: expected a printed digest, got: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-035: declared output absent under BOTH --input and --project-root
+# still fails closed with the unchanged "missing from bundle" message —
+# proves the two-root fallback does not degenerate into accepting anything.
+# (TEST-034 is intentionally not added: TEST-014/TEST-017 already cover an
+# --input-relative row still resolving under the unchanged first-try path.)
+# ============================================================================
+
+Write-Host "=== TEST-035: declared output missing under both roots -> fail closed ==="
+
+$d = Join-Path $Work "pp035"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("nowhere.txt") -Hashes @((Get-WrongHash))
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-035a: missing under both roots -> nonzero exit"
+} else {
+    fail "TEST-035a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output missing from bundle: nowhere.txt")) {
+    ok "TEST-035b: unchanged 'missing from bundle' message text"
+} else {
+    fail "TEST-035b: expected unchanged missing-from-bundle message, got: $($script:PP_Output)"
+}
+if (-not [regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+    ok "TEST-035c: no digest line printed"
+} else {
+    fail "TEST-035c: digest must not print. Output: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-035d: bundle file not written"
+} else {
+    fail "TEST-035d: bundle file must not be written"
+}
+
+# ============================================================================
+# TEST-036: hash mismatch on a row resolved via the --project-root fallback
+# still fails closed (mirrors TEST-016's --input-root case, for the NEW
+# fallback root).
+# ============================================================================
+
+Write-Host "=== TEST-036: hash-mismatch on project-root-fallback row -> fail closed ==="
+
+$d = Join-Path $Work "pp036"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "other") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "other/artifact.txt") -Value "real other content for hash mismatch"
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("other/artifact.txt") -Hashes @((Get-WrongHash))
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-036a: hash-mismatch on project-root fallback row -> nonzero exit"
+} else {
+    fail "TEST-036a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output hash mismatch: other/artifact.txt")) {
+    ok "TEST-036b: unchanged 'hash mismatch' message text"
+} else {
+    fail "TEST-036b: expected hash-mismatch message, got: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-036c: bundle file not written on project-root-fallback hash mismatch"
+} else {
+    fail "TEST-036c: bundle file must not be written on a hash-mismatch gap"
+}
+
+# ============================================================================
+# TEST-037: a row that would escape --input via a symlinked component is
+# still rejected — containment holds for the --input root even though a
+# --project-root fallback now exists.
+# ============================================================================
+
+Write-Host "=== TEST-037: symlink-escape under --input root -> fail closed (containment) ==="
+
+$d = Join-Path $Work "pp037"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "outside") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$sentinel037 = "SENTINEL-TEST037-DO-NOT-LEAK-$PID"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "outside/secret.txt") -Value $sentinel037
+$hash037 = Get-Sha256OfFile (Join-Path $d "outside/secret.txt")
+$symlink037Created = $true
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $d "input/linkdir") -Target (Join-Path $d "outside") -ErrorAction Stop | Out-Null
+} catch {
+    $symlink037Created = $false
+}
+
+if (-not $symlink037Created) {
+    ok "TEST-037: symlink creation unsupported/unprivileged on this host — skip (runs where symlinks are permitted)"
+} else {
+    Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+        -Paths @("linkdir/secret.txt") -Hashes @($hash037)
+
+    Invoke-Prepare @(
+        "--task", "T-004", "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--project-root", $d,
+        "--out", (Join-Path $d "out.txt")
+    )
+
+    if ($script:PP_Exit -ne 0) {
+        ok "TEST-037a: symlink escape under --input -> nonzero exit"
+    } else {
+        fail "TEST-037a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+    }
+    if (-not [regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+        ok "TEST-037b: no digest line printed"
+    } else {
+        fail "TEST-037b: digest must not print. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch [regex]::Escape($sentinel037)) {
+        ok "TEST-037c: sentinel content does not appear in output"
+    } else {
+        fail "TEST-037c: SENTINEL LEAK via --input symlink escape"
+    }
+    if (-not (Test-Path (Join-Path $d "out.txt"))) {
+        ok "TEST-037d: bundle file not written"
+    } else {
+        fail "TEST-037d: bundle file must not be written"
+    }
+}
+
+# ============================================================================
+# TEST-038: a row absent under --input but reachable ONLY via a symlinked
+# component under --project-root must still be rejected by the fallback's
+# OWN containment guard — proves the project-root retry independently
+# re-applies the symlink component-walk rather than skipping it.
+# ============================================================================
+
+Write-Host "=== TEST-038: symlink-escape under --project-root fallback -> fail closed ==="
+
+$d = Join-Path $Work "pp038"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "outside") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$sentinel038 = "SENTINEL-TEST038-DO-NOT-LEAK-$PID"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "outside/secret.txt") -Value $sentinel038
+$hash038 = Get-Sha256OfFile (Join-Path $d "outside/secret.txt")
+$symlink038Created = $true
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $d "linkdir") -Target (Join-Path $d "outside") -ErrorAction Stop | Out-Null
+} catch {
+    $symlink038Created = $false
+}
+
+if (-not $symlink038Created) {
+    ok "TEST-038: symlink creation unsupported/unprivileged on this host — skip (runs where symlinks are permitted)"
+} else {
+    Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+        -Paths @("linkdir/secret.txt") -Hashes @($hash038)
+
+    Invoke-Prepare @(
+        "--task", "T-004", "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--project-root", $d,
+        "--out", (Join-Path $d "out.txt")
+    )
+
+    if ($script:PP_Exit -ne 0) {
+        ok "TEST-038a: symlink escape under --project-root fallback -> nonzero exit"
+    } else {
+        fail "TEST-038a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+    }
+    if (-not [regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+        ok "TEST-038b: no digest line printed"
+    } else {
+        fail "TEST-038b: digest must not print. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch [regex]::Escape($sentinel038)) {
+        ok "TEST-038c: sentinel content does not appear in output"
+    } else {
+        fail "TEST-038c: SENTINEL LEAK via --project-root symlink escape"
+    }
+    if (-not (Test-Path (Join-Path $d "out.txt"))) {
+        ok "TEST-038d: bundle file not written"
+    } else {
+        fail "TEST-038d: bundle file must not be written"
+    }
+}
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
