@@ -15,14 +15,17 @@
 #     through the Invoke-StructureCheck / Invoke-CrossReferenceCheck extension
 #     points below. Later steps must not introduce a second output path.
 #
-# PS5.1-safe by construction. ConvertFrom-Json is the only parser used, and it
-# is called without any parameter introduced after Windows PowerShell 5.1. The
-# PS6+ JSON-schema test cmdlet, the PS6+ hashtable output switch, .NET 5+
-# hex-conversion helpers, ternary and null-coalescing operators, and the
-# $IsWindows-style automatic variables are all deliberately avoided, as is any
-# external dependency, network access, or write (design.md DD-4, INV-005,
-# security-spec.md). This comment names none of those constructs literally so
-# that a repository-wide scan for them does not false-positive on this file.
+# PS5.1-safe by construction. Validity is decided by the hand-written strict
+# JSON scanner below (Test-StrictJsonText), which accepts exactly what the .sh
+# twin's python3 `json.loads` accepts; ConvertFrom-Json only BUILDS the object
+# from text that scanner has already accepted, and it is called without any
+# parameter introduced after Windows PowerShell 5.1. The PS6+ JSON-schema test
+# cmdlet, the PS6+ hashtable output switch, .NET 5+ hex-conversion helpers,
+# ternary and null-coalescing operators, and the $IsWindows-style automatic
+# variables are all deliberately avoided, as is any external dependency,
+# network access, or write (design.md DD-4, INV-005, security-spec.md). This
+# comment names none of those constructs literally so that a repository-wide
+# scan for them does not false-positive on this file.
 #
 # Contract content is data, never instruction: no value read from the contract
 # is ever used to build a command, resolve a path, or reach Invoke-Expression
@@ -618,6 +621,247 @@ function Invoke-CrossReferenceCheck {
     }
 }
 
+function Test-StrictJsonLiteralAt {
+    # Ordinal, case-SIGNIFICANT literal match at an index. -ceq, never -eq:
+    # PowerShell's -eq on strings is case-insensitive, and `NaN` must not be
+    # spelled `nan` any more than `null` may be spelled `NULL`.
+    param([string]$Text, [int]$Start, [string]$Literal)
+    if ($Start + $Literal.Length -gt $Text.Length) { return $false }
+    return ($Text.Substring($Start, $Literal.Length) -ceq $Literal)
+}
+
+function Get-StrictJsonStringEnd {
+    # Scans one JSON string literal starting AT its opening quote and returns
+    # the index just past its closing quote, or -1 when the literal is not
+    # well-formed. Raw U+0000..U+001F bytes are rejected inside a string --
+    # that is python3's strict scanner and it is where the embedded-NUL class
+    # is caught -- while the SAME characters are accepted when escaped. Only
+    # the eight single-character escapes and \uXXXX with exactly four hex
+    # digits are legal; every other escape is a rejection.
+    param([char[]]$Chars, [int]$Start)
+    $limit = $Chars.Length
+    $index = $Start + 1
+    while ($index -lt $limit) {
+        $code = [int]$Chars[$index]
+        if ($code -eq 34) { return ($index + 1) }
+        if ($code -eq 92) {
+            $index++
+            if ($index -ge $limit) { return -1 }
+            $escape = [int]$Chars[$index]
+            if ($escape -eq 117) {
+                if ($index + 4 -ge $limit) { return -1 }
+                for ($offset = 1; $offset -le 4; $offset++) {
+                    $hex = [int]$Chars[$index + $offset]
+                    if (-not (($hex -ge 48 -and $hex -le 57) -or
+                              ($hex -ge 97 -and $hex -le 102) -or
+                              ($hex -ge 65 -and $hex -le 70))) { return -1 }
+                }
+                $index += 5
+                continue
+            }
+            # " \ / b f n r t, compared by character CODE so the comparison
+            # cannot be case-folded the way PowerShell's -eq on a char is.
+            if ($escape -eq 34 -or $escape -eq 92 -or $escape -eq 47 -or
+                $escape -eq 98 -or $escape -eq 102 -or $escape -eq 110 -or
+                $escape -eq 114 -or $escape -eq 116) {
+                $index++
+                continue
+            }
+            return -1
+        }
+        if ($code -lt 32) { return -1 }
+        $index++
+    }
+    return -1
+}
+
+function Get-StrictJsonNumberEnd {
+    # Consumes the longest prefix at $Start matching python3's number grammar
+    #     -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][-+]?[0-9]+)?
+    # and returns the index just past it, or -1 when no number starts here.
+    # The two optional groups are consumed ONLY when they match in full, so a
+    # trailing '.' or a bare exponent marker is left unconsumed and the
+    # caller's next-token check rejects it -- exactly what python does. A
+    # leading zero likewise ends the number after the '0', leaving the
+    # following digit to be rejected as an unexpected token, which is how
+    # `01` and `0x1F` are caught.
+    param([char[]]$Chars, [int]$Start)
+    $limit = $Chars.Length
+    $index = $Start
+    if ($index -lt $limit -and [int]$Chars[$index] -eq 45) { $index++ }
+    if ($index -ge $limit) { return -1 }
+    $code = [int]$Chars[$index]
+    if ($code -eq 48) {
+        $index++
+    } elseif ($code -ge 49 -and $code -le 57) {
+        $index++
+        while ($index -lt $limit -and [int]$Chars[$index] -ge 48 -and [int]$Chars[$index] -le 57) { $index++ }
+    } else {
+        return -1
+    }
+    if ($index -lt $limit -and [int]$Chars[$index] -eq 46) {
+        $scan = $index + 1
+        if ($scan -lt $limit -and [int]$Chars[$scan] -ge 48 -and [int]$Chars[$scan] -le 57) {
+            while ($scan -lt $limit -and [int]$Chars[$scan] -ge 48 -and [int]$Chars[$scan] -le 57) { $scan++ }
+            $index = $scan
+        }
+    }
+    if ($index -lt $limit) {
+        $code = [int]$Chars[$index]
+        if ($code -eq 101 -or $code -eq 69) {
+            $scan = $index + 1
+            if ($scan -lt $limit) {
+                $sign = [int]$Chars[$scan]
+                if ($sign -eq 43 -or $sign -eq 45) { $scan++ }
+            }
+            if ($scan -lt $limit -and [int]$Chars[$scan] -ge 48 -and [int]$Chars[$scan] -le 57) {
+                while ($scan -lt $limit -and [int]$Chars[$scan] -ge 48 -and [int]$Chars[$scan] -le 57) { $scan++ }
+                $index = $scan
+            }
+        }
+    }
+    return $index
+}
+
+function Test-StrictJsonText {
+    # The strictness gate REQ-004(a) needs and RT-20260819-001 records as
+    # missing. Returns $true for EXACTLY the documents the .sh twin's python3
+    # `json.loads` accepts -- no more and no less -- so the two twins reach
+    # the same verdict on the same bytes (REQ-006, design.md DD-7).
+    #
+    # The parity target is `json.loads`, NOT RFC 8259. python3 accepts three
+    # things RFC 8259 forbids -- the bare literals NaN, Infinity and
+    # -Infinity, and duplicate object keys (last value wins) -- so this
+    # scanner accepts them too. "Improving" on json.loads by rejecting them
+    # would replace one twin divergence with another in the opposite
+    # direction, which is why they are called out here rather than left to
+    # look like oversights.
+    #
+    # Written as one pass over the text with an EXPLICIT container stack
+    # rather than mutual recursion, so a deeply nested document cannot
+    # exhaust the PowerShell call stack. Every character test compares
+    # integer character codes, never characters or strings through -eq: -eq
+    # is case-insensitive in PowerShell, which would silently accept \U as an
+    # escape prefix and `NAN` as a literal.
+    param([string]$Text)
+
+    $chars = $Text.ToCharArray()
+    $limit = $chars.Length
+    $position = 0
+
+    # 123 marks an open object on the stack, 91 an open array.
+    $stack = New-Object 'System.Collections.Generic.List[int]'
+
+    # value          -- a value must start here
+    # value-or-close -- a value or the ']' of an empty array
+    # key            -- an object member name must start here
+    # key-or-close   -- a member name or the '}' of an empty object
+    # after          -- a complete value was just read
+    $state = 'value'
+    $documentComplete = $false
+
+    while ($true) {
+        # RFC 8259 and python's whitespace class agree on exactly four
+        # characters between tokens: space, tab, LF, CR. Nothing else -- not
+        # a form feed, not a vertical tab, not U+00A0 -- separates tokens.
+        while ($position -lt $limit) {
+            $code = [int]$chars[$position]
+            if ($code -eq 32 -or $code -eq 9 -or $code -eq 10 -or $code -eq 13) { $position++ } else { break }
+        }
+
+        if ($state -ceq 'after') {
+            if ($stack.Count -eq 0) { $documentComplete = $true; break }
+            if ($position -ge $limit) { return $false }
+            $code = [int]$chars[$position]
+            if ($stack[$stack.Count - 1] -eq 123) {
+                if ($code -eq 125) { $position++; $stack.RemoveAt($stack.Count - 1); continue }
+                # A ',' inside an object must be followed by another member
+                # name, never by '}'. That is the trailing-comma rejection.
+                if ($code -eq 44) { $position++; $state = 'key'; continue }
+                return $false
+            }
+            if ($code -eq 93) { $position++; $stack.RemoveAt($stack.Count - 1); continue }
+            if ($code -eq 44) { $position++; $state = 'value'; continue }
+            return $false
+        }
+
+        if ($state -ceq 'key-or-close') {
+            if ($position -lt $limit -and [int]$chars[$position] -eq 125) {
+                $position++
+                $stack.RemoveAt($stack.Count - 1)
+                $state = 'after'
+                continue
+            }
+            $state = 'key'
+        }
+
+        if ($state -ceq 'key') {
+            # A member name is a STRING literal. An unquoted or single-quoted
+            # name is rejected here.
+            if ($position -ge $limit -or [int]$chars[$position] -ne 34) { return $false }
+            $end = Get-StrictJsonStringEnd -Chars $chars -Start $position
+            if ($end -lt 0) { return $false }
+            $position = $end
+            while ($position -lt $limit) {
+                $code = [int]$chars[$position]
+                if ($code -eq 32 -or $code -eq 9 -or $code -eq 10 -or $code -eq 13) { $position++ } else { break }
+            }
+            if ($position -ge $limit -or [int]$chars[$position] -ne 58) { return $false }
+            $position++
+            $state = 'value'
+            continue
+        }
+
+        if ($state -ceq 'value-or-close') {
+            if ($position -lt $limit -and [int]$chars[$position] -eq 93) {
+                $position++
+                $stack.RemoveAt($stack.Count - 1)
+                $state = 'after'
+                continue
+            }
+            $state = 'value'
+        }
+
+        if ($position -ge $limit) { return $false }
+        $code = [int]$chars[$position]
+        if ($code -eq 123) { $stack.Add(123); $position++; $state = 'key-or-close'; continue }
+        if ($code -eq 91) { $stack.Add(91); $position++; $state = 'value-or-close'; continue }
+        if ($code -eq 34) {
+            $end = Get-StrictJsonStringEnd -Chars $chars -Start $position
+            if ($end -lt 0) { return $false }
+            $position = $end
+            $state = 'after'
+            continue
+        }
+        if ($code -eq 110 -and (Test-StrictJsonLiteralAt -Text $Text -Start $position -Literal 'null')) { $position += 4; $state = 'after'; continue }
+        if ($code -eq 116 -and (Test-StrictJsonLiteralAt -Text $Text -Start $position -Literal 'true')) { $position += 4; $state = 'after'; continue }
+        if ($code -eq 102 -and (Test-StrictJsonLiteralAt -Text $Text -Start $position -Literal 'false')) { $position += 5; $state = 'after'; continue }
+        if ($code -eq 45 -or ($code -ge 48 -and $code -le 57)) {
+            $end = Get-StrictJsonNumberEnd -Chars $chars -Start $position
+            if ($end -ge 0) { $position = $end; $state = 'after'; continue }
+            # A '-' that opens no number can still open python3's -Infinity.
+            if ($code -eq 45 -and (Test-StrictJsonLiteralAt -Text $Text -Start $position -Literal '-Infinity')) {
+                $position += 9
+                $state = 'after'
+                continue
+            }
+            return $false
+        }
+        # The two remaining python3 extensions. See the parity note above:
+        # accepted on purpose, because the .sh twin accepts them.
+        if ($code -eq 78 -and (Test-StrictJsonLiteralAt -Text $Text -Start $position -Literal 'NaN')) { $position += 3; $state = 'after'; continue }
+        if ($code -eq 73 -and (Test-StrictJsonLiteralAt -Text $Text -Start $position -Literal 'Infinity')) { $position += 8; $state = 'after'; continue }
+        return $false
+    }
+
+    # Exactly ONE top-level value, with nothing but whitespace after it.
+    while ($position -lt $limit) {
+        $code = [int]$chars[$position]
+        if ($code -eq 32 -or $code -eq 9 -or $code -eq 10 -or $code -eq 13) { $position++ } else { break }
+    }
+    return ($documentComplete -and $position -eq $limit)
+}
+
 function Invoke-Validation {
     param([string]$ContractPath)
 
@@ -659,6 +903,20 @@ function Invoke-Validation {
     # Strip a leading UTF-8 BOM if present, so both twins see the same text.
     if ($text.Length -gt 0 -and [int][char]$text[0] -eq 65279) {
         $text = $text.Substring(1)
+    }
+    # The strictness gate (RT-20260819-001). ConvertFrom-Json is lenient: it
+    # accepts trailing commas, single-quoted and unquoted member names,
+    # comments, raw control bytes, leading-zero and hexadecimal numbers, all
+    # of which the .sh twin's python3 `json.loads` rejects. Left to decide
+    # validity on its own it therefore declared invalid contracts VALID at
+    # exit 0 while the .sh twin rejected them -- a fail-closed breach of
+    # REQ-004(a) and a verdict-level twin divergence (REQ-006). The scanner
+    # now decides; ConvertFrom-Json only builds the object afterwards, and
+    # its own failure still falls back to the same single V2-PARSE line, so
+    # the parse step stays fail-closed either way.
+    if (-not (Test-StrictJsonText $text)) {
+        Add-Violation 'V2-PARSE' 'input is not well-formed JSON and was not parsed further'
+        return (Complete-Validation)
     }
     $document = $null
     try {

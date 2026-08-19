@@ -2152,3 +2152,271 @@ Describe "domain-contract.v1 suite non-regression closure (TEST-015, AC-015, REQ
         $violations.Count | Should Be 0
     }
 }
+
+# ---------------------------------------------------------------------------
+# RT-20260819-001 (review ticket, severity critical, target T-002): the .ps1
+# twin's PARSE VERDICT must equal the .sh twin's.
+#
+# The .sh twin parses with python3 `json.loads`, which is strict. The .ps1
+# twin parsed with ConvertFrom-Json alone, which is lenient, so twelve classes
+# of syntactically invalid JSON were INVALID to one twin and VALID to the
+# other -- a fail-closed violation of REQ-004(a) and a verdict-level breach of
+# REQ-006 twin parity (design.md DD-7 output contract).
+#
+# The parity target is `json.loads`, not RFC 8259: the ticket fixes the .ps1
+# twin against the .sh twin and forbids changing the .sh twin. So the three
+# documents python3 accepts as extensions to RFC 8259 -- NaN, Infinity and
+# duplicate object keys -- must stay ACCEPTED here. A .ps1 twin that "improved"
+# on json.loads by rejecting them would be a new divergence in the opposite
+# direction, not a fix, so those classes are pinned below alongside the twelve
+# that must reject.
+#
+# These are RT-20260819-001 regression fixtures, NOT additions to tasks.md's
+# `## Negative Fixture Allocation` table: the T-002/T-003/T-004 fixture counts
+# (3 / 62 / 8) and the T-005 78-fixture parity corpus above are deliberately
+# left untouched.
+#
+# Every fixture is ONE single-point mutation of the same base contract the
+# structural pass already proves is ACCEPTED at exit 0, expanded through the
+# expander T-003 authored, so a rejection cannot be attributed to anything but
+# the mutation under test. Fixtures stay ephemeral (DD-5, INV-006): each is
+# written to a per-test temporary file the test deletes again, and no permanent
+# fixture directory is added. All fixture vocabulary is the same synthetic
+# Purchase / Fulfillment domain nouns; no credential, token, personal, or
+# customer-derived string appears in any of them (security-spec.md).
+# ---------------------------------------------------------------------------
+
+# The malformed-JSON line BOTH twins must emit for a rejected document, byte
+# for byte. The existing V2-PARSE rule id is reused rather than a new one
+# minted, so the twins stay message-identical for this whole class.
+$rtParseViolationLine = 'V2-PARSE: input is not well-formed JSON and was not parsed further'
+
+# The unmutated, fully valid base contract every RT fixture mutates at exactly
+# one point.
+$rtBaseContractJson = New-StructuralFixtureJson -Override @{}
+
+function Edit-RtFixtureText {
+    # One single-point textual mutation. Throws when the literal is absent or
+    # occurs more than once, so a fixture can never silently degrade into an
+    # unmutated copy of the base and pass vacuously. Ordinal, never
+    # culture-sensitive or case-insensitive comparison.
+    param([string]$Text, [string]$Find, [string]$Replace)
+    $first = $Text.IndexOf($Find, [System.StringComparison]::Ordinal)
+    if ($first -lt 0) { throw ("RT fixture literal not found in the base contract: " + $Find) }
+    $second = $Text.IndexOf($Find, $first + 1, [System.StringComparison]::Ordinal)
+    if ($second -ge 0) { throw ("RT fixture literal is ambiguous in the base contract: " + $Find) }
+    return $Text.Substring(0, $first) + $Replace + $Text.Substring($first + $Find.Length)
+}
+
+function ConvertTo-RtAsciiBytes {
+    # Comma-wrapped: PowerShell unrolls an array returned from a function.
+    param([string]$Text)
+    return ,([System.Text.Encoding]::ASCII.GetBytes($Text))
+}
+
+function New-RtControlByteFixture {
+    # Splices exactly ONE raw control byte into an otherwise pure-ASCII fixture
+    # body at a byte offset. Built as an explicit byte array rather than a
+    # string literal so the injected byte is unambiguous in this source file
+    # and cannot be lost to an editor or encoding round-trip.
+    param([string]$Text, [int]$Offset, [byte]$ControlByte)
+    $source = [System.Text.Encoding]::ASCII.GetBytes($Text)
+    if ($Offset -lt 0 -or $Offset -gt $source.Length) { throw "RT control-byte offset is out of range" }
+    $result = New-Object 'System.Collections.Generic.List[byte]'
+    for ($i = 0; $i -lt $Offset; $i++) { $result.Add($source[$i]) }
+    $result.Add($ControlByte)
+    for ($i = $Offset; $i -lt $source.Length; $i++) { $result.Add($source[$i]) }
+    return ,$result.ToArray()
+}
+
+function New-EphemeralRawFixtureFile {
+    # Ephemeral fixture written from raw bytes, so a fixture BODY may hold
+    # bytes 0x00-0x1F. The fixture FILE NAME stays hex and ASCII hyphens only:
+    # a 0x00-0x1F byte in a path is legal on POSIX but illegal on Win32 and
+    # would kill the whole .ps1 side there.
+    param([byte[]]$Bytes)
+    $path = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-v2-rt20260819001-" + [guid]::NewGuid().ToString("N") + ".json")
+    [System.IO.File]::WriteAllBytes($path, $Bytes)
+    return $path
+}
+
+function New-RtParityCase {
+    param([string]$Class, [string]$Verdict, [byte[]]$Bytes)
+    return New-Object PSObject -Property @{
+        Class   = $Class
+        Verdict = $Verdict
+        Bytes   = $Bytes
+    }
+}
+
+# Offsets for the three raw-control-byte fixtures, derived from the base
+# contract rather than hard-coded, so they stay correct if the base changes.
+$rtNulBeforeCloseOffset = $rtBaseContractJson.Length - 1
+$rtControlInStringOffset = $rtBaseContractJson.IndexOf('"Order"', [System.StringComparison]::Ordinal) + 2
+
+$rtParityCases = @(
+    # --- the twelve classes json.loads rejects and ConvertFrom-Json accepted --
+    (New-RtParityCase -Class "class 01 trailing comma in an object" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"relations": []}' -Replace '"relations": [],}'))),
+    (New-RtParityCase -Class "class 02 trailing comma in an array" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '["purchase intent"]' -Replace '["purchase intent",]'))),
+    (New-RtParityCase -Class "class 03 single-quoted key" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"schema": ' -Replace "'schema': "))),
+    (New-RtParityCase -Class "class 04 single-quoted value" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"1.0.0"' -Replace "'1.0.0'"))),
+    (New-RtParityCase -Class "class 05 unquoted key" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"schema": ' -Replace 'schema: '))),
+    (New-RtParityCase -Class "class 06 embedded NUL byte" -Verdict "reject" `
+        -Bytes (New-RtControlByteFixture -Text $rtBaseContractJson -Offset $rtNulBeforeCloseOffset -ControlByte 0)),
+    (New-RtParityCase -Class "class 07 leading NUL byte" -Verdict "reject" `
+        -Bytes (New-RtControlByteFixture -Text $rtBaseContractJson -Offset 0 -ControlByte 0)),
+    (New-RtParityCase -Class "class 08 block comment" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes ($rtBaseContractJson.Insert(1, '/* c */')))),
+    (New-RtParityCase -Class "class 09 line comment after the document" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes ($rtBaseContractJson + ' // c'))),
+    (New-RtParityCase -Class "class 10 raw control character inside a string" -Verdict "reject" `
+        -Bytes (New-RtControlByteFixture -Text $rtBaseContractJson -Offset $rtControlInStringOffset -ControlByte 1)),
+    (New-RtParityCase -Class "class 11 leading-zero number" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": 01'))),
+    (New-RtParityCase -Class "class 12 hexadecimal number" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": 0x1F'))),
+    # --- the class both twins already rejected, pinned against regression -----
+    (New-RtParityCase -Class "class 13 a second value after the document" -Verdict "reject" `
+        -Bytes (ConvertTo-RtAsciiBytes ($rtBaseContractJson + ' {"schema": "domain-contract/v2"}'))),
+    # --- the three python3 extensions that must STAY accepted -----------------
+    (New-RtParityCase -Class "class 14 NaN literal (json.loads accepts it; over-rejecting is a new divergence)" -Verdict "accept" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": NaN'))),
+    (New-RtParityCase -Class "class 15 Infinity literal (json.loads accepts it; over-rejecting is a new divergence)" -Verdict "accept" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": Infinity'))),
+    (New-RtParityCase -Class "class 16 duplicate object key (json.loads accepts it, last value wins)" -Verdict "accept" `
+        -Bytes (ConvertTo-RtAsciiBytes (Edit-RtFixtureText -Text $rtBaseContractJson -Find '"version": "1.0.0"' -Replace '"version": "9.9.9", "version": "1.0.0"')))
+)
+
+Describe "RT-20260819-001 fixture corpus integrity (non-vacuity for the parity checks below)" {
+
+    It "the corpus holds exactly 16 classes -- 13 that must reject, 3 that must stay accepted" {
+        $rtParityCases.Count | Should Be 16
+        @($rtParityCases | Where-Object { $_.Verdict -ceq "reject" }).Count | Should Be 13
+        @($rtParityCases | Where-Object { $_.Verdict -ceq "accept" }).Count | Should Be 3
+    }
+
+    It "every fixture really does differ from the unmutated base contract" {
+        $baseBytes = ConvertTo-RtAsciiBytes $rtBaseContractJson
+        $identical = New-Object System.Collections.ArrayList
+        foreach ($rtCase in $rtParityCases) {
+            if ([System.Convert]::ToBase64String($rtCase.Bytes) -ceq [System.Convert]::ToBase64String($baseBytes)) {
+                [void]$identical.Add($rtCase.Class)
+            }
+        }
+        ($identical -join ", ") | Should Be ""
+    }
+
+    It "the three raw-control-byte fixtures really do carry a byte in 0x00-0x1F, and no other fixture does" {
+        $withControlByte = New-Object System.Collections.ArrayList
+        foreach ($rtCase in $rtParityCases) {
+            foreach ($byteValue in $rtCase.Bytes) {
+                if ([int]$byteValue -lt 32) { [void]$withControlByte.Add($rtCase.Class); break }
+            }
+        }
+        $withControlByte.Count | Should Be 3
+    }
+}
+
+Describe "RT-20260819-001 base contract stays accepted (the fix must not pass by rejecting everything)" {
+
+    It "ps1 twin: accepts the unmutated base contract with exit 0 and no output at all" {
+        $fixture = New-EphemeralRawFixtureFile -Bytes (ConvertTo-RtAsciiBytes $rtBaseContractJson)
+        try {
+            $result = Invoke-ValidatorPs1 -ContractPath $fixture
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixture
+        }
+    }
+
+    It "sh twin: accepts the unmutated base contract with exit 0 and no output at all [SKIPPED when bash/python3 is absent from PATH]" -Skip:(-not $shTwinAvailable) {
+        $fixture = New-EphemeralRawFixtureFile -Bytes (ConvertTo-RtAsciiBytes $rtBaseContractJson)
+        try {
+            $result = Invoke-ValidatorSh -ContractPath $fixture
+            $result.ExitCode | Should Be 0
+            $result.StdOut.Length | Should Be 0
+            $result.StdErr.Length | Should Be 0
+        } finally {
+            Remove-EphemeralPath -Path $fixture
+        }
+    }
+}
+
+Describe "RT-20260819-001 ps1 twin parse verdict (REQ-004(a) fail-closed parse)" {
+
+    foreach ($rtCase in $rtParityCases) {
+        $rtLabel = $rtCase.Class
+        $rtVerdict = $rtCase.Verdict
+
+        It ("ps1 twin -- " + $rtLabel) {
+            $fixture = New-EphemeralRawFixtureFile -Bytes $rtCase.Bytes
+            try {
+                $result = Invoke-ValidatorPs1 -ContractPath $fixture
+                $result.StdOut.Length | Should Be 0
+                $lines = @(Get-StdErrViolationLines -Result $result)
+                # -ceq, never `Should Be` alone, for the rule-id comparisons:
+                # PowerShell's -eq and Pester 4's `Should Be` are both
+                # case-insensitive and the rule ids are case-significant.
+                if ($rtVerdict -ceq "reject") {
+                    $result.ExitCode | Should Be 1
+                    $lines.Count | Should Be 1
+                    ($lines[0] -ceq $rtParseViolationLine) | Should Be $true
+                } else {
+                    @($lines | Where-Object { $_ -ceq $rtParseViolationLine }).Count | Should Be 0
+                }
+                $result.StdErr | Should Not Match "Traceback"
+                $result.StdErr | Should Not Match "Exception"
+                $result.StdErr | Should Not Match "CategoryInfo"
+                $result.StdErr | Should Not Match "FullyQualifiedErrorId"
+                $result.StdErr | Should Not Match "ScriptStackTrace"
+                $result.StdErr | Should Not Match "at <ScriptBlock>"
+                $result.StdErr | Should Not Match "^\s+\+ "
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+    }
+}
+
+Describe "RT-20260819-001 sh/ps1 verdict parity (REQ-006, design.md DD-7)" {
+
+    foreach ($rtCase in $rtParityCases) {
+        $rtLabel = $rtCase.Class
+        $rtVerdict = $rtCase.Verdict
+
+        It ("both twins -- " + $rtLabel + " [SKIPPED when bash/python3 is absent from PATH]") -Skip:(-not $shTwinAvailable) {
+            $fixture = New-EphemeralRawFixtureFile -Bytes $rtCase.Bytes
+            try {
+                $ps1Result = Invoke-ValidatorPs1 -ContractPath $fixture
+                $shResult = Invoke-ValidatorSh -ContractPath $fixture
+
+                $ps1Result.StdOut.Length | Should Be 0
+                $shResult.StdOut.Length | Should Be 0
+
+                $ps1Text = (@(Get-StdErrViolationLines -Result $ps1Result) -join "`n")
+                $shText = (@(Get-StdErrViolationLines -Result $shResult) -join "`n")
+
+                $ps1Result.ExitCode | Should Be $shResult.ExitCode
+                # Reported first for a readable failure message, then pinned
+                # case-sensitively -- `Should Be` alone is case-insensitive.
+                $ps1Text | Should Be $shText
+                ($ps1Text -ceq $shText) | Should Be $true
+
+                if ($rtVerdict -ceq "reject") {
+                    ($ps1Text -ceq $rtParseViolationLine) | Should Be $true
+                } else {
+                    ($ps1Text -ceq $rtParseViolationLine) | Should Be $false
+                }
+            } finally {
+                Remove-EphemeralPath -Path $fixture
+            }
+        }
+    }
+}
