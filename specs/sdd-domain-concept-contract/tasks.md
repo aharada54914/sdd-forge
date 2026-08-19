@@ -549,7 +549,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/290
 
 Approval: Approved (sudo 2026-08-18T15:08:24Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 
