@@ -1,0 +1,25 @@
+{
+  "task_id": "T-001",
+  "feature": "sdd-domain-concept-contract",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "b46570e664a019bad34135c44fcdf22dc62870bb",
+  "created": "2026-08-19T00:15:00Z",
+  "comment": "Default-FAIL verification contract. Every check started at passes=false and was flipped only after its verification command ran and the recorded evidence file was inspected. stack=shell: the deliverables are a draft-07 JSON Schema declaration and a Pester suite, so the three compile-oriented checks carry waiver_reason per risk-gate-matrix.md's stack descriptor. Every test/quality check remains required.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "No lint toolchain is configured for JSON Schema or PowerShell in this repository; .github/workflows/test.yml runs test suites only, with no linter step.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No static type checker applies: the deliverables are a declarative JSON Schema file and a PowerShell test suite, and no typechecker is configured for either.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No compile or build step exists for this change; the schema is consumed as data and the suite is interpreted by pwsh.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-001/acceptance-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003"], "red_evidence": "specs/sdd-domain-concept-contract/verification/T-001/red.log", "green_evidence": "specs/sdd-domain-concept-contract/verification/T-001/green.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No integrated consumer exists in Phase 0; design.md's Deployment / CI Plan records that no consumer is wired in this feature.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-001/acceptance-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003"], "red_evidence": "specs/sdd-domain-concept-contract/verification/T-001/red.log", "green_evidence": "specs/sdd-domain-concept-contract/verification/T-001/green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-001/regression.log", "waiver_reason": "", "requirement_ids": ["REQ-007"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-001/placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-001/task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No runnable service or UI surface; the deliverable is a schema declaration with no executable entry point of its own.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "Not a refactor or bugfix task and no baseline-behavior.md exists; T-001 adds a new file with no prior behavior to diff.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No user-facing UI surface.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system/ directory in this repository and no UI-layer files were touched.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}
