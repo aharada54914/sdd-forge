@@ -643,6 +643,28 @@ jobs:
         shell: pwsh
         run: ./tests/resolve-project-context-block.tests.ps1
 
+      # epic-193-a5-capability-resolver T-005 (REQ-001/REQ-004/REQ-005/
+      # REQ-006, TEST-003..008/016/043/044/052/056): the full
+      # match/no-match/conditional/WARN fixture matrix (design.md Test
+      # Strategy item 3), exercising T-002/T-003/T-004's own already-built
+      # evaluation pipeline end-to-end (steps 0-13) via real subprocess
+      # invocations, plus a disclosed oracle-reconstruction step (this
+      # suite's own driver module docstring) for the Facet Manifest/
+      # context_binding content T-007's own not-yet-landed publication step
+      # never surfaces to any live path. Ordered directly after T-002's own
+      # block suite, the immediately preceding suite-registering task in
+      # the fixed CI-registration order.
+      - name: Test project-context match resolver (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/resolve-project-context-match.tests.sh
+
+      - name: Test project-context match resolver (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-match.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

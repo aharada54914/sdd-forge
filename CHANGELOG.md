@@ -79,6 +79,34 @@
   **必要な人間アクション: T-002/T-003 と共通の staged candidate 4 件
   （うち 1 件がこの更新差分）をレビューして適用すること。**
 
+- **Capability Resolver full-pipeline match suite (Issue #193, epic-193-a5
+  T-005)**: T-002/T-003/T-004 が実装済みの評価パイプライン（steps 0-13）を
+  実サブプロセス経由で end-to-end に検証する新規スイート
+  `tests/resolve-project-context-match.tests.{sh,ps1}`（共有ドライバ
+  `tests/resolve-project-context-match-check.py`）を追加し、`tests/run-all.
+  {sh,ps1}` に登録。sh/ps1 とも **37 passed / 0 failed**。union-match
+  (AC-006)、cross-Capability / 同一 Capability 内の同名 facet 二重宣言の
+  facet-name 集約 (AC-043/AC-052)、Context Projection のバイト一致
+  (AC-003)、`resolve-component-paths`/`generate-registry-digest --whole`
+  の引数パススルー・バインディング (AC-004/AC-005)、advisory/required 間の
+  Resolver Evidence バイト一致 (AC-016) を、いずれも実 fixture 経由で検証。
+  **この branch では public writes が T-007 の step 14（未着地）に一元化
+  されているため**、Facet Manifest 自身の内容（AC-007 field-assembly /
+  AC-008 schema-conformance）は、この suite 自身のドライバが同一の
+  staged `.py` を `importlib` 経由でロードし、実サブプロセス実行で
+  既に検証済みの `capability_evaluations[]` を渡して
+  `_assemble_facet_manifest` 等の本番関数をそのまま呼び出す形で再構成し、
+  実の `validate-facet-manifest` に対して検証する手法（本タスクの実装
+  レポート「Specification Differences」で開示）を採用。**AC-056
+  （`diagnostics[]` の warn/block cardinality）は未実装のまま**——現行
+  `_write_evidence`/`_block` は常に `severity: "block"` 1 件のみを書き込み、
+  `outcome: "warn"` ノードごとの `severity: "warn"` エントリは一度も
+  生成されない（スキーマ自体は両 severity を許容する設計だが、T-002/
+  T-003/T-004 のいずれの実装コミットもこの挙動を追加していない）ため、
+  本タスクの Planned Files 外である `resolve-project-context.py` を
+  編集しない限り TEST-056 を可決させることができない、構造的な未解消
+  Done-When 項目として実装レポートに記録。
+
 ### Fixed
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
