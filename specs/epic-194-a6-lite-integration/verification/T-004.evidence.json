@@ -4,10 +4,10 @@
   "risk": "high",
   "required_workflow": "tdd",
   "spec_revision": "2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437",
-  "quality_report": "reports/quality-gate/epic-194-a6-lite-integration/T-004.md",
+  "quality_report": "reports/quality-gate/20260809T100000Z-epic-194-a6-lite-integration-T-004.md",
   "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-004.contract.json",
-  "git_commit": "859209955dcf1f99d4be0305f3dea317577b8006",
-  "git_generated_dirty": false,
+  "git_commit": "b2502ec10a564697243f91bf6ddc8d235e473c98",
+  "git_generated_dirty": true,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
@@ -32,12 +32,12 @@
       "sha256": "5662c8b8f350409f3a87e8cfd62ccc30989cc8c6b086777cfbdf07ac8d2b9f81"
     },
     {
-      "path": "reports/quality-gate/epic-194-a6-lite-integration/T-004.md",
-      "sha256": "135fbfc755a4a92dab4e675d85450dcd9b66acd88b14461389643c61e259e203"
+      "path": "reports/quality-gate/20260809T100000Z-epic-194-a6-lite-integration-T-004.md",
+      "sha256": "8dfa0c28369e37f663828ebca09a7d4e706b599479e1860f66c8e7bd519667aa"
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/T-004.green.log",
-      "sha256": "4d205616e655617fbaadbcbdfc0aafe091747b1716d3d52652eb952d53ec53b8"
+      "sha256": "d0f6878ff8f8e1b865c5319f511236b72de0a0e190221da314df3c9bb3ba5dce"
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/qg/T-004/placeholder-scan.log",
