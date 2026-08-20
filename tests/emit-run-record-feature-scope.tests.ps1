@@ -179,7 +179,9 @@ VERDICT: PASS
         $script:runOutputText = ($combined | Out-String)
         $found = Get-ChildItem (Join-Path $work "reports/runs") -Filter "RUN-*-$Slug.json" -ErrorAction SilentlyContinue | Select-Object -First 1
         $script:runRecord = $null
+        $script:runOutPath = $null
         if ($found) {
+            $script:runOutPath = $found.FullName
             $script:runRecord = Get-Content -Raw -Encoding Utf8 $found.FullName | ConvertFrom-Json
         }
     }
@@ -335,6 +337,38 @@ VERDICT: PASS
         }
     } else {
         Fail "AC-025 setup: expected pre-feature v1 record fixture not found: $preFeatureV1Record"
+    }
+
+    # --- AC-011 (TEST-011): the actual byte-identity lock. The AC-033-matrix
+    #     "no flags" case above (AssertEq, AC-025) only checks schema/key
+    #     presence -- it is structural, not byte-level, and would still pass
+    #     if the v1 output's whitespace, key order, or punctuation drifted.
+    #     This case compares the full no-flag output byte-for-byte against a
+    #     committed golden fixture, with only the two fields that are
+    #     genuinely dynamic per invocation (run_id, generated -- both derive
+    #     from wall-clock time, plugins/sdd-quality-loop/scripts/emit-run-record.ps1)
+    #     normalized to a fixed placeholder first; every other byte (quoting,
+    #     indentation, key order, spacing, trailing newline) must match
+    #     exactly. --------------------------------------------------------
+    $goldenV1Ps1 = Join-Path $repoRoot "tests/fixtures/emit-run-record/v1-no-flag.ps1.golden.json"
+    RunEmit "feat-e011" @()
+    if ($runExit -eq 0 -and $runOutPath) {
+        $rawBytes = [System.IO.File]::ReadAllBytes($runOutPath)
+        $rawText = [System.Text.Encoding]::UTF8.GetString($rawBytes)
+        $normalizedText = $rawText -replace '"run_id": ".*"', '"run_id": "TEST-011-NORMALIZED"'
+        $normalizedText = $normalizedText -replace '"generated": ".*"', '"generated": "TEST-011-NORMALIZED"'
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        $normalizedBytes = $utf8NoBom.GetBytes($normalizedText)
+        $goldenBytes = [System.IO.File]::ReadAllBytes($goldenV1Ps1)
+        $normalizedB64 = [System.Convert]::ToBase64String($normalizedBytes)
+        $goldenB64 = [System.Convert]::ToBase64String($goldenBytes)
+        if ($normalizedB64 -ceq $goldenB64) {
+            Ok "AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)"
+        } else {
+            Fail "AC-011: no-flag output diverged from the committed v1 golden byte-for-byte (normalized length=$($normalizedBytes.Length), golden length=$($goldenBytes.Length))"
+        }
+    } else {
+        Fail "AC-011 setup: emitter did not produce the expected v1 record (exit=$runExit): $runOutputText"
     }
 
     # ========================================================================

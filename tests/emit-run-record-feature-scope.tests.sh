@@ -345,6 +345,32 @@ else
   fail "AC-025 setup: expected pre-feature v1 record fixture not found: $PRE_FEATURE_V1_RECORD"
 fi
 
+# --- AC-011 (TEST-011): the actual byte-identity lock. The AC-033-matrix
+#     "no flags" case above (assert_run_out_eq, AC-025) only checks schema/
+#     key-presence -- it is structural, not byte-level, and would pass
+#     unchanged if the v1 heredoc's whitespace, key order, or punctuation
+#     drifted. This case compares the full no-flag output byte-for-byte
+#     against a committed golden fixture, with only the two fields that are
+#     genuinely dynamic per invocation (run_id, generated -- both derive
+#     from wall-clock `date`, plugins/sdd-quality-loop/scripts/emit-run-record.sh:124-125)
+#     normalized to a fixed placeholder first; every other byte (quoting,
+#     indentation, key order, spacing, trailing newline) must match exactly. -
+GOLDEN_V1_SH="$REPO_ROOT/tests/fixtures/emit-run-record/v1-no-flag.sh.golden.json"
+run_emit feat-e011
+if [ "$RUN_EXIT" -eq 0 ] && [ -n "$RUN_OUT" ]; then
+  NORMALIZED_V1_SH="$WORK/v1-no-flag.normalized.json"
+  sed -e 's/"run_id": ".*"/"run_id": "TEST-011-NORMALIZED"/' \
+      -e 's/"generated": ".*"/"generated": "TEST-011-NORMALIZED"/' \
+      "$RUN_OUT" > "$NORMALIZED_V1_SH"
+  if cmp -s "$NORMALIZED_V1_SH" "$GOLDEN_V1_SH"; then
+    ok "AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)"
+  else
+    fail "AC-011: no-flag output diverged from the committed v1 golden byte-for-byte: $(diff "$NORMALIZED_V1_SH" "$GOLDEN_V1_SH" | head -10)"
+  fi
+else
+  fail "AC-011 setup: emitter did not produce the expected v1 record (exit=$RUN_EXIT, stderr=$RUN_STDERR)"
+fi
+
 # ============================================================================
 # epic-195-a7-compatibility T-009: capability run-record payload
 # (REQ-003; AC-011, AC-012, AC-033). The two compatibility rows above cover
