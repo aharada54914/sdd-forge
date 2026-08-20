@@ -72,9 +72,17 @@ grep -Fq -- '- Task ID: $task_id' "$VALIDATOR" &&
 # Rule 3: the "## Outputs" table must declare outputs in the exact row shape
 # evaluator_output_is_declared parses. The awk program below replicates the
 # validator's parser verbatim.
+# WFI-036 parameterised the section heading so a second declaration channel
+# (the gate report's `## Post-Fix Artifacts`) could reuse the same row parser.
+# The replica below tracks that change: the heading arrives as a variable and is
+# matched by prefix-plus-trailing-whitespace instead of a baked-in regex. Row
+# matching is unchanged -- still exact equality on the two-column backtick row.
 declared() {
-    awk -v expected_path="$1" -v expected_hash="$2" '
-        /^## Outputs[[:space:]]*$/ { in_outputs = 1; next }
+    awk -v expected_path="$1" -v expected_hash="$2" -v heading='## Outputs' '
+        index($0, heading) == 1 && substr($0, length(heading) + 1) ~ /^[[:space:]]*$/ {
+            in_outputs = 1
+            next
+        }
         in_outputs && /^##[[:space:]]/ { exit }
         in_outputs {
             expected_line = "| `" expected_path "` | `" expected_hash "` |"
@@ -88,9 +96,16 @@ if declared "$OUT_PATH" "$OUT_HASH" "$IMPL_RENDERED"; then
 else
     fail "impl-report template: Outputs table row NOT recognized by the evaluator's declared-output parser"
 fi
-grep -Fq '/^## Outputs[[:space:]]*$/' "$VALIDATOR" &&
-    ok "validator pin: Outputs-section parser still present in launch boundary" ||
+# Pin both halves of the parameterised form. The heading-match construct alone
+# would not catch the boundary being pointed at a different section, and the
+# literal '## Outputs' alone would not catch the matcher itself being replaced;
+# the template and the boundary can only drift apart if one of these two moves.
+if grep -Fq 'index($0, heading) == 1' "$VALIDATOR" &&
+    grep -Fq "'## Outputs'" "$VALIDATOR"; then
+    ok "validator pin: Outputs-section parser still present in launch boundary"
+else
     fail "validator pin: Outputs-section parser changed in launch boundary"
+fi
 
 # ---------------------------------------------------------------------------
 # WFI-017 leg: implementation report template vs its OWN authoring-time

@@ -1,0 +1,18 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "source_sha256": "sha256:4d0fedd2774f6f768316d5e1cc2a71d8ac065047752f1e4da7d1dc199d644ea3",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "facet-native",
+    "capability_enforcement": "required"
+  },
+  "components": {
+    "desktop-client": {
+      "artifact_kinds": ["executable"],
+      "platform_targets": [
+        { "os": "darwin" }
+      ]
+    }
+  },
+  "shared_paths": []
+}

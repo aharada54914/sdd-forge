@@ -1,0 +1,43 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-192-a4-facet-manifest",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "7cbe47e076682ac0003063025642e1cb70af4981134b856c794aea77932875aa",
+  "quality_report": "reports/quality-gate/epic-192-a4-facet-manifest/T-004.md",
+  "verification_contract": "specs/epic-192-a4-facet-manifest/verification/T-004.contract.json",
+  "git_commit": "e35f0e3f712ed469003784616a801681497988fb",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 5,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-004.contract.json",
+      "sha256": "df291046998cd330b2d0bd022c440b1d3d688e7d4f90889aff8d538f2c361887"
+    },
+    {
+      "path": "reports/quality-gate/epic-192-a4-facet-manifest/T-004.md",
+      "sha256": "37e4d540fc21e50e437850415e1896719ac9b3bad51d0ce95b8838bd25a9ccbc"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-004/gate-c1-checks.log",
+      "sha256": "443324351bac64d0e193d7bbc4da071cc73c094079ac14b4a385818a7b4b76eb"
+    }
+  ]
+}

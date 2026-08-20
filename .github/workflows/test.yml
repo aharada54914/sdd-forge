@@ -200,6 +200,7 @@ jobs:
           bash tests/task-layer-review-inputs.tests.sh
           bash tests/task-layer-full-profile.tests.sh
           bash tests/task-review-precheck.tests.sh
+          bash tests/impl-review-round2-contract.tests.sh
           bash tests/review-agent-isolation.tests.sh
 
       - name: Test cross-model gate (bash)
@@ -840,7 +841,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
 
@@ -896,7 +897,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/local-env-mcp/package-lock.json
 
@@ -948,7 +949,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: mcp/ci-mcp/package-lock.json
 

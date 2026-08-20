@@ -389,6 +389,39 @@ try {
                 [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
             }
         }
+        # WFI-017 ratified a second serialization for the implementation
+        # report's own declaration -- the legacy '## Output Paths And Hashes'
+        # bullet section, retained so previously committed bullet-only and
+        # dual-form v2 reports remain valid (validate-implementation-report.sh
+        # :113-119). That acceptance landed on the report contract and never on
+        # this authorization boundary, so a report the repository considers
+        # valid could declare artifacts this validator could not read.
+        #
+        # The pattern below mirrors that script's own output_pattern (:167-170)
+        # byte for byte; nothing is invented here. Only the serialization
+        # differs -- the pair is still matched by exact equality and the live
+        # file is still re-hashed afterwards -- so this admits no artifact the
+        # table form would not have admitted. Scanned in its own pass because
+        # the loop above stops at the next '## ' heading and the two sections
+        # may appear in either order, or the legacy one alone.
+        #
+        # Scoped to the implementation report on purpose: the gate report's
+        # post-fix channel (WFI-036) defines its own table form and gains no
+        # legacy grammar.
+        $inLegacyOutputs = $false
+        foreach ($line in $implementationReportLines) {
+            if ($line -cmatch '^## Output Paths And Hashes\s*$') {
+                $inLegacyOutputs = $true
+                continue
+            }
+            if ($inLegacyOutputs -and $line -cmatch '^##\s') {
+                break
+            }
+            if ($inLegacyOutputs -and
+                $line -cmatch '^- \*\*Path\*\*: `(?<path>[^`]+)`; \*\*SHA-256\*\*: `(?<sha>[0-9a-f]{64})`\s*$') {
+                [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
+            }
+        }
         # WFI-036. The named gate report is a declaration source, not a manifest
         # input. It is verified in full here -- canonical path, confined to the
         # gate's own report namespace, no symlink component, regular file, and

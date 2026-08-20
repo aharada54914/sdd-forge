@@ -1,0 +1,10 @@
+{
+  "source_sha256": "sha256:a403a1601cec696f76864d1ba2824bcc029d8c5f3654569eea32708a8edf0c06",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "facet-native",
+    "capability_enforcement": "required"
+  },
+  "components": {},
+  "shared_paths": []
+}

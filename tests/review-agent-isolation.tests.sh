@@ -703,4 +703,79 @@ find "$rollback_target" -depth -type d -empty -delete
 diff -qr "$rollback_baseline" "$rollback_target" >/dev/null ||
   fail 'restored reviewer/evaluator boundary is not equal to baseline 7df7318'
 
+# WFI-017 ratified the legacy `## Output Paths And Hashes` bullet section on the
+# implementation-report contract ("retained solely so previously committed
+# bullet-only and dual-form v2 reports remain valid") but never taught this
+# authorization boundary to read it. A report the repository considers valid
+# could therefore declare artifacts the evaluator could not be given, and the
+# task became ungateable through no fault of its own. These cases pin the
+# boundary to the SAME grammar validate-implementation-report.sh enforces --
+# no looser, and no artifact the table form would not have admitted.
+legacy_repository="$tmp/legacy-declaration-repository"
+make_repository "$legacy_repository"
+legacy_output_hash="$(sha256 "$legacy_repository/plugins/task/authorized-output.txt")"
+legacy_unlisted_hash="$(sha256 "$legacy_repository/plugins/internal/arbitrary-existing.txt")"
+legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
+
+# Rewrite the fixture's report so the artifact is declared ONLY in the legacy
+# section -- no `## Outputs` table at all, which is the shape of the historical
+# reports WFI-017 exists to keep valid.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' \
+    "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+
+legacy_manifest_for() {
+  # legacy_manifest_for <out> <extra-path> <extra-sha>
+  local output=$1 extra_path=$2 extra_hash=$3
+  local base="$tmp/legacy-base.json"
+  make_manifest "$legacy_repository" sdd-evaluator "$base"
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' "$base" > "$output"
+}
+
+# Positive: an artifact declared only in the ratified legacy section IS
+# authorized. Before this change the identical manifest was role-unlisted.
+legacy_manifest_for "$tmp/legacy-happy.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+run_bash "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+  fail 'WFI-017 boundary: Bash rejected an artifact declared in the ratified legacy section'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+    fail 'WFI-017 boundary: PowerShell rejected an artifact declared in the ratified legacy section'
+fi
+
+# Negative control: a real file the legacy section does not name is still
+# role-unlisted. If this ever passes, the change removed the boundary.
+legacy_manifest_for "$tmp/legacy-negative.json" \
+  'plugins/internal/arbitrary-existing.txt' "$legacy_unlisted_hash"
+assert_rejected_both wfi017-legacy-path-not-declared \
+  "$tmp/legacy-negative.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The legacy row is hash-checked exactly as a table row is: a manifest naming
+# the declared path under a different hash matches no row.
+legacy_manifest_for "$tmp/legacy-wrong-hash.json" \
+  'plugins/task/authorized-output.txt' "$legacy_wrong_hash"
+assert_rejected_both wfi017-legacy-row-hash-mismatch \
+  "$tmp/legacy-wrong-hash.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The grammar is the ratified one, not "any bullet mentioning a path and a
+# hash". A report using a near-miss serialization authorizes nothing, so this
+# change cannot be mistaken for a licence to invent further formats.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- `plugins/task/authorized-output.txt`: `%s`\n' "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+legacy_manifest_for "$tmp/legacy-nearmiss.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+assert_rejected_both wfi017-legacy-unratified-serialization \
+  "$tmp/legacy-nearmiss.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
 printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'
