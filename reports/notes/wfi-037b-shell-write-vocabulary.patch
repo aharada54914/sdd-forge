@@ -1,0 +1,79 @@
+From: WFI-037 — widen the shell write-detection vocabulary
+Subject: [PATCH] fix(guard): recognise the writers outside the five-verb vocabulary
+
+Human-applied patch. guard-invariants.json is a protected gate artifact.
+See docs/workflow-improvements/WFI-037.md.
+
+Apply with:
+    git apply reports/notes/wfi-037b-shell-write-vocabulary.patch
+    python3 plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+
+Regeneration is REQUIRED: the guard reads the four generated modules, not this
+JSON. Refreshing the installed plugin under ~/.claude/plugins/cache/ is required
+before the change is live on a developer machine.
+
+WHY THIS IS DATA-ONLY. The decision path is three gates
+(sdd-hook-guard.py:1423-1433): the command must reference a protected path, then
+SHELL_SUDO_WRITE_RE must match, and only then is _shell_write_targets_are_safe
+consulted. The measured 15/15 gap was not one missing check but two missing
+entries -- the writers appear in neither the regex nor the vocabulary, so the
+analysis was never reached. Adding them to `indirect_cmds` makes
+_shell_write_targets_are_safe fail closed on them, and extending
+`sudo_write_re` makes the second gate admit them at all. No guard logic changes,
+so the Python, JS and PowerShell twins stay behaviourally identical by
+construction.
+
+WHY indirect RATHER THAN write_arg/write_dest. `install src dst` and `ln -sf src
+dst` could be judged by destination, but `dd if=s of=d` names its target in an
+`of=` token that the argument scanner does not model, and `patch` and `git
+apply` name theirs inside a file the analyser never opens. Judging some
+precisely and others not would leave the vocabulary looking complete while
+staying selectively blind. Fail-closed is uniform and honest.
+
+KNOWN FALSE-POSITIVE COST, stated rather than discovered later. A command that
+references a protected path AND contains one of these verbs is now denied even
+when it only reads -- for example `python3 -c` printing a protected file. That
+is the WFI-022 direction, and it is a real cost. It is bounded by the first
+gate: commands that never name a protected path are unaffected, which is the
+overwhelming majority. `sed` is admitted only in its `-i` form and `git` only on
+worktree-writing subcommands, so `sed -n` and `git log` stay reads.
+
+NOT CLOSED BY THIS PATCH. `git apply x.patch` and `patch -p1 -i x.patch` name
+their targets inside the patch file, so they never reference a protected path on
+the command line and stop at the first gate. Closing those needs a code change
+at sdd-hook-guard.py:1423 in all three twins, tracked separately.
+
+--- a/plugins/sdd-quality-loop/references/guard-invariants.json
++++ b/plugins/sdd-quality-loop/references/guard-invariants.json
+@@ -138,10 +138,22 @@
+     "indirect_cmds": [
+       "eval",
+       "xargs",
+       "source",
+       "sh",
+       "bash",
+       "zsh",
+       "dash",
+-      "ksh"
++      "ksh",
++      "sed",
++      "patch",
++      "install",
++      "ln",
++      "truncate",
++      "dd",
++      "python",
++      "python3",
++      "perl",
++      "ruby",
++      "node",
++      "git"
+     ],
+@@ -163,6 +175,6 @@
+     "cd_cmds": [
+       "cd",
+       "pushd"
+     ],
+-    "sudo_write_re": "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b)",
++    "sudo_write_re": "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b|\\bpatch\\b|\\binstall\\b|\\bln\\b|\\btruncate\\b|\\bdd\\b|\\bpython3?\\b|\\bperl\\b|\\bruby\\b|\\bnode\\b|\\bsed\\b[^|;&]*\\s-i\\b|\\bgit\\s+(?:apply|checkout|restore|stash|reset|clean|mv|rm|merge|rebase|pull)\\b)",
+     "read_only_start_re": "^\\s*(?:cat|ls|test|grep|stat|head|tail|rg)\\b"
