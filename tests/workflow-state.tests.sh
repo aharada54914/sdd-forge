@@ -719,8 +719,17 @@ wfi030_set_status() {
   rm -f "$1.bak"
 }
 
+# wfi030_fixture <name> [flagged-task-id] [adjudicate: yes|no]
+# With a flagged task id, the round's precheck gains a frozen_artifact_done_when
+# entry for it (WFI-030 item 7). "yes" rewrites reviewer-a's OBSERVABLE-DONE
+# finding to name that task; "no" rewrites it to a finding that does not.
 wfi030_fixture() {
   local root round specs trace layer extra layers pairs
+  local flagged="${2:-}" adjudicate="${3:-yes}" frozen='[]'
+  if [[ -n "$flagged" ]]; then
+    frozen="$(jq -nc --arg t "$flagged" \
+      '[{task: $t, line: 10, item: "- [ ] traceability.md rows record this evidence path."}]')"
+  fi
   root="$(make_full_fixture "$1")"
   round="$(latest_task_round_dir "$root")"
   specs="$root/specs/workflow-state-integrity"
@@ -738,9 +747,23 @@ wfi030_fixture() {
   # The precheck must be rewritten before the manifest is, because the manifest
   # also binds the precheck file's own hash.
   jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" --argjson l "$layers" \
-    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l' \
+    --argjson frozen "$frozen" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l
+     | .frozen_artifact_done_when=$frozen' \
     "$round/precheck-result.json" > "$round/precheck-result.json.new"
   mv "$round/precheck-result.json.new" "$round/precheck-result.json"
+  if [[ -n "$flagged" ]]; then
+    # Rewriting a finding's text changes neither the check ids nor the pass/fail
+    # counts, so the integrated-summary cross-checks are unaffected and only the
+    # adjudication clause can react.
+    local adjudication="Every Done When item is inspectable."
+    [[ "$adjudicate" == yes ]] &&
+      adjudication="${adjudication} ${flagged}: satisfiable without editing the frozen matrix; the row already names the evidence path."
+    jq --arg text "$adjudication" \
+      '.checks |= map(if .id == "OBSERVABLE-DONE" then .finding = $text else . end)' \
+      "$round/reviewer-a.json" > "$round/reviewer-a.json.new"
+    mv "$round/reviewer-a.json.new" "$round/reviewer-a.json"
+  fi
   pairs="$({
     printf 'specs/workflow-state-integrity/traceability.md\t%s\n' "$(wfi030_sha "$trace")"
     printf 'specs/workflow-state-integrity/design.md\t%s\n' "$(wfi030_sha "$specs/design.md")"
@@ -809,6 +832,18 @@ expect_rule "$wfi030_outside" stage-provenance
 # Every non-status byte stays bound: an edit to any other cell still fails. This
 # is the anti-Goodhart control -- coverage of the status column must not have
 # been bought by unbinding the row.
+# WFI-030 item 7: a Done When item the precheck flagged must be adjudicated by
+# task ID in reviewer-a's OBSERVABLE-DONE finding. The detector is deliberately
+# permissive -- three of the six items it fires on across this repository are
+# false positives -- so this does not judge the adjudication, only that one was
+# recorded. The review that started this WFI did reason about the frozen-artifact
+# rule; the reasoning was simply unverifiable.
+wfi030_adjudicated="$(wfi030_fixture wfi030-adjudicated T-001 yes)"
+expect_valid "$wfi030_adjudicated"
+
+wfi030_ignored="$(wfi030_fixture wfi030-ignored T-001 no)"
+expect_rule "$wfi030_ignored" stage-provenance
+
 wfi030_body="$(wfi030_fixture wfi030-body)"
 printf '\n<!-- WFI-030 body edit outside every delivery-status cell -->\n' \
   >> "$wfi030_body/specs/workflow-state-integrity/traceability.md"
