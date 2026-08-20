@@ -479,6 +479,175 @@ if command -v pwsh >/dev/null 2>&1; then
   esac
 fi
 
+# WFI-036: an in-gate fix produces bytes the frozen implementation report can
+# never describe, so the very evaluator that must review the fix cannot
+# authorize the artifact under review. The validator therefore consults a
+# SECOND declaration channel: a gate report the manifest names explicitly and
+# pins by SHA-256. Every case below exists because this WFI WIDENS an
+# authorization set, and an unverified widening is indistinguishable from
+# removing the check: the source must be named rather than discovered, the
+# source must be hash-verified before a single row is read from it, and rows
+# must be hash-checked exactly as the implementation report's rows are.
+wfi036_repository="$tmp/wfi036-repository"
+make_repository "$wfi036_repository"
+mkdir -p "$wfi036_repository/reports/quality-gate" "$wfi036_repository/plugins/gate-fix"
+printf 'bytes produced by an in-gate fix\n' \
+  > "$wfi036_repository/plugins/gate-fix/post-fix-output.txt"
+wfi036_fix_path='plugins/gate-fix/post-fix-output.txt'
+wfi036_fix_hash="$(sha256 "$wfi036_repository/$wfi036_fix_path")"
+wfi036_unlisted_path='plugins/internal/arbitrary-existing.txt'
+wfi036_unlisted_hash="$(sha256 "$wfi036_repository/$wfi036_unlisted_path")"
+wfi036_wrong_hash="$(printf '%064d' 0 | tr '0' 'c')"
+
+wfi036_write_gate_report() {
+  # wfi036_write_gate_report <relative-path> <declared-path> <declared-hash>
+  # An empty <declared-path> writes a gate report carrying no post-fix table.
+  local relative=$1 declared_path=$2 declared_hash=$3
+  {
+    printf '# Quality Gate Report\n\n'
+    printf 'Task ID: T-001\n\n'
+    printf '## Decision\n\nPASS\n\n'
+    if [[ -n "$declared_path" ]]; then
+      printf '## Post-Fix Artifacts\n\n'
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `%s` | `%s` |\n' "$declared_path" "$declared_hash"
+      printf '\n'
+    fi
+  } > "$wfi036_repository/$relative"
+}
+
+wfi036_gate='reports/quality-gate/20260819T110000Z.md'
+wfi036_gate_no_table='reports/quality-gate/20260819T120000Z.md'
+wfi036_gate_wrong_row='reports/quality-gate/20260819T130000Z.md'
+wfi036_gate_naming_a_gate='reports/quality-gate/20260819T140000Z.md'
+wfi036_write_gate_report "$wfi036_gate" "$wfi036_fix_path" "$wfi036_fix_hash"
+wfi036_write_gate_report "$wfi036_gate_no_table" '' ''
+wfi036_write_gate_report "$wfi036_gate_wrong_row" "$wfi036_fix_path" "$wfi036_wrong_hash"
+wfi036_write_gate_report "$wfi036_gate_naming_a_gate" "$wfi036_gate_no_table" \
+  "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")"
+wfi036_gate_hash="$(sha256 "$wfi036_repository/$wfi036_gate")"
+
+# A document that is NOT a gate report but carries a correct post-fix row for a
+# real artifact. Its only defect is that it lives outside the gate's own report
+# namespace, which is exactly what the namespace requirement must catch.
+mkdir -p "$wfi036_repository/reports/notes"
+wfi036_forged='reports/notes/forged-declaration.md'
+{
+  printf '# Not a gate report\n\n'
+  printf '## Post-Fix Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `%s` | `%s` |\n' "$wfi036_fix_path" "$wfi036_fix_hash"
+} > "$wfi036_repository/$wfi036_forged"
+
+wfi036_evaluator="$tmp/wfi036-evaluator.json"
+make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
+
+wfi036_manifest() {
+  # wfi036_manifest <out> <gate-path|-> <gate-sha|-> <extra-path> <extra-sha>
+  local output=$1 gate_path=$2 gate_hash=$3 extra_path=$4 extra_hash=$5
+  local program='.allowed_input_manifest += [{path:$p, sha256:$h}]'
+  if [[ "$gate_path" != - ]]; then
+    program="${program} | .gate_report_declaration = {path:\$gp, sha256:\$gh}"
+  fi
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+     --arg gp "$gate_path" --arg gh "$gate_hash" \
+     "$program" "$wfi036_evaluator" > "$output"
+}
+
+# Happy path: the artifact an in-gate fix produced, declared in the gate report
+# the manifest names and pins, at its true hash, IS authorized. Before WFI-036
+# this exact manifest was rejected as role-unlisted and the cycle could not
+# review its own fix.
+wfi036_manifest "$tmp/wfi036-happy.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" "$wfi036_fix_path" "$wfi036_fix_hash"
+run_bash "$tmp/wfi036-happy.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-036: Bash rejected a post-fix artifact declared in the named gate report'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi036-happy.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-036: PowerShell rejected a post-fix artifact declared in the named gate report'
+fi
+
+# Negative control (WFI-036 Verification Plan 1). A real, existing file that is
+# in NEITHER the implementation report nor the named gate report is still
+# role-unlisted. If this case ever passes, the channel removed the boundary.
+wfi036_manifest "$tmp/wfi036-negative.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" "$wfi036_unlisted_path" "$wfi036_unlisted_hash"
+assert_rejected_both wfi036-declared-in-neither-document \
+  "$tmp/wfi036-negative.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# Positive control (WFI-036 Verification Plan 2), both polarities of a wrong
+# row hash, plus a stale declaration source.
+#  (a) the gate report's row hash disagrees with the manifest: no row matches,
+#      so the path is never authorized in the first place.
+wfi036_manifest "$tmp/wfi036-row-disagrees.json" \
+  "$wfi036_gate_wrong_row" "$(sha256 "$wfi036_repository/$wfi036_gate_wrong_row")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-gate-row-hash-disagrees-with-manifest \
+  "$tmp/wfi036-row-disagrees.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+#  (b) row and manifest agree on a hash the file on disk does not have: the row
+#      authorizes, and the live-bytes check must still reject.
+wfi036_manifest "$tmp/wfi036-row-wrong.json" \
+  "$wfi036_gate_wrong_row" "$(sha256 "$wfi036_repository/$wfi036_gate_wrong_row")" \
+  "$wfi036_fix_path" "$wfi036_wrong_hash"
+assert_rejected_both wfi036-gate-row-hash-does-not-match-disk \
+  "$tmp/wfi036-row-wrong.json" "$wfi036_repository" REVIEW_CONTEXT_HASH
+#  (c) the declaration source itself is stale or forged: refused on the
+#      document's own hash, before any row is read from it.
+wfi036_manifest "$tmp/wfi036-stale-source.json" \
+  "$wfi036_gate" "$wfi036_wrong_hash" "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-stale-gate-report-declaration \
+  "$tmp/wfi036-stale-source.json" "$wfi036_repository" REVIEW_CONTEXT_HASH
+
+# The source is named, never discovered. With no declaration, and with a
+# different real gate report named, the same declared artifact stays refused --
+# the validator does not scan reports/quality-gate/ for a matching row.
+wfi036_manifest "$tmp/wfi036-unnamed.json" - - "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-gate-report-not-named \
+  "$tmp/wfi036-unnamed.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+wfi036_manifest "$tmp/wfi036-other-report.json" \
+  "$wfi036_gate_no_table" "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-other-gate-report-named \
+  "$tmp/wfi036-other-report.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# The declaration source must be a gate report, and no gate report authorizes
+# another gate report: an evaluator must not be handed a prior verdict.
+# Discriminating on purpose: the named document carries a correct post-fix row
+# for a real artifact, so the ONLY thing that can reject this manifest is the
+# requirement that a declaration source be a gate report. Drop that requirement
+# and this manifest validates.
+wfi036_manifest "$tmp/wfi036-foreign-source.json" \
+  "$wfi036_forged" "$(sha256 "$wfi036_repository/$wfi036_forged")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-declaration-source-outside-quality-gate \
+  "$tmp/wfi036-foreign-source.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+wfi036_manifest "$tmp/wfi036-gate-authorizes-gate.json" \
+  "$wfi036_gate_naming_a_gate" \
+  "$(sha256 "$wfi036_repository/$wfi036_gate_naming_a_gate")" \
+  "$wfi036_gate_no_table" "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")"
+assert_rejected_both wfi036-gate-report-cannot-authorize-a-gate-report \
+  "$tmp/wfi036-gate-authorizes-gate.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# The field is quality-only, and adding it never weakens the frozen-report
+# channel it sits beside.
+make_manifest "$wfi036_repository" spec-reviewer-a "$tmp/wfi036-spec-base.json"
+jq --arg gp "$wfi036_gate" --arg gh "$wfi036_gate_hash" \
+  '.gate_report_declaration = {path:$gp, sha256:$gh}' \
+  "$tmp/wfi036-spec-base.json" > "$tmp/wfi036-spec-stage.json"
+assert_rejected_both wfi036-gate-declaration-on-a-reviewer-stage \
+  "$tmp/wfi036-spec-stage.json" "$wfi036_repository" REVIEW_CONTEXT_CONTRACT
+wfi036_manifest "$tmp/wfi036-report-channel.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" 'plugins/task/authorized-output.txt' \
+  "$(sha256 "$wfi036_repository/plugins/task/authorized-output.txt")"
+run_bash "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-036: Bash implementation-report channel regressed while a gate report was named'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-036: PowerShell implementation-report channel regressed while a gate report was named'
+fi
+
 # Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
 # Files introduced after that commit must be deleted, and all surviving files
 # must be byte-identical to the archived baseline.
