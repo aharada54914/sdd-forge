@@ -404,26 +404,6 @@ Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
 Status: Implementation Complete
 
-Blocker (recorded 2026-07-22T15:39:07Z, a6-impl2): same root cause as T-001's
-own Blocker note (R-10 guard suffix-match with no `human-copy/` staging
-carve-out) — this task's own three staged targets
-(`check-risk-upgrade.sh`/`.ps1`, `risk-upgrade-policy.md`) hit the identical
-denial. Per human direction (interim, pending the same guard-gap decision),
-the extended script content is fully authored and TDD-tested (byte-identical
-legacy path, merge ordering, fail-closed on invalid fragment, synthetic
-ineligible-token contract — `tests/check-risk-upgrade-byte-identical.tests.
-{sh,ps1}`, `tests/check-risk-upgrade-capability-merge.tests.{sh,ps1}`,
-`tests/check-risk-upgrade-fragment-fail-closed.tests.{sh,ps1}`,
-`tests/check-risk-upgrade-ineligible-no-reasons.tests.{sh,ps1}`; RED/GREEN:
-`specs/epic-194-a6-lite-integration/verification/T-002.{red,green}.log`) and
-staged as non-suffix-matching `.PROPOSED` content under
-`specs/epic-194-a6-lite-integration/human-copy/PROPOSED/` (never written to
-a live or deny-listed path — see that directory's own `README.md` for the
-apply procedure and prepared `MANIFEST.sha256` additions). The HUMAN APPLY
-STEP (copying this content to its real path, then applying via T-001's
-runner) remains pending the same human decision; this task cannot reach
-`Implementation Complete` in the normal sense until then.
-
 Risk: high
 
 Risk Rationale: Evaluated against `plugins/sdd-quality-loop/references/
@@ -645,23 +625,6 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
 Status: Implementation Complete
-
-Blocker (recorded 2026-07-22T15:39:07Z, a6-impl2): same root cause as
-T-001's/T-002's own Blocker notes — this task's own single staged target
-(`lite-spec/SKILL.md`) hits the identical R-10 suffix-match denial. Per
-human direction (interim, pending the same guard-gap decision), the
-extended skill text is fully authored and tested (structural + functional +
-defense-in-depth — `tests/lite-spec-capability-block.tests.{sh,ps1}`;
-RED/GREEN: `specs/epic-194-a6-lite-integration/verification/T-003.{red,
-green}.log`) and staged as non-suffix-matching `.PROPOSED` content under
-`specs/epic-194-a6-lite-integration/human-copy/PROPOSED/` (never written to
-a live or deny-listed path — see that directory's own `README.md`). The
-HUMAN APPLY STEP remains pending the same human decision; this task cannot
-reach `Implementation Complete` in the normal sense until then. Depends On
-T-001, T-002 (Blockers, above) is unaffected by this note — the shared
-registration surface (`tests/run-all.sh`/`.ps1` array order,
-`.github/workflows/test.yml` staged-candidate append order) is already
-correctly ordered T-001 -> T-002 -> T-003 in this session's own work.
 
 Risk: high
 

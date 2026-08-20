@@ -145,7 +145,6 @@ pwsh -NoProfile -File tests/run-all.ps1
   direct `Write`/`git show ... >` to its own canonical
   `specs/epic-194-a6-lite-integration/human-copy/<repository-relative-path>`
   -- never to a live or deny-listed path.
-- Not a claim that T-002/T-003 are `Done`, or even `Implementation
-  Complete` -- their own `tasks.md` Status lines are unchanged by this
-  migration; only T-001's own Blocked-premise re-measurement and Status
-  flip are this session's own scope.
+- Not a claim that T-002/T-003 are `Done` -- their own `tasks.md` Status
+  lines are unchanged by this migration; only T-001's own Blocked-premise
+  re-measurement and Status flip are this session's own scope.
