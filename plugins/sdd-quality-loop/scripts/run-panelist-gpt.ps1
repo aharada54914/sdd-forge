@@ -14,10 +14,21 @@
 # Scratch dir always cleaned up via try/finally.
 # Key isolation: SDD_EVIDENCE_KEY / SDD_SUDO_KEY never passed to panelist.
 #
-# --effort (epic-159-pillar-c T-006, REQ-006/AC-035): optional, forwarded
-# verbatim to the codex invocation alongside --model. Omitted entirely
-# preserves today's exact invocation (design.md API/Contract Plan; Breaking
-# API: no).
+# codex-cli 0.147.0's non-interactive entry point is the `exec` subcommand;
+# a bare `codex --model ... <prompt>` is rejected by this CLI version's
+# clap parser. There is no `--no-project-doc` flag under `exec` either --
+# `--sandbox read-only --skip-git-repo-check -C <scratch>` roots the run at
+# an isolated, read-only scratch dir instead, achieving the same "no extra
+# context bleed" intent by construction. `--effort` (epic-159-pillar-c
+# T-006, REQ-006/AC-035) is forwarded as `-c model_reasoning_effort=<e>`
+# (codex-cli has no `--effort` flag; reasoning effort is a config
+# override); omitted entirely omits the `-c` override too.
+#
+# codex resolution: `codex` may resolve via a shell alias/wrapper (e.g.
+# `codex-sync`) with unrelated side effects (git sync, banner) that must
+# never be invoked as the panelist CLI. $env:SDD_PANELIST_CODEX_CMD
+# overrides resolution outright; otherwise the resolved command's real
+# target is inspected and rejected if it names codex-sync.
 #
 # Injection rejection (REQ-006 AC-052; security-spec.md B3): --model and
 # --effort are validated BEFORE the codex ArgumentList is assembled. Values
@@ -114,13 +125,31 @@ if (-not (Test-Path $InputPath)) {
     [Console]::Error.WriteLine("run-panelist-gpt: input file not found: $InputPath"); exit 1
 }
 
-# ── Check CLI availability ───────────────────────────────────────────────────
-$CodexCmd = $null
-if (Get-Command "codex"  -ErrorAction SilentlyContinue) { $CodexCmd = "codex" }
-elseif (Get-Command "openai" -ErrorAction SilentlyContinue) { $CodexCmd = "openai" }
+# ── Resolve and check CLI availability ───────────────────────────────────────
+# Never invoke a `codex` that resolves to the `codex-sync` wrapper.
+function Resolve-CodexCommand {
+    if ($env:SDD_PANELIST_CODEX_CMD) { return $env:SDD_PANELIST_CODEX_CMD }
+    $cmd = Get-Command "codex" -ErrorAction SilentlyContinue
+    if ($cmd) {
+        $target = $cmd.Source
+        if ($cmd.CommandType -eq "Alias" -and $cmd.Definition) { $target = $cmd.Definition }
+        try {
+            $item = Get-Item -LiteralPath $cmd.Source -ErrorAction Stop
+            if ($item.LinkType -and $item.Target) { $target = "$target;$($item.Target -join ';')" }
+        } catch { }
+        if ($target -notlike "*codex-sync*") {
+            return $cmd.Source
+        }
+    }
+    $openaiCmd = Get-Command "openai" -ErrorAction SilentlyContinue
+    if ($openaiCmd) { return $openaiCmd.Source }
+    return $null
+}
+
+$CodexCmd = Resolve-CodexCommand
 
 if (-not $CodexCmd) {
-    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH — skipping GPT panelist (graceful degrade)")
+    [Console]::Error.WriteLine("run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync) — skipping GPT panelist (graceful degrade)")
     exit 1
 }
 
@@ -184,18 +213,16 @@ Rules:
     $combinedFile = Join-Path $scratch "combined.txt"
     Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
 
-    # Codex ArgumentList: --model, [--effort <e>] (only when supplied,
-    # AC-035), --no-project-doc -- omitted entirely preserves today's exact
-    # invocation order/shape (Breaking API: no).
-    $codexArgs = @("--model", $Model)
-    if ($Effort) { $codexArgs += @("--effort", $Effort) }
-    $codexArgs += @("--no-project-doc")
+    # Codex ArgumentList: `exec --model <m> [-c model_reasoning_effort=<e>]
+    # --sandbox read-only --skip-git-repo-check -C <scratch> -`. `exec` is
+    # codex-cli 0.147.0's non-interactive entry point; there is no
+    # `--no-project-doc` flag under it, so the read-only sandbox rooted at
+    # the isolated scratch dir stands in for "no extra context bleed".
+    $codexArgs = @("exec", "--model", $Model)
+    if ($Effort) { $codexArgs += @("-c", "model_reasoning_effort=$Effort") }
+    $codexArgs += @("--sandbox", "read-only", "--skip-git-repo-check", "-C", $scratch, "-")
 
-    if ($Effort) {
-        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model --effort $Effort (task=$TaskId feature=$Feature)")
-    } else {
-        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model (task=$TaskId feature=$Feature)")
-    }
+    [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd $($codexArgs -join ' ') (task=$TaskId feature=$Feature)")
 
     $rawOutput = Join-Path $scratch "raw-output.txt"
     try {

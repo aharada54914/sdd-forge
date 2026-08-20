@@ -327,6 +327,181 @@ for agent in \
 done
 
 # ============================================================================
+# CL-014: run-panelist-gpt — CLI exits 0 but emits no parseable verdict JSON
+# → exit non-zero, no verdict file written (invocation-fix hardening: this
+# is the "silent success" regression class this suite must catch).
+# ============================================================================
+
+echo "=== CL-014: run-panelist-gpt unparseable-output hardening ==="
+
+CL014_BIN="${WORK}/cl014-bin"
+mkdir -p "${CL014_BIN}"
+printf '#!/bin/sh\nprintf "usage: codex [OPTIONS]\\n"\nexit 0\n' > "${CL014_BIN}/codex"
+chmod +x "${CL014_BIN}/codex"
+
+mkdir -p "${WORK}/cl014/specs"
+printf 'plain bundle content, no JSON here.\n' > "${WORK}/cl014/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL014_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gpt.sh" \
+    --task T-014 --feature feat \
+    --input "${WORK}/cl014/input.txt" \
+    --spec-root "${WORK}/cl014/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+if [ "${RUN_EXIT}" != "0" ]; then
+    ok "CL-014a: codex CLI exits 0 with no parseable JSON → run-panelist-gpt still exits non-zero (got ${RUN_EXIT})"
+else
+    fail "CL-014a: expected non-zero exit when codex produces no parseable verdict, got 0 -- ${RUN_OUTPUT}"
+fi
+
+if echo "${RUN_OUTPUT}" | grep -qi "no json object found"; then
+    ok "CL-014b: run-panelist-gpt names the parse failure in its diagnostic"
+else
+    fail "CL-014b: expected a parse-failure diagnostic, got: ${RUN_OUTPUT}"
+fi
+
+if [ ! -f "${WORK}/cl014/specs/feat/verification/T-014.panelist-openai.verdict.json" ]; then
+    ok "CL-014c: no verdict file is written when the CLI output does not parse"
+else
+    fail "CL-014c: a verdict file was written despite unparseable CLI output"
+fi
+
+# ============================================================================
+# CL-015: run-panelist-gemini — same unparseable-output hardening.
+# ============================================================================
+
+echo "=== CL-015: run-panelist-gemini unparseable-output hardening ==="
+
+CL015_BIN="${WORK}/cl015-bin"
+mkdir -p "${CL015_BIN}"
+printf '#!/bin/sh\nprintf "No input provided via stdin.\\n"\nexit 0\n' > "${CL015_BIN}/gemini"
+chmod +x "${CL015_BIN}/gemini"
+
+mkdir -p "${WORK}/cl015/specs"
+printf 'plain bundle content, no JSON here.\n' > "${WORK}/cl015/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL015_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gemini.sh" \
+    --task T-015 --feature feat \
+    --input "${WORK}/cl015/input.txt" \
+    --spec-root "${WORK}/cl015/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+if [ "${RUN_EXIT}" != "0" ]; then
+    ok "CL-015a: gemini CLI exits 0 with no parseable JSON → run-panelist-gemini still exits non-zero (got ${RUN_EXIT})"
+else
+    fail "CL-015a: expected non-zero exit when gemini produces no parseable verdict, got 0 -- ${RUN_OUTPUT}"
+fi
+
+if [ ! -f "${WORK}/cl015/specs/feat/verification/T-015.panelist-google.verdict.json" ]; then
+    ok "CL-015b: no verdict file is written when the CLI output does not parse"
+else
+    fail "CL-015b: a verdict file was written despite unparseable CLI output"
+fi
+
+# ============================================================================
+# CL-016: run-panelist-gemini — argv/stdin contract: panelist instructions
+# go through -p, the sanitized bundle goes on stdin (no duplication), per
+# the installed gemini CLI's documented headless-mode contract.
+# ============================================================================
+
+echo "=== CL-016: run-panelist-gemini -p/stdin contract ==="
+
+CL016_BIN="${WORK}/cl016-bin"
+mkdir -p "${CL016_BIN}"
+CL016_ARGV="${WORK}/cl016-argv.txt"
+CL016_STDIN="${WORK}/cl016-stdin.txt"
+ZERO_DIGEST_CL="$(printf '0%.0s' $(seq 1 64))"
+cat > "${CL016_BIN}/gemini" <<STUBEOF
+#!/bin/sh
+printf '%s\n' "\$@" > "${CL016_ARGV}"
+cat > "${CL016_STDIN}"
+printf '%s\n' '{"schema":"cross-model-verdict/v1","task_id":"T-016","feature":"feat","vendor":"google","model":"stub","verdict":"PASS","findings":[],"blind":true,"input_digest":"${ZERO_DIGEST_CL}","consent":{"kind":"human-flag","ref":"stub"}}'
+exit 0
+STUBEOF
+chmod +x "${CL016_BIN}/gemini"
+
+mkdir -p "${WORK}/cl016/specs"
+printf 'sanitized bundle body, no panelist instructions here.\n' > "${WORK}/cl016/input.txt"
+
+PATH="${CL016_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gemini.sh" \
+    --task T-016 --feature feat \
+    --input "${WORK}/cl016/input.txt" \
+    --spec-root "${WORK}/cl016/specs" \
+    --digest "${ZERO_DIGEST_CL}" \
+    --model gemini-2.0-flash >/dev/null 2>&1 || true
+
+CL016_ARGV_FLAT="$(tr '\n' ' ' < "${CL016_ARGV}" 2>/dev/null | sed 's/[[:space:]]*$//')"
+if [[ "${CL016_ARGV_FLAT}" == "--model gemini-2.0-flash -p "* ]] && \
+   echo "${CL016_ARGV_FLAT}" | grep -q "READ-ONLY"; then
+    ok "CL-016a: gemini argv is --model <m> -p <panelist-instructions> (instructions travel via -p, not stdin)"
+else
+    fail "CL-016a: gemini argv did not match the -p contract -- ${CL016_ARGV_FLAT}"
+fi
+
+if [ -f "${CL016_STDIN}" ] && grep -q "sanitized bundle body" "${CL016_STDIN}" \
+   && ! grep -q "READ-ONLY" "${CL016_STDIN}"; then
+    ok "CL-016b: stdin carries only the sanitized bundle (no duplicated panelist instructions)"
+else
+    fail "CL-016b: stdin content did not match the bundle-only contract -- $(cat "${CL016_STDIN}" 2>/dev/null | head -c 200)"
+fi
+
+# ============================================================================
+# CL-017: detect-panel — CLI resolves via `command -v` but `--version` fails
+# (e.g. broken auth) → not reported available (liveness probe, not just
+# presence).
+# ============================================================================
+
+echo "=== CL-017: detect-panel liveness probe (--version must succeed) ==="
+
+CL017_BIN="${WORK}/cl017-bin"
+mkdir -p "${CL017_BIN}"
+cat > "${CL017_BIN}/gemini" <<'STUBEOF'
+#!/bin/sh
+if [ "$1" = "--version" ]; then
+    exit 1
+fi
+exit 0
+STUBEOF
+chmod +x "${CL017_BIN}/gemini"
+
+DP_EXIT=0
+DP_OUTPUT=""
+DP_OUTPUT=$(PATH="${CL017_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/detect-panel.sh" --quiet 2>&1) || DP_EXIT=$?
+
+if ! echo "${DP_OUTPUT}" | grep -q "^gemini$"; then
+    ok "CL-017: a gemini CLI present in PATH but failing --version is NOT reported available"
+else
+    fail "CL-017: detect-panel reported 'gemini' available despite --version failing -- ${DP_OUTPUT}"
+fi
+
+# ============================================================================
+# CL-018: detect-panel — a `codex` resolving to a codex-sync-named target is
+# never reported available, even though it answers exit 0/--version.
+# ============================================================================
+
+echo "=== CL-018: detect-panel codex-sync avoidance ==="
+
+CL018_BIN="${WORK}/cl018-bin"
+mkdir -p "${CL018_BIN}"
+printf '#!/bin/sh\nexit 0\n' > "${CL018_BIN}/codex-sync"
+chmod +x "${CL018_BIN}/codex-sync"
+ln -s "${CL018_BIN}/codex-sync" "${CL018_BIN}/codex"
+
+DP_EXIT=0
+DP_OUTPUT=""
+DP_OUTPUT=$(PATH="${CL018_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/detect-panel.sh" --quiet 2>&1) || DP_EXIT=$?
+
+if ! echo "${DP_OUTPUT}" | grep -q "^gpt$"; then
+    ok "CL-018: a codex resolving to codex-sync is NOT reported as an available 'gpt' panelist"
+else
+    fail "CL-018: detect-panel reported 'gpt' available via a codex-sync-resolved codex -- ${DP_OUTPUT}"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

@@ -18,7 +18,20 @@
 #   - SDD_EVIDENCE_KEY / SDD_SUDO_KEY are never passed to the panelist
 #   - Input bundle must be pre-sanitized by prepare-panelist-input
 #
-# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args
+# CLI contract: the installed `gemini` CLI only runs non-interactively via
+# `-p/--prompt` ("Run in non-interactive (headless) mode with the given
+# prompt. Appended to input on stdin (if any)."). Bare `gemini --model
+# <m> < bundle` with no `-p` is NOT headless and can print
+# "No input provided via stdin..." or otherwise fail to produce a verdict.
+# This script therefore supplies the panelist instructions via `-p` and
+# pipes the sanitized bundle on stdin, per the CLI's own documented
+# contract (checked live against the installed gemini binary, not assumed).
+#
+# Exit codes: 0=success  1=CLI absent or panelist failure (CLI non-zero
+#             exit, timeout, or output that does not parse into a valid
+#             cross-model-verdict/v1 JSON object)  2=bad args. A run that
+#             fails for any reason writes NO verdict file (graceful degrade
+#             never means a false success).
 
 task_id=""
 feature=""
@@ -95,7 +108,10 @@ out_path="${out_dir}/${task_id}.panelist-google.verdict.json"
 # ── Key isolation ────────────────────────────────────────────────────────────
 unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
 
-# See the GPT twin for the process-group and completion-marker rationale.
+# See the GPT twin for the process-group, completion-marker, and stdin
+# (`<&0` below) rationale -- without it, an asynchronous command defaults
+# to /dev/null stdin under POSIX shells even though the enclosing function
+# call carries an explicit redirect.
 _sdd_run_bounded() {
     _bw_limit="$1"
     shift
@@ -115,7 +131,7 @@ with open(tmp_path, "w", encoding="ascii") as status_file:
     status_file.write(str(return_code))
 os.rename(tmp_path, status_path)
 sys.exit(return_code if 0 <= return_code <= 255 else 1)
-' "$_bw_status" "$@" &
+' "$_bw_status" "$@" <&0 &
     _bw_pid=$!
     # date +%s truncates the current second; include that fractional interval
     # so the configured whole-second budget is never shortened.
@@ -206,20 +222,25 @@ Rules:
 PROMPT_EOF
 
 # ── Invoke gemini CLI in isolated scratch ────────────────────────────────────
+# The panelist instructions go through `-p/--prompt` (the CLI's documented
+# non-interactive entry point); the sanitized bundle is piped on stdin,
+# which the CLI appends after the -p prompt. No prompt/bundle concatenation
+# is needed here (unlike the codex twin, which has no dedicated instruction
+# flag and stays with a single combined stdin blob).
 
-_combined="${_scratch}/combined.txt"
+_stdin_bundle="${_scratch}/stdin-bundle.txt"
 {
-    cat "$_prompt_file"
-    printf '\n\n## Sanitized Input Bundle\n\n'
+    printf '## Sanitized Input Bundle\n\n'
     cat "$input_path"
-} > "$_combined"
+} > "$_stdin_bundle"
+_prompt_text="$(cat "$_prompt_file")"
 
-printf 'run-panelist-gemini: invoking gemini --model %s (task=%s feature=%s)\n' \
+printf 'run-panelist-gemini: invoking gemini --model %s -p <prompt> (task=%s feature=%s)\n' \
     "$model" "$task_id" "$feature" >&2
 
 _raw_output="${_scratch}/raw-output.txt"
-_sdd_run_bounded "$_panelist_timeout" gemini --model "$model" \
-    < "$_combined" > "$_raw_output" 2>&1
+_sdd_run_bounded "$_panelist_timeout" gemini --model "$model" -p "$_prompt_text" \
+    < "$_stdin_bundle" > "$_raw_output" 2>&1
 _rc=$?
 if [ "$_rc" -ne 0 ]; then
     if [ "$_rc" -eq 124 ]; then

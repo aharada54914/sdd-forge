@@ -18,11 +18,23 @@
 # Security (design.md §6):
 #   - SDD_EVIDENCE_KEY / SDD_SUDO_KEY are never passed to the panelist
 #   - Input bundle must be pre-sanitized by prepare-panelist-input
-#   - Panelist runs with --no-project-doc to prevent extra context bleed
+#   - Panelist runs `codex exec --sandbox read-only --skip-git-repo-check`
+#     rooted at an isolated scratch dir (`-C`) so it can neither read
+#     repository files beyond the piped bundle nor write anything (codex-cli
+#     0.147.0: bare top-level flags like the old `--no-project-doc` are
+#     rejected by `codex exec`'s clap parser -- there is no direct
+#     replacement flag; the read-only sandbox + isolated cwd achieve the
+#     same "no extra context bleed" intent by construction instead)
 #   - --effort (epic-159-pillar-c T-006, REQ-006/AC-035): optional, forwarded
-#     verbatim to the `codex` invocation alongside --model. Omitted entirely
-#     preserves today's exact invocation (design.md API/Contract Plan;
-#     Breaking API: no).
+#     to the `codex exec` invocation as `-c model_reasoning_effort=<effort>`
+#     (codex-cli 0.147.0 has no `--effort` flag; reasoning effort is a
+#     config override). Omitted entirely omits the `-c` override too.
+#   - codex resolution (invocation-contract hardening): `codex` may resolve
+#     via a shell alias/wrapper (e.g. `codex-sync`) that performs unrelated
+#     side effects (git sync, banner) and must never be invoked as the
+#     panelist CLI. `SDD_PANELIST_CODEX_CMD` overrides resolution outright;
+#     otherwise `command -v codex` is resolved to its real target and
+#     rejected if that target names `codex-sync`.
 #   - Injection rejection (REQ-006 AC-052; security-spec.md B3): --model and
 #     --effort are validated BEFORE the `codex` invocation is assembled.
 #     Values containing whitespace, a leading `-`/`--` (flag-injection
@@ -36,7 +48,11 @@
 #     codex-cli` output, never from unsanitized task/spec text) — this
 #     script's own layer catches the shape-based attack classes directly.
 #
-# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args/rejected value
+# Exit codes: 0=success  1=CLI absent/unreachable or panelist failure (CLI
+#             non-zero exit, timeout, or output that does not parse into a
+#             valid cross-model-verdict/v1 JSON object)  2=bad args/rejected
+#             value. A run that fails for any reason writes NO verdict file
+#             (graceful degrade never means a false success).
 
 task_id=""
 feature=""
@@ -134,15 +150,39 @@ if [ ! -f "$input_path" ]; then
     printf 'run-panelist-gpt: input file not found: %s\n' "$input_path" >&2; exit 1
 fi
 
-# ── Check CLI availability ───────────────────────────────────────────────────
+# ── Resolve and check CLI availability ──────────────────────────────────────
+# Never invoke a `codex` that resolves to the `codex-sync` wrapper (git sync
+# + banner side effects, not the panelist CLI). SDD_PANELIST_CODEX_CMD is an
+# explicit override; otherwise the resolved real target of `command -v
+# codex` is inspected and rejected if it names codex-sync.
 
 _codex_cmd=""
-if command -v codex >/dev/null 2>&1; then
-    _codex_cmd="codex"
-elif command -v openai >/dev/null 2>&1; then
-    _codex_cmd="openai"
+if [ -n "${SDD_PANELIST_CODEX_CMD:-}" ]; then
+    _codex_cmd="$SDD_PANELIST_CODEX_CMD"
 else
-    printf 'run-panelist-gpt: codex CLI not found in PATH — skipping GPT panelist (graceful degrade)\n' >&2
+    _candidate="$(command -v codex 2>/dev/null || true)"
+    if [ -n "$_candidate" ]; then
+        _resolved="$_candidate"
+        if command -v readlink >/dev/null 2>&1; then
+            _resolved="$(readlink -f "$_candidate" 2>/dev/null || printf '%s' "$_candidate")"
+        fi
+        case "$_resolved" in
+            *codex-sync*) _candidate="" ;;
+        esac
+    fi
+    if [ -n "$_candidate" ]; then
+        _codex_cmd="$_candidate"
+    elif command -v openai >/dev/null 2>&1; then
+        _codex_cmd="openai"
+    fi
+fi
+if [ -z "$_codex_cmd" ]; then
+    printf 'run-panelist-gpt: codex CLI not found in PATH (or only resolves to codex-sync) — skipping GPT panelist (graceful degrade)\n' >&2
+    exit 1
+fi
+if ! command -v "$_codex_cmd" >/dev/null 2>&1 && [ ! -x "$_codex_cmd" ]; then
+    printf 'run-panelist-gpt: SDD_PANELIST_CODEX_CMD=%s is not executable — skipping GPT panelist (graceful degrade)\n' \
+        "$_codex_cmd" >&2
     exit 1
 fi
 if ! command -v python3 >/dev/null 2>&1; then
@@ -169,6 +209,14 @@ unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
 # portable equivalent of the setsid utility, which is absent on macOS. A
 # completion marker closes the polling race: it is written before the process-
 # group leader exits, so a child finishing at the deadline keeps its real code.
+#
+# Stdin hazard (invocation-fix hardening): POSIX shells default an
+# asynchronous command's stdin to /dev/null unless THAT command carries its
+# own explicit redirect -- a redirect on the enclosing function call (as
+# used at every call site below, `_sdd_run_bounded ... < "$_combined"`)
+# does not count. Without the `<&0` below, the vendor CLI silently received
+# an empty stdin on every invocation regardless of how the prompt/bundle
+# was built, independent of any argv/flag correctness.
 _sdd_run_bounded() {
     _bw_limit="$1"
     shift
@@ -188,7 +236,7 @@ with open(tmp_path, "w", encoding="ascii") as status_file:
     status_file.write(str(return_code))
 os.rename(tmp_path, status_path)
 sys.exit(return_code if 0 <= return_code <= 255 else 1)
-' "$_bw_status" "$@" &
+' "$_bw_status" "$@" <&0 &
     _bw_pid=$!
     # date +%s truncates the current second. Include the open fractional second
     # so a whole-second budget can never expire before its requested duration.
@@ -281,8 +329,14 @@ Rules:
 PROMPT_EOF
 
 # ── Invoke codex CLI in isolated scratch ─────────────────────────────────────
-# Pass the prompt and input bundle to codex via stdin concatenation.
-# Use --no-project-doc to prevent leaking additional project context.
+# Pass the prompt and input bundle to codex via stdin concatenation, through
+# the `exec` subcommand (codex-cli 0.147.0's non-interactive entry point --
+# a bare `codex --model ... <prompt>` is rejected by this CLI version and/or
+# silently forwarded to the interactive TUI). `--sandbox read-only
+# --skip-git-repo-check -C "$_scratch"` roots the run at the isolated
+# scratch dir with no write access, matching the panelist's READ-ONLY role
+# (prompt rules below) at the tool-execution layer, not just by instruction.
+# Trailing `-` makes the "read the prompt from stdin" contract explicit.
 
 _combined="${_scratch}/combined.txt"
 {
@@ -291,26 +345,27 @@ _combined="${_scratch}/combined.txt"
     cat "$input_path"
 } > "$_combined"
 
+_codex_argv_log="exec --model $model"
 if [ -n "$effort" ]; then
-    printf 'run-panelist-gpt: invoking %s --model %s --effort %s (task=%s feature=%s)\n' \
-        "$_codex_cmd" "$model" "$effort" "$task_id" "$feature" >&2
-else
-    printf 'run-panelist-gpt: invoking %s --model %s (task=%s feature=%s)\n' \
-        "$_codex_cmd" "$model" "$task_id" "$feature" >&2
+    _codex_argv_log="$_codex_argv_log -c model_reasoning_effort=$effort"
 fi
+_codex_argv_log="$_codex_argv_log --sandbox read-only --skip-git-repo-check -C $_scratch -"
+printf 'run-panelist-gpt: invoking %s %s (task=%s feature=%s)\n' \
+    "$_codex_cmd" "$_codex_argv_log" "$task_id" "$feature" >&2
 
 _raw_output="${_scratch}/raw-output.txt"
 if [ -n "$effort" ]; then
-    # --effort supplied: forwarded to codex alongside --model (AC-035).
+    # --effort supplied: forwarded as a codex config override (AC-035).
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" --model "$model" --effort "$effort" --no-project-doc \
+        "$_codex_cmd" exec --model "$model" -c "model_reasoning_effort=$effort" \
+        --sandbox read-only --skip-git-repo-check -C "$_scratch" - \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 else
-    # --effort omitted: byte-identical to the pre-T-006 invocation
-    # (Breaking API: no -- design.md API/Contract Plan).
+    # --effort omitted: no reasoning-effort override is applied.
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" --model "$model" --no-project-doc \
+        "$_codex_cmd" exec --model "$model" \
+        --sandbox read-only --skip-git-repo-check -C "$_scratch" - \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 fi
