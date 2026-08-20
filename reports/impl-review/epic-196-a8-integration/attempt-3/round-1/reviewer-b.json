@@ -1,0 +1,87 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196a8integration-impl-a3r1-b-seq0755",
+  "host_session_id": "SESS-impl-a3r1-b-epic196a8integration-0755",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-196-a8-integration/attempt-3/round-1/precheck-result.json", "sha256": "a37ce8aaabeabb5ee344b6d0dbafccdc8e4743609712ecbaa52d18fec9cdca96"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "4dbff3e1e728a1b47bd8783d5190130511ccee1823ad71cd0209870b0e907162"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"},
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md:1256-1258 (SKIP Allowlist Activation Gate) states AC-006's per-case ownership is established because 'the Automated/Manual Classification Table above assigns to T-005's exclusive scope.' The Automated / Manual Classification Table it cites (design.md:1294-1328, 'Automated / Manual Classification Table (REQ-006; AC-025)') has exactly four columns (Check (AC) | Current Classification | Upgrade Condition | Gating fact/reason) and never names T-005, T-001, or any task ID in any of its 15 rows. The decision that governs when AC-006's SKIP becomes a hard failure (clause (a) of the Activation predicate) rests on a citation to an artifact section that does not contain the claimed content. Separately, the same section's ownership statement for AC-015/AC-016 -- 'activate with the tasks that seed their own allowlist entries (T-008 onward)' -- names an open-ended range rather than a determinate owner, unlike AC-006's (falsely cited but at least singular) T-005 assignment; 'onward' does not identify which specific task's start is the actual trigger. Concrete failure mode: a Phase 2/3 implementer or reviewer cannot verify the AC-006 ownership claim against its cited source, and cannot determine a concrete activation trigger for AC-015/AC-016 at all from design.md alone -- both are load-bearing facts for whether an Epic-A1-dependent SKIP correctly converts to a hard failure."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## Open Questions' section (lines 1523-1536) carries OQ-001 and OQ-002 (both carried forward from requirements.md) without the literal 'Blocks Implementation:'/'Resolution Path:' field labels this check's rubric names, but each entry substantively identifies a deferral owner (Phase 2/3 implementer) and a concrete resolution mechanism -- OQ-001: empirical headless-contract confirmation feeding the existing Classification Table's automated/manual fallback with no further design change needed either way; OQ-002: already marked resolved, citing the Coverage Scope table as the single normative statement -- and neither blocks this Phase 1 package's own deliverable (a specification, not code). Per the check's own carve-out for non-blocking entries with a stated owner, this is at most a Minor formatting advisory, not a Major finding."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Assumptions section (lines 1516-1521) delegates to requirements.md's own Assumptions section (lines 718-742), each of whose four entries cites a specific grounding fact (Epic A1/A5/A7 unmerged status; ADR-0019/decision-doc as unrevised authoritative source; .gitattributes/installer/hook-config files as stable cross-runtime surfaces, cross-referenced to INV-numbers). investigation.md is present in the feature directory (confirmed by directory listing, though it is outside this reviewer's allowed_input_manifest and was not read), so the 'investigation.md absent' trigger for this check does not apply. No assumption in this section is an ungrounded free assertion."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md AC-006 (lines 283-287) states the canary case is 'Named SKIP (citing Epic A1's tracking issue) until Epic A1 merges,' and requirements.md's Main Workflows item 7 (lines 665-670) states 'As Epic A1 merges, a follow-up task un-skips AC-006/AC-015/AC-016 ... and exercises all five of A1's migrated consumer entry points per runtime' -- both frame Epic A1 merging as the operative trigger for ending SKIP status. design.md's revised SKIP Allowlist Activation Gate (lines 1245-1274) instead makes activation (the point a still-present SKIP becomes a hard failure) require BOTH the owning task starting AND the artifacts existing on main -- so AC-006's SKIP can remain non-failing for an unbounded period after Epic A1 actually merges, contingent solely on when T-005 (or, for AC-015/AC-016, an unspecified task in the open-ended 'T-008 onward' range) happens to start. This is the exact scenario security-spec.md's own B3 STRIDE threat row (line 74) names as the risk to close: 'A SKIP survives unnoticed after Epic A1 merges because nothing ever re-checks whether the cited dependency has actually landed ... permanently masking a coverage gap.' The revised gate reintroduces a structurally identical failure mode through a different mechanism (task-start gating instead of missing re-checks), and neither design.md's SKIP Allowlist Activation Gate section nor its Risks section (lines 1538-1546, which only carries forward requirements.md's original Risks) names this new failure mode or any bound/safeguard against it. design.md's stated rationale for clause (a) justifies fixing the AC-006/T-001 Done-When conflict but never acknowledges or defends the specific, functionally different consequence that AC-006/AC-015/AC-016 can now stay non-failing indefinitely past 'Epic A1 merges,' contradicting the plain reading of requirements.md AC-006 and Workflow item 7. Concrete failure mode: if the owning task is deprioritized or blocked after Epic A1 merges, AC-028's ADR-0019 delegation-discharge Done/release gate can be silently deferred indefinitely with no design-specified detection mechanism, undermining the 'never an unexplained or indefinitely-extended SKIP' intent security-spec.md itself states for boundary B3."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. No numeric thresholds, SLA statements, or response-time/throughput/concurrency/latency language present."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 1471-1492) names the deployment target (existing .github/workflows/test.yml 3-OS CI matrix, INV-014, reusing the cli-hook-enforcement/main test job pattern), the CI pipeline changes required (new steps for REQ-001/REQ-003-synthetic/REQ-004/REQ-005, plus REQ-002's local-macOS/CI-3-OS split), and a rollout-gating mechanism functionally equivalent to a feature-flag strategy for REQ-003's live-host proof (the SKIP Allowlist Activation Gate: not a required CI gate until activated, then becomes both a Done gate and a required release gate). No schema/database changes exist in this package (Data Plan: 'No migration required'), so migration-execution-order relative to deployment is not applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Data Plan (lines 241-269) states 'Migration Strategy: No migration required. Every data entity named above is a net-new file with no prior version to migrate from' -- the one write this package performs (marking consumed_by_record on an existing nonce-ledger entry) is described as additive metadata, not a schema migration. This satisfies the check's 'No data changes' PASS condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## External Integrations' section (lines 1461-1469) names the three external systems (Claude Code CLI, Codex CLI, GitHub Copilot CLI) and their integration contract (each 'consumed read-only'; a CLI session is launched and observed; no network calls beyond install.sh's existing gh-authenticated path). Failure/unavailability behavior for each is defined via the Live-Host Semantic Matrix's '-expected-unavailable' cells and the Automated/Manual Classification Table's manual-required fallback, rather than restated inline in the External Integrations section itself -- sufficiently concrete but split across sections rather than consolidated in one dedicated table."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every component in design.md's Components table (lines 90-104) traces to a specific REQ-001-REQ-006 goal in requirements.md, and every REQ-001-REQ-007 goal has corresponding design coverage (Architecture diagram subgraphs; SKIP Allowlist Activation Gate for REQ-003's delegation; Automated/Manual Classification Table for REQ-006; Data Plan/ADR Change Log for REQ-007's process-integrity ACs). requirements.md's Non-goals (re-implementing per-Epic 3-environment work, new CI topology, FilesOnly matrix, Epic A1 canonicalizer re-specification) are each explicitly respected (Global Constraints 'No new CI topology'; Design Decisions FilesOnly exclusion; Path/Line-Ending Regression Matrix's canonicalizer-layer row marked 'N/A for this package'). No design-system/UI concern applies (Design System Compliance: 'Not applicable')."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces present: B1 live-host session authenticity, B4 nonce/signing forgery-resistance, B5 classification-mismatch/synthetic-substitution, and cross-service (three-CLI) integration failure behavior. Each names a concrete validation path: security-spec.md's Security Tests table (lines 199-209) cites specific Test Strategy items (5, 7, 8, 10) and the validate-live-host-proof aggregate check with named non-zero-exit error codes (ERR_NONCE_REUSED, ERR_SIGNATURE_INVALID, ERR_SYNTHETIC_SUBSTITUTION, ERR_STALE_SKIP) as concrete, inspectable acceptance criteria. The one gap identified in this review -- the SKIP Allowlist Activation Gate's task-start-gated indefinite-extension risk against boundary B3 -- is recorded once under NO-REQ-CONTRADICTION rather than duplicated here, per the calibration's Finding Evidence Gate de-duplication rule (item 4); that gap is the missing concrete validation/monitoring path for B3's own stated threat model (security-spec.md line 74) and should be read as supporting evidence for that finding, not a second Major."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain/ directory exists in this repository (confirmed via directory listing); this check's applicability precondition (domain/context-map.md with Domain-Model-Status: Approved and a schema-valid domain-contract.json) is not met. Skipped per this check's own skip condition."
+    }
+  ]
+}
