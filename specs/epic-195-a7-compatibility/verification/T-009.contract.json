@@ -1,0 +1,180 @@
+{
+  "task_id": "T-009",
+  "feature": "epic-195-a7-compatibility",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
+  "created": "2026-08-19T00:00:00Z",
+  "comment": "Preflight verification contract for the T-009 quality gate, authored by the coder session preparing this task for gate review (T-004's contract is the schema this one matches; risk/required_workflow/stack/spec_revision follow its own pattern exactly). Every check started at passes=false and was flipped only after this session RAN its command at the current HEAD and inspected the saved output -- the implementation report (reports/implementation/epic-195-a7-compatibility/T-009.md) was treated as a claim, not trusted outright. Every passing check's evidence field points at a coder-*.log this session produced fresh under specs/epic-195-a7-compatibility/verification/T-009/, never at an implementer-authored log, with one deliberate exception: red_evidence/green_evidence on the tdd-required unit-tests/acceptance-tests rows point at the implementer's own red-sh.log/red-ps1.log/green-sh.log/green-ps1.log, because that RED capture was reconstructed by the T-009 implementation session via a scratch-copy technique (45dda57f^ emitter content + current tests) that this session independently re-verified rather than re-executed -- re-running it now against the fixed tree would be GREEN, so re-creating a RED here would manufacture a false artifact. Risk high and Required Workflow tdd are transcribed from tasks.md#T-009 (Security Boundary B2, third named file: plugins/sdd-quality-loop/scripts/emit-run-record.{sh,ps1}). This session's own regression sweep found and disclosed one pre-existing, unrelated failure (tests/effort-policy-flip.tests.sh's own TEST-046 branch-naming self-check, which fails on any branch not literally named for epic-159-pillar-c's T-007 -- including this worktree's feature/epic-195-a7-compatibility -- and was excluded from the regression check's suite list because that suite's own only emit-run-record.sh call site, TEST-044, is skipped by design in this run and never exercises T-009's surface); see coder-regression.log and the coder session's own findings for the full disclosure. This session also independently confirmed the pre-existing implementation report's own disclosed divergence (the undocumented --capability-block-id-alone internal gate) is still present and still untested, and is not addressed by this contract. ADDENDUM (2026-08-20, cross-model panelist remediation, two of that panelist's three findings actioned here): (1) AC-011's own byte-identity test was genuinely missing (the panelist's finding was correct -- the prior 'coder-acceptance-rerun.log' only carried structural schema/key-presence assertions, never a byte comparison); TEST-011 was added to both tests/emit-run-record-feature-scope.tests.{sh,ps1} against a newly committed golden fixture (tests/fixtures/emit-run-record/v1-no-flag.{sh,ps1}.golden.json), mutation-kill proof at coder-ac011-mutation-kill.log, fresh GREEN rerun at coder-acceptance-rerun-2026-08-20.log (51 passed/0 failed both twins, up from 50/0); unit-tests/acceptance-tests evidence above now points at that fresh log. (2) The regression check's own prior enumeration technique ('grep -l emit-run-record tests/*.tests.sh') was .sh-only and additionally over-matched two non-consumer suites; regression evidence above now points at coder-regression-both-runtimes.log, which enumerates genuine .sh AND .ps1 invokers of emit-run-record.{sh,ps1} and runs all of them. The panelist's remaining Major finding against T-009 (the undocumented --capability-block-id-alone usage-error gate -- a fifth reachable flag combination the AC-033 table is silent on, already disclosed above and in the implementation report) is NOT addressed by this contract or this session's remediation; it requires either a design.md clarification of the four-row table's own scope or a new test, neither of which is in scope here. A separate, unrelated panelist finding against T-005 (the done-transition:assert-terminal producer identity) is likewise not this contract's concern; see T-005.contract.json's own addendum and this session's separate report for that finding's disposition.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- T-009's deliverables are the POSIX-shell/PowerShell twins plugins/sdd-quality-loop/scripts/emit-run-record.{sh,ps1} and tests/emit-run-record-feature-scope.tests.{sh,ps1}. This repository configures no shell linter (no shellcheck and no PSScriptAnalyzer invocation in tests/run-all.{sh,ps1} or .github/workflows/test.yml), so there is no lint command whose output could be recorded. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- shell and PowerShell are untyped and this repository configures no static type-check command for either runtime. The one structured artifact, the emitted capability object, has its shape enforced by tests/emit-run-record-feature-scope.tests.{sh,ps1}'s own AC-012/AC-033 matrix assertions rather than by a type checker. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-009/coder-acceptance-rerun-2026-08-20.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "specs/epic-195-a7-compatibility/verification/T-009/red-sh.log",
+      "green_evidence": "specs/epic-195-a7-compatibility/verification/T-009/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No service or network integration is in T-009's scope. emit-run-record.sh is a standalone CLI emitter with no network or service dependency, and its own consumers (e.g. check-quality-gate-cycle-limit.sh) are exercised by this task's own acceptance suite and by the regression sweep, not by a separate integration layer.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-009/coder-acceptance-rerun-2026-08-20.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "specs/epic-195-a7-compatibility/verification/T-009/red-ps1.log",
+      "green_evidence": "specs/epic-195-a7-compatibility/verification/T-009/green-ps1.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-009/coder-regression-both-runtimes.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-009/coder-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no compile or bundle step exists for shell/PowerShell scripts; there is no dist/ artifact and design.md's Deployment / CI Plan records no build obligation for this task. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-009/coder-placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-009/coder-task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application, service, or UI. T-009's deliverable is a batch CLI emitter; the acceptance run invokes it for real, for every documented flag combination, in both runtimes, so a separate smoke run would duplicate the acceptance evidence rather than add to it.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature and T-009 is additive tooling (new, independently-gated flags) rather than a change to existing behavior, so no generic differential obligation attaches (references/differential-test-policy.md). The no-flag v1 byte-identity guarantee (AC-011) is now verified directly by this task's own acceptance suite (TEST-011, added 2026-08-20 -- see the regression check's own comment addendum; before that date this same sentence's claim was not yet true, per the panelist finding it corrects) and independently re-diffed against 45dda57f^ by the implementation report, which is a stronger, task-specific guarantee than a generic differential baseline would add.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface. traceability.md's Layer Coverage records UX and Frontend as reasoned N/A for the whole feature: 'no GUI, view, dialog, menu item, or human interactive shell surface'.",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none -- this repository carries no design-system/ directory and T-009 touches no UI-layer file, so check-design-system's warn-phase conditional control does not activate (risk-gate-matrix.md footnote 4).",
+      "requirement_ids": [
+        "REQ-003"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

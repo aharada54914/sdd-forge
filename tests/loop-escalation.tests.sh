@@ -51,6 +51,36 @@
 #   TEST-017 — runtime budget: measured wall-clock printed in the summary
 #     line, self-FAIL above LOOP_SUITE_BUDGET_SECONDS, threshold-0 negative
 #     self-check.
+#   TEST-019 (T-007 / Issue #195 / epic-195-a7-compatibility REQ-003,
+#     AC-010, AC-019, AC-020, AC-025, AC-026, AC-027) — a Context-absent
+#     (F1) `quality-gate-outcome` + `done-transition` event trace, recorded
+#     via T-005's `_loop_trace_emit`/`assert_capability_applicability`/
+#     `assert_event_trace` and compared against a committed golden trace:
+#     three real `quality-gate-outcome:escalation` decisions (this suite's
+#     own real `check-quality-gate-cycle-limit.sh` Escalate-Human decision,
+#     `next_tier: "human"`, plus the real `select-agent-model.sh`
+#     lightweight->standard and standard->strong decisions -- design.md's
+#     own producer table names both scripts as this one producer's call
+#     sites, INV-005), then exactly one `quality-gate-outcome:capability-
+#     applicability` event (F1's own `disabled-legacy` fixture state,
+#     always last within the kind per design.md's ordering rule), then
+#     `done-transition:assert-terminal` (the chain's own real
+#     `terminal-tier` BLOCKED outcome) recorded by `assert_terminal` itself,
+#     at its own comparison call site, per design.md's per-kind producer
+#     table (T-005 cycle-2: an earlier cycle had this event recorded from
+#     the test case instead, behind an incorrect byte-identity lock on
+#     `assert_terminal` -- see this task's implementation report,
+#     "Specification Differences"). The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
+#     leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
+#     AC-027) is a named `SKIP`: design.md's own producer table cites that
+#     call site as "a new, dedicated fail-closed stop-detection call site
+#     in the fixture drive's own Context-validation guard (Test Strategy
+#     item 1, future task)" -- it does not exist anywhere in the tree yet,
+#     and the Compatibility Matrix's own F3/F4-invalid row disposition is
+#     `SKIP-with-activation -> AC-019, AC-020 (until Epic A1 merges)`
+#     unconditionally, so this is the documented, not-yet-active state,
+#     never a workaround. See this task's implementation report
+#     Specification Differences for the full reasoning.
 #
 # All driven scripts (check-quality-gate-cycle-limit.sh, select-agent-model.sh,
 # check-terminal-tier-resume.sh, validate-review-context-set.sh) and
@@ -70,6 +100,8 @@ LOOP_INVENTORY_PATH="${REPO_ROOT}/tests/loops/loop-inventory.json"
 export LOOP_INVENTORY_PATH
 # shellcheck source=tests/lib/loop-driver.sh
 source "${REPO_ROOT}/tests/lib/loop-driver.sh"
+# shellcheck source=tests/lib/fixture-matrix-builder.sh
+source "${REPO_ROOT}/tests/lib/fixture-matrix-builder.sh"
 
 command -v jq >/dev/null 2>&1 || { echo "FAIL: jq is required"; exit 1; }
 
@@ -577,6 +609,279 @@ if [[ "$RC" -eq 0 && "$OUT" == "BLOCKED deterministic-runtime-unavailable" ]]; t
   echo "SKIP: TEST-013.2: select-agent-model.sh reports deterministic-runtime-unavailable under a restricted PATH lacking python3 (INV-017); recorded degradation"
 else
   fail "TEST-013.2: select-agent-model.sh did not report deterministic-runtime-unavailable when python3 was absent (silent green or unrelated failure: rc=${RC}, out=${OUT})"
+fi
+
+# =============================================================================
+# TEST-019 (AC-010, AC-019, AC-020, AC-025, AC-026, AC-027): quality-gate-outcome
+# + done-transition event trace (Context-absent F1), and the SKIP-gated
+# PROJECT_CONTEXT_INVALID stop-event leg for F3-invalid/F4-invalid
+# =============================================================================
+echo "=== TEST-019: quality-gate-outcome + done-transition event trace (F1) ==="
+
+EVT_FEATURE="loop-escalation-event-trace-$$"
+if loop_fixture_init greenfield "$EVT_FEATURE"; then
+  ok "TEST-019.1: loop_fixture_init (Context-absent F1 event-trace fixture) succeeds"
+  CLEANUP_ROOTS+=("$LOOP_FIXTURE_ROOT")
+else
+  fail "TEST-019.1: loop_fixture_init (Context-absent F1 event-trace fixture) failed"
+fi
+EVT_ROOT="${LOOP_FIXTURE_ROOT:-}"
+LOOP_FIXTURE_ROOT="$EVT_ROOT"; LOOP_FIXTURE_FEATURE="$EVT_FEATURE"
+export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
+
+# -----------------------------------------------------------------------
+# TEST-019.2: check-quality-gate-cycle-limit.sh's real Escalate-Human
+# decision (3 gate reports, its own established cap), recorded as this
+# kind's escalation producer with next_tier "human" -- design.md's own
+# producer table names check-quality-gate-cycle-limit.sh as a
+# quality-gate-outcome:escalation call site (INV-005) alongside
+# select-agent-model.sh, below.
+# -----------------------------------------------------------------------
+EVT_TASK="T-514"
+EVT_CL_DIR="${WORK}/event-trace-cl-reports"
+mkdir -p "$EVT_CL_DIR"
+write_gate_report "${EVT_CL_DIR}/q1.md" "$EVT_TASK" "$EVT_FEATURE"
+write_gate_report "${EVT_CL_DIR}/q2.md" "$EVT_TASK" "$EVT_FEATURE"
+write_gate_report "${EVT_CL_DIR}/q3.md" "$EVT_TASK" "$EVT_FEATURE"
+if OUT_CL="$(bash "$CYCLE_LIMIT_SH" "$EVT_TASK" "$EVT_FEATURE" "$EVT_CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if [[ "$RC" -eq 1 && "$OUT_CL" == "Escalate-Human" ]] && \
+   _loop_trace_emit quality-gate-outcome quality-gate-outcome:escalation '{"next_tier":"human"}'; then
+  ok "TEST-019.2: check-quality-gate-cycle-limit.sh's real Escalate-Human decision (3 gate reports) recorded as quality-gate-outcome:escalation"
+else
+  fail "TEST-019.2: check-quality-gate-cycle-limit.sh's Escalate-Human decision was not recorded (rc=${RC}, out=${OUT_CL})"
+fi
+
+# -----------------------------------------------------------------------
+# TEST-019.3..4: select-agent-model.sh's real lightweight->standard and
+# standard->strong escalation decisions, each recorded from the test case
+# immediately after the real script's own observed next_tier (never a
+# hand-invented value) -- decision order, matching design.md's own
+# per-kind ordering rule.
+# -----------------------------------------------------------------------
+if OUT_STD="$(bash "$SELECT_MODEL_SH" --risk medium "${CANDIDATES[@]}" \
+  --previous-tier lightweight --failure-history test,test --attempt-number 2 --json 2>&1)" && \
+   NEXT_STD="$(jq -er '.escalation.next_tier' <<<"$OUT_STD" 2>/dev/null)" && \
+   [[ "$NEXT_STD" == "standard" ]] && \
+   _loop_trace_emit quality-gate-outcome quality-gate-outcome:escalation \
+     "$(jq -cn --arg t "$NEXT_STD" '{next_tier: $t}')"; then
+  ok "TEST-019.3: select-agent-model.sh's real lightweight->standard escalation recorded as quality-gate-outcome:escalation"
+else
+  fail "TEST-019.3: select-agent-model.sh's lightweight->standard escalation was not recorded (out=${OUT_STD:-})"
+fi
+
+if OUT_STRONG="$(bash "$SELECT_MODEL_SH" --risk medium "${CANDIDATES[@]}" \
+  --previous-tier standard --failure-history lint,lint --attempt-number 3 --json 2>&1)" && \
+   NEXT_STRONG="$(jq -er '.escalation.next_tier' <<<"$OUT_STRONG" 2>/dev/null)" && \
+   [[ "$NEXT_STRONG" == "strong" ]] && \
+   _loop_trace_emit quality-gate-outcome quality-gate-outcome:escalation \
+     "$(jq -cn --arg t "$NEXT_STRONG" '{next_tier: $t}')"; then
+  ok "TEST-019.4: select-agent-model.sh's real standard->strong escalation recorded as quality-gate-outcome:escalation"
+else
+  fail "TEST-019.4: select-agent-model.sh's standard->strong escalation was not recorded (out=${OUT_STRONG:-})"
+fi
+
+# -----------------------------------------------------------------------
+# TEST-019.5: exactly one quality-gate-outcome:capability-applicability
+# event, F1's own Context-absent fixture state (disabled-legacy ->
+# not-applicable (disabled-legacy)) -- assert_capability_applicability
+# (T-005) emits this event itself, always last within the kind
+# (_loop_trace_normalize's capability_order_is_valid, enforced below by
+# assert_event_trace).
+# -----------------------------------------------------------------------
+if assert_capability_applicability quality-gate disabled-legacy "not-applicable (disabled-legacy)"; then
+  ok "TEST-019.5: quality-gate-outcome:capability-applicability recorded for F1's own disabled-legacy fixture state, last within the kind"
+else
+  fail "TEST-019.5: assert_capability_applicability rejected the disabled-legacy/not-applicable(disabled-legacy) F1 pairing"
+fi
+
+# -----------------------------------------------------------------------
+# TEST-019.6: done-transition, asserted as the last event in this round's
+# own sub-sequence (AC-026, this suite's own share) -- the chain's own
+# real terminal-tier BLOCKED outcome (the select-agent-model.sh
+# strong-tier-recurrence decision just above). assert_terminal records
+# this event itself, at its own comparison call site, per design.md's
+# per-kind producer table.
+# -----------------------------------------------------------------------
+if assert_terminal terminal-tier BLOCKED 0; then
+  ok "TEST-019.6: done-transition:assert-terminal recorded as the round's own last event (terminal-tier BLOCKED)"
+else
+  fail "TEST-019.6: assert_terminal rejected the terminal-tier BLOCKED outcome, or the done-transition event was not recorded"
+fi
+
+# -----------------------------------------------------------------------
+# TEST-019.7: the full observed trace matches the committed golden trace
+# (AC-010, AC-025, AC-026 -- kind sequence, paired producer sequence,
+# per-event value, and total count, per assert_event_trace/design.md).
+# -----------------------------------------------------------------------
+EVT_GOLDEN="${REPO_ROOT}/tests/fixtures/compatibility-event-trace/f1-quality-gate-escalation-blocked.json"
+if assert_event_trace "$EVT_GOLDEN"; then
+  ok "TEST-019.7: observed quality-gate-outcome + done-transition event trace matches the committed golden trace"
+else
+  fail "TEST-019.7: observed event trace does NOT match the committed golden trace"
+fi
+
+# -----------------------------------------------------------------------
+# TEST-019.8..9 (AC-019, AC-020, AC-027; named SKIP until Epic A1 merges):
+# F3-invalid/F4-invalid's own distinct PROJECT_CONTEXT_INVALID
+# skip-stop-message:stop event, and the assertion that this trace never
+# reaches the Context-absent compatibility-fallback path. design.md's own
+# producer table cites the skip-stop-message:stop call site as "a new,
+# dedicated fail-closed stop-detection call site in the fixture drive's
+# own Context-validation guard (Test Strategy item 1, future task)" --
+# unwired anywhere in the current tree -- and the Compatibility Matrix's
+# own F3-invalid/F4-invalid row disposition is unconditionally
+# SKIP-with-activation -> AC-019, AC-020 (until Epic A1 merges), so this
+# is the documented not-yet-active state, not a workaround. The fixture
+# variants themselves ARE constructed for real via T-001's own
+# build_fixture, to prove the SKIP is not merely a hand-waved placeholder
+# but a genuinely present, currently-unassertable fixture state.
+# -----------------------------------------------------------------------
+EVT_F3_INVALID_ROOT="$(build_fixture present absent advisory PROJECT_CONTEXT_INVALID --full 2>/dev/null)" && \
+  EVT_F3_INVALID_RC=0 || EVT_F3_INVALID_RC=$?
+if [[ "$EVT_F3_INVALID_RC" -eq 0 && -n "$EVT_F3_INVALID_ROOT" ]]; then
+  CLEANUP_ROOTS+=("$EVT_F3_INVALID_ROOT")
+  echo "SKIP: TEST-019.8: F3-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event (AC-019, AC-027) -- the producer call site does not exist anywhere in the tree yet (design.md's own 'future task'); SKIP-with-activation until Epic A1 merges (design.md Compatibility Matrix, F3-invalid row)"
+else
+  fail "TEST-019.8: build_fixture could not construct the F3-invalid fixture needed to even name this SKIP (rc=${EVT_F3_INVALID_RC})"
+fi
+
+EVT_F4_INVALID_ROOT="$(build_fixture present absent required PROJECT_CONTEXT_INVALID --full 2>/dev/null)" && \
+  EVT_F4_INVALID_RC=0 || EVT_F4_INVALID_RC=$?
+if [[ "$EVT_F4_INVALID_RC" -eq 0 && -n "$EVT_F4_INVALID_ROOT" ]]; then
+  CLEANUP_ROOTS+=("$EVT_F4_INVALID_ROOT")
+  echo "SKIP: TEST-019.9: F4-invalid PROJECT_CONTEXT_INVALID skip-stop-message:stop event, and 'never reaches the Context-absent compatibility-fallback path' (AC-019, AC-020, AC-027) -- same unwired-producer reasoning as TEST-019.8; SKIP-with-activation until Epic A1 merges"
+else
+  fail "TEST-019.9: build_fixture could not construct the F4-invalid fixture needed to even name this SKIP (rc=${EVT_F4_INVALID_RC})"
+fi
+
+# =============================================================================
+# TEST-019.10 (T-008 / Issue #195 / epic-195-a7-compatibility AC-004,
+# AC-021; OQ-001 item (b)) -- Resolver-non-invocation spy-harness, adopting
+# Epic A5's own design.md item 10(b) mechanism directly (a PATH-shadowed
+# spy on the resolve-project-context subprocess boundary, A5's own
+# `resolve-project-context.sh` path -- plugins/sdd-quality-loop/scripts/
+# resolve-project-context.sh -- reserved-but-not-yet-created by Epic A1).
+#
+# TEST-019.10a proves the spy mechanism itself first (Scope: "a fixture
+# where the Resolver spy would report a false negative ... before the
+# implementation"): a direct invocation of the shadowed command is
+# recorded, so an absent log line downstream can be trusted as "genuinely
+# never invoked" rather than a silently-broken spy. This assertion is
+# unconditionally live (it tests only this suite's own spy mechanism,
+# never Epic A5's own unmerged code) and gates pass/fail normally.
+#
+# TEST-019.10b then genuinely constructs the Context-absent (AC-004/F1)
+# and F3-invalid/F4-invalid (AC-021) fixtures via T-001's own build_fixture
+# (matching TEST-019.8/.9's own discipline, T-007) with the spy shadowing
+# PATH throughout, and reports the observed invocation count. No caller
+# anywhere in this tree invokes resolve-project-context(.sh) at all yet
+# (Epic A5's own caller insertion point, design.md item 10, is not
+# implemented) -- an observed zero is therefore VACUOUSLY true today (no
+# call site exists to have been correctly declined), not evidence of
+# correct non-invocation policy, so this sub-case is a named SKIP rather
+# than a promoted assertion (AC-004: Epic A5; AC-021: Epic A1 -- already
+# merged -- AND Epic A5, still unmerged; tasks.md T-008 Scope). A local ad
+# hoc probe (specs/epic-193-a5-capability-resolver/ presence in this tree)
+# stands in for the activation condition until T-010's own allowlist
+# manifest exists.
+# =============================================================================
+echo "=== TEST-019.10 (AC-004, AC-021): Resolver-non-invocation spy-harness (named SKIP until Epic A5 merges) ==="
+
+SPY_DIR="$(mktemp -d "${TMPDIR:-/tmp}/resolver-spy.XXXXXX")"
+CLEANUP_ROOTS+=("$SPY_DIR")
+SPY_LOG="${SPY_DIR}/invocations.log"
+: > "$SPY_LOG"
+cat > "${SPY_DIR}/resolve-project-context.sh" <<SPYEOF
+#!/usr/bin/env bash
+printf '%s\n' "\$*" >> "${SPY_LOG}"
+exit 0
+SPYEOF
+chmod +x "${SPY_DIR}/resolve-project-context.sh"
+
+if PATH="${SPY_DIR}:${PATH}" resolve-project-context.sh --probe >/dev/null 2>&1 && \
+   [[ "$(wc -l < "$SPY_LOG" | tr -d ' ')" == "1" ]]; then
+  ok "TEST-019.10a (negative self-check): the spy-harness mechanism itself records a direct invocation (no false negative)"
+else
+  fail "TEST-019.10a (negative self-check): the spy-harness mechanism failed to record a direct invocation"
+fi
+: > "$SPY_LOG"
+
+SPY_F1_ROOT="$(PATH="${SPY_DIR}:${PATH}" build_fixture absent absent disabled-legacy valid none 2>/dev/null)" && SPY_F1_RC=0 || SPY_F1_RC=$?
+[[ -n "${SPY_F1_ROOT:-}" ]] && CLEANUP_ROOTS+=("$SPY_F1_ROOT")
+SPY_F3_INVALID_ROOT="$(PATH="${SPY_DIR}:${PATH}" build_fixture present absent advisory PROJECT_CONTEXT_INVALID --full 2>/dev/null)" && SPY_F3_RC=0 || SPY_F3_RC=$?
+[[ -n "${SPY_F3_INVALID_ROOT:-}" ]] && CLEANUP_ROOTS+=("$SPY_F3_INVALID_ROOT")
+SPY_F4_INVALID_ROOT="$(PATH="${SPY_DIR}:${PATH}" build_fixture present absent required PROJECT_CONTEXT_INVALID --full 2>/dev/null)" && SPY_F4_RC=0 || SPY_F4_RC=$?
+[[ -n "${SPY_F4_INVALID_ROOT:-}" ]] && CLEANUP_ROOTS+=("$SPY_F4_INVALID_ROOT")
+
+if [[ "$SPY_F1_RC" -eq 0 && "$SPY_F3_RC" -eq 0 && "$SPY_F4_RC" -eq 0 ]]; then
+  SPY_INVOCATIONS="$(wc -l < "$SPY_LOG" | tr -d ' ')"
+  if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
+    fail "TEST-019.10b (AC-004, AC-021): Epic A5 has merged but no real Resolver-non-invocation fixture is wired against a live caller yet -- promote this SKIP in a follow-on task (observed ${SPY_INVOCATIONS} invocation(s))"
+  else
+    echo "SKIP: TEST-019.10b: AC-004/AC-021 Resolver-non-invocation spy-harness against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree; AC-021 additionally needs Epic A1, already merged into this tree) and no caller anywhere in the tree yet invokes resolve-project-context.sh at all (SKIP-with-activation until Epic A5's caller insertion point is implemented, design.md Test Strategy item 6). The spy observes ${SPY_INVOCATIONS} invocation(s) across the F1/F3-invalid/F4-invalid fixture construction above -- a VACUOUSLY true zero, not evidence of correct non-invocation policy, since no call site exists yet to have been correctly declined; reported for provenance only."
+  fi
+else
+  fail "TEST-019.10b: build_fixture could not construct the F1/F3-invalid/F4-invalid fixtures needed to even name this SKIP (rc: F1=${SPY_F1_RC}, F3=${SPY_F3_RC}, F4=${SPY_F4_RC})"
+fi
+
+# =============================================================================
+# TEST-019.11 (T-008 / Issue #195 / epic-195-a7-compatibility AC-037;
+# OQ-001 item (c)) -- a REQ-002 Block surfaces as a visible skip-stop-
+# message:stop event in the trace, never a silent fallback, adopting Epic
+# A5's own design.md item 10(c) fixture directly (FP-A5-BLOCK-REQ002).
+#
+# TEST-019.11a/.11b prove the surfacing-vs-fallback DISTINCTION itself
+# first (Scope: "a Block that silently falls back ... before the
+# implementation"), reusing T-005's own _loop_trace_emit collector
+# directly (never a redesigned equivalent) against an isolated scratch
+# trace (saved/restored around both assertions so neither touches this
+# suite's own accumulated TEST-019.1-.7 trace or its golden-trace
+# comparison, already evaluated above): .11a proves a silent fallback (no
+# skip-stop-message:stop event recorded at all) is correctly detected as
+# NOT surfaced; .11b proves a Block that DOES call the collector is
+# correctly detected as surfaced. Both assertions are unconditionally live
+# and gate pass/fail normally.
+#
+# TEST-019.11c is the named SKIP for the real production check: the
+# skip-stop-message:stop producer call site ("a new, dedicated fail-closed
+# stop-detection call site in the fixture drive's own Context-validation
+# guard," design.md's own producer table, Test Strategy item 1, future
+# task) does not exist anywhere in the tree yet -- the identical
+# unwired-producer reasoning TEST-019.8/.9 already established (T-007) --
+# so there is no real REQ-002 Block fixture to drive yet. Named SKIP until
+# Epic A5 merges (tasks.md T-008 Scope).
+# =============================================================================
+echo "=== TEST-019.11 (AC-037): REQ-002 Block surfaces, never falls back silently (named SKIP until Epic A5 merges) ==="
+
+_trace_has_skip_stop_message() {
+  jq -e 'any(.[]; .kind == "skip-stop-message" and .producer == "skip-stop-message:stop")' <<<"$_LOOP_EVENT_TRACE" >/dev/null
+}
+
+_SAVED_TRACE="$_LOOP_EVENT_TRACE"
+_SAVED_SEQ="$_LOOP_EVENT_SEQ"
+_LOOP_EVENT_TRACE='[]'
+_LOOP_EVENT_SEQ=0
+
+if _trace_has_skip_stop_message; then
+  fail "TEST-019.11a (negative self-check): a silently-falling-back Block (no skip-stop-message:stop event) was incorrectly reported as surfaced"
+else
+  ok "TEST-019.11a (negative self-check): a silently-falling-back Block (no skip-stop-message:stop event) is correctly detected as NOT surfaced"
+fi
+
+if _loop_trace_emit skip-stop-message skip-stop-message:stop '"disabled-legacy-invocation"' && \
+   _trace_has_skip_stop_message; then
+  ok "TEST-019.11b (negative self-check): a Block that correctly surfaces (skip-stop-message:stop recorded) is detected as surfaced"
+else
+  fail "TEST-019.11b (negative self-check): a correctly-surfaced Block was NOT detected"
+fi
+
+_LOOP_EVENT_TRACE="$_SAVED_TRACE"
+_LOOP_EVENT_SEQ="$_SAVED_SEQ"
+
+if [[ -d "${REPO_ROOT}/specs/epic-193-a5-capability-resolver" ]]; then
+  fail "TEST-019.11c (AC-037): Epic A5 has merged but no real REQ-002 Block-surfacing fixture is wired against a live caller yet -- promote this SKIP in a follow-on task"
+else
+  echo "SKIP: TEST-019.11c: AC-037 REQ-002 Block-surfaces-not-fallback check against a real interviewer fixture -- Epic A5 has not merged (local ad hoc probe: specs/epic-193-a5-capability-resolver/ absent from this tree) and the skip-stop-message:stop producer call site does not exist anywhere in the tree yet (same unwired-producer reasoning as TEST-019.8/.9); SKIP-with-activation until Epic A5 merges (design.md Test Strategy item 6)"
 fi
 
 # =============================================================================

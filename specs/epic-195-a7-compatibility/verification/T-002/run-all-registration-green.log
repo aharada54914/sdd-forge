@@ -1,0 +1,2 @@
+100:  tests/golden-baseline-contract.tests.sh
+59:    'tests/golden-baseline-contract.tests.ps1'

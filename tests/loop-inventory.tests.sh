@@ -23,6 +23,10 @@
 #     tests/run-all.ps1, and .github/workflows/test.yml for the four
 #     canonical Pillar-A suite registrations (conditional on the suite file
 #     existing on disk; this suite's own registration is always required).
+#   TEST-008 — optional capability-applicability contract and legacy-copy
+#     compatibility.
+#   TEST-009 — event-trace collector/comparator API, trace lifecycle, and
+#     byte-stable legacy assertion bodies.
 #   TEST-017 — runtime budget: measures this suite's own wall-clock, prints
 #     it in the final summary line, self-fails above
 #     LOOP_SUITE_BUDGET_SECONDS, and proves the assertion is live via a
@@ -46,6 +50,7 @@ VALIDATOR="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/validate-review-context
 RUN_ALL_SH="${REPO_ROOT}/tests/run-all.sh"
 RUN_ALL_PS1="${REPO_ROOT}/tests/run-all.ps1"
 TEST_YML="${REPO_ROOT}/.github/workflows/test.yml"
+LOOP_DRIVER="${REPO_ROOT}/tests/lib/loop-driver.sh"
 
 PASS=0
 FAIL=0
@@ -107,6 +112,28 @@ validate_registration() {
   done < <(jq -r '.loops[].cross_gates[]?' "$inv" | tr -d '\r')
 
   return 0
+}
+
+validate_capability_applicability() {
+  local inv="$1"
+  jq -e '
+    (.loops | length) == 8 and
+    ([.loops[] | select(has("capability_applicability"))] | length) == 1 and
+    (.loops[] | select(.id == "quality-gate") | .capability_applicability) == {
+      "disabled-legacy": "not-applicable (disabled-legacy)",
+      "advisory": "advisory",
+      "required": "required"
+    }
+  ' "$inv" >/dev/null 2>&1
+}
+
+function_body_sha256() {
+  local file="$1" function_name="$2"
+  awk -v signature="^${function_name}\\(\\)" '
+    $0 ~ signature { capture=1 }
+    capture { print }
+    capture && /^}/ { exit }
+  ' "$file" | shasum -a 256 | awk '{print $1}'
 }
 
 # ---------------------------------------------------------------------------
@@ -340,6 +367,197 @@ for basename in "${CANONICAL_BASENAMES[@]}"; do
     echo "SKIP: TEST-004.2 ${basename}.ps1 not yet on disk (later Pillar-A task)"
   fi
 done
+
+# ---------------------------------------------------------------------------
+# TEST-008 (AC-008/AC-009): capability applicability + legacy compatibility
+# ---------------------------------------------------------------------------
+echo "=== TEST-008: quality-gate capability applicability ==="
+
+LEGACY_INVENTORY="${WORK}/loop-inventory.pre-epic-195.json"
+jq 'del(.loops[].capability_applicability)' "$INVENTORY_PATH" > "$LEGACY_INVENTORY"
+if validate_registration "$LEGACY_INVENTORY"; then
+  ok "TEST-008.1: a pre-epic-195 copy without capability_applicability remains base-valid"
+else
+  fail "TEST-008.1: a pre-epic-195 copy without capability_applicability is not base-valid"
+fi
+
+if validate_capability_applicability "$INVENTORY_PATH"; then
+  ok "TEST-008.2: only quality-gate carries the exact three-state applicability mapping"
+else
+  fail "TEST-008.2: quality-gate does not carry the exact three-state applicability mapping"
+fi
+
+BAD_CAPABILITY_INVENTORY="${WORK}/loop-inventory.bad-capability.json"
+jq '(.loops[] | select(.id == "quality-gate") | .capability_applicability) = {
+      "disabled-legacy": "disabled",
+      "advisory": "advisory",
+      "required": "required"
+    }' "$INVENTORY_PATH" > "$BAD_CAPABILITY_INVENTORY"
+if validate_capability_applicability "$BAD_CAPABILITY_INVENTORY"; then
+  fail "TEST-008.3 (negative self-check): an incorrect applicability value passed validation"
+else
+  ok "TEST-008.3 (negative self-check): an incorrect applicability value is rejected"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-009 (AC-009): trace API, normalization, purity, and non-regression
+# ---------------------------------------------------------------------------
+echo "=== TEST-009: event trace API + legacy helper non-regression ==="
+
+EXPECTED_ARTIFACTS_SHA="dce6534c9e395bdc04dc558e115b91bad5e9950ce8606783512bb2a4bd85e65e"
+EXPECTED_TERMINAL_SHA="f325a4df4a276cf4a4bc7a4051032693cceb6bff6db99fce27eb4b13b18473df"
+
+if [[ "$(function_body_sha256 "$LOOP_DRIVER" assert_artifacts_schema)" == "$EXPECTED_ARTIFACTS_SHA" ]]; then
+  ok "TEST-009.1: assert_artifacts_schema remains byte-identical"
+else
+  fail "TEST-009.1: assert_artifacts_schema changed"
+fi
+if [[ "$(function_body_sha256 "$LOOP_DRIVER" assert_terminal)" == "$EXPECTED_TERMINAL_SHA" ]]; then
+  ok "TEST-009.2: assert_terminal remains byte-identical"
+else
+  fail "TEST-009.2: assert_terminal changed"
+fi
+
+MUTATED_DRIVER="${WORK}/loop-driver.mutated.sh"
+sed 's/local loop_id="\$1" observed=/local loop_identifier="\$1" observed=/' "$LOOP_DRIVER" > "$MUTATED_DRIVER"
+if [[ "$(function_body_sha256 "$MUTATED_DRIVER" assert_terminal)" == "$EXPECTED_TERMINAL_SHA" ]]; then
+  fail "TEST-009.3 (negative self-check): a deliberately changed legacy function was accepted"
+else
+  ok "TEST-009.3 (negative self-check): a deliberately changed legacy function is rejected"
+fi
+
+# shellcheck source=tests/lib/loop-driver.sh
+source "$LOOP_DRIVER"
+TRACE_API_READY=true
+for function_name in _loop_trace_emit assert_capability_applicability assert_event_trace; do
+  if declare -F "$function_name" >/dev/null 2>&1; then
+    ok "TEST-009.4: ${function_name} is available"
+  else
+    fail "TEST-009.4: ${function_name} is unavailable"
+    TRACE_API_READY=false
+  fi
+done
+
+if [[ "$TRACE_API_READY" == true ]]; then
+  _LOOP_EVENT_TRACE='[{"kind":"stale","producer":"stale","seq":99,"value":"stale"}]'
+  _LOOP_EVENT_SEQ=99
+  if loop_fixture_init greenfield trace-reset >/dev/null 2>&1 && \
+     [[ "$_LOOP_EVENT_TRACE" == '[]' && "$_LOOP_EVENT_SEQ" == 0 ]]; then
+    ok "TEST-009.5: loop_fixture_init resets the trace and sequence per fixture"
+  else
+    fail "TEST-009.5: loop_fixture_init did not reset the trace and sequence"
+  fi
+  rm -rf "${LOOP_FIXTURE_ROOT:-}"
+
+  if assert_capability_applicability quality-gate advisory advisory && \
+     jq -e 'length == 1 and .[0].kind == "quality-gate-outcome" and
+       .[0].producer == "quality-gate-outcome:capability-applicability" and
+       .[0].seq == 1 and .[0].value == {"applicability":"advisory"}' \
+       <<< "$_LOOP_EVENT_TRACE" >/dev/null; then
+    ok "TEST-009.6: capability applicability compares exactly and emits one canonical event"
+  else
+    fail "TEST-009.6: capability applicability comparison/event emission is incorrect"
+  fi
+  if assert_capability_applicability quality-gate unknown unknown >/dev/null 2>&1; then
+    fail "TEST-009.7: an unknown fixture state was accepted"
+  else
+    ok "TEST-009.7: an unknown fixture state is rejected"
+  fi
+  if assert_capability_applicability quality-gate advisory Advisory >/dev/null 2>&1; then
+    fail "TEST-009.7: a mis-cased observed applicability was accepted"
+  else
+    ok "TEST-009.7: applicability comparison is case-sensitive"
+  fi
+
+  _LOOP_EVENT_TRACE='[]'
+  _LOOP_EVENT_SEQ=0
+  SKILL_PATH_JSON="$(jq -cn --arg value "${SDD_LOOP_REPO_ROOT}/plugins/sdd-review-loop/SKILL.md" '$value')"
+  _loop_trace_emit skill-order skill-order:invocation "$SKILL_PATH_JSON"
+  _loop_trace_emit review-loop-presence review-loop-presence:stage-dispatch '"spec"'
+  _loop_trace_emit approval-checkpoint approval-checkpoint:reserve \
+    '{"stage":"quality","role":"sdd-evaluator","run_id":"ignored"}'
+  _loop_trace_emit quality-gate-outcome quality-gate-outcome:escalation \
+    '{"next_tier":"human","wall_clock":"ignored"}'
+  _loop_trace_emit quality-gate-outcome quality-gate-outcome:capability-applicability \
+    '{"applicability":"required","wall_clock":"ignored"}'
+  _loop_trace_emit skip-stop-message skip-stop-message:skip '"SKIP: cited upstream issue"'
+  _loop_trace_emit skip-stop-message skip-stop-message:stop '"PROJECT_CONTEXT_INVALID"'
+  _loop_trace_emit done-transition done-transition:assert-terminal '"Done"'
+  if jq -e '[.[].seq] == [1,2,3,4,5,6,7,8]' <<< "$_LOOP_EVENT_TRACE" >/dev/null; then
+    ok "TEST-009.8: the collector assigns one trace-wide monotonic sequence"
+  else
+    fail "TEST-009.8: collector sequence is not trace-wide and monotonic"
+  fi
+  TRACE_BEFORE_BAD_JSON="$_LOOP_EVENT_TRACE"
+  SEQ_BEFORE_BAD_JSON="$_LOOP_EVENT_SEQ"
+  if _loop_trace_emit done-transition done-transition:assert-terminal '{bad-json' >/dev/null 2>&1; then
+    fail "TEST-009.9: invalid event value JSON was accepted"
+  elif [[ "$_LOOP_EVENT_TRACE" == "$TRACE_BEFORE_BAD_JSON" && "$_LOOP_EVENT_SEQ" == "$SEQ_BEFORE_BAD_JSON" ]]; then
+    ok "TEST-009.9: invalid event JSON is rejected without consuming sequence state"
+  else
+    fail "TEST-009.9: invalid event JSON changed trace or sequence state"
+  fi
+
+  GOLDEN_TRACE="${WORK}/golden-trace.json"
+  jq -n '[
+    {kind:"skill-order", producer:"skill-order:invocation", seq:1,
+      value:"plugins/sdd-review-loop/SKILL.md"},
+    {kind:"review-loop-presence", producer:"review-loop-presence:stage-dispatch", seq:2, value:"spec"},
+    {kind:"approval-checkpoint", producer:"approval-checkpoint:reserve", seq:3,
+      value:{stage:"quality", role:"sdd-evaluator"}},
+    {kind:"quality-gate-outcome", producer:"quality-gate-outcome:escalation", seq:4,
+      value:{next_tier:"human"}},
+    {kind:"quality-gate-outcome", producer:"quality-gate-outcome:capability-applicability", seq:5,
+      value:{applicability:"required"}},
+    {kind:"skip-stop-message", producer:"skip-stop-message:skip", seq:6,
+      value:"SKIP: cited upstream issue"},
+    {kind:"skip-stop-message", producer:"skip-stop-message:stop", seq:7,
+      value:"PROJECT_CONTEXT_INVALID"},
+    {kind:"done-transition", producer:"done-transition:assert-terminal", seq:8, value:"Done"}
+  ]' > "$GOLDEN_TRACE"
+  TRACE_SNAPSHOT="$_LOOP_EVENT_TRACE"
+  SEQ_SNAPSHOT="$_LOOP_EVENT_SEQ"
+  if assert_event_trace "$GOLDEN_TRACE" && \
+     [[ "$_LOOP_EVENT_TRACE" == "$TRACE_SNAPSHOT" && "$_LOOP_EVENT_SEQ" == "$SEQ_SNAPSHOT" ]]; then
+    ok "TEST-009.10: comparator normalizes values, matches the golden trace, and is pure"
+  else
+    fail "TEST-009.10: comparator failed normalization, identity, or purity"
+  fi
+
+  for mutation in kind producer value count; do
+    MUTATED_TRACE="${WORK}/golden-trace.${mutation}.json"
+    case "$mutation" in
+      kind) jq '.[0].kind = "review-loop-presence"' "$GOLDEN_TRACE" > "$MUTATED_TRACE" ;;
+      producer) jq '.[4].producer = "quality-gate-outcome:escalation"' "$GOLDEN_TRACE" > "$MUTATED_TRACE" ;;
+      value) jq '.[7].value = "Implementation Complete"' "$GOLDEN_TRACE" > "$MUTATED_TRACE" ;;
+      count) jq 'del(.[7])' "$GOLDEN_TRACE" > "$MUTATED_TRACE" ;;
+    esac
+    if assert_event_trace "$MUTATED_TRACE" >/dev/null 2>&1; then
+      fail "TEST-009.11: ${mutation} mismatch was accepted"
+    else
+      ok "TEST-009.11: ${mutation} mismatch is rejected"
+    fi
+  done
+
+  if function_body_sha256 "$LOOP_DRIVER" assert_event_trace >/dev/null && \
+     ! awk '/^assert_event_trace\(\)/,/^}/' "$LOOP_DRIVER" | grep -q '_loop_trace_emit'; then
+    ok "TEST-009.12: assert_event_trace is a pure reader and never calls the appender"
+  else
+    fail "TEST-009.12: assert_event_trace calls the trace appender"
+  fi
+
+  MISCASED_REPO_ROOT="$(printf '%s' "$SDD_LOOP_REPO_ROOT" | tr '[:lower:]' '[:upper:]')"
+  _LOOP_EVENT_TRACE="$(jq -cn --arg value "${MISCASED_REPO_ROOT}/plugins/sdd-review-loop/SKILL.md" \
+    '[{kind:"skill-order", producer:"skill-order:invocation", seq:1, value:$value}]')"
+  MISCASED_PATH_GOLDEN="${WORK}/golden-trace.mis-cased-path.json"
+  jq -n '[{kind:"skill-order", producer:"skill-order:invocation", seq:1,
+    value:"plugins/sdd-review-loop/SKILL.md"}]' > "$MISCASED_PATH_GOLDEN"
+  if assert_event_trace "$MISCASED_PATH_GOLDEN" >/dev/null 2>&1; then
+    fail "TEST-009.13: a mis-cased repository path was canonicalized as a match"
+  else
+    ok "TEST-009.13: path canonicalization is case-sensitive"
+  fi
+fi
 
 # ---------------------------------------------------------------------------
 # TEST-017 (AC-017): runtime budget, live negative self-check

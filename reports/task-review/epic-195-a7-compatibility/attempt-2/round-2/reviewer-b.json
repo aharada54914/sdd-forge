@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt2r2-seq0666",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0666",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/integrated-summary.json",
+        "sha256": "1070cafd481049c0f08861379e454617d8f10b0c5361e6e49c7237bf76118e05"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/reports/task-review/epic-195-a7-compatibility/attempt-2/round-2/precheck-result.json",
+        "sha256": "758f23cf2cc7ba9560dffebb7b4dd07bfdf363932ab4e85d6e93fe947b8ebbf0"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/acceptance-tests.md",
+        "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/design.md",
+        "sha256": "2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/frontend-spec.md",
+        "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/infra-spec.md",
+        "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/requirements.md",
+        "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/security-spec.md",
+        "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/tasks.md",
+        "sha256": "f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/traceability.md",
+        "sha256": "f66fc1ad2201999bb3a9b8ee66ac9d332519e438012573107f924eaf77817231"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-195/specs/epic-195-a7-compatibility/ux-spec.md",
+        "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks' Risk tiers are grounded in real sentinel surfaces. High tier (T-002,T-004,T-005,T-008,T-009,T-010,T-011,T-012) each cites a specific security-spec.md#trust-boundaries B1-B5 entry, and those B1-B5 boundary rows independently exist in security-spec.md (lines 61-65) with matching STRIDE text (lines 71-75) that the Risk Rationale prose quotes near-verbatim. T-012's round-1-remediated rationale ('high, not medium... sole implementer of the write path for Security Boundary B5... matching security-spec.md's own STRIDE-B5 threat text verbatim') is now internally consistent with the B5 row's own text. Medium tier (T-001,T-003,T-006,T-007) tasks touch no auth/payment/PII/migration/public-API surface and are correctly reasoned as non-boundary-implementing consumers. No under- or over-classification found."
+    },
+    {
+      "id": "WORKFLOW-MATRIX-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Required Workflow exactly follows risk-classification-policy.md's tier->workflow derivation for all 12 tasks: medium->acceptance-first (T-001 l.125, T-003 l.431, T-006 l.883, T-007 l.986) and high->tdd (T-002 l.274, T-004 l.576, T-005 l.738, T-008 l.1112, T-009 l.1243, T-010 l.1374, T-011 l.1518, T-012 l.1698). Security-Sensitive:true/false is set consistently with the high/medium split in every case (grep-verified pairing)."
+    },
+    {
+      "id": "SIZING-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No Done-When list exceeds 8 items (max observed 7, e.g. T-010/T-011/T-012); no task is a single-file/single-function fragment. Shared-file overlaps (tests/run-all.sh/.ps1, loop-consistency.tests.sh, loop-escalation.tests.sh, compatibility-byte-identical.tests.sh, structural-compatibility.tests.sh) are each covered by an explicit Blockers chain (e.g. T-010 Blockers: T-003,T-004,T-006,T-007,T-008; T-011 Blockers: T-001..T-010) or by the Global Constraints' explicit 'append only its own suite's registration line, in task order T-001 -> T-011' rule. .github/workflows/test.yml is reserved to T-011 alone per the Protected Files section ('No other task in this feature touches .github/workflows/test.yml'). No uncoordinated overlap found."
+    },
+    {
+      "id": "LIFECYCLE-ONLY-DELTA",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/epic-195-a7-compatibility/tasks.md's raw sha256 (f00647ba5183cd844c35d41df5ddde868f6348b3470d9c7febc767848b161f2b) is confirmed unchanged since round 1 (matches precheck-result.json's tasks_sha256 and the manifest entry) -- a null byte-level delta, which is a fortiori a lifecycle-only delta, satisfying this check's substantive intent. I could not independently recompute the specific attempt-1-round-3 status-normalized target hash (e49d1b7d52e6c9861fe6b88ac6ad2cda4c7d30979251c904738f2b1a9b02ab02) myself: the attempt-1 file is outside my read-only 14-entry manifest and the canonicalization algorithm is undisclosed to me. Two plausible guesses (blanking vs. removing Status:/Approval: lines) did not reproduce it, so I treat those attempts as inconclusive/informational only, not as counter-evidence, and rely instead on the dispositive raw byte-identity fact above."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task carries an explicit edge/error-path item: T-001 PROJECT_CONTEXT_INVALID variant (AC-014); T-002 CI-env-var-set and --approved-by-omitted refusal fixtures (AC-001); T-003 AC-002 mutated-fixture negative self-check; T-004 malformed-corpus hard-fail plus F3/F5/F6 SKIP gates (AC-007,AC-042,AC-043); T-005 schema-validation and assert_terminal/assert_artifacts_schema non-regression fixtures; T-007/T-008 PROJECT_CONTEXT_INVALID stop-event (AC-019-021), anchor-fingerprint-drift (AC-036), Block-not-fallback (AC-037); T-009 capability-only usage-error golden negative test (AC-033); T-010 three independent hard-fail fixtures (AC-035a/b/c); T-011 AC-040/AC-041 negative fixtures; T-012 structural-mismatch refusal path. acceptance-tests.md corroborates with explicit 'negative self-check'/'SKIP, allowlist-governed' rows (AC-002, AC-004, AC-007, AC-019-021, AC-035, AC-036, AC-037, AC-041, AC-042, AC-043)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 12 tasks carry an explicit `Rollback:` field (grep count = 12), each either citing infra-spec.md#rollback (anchor confirmed present at infra-spec.md:181) or stating a task-specific revert rationale (e.g. T-002/T-011's promotion-history and human-copy-staging caveats)."
+    },
+    {
+      "id": "STATUS-RISK-CONSISTENCY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 (medium, acceptance-first) is the sole Status: Done task; grep confirms no other task carries Status: Done, and no task carries Status: Blocked. No 'Second Approval' line exists anywhere in tasks.md (correct: only critical tier requires it, and no task is critical). Every high-risk task's Done-When contains both a TDD Red/Green evidence bullet and an 'independent quality-gate verdict records PASS' bullet (grep-confirmed for T-002,T-004,T-005,T-008,T-009,T-010,T-011,T-012). Every medium-risk task's Done-When contains an 'Acceptance-first evidence' bullet (T-003,T-006,T-007); T-001's own equivalent evidence bullet is folded into its fourth Done-When item rather than using that exact phrase, but this text is byte-identical to the round-1-reviewed and round-1-passed body (tasks.md unchanged since round 1), so per the post-implementation provenance re-review convergence rule this is carried as an advisory observation, not a new finding."
+    },
+    {
+      "id": "TRACEABILITY-FRESHNESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 Major is resolved. traceability.md:24's REQ-005 row Status now reads 'In Progress -- T-001 Done (quality-gate cycle-2 PASS, ledger seq0662, reports/quality-gate/epic-195-a7-compatibility/T-001.md); T-011 Planned', citing saved QG-report/ledger evidence. traceability.md:152-164's Final Status prose no longer asserts 'every row above is Planned' as the current state; it now separates the document's Phase-2 authoring-time baseline from the current evidence-derived status, restating REQ-005 In Progress / T-001 Done with the same QG-report and verification-directory citations. No other row was silently advanced: REQ-001/002/003/006/007 remain 'Planned' (traceability.md:20-22,25-26); REQ-004 keeps 'Satisfied at spec-authoring time' (traceability.md:23) and REQ-009 keeps 'N/A -- external...' (traceability.md:27), both pre-existing spec-time dispositions, unchanged."
+    },
+    {
+      "id": "SUMMARY-CONSISTENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "integrated-summary.json (attempt 2, round 2) reports reviewer_a_fail_count: 0, reviewer_a_pass_count: 16, reviewer_a_skip_count: 0 against a 16-entry reviewer_a_check_ids list (LAUNCH-GATE, INPUT-DISCIPLINE, PREREQ-AC-IDS, STRUCT-FIELDS, DEP-GRAPH-MATCH, DEP-ACYCLIC, REQ-COVERAGE, AC-COVERAGE, ORPHAN-TASK, ORPHAN-TEST, TRACEABILITY-SYNC, TRACEABILITY-REMEDIATION, SINGLE-CONCERN, OBSERVABLE-DONE, LIFECYCLE-ONLY-DELTA, STATUS-LEGALITY) -- counts are internally consistent (16 IDs = 16 pass + 0 fail + 0 skip), and the ID set is a plausible structural/dependency/traceability-focused checklist for task-reviewer-a, distinct from and complementary to this role's risk/quality checklist."
+    }
+  ],
+  "findings": []
+}

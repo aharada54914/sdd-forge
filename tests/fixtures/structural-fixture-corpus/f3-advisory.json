@@ -1,0 +1,45 @@
+{
+  "schema": "structural-fixture-corpus/v1",
+  "fixture_state": "F3",
+  "recorded_at_model": "recorded-response/epic-195-a7-compatibility",
+  "recorded_at_commit": "25e0b66c552a7fdc052486cc0a6822dadcd82e41",
+  "refresh_procedure": "tests/structural-compatibility-live-refresh.tests.sh",
+  "skip": {
+    "name": "F3",
+    "acceptance_criterion": "AC-042",
+    "dependencies": [
+      "Epic A1"
+    ],
+    "reason": "structural identity awaits Epic A1"
+  },
+  "artifacts": [
+    {
+      "path": "requirements.md",
+      "content": "# Requirements: {{feature_name}}\n## Overview\n## Target Users\n## Problems\n## Goals\n## Non-goals\n## User Stories\n## Acceptance Criteria\n## Roles and Permissions\n## Main Workflows\n## Edge Cases\n## Security Boundaries\n## Assumptions\n## Open Questions\n## Risks\nREQ-001\nAC-001"
+    },
+    {
+      "path": "acceptance-tests.md",
+      "content": "# Acceptance Tests: {{feature_name}}\n## UI Integration Checklist\nREQ-001\nAC-001"
+    },
+    {
+      "path": "design.md",
+      "content": "# Design: {{feature_name}}\nImpl-Review-Status: Pending\n## Technical Summary\n## Architecture\n## Components\n## Layer Specifications\n## Design System Compliance\n## Cross-Layer Dependencies\n## ADR Change Log\n## Data Plan\n## API / Contract Plan\n## Test Strategy\n## Security Boundaries\n## Deployment / CI Plan\n## Constraint Compliance\n## Assumptions\n## Open Questions\n### OQ-001: {{question_title}}\n## Risks\nREQ-001\nAC-001"
+    },
+    {
+      "path": "ux-spec.md",
+      "content": "# UX Specification: <feature>\n## Scope and User Journeys\n## Target Views\n## Component States\n## Interaction Sequence\n## Wireframe Attachments\n## Navigation Map\n## Accessibility\n## Responsive Behavior\n## Design Tokens\n## Open Questions\nREQ-001\nAC-001"
+    },
+    {
+      "path": "frontend-spec.md",
+      "content": "# Frontend Specification: <feature>\n## Technology Stack\n## Component Tree\n## State Shape\n## Routes and Components\n## API Client Strategy\n## Code Splitting and Size Budget\n## Performance Budget\n## Empty, Loading, Error, and Success Behavior\n## Dependencies\n## Testing\n## Open Questions\nREQ-001\nAC-001"
+    },
+    {
+      "path": "infra-spec.md",
+      "content": "# Infrastructure Specification: <feature>\n## Deployment Topology\n## CI/CD Sequence\n## Environments\n## Infrastructure as Code\n## Scaling Strategy\n## Service Level Objectives\n## Data Residency and Retention\n## Observability\n## Cost Estimate\n## Rollback\n## Open Questions\nREQ-001\nAC-001"
+    },
+    {
+      "path": "security-spec.md",
+      "content": "# Security Specification: <feature>\n## Trust Boundaries\n## STRIDE Analysis\n## Authentication Flow\n## Authorization\n## Data Classification and Protection\n## OWASP Mapping\n## Secrets Management\n## SBOM and Supply Chain\n## Security Tests\n## Open Questions\nREQ-001\nAC-001"
+    }
+  ]
+}

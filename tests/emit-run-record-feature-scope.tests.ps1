@@ -179,7 +179,9 @@ VERDICT: PASS
         $script:runOutputText = ($combined | Out-String)
         $found = Get-ChildItem (Join-Path $work "reports/runs") -Filter "RUN-*-$Slug.json" -ErrorAction SilentlyContinue | Select-Object -First 1
         $script:runRecord = $null
+        $script:runOutPath = $null
         if ($found) {
+            $script:runOutPath = $found.FullName
             $script:runRecord = Get-Content -Raw -Encoding Utf8 $found.FullName | ConvertFrom-Json
         }
     }
@@ -195,9 +197,11 @@ VERDICT: PASS
         AssertEq $mainKeys "effort_applied,effort_degraded_reason,effort_requested" "AC-021: effort.main has exactly the three subfields"
         $reviewersKeys = ($runRecord.effort.reviewers.PSObject.Properties.Name | Sort-Object) -join ","
         AssertEq $reviewersKeys "effort_applied,effort_degraded_reason,effort_requested" "AC-021: effort.reviewers has exactly the three subfields"
+        $hasCapability = [bool]($runRecord.PSObject.Properties.Name -ccontains "capability")
+        AssertEq $hasCapability $false "AC-033 matrix effort-only: existing v2 shape has no capability key"
         AssertEq $runRecord.metrics.tasks.total 1 "AC-021: v1 metrics object unchanged in v2 shape"
     } else {
-        Fail "AC-021 setup: emit-run-record did not produce a run record (exit=$runExit)"
+        Fail "AC-033 matrix effort-only: emitter did not produce the expected v2 record (exit=$runExit): $runOutputText"
     }
 
     # --- AC-022 (TEST-022): effort_requested recorded whenever its flag is
@@ -316,9 +320,11 @@ VERDICT: PASS
     #     "effort" key), and an EXISTING, already-committed pre-feature v1
     #     record (never rewritten by this task) still carries schema v1. -----
     RunEmit "feat-e025" @()
-    AssertEq $runRecord.schema "sdd-run-record/v1" "AC-025: no -Effort* param bound emits v1 schema, unchanged"
+    AssertEq $runRecord.schema "sdd-run-record/v1" "AC-033 matrix no flags: emits the unchanged v1 schema"
     $hasEffort = [bool]($runRecord.PSObject.Properties.Name -contains "effort")
-    AssertEq $hasEffort $false "AC-025: v1 shape has no effort key at all"
+    AssertEq $hasEffort $false "AC-033 matrix no flags: v1 shape has no effort key at all"
+    $hasCapability = [bool]($runRecord.PSObject.Properties.Name -ccontains "capability")
+    AssertEq $hasCapability $false "AC-033 matrix no flags: v1 shape has no capability key at all"
 
     $preFeatureV1Record = Join-Path $repoRoot "reports/runs/RUN-20260705T023011Z-sdd-forge-mcp.json"
     if (Test-Path $preFeatureV1Record) {
@@ -331,6 +337,107 @@ VERDICT: PASS
         }
     } else {
         Fail "AC-025 setup: expected pre-feature v1 record fixture not found: $preFeatureV1Record"
+    }
+
+    # --- AC-011 (TEST-011): the actual byte-identity lock. The AC-033-matrix
+    #     "no flags" case above (AssertEq, AC-025) only checks schema/key
+    #     presence -- it is structural, not byte-level, and would still pass
+    #     if the v1 output's whitespace, key order, or punctuation drifted.
+    #     This case compares the full no-flag output byte-for-byte against a
+    #     committed golden fixture, with only the two fields that are
+    #     genuinely dynamic per invocation (run_id, generated -- both derive
+    #     from wall-clock time, plugins/sdd-quality-loop/scripts/emit-run-record.ps1)
+    #     normalized to a fixed placeholder first; every other byte (quoting,
+    #     indentation, key order, spacing, trailing newline) must match
+    #     exactly. --------------------------------------------------------
+    $goldenV1Ps1 = Join-Path $repoRoot "tests/fixtures/emit-run-record/v1-no-flag.ps1.golden.json"
+    RunEmit "feat-e011" @()
+    if ($runExit -eq 0 -and $runOutPath) {
+        $rawBytes = [System.IO.File]::ReadAllBytes($runOutPath)
+        $rawText = [System.Text.Encoding]::UTF8.GetString($rawBytes)
+        $normalizedText = $rawText -replace '"run_id": ".*"', '"run_id": "TEST-011-NORMALIZED"'
+        $normalizedText = $normalizedText -replace '"generated": ".*"', '"generated": "TEST-011-NORMALIZED"'
+        $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+        $normalizedBytes = $utf8NoBom.GetBytes($normalizedText)
+        $goldenBytes = [System.IO.File]::ReadAllBytes($goldenV1Ps1)
+        $normalizedB64 = [System.Convert]::ToBase64String($normalizedBytes)
+        $goldenB64 = [System.Convert]::ToBase64String($goldenBytes)
+        if ($normalizedB64 -ceq $goldenB64) {
+            Ok "AC-011: no-flag output is byte-identical to the committed v1 golden (run_id/generated normalized)"
+        } else {
+            Fail "AC-011: no-flag output diverged from the committed v1 golden byte-for-byte (normalized length=$($normalizedBytes.Length), golden length=$($goldenBytes.Length))"
+        }
+    } else {
+        Fail "AC-011 setup: emitter did not produce the expected v1 record (exit=$runExit): $runOutputText"
+    }
+
+    # ========================================================================
+    # epic-195-a7-compatibility T-009: capability run-record payload
+    # (REQ-003; AC-011, AC-012, AC-033). The two compatibility rows above
+    # cover no params and effort-only. These cases complete the matrix.
+    # ========================================================================
+
+    # Capability-only is a usage error and must not create a run record.
+    RunEmit "feat-capability-only" @("-CapabilityEnforcement", "advisory")
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityEnforcement requires at least one -Effort* parameter") {
+        Ok "AC-033 matrix capability-only: exact usage error, exit 1, and no output record"
+    } else {
+        Fail "AC-033 matrix capability-only: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
+    }
+
+    # Both parameter families produce v2 with effort and capability siblings.
+    RunEmit "feat-capability-both" @(
+        "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",
+        "-CapabilityEnforcement", "advisory", "-CapabilityBlockId", "resolver-no-match"
+    )
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.schema "sdd-run-record/v2" "AC-033 matrix both: schema remains v2"
+        $hasEffort = [bool]($runRecord.PSObject.Properties.Name -ccontains "effort")
+        AssertEq $hasEffort $true "AC-033 matrix both: effort sibling is present"
+        $capabilityKeys = ($runRecord.capability.PSObject.Properties.Name | Sort-Object) -join ","
+        AssertEq $capabilityKeys "block_id,enforcement" "AC-012 matrix both: capability has exactly enforcement and block_id"
+        AssertEq $runRecord.capability.enforcement "advisory" "AC-012 matrix both: enforcement is persisted"
+        AssertEq $runRecord.capability.block_id "resolver-no-match" "AC-012 matrix both: supplied block_id is persisted"
+    } else {
+        Fail "AC-033 matrix both: emitter did not produce a record (exit=$runExit): $runOutputText"
+    }
+
+    # Caller-supplied identifiers must remain valid JSON and round-trip exactly
+    # in both twins, including characters that require JSON escaping.
+    $specialBlockId = 'resolver-"quoted"\path'
+    RunEmit "feat-capability-escaped" @(
+        "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",
+        "-CapabilityEnforcement", "advisory", "-CapabilityBlockId", $specialBlockId
+    )
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.capability.block_id $specialBlockId "AC-012 block_id: JSON-sensitive characters round-trip exactly"
+    } else {
+        Fail "AC-012 block_id escaping: emitter did not produce a record (exit=$runExit): $runOutputText"
+    }
+
+    # Optional block_id serializes as JSON null when omitted.
+    RunEmit "feat-capability-null" @(
+        "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",
+        "-CapabilityEnforcement", "required"
+    )
+    if ($runExit -eq 0 -and $runRecord) {
+        AssertEq $runRecord.capability.enforcement "required" "AC-012 optional block_id: enforcement is persisted"
+        AssertEq $runRecord.capability.block_id $null "AC-012 optional block_id: omitted value serializes as null"
+    } else {
+        Fail "AC-012 optional block_id: emitter did not produce a record (exit=$runExit): $runOutputText"
+    }
+
+    # PowerShell case-sensitivity layer 1: the ordinal enum gate rejects the
+    # mis-cased form before layer-2 branch dispatch can accept it implicitly.
+    RunEmit "feat-capability-miscased" @(
+        "-EffortMain", "high", "-CapabilityEnforcement", "Advisory"
+    )
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityEnforcement must be one of disabled-legacy|advisory|required (got: Advisory)") {
+        Ok "case-sensitivity: mis-cased -CapabilityEnforcement is rejected fail-closed"
+    } else {
+        Fail "case-sensitivity: unexpected result for mis-cased capability value (exit=$runExit): $runOutputText"
     }
 
     # --- AC-026 (TEST-026): document conformance -- report template,
