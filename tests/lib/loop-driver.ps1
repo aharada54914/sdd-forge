@@ -1252,6 +1252,9 @@ function Test-LoopTerminal {
     if ($ExitCode -ne 0) { return $false }
     $expected = Invoke-LoopJq @("-r", "--arg", "id", $LoopId, '.loops[] | select(.id == $id) | .terminal.state // empty') $script:LoopInventoryPath
     if ([string]::IsNullOrEmpty($expected)) { return $false }
+    $valueJson = & jq -cn --arg v $Observed '$v'
+    if ($LASTEXITCODE -ne 0) { return $false }
+    if (-not (Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson ([string]$valueJson))) { return $false }
     return ($expected -eq $Observed)
 }
 

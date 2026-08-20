@@ -28,11 +28,12 @@
 #     review-loop-presence, and approval-checkpoint event kinds match a
 #     committed golden trace via assert_event_trace (the single oracle
 #     T-005 authored); done-transition is asserted last in the round's own
-#     event sub-sequence, emitted from this case immediately after its own
-#     assert_terminal call (never from inside assert_terminal itself,
-#     which tests/loop-inventory.tests.sh's own TEST-009.2 regression lock
-#     keeps byte-identical to its pre-T-006 form — see this task's
-#     implementation report, "Specification Differences").
+#     event sub-sequence, recorded by assert_terminal itself, at its own
+#     comparison call site, per design.md's per-kind producer table
+#     (T-005 cycle-2: an earlier cycle had this event recorded from the
+#     test case instead, behind an incorrect byte-identity lock on
+#     assert_terminal — see this task's implementation report,
+#     "Specification Differences").
 #
 # OQ-5 (task-review-precheck.sh:219-222, require_persisted_pass reading
 # impl-review artifacts for stage "impl"): read-only inspected during this
@@ -463,24 +464,16 @@ else
   fail "TEST-018.2 (AC-032): Context-absent round failed to drive spec-review round 1"
 fi
 
-TERMINAL_OK=0
 if assert_terminal spec-review PASS; then
   ok "TEST-018.3: observed end state PASS matches the loop-inventory terminal"
-  TERMINAL_OK=1
 else
   fail "TEST-018.3: observed end state does not match the loop-inventory terminal (PASS)"
 fi
-# done-transition:assert-terminal (AC-026): recorded here, immediately after
-# assert_terminal's own comparison, rather than inside assert_terminal
-# itself -- tests/loop-inventory.tests.sh's own TEST-009.2 regression lock
-# (T-005) keeps assert_terminal byte-identical to its pre-T-006 form, so
-# this case records the identical event (same kind/producer/value/position
-# in the trace) from its own call site instead of design.md's literal
-# in-function placement (this task's implementation report, "Specification
-# Differences").
-if [[ "$TERMINAL_OK" -eq 1 ]]; then
-  _loop_trace_emit done-transition done-transition:assert-terminal "$(jq -cn --arg v PASS '$v')" || true
-fi
+# done-transition:assert-terminal (AC-026): recorded by assert_terminal
+# itself, at its own comparison call site, per design.md's per-kind
+# producer table (T-005 cycle-2: the earlier byte-identity lock on
+# assert_terminal was itself the defect -- see this task's implementation
+# report, "Specification Differences").
 
 if assert_event_trace "$EVENT_TRACE_GOLDEN"; then
   ok "TEST-018.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via assert_event_trace"

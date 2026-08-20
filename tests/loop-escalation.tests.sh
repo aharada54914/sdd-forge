@@ -65,12 +65,12 @@
 #     applicability` event (F1's own `disabled-legacy` fixture state,
 #     always last within the kind per design.md's ordering rule), then
 #     `done-transition:assert-terminal` (the chain's own real
-#     `terminal-tier` BLOCKED outcome) recorded from the test case itself,
-#     immediately after `assert_terminal` succeeds -- T-006's own
-#     established pattern for this producer, since `assert_terminal`'s
-#     function body is hash-locked byte-identical by T-005's own Done-When
-#     (tests/loop-inventory.tests.sh TEST-009.2) and cannot be edited to
-#     emit internally. The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
+#     `terminal-tier` BLOCKED outcome) recorded by `assert_terminal` itself,
+#     at its own comparison call site, per design.md's per-kind producer
+#     table (T-005 cycle-2: an earlier cycle had this event recorded from
+#     the test case instead, behind an incorrect byte-identity lock on
+#     `assert_terminal` -- see this task's implementation report,
+#     "Specification Differences"). The `skip-stop-message:stop` (`PROJECT_CONTEXT_INVALID`)
 #     leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
 #     AC-027) is a named `SKIP`: design.md's own producer table cites that
 #     call site as "a new, dedicated fail-closed stop-detection call site
@@ -698,15 +698,11 @@ fi
 # TEST-019.6: done-transition, asserted as the last event in this round's
 # own sub-sequence (AC-026, this suite's own share) -- the chain's own
 # real terminal-tier BLOCKED outcome (the select-agent-model.sh
-# strong-tier-recurrence decision just above). assert_terminal itself is
-# not edited (T-005's own Done-When hash-locks its function body,
-# tests/loop-inventory.tests.sh TEST-009.2); the event is recorded from
-# this test case immediately after assert_terminal succeeds, matching
-# T-006's own established pattern in tests/loop-consistency.tests.sh
-# TEST-018.
+# strong-tier-recurrence decision just above). assert_terminal records
+# this event itself, at its own comparison call site, per design.md's
+# per-kind producer table.
 # -----------------------------------------------------------------------
-if assert_terminal terminal-tier BLOCKED 0 && \
-   _loop_trace_emit done-transition done-transition:assert-terminal '"BLOCKED"'; then
+if assert_terminal terminal-tier BLOCKED 0; then
   ok "TEST-019.6: done-transition:assert-terminal recorded as the round's own last event (terminal-tier BLOCKED)"
 else
   fail "TEST-019.6: assert_terminal rejected the terminal-tier BLOCKED outcome, or the done-transition event was not recorded"

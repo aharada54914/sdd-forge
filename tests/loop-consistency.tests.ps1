@@ -430,23 +430,16 @@ try {
             Test-Fail "TEST-019.2 (AC-032): Context-absent round failed to drive spec-review round 1"
         }
 
-        $terminalOk = $false
         if (Test-LoopTerminal -LoopId "spec-review" -Observed "PASS") {
             Test-Ok "TEST-019.3: observed end state PASS matches the loop-inventory terminal"
-            $terminalOk = $true
         } else {
             Test-Fail "TEST-019.3: observed end state does not match the loop-inventory terminal (PASS)"
         }
-        # done-transition:assert-terminal (AC-026): recorded here, immediately
-        # after Test-LoopTerminal's own comparison, rather than inside
-        # Test-LoopTerminal itself -- tests/loop-inventory.tests.ps1's own
-        # TEST-009.2 regression lock (T-005) keeps Test-LoopTerminal
-        # byte-identical to its pre-T-006 form (see the bash twin and this
-        # task's implementation report, "Specification Differences").
-        if ($terminalOk) {
-            $doneValueJson = & jq -cn --arg v "PASS" '$v'
-            [void](Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson ([string]$doneValueJson))
-        }
+        # done-transition:assert-terminal (AC-026): recorded by
+        # Test-LoopTerminal itself, at its own comparison call site, per
+        # design.md's per-kind producer table (T-005 cycle-2: the bash
+        # twin's own implementation report, "Specification Differences",
+        # covers the earlier byte-identity lock that had been the defect).
 
         if (Test-EventTrace -GoldenTracePath $eventTraceGolden) {
             Test-Ok "TEST-019.4 (AC-022, AC-023, AC-024, AC-026, AC-032): observed event trace matches the recorded golden trace via Test-EventTrace"

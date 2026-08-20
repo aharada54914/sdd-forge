@@ -35,10 +35,12 @@
 # lightweight->standard and standard->strong decisions), then exactly one
 # quality-gate-outcome:capability-applicability event (F1's own
 # disabled-legacy fixture state), then done-transition:assert-terminal
-# (the chain's own real terminal-tier BLOCKED outcome) recorded from the
-# test case itself immediately after Test-LoopTerminal succeeds --
-# Test-LoopTerminal itself is not edited (T-005's own Done-When
-# hash-locks it). The skip-stop-message:stop (PROJECT_CONTEXT_INVALID)
+# (the chain's own real terminal-tier BLOCKED outcome) recorded by
+# Test-LoopTerminal itself, at its own comparison call site, per
+# design.md's per-kind producer table (T-005 cycle-2: the bash twin's
+# own implementation report, "Specification Differences", covers the
+# earlier byte-identity lock that had been the defect). The
+# skip-stop-message:stop (PROJECT_CONTEXT_INVALID)
 # leg for the F3-invalid/F4-invalid fixture variants (AC-019, AC-020,
 # AC-027) is a named SKIP: that producer call site does not exist
 # anywhere in the tree yet (design.md's own "future task"). See the bash
@@ -588,12 +590,9 @@ mktemp repo-root.
     # TEST-019.6: done-transition, asserted as the last event in this
     # round's own sub-sequence (AC-026, this suite's own share) -- the
     # chain's own real terminal-tier BLOCKED outcome. Test-LoopTerminal
-    # itself is not edited (T-005's own Done-When hash-locks its function
-    # body); the event is recorded from this test case immediately after
-    # Test-LoopTerminal succeeds, matching T-006's own established
-    # pattern in tests/loop-consistency.tests.ps1 TEST-019.
-    if ((Test-LoopTerminal -LoopId "terminal-tier" -Observed "BLOCKED" -ExitCode 0) -and
-        (Write-LoopTraceEvent -Kind done-transition -Producer done-transition:assert-terminal -ValueJson '"BLOCKED"')) {
+    # records this event itself, at its own comparison call site, per
+    # design.md's per-kind producer table.
+    if (Test-LoopTerminal -LoopId "terminal-tier" -Observed "BLOCKED" -ExitCode 0) {
         Test-Ok "TEST-019.6: done-transition:assert-terminal recorded as the round's own last event (terminal-tier BLOCKED)"
     } else {
         Test-Fail "TEST-019.6: Test-LoopTerminal rejected the terminal-tier BLOCKED outcome, or the done-transition event was not recorded"

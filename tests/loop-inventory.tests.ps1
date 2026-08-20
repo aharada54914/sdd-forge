@@ -414,7 +414,7 @@ if (Test-CapabilityApplicabilityShape $badCapabilityInventory) {
 Write-Output "=== TEST-009: event trace API + legacy helper non-regression ==="
 
 $expectedArtifactsSha = "0734964255324b2f23be7639f86f1175552e50d908c3556f454838e7fc7d9d7a"
-$expectedTerminalSha = "4140a2eca754ff4be9abc650c7491d9bebb9a6dd9b0695eb9f736b23e6fd865d"
+$expectedTerminalSha = "460467af4a0b89af0b1cc0cb1ec94aa022dec00a81abbcd00924288727367757"
 if ((Get-FunctionBodySha256 $loopDriver "Test-ArtifactsSchema") -eq $expectedArtifactsSha) {
     Ok "TEST-009.1: Test-ArtifactsSchema remains byte-identical"
 } else {

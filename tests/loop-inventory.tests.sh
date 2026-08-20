@@ -405,7 +405,7 @@ fi
 echo "=== TEST-009: event trace API + legacy helper non-regression ==="
 
 EXPECTED_ARTIFACTS_SHA="dce6534c9e395bdc04dc558e115b91bad5e9950ce8606783512bb2a4bd85e65e"
-EXPECTED_TERMINAL_SHA="cc07ecf6216b77b4b33b3b5f12534868a314f669165540b8accd0fdfc10a2367"
+EXPECTED_TERMINAL_SHA="f325a4df4a276cf4a4bc7a4051032693cceb6bff6db99fce27eb4b13b18473df"
 
 if [[ "$(function_body_sha256 "$LOOP_DRIVER" assert_artifacts_schema)" == "$EXPECTED_ARTIFACTS_SHA" ]]; then
   ok "TEST-009.1: assert_artifacts_schema remains byte-identical"

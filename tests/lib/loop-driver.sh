@@ -1555,10 +1555,12 @@ assert_artifacts_schema() {
 # assert_terminal <loop-id> <observed-state> [<exit-code>]
 # ---------------------------------------------------------------------------
 assert_terminal() {
-  local loop_id="$1" observed="$2" exit_code="${3:-0}" expected
+  local loop_id="$1" observed="$2" exit_code="${3:-0}" expected value_json
   [[ "$exit_code" -eq 0 ]] || return 1
   expected="$(jq -r --arg id "$loop_id" '.loops[] | select(.id == $id) | .terminal.state // empty' "$LOOP_INVENTORY_PATH" | tr -d '\r')" || return 1
   [[ -n "$expected" ]] || return 1
+  value_json="$(jq -cn --arg v "$observed" '$v')" || return 1
+  _loop_trace_emit done-transition done-transition:assert-terminal "$value_json" || return 1
   [[ "$expected" == "$observed" ]]
 }
 
