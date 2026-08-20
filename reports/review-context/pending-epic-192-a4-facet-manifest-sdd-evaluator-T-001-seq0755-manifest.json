@@ -1,0 +1,386 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-192-a4-facet-manifest",
+  "task_id": "T-001",
+  "run_id": "RUN-epic-192-a4-facet-manifest-qg-T-001-seq0755",
+  "host_session_id": "SESS-qg-epic-192-a4-facet-manifest-T-001-0755",
+  "sequence": 755,
+  "previous_record_sha256": "55d3258b5d2073cf71cf394bbef8a60c65b0a90ec8ea294db4daeb75485da632",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2a68e08ea9238e8234ba82cf9d2895bf4a300947e3a0afcb6ab6c3cd836f8616",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "2796fe26b170ba995f062a90dfa94dc9c38e9946904966c997d824a209db2f3e"
+    },
+    {
+      "path": "contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/contracts/facet-manifest.schema.json",
+      "sha256": "81d4f1621923133e55875621ba81b30ad9d21688d9442c5a371fc1023b4a4c51"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.ps1",
+      "sha256": "3a9c5261913486702ae30af55adf76c656d119fb123ab177bf9ac3efff110e17"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "fa39a1b87eeabf8f143acc20531decf0ead4db6b4a7657e3d64dbc16b28a822c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.sh",
+      "sha256": "5b3fa5aeff262898474b00dbccf47451d03dca3b7ebbba007bbfb1470bb94955"
+    },
+    {
+      "path": "reports/implementation/epic-192-a4-facet-manifest/T-001.md",
+      "sha256": "3d09b33328884b9bcd53d5d9f715dcdb144242ace7b9b98971416445658ac1e0"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md",
+      "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/design.md",
+      "sha256": "65a49c044cfee8a31539d6a48fad75c6107c65fa600162f22f530f76c53e1591"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/frontend-spec.md",
+      "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml",
+      "sha256": "53ae12d1122008aaebcc3cb445add7eeb7d48804b9fe3201b4707091ba68b408"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/human-copy/APPLY-INSTRUCTIONS.md",
+      "sha256": "645026fdd33853d08bbeaad2b9d0f3f870f3aa892d2a102c70f0c970e6bd9fd1"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256",
+      "sha256": "4cc7cfdb3dc55260829b4d44b098959136f1ddfe6bceb542d48df4024fbe8149"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/infra-spec.md",
+      "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/requirements.md",
+      "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/security-spec.md",
+      "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/tasks.md",
+      "sha256": "d8bc6590598774e7b13033b3407f07f40c969cb82dc8333b307b7d829fae82ff"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/traceability.md",
+      "sha256": "b3db2423b7ce5038284bbe9ed419846c063e096964a46b365f2b6098f0485b0e"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/ux-spec.md",
+      "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log",
+      "sha256": "588f411a94b26e6f988b0edef09b73f655a82e3d6c046b96ff5780287330ea19"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-cycle2-red-green.log",
+      "sha256": "0a870dcda91a9e54e4eeaab3cd9604deccaca857ce1fac6dc905116937e62965"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-001/green-sh.log",
+      "sha256": "353257587406459ea9e3cbb21d866e25751a7751bda887926ca954d485b4d100"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-001/metaschema-conformance.md",
+      "sha256": "d45786f175b4d9ed2644a4767df2d952488d81ff2828d93b962b4938c728c676"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-001/metaschema-cross-validation.log",
+      "sha256": "7bef69532b51e3e8d8896a04596c388a910dd85a06f4e59954da26e3c0cd55e8"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/verification/T-001/red-sh.log",
+      "sha256": "183b9a9e1366f740816105318783759329cf1cf2965ba65d36a3641f4124a589"
+    },
+    {
+      "path": "tests/facet-manifest-schema.tests.ps1",
+      "sha256": "a822abffc5bccb82beeaa373b606d7526519f544503dbd5f090f6c9344b318e4"
+    },
+    {
+      "path": "tests/facet-manifest-schema.tests.sh",
+      "sha256": "71016eedbff8750e4dda232a09d02835196130961404293aee87ce8f7c958c35"
+    },
+    {
+      "path": "tests/facet-manifest-semantics.tests.ps1",
+      "sha256": "8ae04e5644ad5f7caef719ddb47f43ba659981156af6cb8b617145863e136227"
+    },
+    {
+      "path": "tests/facet-manifest-semantics.tests.sh",
+      "sha256": "0108697fe36278dd9bb2257f77405c757fb3f9680cc7e30b38ca937785149d2d"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/canonicalizer-roundtrip-valid.yaml",
+      "sha256": "8a4663d7fbda28953befbb8fad515bb2b21db222631da34196ea8702cb4da904"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/capability-minimum-enforcement-absent-valid.json",
+      "sha256": "177a89917a8f822f81a85b251640f494bdab2720992be27a5bbc37b17cb5bf8b"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/capability-minimum-enforcement-aggregate-valid.json",
+      "sha256": "fc9cc026f268af3c89bbb5e20c727b6724f1e0c335fec3abc88413c1ca7b79d0"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/capability-minimum-enforcement-invalid-value.json",
+      "sha256": "2ea77f91e0152e550086b8446006f71e7809bd4404ea984da3c52287a66afdf8"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/conditional-facet-applied-false-missing-reason.json",
+      "sha256": "0960586e7ea4df398aad1cc5c14e5c23b4d12927d573e882ab13c4952d8f4a20"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/conditional-facet-applied-false-with-reason-valid.json",
+      "sha256": "7356826731cf95deaa84cd8da8fed6a9850832c00bc7f6da5f905ace944c84af"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/conditional-facet-applied-true-valid.json",
+      "sha256": "4e07f2f42dd4daca658978336e9150c5d2cbf015b78422e2d0f8095e666f3ca1"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/conditional-facet-applied-true-with-reason.json",
+      "sha256": "aa910e7831dd1af742ab9da48f7ddcc740384b2f60dcac1339b91e8cf85d6b83"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-empty-dependency-pointers.json",
+      "sha256": "6ecc549c4310f2fde316911631a7f7943dcc8643a060667fd92849e3543f9c03"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-full-context-revision-malformed-digest.json",
+      "sha256": "43389ff23e737b8f8e9582ba90a9685c5f5fd9a42655b566d9aaf68120f2ea8c"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-malformed-digest.json",
+      "sha256": "43389ff23e737b8f8e9582ba90a9685c5f5fd9a42655b566d9aaf68120f2ea8c"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-ownership-digest-malformed-digest.json",
+      "sha256": "c030e33d46d664afc60047faf04e0e66dfd0e341466da57abb3eb1a168ef34c6"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-projection-sha256-malformed-digest.json",
+      "sha256": "058998e8a2e4da450fb853d0c8daa33dd441a5f94cf4081b987f3ff54e77116f"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-registry-digest-malformed-digest.json",
+      "sha256": "3f039a9e8354910f3c243f3fe823f16734f3b40fe9da4861a4eed3c10609b78e"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/context-binding-registry-digest-trailing-newline.json",
+      "sha256": "1696710d763396f6e2f940764fd227ef6837f6f621863ef3ec46d321637fe183"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/decision-doc-v2-section16-worked-example.json",
+      "sha256": "7356826731cf95deaa84cd8da8fed6a9850832c00bc7f6da5f905ace944c84af"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/dependency-pointer-all-roots-valid.json",
+      "sha256": "72cbd2d3d6dc923b73cb32c537cd27b7fddfa8484ad13d661f7e55c05a2925b4"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/dependency-pointer-malformed-rfc6901.json",
+      "sha256": "7d6bffe64fcc221c30a5acdc27db766006fe1cba49b7e9f83e2899bfb831991f"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/dependency-pointer-root-not-allowlisted.json",
+      "sha256": "050ece2dd6b72c991d399ed581c2ae12f24ac757632a3cd9cb7764c482514151"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/duplicate-affected-components.json",
+      "sha256": "3368646cafe9a90be3e0a5c57ea6bf63a815c789be778f8ee019de01e8da9313"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/duplicate-capabilities.json",
+      "sha256": "e5586f15bf2b700591ec6f52af140696786918cb5a22f368e17d2f4739f49330"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/duplicate-required-facets.json",
+      "sha256": "e3b91b12ceec6f4e94df584b6df27ec4f159bf65c7be9ecf300cfb43818f0cc7"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/empty-arrays-valid.json",
+      "sha256": "6f90a1bd2f7a26a6f1dc5824f242289c8fcbb55e985b9f7ba4701cfc48da2c7b"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/evidence-invalid-operator.json",
+      "sha256": "8f6246ee4fc6a0afdbfe4348cf536c6f7221a00fc051723b7dbdf4ae814710b3"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/evidence-warn-missing-reason.json",
+      "sha256": "fc824693b0c9407f6a4beeaa98c3c9e51132701d1e278b6f91e993534081edfe"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/evidence-warn-with-reason-valid.json",
+      "sha256": "e8b604af2f5e0acad4e91e51df9d7d8f652853db70059d949b03ddda482519d3"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/lite-eligibility-empty-upgrade-reasons-valid.json",
+      "sha256": "ef3e40f3e772d673dc72b624489630e7431dfeb30d56d63aa6641f1e04dbcc9d"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/lite-eligibility-missing-upgrade-reasons.json",
+      "sha256": "ba4b14bd1a3d3b6b53274c1861de466ffe9c9b7c79111868ecbee90cd0550bae"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-affected-components.json",
+      "sha256": "2ca0255c20c22afb97e00c535c29a59afa0cd893425f1b9761ea1f62249faec4"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-capabilities.json",
+      "sha256": "16a066483cd39ed3c3307daf0ab13f70eb41e80939db7c73c417929caa16937c"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-conditional-facets.json",
+      "sha256": "0c89ac5fbb380dcae45e86dcdbc10f96c989f6dd64abea11520832643dbbd7ad"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-context-binding.json",
+      "sha256": "c3e99df9235cf3d090ca81f3092e0d93b0100ecd52de335cdec960367e409275"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-feature.json",
+      "sha256": "6444bece8062289ea1380e3ab5186714fa23761ec3525c06c21f1e0f008b38e2"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-lite-eligibility.json",
+      "sha256": "0f41e092890798b0396790f2ed24653cc59c4849d2f83f05a8439c38ffd8a63b"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-required-facets.json",
+      "sha256": "41b45e17a5ac118dde8c1017234982d47ef6a9f48dab008543c323ad971e31b2"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-resolved-gates.json",
+      "sha256": "d1de2b9b2c08190a4b323511007172b65d9e32b981921a8cef7a608f04df8a66"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-resolver.json",
+      "sha256": "675a8be613f412e25095a966b8d1718495f9cf4f2aa85cdffe06c56a910b24fd"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/required-missing-schema.json",
+      "sha256": "a2884cf56850103778b353163c1cbb749693fe68132378be60de3bcdfd82651e"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolved-gate-invalid-stage.json",
+      "sha256": "b4d3a0ea24f05bc21d08c90f166e383ebce34212b49c81cd1dac7c10fc94804c"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolved-gate-missing-blocking.json",
+      "sha256": "2147c4a6cbacbf953e72688b077c4ab668a3cbe19729957adf0dc548561bb086"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolved-gate-missing-id.json",
+      "sha256": "273c329f58b9a4f7c53c758436029561926f6cb06eafeb4cc71086512de75644"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolved-gate-missing-stage.json",
+      "sha256": "6a6a768eb4212dbe98ad6ae2715748a689fa2a06637723a127cc5dcfc2135d71"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolved-gate-valid-multi.json",
+      "sha256": "5c6c84b618fd559ffb69368894d9472ab38007dc561613f265ba73efb5e46cc7"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolver-malformed-semver.json",
+      "sha256": "4d57f129626b0a9f82266caec0ddf36c367ba0d565881e85222acdbdc314c997"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolver-valid-semver.json",
+      "sha256": "5aa74d325636eba8919158c48f4b9a23ea643d86a2de42b1a00db603c572dd4e"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/resolver-version-trailing-newline.json",
+      "sha256": "89cad22f5fee5c002c4bcea9e5d147e1412d6168f9403f39f868360e9abd252e"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/upgrade-reasons-duplicate.json",
+      "sha256": "346ec8e13008d6aeae905c64cbf9fb36e4f8fbd3afe9f500cbd2da411a6a9377"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/schema/valid-base.json",
+      "sha256": "7356826731cf95deaa84cd8da8fed6a9850832c00bc7f6da5f905ace944c84af"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/affected-components-not-sorted.json",
+      "sha256": "ad1d14e63d219ffb8ff4dc97826eaf6aa206df71afab8ab4e2927686b90fa9c4"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/capabilities-not-sorted.json",
+      "sha256": "90dd0a8363d294fc9893f2e099579ad496ee36924040498685a0df25b9e02c06"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/conditional-facet-duplicate.json",
+      "sha256": "4c773d998810ca2dfec9f6315332d06f42e7d02070914de028ef198e3d07c4c8"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/conditional-facets-not-sorted.json",
+      "sha256": "21043f972fc8aae31e7527a78798ae2efe199e04da9529c203763ca87de61371"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/facet-classification-conflict.json",
+      "sha256": "267cff660db3daa07cf766c1005dfb9e635fe5c5417de180545d764afe3fc6b6"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/fully-clean.json",
+      "sha256": "7356826731cf95deaa84cd8da8fed6a9850832c00bc7f6da5f905ace944c84af"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/multi-diagnostic-ordering.json",
+      "sha256": "452978141db53811801410fb8b45e22647db7a3cb1a02ffafa4ce5ffd36640b5"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/required-facets-not-sorted.json",
+      "sha256": "420324c93012d1fc70db67b805d1e5903771c91377cd168d2f8c20e6288e3f32"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/resolved-gate-id-duplicate.json",
+      "sha256": "5aaa831596bb1cf2e9b7b19929cb86b7ac988d7665fa149eb52e03761acae356"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/resolved-gates-not-sorted.json",
+      "sha256": "1d7869f916005375161f5109138fbe20162ceae9624ea6c2bb80cf283ebd253f"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/schema-invalid.json",
+      "sha256": "d11a05e9542fdc5dac894f81f81be855b0aada90a5703d3d03cb4f1dc3907e17"
+    },
+    {
+      "path": "tests/fixtures/facet-manifest/semantics/upgrade-reasons-not-sorted.json",
+      "sha256": "982666ab7dcab961abdeeb49e357c65ae90fb8c3bc424287dae9305855b92783"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "66e1e46d56a576124b9c19ebd5fdb9c8a57daced76b821ed273e3f9bc1f26825"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "9e9940614a202fe72b03df000b36b0169174a33f8a5f004993102f5bb493fbc8"
+    }
+  ]
+}

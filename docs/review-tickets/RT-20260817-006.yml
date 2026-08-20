@@ -1,0 +1,54 @@
+ticket_id: RT-20260817-006
+status: open
+type: test-gap
+severity: minor
+target:
+  feature: epic-192-a4-facet-manifest
+  task: T-005
+  files:
+    - tests/facet-manifest-parity.tests.ps1
+    - tests/facet-manifest-parity.tests.sh
+    - reports/implementation/epic-192-a4-facet-manifest/T-005.md
+summary: "T-005 QG (seq0764, PASS) の非ブロッキング Minor 4 件"
+problem: |
+  seq0764 の quality-gate evaluator（VERDICT: PASS、Critical 0 / Major 0）が
+  検出した Accepted Minor 4 件の記録。いずれも Done 判定を妨げない。
+
+  (1) reports/.../T-005.md の Quality Gate Focus 6 が
+  `grep -n 'Start-Process' tests/facet-manifest-parity.tests.ps1` は
+  「何も見つからないはず」と書いているが、実際は 4 行ヒットする
+  （11/12/17/66、いずれもコメント行）。実行コードに Start-Process は
+  皆無なので欠陥ではないが、後続レビュアーが誤検知する記述。
+
+  (2) tests/facet-manifest-parity.tests.ps1:335 の
+  `Assert-InstalledVerdict` が末尾改行を正規化するため、TEST-032 では
+  installed wrapper の末尾 CRLF が許容される。bash twin の `$(cat)` は
+  CR を残すため fail し、twin 間に微小な非対称が残る。同じ 4 wrapper を
+  TEST-031 の全バイト no-CR アサーションが厳格に覆っているため現状は
+  非ブロッキングだが、将来 TEST-031 を縮小すると盲点に転じる。
+
+  (3) provider-neutrality のマスク正規表現 `key\s*=\s*lambda\b` に先頭
+  `\b` が無いため `monkey=lambda` もマスクされる。極小の over-mask 窓で、
+  引用符付き `"lambda"`・大文字 `KEY`・コメント併記はすべて検出される
+  ことを evaluator が敵対的プローブで実証済み。
+
+  (4) `Invoke-RawProcess` が `$proc` と 2 つの MemoryStream を Dispose
+  しない（1 実行あたり約 390 プロセスオブジェクト）。3 回の実行で観測可能な
+  影響なし（GC 回収）。
+
+  あわせて運用上の注意（evaluator の残存リスク 4）: parity スイートは
+  1 回の実行で約 390 の子プロセスを起動する。run-all は逐次実行なので
+  通常は問題ないが、CI で sh/ps1 twin を**並列**実行すると pwsh の共有
+  スタートアップキャッシュ破損（本セッションで実測、exit 134）を誘発
+  しうる。staged workflow は逐次ステップなので現状は安全。
+expected_fix:
+  - "実装レポートの grep 指示を「実行コードに Start-Process が無いこと（ヒットはコメントのみ）」に訂正する"
+  - "Assert-InstalledVerdict の末尾改行正規化をやめ、TEST-031 と同じ厳格なバイト比較に揃える"
+  - "マスク正規表現に先頭 \\b を追加する"
+  - "Invoke-RawProcess に try/finally の Dispose を追加する"
+  - "CI で parity スイートの sh/ps1 twin を並列実行しないという制約を staged workflow のコメントに明記する"
+references:
+  - "RUN-epic-192-a4-facet-manifest-qg-T-005-seq0764 evaluator NEW findings"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 2

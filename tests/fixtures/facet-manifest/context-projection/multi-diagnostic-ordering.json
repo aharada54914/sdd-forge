@@ -1,0 +1,11 @@
+{
+  "schema": "sdd-facet-manifest/v1",
+  "source_sha256": "sha256:8684d22e1a0780c3d5fcd54195ec7a493ba415263f279725bf94431723965b1c",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "facet-native",
+    "capability_enforcement": "optional"
+  },
+  "components": {},
+  "shared_paths": []
+}
