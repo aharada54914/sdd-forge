@@ -106,6 +106,104 @@
   本タスクの Planned Files 外である `resolve-project-context.py` を
   編集しない限り TEST-056 を可決させることができない、構造的な未解消
   Done-When 項目として実装レポートに記録。
+### Added
+
+- **Facet Manifest schema と validator (Issue #192,
+  epic-192-a4-facet-manifest T-001)**: `contracts/facet-manifest.schema.json`
+  (draft-07、vendored copy を `plugins/sdd-quality-loop/contracts/` に同梱)
+  と手書き draft-07 部分エンジンの `validate-facet-manifest.{py,sh,ps1}`
+  を追加。schema conformance と semantic checks の 2 スイート
+  (`tests/facet-manifest-{schema,semantics}.tests.{sh,ps1}`、fixture 60 件)
+  を `tests/run-all.{sh,ps1}` に登録し、公式 draft-07 メタスキーマ検証と
+  jsonschema 4.26.0 クロス検証で相違なしを記録。CI ステップ候補は
+  `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
+  として staged 済みで `MANIFEST.sha256` に hash 束縛されている。
+- **Capability Summary schema と validator (Issue #192,
+  epic-192-a4-facet-manifest T-002)**: `contracts/capability-summary.
+  schema.json` (draft-07、Lite トラック専用の 6 フィールドのみ、vendored
+  copy を `plugins/sdd-quality-loop/contracts/` に同梱) と、T-001 の
+  手書き draft-07 部分エンジンを踏襲した
+  `validate-capability-summary.{py,sh,ps1}`（schema conformance のみ、
+  semantic check なし）を追加。1 スイート
+  (`tests/capability-summary-schema.tests.{sh,ps1}`、fixture 13 件、
+  22/22 assertion 両ランタイム一致)を `tests/run-all.{sh,ps1}` に登録し、
+  公式 draft-07 メタスキーマ検証と jsonschema 4.26.0 クロス検証を記録。CI
+  ステップ候補は T-001 の staged candidate に追記し、
+  `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
+  hash に更新した。
+- **Context Projection schema と validator (Issue #192,
+  epic-192-a4-facet-manifest T-003)**: `contracts/context-projection.
+  schema.json` (draft-07、`components` の再キー化形状 (`propertyNames`+
+  schema-typed `additionalProperties`)・`shared_paths[]` の bounded/
+  unbounded `oneOf` 分岐を固定、vendored copy を
+  `plugins/sdd-quality-loop/contracts/` に同梱) と、T-001/T-002 の
+  手書き draft-07 部分エンジンを踏襲した
+  `validate-context-projection.{py,sh,ps1}`（schema conformance のみ、
+  YAML/canonicalizer subprocess なし — 対象は既に JSON の
+  `project-context.resolved.json`）を追加。1 スイート
+  (`tests/context-projection-schema.tests.{sh,ps1}`、fixture 24 件、
+  35/35 assertion 両ランタイム一致)を `tests/run-all.{sh,ps1}` に登録し、
+  公式 draft-07 メタスキーマ検証と jsonschema 4.26.0 クロス検証を記録。CI
+  ステップ候補は T-002 の staged candidate に追記し、
+  `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
+  hash に更新した。
+- **Facet Manifest staleness comparator (Issue #192,
+  epic-192-a4-facet-manifest T-004)**:
+  `compare-facet-manifest-staleness.{py,sh,ps1}` を追加 — REQ-004 の
+  Policy-Weakening fail-closed 契約（`--projection-weakening`/
+  `--registry-weakening`/`--ownership-weakening` の 3 フラグは省略不可の
+  必須三値入力、省略は `indeterminate` の代替表現ではなく引数エラー
+  exit 3）と REQ-005 の 3 段階 `resolver.version` ポリシー（patch/minor/
+  major、同一バージョンでの `rule_set_revision` 変更用に独立した
+  `minor-rule-set` 入力）を design.md の 5 分岐優先順位表通りに実装。
+  `<status>:<reason>` を stdout に一行、exit 0/1/2 は fresh/stale/blocked
+  に固定マップ、引数・schema-invalid・resolver-version-bump 不整合は
+  stderr のみへの exit 3 診断で分離。`validate-facet-manifest.py` の
+  schema-conformance チェックを同ディレクトリ import で再利用し、両
+  `--old-manifest`/`--new-manifest` を比較前に検証。この import は遅延・
+  例外包囲されており、sibling validator が欠落・破損している場合は
+  `validator-import-failed` を stderr へ 1 行出して exit 3 で閉じる
+  （exit 1 = `stale` 判定として偽装しない）。1 スイート
+  (`tests/facet-manifest-staleness.tests.{sh,ps1}`、fixture 24 件、
+  48/48 assertion 両ランタイム完全一致)を `tests/run-all.{sh,ps1}` に
+  登録。CI ステップ候補は T-003 の staged candidate に追記し、
+  `specs/epic-192-a4-facet-manifest/human-copy/MANIFEST.sha256` を新しい
+  hash に更新した。
+- **Vendored-copy drift ゲート拡張 + cross-script parity suite (Issue #192,
+  epic-192-a4-facet-manifest T-005、FINAL)**: Epic A2 の
+  `vendor-capability-registry.py --check`（実在確認済みの既存 `--check`
+  機構）を `facet-manifest.schema.json`/`capability-summary.schema.json`/
+  `context-projection.schema.json` の 3 ファイルへ追加のみで拡張（新規
+  スクリプトは作成せず）。`tests/facet-manifest-parity.tests.{sh,ps1}`
+  を新設し、T-001〜T-004 の 4 スクリプト全ての `.py`/`.sh`/`.ps1` 呼び出し
+  を suites 1-5 の全 fixture（Windows 形式のバックスラッシュパス引数と
+  `compare-facet-manifest-staleness` 自身の exit-3 stderr チャンネルを
+  含む）に対して実行し、stdout/stderr/exit code の byte-identical parity
+  を検証。4 スクリプト×3 ランタイムのインストール済みレイアウト discovery
+  fixture（vendored copy のみ・monorepo `contracts/` なし・到達可能な
+  `.git` なし）、Epic A2 の provider-neutrality allowlist に対する 3
+  schema + 12 スクリプトファイル（4 スクリプト×`.py`/`.sh`/`.ps1`）の
+  スキャン（clean/dirty/lambda-dirty fixture 付き）も実装。1 スイート
+  (329/329 assertion 両ランタイム完全一致) を `tests/run-all.{sh,ps1}` に
+  登録し、この feature の 6 スイート全てを網羅する FINAL な CI ステップ
+  候補を
+  `specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
+  として staged し、`MANIFEST.sha256`/`APPLY-INSTRUCTIONS.md` を更新した。
+  併せて、T-001〜T-004 の quality-gate 教訓として
+  `validate-facet-manifest.py`/`validate-capability-summary.py` の
+  非 UTF-8 入力時の未捕捉トレースバック（`except (OSError,
+  json.JSONDecodeError)` を `except (OSError, ValueError)` へ）と、
+  `compare-facet-manifest-staleness.py` の sibling-import ガードが
+  `SystemExit` を捕捉していなかった欠陥（`except Exception` を
+  `except (Exception, SystemExit)` へ）を修正し、各修正に回帰テストを
+  追加した。**seq0763 quality-gate 是正（同日）**: `.ps1` twin の
+  `Start-Process -RedirectStandardOutput/-RedirectStandardError` が CRLF を
+  LF へ無音正規化する欠陥（Critical）を発見し、`System.Diagnostics.Process`
+  + `BaseStream.CopyToAsync` によるバイト捕捉へ全面書き換え、明示的な
+  「CR バイト非含有」アサーションを新設。provider-neutrality スキャンの
+  `lambda` 語まるごと除外が実際の汚染を見逃す欠陥（Major）を発見し、
+  `key=lambda` イディオムのみをマスクする方式へ修正。fixture 件数の
+  非空虚性ガード・RED 証跡 3 分岐化も追加し、329/329 へ拡大した。
 
 ### Fixed
 

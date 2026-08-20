@@ -1,0 +1,162 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-192-a4-facet-manifest",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "7cbe47e076682ac0003063025642e1cb70af4981134b856c794aea77932875aa",
+  "created": "2026-08-17T00:25:00Z",
+  "comment": "Default-FAIL verification contract for T-001 (high, tdd). Required set per risk-gate-matrix.md tier high. Created at gate time by the 2026-08-17 quality-gate run (Run ID a4-t001-qg-2026-08-17); every check started at passes=false and was flipped only after the named command ran in this gate session and its output was saved to specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log. Gate cycle 1 applied one safe fix per auto-fix-policy (comment-only docstring rewording in validate-facet-manifest.py to clear a check-placeholders case-insensitive-pattern false positive on the phrase 'not implemented'); both focused suites re-ran green after the fix and the placeholder scan passed. Stack 'shell' waives lint/typecheck/build: this repository ships Python, shell, PowerShell and JS deliverables with no compile toolchain, no configured linter and no static type-checker; parse validity is exercised by every green run of both runtimes of both suites. The check-component-coverage tier-minimum id is recorded present but not required: check-contract.py drops it from the high/critical minimum while sdd/project-context.yaml is absent (CAPABILITY_STATE_GATED_IDS) and that file does not exist in this repository, so the gate derives disabled-legacy and exits 0 unconditionally; a passes:true entry would be fabricated. TDD Red/Green: the RED log (red-sh.log) was captured by the Attempt-1 implementation run before the validator existed in final form; the GREEN evidence is both the Attempt-1 green-sh.log and this gate's own independent re-execution recorded in gate-20260817-checks.log (bash 43/0 + 13/0, pwsh 43/0 + 13/0, exit 0 each). TEST-002's YAML round-trip runs through the real canonicalize-sdd-yaml subprocess, present in this tree since the 0ae1ef49 origin/main merge.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured for this repository's Python/shell/PowerShell/JS deliverables (stack: shell). Parse validity is exercised implicitly by every green run of both runtimes of both facet-manifest suites, re-confirmed at gate time.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository's Python/shell/PowerShell/JS deliverables (stack: shell).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007", "REQ-008"],
+      "red_evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface. This task's deliverables are a JSON Schema contract file, local CLI validator scripts and their shell/PowerShell twins, test suites and fixture trees, all operating only on local repository files. The one subprocess boundary (canonicalize-sdd-yaml) is exercised end-to-end by TEST-002's YAML round-trip inside the acceptance suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007", "REQ-008"],
+      "red_evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007", "REQ-008"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "reports/quality-gate/epic-192-a4-facet-manifest/T-001.md",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007", "REQ-008"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "check-component-coverage",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Tier-minimum id gated off by check-contract.py's CAPABILITY_STATE_GATED_IDS: sdd/project-context.yaml does not exist in this repository, so check-component-coverage derives disabled-legacy, evaluates zero Fail conditions and exits 0 unconditionally (run and recorded in gate-20260817-checks.log). Requiring a passes:true entry for a structurally inert gate would be a fabricated pass, so the id is recorded present and not required, per the predicate's own documented rationale.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile or build toolchain exists for this repository's Python/shell/PowerShell/JS deliverables (stack: shell).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007", "REQ-008"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-192-a4-facet-manifest/verification/T-001/gate-20260817-checks.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007", "REQ-008"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application, UI or service. The deliverables are a schema contract, CLI validator entry points and test suites, fully exercised by the focused suite runs recorded in the gate-time checks log.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; T-001 is net-new authoring with no prior version (tasks.md Data Migration: none).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are schema, script, test, fixture, CHANGELOG and human-copy staging files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
