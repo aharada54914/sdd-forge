@@ -64,6 +64,21 @@ assert_contains "TEST-019-static-i: ship-time recheck stays layered, not replace
 assert_contains "TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching" "Predicate-DSL/Registry-matching"
 
 # ---------------------------------------------------------------------------
+# (a2) "Attempted and failed" producer-side rule (panelist Critical finding,
+# cross-model verdict T-003.panelist-anthropic.verdict.json): a Project
+# Context that exists but whose Capability evaluation cannot be completed
+# must Block, not silently fall through to the one-argument, keyword-only
+# call -- the only legitimate degrade is the second argument's own total
+# absence (disabled-legacy). Each failure mode this rule names, plus the
+# required outcome, gets its own assertion.
+# ---------------------------------------------------------------------------
+assert_contains "TEST-019-static-k: names evaluate-predicate absence/non-zero exit as a producer failure mode" "absent or exits non-zero"
+assert_contains "TEST-019-static-l: names an unreadable/unparseable Registry as a producer failure mode" "Registry is unreadable or fails to parse"
+assert_contains "TEST-019-static-m: names a temp-fragment write failure as a producer failure mode" "writing the temp fragment fails"
+assert_contains "TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs" "Block immediately, before"
+assert_contains "TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted" "never a silent degrade"
+
+# ---------------------------------------------------------------------------
 # (b) Functional: assemble a synthetic trigger fragment the way the new
 # Step 2 documents (a matched, ineligible Capability, from a synthetic
 # Registry + Project Context -- NOT a real evaluate-predicate call, which
@@ -134,20 +149,66 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Companion fixture (defense-in-depth): confirm the ship-time recheck's own
-# live skill file is untouched by this task -- the second, independent
-# stage remains exactly as it was, not modified or removed by this
-# extension.
+# Companion fixture (defense-in-depth, design.md Test Strategy item 6,
+# panelist Major finding): the OLD version of this companion only grepped
+# ship/SKILL.md for the string "check-risk-upgrade" -- true whether or not
+# T-003 ever existed, so it discriminated nothing. This version *executes*
+# both independent gate positions for a component the intake-time
+# Capability-derived evaluation did NOT flag, and separately proves the
+# fixture is actually coupled to the proposed SKILL.md text (not a
+# tautology) by requiring its own precondition to hold.
 # ---------------------------------------------------------------------------
-echo "=== TEST-019-defense-in-depth: ship-time recheck skill is untouched ==="
+echo "=== TEST-019-defense-in-depth: ship-time recheck independently Blocks a component intake's Capability-derived evaluation did not flag ==="
+
+if grep -qF -- '--capability-reasons <fragment-path>' "${SKILL_PROPOSED}"; then
+  ok "TEST-019-defense-in-depth-a: proposed SKILL.md documents the intake-time --capability-reasons contract this fixture drives"
+else
+  fail "TEST-019-defense-in-depth-a: proposed SKILL.md no longer documents --capability-reasons; the property below cannot be exercised"
+fi
+
+# Component "payment-service": its matched Capability is eligible:true, so
+# per the documented assembly rule ("Assemble every matched Capability whose
+# own lite_policy.eligible is false") it is excluded from the fragment
+# entirely -- the intake-time Capability-derived evaluation does not flag it.
+cat > "${WORK}/di-fragment.json" <<'JSON'
+{"capabilities": [
+  {"id": "payment-processing-svc", "eligible": true, "upgrade_reasons": []}
+]}
+JSON
+printf 'a clean internal requirement body with no keyword trigger at all.\n' > "${WORK}/di-intake-source.txt"
+
+DI_INTAKE_OUT=""
+DI_INTAKE_EXIT=0
+DI_INTAKE_OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/di-intake-source.txt" --capability-reasons "${WORK}/di-fragment.json" 2>&1)" || DI_INTAKE_EXIT=$?
+if [ "${DI_INTAKE_EXIT}" -eq 0 ]; then
+  ok "TEST-019-defense-in-depth-b: intake-time evaluation does not flag the eligible:true component (exit 0, lite-eligible)"
+else
+  fail "TEST-019-defense-in-depth-b: expected intake to pass with exit 0, got ${DI_INTAKE_EXIT}. Output: ${DI_INTAKE_OUT}"
+fi
+
+# Ship-time recheck: independent invocation, single argument only -- exactly
+# ship/SKILL.md's own unmodified command (still just check-risk-upgrade with
+# no --capability-reasons at all, per its own live text) -- against a
+# task-block+requirements body that DOES carry an unrelated keyword trigger
+# for the same component.
+printf 'the payment-service task rotates a secret used by the settlement worker.\n' > "${WORK}/di-ship-source.txt"
+DI_SHIP_OUT=""
+DI_SHIP_EXIT=0
+DI_SHIP_OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/di-ship-source.txt" 2>&1)" || DI_SHIP_EXIT=$?
+if [ "${DI_SHIP_EXIT}" -eq 10 ]; then
+  ok "TEST-019-defense-in-depth-c: ship-time recheck independently Blocks (exit 10) even though intake's Capability-derived evaluation did not flag this component"
+else
+  fail "TEST-019-defense-in-depth-c: expected ship-time recheck to Block with exit 10, got ${DI_SHIP_EXIT}. Output: ${DI_SHIP_OUT}"
+fi
+
 if [ -f "${LIVE_SHIP_SKILL}" ]; then
   if grep -q "check-risk-upgrade" "${LIVE_SHIP_SKILL}"; then
-    ok "TEST-019-defense-in-depth: ship/SKILL.md still independently invokes check-risk-upgrade at ship time"
+    ok "TEST-019-defense-in-depth-d: ship/SKILL.md still independently invokes check-risk-upgrade at ship time"
   else
-    fail "TEST-019-defense-in-depth: ship/SKILL.md no longer mentions check-risk-upgrade -- the independent second stage may have been lost"
+    fail "TEST-019-defense-in-depth-d: ship/SKILL.md no longer mentions check-risk-upgrade -- the independent second stage may have been lost"
   fi
 else
-  fail "TEST-019-defense-in-depth: ship/SKILL.md not found at expected path"
+  fail "TEST-019-defense-in-depth-d: ship/SKILL.md not found at expected path"
 fi
 
 echo ""

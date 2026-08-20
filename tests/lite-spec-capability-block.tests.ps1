@@ -38,6 +38,21 @@ Assert-Contains 'TEST-019-static-h: the dedicated fragment-invalid exit-2 diagno
 Assert-Contains 'TEST-019-static-i: ship-time recheck stays layered, not replaced' 'layered with, not a substitute for'
 Assert-Contains 'TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching' 'Predicate-DSL/Registry-matching'
 
+# ---------------------------------------------------------------------------
+# "Attempted and failed" producer-side rule (panelist Critical finding,
+# cross-model verdict T-003.panelist-anthropic.verdict.json): a Project
+# Context that exists but whose Capability evaluation cannot be completed
+# must Block, not silently fall through to the one-argument, keyword-only
+# call -- the only legitimate degrade is the second argument's own total
+# absence (disabled-legacy). Each failure mode this rule names, plus the
+# required outcome, gets its own assertion.
+# ---------------------------------------------------------------------------
+Assert-Contains 'TEST-019-static-k: names evaluate-predicate absence/non-zero exit as a producer failure mode' 'absent or exits non-zero'
+Assert-Contains 'TEST-019-static-l: names an unreadable/unparseable Registry as a producer failure mode' 'Registry is unreadable or fails to parse'
+Assert-Contains 'TEST-019-static-m: names a temp-fragment write failure as a producer failure mode' 'writing the temp fragment fails'
+Assert-Contains 'TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs' 'Block immediately, before'
+Assert-Contains 'TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted' 'never a silent degrade'
+
 Write-Host '=== TEST-019-functional: assembled Capability-derived fragment Blocks ==='
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t003-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
@@ -72,12 +87,74 @@ try {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
-Write-Host '=== TEST-019-defense-in-depth: ship-time recheck skill is untouched ==='
+# ---------------------------------------------------------------------------
+# Companion fixture (defense-in-depth, design.md Test Strategy item 6,
+# panelist Major finding): the OLD version of this companion only grepped
+# ship/SKILL.md for the string "check-risk-upgrade" -- true whether or not
+# T-003 ever existed, so it discriminated nothing. This version *executes*
+# both independent gate positions for a component the intake-time
+# Capability-derived evaluation did NOT flag, and separately proves the
+# fixture is actually coupled to the proposed SKILL.md text (not a
+# tautology) by requiring its own precondition to hold.
+# ---------------------------------------------------------------------------
+Write-Host '=== TEST-019-defense-in-depth: ship-time recheck independently Blocks a component intake did not flag ==='
+
+if ($SkillContent.Contains('--capability-reasons <fragment-path>')) {
+    Ok 'TEST-019-defense-in-depth-a: proposed SKILL.md documents the intake-time --capability-reasons contract this fixture drives'
+} else {
+    Bad 'TEST-019-defense-in-depth-a: proposed SKILL.md no longer documents --capability-reasons; the property below cannot be exercised'
+}
+
+$DiWork = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t003-di-' + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $DiWork -Force | Out-Null
+$DiWork = (Resolve-Path -LiteralPath $DiWork).Path
+
+try {
+    # Component "payment-service": its matched Capability is eligible:$true,
+    # so per the documented assembly rule ("Assemble every matched Capability
+    # whose own lite_policy.eligible is false") it is excluded from the
+    # fragment entirely -- the intake-time Capability-derived evaluation does
+    # not flag it.
+    $diFragment = [pscustomobject]@{
+        capabilities = @(
+            [pscustomobject]@{ id = 'payment-processing-svc'; eligible = $true; upgrade_reasons = @() }
+        )
+    } | ConvertTo-Json -Depth 5
+    Set-Content -LiteralPath (Join-Path $DiWork 'di-fragment.json') -Value $diFragment -NoNewline
+    Set-Content -LiteralPath (Join-Path $DiWork 'di-intake-source.txt') -Value 'a clean internal requirement body with no keyword trigger at all.' -NoNewline
+
+    $intakeOutput = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $DiWork 'di-intake-source.txt') -CapabilityReasons (Join-Path $DiWork 'di-fragment.json') 2>&1
+    $intakeExit = $LASTEXITCODE
+    $intakeJoined = ($intakeOutput -join "`n")
+    if ($intakeExit -eq 0) {
+        Ok 'TEST-019-defense-in-depth-b: intake-time evaluation does not flag the eligible:true component (exit 0, lite-eligible)'
+    } else {
+        Bad "TEST-019-defense-in-depth-b: expected intake to pass with exit 0, got $intakeExit. Output: $intakeJoined"
+    }
+
+    # Ship-time recheck: independent invocation, single argument only --
+    # exactly ship/SKILL.md's own unmodified command (still just
+    # check-risk-upgrade with no -CapabilityReasons at all, per its own live
+    # text) -- against a task-block+requirements body that DOES carry an
+    # unrelated keyword trigger for the same component.
+    Set-Content -LiteralPath (Join-Path $DiWork 'di-ship-source.txt') -Value 'the payment-service task rotates a secret used by the settlement worker.' -NoNewline
+    $shipOutput = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $DiWork 'di-ship-source.txt') 2>&1
+    $shipExit = $LASTEXITCODE
+    $shipJoined = ($shipOutput -join "`n")
+    if ($shipExit -eq 10) {
+        Ok 'TEST-019-defense-in-depth-c: ship-time recheck independently Blocks (exit 10) even though intake did not flag this component'
+    } else {
+        Bad "TEST-019-defense-in-depth-c: expected ship-time recheck to Block with exit 10, got $shipExit. Output: $shipJoined"
+    }
+} finally {
+    if (Test-Path -LiteralPath $DiWork) { Remove-Item -LiteralPath $DiWork -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
 if (Test-Path -LiteralPath $LiveShipSkill -PathType Leaf) {
     $shipContent = Get-Content -LiteralPath $LiveShipSkill -Raw
-    if ($shipContent.Contains('check-risk-upgrade')) { Ok 'TEST-019-defense-in-depth: ship/SKILL.md still independently invokes check-risk-upgrade at ship time' } else { Bad 'TEST-019-defense-in-depth: ship/SKILL.md no longer mentions check-risk-upgrade' }
+    if ($shipContent.Contains('check-risk-upgrade')) { Ok 'TEST-019-defense-in-depth-d: ship/SKILL.md still independently invokes check-risk-upgrade at ship time' } else { Bad 'TEST-019-defense-in-depth-d: ship/SKILL.md no longer mentions check-risk-upgrade' }
 } else {
-    Bad 'TEST-019-defense-in-depth: ship/SKILL.md not found at expected path'
+    Bad 'TEST-019-defense-in-depth-d: ship/SKILL.md not found at expected path'
 }
 
 Write-Host ''

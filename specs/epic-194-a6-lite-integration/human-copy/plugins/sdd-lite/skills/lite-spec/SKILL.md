@@ -57,6 +57,20 @@ Write this fragment to a local temp path. If no Project Context exists at all
 checker below runs with its first argument only, exactly as before this
 extension.
 
+If a Project Context does exist, the caller has attempted to supply a
+Capability-derived signal, and that attempt fails -- `evaluate-predicate` is
+absent or exits non-zero, the Registry is unreadable or fails to parse as
+valid JSON, or writing the temp fragment fails -- do not fall through to the
+one-argument, keyword-only invocation. An attempt that fails must never be
+silently treated as one that never attempted to. Block immediately, before
+the checker below is ever run: stop before any lite artifact write, tell the
+user the Capability-derived signal could not be produced, and direct them to
+`/sdd-bootstrap:sdd-bootstrap-interviewer`. The second argument's own total
+absence (disabled-legacy, above -- a Project Context that does not exist at
+all) is the only condition that legitimately falls through to the
+one-argument call; every failure encountered once a Project Context is
+confirmed to exist is a Block, never a silent degrade.
+
 Run the platform-local checker against the resolved source file, passing the
 fragment path (when one was produced) as the second argument:
 
