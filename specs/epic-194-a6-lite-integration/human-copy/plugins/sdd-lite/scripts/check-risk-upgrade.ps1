@@ -4,7 +4,17 @@ param(
     [AllowEmptyString()]
     [string]$Path,
 
-    [Parameter(Position = 1)]
+    # NOT positional (no Position attribute) -- deliberately named-only,
+    # matching design.md API/Contract Plan's own documented CLI surface
+    # `check-risk-upgrade.ps1 -Path <source-path> [-CapabilityReasons
+    # <fragment-path>]`. `check-risk-upgrade.ps1 <src> <frag>` (two bare
+    # positional arguments, no flag) must not silently bind <frag> to this
+    # parameter -- the sh twin has no positional form for
+    # --capability-reasons either (its own `case "$#"` only recognizes 1
+    # or 3 args; a bare 2-arg call falls into the `*)` default arm and
+    # exits 2), so a positional CapabilityReasons would let the two
+    # runtimes disagree on an identical-arity invocation (cross-model
+    # panelist finding, T-002 remediation).
     [AllowNull()]
     [string]$CapabilityReasons
 )
@@ -47,6 +57,20 @@ function Test-BoundedMatch([string]$Value, [string]$Expression) {
     return [regex]::IsMatch($Value, '(^|[^a-z0-9_])(?:' + $Expression + ')(?=$|[^a-z0-9_])')
 }
 
+function Test-PythonFalsy($Value) {
+    # ps1 twin of sh's `entry.get("upgrade_reasons") or []` -- Python
+    # falsiness for the JSON scalar/array types ConvertFrom-Json can
+    # produce, so a falsy-but-present upgrade_reasons value (0, "", false,
+    # an empty array) is treated as absent on BOTH runtimes, and only a
+    # truthy non-array value falls through to the array-type Block.
+    if ($null -eq $Value) { return $true }
+    if ($Value -is [bool]) { return -not $Value }
+    if ($Value -is [string]) { return $Value.Length -eq 0 }
+    if ($Value -is [array]) { return $Value.Count -eq 0 }
+    if ($Value -is [int] -or $Value -is [long] -or $Value -is [double] -or $Value -is [decimal]) { return $Value -eq 0 }
+    return $false
+}
+
 try {
     if ($null -eq $Path -or $Path.Length -eq 0) {
         Write-InputUnavailable
@@ -82,8 +106,15 @@ $rules = @(
 $keywordTriggers = @($rules | Where-Object { Test-BoundedMatch $normalized $_.Expression } | ForEach-Object { $_.Id })
 
 $capabilityTriggers = @()
-if ($PSBoundParameters.ContainsKey('CapabilityReasons') -and -not [string]::IsNullOrEmpty($CapabilityReasons)) {
+# Presence of the parameter is what decides, not its emptiness --
+# -CapabilityReasons '' is SUPPLIED (matches bash's argc-based
+# capability_reasons_supplied=1 for `--capability-reasons ''`), not
+# omitted. requirements.md Security Boundaries: the only condition that
+# legitimately degrades is the second argument's own total absence
+# (cross-model panelist finding, T-002 remediation).
+if ($PSBoundParameters.ContainsKey('CapabilityReasons')) {
     try {
+        if ($null -eq $CapabilityReasons -or $CapabilityReasons.Length -eq 0) { Write-FragmentInvalid }
         if (-not (Test-Path -LiteralPath $CapabilityReasons -PathType Leaf)) { Write-FragmentInvalid }
         $fragmentBytes = [IO.File]::ReadAllBytes($CapabilityReasons)
         $fragmentUtf8 = New-Object System.Text.UTF8Encoding($false, $true)
@@ -92,16 +123,69 @@ if ($PSBoundParameters.ContainsKey('CapabilityReasons') -and -not [string]::IsNu
         if ($null -eq $fragment -or $null -eq $fragment.PSObject.Properties['capabilities']) {
             Write-FragmentInvalid
         }
+        if ($fragment.capabilities -isnot [array]) {
+            # ps1 twin of sh's `if not isinstance(capabilities, list): raise
+            # ValueError("capabilities is not an array")` -- design.md API/
+            # Contract Plan step 2b lists "capabilities not an array" as a
+            # mandatory exit-2 condition. Without this check, @(...) below
+            # silently wraps a bare object (e.g. `{"capabilities":
+            # {"id":"x","eligible":false}}`) into a one-element array and
+            # the object is then processed as a single valid entry
+            # (cross-model panelist finding, T-002 remediation, escalated
+            # to Critical).
+            Write-FragmentInvalid
+        }
         $capabilities = @($fragment.capabilities)
         foreach ($entry in $capabilities) {
             if ($null -eq $entry -or $null -eq $entry.PSObject.Properties['id'] -or $null -eq $entry.PSObject.Properties['eligible']) {
                 Write-FragmentInvalid
             }
+            $entryId = $entry.id
+            if ($entryId -isnot [string] -or -not ($entryId -cmatch '\A[a-z0-9][a-z0-9-]*\z')) {
+                # id must conform to the same capability-id grammar A2's own
+                # Registry already enforces (contracts/capability-registry.
+                # schema.json: "id": {"type": "string", "pattern":
+                # "^[a-z0-9][a-z0-9-]*$"}) -- reusing an existing, already-
+                # audited allowlist rather than inventing a bare comma/
+                # semicolon blacklist (same "bounded grammar over an
+                # unconstrained string" reasoning as NEW-01/INV-021's
+                # required_lite_checks pattern). This also rejects the
+                # empty string (requirements.md Field Definitions: "id"
+                # is a non-empty string) and any embedded newline/space,
+                # so a hostile id can never forge a second trigger entry
+                # or break the single-line output-grammar contract
+                # (cross-model panelist finding, T-002 remediation,
+                # escalated to Critical). `\A`/`\z` (not `^`/`$`) are used
+                # because .NET regex's `$` matches just before a trailing
+                # `\n`, which would let an id ending in a newline slip
+                # through undetected.
+                Write-FragmentInvalid
+            }
+            if ($entry.eligible -isnot [bool]) {
+                # eligible must be an actual JSON boolean, never a
+                # truthy/falsy analog (0, "false", null, ...) -- a
+                # shape-invalid entry must Block (exit 2), never silently
+                # contribute nothing (AC-027's forbidden silent degrade;
+                # cross-model panelist finding, T-002 remediation).
+                Write-FragmentInvalid
+            }
         }
         foreach ($entry in $capabilities) {
+            # design.md API/Contract Plan: "entry['eligible'] == false" --
+            # entry.eligible is already validated as a real [bool] above,
+            # so -eq performs no coercion here.
             if ($entry.eligible -eq $false) {
                 $reasons = @()
-                if ($null -ne $entry.PSObject.Properties['upgrade_reasons'] -and $null -ne $entry.upgrade_reasons) {
+                if ($null -ne $entry.PSObject.Properties['upgrade_reasons'] -and $null -ne $entry.upgrade_reasons -and -not (Test-PythonFalsy $entry.upgrade_reasons)) {
+                    if ($entry.upgrade_reasons -isnot [array]) {
+                        # ps1 twin of sh's `if not isinstance(reasons, list):
+                        # raise ValueError(...)` -- a scalar upgrade_reasons
+                        # value must Block (exit 2), not be silently wrapped
+                        # into a one-element array and emitted as a trigger
+                        # token (cross-model panelist finding, T-002
+                        # remediation).
+                        Write-FragmentInvalid
+                    }
                     $reasons = @($entry.upgrade_reasons)
                 }
                 if ($reasons.Count -gt 0) {

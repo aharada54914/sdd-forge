@@ -118,11 +118,40 @@ if capability_reasons_supplied:
         capabilities = fragment["capabilities"]
         if not isinstance(capabilities, list):
             raise ValueError("capabilities is not an array")
+        # Same capability-id grammar A2's own Registry already enforces
+        # (contracts/capability-registry.schema.json: "id": {"type":
+        # "string", "pattern": "^[a-z0-9][a-z0-9-]*$"}) -- reusing an
+        # existing, already-audited allowlist rather than a bare comma/
+        # semicolon blacklist (same "bounded grammar over an unconstrained
+        # string" reasoning as NEW-01/INV-021's required_lite_checks
+        # pattern). This also rejects the empty string (requirements.md
+        # Field Definitions: "id" is a non-empty string) and any embedded
+        # newline/space, so a hostile id can never forge a second trigger
+        # entry or break the single-line output-grammar contract
+        # (cross-model panelist finding, T-002 remediation, escalated to
+        # Critical). `fullmatch` (not `match` with a trailing `$`) is used
+        # because Python's `$` matches just before a trailing `\n`, which
+        # would let an id ending in a newline slip through undetected.
+        capability_id_pattern = re.compile(r"[a-z0-9][a-z0-9-]*")
         for entry in capabilities:
             if not isinstance(entry, dict) or "id" not in entry or "eligible" not in entry:
                 raise ValueError("entry missing id or eligible")
+            entry_id = entry["id"]
+            if not isinstance(entry_id, str) or not capability_id_pattern.fullmatch(entry_id):
+                raise ValueError("id is not a valid capability-id")
+            if not isinstance(entry["eligible"], bool):
+                # eligible must be an actual JSON boolean, never a truthy/
+                # falsy analog (0, "false", null, ...) -- a shape-invalid
+                # entry must Block (exit 2), never silently contribute
+                # nothing to all_triggers[] (AC-027's forbidden silent
+                # degrade; cross-model panelist finding, T-002 remediation).
+                raise ValueError("eligible is not a boolean")
         for entry in capabilities:
-            if entry["eligible"] is False:
+            # design.md API/Contract Plan: "entry['eligible'] == false" --
+            # entry["eligible"] is already validated as a real bool above,
+            # so == and `is` are equivalent here; `==` is used to match the
+            # design's own stated comparison operator literally.
+            if entry["eligible"] == False:
                 reasons = entry.get("upgrade_reasons") or []
                 if not isinstance(reasons, list):
                     raise ValueError("upgrade_reasons is not an array")
