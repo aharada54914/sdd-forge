@@ -42,7 +42,13 @@ task_id=""
 feature=""
 input_path=""
 spec_root="specs"
-model="gpt-4o"
+# Empty by default so `codex exec` selects the model the signed-in account
+# actually supports. A hardcoded name ages: gpt-4o was the previous default
+# and is rejected outright by a ChatGPT-account Codex login
+# ("not supported when using Codex with a ChatGPT account"), which made every
+# gpt-slot run fail for a reason unrelated to the work under review. An
+# explicit --model still overrides.
+model=""
 effort=""
 input_digest=""
 consent_kind="human-flag"
@@ -291,26 +297,34 @@ _combined="${_scratch}/combined.txt"
     cat "$input_path"
 } > "$_combined"
 
+# --model is omitted entirely when unset, so the CLI selects the model the
+# signed-in account supports. An explicit --model still overrides. The value
+# is whitespace/flag-injection validated above, so unquoted expansion here
+# splits into exactly the two intended argv words.
+_model_args=""
+if [ -n "$model" ]; then
+    _model_args="--model $model"
+fi
 if [ -n "$effort" ]; then
-    printf 'run-panelist-gpt: invoking %s --model %s --effort %s (task=%s feature=%s)\n' \
-        "$_codex_cmd" "$model" "$effort" "$task_id" "$feature" >&2
+    printf 'run-panelist-gpt: invoking %s %s --effort %s (task=%s feature=%s)\n' \
+        "$_codex_cmd" "$_model_args" "$effort" "$task_id" "$feature" >&2
 else
-    printf 'run-panelist-gpt: invoking %s --model %s (task=%s feature=%s)\n' \
-        "$_codex_cmd" "$model" "$task_id" "$feature" >&2
+    printf 'run-panelist-gpt: invoking %s %s (task=%s feature=%s)\n' \
+        "$_codex_cmd" "$_model_args" "$task_id" "$feature" >&2
 fi
 
 _raw_output="${_scratch}/raw-output.txt"
 if [ -n "$effort" ]; then
     # --effort supplied: forwarded to codex alongside --model (AC-035).
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" --model "$model" --effort "$effort" --no-project-doc \
+        "$_codex_cmd" $_model_args --effort "$effort" --no-project-doc \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 else
     # --effort omitted: byte-identical to the pre-T-006 invocation
     # (Breaking API: no -- design.md API/Contract Plan).
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" --model "$model" --no-project-doc \
+        "$_codex_cmd" $_model_args --no-project-doc \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 fi
