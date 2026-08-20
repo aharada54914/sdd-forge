@@ -1,4 +1,4 @@
-// Generated from guard-invariants.json; schema_version=1; sha256=3fcace77d2c9c684c8ea86c34e2a01f224498af785154b7412d8418f7c759410
+// Generated from guard-invariants.json; schema_version=1; sha256=bfd084ead8216e0b5c5a7739d6fe376d8b0427de25fcf476dcce6b1e3e96b3ce
 'use strict';
 module.exports = Object.freeze({
   SCHEMA_VERSION: 1,
@@ -7,12 +7,12 @@ module.exports = Object.freeze({
   SHELL_COMPOUND_RE: "&&|\\|\\||;|\\|",
   SHELL_REDIRECT_TOKEN_RE: "^(?:\\d*|&)(>>?)([\\s\\S]*)$",
   SHELL_FD_DUP_RE: "^&(?:\\d+|-)$",
-  SHELL_SUDO_WRITE_RE: "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b)",
+  SHELL_SUDO_WRITE_RE: "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b|\\bpatch\\b|\\binstall\\b|\\bln\\b|\\btruncate\\b|\\bdd\\b|\\bpython3?\\b|\\bperl\\b|\\bruby\\b|\\bnode\\b|\\bsed\\b[^|;&]*\\s-i\\b|\\bgit\\s+(?:apply|checkout|restore|stash|reset|clean|mv|rm|merge|rebase|pull)\\b)",
   SHELL_READ_ONLY_START_RE: "^\\s*(?:cat|ls|test|grep|stat|head|tail|rg)\\b",
   SHELL_WRITE_ARG_CMDS: Object.freeze(["tee","touch","rm"]),
   SHELL_WRITE_DEST_CMDS: Object.freeze(["cp","mv"]),
   SHELL_PS_WRITE_CMDS: Object.freeze(["set-content","out-file","new-item","remove-item"]),
-  SHELL_INDIRECT_CMDS: Object.freeze(["eval","xargs","source","sh","bash","zsh","dash","ksh"]),
+  SHELL_INDIRECT_CMDS: Object.freeze(["eval","xargs","source","sh","bash","zsh","dash","ksh","sed","patch","install","ln","truncate","dd","python","python3","perl","ruby","node","git"]),
   SHELL_UNSAFE_TOKEN_CHARS: Object.freeze(["$","`","(",")","{","}","*","?","[","]"]),
   SHELL_CD_CMDS: Object.freeze(["cd","pushd"]),
   SUDO_SIGNATURE_HEX_LENGTH: 64,

@@ -517,8 +517,17 @@ validate_passed_stage() {
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage contract and verdict contradict each other"
 
+  # WFI-030 item 7: the round's precheck carries frozen_artifact_done_when, and
+  # reviewer-a must adjudicate every entry by name. A round recorded before the
+  # detector existed has no such file field; pointing --slurpfile at /dev/null
+  # yields an empty array, so $precheck[0] is null and `// []` below treats it
+  # as nothing to adjudicate rather than as a violation.
+  local round_precheck="$round_dir/precheck-result.json"
+  [[ -f "$round_precheck" ]] || round_precheck=/dev/null
+
   jq -e --slurpfile contract "$contract" --slurpfile verdict "$best" \
     --slurpfile reviewer_b "$reviewer_b" --slurpfile summary "$summary" --arg stage "$stage" \
+    --slurpfile precheck "$round_precheck" \
     --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
     --arg recorded "${recorded_root:+$recorded_root/}" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
@@ -597,7 +606,17 @@ validate_passed_stage() {
       all(.severity == "Critical" or .severity == "Major" or .severity == "Minor")) and
     (if $stage == "task" then
        ([$a.checks[] | select(.status == "FAIL")] | length) == ($a.findings | length) and
-       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length)
+       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length) and
+       # WFI-030 item 7: every Done When item the precheck flagged as naming a
+       # review-frozen artifact must be adjudicated by task ID in the
+       # OBSERVABLE-DONE finding of reviewer-a. This does not judge the
+       # adjudication -- the detector is deliberately permissive and the reviewer
+       # decides -- it only requires that the decision was recorded against each
+       # flagged task. (No apostrophes here: the jq program is single-quoted.)
+       (([$a.checks[]? | select(.id == "OBSERVABLE-DONE") | (.finding // "")]
+          | join(" ")) as $observed |
+        all(($precheck[0].frozen_artifact_done_when // [])[];
+            . as $flagged | $observed | contains($flagged.task)))
      else true end) and
     ($summary[0].schema == "integrated-summary/v1" and
      $summary[0].attempt == $attempt and $summary[0].round == $round) and

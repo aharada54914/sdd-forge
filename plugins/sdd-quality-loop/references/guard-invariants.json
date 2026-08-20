@@ -143,7 +143,19 @@
       "bash",
       "zsh",
       "dash",
-      "ksh"
+      "ksh",
+      "sed",
+      "patch",
+      "install",
+      "ln",
+      "truncate",
+      "dd",
+      "python",
+      "python3",
+      "perl",
+      "ruby",
+      "node",
+      "git"
     ],
     "unsafe_token_chars": [
       "$",
@@ -163,7 +175,7 @@
       "cd",
       "pushd"
     ],
-    "sudo_write_re": "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b)",
+    "sudo_write_re": "(?:>|>>|\\btee\\b|\\btouch\\b|\\bcp\\b|\\bmv\\b|\\brm\\b|\\bSet-Content\\b|\\bOut-File\\b|\\bNew-Item\\b|\\bRemove-Item\\b|\\bpatch\\b|\\binstall\\b|\\bln\\b|\\btruncate\\b|\\bdd\\b|\\bpython3?\\b|\\bperl\\b|\\bruby\\b|\\bnode\\b|\\bsed\\b[^|;&]*\\s-i\\b|\\bgit\\s+(?:apply|checkout|restore|stash|reset|clean|mv|rm|merge|rebase|pull)\\b)",
     "read_only_start_re": "^\\s*(?:cat|ls|test|grep|stat|head|tail|rg)\\b"
   },
   "sudo_signature_hex_length": 64,

@@ -753,6 +753,28 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         $findingsB = @($reviewerB.findings)
         $reviewerIdentityOk = $reviewerIdentityOk -and
             $failedA.Count -eq $findingsA.Count -and $failedB.Count -eq $findingsB.Count
+        # WFI-030 item 7, twin of the jq clause in check-workflow-state.sh.
+        # The precheck for this round is read here rather than reused from the
+        # stage-provenance block, which parses it in a later scope.
+        $frozenFlagged = @()
+        $roundPrecheck = Join-Path $latest.File.DirectoryName "precheck-result.json"
+        if (Test-Path -LiteralPath $roundPrecheck -PathType Leaf) {
+            $precheckRound = Get-Content -LiteralPath $roundPrecheck -Raw | ConvertFrom-Json
+            $frozenProperty = $precheckRound.psobject.Properties['frozen_artifact_done_when']
+            if ($null -ne $frozenProperty -and $null -ne $frozenProperty.Value) {
+                $frozenFlagged = @($frozenProperty.Value)
+            }
+        }
+        if ($frozenFlagged.Count -gt 0) {
+            $observedDoneWhen = @($reviewerA.checks |
+                Where-Object { [string]$_.id -eq "OBSERVABLE-DONE" } |
+                ForEach-Object { [string]$_.finding }) -join " "
+            foreach ($flaggedItem in $frozenFlagged) {
+                if (-not $observedDoneWhen.Contains([string]$flaggedItem.task)) {
+                    $reviewerIdentityOk = $false
+                }
+            }
+        }
     } else {
         $findingsA = $failedA
         $findingsB = $failedB
