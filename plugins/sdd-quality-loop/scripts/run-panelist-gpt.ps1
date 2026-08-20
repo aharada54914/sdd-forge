@@ -37,7 +37,12 @@ $TaskId      = ""
 $Feature     = ""
 $InputPath   = ""
 $SpecRoot    = "specs"
-$Model       = "gpt-4o"
+# Empty by default so `codex exec` selects the model the signed-in account
+# actually supports. A hardcoded name ages: gpt-4o was the previous default
+# and is rejected outright by a ChatGPT-account Codex login, which made every
+# gpt-slot run fail for a reason unrelated to the work under review. An
+# explicit --model still overrides. Mirrors run-panelist-gpt.sh.
+$Model       = ""
 $Effort      = ""
 $InputDigest = ""
 $ConsentKind = "human-flag"
@@ -184,17 +189,19 @@ Rules:
     $combinedFile = Join-Path $scratch "combined.txt"
     Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
 
-    # Codex ArgumentList: --model, [--effort <e>] (only when supplied,
-    # AC-035), --no-project-doc -- omitted entirely preserves today's exact
-    # invocation order/shape (Breaking API: no).
-    $codexArgs = @("--model", $Model)
+    # Codex ArgumentList: [--model <m>] (omitted entirely when unset, so the
+    # CLI selects the model the signed-in account supports), [--effort <e>]
+    # (only when supplied, AC-035), --no-project-doc -- omitting both
+    # preserves today's exact invocation order/shape (Breaking API: no).
+    $codexArgs = @()
+    if ($Model) { $codexArgs += @("--model", $Model) }
     if ($Effort) { $codexArgs += @("--effort", $Effort) }
     $codexArgs += @("--no-project-doc")
 
     if ($Effort) {
-        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model --effort $Effort (task=$TaskId feature=$Feature)")
+        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd $($codexArgs -join ' ') (task=$TaskId feature=$Feature)")
     } else {
-        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model (task=$TaskId feature=$Feature)")
+        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd $($codexArgs -join ' ') (task=$TaskId feature=$Feature)")
     }
 
     $rawOutput = Join-Path $scratch "raw-output.txt"

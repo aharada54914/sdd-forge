@@ -274,7 +274,17 @@ if [ -d "$input_path" ]; then
     while IFS= read -r f; do
         raw_content="${raw_content}$(cat "$f")
 "
-    done < <(find "$input_path" -type f | sort)
+    # Exclude the panel's own artifacts. Without this the assembler swallows
+    # every earlier bundle and verdict sitting in verification/, which does two
+    # things: it doubles the bundle on each run (693KB -> 1.4MB -> 2.8MB
+    # observed), and it embeds prior panelists' conclusions in an input whose
+    # own header declares the review blind. Independence is the only thing a
+    # cross-model panel sells; leaking a sibling's verdict into it destroys the
+    # product while leaving every check green.
+    done < <(find "$input_path" -type f \
+        ! -name '*.panelist-input.txt' \
+        ! -name '*.verdict.json' \
+        ! -name '*.cross-model.json' | sort)
 else
     raw_content="$(cat "$input_path")"
 fi
