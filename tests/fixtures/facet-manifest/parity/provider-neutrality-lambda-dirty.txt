@@ -1,0 +1,7 @@
+This fixture is a regression lock for TEST-043's idiom-level "lambda" mask
+(seq0763 Major remediation): it deliberately does NOT use the `key=lambda`
+sort-key idiom the four production scripts share, so the mask must not
+touch it -- the standalone, quoted "lambda" string-literal assignment below
+must still be flagged by the scan.
+
+LAMBDA_DEPLOY_TARGET = "lambda"  # Lambda function name for the packaged validator

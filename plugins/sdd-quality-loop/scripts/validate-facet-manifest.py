@@ -29,8 +29,8 @@ additionalProperties (bool or schema), properties, propertyNames, pattern,
 enum, const, uniqueItems, minItems, minLength, if/then/else, not, oneOf,
 boolean subschema values, items, $ref/definitions (same-document fragments
 only). `$schema`/`$id`/`title` are annotation keywords, not constraint
-keywords, and are not implemented here (Discovery contract checks
-`$schema`/`$id` separately).
+keywords, and are intentionally outside this engine's constraint set
+(Discovery contract checks `$schema`/`$id` separately).
 """
 import argparse
 import json
@@ -132,9 +132,9 @@ def load_manifest_yaml(path):
 
     try:
         if canonicalizer.endswith(".py"):
-            argv = [sys.executable, canonicalizer, "--yaml", path]
+            argv = [sys.executable, canonicalizer, "--input-format", "yaml", path]
         else:
-            argv = [canonicalizer, "--yaml", path]
+            argv = [canonicalizer, "--input-format", "yaml", path]
         result = subprocess.run(
             argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False
         )
@@ -168,6 +168,76 @@ def load_manifest(path):
 
 def _escape_pointer_token(token):
     return str(token).replace("~", "~0").replace("/", "~1")
+
+
+# Draft-07 `pattern` values follow ECMA-262 regex semantics (no
+# `re.MULTILINE`), where a bare, non-multiline `$` asserts end-of-string
+# only. Python's `re` module's `$` is more permissive: it also matches
+# immediately before a single trailing "\n". That divergence means an
+# instance like "sha256:<64hex>\n" wrongly satisfies a naive
+# `re.search("^sha256:[0-9a-f]{64}$", instance)`, silently admitting a
+# trailing-newline value the schema author intended to reject. `\Z` is
+# Python's strict absolute-end-of-string anchor with no such exception, so
+# every unescaped `$` outside a `[...]` character class is rewritten to
+# `\Z` before compiling. Diagnostic text still reports the original,
+# untranslated pattern string.
+_PATTERN_CACHE = {}
+
+
+def _ecma_anchor(pattern):
+    """Rewrite unescaped, non-character-class `$` to `\\Z` (see module note
+    above). Walks the pattern tracking backslash-escapes (an escape
+    consumes exactly the following character, whatever it is) and `[...]`
+    character-class state, including the ECMA-262/POSIX convention that a
+    `]` in the first position of a class (optionally right after a leading
+    `^`) is a literal member, not the closing bracket."""
+    out = []
+    i = 0
+    length = len(pattern)
+    in_class = False
+    while i < length:
+        ch = pattern[i]
+        if ch == "\\" and i + 1 < length:
+            out.append(ch)
+            out.append(pattern[i + 1])
+            i += 2
+            continue
+        if not in_class:
+            if ch == "[":
+                in_class = True
+                out.append(ch)
+                i += 1
+                if i < length and pattern[i] == "^":
+                    out.append(pattern[i])
+                    i += 1
+                if i < length and pattern[i] == "]":
+                    out.append(pattern[i])
+                    i += 1
+                continue
+            if ch == "$":
+                out.append(r"\Z")
+                i += 1
+                continue
+            out.append(ch)
+            i += 1
+            continue
+        else:
+            if ch == "]":
+                in_class = False
+            out.append(ch)
+            i += 1
+    return "".join(out)
+
+
+def _compile_pattern(pattern):
+    """Compile a schema-supplied `pattern` under ECMA-262 `$` semantics,
+    caching the compiled regex (schema patterns repeat across many
+    instances/fixtures within a single validator invocation)."""
+    compiled = _PATTERN_CACHE.get(pattern)
+    if compiled is None:
+        compiled = re.compile(_ecma_anchor(pattern))
+        _PATTERN_CACHE[pattern] = compiled
+    return compiled
 
 
 def _type_matches(value, type_spec):
@@ -254,7 +324,7 @@ def _validate(instance, schema, root_schema, pointer, diags):
                 _validate(instance, schema["else"], root_schema, pointer, diags)
 
     if isinstance(instance, str):
-        if "pattern" in schema and not re.search(schema["pattern"], instance):
+        if "pattern" in schema and not _compile_pattern(schema["pattern"]).search(instance):
             diags.append((pointer, f"does not match pattern {schema['pattern']!r}"))
         if "minLength" in schema and len(instance) < schema["minLength"]:
             diags.append((pointer, f"length {len(instance)} < minLength {schema['minLength']}"))
@@ -465,7 +535,13 @@ def main(argv=None):
     except CanonicalizerError as exc:
         sys.stdout.write(f"facet-manifest: canonicalizer-invocation-failed: {exc}\n")
         return 1
-    except (OSError, json.JSONDecodeError) as exc:
+    # ValueError covers json.JSONDecodeError AND UnicodeDecodeError (both
+    # ValueError subclasses) -- a non-UTF-8 --manifest input must surface
+    # this diagnostic, never an unhandled Python traceback (T-001..T-004
+    # quality-gate lesson -- RT-20260817-004; not a design.md/tasks.md
+    # instruction; validate-context-projection.py/compare-facet-manifest-
+    # staleness.py already carried this fix, this was the one remaining gap).
+    except (OSError, ValueError) as exc:
         sys.stdout.write(f"facet-manifest: manifest-unreadable: {exc}\n")
         return 1
 

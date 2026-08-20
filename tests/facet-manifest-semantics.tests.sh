@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # facet-manifest-semantics.tests.sh — regression tests for
-# validate-facet-manifest.py's REQ-006 semantic checks (design.md Test
-# Strategy item 2): resolved-gate-id-duplicate, facet-classification-conflict,
-# conditional-facet-duplicate, array-not-stable-sorted, plus one fully-clean
-# fixture proving a negative.
+# validate-facet-manifest.py's REQ-006 diagnostic-id table (design.md Test
+# Strategy item 2): schema-invalid, resolved-gate-id-duplicate,
+# facet-classification-conflict, conditional-facet-duplicate,
+# array-not-stable-sorted, plus one fully-clean fixture proving a negative.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -48,6 +48,7 @@ expect_invalid() {
 }
 
 # --- TEST-028: one fixture per diagnostic-id table row (AC-028) ------------
+expect_invalid "schema-invalid.json" "TEST-028" "facet-manifest: schema-invalid:"
 expect_invalid "resolved-gate-id-duplicate.json" "TEST-028" "facet-manifest: resolved-gate-id-duplicate:"
 expect_invalid "facet-classification-conflict.json" "TEST-028" "facet-manifest: facet-classification-conflict:"
 expect_invalid "conditional-facet-duplicate.json" "TEST-028" "facet-manifest: conditional-facet-duplicate:"
@@ -67,11 +68,38 @@ expect_invalid "conditional-facets-not-sorted.json" "array-not-stable-sorted" "f
 expect_invalid "resolved-gates-not-sorted.json" "array-not-stable-sorted" "facet-manifest: array-not-stable-sorted: /resolved_gates:"
 
 # --- Diagnostic determinism contract: (check-id, JSON Pointer) ordering ----
-multi_out="$(run_validator "$FIXTURES/resolved-gate-id-duplicate.json" 2>&1 || true)"
-if [ "$(printf '%s\n' "$multi_out" | wc -l | tr -d ' ')" = "1" ]; then
-  ok "determinism: single-diagnostic fixture emits exactly one line"
+# Hardened: assert the EXACT expected single line, not just a line count of
+# 1 -- a line count alone cannot distinguish "one correct diagnostic" from
+# "one line of empty-string noise" (wc -l on an empty string is 0, but a
+# stray blank/malformed line would also satisfy a bare count-only check in
+# some shells; pinning the full expected line closes that gap).
+single_out="$(run_validator "$FIXTURES/resolved-gate-id-duplicate.json" 2>&1 || true)"
+single_expected="facet-manifest: resolved-gate-id-duplicate: /resolved_gates/1/id: duplicate resolved_gates id 'task-review' (first seen at /resolved_gates/0/id)"
+if [ -n "$single_out" ] && [ "$(printf '%s\n' "$single_out" | wc -l | tr -d ' ')" = "1" ] && [ "$single_out" = "$single_expected" ]; then
+  ok "determinism: single-diagnostic fixture emits exactly one line, matching expected text exactly"
 else
-  fail "determinism: unexpected line count for resolved-gate-id-duplicate.json: [$multi_out]"
+  fail "determinism: unexpected output for resolved-gate-id-duplicate.json: [$single_out]"
+fi
+
+# --- Diagnostic determinism contract: multi-diagnostic ordering (Minor) ----
+# multi-diagnostic-ordering.json triggers 4 diagnostics across 3 distinct
+# check-ids and 4 distinct pointers: array-not-stable-sorted (x2),
+# facet-classification-conflict, resolved-gate-id-duplicate. Assert exact
+# line count AND exact (check-id, pointer) ascending order via a
+# byte-for-byte expected-output comparison.
+multi_out="$(run_validator "$FIXTURES/multi-diagnostic-ordering.json" 2>&1 || true)"
+multi_expected="$(cat <<'EXPECTED'
+facet-manifest: array-not-stable-sorted: /affected_components: affected_components is not sorted lexicographically ascending
+facet-manifest: array-not-stable-sorted: /capabilities: capabilities is not sorted lexicographically ascending
+facet-manifest: facet-classification-conflict: /conditional_facets/0/facet: facet 'backend-patterns' present in both required_facets and conditional_facets
+facet-manifest: resolved-gate-id-duplicate: /resolved_gates/1/id: duplicate resolved_gates id 'task-review' (first seen at /resolved_gates/0/id)
+EXPECTED
+)"
+multi_line_count="$(printf '%s\n' "$multi_out" | wc -l | tr -d ' ')"
+if [ "$multi_line_count" = "4" ] && [ "$multi_out" = "$multi_expected" ]; then
+  ok "determinism: multi-diagnostic fixture emits 4 lines in exact (check-id, pointer) ascending order"
+else
+  fail "determinism: unexpected multi-diagnostic output (want 4 lines in the pinned order): [$multi_out]"
 fi
 
 # --- Suite/CI registration self-check ---------------------------------------

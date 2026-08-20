@@ -79,10 +79,20 @@ After reading the input artifacts, read
 emitting any FAIL finding. In particular:
 - Cite exact artifact evidence for each finding.
 - Do not duplicate precheck-owned invocation/status failures.
+- In legacy design mode, absent template fields become `[LEGACY COMPAT]` Minor
+  advisories where this prompt says so, not Major/Critical findings.
 - Do not require live build, coverage, E2E, git, checkpoint, or learning
   workflows; require only concrete planned evidence inside design.md.
 - Use SKIP for scoped checks when their risk surface is absent and the check
   defines a skip condition.
+
+# Legacy Design Mode
+
+Read precheck-result.json. If it contains `"legacy_design": true`:
+- Any check whose required template field is absent in design.md is NOT a finding.
+- Instead, emit a `[LEGACY COMPAT]` Minor advisory: "Field <X> absent; legacy
+  design.md predates this template requirement."
+- All other checks still run normally on whatever content is present.
 
 # Checks
 
@@ -319,3 +329,6 @@ DOMAIN-CONFORMANCE.
   "Required input missing: <path>".
 - When integrated-summary.json is absent (round 1), skip any check that
   references prior-round findings and note "round 1: no prior summary".
+- Legacy compat: if `legacy_design: true` in precheck-result.json, emit
+  [LEGACY COMPAT] Minor advisories instead of Major/Critical for absent
+  template fields.

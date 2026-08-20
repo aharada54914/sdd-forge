@@ -200,6 +200,7 @@ jobs:
           bash tests/task-layer-review-inputs.tests.sh
           bash tests/task-layer-full-profile.tests.sh
           bash tests/task-review-precheck.tests.sh
+          bash tests/impl-review-round2-contract.tests.sh
           bash tests/review-agent-isolation.tests.sh
 
       - name: Test cross-model gate (bash)
