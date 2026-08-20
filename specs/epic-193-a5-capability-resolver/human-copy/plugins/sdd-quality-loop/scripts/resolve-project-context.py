@@ -224,7 +224,20 @@ def _run_resolve_component_paths(script_dir, args):
     try:
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     except OSError as exc:
-        raise AffectedComponentResolutionFailed(f"launch failed: {exc}") from exc
+        # A launch failure (missing binary, unreadable/non-executable
+        # wrapper) never produced an exit code at all, so it cannot be
+        # formatted through AffectedComponentResolutionFailed's own
+        # returncode-shaped canonical sentence (that constructor's sole
+        # parameter is a returncode, not a string) -- doing so is exactly
+        # the panelist-caught defect: the raw OSError text (an absolute
+        # path, an errno) would otherwise land in the committed Resolver
+        # Evidence, violating both AC-014's canonical-sentence rule and
+        # security-spec.md B5's no-local-path containment. Instead, this
+        # sub-case is folded into the SAME closed-enum, fixed-sentence
+        # DependencySubprocessFailed path steps 5/6/7-8 already use for an
+        # identical OSError on their own subprocess.run calls -- main()'s
+        # own handler discards this exception's payload entirely.
+        raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
     if result.returncode != 0:
         raise AffectedComponentResolutionFailed(result.returncode)
     try:
@@ -249,7 +262,10 @@ def _discover_registry(script_dir):
     deployed, protected-suffix destination) for both `capability-
     registry.json` and its own `capability-registry.schema.json`."""
     sys.path.insert(0, str(script_dir))
-    import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)
+    try:
+        import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)
+    except ImportError as exc:
+        raise ContractDiscoveryFailed(f"registry_discovery module not importable: {exc}") from exc
 
     try:
         registry_path = registry_discovery.discover_artifact("capability-registry.json")
@@ -335,6 +351,7 @@ def _evaluate_predicate(script_dir, predicate, properties):
             not isinstance(parsed, dict)
             or not isinstance(parsed.get("result"), bool)
             or not isinstance(parsed.get("evidence"), list)
+            or not all(isinstance(node, dict) for node in parsed.get("evidence", []))
         ):
             raise DependencyOutputMalformed("evaluate-predicate stdout is not the {result, evidence} shape")
         return parsed["result"], parsed["evidence"]
@@ -358,7 +375,9 @@ def _evaluate_capabilities(script_dir, registry_document, affected_components, p
     """Steps 7-8. Every Registry Capability, matched or not, is evaluated in
     full against every affected component, in Registry-declaration order
     (capabilities) and ascending-lexicographic order (affected_components,
-    already returned pre-sorted by `resolve-component-paths`) -- no
+    explicitly sorted at this fan-out -- REQ-005/AC-024 determinism, never
+    assumed pre-sorted from `resolve-component-paths`, whose own contract
+    makes no ordering guarantee, investigation.md INV-006) -- no
     short-circuit on any individual evaluation's own outcome. `capability_
     evaluations` is mutated in place (appending one complete entry per
     Capability only after that Capability's own evaluation set is fully
@@ -366,12 +385,13 @@ def _evaluate_capabilities(script_dir, registry_document, affected_components, p
     dependency subprocess failure aborts this function partway through.
     Returns whether any evaluation's own Evidence tree contained an
     `outcome: "warn"` node anywhere (step 9's own condition)."""
+    sorted_affected_components = sorted(affected_components)
     any_warn = False
     for capability in registry_document.get("capabilities", []):
         capability_id = capability["id"]
         trigger_evaluations = []
         matched = False
-        for component_id in affected_components:
+        for component_id in sorted_affected_components:
             properties = projection_components.get(component_id, {})
             result, evidence = _evaluate_predicate(script_dir, capability["trigger"], properties)
             if _evidence_has_warn(evidence):
@@ -385,7 +405,7 @@ def _evaluate_capabilities(script_dir, registry_document, affected_components, p
             for declaration_index, facet_declaration in enumerate(capability.get("conditional_facets", [])):
                 evaluations = []
                 applied = False
-                for component_id in affected_components:
+                for component_id in sorted_affected_components:
                     properties = projection_components.get(component_id, {})
                     result, evidence = _evaluate_predicate(script_dir, facet_declaration["when"], properties)
                     if _evidence_has_warn(evidence):
@@ -915,7 +935,7 @@ def _pre_publication_recheck(script_dir, args, absolute_config, source_sha256, a
 
     try:
         fresh_affected_components, fresh_ownership_digest = _run_resolve_component_paths(script_dir, args)
-    except (AffectedComponentResolutionFailed, DependencyOutputMalformed):
+    except (AffectedComponentResolutionFailed, DependencySubprocessFailed, DependencyOutputMalformed):
         raise SnapshotGenerationMismatch("affected-component recheck failed")
 
     try:
@@ -1021,6 +1041,9 @@ def main(argv=None):
             f"{repo_relative_config}; see resolve-component-paths diagnostics"
         )
         return _block(repo_root, args.feature, "affected-component-resolution-failed", detail, state)
+    except DependencySubprocessFailed:
+        detail = "resolve-component-paths failed to launch while resolving affected components"
+        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state)
     except DependencyOutputMalformed:
         detail = "resolve-component-paths returned malformed JSON while resolving affected components"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state)

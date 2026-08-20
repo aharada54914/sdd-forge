@@ -74,6 +74,22 @@ Four sections:
    is deliberately shaped to Block, or to fail, before step 12 would ever
    reach a Capability Summary schema check -- see T-004's own
    implementation report for the exact reasoning).
+6. Cross-model panelist remediation (T-003.panelist-anthropic.verdict.json,
+   three Major findings), four fixtures added to sections 3-4's own
+   pattern: `resolve-component-paths-launch-failed` (step 4's own OSError
+   subprocess-launch path -- previously untested by any fixture here --
+   deletes the fixture repo's own `resolve-component-paths.py` sibling so
+   `_script_argv` falls back to a bare, off-PATH name, forcing a genuine
+   OSError rather than a non-zero exit); `registry-discovery-unimportable`
+   (a second, independent trigger for the existing `contract-discovery-
+   failed` diagnostic -- an unimportable `registry_discovery` sibling
+   module, rather than a missing Registry artifact); `evaluate-predicate-
+   output-malformed` (a zero-exit `evaluate-predicate` whose own
+   `evidence[]` array elements are not objects); and `dsl-warn-unsorted-
+   affected-components` (a stub `resolve-component-paths` returning
+   `affected_components` in descending order, asserting the fan-out itself
+   sorts ascending rather than trusting the upstream order every other
+   fixture here happens to already receive pre-sorted).
 """
 
 import argparse
@@ -182,11 +198,15 @@ ALL_CASE_NAMES = (
     + [case[0] for case in PROJECTION_BLOCK_CASES]
     + [
         "affected-component-resolution-failed",
+        "resolve-component-paths-launch-failed",
         "contract-discovery-failed",
+        "registry-discovery-unimportable",
         "registry-validation-failed",
         "dependency-subprocess-failed",
+        "evaluate-predicate-output-malformed",
         "dsl-warn-unmatched-trigger",
         "dsl-warn-matched-nondetermining",
+        "dsl-warn-unsorted-affected-components",
         "lite-check-source-undefined",
         "output-schema-validation-failed-evidence",
         "output-schema-validation-failed-artifact",
@@ -310,10 +330,24 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "resolve-component-paths.py"
         elif case_name == "dependency-subprocess-failed":
             stub_name = "generate-registry-digest.py"
+        elif case_name == "registry-discovery-unimportable":
+            stub_name = "registry_discovery.py"
+        elif case_name == "evaluate-predicate-output-malformed":
+            stub_name = "evaluate-predicate.py"
+        elif case_name == "dsl-warn-unsorted-affected-components":
+            stub_name = "resolve-component-paths.py"
         install_t003_dependencies(
             repo, scripts, fixture_dir, stub_name=stub_name,
             registry_capabilities_path=registry_path if registry_path.is_file() else None,
         )
+        if case_name == "resolve-component-paths-launch-failed":
+            # Neither a `.py` nor a `.sh` sibling is planted for this one
+            # case, so `_script_argv` falls back to a bare, unqualified
+            # `resolve-component-paths` -- not present on PATH in this test
+            # environment -- forcing subprocess.run's own OSError launch
+            # failure at step 4, the exact path the panelist's Major #1
+            # finding names as untested by any existing fixture.
+            (scripts / "resolve-component-paths.py").unlink()
 
         (repo / "README.md").write_text("baseline\n", encoding="utf-8")
         base_oid = git_commit_all(repo, "baseline")
@@ -327,7 +361,24 @@ def run_t003_case(kind, case_name, counts):
             repo_relative_config = "project-context.yaml"
             expected_detail = None  # computed after the run, from the real exit code
 
+        elif case_name == "resolve-component-paths-launch-failed":
+            expected_id = "dependency-subprocess-failed"
+            expected_detail = "resolve-component-paths failed to launch while resolving affected components"
+
         elif case_name == "contract-discovery-failed":
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "registry discovery failed to locate or verify capability-registry.json "
+                "or capability-registry.schema.json"
+            )
+
+        elif case_name == "registry-discovery-unimportable":
+            # A second, independent trigger for the identical
+            # `contract-discovery-failed` diagnostic above (an unimportable
+            # sibling module, rather than a missing artifact) -- both must
+            # produce byte-identical canonical output, never a raw
+            # ImportError traceback with no diagnostic line and no
+            # Resolver Evidence at all (the panelist's Major #3 finding).
             expected_id = "contract-discovery-failed"
             expected_detail = (
                 "registry discovery failed to locate or verify capability-registry.json "
@@ -341,6 +392,29 @@ def run_t003_case(kind, case_name, counts):
         elif case_name == "dependency-subprocess-failed":
             expected_id = "dependency-subprocess-failed"
             expected_detail = "generate-registry-digest failed while computing registry_digest"
+
+        elif case_name == "evaluate-predicate-output-malformed":
+            state = "advisory"
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+            expected_id = "dependency-output-malformed"
+            expected_detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
+
+        elif case_name == "dsl-warn-unsorted-affected-components":
+            state = "advisory"
+            expected_id = "dsl-warn-on-matched-capability"
+            expected_detail = "a predicate evaluation produced an outcome: warn evidence node"
+            predicate = {"scope": "affected_component", "field": "characteristics.auto_update", "operator": "equals", "value": True}
+            result, evidence = real_evaluate_predicate(predicate, {})
+            expected_capability_evaluations = [{
+                "capability_id": "cap-order",
+                "matched": result,
+                "trigger_evaluations": [
+                    {"component_id": "comp-a", "result": result, "evidence": evidence},
+                    {"component_id": "comp-z", "result": result, "evidence": evidence},
+                ],
+            }]
 
         elif case_name == "dsl-warn-unmatched-trigger":
             state = "advisory"
@@ -846,11 +920,15 @@ def main():
             run_projection_block_case(args.launcher, case, counts)
         for case_name in (
             "affected-component-resolution-failed",
+            "resolve-component-paths-launch-failed",
             "contract-discovery-failed",
+            "registry-discovery-unimportable",
             "registry-validation-failed",
             "dependency-subprocess-failed",
+            "evaluate-predicate-output-malformed",
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
+            "dsl-warn-unsorted-affected-components",
         ):
             run_t003_case(args.launcher, case_name, counts)
         for case_name in (
