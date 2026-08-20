@@ -81,6 +81,41 @@ evaluator_output_is_declared() {
   ' "$report"
 }
 
+# WFI-017 ratified a SECOND serialization for the implementation report's own
+# declaration -- the legacy `## Output Paths And Hashes` bullet section --
+# "retained solely so previously committed bullet-only and dual-form v2 reports
+# remain valid" (validate-implementation-report.sh:113-119). That acceptance
+# landed on the report contract and never on this authorization boundary, so a
+# report the repository considers valid could declare artifacts this validator
+# could not read, and the task became ungateable through no fault of its own.
+#
+# The grammar below is a byte-for-byte mirror of the pattern that script already
+# enforces (its output_pattern at :167-170); nothing is invented here. Only the
+# serialization differs -- the path/hash pair is still matched by exact equality
+# and the live file is still re-hashed afterwards by the caller, so this admits
+# no artifact the table form would not have admitted.
+#
+# Scoped to the implementation report on purpose: the gate report's post-fix
+# channel (WFI-036) defines its own table form and gains no legacy grammar.
+implementation_report_legacy_declares() {
+  local path=$1 expected_hash=$2 report=$3
+  awk -v expected_path="$path" -v expected_hash="$expected_hash" '
+    index($0, "## Output Paths And Hashes") == 1 &&
+      substr($0, length("## Output Paths And Hashes") + 1) ~ /^[[:space:]]*$/ {
+      in_legacy = 1
+      next
+    }
+    in_legacy && /^##[[:space:]]/ { exit }
+    in_legacy {
+      line = $0
+      sub(/[[:space:]]+$/, "", line)
+      expected_line = "- **Path**: `" expected_path "`; **SHA-256**: `" expected_hash "`"
+      if (line == expected_line) found = 1
+    }
+    END { exit(found ? 0 : 1) }
+  ' "$report"
+}
+
 # WFI-036 second channel. Consulted only when the manifest named a gate report
 # AND that document's own live SHA-256 already matched the pinned value -- that
 # verification happens in the quality:sdd-evaluator block below, before any row
@@ -139,6 +174,9 @@ path_is_authorized() {
         evaluator_output_is_declared \
           "$path" "$expected_hash" \
           "$repository_root/$implementation_report_path" '## Outputs' ||
+        implementation_report_legacy_declares \
+          "$path" "$expected_hash" \
+          "$repository_root/$implementation_report_path" ||
         gate_report_output_is_declared "$path" "$expected_hash"
       ;;
     domain:domain-reviewer-a|domain:domain-reviewer-b)
