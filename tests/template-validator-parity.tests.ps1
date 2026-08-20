@@ -78,7 +78,17 @@ if ($found) {
 } else {
     Fail "impl-report template: Outputs table row NOT recognized by the evaluator's declared-output parser"
 }
-if ((Get-Content -Raw $validator).Contains('/^## Outputs[[:space:]]*$/')) {
+# WFI-036 parameterised the section heading so a second declaration channel
+# (the gate report's `## Post-Fix Artifacts`) could reuse the same row parser,
+# replacing the baked-in regex with a heading variable. Pin both halves: the
+# heading-match construct alone would not catch the boundary being pointed at a
+# different section, and the literal '## Outputs' alone would not catch the
+# matcher itself being replaced. The replicated state machine above stays valid
+# because `^## Outputs\s*$` and the parameterised prefix-plus-trailing-space
+# match are equivalent for this heading.
+$validatorText = Get-Content -Raw $validator
+if ($validatorText.Contains('index($0, heading) == 1') -and
+    $validatorText.Contains("'## Outputs'")) {
     Ok "validator pin: Outputs-section parser still present in launch boundary"
 } else {
     Fail "validator pin: Outputs-section parser changed in launch boundary"
