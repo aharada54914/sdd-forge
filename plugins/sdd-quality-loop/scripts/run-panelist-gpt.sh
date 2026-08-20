@@ -58,7 +58,13 @@ task_id=""
 feature=""
 input_path=""
 spec_root="specs"
-model="gpt-4o"
+# Empty by default so `codex exec` selects the model the signed-in account
+# actually supports. A hardcoded name ages: gpt-4o was the previous default
+# and is rejected outright by a ChatGPT-account Codex login
+# ("not supported when using Codex with a ChatGPT account"), which made every
+# gpt-slot run fail for a reason unrelated to the work under review. An
+# explicit --model still overrides.
+model=""
 effort=""
 input_digest=""
 consent_kind="human-flag"
@@ -345,7 +351,14 @@ _combined="${_scratch}/combined.txt"
     cat "$input_path"
 } > "$_combined"
 
-_codex_argv_log="exec --model $model"
+_model_args=""
+if [ -n "$model" ]; then
+    _model_args="--model $model"
+fi
+_codex_argv_log="exec"
+if [ -n "$_model_args" ]; then
+    _codex_argv_log="$_codex_argv_log $_model_args"
+fi
 if [ -n "$effort" ]; then
     _codex_argv_log="$_codex_argv_log -c model_reasoning_effort=$effort"
 fi
@@ -357,14 +370,14 @@ _raw_output="${_scratch}/raw-output.txt"
 if [ -n "$effort" ]; then
     # --effort supplied: forwarded as a codex config override (AC-035).
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" exec --model "$model" -c "model_reasoning_effort=$effort" \
+        "$_codex_cmd" exec $_model_args -c "model_reasoning_effort=$effort" \
         --sandbox read-only --skip-git-repo-check -C "$_scratch" - \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 else
     # --effort omitted: no reasoning-effort override is applied.
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" exec --model "$model" \
+        "$_codex_cmd" exec $_model_args \
         --sandbox read-only --skip-git-repo-check -C "$_scratch" - \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?

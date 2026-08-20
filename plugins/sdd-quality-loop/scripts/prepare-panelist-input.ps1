@@ -210,7 +210,12 @@ if (-not (Test-Path $InputPath)) {
 
 if ((Get-Item $InputPath).PSIsContainer) {
     $rawLines = @()
-    foreach ($f in (Get-ChildItem $InputPath -File -Recurse | Sort-Object FullName)) {
+    # Exclude the panel's own artifacts -- mirrors prepare-panelist-input.sh.
+    # Without this the assembler swallows every earlier bundle and verdict in
+    # verification/, doubling the bundle each run and embedding prior panelists'
+    # conclusions in an input whose header declares the review blind.
+    $panelArtifacts = @('*.panelist-input.txt', '*.verdict.json', '*.cross-model.json')
+    foreach ($f in (Get-ChildItem $InputPath -File -Recurse -Exclude $panelArtifacts | Sort-Object FullName)) {
         $rawLines += Get-Content -Raw -Encoding Utf8 $f.FullName
     }
     $rawContent = $rawLines -join "`n"

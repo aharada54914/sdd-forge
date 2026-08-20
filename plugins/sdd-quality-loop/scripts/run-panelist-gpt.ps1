@@ -48,7 +48,12 @@ $TaskId      = ""
 $Feature     = ""
 $InputPath   = ""
 $SpecRoot    = "specs"
-$Model       = "gpt-4o"
+# Empty by default so `codex exec` selects the model the signed-in account
+# actually supports. A hardcoded name ages: gpt-4o was the previous default
+# and is rejected outright by a ChatGPT-account Codex login, which made every
+# gpt-slot run fail for a reason unrelated to the work under review. An
+# explicit --model still overrides. Mirrors run-panelist-gpt.sh.
+$Model       = ""
 $Effort      = ""
 $InputDigest = ""
 $ConsentKind = "human-flag"
@@ -218,7 +223,8 @@ Rules:
     # codex-cli 0.147.0's non-interactive entry point; there is no
     # `--no-project-doc` flag under it, so the read-only sandbox rooted at
     # the isolated scratch dir stands in for "no extra context bleed".
-    $codexArgs = @("exec", "--model", $Model)
+    $codexArgs = @("exec")
+    if ($Model) { $codexArgs += @("--model", $Model) }
     if ($Effort) { $codexArgs += @("-c", "model_reasoning_effort=$Effort") }
     $codexArgs += @("--sandbox", "read-only", "--skip-git-repo-check", "-C", $scratch, "-")
 
