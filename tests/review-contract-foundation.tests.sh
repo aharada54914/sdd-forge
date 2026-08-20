@@ -483,8 +483,15 @@ cat > "${T004_TD_DIR}/manifest.json" <<EOF
   ]
 }
 EOF
+# NOTE: this manifest's run_id matches the genesis record's run_id but its
+# host_session_id does not match that record's host_session_id -- a partial
+# identity match, not a full one. validate-review-context-set.sh's
+# reservation/verification boundary fix (two launches colliding on one
+# identity must fail loudly, distinct from either "reserve" or "verify")
+# gives this its own diagnostic; it is no longer the generic
+# already-persisted message.
 t004_tamper_case "duplicate run/session id" "${T004_TD_DIR}" \
-  "REVIEW_CONTEXT_IDENTITY: run or host-session identity was already persisted"
+  "REVIEW_CONTEXT_IDENTITY: run ID matches a persisted identity-ledger record but host-session ID does not"
 
 if [[ "${T004_FAIL_COUNT}" -gt 0 ]]; then
   echo "FAIL (T-004): ${T004_FAIL_COUNT} CRLF-shim assertion(s) failed for validate-review-context-set.sh (issue #179)" >&2
