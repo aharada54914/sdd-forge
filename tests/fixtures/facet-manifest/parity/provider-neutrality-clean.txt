@@ -1,0 +1,8 @@
+This fixture carries this feature's own provider-neutral vocabulary --
+proof that TEST-043's scan does not false-positive on ordinary field names
+that merely share a substring with an everyday English word, the same
+non-false-positive discipline Epic A2's own check_g_provider_name_
+contamination applies to the Registry document it scans.
+
+distribution_channels: ["direct-download", "package-manager"]
+workflow_runtime_product_name_is_not_itself_a_provider_name: true
