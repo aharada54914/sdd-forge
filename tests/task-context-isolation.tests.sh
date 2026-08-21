@@ -129,6 +129,42 @@ bash "$VALIDATOR" --batch "$WORK/manifests/batch-1.json" "$WORK/manifests/batch-
 jq '.session_id = "session-001"' "$WORK/manifests/batch-3.json" > "$WORK/manifests/batch-3-reuse.json"
 expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --batch "$WORK/manifests/batch-1.json" "$WORK/manifests/batch-2.json" "$WORK/manifests/batch-3-reuse.json"
 
+# RT-20260821-012: full adjacent + nonadjacent reuse matrix for the three
+# uniqueness fields (Done-When 2 previously covered only nonadjacent
+# session_id), plus the trailing-newline identity forgery, the Unicode-digit
+# task_id, the batch/--manifest ambiguity, and the bash 3.2 empty-batch path.
+for field in run_id session_id agent_instance_id; do
+  # adjacent: batch-2 reuses batch-1's value
+  jq ".$field = \"reused-$field\"" "$WORK/manifests/batch-1.json" > "$WORK/manifests/reuse-a1.json"
+  jq ".$field = \"reused-$field\"" "$WORK/manifests/batch-2.json" > "$WORK/manifests/reuse-a2.json"
+  expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --batch "$WORK/manifests/reuse-a1.json" "$WORK/manifests/reuse-a2.json"
+  # nonadjacent: batch-3 reuses batch-1's value across an intervening entry
+  jq ".$field = \"reused-$field\"" "$WORK/manifests/batch-3.json" > "$WORK/manifests/reuse-n3.json"
+  expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --batch "$WORK/manifests/reuse-a1.json" "$WORK/manifests/batch-2.json" "$WORK/manifests/reuse-n3.json"
+done
+
+# trailing newline must not forge a distinct identity (rejected at the format gate)
+jq '.run_id = (.run_id + "\n") | .session_id = (.session_id + "\n")' \
+  "$WORK/manifests/batch-2.json" > "$WORK/manifests/newline.json"
+expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --batch "$WORK/manifests/batch-1.json" "$WORK/manifests/newline.json"
+expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --manifest "$WORK/manifests/newline.json"
+
+# Unicode digits must not satisfy the T-NNN task id shape (Python \d hazard)
+jq '.task_id = "T-١٢٣"' "$WORK/manifests/batch-1.json" > "$WORK/manifests/unicode-task.json"
+expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --manifest "$WORK/manifests/unicode-task.json"
+
+# --batch plus --manifest is ambiguous and must fail closed
+expect_diag TASK_INPUT_JSON bash "$VALIDATOR" --manifest "$WORK/manifests/batch-1.json" --batch "$WORK/manifests/batch-2.json"
+
+# the single-manifest path must survive bash 3.2 (macOS /bin/bash: empty
+# "${batch[@]}" under set -u was an unbound-variable crash with no
+# TASK_INPUT_* code)
+if [[ -x /bin/bash ]]; then
+  out32="$(/bin/bash "$VALIDATOR" --manifest "$WORK/manifests/batch-1.json" 2>&1)" \
+    || fail "validator failed under /bin/bash: $out32"
+  [[ "$out32" == TASK_INPUT_OK* ]] || fail "expected TASK_INPUT_OK under /bin/bash, got: $out32"
+fi
+
 write_manifest "$WORK/manifests/fallback-a.json" T-010 run-010 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents "$RELOAD_HASH"
 write_manifest "$WORK/manifests/fallback-b.json" T-011 run-011 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents "$RELOAD_HASH"
 bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch "$WORK/manifests/fallback-a.json" "$WORK/manifests/fallback-b.json" >/dev/null
@@ -245,5 +281,68 @@ esac
 
 selection="$(bash "$SELECTOR" --risk high --candidate codex/fast:lightweight:0.010 --candidate codex/general:standard:0.030 --candidate codex/strong:strong:0.090)"
 [[ "$selection" == "codex/strong strong" ]] || fail "unexpected selector output: $selection"
+
+# RT-20260821-011 regression: the Win32 publication branch must map MoveFileW's
+# BOOL (nonzero = success) onto the POSIX convention (0 = success) used by the
+# renameat2/renamex_np branches. The inverted mapping fails OPEN on collision
+# (attacker pre-creates snapshot_root -> TASK_INPUT_OK) and fails the happy
+# path. Executed here under a stubbed Win32 platform so the branch is covered
+# on every host, not only native Windows.
+python3 - "$SNAPSHOT" <<'PY' || fail "win32 MoveFileW success/failure mapping is inverted (RT-20260821-011)"
+import re, sys, os, types, ctypes, errno, time, tempfile
+
+# All imports happen BEFORE os.name is stubbed to "nt": shutil (pulled in by
+# tempfile) imports the real `nt` module when os.name == "nt".
+work = tempfile.mkdtemp()
+
+source = open(sys.argv[1], encoding="utf-8").read()
+match = re.search(r"^def atomic_publish_no_replace\(.*?(?=^def )", source, re.M | re.S)
+assert match, "atomic_publish_no_replace not found"
+
+calls = []
+class Failed(Exception):
+    pass
+def fail(code, message):
+    calls.append((code, message))
+    raise Failed(f"{code}: {message}")
+
+# Stub a Win32 host: os.name == "nt" selects the MoveFileW branch.
+real_name = os.name
+os.name = "nt"
+sys.platform = "win32"
+try:
+    namespace = {"os": os, "sys": sys, "ctypes": ctypes, "errno": errno, "fail": fail, "time": time}
+
+    def run(move_result, dest_exists, workdir):
+        dest = os.path.join(workdir, "dest")
+        if dest_exists:
+            os.makedirs(dest, exist_ok=True)
+        elif os.path.isdir(dest):
+            os.rmdir(dest)
+        ctypes.windll = types.SimpleNamespace(
+            kernel32=types.SimpleNamespace(MoveFileW=lambda s, d: move_result))
+        exec(match.group(0), namespace)
+        namespace["atomic_publish_no_replace"](os.path.join(workdir, "src"), dest)
+
+    # Success (BOOL nonzero) must return normally.
+    try:
+        run(1, False, work)
+    except Failed:
+        print("MoveFileW success was treated as failure", file=sys.stderr)
+        sys.exit(1)
+
+    # Failure (BOOL 0) with an existing destination must fail closed.
+    calls.clear()
+    try:
+        run(0, True, work)
+    except Failed:
+        pass
+    else:
+        print("MoveFileW failure on collision was treated as success (fail-open)", file=sys.stderr)
+        sys.exit(1)
+    assert calls and calls[0][0] == "PATH" and "already exists" in calls[0][1], calls
+finally:
+    os.name = real_name
+PY
 
 printf 'ok: task context isolation manifests, snapshots, fallback, and selector are deterministic\n'
