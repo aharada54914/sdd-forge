@@ -112,6 +112,36 @@ def enumerate_mirrors(root):
         yield bundle, rel, candidate, "candidate"
 
 
+def manifest_digest_mismatches(root):
+    """Yield (bundle, rel, recorded, actual) where a manifest digest is stale.
+
+    Separate from classify() on purpose. classify() compares staged bytes to
+    live bytes; this compares the manifest's recorded digest to the staged bytes
+    it describes. Those are different failures and one does not imply the other:
+    a change that rewrites live and staged identically leaves them agreeing
+    while the manifest silently goes stale. That is not hypothetical -- a
+    branch-wide rename did exactly this and only `phase2-guard-invariants`
+    caught it, one CI round later.
+    """
+    for manifest in sorted(glob.glob(
+            os.path.join(root, "specs", "*", "human-copy", "MANIFEST.sha256"))):
+        bundle_dir = os.path.dirname(manifest)
+        bundle = os.path.relpath(bundle_dir, root)
+        with open(manifest, encoding="utf-8") as handle:
+            for line in handle:
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+                recorded, _, rel = line.partition("  ")
+                rel = rel.strip()
+                staged = os.path.join(bundle_dir, rel)
+                if not (rel and os.path.isfile(staged)):
+                    continue
+                actual = _sha_file(staged)
+                if actual != recorded.strip():
+                    yield bundle, rel, recorded.strip(), actual
+
+
 def classify(root, main_digests=None):
     """Yield (state, bundle, rel, staged_path, rule) for every mirror."""
     main_digests = main_digests or _MainDigests(root)
@@ -140,6 +170,8 @@ def main(argv):
         return 3
     for state, bundle, rel, _staged, rule in classify(root, digests):
         print(f"{state}\t{bundle}\t{rel}\t{rule}")
+    for bundle, rel, _recorded, _actual in manifest_digest_mismatches(root):
+        print(f"MANIFEST-STALE\t{bundle}\t{rel}\tmanifest")
     return 0
 
 

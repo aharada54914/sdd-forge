@@ -85,6 +85,22 @@ if [ -n "$missing" ]; then
     done < <(printf '%s\n' "$missing")
 fi
 
+# MANIFEST-STALE is a distinct failure from STALE and neither implies the other.
+# A change that rewrites live and staged identically leaves them agreeing while
+# the manifest digest silently goes stale -- a branch-wide rename did exactly
+# that, and only phase2-guard-invariants caught it, one CI round later.
+manifest_stale="$(printf '%s\n' "$REPORT" | awk -F'\t' '$1 == "MANIFEST-STALE"')"
+if [ -z "$manifest_stale" ]; then
+    ok "every manifest digest matches the staged bytes it describes"
+else
+    printf 'not ok: manifest digests are stale -- run scripts/sync-human-copy-mirrors.py\n' >&2
+    while IFS=$'\t' read -r _ bundle rel _rule; do
+        [ -n "${bundle:-}" ] || continue
+        printf '    %s  <- %s\n' "$bundle" "$rel" >&2
+    done < <(printf '%s\n' "$manifest_stale")
+    FAIL=$((FAIL + 1))
+fi
+
 if [ -z "$stale" ]; then
     ok "every applied human-copy mirror is byte-identical to live"
 else

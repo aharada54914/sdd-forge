@@ -81,6 +81,20 @@ foreach ($row in @($rows | Where-Object { $_.State -eq 'MISSING' })) {
     Write-Bad "$($row.Bundle) stages $($row.Rel) ($($row.Rule)) but the live file does not exist"
 }
 
+# MANIFEST-STALE is a distinct failure from STALE and neither implies the other.
+# A change rewriting live and staged identically leaves them agreeing while the
+# manifest digest silently goes stale.
+$manifestStale = @($rows | Where-Object { $_.State -eq 'MANIFEST-STALE' })
+if ($manifestStale.Count -eq 0) {
+    Write-Ok 'every manifest digest matches the staged bytes it describes'
+} else {
+    Write-Error -Message 'not ok: manifest digests are stale -- run scripts/sync-human-copy-mirrors.py' -ErrorAction Continue
+    foreach ($row in $manifestStale) {
+        Write-Error -Message "    $($row.Bundle)  <- $($row.Rel)" -ErrorAction Continue
+    }
+    $script:Fail++
+}
+
 $stale = @($rows | Where-Object { $_.State -eq 'STALE' })
 if ($stale.Count -eq 0) {
     Write-Ok 'every applied human-copy mirror is byte-identical to live'
