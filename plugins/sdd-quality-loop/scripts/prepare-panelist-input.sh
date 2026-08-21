@@ -7,6 +7,26 @@
 #                             [--spec-root <dir>]
 #                             [--project-root <dir>]
 #                             [--effort <low|medium|high|xhigh>]
+#                             [--max-bytes <n>]
+#
+# --max-bytes (optional, no default — unset means unlimited): a fail-closed
+# size guard on the FINAL sanitized bundle. A vendor caller with a known
+# input cap (e.g. codex exec's 1,048,576-character limit) passes its own
+# threshold here. If the sanitized bundle would exceed it, this script
+# prints a per-section byte breakdown to stderr, writes NO output file, and
+# exits 1 — it never truncates. A panelist who cannot tell their input was
+# cut would report confident conclusions about material they never saw,
+# which is worse than a failed run that says so plainly.
+#
+# Per-file elision (only when --max-bytes is set): a single file under the
+# reviewed task's own verification/<task_id>/ evidence directory that
+# exceeds one quarter of --max-bytes is included as its first/last 40
+# lines plus a marker stating how many bytes were elided from the middle
+# and from which path — never silently. Spec documents, the task's own
+# contract/evidence.json, the implementation report, and every path the
+# report's "## Outputs" table declares are never elided. If the bundle is
+# still over --max-bytes after elision, this script still fails closed
+# exactly as above.
 #
 # Security (design.md §6):
 #   • Fail-closed consent gate: exits non-zero without writing output unless
@@ -45,6 +65,7 @@ out_path=""
 spec_root="specs"
 project_root=""
 effort=""
+max_bytes=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -56,6 +77,7 @@ while [ $# -gt 0 ]; do
         --spec-root)    spec_root="$2";     shift 2 ;;
         --project-root) project_root="$2";  shift 2 ;;
         --effort)       effort="$2";        shift 2 ;;
+        --max-bytes)    max_bytes="$2";     shift 2 ;;
         *) printf 'prepare-panelist-input: unknown argument: %s\n' "$1" >&2; exit 2 ;;
     esac
 done
@@ -260,34 +282,243 @@ if [ -z "$consent_kind" ]; then
 fi
 
 # ── Collect input content ────────────────────────────────────────────────────
-# find-based recursive traversal (replaces the single-level `for f in
-# "$input_path"/*` glob) so subdirectories of --input are visited too
-# (REQ-003/AC-013); sorted for determinism.
+# Task-scoped composition (replaces the earlier whole-directory `find
+# "$input_path"` walk of --input). The old walk read every file under
+# --input, which in real invocations was `specs/<feature>/` — every OTHER
+# task's evidence logs, quality-gate transcripts, and mutation output, all
+# concatenated into one bundle. Two panelists on epic-195 independently
+# reported this: bundles that were mostly unrelated-task noise while
+# containing "zero bytes of any of the five files [the task] actually
+# changed" — the Outputs table names those files, but the old walk never
+# read outside specs/. A directory walk is structurally the wrong shape for
+# "what does a reviewer of ONE task need"; this composes that set instead of
+# discovering it by traversal:
+#   1. the feature's spec documents (fixed filenames, each only if present)
+#   2. the reviewed task's own verification contract + evidence.json
+#   3. the reviewed task's own verification/<task_id>/ evidence directory
+#      (recursively, same panel-artifact exclusions the old walk applied)
+#   4. the reviewed task's own implementation report
+#   5. the CURRENT content of every path the report's "## Outputs" table
+#      declares — appended below, after check_declared_outputs_completeness
+#      resolves each row (see declared_content and _ppi_capture_declared_
+#      output_content), reusing that single resolution rather than re-
+#      reading paths a second, differently-behaved way.
+# --input is unchanged for a literal FILE argument (still read verbatim —
+# this is the shape PP-001..013's secret-sanitization fixtures use, and is
+# orthogonal to feature/task composition). --input is retained as the
+# completeness check's first-try resolution root (unchanged; see
+# check_declared_outputs_completeness) even though real callers now get
+# task-scoped content regardless of what --input points to.
 
 if [ ! -e "$input_path" ]; then
     printf 'prepare-panelist-input: input not found: %s\n' "$input_path" >&2
     exit 1
 fi
 
-if [ -d "$input_path" ]; then
-    raw_content=""
-    while IFS= read -r f; do
-        raw_content="${raw_content}$(cat "$f")
+# Tracks project-root-relative paths already pulled in by steps 1-4 above, so
+# step 5 (declared outputs) does not duplicate a file already present (e.g.
+# tasks.md and CHANGELOG.md are commonly both a spec document/committed file
+# AND a declared output; verification/<task_id>/*.log is commonly both the
+# task's own evidence dir AND separately declared). Only meaningful for rows
+# that resolve project-root-relative; rows resolved under --input have no
+# comparable identity here and are never deduplicated against this set.
+_ppi_seen_relpaths=""
+_ppi_mark_seen() {
+    _ppi_seen_relpaths="${_ppi_seen_relpaths}
+$1"
+}
+_ppi_is_seen() {
+    printf '%s\n' "$_ppi_seen_relpaths" | grep -qxF -- "$1"
+}
+
+# Per-file elision (Part 2, design.md §6 follow-up): a single oversized
+# evidence log (e.g. a whole-repo run-all capture), or several moderate
+# ones together, can push a bundle over --max-bytes even though every byte
+# is legitimate evidence, not noise. Truncating silently would let a
+# reviewer draw confident conclusions about material they never saw — the
+# same reasoning that made --max-bytes fail closed instead of truncating
+# the whole bundle (see the file header). The fix here is the same shape
+# at file granularity: keep a file's own first/last lines, and replace the
+# middle with a marker stating, in plain words, how many bytes were
+# removed and from which path.
+#
+# Budget-driven, not threshold-driven. An earlier version of this elided
+# any single file over one quarter of --max-bytes, which got two things
+# wrong in practice: a bundle with one file just over that fraction and
+# another just under it treated two near-identical artifacts oppositely
+# for no benefit when the bundle was refused anyway, and a bundle whose
+# overage was spread across many moderate files (none individually over
+# the fraction) got no elision help at all. This version composes the
+# bundle WHOLE first and measures it. If it already fits --max-bytes,
+# nothing is elided — every such bundle is byte-for-byte what it would be
+# with no elision logic in this script at all. Only when the whole bundle
+# is over cap does it elide, one file at a time, LARGEST FIRST, from the
+# elidable set only, recomputing the actual sanitized bundle size after
+# each elision (never estimated — eliding one file changes the total, so
+# each step re-measures) until it fits or the elidable set is exhausted.
+# Exhausted-and-still-over fails closed, unchanged in shape from before
+# Part 2. This is also the honest answer to the degenerate case where even
+# every elidable file's own head+tail+marker floor, summed with the
+# content that is never elided, still exceeds --max-bytes: no amount of
+# elision can fix that, so refusing to write is correct — identical in
+# spirit to failing closed when there were no elidable candidates at all.
+#
+# Scope: elision applies ONLY to files pulled in by step 3 below (the
+# reviewed task's own verification/<task_id>/ evidence directory). Spec
+# documents (step 1), the task's own contract/evidence.json (step 2), the
+# implementation report (step 4), and every declared-outputs row (step 5
+# — this is precisely "a source file named in the Outputs table") are
+# never elided: those are the bundle's actual claims and their supporting
+# source, not raw log noise, and truncating any of them would gut the
+# bundle's whole purpose. Head/tail size stays a fixed line count (not
+# proportional to the cap) — this exists purely for reviewer legibility
+# (show a log's setup and its final summary), never as a byte dial; the
+# byte-target job stays entirely with --max-bytes and the budget loop.
+_ppi_elide_lines=40
+_ppi_tab="$(printf '\t')"
+
+# One file's content, elided to its first/last $_ppi_elide_lines lines
+# plus a marker. Callers only invoke this for a file the budget loop below
+# has already decided to elide — it is not itself threshold-gated.
+_ppi_elide_content() {
+    _pec_file="$1"
+    _pec_label="$2"
+    _pec_total=$(wc -c < "$_pec_file" | tr -d ' ')
+    _pec_head=$(head -n "$_ppi_elide_lines" "$_pec_file")
+    _pec_tail=$(tail -n "$_ppi_elide_lines" "$_pec_file")
+    _pec_head_bytes=$(printf '%s\n' "$_pec_head" | wc -c | tr -d ' ')
+    _pec_tail_bytes=$(printf '%s\n' "$_pec_tail" | wc -c | tr -d ' ')
+    _pec_elided=$((_pec_total - _pec_head_bytes - _pec_tail_bytes))
+    [ "$_pec_elided" -lt 0 ] && _pec_elided=0
+    printf '%s\n' "$_pec_head"
+    printf '[... %s bytes elided from the middle of %s (original size %s bytes; showing first/last %s lines) ...]\n' \
+        "$_pec_elided" "$_pec_label" "$_pec_total" "$_ppi_elide_lines"
+    printf '%s\n' "$_pec_tail"
+}
+
+# Append one file's content to $raw_content with a path header, so a
+# reviewer (and these tests) can tell which bytes came from which file —
+# the old walk concatenated files with no such marker at all. Third
+# argument "1" reads the file through _ppi_elide_content instead of cat;
+# only the step-3 rebuild function below ever passes it.
+_ppi_append_content() {
+    if [ "${3:-0}" = "1" ]; then
+        raw_content="${raw_content}# ---- ${2} ----
+$(_ppi_elide_content "$1" "$2")
 "
-    # Exclude the panel's own artifacts. Without this the assembler swallows
-    # every earlier bundle and verdict sitting in verification/, which does two
-    # things: it doubles the bundle on each run (693KB -> 1.4MB -> 2.8MB
-    # observed), and it embeds prior panelists' conclusions in an input whose
-    # own header declares the review blind. Independence is the only thing a
-    # cross-model panel sells; leaking a sibling's verdict into it destroys the
-    # product while leaving every check green.
-    done < <(find "$input_path" -type f \
-        ! -name '*.panelist-input.txt' \
-        ! -name '*.verdict.json' \
-        ! -name '*.cross-model.json' | sort)
+    else
+        raw_content="${raw_content}# ---- ${2} ----
+$(cat "$1")
+"
+    fi
+}
+
+raw_content=""
+
+if [ -d "$input_path" ]; then
+    _ppi_spec_dir="${project_root}/${spec_root}/${feature}"
+
+    # 1. Spec documents (fixed order; only those that exist).
+    for _ppi_doc in requirements.md design.md acceptance-tests.md tasks.md \
+        traceability.md investigation.md \
+        ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+        _ppi_doc_path="${_ppi_spec_dir}/${_ppi_doc}"
+        if [ -f "$_ppi_doc_path" ] && [ ! -L "$_ppi_doc_path" ]; then
+            _ppi_doc_rel="${spec_root}/${feature}/${_ppi_doc}"
+            _ppi_append_content "$_ppi_doc_path" "$_ppi_doc_rel"
+            _ppi_mark_seen "$_ppi_doc_rel"
+        fi
+    done
+
+    # 2. The reviewed task's own verification contract + evidence.json.
+    _ppi_verif_dir="${_ppi_spec_dir}/verification"
+    for _ppi_vf in "${task_id}.contract.json" "${task_id}.evidence.json"; do
+        _ppi_vf_path="${_ppi_verif_dir}/${_ppi_vf}"
+        if [ -f "$_ppi_vf_path" ] && [ ! -L "$_ppi_vf_path" ]; then
+            _ppi_vf_rel="${spec_root}/${feature}/verification/${_ppi_vf}"
+            _ppi_append_content "$_ppi_vf_path" "$_ppi_vf_rel"
+            _ppi_mark_seen "$_ppi_vf_rel"
+        fi
+    done
+
+    # steps 1+2 are never elided — freeze them as the fixed prefix, then
+    # reset raw_content so step 4 (also never elided) can be assembled
+    # separately. Step 3 sits BETWEEN these two in the final bundle but is
+    # composed by _ppi_build_step3_content below, possibly more than once,
+    # so it is never accumulated directly into raw_content at all.
+    _ppi_content_prefix="$raw_content"
+    raw_content=""
+
+    # 3. The reviewed task's own verification/<task_id>/ evidence
+    # directory, recursively, sorted for determinism — same panel-artifact
+    # exclusions the old whole-directory walk applied, now scoped to just
+    # this task's own subdirectory instead of the whole feature. This pass
+    # only INVENTORIES the elidable candidates (size, absolute path,
+    # relative path, one per line in $_ppi_elidable_index) and marks each
+    # file seen — seen-ness and dedup against step 5 do not depend on
+    # whether a file ends up elided, only on whether it is present at all.
+    # Actual content composition happens in _ppi_build_step3_content,
+    # below, invoked by the budget loop after declared_content is ready.
+    _ppi_task_verif_dir="${_ppi_verif_dir}/${task_id}"
+    _ppi_elidable_index=""
+    if [ -d "$_ppi_task_verif_dir" ] && [ ! -L "$_ppi_task_verif_dir" ]; then
+        while IFS= read -r _ppi_tf; do
+            _ppi_tf_rel="${spec_root}/${feature}/verification/${task_id}/${_ppi_tf#"${_ppi_task_verif_dir}"/}"
+            _ppi_tf_bytes=$(wc -c < "$_ppi_tf" | tr -d ' ')
+            _ppi_elidable_index="${_ppi_elidable_index}${_ppi_tf_bytes}${_ppi_tab}${_ppi_tf}${_ppi_tab}${_ppi_tf_rel}
+"
+            _ppi_mark_seen "$_ppi_tf_rel"
+        done < <(find "$_ppi_task_verif_dir" -type f \
+            ! -name '*.panelist-input.txt' \
+            ! -name '*.verdict.json' \
+            ! -name '*.cross-model.json' | sort)
+    fi
+
+    # 4. The reviewed task's own implementation report.
+    _ppi_impl_report_path="${project_root}/reports/implementation/${feature}/${task_id}.md"
+    if [ -f "$_ppi_impl_report_path" ] && [ ! -L "$_ppi_impl_report_path" ]; then
+        _ppi_impl_report_rel="reports/implementation/${feature}/${task_id}.md"
+        _ppi_append_content "$_ppi_impl_report_path" "$_ppi_impl_report_rel"
+        _ppi_mark_seen "$_ppi_impl_report_rel"
+    fi
+    _ppi_content_suffix="$raw_content"
+    raw_content=""
 else
-    raw_content="$(cat "$input_path")"
+    _ppi_content_prefix="$(cat "$input_path")"
+    _ppi_content_suffix=""
+    _ppi_elidable_index=""
 fi
+
+# Rebuilds step 3's content from scratch given a set of relpaths (newline
+# list, $1) that should be elided THIS attempt; every other elidable file
+# is included whole. Sets global $_ppi_step3_content. Called once with an
+# empty elide-set (the "as if elision never existed" bundle) and, only if
+# that is over --max-bytes, again with one more relpath added each time —
+# largest-candidate-first, decided by the budget loop below.
+_ppi_build_step3_content() {
+    _pbs_elide_set="$1"
+    _ppi_step3_content=""
+    [ -n "$_ppi_elidable_index" ] || return 0
+    while IFS="$_ppi_tab" read -r _pbs_bytes _pbs_abspath _pbs_relpath; do
+        [ -n "$_pbs_relpath" ] || continue
+        if printf '%s\n' "$_pbs_elide_set" | grep -qxF -- "$_pbs_relpath"; then
+            _ppi_step3_content="${_ppi_step3_content}# ---- ${_pbs_relpath} ----
+$(_ppi_elide_content "$_pbs_abspath" "$_pbs_relpath")
+"
+        else
+            _ppi_step3_content="${_ppi_step3_content}# ---- ${_pbs_relpath} ----
+$(cat "$_pbs_abspath")
+"
+        fi
+    done < <(printf '%s\n' "$_ppi_elidable_index")
+}
+
+# Accumulates the CURRENT content of every "## Outputs" row
+# check_declared_outputs_completeness resolves (step 5 above); folded into
+# every budget-loop attempt below. Populated in both --input modes: a
+# literal-file --input can still name a task with its own implementation
+# report and Outputs table. Computed once — it never depends on the
+# elision decision (declared-outputs rows are never elided).declared_content=""
 
 # ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
 # Security Boundary B1 (security-spec.md): verifies every path the
@@ -492,6 +723,38 @@ _ppi_verify_at_declaration_commit() {
     return 0
 }
 
+# Append the CURRENT content the completeness check just verified for one
+# declared-outputs row into declared_content — reusing check_declared_
+# outputs_completeness's own resolution (candidate worktree file, or the
+# declaration-commit blob) rather than re-reading the row a second,
+# differently-behaved way. Skips a row already pulled in by the spec-
+# document/task-verification/implementation-report composition above (see
+# _ppi_is_seen) — comparison is only meaningful for project-root-relative
+# rows (row_project_relative = "1"); a row that only matched under --input
+# has no comparable identity in that set and is never deduplicated.
+_ppi_capture_declared_output_content() {
+    _cdo_row_path="$1"
+    _cdo_candidate="$2"          # resolved file path, or "" to use the
+                                  # declaration commit
+    _cdo_project_relative="$3"   # "1" or "0"
+
+    if [ "$_cdo_project_relative" = "1" ] && _ppi_is_seen "$_cdo_row_path"; then
+        return 0
+    fi
+
+    if [ -n "$_cdo_candidate" ]; then
+        declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output) ----
+$(cat "$_cdo_candidate")
+"
+    else
+        declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output, at declaration commit ${_ppi_decl_commit}) ----
+$(git -C "$project_root" show "${_ppi_decl_commit}:${_cdo_row_path}" 2>/dev/null)
+"
+    fi
+
+    [ "$_cdo_project_relative" = "1" ] && _ppi_mark_seen "$_cdo_row_path"
+}
+
 check_declared_outputs_completeness() {
     _impl_report="${project_root}/reports/implementation/${feature}/${task_id}.md"
     [ -f "$_impl_report" ] || return 0
@@ -539,6 +802,7 @@ check_declared_outputs_completeness() {
                 # re-check against the declaration commit before giving up
                 # (see _ppi_verify_at_declaration_commit).
                 if _ppi_verify_at_declaration_commit "$_row_path" "$_row_hash"; then
+                    _ppi_capture_declared_output_content "$_row_path" "" "1"
                     continue
                 fi
                 _gaps="${_gaps}prepare-panelist-input: declared output missing from bundle: ${_row_path}
@@ -551,10 +815,13 @@ check_declared_outputs_completeness() {
         if [ "$_actual_hash" != "$_row_hash" ]; then
             if [ "$_row_project_relative" = "1" ] && \
                _ppi_verify_at_declaration_commit "$_row_path" "$_row_hash"; then
+                _ppi_capture_declared_output_content "$_row_path" "" "1"
                 continue
             fi
             _gaps="${_gaps}prepare-panelist-input: declared output hash mismatch: ${_row_path}
 "
+        else
+            _ppi_capture_declared_output_content "$_row_path" "$_candidate" "$_row_project_relative"
         fi
     done < <(awk '
         /^## Outputs[[:space:]]*$/ { in_outputs = 1; next }
@@ -578,21 +845,25 @@ check_declared_outputs_completeness() {
 check_declared_outputs_completeness
 
 # ── Sanitize via python3 ─────────────────────────────────────────────────────
-# Uses python3 for reliable regex; required for sha256 as well.
-# Content is passed via a temp file to avoid shell interpolation of $ in Python heredocs.
+# Uses python3 for reliable regex; required for sha256 as well. Wrapped as
+# a function because the budget-driven size guard below may need to
+# sanitize more than one candidate bundle (once per elision attempt) —
+# content is still passed via a temp file to avoid shell interpolation of
+# $ in Python heredocs.
 
 if ! command -v python3 >/dev/null 2>&1; then
     printf 'prepare-panelist-input: python3 is required but not found\n' >&2
     exit 2
 fi
 
-_raw_tmp="$(mktemp)"
-_py_tmp="${_raw_tmp}.py"
-trap 'rm -f "$_raw_tmp" "$_py_tmp"' EXIT
+# Sanitizes $1, setting globals $_ppi_sanitized_digest/$_ppi_sanitized_content.
+_ppi_sanitize_content() {
+    _psc_raw_tmp="$(mktemp)"
+    _psc_py_tmp="${_psc_raw_tmp}.py"
 
-printf '%s' "$raw_content" > "$_raw_tmp"
+    printf '%s' "$1" > "$_psc_raw_tmp"
 
-cat > "$_py_tmp" << 'PYEOF'
+    cat > "$_psc_py_tmp" << 'PYEOF'
 import re, hashlib, sys
 
 raw_file = sys.argv[1]
@@ -663,18 +934,87 @@ sys.stdout.write(digest + "\n")
 sys.stdout.write(text)
 PYEOF
 
-sanitized_and_digest=$(python3 "$_py_tmp" "$_raw_tmp")
-_py_rc=$?
-rm -f "$_raw_tmp" "$_py_tmp"
+    _psc_out=$(python3 "$_psc_py_tmp" "$_psc_raw_tmp")
+    _psc_rc=$?
+    rm -f "$_psc_raw_tmp" "$_psc_py_tmp"
 
-if [ "$_py_rc" -ne 0 ]; then
-    printf 'prepare-panelist-input: sanitization failed\n' >&2
-    exit 2
+    if [ "$_psc_rc" -ne 0 ]; then
+        printf 'prepare-panelist-input: sanitization failed\n' >&2
+        exit 2
+    fi
+
+    _ppi_sanitized_digest=$(printf '%s\n' "$_psc_out" | head -1)
+    _ppi_sanitized_content=$(printf '%s\n' "$_psc_out" | tail -n +2)
+}
+
+# Measures the exact bytes a bundle built from the current
+# $_ppi_sanitized_digest/$_ppi_sanitized_content would occupy on disk —
+# header included, since that is what --max-bytes is measured against.
+_ppi_measure_bundle_bytes() {
+    _ppi_bundle_preview=$(
+        printf '# Panelist Input Bundle\n'
+        printf '# task_id: %s\n' "$task_id"
+        printf '# feature: %s\n' "$feature"
+        printf '# input_digest: %s\n' "$_ppi_sanitized_digest"
+        printf '# consent: %s\n' "$consent_kind"
+        printf '# WARNING: This file is sanitized for external LLM review.\n'
+        printf '#          Do not include secrets, absolute paths, or private URLs.\n'
+        printf '\n'
+        printf '%s\n' "$_ppi_sanitized_content"
+    )
+    printf '%s' "$_ppi_bundle_preview" | wc -c | tr -d ' '
+}
+
+# ── Size guard (fail-closed, --max-bytes only) — budget-driven elision ──────
+# Compose the bundle whole (empty elide-set) and measure it — the exact
+# bytes that would be written and sent to a panelist, not an approximation.
+
+_ppi_elide_set=""
+_ppi_build_step3_content "$_ppi_elide_set"
+_ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
+_ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+
+_ppi_elided_count=0
+if [ -n "$max_bytes" ] && [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
+    # Over cap with nothing elided yet. Elide elidable candidates one at a
+    # time, LARGEST FIRST, recomputing the actual sanitized bundle size
+    # after each (never estimated), stopping the moment it fits.
+    if [ -n "$_ppi_elidable_index" ]; then
+        while IFS="$_ppi_tab" read -r _ppi_cand_bytes _ppi_cand_abspath _ppi_cand_relpath; do
+            [ -n "$_ppi_cand_relpath" ] || continue
+            _ppi_elide_set="${_ppi_elide_set}
+${_ppi_cand_relpath}"
+            _ppi_elided_count=$((_ppi_elided_count + 1))
+            _ppi_build_step3_content "$_ppi_elide_set"
+            _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
+            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+            [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null || break
+        done < <(printf '%s\n' "$_ppi_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
+    fi
+
+    if [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
+        # Exhausted every elidable candidate (or there were none) and the
+        # bundle is still over cap — the degenerate case where even every
+        # elidable file's own head/tail/marker floor, summed with the
+        # content that is never elided, still exceeds --max-bytes. No
+        # further elision is possible; refusing to write is the only
+        # honest outcome, identical in shape to the no-elidable-candidates
+        # case this replaces.
+        printf 'prepare-panelist-input: sanitized bundle exceeds --max-bytes for %s/%s even after eliding %s elidable file(s) (%s > %s bytes) — refusing to write a silently-truncated bundle.\n' \
+            "$feature" "$task_id" "$_ppi_elided_count" "$_ppi_bundle_bytes" "$max_bytes" >&2
+        printf '  spec documents + task verification + implementation report: %s bytes\n' \
+            "$(printf '%s' "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}" | wc -c | tr -d ' ')" >&2
+        printf '  of which declared-outputs content:                          %s bytes\n' \
+            "$(printf '%s' "$declared_content" | wc -c | tr -d ' ')" >&2
+        printf '  sanitized bundle (header + content) that would have been written: %s bytes\n' \
+            "$_ppi_bundle_bytes" >&2
+        printf 'Every elidable verification-directory file is already cut to its head/tail; reduce input size further (e.g. split the report itself or a declared-outputs source) and retry, or omit --max-bytes to bypass the guard.\n' >&2
+        exit 1
+    fi
 fi
 
-# Split: first line is digest, remainder is sanitized content
-input_digest=$(printf '%s\n' "$sanitized_and_digest" | head -1)
-sanitized_content=$(printf '%s\n' "$sanitized_and_digest" | tail -n +2)
+input_digest="$_ppi_sanitized_digest"
+sanitized_content="$_ppi_sanitized_content"
 
 # ── Write output bundle ──────────────────────────────────────────────────────
 
