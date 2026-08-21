@@ -20,7 +20,7 @@
       {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
       {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
       {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
-      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "d30c0513db48b922a62f9e957b67c2820f43d477407bd8c5a451b8ed5e328476"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "38770deaf590060af86a7043224e2c202bed13dfb6b84ee21d6e98885abd815c"},
       {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"},
       {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"}
     ]
