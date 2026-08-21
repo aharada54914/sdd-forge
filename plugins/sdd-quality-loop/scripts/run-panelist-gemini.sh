@@ -263,17 +263,100 @@ raw_file, out_path, task_id, feature, model, expected_digest, consent_kind = sys
 with open(raw_file, encoding="utf-8", errors="replace") as f:
     raw = f.read()
 
-match = re.search(r'\{[\s\S]*\}', raw)
-if not match:
-    print("run-panelist-gemini: no JSON object found in gemini output", file=sys.stderr)
+TARGET_SCHEMA = "cross-model-verdict/v1"
+
+
+def strip_code_fences(text):
+    # Models wrap replies in ```json fences constantly, regardless of what
+    # the prompt asks for. The brace-balancer below does not depend on
+    # this (it only tracks '{'..matching '}'), but stripping fence lines
+    # first keeps diagnostics free of fence noise.
+    return re.sub(r'```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '', text)
+
+
+def find_json_object_candidates(text):
+    """Return each top-level brace-balanced '{...}' substring of `text`,
+    in order of appearance. String literals (and their backslash escapes)
+    are tracked so a '}' inside a JSON string does not close a candidate
+    early. Nested objects are not yielded separately -- only the outermost
+    '{' of each candidate starts a new scan."""
+    candidates = []
+    n = len(text)
+    i = 0
+    while i < n:
+        if text[i] != '{':
+            i += 1
+            continue
+        start = i
+        depth = 0
+        in_string = False
+        escape = False
+        j = i
+        closed_at = -1
+        while j < n:
+            c = text[j]
+            if in_string:
+                if escape:
+                    escape = False
+                elif c == '\\':
+                    escape = True
+                elif c == '"':
+                    in_string = False
+            else:
+                if c == '"':
+                    in_string = True
+                elif c == '{':
+                    depth += 1
+                elif c == '}':
+                    depth -= 1
+                    if depth == 0:
+                        closed_at = j
+                        break
+            j += 1
+        if closed_at >= 0:
+            candidates.append(text[start:closed_at + 1])
+            i = closed_at + 1
+        else:
+            # Unterminated from this '{' (e.g. a truncated echo) -- advance
+            # past it and keep scanning for the next candidate.
+            i = start + 1
+    return candidates
+
+
+cleaned = strip_code_fences(raw)
+candidates = find_json_object_candidates(cleaned)
+
+verdict = None
+rejections = []
+for idx, candidate in enumerate(candidates, start=1):
+    try:
+        parsed = json.loads(candidate)
+    except json.JSONDecodeError as e:
+        rejections.append(f"candidate {idx}: parse error: {e}")
+        continue
+    if not isinstance(parsed, dict):
+        rejections.append(f"candidate {idx}: parsed but is not a JSON object")
+        continue
+    schema = parsed.get("schema")
+    if schema != TARGET_SCHEMA:
+        rejections.append(f"candidate {idx}: parsed but schema is {schema!r} (expected {TARGET_SCHEMA!r})")
+        continue
+    verdict = parsed  # keep scanning -- the LAST matching candidate wins
+
+if verdict is None:
+    if not candidates:
+        print("run-panelist-gemini: no JSON object found in gemini output", file=sys.stderr)
+    else:
+        print(
+            f"run-panelist-gemini: no {TARGET_SCHEMA} verdict found among "
+            f"{len(candidates)} candidate JSON object(s) in gemini output",
+            file=sys.stderr,
+        )
+        for reason in rejections:
+            print(f"  {reason}", file=sys.stderr)
     print(f"raw output: {raw[:500]}", file=sys.stderr)
     sys.exit(1)
 
-try:
-    verdict = json.loads(match.group(0))
-except json.JSONDecodeError as e:
-    print(f"run-panelist-gemini: invalid JSON from gemini: {e}", file=sys.stderr)
-    sys.exit(1)
 
 required_fields = ["schema","task_id","feature","vendor","model","verdict","findings","blind","input_digest","consent"]
 missing = [f for f in required_fields if f not in verdict]

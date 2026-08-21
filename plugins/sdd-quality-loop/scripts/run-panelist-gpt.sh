@@ -307,7 +307,10 @@ completeness, and adherence to the stated requirements and design.
 
 ## Output Format
 
-Return ONLY a JSON object in this exact schema (no markdown, no prose):
+Your ENTIRE reply MUST be a single bare JSON object matching this exact
+schema. The first character of your reply MUST be `{` and the last
+character MUST be `}`. Do not include any prose before or after it, and
+do not wrap it in a Markdown code fence (no ``` of any kind):
 
 {
   "schema": "cross-model-verdict/v1",
@@ -332,6 +335,7 @@ Rules:
 - consent.kind: copy from the "# consent:" comment in the bundle header.
 - consent.ref: the tasks.md flag or SDD_SUDO reference from the bundle.
 - Do not include any text outside the JSON object.
+- Do not wrap the JSON object in a Markdown code fence.
 PROMPT_EOF
 
 # ── Invoke codex CLI in isolated scratch ─────────────────────────────────────
@@ -394,7 +398,24 @@ if [ "$_rc" -ne 0 ]; then
 fi
 
 # ── Extract and validate JSON from output ────────────────────────────────────
-# The output may contain prose + JSON; extract the first JSON object.
+# `codex exec` prints a full transcript: preamble, the echoed prompt (which
+# itself contains the JSON schema example and the whole sanitized bundle --
+# both riddled with braces), the assistant's reply, then trailer lines. A
+# greedy `\{[\s\S]*\}` regex spans from the FIRST `{` anywhere in that
+# transcript to the LAST `}` anywhere in it, which almost always starts
+# inside the echoed prompt/bundle rather than at the verdict -- this was
+# the actual cause of "invalid JSON from codex: ... line 7 column 21",
+# confirmed against a live transcript: the regex's span began at the `{`
+# in the prompt's own "Output Format" example (whose "PASS" | "NEEDS_WORK"
+# is deliberately not valid JSON).
+#
+# Fixed by scanning for brace-balanced candidate objects (respecting string
+# literals/escapes so a `}` inside a string cannot close a candidate
+# early), parsing each, and keeping the LAST one that parses AND carries
+# "schema": "cross-model-verdict/v1". Taking the last makes an echoed
+# bundle harmless (codex also prints the real verdict a second time as its
+# own trailing "last agent message" line); requiring the schema key stops
+# a stray object elsewhere in the transcript from being mistaken for one.
 
 python3 - "$_raw_output" "$out_path" "$task_id" "$feature" "$model" "$input_digest" "$consent_kind" << 'PYEOF'
 import json, re, sys
@@ -404,17 +425,98 @@ raw_file, out_path, task_id, feature, model, expected_digest, consent_kind = sys
 with open(raw_file, encoding="utf-8", errors="replace") as f:
     raw = f.read()
 
-# Try to extract JSON object from output
-match = re.search(r'\{[\s\S]*\}', raw)
-if not match:
-    print(f"run-panelist-gpt: no JSON object found in codex output", file=sys.stderr)
-    print(f"raw output: {raw[:500]}", file=sys.stderr)
-    sys.exit(1)
+TARGET_SCHEMA = "cross-model-verdict/v1"
 
-try:
-    verdict = json.loads(match.group(0))
-except json.JSONDecodeError as e:
-    print(f"run-panelist-gpt: invalid JSON from codex: {e}", file=sys.stderr)
+
+def strip_code_fences(text):
+    # Models wrap replies in ```json fences constantly, regardless of what
+    # the prompt asks for. The brace-balancer below does not depend on
+    # this (it only tracks '{'..matching '}'), but stripping fence lines
+    # first keeps diagnostics free of fence noise.
+    return re.sub(r'```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '', text)
+
+
+def find_json_object_candidates(text):
+    """Return each top-level brace-balanced '{...}' substring of `text`,
+    in order of appearance. String literals (and their backslash escapes)
+    are tracked so a '}' inside a JSON string does not close a candidate
+    early. Nested objects are not yielded separately -- only the outermost
+    '{' of each candidate starts a new scan."""
+    candidates = []
+    n = len(text)
+    i = 0
+    while i < n:
+        if text[i] != '{':
+            i += 1
+            continue
+        start = i
+        depth = 0
+        in_string = False
+        escape = False
+        j = i
+        closed_at = -1
+        while j < n:
+            c = text[j]
+            if in_string:
+                if escape:
+                    escape = False
+                elif c == '\\':
+                    escape = True
+                elif c == '"':
+                    in_string = False
+            else:
+                if c == '"':
+                    in_string = True
+                elif c == '{':
+                    depth += 1
+                elif c == '}':
+                    depth -= 1
+                    if depth == 0:
+                        closed_at = j
+                        break
+            j += 1
+        if closed_at >= 0:
+            candidates.append(text[start:closed_at + 1])
+            i = closed_at + 1
+        else:
+            # Unterminated from this '{' (e.g. a truncated echo) -- advance
+            # past it and keep scanning for the next candidate.
+            i = start + 1
+    return candidates
+
+
+cleaned = strip_code_fences(raw)
+candidates = find_json_object_candidates(cleaned)
+
+verdict = None
+rejections = []
+for idx, candidate in enumerate(candidates, start=1):
+    try:
+        parsed = json.loads(candidate)
+    except json.JSONDecodeError as e:
+        rejections.append(f"candidate {idx}: parse error: {e}")
+        continue
+    if not isinstance(parsed, dict):
+        rejections.append(f"candidate {idx}: parsed but is not a JSON object")
+        continue
+    schema = parsed.get("schema")
+    if schema != TARGET_SCHEMA:
+        rejections.append(f"candidate {idx}: parsed but schema is {schema!r} (expected {TARGET_SCHEMA!r})")
+        continue
+    verdict = parsed  # keep scanning -- the LAST matching candidate wins
+
+if verdict is None:
+    if not candidates:
+        print("run-panelist-gpt: no JSON object found in codex output", file=sys.stderr)
+    else:
+        print(
+            f"run-panelist-gpt: no {TARGET_SCHEMA} verdict found among "
+            f"{len(candidates)} candidate JSON object(s) in codex output",
+            file=sys.stderr,
+        )
+        for reason in rejections:
+            print(f"  {reason}", file=sys.stderr)
+    print(f"raw output: {raw[:500]}", file=sys.stderr)
     sys.exit(1)
 
 # Minimal schema validation

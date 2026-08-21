@@ -186,7 +186,10 @@ completeness, and adherence to the stated requirements and design.
 
 ## Output Format
 
-Return ONLY a JSON object in this exact schema (no markdown, no prose):
+Your ENTIRE reply MUST be a single bare JSON object matching this exact
+schema. The first character of your reply MUST be `{` and the last
+character MUST be `}`. Do not include any prose before or after it, and
+do not wrap it in a Markdown code fence (no ``` of any kind):
 
 {
   "schema": "cross-model-verdict/v1",
@@ -211,6 +214,7 @@ Rules:
 - consent.kind: copy from the "# consent:" comment in the bundle header.
 - consent.ref: the tasks.md flag or SDD_SUDO reference from the bundle.
 - Do not include any text outside the JSON object.
+- Do not wrap the JSON object in a Markdown code fence.
 '@
 
     $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
@@ -272,18 +276,123 @@ Rules:
     }
 
     # ── Extract and validate JSON ─────────────────────────────────────────────
-    $raw = Get-Content -Raw -Encoding Utf8 $rawOutput
-    $jsonMatch = [regex]::Match($raw, '\{[\s\S]*\}')
-    if (-not $jsonMatch.Success) {
-        [Console]::Error.WriteLine("run-panelist-gpt: no JSON object found in codex output")
-        [Console]::Error.WriteLine("raw: $($raw.Substring(0, [Math]::Min(500, $raw.Length)))")
-        exit 1
+    # `codex exec` prints a full transcript: preamble, the echoed prompt
+    # (which itself contains the JSON schema example and the whole
+    # sanitized bundle -- both riddled with braces), the assistant's
+    # reply, then trailer lines. A greedy '\{[\s\S]*\}' regex spans from
+    # the FIRST '{' anywhere in that transcript to the LAST '}' anywhere
+    # in it, which almost always starts inside the echoed prompt/bundle
+    # rather than at the verdict -- confirmed against a live transcript,
+    # where the span began at the '{' in the prompt's own "Output Format"
+    # example (whose "PASS" or "NEEDS_WORK" is deliberately not valid
+    # JSON), producing a downstream parse error that pointed nowhere near
+    # the real verdict.
+    #
+    # Fixed by scanning for brace-balanced candidate objects (respecting
+    # string literals/escapes so a '}' inside a string cannot close a
+    # candidate early), parsing each, and keeping the LAST one that parses
+    # AND carries "schema": "cross-model-verdict/v1". Taking the last
+    # makes an echoed bundle harmless (codex also prints the real verdict
+    # a second time as its own trailing "last agent message" line);
+    # requiring the schema key stops a stray object elsewhere in the
+    # transcript from being mistaken for one.
+    $rawOutputText = [string](Get-Content -Raw -Encoding Utf8 $rawOutput)
+    $targetSchema = "cross-model-verdict/v1"
+
+    # Models wrap replies in ```json fences constantly, regardless of what
+    # the prompt asks for. The brace-balancer below does not depend on
+    # this (it only tracks '{'..matching '}'), but stripping fence lines
+    # first keeps diagnostics free of fence noise.
+    $cleanedOutputText = [regex]::Replace($rawOutputText, '```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '')
+
+    function Get-JsonObjectCandidates([string]$Text) {
+        # Returns each top-level brace-balanced '{...}' substring of $Text,
+        # in order of appearance. Nested objects are not yielded
+        # separately -- only the outermost '{' of each candidate starts a
+        # new scan.
+        $candidates = [System.Collections.Generic.List[string]]::new()
+        $n = $Text.Length
+        $i = 0
+        while ($i -lt $n) {
+            if ($Text[$i] -ne '{') { $i++; continue }
+            $start = $i
+            $depth = 0
+            $inString = $false
+            $escape = $false
+            $j = $i
+            $closedAt = -1
+            while ($j -lt $n) {
+                $c = $Text[$j]
+                if ($inString) {
+                    if ($escape) {
+                        $escape = $false
+                    } elseif ($c -eq '\') {
+                        $escape = $true
+                    } elseif ($c -eq '"') {
+                        $inString = $false
+                    }
+                } else {
+                    if ($c -eq '"') {
+                        $inString = $true
+                    } elseif ($c -eq '{') {
+                        $depth++
+                    } elseif ($c -eq '}') {
+                        $depth--
+                        if ($depth -eq 0) { $closedAt = $j; break }
+                    }
+                }
+                $j++
+            }
+            if ($closedAt -ge 0) {
+                $candidates.Add($Text.Substring($start, $closedAt - $start + 1))
+                $i = $closedAt + 1
+            } else {
+                # Unterminated from this '{' (e.g. a truncated echo) --
+                # advance past it and keep scanning for the next candidate.
+                $i = $start + 1
+            }
+        }
+        # -NoEnumerate matters: a bare `return $candidates` lets PowerShell's
+        # output pipeline enumerate the List[string], and when it holds
+        # EXACTLY ONE element that element is unwrapped into a scalar
+        # string at the call site -- `$candidates[$ci]` then silently
+        # indexes INTO THAT STRING (returning a single character) instead
+        # of indexing the list, corrupting every single-candidate case.
+        Write-Output -NoEnumerate $candidates
     }
 
-    try {
-        $verdict = $jsonMatch.Value | ConvertFrom-Json
-    } catch {
-        [Console]::Error.WriteLine("run-panelist-gpt: invalid JSON from codex: $_")
+    $candidates = Get-JsonObjectCandidates $cleanedOutputText
+
+    $verdict = $null
+    $rejections = [System.Collections.Generic.List[string]]::new()
+    for ($ci = 0; $ci -lt $candidates.Count; $ci++) {
+        $candidateNum = $ci + 1
+        try {
+            $parsed = $candidates[$ci] | ConvertFrom-Json -ErrorAction Stop
+        } catch {
+            $rejections.Add("candidate ${candidateNum}: parse error: $($_.Exception.Message)")
+            continue
+        }
+        if ($parsed -isnot [System.Management.Automation.PSCustomObject]) {
+            $rejections.Add("candidate ${candidateNum}: parsed but is not a JSON object")
+            continue
+        }
+        $schemaVal = $parsed.schema
+        if (-not [string]::Equals([string]$schemaVal, $targetSchema, [StringComparison]::Ordinal)) {
+            $rejections.Add("candidate ${candidateNum}: parsed but schema is '$schemaVal' (expected '$targetSchema')")
+            continue
+        }
+        $verdict = $parsed  # keep scanning -- the LAST matching candidate wins
+    }
+
+    if (-not $verdict) {
+        if ($candidates.Count -eq 0) {
+            [Console]::Error.WriteLine("run-panelist-gpt: no JSON object found in codex output")
+        } else {
+            [Console]::Error.WriteLine("run-panelist-gpt: no $targetSchema verdict found among $($candidates.Count) candidate JSON object(s) in codex output")
+            foreach ($r in $rejections) { [Console]::Error.WriteLine("  $r") }
+        }
+        [Console]::Error.WriteLine("raw: $($rawOutputText.Substring(0, [Math]::Min(500, $rawOutputText.Length)))")
         exit 1
     }
 

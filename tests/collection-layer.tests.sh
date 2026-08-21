@@ -502,6 +502,258 @@ else
 fi
 
 # ============================================================================
+# CL-019: run-panelist-gpt -- `codex exec` echoes the whole prompt (including
+# the JSON schema *example*, which is deliberately not valid JSON) before
+# the real verdict. This is the actual bug reproduced verbatim: a greedy
+# `\{[\s\S]*\}` regex spans from the example's `{` to the real verdict's
+# final `}`, which fails to parse. Assert on the EXTRACTED CONTENT, not
+# merely exit 0, so a revert to "first object wins" cannot pass silently.
+# ============================================================================
+
+echo "=== CL-019: run-panelist-gpt extracts the real verdict, not an echoed distractor ==="
+
+CL019_BIN="${WORK}/cl019-bin"
+mkdir -p "${CL019_BIN}"
+cat > "${CL019_BIN}/codex" << 'STUBEOF'
+#!/bin/sh
+cat << 'TRANSCRIPT'
+OpenAI Codex v0.147.0
+--------
+workdir: /tmp/scratch
+model: gpt-5.6-sol
+--------
+user
+## Output Format
+
+Return ONLY a JSON object in this exact schema (no markdown, no prose):
+
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "<task_id>",
+  "feature": "<feature>",
+  "vendor": "openai",
+  "model": "<model>",
+  "verdict": "PASS" | "NEEDS_WORK",
+  "findings": [
+    { "severity": "Critical" | "Major" | "Minor", "ref": "<file:line or section>", "note": "<description>" }
+  ],
+  "blind": true,
+  "input_digest": "<digest-from-bundle-header>",
+  "consent": { "kind": "<consent-kind>", "ref": "<ref>" }
+}
+
+some other distractor object elsewhere in the echoed bundle: {"unrelated": true, "count": 2}
+
+codex
+{"schema":"cross-model-verdict/v1","task_id":"T-019","feature":"feat","vendor":"openai","model":"stub-model","verdict":"NEEDS_WORK","findings":[{"severity":"Major","ref":"x","note":"y"}],"blind":true,"input_digest":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2","consent":{"kind":"human-flag","ref":"stub"}}
+hook: Stop
+tokens used
+193326
+{"schema":"cross-model-verdict/v1","task_id":"T-019","feature":"feat","vendor":"openai","model":"stub-model","verdict":"NEEDS_WORK","findings":[{"severity":"Major","ref":"x","note":"y"}],"blind":true,"input_digest":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2","consent":{"kind":"human-flag","ref":"stub"}}
+TRANSCRIPT
+exit 0
+STUBEOF
+chmod +x "${CL019_BIN}/codex"
+
+mkdir -p "${WORK}/cl019/specs"
+printf 'bundle content\n' > "${WORK}/cl019/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL019_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gpt.sh" \
+    --task T-019 --feature feat \
+    --input "${WORK}/cl019/input.txt" \
+    --spec-root "${WORK}/cl019/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+CL019_OUT="${WORK}/cl019/specs/feat/verification/T-019.panelist-openai.verdict.json"
+if [ "${RUN_EXIT}" = "0" ] && [ -f "${CL019_OUT}" ]; then
+    ok "CL-019a: run-panelist-gpt exits 0 and writes a verdict file despite echoed distractor objects"
+else
+    fail "CL-019a: expected exit 0 and a written verdict file, got exit ${RUN_EXIT} -- ${RUN_OUTPUT}"
+fi
+if [ -f "${CL019_OUT}" ] && grep -q '"verdict": "NEEDS_WORK"' "${CL019_OUT}" && grep -q '"note": "y"' "${CL019_OUT}"; then
+    ok "CL-019b: the extracted verdict is the REAL one (NEEDS_WORK/note=y), not the mangled schema example or the unrelated distractor"
+else
+    fail "CL-019b: extracted verdict did not match the real payload -- $(cat "${CL019_OUT}" 2>/dev/null)"
+fi
+
+# ============================================================================
+# CL-020: run-panelist-gpt -- a verdict wrapped in a ```json Markdown code
+# fence is still extracted (models fence their replies constantly,
+# regardless of what the prompt asks for).
+# ============================================================================
+
+echo "=== CL-020: run-panelist-gpt extracts a fenced verdict ==="
+
+CL020_BIN="${WORK}/cl020-bin"
+mkdir -p "${CL020_BIN}"
+cat > "${CL020_BIN}/codex" << 'STUBEOF'
+#!/bin/sh
+cat << 'TRANSCRIPT'
+codex
+```json
+{"schema":"cross-model-verdict/v1","task_id":"T-020","feature":"feat","vendor":"openai","model":"stub-model","verdict":"PASS","findings":[],"blind":true,"input_digest":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2","consent":{"kind":"human-flag","ref":"stub"}}
+```
+TRANSCRIPT
+exit 0
+STUBEOF
+chmod +x "${CL020_BIN}/codex"
+
+mkdir -p "${WORK}/cl020/specs"
+printf 'bundle content\n' > "${WORK}/cl020/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL020_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gpt.sh" \
+    --task T-020 --feature feat \
+    --input "${WORK}/cl020/input.txt" \
+    --spec-root "${WORK}/cl020/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+CL020_OUT="${WORK}/cl020/specs/feat/verification/T-020.panelist-openai.verdict.json"
+if [ "${RUN_EXIT}" = "0" ] && [ -f "${CL020_OUT}" ] && grep -q '"verdict": "PASS"' "${CL020_OUT}"; then
+    ok "CL-020: a \`\`\`json-fenced verdict is extracted"
+else
+    fail "CL-020: expected the fenced verdict to be extracted, got exit ${RUN_EXIT} -- ${RUN_OUTPUT}"
+fi
+
+# ============================================================================
+# CL-021: run-panelist-gpt -- output contains parseable JSON objects, but
+# none carries "schema": "cross-model-verdict/v1" -> exit non-zero, no
+# verdict file written (a stray object must never be mistaken for a
+# verdict).
+# ============================================================================
+
+echo "=== CL-021: run-panelist-gpt rejects output with no schema-matching object ==="
+
+CL021_BIN="${WORK}/cl021-bin"
+mkdir -p "${CL021_BIN}"
+cat > "${CL021_BIN}/codex" << 'STUBEOF'
+#!/bin/sh
+cat << 'TRANSCRIPT'
+codex
+preamble text with {"schema": "cross-model-verdict/v0", "task_id": "T-021"} and also {"other": "thing", "count": 1}
+TRANSCRIPT
+exit 0
+STUBEOF
+chmod +x "${CL021_BIN}/codex"
+
+mkdir -p "${WORK}/cl021/specs"
+printf 'bundle content\n' > "${WORK}/cl021/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL021_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gpt.sh" \
+    --task T-021 --feature feat \
+    --input "${WORK}/cl021/input.txt" \
+    --spec-root "${WORK}/cl021/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+if [ "${RUN_EXIT}" != "0" ]; then
+    ok "CL-021a: no schema-matching candidate -> non-zero exit (got ${RUN_EXIT})"
+else
+    fail "CL-021a: expected non-zero exit when no candidate carries the verdict schema, got 0 -- ${RUN_OUTPUT}"
+fi
+if echo "${RUN_OUTPUT}" | grep -qi "candidate"; then
+    ok "CL-021b: diagnostic reports candidate objects were considered and rejected"
+else
+    fail "CL-021b: expected a candidate-aware diagnostic, got: ${RUN_OUTPUT}"
+fi
+if [ ! -f "${WORK}/cl021/specs/feat/verification/T-021.panelist-openai.verdict.json" ]; then
+    ok "CL-021c: no verdict file is written when no candidate matches the schema"
+else
+    fail "CL-021c: a verdict file was written despite no schema-matching candidate"
+fi
+
+# ============================================================================
+# CL-022: run-panelist-gpt -- a `}` inside a JSON string value (a finding's
+# note) must not truncate the object early. Proven by round-tripping the
+# full note text through to the written verdict file.
+# ============================================================================
+
+echo "=== CL-022: run-panelist-gpt does not truncate on a '}' inside a string literal ==="
+
+CL022_BIN="${WORK}/cl022-bin"
+mkdir -p "${CL022_BIN}"
+cat > "${CL022_BIN}/codex" << 'STUBEOF'
+#!/bin/sh
+cat << 'TRANSCRIPT'
+codex
+{"schema":"cross-model-verdict/v1","task_id":"T-022","feature":"feat","vendor":"openai","model":"stub-model","verdict":"PASS","findings":[{"severity":"Minor","ref":"x","note":"contains a closing brace } inside a string, must not truncate here"}],"blind":true,"input_digest":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2","consent":{"kind":"human-flag","ref":"stub"}}
+TRANSCRIPT
+exit 0
+STUBEOF
+chmod +x "${CL022_BIN}/codex"
+
+mkdir -p "${WORK}/cl022/specs"
+printf 'bundle content\n' > "${WORK}/cl022/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL022_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gpt.sh" \
+    --task T-022 --feature feat \
+    --input "${WORK}/cl022/input.txt" \
+    --spec-root "${WORK}/cl022/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+CL022_OUT="${WORK}/cl022/specs/feat/verification/T-022.panelist-openai.verdict.json"
+if [ "${RUN_EXIT}" = "0" ] && [ -f "${CL022_OUT}" ] \
+   && grep -q "must not truncate here" "${CL022_OUT}" \
+   && grep -q '"input_digest"' "${CL022_OUT}"; then
+    ok "CL-022: a '}' inside a string value does not truncate the object -- full note and trailing fields survived"
+else
+    fail "CL-022: expected the full note (through the trailing fields) to survive extraction, got exit ${RUN_EXIT} -- $(cat "${CL022_OUT}" 2>/dev/null)"
+fi
+
+# ============================================================================
+# CL-023: run-panelist-gpt -- malformed JSON (a single, unparseable
+# candidate) still exits non-zero, and the diagnostic names the candidate
+# and its parse error rather than pointing at an unidentifiable span.
+# ============================================================================
+
+echo "=== CL-023: run-panelist-gpt reports a useful diagnostic for malformed JSON ==="
+
+CL023_BIN="${WORK}/cl023-bin"
+mkdir -p "${CL023_BIN}"
+cat > "${CL023_BIN}/codex" << 'STUBEOF'
+#!/bin/sh
+cat << 'TRANSCRIPT'
+codex
+{"schema": "cross-model-verdict/v1", "verdict": }
+TRANSCRIPT
+exit 0
+STUBEOF
+chmod +x "${CL023_BIN}/codex"
+
+mkdir -p "${WORK}/cl023/specs"
+printf 'bundle content\n' > "${WORK}/cl023/input.txt"
+
+RUN_EXIT=0
+RUN_OUTPUT=""
+RUN_OUTPUT=$(PATH="${CL023_BIN}:/usr/bin:/bin" bash "${SCRIPTS_DIR}/run-panelist-gpt.sh" \
+    --task T-023 --feature feat \
+    --input "${WORK}/cl023/input.txt" \
+    --spec-root "${WORK}/cl023/specs" \
+    --digest "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2" 2>&1) || RUN_EXIT=$?
+
+if [ "${RUN_EXIT}" != "0" ]; then
+    ok "CL-023a: malformed JSON -> non-zero exit (got ${RUN_EXIT})"
+else
+    fail "CL-023a: expected non-zero exit for malformed JSON, got 0 -- ${RUN_OUTPUT}"
+fi
+if echo "${RUN_OUTPUT}" | grep -qi "candidate 1" && echo "${RUN_OUTPUT}" | grep -qi "parse error"; then
+    ok "CL-023b: diagnostic names candidate 1 and its parse error (not just an unidentifiable span)"
+else
+    fail "CL-023b: expected a candidate-numbered parse-error diagnostic, got: ${RUN_OUTPUT}"
+fi
+if [ ! -f "${WORK}/cl023/specs/feat/verification/T-023.panelist-openai.verdict.json" ]; then
+    ok "CL-023c: no verdict file is written for malformed JSON"
+else
+    fail "CL-023c: a verdict file was written despite malformed JSON"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 
