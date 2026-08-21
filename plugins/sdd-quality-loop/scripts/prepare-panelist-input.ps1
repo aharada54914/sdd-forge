@@ -17,15 +17,17 @@
 # cut would report confident conclusions about material they never saw,
 # which is worse than a failed run that says so plainly.
 #
-# Per-file elision (only when --max-bytes is set): a single file under the
-# reviewed task's own verification/<task_id>/ evidence directory that
-# exceeds one quarter of --max-bytes is included as its first/last 40
-# lines plus a marker stating how many bytes were elided from the middle
-# and from which path -- never silently. Spec documents, the task's own
-# contract/evidence.json, the implementation report, and every path the
-# report's "## Outputs" table declares are never elided. If the bundle is
-# still over --max-bytes after elision, this script still fails closed
-# exactly as above.
+# Per-file elision (only when --max-bytes is set): a single evidence file --
+# either one under the reviewed task's own verification/<task_id>/
+# directory, or a path the task's own contract.json names in an "evidence",
+# "red_evidence", or "green_evidence" field, wherever in the repo that path
+# lives -- that exceeds one quarter of --max-bytes is included as its
+# first/last 40 lines plus a marker stating how many bytes were elided from
+# the middle and from which path -- never silently. Spec documents, the
+# task's own contract/evidence.json, the implementation report, and every
+# path the report's "## Outputs" table declares are never elided. If the
+# bundle is still over --max-bytes after elision, this script still fails
+# closed exactly as above.
 #
 # Security (design.md §6):
 #   * Fail-closed consent gate: exits non-zero without writing output unless
@@ -235,6 +237,15 @@ if (-not $ConsentKind) {
 #   2. the reviewed task's own verification contract + evidence.json
 #   3. the reviewed task's own verification/<task_id>/ evidence directory
 #      (recursively, same panel-artifact exclusions the old walk applied)
+#   3b. every path the reviewed task's own contract.json names in an
+#      "evidence", "red_evidence", or "green_evidence" field, whenever that
+#      path is NOT already covered by step 3 (a task's contract routinely
+#      names shared evidence outside verification/<task_id>/, e.g.
+#      verification/qg/shared/regression.log -- a panelist handed a check
+#      asserting passes:false with no way to read what it points at cannot
+#      tell whether that claim is honest, which is the same defect two
+#      panelists already raised about source code, one level over). See
+#      Get-PpiContractEvidencePaths.
 #   4. the reviewed task's own implementation report
 #   5. the CURRENT content of every path the report's "## Outputs" table
 #      declares -- appended below, after Invoke-DeclaredOutputsCompleteness
@@ -251,6 +262,91 @@ if (-not $ConsentKind) {
 if (-not (Test-Path $InputPath)) {
     [Console]::Error.WriteLine("prepare-panelist-input: input not found: $InputPath")
     exit 1
+}
+
+# Rejects any declared path that is not a plain, relative, forward-slash,
+# no-`..`-segment path -- containment check BEFORE any read is attempted.
+# Shared by step 3b below (contract-declared evidence) and by
+# Invoke-DeclaredOutputsCompletenessCheck further down (Outputs-table
+# rows) -- both need the identical containment discipline applied to a
+# path taken from repo content, not from a trusted caller.
+function Test-DeclaredOutputCanonicalPath {
+    param([string]$Path)
+    if ([string]::IsNullOrEmpty($Path)) { return $false }
+    if ($Path.StartsWith("/")) { return $false }
+    if ($Path -match "^[A-Za-z]:") { return $false }
+    if ($Path.Contains("\")) { return $false }
+    if ($Path -match "(^|/)\.\.?(/|$)") { return $false }
+    return $true
+}
+
+# Resolve one declared row (an Outputs-table path, or here a contract's
+# evidence/red_evidence/green_evidence path) under a single candidate root,
+# applying a component-walk symlink guard -- no symbolic link anywhere
+# between the candidate root and the candidate may be followed (mirrors
+# validate-review-context-set.sh's own symlink-component-walk). Returns
+# @{ State = "Matched"|"Escaped"|"Absent"; Candidate = ... } (Candidate is
+# set only when State is "Matched").
+function Resolve-DeclaredOutputRow {
+    param([string]$RowPath, [string]$Root)
+
+    $current = $Root.TrimEnd('/', '\')
+    $escaped = $false
+    foreach ($component in ($RowPath -split '/')) {
+        $current = "$current/$component"
+        $item = Get-Item -LiteralPath $current -ErrorAction SilentlyContinue
+        if ($item -and $item.LinkType) { $escaped = $true }
+    }
+    if ($escaped) {
+        return @{ State = "Escaped"; Candidate = $null }
+    }
+
+    $candidate = Join-Path $Root $RowPath
+    $candidateItem = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
+    if ($candidateItem -and (-not $candidateItem.PSIsContainer) -and (-not $candidateItem.LinkType)) {
+        return @{ State = "Matched"; Candidate = $candidate }
+    }
+    return @{ State = "Absent"; Candidate = $null }
+}
+
+# Extract every unique, non-empty "evidence"/"red_evidence"/"green_evidence"
+# value across a contract.json's "checks" array, in first-seen order.
+# Self-dedups (a contract routinely repeats the same path across
+# evidence/green_evidence, or across sibling checks like unit-tests and
+# acceptance-tests sharing one log) so step 3b below never considers the
+# same path twice from the same contract. Returns an empty array (not an
+# error) on a missing/unparseable contract or an absent/non-array "checks"
+# field -- contract shape is check-contract.ps1's job, not this script's;
+# a task under review with no contract yet simply contributes no extra
+# evidence paths here.
+function Get-PpiContractEvidencePaths {
+    param([string]$ContractPath)
+
+    $result = New-Object System.Collections.Generic.List[string]
+    $seen = New-Object System.Collections.Generic.HashSet[string]
+
+    try {
+        $contract = Get-Content -Raw -Encoding Utf8 -LiteralPath $ContractPath | ConvertFrom-Json -ErrorAction Stop
+    } catch {
+        return $result
+    }
+
+    $checks = $contract.checks
+    if (-not $checks) { return $result }
+
+    foreach ($check in @($checks)) {
+        foreach ($field in @("evidence", "red_evidence", "green_evidence")) {
+            $val = $check.$field
+            if ($val -isnot [string]) { continue }
+            $val = $val.Trim()
+            if (-not $val) { continue }
+            if ($seen.Add($val)) {
+                $result.Add($val) | Out-Null
+            }
+        }
+    }
+
+    return $result
 }
 
 # Tracks project-root-relative paths already pulled in by steps 1-4 above, so
@@ -409,6 +505,47 @@ if ((Get-Item $InputPath).PSIsContainer) {
         }
     }
 
+    # 3b. Every path the reviewed task's own contract.json names in an
+    # "evidence", "red_evidence", or "green_evidence" field, when not
+    # already pulled in by steps 1-3 above (see $script:PpiSeenRelPaths). A
+    # contract routinely names evidence OUTSIDE verification/<task_id>/ --
+    # shared regression/placeholder-scan/task-state-check logs living
+    # under verification/qg/shared/, for instance -- and a panelist handed
+    # a check asserting passes:false with no way to read what it points at
+    # cannot tell whether that claim is honest, which is the same defect
+    # already raised about source code, one level over. Found paths join
+    # the SAME elidable candidate set step 3 built above (identical
+    # PSCustomObject shape: Bytes, AbsPath, RelPath) so a large one is
+    # subject to the identical budget-driven elision, never treated as
+    # bundle-breaking on its own. A declared path that does not exist (or
+    # resolves outside ProjectRoot, or through a symlink) is not silently
+    # dropped -- a one-line note is appended to the bundle naming it,
+    # because telling the reviewer a contract points at nothing is true
+    # and useful, while hiding it reproduces exactly the "unreadable
+    # claim" defect this step exists to fix.
+    $contractPathForEvidence = Join-Path $verifDir "$TaskId.contract.json"
+    $contractItemForEvidence = Get-Item -LiteralPath $contractPathForEvidence -ErrorAction SilentlyContinue
+    if ($contractItemForEvidence -and (-not $contractItemForEvidence.PSIsContainer) -and (-not $contractItemForEvidence.LinkType)) {
+        foreach ($depPath in (Get-PpiContractEvidencePaths -ContractPath $contractPathForEvidence)) {
+            if ($script:PpiSeenRelPaths.Contains($depPath)) { continue }
+
+            if (-not (Test-DeclaredOutputCanonicalPath $depPath)) {
+                $rawContent += "# ---- $depPath (contract-declared evidence, not found) ----`n[contract names this evidence path but it could not be resolved safely]`n"
+                $script:PpiSeenRelPaths.Add($depPath) | Out-Null
+                continue
+            }
+
+            $depResult = Resolve-DeclaredOutputRow -RowPath $depPath -Root $ProjectRoot
+            if ($depResult.State -eq "Matched") {
+                $depBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $depResult.Candidate))
+                $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $depBytes; AbsPath = $depResult.Candidate; RelPath = $depPath }
+            } else {
+                $rawContent += "# ---- $depPath (contract-declared evidence, not found) ----`n[contract names this evidence path but no file exists there]`n"
+            }
+            $script:PpiSeenRelPaths.Add($depPath) | Out-Null
+        }
+    }
+
     # 4. The reviewed task's own implementation report.
     $implReportPathForContent = Join-Path $ProjectRoot (Join-Path "reports" (Join-Path "implementation" (Join-Path $Feature "$TaskId.md")))
     $implReportItem = Get-Item -LiteralPath $implReportPathForContent -ErrorAction SilentlyContinue
@@ -564,45 +701,11 @@ function Test-DeclaredOutputAtDeclarationCommit {
     return $true
 }
 
-function Test-DeclaredOutputCanonicalPath {
-    param([string]$Path)
-    if ([string]::IsNullOrEmpty($Path)) { return $false }
-    if ($Path.StartsWith("/")) { return $false }
-    if ($Path -match "^[A-Za-z]:") { return $false }
-    if ($Path.Contains("\")) { return $false }
-    if ($Path -match "(^|/)\.\.?(/|$)") { return $false }
-    return $true
-}
-
-# Resolve one declared-output row under a single candidate root, applying
-# the same containment discipline (component-walk symlink guard) whichever
-# root is being tried — a row must never escape the root it resolved
-# under. Returns @{ State = "Matched"|"Escaped"|"Absent"; Candidate = ... }
-# (Candidate is set only when State is "Matched").
-function Resolve-DeclaredOutputRow {
-    param([string]$RowPath, [string]$Root)
-
-    # Component-walk containment: no symbolic link anywhere between the
-    # candidate root and the candidate may be followed (mirrors
-    # validate-review-context-set.sh's own symlink-component-walk).
-    $current = $Root.TrimEnd('/', '\')
-    $escaped = $false
-    foreach ($component in ($RowPath -split '/')) {
-        $current = "$current/$component"
-        $item = Get-Item -LiteralPath $current -ErrorAction SilentlyContinue
-        if ($item -and $item.LinkType) { $escaped = $true }
-    }
-    if ($escaped) {
-        return @{ State = "Escaped"; Candidate = $null }
-    }
-
-    $candidate = Join-Path $Root $RowPath
-    $candidateItem = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
-    if ($candidateItem -and (-not $candidateItem.PSIsContainer) -and (-not $candidateItem.LinkType)) {
-        return @{ State = "Matched"; Candidate = $candidate }
-    }
-    return @{ State = "Absent"; Candidate = $null }
-}
+# (Test-DeclaredOutputCanonicalPath and Resolve-DeclaredOutputRow now live
+# earlier in this file, right after the --input existence check -- step 3b
+# below, composed before this point in the script, needs them too. Both are
+# used again here, unchanged, by Invoke-DeclaredOutputsCompletenessCheck
+# below.)
 
 # Append the CURRENT content the completeness check just verified for one
 # declared-outputs row into $script:PpiDeclaredContent -- reusing
