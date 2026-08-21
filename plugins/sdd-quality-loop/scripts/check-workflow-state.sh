@@ -5,6 +5,9 @@ set -euo pipefail
 SCRIPT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 REGISTRY="$SCRIPT_ROOT/specs/workflow-state-registry.json"
 FEATURE_FILTER=""
+OPENING_STAGE=""
+OPENING_ATTEMPT=""
+OPENING_ROUND=""
 
 diagnostic_line() {
   printf 'workflow-state: %s: %s: %s\n' "$1" "$2" "$3" >&2
@@ -93,11 +96,24 @@ while (($#)); do
     --registry)
       (($# >= 2)) || diagnostic repository cli-usage "--registry requires a value"
       REGISTRY="$2"; shift 2 ;;
+    --opening)
+      (($# >= 2)) || diagnostic repository cli-usage "--opening requires a value"
+      [[ "$2" =~ ^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$ ]] ||
+        diagnostic repository cli-usage "--opening must be stage:attempt:round"
+      OPENING_STAGE="${BASH_REMATCH[1]}"
+      OPENING_ATTEMPT="${BASH_REMATCH[2]}"
+      OPENING_ROUND="${BASH_REMATCH[3]}"
+      shift 2 ;;
     *) diagnostic repository cli-usage "unknown argument: $1" ;;
   esac
 done
 [[ -z "$FEATURE_FILTER" || "$FEATURE_FILTER" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   diagnostic "$FEATURE_FILTER" cli-usage "invalid feature slug"
+# --opening names the single round a review-loop precheck is about to open; it
+# only ever makes sense pinned to the one feature it belongs to, never as a
+# blanket exemption swept across the whole registry.
+[[ -z "$OPENING_STAGE" || -n "$FEATURE_FILTER" ]] ||
+  diagnostic repository cli-usage "--opening requires --feature"
 [[ -f "$REGISTRY" && ! -L "$REGISTRY" && -r "$REGISTRY" ]] ||
   diagnostic repository registry-unreadable "registry is missing, linked, or unreadable"
 jq -e . "$REGISTRY" >/dev/null 2>&1 ||
@@ -326,6 +342,54 @@ recorded_repo_root() {
     end
   ' "$contract"
 }
+# A BLOCKED or NEEDS_WORK verdict is the terminal state of one review pass,
+# not necessarily of the stage: a caller can re-open review after it (a
+# fresh attempt, or another round of the same attempt), and it is that later
+# pass -- not the one it superseded -- whose outcome the stage should be
+# judged on while it is still running.
+#
+# A tree-only signal cannot express this: the gate that must pass before a
+# new round is created runs BEFORE that round's own directory exists (this
+# is precisely what impl-review-precheck.sh's own replay guard requires --
+# "round destination already exists" is fatal), so nothing on disk can ever
+# prove a round is "open" at the one moment this check needs to know it. An
+# earlier version of this fix looked for a precheck-result.json in a later
+# round directory; that file cannot exist yet either, for the same reason,
+# so the exemption could never fire for the caller it exists for.
+#
+# The distinction that actually matters is who is asking, not what the tree
+# looks like right now (same conflation as before, resolved one level up).
+# A review-loop precheck opening round (attempt, round) knows those numbers
+# as its own CLI arguments -- ATTEMPT and ROUND -- before it ever reaches
+# this gate, and it is asking "may I start?", not "did this conclude?". It
+# says so explicitly via --opening stage:attempt:round. A standalone
+# invocation (CI, task-state-check, anything auditing the feature's health)
+# never passes --opening and gets none of this exemption: the latest
+# verdict governs for it exactly as before, unconditionally.
+#
+# --opening is not "a flag anyone can pass to wave away a BLOCKED verdict",
+# because it does not assert "trust me, this stage is fine" -- it names one
+# specific (attempt, round) pair, and this function independently checks
+# that pair against the tree's own recorded history before granting
+# anything. The ONLY value it will ever accept is the single true next slot
+# after the latest recorded verdict: either the next round of the SAME
+# attempt (best_round + 1) or round 1 of a BRAND NEW attempt
+# (best_attempt + 1). A caller cannot use it to skip past an intervening
+# verdict, resurrect an arbitrarily old BLOCKED attempt, or manufacture a
+# history that was never reviewed -- it can only ever confirm that trying
+# again, right here, right now, is the structurally legitimate next step,
+# which is true for any BLOCKED or NEEDS_WORK stage by the review loop's
+# own design. It grants no power beyond what the tree already permits; it
+# only lets the one caller who is about to exercise that permission prove
+# which pair of numbers it refers to before the evidence for it exists.
+stage_is_being_opened() {
+  local stage="$1" feature="$2" best_attempt="$3" best_round="$4"
+  [[ -n "$OPENING_STAGE" && "$OPENING_STAGE" == "$stage" && "$FEATURE_FILTER" == "$feature" ]] ||
+    return 1
+  ((OPENING_ATTEMPT == best_attempt && OPENING_ROUND == best_round + 1)) && return 0
+  ((OPENING_ATTEMPT == best_attempt + 1 && OPENING_ROUND == 1)) && return 0
+  return 1
+}
 validate_passed_stage() {
   local feature="$1" stage="$2" feature_dir="$3"
   local root="$REPO_ROOT/reports/${stage}-review/$feature"
@@ -357,7 +421,7 @@ validate_passed_stage() {
     jq -e . "$candidate" >/dev/null 2>&1 ||
       diagnostic "$feature" stage-provenance "$stage reviewer evidence is malformed"
   done
-  jq -e --arg feature "$feature" --arg stage "$stage" \
+  if ! jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .feature == $feature and .stage == $stage and .attempt == $attempt and
     .round == $round and
@@ -376,8 +440,10 @@ validate_passed_stage() {
       .findings_critical == 0 and .findings_major == 0 and
       (.findings_minor | type == "number" and . >= 0)
      end)
-  ' "$best" >/dev/null 2>&1 ||
+  ' "$best" >/dev/null 2>&1; then
+    stage_is_being_opened "$stage" "$feature" "$best_attempt" "$best_round" && return 0
     diagnostic "$feature" stage-provenance "$stage integrated verdict is not a valid PASS"
+  fi
   jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .schema == ($stage + "-review-contract/v1") and .feature == $feature and
