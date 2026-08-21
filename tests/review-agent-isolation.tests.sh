@@ -778,4 +778,101 @@ legacy_manifest_for "$tmp/legacy-nearmiss.json" \
 assert_rejected_both wfi017-legacy-unratified-serialization \
   "$tmp/legacy-nearmiss.json" "$legacy_repository" REVIEW_CONTEXT_PATH
 
+# WFI-038 third target: the control whose absence let the drift happen.
+#
+# WFI-017 taught validate-implementation-report.sh a second declaration grammar
+# and nothing taught this boundary. The result was a report the repository
+# formally accepts whose declared artifacts the evaluator could not be given --
+# reported as `role-unlisted` on a path that was, in fact, listed. Neither
+# validator was wrong on its own; what was missing was anything asserting that
+# the two agree.
+#
+# This block is driven BY the report validator's own declaration, not by a list
+# maintained here. It extracts the section names that script consults for the
+# outputs contract and requires the boundary to read every one. Add a third
+# grammar there without teaching the boundary and this goes red, naming the
+# grammar -- which is the failure mode WFI-038 documents.
+report_validator="$ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+[[ -f "$report_validator" ]] || fail 'declaration-grammar parity: report validator is missing'
+ratified_grammars="$(grep -oE '^[a-z_]+_sections = sections\.get\("[^"]+"' "$report_validator" |
+  sed -E 's/.*sections\.get\("([^"]+)".*/\1/' | sort -u)"
+[[ -n "$ratified_grammars" ]] ||
+  fail 'declaration-grammar parity: extracted no ratified grammar -- the report validator changed shape, so this control is no longer measuring anything'
+
+parity_repository="$tmp/grammar-parity-repository"
+make_repository "$parity_repository"
+parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
+
+# Emit the declaration row shape for one ratified section name. A section this
+# does not know how to write is an unteachable grammar -- fail rather than
+# silently skip, because skipping is exactly how the boundary fell behind.
+write_declaration() {
+  local section=$1
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## %s\n\n' "$section"
+  case "$section" in
+    'Outputs')
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+      ;;
+    'Output Paths And Hashes')
+      printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' "$parity_hash"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+# Collect into an array BEFORE iterating. A `while read ... done <<HEREDOC`
+# loop hands its stdin to every command in the body, and pwsh binds inherited
+# stdin as pipeline input -- it then fails with "the input object cannot be
+# bound to any parameters" while the suite still exits 0, so the PowerShell leg
+# would silently not be exercised. Observed here before this was fixed.
+parity_grammars=()
+while IFS= read -r grammar; do
+  [[ -n "$grammar" ]] && parity_grammars+=("$grammar")
+done <<PARITY_GRAMMARS
+$ratified_grammars
+PARITY_GRAMMARS
+[[ ${#parity_grammars[@]} -gt 0 ]] ||
+  fail 'declaration-grammar parity: no grammar collected'
+
+for grammar in "${parity_grammars[@]}"; do
+  write_declaration "$grammar" > "$parity_repository/reports/implementation/f/T-001.md" ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but this suite cannot write it -- teach both the boundary and this control, do not delete the case"
+  make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+  jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+    "$tmp/parity-base.json" > "$tmp/parity-manifest.json"
+  run_bash "$tmp/parity-manifest.json" "$parity_repository" >/dev/null ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the Bash boundary cannot read it"
+  if command -v pwsh >/dev/null 2>&1; then
+    run_pwsh "$tmp/parity-manifest.json" "$parity_repository" >/dev/null </dev/null ||
+      fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the PowerShell boundary cannot read it"
+  fi
+done
+
+# Non-vacuity: the loop above only proves acceptance. A section name the report
+# validator does NOT ratify must not be readable by the boundary either, or the
+# parity claim is satisfied by a boundary that reads everything.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Declared Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+} > "$parity_repository/reports/implementation/f/T-001.md"
+make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+  '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+  "$tmp/parity-base.json" > "$tmp/parity-unratified.json"
+assert_rejected_both wfi038-unratified-section-name \
+  "$tmp/parity-unratified.json" "$parity_repository" REVIEW_CONTEXT_PATH
+
 printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'
