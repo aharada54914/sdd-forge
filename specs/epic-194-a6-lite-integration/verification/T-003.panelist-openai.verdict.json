@@ -1,0 +1,31 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-003",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "plugins/sdd-lite/skills/lite-spec/SKILL.md: Capability-derived signal; tests/lite-spec-capability-block",
+      "note": "The central candidate-(a) integration is not functionally verified. The skill contains procedural prose, while the functional test starts from an already-assembled fragment and invokes check-risk-upgrade directly; it never exercises Registry enumeration, Project-Context component enumeration, evaluate-predicate invocation, union matching, fragment construction, or evaluator failure handling. Consequently the evidence cannot establish that the implemented intake gate actually produces the required Capability-derived signal."
+    },
+    {
+      "severity": "Major",
+      "ref": "plugins/sdd-lite/skills/lite-spec/SKILL.md: ship-time recheck; tests/lite-spec-capability-block TEST-019-defense-in-depth",
+      "note": "The claimed mandatory second Capability-aware enforcement stage is not implemented or demonstrated. The staged skill says the ship-time invocation is unmodified, and the defense-in-depth test only confirms that ship/SKILL.md still invokes check-risk-upgrade; it does not show that ship computes or supplies a Capability fragment. A later diff-only Capability match can therefore remain invisible to the unchanged keyword-only recheck, contrary to the resolved OQ-002 two-stage contract."
+    },
+    {
+      "severity": "Major",
+      "ref": "specs/epic-194-a6-lite-integration/human-copy/README.md; apply-protected-files.ps1:Get-PayloadFileSet/Test-ExactSet",
+      "note": "The committed human-copy staging tree is not directly applicable by the required four-target runner because README.md and .github/workflows/test.yml are recursively classified as undeclared payload. The documented procedure requires deleting those tracked files before invoking the runner, so the delivered staging state does not itself satisfy AC-031's exact-set application contract and T-003's human-apply path remains operationally incomplete."
+    }
+  ],
+  "blind": true,
+  "input_digest": "201e34aec327f707528c54ddf5bd9340a35aea13536a923069ddb8dcbd0ebe33",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+  }
+}
