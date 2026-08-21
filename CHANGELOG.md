@@ -225,6 +225,22 @@
 
 ### Fixed
 
+- **承認サイドカー検証器の fail-open 穴 3 件を閉鎖**
+  (`validate-approval-sidecar.py` の standalone draft-07 エンジン):
+  (1) 未知の `type` 名・配列形式 union type が全インスタンスを素通し →
+  union は再帰、未知名は fail-closed に; (2) `pattern` が素の `re.match`
+  だったため `"sha256:<64hex>\n"`（末尾改行）が `^...$` を満たしてしまう
+  Python `$` 寛容性の穴 → ECMA-262 準拠の `$`→`\Z` 書換え + draft-07
+  search セマンティクスに; (3) スキーマ形式の `additionalProperties` が
+  無視されていた → 検証するように。エンジンは設計上の独立性
+  （generator/validator 分離）を維持したまま強化。
+
+- **タスク依存グラフ循環検出の双子アルゴリズム乖離を解消**
+  (`task-review-precheck.{sh,ps1}`): `.sh` は再帰 DFS、`.ps1` は Kahn 法
+  という別アルゴリズムだったのを、両者とも同じ再帰 3 色 DFS に統一。
+  `.sh` 側は並列配列の線形走査 + サブシェル `echo` 返しを、bash 3.2 互換の
+  導出変数名 (`printf -v` + `${!var}`) による O(1) 参照に置換。
+
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
   red on `main` immediately after the v1.15.0 release because two suites
   asserted against the `## Unreleased` CHANGELOG heading that
@@ -236,6 +252,16 @@
   TEST-048 now locates the T-003 entry in whichever release-notes section
   holds it, still requiring both citations together in one section, the same
   later-release exemption TEST-049 already documents.
+
+### Changed
+
+- **パネリストランナーの重複集約**: `run-panelist-{gpt,gemini}.sh` に
+  逐語コピーされていた 66 行の `_sdd_run_bounded`（プロセスグループ
+  watchdog）とタイムアウト/必須引数検証を
+  `plugins/sdd-quality-loop/scripts/lib/panelist-common.sh` に抽出し、
+  両ランナーが fail-closed に source する形へ（約 130 行の重複を削減）。
+  プラグインコード全体の重複検証ロジック・深いネストループの監査結果は
+  `reports/notes/plugin-code-quality-audit-2026-08-21.md` に記録。
 
 ### Corrections
 

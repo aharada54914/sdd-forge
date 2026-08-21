@@ -291,10 +291,20 @@ foreach ($line in Get-Content -LiteralPath $tasks) {
   if ($expectBlockers -and $line.Trim()) { if ($line.Trim() -ne 'None') { foreach ($target in $line.Split(',')) { if ($target.Trim() -notmatch '^T-[0-9]{3}$') { Fail 'Blockers format is invalid' }; $edges += [ordered]@{from=$current;to=$target.Trim()} } }; $expectBlockers=$false }
 }
 if ($expectBlockers) { Fail "$current Blockers value is missing" }
-$inDegree=@{}; foreach($node in $nodes){ $inDegree[$node]=0 }; foreach($edge in $edges){ if(-not $inDegree.ContainsKey($edge.to)){ Fail 'Blockers reference an unknown task' }; $inDegree[$edge.to]++ }
-$queue=[Collections.Generic.Queue[string]]::new(); foreach($node in $nodes){ if($inDegree[$node] -eq 0){ $queue.Enqueue($node) } }
-$visited=0; while($queue.Count -gt 0){ $node=$queue.Dequeue(); $visited++; foreach($edge in $edges | Where-Object { $_.from -eq $node }){ $inDegree[$edge.to]--; if($inDegree[$edge.to] -eq 0){ $queue.Enqueue($edge.to) } } }
-if($visited -ne $nodes.Count){ Fail 'Blockers dependency graph contains a cycle' }
+$adjacency=@{}; foreach($node in $nodes){ $adjacency[$node]=[Collections.Generic.List[string]]::new() }
+foreach($edge in $edges){ if(-not $adjacency.ContainsKey($edge.to)){ Fail 'Blockers reference an unknown task' }; $adjacency[$edge.from].Add($edge.to) }
+# Recursive three-colour DFS, same algorithm as the .sh twin: absent = unvisited,
+# 1 = on the current path (seeing it again means a cycle), 2 = fully explored.
+# Depth is bounded by the task count (T-001..T-999), well inside the runtime limit.
+function Test-GraphHasCycleFrom { param([string]$Node,[hashtable]$Adjacency,[hashtable]$Visit)
+  switch ($Visit[$Node]) { 1 { return $true } 2 { return $false } }
+  $Visit[$Node]=1
+  foreach($next in $Adjacency[$Node]){ if(Test-GraphHasCycleFrom -Node $next -Adjacency $Adjacency -Visit $Visit){ return $true } }
+  $Visit[$Node]=2
+  return $false
+}
+$visitState=@{}
+foreach($node in $nodes){ if(Test-GraphHasCycleFrom -Node $node -Adjacency $adjacency -Visit $visitState){ Fail 'Blockers dependency graph contains a cycle' } }
 $tasksHash=(Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower(); $requirementsHash=(Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash=(Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower(); $designHash=(Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()
 $traceabilityHash = ''
 $layerHashes = [ordered]@{}
