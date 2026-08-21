@@ -33,6 +33,13 @@
 #             fails for any reason writes NO verdict file (graceful degrade
 #             never means a false success).
 
+# Shared collection-layer helpers (timeout/arg validation, bounded runner).
+_script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+if ! . "$_script_dir/lib/panelist-common.sh"; then
+    printf 'run-panelist-gemini: lib/panelist-common.sh unavailable beside this script\n' >&2
+    exit 2
+fi
+
 task_id=""
 feature=""
 input_path=""
@@ -55,33 +62,11 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-case "$_panelist_timeout" in
-    '' | *[!0-9]*)
-        printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: %s)\n' \
-            "$_panelist_timeout" >&2
-        exit 2
-        ;;
-esac
-if [ "$_panelist_timeout" -le 0 ]; then
-    printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be positive (got: %s)\n' \
-        "$_panelist_timeout" >&2
-    exit 2
-fi
+sdd_panelist_validate_timeout "run-panelist-gemini" "$_panelist_timeout"
 
 # ── Validate required arguments ──────────────────────────────────────────────
 
-if [ -z "$task_id" ]; then
-    printf 'run-panelist-gemini: --task is required\n' >&2; exit 2
-fi
-if [ -z "$feature" ]; then
-    printf 'run-panelist-gemini: --feature is required\n' >&2; exit 2
-fi
-if [ -z "$input_path" ]; then
-    printf 'run-panelist-gemini: --input is required\n' >&2; exit 2
-fi
-if [ ! -f "$input_path" ]; then
-    printf 'run-panelist-gemini: input file not found: %s\n' "$input_path" >&2; exit 1
-fi
+sdd_panelist_require_args "run-panelist-gemini" "$task_id" "$feature" "$input_path"
 
 # ── Check CLI availability ───────────────────────────────────────────────────
 
@@ -108,73 +93,9 @@ out_path="${out_dir}/${task_id}.panelist-google.verdict.json"
 # ── Key isolation ────────────────────────────────────────────────────────────
 unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
 
-# See the GPT twin for the process-group, completion-marker, and stdin
-# (`<&0` below) rationale -- without it, an asynchronous command defaults
-# to /dev/null stdin under POSIX shells even though the enclosing function
-# call carries an explicit redirect.
-_sdd_run_bounded() {
-    _bw_limit="$1"
-    shift
-    _bw_status="${_scratch}/bounded-status"
-    rm -f "$_bw_status"
-
-    python3 -c '
-import os
-import subprocess
-import sys
-
-status_path = sys.argv[1]
-os.setsid()
-return_code = subprocess.call(sys.argv[2:])
-tmp_path = status_path + ".tmp"
-with open(tmp_path, "w", encoding="ascii") as status_file:
-    status_file.write(str(return_code))
-os.rename(tmp_path, status_path)
-sys.exit(return_code if 0 <= return_code <= 255 else 1)
-' "$_bw_status" "$@" <&0 &
-    _bw_pid=$!
-    # date +%s truncates the current second; include that fractional interval
-    # so the configured whole-second budget is never shortened.
-    _bw_deadline=$(( $(date +%s) + _bw_limit + 1 ))
-
-    while kill -0 "$_bw_pid" 2>/dev/null; do
-        if [ -s "$_bw_status" ]; then
-            wait "$_bw_pid"
-            return $?
-        fi
-        if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
-            # Completion and expiry are not atomic, and the integer-second
-            # deadline can fire with sub-second slack depending on the
-            # start phase. Wait a full second so any child that finished
-            # within limit+1 real seconds has published its status before
-            # the expiry is treated as authoritative (Edge Case 6).
-            sleep 1
-            if [ -s "$_bw_status" ]; then
-                wait "$_bw_pid"
-                return $?
-            fi
-            if ! kill -0 "$_bw_pid" 2>/dev/null; then
-                wait "$_bw_pid"
-                return $?
-            fi
-
-            kill -TERM "-$_bw_pid" 2>/dev/null || true
-            _bw_grace_deadline=$(( $(date +%s) + 2 ))
-            while kill -0 "-$_bw_pid" 2>/dev/null && \
-                    [ "$(date +%s)" -lt "$_bw_grace_deadline" ]; do
-                sleep 1
-            done
-            if kill -0 "-$_bw_pid" 2>/dev/null; then
-                kill -KILL "-$_bw_pid" 2>/dev/null || true
-            fi
-            wait "$_bw_pid" 2>/dev/null || true
-            return 124
-        fi
-        sleep 1
-    done
-
-    wait "$_bw_pid"
-}
+# _sdd_run_bounded comes from lib/panelist-common.sh (process-group,
+# completion-marker, and stdin `<&0` rationale documented there). It reads
+# $_scratch, which is set above.
 
 # ── Build the panelist prompt ────────────────────────────────────────────────
 
