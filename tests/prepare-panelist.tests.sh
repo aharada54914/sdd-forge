@@ -140,6 +140,26 @@ sha256_of() {
 # (all lowercase 'f', never produced by sha256_of).
 wrong_hash() { printf 'f%.0s' $(seq 1 64); }
 
+# ── TEST-051..055 helpers (per-file elision) ─────────────────────────────────
+
+# Write a deterministic filler file with exactly $2 lines, each of the form
+# "<prefix> line NNNN filler filler filler filler". Used to build oversized
+# evidence-log/spec-doc/source-file fixtures with byte counts computable
+# independently of the elision code under test (via plain head/tail/wc, the
+# same primitives the production elision logic itself is built from — not a
+# re-implementation of its byte-accounting).
+# Usage: write_filler_lines <path> <line_count> <prefix>
+write_filler_lines() {
+    local path="$1" count="$2" prefix="$3"
+    mkdir -p "$(dirname "$path")"
+    : > "$path"
+    local i=1
+    while [ "$i" -le "$count" ]; do
+        printf '%s line %04d filler filler filler filler\n' "$prefix" "$i" >> "$path"
+        i=$((i + 1))
+    done
+}
+
 # Write an implementation report fixture at
 # <project_root>/reports/implementation/<feature>/<task_id>.md with an
 # "## Outputs" table. Each remaining arg is one row as "path<TAB>hash".
@@ -674,22 +694,32 @@ else
 fi
 
 # ============================================================================
-# TEST-013 (AC-013): recursion — subdirectory file included in the bundle,
-# independent of the completeness check (no implementation report fixture).
+# TEST-013 (AC-013, redefined for task-scoped composition): a file under the
+# REVIEWED TASK'S OWN specs/<feature>/verification/<task_id>/ directory is
+# recursed into and included in the bundle — independent of the --input
+# argument, which the composed bundle no longer walks at all in directory
+# mode. A marker planted ONLY under --input (an unrelated directory) must
+# NOT appear, proving the whole-directory walk of --input is gone (this is
+# also the property the "reintroduce whole-directory walk" mutation trips).
 # ============================================================================
 
-echo "=== TEST-013: recursion — subdirectory file included in bundle (AC-013) ==="
+echo "=== TEST-013: task's own verification/<task_id>/ recursed; --input directory NOT walked (AC-013) ==="
 
 D013="${WORK}/pp013"
-mkdir -p "${D013}/input/sub"
+mkdir -p "${D013}/specs/cross-model-verification/verification/T-004/sub"
+mkdir -p "${D013}/other-input"
 write_tasks_with_consent "${D013}/tasks.md" "T-004"
-printf 'top-level marker TOPLEVEL013\n' > "${D013}/input/top.txt"
-printf 'subdirectory marker SUBDIRMARKER013\n' > "${D013}/input/sub/evidence.md"
+printf 'own-task top-level marker OWNTASKTOPLEVEL013\n' \
+    > "${D013}/specs/cross-model-verification/verification/T-004/top.txt"
+printf 'own-task subdirectory marker SUBDIRMARKER013\n' \
+    > "${D013}/specs/cross-model-verification/verification/T-004/sub/evidence.md"
+printf 'input-only marker INPUTONLYMARKER013\n' \
+    > "${D013}/other-input/unrelated.txt"
 
 PP_EXIT=0
 run_prepare \
     --task T-004 --feature cross-model-verification \
-    --input "${D013}/input" \
+    --input "${D013}/other-input" \
     --tasks-file "${D013}/tasks.md" \
     --project-root "${D013}" \
     --out "${D013}/out.txt"
@@ -700,9 +730,14 @@ else
     fail "TEST-013a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
 fi
 if [ -f "${D013}/out.txt" ] && grep -q "SUBDIRMARKER013" "${D013}/out.txt"; then
-    ok "TEST-013b: subdirectory file content included in bundle (recursion)"
+    ok "TEST-013b: task's own verification/<task_id>/sub/ content included in bundle (recursion)"
 else
-    fail "TEST-013b: subdirectory file content missing from bundle — collector did not recurse"
+    fail "TEST-013b: task's own verification subdirectory content missing from bundle — collector did not recurse"
+fi
+if [ -f "${D013}/out.txt" ] && ! grep -q "INPUTONLYMARKER013" "${D013}/out.txt"; then
+    ok "TEST-013c: content planted only under --input is NOT in the bundle (no whole-directory walk of --input)"
+else
+    fail "TEST-013c: INPUTONLYMARKER013 leaked into the bundle — --input directory is still being walked wholesale"
 fi
 
 # ============================================================================
@@ -1435,6 +1470,560 @@ if [ ! -f "${D044}/out.txt" ]; then
     ok "TEST-044d: bundle file not written"
 else
     fail "TEST-044d: bundle file must not be written"
+fi
+
+# ============================================================================
+# TEST-045: cross-task isolation — a feature with two tasks, each with its
+# own verification/<task_id>/ evidence directory. T-001's bundle carries
+# T-001's own evidence and NOT T-002's — the core epic-195 defect (a
+# panelist reviewing one task received every OTHER task's evidence too).
+# ============================================================================
+
+echo "=== TEST-045: cross-task isolation — T-001 bundle excludes T-002's evidence ==="
+
+D045="${WORK}/pp045"
+mkdir -p "${D045}/specs/cross-model-verification/verification/T-001"
+mkdir -p "${D045}/specs/cross-model-verification/verification/T-002"
+mkdir -p "${D045}/empty-input"
+write_tasks_with_consent "${D045}/tasks.md" "T-001"
+printf 'T-001 own evidence marker T001MARKER045\n' \
+    > "${D045}/specs/cross-model-verification/verification/T-001/evidence.log"
+printf 'T-002 own evidence marker T002MARKER045\n' \
+    > "${D045}/specs/cross-model-verification/verification/T-002/evidence.log"
+
+PP_EXIT=0
+run_prepare \
+    --task T-001 --feature cross-model-verification \
+    --input "${D045}/empty-input" \
+    --tasks-file "${D045}/tasks.md" \
+    --project-root "${D045}" \
+    --out "${D045}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-045a: exit 0"
+else
+    fail "TEST-045a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D045}/out.txt" ] && grep -q "T001MARKER045" "${D045}/out.txt"; then
+    ok "TEST-045b: T-001's own evidence present in T-001's bundle"
+else
+    fail "TEST-045b: T-001's own evidence missing from its bundle"
+fi
+if [ -f "${D045}/out.txt" ] && ! grep -q "T002MARKER045" "${D045}/out.txt"; then
+    ok "TEST-045c: T-002's evidence is NOT in T-001's bundle (cross-task isolation)"
+else
+    fail "TEST-045c: T-002's evidence leaked into T-001's bundle — cross-task isolation broken"
+fi
+
+# ============================================================================
+# TEST-046: a file named in the reviewed task's Outputs table, living OUTSIDE
+# specs/ entirely (a plugin source file — exactly the shape both epic-195
+# panelists said was missing), has its CURRENT content appear in the bundle
+# — not just verified by the completeness check, actually included.
+# ============================================================================
+
+echo "=== TEST-046: Outputs-declared source file content appears in bundle ==="
+
+D046="${WORK}/pp046"
+mkdir -p "${D046}/specs/cross-model-verification" "${D046}/plugins/some-plugin/scripts"
+mkdir -p "${D046}/empty-input"
+write_tasks_with_consent "${D046}/tasks.md" "T-004"
+printf 'source file marker SOURCEFILEMARKER046\n' \
+    > "${D046}/plugins/some-plugin/scripts/do-thing.sh"
+HASH046="$(sha256_of "${D046}/plugins/some-plugin/scripts/do-thing.sh")"
+write_impl_report "${D046}" "cross-model-verification" "T-004" \
+    "$(printf 'plugins/some-plugin/scripts/do-thing.sh\t%s' "$HASH046")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D046}/empty-input" \
+    --tasks-file "${D046}/tasks.md" \
+    --project-root "${D046}" \
+    --out "${D046}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-046a: exit 0"
+else
+    fail "TEST-046a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D046}/out.txt" ] && grep -q "SOURCEFILEMARKER046" "${D046}/out.txt"; then
+    ok "TEST-046b: declared output's current content is in the bundle"
+else
+    fail "TEST-046b: declared output was verified but its content never made it into the bundle"
+fi
+
+# ============================================================================
+# TEST-047: the panel's own artifacts remain excluded under the new
+# task-scoped composition — both as siblings of verification/<task_id>/
+# (never read by any composition step) and as a stray file INSIDE
+# verification/<task_id>/ (excluded by the same find ! -name filters the
+# old whole-directory walk applied, now scoped to the task's own directory).
+# ============================================================================
+
+echo "=== TEST-047: panel's own artifacts excluded from the task-scoped bundle ==="
+
+D047="${WORK}/pp047"
+mkdir -p "${D047}/specs/cross-model-verification/verification/T-004"
+mkdir -p "${D047}/empty-input"
+write_tasks_with_consent "${D047}/tasks.md" "T-004"
+printf 'legit evidence marker LEGITMARKER047\n' \
+    > "${D047}/specs/cross-model-verification/verification/T-004/evidence.log"
+printf 'SENTINEL VERDICTMARKER047\n' \
+    > "${D047}/specs/cross-model-verification/verification/T-004.panelist-anthropic.verdict.json"
+printf 'SENTINEL BUNDLEMARKER047\n' \
+    > "${D047}/specs/cross-model-verification/verification/T-004.panelist-input.txt"
+printf 'SENTINEL NESTEDVERDICTMARKER047\n' \
+    > "${D047}/specs/cross-model-verification/verification/T-004/stray.verdict.json"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D047}/empty-input" \
+    --tasks-file "${D047}/tasks.md" \
+    --project-root "${D047}" \
+    --out "${D047}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-047a: exit 0"
+else
+    fail "TEST-047a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D047}/out.txt" ] && grep -q "LEGITMARKER047" "${D047}/out.txt"; then
+    ok "TEST-047b: legitimate evidence still included"
+else
+    fail "TEST-047b: legitimate evidence missing from bundle"
+fi
+if [ -f "${D047}/out.txt" ] && ! grep -qE "VERDICTMARKER047|BUNDLEMARKER047" "${D047}/out.txt"; then
+    ok "TEST-047c: sibling panel artifacts (verification/T-004.*) excluded"
+else
+    fail "TEST-047c: a sibling panel artifact leaked into the bundle"
+fi
+if [ -f "${D047}/out.txt" ] && ! grep -q "NESTEDVERDICTMARKER047" "${D047}/out.txt"; then
+    ok "TEST-047d: stray panel artifact inside verification/T-004/ excluded"
+else
+    fail "TEST-047d: a panel artifact nested inside the task's own evidence dir leaked into the bundle"
+fi
+
+# ============================================================================
+# TEST-048: the feature's spec documents (requirements/design/acceptance-
+# tests/tasks/traceability/investigation + layer specs when present) are all
+# present in the bundle.
+# ============================================================================
+
+echo "=== TEST-048: spec documents all present in the bundle ==="
+
+D048="${WORK}/pp048"
+SPECDIR048="${D048}/specs/cross-model-verification"
+mkdir -p "${SPECDIR048}/verification/T-004"
+mkdir -p "${D048}/empty-input"
+write_tasks_with_consent "${SPECDIR048}/tasks.md" "T-004"
+printf 'REQMARKER048\n'    > "${SPECDIR048}/requirements.md"
+printf 'DESIGNMARKER048\n' > "${SPECDIR048}/design.md"
+printf 'ACMARKER048\n'     > "${SPECDIR048}/acceptance-tests.md"
+printf 'TRACEMARKER048\n'  > "${SPECDIR048}/traceability.md"
+printf 'INVESTMARKER048\n' > "${SPECDIR048}/investigation.md"
+printf 'UXMARKER048\n'     > "${SPECDIR048}/ux-spec.md"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D048}/empty-input" \
+    --tasks-file "${SPECDIR048}/tasks.md" \
+    --project-root "${D048}" \
+    --out "${D048}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-048a: exit 0"
+else
+    fail "TEST-048a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D048}/out.txt" ]; then
+    _missing048=""
+    for _marker048 in REQMARKER048 DESIGNMARKER048 ACMARKER048 TRACEMARKER048 \
+        INVESTMARKER048 UXMARKER048; do
+        grep -q "$_marker048" "${D048}/out.txt" || _missing048="${_missing048} ${_marker048}"
+    done
+    if [ -z "$_missing048" ]; then
+        ok "TEST-048b: every spec document is present in the bundle"
+    else
+        fail "TEST-048b: missing spec document markers:${_missing048}"
+    fi
+    if grep -q "Cross-Model: enabled" "${D048}/out.txt"; then
+        ok "TEST-048c: tasks.md itself is present in the bundle"
+    else
+        fail "TEST-048c: tasks.md content missing from the bundle"
+    fi
+else
+    fail "TEST-048b/c: bundle file not written"
+fi
+
+# ============================================================================
+# TEST-049 (size guard, fail-closed branch): --max-bytes set below the
+# sanitized bundle's actual size → refuses to write a silently-truncated
+# bundle, exits nonzero, announces the overage on stderr, prints no digest.
+# ============================================================================
+
+echo "=== TEST-049: --max-bytes exceeded → fail closed, no truncated bundle written ==="
+
+D049="${WORK}/pp049"
+SPECDIR049="${D049}/specs/cross-model-verification"
+mkdir -p "${SPECDIR049}"
+mkdir -p "${D049}/empty-input"
+write_tasks_with_consent "${SPECDIR049}/tasks.md" "T-004"
+{
+    i=1
+    while [ "$i" -le 50 ]; do
+        printf 'requirements line %d filler content filler content filler\n' "$i"
+        i=$((i + 1))
+    done
+} > "${SPECDIR049}/requirements.md"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D049}/empty-input" \
+    --tasks-file "${SPECDIR049}/tasks.md" \
+    --project-root "${D049}" \
+    --out "${D049}/out.txt" \
+    --max-bytes 200
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-049a: over --max-bytes → nonzero exit"
+else
+    fail "TEST-049a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+    ok "TEST-049b: overage announced on stderr (mentions --max-bytes)"
+else
+    fail "TEST-049b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D049}/out.txt" ]; then
+    ok "TEST-049c: bundle file NOT written (fail closed, never truncated)"
+else
+    fail "TEST-049c: bundle file must not be written when --max-bytes is exceeded"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '^[0-9a-f]{64}$'; then
+    ok "TEST-049d: no digest line printed on a size-guard failure"
+else
+    fail "TEST-049d: digest must not print when the size guard fails. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-050 (size guard, pass-through branch): --max-bytes set generously
+# above the bundle's actual size → the guard does not interfere with an
+# otherwise-successful run.
+# ============================================================================
+
+echo "=== TEST-050: --max-bytes generous → guard does not block a normal bundle ==="
+
+D050="${WORK}/pp050"
+SPECDIR050="${D050}/specs/cross-model-verification"
+mkdir -p "${SPECDIR050}"
+mkdir -p "${D050}/empty-input"
+write_tasks_with_consent "${SPECDIR050}/tasks.md" "T-004"
+printf 'REQMARKER050\n' > "${SPECDIR050}/requirements.md"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D050}/empty-input" \
+    --tasks-file "${SPECDIR050}/tasks.md" \
+    --project-root "${D050}" \
+    --out "${D050}/out.txt" \
+    --max-bytes 1048576
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-050a: exit 0 under a generous --max-bytes"
+else
+    fail "TEST-050a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D050}/out.txt" ] && grep -q "REQMARKER050" "${D050}/out.txt"; then
+    ok "TEST-050b: bundle written normally with content intact"
+else
+    fail "TEST-050b: bundle missing or content lost under a generous --max-bytes"
+fi
+if echo "${PP_OUTPUT}" | grep -qE '^[0-9a-f]{64}$'; then
+    ok "TEST-050c: digest printed normally"
+else
+    fail "TEST-050c: expected a printed digest, got: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-051: a bundle that fits --max-bytes whole is written whole — no
+# elision marker anywhere, even though a single verification-dir file is
+# large in absolute terms. Budget-driven elision only activates when the
+# composed-and-measured bundle is actually over cap; file size alone is
+# never sufficient to trigger it.
+# ============================================================================
+
+echo "=== TEST-051: bundle under --max-bytes stays whole, regardless of one file's absolute size ==="
+
+D051="${WORK}/pp051"
+SPECDIR051="${D051}/specs/cross-model-verification"
+mkdir -p "${SPECDIR051}/verification/T-004" "${D051}/empty-input"
+write_tasks_with_consent "${SPECDIR051}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR051}/verification/T-004/big.log" 500 "LOG051"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D051}/empty-input" \
+    --tasks-file "${SPECDIR051}/tasks.md" \
+    --project-root "${D051}" \
+    --out "${D051}/out.txt" \
+    --max-bytes 1000000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-051a: exit 0"
+else
+    fail "TEST-051a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D051}/out.txt" ] && grep -q "LOG051 line 0001 filler filler filler filler" "${D051}/out.txt" \
+    && grep -q "LOG051 line 0500 filler filler filler filler" "${D051}/out.txt" \
+    && grep -q "LOG051 line 0250 filler filler filler filler" "${D051}/out.txt"; then
+    ok "TEST-051b: the file is present whole (first, middle, and last lines all intact)"
+else
+    fail "TEST-051b: a file was elided even though the whole bundle already fit --max-bytes"
+fi
+if [ -f "${D051}/out.txt" ] && ! grep -qi "elided from the middle" "${D051}/out.txt"; then
+    ok "TEST-051c: no elision marker anywhere in a bundle that never needed one"
+else
+    fail "TEST-051c: an elision marker appeared even though the bundle already fit --max-bytes"
+fi
+
+# ============================================================================
+# TEST-052/053: a bundle over --max-bytes elides the LARGEST elidable file
+# first and stops as soon as it fits — the marker is present on that file
+# with the exact byte count independently computed from its own bytes, the
+# elided bundle still carries that file's own first and last lines while
+# genuinely dropping a middle-only line, and a SMALLER elidable file in the
+# same bundle that was never the reason for the overage is left completely
+# untouched (no marker, every one of its own lines present).
+# ============================================================================
+
+echo "=== TEST-052/053: over-cap bundle elides the largest file only, leaves a smaller one whole ==="
+
+D052="${WORK}/pp052"
+SPECDIR052="${D052}/specs/cross-model-verification"
+mkdir -p "${SPECDIR052}/verification/T-004" "${D052}/empty-input"
+write_tasks_with_consent "${SPECDIR052}/tasks.md" "T-004"
+BIG052="${SPECDIR052}/verification/T-004/big.log"
+SMALL052="${SPECDIR052}/verification/T-004/small.log"
+write_filler_lines "${BIG052}" 500 "BIG052"
+write_filler_lines "${SMALL052}" 20 "SMALL052"
+
+TOTAL052="$(wc -c < "${BIG052}" | tr -d ' ')"
+HEAD052="$(head -n 40 "${BIG052}")"
+TAIL052="$(tail -n 40 "${BIG052}")"
+HEADBYTES052="$(printf '%s\n' "${HEAD052}" | wc -c | tr -d ' ')"
+TAILBYTES052="$(printf '%s\n' "${TAIL052}" | wc -c | tr -d ' ')"
+EXPECTED_ELIDED052=$((TOTAL052 - HEADBYTES052 - TAILBYTES052))
+# --max-bytes 15000 sits strictly between (a) the whole bundle's real size
+# (big.log 22,500B + small.log 940B + overhead, ~23,900B — confirmed over
+# cap) and (b) that same bundle with ONLY big.log elided (~5,150B — under
+# cap) — so eliding big.log alone must be enough; small.log should never
+# be touched.
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D052}/empty-input" \
+    --tasks-file "${SPECDIR052}/tasks.md" \
+    --project-root "${D052}" \
+    --out "${D052}/out.txt" \
+    --max-bytes 15000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-052a: exit 0 (eliding the largest file alone let the bundle fit)"
+else
+    fail "TEST-052a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+EXPECTED_MARKER052="${EXPECTED_ELIDED052} bytes elided from the middle of specs/cross-model-verification/verification/T-004/big.log (original size ${TOTAL052} bytes"
+if [ -f "${D052}/out.txt" ] && grep -qF "${EXPECTED_MARKER052}" "${D052}/out.txt"; then
+    ok "TEST-052b: elision marker present on the largest file with the exact independently-computed byte count"
+else
+    fail "TEST-052b: expected marker containing '${EXPECTED_MARKER052}' not found in bundle"
+fi
+if [ -f "${D052}/out.txt" ] && [ "$(grep -c 'elided from the middle' "${D052}/out.txt")" -eq 1 ]; then
+    ok "TEST-052c: exactly one elision marker — the smaller file was never a candidate that needed cutting"
+else
+    fail "TEST-052c: expected exactly one elision marker (largest file only)"
+fi
+if [ -f "${D052}/out.txt" ] && grep -q "BIG052 line 0001 filler filler filler filler" "${D052}/out.txt"; then
+    ok "TEST-053a: elided bundle still contains the largest file's first line"
+else
+    fail "TEST-053a: largest file's first line missing from the elided bundle"
+fi
+if [ -f "${D052}/out.txt" ] && grep -q "BIG052 line 0500 filler filler filler filler" "${D052}/out.txt"; then
+    ok "TEST-053b: elided bundle still contains the largest file's last line"
+else
+    fail "TEST-053b: largest file's last line missing from the elided bundle"
+fi
+if [ -f "${D052}/out.txt" ] && ! grep -q "BIG052 line 0250 filler filler filler filler" "${D052}/out.txt"; then
+    ok "TEST-053c: a middle-only line of the largest file is genuinely dropped"
+else
+    fail "TEST-053c: a middle line of the largest file survived — elision did not actually remove the middle"
+fi
+if [ -f "${D052}/out.txt" ]; then
+    _missing_small052=""
+    for _line052 in 0001 0010 0020; do
+        grep -q "SMALL052 line ${_line052} filler filler filler filler" "${D052}/out.txt" || _missing_small052="${_missing_small052} ${_line052}"
+    done
+    if [ -z "$_missing_small052" ]; then
+        ok "TEST-053d: the smaller file is left completely whole (it was never the file that needed cutting)"
+    else
+        fail "TEST-053d: the smaller file lost line(s):${_missing_small052} — it should never have been elided"
+    fi
+else
+    fail "TEST-053d: bundle file not written"
+fi
+
+
+# ============================================================================
+# TEST-054: elision is scoped to the task's own verification/<task_id>/
+# evidence directory only — a spec document (step 1) and an Outputs-declared
+# source file living outside specs/ (step 5) are never elided, however large,
+# because truncating either would gut the bundle's own claims or their
+# supporting source rather than trim incidental log noise.
+# ============================================================================
+
+echo "=== TEST-054: spec documents and Outputs-declared source files are never elided ==="
+
+D054="${WORK}/pp054"
+SPECDIR054="${D054}/specs/cross-model-verification"
+mkdir -p "${SPECDIR054}/verification/T-004" "${D054}/plugins/some-plugin/scripts" "${D054}/empty-input"
+write_tasks_with_consent "${SPECDIR054}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR054}/requirements.md" 1400 "REQ054"
+write_filler_lines "${D054}/plugins/some-plugin/scripts/big-thing.sh" 1400 "SRC054"
+HASH054="$(sha256_of "${D054}/plugins/some-plugin/scripts/big-thing.sh")"
+write_impl_report "${D054}" "cross-model-verification" "T-004" \
+    "$(printf 'plugins/some-plugin/scripts/big-thing.sh\t%s' "$HASH054")"
+
+REQBYTES054="$(wc -c < "${SPECDIR054}/requirements.md" | tr -d ' ')"
+SRCBYTES054="$(wc -c < "${D054}/plugins/some-plugin/scripts/big-thing.sh" | tr -d ' ')"
+# Both fixture files (~63,000 bytes each) are deliberately sized ABOVE the
+# 50,000-byte per-file elision threshold (--max-bytes 200000 / 4) — proving
+# these call sites stay whole because they are scoped out, not merely
+# because they never crossed the threshold in the first place.
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D054}/empty-input" \
+    --tasks-file "${SPECDIR054}/tasks.md" \
+    --project-root "${D054}" \
+    --out "${D054}/out.txt" \
+    --max-bytes 200000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-054a: exit 0"
+else
+    fail "TEST-054a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}. requirements.md=${REQBYTES054}B (threshold is 50000B), source=${SRCBYTES054}B"
+fi
+if [ -f "${D054}/out.txt" ] && grep -q "REQ054 line 0001 filler filler filler filler" "${D054}/out.txt" \
+    && grep -q "REQ054 line 1400 filler filler filler filler" "${D054}/out.txt" \
+    && grep -q "REQ054 line 0700 filler filler filler filler" "${D054}/out.txt"; then
+    ok "TEST-054b: spec document (requirements.md, ${REQBYTES054}B > 50000B threshold) present whole, including a middle line"
+else
+    fail "TEST-054b: requirements.md was elided even though it exceeds the per-file threshold"
+fi
+if [ -f "${D054}/out.txt" ] && grep -q "SRC054 line 0001 filler filler filler filler" "${D054}/out.txt" \
+    && grep -q "SRC054 line 1400 filler filler filler filler" "${D054}/out.txt" \
+    && grep -q "SRC054 line 0700 filler filler filler filler" "${D054}/out.txt"; then
+    ok "TEST-054c: Outputs-declared source file (${SRCBYTES054}B > 50000B threshold) present whole, including a middle line"
+else
+    fail "TEST-054c: the declared-output source file was elided even though it exceeds the per-file threshold"
+fi
+if [ -f "${D054}/out.txt" ] && ! grep -qi "elided from the middle" "${D054}/out.txt"; then
+    ok "TEST-054d: no elision marker anywhere in a bundle whose only oversized files are scoped out"
+else
+    fail "TEST-054d: an elision marker leaked into a bundle whose oversized files should never be elided"
+fi
+# ============================================================================
+# TEST-055: eliding every elidable candidate to its own head/tail/marker
+# floor does not guarantee the whole bundle now fits (the degenerate case
+# named in the task brief) — when it still does not, the --max-bytes guard
+# still fails closed exactly as TEST-049, never silently shipping a bundle
+# that even full elision could not bring under the cap.
+# ============================================================================
+
+echo "=== TEST-055: still over --max-bytes after exhausting every elidable candidate → fail closed ==="
+
+D055="${WORK}/pp055"
+SPECDIR055="${D055}/specs/cross-model-verification"
+mkdir -p "${SPECDIR055}/verification/T-004" "${D055}/empty-input"
+write_tasks_with_consent "${SPECDIR055}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR055}/verification/T-004/run-all-sh.log" 500 "LOG055"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D055}/empty-input" \
+    --tasks-file "${SPECDIR055}/tasks.md" \
+    --project-root "${D055}" \
+    --out "${D055}/out.txt" \
+    --max-bytes 2000
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-055a: over --max-bytes even after exhausting the elidable set → nonzero exit"
+else
+    fail "TEST-055a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qi "max-bytes"; then
+    ok "TEST-055b: overage announced on stderr (mentions --max-bytes)"
+else
+    fail "TEST-055b: expected an announcement mentioning --max-bytes, got: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D055}/out.txt" ]; then
+    ok "TEST-055c: bundle file NOT written (fail closed, elision is not a truncation loophole)"
+else
+    fail "TEST-055c: bundle file must not be written when still over --max-bytes after elision"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '^[0-9a-f]{64}$'; then
+    ok "TEST-055d: no digest line printed on a size-guard failure"
+else
+    fail "TEST-055d: digest must not print when the size guard fails. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-056: the SAME over-cap bundle (TEST-052/053's own fixture) comes
+# back byte-for-byte whole under a larger --max-bytes — elision is a
+# property of whether the bundle needs it under the cap actually supplied,
+# never a property baked into a file for being "big enough" in isolation.
+# ============================================================================
+
+echo "=== TEST-056: same bundle, larger --max-bytes → comes back whole ==="
+
+D056="${WORK}/pp056"
+SPECDIR056="${D056}/specs/cross-model-verification"
+mkdir -p "${SPECDIR056}/verification/T-004" "${D056}/empty-input"
+write_tasks_with_consent "${SPECDIR056}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR056}/verification/T-004/big.log" 500 "BIG056"
+write_filler_lines "${SPECDIR056}/verification/T-004/small.log" 20 "SMALL056"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D056}/empty-input" \
+    --tasks-file "${SPECDIR056}/tasks.md" \
+    --project-root "${D056}" \
+    --out "${D056}/out.txt" \
+    --max-bytes 1000000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-056a: exit 0 under a generous --max-bytes"
+else
+    fail "TEST-056a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D056}/out.txt" ] && ! grep -qi "elided from the middle" "${D056}/out.txt"; then
+    ok "TEST-056b: no elision marker anywhere once the bundle fits without cutting anything"
+else
+    fail "TEST-056b: an elision marker survived into a bundle that fits --max-bytes whole"
+fi
+if [ -f "${D056}/out.txt" ] && grep -q "BIG056 line 0250 filler filler filler filler" "${D056}/out.txt"; then
+    ok "TEST-056c: the larger file's middle line is present — the same file TEST-052/053 elides at a tighter cap comes back whole here"
+else
+    fail "TEST-056c: the larger file's middle line is missing even though this bundle fits whole"
 fi
 
 # ============================================================================
