@@ -3,11 +3,11 @@
 # TDD suite for specs/epic-194-a6-lite-integration/human-copy/
 # apply-protected-files.ps1 -- design.md Protected-File Statement's
 # four-point contract (AC-010, AC-031):
-#   1. correct four-target payload + matching MANIFEST.sha256 copies
+#   1. correct declared payload + matching MANIFEST.sha256 copies
 #      cleanly and every installed file's post-copy hash matches.
 #   2. a payload file set with an undeclared fifth path is rejected before
 #      any copy.
-#   3. a payload missing one of the four declared targets is rejected
+#   3. a payload missing one of the declared targets is rejected
 #      before any copy.
 #   4. a per-target hash mismatch against MANIFEST.sha256 is rejected
 #      before any copy.
@@ -165,7 +165,7 @@ function Get-Sha256Hex([string]$Path) {
 }
 
 function Write-StagedPayload {
-    # Stages the four declared targets under $HumanCopyRoot with the given
+    # Stages the declared targets under $HumanCopyRoot with the given
     # content map (target -> content string), then writes a matching
     # MANIFEST.sha256 and copies the runner script itself alongside (both
     # control files, so a well-formed fixture proves they're excluded from
@@ -227,7 +227,7 @@ function Register-TempRoot([string]$Path) { [void]$TempRoots.Add($Path) }
 try {
 
 # ===========================================================================
-# TEST-001a/b: correct four-target payload copies cleanly; post-copy hashes
+# TEST-001a/b: correct declared payload copies cleanly; post-copy hashes
 # match every installed file (contract points 1-4, happy path).
 # ===========================================================================
 Write-Host '=== TEST-001: correct payload copies cleanly, post-copy verified ==='
@@ -281,7 +281,7 @@ if ($result2c.ExitCode -ne 0 -and $result2c.Output.Contains('MANIFEST.sha256 dec
 if (Test-AllLiveFilesOriginal $root2c) { Ok 'TEST-002d: manifest-extra rejection occurs before every live copy' } else { Bad 'TEST-002d: a live target changed before manifest-extra rejection' }
 
 # ===========================================================================
-# TEST-003: a payload missing one of the four declared targets is rejected
+# TEST-003: a payload missing one of the declared targets is rejected
 # BEFORE any copy.
 # ===========================================================================
 Write-Host '=== TEST-003: missing declared target rejected before copy ==='
@@ -349,7 +349,7 @@ $expectedSorted = @($DeclaredTargets | Sort-Object)
 $actualSorted = @($payloadSet5 | Sort-Object)
 $same = ($expectedSorted.Count -eq $actualSorted.Count)
 if ($same) { for ($i = 0; $i -lt $expectedSorted.Count; $i++) { if ($expectedSorted[$i] -ne $actualSorted[$i]) { $same = $false; break } } }
-if ($same) { Ok "TEST-005c: payload set == exactly the four declared targets, control files excluded" } else { Bad "TEST-005c: payload set should equal exactly the four declared targets. Got: $($actualSorted -join ', ')" }
+if ($same) { Ok "TEST-005c: payload set == exactly the declared targets, control files excluded" } else { Bad "TEST-005c: payload set should equal exactly the declared targets. Got: $($actualSorted -join ', ')" }
 # And the well-formed fixture (which stages both control files) still
 # passes the runner end-to-end -- proving they don't trip the exact-set
 # check as "extraneous".

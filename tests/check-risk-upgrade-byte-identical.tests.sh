@@ -10,7 +10,7 @@
 # NOTE: the extended script under test lives at its canonical staged
 # human-copy path below, not yet at the live plugins/sdd-lite/scripts/ path
 # -- the R-10 guard's human-copy/ staging exemption is confirmed live
-# (specs/epic-194-a6-lite-integration/human-copy/README.md), so this is the
+# (specs/epic-194-a6-lite-integration/README.md), so this is the
 # canonical `specs/<feature>/human-copy/<repo-relative-path>` candidate T-001
 # migrated out of the earlier non-suffix-matching `.PROPOSED` workaround.
 # Once a human applies T-001's runner against this task's real staged

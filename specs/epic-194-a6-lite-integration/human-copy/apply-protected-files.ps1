@@ -8,12 +8,15 @@
 # `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
 # (Get-CanonicalTargets / Get-ManifestDigests / VerifyPublished /
 # Invoke-PostInstallVerification) against this feature's own, much smaller,
-# four-target payload -- it does not call into that runner.
+# five-target payload (the four design.md Protected-File Statement names
+# plus the CI-workflow candidate tasks.md item 3 commits this runner to
+# applying the same way, AC-010/AC-031 widened 2026-08-21) -- it does not
+# call into that runner.
 #
 # Contract implemented (design.md Protected-File Statement, four points):
 #   1. Feature-scoped, not fixed-prefix target/digest resolution.
-#   2. Three-way exact-set verification: declared four-target payload list
-#      == MANIFEST.sha256's own target set == the staged directory's own
+#   2. Three-way exact-set verification: declared payload list ==
+#      MANIFEST.sha256's own target set == the staged directory's own
 #      payload file set (control files -- MANIFEST.sha256 and this runner
 #      script itself -- excluded by construction, investigation.md
 #      INV-020, "Payload file set, defined").
@@ -54,12 +57,27 @@ Set-StrictMode -Version Latest
 # Feature-scoped prefix (never the Epic-136 prefix, contract point 1).
 $Script:HumanCopyPrefix = 'specs/epic-194-a6-lite-integration/human-copy'
 
-# The four declared payload targets (design.md Protected-File Statement).
+# The five declared payload targets: the four design.md Protected-File
+# Statement names, plus the CI-workflow candidate tasks.md's own Protected
+# Files item 3 commits this runner to applying "the same way it applies
+# the four payload files" (acceptance-tests.md AC-010/AC-031, widened
+# 2026-08-21 to resolve the four-target/fifth-target contradiction two
+# independent cross-model T-001 reviews converged on: item 3 said the
+# runner applies this fifth candidate the same way as the other four, but
+# it was never one of $Script:DeclaredTargets and had no MANIFEST.sha256
+# entry, so it got none of the pre-copy hash check, atomic publish, or
+# post-copy re-verification the other four targets get -- it was applied
+# by a bare, unverified `cp` instead, exactly what this runner's own
+# contract point 4 and design.md's STRIDE row B5 exist to forbid). This is
+# an ordinary declared target, not a special case: every check below
+# (Test-ExactSet, Test-ManifestHashes, Copy-Payload, Test-PostCopyHashes)
+# applies to it identically.
 $Script:DeclaredTargets = @(
     'plugins/sdd-lite/references/risk-upgrade-policy.md',
     'plugins/sdd-lite/scripts/check-risk-upgrade.sh',
     'plugins/sdd-lite/scripts/check-risk-upgrade.ps1',
-    'plugins/sdd-lite/skills/lite-spec/SKILL.md'
+    'plugins/sdd-lite/skills/lite-spec/SKILL.md',
+    '.github/workflows/test.yml'
 )
 
 # Control files excluded from the payload-set comparison by construction
@@ -252,7 +270,7 @@ function Test-ExactSet {
     $missingPayload = @($declaredSet | Where-Object { -not $payloadSetHash.Contains($_) })
     if ($extraManifest.Count) { Fail "MANIFEST.sha256 declares an undeclared target: $($extraManifest -join ', ')" }
     if ($missingManifest.Count) { Fail "MANIFEST.sha256 is missing a declared target: $($missingManifest -join ', ')" }
-    if ($extraPayload.Count) { Fail "staged payload contains an undeclared path outside the four-target set: $($extraPayload -join ', ')" }
+    if ($extraPayload.Count) { Fail "staged payload contains an undeclared path outside the declared target set: $($extraPayload -join ', ')" }
     if ($missingPayload.Count) { Fail "staged payload is missing a declared target: $($missingPayload -join ', ')" }
 }
 

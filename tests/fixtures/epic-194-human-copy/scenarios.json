@@ -4,7 +4,8 @@
     "plugins/sdd-lite/references/risk-upgrade-policy.md",
     "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
     "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",
-    "plugins/sdd-lite/skills/lite-spec/SKILL.md"
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+    ".github/workflows/test.yml"
   ],
   "scenarios": {
     "correct": {
