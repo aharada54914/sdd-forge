@@ -18,15 +18,17 @@
 # cut would report confident conclusions about material they never saw,
 # which is worse than a failed run that says so plainly.
 #
-# Per-file elision (only when --max-bytes is set): a single file under the
-# reviewed task's own verification/<task_id>/ evidence directory that
-# exceeds one quarter of --max-bytes is included as its first/last 40
-# lines plus a marker stating how many bytes were elided from the middle
-# and from which path — never silently. Spec documents, the task's own
-# contract/evidence.json, the implementation report, and every path the
-# report's "## Outputs" table declares are never elided. If the bundle is
-# still over --max-bytes after elision, this script still fails closed
-# exactly as above.
+# Per-file elision (only when --max-bytes is set): a single evidence file —
+# either one under the reviewed task's own verification/<task_id>/
+# directory, or a path the task's own contract.json names in an "evidence",
+# "red_evidence", or "green_evidence" field, wherever in the repo that path
+# lives — that exceeds one quarter of --max-bytes is included as its
+# first/last 40 lines plus a marker stating how many bytes were elided from
+# the middle and from which path — never silently. Spec documents, the
+# task's own contract/evidence.json, the implementation report, and every
+# path the report's "## Outputs" table declares are never elided. If the
+# bundle is still over --max-bytes after elision, this script still fails
+# closed exactly as above.
 #
 # Security (design.md §6):
 #   • Fail-closed consent gate: exits non-zero without writing output unless
@@ -297,6 +299,15 @@ fi
 #   2. the reviewed task's own verification contract + evidence.json
 #   3. the reviewed task's own verification/<task_id>/ evidence directory
 #      (recursively, same panel-artifact exclusions the old walk applied)
+#   3b. every path the reviewed task's own contract.json names in an
+#      "evidence", "red_evidence", or "green_evidence" field, whenever that
+#      path is NOT already covered by step 3 (a task's contract routinely
+#      names shared evidence outside verification/<task_id>/, e.g.
+#      verification/qg/shared/regression.log — a panelist handed a check
+#      asserting passes:false with no way to read what it points at cannot
+#      tell whether that claim is honest, which is the same defect two
+#      panelists already raised about source code, one level over). See
+#      _ppi_extract_contract_evidence_paths.
 #   4. the reviewed task's own implementation report
 #   5. the CURRENT content of every path the report's "## Outputs" table
 #      declares — appended below, after check_declared_outputs_completeness
@@ -314,6 +325,113 @@ if [ ! -e "$input_path" ]; then
     printf 'prepare-panelist-input: input not found: %s\n' "$input_path" >&2
     exit 1
 fi
+
+# python3 is required unconditionally by the time this script writes any
+# output (sanitization at the bottom always runs through it), but step 3b
+# below (contract-declared evidence) also needs it, earlier — so the
+# availability check is made here rather than immediately before
+# sanitization, which is where it originally lived.
+if ! command -v python3 >/dev/null 2>&1; then
+    printf 'prepare-panelist-input: python3 is required but not found\n' >&2
+    exit 2
+fi
+
+# Reject any declared path that is not a plain, relative, forward-slash,
+# no-`..`-segment path — containment check BEFORE any read is attempted.
+# Shared by step 3b below (contract-declared evidence) and by
+# check_declared_outputs_completeness further down (Outputs-table rows) —
+# both need the identical containment discipline applied to a path taken
+# from repo content, not from a trusted caller.
+_ppi_is_canonical_declared_path() {
+    case "$1" in
+        '') return 1 ;;
+        /*) return 1 ;;
+        [A-Za-z]:*) return 1 ;;
+        *'\'*) return 1 ;;
+        ..|../*|*/..|*/../*) return 1 ;;
+        .|./*|*/.|*/./*) return 1 ;;
+        *) return 0 ;;
+    esac
+}
+
+# Resolve one declared row (an Outputs-table path, or here a contract's
+# evidence/red_evidence/green_evidence path) under a single candidate root,
+# applying a component-walk symlink guard — no symbolic link anywhere
+# between the candidate root and the candidate may be followed (mirrors
+# validate-review-context-set.sh's own symlink-component-walk). POSIX sh
+# has no return-by-value, so the result is communicated via the globals
+# _ppi_row_state ("matched"|"escaped"|"absent") and, only when matched,
+# _ppi_row_candidate (the resolved file path).
+_ppi_resolve_row_under_root() {
+    _rr_row_path="$1"
+    _rr_root="$2"
+
+    _rr_current="${_rr_root%/}"
+    _rr_escaped=0
+    _rr_old_ifs="$IFS"
+    IFS='/'
+    set -- $_rr_row_path
+    IFS="$_rr_old_ifs"
+    for _rr_component in "$@"; do
+        _rr_current="${_rr_current}/${_rr_component}"
+        if [ -L "$_rr_current" ]; then
+            _rr_escaped=1
+        fi
+    done
+
+    if [ "$_rr_escaped" = "1" ]; then
+        _ppi_row_state="escaped"
+        return
+    fi
+
+    _rr_candidate="${_rr_root%/}/${_rr_row_path}"
+    if [ ! -L "$_rr_candidate" ] && [ -f "$_rr_candidate" ]; then
+        _ppi_row_state="matched"
+        _ppi_row_candidate="$_rr_candidate"
+    else
+        _ppi_row_state="absent"
+    fi
+}
+
+# Extract every unique, non-empty "evidence"/"red_evidence"/"green_evidence"
+# value across a contract.json's "checks" array, one per stdout line, in
+# first-seen order. Self-dedups (a contract routinely repeats the same path
+# across evidence/green_evidence, or across sibling checks like unit-tests
+# and acceptance-tests sharing one log) so step 3b below never considers
+# the same path twice from the same contract. Silent no-output (not a
+# script failure) on a missing/unparseable contract or an absent/non-list
+# "checks" field — contract shape is check-contract.py's job, not this
+# script's; a task under review with no contract yet simply contributes no
+# extra evidence paths here.
+_ppi_extract_contract_evidence_paths() {
+    python3 - "$1" <<'PYEOF'
+import json, sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as f:
+        contract = json.load(f)
+except Exception:
+    sys.exit(0)
+
+checks = contract.get("checks", [])
+if not isinstance(checks, list):
+    sys.exit(0)
+
+seen = set()
+for check in checks:
+    if not isinstance(check, dict):
+        continue
+    for field in ("evidence", "red_evidence", "green_evidence"):
+        val = check.get(field)
+        if not isinstance(val, str):
+            continue
+        val = val.strip()
+        if not val or val in seen:
+            continue
+        seen.add(val)
+        print(val)
+PYEOF
+}
 
 # Tracks project-root-relative paths already pulled in by steps 1-4 above, so
 # step 5 (declared outputs) does not duplicate a file already present (e.g.
@@ -474,6 +592,52 @@ if [ -d "$input_path" ]; then
             ! -name '*.cross-model.json' | sort)
     fi
 
+    # 3b. Every path the reviewed task's own contract.json names in an
+    # "evidence", "red_evidence", or "green_evidence" field, when not
+    # already pulled in by steps 1-3 above (see _ppi_is_seen). A contract
+    # routinely names evidence OUTSIDE verification/<task_id>/ — shared
+    # regression/placeholder-scan/task-state-check logs living under
+    # verification/qg/shared/, for instance — and a panelist handed a
+    # check asserting passes:false with no way to read what it points at
+    # cannot tell whether that claim is honest, which is the same defect
+    # already raised about source code, one level over. Found paths join
+    # the SAME elidable candidate set step 3 built above (identical
+    # tab-separated shape: bytes, absolute path, relative path) so a large
+    # one is subject to the identical budget-driven elision, never treated
+    # as bundle-breaking on its own. A declared path that does not exist
+    # (or resolves outside project_root, or through a symlink) is not
+    # silently dropped — a one-line note is appended to the bundle naming
+    # it, because telling the reviewer a contract points at nothing is
+    # true and useful, while hiding it reproduces exactly the
+    # "unreadable claim" defect this step exists to fix.
+    _ppi_contract_path="${_ppi_verif_dir}/${task_id}.contract.json"
+    if [ -f "$_ppi_contract_path" ] && [ ! -L "$_ppi_contract_path" ]; then
+        while IFS= read -r _ppi_dep; do
+            [ -n "$_ppi_dep" ] || continue
+            _ppi_is_seen "$_ppi_dep" && continue
+
+            if ! _ppi_is_canonical_declared_path "$_ppi_dep"; then
+                raw_content="${raw_content}# ---- ${_ppi_dep} (contract-declared evidence, not found) ----
+[contract names this evidence path but it could not be resolved safely]
+"
+                _ppi_mark_seen "$_ppi_dep"
+                continue
+            fi
+
+            _ppi_resolve_row_under_root "$_ppi_dep" "$project_root"
+            if [ "$_ppi_row_state" = "matched" ]; then
+                _ppi_dep_bytes=$(wc -c < "$_ppi_row_candidate" | tr -d ' ')
+                _ppi_elidable_index="${_ppi_elidable_index}${_ppi_dep_bytes}${_ppi_tab}${_ppi_row_candidate}${_ppi_tab}${_ppi_dep}
+"
+            else
+                raw_content="${raw_content}# ---- ${_ppi_dep} (contract-declared evidence, not found) ----
+[contract names this evidence path but no file exists there]
+"
+            fi
+            _ppi_mark_seen "$_ppi_dep"
+        done < <(_ppi_extract_contract_evidence_paths "$_ppi_contract_path")
+    fi
+
     # 4. The reviewed task's own implementation report.
     _ppi_impl_report_path="${project_root}/reports/implementation/${feature}/${task_id}.md"
     if [ -f "$_ppi_impl_report_path" ] && [ ! -L "$_ppi_impl_report_path" ]; then
@@ -606,59 +770,10 @@ _ppi_sha256_stream() {
     fi
 }
 
-# Reject any declared path that is not a plain, relative, forward-slash,
-# no-`..`-segment path — containment check BEFORE any read is attempted.
-_ppi_is_canonical_declared_path() {
-    case "$1" in
-        '') return 1 ;;
-        /*) return 1 ;;
-        [A-Za-z]:*) return 1 ;;
-        *'\'*) return 1 ;;
-        ..|../*|*/..|*/../*) return 1 ;;
-        .|./*|*/.|*/./*) return 1 ;;
-        *) return 0 ;;
-    esac
-}
-
-# Resolve one declared-output row under a single candidate root, applying
-# the same containment discipline (component-walk symlink guard) whichever
-# root is being tried — a row must never escape the root it resolved under.
-# POSIX sh has no return-by-value, so the result is communicated via the
-# globals _ppi_row_state ("matched"|"escaped"|"absent") and, only when
-# matched, _ppi_row_candidate (the resolved file path).
-_ppi_resolve_row_under_root() {
-    _rr_row_path="$1"
-    _rr_root="$2"
-
-    # Component-walk containment: no symbolic link anywhere between the
-    # candidate root and the candidate may be followed (mirrors
-    # validate-review-context-set.sh's own symlink-component-walk).
-    _rr_current="${_rr_root%/}"
-    _rr_escaped=0
-    _rr_old_ifs="$IFS"
-    IFS='/'
-    set -- $_rr_row_path
-    IFS="$_rr_old_ifs"
-    for _rr_component in "$@"; do
-        _rr_current="${_rr_current}/${_rr_component}"
-        if [ -L "$_rr_current" ]; then
-            _rr_escaped=1
-        fi
-    done
-
-    if [ "$_rr_escaped" = "1" ]; then
-        _ppi_row_state="escaped"
-        return
-    fi
-
-    _rr_candidate="${_rr_root%/}/${_rr_row_path}"
-    if [ ! -L "$_rr_candidate" ] && [ -f "$_rr_candidate" ]; then
-        _ppi_row_state="matched"
-        _ppi_row_candidate="$_rr_candidate"
-    else
-        _ppi_row_state="absent"
-    fi
-}
+# (_ppi_is_canonical_declared_path and _ppi_resolve_row_under_root now live
+# earlier in this file, right after the --input existence check — step 3b
+# below, composed before this point in the script, needs them too. Both are
+# used again here, unchanged, by check_declared_outputs_completeness below.)
 
 # Lazily derive & cache the "declaration commit" — the commit that last
 # modified the implementation report itself. Computed at most once per
@@ -849,12 +964,10 @@ check_declared_outputs_completeness
 # a function because the budget-driven size guard below may need to
 # sanitize more than one candidate bundle (once per elision attempt) —
 # content is still passed via a temp file to avoid shell interpolation of
-# $ in Python heredocs.
-
-if ! command -v python3 >/dev/null 2>&1; then
-    printf 'prepare-panelist-input: python3 is required but not found\n' >&2
-    exit 2
-fi
+# $ in Python heredocs. (The python3 availability check itself now lives
+# earlier, right after the --input existence check, because step 3b below
+# — reading the reviewed task's own contract.json's declared evidence
+# fields — also needs python3, before this section is ever reached.)
 
 # Sanitizes $1, setting globals $_ppi_sanitized_digest/$_ppi_sanitized_content.
 _ppi_sanitize_content() {

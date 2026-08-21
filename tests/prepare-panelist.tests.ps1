@@ -169,6 +169,35 @@ function Write-FillerLines {
     Set-Content -Encoding Utf8 -Path $Path -Value ($lines -join "`n")
 }
 
+# ── TEST-057..062 helpers (contract-declared evidence) ──────────────────────
+
+# Write a minimal <TaskId>.contract.json fixture at
+# <SpecDir>/verification/<TaskId>.contract.json. $Checks is an array of
+# hashtables, each with Id/Evidence/RedEvidence/GreenEvidence keys (any of
+# the latter three may be "" -- a real contract carries mostly-empty
+# evidence fields on unrequired/waived checks, which is the norm this
+# fixture reproduces). The outer @() around the ForEach-Object pipeline
+# forces a JSON array even for a single check (PowerShell would otherwise
+# unwrap a one-element pipeline result to a scalar).
+function Write-PpiContract {
+    param([string]$SpecDir, [string]$TaskId, [object[]]$Checks)
+    $verifDir = Join-Path $SpecDir "verification"
+    New-Item -ItemType Directory -Path $verifDir -Force | Out-Null
+    $contract = [ordered]@{
+        task_id = $TaskId
+        checks  = @($Checks | ForEach-Object {
+            [ordered]@{
+                id             = $_.Id
+                evidence       = $_.Evidence
+                red_evidence   = $_.RedEvidence
+                green_evidence = $_.GreenEvidence
+            }
+        })
+    }
+    $json = $contract | ConvertTo-Json -Depth 10
+    Set-Content -Encoding Utf8 -Path (Join-Path $verifDir "$TaskId.contract.json") -Value $json
+}
+
 # Write an implementation report fixture at
 # <ProjectRoot>/reports/implementation/<Feature>/<TaskId>.md with an
 # "## Outputs" table. $Paths and $Hashes are parallel arrays.
@@ -1960,6 +1989,325 @@ if (Test-Path (Join-Path $d "out.txt")) {
     }
 } else {
     fail "TEST-056b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-057: a check's "evidence" field naming a path OUTSIDE the reviewed
+# task's own verification/<task_id>/ directory (e.g. a shared
+# verification/qg/shared/ log, the epic-194 T-001 real-world shape) has its
+# CURRENT content included in the bundle -- not just verified to exist, its
+# bytes actually appear, closing the gap where a panelist was handed a
+# check's passes:false claim with no way to read what it pointed at.
+# ============================================================================
+
+Write-Host "=== TEST-057: contract-declared evidence outside verification/<task_id>/ appears in bundle ==="
+
+$d = Join-Path $Work "pp057"
+$specDir057 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir057 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $specDir057 "verification/qg/shared") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir057 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir057 "verification/qg/shared/regression-057.log") -Value "REGRESSIONMARKER057"
+Write-PpiContract -SpecDir $specDir057 -TaskId "T-004" -Checks @(
+    @{Id = "regression"; Evidence = "specs/cross-model-verification/verification/qg/shared/regression-057.log"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir057 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-057a: exit 0"
+} else {
+    fail "TEST-057a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText057 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText057.Contains("REGRESSIONMARKER057")) {
+        ok "TEST-057b: contract-declared evidence content is in the bundle"
+    } else {
+        fail "TEST-057b: shared verification/qg/ evidence named by the contract never made it into the bundle"
+    }
+    if ($bundleText057.Contains("# ---- specs/cross-model-verification/verification/qg/shared/regression-057.log ----")) {
+        ok "TEST-057c: the path header names the file, so a reviewer can tell which evidence it is"
+    } else {
+        fail "TEST-057c: expected path header missing"
+    }
+} else {
+    fail "TEST-057b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-058: red_evidence and green_evidence are picked up, not just evidence
+# -- a TDD check's contract routinely leaves "evidence" pointing at the same
+# thing as "green_evidence" but a check could, in principle, carry only a
+# red/green pair; both fields must independently contribute their own path.
+# ============================================================================
+
+Write-Host "=== TEST-058: red_evidence and green_evidence are also picked up ==="
+
+$d = Join-Path $Work "pp058"
+$specDir058 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir058 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $specDir058 "verification/qg/shared") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir058 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir058 "verification/qg/shared/red-058.log") -Value "REDMARKER058"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir058 "verification/qg/shared/green-058.log") -Value "GREENMARKER058"
+Write-PpiContract -SpecDir $specDir058 -TaskId "T-004" -Checks @(
+    @{Id = "unit-tests"; Evidence = ""; RedEvidence = "specs/cross-model-verification/verification/qg/shared/red-058.log"; GreenEvidence = "specs/cross-model-verification/verification/qg/shared/green-058.log" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir058 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-058a: exit 0"
+} else {
+    fail "TEST-058a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText058 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText058.Contains("REDMARKER058")) {
+        ok "TEST-058b: red_evidence content is in the bundle"
+    } else {
+        fail "TEST-058b: red_evidence-declared file never made it into the bundle"
+    }
+    if ($bundleText058.Contains("GREENMARKER058")) {
+        ok "TEST-058c: green_evidence content is in the bundle"
+    } else {
+        fail "TEST-058c: green_evidence-declared file never made it into the bundle"
+    }
+} else {
+    fail "TEST-058b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-059: dedup -- a contract-declared path already pulled in by the
+# reviewed task's own verification/<task_id>/ directory walk (059b), or
+# already pulled in by an Outputs-table row (059c), is included exactly
+# ONCE, never a second time for being separately named by the contract.
+# ============================================================================
+
+Write-Host "=== TEST-059: contract-declared evidence already included elsewhere is not duplicated ==="
+
+$d = Join-Path $Work "pp059"
+$specDir059 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir059 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "plugins/some-plugin/scripts") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir059 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir059 "verification/T-004/inband-059.log") -Value "INBANDMARKER059"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "plugins/some-plugin/scripts/thing-059.sh") -Value "SRCMARKER059"
+$hash059 = Get-Sha256OfFile (Join-Path $d "plugins/some-plugin/scripts/thing-059.sh")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("plugins/some-plugin/scripts/thing-059.sh") -Hashes @($hash059)
+Write-PpiContract -SpecDir $specDir059 -TaskId "T-004" -Checks @(
+    @{Id = "already-in-dir"; Evidence = "specs/cross-model-verification/verification/T-004/inband-059.log"; RedEvidence = ""; GreenEvidence = "" },
+    @{Id = "already-in-outputs"; Evidence = "plugins/some-plugin/scripts/thing-059.sh"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir059 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-059a: exit 0"
+} else {
+    fail "TEST-059a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText059 = Get-Content -Raw (Join-Path $d "out.txt")
+    $inbandCount059 = ([regex]::Matches($bundleText059, "INBANDMARKER059")).Count
+    if ($inbandCount059 -eq 1) {
+        ok "TEST-059b: directory-walk file re-declared by the contract appears exactly once"
+    } else {
+        fail "TEST-059b: expected exactly one occurrence of INBANDMARKER059, found $inbandCount059"
+    }
+    $srcCount059 = ([regex]::Matches($bundleText059, "SRCMARKER059")).Count
+    if ($srcCount059 -eq 1) {
+        ok "TEST-059c: Outputs-declared file re-declared by the contract appears exactly once"
+    } else {
+        fail "TEST-059c: expected exactly one occurrence of SRCMARKER059, found $srcCount059"
+    }
+} else {
+    fail "TEST-059b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-060: empty evidence/red_evidence/green_evidence fields (the norm --
+# most checks in a real contract, e.g. a waived lint/typecheck/build check,
+# carry "") produce no bundle output and no error. This is the common case
+# every other TEST-057..062 fixture deliberately does NOT exercise on its
+# own unrequired checks, so it earns a dedicated assertion.
+# ============================================================================
+
+Write-Host "=== TEST-060: empty contract evidence fields produce no output and no error ==="
+
+$d = Join-Path $Work "pp060"
+$specDir060 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir060 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir060 "tasks.md") -TaskId "T-004"
+Write-PpiContract -SpecDir $specDir060 -TaskId "T-004" -Checks @(
+    @{Id = "lint"; Evidence = ""; RedEvidence = ""; GreenEvidence = "" },
+    @{Id = "typecheck"; Evidence = ""; RedEvidence = ""; GreenEvidence = "" },
+    @{Id = "build"; Evidence = ""; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir060 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-060a: exit 0"
+} else {
+    fail "TEST-060a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText060 = Get-Content -Raw (Join-Path $d "out.txt")
+    if (-not ($bundleText060 -match "(?i)contract-declared evidence")) {
+        ok "TEST-060b: no contract-declared-evidence section appears when every field is empty"
+    } else {
+        fail "TEST-060b: a contract-declared-evidence section leaked in for an all-empty-fields contract"
+    }
+} else {
+    fail "TEST-060b: bundle file not written"
+}
+if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+    ok "TEST-060c: normal digest line still printed -- empty fields are not an error"
+} else {
+    fail "TEST-060c: expected a digest line, got: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-061: a declared-but-missing contract evidence path is a finding, not
+# a crash or a silent omission -- the bundle carries a one-line note naming
+# the path and stating no file exists there, and the run still exits 0
+# (telling the reviewer a contract points at nothing is true and useful;
+# refusing to write the whole bundle over it would throw away every OTHER
+# check's real evidence over one dangling reference).
+# ============================================================================
+
+Write-Host "=== TEST-061: declared-but-missing contract evidence path -> noted, not silently dropped ==="
+
+$d = Join-Path $Work "pp061"
+$specDir061 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir061 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir061 "tasks.md") -TaskId "T-004"
+Write-PpiContract -SpecDir $specDir061 -TaskId "T-004" -Checks @(
+    @{Id = "regression"; Evidence = "specs/cross-model-verification/verification/qg/shared/nope-061.log"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir061 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-061a: exit 0 (a dangling contract reference does not fail the whole run)"
+} else {
+    fail "TEST-061a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText061 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText061.Contains("specs/cross-model-verification/verification/qg/shared/nope-061.log (contract-declared evidence, not found)")) {
+        ok "TEST-061b: the bundle names the missing path"
+    } else {
+        fail "TEST-061b: expected a not-found note naming the missing path"
+    }
+    if ($bundleText061.Contains("[contract names this evidence path but no file exists there]")) {
+        ok "TEST-061c: the note states plainly that no file exists there"
+    } else {
+        fail "TEST-061c: expected a plain-language explanation of the gap"
+    }
+} else {
+    fail "TEST-061b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-062: a large contract-declared evidence file (living OUTSIDE
+# verification/<task_id>/, so only reachable via step 3b, not the directory
+# walk) is elided under a tight --max-bytes exactly like a directory-walk
+# file would be -- proving it joined the SAME elidable candidate set, not a
+# separate always-whole one.
+# ============================================================================
+
+Write-Host "=== TEST-062: large contract-declared evidence file is elided under a tight --max-bytes ==="
+
+$d = Join-Path $Work "pp062"
+$specDir062 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir062 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $specDir062 "verification/qg/shared") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir062 "tasks.md") -TaskId "T-004"
+$big062 = Join-Path $specDir062 "verification/qg/shared/big-062.log"
+Write-FillerLines -Path $big062 -Count 500 -Prefix "BIG062"
+Write-PpiContract -SpecDir $specDir062 -TaskId "T-004" -Checks @(
+    @{Id = "regression"; Evidence = "specs/cross-model-verification/verification/qg/shared/big-062.log"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+$total062 = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $big062))
+$lines062 = Get-Content -Encoding Utf8 -LiteralPath $big062
+$headText062 = ($lines062[0..39] -join "`n")
+$tailText062 = ($lines062[($lines062.Count - 40)..($lines062.Count - 1)] -join "`n")
+$headBytes062 = [System.Text.Encoding]::UTF8.GetByteCount($headText062)
+$tailBytes062 = [System.Text.Encoding]::UTF8.GetByteCount($tailText062)
+$expectedElided062 = $total062 - $headBytes062 - $tailBytes062
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir062 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "15000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-062a: exit 0 (eliding the contract-declared file alone let the bundle fit)"
+} else {
+    fail "TEST-062a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$expectedMarker062 = "$expectedElided062 bytes elided from the middle of specs/cross-model-verification/verification/qg/shared/big-062.log (original size $total062 bytes"
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText062 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText062.Contains($expectedMarker062)) {
+        ok "TEST-062b: elision marker present on the contract-declared file with the exact independently-computed byte count"
+    } else {
+        fail "TEST-062b: expected marker containing '$expectedMarker062' not found in bundle"
+    }
+    if ($bundleText062.Contains("BIG062 line 0001 filler filler filler filler") -and
+        $bundleText062.Contains("BIG062 line 0500 filler filler filler filler") -and
+        (-not $bundleText062.Contains("BIG062 line 0250 filler filler filler filler"))) {
+        ok "TEST-062c: elided bundle keeps first/last lines and genuinely drops a middle line"
+    } else {
+        fail "TEST-062c: elided bundle's head/tail/middle content does not match expectations"
+    }
+} else {
+    fail "TEST-062b/c: bundle file not written"
 }
 
 } finally {
