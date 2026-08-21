@@ -149,3 +149,10 @@ Counter these excuses; each one is how a task quietly ships incomplete work.
   advisory `visual-verify-loop` step of the Implementation Process.
 - Do not set a task to `Done`; only `quality-gate` may do that.
 - Do not commit, push, or create a PR/MR unless explicitly requested.
+- Write intermediate artifacts only under this task's own scratch root, never
+  into a directory shared with another task or another role. Backups of a file
+  under review, per-task append scripts and raw tool output left in a shared
+  parent become reachable by the agent that later grades this work, through a
+  channel no manifest describes and no hash check sees (WFI-034). The
+  evaluator's isolation is only as good as what the implementation side leaves
+  lying around.
