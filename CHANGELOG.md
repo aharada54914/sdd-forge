@@ -237,9 +237,13 @@
 
 - **タスク依存グラフ循環検出の双子アルゴリズム乖離を解消**
   (`task-review-precheck.{sh,ps1}`): `.sh` は再帰 DFS、`.ps1` は Kahn 法
-  という別アルゴリズムだったのを、両者とも同じ再帰 3 色 DFS に統一。
+  という別アルゴリズムだったのを、両者とも同じ 3 色 DFS に統一
+  （`.sh` は再帰、`.ps1` は validate-domain-contract.ps1 の前例に合わせた
+  明示スタック反復 — PowerShell のコール深度保護で長鎖が落ちないように）。
   `.sh` 側は並列配列の線形走査 + サブシェル `echo` 返しを、bash 3.2 互換の
-  導出変数名 (`printf -v` + `${!var}`) による O(1) 参照に置換。
+  導出変数名 (`printf -v` + `${!var}`) による O(1) 参照に置換し、
+  構築前に導出名前空間を掃除（環境から輸出された `graph_node_*` 等が
+  未知タスクを保証してしまわないように）。
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
   red on `main` immediately after the v1.15.0 release because two suites

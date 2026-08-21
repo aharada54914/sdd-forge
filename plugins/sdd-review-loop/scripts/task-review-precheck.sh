@@ -449,6 +449,14 @@ fi
 # graph_adj_T_001="T-002 T-003"): bash-3.2 compatible (no associative arrays),
 # and O(1) instead of the previous linear scans. Task IDs are already
 # validated to T-NNN, so the derived names are safe.
+# The namespaces must start empty: these lookups read shell variables, so an
+# inherited/exported graph_node_T_999=1 could otherwise vouch for a task the
+# parsed tasks.md never declared, and stale graph_adj_*/graph_visit_* values
+# could corrupt the traversal. (graph_node_ does not prefix-match the
+# graph_nodes/graph_edges_* arrays, which survive the sweep.)
+for stale_graph_var in $(compgen -v graph_node_) $(compgen -v graph_adj_) $(compgen -v graph_visit_); do
+  unset "$stale_graph_var"
+done
 for task_id in "${graph_nodes[@]}"; do
   printf -v "graph_node_${task_id//-/_}" 1
 done

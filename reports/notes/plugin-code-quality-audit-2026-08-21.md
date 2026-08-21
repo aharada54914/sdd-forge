@@ -33,9 +33,15 @@ gate can disagree; only DFS can ever report the cycle path.
   — bash-3.2 compatible (the plugin tree deliberately avoids `declare -A`),
   O(1) lookups, no subshells; the unknown-task check now also runs in one
   pass. The DFS stays recursive; depth is bounded by the task count.
-- `.ps1`: Kahn's algorithm replaced with the same recursive three-colour
-  DFS (`Test-GraphHasCycleFrom`), so the twins now mirror each other
-  structurally, not just in verdict.
+- `.ps1`: Kahn's algorithm replaced with the same three-colour DFS
+  (`Test-GraphHasCycleFrom`), written with an explicit stack per the
+  `validate-domain-contract.ps1` precedent (PowerShell's call-depth/stack
+  protection can abort deep recursion within the accepted T-001..T-999
+  chain length), so the twins now share the algorithm, not just the verdict.
+- Post-review hardening (Codex P2 findings on PR #320): the `.sh` derived
+  namespaces are swept before the build so an inherited/exported
+  `graph_node_*`/`graph_adj_*`/`graph_visit_*` value can never vouch for an
+  undeclared task or corrupt the traversal.
 
 Tests: `tests/downstream-review-precheck.tests.sh` (incl. the cycle
 fixture), `tests/task-review-precheck.tests.sh` — pass. (`pwsh` is not

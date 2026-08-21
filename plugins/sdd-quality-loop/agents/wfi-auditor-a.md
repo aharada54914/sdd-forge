@@ -80,8 +80,9 @@ actually reaches a root cause. Verify all of:
    advisory (recommend trimming).
 6. **Evidenced.** Each level cites evidence (retrospective row, RT-ID,
    BL-ID, report path, or file:line) or is explicitly marked
-   `(hypothesis)`. If more than half of the levels are both uncited and
-   unmarked, emit a Major finding.
+   `(hypothesis)`. Any level that does neither is a finding — Minor when
+   fewer than half of the levels are affected, Major when half or more
+   are. No unsupported level passes silently; quote each offending row.
 
 Examples:
 - FAIL (stops at blame): "Why 3: the implementer forgot to add tests."
