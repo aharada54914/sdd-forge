@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "17f2da73bf55088a45558266f8c24884cdae366fb845d429c1fa2718e9100c98",
+  "acceptance_sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "cc5c4c82426be72c1f39f4c580be0d56a47016db81eb5b99ce5270b735d82947",
+  "edit_summary": "Remedy round-2 findings: mirrored AC-055/AC-056 into requirements.md's own Acceptance Criteria table (GOAL-AC-TRACE); rescoped AC-010's 'no other condition produces a non-zero exit' to 'no other condition produces a Block (exit 1)', distinct from AC-013's own CLI usage-error exit path (exit 2) (CONTRADICTION).",
+  "reset": false,
+  "generated_at": "2026-07-22T03:10:16Z"
+}

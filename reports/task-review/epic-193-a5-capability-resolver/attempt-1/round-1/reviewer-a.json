@@ -1,0 +1,112 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-a-a1r1-seq0337",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-193-a5-capability-resolver-a1r1-0337",
+  "manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+    {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "660484a1ce893e9af16b5be978da34980556b06111a05df15dd04625fbba1a32"},
+    {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "72a9561bd37bf7c386041fa22983ea46e45f60b9ce0f52a0cca694c143bcedeb"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-1/round-1/precheck-result.json", "sha256": "90e0d8d4d3208d3b5faeef848ada3b5886aeacd47050d15e99526a7d0eaf1c18"},
+    {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-1/round-1/dependency-graph.json", "sha256": "cbe844a69fafbddb19a9b0bf9205cd4426e07377f4f896d2dcdf3a50a63aadf6"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every AC-NNN cited anywhere in tasks.md (T-001..T-006 Must Read/Scope/Done When sections) resolves to a real row in acceptance-tests.md's Acceptance Criterion table (AC-001..AC-056). A repository-wide `comm` diff of the AC-NNN ID sets extracted from acceptance-tests.md and tasks.md shows zero IDs present in tasks.md that are absent from acceptance-tests.md. No dangling AC-NNN reference found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All six tasks' Blockers fields use only the literal string `None` (T-001) or a comma-separated T-NNN list (T-002: `T-001`; T-003: `T-002`; T-004: `T-001, T-003`; T-005: `T-002, T-003, T-004`; T-006: `T-002, T-003, T-004`). No range notation, no prose. blockers_format_valid: true (also independently confirmed by precheck-result.json's own `blockers_format_valid: true` field)."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "REQ-001 through REQ-006 and REQ-008 each appear in at least one task's Requirements: field (T-001..T-006). REQ-007 does not appear in any task's Requirements: field, but traceability.md's Requirements table row for REQ-007 records an explicit, stated deferral rationale (\"Documented (AC-029..032) / Deferred (AC-042, AC-046, AC-053) — no task\", citing requirements.md Non-goals' `plugins/**`-edit exclusion), matching the REQ-COVERAGE exception clause."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All 56 AC-NNN rows in acceptance-tests.md (AC-001..AC-034, AC-038..AC-056, plus Global AC-035/036/037) are traceable: 51 are directly referenced by task Done When/Scope text in tasks.md, and the remaining five (AC-030, AC-031, AC-035, AC-036, AC-037) plus AC-029/AC-032/AC-042/AC-046/AC-053 each carry an explicit 'No task — ...' deferral entry with stated rationale in traceability.md's Acceptance Mapping table (lines 69-77, 82, 86, 93)."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task (T-001..T-006) declares a non-empty Requirements: field citing at least one REQ-NNN (T-001: REQ-004/006/008; T-002: REQ-001/002/003/004/005/006/008; T-003: REQ-001/002/004/005/006/008; T-004: REQ-004/005/006/008; T-005: REQ-005/006/008; T-006: REQ-005/006/008). No orphan task found."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "No task title contains 'test', 'spec', or 'verify' (case-insensitive; confirmed via grep against all six `## T-NNN` heading lines), and no task's Planned Files/Scope is exclusively test-file changes (each of T-001..T-006 also edits/creates at least one non-test governance file, CHANGELOG.md, plus a schema or script for T-001/T-002/T-003/T-004). Even so, every task's Done When section cites specific AC-NNN identifiers, so no task-classified-as-test-task is left without an AC-NNN reference."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "This is attempt 1, round 1 (pre-implementation). All six tasks (T-001..T-006) declare `Approval: Draft` and `Status: Planned`, matching the required round-1/attempt-1 rule exactly."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task declares both Risk: and Required Workflow:, and every pairing matches the risk-gate-matrix: T-001 (medium/acceptance-first), T-002 (high/tdd), T-003 (high/tdd), T-004 (high/tdd), T-005 (medium/acceptance-first), T-006 (medium/acceptance-first). precheck-result.json independently records `workflow_match_precheck: PASS`, confirming no mismatch."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "AC-010/011/012/014/038/040 are the only AC-NNN identifiers shared across two tasks (T-002 and T-003), and each is explicitly differentiated by non-overlapping fixture scope stated directly in both tasks.md's own Done When text ('twelve of sixteen rows' for T-002 vs. 'remaining four rows' for T-003; 'first fixture' vs. 'second fixture' for AC-040) and traceability.md's Acceptance Mapping table. Every other AC-NNN maps to exactly one task. No undifferentiated duplicate claim found."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task ID referenced in any Blockers: field (T-001, T-002, T-003, T-004) is present in dependency-graph.json's `nodes` array (`[\"T-001\",\"T-002\",\"T-003\",\"T-004\",\"T-005\",\"T-006\"]`), and dependency-graph.json's `edges` exactly mirror tasks.md's own Blockers fields for every task. No reference to a non-existent task ID found."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. Following dependency-graph.json's edges (T-002->T-001, T-003->T-002, T-004->T-001, T-004->T-003, T-005->T-002/T-003/T-004, T-006->T-002/T-003/T-004) yields a strict DAG with topological order T-001 < T-002 < T-003 < T-004 < {T-005, T-006}; no path revisits a node. No cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "T-001's 'and its schema-conformance suite' and T-004's 'and its provenance-binding suite' are test/verification work directly tied to the first clause (exception 1). T-005's 'dual-runtime parity and determinism suite' names one coherent concern (requirements.md REQ-005, 'Idempotency and determinism ... dual-runtime parity', a single requirement and a single design.md Test Strategy item), not two distinct feature concerns. T-002, T-003, and T-006 titles contain no 'and' joining distinct concerns. No SINGLE-CONCERN violation found."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "A grep of tasks.md for the forbidden phrases 'ensure', 'consider', 'works correctly', and 'verify is correct' returns zero matches; every 'confirm'/'update' occurrence is paired with a specific observable target (e.g. 'a grep self-check confirms no version string was mutated', 'git diff --stat confirms no path under plugins/** appears', 'correct MANIFEST.sha256 entry'). Every Done When list cites concrete TEST-NNN/AC-NNN identifiers, exact file paths, or command-level checks (grep self-check, git diff --stat, an independent quality-gate verdict record). No task's Done When asks to edit a review-frozen artifact: design.md (Impl-Review-Status: Passed per its own header) is only cited under Must Read, never in any Planned Files/Scope edit list, and traceability.md is mentioned only as a cross-reference, never as an edit target."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task ID T-001..T-006 has a Task Mapping row in traceability.md; every REQ-NNN in traceability.md (REQ-001..REQ-008) exists in requirements.md. For this full-profile feature, every requirement row's Layer Spec column cites a canonical `<layer>-spec.md#<section>` anchor (security-spec.md#trust-boundaries, security-spec.md#stride-analysis, infra-spec.md#cicd-sequence, infra-spec.md#journal-recovery, infra-spec.md#rollback) or a reasoned N/A (REQ-007: 'N/A — cross-layer only: ... (ux-spec.md and frontend-spec.md both record N/A)', independently confirmed true by reading both files). Every cited anchor resolves to a real `##` heading in the hash-verified layer spec documents (confirmed via grep of `^#` headers in security-spec.md and infra-spec.md)."
+    }
+  ],
+  "findings": []
+}

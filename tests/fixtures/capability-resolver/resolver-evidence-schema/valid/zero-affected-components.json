@@ -1,0 +1,29 @@
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "epic-193-a5-capability-resolver",
+  "state": "advisory",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": ["/workflow"],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "ownership_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "pii-handling",
+      "matched": false,
+      "trigger_evaluations": []
+    },
+    {
+      "capability_id": "payments",
+      "matched": false,
+      "trigger_evaluations": []
+    }
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a2r3-seq0349",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a2r3-0349",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c7cfbe1a5b8fc34bd7df3acffbaf0f7f33a33a327784a8579110897832574547"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "5021fb1bf20b2ed19f6c608ad429ae1bdbb71807c0c950a073753db53ef076e0"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-2/round-3/precheck-result.json", "sha256": "c6669aa127a012793f21fb47403de1c83967f60d4797bb5cc46f9f24b0edfbe4"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-2/round-3/integrated-summary.json", "sha256": "5ee3f731af58863f622898d7c8000c8cad96e3a3559299fae1780ea41997921d"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-002/T-003/T-004/T-007 (Risk: high) each cite risk-classification-policy.md's 'silent defect causes material harm' clause for state-derivation/union-match/facet-aggregation/publication logic; T-007 additionally owns the sole irreversible-filesystem write (step 14). T-008 (Risk: high) closes a provenance-spoofing attack surface (B6). T-001/T-005/T-006/T-009/T-010 (Risk: medium) are schema-authoring or test-only tasks adding no new production code path, correctly not classified high, and not merely cosmetic/docs/test-only-at-high-tier either."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. T-002, T-003, T-004, T-007, T-008 (all Risk: high) each retain a Done When 'TDD evidence' bullet with explicit RED (fixtures against a deliberately broken implementation) and GREEN (correct implementation) plus 'An independent quality-gate verdict records PASS.' Re-verified specifically for T-003 (tasks.md lines ~942-945) and T-004 (tasks.md lines ~1191-1195) after this round's Done-When item removal: both still carry this bullet intact. No Risk: critical task exists, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Done When item counts: T-001=5, T-002=5, T-003=4, T-004=4, T-005=5, T-006=6, T-007=8 (at, not over, the eight-item ceiling), T-008=7, T-009=7, T-010=5. No task's Scope spans an unbounded implementation surface (T-002/T-003/T-004 each own one contiguous, design.md-step-bounded engine stage per the four-remedy-pass task-decomposition history recorded in tasks.md Global Constraints), and no task is a single-function/single-file-rename fragment."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Production-code tasks T-001/T-002/T-003/T-004/T-007 collectively cover REQ-002's full sixteen-row Block-diagnostic taxonomy (AC-010..AC-014, AC-038..AC-041, AC-047..AC-049, AC-055) and T-008 covers validate-resolver-evidence's twelve-value check-id enum (AC-021, AC-050, AC-051, AC-054) plus a clean fixture — every functional task's own AC set is dominated by error-path/edge-case scenarios, not happy-path-only."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every test task (T-001, T-005, T-006, T-008, T-009, T-010) invokes the assembled resolve-project-context/validate-resolver-evidence as a real subprocess exercising 2+ system components (canonicalizer, resolve-component-paths, Registry, evaluate-predicate) and/or explicitly cites specific AC-NNN ids (e.g. T-005 cites AC-003 through AC-008/016/043/044/052/056); no task mislabels a multi-component integration-style suite as a unit test or vice versa."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-002, T-003, T-004, T-007 (Risk: high) each carry a 'Rollback: revert this task's two commits (B then A, or both)' field that also addresses the human-copy-application state for the protected-path scripts. T-008 (Risk: high) carries an equivalent Rollback field ('Nothing protected is touched')."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. resolve-project-context.{py,sh,ps1} is edited by T-002/T-003/T-004/T-007 in strict Blockers-enforced sequence (T-003 Blocked by T-002, T-004 Blocked by T-003, T-007 Blocked by T-004). tests/resolve-project-context-block.tests.sh/.ps1 is created by T-002 and appended by T-003/T-004/T-007 in the identical order. tests/run-all.*/staged test.yml/MANIFEST.sha256 follow the fixed T-001->T-002->T-005->T-006->T-008->T-009->T-010 chain with a direct Blockers edge at each consecutive pair. No two tasks claim the same file for the same purpose without an ordering edge."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Blockers edge is independently justified as functional, CI-registration-order, or both (e.g. T-005's edges on both T-002 and T-004, T-006's on both T-004 and T-005, T-008's on T-001/T-006/T-007, T-010's on T-004/T-007/T-008/T-009) -- each edge's rationale is stated in the task's own Depends On prose, closing the exact gap an earlier round's DEPENDENCY-OVERLAP finding named (direct edges to the immediately-preceding CI-registering task, not merely transitive). No missing functional dependency found (e.g. T-005/T-006's transitive coverage of T-002/T-003 via their direct T-004 blocker is sufficient since no shared-file edge bypasses that chain)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All ten tasks (T-001..T-010) are net-new feature-construction tasks (schema authoring, engine staging, test-suite authoring, transactional-publication layering, validator authoring) for a Phase 2 implementation of a brand-new Capability Resolver; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

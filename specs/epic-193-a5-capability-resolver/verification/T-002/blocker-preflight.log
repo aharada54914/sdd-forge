@@ -1,0 +1,16 @@
+Date: 2026-08-08
+Source: tasks.md T-002 ### Blockers plus caller-mandated upstream list
+Method: find each expected basename at its fixed directory; grep (rg -l) the canonicalizer family
+
+PASS contracts/project-context.schema.json
+PASS contracts/project-context.template.yaml
+PASS plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
+PASS plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh
+PASS plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.ps1
+PASS plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.js
+PASS contracts/facet-manifest.schema.json
+PASS plugins/sdd-quality-loop/scripts/validate-facet-manifest.py
+PASS plugins/sdd-quality-loop/scripts/validate-facet-manifest.sh
+PASS plugins/sdd-quality-loop/scripts/validate-facet-manifest.ps1
+
+Result: all external prerequisites are present; the 2026-07-22 external blocker is resolved in this tree.

@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 1,
+  "round": 2,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "aae471aed3eff318604fda81d23ff831216653690df4316e7063660b5073408b",
+  "requirements_sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3",
+  "acceptance_sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6",
+  "layer_sha256": {"ux-spec.md":"160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677","frontend-spec.md":"3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6","infra-spec.md":"2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d","security-spec.md":"0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+  "input_sha256": "0702d691aa895e1fbd47f5adc60d1c7a86fc08eb4c059aa5d20a89ecd245064b",
+  "generated_at": "2026-07-22T03:55:34Z"
+}

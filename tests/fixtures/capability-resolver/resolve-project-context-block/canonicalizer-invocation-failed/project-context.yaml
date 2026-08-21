@@ -1,0 +1,7 @@
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: facet-hybrid
+  capability_enforcement: advisory
+components: []
+shared_paths: []

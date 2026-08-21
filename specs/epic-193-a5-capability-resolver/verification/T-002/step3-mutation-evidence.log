@@ -1,0 +1,297 @@
+Step 3 assertion non-vacuity evidence (T-002, epic-193-a5-capability-resolver)
+
+Method: apply one mutation to the staged resolver candidate
+  specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/
+  scripts/resolve-project-context.py
+run the suite, record every FAIL line verbatim, revert, re-run.
+Command (every run below): bash tests/resolve-project-context-block.tests.sh
+The PowerShell twin drives the same driver through the same launcher
+argument, so only the POSIX launcher is mutated here.
+
+BASELINE (unmutated): exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M1 -- gut _projection() to return {}
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-def _projection(document, source_sha256):
+-    components = {}
++def _projection(document, source_sha256):
++    return {}
++    components = {}
+
+exit 1
+FAIL: projection-two-components: Context Projection field set is REQ-003's exact five: []
+FAIL: projection-two-components: Context Projection schema const: None
+FAIL: projection-two-components: source_sha256 binds the canonical Project Context: None != 'sha256:310cd599044ded36ab39f18fe692abb619194f4ca6806c2e942e833fdc7ae8aa'
+FAIL: projection-two-components: workflow copied verbatim: None
+FAIL: projection-two-components: components re-keyed by id with id stripped: None
+FAIL: projection-two-components: shared_paths carried as-is: None
+FAIL: projection-two-components: exact Context Projection document: {}
+FAIL: projection-omits-components: Context Projection field set is REQ-003's exact five: []
+FAIL: projection-omits-components: Context Projection schema const: None
+FAIL: projection-omits-components: source_sha256 binds the canonical Project Context: None != 'sha256:95711d2e8da7cfc463d68997952cea3cd17d15f32722ef66632a22708125a611'
+FAIL: projection-omits-components: workflow copied verbatim: None
+FAIL: projection-omits-components: components re-keyed by id with id stripped: None
+FAIL: projection-omits-components: shared_paths carried as-is: None
+FAIL: projection-omits-components: exact Context Projection document: {}
+RESULT: 59 passed, 14 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M2 -- delete the step 3 projection canonicalization call
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-            canonical_projection, parsed_projection = _canonicalize(projection_input, "json")
++            canonical_projection, parsed_projection = b"", {}
+
+exit 1
+FAIL: projection-two-components: step 3 second canonicalizer pass ran in JSON mode: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-1990l7_7/projection-capture.json'
+FAIL: projection-two-components: Context Projection field set is REQ-003's exact five: None
+FAIL: projection-two-components: Context Projection schema const: None
+FAIL: projection-two-components: source_sha256 binds the canonical Project Context: None != 'sha256:310cd599044ded36ab39f18fe692abb619194f4ca6806c2e942e833fdc7ae8aa'
+FAIL: projection-two-components: workflow copied verbatim: None
+FAIL: projection-two-components: components re-keyed by id with id stripped: None
+FAIL: projection-two-components: shared_paths carried as-is: None
+FAIL: projection-two-components: exact Context Projection document: None
+FAIL: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-su5jj9ot/projection-capture.json'
+FAIL: projection-omits-components: Context Projection field set is REQ-003's exact five: None
+FAIL: projection-omits-components: Context Projection schema const: None
+FAIL: projection-omits-components: source_sha256 binds the canonical Project Context: None != 'sha256:95711d2e8da7cfc463d68997952cea3cd17d15f32722ef66632a22708125a611'
+FAIL: projection-omits-components: workflow copied verbatim: None
+FAIL: projection-omits-components: components re-keyed by id with id stripped: None
+FAIL: projection-omits-components: shared_paths carried as-is: None
+FAIL: projection-omits-components: exact Context Projection document: None
+FAIL: projection-canonicalizer-invocation-failed: exit 1: got 0
+FAIL: projection-canonicalizer-invocation-failed: canonical diagnostic only: stdout='' stderr=''
+FAIL: projection-canonicalizer-invocation-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-1osd_ol8/specs/example-feature/resolver-evidence.yaml'
+FAIL: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement: evidence absent
+FAIL: projection-dependency-output-malformed: exit 1: got 0
+FAIL: projection-dependency-output-malformed: canonical diagnostic only: stdout='' stderr=''
+FAIL: projection-dependency-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-yq0gk20b/specs/example-feature/resolver-evidence.yaml'
+FAIL: projection-dependency-output-malformed: Resolver Evidence schema agreement: evidence absent
+RESULT: 49 passed, 24 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M3 -- swap the projection-pass dependency-output-malformed id
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-                repo_root, args.feature, "dependency-output-malformed",
+-                "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection", state,
++                repo_root, args.feature, "canonicalizer-invocation-failed",
++                "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection", state,
+
+exit 1
+FAIL: projection-dependency-output-malformed: canonical diagnostic only: stdout='' stderr='capability-resolver: canonicalizer-invocation-failed: canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection\n'
+FAIL: projection-dependency-output-malformed: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': 'canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection', 'id': 'canonicalizer-invocation-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+RESULT: 71 passed, 2 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M4 -- swap the projection-pass canonicalizer-invocation-failed id
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-                repo_root, args.feature, "canonicalizer-invocation-failed",
+-                "canonicalize-sdd-yaml failed while canonicalizing context projection", state,
++                repo_root, args.feature, "dependency-output-malformed",
++                "canonicalize-sdd-yaml failed while canonicalizing context projection", state,
+
+exit 1
+FAIL: projection-canonicalizer-invocation-failed: canonical diagnostic only: stdout='' stderr='capability-resolver: dependency-output-malformed: canonicalize-sdd-yaml failed while canonicalizing context projection\n'
+FAIL: projection-canonicalizer-invocation-failed: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': 'canonicalize-sdd-yaml failed while canonicalizing context projection', 'id': 'dependency-output-malformed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'required'}
+RESULT: 71 passed, 2 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M5 -- stop stripping id from each re-keyed component value
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-        components[component["id"]] = {key: value for key, value in component.items() if key != "id"}
++        components[component["id"]] = {key: value for key, value in component.items()}
+
+exit 1
+FAIL: projection-two-components: components re-keyed by id with id stripped: {'desktop-client': {'artifact_kinds': ['desktop-app'], 'characteristics': {'pii': False, 'ui': True}, 'id': 'desktop-client', 'paths': {'include': ['apps/desktop/**']}, 'runtime_classes': ['electron']}, 'Desktop/App': {'artifact_kinds': ['installer'], 'id': 'Desktop/App', 'paths': {'include': ['apps/installer/**']}}}
+FAIL: projection-two-components: exact Context Projection document: {'schema': 'sdd-context-projection/v1', 'source_sha256': 'sha256:310cd599044ded36ab39f18fe692abb619194f4ca6806c2e942e833fdc7ae8aa', 'workflow': {'artifact_layout': 'facet-hybrid', 'capability_enforcement': 'required', 'spec_profile': 'full'}, 'components': {'desktop-client': {'artifact_kinds': ['desktop-app'], 'characteristics': {'pii': False, 'ui': True}, 'id': 'desktop-client', 'paths': {'include': ['apps/desktop/**']}, 'runtime_classes': ['electron']}, 'Desktop/App': {'artifact_kinds': ['installer'], 'id': 'Desktop/App', 'paths': {'include': ['apps/installer/**']}}}, 'shared_paths': [{'classification': 'cross-cutting', 'pattern': 'shared/**'}, {'components': ['desktop-client'], 'pattern': 'libs/core/**'}]}
+RESULT: 71 passed, 2 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M6 -- drop the omitted-components normalization default
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    for component in document.get("components", []):
++    for component in document["components"]:
+
+exit 1
+FAIL: projection-omits-components: exit 0: got 1 stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 272, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 241, in main\n    projection = _projection(document, source_sha256)\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 188, in _projection\n    for component in document["components"]:\n                     ~~~~~~~~^^^^^^^^^^^^^^\nKeyError: \'components\'\n'
+FAIL: projection-omits-components: no diagnostic on either stream: stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 272, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 241, in main\n    projection = _projection(document, source_sha256)\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 188, in _projection\n    for component in document["components"]:\n                     ~~~~~~~~^^^^^^^^^^^^^^\nKeyError: \'components\'\n'
+FAIL: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-6h6k_wem/projection-capture.json'
+FAIL: projection-omits-components: Context Projection field set is REQ-003's exact five: None
+FAIL: projection-omits-components: Context Projection schema const: None
+FAIL: projection-omits-components: source_sha256 binds the canonical Project Context: None != 'sha256:95711d2e8da7cfc463d68997952cea3cd17d15f32722ef66632a22708125a611'
+FAIL: projection-omits-components: workflow copied verbatim: None
+FAIL: projection-omits-components: components re-keyed by id with id stripped: None
+FAIL: projection-omits-components: shared_paths carried as-is: None
+FAIL: projection-omits-components: exact Context Projection document: None
+FAIL: projection-dependency-output-malformed: canonical diagnostic only: stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-1pvp7xdi/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 272, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-1pvp7xdi/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 241, in main\n    projection = _projection(document, source_sha256)\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-1pvp7xdi/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 188, in _projection\n    for component in document["components"]:\n                     ~~~~~~~~^^^^^^^^^^^^^^\nKeyError: \'components\'\n'
+FAIL: projection-dependency-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-1pvp7xdi/specs/example-feature/resolver-evidence.yaml'
+FAIL: projection-dependency-output-malformed: Resolver Evidence schema agreement: evidence absent
+RESULT: 60 passed, 13 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M7 -- drop the omitted-shared_paths normalization default
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-        "shared_paths": document.get("shared_paths", []),
++        "shared_paths": document.get("shared_paths"),
+
+exit 1
+FAIL: projection-omits-components: shared_paths carried as-is: None
+FAIL: projection-omits-components: exact Context Projection document: {'schema': 'sdd-context-projection/v1', 'source_sha256': 'sha256:95711d2e8da7cfc463d68997952cea3cd17d15f32722ef66632a22708125a611', 'workflow': {'artifact_layout': 'facet-native', 'capability_enforcement': 'advisory', 'spec_profile': 'full'}, 'components': {}, 'shared_paths': None}
+RESULT: 71 passed, 2 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M8 -- write the projection to the live generated/project-context.resolved.json (B1/B4 violation)
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
+-    return 0
++    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
++    _live = Path(__file__).resolve().parent / "generated/project-context.resolved.json"
++    _live.parent.mkdir(parents=True, exist_ok=True)
++    _live.write_bytes(canonical_projection)
++    return 0
+
+exit 1
+FAIL: projection-two-components: no partial live artifact
+RESULT: 72 passed, 1 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M9 -- invoke a step-4 dependency after step 3
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
+-    return 0
++    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
++    subprocess.run(["resolve-component-paths"], check=False)
++    return 0
+
+exit 1
+FAIL: projection-two-components: no step-4-or-later subprocess
+RESULT: 72 passed, 1 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M10 -- write Resolver Evidence on the success path
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
+-    return 0
++    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
++    _write_evidence(repo_root, args.feature, "dependency-output-malformed", "spurious", state)
++    return 0
+
+exit 1
+FAIL: projection-two-components: no Resolver Evidence on the success path
+RESULT: 72 passed, 1 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M11 -- emit text on stdout on the success path
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
+-    return 0
++    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
++    sys.stdout.write("debug\n")
++    return 0
+
+exit 1
+FAIL: projection-two-components: no diagnostic on either stream: stdout='debug\n' stderr=''
+FAIL: projection-omits-components: no diagnostic on either stream: stdout='debug\n' stderr=''
+RESULT: 71 passed, 2 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M12 -- return a non-zero exit code from the completed success path
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
+-    return 0
++    del _staged_context_snapshot, _staged_projection, _staged_projection_document, _projection_sha256
++    return 4
+
+exit 1
+FAIL: projection-two-components: exit 0: got 4 stderr=''
+FAIL: projection-omits-components: exit 0: got 4 stderr=''
+RESULT: 71 passed, 2 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M13 -- write the live projection artifact before step 3's own Block can fire (B1/B4 violation)
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    projection = _projection(document, source_sha256)
++    projection = _projection(document, source_sha256)
++    _live = Path(__file__).resolve().parent / "generated/project-context.resolved.json"
++    _live.parent.mkdir(parents=True, exist_ok=True)
++    _live.write_text(json.dumps(projection), encoding="utf-8")
+
+exit 1
+FAIL: projection-two-components: no partial live artifact
+FAIL: projection-canonicalizer-invocation-failed: no partial live artifact
+FAIL: projection-dependency-output-malformed: no partial live artifact
+RESULT: 70 passed, 3 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+M14 -- invoke a step-4 dependency before step 3's own second canonicalizer pass
+------------------------------------------------------------------------------
+--- staged candidate (before)
++++ staged candidate (after)
+-    projection = _projection(document, source_sha256)
++    projection = _projection(document, source_sha256)
++    subprocess.run(["resolve-component-paths"], check=False)
+
+exit 1
+FAIL: projection-two-components: no step-4-or-later subprocess
+FAIL: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+FAIL: projection-dependency-output-malformed: no step-4-or-later subprocess
+RESULT: 70 passed, 3 failed
+reverted: exit 0
+RESULT: 73 passed, 0 failed
+
+==============================================================================
+Mutations applied: 14; mutations that failed to fail: 0
+

@@ -1,0 +1,83 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a1r2-seq0329",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-193-a5-capability-resolver-a1r2-0329",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "aae471aed3eff318604fda81d23ff831216653690df4316e7063660b5073408b"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-2/precheck-result.json", "sha256": "b8591706830fc8932b9e8b64686268ea97e9a45e974ba0e0dc20105a36dc1c1d"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-2/integrated-summary.json", "sha256": "4bb308ae37138288b593ecde4edb97e71e45a6ece3ad4c3b7ffba52b22206926"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architectural/technology decision in design.md carries an explicit, citation-grounded rationale. Examples: the union-match multi-component rule (Design Decisions 'Multi-affected-component trigger/when matching rule') cites investigation.md INV-012 (evaluate-predicate's single-component CLI shape) and the identical soundness argument Epic A4's own INV-019 already establishes; the 'facet-name aggregation, predicate-instance keyed' rule (B7) cites Epic A2's own schema silence at specs/epic-190-a2-capability-registry/requirements.md:169-173; the journaled 'staged generation, single atomic commit' publication mechanism cites Epic A1's already-Passed design.md:927-1016 as the reused protocol shape (adversarial finding B1); the .yaml-over-.json choice for resolver-evidence.yaml cites Epic A4's own REQ-007 placement rationale verbatim (Data Plan). No inline 'we will use X' statement was found without an accompanying because/since-style justification or citation."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's 'Open Questions' section (restating requirements.md Open Questions) carries OQ-001 and OQ-002 in prose, without the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels the check calls for. However each names a plausible owner (OQ-001: 'a future caller's own contract'; OQ-002: 'a future epic (plausibly A6/A8)', investigation.md OQ-002) and each is explicitly framed as non-blocking to this Phase-1, contract-fixing package's own scope (requirements.md Non-goals: 'this package fixes the contract only'; design.md Open Questions: 'Neither blocks this Phase 1 package's own infrastructure surface', mirrored in infra-spec.md Open Questions). Per reviewer-calibration.md's severity guidance, a non-blocking open question with a stated (if informally worded) owner is an acceptable Minor completeness note, not a Major finding. OQ-003 -- the one question that could plausibly have blocked REQ-007's own caller-insertion-point claim -- is explicitly resolved in this revision with a concrete SKILL.md:60 file:line anchor plus a two-signal drift check (design.md Design Decisions 'caller insertion point'/'anchor fingerprint', M6)."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "specs/epic-193-a5-capability-resolver/investigation.md is present (INV-001..INV-021), so the 'investigation.md absent' trigger does not apply. design.md's Assumptions section (restated from requirements.md Assumptions) lists three items, each grounded in a specific INV-xxx citation: (1) Epic A1-A4 contracts land unmodified before this feature's own Phase-2 implementation begins -- grounded in investigation.md INV-002 (confirms each sibling epic's own Spec-Review-Status: Passed header directly) and issue #187's own stated sequencing; (2) resolve-project-context.{py,sh,ps1}'s protected-suffix reservation is live in guard-invariants.json by that same point -- grounded in investigation.md INV-003; (3) sdd-bootstrap-interviewer/SKILL.md's current unprotected status is a live-repository snapshot, re-verified at future implementation-task start time -- grounded in investigation.md INV-017. No non-trivial, ungrounded assumption was found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (addressing AGENTS.md's 'API changes require contract updates'/'architecture changes require ADRs' rules and this task's own no-edit-to-plugins/**-etc. scope boundary). requirements.md's remaining explicit constraints -- Security Boundaries' 'never invokes a Provider API, reads a credential, or writes outside' a fixed path set, REQ-005's 'no code path can read the clock, the network, or invoke a provider API' determinism guarantee, and the byte-identical dual-runtime-parity requirement -- are not repeated inside the 'Constraint Compliance' heading itself, but are substantively addressed, one-for-one, in design.md's own dedicated 'Security Boundaries' section (mirroring requirements.md's own section of the same name) and 'Global Constraints' section (UTF-8/LF/stable-sort/closed-enum rules). No requirements.md constraint was found addressed nowhere in the design, and no design statement was found to directly contradict a requirements.md constraint; this is a documentation-organization choice (constraints grouped by topic-matching heading rather than consolidated under one label), not an absent-or-contradicted constraint, so it does not meet the Severity Reference's own definition of Critical ('a constraint directly contradicted by or absent from the design')."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. This feature is a deterministic, single-invocation CLI/script family with no runtime service (security-spec.md Service Level Objectives: 'N/A -- no live service to hold an availability/latency SLO'; infra-spec.md Scaling Strategy: 'no runtime service, no concurrency model of its own'). REQ-005's own 'byte-identical output' / dual-runtime-parity requirement is a correctness/determinism property, not a numeric throughput/latency/concurrency SLA, and is separately verified via the parity test suite (TEST-022/023)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has a '## Deployment / CI Plan' section, expanded normatively by infra-spec.md's own Deployment Topology/CI-CD Sequence/Environments sections. Deployment target: local dev + CI GitHub Actions test.yml runner, no cloud/runtime service (infra-spec.md Deployment Topology, Environments table). CI pipeline changes: ten new tests/*.tests.sh/.ps1 suite pairs registered directly in tests/run-all.sh/.ps1, plus a vendored-copy --check drift entry for the one new schema file, plus a staged test.yml registration candidate under human-copy/ (design.md Deployment / CI Plan; infra-spec.md CI/CD Sequence). Feature-flag strategy: not applicable -- this is a deterministic CLI explicitly invoked by a caller (REQ-007), not a service behind an incremental rollout flag; the design's own track-exclusive (full/lite) branching is driven by the already-existing workflow.spec_profile axis, not a new flag this feature introduces. Migration execution order: not applicable -- design.md Data Plan states 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature,' so the check's own schema-change trigger for requiring a migrate-before/after-deploy statement does not apply."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan states 'Migration Strategy: none. No database, no runtime storage, no schema migration anywhere in this feature' and (this round's own human edit) 'Existing Data Affected: none written; two existing artifacts read only -- the Registry Capability read set and the Context Projection read set ... are the only existing, already-Spec-Review-Status: Passed sibling-epic artifacts this feature's Resolver ever reads ... Neither is ever modified by this feature ... this feature's Resolver performs no write of any kind against capability-registry.json, project-context.yaml, or any other Epic A1/A2/A3/A4 artifact.' Every item under 'Data Entities' is a net-new, additive artifact (contracts/resolver-evidence.schema.json, new per-Feature .yaml instances) with no existing column/table modification to any prior schema. Per the check's own skip condition ('If Data Plan states \"No data changes,\" emit PASS'), this functionally equivalent explicit no-write/no-migration statement satisfies the check."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's own 'External Integrations' states 'None -- every input and output this feature touches is repository-local' (echoed in security-spec.md's framing and infra-spec.md's 'No cloud, no region, no network boundary'). The only cross-script calls this feature makes are same-repository, same-process-boundary local subprocess invocations of already-Spec-Review-Status:-Passed sibling-epic scripts (Epic A1 canonicalize-sdd-yaml, Epic A2 evaluate-predicate/generate-registry-digest, Epic A3 resolve-component-paths), not a third-party service or cross-service API call. Each is nonetheless explicitly documented with name/purpose/contract-version/failure-behavior: frontend-spec.md's Dependencies table (name, version-status, purpose, alternative, license/supply-chain note) and design.md's own Cross-Layer Dependencies plus API / Contract Plan (each dependency's own non-zero-exit or malformed-stdout failure maps to a specific, named REQ-002 diagnostic id, e.g. canonicalizer-invocation-failed, dependency-subprocess-failed, dependency-output-malformed)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Components table lists exactly the artifacts REQ-001/REQ-004/REQ-007 call for (the Resolver script family and its wrappers, the companion validate-resolver-evidence scripts, the one new contracts/resolver-evidence.schema.json, and the documented-but-not-edited sdd-bootstrap-interviewer/SKILL.md integration target) -- no additional component, data model, or API endpoint appears with no corresponding requirement; the design repeatedly and explicitly declines to edit any Epic A1/A2/A3/A4 contract file or any plugins/**/scripts/**/docs/** file beyond this package's own specs/ directory (Non-goals; Constraint Compliance's own scope-boundary statement). Conversely, every requirements.md Goal (REQ-001 through REQ-008) and User Story is covered by a corresponding design.md section (API / Contract Plan for REQ-001/002/003/004/005/006, Design Decisions 'caller insertion point' for REQ-007, Constraint Compliance/ADR Change Log for REQ-008); no Goal or User Story was found with no corresponding design content."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces are present: this is the Epic set's first artifact-writing (not read-only) script, introducing a multi-target publication transaction, a snapshot/TOCTOU-recheck boundary, and a provenance-binding validator against a substitutable-input attack (security-spec.md Trust Boundaries B1-B7). Each names a concrete, named validation path rather than a live-execution requirement: e.g. tests/resolve-project-context-block.tests.sh/.ps1 (TEST-038/039/047/049) for the transactional-commit/crash-recovery/TOCTOU surface, tests/validate-resolver-evidence.tests.sh/.ps1 (TEST-050/051/054) for the provenance-binding boundary, and tests/resolve-project-context-caller-contract.tests.sh/.ps1 (TEST-046/053) for the SKILL.md anchor-fingerprint drift boundary -- each cross-referenced to a specific AC number in acceptance-tests.md and a specific row of security-spec.md's own Security Tests table."
+    }
+  ]
+}

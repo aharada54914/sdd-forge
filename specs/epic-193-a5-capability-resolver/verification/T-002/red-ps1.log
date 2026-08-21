@@ -1,0 +1,15 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+Exit: 1
+FAIL: disabled-legacy-invocation: staged implementation exists: TDD RED: implementation absent
+FAIL: workflow-combination-invalid-lite: staged implementation exists: TDD RED: implementation absent
+FAIL: workflow-combination-invalid-full: staged implementation exists: TDD RED: implementation absent
+FAIL: project-context-validation-failed: staged implementation exists: TDD RED: implementation absent
+FAIL: canonicalizer-invocation-failed: staged implementation exists: TDD RED: implementation absent
+FAIL: dependency-output-malformed: staged implementation exists: TDD RED: implementation absent
+FAIL: projection-two-components: staged implementation exists: TDD RED: implementation absent
+FAIL: projection-omits-components: staged implementation exists: TDD RED: implementation absent
+FAIL: projection-canonicalizer-invocation-failed: staged implementation exists: TDD RED: implementation absent
+FAIL: projection-dependency-output-malformed: staged implementation exists: TDD RED: implementation absent
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 2 passed, 10 failed

@@ -1,0 +1,134 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-orchestrator-a1r2",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "one new deterministic CLI script family (resolve-project-context.{py,sh,ps1}) plus companion validator scripts (validate-resolver-evidence.{py,sh,ps1}), one new contracts/resolver-evidence.schema.json contract, and a documented (not implemented) caller-side integration contract for sdd-bootstrap-interviewer's future capability interview phase (no UI, no runtime service, no database)",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "f983d3bc25ebf7972ffff196ec8cba36a06712eefe542c8d2bdfd4df0c7cb5e0",
+  "requirements_sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3",
+  "acceptance_sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6",
+  "design_sha256": "aae471aed3eff318604fda81d23ff831216653690df4316e7063660b5073408b",
+  "layer_sha256": {
+    "ux-spec.md": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677",
+    "frontend-spec.md": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6",
+    "infra-spec.md": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d",
+    "security-spec.md": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a1r2-seq0328",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-193-a5-capability-resolver-a1r2-0328",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "aae471aed3eff318604fda81d23ff831216653690df4316e7063660b5073408b"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-2/precheck-result.json",
+          "sha256": "b8591706830fc8932b9e8b64686268ea97e9a45e974ba0e0dc20105a36dc1c1d"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-1/integrated-summary.json",
+          "sha256": "6a26542acc4f5aba4883c22288ffb8ee529f4ad51ad67132cf730e0b488771da"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a1r2-seq0329",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-193-a5-capability-resolver-a1r2-0329",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "db306f6f80d2acb1c2ae2003f932015afdb1a131669ac517bae94b153e3944d3"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "f8537d190ed9885dd2c8eef161f10f48fbacfc5a34e97e38b12a34ad9c5150a6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "aae471aed3eff318604fda81d23ff831216653690df4316e7063660b5073408b"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-2/precheck-result.json",
+          "sha256": "b8591706830fc8932b9e8b64686268ea97e9a45e974ba0e0dc20105a36dc1c1d"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-1/round-2/integrated-summary.json",
+          "sha256": "4bb308ae37138288b593ecde4edb97e71e45a6ece3ad4c3b7ffba52b22206926"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Add \"Existing Data Affected: none written\" sub-field to design.md's Data Plan, consolidating the already-present Registry Capability/Context Projection read-set content and stating explicitly that no existing Epic A1/A2/A3/A4 artifact is ever modified. Correct the ADR Change Log's citation of docs/adr/0025-registry-discovery-contract.md to state plainly it is Accepted in the Epic A2 worktree and not yet present on this worktree's own docs/adr/ branch state, matching investigation.md's own INV-005/INV-020/INV-021 phrasing.",
+  "timestamp": "2026-07-22T04:05:00Z"
+}

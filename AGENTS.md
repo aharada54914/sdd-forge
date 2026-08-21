@@ -118,6 +118,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/mcp-readonly-preflight/`
 - `specs/review-cross-critique/`
 - `specs/design-sync-consent/`
+- `specs/epic-193-a5-capability-resolver/`
 - `specs/design-sync-scan/`
 - `specs/design-sync-standing-consent/`
 - `specs/epic-190-a2-capability-registry/`

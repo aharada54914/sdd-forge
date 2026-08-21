@@ -1,0 +1,86 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "gate-impl",
+      "stage": "promotion",
+      "blocking": true
+    },
+    {
+      "id": "gate-artifact",
+      "stage": "artifact",
+      "blocking": false
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "cap-alpha",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.pii",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": ["core-facet"],
+      "conditional_facets": [
+        {
+          "facet": "shared-facet",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.ui",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "shared-facet",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.auto_update",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "solo-never-facet",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.local_persistence",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [],
+      "gate_ids": ["gate-impl"],
+      "lite_policy": {"eligible": true},
+      "delivery_strategy": {"kind": "cap-alpha"}
+    },
+    {
+      "id": "cap-beta",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.ui",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": [],
+      "conditional_facets": [
+        {
+          "facet": "shared-facet",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [],
+      "gate_ids": ["gate-artifact"],
+      "minimum_enforcement": "required",
+      "lite_policy": {"eligible": false, "upgrade_reasons": ["pii"]},
+      "delivery_strategy": {"kind": "cap-beta"}
+    }
+  ]
+}
