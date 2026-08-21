@@ -25,10 +25,13 @@
 #     cover. See this task's implementation report Specification
 #     Differences for the full finding.
 #   TEST-018 — task-ID prefix-collision fixture: gate reports referencing
-#     `T-0010` leave the `T-001` count at 0 (word-boundary match, #111/#112
-#     precedent); a substring-grep mutation of a temp COPY of
-#     check-quality-gate-cycle-limit.sh (never the real script) turns the
-#     same fixture red, proving the fixture is drift-sensitive.
+#     `T-0010` leave the `T-001` count at 0 (#111/#112 precedent); a mutation
+#     of a temp COPY of check-quality-gate-cycle-limit.sh (never the real
+#     script) turns the same fixture red, proving the fixture is
+#     drift-sensitive. WFI-035 moved where that protection lives -- from the
+#     `grep -rlwF` word-boundary flag to the trailing `[[:space:]]*$` anchor on
+#     the identity regex -- so the mutation strips the end anchor. Same
+#     property, same fixture, same expected red.
 #   TEST-012 — parity EXTENSION: implementation-report.template.md rendered
 #     with a real T-NNN is placed into a loop-driver fixture and pushed
 #     through the REAL validate-review-context-set.sh quality:sdd-evaluator
@@ -404,7 +407,7 @@ fi
 # TEST-018 (AC-018): T-001 vs T-0010 prefix-collision + substring-grep
 # mutation negative self-check
 # =============================================================================
-echo "=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ==="
+echo "=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + unanchored-identity mutation ==="
 
 COLLISION_DIR="${WORK}/collision-reports"
 mkdir -p "$COLLISION_DIR"
@@ -414,24 +417,32 @@ write_gate_report "${COLLISION_DIR}/c3.md" "T-0010"
 
 if OUT="$(bash "$CYCLE_LIMIT_SH" "T-001" "$CL_FEATURE" "$COLLISION_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 0 && "$OUT" == "continue" ]]; then
-  ok "TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)"
+  ok "TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (anchored identity match)"
 else
   fail "TEST-018.1: T-0010 reports incorrectly inflated the T-001 count (rc=${RC}, out=${OUT})"
 fi
 
+# The prefix-collision protection above must be non-vacuous, so remove it and
+# require the fixture to go red. WFI-035 moved where that protection lives: the
+# counter no longer scans the whole file with `grep -rlwF`, it matches the
+# report's own identity header with an anchored regex, and the trailing
+# `[[:space:]]*$` is what now rejects `Task ID: T-0010` when counting T-001.
+# The mutation therefore strips that end anchor rather than the -w flag. Same
+# property, same fixture, same expected red -- only the mechanism it disables
+# has moved.
 MUTATED_CYCLE_LIMIT="${WORK}/check-quality-gate-cycle-limit.mutated.sh"
-sed 's/grep -rlwF/grep -rlF/' "$CYCLE_LIMIT_SH" > "$MUTATED_CYCLE_LIMIT"
-if grep -q 'grep -rlF' "$MUTATED_CYCLE_LIMIT" && ! grep -q 'grep -rlwF' "$MUTATED_CYCLE_LIMIT"; then
-  ok "TEST-018.2: temp copy mutation removed the word-boundary flag from grep"
+sed 's/\[\[:space:\]\]\*\\\$"$/"/' "$CYCLE_LIMIT_SH" > "$MUTATED_CYCLE_LIMIT"
+if grep -q 'identity_re="^(Task ID|Task):\[\[:space:\]\]\*\${task_re}"$' "$MUTATED_CYCLE_LIMIT"; then
+  ok "TEST-018.2: temp copy mutation removed the end anchor from the identity regex"
 else
-  fail "TEST-018.2: could not construct the substring-grep mutated temp copy"
+  fail "TEST-018.2: could not construct the unanchored-identity mutated temp copy"
 fi
 
 if OUT="$(bash "$MUTATED_CYCLE_LIMIT" "T-001" "$CL_FEATURE" "$COLLISION_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 1 && "$OUT" == "Escalate-Human" ]]; then
-  ok "TEST-018.3 (negative self-check): the substring-grep mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)"
+  ok "TEST-018.3 (negative self-check): the unanchored-identity mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)"
 else
-  fail "TEST-018.3 (negative self-check): the substring-grep mutation did NOT turn the fixture red (rc=${RC}, out=${OUT})"
+  fail "TEST-018.3 (negative self-check): the unanchored-identity mutation did NOT turn the fixture red (rc=${RC}, out=${OUT})"
 fi
 
 # =============================================================================
