@@ -1,0 +1,47 @@
+ticket_id: RT-20260821-009
+status: open
+type: defect
+severity: major
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-001"
+  files:
+    - "contracts/agent-model-capabilities.json"
+    - "docs/adr/0003-turn-first-agent-routing.md"
+    - "reports/implementation/agent-cost-context-isolation/T-001.md"
+summary: >-
+  The capability registry omits the design-mandated same-tier fallback
+  attribute, and the ADR's lexical tie-break then actively selects the
+  fallback model on equal-cost ties
+problem: |
+  QG evaluator (seq 0823, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T063000Z.md) accepted four Majors.
+
+  1. design.md:44 specifies the registry carries a same-tier fallback
+     attribute; requirements.md:50-51 designates gpt-5.1-codex-max as THE
+     fallback for gpt-5.2-codex. The delivered JSON lists both as
+     undifferentiated strong peers (has fallback field: False), and
+     ADR:21-22's tie-break ("lexicographically smaller provider/model")
+     selects the fallback on an equal-cost tie - measured, since 5.1 sorts
+     before 5.2. A T-002 selector has no field to key on to prevent this.
+  2. The role declarations (operative artifact for REQ-003) appear in Files
+     Changed as free text with no path or hash, and not in the Outputs
+     table - unverifiable whether they were modified.
+  3. Done-When 1 (TEST-001 assertions) has no rank-1/2 evidence; the
+     declared test drifted and no verification directory exists for T-001.
+  4. Done-When 2's predicted-attempt matrix lives in the drifted, excluded
+     capability-matrix doc; the numbers routing consumes are unverified.
+
+  The gate report's Post-Fix Artifacts table declares the current bytes of
+  both drifted files so cycle 2 can carry them (WFI-036).
+expected_fix:
+  - "Add the same-tier fallback attribute to the registry per design.md:44 and make the ADR tie-break consult it before any lexical comparison, with a test pinning that the designated fallback is never selected while the primary is available"
+  - "Declare the role declaration files with canonical paths and hashes (recovery-appendix row or spec change), so REQ-003's operative artifacts are auditable"
+  - "Re-gate with a manifest naming reports/quality-gate/20260821T063000Z.md as gate_report_declaration to authorize the two drifted files, and persist a full TEST-001 run output"
+references:
+  - "reports/quality-gate/20260821T063000Z.md"
+  - "specs/agent-cost-context-isolation/design.md"
+  - "specs/agent-cost-context-isolation/requirements.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1
