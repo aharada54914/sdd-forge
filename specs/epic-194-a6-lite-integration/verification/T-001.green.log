@@ -1,0 +1,25 @@
+=== TEST-001: correct payload copies cleanly, post-copy verified ===
+ok: TEST-001a: correct payload exits 0
+ok: TEST-001b: every target's installed content matches the staged payload
+=== TEST-002: undeclared fifth payload path rejected before copy ===
+ok: TEST-002a: undeclared fifth path rejected (exit 2)
+ok: TEST-002b: no copy occurred before rejection (live file unchanged)
+=== TEST-003: missing declared target rejected before copy ===
+ok: TEST-003a: missing declared target rejected (exit 2)
+ok: TEST-003b: no copy occurred before rejection (live file unchanged)
+=== TEST-004: per-target hash mismatch rejected before copy ===
+ok: TEST-004a: staged hash mismatch rejected (exit 2)
+ok: TEST-004b: no copy occurred before rejection (live file unchanged)
+=== TEST-005: control files excluded from payload-set comparison ===
+ok: TEST-005a: MANIFEST.sha256 correctly excluded from the payload set
+ok: TEST-005b: runner script correctly excluded from the payload set
+ok: TEST-005c: payload set == exactly the four declared targets, control files excluded
+ok: TEST-005d: a fixture with both control files present still passes (not flagged extraneous)
+=== TEST-006: post-copy corruption detected and reported ===
+ok: TEST-006a: post-copy corruption is detected (Test-PostCopyHashes threw)
+ok: TEST-006b: failure message names post-copy re-verification
+ok: TEST-006c: failure message names the corrupted target
+=== TEST-007: feature-scoped, not fixed-prefix, resolution ===
+ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
+
+Results: 16 passed, 0 failed

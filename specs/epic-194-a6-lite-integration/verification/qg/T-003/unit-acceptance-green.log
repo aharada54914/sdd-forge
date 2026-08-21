@@ -1,0 +1,45 @@
+Command: bash tests/lite-spec-capability-block.tests.sh
+Run at: 2026-08-19T04:50:36Z (quality-gate independent re-run, sh)
+=== TEST-019-static: proposed SKILL.md names every required element ===
+ok: TEST-019-static-a: names evaluate-predicate as the signal source
+ok: TEST-019-static-b: names the Project-Context-declared component match
+ok: TEST-019-static-c: names the trigger-fragment eligible/upgrade_reasons shape
+ok: TEST-019-static-d: the checker call site gains the new second argument
+ok: TEST-019-static-e: the .ps1 call site gains its own new parameter
+ok: TEST-019-static-f: disabled-legacy (no Project Context) skip clause present
+ok: TEST-019-static-g: non-overridable by --lite, regardless of signal source
+ok: TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented
+ok: TEST-019-static-i: ship-time recheck stays layered, not replaced
+ok: TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching
+=== TEST-019-functional: assembled Capability-derived fragment Blocks ===
+ok: TEST-019-functional-a: Blocks (exit 10), same exit code as an existing keyword-match fixture
+ok: TEST-019-functional-b: message shape is 'full-required: ...', same shape as a keyword-match Block
+ok: TEST-019-functional-c: the matched Capability's own upgrade_reasons token is present in the Block message
+=== TEST-019-defense-in-depth: ship-time recheck skill is untouched ===
+ok: TEST-019-defense-in-depth: ship/SKILL.md still independently invokes check-risk-upgrade at ship time
+
+Results: 14 passed, 0 failed
+EXIT:0
+
+Command: pwsh -NoProfile -File tests/lite-spec-capability-block.tests.ps1
+Run at: 2026-08-19T04:50:36Z (quality-gate independent re-run, ps1)
+=== TEST-019-static: proposed SKILL.md names every required element ===
+ok: TEST-019-static-a: names evaluate-predicate as the signal source
+ok: TEST-019-static-b: names the Project-Context-declared component match
+ok: TEST-019-static-c: names the trigger-fragment eligible/upgrade_reasons shape
+ok: TEST-019-static-d: the checker call site gains the new second argument
+ok: TEST-019-static-e: the .ps1 call site gains its own new parameter
+ok: TEST-019-static-f: disabled-legacy (no Project Context) skip clause present
+ok: TEST-019-static-g: non-overridable by --lite, regardless of signal source
+ok: TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented
+ok: TEST-019-static-i: ship-time recheck stays layered, not replaced
+ok: TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching
+=== TEST-019-functional: assembled Capability-derived fragment Blocks ===
+ok: TEST-019-functional-a: Blocks (exit 10), same exit code as an existing keyword-match fixture
+ok: TEST-019-functional-b: message shape is full-required: ..., same shape as a keyword-match Block
+ok: TEST-019-functional-c: matched Capability upgrade_reasons token present in the Block message
+=== TEST-019-defense-in-depth: ship-time recheck skill is untouched ===
+ok: TEST-019-defense-in-depth: ship/SKILL.md still independently invokes check-risk-upgrade at ship time
+
+Results: 14 passed, 0 failed
+EXIT:0

@@ -1,0 +1,56 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "acceptance-tests.md AC-010 vs human-copy/README.md 'What's staged' + apply-protected-files.ps1 Get-PayloadFileSet/Test-ExactSet",
+      "note": "AC-010 requires that 'no payload path outside that declared four-target set is staged under this directory'. As delivered, specs/epic-194-a6-lite-integration/human-copy/ also contains .github/workflows/test.yml and README.md. By the runner's own INV-020 control-file definition ($Script:ControlFileRelativePaths = MANIFEST.sha256, apply-protected-files.ps1 only) both are payload, and the README concedes this. Test-ExactSet therefore aborts with 'staged payload contains an undeclared path outside the four-target set' against the tree as shipped: the delivered runner cannot complete a single successful run against its own real staged directory. The documented remedy is a manual 'rm -rf .../human-copy/.github' + 'rm -f .../human-copy/README.md' recorded in the very README that step deletes. Behaviour is fail-closed (no wrong bytes land), but the acceptance criterion is not met by the delivered state, and the happy path (TEST-001a/b) is proven only against synthetic fixture roots, never against the real staged tree."
+    },
+    {
+      "severity": "Major",
+      "ref": "tasks.md 'Protected Files' item 3; human-copy/README.md 'Human-apply command sequence' step 1; T-001 security-review 'Scope boundary'",
+      "note": "tasks.md (Task-Review-Status: Passed) item 3 states 'apply-protected-files.ps1 (T-001) applies this staged candidate the same way it applies the four payload files.' The implementation does not: $Script:DeclaredTargets is fixed at four entries, test.yml is absent from MANIFEST.sha256, and the README prescribes a plain diff-and-cp for an R-10-protected destination with no sha256 entry, no pre-copy hash check and no post-copy re-verification — the exact 'never a bare cp' property design.md's STRIDE row B5 and the runner's contract point 4 exist to guarantee. The contradiction is disclosed and deferred to 'a formal spec amendment' that has not landed, so the authoritative task contract is unsatisfied and the CI candidate carries no integrity record at all. Compounding this: the independent security re-review's Scope boundary states the candidate 'must not be promoted until a human resolves the four-target / fifth CI-target contradiction', yet the runner header records promotion from drafts/ to the canonical human-copy path justified by re-measurement of a different premise (the R-10 guard staging exemption), with the contradiction still open and no recorded human decision. (I extracted and diffed both copies from the bundle: the promoted file's code is byte-identical to the reviewed draft, comments only, so the security properties themselves do carry over — the defect is the unmet governance precondition, not changed code.)"
+    },
+    {
+      "severity": "Major",
+      "ref": "apply-protected-files.ps1, A6AnchoredPublisher.SourceMode (canonical copy, native publisher block)",
+      "note": "SourceMode reads st_mode as 'Marshal.ReadInt32(buffer, 24)' for every non-macOS Unix. Offset 24 is correct only for the x86-64 glibc struct stat (dev 8 / ino 8 / nlink 8 / mode 4). On aarch64 Linux st_mode sits at offset 16 and offset 24 is st_uid, so fchmod would be handed 'uid & 0777' — e.g. uid 1002 yields mode 0752, making a live R-10-protected script group/other-writable; other uids silently drop the exec bit from check-risk-upgrade.sh. Content digests still match, so neither the pre-copy, temp, published nor post-copy hash checks detect it: the mode this runner itself sets is the one thing outside its own tamper-evidence envelope. There is no RuntimeInformation.ProcessArchitecture guard and no fail-closed path. The security re-review discloses only 'non-x64 Linux remains unverified' and classes it nonblocking, which understates the consequence for a Risk: high / Security-Sensitive: true protected-file applier."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-001.contract.json check 'regression' + verification/qg/shared/regression.log",
+      "note": "regression is recorded passes:true while the log states the full 116-suite tests/run-all.sh was attempted and TIMED OUT after 10 minutes mid-run, so full-repository regression was never completed. The substitute scope (twin parse checks, feature-scoped check-sdd-structure, one neighbour suite before/after, the epic-194 family) is reasonable and honestly disclosed, but 'passes' overstates what was executed. The only completed full run in the bundle (2026-08-08) was exit 1 with five failures attributed to pre-existing human-copy/CI state."
+    },
+    {
+      "severity": "Minor",
+      "ref": "T-001.contract.json 'comment' field vs checks[task-state-check].passes",
+      "note": "The comment asserts 'This is recorded honestly as passes:false, not waived and not papered over -- it is the reason this contract, run through check-contract.py, currently FAILS overall, and the reason T-001 is not yet gate-ready', while the check itself carries passes:true. The trailing 'Re-recorded 2026-08-19' sentence explains the flip, but the body was left contradicting the machine-readable value, which makes the contract self-inconsistent to any reader or tool that reads the narrative."
+    },
+    {
+      "severity": "Minor",
+      "ref": "apply-protected-files.ps1, A6AnchoredPublisher (symlinkat DllImport; OpenUnixParent/OpenWindowsParent 'fixtureDestination' parameter)",
+      "note": "The symlinkat P/Invoke is declared but never called, and the 'fixtureDestination' parameter is threaded through both OpenUnixParent and OpenWindowsParent and never read (destination parents are opened with plain FILE_OPEN / openat, so a missing destination directory is a hard failure). Both look like remnants of a dropped behaviour. Harmless at runtime, but in a hand-audited security-critical publisher the presence of an unused symlink-creation import is exactly the kind of thing a reviewer must re-derive as dead each pass."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tasks.md T-001 'Done When' — Suite/CI registration + governance bullet",
+      "note": "The bullet requires 'a grep self-check confirms no version string was mutated outside scripts/bump-version.sh'. No such self-check, command, or output appears anywhere in the bundle. Reported as unverifiable from the bundle alone rather than assumed either way. (The adjacent CHANGELOG obligation is at least indirectly evidenced: the placeholder-scan log cites 'the +30 lines this session's own T-001/T-002/T-003 CHANGELOG insertions add', though the entry text citing #194 is not itself shown.)"
+    },
+    {
+      "severity": "Minor",
+      "ref": "Bundle header '# consent: sudo' vs tasks.md T-001 'Cross-Model: not enabled'",
+      "note": "The task record in the bundle states Cross-Model is not enabled for T-001, so this panel's authority rests entirely on a sudo grant recorded outside the bundle. I cannot verify that grant from the material provided; noting it so the consent chain is not taken as self-evidenced by the header alone."
+    }
+  ],
+  "blind": true,
+  "input_digest": "bf125acc2658ce51d184f988ffc88e5c942f9e28a434d76e68c2907f355fc278",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-001.panelist-input.txt header line '# consent: sudo'; tasks.md T-001 itself records 'Cross-Model: not enabled', so the sudo grant is external to the bundle and unverified here"
+  }
+}

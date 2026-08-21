@@ -103,6 +103,18 @@ tests=(
   tests/guard-staging-exemption.tests.sh
   tests/design-sync-standing-consent.tests.sh
   tests/design-sync-scan.tests.sh
+  tests/human-copy-runner-contract.tests.sh
+  tests/check-risk-upgrade-byte-identical.tests.sh
+  tests/check-risk-upgrade-capability-merge.tests.sh
+  tests/check-risk-upgrade-fragment-fail-closed.tests.sh
+  tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
+  tests/lite-spec-capability-block.tests.sh
+  tests/lite-gate-summary-consumption.tests.sh
+  tests/lite-gate-summary-absent.tests.sh
+  tests/lite-gate-summary-invalid.tests.sh
+  tests/lite-gate-full-upgrade-backstop.tests.sh
+  tests/lite-gate-summary-absent-active-enforcement.tests.sh
+  tests/lite-gate-direct-edit-contract.tests.sh
   tests/capability-registry-schema.tests.sh
   tests/evaluate-predicate.tests.sh
   tests/registry-discovery.tests.sh

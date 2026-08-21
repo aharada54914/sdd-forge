@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "human-copy/README.md: What's staged / Human-apply command sequence",
+      "note": "The checked-in staging tree contains README.md and .github/workflows/test.yml, but the runner excludes only MANIFEST.sha256 and apply-protected-files.ps1 from its recursive payload set. Consequently, invoking the runner against the repository as staged fails exact-set validation unless a human first deletes versioned staging files, so the delivered batch is not directly applicable and AC-031 is not operationally complete."
+    },
+    {
+      "severity": "Major",
+      "ref": "tasks.md: Protected Files item 3; human-copy/README.md: Why .github/workflows/test.yml is NOT in MANIFEST.sha256",
+      "note": "The approved task contract says apply-protected-files.ps1 applies the staged .github/workflows/test.yml candidate alongside the four payload files, while the implementation deliberately limits the runner and manifest to four targets and instructs a plain cp for test.yml. This unresolved contract divergence bypasses the required hash and post-copy verification for the protected CI workflow candidate."
+    }
+  ],
+  "blind": true,
+  "input_digest": "bf125acc2658ce51d184f988ffc88e5c942f9e28a434d76e68c2907f355fc278",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
+  }
+}

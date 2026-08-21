@@ -1,0 +1,31 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5.6-sol",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1: capability-fragment parsing block; human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh: embedded Python fragment validation",
+      "note": "The supplied fragment is not validated against its documented shape. Both implementations check only that each entry has id and eligible; they do not require a non-empty string id or boolean eligible. Values such as eligible:\"false\" or id:null are accepted and can silently contribute no trigger or produce a synthetic malformed trigger instead of exiting 2. PowerShell additionally wraps fragment.capabilities with @(...), so null becomes an empty array and a single object with id/eligible is accepted despite capabilities being required to be an array. This violates AC-027's fail-closed shape-invalid contract."
+    },
+    {
+      "severity": "Major",
+      "ref": "human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1: `if ($PSBoundParameters.ContainsKey('CapabilityReasons') -and -not [string]::IsNullOrEmpty(...))`",
+      "note": "An explicitly supplied empty or null -CapabilityReasons value is treated as though the argument were omitted, allowing keyword-only/lite-eligible behavior. The requirements distinguish total omission from every supplied-invalid path, which must exit 2; the Bash implementation also treats an empty supplied path as invalid, so this creates a cross-runtime contract mismatch."
+    },
+    {
+      "severity": "Major",
+      "ref": "human-copy/README.md sections \u201cWhat's staged\u201d and \u201cHuman-apply command sequence\u201d; apply-protected-files.ps1:Get-PayloadFileSet",
+      "note": "The committed human-copy tree is not directly applicable by its own exact-set runner: README.md and .github/workflows/test.yml are recursively counted as undeclared payload. The README therefore instructs the human to copy the workflow separately and delete both paths before invoking the runner. This contradicts AC-010/AC-031's staged four-target exact-set contract and tasks.md's statement that the runner applies the staged workflow candidate with the payload; the implementation is not application-ready without modifying the staged package first."
+    }
+  ],
+  "blind": true,
+  "input_digest": "201e34aec327f707528c54ddf5bd9340a35aea13536a923069ddb8dcbd0ebe33",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-002 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+  }
+}
