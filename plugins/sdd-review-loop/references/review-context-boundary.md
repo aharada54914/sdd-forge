@@ -21,9 +21,9 @@ wins and this document is the defect.
 
 1. Validate every manifest field, including `identity_ledger_sha256`, against the
    ledger **as it stands before the reservation** (`:208`, and again under the
-   reservation lock at `:313`).
-2. Append the reserved record to the ledger (`:318-332`).
-3. Print `REVIEW_CONTEXT_OK <record_sha256>` (`:339`).
+   reservation lock at `:348`).
+2. Append the reserved record to the ledger (`:353-368`).
+3. Print `REVIEW_CONTEXT_OK <record_sha256>` (`:374`).
 
 Step 1 is the only time `identity_ledger_sha256` is meaningful. Step 2 changes the
 file it describes. By the time the reviewer is launched, the field necessarily
@@ -46,7 +46,7 @@ and the appended record is the *extension*.
 | `sequence` | integer >= 2, and must equal `last_record.sequence + 1` (`:162`, `:260`) | **yes** — via the ledger record, see below |
 | `previous_record_sha256` | must equal the last record's `record_sha256` (`:260`) | **yes** — this is the chain |
 | `identity_ledger_path` | must be exactly `reports/review-context/identity-ledger.json` (`:163`) | **yes** — it is a constant |
-| `identity_ledger_sha256` | hex-format (`:164`); equality against the ledger **before** the append (`:208`, `:313`) | **NO — see below** |
+| `identity_ledger_sha256` | hex-format (`:164`); equality against the ledger **before** the append (`:208`, `:348`) | **NO — see below** |
 | `allowed_input_manifest[].path` | canonical, no symlink component, role-authorized, not a raw reviewer report (`:284-301`) | **yes** — and read nothing outside it |
 | `allowed_input_manifest[].sha256` | equality against the file on disk (`:302-304`) | **yes** — this is the substantive integrity check |
 | `task_id` (quality stage only) | `^T-[0-9]{3}$`, and the implementation report must match it (`:154`, `:268-282`) | **yes** |
@@ -79,7 +79,7 @@ verifiable after the append, and it is strictly stronger than a whole-file hash:
 3. Its `record_sha256` equals the `REVIEW_CONTEXT_OK` value your caller quoted,
    and recomputes as
    `sha256("<sequence>|<stage>|<role>|<run_id>|<host_session_id>|<previous_record_sha256>")`
-   — the same construction the validator uses at `:245` and `:307`.
+   — the same construction the validator uses at `:245` and `:342`.
 4. Your `run_id` and `host_session_id` appear nowhere else in the ledger. (The
    validator enforces this at `:262-265`; the ledger contract additionally
    requires both to be globally unique, `:234-235`.)
