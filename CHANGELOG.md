@@ -4,6 +4,17 @@
 
 ### Added
 
+- **WFI 起草へのなぜなぜ分析（5 Whys）の組込み**: WFI テンプレートと
+  workflow-retrospective の起草手順に `## Why-Why Analysis` セクション
+  （friction → 根本原因の因果チェーン、各段の証拠引用、症状の言い換え・
+  「人/エージェントのミス」での打ち切り禁止）を追加し、Root Cause
+  Hypothesis はチェーンの終端メカニズムであることを必須化。wfi-auditor-a
+  に新チェック `WHY-CHAIN-VALID`（Major）を追加（チェック数 8→9、
+  wfi-audit-cycle の integrated-summary と wfi-auditor-b の例示も同期）。
+  plugin-improvement WFI の言語規則（wfi-category-guide §2）と
+  CATEGORY-LANGUAGE-MATCH / CATEGORY-LANGUAGE-SECOND-PASS の走査対象に
+  Why/Because 列を追加。整合は `tests/retrospective-loop.tests.sh` で検証。
+
 - **Facet Manifest schema と validator (Issue #192,
   epic-192-a4-facet-manifest T-001)**: `contracts/facet-manifest.schema.json`
   (draft-07、vendored copy を `plugins/sdd-quality-loop/contracts/` に同梱)

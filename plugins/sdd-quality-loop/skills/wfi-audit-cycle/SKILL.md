@@ -102,10 +102,10 @@ Schema:
   "schema": "wfi-integrated-summary/v1",
   "wfi_id": "WFI-NNN",
   "cycle": 1,
-  "auditor_a_check_ids": ["EVIDENCE-CITED", "ROOT-CAUSE-PLAUSIBLE", "CATEGORY-LANGUAGE-MATCH", "CHANGE-CONCRETE", "EFFECT-MEASURABLE", "VERIFICATION-METRIC-DEFINED", "VERIFICATION-PLAN-SPECIFIC", "NO-PLUGIN-SCOPE-CREEP"],
+  "auditor_a_check_ids": ["EVIDENCE-CITED", "ROOT-CAUSE-PLAUSIBLE", "WHY-CHAIN-VALID", "CATEGORY-LANGUAGE-MATCH", "CHANGE-CONCRETE", "EFFECT-MEASURABLE", "VERIFICATION-METRIC-DEFINED", "VERIFICATION-PLAN-SPECIFIC", "NO-PLUGIN-SCOPE-CREEP"],
   "auditor_a_fail_ids": ["<IDs of FAIL checks>"],
   "auditor_a_fail_count": 0,
-  "auditor_a_pass_count": 8,
+  "auditor_a_pass_count": 9,
   "auditor_a_skip_count": 0,
   "auditor_a_verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "generated_at": "<ISO8601>"

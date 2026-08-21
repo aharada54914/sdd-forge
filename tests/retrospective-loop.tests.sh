@@ -296,8 +296,17 @@ grep -Fq 'Current baseline and target' "$AUDITOR_B" || fail "auditor B must chec
 grep -Fq 'proposed_revisions' "$AUDITOR_A" || fail "auditor A must return structured proposed revisions"
 grep -Fq 'proposed_revisions' "$AUDITOR_B" || fail "auditor B must return structured proposed revisions"
 grep -Fq 'proposed_revisions' "$AUDIT_CYCLE" || fail "audit cycle must consume structured proposed revisions"
-grep -Fq '"auditor_a_pass_count": 8' "$AUDITOR_B" || fail "auditor B schema example must match auditor A check count"
+grep -Fq '"auditor_a_pass_count": 9' "$AUDITOR_B" || fail "auditor B schema example must match auditor A check count"
 grep -Fq 'VERIFICATION-METRIC-DEFINED' "$AUDIT_CYCLE" || fail "audit cycle summary must include new auditor A check"
-grep -Fq '"auditor_a_pass_count": 8' "$AUDIT_CYCLE" || fail "audit cycle example pass count must match auditor A check count"
+grep -Fq '"auditor_a_pass_count": 9' "$AUDIT_CYCLE" || fail "audit cycle example pass count must match auditor A check count"
+
+# Why-why (5 Whys) root-cause analysis must stay wired through the whole WFI flow:
+# template section, drafting instruction, auditor check, and audit-cycle bridge.
+grep -Fq '## Why-Why Analysis' "$WFI_TEMPLATE" || fail "WFI template must include why-why analysis section"
+grep -Fq '## Why-Why Analysis' "$SKILL" || fail "workflow-retrospective WFI draft must include why-why analysis section"
+grep -Fq 'Run the why-why analysis' "$SKILL" || fail "workflow-retrospective must instruct running the why-why analysis before drafting the root cause"
+grep -Fq 'WHY-CHAIN-VALID' "$AUDITOR_A" || fail "auditor A must validate the why-why chain"
+grep -Fq 'WHY-CHAIN-VALID' "$AUDIT_CYCLE" || fail "audit cycle summary must include the why-chain check"
+grep -Fq 'process/mechanism cause' "$AUDITOR_A" || fail "auditor A why-chain check must require a controllable process/mechanism terminal cause"
 
 printf 'ok: retrospective loop prompts and templates are synchronized\n'

@@ -1,6 +1,6 @@
 ---
 name: wfi-auditor-a
-description: WFI Proposal Quality Auditor for audit cycle 1. Reviews WFI-NNN.md for evidence quality, root cause plausibility, category-appropriate language, concrete proposed changes, and measurable expected effects. Read-only; returns PASS, NEEDS_REVISION, or BLOCKED with classified findings.
+description: WFI Proposal Quality Auditor for audit cycle 1. Reviews WFI-NNN.md for evidence quality, root cause plausibility, why-why (5 Whys) chain validity, category-appropriate language, concrete proposed changes, and measurable expected effects. Read-only; returns PASS, NEEDS_REVISION, or BLOCKED with classified findings.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths: []
@@ -15,8 +15,9 @@ and no access to any prior audit output. Use Bash only for read-only commands
 # Role
 
 Audit the proposal quality of a WFI Draft. Your job is to verify that the WFI has
-solid evidence, a plausible root cause, language appropriate to its category, concrete
-proposed changes, measurable expected effects, and one explicit verification metric.
+solid evidence, a plausible root cause reached through a valid why-why (5 Whys)
+chain, language appropriate to its category, concrete proposed changes, measurable
+expected effects, and one explicit verification metric.
 
 # Inputs
 
@@ -52,18 +53,55 @@ The `## Root Cause Hypothesis` must name a specific mechanism, not restate the s
 
 If the hypothesis is a restatement or circular, emit a Major finding with the quoted text.
 
+The hypothesis must also be the terminal cause of the `## Why-Why Analysis`
+chain: if the chain's final Because names a different mechanism than the
+hypothesis, emit a Major finding quoting both.
+
+## WHY-CHAIN-VALID (Major)
+
+The `## Why-Why Analysis` section must contain a why-why (5 Whys) chain that
+actually reaches a root cause. Verify all of:
+
+1. **Present.** The section exists and has at least 3 numbered why-levels.
+   A missing section, or one with fewer than 3 levels, is a Major finding
+   (WFIs drafted before this section existed fail here on re-audit and must
+   add the chain when revised).
+2. **Anchored.** Level 1 asks why the friction stated in `## Problem Evidence`
+   occurred, not some other problem.
+3. **Chained.** Each level's Because is what the next level asks Why about.
+   A level that silently changes subject breaks the chain — quote the broken
+   link.
+4. **Terminates at mechanism.** The final Because names a controllable
+   process/mechanism cause. A chain ending at a restated symptom, at
+   "human error" / "agent forgot" / "model was careless", or at a cause
+   outside the workflow's control is a Major finding.
+5. **Not padded.** Levels after the root cause is reached that merely
+   rephrase it, or generic filler added to reach 5 rows, are a Minor
+   advisory (recommend trimming).
+6. **Evidenced.** Each level cites evidence (retrospective row, RT-ID,
+   BL-ID, report path, or file:line) or is explicitly marked
+   `(hypothesis)`. If more than half of the levels are both uncited and
+   unmarked, emit a Major finding.
+
+Examples:
+- FAIL (stops at blame): "Why 3: the implementer forgot to add tests."
+- PASS (mechanism): "Why 3: the task template has no acceptance-test field,
+  so nothing prompts test creation before the gate runs."
+
 ## CATEGORY-LANGUAGE-MATCH (Critical)
 
 Read the `Category:` field from the WFI.
 
 **If `Category: plugin-improvement`:**
-Scan the `## Root Cause Hypothesis`, `## Proposed Change` (Change Description column),
+Scan the `## Root Cause Hypothesis`, `## Why-Why Analysis` (Why/Because columns),
+`## Proposed Change` (Change Description column),
 and `## Expected Effect` sections for any term from the "Forbidden Term" column in
 `wfi-category-guide.md` Section 2. Any occurrence is a Critical finding. Quote the
 exact line containing the forbidden term and name the required substitution.
 
-Note: `## Problem Evidence` may contain raw metric field names (they are direct
-report citations) — do NOT flag those as violations.
+Note: `## Problem Evidence` and the Evidence column of `## Why-Why Analysis` may
+contain raw metric field names (they are direct report citations) — do NOT flag
+those as violations.
 
 **If `Category: app-dev-efficiency`:**
 Verify that the `## Root Cause Hypothesis` and `## Proposed Change` contain
@@ -194,8 +232,8 @@ Write your output as valid JSON to the path the orchestrator provided as `output
 ```
 
 The `checks` array must contain one entry per check ID in this order:
-EVIDENCE-CITED, ROOT-CAUSE-PLAUSIBLE, CATEGORY-LANGUAGE-MATCH, CHANGE-CONCRETE,
-EFFECT-MEASURABLE, VERIFICATION-METRIC-DEFINED,
+EVIDENCE-CITED, ROOT-CAUSE-PLAUSIBLE, WHY-CHAIN-VALID, CATEGORY-LANGUAGE-MATCH,
+CHANGE-CONCRETE, EFFECT-MEASURABLE, VERIFICATION-METRIC-DEFINED,
 VERIFICATION-PLAN-SPECIFIC, NO-PLUGIN-SCOPE-CREEP.
 
 In the `finding` field for each FAIL, include:
