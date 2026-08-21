@@ -47,15 +47,41 @@ Run `prepare-panelist-input` if not already done:
 # bash
 bash plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh \
   --task <T-NNN> --feature <feature> \
-  --input specs/<feature>/ \
-  --spec-root specs
+  --input specs/<feature>/verification/<T-NNN>/ \
+  --spec-root specs \
+  --max-bytes 1048576
 
 # pwsh
 pwsh plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1 \
   --task <T-NNN> --feature <feature> \
-  --input specs/<feature>/ \
-  --spec-root specs
+  --input specs/<feature>/verification/<T-NNN>/ \
+  --spec-root specs \
+  --max-bytes 1048576
 ```
+
+The bundle is composed for the ONE task under review, not discovered by
+walking `specs/<feature>/`. It contains:
+- the feature's spec documents (requirements/design/acceptance-tests/tasks/
+  traceability/investigation + layer specs when present);
+- `<T-NNN>`'s own verification contract, `evidence.json`, and
+  `verification/<T-NNN>/` evidence directory (`--input` above is this same
+  directory — a literal directory-walk of --input no longer happens; it is
+  read explicitly by task ID);
+- `<T-NNN>`'s own implementation report;
+- the CURRENT content of every path `<T-NNN>`'s own report `## Outputs`
+  table declares (this is what makes code-level Done When items reviewable
+  — not just the implementer's own `ok:` labels).
+
+Other tasks' evidence, quality-gate logs, and mutation transcripts are
+never read. The panel's own prior artifacts (`*.panelist-input.txt`,
+`*.verdict.json`, `*.cross-model.json`) remain excluded.
+
+`--max-bytes` (optional) is a fail-closed size guard on the FINAL sanitized
+bundle — pass the target vendor's known input cap (e.g. `1048576` for
+`codex exec`'s character limit). If exceeded, the script writes NO file and
+exits nonzero with a byte breakdown on stderr rather than silently
+truncating; a panelist that cannot tell its input was cut would report
+confident conclusions about material it never saw.
 
 This will:
 - Fail closed if `Cross-Model: enabled` is absent and no `SDD_SUDO` token exists.
