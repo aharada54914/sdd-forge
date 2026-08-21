@@ -257,12 +257,12 @@ if ($ProvenanceRereview) {
     }
   }
   if (-not $priorPass) { Fail 'provenance re-review requires a prior persisted impl-review PASS verdict' }
-  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature --opening "impl:${Attempt}:${Round}"
   if ($LASTEXITCODE -ne 0) {
     Write-Warning 'impl-review-precheck: canonical workflow-state validation failed; proceeding under -ProvenanceRereview (impl-stage evidence re-binding in progress).'
   }
 } else {
-  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature --opening "impl:${Attempt}:${Round}"
   if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
 }
 foreach ($path in @($requirements, $design, $acceptance)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" } }
