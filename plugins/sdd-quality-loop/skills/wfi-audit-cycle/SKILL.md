@@ -18,9 +18,11 @@ Codex:
 Use the wfi-audit-cycle skill for WFI-NNN
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
+
 ```
-/sdd-quality-loop:wfi-audit-cycle WFI-NNN
+/sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
 Replace `WFI-NNN` with the specific WFI identifier (e.g., `WFI-001`).
@@ -130,7 +132,8 @@ wfi-audit-cycle BLOCKED at Cycle 1 — <N> Critical finding(s) in WFI-NNN (attem
 
 The WFI has fundamental quality issues that must be resolved before audit can
 continue. Review WFI-NNN-auditor-a.json for details, revise WFI-NNN.md, then
-re-invoke /sdd-quality-loop:wfi-audit-cycle WFI-NNN.
+re-enter the wfi-audit-cycle skill for WFI-NNN by re-reading and following
+this file.
 ```
 Halt. Do not proceed to Cycle 2.
 
@@ -193,8 +196,8 @@ Read `wfi-auditor-b.json`. Check the `verdict` field.
 wfi-audit-cycle BLOCKED at Cycle 2 — <N> Critical finding(s) in WFI-NNN (attempt <Audit-Attempt>/3).
 
 The revised WFI has a fundamental feasibility or scope issue. Review
-WFI-NNN-auditor-b.json for details, revise WFI-NNN.md, then re-invoke
-/sdd-quality-loop:wfi-audit-cycle WFI-NNN.
+WFI-NNN-auditor-b.json for details, revise WFI-NNN.md, then re-enter the
+wfi-audit-cycle skill for WFI-NNN by re-reading and following this file.
 ```
 Halt.
 

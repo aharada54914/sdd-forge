@@ -22,10 +22,11 @@ Mode: feature | bugfix | refactor | greenfield
 Target: <path or topic>
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-bootstrap:investigate-codebase <mode> <target>
+```
+/sdd-bootstrap:bootstrap
 ```
 
 ## Modes

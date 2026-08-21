@@ -12,7 +12,18 @@
 # tree and exits 1 without writing a verdict.
 # Key isolation: SDD_EVIDENCE_KEY / SDD_SUDO_KEY never passed to panelist.
 #
-# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args
+# CLI contract: the installed `gemini` CLI only runs non-interactively via
+# `-p/--prompt` ("Run in non-interactive (headless) mode with the given
+# prompt. Appended to input on stdin (if any)."). A bare `gemini --model
+# <m>` with piped stdin and no `-p` is not headless and can fail to produce
+# a verdict (e.g. "No input provided via stdin..."). This script supplies
+# the panelist instructions via `-p` and pipes the sanitized bundle on
+# stdin, per the CLI's own documented contract.
+#
+# Exit codes: 0=success  1=CLI absent or panelist failure (CLI non-zero
+#             exit, timeout, or output that does not parse into a valid
+#             cross-model-verdict/v1 JSON object)  2=bad args. A run that
+#             fails for any reason writes NO verdict file.
 param()
 $ErrorActionPreference = "Stop"
 
@@ -122,12 +133,17 @@ Rules:
 - Do not include any text outside the JSON object.
 '@
 
+    # The panelist instructions go through -Prompt (the CLI's documented
+    # non-interactive entry point); the sanitized bundle is piped on stdin,
+    # which the CLI appends after the -p prompt. No prompt/bundle
+    # concatenation needed here (unlike the codex twin, which has no
+    # dedicated instruction flag and stays with one combined stdin blob).
     $bundleContent = Get-Content -Raw -Encoding Utf8 $InputPath
-    $combined = $promptText + "`n`n## Sanitized Input Bundle`n`n" + $bundleContent
-    $combinedFile = Join-Path $scratch "combined.txt"
-    Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
+    $stdinContent = "## Sanitized Input Bundle`n`n" + $bundleContent
+    $stdinBundleFile = Join-Path $scratch "stdin-bundle.txt"
+    Set-Content -Encoding Utf8 -Path $stdinBundleFile -Value $stdinContent
 
-    [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model (task=$TaskId feature=$Feature)")
+    [Console]::Error.WriteLine("run-panelist-gemini: invoking gemini --model $Model -p <prompt> (task=$TaskId feature=$Feature)")
 
     $rawOutput = Join-Path $scratch "raw-output.txt"
     try {
@@ -140,8 +156,8 @@ Rules:
         $env:SDD_PANELIST_DEADLINE_EPOCH_MS = "$panelistDeadlineEpochMs"
         try {
             $proc = Start-Process -FilePath "gemini" `
-                -ArgumentList "--model", $Model `
-                -RedirectStandardInput  $combinedFile `
+                -ArgumentList "--model", $Model, "-p", $promptText `
+                -RedirectStandardInput  $stdinBundleFile `
                 -RedirectStandardOutput $rawOutput `
                 -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
                 -PassThru -NoNewWindow

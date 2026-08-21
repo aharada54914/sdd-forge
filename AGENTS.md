@@ -131,6 +131,7 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
 - `specs/sdd-lite/`
 - `specs/second-approval-mask/`
 - `specs/uninstall-workflow/`
+- `specs/sdd-domain-concept-contract/`
 
 ## Source Artifact Locations
 

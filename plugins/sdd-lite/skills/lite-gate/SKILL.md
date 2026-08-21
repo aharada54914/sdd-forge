@@ -17,10 +17,11 @@ Codex:
 Use the lite-gate skill for specs/<feature>/tasks.md#T-001
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-lite:lite-gate specs/<feature>/tasks.md#T-001
+```
+/sdd-ship:ship --lite specs/<feature>/tasks.md
 ```
 
 ## Preconditions

@@ -242,10 +242,11 @@ try {
         $null -ne (Get-Item -LiteralPath $ledger -Force).LinkType) {
         Fail-ReviewContext 'IDENTITY' 'canonical identity ledger is missing or is not a regular file'
     }
+    # NOTE: identity_ledger_sha256 is only meaningful for a reservation (the
+    # ledger state a reservation is validated against, before it appends). It
+    # is NOT checked here unconditionally -- see the reservation/verification
+    # branch below, which is the only place this comparison is enforced.
     $actualLedgerHash = (Get-FileHash -LiteralPath $ledger -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
-        Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
-    }
     try {
         $ledgerDocument = Get-Content -LiteralPath $ledger -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
     }
@@ -291,12 +292,62 @@ try {
         $expectedPrevious = $record.record_sha256
         $expectedSequence++
     }
-    if ([decimal]$document.sequence -ne $expectedSequence -or
-        $document.previous_record_sha256 -cne $expectedPrevious) {
-        Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
+    # A manifest describes either an identity not yet in the ledger (a
+    # reservation) or an identity whose record is already persisted (a
+    # verification of a prior reservation -- possibly with later records now
+    # chained on top of it, e.g. a branch merge/re-chain). The ledger itself
+    # disambiguates which case this is: an identity is "reserved" once some
+    # record's run_id AND host_session_id both match the manifest's. That,
+    # not the -Reserve switch, decides which checks below apply.
+    $persistedMatch = $records | Where-Object {
+        $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
+    } | Select-Object -First 1
+
+    if ($null -ne $persistedMatch) {
+        # Verification of an already-reserved identity. The persisted record
+        # is authoritative and must match the manifest exactly on every
+        # identity field; its own record_sha256 was already proven to
+        # recompute correctly by the whole-ledger chain walk above, which
+        # runs unconditionally. The tip position and identity_ledger_sha256
+        # are NOT re-checked here: both are meaningless once later records
+        # may have landed on top of this one.
+        if ($Reserve) {
+            Fail-ReviewContext 'IDENTITY' 'run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice'
+        }
+        if ([decimal]$persistedMatch.sequence -ne [decimal]$document.sequence) {
+            Fail-ReviewContext 'IDENTITY' 'invocation sequence does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.stage -cne $document.stage) {
+            Fail-ReviewContext 'IDENTITY' 'invocation stage does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.role -cne $document.role) {
+            Fail-ReviewContext 'IDENTITY' 'invocation role does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.previous_record_sha256 -cne $document.previous_record_sha256) {
+            Fail-ReviewContext 'IDENTITY' 'invocation previous-record hash does not match the persisted identity-ledger record'
+        }
     }
-    if ($runs.Contains($document.run_id) -or $sessions.Contains($document.host_session_id)) {
-        Fail-ReviewContext 'IDENTITY' 'run or host-session identity was already persisted'
+    else {
+        # A partial match -- one of the two identity fields already persisted
+        # under a DIFFERENT value for the other -- means two different
+        # launches are colliding on one identity. That is never valid, in
+        # either mode, so it fails loudly here rather than silently falling
+        # into reservation mode.
+        if ($records | Where-Object { $_.run_id -ceq $document.run_id -and $_.host_session_id -cne $document.host_session_id }) {
+            Fail-ReviewContext 'IDENTITY' 'run ID matches a persisted identity-ledger record but host-session ID does not: two launches are colliding on one identity'
+        }
+        if ($records | Where-Object { $_.host_session_id -ceq $document.host_session_id -and $_.run_id -cne $document.run_id }) {
+            Fail-ReviewContext 'IDENTITY' 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
+        }
+
+        # Reservation of a new identity: today's behaviour, unchanged.
+        if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
+            Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
+        }
+        if ([decimal]$document.sequence -ne $expectedSequence -or
+            $document.previous_record_sha256 -cne $expectedPrevious) {
+            Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
+        }
     }
 
     $inputs = @($document.allowed_input_manifest)

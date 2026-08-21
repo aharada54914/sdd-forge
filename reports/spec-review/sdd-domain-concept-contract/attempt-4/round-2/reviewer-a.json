@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a4r2-seq0774",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a4r2-0774",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-2/precheck-result.json",
+      "sha256": "f28af1e2d430fd7e875bc5a3e690c0da92848d4b67c6c05a82aaf78a903599c1"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each resolve to a concrete, machine-checkable signal: REQ-001 names exact JSON-Schema draft/const/required-key values; REQ-002 gives explicit regexes plus minItems/minLength rules; REQ-003 defines dangling-reference behavior; REQ-004(a)-(i) enumerate the validator's checks with fail-closed exit-code and 1-line-per-violation stderr semantics and explicit type-before-pattern/minLength/minItems precedence; REQ-005(a)-(f) name exact fixture contents (concept names, responsibility strings, must_not_own values); REQ-006 requires validator+structural-assertion+twin-parity checks; REQ-007 requires byte-identical v1 files and unchanged 11-suite green status. Every requirement is decidable from schema shape, exit code, stderr content, or SHA-256 comparison without further clarification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (G1-G5) has at least one matching positive-family AC in the Positive-capability matrix (acceptance-tests.md:46-57): G1->AC-001/003/004/026, G2->AC-025, G3->AC-005/003/004/025/026/013, G4->AC-003/004/005/025/026, G5->AC-002/015. The round-1 defect (G3's 'validator が正当な契約を誤検知しない' row citing negative-fixture AC-018) is fixed: that row now cites only positive-family ACs AC-003, AC-004, AC-005, AC-025, AC-026 (acceptance-tests.md:54), each confirmed to be a positive-fixture Test Type in the AC table."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC states an externally observable signal: exit code (0/non-zero), a specified stderr line format naming the violating field, SHA-256 equality (AC-002), or explicit post-parse value-retention checks (AC-003's 'あわせて pattern 境界の正例として...いずれも受理されることを確認する', acceptance-tests.md:12; AC-025's 'validator が読み飛ばしても黙って落としてもいないことを確認する', :34). No AC relies on unobservable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:65-78) explicitly excludes concept-test skill/bootstrap, template/interviewer stage changes, reviewer A/B check additions, reverse mode/C4 split, v1->v2 migration tooling ('owner 決定により恒久的にスコープ外', INV-009), domain/ markdown artifact changes, and mechanical enforcement of meta.status=Approved — each boundary is tied to a named future phase or explicit owner decision."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Compatibility/migration constraint stated in REQ-007 and Non-goals (v1 byte-identical, INV-009 owner decision on no dual-version loader); approval boundary stated in Roles and Permissions ('meta.status の Approved 書込に対する機械的強制は存在しない...承認境界は人間のレビュー運用のみが担保する', requirements.md:196-202); data/security constraints stated in Security Boundaries (content-as-data, no network/external deps, no secrets in fixtures, requirements.md:227-235)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section (requirements.md:254-266) lists R1 (concepts[] type insufficiency, mitigated by fixture corpus written ahead of Phase 1's 4 judgment types), R2 (validator/schema drift, mitigated by REQ-006's drift-lock negative fixtures), and R3 (sh/ps1 twin mismatch, mitigated by REQ-006's twin-parity test / AC-013) — each risk carries a concrete, already-specified validation surface."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 records that sdd-forge itself has no domain/ directory ('sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'), so no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json exist. Per the check's own skip condition, recorded as skipped."
+    }
+  ]
+}

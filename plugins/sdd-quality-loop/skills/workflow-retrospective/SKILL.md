@@ -16,9 +16,11 @@ Codex:
 Use the workflow-retrospective skill for specs/<feature>
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
+
 ```
-/sdd-quality-loop:workflow-retrospective specs/<feature>
+/sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
 ## Metrics Collection (read-only)

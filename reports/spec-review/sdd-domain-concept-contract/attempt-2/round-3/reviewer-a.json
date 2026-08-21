@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a2r3-seq0764",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a2r3-0764",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "823e8fad6b62d65dda47ed114640c48a9d94ac65dee987940cb7db80023370f0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "6ee9192ace100ebace7041c35e448b668d07053726a764ac290c84ca6f2cc86d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-3/precheck-result.json",
+      "sha256": "efcb33e7d6cfb6e34d5b2ba5d83e44e9fad7358ff1c71699c41ffabba56d51d0"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007, including this round's REQ-004(c) addition ('型検査は pattern・minLength・minItems の各検査に先行し、型が不一致の値に対してこれらを適用してはならない...不一致は他の構造違反と同じく1行1件の違反として非0終了で報告する'), each state precise, checkable behavior (patterns, required-key lists, exit codes, ordering rules, 1-line-1-violation reporting) and each maps onto concrete fixtures in acceptance-tests.md (e.g. AC-024's 29-fixture enumeration exactly matches every typed field in the Field Definitions table: I counted 4 root + 3 meta + 1 concept-element + 5 concept-scalar + 3 concept-array + 3 array-element + 4 stakeholder_perspectives + 5 distinguished_from + 1 term field = 29). No requirement is stated only as intent without a measurable consequence."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "G2 ('term から concept への連結（concept_id）をv2で表現可能にする（REQ-003）') and REQ-001's 'contexts / relations は v1 の boundedContext / contextRelation 定義を維持した上で、termにのみ concept_id（optional）を追加する' have no acceptance criterion for the positive case — a term whose concept_id legitimately resolves to an existing concept being accepted by the validator. Every AC that mentions term.concept_id is negative-only: AC-009 ('同 suite: term.concept_id の宙吊り参照fixtureを拒否') and AC-022(2) ('contexts[].terms[].concept_id' pattern-violation fixture, rejected). AC-001, the only schema-file structural test, is scoped to 'root required は schema/meta/contexts/concepts...meta定義がv1と同形' and never asserts that the v2 schema's term definition actually carries the new optional concept_id field with its pattern. REQ-005's fixture mandate — '(a) Purchase/Fulfillment の正例...(b) Book/Bookshelf の正例...(c) 同名別概念のコンテキスト横断正例...(d) REQ-004の検査項目(d)〜(i)それぞれを1つずつ踏む負例' — never requires a fixture where a term actually references a concept via concept_id. A task author implementing REQ-005/REQ-006 literally could build the entire 73-negative/5-positive fixture corpus without ever exercising the 'valid link' path, so a validator bug that mishandles a syntactically-valid, non-dangling concept_id (e.g. treats presence-but-valid as an unconditional dangling error, or silently drops the field) would ship with all fixtures green, and G2's core claim that the connection is expressible would remain unverified by any test evidence. This is a spec-review concern because the gap is in the acceptance-criteria/fixture-requirement text itself (REQ-005 and the AC table), not an implementation choice a task author could resolve unilaterally; downstream, a task/verifier reading these documents has no basis to require a positive-link fixture. Severity Major per calibration ('missing observable acceptance criterion' for a stated goal)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC in the table specifies an externally observable outcome — exit code, stderr line content naming the offending field, or byte-for-byte comparison (e.g. AC-002's SHA-256 drift lock, AC-006..024's 'standard error に...を名指しする' pattern, AC-013's twin exit-code/violation-count parity, AC-024's per-fixture 'no raw exception/stack trace' assertion). None rely on vague intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly exclude concept-test/bootstrap (Phase 1), interviewer/template changes (Phase 2), reviewer A/B additions (Phase 3), reverse-mode/C4 (Phase 4), v1->v2 migration tooling ('owner 決定により恒久的にスコープ外。INV-009'), domain/ Markdown artifact generation, and mechanical enforcement of meta.status Approved writes. These boundaries are concrete enough to prevent scope creep into adjacent phases."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data/compatibility constraints (REQ-007 byte-identical v1, INV-004 consumers untouched), security constraints (Security Boundaries: content-as-data, no network access, no external deps except stdlib json / ConvertFrom-Json), and the approval boundary (Roles and Permissions: 'meta.status の Approved 書込に対する機械的強制は存在しない...承認境界は人間のレビュー運用のみが担保') are all stated explicitly rather than left implicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "R1 (schema insufficiency for later phases) is mitigated by fixture corpus and Phase 1 verdict-field preview; R2 (hand-rolled validator/schema drift) is mitigated by REQ-006's requirement to check schema required/pattern declarations against validator behavior on the same fixtures; R3 (sh/ps1 twin mismatch) is mitigated by REQ-006's stated twin-parity check and AC-013. Each risk names a concrete validation surface already present in the AC table."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped per skip condition: investigation.md INV-009 records 'sdd-forge 自身に `domain/` ディレクトリは存在せず（ルート直下確認）', i.e. no domain/context-map.md with Domain-Model-Status: Approved exists for this repository, so the Bounded-Context/canonical-term conformance check does not apply."
+    }
+  ]
+}

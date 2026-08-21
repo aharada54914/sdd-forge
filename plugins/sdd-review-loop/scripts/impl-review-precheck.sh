@@ -332,12 +332,12 @@ if [[ "$MODE" == "--provenance-rereview" ]]; then
   done < <(find "$IMPL_REPORT_ROOT" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
   [[ "$prior_pass" == "true" ]] ||
     fail "provenance re-review requires a prior persisted impl-review PASS verdict"
-  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE"; then
+  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" --opening "impl:${ATTEMPT}:${ROUND}"; then
     echo "NOTE: impl-review-precheck: canonical workflow-state validation failed;" \
       "proceeding under --provenance-rereview (impl-stage evidence re-binding in progress)." >&2
   fi
 else
-  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" --opening "impl:${ATTEMPT}:${ROUND}" ||
     fail "canonical workflow-state validation failed"
 fi
 
