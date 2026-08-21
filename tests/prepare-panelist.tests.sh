@@ -160,6 +160,37 @@ write_filler_lines() {
     done
 }
 
+# ── TEST-057..062 helpers (contract-declared evidence) ──────────────────────
+
+# Write a minimal <task_id>.contract.json fixture at
+# <specs_dir>/verification/<task_id>.contract.json. Args come FOUR at a time
+# per check: <id> <evidence> <red_evidence> <green_evidence> (any of the
+# latter three may be "" — a real contract carries mostly-empty evidence
+# fields on unrequired/waived checks, which is the norm this fixture
+# reproduces). Positional groups, not a tab-joined single string per row,
+# deliberately — bash's IFS-whitespace word-splitting collapses consecutive
+# tabs (and strips a trailing one), which would silently swallow the empty
+# fields this fixture exists to represent.
+# Usage: write_contract <specs_dir> <task_id> \
+#            <id> <evidence> <red_evidence> <green_evidence> [...]
+write_contract() {
+    local specdir="$1" task_id="$2"
+    shift 2
+    mkdir -p "${specdir}/verification"
+    {
+        printf '{\n  "task_id": "%s",\n  "checks": [\n' "$task_id"
+        local first=1 cid evid red green
+        while [ "$#" -ge 4 ]; do
+            cid="$1" evid="$2" red="$3" green="$4"
+            shift 4
+            if [ "$first" -eq 1 ]; then first=0; else printf ',\n'; fi
+            printf '    {"id": "%s", "evidence": "%s", "red_evidence": "%s", "green_evidence": "%s"}' \
+                "$cid" "$evid" "$red" "$green"
+        done
+        printf '\n  ]\n}\n'
+    } > "${specdir}/verification/${task_id}.contract.json"
+}
+
 # Write an implementation report fixture at
 # <project_root>/reports/implementation/<feature>/<task_id>.md with an
 # "## Outputs" table. Each remaining arg is one row as "path<TAB>hash".
@@ -2024,6 +2055,278 @@ if [ -f "${D056}/out.txt" ] && grep -q "BIG056 line 0250 filler filler filler fi
     ok "TEST-056c: the larger file's middle line is present — the same file TEST-052/053 elides at a tighter cap comes back whole here"
 else
     fail "TEST-056c: the larger file's middle line is missing even though this bundle fits whole"
+fi
+
+# ============================================================================
+# TEST-057: a check's "evidence" field naming a path OUTSIDE the reviewed
+# task's own verification/<task_id>/ directory (e.g. a shared
+# verification/qg/shared/ log, the epic-194 T-001 real-world shape) has its
+# CURRENT content included in the bundle — not just verified to exist, its
+# bytes actually appear, closing the gap where a panelist was handed a
+# check's passes:false claim with no way to read what it pointed at.
+# ============================================================================
+
+echo "=== TEST-057: contract-declared evidence outside verification/<task_id>/ appears in bundle ==="
+
+D057="${WORK}/pp057"
+SPECDIR057="${D057}/specs/cross-model-verification"
+mkdir -p "${SPECDIR057}/verification/T-004" "${SPECDIR057}/verification/qg/shared" "${D057}/empty-input"
+write_tasks_with_consent "${SPECDIR057}/tasks.md" "T-004"
+printf 'REGRESSIONMARKER057\n' > "${SPECDIR057}/verification/qg/shared/regression-057.log"
+write_contract "${SPECDIR057}" "T-004" \
+    "regression" "specs/cross-model-verification/verification/qg/shared/regression-057.log" "" ""
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D057}/empty-input" \
+    --tasks-file "${SPECDIR057}/tasks.md" \
+    --project-root "${D057}" \
+    --out "${D057}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-057a: exit 0"
+else
+    fail "TEST-057a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D057}/out.txt" ] && grep -q "REGRESSIONMARKER057" "${D057}/out.txt"; then
+    ok "TEST-057b: contract-declared evidence content is in the bundle"
+else
+    fail "TEST-057b: shared verification/qg/ evidence named by the contract never made it into the bundle"
+fi
+if [ -f "${D057}/out.txt" ] && grep -qF "# ---- specs/cross-model-verification/verification/qg/shared/regression-057.log ----" "${D057}/out.txt"; then
+    ok "TEST-057c: the path header names the file, so a reviewer can tell which evidence it is"
+else
+    fail "TEST-057c: expected path header missing"
+fi
+
+# ============================================================================
+# TEST-058: red_evidence and green_evidence are picked up, not just evidence
+# — a TDD check's contract routinely leaves "evidence" pointing at the same
+# thing as "green_evidence" but a check could, in principle, carry only a
+# red/green pair; both fields must independently contribute their own path.
+# ============================================================================
+
+echo "=== TEST-058: red_evidence and green_evidence are also picked up ==="
+
+D058="${WORK}/pp058"
+SPECDIR058="${D058}/specs/cross-model-verification"
+mkdir -p "${SPECDIR058}/verification/T-004" "${SPECDIR058}/verification/qg/shared" "${D058}/empty-input"
+write_tasks_with_consent "${SPECDIR058}/tasks.md" "T-004"
+printf 'REDMARKER058\n'   > "${SPECDIR058}/verification/qg/shared/red-058.log"
+printf 'GREENMARKER058\n' > "${SPECDIR058}/verification/qg/shared/green-058.log"
+write_contract "${SPECDIR058}" "T-004" \
+    "unit-tests" "" \
+    "specs/cross-model-verification/verification/qg/shared/red-058.log" \
+    "specs/cross-model-verification/verification/qg/shared/green-058.log"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D058}/empty-input" \
+    --tasks-file "${SPECDIR058}/tasks.md" \
+    --project-root "${D058}" \
+    --out "${D058}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-058a: exit 0"
+else
+    fail "TEST-058a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D058}/out.txt" ] && grep -q "REDMARKER058" "${D058}/out.txt"; then
+    ok "TEST-058b: red_evidence content is in the bundle"
+else
+    fail "TEST-058b: red_evidence-declared file never made it into the bundle"
+fi
+if [ -f "${D058}/out.txt" ] && grep -q "GREENMARKER058" "${D058}/out.txt"; then
+    ok "TEST-058c: green_evidence content is in the bundle"
+else
+    fail "TEST-058c: green_evidence-declared file never made it into the bundle"
+fi
+
+# ============================================================================
+# TEST-059: dedup — a contract-declared path already pulled in by the
+# reviewed task's own verification/<task_id>/ directory walk (059a), or
+# already pulled in by an Outputs-table row (059b), is included exactly
+# ONCE, never a second time for being separately named by the contract.
+# ============================================================================
+
+echo "=== TEST-059: contract-declared evidence already included elsewhere is not duplicated ==="
+
+D059="${WORK}/pp059"
+SPECDIR059="${D059}/specs/cross-model-verification"
+mkdir -p "${SPECDIR059}/verification/T-004" "${D059}/plugins/some-plugin/scripts" "${D059}/empty-input"
+write_tasks_with_consent "${SPECDIR059}/tasks.md" "T-004"
+printf 'INBANDMARKER059\n' > "${SPECDIR059}/verification/T-004/inband-059.log"
+printf 'SRCMARKER059\n' > "${D059}/plugins/some-plugin/scripts/thing-059.sh"
+HASH059="$(sha256_of "${D059}/plugins/some-plugin/scripts/thing-059.sh")"
+write_impl_report "${D059}" "cross-model-verification" "T-004" \
+    "$(printf 'plugins/some-plugin/scripts/thing-059.sh\t%s' "$HASH059")"
+write_contract "${SPECDIR059}" "T-004" \
+    "already-in-dir" "specs/cross-model-verification/verification/T-004/inband-059.log" "" "" \
+    "already-in-outputs" "plugins/some-plugin/scripts/thing-059.sh" "" ""
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D059}/empty-input" \
+    --tasks-file "${SPECDIR059}/tasks.md" \
+    --project-root "${D059}" \
+    --out "${D059}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-059a: exit 0"
+else
+    fail "TEST-059a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D059}/out.txt" ] && [ "$(grep -c 'INBANDMARKER059' "${D059}/out.txt")" -eq 1 ]; then
+    ok "TEST-059b: directory-walk file re-declared by the contract appears exactly once"
+else
+    fail "TEST-059b: expected exactly one occurrence of INBANDMARKER059"
+fi
+if [ -f "${D059}/out.txt" ] && [ "$(grep -c 'SRCMARKER059' "${D059}/out.txt")" -eq 1 ]; then
+    ok "TEST-059c: Outputs-declared file re-declared by the contract appears exactly once"
+else
+    fail "TEST-059c: expected exactly one occurrence of SRCMARKER059"
+fi
+
+# ============================================================================
+# TEST-060: empty evidence/red_evidence/green_evidence fields (the norm —
+# most checks in a real contract, e.g. a waived lint/typecheck/build check,
+# carry "") produce no bundle output and no error. This is the common case
+# every other TEST-057..062 fixture deliberately does NOT exercise on its
+# own unrequired checks, so it earns a dedicated assertion.
+# ============================================================================
+
+echo "=== TEST-060: empty contract evidence fields produce no output and no error ==="
+
+D060="${WORK}/pp060"
+SPECDIR060="${D060}/specs/cross-model-verification"
+mkdir -p "${SPECDIR060}/verification/T-004" "${D060}/empty-input"
+write_tasks_with_consent "${SPECDIR060}/tasks.md" "T-004"
+write_contract "${SPECDIR060}" "T-004" \
+    "lint" "" "" "" \
+    "typecheck" "" "" "" \
+    "build" "" "" ""
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D060}/empty-input" \
+    --tasks-file "${SPECDIR060}/tasks.md" \
+    --project-root "${D060}" \
+    --out "${D060}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-060a: exit 0"
+else
+    fail "TEST-060a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D060}/out.txt" ] && ! grep -qi "contract-declared evidence" "${D060}/out.txt"; then
+    ok "TEST-060b: no contract-declared-evidence section appears when every field is empty"
+else
+    fail "TEST-060b: a contract-declared-evidence section leaked in for an all-empty-fields contract"
+fi
+if echo "${PP_OUTPUT}" | grep -qE '^[0-9a-f]{64}$'; then
+    ok "TEST-060c: normal digest line still printed — empty fields are not an error"
+else
+    fail "TEST-060c: expected a digest line, got: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-061: a declared-but-missing contract evidence path is a finding, not
+# a crash or a silent omission — the bundle carries a one-line note naming
+# the path and stating no file exists there, and the run still exits 0
+# (telling the reviewer a contract points at nothing is true and useful;
+# refusing to write the whole bundle over it would throw away every OTHER
+# check's real evidence over one dangling reference).
+# ============================================================================
+
+echo "=== TEST-061: declared-but-missing contract evidence path → noted, not silently dropped ==="
+
+D061="${WORK}/pp061"
+SPECDIR061="${D061}/specs/cross-model-verification"
+mkdir -p "${SPECDIR061}/verification/T-004" "${D061}/empty-input"
+write_tasks_with_consent "${SPECDIR061}/tasks.md" "T-004"
+write_contract "${SPECDIR061}" "T-004" \
+    "regression" "specs/cross-model-verification/verification/qg/shared/nope-061.log" "" ""
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D061}/empty-input" \
+    --tasks-file "${SPECDIR061}/tasks.md" \
+    --project-root "${D061}" \
+    --out "${D061}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-061a: exit 0 (a dangling contract reference does not fail the whole run)"
+else
+    fail "TEST-061a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D061}/out.txt" ] && grep -qF "specs/cross-model-verification/verification/qg/shared/nope-061.log (contract-declared evidence, not found)" "${D061}/out.txt"; then
+    ok "TEST-061b: the bundle names the missing path"
+else
+    fail "TEST-061b: expected a not-found note naming the missing path"
+fi
+if [ -f "${D061}/out.txt" ] && grep -qF "[contract names this evidence path but no file exists there]" "${D061}/out.txt"; then
+    ok "TEST-061c: the note states plainly that no file exists there"
+else
+    fail "TEST-061c: expected a plain-language explanation of the gap"
+fi
+
+# ============================================================================
+# TEST-062: a large contract-declared evidence file (living OUTSIDE
+# verification/<task_id>/, so only reachable via step 3b, not the directory
+# walk) is elided under a tight --max-bytes exactly like a directory-walk
+# file would be — proving it joined the SAME elidable candidate set, not a
+# separate always-whole one.
+# ============================================================================
+
+echo "=== TEST-062: large contract-declared evidence file is elided under a tight --max-bytes ==="
+
+D062="${WORK}/pp062"
+SPECDIR062="${D062}/specs/cross-model-verification"
+mkdir -p "${SPECDIR062}/verification/T-004" "${SPECDIR062}/verification/qg/shared" "${D062}/empty-input"
+write_tasks_with_consent "${SPECDIR062}/tasks.md" "T-004"
+BIG062="${SPECDIR062}/verification/qg/shared/big-062.log"
+write_filler_lines "${BIG062}" 500 "BIG062"
+write_contract "${SPECDIR062}" "T-004" \
+    "regression" "specs/cross-model-verification/verification/qg/shared/big-062.log" "" ""
+
+TOTAL062="$(wc -c < "${BIG062}" | tr -d ' ')"
+HEAD062="$(head -n 40 "${BIG062}")"
+TAIL062="$(tail -n 40 "${BIG062}")"
+HEADBYTES062="$(printf '%s\n' "${HEAD062}" | wc -c | tr -d ' ')"
+TAILBYTES062="$(printf '%s\n' "${TAIL062}" | wc -c | tr -d ' ')"
+EXPECTED_ELIDED062=$((TOTAL062 - HEADBYTES062 - TAILBYTES062))
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D062}/empty-input" \
+    --tasks-file "${SPECDIR062}/tasks.md" \
+    --project-root "${D062}" \
+    --out "${D062}/out.txt" \
+    --max-bytes 15000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-062a: exit 0 (eliding the contract-declared file alone let the bundle fit)"
+else
+    fail "TEST-062a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+EXPECTED_MARKER062="${EXPECTED_ELIDED062} bytes elided from the middle of specs/cross-model-verification/verification/qg/shared/big-062.log (original size ${TOTAL062} bytes"
+if [ -f "${D062}/out.txt" ] && grep -qF "${EXPECTED_MARKER062}" "${D062}/out.txt"; then
+    ok "TEST-062b: elision marker present on the contract-declared file with the exact independently-computed byte count"
+else
+    fail "TEST-062b: expected marker containing '${EXPECTED_MARKER062}' not found in bundle"
+fi
+if [ -f "${D062}/out.txt" ] && grep -q "BIG062 line 0001 filler filler filler filler" "${D062}/out.txt" \
+    && grep -q "BIG062 line 0500 filler filler filler filler" "${D062}/out.txt" \
+    && ! grep -q "BIG062 line 0250 filler filler filler filler" "${D062}/out.txt"; then
+    ok "TEST-062c: elided bundle keeps first/last lines and genuinely drops a middle line"
+else
+    fail "TEST-062c: elided bundle's head/tail/middle content does not match expectations"
 fi
 
 # ============================================================================
