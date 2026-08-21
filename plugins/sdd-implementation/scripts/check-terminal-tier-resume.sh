@@ -66,8 +66,18 @@ def safe_repo_file(relative_path):
     if any(part in ("", ".", "..") for part in parts):
         fail("PATH", "diagnosis path is not canonical")
     root = os.path.realpath(repo_root)
-    target = os.path.join(root, *parts)
-    if os.path.islink(target) or not os.path.isfile(target):
+    # RT-20260821-010: walk every component with an lstat-level check,
+    # matching the ps1 twin's per-component LinkType walk. Checking only the
+    # final component and relying on commonpath containment silently resolved
+    # in-repo DIRECTORY symlinks, so the twins diverged (Bash authorized what
+    # PowerShell denied) - the divergent-validation risk design.md names.
+    current = root
+    for part in parts:
+        current = os.path.join(current, part)
+        if os.path.islink(current):
+            fail("PATH", "diagnosis reference is a symlink")
+    target = current
+    if not os.path.isfile(target):
         fail("PATH", "diagnosis reference is missing or unsafe")
     if os.path.commonpath((root, os.path.realpath(target))) != root:
         fail("PATH", "diagnosis reference escapes repository")
