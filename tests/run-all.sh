@@ -54,6 +54,7 @@ tests=(
   tests/guard-parity.tests.sh
   tests/claude-bash-matcher.tests.sh
   tests/phase2-guard-invariants.tests.sh
+  tests/human-copy-mirror-freshness.tests.sh
   tests/phase2-guard-tokenizer.tests.sh
   tests/phase2-risk-upgrade.tests.sh
   tests/phase2-sudo-signature-static.tests.sh

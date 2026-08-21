@@ -357,6 +357,40 @@ fi
 [[ "${workflow_match_precheck}" != "FAIL" ]] || fail "Risk/Required Workflow mismatches must be fixed before creating evidence"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# STEP 2b: Record Done When items that name a review-frozen artifact (WFI-030)
+# ──────────────────────────────────────────────────────────────────────────────
+# Detection only -- this never changes the exit code. The frozen-artifact rule
+# in the task decomposition review gate's structural-coverage role is a Major
+# finding evaluated by reviewer judgement alone; nothing deterministic backed
+# it, and a review that reasoned past it sealed an unsatisfiable item into a
+# hash-bound plan. Measured over this repository the trigger fires on 6 items,
+# 3 of them real, so it records rather than fails; the reviewer adjudicates
+# each entry.
+# Items wrap across continuation lines, so lines are joined into whole items
+# before matching: a line-at-a-time scan finds only 1 of the 3 known cases.
+frozen_done_when_tsv="$(awk '
+  function flush(   l) {
+    if (item == "") return
+    l = item
+    if (l ~ /traceability\.md|design\.md|tasks\.md/ &&
+        l ~ /(^|[^a-zA-Z])(record|records|update|updates|add|write|edit|append)([^a-zA-Z]|$)/)
+      printf "%s\t%d\t%s\n", task, itemline, l
+    item = ""
+  }
+  /^##[ \t]+T-[0-9]+/ { flush(); task = $2; sub(/[^A-Za-z0-9-].*$/, "", task); inblk = 0 }
+  /Done When/ { flush(); inblk = 1; next }
+  /^(##|###)[ \t]/ || /^[A-Za-z][A-Za-z ]*:/ { flush(); inblk = 0 }
+  !inblk { next }
+  /^- \[/ { flush(); item = $0; itemline = FNR; next }
+  /^[ \t]+[^ \t]/ { if (item != "") { sub(/^[ \t]+/, " "); item = item $0 }; next }
+  { flush() }
+  END { flush() }
+' "${TASKS_MD}")"
+frozen_done_when_json="$(printf '%s' "${frozen_done_when_tsv}" |
+  jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {task: .[0], line: (.[1]|tonumber), item: .[2]})')"
+[[ -n "${frozen_done_when_json}" ]] || frozen_done_when_json='[]'
+
+# ──────────────────────────────────────────────────────────────────────────────
 # STEP 3: Parse Blockers fields and build dependency-graph.json
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -624,6 +658,7 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "acceptance_sha256": "${acceptance_sha256}",
   "design_sha256": "${design_sha256}",
   "traceability_sha256": "${traceability_sha256}",
+  "frozen_artifact_done_when": ${frozen_done_when_json},
   "layer_sha256": ${layer_sha256},
   "input_sha256": "${input_sha256}",
   "generated_at": "${generated_at}"

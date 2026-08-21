@@ -530,6 +530,120 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
     "$WFI016_PAYLOAD"
 
 # ---------------------------------------------------------------------------
+# WFI-040: the protected set must cover every script the chain executes
+# ---------------------------------------------------------------------------
+# The guard's denial message names a category ("gate scripts"); what it holds is
+# a hand-maintained suffix list. Measured 2026-08-19, 31 scripts that CI, the
+# suite runner or a SKILL invokes matched no protected suffix. Enumeration
+# drifts silently, because a missing entry presents as "allowed" rather than as
+# an error. This is the check that makes the next omission fail loudly.
+wfi037_drift="$(cd "${REPO_ROOT}" && python3 - <<'PY'
+import glob, importlib.util, os
+spec = importlib.util.spec_from_file_location(
+    "gi", "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py")
+gi = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(gi)
+protected = set(gi.PROTECTED_GATE_SUFFIXES) | {
+    s.lstrip("/") for s in gi.PROTECTED_GATE_PLUGIN_JSON_SUFFIXES}
+callers = ["tests/run-all.sh", "tests/run-all.ps1"]
+callers += glob.glob("plugins/*/skills/*/SKILL.md")
+callers += glob.glob(os.path.join(".github", "workflows", "*"))
+blob = ""
+for c in callers:
+    if os.path.exists(c):
+        with open(c, encoding="utf-8", errors="replace") as fh:
+            blob += fh.read()
+for path in sorted(glob.glob("plugins/*/scripts/*")):
+    if not os.path.isfile(path):
+        continue
+    if any(path.endswith(s) for s in protected):
+        continue
+    if os.path.basename(path) in blob:
+        print(path)
+PY
+)"
+if [ -z "${wfi037_drift}" ]; then
+    ok "wfi037: every chain-invoked script under plugins/*/scripts is protected"
+else
+    fail "wfi037: chain-invoked scripts are unprotected: $(echo "${wfi037_drift}" | tr '\n' ' ')"
+fi
+
+# ---------------------------------------------------------------------------
+# WFI-040 item 2b: the generated modules must agree with their JSON source
+# ---------------------------------------------------------------------------
+# The guard reads the generated modules, not the JSON. An applied JSON change
+# that was never regenerated leaves behaviour unchanged while every suite
+# reports green -- observed once already. Regenerate into a throwaway copy and
+# require the result to be byte-identical to what is committed.
+wfi037_gen="${WORK}/regen"
+mkdir -p "${wfi037_gen}/plugins/sdd-quality-loop"
+cp -R "${REPO_ROOT}/plugins/sdd-quality-loop/scripts" "${wfi037_gen}/plugins/sdd-quality-loop/"
+cp -R "${REPO_ROOT}/plugins/sdd-quality-loop/references" "${wfi037_gen}/plugins/sdd-quality-loop/"
+if (cd "${wfi037_gen}/plugins/sdd-quality-loop/scripts" \
+        && python3 generate-guard-invariants.py >/dev/null 2>&1); then
+    wfi037_stale=""
+    for wfi037_mod in guard_invariants.py guard-invariants.generated.js \
+                      guard-invariants.generated.ps1 guard-invariants.generated.sh; do
+        if ! cmp -s "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/generated/${wfi037_mod}" \
+                    "${wfi037_gen}/plugins/sdd-quality-loop/scripts/generated/${wfi037_mod}"; then
+            wfi037_stale="${wfi037_stale} ${wfi037_mod}"
+        fi
+    done
+    if [ -z "${wfi037_stale}" ]; then
+        ok "wfi037: generated invariant modules match guard-invariants.json"
+    else
+        fail "wfi037: generated modules are stale (run generate-guard-invariants.py):${wfi037_stale}"
+    fi
+else
+    fail "wfi037: generate-guard-invariants.py rejected the committed JSON"
+fi
+
+# ---------------------------------------------------------------------------
+# WFI-040: write-vocabulary coverage, both directions
+# ---------------------------------------------------------------------------
+# Every payload aims at kill-switch.sh, a path the guard's own predicate treats
+# as protected, so a permissive verdict cannot be blamed on the target. Group A
+# is the non-vacuity control: the verbs the original vocabulary modelled, which
+# must stay denied. Group B is what this WFI adds. Group D is the anti-Goodhart
+# control -- coverage must not have been bought by denying reads.
+wfi037_target="plugins/sdd-quality-loop/scripts/kill-switch.sh"
+wfi037_payload() { printf '{"tool_name":"Bash","tool_input":{"command":"%s"}}' "$1"; }
+
+for wfi037_case in \
+    "cp src ${wfi037_target}" \
+    "tee ${wfi037_target}" \
+    "rm ${wfi037_target}"; do
+    parity_check "wfi037 vocabulary A (modelled, deny): ${wfi037_case%% *}" 2 \
+        "$(wfi037_payload "${wfi037_case}")"
+done
+
+for wfi037_case in \
+    "git checkout -- ${wfi037_target}" \
+    "git restore ${wfi037_target}" \
+    "git reset --hard HEAD ${wfi037_target}" \
+    "sed -i '' s/a/b/ ${wfi037_target}" \
+    "install -m 755 src ${wfi037_target}" \
+    "ln -sf src ${wfi037_target}" \
+    "truncate -s 0 ${wfi037_target}" \
+    "dd if=src of=${wfi037_target}" \
+    "perl -pi -e s/a/b/ ${wfi037_target}"; do
+    parity_check "wfi037 vocabulary B (widened, deny): ${wfi037_case%% *}" 2 \
+        "$(wfi037_payload "${wfi037_case}")"
+done
+
+# Readers must survive. sed and git are in the fail-closed vocabulary, so these
+# two cases are what proves the regex admits sed only in its -i form and git
+# only on worktree-writing subcommands.
+for wfi037_case in \
+    "cat ${wfi037_target}" \
+    "grep x ${wfi037_target}" \
+    "sed -n 1,5p ${wfi037_target}" \
+    "git log -- ${wfi037_target}"; do
+    parity_check "wfi037 vocabulary D (reader, allow): ${wfi037_case%% *}" 0 \
+        "$(wfi037_payload "${wfi037_case}")"
+done
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""
