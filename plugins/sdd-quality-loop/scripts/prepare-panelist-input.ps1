@@ -6,6 +6,26 @@
 #                              [--spec-root <dir>]
 #                              [--project-root <dir>]
 #                              [--effort <low|medium|high|xhigh>]
+#                              [--max-bytes <n>]
+#
+# --max-bytes (optional, no default -- unset means unlimited): a fail-closed
+# size guard on the FINAL sanitized bundle. A vendor caller with a known
+# input cap (e.g. codex exec's 1,048,576-character limit) passes its own
+# threshold here. If the sanitized bundle would exceed it, this script
+# prints a per-section byte breakdown to stderr, writes NO output file, and
+# exits 1 -- it never truncates. A panelist who cannot tell their input was
+# cut would report confident conclusions about material they never saw,
+# which is worse than a failed run that says so plainly.
+#
+# Per-file elision (only when --max-bytes is set): a single file under the
+# reviewed task's own verification/<task_id>/ evidence directory that
+# exceeds one quarter of --max-bytes is included as its first/last 40
+# lines plus a marker stating how many bytes were elided from the middle
+# and from which path -- never silently. Spec documents, the task's own
+# contract/evidence.json, the implementation report, and every path the
+# report's "## Outputs" table declares are never elided. If the bundle is
+# still over --max-bytes after elision, this script still fails closed
+# exactly as above.
 #
 # Security (design.md §6):
 #   * Fail-closed consent gate: exits non-zero without writing output unless
@@ -43,6 +63,7 @@ $OutPath     = ""
 $SpecRoot    = "specs"
 $ProjectRoot = ""
 $Effort      = ""
+$MaxBytes    = ""
 
 $argIdx = 0
 $passedArgs = $args
@@ -56,6 +77,7 @@ while ($argIdx -lt $passedArgs.Count) {
         "--spec-root"    { $SpecRoot    = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--project-root" { $ProjectRoot = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--effort"       { $Effort      = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--max-bytes"    { $MaxBytes    = $passedArgs[$argIdx+1]; $argIdx += 2 }
         default {
             [Console]::Error.WriteLine("prepare-panelist-input: unknown argument: $($passedArgs[$argIdx])")
             exit 2
@@ -199,29 +221,231 @@ if (-not $ConsentKind) {
 }
 
 # ── Collect input content ────────────────────────────────────────────────────
-# -Recurse -File (native re-implementation, never a shell-out to the .sh
-# twin) so subdirectories of --input are visited too (REQ-003/AC-013);
-# sorted for determinism.
+# Task-scoped composition (replaces the earlier whole-directory -Recurse walk
+# of --input). The old walk read every file under --input, which in real
+# invocations was `specs/<feature>/` -- every OTHER task's evidence logs,
+# quality-gate transcripts, and mutation output, all concatenated into one
+# bundle. Two panelists on epic-195 independently reported this: bundles
+# that were mostly unrelated-task noise while containing "zero bytes of any
+# of the five files [the task] actually changed" -- the Outputs table names
+# those files, but the old walk never read outside specs/. A directory walk
+# is structurally the wrong shape for "what does a reviewer of ONE task
+# need"; this composes that set instead of discovering it by traversal:
+#   1. the feature's spec documents (fixed filenames, each only if present)
+#   2. the reviewed task's own verification contract + evidence.json
+#   3. the reviewed task's own verification/<task_id>/ evidence directory
+#      (recursively, same panel-artifact exclusions the old walk applied)
+#   4. the reviewed task's own implementation report
+#   5. the CURRENT content of every path the report's "## Outputs" table
+#      declares -- appended below, after Invoke-DeclaredOutputsCompleteness
+#      Check resolves each row (see $script:PpiDeclaredContent and
+#      Add-PpiDeclaredOutputContent), reusing that single resolution rather
+#      than re-reading paths a second, differently-behaved way.
+# --input is unchanged for a literal FILE argument (still read verbatim --
+# this is the shape used by secret-sanitization fixtures, and is orthogonal
+# to feature/task composition). --input is retained as the completeness
+# check's first-try resolution root (unchanged; see
+# Invoke-DeclaredOutputsCompletenessCheck) even though real callers now get
+# task-scoped content regardless of what --input points to.
 
 if (-not (Test-Path $InputPath)) {
     [Console]::Error.WriteLine("prepare-panelist-input: input not found: $InputPath")
     exit 1
 }
 
-if ((Get-Item $InputPath).PSIsContainer) {
-    $rawLines = @()
-    # Exclude the panel's own artifacts -- mirrors prepare-panelist-input.sh.
-    # Without this the assembler swallows every earlier bundle and verdict in
-    # verification/, doubling the bundle each run and embedding prior panelists'
-    # conclusions in an input whose header declares the review blind.
-    $panelArtifacts = @('*.panelist-input.txt', '*.verdict.json', '*.cross-model.json')
-    foreach ($f in (Get-ChildItem $InputPath -File -Recurse -Exclude $panelArtifacts | Sort-Object FullName)) {
-        $rawLines += Get-Content -Raw -Encoding Utf8 $f.FullName
-    }
-    $rawContent = $rawLines -join "`n"
-} else {
-    $rawContent = Get-Content -Raw -Encoding Utf8 $InputPath
+# Tracks project-root-relative paths already pulled in by steps 1-4 above, so
+# step 5 (declared outputs) does not duplicate a file already present (e.g.
+# tasks.md and CHANGELOG.md are commonly both a spec document/committed file
+# AND a declared output; verification/<task_id>/*.log is commonly both the
+# task's own evidence dir AND separately declared). Only meaningful for rows
+# that resolve project-root-relative; rows resolved under --input have no
+# comparable identity here and are never deduplicated against this set.
+$script:PpiSeenRelPaths = New-Object System.Collections.Generic.HashSet[string]
+
+# Per-file elision (Part 2, design.md §6 follow-up): a single oversized
+# evidence log (e.g. a whole-repo run-all capture), or several moderate
+# ones together, can push a bundle over --max-bytes even though every byte
+# is legitimate evidence, not noise. Truncating silently would let a
+# reviewer draw confident conclusions about material they never saw -- the
+# same reasoning that made --max-bytes fail closed instead of truncating
+# the whole bundle (see the file header). The fix here is the same shape
+# at file granularity: keep a file's own first/last lines, and replace the
+# middle with a marker stating, in plain words, how many bytes were
+# removed and from which path.
+#
+# Budget-driven, not threshold-driven. An earlier version of this elided
+# any single file over one quarter of --max-bytes, which got two things
+# wrong in practice: a bundle with one file just over that fraction and
+# another just under it treated two near-identical artifacts oppositely
+# for no benefit when the bundle was refused anyway, and a bundle whose
+# overage was spread across many moderate files (none individually over
+# the fraction) got no elision help at all. This version composes the
+# bundle WHOLE first and measures it. If it already fits --max-bytes,
+# nothing is elided -- every such bundle is byte-for-byte what it would be
+# with no elision logic in this script at all. Only when the whole bundle
+# is over cap does it elide, one file at a time, LARGEST FIRST, from the
+# elidable set only, recomputing the actual sanitized bundle size after
+# each elision (never estimated -- eliding one file changes the total, so
+# each step re-measures) until it fits or the elidable set is exhausted.
+# Exhausted-and-still-over fails closed, unchanged in shape from before
+# Part 2. This is also the honest answer to the degenerate case where even
+# every elidable file's own head+tail+marker floor, summed with the
+# content that is never elided, still exceeds --max-bytes: no amount of
+# elision can fix that, so refusing to write is correct -- identical in
+# spirit to failing closed when there were no elidable candidates at all.
+#
+# Scope: elision applies ONLY to files pulled in by step 3 below (the
+# reviewed task's own verification/<task_id>/ evidence directory). Spec
+# documents (step 1), the task's own contract/evidence.json (step 2), the
+# implementation report (step 4), and every declared-outputs row (step 5
+# -- this is precisely "a source file named in the Outputs table") are
+# never elided: those are the bundle's actual claims and their supporting
+# source, not raw log noise, and truncating any of them would gut the
+# bundle's whole purpose. Head/tail size stays a fixed line count (not
+# proportional to the cap) -- this exists purely for reviewer legibility
+# (show a log's setup and its final summary), never as a byte dial; the
+# byte-target job stays entirely with --max-bytes and the budget loop.
+$script:PpiElideLines = 40
+
+# One file's content, elided to its first/last $PpiElideLines lines plus a
+# marker. Callers only invoke this for a file the budget loop below has
+# already decided to elide -- it is not itself threshold-gated.
+function Get-PpiElidedContent {
+    param([string]$FilePath, [string]$Label)
+    $raw = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    $totalBytes = [System.Text.Encoding]::UTF8.GetByteCount($raw)
+    $lines = Get-Content -Encoding Utf8 -LiteralPath $FilePath
+    $lineCount = $lines.Count
+    $n = [Math]::Min($script:PpiElideLines, $lineCount)
+    $headText = ($lines[0..($n - 1)] -join "`n")
+    $tailStart = $lineCount - $n
+    $tailText = ($lines[$tailStart..($lineCount - 1)] -join "`n")
+    $headBytes = [System.Text.Encoding]::UTF8.GetByteCount($headText)
+    $tailBytes = [System.Text.Encoding]::UTF8.GetByteCount($tailText)
+    $elided = $totalBytes - $headBytes - $tailBytes
+    if ($elided -lt 0) { $elided = 0 }
+    $marker = "[... $elided bytes elided from the middle of $Label (original size $totalBytes bytes; showing first/last $n lines) ...]"
+    return "$headText`n$marker`n$tailText"
 }
+
+# Append one file's content to $rawContent (by ref, via [ref]) with a path
+# header, so a reviewer (and these tests) can tell which bytes came from
+# which file -- the old walk concatenated files with no such marker at
+# all. -Elidable reads the file through Get-PpiElidedContent instead of
+# whole; only the step-3 rebuild function below ever passes it.
+function Add-PpiFileContent {
+    param([ref]$RawContent, [string]$FilePath, [string]$RelPath, [switch]$Elidable)
+    if ($Elidable) {
+        $content = Get-PpiElidedContent -FilePath $FilePath -Label $RelPath
+    } else {
+        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    }
+    $RawContent.Value += "# ---- $RelPath ----`n$content`n"
+}
+
+$rawContent = ""
+
+if ((Get-Item $InputPath).PSIsContainer) {
+    $specDir = Join-Path $ProjectRoot (Join-Path $SpecRoot $Feature)
+
+    # 1. Spec documents (fixed order; only those that exist).
+    $specDocs = @("requirements.md", "design.md", "acceptance-tests.md",
+        "tasks.md", "traceability.md", "investigation.md",
+        "ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")
+    foreach ($doc in $specDocs) {
+        $docPath = Join-Path $specDir $doc
+        $docItem = Get-Item -LiteralPath $docPath -ErrorAction SilentlyContinue
+        if ($docItem -and (-not $docItem.PSIsContainer) -and (-not $docItem.LinkType)) {
+            $docRel = "$SpecRoot/$Feature/$doc"
+            Add-PpiFileContent -RawContent ([ref]$rawContent) -FilePath $docPath -RelPath $docRel
+            $script:PpiSeenRelPaths.Add($docRel) | Out-Null
+        }
+    }
+
+    # 2. The reviewed task's own verification contract + evidence.json.
+    $verifDir = Join-Path $specDir "verification"
+    foreach ($vf in @("$TaskId.contract.json", "$TaskId.evidence.json")) {
+        $vfPath = Join-Path $verifDir $vf
+        $vfItem = Get-Item -LiteralPath $vfPath -ErrorAction SilentlyContinue
+        if ($vfItem -and (-not $vfItem.PSIsContainer) -and (-not $vfItem.LinkType)) {
+            $vfRel = "$SpecRoot/$Feature/verification/$vf"
+            Add-PpiFileContent -RawContent ([ref]$rawContent) -FilePath $vfPath -RelPath $vfRel
+            $script:PpiSeenRelPaths.Add($vfRel) | Out-Null
+        }
+    }
+
+    # Steps 1+2 are never elided -- freeze them as the fixed prefix, then
+    # reset $rawContent so step 4 (also never elided) can be assembled
+    # separately. Step 3 sits BETWEEN these two in the final bundle but is
+    # composed by Build-PpiStep3Content below, possibly more than once, so
+    # it is never accumulated directly into $rawContent at all.
+    $script:PpiContentPrefix = $rawContent
+    $rawContent = ""
+
+    # 3. The reviewed task's own verification/<task_id>/ evidence
+    # directory, recursively, sorted for determinism -- same panel-
+    # artifact exclusions the old whole-directory walk applied, now scoped
+    # to just this task's own subdirectory instead of the whole feature.
+    # This pass only INVENTORIES the elidable candidates (size, absolute
+    # path, relative path -- one record per file in
+    # $script:PpiElidableIndex) and marks each file seen -- seen-ness and
+    # dedup against step 5 do not depend on whether a file ends up elided,
+    # only on whether it is present at all. Actual content composition
+    # happens in Build-PpiStep3Content, below, invoked by the budget loop
+    # after $script:PpiDeclaredContent is ready.
+    $taskVerifDir = Join-Path $verifDir $TaskId
+    $script:PpiElidableIndex = @()
+    $taskVerifItem = Get-Item -LiteralPath $taskVerifDir -ErrorAction SilentlyContinue
+    if ($taskVerifItem -and $taskVerifItem.PSIsContainer -and (-not $taskVerifItem.LinkType)) {
+        $panelArtifacts = @('*.panelist-input.txt', '*.verdict.json', '*.cross-model.json')
+        $taskVerifFull = (Resolve-Path -LiteralPath $taskVerifDir).Path.TrimEnd('/', '\')
+        foreach ($f in (Get-ChildItem -LiteralPath $taskVerifDir -File -Recurse -Exclude $panelArtifacts |
+                Sort-Object FullName)) {
+            $subPath = $f.FullName.Substring($taskVerifFull.Length + 1) -replace '\\', '/'
+            $tfRel = "$SpecRoot/$Feature/verification/$TaskId/$subPath"
+            $tfBytes = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $f.FullName))
+            $script:PpiElidableIndex += [PSCustomObject]@{ Bytes = $tfBytes; AbsPath = $f.FullName; RelPath = $tfRel }
+            $script:PpiSeenRelPaths.Add($tfRel) | Out-Null
+        }
+    }
+
+    # 4. The reviewed task's own implementation report.
+    $implReportPathForContent = Join-Path $ProjectRoot (Join-Path "reports" (Join-Path "implementation" (Join-Path $Feature "$TaskId.md")))
+    $implReportItem = Get-Item -LiteralPath $implReportPathForContent -ErrorAction SilentlyContinue
+    if ($implReportItem -and (-not $implReportItem.PSIsContainer) -and (-not $implReportItem.LinkType)) {
+        $implReportRel = "reports/implementation/$Feature/$TaskId.md"
+        Add-PpiFileContent -RawContent ([ref]$rawContent) -FilePath $implReportPathForContent -RelPath $implReportRel
+        $script:PpiSeenRelPaths.Add($implReportRel) | Out-Null
+    }
+    $script:PpiContentSuffix = $rawContent
+    $rawContent = ""
+} else {
+    $script:PpiContentPrefix = Get-Content -Raw -Encoding Utf8 $InputPath
+    $script:PpiContentSuffix = ""
+    $script:PpiElidableIndex = @()
+}
+
+# Rebuilds step 3's content from scratch given the set of relpaths ($1)
+# that should be elided THIS attempt; every other elidable file is
+# included whole. Called once with an empty elide-set (the "as if elision
+# never existed" bundle) and, only if that is over --max-bytes, again with
+# one more relpath added each time -- largest-candidate-first, decided by
+# the budget loop below.
+function Build-PpiStep3Content {
+    param([string[]]$ElideSet)
+    $content = ""
+    foreach ($cand in $script:PpiElidableIndex) {
+        if ($ElideSet -contains $cand.RelPath) {
+            $body = Get-PpiElidedContent -FilePath $cand.AbsPath -Label $cand.RelPath
+        } else {
+            $body = Get-Content -Raw -Encoding Utf8 -LiteralPath $cand.AbsPath
+        }
+        $content += "# ---- $($cand.RelPath) ----`n$body`n"
+    }
+    return $content
+}
+
+$script:PpiDeclaredContent = ""
 
 # ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
 # Security Boundary B1 (security-spec.md): verifies every path the
@@ -380,6 +604,48 @@ function Resolve-DeclaredOutputRow {
     return @{ State = "Absent"; Candidate = $null }
 }
 
+# Append the CURRENT content the completeness check just verified for one
+# declared-outputs row into $script:PpiDeclaredContent -- reusing
+# Invoke-DeclaredOutputsCompletenessCheck's own resolution (candidate
+# worktree file, or the declaration-commit blob) rather than re-reading the
+# row a second, differently-behaved way. Skips a row already pulled in by
+# the spec-document/task-verification/implementation-report composition
+# above (see $script:PpiSeenRelPaths) -- comparison is only meaningful for
+# project-root-relative rows (ProjectRelative = $true); a row that only
+# matched under --input has no comparable identity in that set and is never
+# deduplicated.
+function Add-PpiDeclaredOutputContent {
+    param(
+        [string]$RowPath,
+        [string]$Candidate,
+        [bool]$ProjectRelative,
+        [string]$ProjectRoot,
+        [string]$Feature,
+        [string]$TaskId
+    )
+
+    if ($ProjectRelative -and $script:PpiSeenRelPaths.Contains($RowPath)) {
+        return
+    }
+
+    if ($Candidate) {
+        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate
+        $script:PpiDeclaredContent += "# ---- $RowPath (declared output) ----`n$content`n"
+    } else {
+        $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+        $tempFile = [IO.Path]::GetTempFileName()
+        try {
+            & git -C $ProjectRoot show "${commit}:${RowPath}" > $tempFile 2>$null
+            $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $tempFile
+        } finally {
+            Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+        }
+        $script:PpiDeclaredContent += "# ---- $RowPath (declared output, at declaration commit $commit) ----`n$content`n"
+    }
+
+    if ($ProjectRelative) { $script:PpiSeenRelPaths.Add($RowPath) | Out-Null }
+}
+
 function Invoke-DeclaredOutputsCompletenessCheck {
     param([string]$ProjectRoot, [string]$Feature, [string]$TaskId, [string]$InputRoot)
 
@@ -433,6 +699,8 @@ function Invoke-DeclaredOutputsCompletenessCheck {
                 # re-check against the declaration commit before giving up
                 # (see Test-DeclaredOutputAtDeclarationCommit).
                 if (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash) {
+                    Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $null -ProjectRelative $true `
+                        -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
                     continue
                 }
                 $gaps.Add("declared output missing from bundle: $rowPath")
@@ -444,9 +712,14 @@ function Invoke-DeclaredOutputsCompletenessCheck {
         if ($actualHash -ne $rowHash) {
             if ($rowIsProjectRelative -and
                 (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash)) {
+                Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $null -ProjectRelative $true `
+                    -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
                 continue
             }
             $gaps.Add("declared output hash mismatch: $rowPath")
+        } else {
+            Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $candidate -ProjectRelative $rowIsProjectRelative `
+                -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
         }
     }
 
@@ -471,61 +744,135 @@ Invoke-DeclaredOutputsCompletenessCheck -ProjectRoot $ProjectRoot -Feature $Feat
 #  7. Windows absolute paths (C:\...)
 #  8. Private/RFC-1918 IP URLs
 #  9. Internal/corp hostnames in URLs
+#
+# Wrapped as a function because the budget-driven size guard below may
+# need to sanitize more than one candidate bundle (once per elision
+# attempt). Sets $script:PpiSanitizedDigest / $script:PpiSanitizedContent.
 
 $REDACTED      = "[REDACTED]"
 $PATH_REDACTED = "[PATH_REDACTED]"
 $URL_REDACTED  = "[URL_REDACTED]"
 
-$text = $rawContent
+function Invoke-PpiSanitize {
+    param([string]$Raw)
+    $text = $Raw
 
-# 1. Credential assignment lines
-$text = [regex]::Replace($text,
-    '(?im)^[^\n=]*(?:api[_-]?key|secret[_-]?(?:access[_-]?)?key|access[_-]?key(?:[_-]?id)?|auth[_-]?token|bearer|password|passwd|credential|private[_-]?(?:key|token)|token)[^\n=]*=[^\n]+',
-    { param($m)
-        $lhs = ($m.Value -split '=')[0]
-        "$lhs=$REDACTED"
-    })
+    # 1. Credential assignment lines
+    $text = [regex]::Replace($text,
+        '(?im)^[^\n=]*(?:api[_-]?key|secret[_-]?(?:access[_-]?)?key|access[_-]?key(?:[_-]?id)?|auth[_-]?token|bearer|password|passwd|credential|private[_-]?(?:key|token)|token)[^\n=]*=[^\n]+',
+        { param($m)
+            $lhs = ($m.Value -split '=')[0]
+            "$lhs=$REDACTED"
+        })
 
-# 2. AWS Access Key IDs
-$text = [regex]::Replace($text, 'AKIA[0-9A-Z]{16}', $REDACTED)
+    # 2. AWS Access Key IDs
+    $text = [regex]::Replace($text, 'AKIA[0-9A-Z]{16}', $REDACTED)
 
-# 3. GitHub/GitLab PATs
-$text = [regex]::Replace($text, '(?:ghp_|ghs_|gho_|glpat-)[A-Za-z0-9_\-]{20,}', $REDACTED)
+    # 3. GitHub/GitLab PATs
+    $text = [regex]::Replace($text, '(?:ghp_|ghs_|gho_|glpat-)[A-Za-z0-9_\-]{20,}', $REDACTED)
 
-# 4. sk- prefixed tokens
-$text = [regex]::Replace($text, 'sk-[A-Za-z0-9_\-]{20,}', $REDACTED)
+    # 4. sk- prefixed tokens
+    $text = [regex]::Replace($text, 'sk-[A-Za-z0-9_\-]{20,}', $REDACTED)
 
-# 5. Long random secrets on KEY= lines (catch-all >= 32 chars)
-$text = [regex]::Replace($text,
-    '(?im)((?:key|token|secret|password|passwd|credential)[^\n=]*=\s*)[A-Za-z0-9+/=]{32,}',
-    { param($m) "$($m.Groups[1].Value)$REDACTED" })
+    # 5. Long random secrets on KEY= lines (catch-all >= 32 chars)
+    $text = [regex]::Replace($text,
+        '(?im)((?:key|token|secret|password|passwd|credential)[^\n=]*=\s*)[A-Za-z0-9+/=]{32,}',
+        { param($m) "$($m.Groups[1].Value)$REDACTED" })
 
-# 6. Absolute Unix paths
-$text = [regex]::Replace($text,
-    '/(?:home|root|Users|var|etc|usr|opt|tmp|private)/[^\s\''"\)\]]*',
-    $PATH_REDACTED)
+    # 6. Absolute Unix paths
+    $text = [regex]::Replace($text,
+        '/(?:home|root|Users|var|etc|usr|opt|tmp|private)/[^\s\''"\)\]]*',
+        $PATH_REDACTED)
 
-# 7. Windows absolute paths
-$text = [regex]::Replace($text,
-    '[A-Za-z]:\\[^\s\''"\)\]]*',
-    $PATH_REDACTED)
+    # 7. Windows absolute paths
+    $text = [regex]::Replace($text,
+        '[A-Za-z]:\\[^\s\''"\)\]]*',
+        $PATH_REDACTED)
 
-# 8. Private/RFC-1918 IP URLs
-$text = [regex]::Replace($text,
-    'https?://(?:192\.168\.\d{1,3}|10\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2[0-9]|3[01])\.\d{1,3})(?::\d+)?[^\s\''"\)\]]*',
-    $URL_REDACTED)
+    # 8. Private/RFC-1918 IP URLs
+    $text = [regex]::Replace($text,
+        'https?://(?:192\.168\.\d{1,3}|10\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2[0-9]|3[01])\.\d{1,3})(?::\d+)?[^\s\''"\)\]]*',
+        $URL_REDACTED)
 
-# 9. Internal/corp hostnames in URLs
-$text = [regex]::Replace($text,
-    'https?://[^\s\''"\)\]]*(?:internal|corp|intranet|private)[^\s\''"\)\]]*',
-    $URL_REDACTED)
+    # 9. Internal/corp hostnames in URLs
+    $text = [regex]::Replace($text,
+        'https?://[^\s\''"\)\]]*(?:internal|corp|intranet|private)[^\s\''"\)\]]*',
+        $URL_REDACTED)
 
-# ── Compute input_digest (sha256 of sanitized content) ───────────────────────
+    $sha256    = [System.Security.Cryptography.SHA256]::Create()
+    $msgBytes  = [System.Text.Encoding]::UTF8.GetBytes($text)
+    $hashBytes = $sha256.ComputeHash($msgBytes)
+    $script:PpiSanitizedDigest  = ($hashBytes | ForEach-Object { $_.ToString("x2") }) -join ""
+    $script:PpiSanitizedContent = $text
+}
 
-$sha256    = [System.Security.Cryptography.SHA256]::Create()
-$msgBytes  = [System.Text.Encoding]::UTF8.GetBytes($text)
-$hashBytes = $sha256.ComputeHash($msgBytes)
-$inputDigest = ($hashBytes | ForEach-Object { $_.ToString("x2") }) -join ""
+# Builds the exact bundle bytes header + sanitized content would occupy on
+# disk from the current $script:PpiSanitizedDigest/$script:PpiSanitizedContent.
+function Get-PpiBundlePreview {
+    return @"
+# Panelist Input Bundle
+# task_id: $TaskId
+# feature: $Feature
+# input_digest: $($script:PpiSanitizedDigest)
+# consent: $ConsentKind
+# WARNING: This file is sanitized for external LLM review.
+#          Do not include secrets, absolute paths, or private URLs.
+
+$($script:PpiSanitizedContent)
+"@
+}
+
+# ── Size guard (fail-closed, --max-bytes only) -- budget-driven elision ─────
+# Compose the bundle whole (empty elide-set) and measure it -- the exact
+# bytes that would be written and sent to a panelist, not an approximation.
+
+$elideSet = @()
+$step3Content = Build-PpiStep3Content -ElideSet $elideSet
+Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
+$bundle = Get-PpiBundlePreview
+$bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+
+$elidedCount = 0
+if ($MaxBytes) {
+    $maxBytesInt = [long]$MaxBytes
+
+    if ($bundleBytes -gt $maxBytesInt) {
+        # Over cap with nothing elided yet. Elide elidable candidates one
+        # at a time, LARGEST FIRST, recomputing the actual sanitized
+        # bundle size after each (never estimated), stopping the moment
+        # it fits.
+        $sortedCandidates = $script:PpiElidableIndex | Sort-Object -Property Bytes -Descending
+        foreach ($cand in $sortedCandidates) {
+            $elideSet += $cand.RelPath
+            $elidedCount++
+            $step3Content = Build-PpiStep3Content -ElideSet $elideSet
+            Invoke-PpiSanitize -Raw "$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)$($script:PpiDeclaredContent)"
+            $bundle = Get-PpiBundlePreview
+            $bundleBytes = [System.Text.Encoding]::UTF8.GetByteCount($bundle)
+            if ($bundleBytes -le $maxBytesInt) { break }
+        }
+
+        if ($bundleBytes -gt $maxBytesInt) {
+            # Exhausted every elidable candidate (or there were none) and
+            # the bundle is still over cap -- the degenerate case where
+            # even every elidable file's own head/tail/marker floor,
+            # summed with the content that is never elided, still exceeds
+            # --max-bytes. No further elision is possible; refusing to
+            # write is the only honest outcome, identical in shape to the
+            # no-elidable-candidates case this replaces.
+            $rawContentBytes = [System.Text.Encoding]::UTF8.GetByteCount("$($script:PpiContentPrefix)$step3Content$($script:PpiContentSuffix)")
+            $declaredContentBytes = [System.Text.Encoding]::UTF8.GetByteCount($script:PpiDeclaredContent)
+            [Console]::Error.WriteLine("prepare-panelist-input: sanitized bundle exceeds --max-bytes for ${Feature}/${TaskId} even after eliding $elidedCount elidable file(s) (${bundleBytes} > ${maxBytesInt} bytes) — refusing to write a silently-truncated bundle.")
+            [Console]::Error.WriteLine("  spec documents + task verification + implementation report: ${rawContentBytes} bytes")
+            [Console]::Error.WriteLine("  of which declared-outputs content:                          ${declaredContentBytes} bytes")
+            [Console]::Error.WriteLine("  sanitized bundle (header + content) that would have been written: ${bundleBytes} bytes")
+            [Console]::Error.WriteLine("Every elidable verification-directory file is already cut to its head/tail; reduce input size further (e.g. split the report itself or a declared-outputs source) and retry, or omit --max-bytes to bypass the guard.")
+            exit 1
+        }
+    }
+}
+
+$inputDigest = $script:PpiSanitizedDigest
 
 # ── Write output bundle ──────────────────────────────────────────────────────
 
@@ -533,18 +880,6 @@ $outDir = Split-Path -Parent $OutPath
 if (-not (Test-Path $outDir)) {
     New-Item -ItemType Directory -Path $outDir -Force | Out-Null
 }
-
-$bundle = @"
-# Panelist Input Bundle
-# task_id: $TaskId
-# feature: $Feature
-# input_digest: $inputDigest
-# consent: $ConsentKind
-# WARNING: This file is sanitized for external LLM review.
-#          Do not include secrets, absolute paths, or private URLs.
-
-$text
-"@
 
 Set-Content -Encoding Utf8 -Path $OutPath -Value $bundle -NoNewline
 Add-Content -Encoding Utf8 -Path $OutPath -Value ""
