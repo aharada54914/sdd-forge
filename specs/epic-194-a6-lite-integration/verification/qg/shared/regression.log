@@ -275,3 +275,44 @@ EXIT:0
 T-001 (human-copy-runner-contract): 45 passed, 0 failed (both runtimes)
 T-002 (4 check-risk-upgrade suites): 43 passed, 0 failed (both runtimes)
 T-003 (lite-spec-capability-block): 14 passed, 0 failed (both runtimes)
+
+=== 2026-08-21: full tests/run-all.sh, run to completion ===
+
+The earlier record for this check was passes:true over a run that TIMED
+OUT after ten minutes mid-suite. The timeout was a tool limit, not a hang,
+so the run was repeated detached with no deadline and completed. Full
+output: run-all-full-20260821.log (442,982 bytes, 5,217 lines).
+
+Result: 3 failing suite(s).
+
+  tests/deterministic-lane-selfcheck.tests.sh   DESIGNED-RED (baseline)
+  tests/design-system-contract.tests.sh         DESIGNED-RED (baseline)
+      TEST-039: staged workflow patch not yet applied (R-OQ-8 part 3)
+  tests/repository-release-validation.tests.sh  REAL FAILURE
+
+The first two are this repository's standing baseline and self-declare
+DESIGNED-RED. The third is not baseline and is not waived here.
+
+repository-release-validation fails because check-workflow-state reports
+  epic-194-a6-lite-integration: stage-provenance:
+  spec top-level contract hashes are stale
+The spec-review contract at attempt-1/round-2 pins acceptance-tests.md at
+685a415a..., and the file now hashes 691db158... . Commit 9997091c amended
+AC-010 from a four-target to a five-target payload set in order to close
+the two Major findings both vendor slots raised against T-001, and that
+amendment moved the hash of a frozen, Spec-Review-Passed document.
+
+This failure predates that commit as a red state, on a different cause:
+at 2461da5d and 1aaf6af8 the same gate reported "task plan hash is stale".
+9997091c added a second cause earlier in the walk order rather than
+replacing the first; check-workflow-state exits at the first failure, so
+the spec-stage hash now masks the still-unresolved task-stage one. Neither
+was re-frozen, and this repository has no re-freeze lane -- re-issuing a
+stage contract is a re-approval of an approved artifact and needs a human.
+
+passes is therefore recorded false. Full-repository regression does not
+pass on this branch, and the reason is a provenance pin rather than a
+behavioural regression -- but recording it true on that distinction would
+be exactly the overstatement the cross-model panel flagged in the previous
+record. The per-suite evidence for this feature's own suites is unchanged
+and green; it is enumerated above and in unit-acceptance-green.log.

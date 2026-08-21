@@ -328,8 +328,18 @@ public static class A6AnchoredPublisher
     [DllImport("libc", SetLastError = true)] private static extern int renameat(int olddirfd, string oldpath, int newdirfd, string newpath);
     [DllImport("libc", SetLastError = true)] private static extern int unlinkat(int dirfd, string path, int flags);
     [DllImport("libc", SetLastError = true)] private static extern int fsync(int fd);
-    [DllImport("libc", SetLastError = true)] private static extern int fstat(int fd, IntPtr statbuf);
     [DllImport("libc", SetLastError = true)] private static extern int fchmod(int fd, uint mode);
+    // symlinkat is not called by any production code path in this file --
+    // grep alone will make it look dead. It is load-bearing for the
+    // deterministic TOCTOU regression fixture in
+    // tests/human-copy-runner-contract.tests.ps1 (TEST-009d), which patches a
+    // disposable copy of this source at the TEST_FIXTURE_BEFORE_POSIX_DIRECTORY_OPEN
+    // marker below to substitute a destination-parent segment with a symlink
+    // mid-resolution and assert the handle-relative, O_NOFOLLOW open still
+    // rejects it. Do not remove it as unused without first checking that
+    // fixture (T-001 Anthropic-panelist review, Minor: this was reported as
+    // dead code; it is not -- removing it silently drops TEST-009d/e/f/g's
+    // only way to inject the substitution).
     [DllImport("libc", SetLastError = true)] private static extern int symlinkat(string target, int newdirfd, string linkpath);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
@@ -372,7 +382,7 @@ public static class A6AnchoredPublisher
             destinationParent = OpenUnixParent(rootHandle, destinationRelative, noFollow | directory | closeExec, true, out destinationLeaf);
             temporary = UnixHandle(openat(Fd(destinationParent), temporaryLeaf, 2 | create | exclusive | noFollow | closeExec, 384), "create anchored temporary");
             Copy(source, temporary);
-            uint mode = SourceMode(source, isMac);
+            uint mode = SourceMode(source);
             if (fchmod(Fd(temporary), mode) != 0) ThrowUnix("preserve source mode");
             if (fsync(Fd(temporary)) != 0) ThrowUnix("flush anchored temporary");
             if (!String.Equals(Hash(temporary), digest, StringComparison.Ordinal)) throw new InvalidDataException("temporary digest mismatch: " + destinationRelative);
@@ -392,6 +402,12 @@ public static class A6AnchoredPublisher
         }
     }
 
+    // fixtureDestination is not read by this method's own body -- it exists
+    // so tests/human-copy-runner-contract.tests.ps1's TEST-009d fixture can
+    // patch the TEST_FIXTURE_BEFORE_POSIX_DIRECTORY_OPEN marker below with a
+    // conditional keyed on it, distinguishing a destination-parent open (the
+    // one under TOCTOU test) from a source-parent open. Not dead: see the
+    // symlinkat comment above.
     private static SafeFileHandle OpenUnixParent(SafeFileHandle root, string path, int flags, bool fixtureDestination, out string leaf)
     {
         string[] parts = path.Split('/'); leaf = parts[parts.Length - 1];
@@ -437,6 +453,9 @@ public static class A6AnchoredPublisher
         }
     }
 
+    // fixtureDestination: see the identical note on OpenUnixParent -- the
+    // Windows twin of the same TEST-009d fixture patches
+    // TEST_FIXTURE_BEFORE_DIRECTORY_OPEN_WINDOWS below the same way.
     private static SafeFileHandle OpenWindowsParent(SafeFileHandle root, string path, bool fixtureDestination, out string leaf)
     {
         string[] parts = path.Split('/'); leaf = parts[parts.Length - 1];
@@ -498,7 +517,49 @@ public static class A6AnchoredPublisher
     private static int Fd(SafeFileHandle handle) { return handle.DangerousGetHandle().ToInt32(); }
     private static SafeFileHandle UnixHandle(int fd, string context) { if (fd < 0) ThrowUnix(context); return new SafeFileHandle(new IntPtr(fd), true); }
     private static void ThrowUnix(string context) { int error = Marshal.GetLastWin32Error(); throw new IOException(context + " failed (errno " + error + ")", new Win32Exception(error)); }
-    private static uint SourceMode(SafeFileHandle source, bool isMac) { IntPtr buffer = Marshal.AllocHGlobal(256); try { if (fstat(Fd(source), buffer) != 0) ThrowUnix("inspect source mode"); uint mode = isMac ? (uint)(ushort)Marshal.ReadInt16(buffer, 4) : (uint)Marshal.ReadInt32(buffer, 24); return mode & 511U; } finally { Marshal.FreeHGlobal(buffer); } }
+    // Reads the source file's own POSIX permission bits through the .NET
+    // runtime's own File.GetUnixFileMode(SafeFileHandle) rather than by
+    // hand-parsing an fstat(2) buffer at a fixed byte offset.
+    //
+    // T-001 Anthropic-panelist review, Major: the previous implementation
+    // read st_mode via a hand-derived struct-stat byte offset (Marshal dot
+    // ReadInt32, buffer, offset 24) for every non-macOS Unix. Offset 24 is
+    // where st_mode lives ONLY in the x86-64 glibc
+    // struct stat (dev 8 / ino 8 / nlink 8 / mode 4 ahead of it) --
+    // confirmed against a live x86-64 glibc build (verification/T-001/
+    // stat-offsets.log: st_mode=24, st_nlink=16, st_uid=28). On aarch64
+    // Linux the kernel's asm-generic struct stat layout applies instead
+    // (dev 8 / ino 8 / mode 4, no intervening nlink), so st_mode sits at
+    // offset 16 and offset 24 is st_uid -- confirmed the same way on a
+    // native aarch64 glibc build (same log: st_mode=16, st_uid=24). Reading
+    // offset 24 there hands fchmod the low 9 bits of a uid instead of a
+    // mode, silently, with no signal anywhere in this runner's own
+    // tamper-evidence envelope (content hashes still match).
+    //
+    // Three fix shapes were on the table: (1) branch on
+    // RuntimeInformation.ProcessArchitecture with a hand-maintained offset
+    // table -- still silently wrong on the next architecture the table
+    // doesn't name; (2) fail closed on any architecture not positively
+    // identified -- never wrong, but refuses to run somewhere the layout
+    // would in fact have been fine; (3) stop deriving the offset ourselves
+    // at all. This is (3): File.GetUnixFileMode(SafeFileHandle) calls
+    // fstat(2) through the .NET runtime's own native PAL, which is built
+    // and tested per target RID by the runtime itself -- the same
+    // authority that already has to get this right for every Unix File I/O
+    // primitive .NET ships, not a table this file maintains in parallel.
+    // It removes the offset-arithmetic class of bug rather than patching
+    // the x86-64/aarch64 instance of it.
+    //
+    // Unanticipated-architecture behavior: if this script is running under
+    // PowerShell at all, it is running on a RID .NET already supports and
+    // already implements GetUnixFileMode for correctly -- there is no
+    // "unsupported but still runs" gap for this call the way there was for
+    // a hand-maintained offset table, because .NET's own PAL is exactly
+    // where the platform's true struct-stat knowledge already has to live.
+    // A platform .NET does not support does not run pwsh in the first
+    // place, so the failure (if any) happens before this line, not as a
+    // silently wrong mode after it.
+    private static uint SourceMode(SafeFileHandle source) { return (uint)System.IO.File.GetUnixFileMode(source) & 511U; }
     private static void ValidatePath(string path) { if (String.IsNullOrWhiteSpace(path) || Path.IsPathRooted(path) || path.IndexOf('\\') >= 0 || path.IndexOf(':') >= 0) throw new InvalidDataException("path is not normalized repository-relative"); foreach (string part in path.Split('/')) ValidateLeaf(part); }
     private static void ValidateLeaf(string leaf) { if (String.IsNullOrWhiteSpace(leaf) || leaf == "." || leaf == ".." || leaf.IndexOf('/') >= 0 || leaf.IndexOf('\\') >= 0 || leaf.IndexOf(':') >= 0) throw new InvalidDataException("invalid relative path segment"); }
 }

@@ -611,6 +611,47 @@ if ($result10.Output.Contains('reserved PROPOSED/ subtree')) { Ok 'TEST-010b: re
 if (Test-AllLiveFilesOriginal $root10) { Ok 'TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection' } else { Bad 'TEST-010c: at least one live target changed before nested PROPOSED rejection' }
 }
 
+# ===========================================================================
+# TEST-011: source file mode is read through the .NET runtime's own portable
+# File.GetUnixFileMode(SafeFileHandle), never a hand-derived struct-stat
+# offset (T-001 Anthropic-panelist review, Major). The prior implementation
+# read st_mode via a hand-derived struct-stat byte offset (a raw Marshal
+# buffer read at offset 24) for every non-macOS Unix --
+# correct only for x86-64 glibc (dev 8 / ino 8 / nlink 8 ahead of st_mode).
+# On aarch64 Linux (asm-generic struct stat: dev 8 / ino 8, no intervening
+# nlink) st_mode sits at offset 16 and offset 24 is st_uid, so fchmod would
+# silently be handed uid & 0777 -- confirmed against a live aarch64 glibc
+# build, verification/T-001/stat-offsets.log. This suite runs on one
+# architecture, so TEST-011a is a static regression guard (it does not
+# require running on aarch64 to catch a reversion to the offset-table
+# pattern); TEST-011b is a functional check that the replacement is wired
+# correctly on this host's own Unix branch, which the fix unified with the
+# former macOS-only branch (there is no more isMac split in SourceMode).
+# ===========================================================================
+Write-Host '=== TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ==='
+$runnerSource11 = Get-Content -LiteralPath $RunnerPath -Raw
+$usesPortableModeApi11 = $runnerSource11.Contains('File.GetUnixFileMode(source)')
+$noRawOffsetParsing11 = -not [System.Text.RegularExpressions.Regex]::IsMatch($runnerSource11, 'Marshal\.ReadInt(32|16)\(buffer,\s*(24|4)\)')
+if ($usesPortableModeApi11 -and $noRawOffsetParsing11) { Ok 'TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset' } else { Bad 'TEST-011a: SourceMode has regressed to a hand-derived struct-stat offset (the aarch64-unsafe pattern this Major exists to forbid)' }
+
+if (-not $IsWindows) {
+    $root11 = New-TempRoot
+    Register-TempRoot $root11
+    $hc11 = New-RepoFixture $root11
+    $map11 = New-DefaultContentMap
+    Write-StagedPayload -HumanCopyRoot $hc11 -ContentMap $map11
+    $modeTarget11 = $DeclaredTargets[0]
+    $modeNative11 = $modeTarget11 -replace '/', [IO.Path]::DirectorySeparatorChar
+    $stagedModePath11 = Join-Path $hc11 $modeNative11
+    & chmod 741 $stagedModePath11
+    $result11 = Invoke-RunnerProcess $root11
+    $installedModePath11 = Join-Path $root11 $modeNative11
+    $installedMode11 = if (Test-Path -LiteralPath $installedModePath11 -PathType Leaf) { [Convert]::ToString(([int][System.IO.File]::GetUnixFileMode($installedModePath11)) -band 511, 8) } else { '' }
+    if ($result11.ExitCode -eq 0 -and $installedMode11 -eq '741') { Ok "TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path" } else { Bad "TEST-011b: expected installed mode 741, got '$installedMode11' (exit $($result11.ExitCode)). Output: $($result11.Output)" }
+} else {
+    Write-Host 'skip - TEST-011b: POSIX mode preservation has no meaning on Windows (no st_mode/fchmod on this branch)'
+}
+
 } finally {
     foreach ($root in $TempRoots) {
         if (Test-Path -LiteralPath $root) { Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue }
