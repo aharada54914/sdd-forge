@@ -206,6 +206,18 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    artifact is undeclared, declare it and relaunch rather than instructing
    around it (WFI-036).
    No same-session fallback is permitted for the evaluator.
+   Allocate the evaluator a scratch directory of its own and name it in the
+   launch brief: a path used by no implementation context for this feature and
+   by no earlier evaluator run. Tell the evaluator to write nothing outside it.
+   This is not housekeeping (WFI-034). Sharing one scratch root across roles
+   puts the implementing agent's intermediates -- a `.bak` of the suite under
+   review, per-task append scripts, raw red/green logs -- inside reach of the
+   agent grading that work, through a channel the manifest does not describe
+   and the hash checks never see. Observed in `sdd-domain-concept-contract`:
+   the evaluator found exactly those files and disclosed that it had declined
+   to read them. What held there was the reviewer's judgement, not a mechanism,
+   and a boundary that depends on the reviewed party declining an available
+   capability is not a boundary.
    For `high`/`critical` tasks, record
    the evaluator's verdict as `review_verdict` in the evidence bundle;
    `check-evidence-bundle` requires `review_verdict.verdict == PASS`.

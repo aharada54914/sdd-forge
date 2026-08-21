@@ -16,9 +16,11 @@ Codex:
 Use the workflow-retrospective skill for specs/<feature>
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
+
 ```
-/sdd-quality-loop:workflow-retrospective specs/<feature>
+/sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
 ## Metrics Collection (read-only)
@@ -407,6 +409,29 @@ metric shifts across a model change must not be attributed to WFIs.
    apply all term substitutions to Root Cause Hypothesis, Proposed Change, and
    Expected Effect. Problem Evidence may cite raw metric names from the retrospective.
 
+1.75. **Run the why-why analysis (なぜなぜ分析).** Before writing any Root Cause
+   Hypothesis, walk a 5-Whys chain from the observed friction down to a root
+   cause the Proposed Change can actually fix:
+
+   - Row 1 asks why the friction from Problem Evidence occurred; each
+     subsequent row asks why the previous row's answer occurred (chain rule).
+   - Go at least 3 levels deep, 5 when the chain supports it. Stop only when
+     the answer names a **controllable process or mechanism cause** — never at
+     a restated symptom, at "human/agent error", or at a cause outside the
+     workflow's control. Do not pad the chain past the root cause just to
+     reach 5 rows.
+   - Back each row with evidence (retrospective table row, RT-ID, BL-ID,
+     report path, or file:line). Mark rows you cannot corroborate as
+     `(hypothesis)`.
+   - The final row's answer becomes the `## Root Cause Hypothesis`, and the
+     `## Proposed Change` must act on that terminal cause — if the change
+     only treats an intermediate "why", either deepen the change or shorten
+     the chain to what the evidence supports.
+
+   Record the chain in the WFI's `## Why-Why Analysis` section (structure
+   below). The audit cycle rejects chains that restate symptoms, skip links,
+   or terminate at blame instead of mechanism (WHY-CHAIN-VALID check).
+
 2. **Draft a WFI.** For each identified friction, create
    `docs/workflow-improvements/WFI-NNN.md` with `Status: Draft` using the
    structure below. Increment NNN from the highest existing WFI number (start
@@ -472,10 +497,26 @@ metric shifts across a model change must not be attributed to WFIs.
    <!-- Quote specific BL-IDs, RT-IDs, or retrospective table rows that show the friction. -->
    <!-- For plugin-improvement: raw metric field names are acceptable here.        -->
 
+   ## Why-Why Analysis
+
+   | # | Why (question) | Because (answer) | Evidence |
+   |---|---|---|---|
+   | 1 | Why did {{observed_friction}} occur? | {{because_1}} | {{evidence_ref_1}} |
+   | 2 | Why did {{because_1}} occur? | {{because_2}} | {{evidence_ref_2}} |
+   | 3 | Why did {{because_2}} occur? | {{because_3}} | {{evidence_ref_3}} |
+
+   <!-- 5-Whys chain from step 1.75. At least 3 levels; each Because is the      -->
+   <!-- next row's Why subject; final Because = Root Cause Hypothesis mechanism. -->
+   <!-- Never terminate at a restated symptom, "human/agent error", or an        -->
+   <!-- uncontrollable cause. Cite evidence per row; mark unproven rows           -->
+   <!-- "(hypothesis)". Why/Because prose follows the category language rules;   -->
+   <!-- the Evidence column may cite raw metric names like Problem Evidence.     -->
+
    ## Root Cause Hypothesis
 
    {{root_cause}}
 
+   <!-- Must be the terminal cause of the ## Why-Why Analysis chain.             -->
    <!-- plugin-improvement: use generic workflow terms only (wfi-category-guide.md §2). -->
    <!-- app-dev-efficiency: name the specific feature/task/ticket driving the issue. -->
 

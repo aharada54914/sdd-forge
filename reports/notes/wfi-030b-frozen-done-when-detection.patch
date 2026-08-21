@@ -2,7 +2,7 @@ From: WFI-030 rows two and three — frozen-artifact Done When detection
 Subject: [PATCH] feat(review-loop): record Done When items naming a frozen artifact
 
 Human-applied patch. All three files are protected role or gate artifacts (the
-two precheck twins become protected once WFI-037 step (a) lands), so an agent
+two precheck twins become protected once WFI-040 step (a) lands), so an agent
 may stage this diff but may not apply it.
 See docs/workflow-improvements/WFI-030.md.
 

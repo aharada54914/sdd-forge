@@ -848,5 +848,154 @@ wfi030_body="$(wfi030_fixture wfi030-body)"
 printf '\n<!-- WFI-030 body edit outside every delivery-status cell -->\n' \
   >> "$wfi030_body/specs/workflow-state-integrity/traceability.md"
 expect_rule "$wfi030_body" stage-provenance
+# check-workflow-state's own gate runs BEFORE a review-loop precheck creates
+# the round it is trying to open (impl-review-precheck.sh calls this gate at
+# its STEP "canonical validation", and only writes precheck-result.json at
+# its later STEP 6) -- so nothing on disk can ever prove a round is "open"
+# at the one moment this check needs to know it. A tree-only signal (an
+# artifact in a later round directory) therefore cannot express the
+# distinction that matters. What distinguishes a review-loop precheck
+# opening round (attempt, round) from a standalone auditor is not tree
+# state but who is asking: the precheck already knows attempt/round as its
+# own CLI arguments and says so explicitly via --opening stage:attempt:round.
+# A standalone invocation (no --opening) always sees the latest verdict
+# govern, exactly as before.
+
+# Standalone (no --opening): BLOCKED latest verdict, nothing beyond it in
+# the tree -> must still fail, with the identical diagnostic a non-BLOCKED
+# non-PASS verdict gets. This is the check earning its keep: a feature whose
+# review genuinely ended BLOCKED must not read as healthy just because
+# --opening now exists for a different caller to use.
+blocked_no_successor="$(make_full_fixture blocked-no-successor)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_no_successor/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_no_successor/verdict.tmp"
+mv "$blocked_no_successor/verdict.tmp" \
+  "$blocked_no_successor/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+expect_rule "$blocked_no_successor" stage-provenance
+
+run_opening() {
+  # $1=root $2=feature $3=opening-value $4=expect-exit(0|nonzero) $5=label
+  local root="$1" feature="$2" opening="$3" expect_ok="$4" label="$5"
+  local output status ps_output ps_status
+  set +e
+  output="$(bash "$CHECKER" --registry "$root/specs/workflow-state-registry.json" \
+    --feature "$feature" --opening "$opening" 2>&1)"
+  status=$?
+  ps_output="$(pwsh -NoProfile -File \
+    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    --registry "$root/specs/workflow-state-registry.json" \
+    --feature "$feature" --opening "$opening" 2>&1)"
+  ps_status=$?
+  set -e
+  if [[ "$expect_ok" == "0" ]]; then
+    [[ $status -eq 0 ]] || fail "$label: Shell unexpectedly failed: $output"
+    [[ $ps_status -eq 0 ]] || fail "$label: PowerShell unexpectedly failed: $ps_output"
+  else
+    [[ $status -ne 0 ]] || fail "$label: Shell unexpectedly passed"
+    [[ $ps_status -ne 0 ]] || fail "$label: PowerShell unexpectedly passed"
+    [[ "$output" == *": stage-provenance:"* ]] || fail "$label: Shell wrong rule: $output"
+    [[ "$(printf '%s\n' "$output" | rule_id)" == "$(printf '%s\n' "$ps_output" | rule_id)" ]] ||
+      fail "$label: twins diverged: Shell=$output PowerShell=$ps_output"
+  fi
+}
+
+# THE case that matters: the gate invoked exactly the way
+# impl-review-precheck.sh invokes it when opening a new attempt over a
+# BLOCKED predecessor -- with NOTHING yet written under the new attempt (no
+# directory, no precheck-result.json, nothing). Only the tree's own history
+# (attempt-1/round-2 BLOCKED) plus the caller's --opening claim exist. This
+# is the case the file-artifact-based version of this fix could never
+# satisfy, because the artifact it looked for cannot exist until after this
+# same gate has already passed.
+blocked_opening_next_attempt="$(make_full_fixture blocked-opening-next-attempt)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_opening_next_attempt/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_next_attempt/verdict.tmp"
+mv "$blocked_opening_next_attempt/verdict.tmp" \
+  "$blocked_opening_next_attempt/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+[[ ! -e "$blocked_opening_next_attempt/reports/impl-review/workflow-state-integrity/attempt-2" ]] ||
+  fail "blocked-opening-next-attempt fixture precondition not met: attempt-2 already exists"
+run_opening "$blocked_opening_next_attempt" workflow-state-integrity impl:2:1 0 \
+  "blocked-opening-next-attempt"
+
+# Same shape, but opening the next ROUND of the SAME attempt rather than a
+# new attempt -- the adjacency rule covers both continuation shapes.
+blocked_opening_next_round="$(make_full_fixture blocked-opening-next-round)"
+jq '.verdict = "NEEDS_WORK"' \
+  "$blocked_opening_next_round/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_next_round/verdict.tmp"
+mv "$blocked_opening_next_round/verdict.tmp" \
+  "$blocked_opening_next_round/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+[[ ! -e "$blocked_opening_next_round/reports/impl-review/workflow-state-integrity/attempt-1/round-3" ]] ||
+  fail "blocked-opening-next-round fixture precondition not met: round-3 already exists"
+run_opening "$blocked_opening_next_round" workflow-state-integrity impl:1:3 0 \
+  "blocked-opening-next-round"
+
+# Non-vacuity: --opening cannot be used to wave away a BLOCKED verdict "at a
+# distance". The ONLY value this function will ever accept is the true next
+# slot; skipping ahead to an arbitrary attempt, or an arbitrary round within
+# the same attempt, must still fail exactly like the no-successor case.
+blocked_opening_arbitrary="$(make_full_fixture blocked-opening-arbitrary)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_opening_arbitrary/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_arbitrary/verdict.tmp"
+mv "$blocked_opening_arbitrary/verdict.tmp" \
+  "$blocked_opening_arbitrary/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+run_opening "$blocked_opening_arbitrary" workflow-state-integrity impl:9:1 1 \
+  "blocked-opening-arbitrary-attempt-rejected"
+run_opening "$blocked_opening_arbitrary" workflow-state-integrity impl:1:5 1 \
+  "blocked-opening-arbitrary-round-rejected"
+
+# Non-vacuity: --opening is scoped to the single stage named in it. Claiming
+# to open the SPEC stage's next round must not exempt the IMPL stage's own
+# BLOCKED verdict -- the exemption cannot leak across stages.
+blocked_opening_wrong_stage="$(make_full_fixture blocked-opening-wrong-stage)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_opening_wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_wrong_stage/verdict.tmp"
+mv "$blocked_opening_wrong_stage/verdict.tmp" \
+  "$blocked_opening_wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+run_opening "$blocked_opening_wrong_stage" workflow-state-integrity spec:2:1 1 \
+  "blocked-opening-wrong-stage"
+
+# A PASS latest verdict is unaffected by --opening being present: the
+# "valid" fixture's own genuinely-PASS impl verdict never even reaches the
+# branch that consults it.
+run_opening "$valid" workflow-state-integrity impl:2:1 0 "valid-with-opening-flag-present"
+
+# --opening is only meaningful pinned to one feature; without --feature it
+# must be rejected as a usage error on both runtimes (not silently ignored,
+# which would make it a blanket, registry-wide exemption).
+set +e
+no_feature_output="$(bash "$CHECKER" --registry "$valid/specs/workflow-state-registry.json" \
+  --opening impl:2:1 2>&1)"
+no_feature_status=$?
+no_feature_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$valid/specs/workflow-state-registry.json" --opening impl:2:1 2>&1)"
+no_feature_ps_status=$?
+set -e
+[[ $no_feature_status -ne 0 && $no_feature_ps_status -ne 0 ]] ||
+  fail "--opening without --feature unexpectedly succeeded"
+[[ "$no_feature_output" == *": cli-usage:"* ]] || fail "--opening without --feature: wrong rule: $no_feature_output"
+[[ "$(printf '%s\n' "$no_feature_output" | rule_id)" == "$(printf '%s\n' "$no_feature_ps_output" | rule_id)" ]] ||
+  fail "--opening without --feature twins diverged: Shell=$no_feature_output PowerShell=$no_feature_ps_output"
+
+# A malformed --opening value (unknown stage, non-numeric attempt/round) is
+# a usage error, not a silent no-op.
+set +e
+bad_opening_output="$(bash "$CHECKER" --registry "$valid/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening "bogus" 2>&1)"
+bad_opening_status=$?
+bad_opening_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$valid/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening "bogus" 2>&1)"
+bad_opening_ps_status=$?
+set -e
+[[ $bad_opening_status -ne 0 && $bad_opening_ps_status -ne 0 ]] ||
+  fail "malformed --opening value unexpectedly succeeded"
+[[ "$bad_opening_output" == *": cli-usage:"* ]] || fail "malformed --opening: wrong rule: $bad_opening_output"
 
 printf 'ok: Shell workflow-state validation fixtures passed\n'

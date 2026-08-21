@@ -479,42 +479,46 @@ if [[ "${expecting_blockers_value}" == "true" ]]; then
 fi
 
 [[ "$blockers_format_valid" == "true" ]] || fail "Blockers format is invalid"
-for target_task in "${graph_edges_to[@]}"; do
-  known_task=false
-  for task_id in "${graph_nodes[@]}"; do
-    [[ "$task_id" == "$target_task" ]] && known_task=true && break
-  done
-  [[ "$known_task" == "true" ]] || fail "Blockers references unknown task ${target_task}"
+# Node-keyed lookups via derived variable names (graph_node_T_001=1,
+# graph_adj_T_001="T-002 T-003"): bash-3.2 compatible (no associative arrays),
+# and O(1) instead of the previous linear scans. Task IDs are already
+# validated to T-NNN, so the derived names are safe.
+# The namespaces must start empty: these lookups read shell variables, so an
+# inherited/exported graph_node_T_999=1 could otherwise vouch for a task the
+# parsed tasks.md never declared, and stale graph_adj_*/graph_visit_* values
+# could corrupt the traversal. (graph_node_ does not prefix-match the
+# graph_nodes/graph_edges_* arrays, which survive the sweep.)
+for stale_graph_var in $(compgen -v graph_node_) $(compgen -v graph_adj_) $(compgen -v graph_visit_); do
+  unset "$stale_graph_var"
 done
-declare -a graph_visit_nodes=()
-declare -a graph_visit_states=()
-graph_visit_state() {
-  local node="$1" i
-  for ((i=0; i<${#graph_visit_nodes[@]}; i++)); do
-    [[ "${graph_visit_nodes[$i]}" == "$node" ]] && { echo "${graph_visit_states[$i]}"; return; }
-  done
-  echo 0
-}
-set_graph_visit_state() {
-  local node="$1" state="$2" i
-  for ((i=0; i<${#graph_visit_nodes[@]}; i++)); do
-    if [[ "${graph_visit_nodes[$i]}" == "$node" ]]; then graph_visit_states[$i]="$state"; return; fi
-  done
-  graph_visit_nodes+=("$node"); graph_visit_states+=("$state")
-}
+for task_id in "${graph_nodes[@]}"; do
+  printf -v "graph_node_${task_id//-/_}" 1
+done
+for ((i=0; i<${#graph_edges_from[@]}; i++)); do
+  target_task="${graph_edges_to[$i]}"
+  known_var="graph_node_${target_task//-/_}"
+  [[ -n "${!known_var:-}" ]] || fail "Blockers references unknown task ${target_task}"
+  adj_var="graph_adj_${graph_edges_from[$i]//-/_}"
+  printf -v "$adj_var" '%s %s' "${!adj_var:-}" "$target_task"
+done
+# Recursive three-colour DFS over the Blockers graph (mirrored by the .ps1
+# twin). Visit state lives in graph_visit_<node>: unset/0 = unvisited,
+# 1 = on the current path (seeing it again means a cycle), 2 = fully
+# explored. Depth is bounded by the task count (T-001..T-999), well inside
+# bash's recursion budget. State is written with printf -v, never echoed
+# from a subshell, so mutations survive the recursive calls.
 graph_has_cycle_from() {
-  local node="$1" i next state
-  state="$(graph_visit_state "$node")"
-  [[ "$state" != "1" ]] || return 0
-  [[ "$state" != "2" ]] || return 1
-  set_graph_visit_state "$node" 1
-  for ((i=0; i<${#graph_edges_from[@]}; i++)); do
-    if [[ "${graph_edges_from[$i]}" == "$node" ]]; then
-      next="${graph_edges_to[$i]}"
-      graph_has_cycle_from "$next" && return 0
-    fi
+  local node="$1" next state_var adj_var
+  state_var="graph_visit_${node//-/_}"
+  [[ "${!state_var:-0}" != "1" ]] || return 0
+  [[ "${!state_var:-0}" != "2" ]] || return 1
+  printf -v "$state_var" 1
+  adj_var="graph_adj_${node//-/_}"
+  # Unquoted on purpose: successors are space-separated, all T-NNN validated.
+  for next in ${!adj_var:-}; do
+    graph_has_cycle_from "$next" && return 0
   done
-  set_graph_visit_state "$node" 2
+  printf -v "$state_var" 2
   return 1
 }
 for task_id in "${graph_nodes[@]}"; do

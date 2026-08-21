@@ -4,6 +4,17 @@
 
 ### Added
 
+- **WFI 起草へのなぜなぜ分析（5 Whys）の組込み**: WFI テンプレートと
+  workflow-retrospective の起草手順に `## Why-Why Analysis` セクション
+  （friction → 根本原因の因果チェーン、各段の証拠引用、症状の言い換え・
+  「人/エージェントのミス」での打ち切り禁止）を追加し、Root Cause
+  Hypothesis はチェーンの終端メカニズムであることを必須化。wfi-auditor-a
+  に新チェック `WHY-CHAIN-VALID`（Major）を追加（チェック数 8→9、
+  wfi-audit-cycle の integrated-summary と wfi-auditor-b の例示も同期）。
+  plugin-improvement WFI の言語規則（wfi-category-guide §2）と
+  CATEGORY-LANGUAGE-MATCH / CATEGORY-LANGUAGE-SECOND-PASS の走査対象に
+  Why/Because 列を追加。整合は `tests/retrospective-loop.tests.sh` で検証。
+
 - **Facet Manifest schema と validator (Issue #192,
   epic-192-a4-facet-manifest T-001)**: `contracts/facet-manifest.schema.json`
   (draft-07、vendored copy を `plugins/sdd-quality-loop/contracts/` に同梱)
@@ -100,8 +111,139 @@
   `lambda` 語まるごと除外が実際の汚染を見逃す欠陥（Major）を発見し、
   `key=lambda` イディオムのみをマスクする方式へ修正。fixture 件数の
   非空虚性ガード・RED 証跡 3 分岐化も追加し、329/329 へ拡大した。
+- **Domain contract v2 schema (Issue #290, sdd-domain-concept-contract T-001)**:
+  added `contracts/domain-contract.v2.schema.json`, a standalone draft-07
+  schema declaring `concepts[]` as a first-class, required top-level array
+  alongside the existing `contexts[]` / `relations[]` shape, so a bounded
+  context's concepts (their responsibilities, non-responsibilities, and the
+  evidence that distinguishes them from neighboring concepts) can be
+  expressed in the machine-readable contract. The v1
+  `boundedContext` / `term` / `aggregate` / `contextRelation` definitions are
+  duplicated in-file rather than referenced from
+  `contracts/domain-contract.v1.schema.json`, so v1 stays byte-identical and
+  has no new consumer; `tests/sdd-domain/contract-v2-schema.Tests.ps1` pins
+  the new schema's shape and locks v1's SHA-256 against drift. This is Phase
+  0's first task; the cross-reference validator and the rest of the fixture
+  corpus land in T-002 through T-005.
+
+- **Domain contract v2 validator twins (Issue #290, sdd-domain-concept-contract
+  T-002)**: added `plugins/sdd-domain/scripts/validate-domain-contract.sh` and
+  `.ps1`, the deterministic sh/ps1 twin pair that checks a
+  `domain-contract/v2` file. This task lands the untrusted-input boundary:
+  fail-closed acquisition and JSON parse (a missing argument, a non-existent
+  path, a directory, an unreadable file, a syntactically broken body, and any
+  input above the 10 MiB ceiling each exit non-zero with a single
+  `RULE-ID: message` line on stderr, nothing on stdout, and no stack trace or
+  raw interpreter exception), and `schema`-value dispatch that rejects a
+  `domain-contract/v1` contract by name with `V2-WRONG-SCHEMA`. It also
+  establishes the shared skeleton the rest of the validator is built on: one
+  violation accumulator, one stderr emitter, and exit 0 or 1 only -- never a
+  partial verdict. No external dependency is introduced (the `.sh` side is a
+  single `python3` stdlib invocation, the `.ps1` side uses `ConvertFrom-Json`
+  and stays Windows PowerShell 5.1-safe). The structural checks and the
+  cross-reference integrity checks append to that same accumulator in T-003
+  and T-004.
+
+- **Domain contract v2 structural checks (Issue #290,
+  sdd-domain-concept-contract T-003)**: `validate-domain-contract.sh` and
+  `.ps1` now enforce the v2 declaration itself -- REQ-004 step (c) -- in the
+  order REQ-004(c) fixes: JSON type conformance first, then required-key
+  presence, then pattern, minLength and minItems. A value whose JSON type does
+  not match the type `requirements.md` `## Field Definitions` declares is
+  recorded as `V2-TYPE-MISMATCH` (carrying the field path and the expected
+  type) and is then excluded from the later checks, so a mistyped field can
+  never reach a regex or a length test and surface as a raw interpreter
+  exception -- the fail-closed rule `security-spec.md` names. Absent required
+  keys report `V2-MISSING-KEY`, pattern failures `V2-PATTERN`, `minItems`
+  failures `V2-EMPTY-ARRAY`, and `minLength` failures `V2-EMPTY-STRING`, each
+  naming the offending field path so adjacent failure paths stay textually
+  distinguishable. Every violation in a contract is enumerated rather than
+  stopping at the first. Sixty-two negative fixtures in
+  `tests/sdd-domain/contract-v2-schema.Tests.ps1` exercise one check apiece on
+  both twins, alongside a base-acceptance fixture proving each negative differs
+  from an accepted contract at exactly one point. The cross-reference integrity
+  checks and the reference-field patterns land in T-004.
+
+- **Domain contract v2 cross-reference integrity checks (Issue #290,
+  sdd-domain-concept-contract T-004)**: `validate-domain-contract.sh` and
+  `.ps1` now enforce REQ-004 steps (d) through (i) -- the referential
+  integrity a draft-07 schema cannot express, and the reason this validator
+  exists rather than a plain JSON Schema run. A contract is rejected when two
+  concepts declare the same `id` (`V2-DUP-CONCEPT-ID`, naming the duplicated
+  id), when `concepts[].context` names a context no `contexts[]` entry
+  declares (`V2-DANGLING-CONTEXT`), when `distinguished_from[].concept_id`
+  points at an undeclared concept or at the concept's own id
+  (`V2-DANGLING-DISTINCTION`, with distinct wording for the two cases), when
+  `contexts[].terms[].concept_id` points at an undeclared concept
+  (`V2-DANGLING-TERM`), when one concept lists the identical string in both
+  `responsibilities` and `must_not_own` (`V2-SELF-CONTRADICTION`, compared by
+  exact string equality -- not case-folded, not trimmed), and when two
+  concepts share a `name` inside one context (`V2-DUP-NAME-IN-CONTEXT`). The
+  same `name` in two different contexts stays valid, which is what lets the
+  order-taking `Order` and the shipping `Order` be modelled as the distinct
+  concepts they are. The two reference fields that share the concept-id
+  pattern are now pattern-checked as well, and a malformed reference is
+  reported as `V2-PATTERN` rather than as a dangling one -- a value that is
+  the wrong shape and a value that resolves to nothing are different defects,
+  and the validator keeps them textually apart. Eight negative fixtures and
+  two accepted control contracts in
+  `tests/sdd-domain/contract-v2-schema.Tests.ps1` exercise these paths on both
+  twins. The positive corpus, the twin-parity check, and the non-regression
+  closure land in T-005.
+
+- **Domain contract v2 positive corpus, twin parity, and non-regression
+  closure (Issue #290, sdd-domain-concept-contract T-005)**: completes Phase
+  0 of the Concept Design Layer. `tests/sdd-domain/contract-v2-schema.Tests.ps1`
+  gains the five positive fixture families REQ-005 requires -- a
+  Purchase/Fulfillment contract with all seven required concept fields and
+  all three optional fields (`must_not_own`, `stakeholder_perspectives`,
+  `distinguished_from`) populated, including the two pattern boundary values
+  `APIOrder` (consecutive uppercase) and `order-taking-2` (a digit segment);
+  a Book/Bookshelf contract where `Book.must_not_own` carries display
+  position and a `Placement` concept holds the ordering responsibility; two
+  contexts carrying the same concept name under distinct ids; a
+  `contexts[].terms[].concept_id` link that resolves to a declared concept;
+  and a concept carrying none of the three optional fields -- each accepted
+  with exit 0 by both validator twins, with the populated fields' values
+  reasserted from the fixture's own source text (the validator emits only an
+  exit code and stderr, never a parse result). Together the populated and
+  all-absent fixtures prove neither optional field was accidentally made
+  required. A twin-parity harness runs the complete 78-fixture corpus (the
+  5 positive families plus all 73 negative fixtures T-002/T-003/T-004
+  authored) through both `validate-domain-contract.sh` and `.ps1`, asserting
+  an identical exit code and violation count on every one; the check is a
+  named Pester skip, not a silent pass, on a host without `bash` on PATH. The
+  unmodified v1 suite (`tests/sdd-domain/contract-schema.Tests.ps1`) is run
+  in a fresh process and asserted green, and this feature's diff against
+  `main` is asserted to touch none of the four INV-004 v1 consumers or the
+  eleven pre-existing `tests/sdd-domain/` suites, closing REQ-007's
+  additive-only guarantee. The suite's negative fixture count is asserted to
+  total exactly 73, matching the Negative Fixture Allocation table (T-002 3
+  + T-003 62 + T-004 8). No change to either validator twin or to the v2
+  schema file was needed or made -- every positive fixture was accepted on
+  first execution.
 
 ### Fixed
+
+- **承認サイドカー検証器の fail-open 穴 3 件を閉鎖**
+  (`validate-approval-sidecar.py` の standalone draft-07 エンジン):
+  (1) 未知の `type` 名・配列形式 union type が全インスタンスを素通し →
+  union は再帰、未知名は fail-closed に; (2) `pattern` が素の `re.match`
+  だったため `"sha256:<64hex>\n"`（末尾改行）が `^...$` を満たしてしまう
+  Python `$` 寛容性の穴 → ECMA-262 準拠の `$`→`\Z` 書換え + draft-07
+  search セマンティクスに; (3) スキーマ形式の `additionalProperties` が
+  無視されていた → 検証するように。エンジンは設計上の独立性
+  （generator/validator 分離）を維持したまま強化。
+
+- **タスク依存グラフ循環検出の双子アルゴリズム乖離を解消**
+  (`task-review-precheck.{sh,ps1}`): `.sh` は再帰 DFS、`.ps1` は Kahn 法
+  という別アルゴリズムだったのを、両者とも同じ 3 色 DFS に統一
+  （`.sh` は再帰、`.ps1` は validate-domain-contract.ps1 の前例に合わせた
+  明示スタック反復 — PowerShell のコール深度保護で長鎖が落ちないように）。
+  `.sh` 側は並列配列の線形走査 + サブシェル `echo` 返しを、bash 3.2 互換の
+  導出変数名 (`printf -v` + `${!var}`) による O(1) 参照に置換し、
+  構築前に導出名前空間を掃除（環境から輸出された `graph_node_*` 等が
+  未知タスクを保証してしまわないように）。
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
   red on `main` immediately after the v1.15.0 release because two suites
@@ -114,6 +256,16 @@
   TEST-048 now locates the T-003 entry in whichever release-notes section
   holds it, still requiring both citations together in one section, the same
   later-release exemption TEST-049 already documents.
+
+### Changed
+
+- **パネリストランナーの重複集約**: `run-panelist-{gpt,gemini}.sh` に
+  逐語コピーされていた 66 行の `_sdd_run_bounded`（プロセスグループ
+  watchdog）とタイムアウト/必須引数検証を
+  `plugins/sdd-quality-loop/scripts/lib/panelist-common.sh` に抽出し、
+  両ランナーが fail-closed に source する形へ（約 130 行の重複を削減）。
+  プラグインコード全体の重複検証ロジック・深いネストループの監査結果は
+  `reports/notes/plugin-code-quality-audit-2026-08-21.md` に記録。
 
 ### Corrections
 

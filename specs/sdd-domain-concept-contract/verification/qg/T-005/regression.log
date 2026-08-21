@@ -1,0 +1,26 @@
+Pester v4.10.1
+Executing all tests in 'tests/sdd-domain/contract-schema.Tests.ps1'
+
+Executing script tests/sdd-domain/contract-schema.Tests.ps1
+
+  Describing domain-contract.v1.schema.json
+    [+] the schema file itself parses as valid JSON 30ms
+    [+] declares the domain-contract/v1 schema const 8ms
+    [+] declares the full contextRelation pattern enum 10ms
+
+    Context valid fixture
+      [+] passes schema validation with zero errors 21ms
+
+    Context corrupt fixture: missing required field (meta)
+      [+] is rejected for missing meta 4ms
+
+    Context corrupt fixture: wrong schema const value
+      [+] is rejected for schema = domain-contract/v2 2ms
+
+    Context corrupt fixture: invalid pattern enum value
+      [+] is rejected for an unrecognized contextRelation pattern 2ms
+
+    Context corrupt fixture: missing required aggregate field
+      [+] is rejected when an aggregate is missing invariants 3ms
+Tests completed in 222ms
+Tests Passed: 8, Failed: 0, Skipped: 0, Pending: 0, Inconclusive: 0 

@@ -1,0 +1,119 @@
+From: WFI-040 step (a) — add the 31 unprotected enforcement-chain scripts
+Subject: [PATCH] fix(guard): protect the chain scripts the suffix list omitted
+
+Human-applied patch. Both files are protected gate artifacts, so an agent may
+stage this diff but may not apply it. See docs/workflow-improvements/WFI-040.md.
+
+Apply with:
+    git apply reports/notes/wfi-040a-guard-protected-coverage.patch
+    python3 plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+
+The regeneration step is REQUIRED. The guard reads the four generated modules,
+not the JSON; without it the patch changes nothing at runtime. A further step is
+required before the fix is live on this machine: the executing guard is the
+installed copy under ~/.claude/plugins/cache/sdd-plugins/sdd-quality-loop/1.10.0/,
+which lags the repository by 10 suffixes. Refresh the installed plugin or the
+running guard keeps its old list.
+
+WHY TWO FILES. The JSON is not the source of truth. The generator validates it
+against a union computed from its own constants and rejects any divergence:
+
+    if tuple(protected) != expected_protected:
+        raise ValueError("protected_gate_suffixes must be the exact baseline/inventory union")
+    # generate-guard-invariants.py:196-197
+
+A JSON-only edit therefore fails the generator outright — verified, that is
+exactly what a first draft of this patch did. The additions go into
+BASELINE_SUFFIXES, and the JSON must mirror them at the position the union
+places them: at the end of the baseline block, before the PHASE2 entries, not at
+the end of the array.
+
+Scope: step (a) of WFI-040's Proposed Change only — the 31 explicit additions
+measured in ## Problem Evidence. Step (b) (inverting the file policy to
+directory-default-protected with an exception list) and the shell
+write-vocabulary widening are NOT in this patch. Step (a) closes the measured
+coverage gap but not the drift that produced it.
+
+--- a/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
++++ b/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+@@ -97,6 +97,40 @@
+     "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+     "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+     "plugins/sdd-ship/skills/ship/SKILL.md",
++    # WFI-040 step (a): scripts the enforcement and verification chain executes
++    # -- named by a file under .github/workflows/, by tests/run-all.*, or by a
++    # SKILL.md -- that matched no protected suffix before this change.
++    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
++    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
++    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
++    "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
++    "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
++    "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
++    "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh",
++    "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
++    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
++    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
++    "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
++    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
++    "plugins/sdd-quality-loop/scripts/detect-panel.sh",
++    "plugins/sdd-quality-loop/scripts/detect-panel.ps1",
++    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
++    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
++    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
++    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
++    "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
++    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
++    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
++    "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
++    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
++    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
++    "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
++    "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
++    "plugins/sdd-implementation/scripts/select-agent-model.sh",
++    "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
++    "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
++    "plugins/sdd-domain/scripts/domain-review-precheck.sh",
++    "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+ )
+ EPIC_A1_TARGETS = (
+     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
+--- a/plugins/sdd-quality-loop/references/guard-invariants.json
++++ b/plugins/sdd-quality-loop/references/guard-invariants.json
+@@ -31,6 +31,37 @@
+     "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+     "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+     "plugins/sdd-ship/skills/ship/SKILL.md",
++    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
++    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
++    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
++    "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
++    "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
++    "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
++    "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh",
++    "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
++    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
++    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
++    "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
++    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
++    "plugins/sdd-quality-loop/scripts/detect-panel.sh",
++    "plugins/sdd-quality-loop/scripts/detect-panel.ps1",
++    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
++    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
++    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
++    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
++    "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
++    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
++    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
++    "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
++    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
++    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
++    "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
++    "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
++    "plugins/sdd-implementation/scripts/select-agent-model.sh",
++    "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
++    "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
++    "plugins/sdd-domain/scripts/domain-review-precheck.sh",
++    "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+     "plugins/sdd-lite/references/risk-upgrade-policy.md",
+     "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
+     "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",

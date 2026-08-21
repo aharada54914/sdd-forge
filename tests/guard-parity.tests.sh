@@ -530,7 +530,7 @@ parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
     "$WFI016_PAYLOAD"
 
 # ---------------------------------------------------------------------------
-# WFI-037: the protected set must cover every script the chain executes
+# WFI-040: the protected set must cover every script the chain executes
 # ---------------------------------------------------------------------------
 # The guard's denial message names a category ("gate scripts"); what it holds is
 # a hand-maintained suffix list. Measured 2026-08-19, 31 scripts that CI, the
@@ -569,7 +569,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# WFI-037 item 2b: the generated modules must agree with their JSON source
+# WFI-040 item 2b: the generated modules must agree with their JSON source
 # ---------------------------------------------------------------------------
 # The guard reads the generated modules, not the JSON. An applied JSON change
 # that was never regenerated leaves behaviour unchanged while every suite
@@ -599,7 +599,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# WFI-037: write-vocabulary coverage, both directions
+# WFI-040: write-vocabulary coverage, both directions
 # ---------------------------------------------------------------------------
 # Every payload aims at kill-switch.sh, a path the guard's own predicate treats
 # as protected, so a permissive verdict cannot be blamed on the target. Group A

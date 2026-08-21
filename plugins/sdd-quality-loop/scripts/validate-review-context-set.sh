@@ -287,9 +287,11 @@ for component in reports review-context identity-ledger.json; do
 done
 [[ -f "$ledger" && ! -L "$ledger" ]] ||
   fail IDENTITY 'canonical identity ledger is missing or is not a regular file'
+# NOTE: identity_ledger_sha256 is only meaningful for a reservation (the
+# ledger state a reservation is validated against, before it appends). It is
+# NOT checked here unconditionally -- see the reservation/verification
+# branch below, which is the only place this comparison is enforced.
 actual_ledger_sha256=$(sha256_file "$ledger")
-[[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]] ||
-  fail IDENTITY 'canonical identity ledger hash is stale or mismatched'
 jq -e '
   type == "object" and
   ((keys | sort) == ["records", "schema"]) and
@@ -340,12 +342,61 @@ done < <(jq -r '.records[] | [
   .record_sha256
 ] | @tsv' "$ledger" | tr -d '\r')
 
-[[ "$sequence" -eq "$expected_sequence" && "$previous_record_sha256" == "$expected_previous" ]] ||
-  fail IDENTITY 'invocation does not extend the canonical identity ledger'
-jq -e --arg run "$run_id" --arg session "$host_session_id" '
-  all(.records[]; .run_id != $run and .host_session_id != $session)
-' "$ledger" >/dev/null 2>&1 ||
-  fail IDENTITY 'run or host-session identity was already persisted'
+# A manifest describes either an identity not yet in the ledger (a
+# reservation) or an identity whose record is already persisted (a
+# verification of a prior reservation -- possibly with later records now
+# chained on top of it, e.g. a branch merge/re-chain). The ledger itself
+# disambiguates which case this is: an identity is "reserved" once some
+# record's run_id AND host_session_id both match the manifest's. That, not
+# the --reserve flag, decides which checks below apply.
+persisted_match=$(jq -c --arg run "$run_id" --arg session "$host_session_id" '
+  [.records[] | select(.run_id == $run and .host_session_id == $session)] | .[0] // empty
+' "$ledger")
+
+if [[ -n "$persisted_match" ]]; then
+  # Verification of an already-reserved identity. The persisted record is
+  # authoritative and must match the manifest exactly on every identity
+  # field; its own record_sha256 was already proven to recompute correctly
+  # by the whole-ledger chain walk above, which runs unconditionally. The
+  # tip position and identity_ledger_sha256 are NOT re-checked here: both
+  # are meaningless once later records may have landed on top of this one.
+  if $reserve; then
+    fail IDENTITY 'run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice'
+  fi
+  persisted_sequence=$(jq -r '.sequence' <<<"$persisted_match")
+  persisted_stage=$(jq -r '.stage' <<<"$persisted_match")
+  persisted_role=$(jq -r '.role' <<<"$persisted_match")
+  persisted_previous=$(jq -r '.previous_record_sha256' <<<"$persisted_match")
+  [[ "$persisted_sequence" -eq "$sequence" ]] ||
+    fail IDENTITY 'invocation sequence does not match the persisted identity-ledger record'
+  [[ "$persisted_stage" == "$stage" ]] ||
+    fail IDENTITY 'invocation stage does not match the persisted identity-ledger record'
+  [[ "$persisted_role" == "$role" ]] ||
+    fail IDENTITY 'invocation role does not match the persisted identity-ledger record'
+  [[ "$persisted_previous" == "$previous_record_sha256" ]] ||
+    fail IDENTITY 'invocation previous-record hash does not match the persisted identity-ledger record'
+else
+  # A partial match -- one of the two identity fields already persisted
+  # under a DIFFERENT value for the other -- means two different launches
+  # are colliding on one identity. That is never valid, in either mode, so
+  # it fails loudly here rather than silently falling into reservation mode.
+  if jq -e --arg run "$run_id" --arg session "$host_session_id" '
+    any(.records[]; .run_id == $run and .host_session_id != $session)
+  ' "$ledger" >/dev/null 2>&1; then
+    fail IDENTITY 'run ID matches a persisted identity-ledger record but host-session ID does not: two launches are colliding on one identity'
+  fi
+  if jq -e --arg run "$run_id" --arg session "$host_session_id" '
+    any(.records[]; .host_session_id == $session and .run_id != $run)
+  ' "$ledger" >/dev/null 2>&1; then
+    fail IDENTITY 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
+  fi
+
+  # Reservation of a new identity: today's behaviour, unchanged.
+  [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]] ||
+    fail IDENTITY 'canonical identity ledger hash is stale or mismatched'
+  [[ "$sequence" -eq "$expected_sequence" && "$previous_record_sha256" == "$expected_previous" ]] ||
+    fail IDENTITY 'invocation does not extend the canonical identity ledger'
+fi
 
 implementation_report_path=''
 if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
