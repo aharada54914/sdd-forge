@@ -316,3 +316,33 @@ behavioural regression -- but recording it true on that distinction would
 be exactly the overstatement the cross-model panel flagged in the previous
 record. The per-suite evidence for this feature's own suites is unchanged
 and green; it is enumerated above and in unit-acceptance-green.log.
+
+=== verbatim excerpt from run-all-full-20260821.log ===
+
+The full capture is 5,220 lines / 442,982 bytes and is committed at
+the path above, but no contract check names it, so a reviewer working
+from a review bundle does not receive it. The lines that decide this
+check's value are reproduced below verbatim, each with its line number
+in that file so any claim here can be re-derived against it. Nothing
+between them is reproduced: 14 lines appear here, 5,206 do not.
+
+  1552:=== TEST-020 (AC-020): CI step per new suite, DESIGNED-RED until human-copy ===
+  1555:DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-dispatch-fallback.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+  1558:DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-negative-corpus.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+  1561:DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/deterministic-lane-selfcheck.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+  1564:DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/workflow-scenarios/workflow-scenarios.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+  1568:FAILED: tests/deterministic-lane-selfcheck.tests.sh
+  1593:FAILED: tests/repository-release-validation.tests.sh
+  1848:FAIL: TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)
+  1863:FAILED: tests/design-system-contract.tests.sh
+  4225:FAIL: TEST-054 this feature's suite is reachable from a CI entry point (AC-028, deferred) -- DESIGNED RED: staged workflow patch not yet applied (REQ-010/AC-028)
+  5217:3 failing suite(s):
+  5217+: 3 failing suite(s):
+  5217+:   tests/deterministic-lane-selfcheck.tests.sh
+  5217+:   tests/repository-release-validation.tests.sh
+  5217+:   tests/design-system-contract.tests.sh
+
+Read against the enumeration at 5217: deterministic-lane-selfcheck
+self-declares DESIGNED-RED at 1561, design-system-contract at 1848.
+repository-release-validation at 1593 declares nothing of the kind,
+which is why it is treated as a real failure above.
