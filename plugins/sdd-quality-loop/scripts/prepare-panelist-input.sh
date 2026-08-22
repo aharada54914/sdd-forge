@@ -309,11 +309,18 @@ fi
 #      panelists already raised about source code, one level over). See
 #      _ppi_extract_contract_evidence_paths.
 #   4. the reviewed task's own implementation report
-#   5. the CURRENT content of every path the report's "## Outputs" table
-#      declares — appended below, after check_declared_outputs_completeness
-#      resolves each row (see declared_content and _ppi_capture_declared_
-#      output_content), reusing that single resolution rather than re-
-#      reading paths a second, differently-behaved way.
+#   5. the CURRENT worktree content of every path the report's "## Outputs"
+#      table declares — appended below, after
+#      check_declared_outputs_completeness resolves each row (see
+#      declared_content and _ppi_capture_declared_output_content). The
+#      completeness check may still consult the declaration commit to
+#      decide whether a row was ever true, but that historical blob is
+#      never what lands in the bundle: a row whose worktree hash no longer
+#      matches the declared one still contributes its worktree bytes, plus
+#      an in-bundle notice that the report's declaration is stale; a row
+#      absent from the worktree entirely contributes no content, only a
+#      notice — reviewing material a panelist is told to judge "as it
+#      stands" must never be quietly historical.
 # --input is unchanged for a literal FILE argument (still read verbatim —
 # this is the shape PP-001..013's secret-sanitization fixtures use, and is
 # orthogonal to feature/task composition). --input is retained as the
@@ -720,10 +727,10 @@ $(cat "$_pbs_abspath")
 # every caller that predates this convention, e.g. this script's own
 # existing test fixtures).
 #
-# Declaration-commit fallback (staleness of shared, living files): a row
-# that is absent, or hash-mismatched, under project_root after both roots
-# have been tried is not necessarily a lie — CHANGELOG.md and a feature's
-# own tasks.md are declared as whole-file hashes but are shared files every
+# Declaration-commit check (staleness of shared, living files): a row that
+# is absent, or hash-mismatched, under project_root after both roots have
+# been tried is not necessarily a lie — CHANGELOG.md and a feature's own
+# tasks.md are declared as whole-file hashes but are shared files every
 # sibling task edits after this report was written, so an accurate
 # declaration goes stale the moment the next task commits. Rather than
 # recording a commit in the report schema, the "declaration commit" (the
@@ -736,9 +743,20 @@ $(cat "$_pbs_abspath")
 # so row_path is already a repository-relative git-show argument with no
 # translation. A row that only matched under --input has no such form and
 # is never retried this way — see check_declared_outputs_completeness. Every
-# acceptance via this path prints a distinct stderr notice (never silent);
-# it must never become a way for a check to quietly stop verifying content
-# it claims to verify.
+# acceptance via this path prints a distinct stderr notice (never silent).
+#
+# This check decides ONE thing only: whether the row was ever true (was the
+# declaration accurate as of the commit that wrote it), which keeps the
+# build failing exactly as before for a row satisfiable by neither the
+# worktree nor the declaration commit. It must never become a way for a
+# check to quietly stop verifying content it claims to verify — and, as of
+# the fix below, it must never become a way for a REVIEW BUNDLE to carry
+# historical bytes as if they were current ones either. A row accepted
+# through this path is content-wise handled by
+# _ppi_capture_declared_output_content as "stale-hash" (worktree file
+# exists, gets served, hash mismatch is called out in-bundle) or "missing"
+# (no worktree file at all, no content to serve, called out in-bundle) —
+# never by reading the declaration-commit blob into the bundle.
 
 _ppi_sha256_file() {
     if command -v sha256sum >/dev/null 2>&1; then
@@ -838,34 +856,61 @@ _ppi_verify_at_declaration_commit() {
     return 0
 }
 
-# Append the CURRENT content the completeness check just verified for one
-# declared-outputs row into declared_content — reusing check_declared_
-# outputs_completeness's own resolution (candidate worktree file, or the
-# declaration-commit blob) rather than re-reading the row a second,
-# differently-behaved way. Skips a row already pulled in by the spec-
-# document/task-verification/implementation-report composition above (see
-# _ppi_is_seen) — comparison is only meaningful for project-root-relative
-# rows (row_project_relative = "1"); a row that only matched under --input
-# has no comparable identity in that set and is never deduplicated.
+# Append review material for one declared-outputs row into declared_content.
+# check_declared_outputs_completeness decides only whether the row was ever
+# true (build-gate job, unchanged); this function decides what a reviewer
+# actually reads, and it reads from the worktree candidate whenever one
+# exists — NEVER the declaration-commit blob, which would hand a panelist
+# code that no longer exists in the tree it is asked to review. Skips a row
+# already pulled in by the spec-document/task-verification/implementation-
+# report composition above (see _ppi_is_seen) — comparison is only
+# meaningful for project-root-relative rows (row_project_relative = "1"); a
+# row that only matched under --input has no comparable identity in that
+# set and is never deduplicated. $4 selects which case this call is:
+#   ""           a normal match — the declared hash was verified directly
+#                against the worktree candidate. No notice needed.
+#   "stale-hash" the worktree candidate exists but its hash no longer
+#                matches the declared one (only the declaration-commit blob
+#                matched it, via _ppi_verify_at_declaration_commit). Served
+#                content is still $_cdo_candidate — the CURRENT worktree
+#                bytes — plus an in-bundle notice that the report's
+#                declared hash for this path is stale, so the reviewer
+#                knows both what the code is now and that the report
+#                describing it is out of date.
+#   "missing"    no worktree candidate exists at all — the row matched only
+#                at the declaration commit. There is no current content to
+#                serve; falling back to the declaration-commit blob here
+#                would silently hand the reviewer a file that has been
+#                deleted. Instead this appends only a notice.
 _ppi_capture_declared_output_content() {
     _cdo_row_path="$1"
-    _cdo_candidate="$2"          # resolved file path, or "" to use the
-                                  # declaration commit
+    _cdo_candidate="$2"          # resolved worktree file path, or "" when
+                                  # no worktree candidate exists (staleness
+                                  # "missing")
     _cdo_project_relative="$3"   # "1" or "0"
+    _cdo_staleness="${4:-}"      # "" | "stale-hash" | "missing"
 
     if [ "$_cdo_project_relative" = "1" ] && _ppi_is_seen "$_cdo_row_path"; then
         return 0
     fi
 
-    if [ -n "$_cdo_candidate" ]; then
-        declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output) ----
+    case "$_cdo_staleness" in
+        stale-hash)
+            declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
 $(cat "$_cdo_candidate")
 "
-    else
-        declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output, at declaration commit ${_ppi_decl_commit}) ----
-$(git -C "$project_root" show "${_ppi_decl_commit}:${_cdo_row_path}" 2>/dev/null)
+            ;;
+        missing)
+            declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit ${_ppi_decl_commit}, the path no longer exists in the current tree) ----
+[no current content: this declared output does not exist in the worktree]
 "
-    fi
+            ;;
+        *)
+            declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output) ----
+$(cat "$_cdo_candidate")
+"
+            ;;
+    esac
 
     [ "$_cdo_project_relative" = "1" ] && _ppi_mark_seen "$_cdo_row_path"
 }
@@ -917,7 +962,7 @@ check_declared_outputs_completeness() {
                 # re-check against the declaration commit before giving up
                 # (see _ppi_verify_at_declaration_commit).
                 if _ppi_verify_at_declaration_commit "$_row_path" "$_row_hash"; then
-                    _ppi_capture_declared_output_content "$_row_path" "" "1"
+                    _ppi_capture_declared_output_content "$_row_path" "" "1" "missing"
                     continue
                 fi
                 _gaps="${_gaps}prepare-panelist-input: declared output missing from bundle: ${_row_path}
@@ -930,7 +975,7 @@ check_declared_outputs_completeness() {
         if [ "$_actual_hash" != "$_row_hash" ]; then
             if [ "$_row_project_relative" = "1" ] && \
                _ppi_verify_at_declaration_commit "$_row_path" "$_row_hash"; then
-                _ppi_capture_declared_output_content "$_row_path" "" "1"
+                _ppi_capture_declared_output_content "$_row_path" "$_candidate" "1" "stale-hash"
                 continue
             fi
             _gaps="${_gaps}prepare-panelist-input: declared output hash mismatch: ${_row_path}
