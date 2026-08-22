@@ -26,6 +26,22 @@
   review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
   緑（ps1 レグは CI）。
 
+- **draft-07 スキーマエンジン3複製のバイト同一性テストを追加、
+  resolve-component-paths の unknown-type fail-open を両 twin で閉鎖
+  （監査「設計制約でブロック」項目）**: design.md は「4つの独立バリデータ、
+  兄弟 import なし」を記録しており複製自体は設計通り — 欠けていたのは
+  「複製が同一であり続ける」ことの実行可能な検証。AST 抽出（行番号非依存）
+  で7エンジン関数を3ファイルから取り出しバイト同一を要求する
+  `tests/schema-engine-identity.tests.sh` を追加（8/8 緑、変異による
+  non-vacuity 付き。validate-approval-sidecar は独立性根拠の記録により、
+  resolve-component-paths は ps1 twin が INV-008 parity で拘束されるため
+  対象外と明記）。第5の弱い変種 `resolve-component-paths.{py,ps1}` の
+  `_schema_type_ok` / `Test-JsonSchemaInstanceType` は未知の type 名で
+  **全インスタンスを黙って通す** fail-open だったため両 twin で fail-closed
+  化（リポジトリ内スキーマは既知7型のみ使用 — 正常系無変更。
+  component-path 系5スイート緑）。engine の `schema_engine.py` への統合は
+  design.md の記録済み判断の変更を要するため人間判断待ちのまま。
+
 - **python ディスパッチャ・ラッパー28本(sh 14+ps1 14)を共有 lib へ統合し、
   欠如時挙動を文書化済みの exit 3 規約に統一（監査 Cluster 7）**: 4方言
   （exit 3+フォールバック / exit 1+フォールバック / ガードなし bash

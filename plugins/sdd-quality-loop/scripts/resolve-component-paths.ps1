@@ -804,7 +804,10 @@ function Test-JsonSchemaInstanceType {
         "boolean" { if ($Instance -is [string]) { return $true } return ($Instance -is [bool]) }
         "integer" { if ($Instance -is [string]) { return $true } return ($Instance -is [int] -or $Instance -is [long]) }
         "number"  { if ($Instance -is [string]) { return $true } return ($Instance -is [int] -or $Instance -is [long] -or $Instance -is [double]) }
-        default   { return $true }
+        # Unknown type names fail CLOSED: a typo'd "type" keyword must reject
+        # every instance, never silently validate all of them (INV-008 parity
+        # with the Python master's _schema_type_ok).
+        default   { return $false }
     }
 }
 
