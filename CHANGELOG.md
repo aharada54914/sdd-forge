@@ -26,6 +26,25 @@
   review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
   緑（ps1 レグは CI）。
 
+- **apply-human-copy のクラッシュ回復経路を分解（ループ監査 items 2-3、
+  残り最後の2件）**: (1) `recover_all` の約85%同一な3パスを
+  `classify_batch` / `revert_mixed_batch` / `confirm_all_at_pre` +
+  `probe_or_die`（PROBE_CUR グローバル、文脈別 verbatim メッセージ）+
+  `target_at_pre` + `finalize_recovered_batch` に分解 — die() 意味論の
+  ため全ヘルパー直接呼び出し（`$(...)` 禁止を各ヘッダに明記）、
+  `< file` リダイレクト維持、`rm -f targets_tmp` 13箇所を集約。ps1 双子
+  `Invoke-RecoverAll` も同構造で分解（revert パスが classify のプローブを
+  キャッシュ再利用する既存の意図的乖離は両側のコメントに記録して温存）。
+  (2) awk JSON パーサの END ブロック（4深・6項判定）を `skip_seps` /
+  `parse_quoted` / `parse_target_object` に分解（POSIX awk のみ、
+  確立済みの RES_*/PARSE_ERR グローバルチャネル慣用に追随。回復経路に
+  python3 依存は導入しない — sed→手書きパーサ3世代の失敗クラス記録は
+  維持）。検証: apply-human-copy 247/251（差分は既知の chmod000-as-root
+  4件のみ、ベースライン同一）、human-copy-mirror-freshness 6/6、
+  guard-invariants-epic-a1 82/82（ps1 レグは CI）。ブランチ分岐中は
+  同期ツールが適用済みミラーを pending と誤分類するため epic-189-a1 の
+  apply-human-copy ミラー2件+MANIFEST は手動同期。
+
 - **ループ監査の構造リファクタ3件（Fail-6 ホイスト / ルート導出抽出 /
   design-sync-scan テーブル駆動化）**: (1) Fail-6 の4深デカルト積ループ
   4複製（resolve-component-paths.{py,ps1}・check-component-coverage.{py,ps1}）

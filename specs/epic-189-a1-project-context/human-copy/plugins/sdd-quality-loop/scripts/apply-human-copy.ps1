@@ -813,8 +813,108 @@ function Get-JournalTargets([string]$JournalFile) {
 # Crash recovery (runs at the START of every invocation).
 # ---------------------------------------------------------------------------
 
+# Test-TargetAtPre: one definition of the "current live state matches the
+# journal's recorded pre-transaction state" rule (including both-ABSENT)
+# that the classify and confirm passes previously each spelled out.
+function Test-TargetAtPre([string]$PreHash, [string]$Cur) {
+    return ($PreHash -eq 'ABSENT' -and $Cur -eq 'ABSENT') -or ($PreHash -ne 'ABSENT' -and $Cur -eq $PreHash)
+}
+
+# Get-RecoveryProbeOrDeny: probes one live target and returns its current
+# value. Get-RecoveryProbe decides what a plainly-missing chain means from
+# the JOURNAL's own recorded pre_hash for THIS target -- never from the
+# probe result alone (seq0360 Critical) and never by refusing every
+# absence (seq0361 Critical); see its header. Any undeterminable state
+# denies fail-closed with $Context's exact message (classify | confirm)
+# -- Write-Denial exits the whole script, so the journal and backups are
+# retained for the next invocation.
+function Get-RecoveryProbeOrDeny([string]$RepoRootAbs, [string]$LivePath, [string]$PreHash, [string]$BatchDirAbs, [string]$Context) {
+    $probe = Get-RecoveryProbe $RepoRootAbs $LivePath $PreHash
+    if ((-not $probe.Ok) -and $probe.Reason -eq 'live-target-not-regular-file') {
+        switch ($Context) {
+            'classify' { Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery found a NON-REGULAR entry (a symlink or directory) occupying target '$LivePath' in batch $BatchDirAbs; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)" }
+            'confirm'  { Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation found a NON-REGULAR entry (a symlink or directory) occupying target '$LivePath' in batch $BatchDirAbs; its bytes cannot be hashed, so it can never be CONFIRMED back at PRE (external review PR #229); refusing to delete the journal (fail-closed, design.md:1055-1056)" }
+        }
+    }
+    if (-not $probe.Ok) {
+        switch ($Context) {
+            'classify' { Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not determine the current live state of target '$LivePath' in batch $BatchDirAbs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)" }
+            'confirm'  { Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation could not determine the current live state of target '$LivePath' in batch $BatchDirAbs; refusing to delete the journal (fail-closed, design.md:1055-1056)" }
+        }
+    }
+    return $probe.Value
+}
+
+# Get-BatchClassification: pass 1 -- probe every journal target once and
+# classify the batch's 3-state machine: ALL-POST (transaction completed;
+# keep the post state), ALL-PRE (it never touched a target; nothing to
+# undo), or MIXED (revert then confirm). Returns the classification plus
+# the probe cache the revert pass deliberately reuses (the .sh twin
+# re-probes there instead; that divergence is recorded on both sides).
+function Get-BatchClassification($Targets, [string]$RepoRootAbs, [string]$BatchDirAbs) {
+    $allPost = $true
+    $allPre = $true
+    $current = @{}
+    foreach ($t in $Targets) {
+        $cur = Get-RecoveryProbeOrDeny $RepoRootAbs $t.live_path $t.pre_hash $BatchDirAbs 'classify'
+        $current[$t.live_path] = $cur
+        if ($cur -ne $t.post_hash) { $allPost = $false }
+        if (-not (Test-TargetAtPre $t.pre_hash $cur)) { $allPre = $false }
+    }
+    return @{ AllPost = $allPost; AllPre = $allPre; Current = $current }
+}
+
+# Invoke-RevertMixedBatch: pass 2, MIXED batches only -- revert every
+# target currently at POST back to PRE, honoring the revert-<idx>
+# crash-stage hook. Uses the classify pass's cached probe values.
+function Invoke-RevertMixedBatch($Targets, $Current, [string]$RepoRootAbs, [string]$BatchDirAbs, [string]$RecoveryCrashStage) {
+    $idx = 0
+    foreach ($t in $Targets) {
+        $idx++
+        $cur = $Current[$t.live_path]
+        if ($cur -eq $t.post_hash -and $cur -ne $t.pre_hash) {
+            $base = Split-Path -Leaf $t.live_path
+            $backup = Join-Path $BatchDirAbs "pre/$base"
+            $ok = Restore-OneTarget $RepoRootAbs $t.live_path $t.pre_hash $backup
+            if (-not $ok) {
+                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not revert target '$($t.live_path)' to its pre-transaction state"
+            }
+            if ($RecoveryCrashStage -eq "revert-$idx") {
+                Invoke-SimulatedCrash "recovery after reverting target $idx ($($t.live_path))"
+            }
+        }
+    }
+}
+
+# Confirm-AllAtPre: pass 3. design.md:1055-1056 MANDATORY final
+# confirmation (quality-gate seq0360 Critical remedy, requirement 2):
+# "for every target still at its POST hash, until every target is
+# confirmed back at PRE. Only then is the journal deleted." This is a
+# DISTINCT re-probe pass -- never inferred from Restore-OneTarget's own
+# return value alone. Any probe failure, or any target NOT confirmed at
+# PRE here, is fail-closed: the journal and backups are retained rather
+# than deleted, so the NEXT invocation gets another chance once whatever
+# blocked the probe (or the revert) is resolved.
+function Confirm-AllAtPre($Targets, [string]$RepoRootAbs, [string]$BatchDirAbs) {
+    foreach ($t in $Targets) {
+        $cur = Get-RecoveryProbeOrDeny $RepoRootAbs $t.live_path $t.pre_hash $BatchDirAbs 'confirm'
+        if (-not (Test-TargetAtPre $t.pre_hash $cur)) {
+            Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation failed for target '$($t.live_path)' in batch ${BatchDirAbs}: its current live state does not match the journal's recorded pre-transaction hash; refusing to delete the journal (fail-closed, design.md:1055-1056)"
+        }
+    }
+}
+
+# Complete-RecoveredBatch: the one success exit for a batch -- delete the
+# journal (the commit point: recovery never re-runs for this batch), drop
+# the pre/ backups, and count it.
+function Complete-RecoveredBatch([string]$Jf, [string]$BatchDirAbs) {
+    Remove-Item -LiteralPath $Jf -Force
+    $preDir = Join-Path $BatchDirAbs 'pre'
+    if (Test-Path -LiteralPath $preDir) { Remove-Item -LiteralPath $preDir -Recurse -Force -ErrorAction SilentlyContinue }
+    $script:recoveredCount++
+}
+
 function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
-    $recovered = 0
     $stagingRoot = Join-Path $RepoRootAbs 'sdd/.staging'
     if (-not (Test-Path -LiteralPath $stagingRoot -PathType Container)) { return 0 }
     Get-ChildItem -LiteralPath $stagingRoot -Directory -ErrorAction SilentlyContinue | ForEach-Object {
@@ -827,85 +927,15 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
             Write-Denial $ExitJournalShapeInvalid 'JOURNAL_SHAPE_INVALID' "a human-copy transaction journal exists at '$jf' but is not valid JSON or does not conform to the required targets[]={live_path,pre_hash,post_hash} shape; refusing to proceed (fail-closed, never treated as absent)"
         }
 
-        $allPost = $true
-        $allPre = $true
-        $current = @{}
-        foreach ($t in $targets) {
-            # Classification pass. Get-RecoveryProbe decides what a
-            # plainly-missing chain means from the JOURNAL's own recorded
-            # pre_hash for THIS target -- never from the probe result
-            # alone (seq0360 Critical) and never by refusing every
-            # absence (seq0361 Critical). See its header for the full
-            # design derivation.
-            $probe = Get-RecoveryProbe $RepoRootAbs $t.live_path $t.pre_hash
-            if ((-not $probe.Ok) -and $probe.Reason -eq 'live-target-not-regular-file') {
-                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery found a NON-REGULAR entry (a symlink or directory) occupying target '$($t.live_path)' in batch $batchDirAbs; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)"
-            }
-            if (-not $probe.Ok) {
-                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
-            }
-            $cur = $probe.Value
-            $current[$t.live_path] = $cur
-            if ($cur -ne $t.post_hash) { $allPost = $false }
-            $preMatch = ($t.pre_hash -eq 'ABSENT' -and $cur -eq 'ABSENT') -or ($t.pre_hash -ne 'ABSENT' -and $cur -eq $t.pre_hash)
-            if (-not $preMatch) { $allPre = $false }
-        }
-
-        if ($allPost -or $allPre) {
-            Remove-Item -LiteralPath $jf -Force
-            $preDir = Join-Path $batchDirAbs 'pre'
-            if (Test-Path -LiteralPath $preDir) { Remove-Item -LiteralPath $preDir -Recurse -Force -ErrorAction SilentlyContinue }
-            $script:recoveredCount++
+        $classification = Get-BatchClassification $targets $RepoRootAbs $batchDirAbs
+        if ($classification.AllPost -or $classification.AllPre) {
+            Complete-RecoveredBatch $jf $batchDirAbs
             return
         }
 
-        # MIXED: revert every target currently at POST back to PRE.
-        $idx = 0
-        foreach ($t in $targets) {
-            $idx++
-            $cur = $current[$t.live_path]
-            if ($cur -eq $t.post_hash -and $cur -ne $t.pre_hash) {
-                $base = Split-Path -Leaf $t.live_path
-                $backup = Join-Path $batchDirAbs "pre/$base"
-                $ok = Restore-OneTarget $RepoRootAbs $t.live_path $t.pre_hash $backup
-                if (-not $ok) {
-                    Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not revert target '$($t.live_path)' to its pre-transaction state"
-                }
-                if ($RecoveryCrashStage -eq "revert-$idx") {
-                    Invoke-SimulatedCrash "recovery after reverting target $idx ($($t.live_path))"
-                }
-            }
-        }
-
-        # design.md:1055-1056 MANDATORY final confirmation (quality-gate
-        # seq0360 Critical remedy, requirement 2): "for every target
-        # still at its POST hash, until every target is confirmed back
-        # at PRE. Only then is the journal deleted." This is a DISTINCT
-        # re-probe pass -- never inferred from Restore-OneTarget's own
-        # return value alone. Any probe failure, or any target NOT
-        # confirmed at PRE here, is fail-closed: the journal and backups
-        # are retained rather than deleted, so the NEXT invocation gets
-        # another chance once whatever blocked the probe (or the revert)
-        # is resolved.
-        foreach ($t in $targets) {
-            $probe = Get-RecoveryProbe $RepoRootAbs $t.live_path $t.pre_hash
-            if ((-not $probe.Ok) -and $probe.Reason -eq 'live-target-not-regular-file') {
-                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation found a NON-REGULAR entry (a symlink or directory) occupying target '$($t.live_path)' in batch $batchDirAbs; its bytes cannot be hashed, so it can never be CONFIRMED back at PRE (external review PR #229); refusing to delete the journal (fail-closed, design.md:1055-1056)"
-            }
-            if (-not $probe.Ok) {
-                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
-            }
-            $cur = $probe.Value
-            $confirmed = ($t.pre_hash -eq 'ABSENT' -and $cur -eq 'ABSENT') -or ($t.pre_hash -ne 'ABSENT' -and $cur -eq $t.pre_hash)
-            if (-not $confirmed) {
-                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation failed for target '$($t.live_path)' in batch ${batchDirAbs}: its current live state does not match the journal's recorded pre-transaction hash; refusing to delete the journal (fail-closed, design.md:1055-1056)"
-            }
-        }
-
-        Remove-Item -LiteralPath $jf -Force
-        $preDir = Join-Path $batchDirAbs 'pre'
-        if (Test-Path -LiteralPath $preDir) { Remove-Item -LiteralPath $preDir -Recurse -Force -ErrorAction SilentlyContinue }
-        $script:recoveredCount++
+        Invoke-RevertMixedBatch $targets $classification.Current $RepoRootAbs $batchDirAbs $RecoveryCrashStage
+        Confirm-AllAtPre $targets $RepoRootAbs $batchDirAbs
+        Complete-RecoveredBatch $jf $batchDirAbs
     }
     return $script:recoveredCount
 }

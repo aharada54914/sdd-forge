@@ -1163,6 +1163,58 @@ json_get_targets() {
       }
       PARSE_ERR = 1
     }
+    # skip_seps(s, p, n): index of the first character at or after p that
+    # is not a space, comma, or newline (past n when none remains) -- the
+    # inter-value separator skip the array and object loops previously
+    # each inlined.
+    function skip_seps(s, p, n,   ch) {
+      while (p <= n) {
+        ch = substr(s, p, 1)
+        if (ch == " " || ch == "," || ch == "\n") { p++; continue }
+        break
+      }
+      return p
+    }
+    # parse_quoted(s, p, n): parse one JSON string whose OPENING quote
+    # must sit at index p; RES_VAL/RES_NEXT via parse_json_string. Any
+    # malformation (not a quote, unterminated) is a parse failure of the
+    # whole journal -- exit 1, fail closed, exactly as the previous
+    # inline checks did (exit inside a function called from END
+    # terminates the program with that status, the same control flow).
+    function parse_quoted(s, p, n) {
+      if (substr(s, p, 1) != "\"") { exit 1 }
+      PARSE_ERR = 0
+      parse_json_string(s, p)
+      if (PARSE_ERR) { exit 1 }
+    }
+    # parse_target_object(s, p, n): p is just past a target object
+    # opening "{". Parses "key": "value" members until the closing "}",
+    # following the established parse_json_string global-channel idiom:
+    # sets OBJ_LIVE/OBJ_PRE/OBJ_POST with HAVE_LIVE/HAVE_PRE/HAVE_POST
+    # presence flags, and RES_NEXT (just past the closing brace).
+    # Malformed members exit 1 through parse_quoted / the shape checks.
+    function parse_target_object(s, p, n,   ch, key) {
+      OBJ_LIVE = ""; OBJ_PRE = ""; OBJ_POST = ""
+      HAVE_LIVE = 0; HAVE_PRE = 0; HAVE_POST = 0
+      for (;;) {
+        p = skip_seps(s, p, n)
+        if (p > n) { exit 1 }
+        ch = substr(s, p, 1)
+        if (ch == "}") { RES_NEXT = p + 1; return }
+        parse_quoted(s, p, n)
+        key = RES_VAL
+        p = RES_NEXT
+        while (p <= n && substr(s, p, 1) != ":") p++
+        if (p > n) { exit 1 }
+        p++
+        while (p <= n && substr(s, p, 1) == " ") p++
+        parse_quoted(s, p, n)
+        p = RES_NEXT
+        if (key == "live_path") { OBJ_LIVE = RES_VAL; HAVE_LIVE = 1 }
+        else if (key == "pre_hash") { OBJ_PRE = RES_VAL; HAVE_PRE = 1 }
+        else if (key == "post_hash") { OBJ_POST = RES_VAL; HAVE_POST = 1 }
+      }
+    }
     { content = content $0 "\n" }
     END {
       n = length(content)
@@ -1177,51 +1229,17 @@ json_get_targets() {
       p++
       count = 0
       for (;;) {
-        while (p <= n) {
-          ch = substr(content, p, 1)
-          if (ch == " " || ch == "," || ch == "\n") { p++; continue }
-          break
-        }
+        p = skip_seps(content, p, n)
         if (p > n) { exit 1 }
         ch = substr(content, p, 1)
         if (ch == "]") { p++; break }
         if (ch != "{") { exit 1 }
-        p++
-        live_path = ""; pre_hash = ""; post_hash = ""
-        have_lp = 0; have_ph = 0; have_qh = 0
-        for (;;) {
-          while (p <= n) {
-            ch = substr(content, p, 1)
-            if (ch == " " || ch == "," || ch == "\n") { p++; continue }
-            break
-          }
-          if (p > n) { exit 1 }
-          ch = substr(content, p, 1)
-          if (ch == "}") { p++; break }
-          if (ch != "\"") { exit 1 }
-          PARSE_ERR = 0
-          parse_json_string(content, p)
-          if (PARSE_ERR) { exit 1 }
-          key = RES_VAL
-          p = RES_NEXT
-          while (p <= n && substr(content, p, 1) != ":") p++
-          if (p > n) { exit 1 }
-          p++
-          while (p <= n && substr(content, p, 1) == " ") p++
-          if (substr(content, p, 1) != "\"") { exit 1 }
-          PARSE_ERR = 0
-          parse_json_string(content, p)
-          if (PARSE_ERR) { exit 1 }
-          val = RES_VAL
-          p = RES_NEXT
-          if (key == "live_path") { live_path = val; have_lp = 1 }
-          else if (key == "pre_hash") { pre_hash = val; have_ph = 1 }
-          else if (key == "post_hash") { post_hash = val; have_qh = 1 }
-        }
-        if (!have_lp || !have_ph || !have_qh || live_path == "" || pre_hash == "" || post_hash == "") { exit 1 }
-        pre_enc = (pre_hash == "ABSENT") ? ZS : pre_hash
-        post_enc = (post_hash == "ABSENT") ? ZS : post_hash
-        printf "%s%s %s\n", pre_enc, post_enc, live_path
+        parse_target_object(content, p + 1, n)
+        p = RES_NEXT
+        if (!HAVE_LIVE || !HAVE_PRE || !HAVE_POST || OBJ_LIVE == "" || OBJ_PRE == "" || OBJ_POST == "") { exit 1 }
+        pre_enc = (OBJ_PRE == "ABSENT") ? ZS : OBJ_PRE
+        post_enc = (OBJ_POST == "ABSENT") ? ZS : OBJ_POST
+        printf "%s%s %s\n", pre_enc, post_enc, OBJ_LIVE
         count++
       }
       if (count == 0) { exit 1 }
@@ -1234,14 +1252,166 @@ json_get_targets() {
 # Crash recovery (runs at the START of every invocation).
 # ---------------------------------------------------------------------------
 
+# target_at_pre <recorded-pre-hash> <current-probe-value> -> rc 0 when the
+# current live state matches the journal's recorded pre-transaction state
+# (including the both-ABSENT case), rc 1 otherwise. One definition for the
+# match rule the classify and confirm passes previously each spelled out.
+target_at_pre() {
+  if [ "$1" = "ABSENT" ] && [ "$2" = "ABSENT" ]; then return 0; fi
+  if [ "$1" != "ABSENT" ] && [ "$2" = "$1" ]; then return 0; fi
+  return 1
+}
+
+# probe_or_die <repo_root_abs> <live_path> <recorded-pre-hash> <context>
+#   Probes one live target and sets the global PROBE_CUR (never a
+#   command-substitution return value -- die() below MUST terminate the
+#   real top-level process, so callers MUST invoke this directly, never as
+#   X=$(probe_or_die ...)). recovery_probe_live_target() decides what a
+#   plainly-missing chain means from the JOURNAL's own recorded pre_hash
+#   for THIS target -- never from the probe result alone (seq0360
+#   Critical) and never by refusing every absence (seq0361 Critical). See
+#   its header for the full design derivation. Any undeterminable state
+#   (rc 2: a non-regular entry whose bytes cannot be hashed, external
+#   review PR #229; other nonzero: an unwalkable destination-parent
+#   chain) dies fail-closed with <context>'s exact message, after
+#   removing the pass's temp file -- journal and backups are retained so
+#   the NEXT invocation gets another chance. <context> is one of
+#   classify | revert | confirm; reads the globals batch_dir_abs and
+#   targets_tmp.
+probe_or_die() {
+  pod_root=$1
+  pod_lp=$2
+  pod_ph=$3
+  pod_ctx=$4
+  PROBE_CUR=$(recovery_probe_live_target "$pod_root" "$pod_lp" "$pod_ph")
+  pod_rc=$?
+  if [ "$pod_rc" = 2 ]; then
+    rm -f "$targets_tmp"
+    case "$pod_ctx" in
+      classify)
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$pod_lp' in batch $batch_dir_abs; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)" ;;
+      revert)
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$pod_lp' in batch $batch_dir_abs before deciding whether to revert it; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)" ;;
+      confirm)
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "post-revert confirmation found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$pod_lp' in batch $batch_dir_abs; its bytes cannot be hashed, so it can never be CONFIRMED back at PRE (external review PR #229); refusing to delete the journal (fail-closed, design.md:1055-1056)" ;;
+    esac
+  fi
+  if [ "$pod_rc" != 0 ]; then
+    rm -f "$targets_tmp"
+    case "$pod_ctx" in
+      classify)
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery could not determine the current live state of target '$pod_lp' in batch $batch_dir_abs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)" ;;
+      revert)
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery could not determine the current live state of target '$pod_lp' in batch $batch_dir_abs before deciding whether to revert it; refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)" ;;
+      confirm)
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "post-revert confirmation could not determine the current live state of target '$pod_lp' in batch $batch_dir_abs; refusing to delete the journal (fail-closed, design.md:1055-1056)" ;;
+    esac
+  fi
+}
+
+# classify_batch: pass 1 of a batch's recovery. Probes every journal
+# target and sets the globals CLASSIFY_ALL_POST / CLASSIFY_ALL_PRE (never
+# command-substitution return values -- probe_or_die dies through this
+# frame). The batch is a 3-state machine: ALL-POST (the transaction
+# completed; keep the post state), ALL-PRE (it never touched a target;
+# nothing to undo), or MIXED (revert then confirm). Reads targets_tmp via
+# input redirection -- `cmd | while` would put the loop in a subshell and
+# strand both the globals and die()'s exit.
+classify_batch() {
+  CLASSIFY_ALL_POST=1
+  CLASSIFY_ALL_PRE=1
+  while IFS= read -r target_line || [ -n "$target_line" ]; do
+    [ -n "$target_line" ] || continue
+    parse_target_record "$target_line"
+    lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
+    [ -n "$lp" ] || continue
+    probe_or_die "$repo_root_abs" "$lp" "$ph" classify
+    if [ "$PROBE_CUR" != "$qh" ]; then CLASSIFY_ALL_POST=0; fi
+    if ! target_at_pre "$ph" "$PROBE_CUR"; then CLASSIFY_ALL_PRE=0; fi
+  done <"$targets_tmp"
+}
+
+# revert_mixed_batch: pass 2, MIXED batches only -- revert every target
+# currently at POST back to PRE. Re-probes each target rather than
+# trusting pass 1's answers (the filesystem may have moved between
+# passes; the .ps1 twin deliberately differs here and reuses its
+# classify-pass probes). Honors the revert-<idx> crash-stage hook.
+revert_mixed_batch() {
+  idx=0
+  while IFS= read -r target_line || [ -n "$target_line" ]; do
+    [ -n "$target_line" ] || continue
+    parse_target_record "$target_line"
+    lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
+    [ -n "$lp" ] || continue
+    idx=$((idx + 1))
+    probe_or_die "$repo_root_abs" "$lp" "$ph" revert
+    if [ "$PROBE_CUR" = "$qh" ] && [ "$PROBE_CUR" != "$ph" ]; then
+      base=$(basename "$lp")
+      backup="${batch_dir_abs}/pre/${base}"
+      if ! revert_one_target "$repo_root_abs" "$lp" "$ph" "$backup"; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery could not revert target '$lp' to its pre-transaction state"
+      fi
+      if [ "$recovery_crash_stage" = "revert-$idx" ]; then
+        rm -f "$targets_tmp"
+        crash_now "recovery after reverting target $idx ($lp)"
+      fi
+    fi
+  done <"$targets_tmp"
+}
+
+# confirm_all_at_pre: pass 3. design.md:1055-1056 MANDATORY final
+# confirmation (quality-gate seq0360 Critical remedy, requirement 2):
+# "for every target still at its POST hash, until every target is
+# confirmed back at PRE. Only then is the journal deleted." This is a
+# DISTINCT re-probe pass -- never inferred from revert_one_target's own
+# return value alone. Any probe failure, or any target NOT confirmed at
+# PRE here, is fail-closed: the journal and backups are retained rather
+# than deleted, so the NEXT invocation gets another chance once whatever
+# blocked the probe (or the revert) is resolved.
+confirm_all_at_pre() {
+  while IFS= read -r target_line || [ -n "$target_line" ]; do
+    [ -n "$target_line" ] || continue
+    parse_target_record "$target_line"
+    lp=$TR_PATH; ph=$TR_PRE
+    [ -n "$lp" ] || continue
+    probe_or_die "$repo_root_abs" "$lp" "$ph" confirm
+    if ! target_at_pre "$ph" "$PROBE_CUR"; then
+      rm -f "$targets_tmp"
+      die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+        "post-revert confirmation failed for target '$lp' in batch $batch_dir_abs: its current live state does not match the journal's recorded pre-transaction hash; refusing to delete the journal (fail-closed, design.md:1055-1056)"
+    fi
+  done <"$targets_tmp"
+}
+
+# finalize_recovered_batch <journal-path> <pre-backup-dir>: the one
+# success exit for a batch -- delete the journal (the commit point:
+# recovery never re-runs for this batch), drop the pre/ backups, count
+# it, and release the pass temp file.
+finalize_recovered_batch() {
+  rm -f -- "$1"
+  rm -rf -- "$2" 2>/dev/null
+  recovered=$((recovered + 1))
+  rm -f "$targets_tmp"
+}
+
 recover_all() {
   # Sets the global RECOVERED (never a command-substitution return value):
-  # this function calls die()/crash_now() directly, which MUST terminate
-  # the real top-level process on a fail-closed shape violation or a
-  # simulated crash -- running it inside `$( ... )` would only terminate
-  # a throwaway subshell and let the caller silently continue, exactly
-  # the fail-open class of bug carry-forward obligation 2 exists to
-  # prevent. Callers MUST invoke this directly, never as `X=$(recover_all ...)`.
+  # this function (via probe_or_die and the pass helpers above) calls
+  # die()/crash_now() directly, which MUST terminate the real top-level
+  # process on a fail-closed shape violation or a simulated crash --
+  # running it inside `$( ... )` would only terminate a throwaway
+  # subshell and let the caller silently continue, exactly the fail-open
+  # class of bug carry-forward obligation 2 exists to prevent. Callers
+  # MUST invoke this directly, never as `X=$(recover_all ...)`; the same
+  # rule binds every helper above.
   repo_root_abs=$1
   recovery_crash_stage=${2:-}
   recovered=0
@@ -1263,127 +1433,15 @@ recover_all() {
         "a human-copy transaction journal exists at '$jf' but is not valid JSON or does not conform to the required targets[]={live_path,pre_hash,post_hash} shape; refusing to proceed (fail-closed, never treated as absent)"
     fi
 
-    all_post=1
-    all_pre=1
-    while IFS= read -r target_line || [ -n "$target_line" ]; do
-      [ -n "$target_line" ] || continue
-      parse_target_record "$target_line"
-      lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
-      [ -n "$lp" ] || continue
-      # Classification pass. recovery_probe_live_target() decides what a
-      # plainly-missing chain means from the JOURNAL's own recorded
-      # pre_hash for THIS target -- never from the probe result alone
-      # (seq0360 Critical) and never by refusing every absence (seq0361
-      # Critical). See its header for the full design derivation.
-      cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
-      probe_rc=$?
-      if [ "$probe_rc" = 2 ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "recovery found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$lp' in batch $batch_dir_abs; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)"
-      fi
-      if [ "$probe_rc" != 0 ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "recovery could not determine the current live state of target '$lp' in batch $batch_dir_abs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
-      fi
-      if [ "$cur" != "$qh" ]; then all_post=0; fi
-      pre_match=0
-      if [ "$ph" = "ABSENT" ] && [ "$cur" = "ABSENT" ]; then pre_match=1; fi
-      if [ "$ph" != "ABSENT" ] && [ "$cur" = "$ph" ]; then pre_match=1; fi
-      if [ "$pre_match" = "0" ]; then all_pre=0; fi
-    done <"$targets_tmp"
-
-    if [ "$all_post" = "1" ]; then
-      rm -f -- "$jf"
-      rm -rf -- "${batch_dir}pre" 2>/dev/null
-      recovered=$((recovered + 1))
-      rm -f "$targets_tmp"
-      continue
-    fi
-    if [ "$all_pre" = "1" ]; then
-      rm -f -- "$jf"
-      rm -rf -- "${batch_dir}pre" 2>/dev/null
-      recovered=$((recovered + 1))
-      rm -f "$targets_tmp"
+    classify_batch
+    if [ "$CLASSIFY_ALL_POST" = 1 ] || [ "$CLASSIFY_ALL_PRE" = 1 ]; then
+      finalize_recovered_batch "$jf" "${batch_dir}pre"
       continue
     fi
 
-    # MIXED: revert every target currently at POST back to PRE.
-    idx=0
-    while IFS= read -r target_line || [ -n "$target_line" ]; do
-      [ -n "$target_line" ] || continue
-      parse_target_record "$target_line"
-      lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
-      [ -n "$lp" ] || continue
-      idx=$((idx + 1))
-      cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
-      probe_rc=$?
-      if [ "$probe_rc" = 2 ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "recovery found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$lp' in batch $batch_dir_abs before deciding whether to revert it; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)"
-      fi
-      if [ "$probe_rc" != 0 ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "recovery could not determine the current live state of target '$lp' in batch $batch_dir_abs before deciding whether to revert it; refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
-      fi
-      if [ "$cur" = "$qh" ] && [ "$cur" != "$ph" ]; then
-        base=$(basename "$lp")
-        backup="${batch_dir_abs}/pre/${base}"
-        if ! revert_one_target "$repo_root_abs" "$lp" "$ph" "$backup"; then
-          rm -f "$targets_tmp"
-          die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-            "recovery could not revert target '$lp' to its pre-transaction state"
-        fi
-        if [ "$recovery_crash_stage" = "revert-$idx" ]; then
-          rm -f "$targets_tmp"
-          crash_now "recovery after reverting target $idx ($lp)"
-        fi
-      fi
-    done <"$targets_tmp"
-
-    # design.md:1055-1056 MANDATORY final confirmation (quality-gate
-    # seq0360 Critical remedy, requirement 2): "for every target still at
-    # its POST hash, until every target is confirmed back at PRE. Only
-    # then is the journal deleted." This is a DISTINCT re-probe pass --
-    # never inferred from revert_one_target's own return value alone. Any
-    # probe failure, or any target NOT confirmed at PRE here, is
-    # fail-closed: the journal and backups are retained rather than
-    # deleted, so the NEXT invocation gets another chance once whatever
-    # blocked the probe (or the revert) is resolved.
-    while IFS= read -r target_line || [ -n "$target_line" ]; do
-      [ -n "$target_line" ] || continue
-      parse_target_record "$target_line"
-      lp=$TR_PATH; ph=$TR_PRE
-      [ -n "$lp" ] || continue
-      cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
-      probe_rc=$?
-      if [ "$probe_rc" = 2 ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "post-revert confirmation found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$lp' in batch $batch_dir_abs; its bytes cannot be hashed, so it can never be CONFIRMED back at PRE (external review PR #229); refusing to delete the journal (fail-closed, design.md:1055-1056)"
-      fi
-      if [ "$probe_rc" != 0 ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "post-revert confirmation could not determine the current live state of target '$lp' in batch $batch_dir_abs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
-      fi
-      confirmed=0
-      if [ "$ph" = "ABSENT" ] && [ "$cur" = "ABSENT" ]; then confirmed=1; fi
-      if [ "$ph" != "ABSENT" ] && [ "$cur" = "$ph" ]; then confirmed=1; fi
-      if [ "$confirmed" != "1" ]; then
-        rm -f "$targets_tmp"
-        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
-          "post-revert confirmation failed for target '$lp' in batch $batch_dir_abs: its current live state does not match the journal's recorded pre-transaction hash; refusing to delete the journal (fail-closed, design.md:1055-1056)"
-      fi
-    done <"$targets_tmp"
-
-    rm -f -- "$jf"
-    rm -rf -- "${batch_dir_abs}/pre" 2>/dev/null
-    recovered=$((recovered + 1))
-    rm -f "$targets_tmp"
+    revert_mixed_batch
+    confirm_all_at_pre
+    finalize_recovered_batch "$jf" "${batch_dir_abs}/pre"
   done
   RECOVERED=$recovered
   return 0
