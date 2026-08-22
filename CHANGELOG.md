@@ -38,7 +38,15 @@
   ディスパッチを dash 実挙動で確認）。あわせて version-gates 赤の原因
   だった `generate-registry-digest.tests.ps1` のフィクスチャ
   ステージングにも lib 2件を追加（sh 側テストと同型の欠落 — ps1 レグは
-  ローカル pwsh 不在で検出できず CI が捕捉）。
+  ローカル pwsh 不在で検出できず CI が捕捉）。さらに CI が第3・第4の
+  同型を検出: `capability-registry-parity` 双子（3つのインストール済み
+  プラグイン文脈への STAGED_SCRIPTS ステージング — 全6文脈が exit 3 に）
+  と `facet-manifest-parity` 双子の installed フィクスチャにも lib 2件を
+  追加（コピー/シンボリックリンク両ループをサブディレクトリ対応化）。
+  staged 文脈の手動再現で generate-gate-capabilities / 
+  validate-facet-manifest とも lib ありで正常動作を確認。fixture
+  ステージング一覧が lib 依存を知らないという再発クラス(計7サイト)は
+  WFI 候補として次回レトロスペクティブの対象。
 
 - **apply-human-copy のクラッシュ回復経路を分解（ループ監査 items 2-3、
   残り最後の2件）**: (1) `recover_all` の約85%同一な3パスを
