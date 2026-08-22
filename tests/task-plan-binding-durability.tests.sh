@@ -336,35 +336,52 @@ make_ws_fixture() {
 }
 # Rebind the task contract (top-level hash + every reviewer manifest entry)
 # to the given digest of the fixture's tasks.md.
-rebind_task_contract() {
-  # Every task-review artifact that pins the plan digest moves together —
-  # the contract's top-level hash, its reviewers' manifests, and the
-  # reviewer outputs' own echoed manifests (the stage-provenance check
-  # cross-compares them all).
-  local target="$1" digest="$2" artifact
+# Rewrite every task-review artifact's pin of one manifest path — the
+# contract's reviewers' manifests and the reviewer outputs' own echoed
+# manifests (the stage-provenance check cross-compares them all); when the
+# path is the task plan, also the contract's top-level tasks_sha256.
+rebind_manifest_entry() {
+  local target="$1" suffix="$2" digest="$3" artifact
   while IFS= read -r artifact; do
-    jq --arg digest "$digest" '
-      (if has("tasks_sha256") then .tasks_sha256 = $digest else . end)
+    jq --arg suffix "$suffix" --arg digest "$digest" '
+      (if (has("tasks_sha256") and ($suffix | endswith("tasks.md"))) then .tasks_sha256 = $digest else . end)
       | (if has("allowed_input_manifest") then
            .allowed_input_manifest |= map(
-             if (.path | endswith("specs/workflow-state-integrity/tasks.md")) then .sha256 = $digest else . end)
+             if (.path | endswith($suffix)) then .sha256 = $digest else . end)
          else . end)
       | (if has("reviewers") then
            .reviewers |= map(
              (.allowed_input_manifest // []) |= map(
-               if (.path | endswith("specs/workflow-state-integrity/tasks.md")) then .sha256 = $digest else . end))
+               if (.path | endswith($suffix)) then .sha256 = $digest else . end))
          else . end)
       | (if (has("manifest") and (.manifest | type == "array")) then
            .manifest |= map(
-             if (.path | endswith("specs/workflow-state-integrity/tasks.md")) then .sha256 = $digest else . end)
+             if (.path | endswith($suffix)) then .sha256 = $digest else . end)
          else . end)
       | (if (has("manifest") and (.manifest | type == "object") and (.manifest | has("allowed_inputs"))) then
            .manifest.allowed_inputs |= map(
-             if (.path | endswith("specs/workflow-state-integrity/tasks.md")) then .sha256 = $digest else . end)
+             if (.path | endswith($suffix)) then .sha256 = $digest else . end)
          else . end)
     ' "$artifact" > "$artifact.tmp" && mv "$artifact.tmp" "$artifact"
   done < <(find "$target/reports/task-review" -type f \
     \( -name 'task-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+}
+rebind_task_contract() {
+  local target="$1" digest="$2"
+  rebind_manifest_entry "$target" "specs/workflow-state-integrity/tasks.md" "$digest"
+  # Hermetic fixture: the committed contracts pin two
+  # plugins/sdd-quality-loop/references/ files at hashes older than the live
+  # tree, which the checker reconciles via its git pin-commit fallback.
+  # That fallback needs FULL history — it passes locally and in full-depth
+  # checkouts but fails in a shallow CI clone (git show HEAD: yields current
+  # content, not the recorded generation's). This suite is about the task
+  # plan's binding, not those pins, so rebind them to the live copies the
+  # fixture ships and drop the history dependence entirely.
+  local ref
+  for ref in plugins/sdd-quality-loop/references/risk-gate-matrix.md \
+             plugins/sdd-quality-loop/references/risk-classification-policy.md; do
+    rebind_manifest_entry "$target" "$ref" "$(sha_file "$ROOT/$ref")"
+  done
 }
 # Flip the first REMAINING 'Status: Done' line (awk, not GNU-sed 0,/re/ —
 # the suite also runs on BSD sed hosts). Calling twice flips two tasks.
