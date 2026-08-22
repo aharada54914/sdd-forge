@@ -188,6 +188,28 @@ function Get-RepositoryRelativePath(
     }
     return $null
 }
+function Get-CandidateRootsForPath([string]$NormalizedPath) {
+    # One recorded manifest path's candidate repository roots: split on the
+    # repository's structural top-level directories, counting a split only
+    # when the suffix it produces matches a canonical manifest shape (the
+    # rationale is documented in Get-RecordedRepositoryRoot, whose per-path
+    # inner derivation this extracts). Returned with the comma operator so
+    # PowerShell hands back the HashSet itself instead of unrolling it.
+    $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
+        $index = $NormalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
+        while ($index -ge 0) {
+            $suffix = $NormalizedPath.Substring($index + 1)
+            if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
+                $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
+                $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+                [void]$candidateRoots.Add($NormalizedPath.Substring(0, $index))
+            }
+            $index = $NormalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
+        }
+    }
+    return ,$candidateRoots
+}
 function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
     $normalizedRoot = $RepositoryRoot.Replace("\", "/").TrimEnd("/")
     $currentRoots = @($normalizedRoot)
@@ -224,19 +246,7 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
                 }
             }
             if ($isCurrent) { continue }
-            $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-            foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
-                $index = $normalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
-                while ($index -ge 0) {
-                    $suffix = $normalizedPath.Substring($index + 1)
-                    if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
-                        $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
-                        $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
-                        [void]$candidateRoots.Add($normalizedPath.Substring(0, $index))
-                    }
-                    $index = $normalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
-                }
-            }
+            $candidateRoots = Get-CandidateRootsForPath $normalizedPath
             if ($candidateRoots.Count -ne 1) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
