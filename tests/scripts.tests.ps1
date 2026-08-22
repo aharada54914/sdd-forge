@@ -2357,6 +2357,22 @@ Second Approval: Approved (bob 2026-06-13T11:00:00Z)
     } else {
         throw "T-007b.2: should report need for named approver"
     }
+    # RT-20260821-015: assert the FULL diagnostic including the literal an
+    # operator must copy. The sh twin's awk \x27 hex escape swallowed the
+    # following 'A' on BSD awk ("need zpprove..."), invisible to the
+    # prefix-only assertion above; pin the exact tail on BOTH twins.
+    $expectedTail = "(need 'Approved (<id> <ISO>)')"
+    if (-not ($t007b_2_out | Where-Object { $_.ToString().Contains($expectedTail) })) {
+        throw "T-007b.2b: ps1 diagnostic lost the copyable literal: $t007b_2_out"
+    }
+    $shTwin = Join-Path $scriptsDir "check-task-state.sh"
+    if (Test-Path $shTwin) {
+        $shOut = & bash $shTwin "t007b-test2.md" 2>&1
+        if (-not ($shOut | Where-Object { $_.ToString().Contains($expectedTail) })) {
+            throw "T-007b.2c: sh diagnostic corrupted (greedy \x27 hex escape?): $shOut"
+        }
+        Write-Host "ok: T-007b.2b/2c: full copyable diagnostic intact on both twins"
+    }
 
     # Test 3: critical + Done + primary (alice) + secondary (alice) => output contains "two distinct"
     @"

@@ -1,0 +1,49 @@
+ticket_id: RT-20260821-011
+status: open
+type: defect
+severity: critical
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-003"
+  files:
+    - "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh"
+    - "reports/implementation/agent-cost-context-isolation/T-003-review-2.md"
+summary: >-
+  prepare-task-snapshot.sh inverts Win32 MoveFileW success semantics and fails
+  open on snapshot-root collision on native Windows; T-003's acceptance
+  surface lives in drifted files unreadable this cycle
+problem: |
+  QG evaluator (seq 0825, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T071500Z.md) accepted one Critical and three
+  Majors.
+
+  Critical: prepare-task-snapshot.sh:139-147 maps MoveFileW success (BOOL
+  nonzero) to result=1 and failure to result=0, but the guard is
+  "if result != 0: fail". On native Windows an attacker who pre-creates
+  snapshot_root makes MoveFileW refuse (return 0) => result=0 => guard
+  skipped => TASK_INPUT_OK, handing the orchestrator an attacker-controlled
+  directory. The happy path is also broken (success => reports "already
+  exists"). Measured by executing the verbatim source under a stubbed Win32
+  platform. This is the round-1 Critical certified remediated, but the
+  remediation was reviewed on macOS only.
+
+  Majors: AC-003/AC-004 (T-003's whole acceptance surface) live in the four
+  drifted validator/test twins, unreadable this cycle; the independent-review
+  record makes two demonstrably false claims about the report it reviewed,
+  removing the only support for the drifted half; green.log is hand-narrated
+  ladder-rank-4 evidence, insufficient for a high-risk task's acceptance
+  criteria.
+
+  The gate report's Post-Fix Artifacts table declares the four drifted files'
+  current bytes for cycle 2 (WFI-036).
+expected_fix:
+  - "Fix the Win32 branch: result = 0 on MoveFileW success and nonzero on failure (or invert the guard), with a regression test that pins Win32 BOOL semantics under a stubbed platform - the existing macOS-only suite cannot cover it"
+  - "Re-gate with a manifest naming reports/quality-gate/20260821T071500Z.md as gate_report_declaration so the drifted validators and suites become readable, then verify AC-003/AC-004 behaviorally and re-capture green.log as real command output"
+  - "Reconcile or replace the false independent-review claims"
+references:
+  - "reports/quality-gate/20260821T071500Z.md"
+  - "specs/agent-cost-context-isolation/design.md"
+  - "specs/agent-cost-context-isolation/requirements.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

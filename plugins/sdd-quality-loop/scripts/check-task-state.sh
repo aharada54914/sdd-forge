@@ -93,7 +93,7 @@ function finish() {
   else if (status != "Planned" && status != "In Progress" && status != "Blocked" && status != "Implementation Complete" && status != "Done")
     fail(task " has invalid Status: " status)
   if ((status == "In Progress" || status == "Implementation Complete" || status == "Done") && !is_approved)
-    fail(task " is \x27" status "\x27 without Approval: Approved")
+    fail(task " is \047" status "\047 without Approval: Approved")
   if (status == "Done") {
     tasks_dir = ENVIRON["TASKS"]
     # NOTE: escape "/" instead of bracketing it ([/]) — BSD awk (macOS) rejects
@@ -142,7 +142,7 @@ function finish() {
   }
   if (status == "Implementation Complete") {
     # C-07: word-boundary match to prevent T-001 matching T-0010
-    cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
+    cmd = "grep -rlw \047" task "\047 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
     cmd | getline impl_report; close(cmd)
     if (impl_report == "") fail(task " is Implementation Complete but no implementation report in " ENVIRON["IMPL_REPORTS"] " mentions it")
     impl_report = ""
@@ -156,19 +156,19 @@ function finish() {
     sec_id = approver_id(second)
 
     if (prim_id == "") {
-      fail(task " is critical Done but primary Approval lacks a named approver (need \x27Approved (<id> <ISO>)\x27)")
+      fail(task " is critical Done but primary Approval lacks a named approver (need \047Approved (<id> <ISO>)\047)")
     }
     if (tolower(prim_id) == "sudo") {
-      fail(task " is critical Done but primary approver is \x27sudo\x27; critical requires a named human approver")
+      fail(task " is critical Done but primary approver is \047sudo\047; critical requires a named human approver")
     }
     if (second == "" || sec_id == "") {
-      fail(task " is critical Done but Second Approval is missing or not a named \x27Approved (<id> <ISO>)\x27")
+      fail(task " is critical Done but Second Approval is missing or not a named \047Approved (<id> <ISO>)\047")
     }
     if (tolower(sec_id) == "sudo") {
-      fail(task " is critical Done but Second Approval approver is \x27sudo\x27; critical requires a named human second approver")
+      fail(task " is critical Done but Second Approval approver is \047sudo\047; critical requires a named human second approver")
     }
     if (tolower(prim_id) == tolower(sec_id) && prim_id != "") {
-      fail(task " is critical Done but both approvals are by the same approver \x27" prim_id "\x27; two distinct approvers required")
+      fail(task " is critical Done but both approvals are by the same approver \047" prim_id "\047; two distinct approvers required")
     }
   }
 }

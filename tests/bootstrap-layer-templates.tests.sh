@@ -186,6 +186,36 @@ security-spec.template.md~Entity.*Classification.*At Rest.*In Transit.*Retention
 security-spec.template.md~SBOM|Supply Chain~supply-chain controls
 EOF
 
+# RT-20260821-001: pin the delivered risk-field shapes. Nothing previously
+# asserted that the two task templates carry the four risk fields, or that
+# the classification policy states the legacy-mode rule (its absent->medium
+# paragraph contradicted the other three normative docs for 14 months).
+for field in "Risk:" "Risk Rationale:" "Required Workflow:" "Requirements:"; do
+  if grep -q "^${field}" "$TEMPLATES/tasks.template.md"; then
+    pass "RT001: tasks.template.md carries '$field' line"
+  else
+    fail "RT001: tasks.template.md lost required line '$field'"
+  fi
+done
+for field in "## Risk" "## Risk Rationale" "## Required Workflow" "## Requirements"; do
+  if grep -q "^${field}\$" "$TEMPLATES/ai-task.template.md"; then
+    pass "RT001: ai-task.template.md carries '$field'"
+  else
+    fail "RT001: ai-task.template.md lost required section '$field'"
+  fi
+done
+POLICY="$ROOT/plugins/sdd-quality-loop/references/risk-classification-policy.md"
+if grep -q 'legacy mode' "$POLICY" && grep -q 'Do \*\*NOT\*\* map absent to' "$POLICY"; then
+  pass "RT001: classification policy states legacy-mode + do-not-map-absent"
+else
+  fail "RT001: classification policy lost the legacy-mode / do-not-map rule"
+fi
+if grep -qi 'absent.*medium.-baseline' "$POLICY"; then
+  fail "RT001: the forbidden absent->medium mapping is back in the policy doc"
+else
+  pass "RT001: no absent->medium mapping in the policy doc"
+fi
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
