@@ -2330,6 +2330,161 @@ else
 fi
 
 # ============================================================================
+# TEST-063/064: a project-root-relative row whose worktree content has
+# DRIFTED (same shape as TEST-039) must put the CURRENT worktree bytes into
+# the bundle, not the declaration-commit bytes — and must say so, IN the
+# bundle, where a reviewer will actually see it. TEST-039 only proved the
+# gate stays open (exit 0 + a stderr-only notice); it never inspected what
+# landed in the bundle file itself. This is the defect this change fixes:
+# a panelist judging "the code as it stands" was quietly handed weeks-old
+# bytes instead.
+# ============================================================================
+
+echo "=== TEST-063/064: drifted row serves CURRENT bytes + in-bundle stale notice ==="
+
+D063="${WORK}/pp063"
+mkdir -p "${D063}/input"
+git_init_scratch_repo "${D063}"
+write_tasks_with_consent "${D063}/tasks.md" "T-004"
+printf 'MARKER_V1_ONLY shared content\n' > "${D063}/shared.txt"
+HASH063_V1="$(sha256_of "${D063}/shared.txt")"
+write_impl_report "${D063}" "cross-model-verification" "T-004" \
+    "$(printf 'shared.txt\t%s' "$HASH063_V1")"
+git -C "${D063}" add -A
+git -C "${D063}" commit -q -m "declare shared.txt v1"
+
+# A later sibling task drifts the shared file; the report's declared hash
+# (v1) is now stale relative to the worktree (v2).
+printf 'MARKER_V2_ONLY shared content (drifted)\n' > "${D063}/shared.txt"
+git -C "${D063}" add -A
+git -C "${D063}" commit -q -m "sibling task drifts shared.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D063}/input" \
+    --tasks-file "${D063}/tasks.md" \
+    --project-root "${D063}" \
+    --out "${D063}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-063a: drifted row still exits 0"
+else
+    fail "TEST-063a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D063}/out.txt" ] && grep -qF "MARKER_V2_ONLY" "${D063}/out.txt"; then
+    ok "TEST-063b: bundle carries the CURRENT worktree bytes (v2 marker present)"
+else
+    fail "TEST-063b: expected v2 (current worktree) content in the bundle, not found"
+fi
+if [ -f "${D063}/out.txt" ] && ! grep -qF "MARKER_V1_ONLY" "${D063}/out.txt"; then
+    ok "TEST-063c: bundle does NOT carry the declaration-commit (historical) bytes"
+else
+    fail "TEST-063c: found declaration-commit (v1) content in the bundle — historical bytes leaked into review material"
+fi
+if [ -f "${D063}/out.txt" ] && \
+   grep -qF "shared.txt (declared output" "${D063}/out.txt" && \
+   grep -qF "implementation report's declared hash for this path is STALE" "${D063}/out.txt"; then
+    ok "TEST-064a: in-bundle notice names shared.txt and states the report's declared hash is stale (found in the bundle FILE, not only stderr)"
+else
+    fail "TEST-064a: expected an in-bundle stale-declaration notice naming shared.txt"
+fi
+
+# ============================================================================
+# TEST-065: a project-root-relative row whose worktree content still
+# matches the declared hash produces NO stale-declaration notice anywhere
+# in the bundle — proves the notice is conditioned on an actual mismatch,
+# not printed unconditionally on every declared-outputs row.
+# ============================================================================
+
+echo "=== TEST-065: undrifted row → bundle carries content, NO stale notice ==="
+
+D065="${WORK}/pp065"
+mkdir -p "${D065}/input"
+git_init_scratch_repo "${D065}"
+write_tasks_with_consent "${D065}/tasks.md" "T-004"
+printf 'MARKER_STABLE_065 stable content\n' > "${D065}/stable.txt"
+HASH065="$(sha256_of "${D065}/stable.txt")"
+write_impl_report "${D065}" "cross-model-verification" "T-004" \
+    "$(printf 'stable.txt\t%s' "$HASH065")"
+git -C "${D065}" add -A
+git -C "${D065}" commit -q -m "declare stable.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D065}/input" \
+    --tasks-file "${D065}/tasks.md" \
+    --project-root "${D065}" \
+    --out "${D065}/out.txt"
+
+if [ -f "${D065}/out.txt" ] && grep -qF "MARKER_STABLE_065" "${D065}/out.txt"; then
+    ok "TEST-065a: matching-hash row still carries its content"
+else
+    fail "TEST-065a: expected stable.txt content in the bundle"
+fi
+if [ -f "${D065}/out.txt" ] && ! grep -q "is STALE" "${D065}/out.txt"; then
+    ok "TEST-065b: no stale-declaration notice for a row whose hash already matched"
+else
+    fail "TEST-065b: a stale notice must not appear when the worktree hash matched directly. Output: $(cat "${D065}/out.txt" 2>/dev/null)"
+fi
+
+# ============================================================================
+# TEST-066: a declared row that no longer exists anywhere in the worktree
+# (deleted by a later commit) but DID exist with a matching hash at the
+# report's own declaration commit. There is no current content to serve —
+# silently falling back to the declaration-commit blob here would be the
+# exact defect this change fixes, one case further: a reviewer handed a
+# file that has been REMOVED, presented as if it still existed. The chosen
+# behavior is to serve no content and say so plainly in the bundle, while
+# leaving the completeness gate itself unchanged (still exit 0 — the
+# declaration was true when written).
+# ============================================================================
+
+echo "=== TEST-066: declared row deleted from worktree → notice only, no historical content ==="
+
+D066="${WORK}/pp066"
+mkdir -p "${D066}/input"
+git_init_scratch_repo "${D066}"
+write_tasks_with_consent "${D066}/tasks.md" "T-004"
+printf 'MARKER_DELETED_066 content that will vanish\n' > "${D066}/deleted.txt"
+HASH066="$(sha256_of "${D066}/deleted.txt")"
+write_impl_report "${D066}" "cross-model-verification" "T-004" \
+    "$(printf 'deleted.txt\t%s' "$HASH066")"
+git -C "${D066}" add -A
+git -C "${D066}" commit -q -m "declare deleted.txt"
+
+git -C "${D066}" rm -q deleted.txt
+git -C "${D066}" commit -q -m "sibling task deletes deleted.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D066}/input" \
+    --tasks-file "${D066}/tasks.md" \
+    --project-root "${D066}" \
+    --out "${D066}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-066a: row deleted from the worktree but true at declaration commit → gate unchanged, exit 0"
+else
+    fail "TEST-066a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D066}/out.txt" ] && ! grep -qF "MARKER_DELETED_066" "${D066}/out.txt"; then
+    ok "TEST-066b: bundle does NOT carry the deleted file's historical bytes"
+else
+    fail "TEST-066b: deleted file's historical content leaked into the bundle"
+fi
+if [ -f "${D066}/out.txt" ] && \
+   grep -qF "deleted.txt (declared output" "${D066}/out.txt" && \
+   grep -qF "MISSING from the worktree" "${D066}/out.txt" && \
+   grep -qF "STALE" "${D066}/out.txt"; then
+    ok "TEST-066c: bundle names deleted.txt and states its declaration is stale/missing"
+else
+    fail "TEST-066c: expected an in-bundle missing/stale notice naming deleted.txt"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

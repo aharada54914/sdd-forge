@@ -2310,6 +2310,170 @@ if (Test-Path (Join-Path $d "out.txt")) {
     fail "TEST-062b/c: bundle file not written"
 }
 
+# ============================================================================
+# TEST-063/064: a project-root-relative row whose worktree content has
+# DRIFTED (same shape as TEST-039) must put the CURRENT worktree bytes into
+# the bundle, not the declaration-commit bytes -- and must say so, IN the
+# bundle, where a reviewer will actually see it. TEST-039 only proved the
+# gate stays open (exit 0 + a stderr-only notice); it never inspected what
+# landed in the bundle file itself. This is the defect this change fixes:
+# a panelist judging "the code as it stands" was quietly handed weeks-old
+# bytes instead.
+# ============================================================================
+
+Write-Host "=== TEST-063/064: drifted row serves CURRENT bytes + in-bundle stale notice ==="
+
+$d = Join-Path $Work "pp063"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "MARKER_V1_ONLY shared content" -NoNewline
+$hash063v1 = Get-Sha256OfFile (Join-Path $d "shared.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("shared.txt") -Hashes @($hash063v1)
+Invoke-PpiGitCommit -Root $d -Message "declare shared.txt v1"
+
+# A later sibling task drifts the shared file; the report's declared hash
+# (v1) is now stale relative to the worktree (v2).
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "MARKER_V2_ONLY shared content (drifted)" -NoNewline
+Invoke-PpiGitCommit -Root $d -Message "sibling task drifts shared.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-063a: drifted row still exits 0"
+} else {
+    fail "TEST-063a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText063 = Get-Content -Raw (Join-Path $d "out.txt")
+} else {
+    $bundleText063 = ""
+}
+if ($bundleText063.Contains("MARKER_V2_ONLY")) {
+    ok "TEST-063b: bundle carries the CURRENT worktree bytes (v2 marker present)"
+} else {
+    fail "TEST-063b: expected v2 (current worktree) content in the bundle, not found"
+}
+if (-not $bundleText063.Contains("MARKER_V1_ONLY")) {
+    ok "TEST-063c: bundle does NOT carry the declaration-commit (historical) bytes"
+} else {
+    fail "TEST-063c: found declaration-commit (v1) content in the bundle -- historical bytes leaked into review material"
+}
+if ($bundleText063.Contains("shared.txt (declared output") -and
+    $bundleText063.Contains("implementation report's declared hash for this path is STALE")) {
+    ok "TEST-064a: in-bundle notice names shared.txt and states the report's declared hash is stale (found in the bundle FILE, not only stderr)"
+} else {
+    fail "TEST-064a: expected an in-bundle stale-declaration notice naming shared.txt"
+}
+
+# ============================================================================
+# TEST-065: a project-root-relative row whose worktree content still
+# matches the declared hash produces NO stale-declaration notice anywhere
+# in the bundle -- proves the notice is conditioned on an actual mismatch,
+# not printed unconditionally on every declared-outputs row.
+# ============================================================================
+
+Write-Host "=== TEST-065: undrifted row -> bundle carries content, NO stale notice ==="
+
+$d = Join-Path $Work "pp065"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "stable.txt") -Value "MARKER_STABLE_065 stable content" -NoNewline
+$hash065 = Get-Sha256OfFile (Join-Path $d "stable.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("stable.txt") -Hashes @($hash065)
+Invoke-PpiGitCommit -Root $d -Message "declare stable.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText065 = Get-Content -Raw (Join-Path $d "out.txt")
+} else {
+    $bundleText065 = ""
+}
+if ($bundleText065.Contains("MARKER_STABLE_065")) {
+    ok "TEST-065a: matching-hash row still carries its content"
+} else {
+    fail "TEST-065a: expected stable.txt content in the bundle"
+}
+if (-not $bundleText065.Contains("is STALE")) {
+    ok "TEST-065b: no stale-declaration notice for a row whose hash already matched"
+} else {
+    fail "TEST-065b: a stale notice must not appear when the worktree hash matched directly. Output: $bundleText065"
+}
+
+# ============================================================================
+# TEST-066: a declared row that no longer exists anywhere in the worktree
+# (deleted by a later commit) but DID exist with a matching hash at the
+# report's own declaration commit. There is no current content to serve --
+# silently falling back to the declaration-commit blob here would be the
+# exact defect this change fixes, one case further: a reviewer handed a
+# file that has been REMOVED, presented as if it still existed. The chosen
+# behavior is to serve no content and say so plainly in the bundle, while
+# leaving the completeness gate itself unchanged (still exit 0 -- the
+# declaration was true when written).
+# ============================================================================
+
+Write-Host "=== TEST-066: declared row deleted from worktree -> notice only, no historical content ==="
+
+$d = Join-Path $Work "pp066"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "deleted.txt") -Value "MARKER_DELETED_066 content that will vanish" -NoNewline
+$hash066 = Get-Sha256OfFile (Join-Path $d "deleted.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("deleted.txt") -Hashes @($hash066)
+Invoke-PpiGitCommit -Root $d -Message "declare deleted.txt"
+
+Remove-Item -LiteralPath (Join-Path $d "deleted.txt") -Force
+Invoke-PpiGitCommit -Root $d -Message "sibling task deletes deleted.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-066a: row deleted from the worktree but true at declaration commit -> gate unchanged, exit 0"
+} else {
+    fail "TEST-066a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText066 = Get-Content -Raw (Join-Path $d "out.txt")
+} else {
+    $bundleText066 = ""
+}
+if (-not $bundleText066.Contains("MARKER_DELETED_066")) {
+    ok "TEST-066b: bundle does NOT carry the deleted file's historical bytes"
+} else {
+    fail "TEST-066b: deleted file's historical content leaked into the bundle"
+}
+if ($bundleText066.Contains("deleted.txt (declared output") -and
+    $bundleText066.Contains("MISSING from the worktree") -and
+    $bundleText066.Contains("STALE")) {
+    ok "TEST-066c: bundle names deleted.txt and states its declaration is stale/missing"
+} else {
+    fail "TEST-066c: expected an in-bundle missing/stale notice naming deleted.txt"
+}
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
