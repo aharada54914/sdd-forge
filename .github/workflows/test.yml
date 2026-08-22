@@ -360,6 +360,10 @@ jobs:
         shell: pwsh
         run: ./tests/boundary-reference-authorization-parity.tests.ps1
 
+      - name: Test task-plan binding durability (bash, WFI-025)
+        shell: bash
+        run: bash ./tests/task-plan-binding-durability.tests.sh
+
       - name: Test loop inventory registration forcing (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the

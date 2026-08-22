@@ -51,6 +51,21 @@ reviewed_sha256() {
   fi
   sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" | sha256_stream
 }
+# WFI-025: the STATUS-NORMALIZED task-plan digest — byte-for-byte the same
+# recipe as check-workflow-state.sh normalized_hash() for the task stage
+# (canonical form 1), which the accepting side already admits. Recorded
+# instead of the raw digest when the plan's statuses are mixed, so the
+# binding survives the lifecycle transitions the workflow is supposed to
+# perform; every byte outside the lifecycle fields still binds.
+tasks_normalized_hash() {
+  local file="$1" cr=""
+  LC_ALL=C grep -q $'^Task-Review-Status:.*\r$' "$file" && cr=$'\r'
+  sed \
+    -e "s/^Task-Review-Status:[[:space:]]*.*/Task-Review-Status: Pending${cr}/" \
+    -e "s/^Approval:[[:space:]]*.*/Approval: Draft${cr}/" \
+    -e "s/^Status:[[:space:]]*.*/Status: Planned${cr}/" \
+    -e "/^Second Approval:/d" "$file" | sha256_stream
+}
 # Shared predecessor-verdict validation (require_persisted_pass and
 # assert_contract_reviewer_agreement) lives in lib/review-precheck-common.sh,
 # shared with the sibling precheck. It calls this script's fail/sha256/
@@ -80,7 +95,14 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
   for path in "$TASKS_MD" "$REQS_MD" "$ACCEPT_MD" "$DESIGN_MD"; do
     [[ -f "$path" && ! -L "$path" ]] || fail "review input is missing or substituted: $path"
   done
-  jq -e --arg tasks "$(sha256 "$TASKS_MD")" --arg requirements "$(sha256 "$REQS_MD")" \
+  # WFI-025: verify the task plan against the digest FORM the precheck
+  # declared. A normalized record tolerates the lifecycle flips it exists to
+  # absorb; a body edit still changes the normalized digest and fails here.
+  tasks_verify_hash="$(sha256 "$TASKS_MD")"
+  if [[ "$(jq -r '.tasks_sha256_form // "raw"' "$precheck" | tr -d '\r')" == "normalized" ]]; then
+    tasks_verify_hash="$(tasks_normalized_hash "$TASKS_MD")"
+  fi
+  jq -e --arg tasks "$tasks_verify_hash" --arg requirements "$(sha256 "$REQS_MD")" \
     --arg acceptance "$(sha256 "$ACCEPT_MD")" --arg design "$(sha256 "$DESIGN_MD")" \
     --arg feature "$FEATURE" \
     --argjson attempt "$ATTEMPT" --argjson round "$ROUND" '
@@ -358,6 +380,19 @@ done
 # ──────────────────────────────────────────────────────────────────────────────
 
 tasks_sha256=$(sha256 "${TASKS_MD}")
+# WFI-025: a plan whose task statuses are MIXED has a raw digest that
+# coincides with none of the accepting side's status-invariant forms, so a
+# raw binding breaks on the next lifecycle flip of any task. Record the
+# normalized digest for that case — and only that case: a uniform plan (all
+# statuses equal, or no Status lines) keeps today's raw behaviour
+# byte-for-byte. The recorded form travels in `tasks_sha256_form` so the
+# reservation validator can cross-check which form the manifest may declare.
+tasks_sha256_form="raw"
+distinct_status_count=$(sed -n 's/^Status:[[:space:]]*//p' "${TASKS_MD}" | sed -e 's/\r$//' -e 's/[[:space:]]*$//' | sort -u | grep -c . || true)
+if [[ "${distinct_status_count}" -gt 1 ]]; then
+  tasks_sha256_form="normalized"
+  tasks_sha256="$(tasks_normalized_hash "${TASKS_MD}")"
+fi
 requirements_sha256=$(sha256 "${REQS_MD}")
 acceptance_sha256=$(sha256 "${ACCEPT_MD}")
 design_sha256=$(sha256 "${DESIGN_MD}")
@@ -482,6 +517,7 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "workflow_match_precheck": "${workflow_match_precheck}",
   "blockers_format_valid": ${blockers_format_valid},
   "tasks_sha256": "${tasks_sha256}",
+  "tasks_sha256_form": "${tasks_sha256_form}",
   "requirements_sha256": "${requirements_sha256}",
   "acceptance_sha256": "${acceptance_sha256}",
   "design_sha256": "${design_sha256}",
