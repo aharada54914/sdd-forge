@@ -87,8 +87,10 @@ requested feature and task:
    `(task ID, round number)` by retaining the lexicographically smallest
    canonical path, then count the retained rounds in numeric round order.
 3. **Quality-gate runs.** The authoritative artifacts are Markdown files under
-   `reports/quality-gate/` with exactly one `Task: T-NNN` identity and one
-   non-empty `Run ID`. Associate only by that exact task identity.
+   `reports/quality-gate/` with exactly one task-identity line — the
+   canonical `Task ID: T-NNN` (quality-report template, WFI-020), or the
+   legacy `Task: T-NNN` form in reports that predate it — and one non-empty
+   `Run ID`. Associate only by that exact task identity.
    De-duplicate on `(task ID, Run ID)` by retaining the lexicographically
    smallest canonical path. Count retained reports, including PASS, FAIL, and
    BLOCKED, ordered by `Run ID` and then canonical path.

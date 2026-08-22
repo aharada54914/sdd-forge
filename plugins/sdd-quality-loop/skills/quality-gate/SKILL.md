@@ -238,13 +238,22 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
     run described in `deterministic-check-policy.md`.
 13. Create review-ticket YAML for unresolved or non-auto-fixable findings.
 14. Update traceability and detect drift using `integrity-policy.md`.
-15. Create `reports/quality-gate/<timestamp>.md` naming the task id. Record
-    the same `- Model:` / `- Effort:` two-line requirement the
-    implementation report carries (`implementation-report.template.md`,
+15. Create `reports/quality-gate/<timestamp>.md` from
+    `plugins/sdd-quality-loop/templates/quality-report.template.md` — the
+    template exists and is parity-tested
+    (`tests/template-validator-parity.tests.{sh,ps1}`); do not author the
+    report freeform. Its identity header block (`Task ID:` / `Feature:` /
+    `Run ID:` / `VERDICT:` / `Critical:` / `Major:` / `Minor:`) is parsed
+    by deterministic consumers (check-evidence-bundle, emit-run-record,
+    generate-evidence-bundle, the retrospective's artifact rules): keep
+    each as a bare line before any prose, and never start a later body
+    line with `Feature: ` or `Task ID: ` — two consumers require exactly
+    one match each. Record the same `- Model:` / `- Effort:` two-line
+    requirement the implementation report carries
+    (`implementation-report.template.md`,
     `validate-implementation-report.sh` present-and-format-only check):
     name the model and effort the gate's own critical-review pass ran
-    under, freely-authored (no separate template file exists for this
-    report).
+    under. (WFI-020)
 
 ### Sudo Mode
 
