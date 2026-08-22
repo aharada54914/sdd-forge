@@ -27,20 +27,36 @@ sha256_stream() {
 # later, legitimate edit to a reference doc must not retroactively fail every
 # past feature's provenance. When a manifest-recorded hash for a plugins/
 # path does not match the live working-tree file, fall back to resolving the
-# file's content as of the commit that last touched the specific evidence
-# file being validated (the review contract JSON itself is immutable,
-# committed historical fact) and accept the match only if it is identical.
+# file's content as of the commit that INTRODUCED the specific evidence file
+# being validated (the review contract JSON itself is immutable, committed
+# historical fact) and accept the match only if it is identical. The pin
+# stands in for "when this review happened" -- a moment that does not move
+# when the record is later amended for an unrelated reason, so this resolves
+# --diff-filter=A (the commit that added the path), not the commit that most
+# recently touched it: a subsequent, unrelated edit to the same contract
+# (e.g. a provenance re-bind) must not retroactively shift the pin forward
+# past reference-doc evolution that happened in between, which would falsely
+# invalidate a hash that was valid when the review actually ran.
 # This keeps tamper detection intact: a forged hash that matches no
 # legitimate point-in-time content still fails.
 plugins_pin_commit() {
-  local evidence_file="$1" relative
+  local evidence_file="$1" relative pins
   command -v git >/dev/null 2>&1 || return 1
   git -C "$SCRIPT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
   case "$evidence_file" in
     "$REPO_ROOT"/*) relative="${evidence_file#"$REPO_ROOT/"}" ;;
     *) return 1 ;;
   esac
-  git -C "$SCRIPT_ROOT" log -1 --format='%H' -- "$relative" 2>/dev/null
+  # A path added, deleted, and re-added yields more than one --diff-filter=A
+  # commit; a path that has never been committed (working-tree only) yields
+  # none. Both are an indeterminate introducing commit. Since this is a
+  # provenance check, failing closed on an indeterminate pin is safer than
+  # guessing which addition -- or accepting a convenient one -- is
+  # authoritative.
+  pins="$(git -C "$SCRIPT_ROOT" log --diff-filter=A --format='%H' -- "$relative" 2>/dev/null)" || return 1
+  [[ -n "$pins" ]] || return 1
+  [[ "$pins" != *$'\n'* ]] || return 1
+  printf '%s\n' "$pins"
 }
 plugins_hash_at_pin() {
   local pin="$1" plugins_relative="$2" hash
