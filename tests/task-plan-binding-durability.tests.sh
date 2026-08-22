@@ -20,6 +20,18 @@
 #      before/after of the property this WFI exists to create.
 set -euo pipefail
 
+# This suite drives the sh review stack end to end (real precheck →
+# validator → check-workflow-state.sh). On Windows the ps1 twins are CI's
+# leg for that stack — check-workflow-state.sh's registry scan misreads
+# spec-directory paths under Git Bash (every registered feature reports
+# registry-dangling-entry), so the sh legs are skipped there exactly as the
+# workflow-state suites gate them.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    echo "SKIP: task-plan-binding-durability.tests.sh exercises the sh review stack; the ps1 twins are CI's Windows leg"
+    exit 0 ;;
+esac
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 FEATURE="binding-durability-fixture"
 SPEC_DIR="$ROOT/specs/$FEATURE"
