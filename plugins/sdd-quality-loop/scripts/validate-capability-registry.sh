@@ -1,14 +1,14 @@
 #!/bin/sh
-# Thin argument-forwarding wrapper for validate-capability-registry.py
-# (Python master). INV-014 (the sdd-hook-guard.sh pattern).
-set -eu
-dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+# Thin POSIX dispatcher for validate-capability-registry (Python master).
+# Dispatch logic (python3 -> python -> fail-closed exit 3) lives in
+# lib/py-dispatch.sh, shared by every python-master wrapper.
+set -u
 
-if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$dir/validate-capability-registry.py" "$@"
-elif command -v python >/dev/null 2>&1; then
-  exec python "$dir/validate-capability-registry.py" "$@"
-else
-  echo "validate-capability-registry: python3 (or python) is required" >&2
-  exit 1
+dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+if ! . "$dir/lib/py-dispatch.sh"; then
+  echo 'validate-capability-registry: VALIDATE_CAPABILITY_REGISTRY_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2
+  exit 3
 fi
+
+sdd_py_dispatch "$dir/validate-capability-registry.py" 'validate-capability-registry: VALIDATE_CAPABILITY_REGISTRY_RUNTIME_UNAVAILABLE' "$@"

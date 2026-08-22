@@ -137,6 +137,8 @@ BASELINE_SUFFIXES = (
     # wrapper, so a lib a protected script sources is protected itself.
     "plugins/sdd-quality-loop/scripts/lib/panelist-common.sh",
     "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+    "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
+    "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
