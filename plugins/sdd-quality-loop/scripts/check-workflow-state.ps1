@@ -26,9 +26,16 @@ function Get-Sha256([string]$Path) {
 # later, legitimate edit to a reference doc must not retroactively fail every
 # past feature's provenance. When a manifest-recorded hash for a plugins/
 # path does not match the live working-tree file, fall back to resolving the
-# file's content as of the commit that last touched the specific evidence
-# file being validated (the review contract JSON itself is immutable,
-# committed historical fact) and accept the match only if it is identical.
+# file's content as of the commit that INTRODUCED the specific evidence file
+# being validated (the review contract JSON itself is immutable, committed
+# historical fact) and accept the match only if it is identical. The pin
+# stands in for "when this review happened" -- a moment that does not move
+# when the record is later amended for an unrelated reason, so this resolves
+# --diff-filter=A (the commit that added the path), not the commit that most
+# recently touched it: a subsequent, unrelated edit to the same contract
+# (e.g. a provenance re-bind) must not retroactively shift the pin forward
+# past reference-doc evolution that happened in between, which would falsely
+# invalidate a hash that was valid when the review actually ran.
 # This keeps tamper detection intact: a forged hash that matches no
 # legitimate point-in-time content still fails.
 function Get-PluginsPinCommit([string]$EvidenceFile) {
@@ -38,8 +45,16 @@ function Get-PluginsPinCommit([string]$EvidenceFile) {
     $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $EvidenceFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $null }
     $relative = $EvidenceFile.Substring($prefix.Length).Replace("\", "/")
-    $result = & git -C $ScriptRoot log -1 --format='%H' -- $relative 2>$null
+    # A path added, deleted, and re-added yields more than one
+    # --diff-filter=A commit (captured here as an array); a path that has
+    # never been committed (working-tree only) yields none ($null/empty).
+    # Both are an indeterminate introducing commit. Since this is a
+    # provenance check, failing closed on an indeterminate pin is safer than
+    # guessing which addition -- or accepting a convenient one -- is
+    # authoritative.
+    $result = & git -C $ScriptRoot log --diff-filter=A --format='%H' -- $relative 2>$null
     if ($LASTEXITCODE -ne 0 -or -not $result) { return $null }
+    if ($result -is [array]) { return $null }
     return [string]$result
 }
 function Get-PluginsHashAtPin([string]$Pin, [string]$PluginsRelative) {
