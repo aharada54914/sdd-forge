@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.16.0 (2026-08-22)
 
 ### Added
 
@@ -223,7 +223,54 @@
   schema file was needed or made -- every positive fixture was accepted on
   first execution.
 
+- **human-copy 鏡像の一括列挙と同期ツール (WFI-039)**: 追加した
+  `scripts/human_copy_mirrors.py` が `specs/*/human-copy/MANIFEST.sha256` と
+  `specs/*/drafts/human-copy-candidate/**/*.candidate` を走査して全鏡像を列挙し、
+  各々を `fresh` / `stale` / `pending` / `MANIFEST-STALE` に分類する。
+  `tests/human-copy-mirror-freshness.tests.{sh,ps1}` が CI で全鏡像を一度に
+  報告し、`scripts/sync-human-copy-mirrors.py` が修復する（`--check` で報告のみ）。
+  両 twin は列挙をこのモジュールに委譲するため、パリティは維持ではなく構成上のもの。
+  分類の要は **`staged == origin/main` の live** で、これが「適用済み（同期してよい）」と
+  「人間のレビュー済み未適用作業（触ってはいけない）」を分ける。現に 15 鏡像が
+  `pending` で、一律同期はこれらを消しながら CI を緑にしてしまう。
+  `MANIFEST-STALE` は `stale` と独立した失敗で、どちらも他方を含意しない —
+  live と staged を同一に書き換える変更は両者を一致させたまま manifest だけを
+  腐らせる。手順は `docs/contributor/shared-file-mirrors.md`。
+
 ### Fixed
+
+- **guard の保護対象が宣言と実装で乖離していた問題 (WFI-040)**:
+  `sdd-hook-guard` は「ゲートスクリプト・フック設定・テストファイルは書き換え
+  不可」と宣言する一方、実体は手書きのパス接尾辞リストと 9 語のシェル動詞語彙で、
+  どちらも既定が許可側だった。実測で `plugins/*/scripts/` 121 本中 83 本が保護外、
+  うち **CI・`tests/run-all.*`・SKILL が実際に実行する 31 本**が無防備
+  （`check-workflow-state` 両 twin、`validate-review-context-set` 両 twin、
+  `*-review-precheck.sh` 3 種、retrospective が測る run record を書く
+  `emit-run-record` 両 twin を含む）。`protected_gate_suffixes` を 80→111 に拡張し
+  該当 31 本を 0 に。あわせて `shell.indirect_cmds` に `sed` `patch` `install`
+  `ln` `truncate` `dd` `python` `python3` `perl` `ruby` `node` `git` を追加し
+  `shell.sudo_write_re` を拡張して、保護パスを標的とする書き込み 13/13 素通りを
+  0/13 に。`sed` は `-i` 形、`git` は worktree 書き込み系サブコマンドのみ受理する
+  ので `sed -n` と `git log` は読み取りのまま（誤 DENY 0 を実測）。
+  guard 本体のロジックは不変で、変更はデータのみ — Python / JS / PowerShell の
+  3 twin は構成上挙動同一。ドリフト検出・派生成果物整合・語彙の 3 スイートを
+  `tests/guard-parity.tests.{sh,ps1}` に追加（39→57 checks）。
+  **未解決**: `git apply` `patch` `python3 -c` `node -e` は対象をコマンドライン上に
+  置かないため、コマンド文字列解析では原理的に到達できない。
+
+- **traceability.md の進捗ステータス列が凍結され動かせなかった問題 (WFI-030)**:
+  task ステージの provenance 束縛が `traceability.md` を正規化なしの全文
+  sha256 で比較していたため、`profile: full` の 17 feature / 107 要件行すべてが
+  作成時の `Planned` から一度も動けなかった（live な値を持つ 3 feature は
+  いずれも `profile: legacy` で当該検査を素通りする側）。`check-workflow-state`
+  両 twin に、閉じたライフサイクル語彙（`Planned` / `In Progress` /
+  `Implementation Complete` / `Done` / `Blocked`）に限りステータスセルのみを
+  正規化する受理形を追加。他の全バイトは従来どおり束縛されたまま。
+  あわせて `task-review-precheck` 両 twin が `frozen_artifact_done_when` を
+  出力し（検出のみ、終了コード不変）、`check-workflow-state` 両 twin が
+  reviewer-a の `OBSERVABLE-DONE` による全項目の裁定を要求する。検出器を
+  ゲートにしなかったのは、本リポジトリ実測で 6 件中 3 件が偽陽性であり、
+  ハード失敗にすると発火した計画の半分を止めるため。
 
 - **承認サイドカー検証器の fail-open 穴 3 件を閉鎖**
   (`validate-approval-sidecar.py` の standalone draft-07 エンジン):
