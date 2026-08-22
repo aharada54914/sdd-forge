@@ -998,4 +998,143 @@ set -e
   fail "malformed --opening value unexpectedly succeeded"
 [[ "$bad_opening_output" == *": cli-usage:"* ]] || fail "malformed --opening: wrong rule: $bad_opening_output"
 
+# plugins_pin_commit/Get-PluginsPinCommit resolve a plugins/ reference doc's
+# manifest-recorded hash against the commit that INTRODUCED the evidence
+# file (the review contract), not the one that last touched it. The fixtures
+# above run the checker binary at its real repo location, so
+# SCRIPT_ROOT/REPO_ROOT resolve to $ROOT and the pin is checked against
+# $ROOT's own git history. Proving the introducing-vs-last-touch distinction
+# needs a *self-contained* commit history the test controls byte-for-byte,
+# so these fixtures embed their own copy of both checker twins (mirroring
+# the reference-doc-forged-no-git technique above) inside a scratch git
+# repository the checker's own SCRIPT_ROOT/REPO_ROOT resolve to instead.
+make_git_fixture() {
+  local name="$1" target
+  target="$(make_full_fixture "$name")"
+  mkdir -p "$target/plugins/sdd-quality-loop/scripts" "$target/contracts"
+  cp "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    "$target/plugins/sdd-quality-loop/scripts/"
+  cp "$ROOT/contracts/workflow-state-registry.schema.json" "$target/contracts/"
+  git -C "$target" init -q
+  git -C "$target" config user.email "workflow-state-tests@example.com"
+  git -C "$target" config user.name "workflow-state tests"
+  printf '%s\n' "$target"
+}
+
+PIN_CONTRACT_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+PIN_MATRIX_REL="plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+PIN_POLICY_REL="plugins/sdd-quality-loop/references/risk-classification-policy.md"
+
+# Regression fixture for the introducing-vs-last-touch fix: the contract is
+# amended (byte-only, e.g. a later provenance re-bind) AFTER a plugins/
+# reference doc it cites has already legitimately evolved past what the
+# contract recorded. Under the OLD "last touch of the contract" semantics
+# this pin lands on a commit where the reference doc's content has already
+# drifted, and the checker wrongly rejects it -- this is the exact epic-193
+# scenario in the task description. Under introducing-commit semantics the
+# pin lands where the reference doc still matches what was recorded, and the
+# checker accepts it. This fixture is the regression's own pin: mutating
+# plugins_pin_commit/Get-PluginsPinCommit back to `log -1` flips it from
+# PASS to FAIL.
+pin_amended="$(make_git_fixture plugins-pin-amended-after-review)"
+pin_amended_intro="$(git -C "$ROOT" log --diff-filter=A -1 --format='%H' -- "$PIN_CONTRACT_REL")"
+[[ -n "$pin_amended_intro" ]] ||
+  fail "plugins-pin-amended-after-review precondition not met: no introducing commit found in $ROOT for $PIN_CONTRACT_REL"
+for pin_rel in "$PIN_MATRIX_REL" "$PIN_POLICY_REL"; do
+  pin_recorded="$(jq -r --arg name "$(basename "$pin_rel")" \
+    '.reviewers[]?.allowed_input_manifest[]? | select(.path | endswith($name)) | .sha256' \
+    "$pin_amended/$PIN_CONTRACT_REL" | head -1)"
+  git -C "$ROOT" show "$pin_amended_intro:$pin_rel" > "$pin_amended/$pin_rel"
+  pin_current="$(shasum -a 256 "$pin_amended/$pin_rel" | awk '{print $1}')"
+  [[ "$pin_recorded" == "$pin_current" ]] ||
+    fail "plugins-pin-amended-after-review precondition not met: $pin_rel at the introducing commit does not match the recorded hash"
+done
+git -C "$pin_amended" add -A
+git -C "$pin_amended" commit -q -m "baseline"
+for pin_rel in "$PIN_MATRIX_REL" "$PIN_POLICY_REL"; do
+  pin_recorded="$(jq -r --arg name "$(basename "$pin_rel")" \
+    '.reviewers[]?.allowed_input_manifest[]? | select(.path | endswith($name)) | .sha256' \
+    "$pin_amended/$PIN_CONTRACT_REL" | head -1)"
+  cp "$ROOT/$pin_rel" "$pin_amended/$pin_rel"
+  pin_evolved="$(shasum -a 256 "$pin_amended/$pin_rel" | awk '{print $1}')"
+  [[ "$pin_evolved" != "$pin_recorded" ]] ||
+    fail "plugins-pin-amended-after-review precondition not met: $ROOT's current $pin_rel has not drifted from the recorded hash"
+done
+git -C "$pin_amended" add -A
+git -C "$pin_amended" commit -q -m "evolve plugins reference docs (unrelated legitimate edit)"
+printf '\n' >> "$pin_amended/$PIN_CONTRACT_REL"
+git -C "$pin_amended" add -A
+git -C "$pin_amended" commit -q -m "amend contract for an unrelated reason (e.g. a provenance re-bind)"
+pin_amended_diff_filter_a="$(git -C "$pin_amended" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL")"
+pin_amended_last_touch="$(git -C "$pin_amended" log -1 --format='%H' -- "$PIN_CONTRACT_REL")"
+[[ "$pin_amended_diff_filter_a" != "$pin_amended_last_touch" ]] ||
+  fail "plugins-pin-amended-after-review precondition not met: introducing and last-touch commits coincide, fixture proves nothing"
+pin_amended_sh_output="$(bash "$pin_amended/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$pin_amended/specs/workflow-state-registry.json" 2>&1)" ||
+  fail "plugins-pin-amended-after-review Shell fixture unexpectedly rejected: $pin_amended_sh_output"
+pin_amended_ps_output="$(pwsh -NoProfile -File "$pin_amended/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$pin_amended/specs/workflow-state-registry.json" 2>&1)" ||
+  fail "plugins-pin-amended-after-review PowerShell fixture unexpectedly rejected: $pin_amended_ps_output"
+
+# Indeterminate pin, case 1: the evidence file has never been committed at
+# all (e.g. verified locally before the commit that would record it, per the
+# task description's "gate's own verification procedure cannot detect this
+# class before it fires"). --diff-filter=A finds zero introducing commits;
+# the chosen behaviour is to fail closed rather than treat "no history" the
+# same as the genuinely-no-.git release-artifact case above.
+pin_uncommitted="$(make_git_fixture plugins-pin-uncommitted)"
+git -C "$pin_uncommitted" add -A
+git -C "$pin_uncommitted" reset -q -- "reports/task-review/workflow-state-integrity/attempt-4/round-2"
+git -C "$pin_uncommitted" commit -q -m "baseline (round-2 excluded)"
+[[ -z "$(git -C "$pin_uncommitted" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL")" ]] ||
+  fail "plugins-pin-uncommitted precondition not met: contract has a committed introducing commit"
+printf '\n<!-- fixture drift -->\n' >> "$pin_uncommitted/$PIN_MATRIX_REL"
+set +e
+pin_uncommitted_sh_output="$(bash "$pin_uncommitted/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$pin_uncommitted/specs/workflow-state-registry.json" 2>&1)"
+pin_uncommitted_sh_status=$?
+pin_uncommitted_ps_output="$(pwsh -NoProfile -File "$pin_uncommitted/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$pin_uncommitted/specs/workflow-state-registry.json" 2>&1)"
+pin_uncommitted_ps_status=$?
+set -e
+[[ $pin_uncommitted_sh_status -ne 0 ]] || fail "plugins-pin-uncommitted Shell fixture unexpectedly passed"
+[[ $pin_uncommitted_ps_status -ne 0 ]] || fail "plugins-pin-uncommitted PowerShell fixture unexpectedly passed"
+[[ "$pin_uncommitted_sh_output" == *": stage-provenance:"* ]] ||
+  fail "plugins-pin-uncommitted fixture returned: $pin_uncommitted_sh_output"
+[[ "$(printf '%s\n' "$pin_uncommitted_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_uncommitted_ps_output" | rule_id)" ]] ||
+  fail "plugins-pin-uncommitted fixture diverged: Shell=$pin_uncommitted_sh_output PowerShell=$pin_uncommitted_ps_output"
+
+# Indeterminate pin, case 2: the evidence file was added, deleted, and
+# re-added, so --diff-filter=A finds MORE than one introducing commit. The
+# chosen behaviour is the same fail-closed outcome as case 1 -- this is a
+# provenance check, and guessing which addition is authoritative (earliest?
+# latest?) would accept a convenient pin instead of a justified one.
+pin_multi_add="$(make_git_fixture plugins-pin-multi-add)"
+git -C "$pin_multi_add" add -A
+git -C "$pin_multi_add" commit -q -m "baseline"
+git -C "$pin_multi_add" rm -q "$PIN_CONTRACT_REL"
+git -C "$pin_multi_add" commit -q -m "delete contract"
+cp "$ROOT/$PIN_CONTRACT_REL" "$pin_multi_add/$PIN_CONTRACT_REL"
+git -C "$pin_multi_add" add -A
+git -C "$pin_multi_add" commit -q -m "re-add contract"
+pin_multi_add_count="$(git -C "$pin_multi_add" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL" | grep -c .)"
+[[ "$pin_multi_add_count" -eq 2 ]] ||
+  fail "plugins-pin-multi-add precondition not met: expected exactly 2 introducing commits, got $pin_multi_add_count"
+printf '\n<!-- fixture drift -->\n' >> "$pin_multi_add/$PIN_MATRIX_REL"
+set +e
+pin_multi_add_sh_output="$(bash "$pin_multi_add/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$pin_multi_add/specs/workflow-state-registry.json" 2>&1)"
+pin_multi_add_sh_status=$?
+pin_multi_add_ps_output="$(pwsh -NoProfile -File "$pin_multi_add/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$pin_multi_add/specs/workflow-state-registry.json" 2>&1)"
+pin_multi_add_ps_status=$?
+set -e
+[[ $pin_multi_add_sh_status -ne 0 ]] || fail "plugins-pin-multi-add Shell fixture unexpectedly passed"
+[[ $pin_multi_add_ps_status -ne 0 ]] || fail "plugins-pin-multi-add PowerShell fixture unexpectedly passed"
+[[ "$pin_multi_add_sh_output" == *": stage-provenance:"* ]] ||
+  fail "plugins-pin-multi-add fixture returned: $pin_multi_add_sh_output"
+[[ "$(printf '%s\n' "$pin_multi_add_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_multi_add_ps_output" | rule_id)" ]] ||
+  fail "plugins-pin-multi-add fixture diverged: Shell=$pin_multi_add_sh_output PowerShell=$pin_multi_add_ps_output"
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'
