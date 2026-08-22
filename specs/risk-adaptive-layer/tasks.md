@@ -320,7 +320,7 @@ and `sdd-evaluator.toml` (cost-aware: cheap for investigate, stronger for evalua
 
 ### Done When
 - [ ] THREAT-MODEL.md + capability matrix enumerate all controls/agents
-- [ ] Codex agents declare model without breaking developer_instructions guard
+- [ ] Cost-aware model routing for Codex agents is documented as a runtime control (capability-matrix M-04, `--model`/`--effort` at invocation) without breaking the developer_instructions guard; role toml intentionally carries no `model` key
 - [ ] Presence/format tests; report + quality gate + traceability updated
 
 ### Blockers
