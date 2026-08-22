@@ -1,14 +1,14 @@
 #!/bin/sh
-# Thin argument-forwarding wrapper for vendor-capability-registry.py
-# (Python master). INV-014 (the sdd-hook-guard.sh pattern).
-set -eu
-dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+# Thin POSIX dispatcher for vendor-capability-registry (Python master).
+# Dispatch logic (python3 -> python -> fail-closed exit 3) lives in
+# lib/py-dispatch.sh, shared by every python-master wrapper.
+set -u
 
-if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$dir/vendor-capability-registry.py" "$@"
-elif command -v python >/dev/null 2>&1; then
-  exec python "$dir/vendor-capability-registry.py" "$@"
-else
-  echo "vendor-capability-registry: python3 (or python) is required" >&2
-  exit 1
+dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+if ! . "$dir/lib/py-dispatch.sh"; then
+  echo 'vendor-capability-registry: VENDOR_CAPABILITY_REGISTRY_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2
+  exit 3
 fi
+
+sdd_py_dispatch "$dir/vendor-capability-registry.py" 'vendor-capability-registry: VENDOR_CAPABILITY_REGISTRY_RUNTIME_UNAVAILABLE' "$@"

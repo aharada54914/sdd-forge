@@ -26,6 +26,31 @@
   review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
   緑（ps1 レグは CI）。
 
+- **python ディスパッチャ・ラッパー28本(sh 14+ps1 14)を共有 lib へ統合し、
+  欠如時挙動を文書化済みの exit 3 規約に統一（監査 Cluster 7）**: 4方言
+  （exit 3+フォールバック / exit 1+フォールバック / ガードなし bash
+  =素の127 / ps1 は `&` 演算子とバイト厳密 Process 起動が根拠矛盾のまま
+  混在）を `lib/py-dispatch.{sh,ps1}` に集約。sh は python3→python→
+  fail-closed exit 3、ps1 は canonicalize が計測済みの
+  [System.Diagnostics.Process] バイト厳密パススルー方式を全ラッパーに採用。
+  テスト固定の診断トークン（CANONICALIZER_RUNTIME_UNAVAILABLE 等）は
+  呼び出し側が所有し不変。INV-008 族（check-contract /
+  check-component-coverage / resolve-component-paths — PowerShell 双子への
+  フォールバックと引数変換表を持つ別設計）は対象外。両 lib を
+  `protected_gate_suffixes` に追加し生成物再生成・ミラー同期。
+  generate-registry-digest スイートのフィクスチャステージングに lib を追加
+  （loop-driver と同型の欠落）。さらに epic-190-a2 candidate 側
+  `generate-guard-invariants.py.candidate` の BASELINE に lib 4件を追加 —
+  **PR #325 が live に足した2件が candidate に未反映のため main の
+  version-gates（generate-gate-capabilities の純上位集合検査）は現在赤**で、
+  この修正が回復させる。検証: canonicalize / validate・generate-approval-
+  sidecar / check-hook-activation-handshake / evaluate-predicate /
+  detect-policy-weakening / registry-discovery / facet-manifest 3種 /
+  capability 系 5種 / plugin-contracts・ship-track-selection /
+  generate-gate-capabilities / guard-parity 57 / constant-parity /
+  guard-invariants-epic-a1 82 / phase2-guard-invariants 42 緑、
+  両 lib への Write はガードが deny。
+
 - **タスクライフサイクル語彙の6サイト一致テストを追加、Approval 文法統一は
   WFI-042 として起票（監査 Cluster 2）**: 語彙 {Planned / In Progress /
   Blocked / Implementation Complete / Done} は full/lite チェッカー

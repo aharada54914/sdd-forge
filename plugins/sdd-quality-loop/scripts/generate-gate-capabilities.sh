@@ -1,14 +1,15 @@
 #!/bin/sh
-# Thin argument-forwarding wrapper for generate-gate-capabilities.py
-# (Python master). INV-014 (the sdd-hook-guard.sh pattern).
-set -eu
-dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+# Thin POSIX dispatcher for generate-gate-capabilities (Python master).
+# INV-014: all generation logic lives in the master.
+# Dispatch logic (python3 -> python -> fail-closed exit 3) lives in
+# lib/py-dispatch.sh, shared by every python-master wrapper.
+set -u
 
-if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$dir/generate-gate-capabilities.py" "$@"
-elif command -v python >/dev/null 2>&1; then
-  exec python "$dir/generate-gate-capabilities.py" "$@"
-else
-  echo "generate-gate-capabilities: python3 (or python) is required" >&2
-  exit 1
+dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+if ! . "$dir/lib/py-dispatch.sh"; then
+  echo 'generate-gate-capabilities: GENERATE_GATE_CAPABILITIES_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2
+  exit 3
 fi
+
+sdd_py_dispatch "$dir/generate-gate-capabilities.py" 'generate-gate-capabilities: GENERATE_GATE_CAPABILITIES_RUNTIME_UNAVAILABLE' "$@"

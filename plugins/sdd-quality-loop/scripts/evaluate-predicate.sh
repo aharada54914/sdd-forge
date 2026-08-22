@@ -1,15 +1,15 @@
 #!/bin/sh
-# Thin argument-forwarding wrapper for evaluate-predicate.py (Python master).
-# INV-014 (the sdd-hook-guard.sh pattern): all evaluation logic lives in the
-# Python master; this wrapper only locates it and forwards arguments as-is.
-set -eu
-dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+# Thin POSIX dispatcher for evaluate-predicate (Python master). INV-014:
+# all evaluation logic lives in the master.
+# Dispatch logic (python3 -> python -> fail-closed exit 3) lives in
+# lib/py-dispatch.sh, shared by every python-master wrapper.
+set -u
 
-if command -v python3 >/dev/null 2>&1; then
-  exec python3 "$dir/evaluate-predicate.py" "$@"
-elif command -v python >/dev/null 2>&1; then
-  exec python "$dir/evaluate-predicate.py" "$@"
-else
-  echo "evaluate-predicate: python3 (or python) is required" >&2
-  exit 1
+dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+if ! . "$dir/lib/py-dispatch.sh"; then
+  echo 'evaluate-predicate: EVALUATE_PREDICATE_RUNTIME_UNAVAILABLE: lib/py-dispatch.sh unavailable beside this script' >&2
+  exit 3
 fi
+
+sdd_py_dispatch "$dir/evaluate-predicate.py" 'evaluate-predicate: EVALUATE_PREDICATE_RUNTIME_UNAVAILABLE' "$@"
