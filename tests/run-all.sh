@@ -73,6 +73,7 @@ tests=(
   tests/loop-consistency.tests.sh
   tests/review-prompt-calibration.tests.sh
   tests/review-context-boundary.tests.sh
+  tests/boundary-reference-authorization-parity.tests.sh
   tests/design-system-contract.tests.sh
   tests/design-system-compliance.tests.sh
   tests/loop-escalation.tests.sh

@@ -326,6 +326,17 @@ try {
         if ($persistedMatch.previous_record_sha256 -cne $document.previous_record_sha256) {
             Fail-ReviewContext 'IDENTITY' 'invocation previous-record hash does not match the persisted identity-ledger record'
         }
+        # WFI-037: the uniqueness the REVIEW_CONTEXT_OK line asserts must be
+        # proven in this branch too, not inherited from the reserve path.
+        $persistedCount = @($records | Where-Object {
+            $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
+        }).Count
+        if ($persistedCount -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'run and host-session identity appears more than once in the canonical identity ledger'
+        }
+        # Tip position is meaningless for a persisted verification (see
+        # above), so the emitted chain fact says so explicitly.
+        $preAppendTipSequence = '-'
     }
     else {
         # A partial match -- one of the two identity fields already persisted
@@ -348,6 +359,8 @@ try {
             $document.previous_record_sha256 -cne $expectedPrevious) {
             Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
         }
+        # WFI-037: the record extends the pre-append tip, proven just above.
+        $preAppendTipSequence = [string]($expectedSequence - 1)
     }
 
     $inputs = @($document.allowed_input_manifest)
@@ -597,7 +610,16 @@ try {
             }
         }
     }
-    [Console]::Out.WriteLine("REVIEW_CONTEXT_OK $recordHash")
+    # WFI-037: the OK line carries the chain facts a launched role needs to
+    # verify its own identity WITHOUT reading the ledger (which no role's
+    # manifest may authorize): the reserved record's sequence, the
+    # previous-record hash the record chains from, the pre-append tip
+    # sequence ('-' when verifying an already-persisted identity, where tip
+    # position is meaningless), and the uniqueness assertion for the
+    # run/session ids -- every one proven by a fail-closed check above
+    # before this line prints.
+    $previousForLine = if ([string]::IsNullOrEmpty([string]$document.previous_record_sha256)) { '-' } else { [string]$document.previous_record_sha256 }
+    [Console]::Out.WriteLine("REVIEW_CONTEXT_OK $recordHash sequence=$($document.sequence) previous_record_sha256=$previousForLine pre_append_tip_sequence=$preAppendTipSequence identity_unique=yes")
     exit 0
 }
 catch {

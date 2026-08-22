@@ -375,6 +375,16 @@ if [[ -n "$persisted_match" ]]; then
     fail IDENTITY 'invocation role does not match the persisted identity-ledger record'
   [[ "$persisted_previous" == "$previous_record_sha256" ]] ||
     fail IDENTITY 'invocation previous-record hash does not match the persisted identity-ledger record'
+  # WFI-037: the uniqueness the REVIEW_CONTEXT_OK line asserts must be
+  # proven in this branch too, not inherited from the reserve path.
+  persisted_count=$(jq -r --arg run "$run_id" --arg session "$host_session_id" '
+    [.records[] | select(.run_id == $run and .host_session_id == $session)] | length
+  ' "$ledger")
+  [[ "$persisted_count" -eq 1 ]] ||
+    fail IDENTITY 'run and host-session identity appears more than once in the canonical identity ledger'
+  # Tip position is meaningless for a persisted verification (see above), so
+  # the emitted chain fact says so explicitly.
+  pre_append_tip_sequence='-'
 else
   # A partial match -- one of the two identity fields already persisted
   # under a DIFFERENT value for the other -- means two different launches
@@ -396,6 +406,8 @@ else
     fail IDENTITY 'canonical identity ledger hash is stale or mismatched'
   [[ "$sequence" -eq "$expected_sequence" && "$previous_record_sha256" == "$expected_previous" ]] ||
     fail IDENTITY 'invocation does not extend the canonical identity ledger'
+  # WFI-037: the record extends the pre-append tip, proven just above.
+  pre_append_tip_sequence=$((expected_sequence - 1))
 fi
 
 implementation_report_path=''
@@ -529,4 +541,12 @@ if $reserve; then
   trap - EXIT
 fi
 
-printf 'REVIEW_CONTEXT_OK %s\n' "$record_hash"
+# WFI-037: the OK line carries the chain facts a launched role needs to
+# verify its own identity WITHOUT reading the ledger (which no role's
+# manifest may authorize): the reserved record's sequence, the
+# previous-record hash the record chains from, the pre-append tip sequence
+# ('-' when verifying an already-persisted identity, where tip position is
+# meaningless), and the uniqueness assertion for the run/session ids —
+# every one proven by a fail-closed check above before this line prints.
+printf 'REVIEW_CONTEXT_OK %s sequence=%s previous_record_sha256=%s pre_append_tip_sequence=%s identity_unique=yes\n' \
+  "$record_hash" "$sequence" "${previous_record_sha256:--}" "$pre_append_tip_sequence"
