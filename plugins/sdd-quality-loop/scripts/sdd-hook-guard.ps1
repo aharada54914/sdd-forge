@@ -211,8 +211,11 @@ function Test-WfiPath {
 
 function Get-WfiCount {
     param([string]$Text)
+    # WFI-022: counts column-0 'Status: Approved' field lines only, so prose
+    # that merely quotes the field never matches. Shell command text is
+    # matched elsewhere with the unanchored form (see Test-WfiApprovalIncreases).
     if ([string]::IsNullOrEmpty($Text)) { return 0 }
-    return ([regex]::Matches($Text, "Status:\s*Approved")).Count
+    return ([regex]::Matches($Text, "(?m)^Status:[ \t]*Approved[ \t]*\r?$")).Count
 }
 
 function Test-DomainContextMapPath {
@@ -1211,6 +1214,16 @@ function Test-WfiApprovalIncreases {
 
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
         if ($command.ToLower().Contains("workflow-improvements/") -and [regex]::IsMatch($command, "Status:\s*Approved")) {
+            # WFI-022: a single simple command that starts with a read-only
+            # verb and carries no write verb or redirect token cannot grant an
+            # approval, so it is exempt. Every write-capable command keeps the
+            # broad match: whether shell text nets out to a removal is not
+            # decidable here, and the Edit path is the supported route for
+            # approval-preserving transitions.
+            $hasCompound = [regex]::IsMatch($command, $ShellCompoundRe)
+            $isReadOnlyStart = [regex]::IsMatch($command, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+            $hasWrite = [regex]::IsMatch($command, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+            if (-not $hasCompound -and $isReadOnlyStart -and -not $hasWrite) { return $false }
             return $true
         }
         return $false
@@ -1219,15 +1232,22 @@ function Test-WfiApprovalIncreases {
     $filePath = [string]$toolInput.file_path
     if (-not (Test-WfiPath $filePath)) { return $false }
 
+    # WFI-022: the Edit path fires on a net increase of field lines, exactly
+    # as the Write path does -- an edit that removes or preserves the field is
+    # not a grant.
     if ($toolInput.PSObject.Properties["edits"] -and $null -ne $toolInput.edits) {
         foreach ($edit in $toolInput.edits) {
-            if ((Get-WfiCount ([string]$edit.new_string)) -gt 0) {
+            $oldStr = ""
+            if ($edit.PSObject.Properties["old_string"]) { $oldStr = [string]$edit.old_string }
+            if ((Get-WfiCount ([string]$edit.new_string)) -gt (Get-WfiCount $oldStr)) {
                 return $true
             }
         }
         return $false
     } elseif ($toolInput.PSObject.Properties["new_string"]) {
-        return (Get-WfiCount ([string]$toolInput.new_string)) -gt 0
+        $oldStr = ""
+        if ($toolInput.PSObject.Properties["old_string"]) { $oldStr = [string]$toolInput.old_string }
+        return (Get-WfiCount ([string]$toolInput.new_string)) -gt (Get-WfiCount $oldStr)
     } elseif ($toolInput.PSObject.Properties["content"]) {
         return Test-WfiWriteContentIncreases $filePath ([string]$toolInput.content)
     } else {

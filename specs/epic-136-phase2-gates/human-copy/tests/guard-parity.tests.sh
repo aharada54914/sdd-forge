@@ -196,6 +196,67 @@ parity_check "wfi-guard: write Status: Approved" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"content\":\"Status: Approved\"}}"
 
 # ---------------------------------------------------------------------------
+# Scenario 5b (WFI-022): the three reproduced false positives become allowed,
+# and three operations that could grant (or hide a grant of) an approval stay
+# refused. The three allowed cases replay the 2026-08-04 refusals recorded in
+# WFI-022's Problem Evidence.
+# ---------------------------------------------------------------------------
+# (1) Prose-quoting edit: the edit's new text names the field mid-sentence
+# but adds no column-0 field line. Previously refused (Edit path looked only
+# at new_string with an unanchored matcher).
+parity_check "wfi-022: prose-quoting edit allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Pending\",\"new_string\":\"The guard denies any edit that sets \`Status: Approved\` in a WFI file.\"}}"
+
+# (2) Read-only listing: grep across WFI files quoting the field. No write
+# verb, no redirect, no compound operator. Previously refused (Bash path was
+# a substring test blind to read-vs-write).
+parity_check "wfi-022: read-only grep allowed" 0 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -H 'Status: Approved' ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# (3) Creating a WFI document whose prose quotes the field (no column-0 field
+# line). Previously refused — WFI-022.md itself could only be created in
+# split form.
+parity_check "wfi-022: create doc quoting field in prose allowed" 0 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/docs/workflow-improvements/WFI-099.md\",\"content\":\"# WFI\\n\\nThe guard refuses any operation that sets \`Status: Approved\` in this file.\\n\"}}"
+
+# (4) The approval-removing sed stays refused BY DESIGN: it is write-capable,
+# and whether shell text nets out to a removal is not decidable, so the broad
+# match is kept. Paired with the allowed Edit-path equivalent of the same
+# transition below.
+parity_check "wfi-022: approval-removing sed still refused" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"sed -i '' 's/Status: Approved/Status: Applied/' ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# The supported route for that transition: an Edit that REMOVES the field
+# (old_string has it at column 0, new_string does not) is a net decrease.
+parity_check "wfi-022: status-advance via Edit path allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Status: Approved\",\"new_string\":\"Status: Applied\"}}"
+
+# An edit that PRESERVES the field (both sides carry it) is not a grant.
+parity_check "wfi-022: field-preserving edit allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Status: Approved\\nold prose\",\"new_string\":\"Status: Approved\\nnew prose\"}}"
+
+# (5) Real bypass, kept refused: a Write whose content carries the column-0
+# field line inside a larger document (the anchored matcher must still count
+# it; scenario 5 above covers the field as the whole content).
+parity_check "wfi-022: write with embedded column-0 field still refused" 2 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"content\":\"# WFI\\n\\nStatus: Approved\\n\\nprose\\n\"}}"
+
+# An Edit whose new_string ADDS a column-0 field line stays refused (net
+# increase — new 1 > old 0), even though the surrounding text is prose.
+parity_check "wfi-022: edit adding column-0 field still refused" 2 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Pending\",\"new_string\":\"prose\\nStatus: Approved\\nprose\"}}"
+
+# (6) Real bypass, kept refused: an append via a shell redirect. The field
+# literal sits inside quotes mid-line, which is why the Bash path keeps the
+# unanchored match; echo is not a read-only verb and >> is a write token.
+parity_check "wfi-022: redirect append still refused" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"echo 'Status: Approved' >> ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# A compound command is never exempt even when it starts read-only.
+parity_check "wfi-022: compound read-then-write still refused" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -l 'Status: Approved' ${WORK}/docs/workflow-improvements/WFI-001.md && rm ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# ---------------------------------------------------------------------------
 # Scenario 6: Second Approval guard — Write adding Second Approval: Approved (deny — exit 2)
 # ---------------------------------------------------------------------------
 parity_check "second-approval-guard: Write adds Second Approval" 2 \

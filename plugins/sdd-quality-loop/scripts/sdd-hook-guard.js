@@ -102,7 +102,13 @@ const INVARIANT_LOAD_ERROR = loadedInvariants.error;
 
 const APPROVAL_RE = /Approval:\s*Approved/g;
 const SECOND_APPROVAL_RE = /Second Approval:\s*Approved/g;
-const WFI_APPROVAL_RE = /Status:\s*Approved/g;
+// WFI-022: two matchers for one WFI field. Content paths (Write/Edit/patch)
+// count only a column-0 full field line, so prose that merely quotes the field
+// never matches. Shell command text keeps the unanchored form: there the
+// literal sits inside quotes mid-line (e.g. a redirect append), so anchoring
+// alone would miss it.
+const WFI_APPROVAL_LINE_RE = /^Status:[ \t]*Approved[ \t]*\r?$/gm;
+const WFI_APPROVAL_CMD_RE = /Status:\s*Approved/;
 const DOMAIN_MODEL_APPROVAL_RE = /Domain-Model-Status:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
@@ -632,8 +638,9 @@ function isWfiPath(filePath) {
 }
 
 function wfiCount(text) {
+  // Counts column-0 'Status: Approved' field lines in WFI file content.
   if (!text) return 0;
-  const matches = text.match(WFI_APPROVAL_RE);
+  const matches = text.match(WFI_APPROVAL_LINE_RE);
   return matches ? matches.length : 0;
 }
 
@@ -1134,7 +1141,20 @@ function wfiApprovalIncreases(payload) {
   }
 
   if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
-    if (command.toLowerCase().includes('workflow-improvements/') && wfiCount(command) > 0) {
+    if (command.toLowerCase().includes('workflow-improvements/') && WFI_APPROVAL_CMD_RE.test(command)) {
+      // WFI-022: a single simple command that starts with a read-only verb
+      // and carries no write verb or redirect token cannot grant an
+      // approval, so it is exempt. Every write-capable command keeps the
+      // broad match: whether shell text nets out to a removal is not
+      // decidable here, and the Edit path is the supported route for
+      // approval-preserving transitions.
+      if (
+        !SHELL_COMPOUND_RE.test(command) &&
+        SHELL_SUDO_READ_ONLY_RE.test(command) &&
+        !SHELL_SUDO_WRITE_RE.test(command)
+      ) {
+        return false;
+      }
       return true;
     }
     return false;
@@ -1143,16 +1163,19 @@ function wfiApprovalIncreases(payload) {
   const filePath = toolInput.file_path || '';
   if (!isWfiPath(filePath)) return false;
 
+  // WFI-022: the Edit path fires on a net increase of field lines, exactly
+  // as the Write path does — an edit that removes or preserves the field is
+  // not a grant.
   if (Array.isArray(toolInput.edits)) {
     for (const edit of toolInput.edits) {
       const e = edit || {};
-      if (wfiCount(e.new_string) > 0) {
+      if (wfiCount(e.new_string) > wfiCount(e.old_string)) {
         return true;
       }
     }
     return false;
   } else if ('new_string' in toolInput) {
-    return wfiCount(toolInput.new_string) > 0;
+    return wfiCount(toolInput.new_string) > wfiCount(toolInput.old_string);
   } else if ('content' in toolInput) {
     return wfiWriteContentIncreases(filePath, toolInput.content || '');
   } else {
@@ -1609,7 +1632,7 @@ async function main() {
     }
 
     // Check 2c: WFI approval guard (NEVER bypassed by sudo).
-    WFI_APPROVAL_RE.lastIndex = 0;
+    WFI_APPROVAL_LINE_RE.lastIndex = 0;
     if (wfiApprovalIncreases(payload)) {
       emitDecision('deny', WFI_APPROVAL_MSG, mode);
     }
