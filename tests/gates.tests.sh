@@ -1050,6 +1050,72 @@ else
     fail "T-002.20: medium risk must NOT require tdd workflow"
 fi
 
+# Test: T-002.21 - every negative fixture above must also EXIT nonzero
+# (RT-20260821-006 Major 1: run_check_risk swallows exit status with
+# `|| true` and the negative tests grep stdout only, so a mutant that
+# prints the failure text but exits 0 passed all 20 assertions. This
+# block asserts the exit code directly via check_risk_passes.)
+t00221_ok=1
+for neg in t002_test2 t002_test3 t002_test4 t002_test5 t002_test6 t002_test8 t002_test15 t002_test16 t002_test17; do
+    if check_risk_passes "${WORK}/${neg}/tasks.md"; then
+        fail "T-002.21: ${neg} printed a failure but exited 0"
+        t00221_ok=0
+    fi
+done
+[ "$t00221_ok" = "1" ] && ok "T-002.21: all negative fixtures exit nonzero (no || true swallow)"
+
+# Test: T-002.22 - sh/ps1 exit parity on the five RT-20260821-006 divergence
+# classes (uppercase Risk value, lowercase key, uppercase workflow, duplicate
+# heading dropping Risk, duplicate heading bogus-then-valid). The ps1 twin
+# previously failed OPEN on all five via case-insensitive operators and
+# duplicate-section merging; both twins now fail closed on duplicate headings.
+mkdir -p "${WORK}/t002_test22"
+cat > "${WORK}/t002_test22/upper-risk.md" <<'FIX'
+## T-001 demo
+Risk: LOW
+Risk Rationale: r
+FIX
+cat > "${WORK}/t002_test22/lower-key.md" <<'FIX'
+## T-001 demo
+risk: low
+Risk Rationale: r
+FIX
+cat > "${WORK}/t002_test22/upper-workflow.md" <<'FIX'
+## T-001 demo
+Risk: high
+Risk Rationale: r
+Required Workflow: TDD
+FIX
+cat > "${WORK}/t002_test22/dup-drop.md" <<'FIX'
+## T-001 demo
+Risk: low
+Risk Rationale: r
+## T-001 demo again
+Risk Rationale: r
+FIX
+cat > "${WORK}/t002_test22/dup-bogus.md" <<'FIX'
+## T-001 demo
+Risk: bogus
+Risk Rationale: r
+## T-001 demo again
+Risk: low
+Risk Rationale: r
+FIX
+t00222_ok=1
+for cls in upper-risk lower-key upper-workflow dup-drop dup-bogus; do
+    if check_risk_passes "${WORK}/t002_test22/${cls}.md"; then
+        fail "T-002.22: sh accepted divergence-class fixture ${cls}"
+        t00222_ok=0
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+        if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-risk.ps1" "${WORK}/t002_test22/${cls}.md" >/dev/null 2>&1; then
+            fail "T-002.22: ps1 accepted divergence-class fixture ${cls} (fail-open)"
+            t00222_ok=0
+        fi
+    fi
+done
+[ "$t00222_ok" = "1" ] && ok "T-002.22: five divergence classes rejected on both runtimes"
+
 # ============================================================================
 # T-003: risk-aware check-contract Tests
 # ============================================================================
@@ -1199,11 +1265,14 @@ fi
 # Test: T-003.6 - risk: high WITHOUT requirement-traceability → FAILS
 mkdir -p "${WORK}/t003_test6/reports"
 create_evidence "${WORK}/t003_test6/reports/test.log"
+create_evidence "${WORK}/t003_test6/reports/test.red.log"
+create_evidence "${WORK}/t003_test6/reports/test.green.log"
 cat > "${WORK}/t003_test6/T-003.6.contract.json" <<'EOF'
 {
   "task_id": "T-003.6",
   "feature": "test-feature",
   "risk": "high",
+  "required_workflow": "tdd",
   "created": "2026-06-13T00:00:00Z",
   "comment": "risk: high, missing requirement-traceability",
   "checks": [
@@ -1212,8 +1281,8 @@ cat > "${WORK}/t003_test6/T-003.6.contract.json" <<'EOF'
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
 }
@@ -1228,11 +1297,14 @@ fi
 # Test: T-003.7 - risk: high full (adds requirement-traceability)
 mkdir -p "${WORK}/t003_test7/reports"
 create_evidence "${WORK}/t003_test7/reports/test.log"
+create_evidence "${WORK}/t003_test7/reports/test.red.log"
+create_evidence "${WORK}/t003_test7/reports/test.green.log"
 cat > "${WORK}/t003_test7/T-003.7.contract.json" <<'EOF'
 {
   "task_id": "T-003.7",
   "feature": "test-feature",
   "risk": "high",
+  "required_workflow": "tdd",
   "created": "2026-06-13T00:00:00Z",
   "comment": "risk: high, full required set",
   "checks": [
@@ -1241,8 +1313,8 @@ cat > "${WORK}/t003_test7/T-003.7.contract.json" <<'EOF'
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
@@ -1257,11 +1329,14 @@ fi
 # Test: T-003.8 - risk: critical (same set as high)
 mkdir -p "${WORK}/t003_test8/reports"
 create_evidence "${WORK}/t003_test8/reports/test.log"
+create_evidence "${WORK}/t003_test8/reports/test.red.log"
+create_evidence "${WORK}/t003_test8/reports/test.green.log"
 cat > "${WORK}/t003_test8/T-003.8.contract.json" <<'EOF'
 {
   "task_id": "T-003.8",
   "feature": "test-feature",
   "risk": "critical",
+  "required_workflow": "tdd",
   "created": "2026-06-13T00:00:00Z",
   "comment": "risk: critical, full required set (same as high)",
   "checks": [
@@ -1270,8 +1345,8 @@ cat > "${WORK}/t003_test8/T-003.8.contract.json" <<'EOF'
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
@@ -1520,6 +1595,202 @@ if check_contract_passes "${WORK}/t012_test7/T-012.7.contract.json" "${WORK}/t01
     ok "T-012.7: stack shell at high+tdd tier waives compile checks → passes"
 else
     fail "T-012.7: stack shell high+tdd tier should pass with compile checks waived"
+fi
+
+# ============================================================================
+# T-004.0x (RT-20260821-003/007): required_workflow is mandatory at
+# high/critical (absent / empty / whitespace all fail closed on BOTH
+# runtimes), non-string risk gets a clean diagnostic, and the ps1 twin's
+# case-insensitive acceptances are closed.
+# ============================================================================
+for wf_variant in absent empty whitespace; do
+    mkdir -p "${WORK}/t004_wf_${wf_variant}/reports"
+    create_evidence "${WORK}/t004_wf_${wf_variant}/reports/test.log"
+    case "$wf_variant" in
+        absent) wf_line="" ;;
+        empty) wf_line='"required_workflow": "",' ;;
+        whitespace) wf_line='"required_workflow": "   ",' ;;
+    esac
+    cat > "${WORK}/t004_wf_${wf_variant}/T-004WF.contract.json" <<EOF
+{
+  "task_id": "T-004WF",
+  "feature": "test-feature",
+  "risk": "high",
+  ${wf_line}
+  "created": "2026-06-13T00:00:00Z",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+    output=$(run_check_contract "${WORK}/t004_wf_${wf_variant}/T-004WF.contract.json" "${WORK}/t004_wf_${wf_variant}")
+    if echo "$output" | grep -q "requires required_workflow: tdd (field missing or empty)"; then
+        ok "T-004.0-${wf_variant}: high risk with ${wf_variant} required_workflow fails closed"
+    else
+        fail "T-004.0-${wf_variant}: high + ${wf_variant} workflow should fail closed. Got: $output"
+    fi
+    if check_contract_passes "${WORK}/t004_wf_${wf_variant}/T-004WF.contract.json" "${WORK}/t004_wf_${wf_variant}"; then
+        fail "T-004.0-${wf_variant}: exit code was 0 for ${wf_variant} workflow at high risk"
+    fi
+    if command -v pwsh >/dev/null 2>&1; then
+        if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004_wf_${wf_variant}/T-004WF.contract.json" "${WORK}/t004_wf_${wf_variant}" >/dev/null 2>&1; then
+            fail "T-004.0-${wf_variant}-ps1: ps1 accepted ${wf_variant} workflow at high risk"
+        else
+            ok "T-004.0-${wf_variant}-ps1: ps1 rejects ${wf_variant} workflow at high risk"
+        fi
+    fi
+done
+
+# non-string risk: clean diagnostic, no traceback, both runtimes reject
+mkdir -p "${WORK}/t004_badrisk/reports"
+create_evidence "${WORK}/t004_badrisk/reports/test.log"
+cat > "${WORK}/t004_badrisk/T-004BR.contract.json" <<'EOF'
+{
+  "task_id": "T-004BR",
+  "feature": "test-feature",
+  "risk": ["high"],
+  "created": "2026-06-13T00:00:00Z",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t004_badrisk/T-004BR.contract.json" "${WORK}/t004_badrisk")
+if echo "$output" | grep -q "contract risk must be a string" && ! echo "$output" | grep -q "Traceback"; then
+    ok "T-004.0-badrisk: non-string risk fails with a clean diagnostic"
+else
+    fail "T-004.0-badrisk: expected clean 'must be a string' diagnostic. Got: $output"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+    if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004_badrisk/T-004BR.contract.json" "${WORK}/t004_badrisk" >/dev/null 2>&1; then
+        fail "T-004.0-badrisk-ps1: ps1 accepted a JSON-array risk (string coercion fail-open)"
+    else
+        ok "T-004.0-badrisk-ps1: ps1 rejects a JSON-array risk"
+    fi
+    mkdir -p "${WORK}/t004_caserisk/reports"
+    create_evidence "${WORK}/t004_caserisk/reports/test.log"
+    sed 's/"risk": \["high"\]/"risk": "High"/' "${WORK}/t004_badrisk/T-004BR.contract.json" > "${WORK}/t004_caserisk/T-004CR.contract.json"
+    if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004_caserisk/T-004CR.contract.json" "${WORK}/t004_caserisk" >/dev/null 2>&1; then
+        fail "T-004.0-caserisk-ps1: ps1 accepted risk 'High' (case-insensitive fail-open)"
+    else
+        ok "T-004.0-caserisk-ps1: ps1 rejects case-variant risk values"
+    fi
+fi
+
+# ============================================================================
+# T-004V (RT-20260821-005(c)): verification-contract/v2 schema versioning.
+# v2 high/critical requires a well-formed spec_revision (40- or 64-hex);
+# v1/absent-schema contracts stay exempt (grandfather intact); unknown
+# schema values fail closed. Both runtimes.
+# ============================================================================
+write_t004v_contract() {
+    # $1 = dir, $2 = extra top-level JSON fields (leading comma included)
+    mkdir -p "$1/reports"
+    create_evidence "$1/reports/test.log"
+    create_evidence "$1/reports/test.red.log"
+    create_evidence "$1/reports/test.green.log"
+    cat > "$1/T-004V.contract.json" <<EOF
+{
+  "task_id": "T-004V",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "created": "2026-08-21T00:00:00Z"${2},
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+}
+
+SR64="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+SR40="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+
+# v2 + high + NO spec_revision -> fail (both runtimes)
+write_t004v_contract "${WORK}/t004v_missing" ', "schema": "verification-contract/v2"'
+output=$(run_check_contract "${WORK}/t004v_missing/T-004V.contract.json" "${WORK}/t004v_missing")
+if echo "$output" | grep -q "requires a well-formed spec_revision"; then
+    ok "T-004V.1: v2 high without spec_revision fails closed"
+else
+    fail "T-004V.1: v2 high without spec_revision should fail. Got: $output"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+    if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004v_missing/T-004V.contract.json" "${WORK}/t004v_missing" >/dev/null 2>&1; then
+        fail "T-004V.1-ps1: ps1 accepted v2 high without spec_revision"
+    else
+        ok "T-004V.1-ps1: ps1 rejects v2 high without spec_revision"
+    fi
+fi
+
+# v2 + high + 64-hex -> pass; + 40-hex -> pass (both live conventions)
+write_t004v_contract "${WORK}/t004v_sr64" ", \"schema\": \"verification-contract/v2\", \"spec_revision\": \"${SR64}\""
+if check_contract_passes "${WORK}/t004v_sr64/T-004V.contract.json" "${WORK}/t004v_sr64"; then
+    ok "T-004V.2: v2 high with 64-hex spec_revision passes"
+else
+    fail "T-004V.2: 64-hex spec_revision should pass: $(run_check_contract "${WORK}/t004v_sr64/T-004V.contract.json" "${WORK}/t004v_sr64")"
+fi
+write_t004v_contract "${WORK}/t004v_sr40" ", \"schema\": \"verification-contract/v2\", \"spec_revision\": \"${SR40}\""
+if check_contract_passes "${WORK}/t004v_sr40/T-004V.contract.json" "${WORK}/t004v_sr40"; then
+    ok "T-004V.3: v2 high with 40-hex spec_revision passes"
+else
+    fail "T-004V.3: 40-hex spec_revision should pass"
+fi
+
+# uppercase hex must NOT satisfy the well-formed rule (case-class regression)
+write_t004v_contract "${WORK}/t004v_upper" ", \"schema\": \"verification-contract/v2\", \"spec_revision\": \"$(echo "$SR40" | tr b B)\""
+if check_contract_passes "${WORK}/t004v_upper/T-004V.contract.json" "${WORK}/t004v_upper"; then
+    fail "T-004V.4: uppercase spec_revision accepted under v2"
+else
+    ok "T-004V.4: uppercase spec_revision rejected under v2"
+fi
+
+# legacy (absent schema) + high + NO spec_revision -> still passes (grandfather)
+write_t004v_contract "${WORK}/t004v_legacy" ''
+if check_contract_passes "${WORK}/t004v_legacy/T-004V.contract.json" "${WORK}/t004v_legacy"; then
+    ok "T-004V.5: absent-schema high without spec_revision still passes (v1 grandfather)"
+else
+    fail "T-004V.5: v1 grandfather broken: $(run_check_contract "${WORK}/t004v_legacy/T-004V.contract.json" "${WORK}/t004v_legacy")"
+fi
+
+# unknown schema -> fail closed (both runtimes)
+write_t004v_contract "${WORK}/t004v_bogus" ', "schema": "verification-contract/v9"'
+output=$(run_check_contract "${WORK}/t004v_bogus/T-004V.contract.json" "${WORK}/t004v_bogus")
+if echo "$output" | grep -q "contract schema is unrecognized"; then
+    ok "T-004V.6: unknown contract schema fails closed"
+else
+    fail "T-004V.6: unknown schema should fail. Got: $output"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+    if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-contract.ps1" "${WORK}/t004v_bogus/T-004V.contract.json" "${WORK}/t004v_bogus" >/dev/null 2>&1; then
+        fail "T-004V.6-ps1: ps1 accepted an unknown contract schema"
+    else
+        ok "T-004V.6-ps1: ps1 rejects an unknown contract schema"
+    fi
+fi
+
+# v2 + medium + NO spec_revision -> passes (rule scoped to high/critical)
+write_t004v_contract "${WORK}/t004v_medium" ', "schema": "verification-contract/v2"'
+sed 's/"risk": "high"/"risk": "medium"/; s/"required_workflow": "tdd"/"required_workflow": "acceptance-first"/'     "${WORK}/t004v_medium/T-004V.contract.json" > "${WORK}/t004v_medium/T-004V.medium.contract.json"
+if check_contract_passes "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium"; then
+    ok "T-004V.7: v2 medium without spec_revision passes (tier scope)"
+else
+    fail "T-004V.7: v2 medium should not require spec_revision: $(run_check_contract "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium")"
 fi
 
 # ============================================================================
@@ -2869,17 +3140,19 @@ echo "=== T-003-CM: cross_model descriptor ==="
 
 # CM.1 - critical + cross_model:required + passing cross-model-verification → PASS
 mkdir -p "${WORK}/cm_test1/reports"; create_evidence "${WORK}/cm_test1/reports/test.log"
+create_evidence "${WORK}/cm_test1/reports/test.red.log"
+create_evidence "${WORK}/cm_test1/reports/test.green.log"
 cat > "${WORK}/cm_test1/CM-1.contract.json" <<'EOF'
 {
-  "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+  "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd", "cross_model": "required",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "cross-model-verification", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
@@ -2894,17 +3167,19 @@ fi
 
 # CM.2 - critical + cross_model:required but MISSING cross-model-verification → FAIL
 mkdir -p "${WORK}/cm_test2/reports"; create_evidence "${WORK}/cm_test2/reports/test.log"
+create_evidence "${WORK}/cm_test2/reports/test.red.log"
+create_evidence "${WORK}/cm_test2/reports/test.green.log"
 cat > "${WORK}/cm_test2/CM-2.contract.json" <<'EOF'
 {
-  "task_id": "CM-2", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+  "task_id": "CM-2", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd", "cross_model": "required",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
@@ -2919,17 +3194,20 @@ fi
 
 # CM.3 - critical + cross_model ABSENT (legacy) + no cross-model check → PASS (backward compat)
 mkdir -p "${WORK}/cm_test3/reports"; create_evidence "${WORK}/cm_test3/reports/test.log"
+create_evidence "${WORK}/cm_test3/reports/test.red.log"
+create_evidence "${WORK}/cm_test3/reports/test.green.log"
 cat > "${WORK}/cm_test3/CM-3.contract.json" <<'EOF'
 {
   "task_id": "CM-3", "feature": "test-feature", "risk": "critical",
+  "required_workflow": "tdd",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
@@ -2943,17 +3221,19 @@ fi
 
 # CM.4 - critical + cross_model:waived + cross-model-verification waived → PASS
 mkdir -p "${WORK}/cm_test4/reports"; create_evidence "${WORK}/cm_test4/reports/test.log"
+create_evidence "${WORK}/cm_test4/reports/test.red.log"
+create_evidence "${WORK}/cm_test4/reports/test.green.log"
 cat > "${WORK}/cm_test4/CM-4.contract.json" <<'EOF'
 {
-  "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "cross_model": "waived",
+  "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd", "cross_model": "waived",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "cross-model-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "air-gapped repo: no external model access" }
@@ -2968,9 +3248,11 @@ fi
 
 # CM.5 - cross_model:invalid → FAIL
 mkdir -p "${WORK}/cm_test5/reports"; create_evidence "${WORK}/cm_test5/reports/test.log"
+create_evidence "${WORK}/cm_test5/reports/test.red.log"
+create_evidence "${WORK}/cm_test5/reports/test.green.log"
 cat > "${WORK}/cm_test5/CM-5.contract.json" <<'EOF'
 {
-  "task_id": "CM-5", "feature": "test-feature", "risk": "critical", "cross_model": "bogus",
+  "task_id": "CM-5", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd", "cross_model": "bogus",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]
@@ -3218,11 +3500,14 @@ csg_write_contract() {
     local dir="$1" task_id="$2" risk="$3" extra="${4:-}"
     mkdir -p "${dir}/reports"
     create_evidence "${dir}/reports/test.log"
+    create_evidence "${dir}/reports/test.red.log"
+    create_evidence "${dir}/reports/test.green.log"
     cat > "${dir}/${task_id}.contract.json" <<EOF
 {
   "task_id": "${task_id}",
   "feature": "test-feature",
   "risk": "${risk}",
+  "required_workflow": "tdd",
   "created": "2026-08-11T00:00:00Z",
   "comment": "CSG: capability-state gating fixture",
   "checks": [
@@ -3231,8 +3516,8 @@ csg_write_contract() {
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }${extra}
   ]
