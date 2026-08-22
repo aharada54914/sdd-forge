@@ -26,6 +26,20 @@
   review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
   緑（ps1 レグは CI）。
 
+- **タスクライフサイクル語彙の6サイト一致テストを追加、Approval 文法統一は
+  WFI-042 として起票（監査 Cluster 2）**: 語彙 {Planned / In Progress /
+  Blocked / Implementation Complete / Done} は full/lite チェッカー
+  (sh awk 条件・ps1 配列) と workflow-state 双子の REQ 行正規化に計6箇所
+  独立に埋め込まれ、何も一致を検証していなかった（WFI-038 型）。各サイト
+  固有表現から抽出して正準集合と照合する
+  `tests/task-lifecycle-enum-parity.tests.sh` を追加し run-all に登録
+  （7/7 緑）。Approval 注釈文法の分裂（full は任意注釈許容、lite と
+  full 自身の approver 抽出は `<id> <ISO8601>` 厳格 — 同一行が同一
+  スクリプト内で有効かつ無効になる）は、コーパス実測で**厳格形に一致
+  しない人間の承認記録8件**（秒欠落4・ミリ秒付き4）が既存エピックに
+  コミット済みと判明したため、機械判断せず WFI-042（Meta-Change: true、
+  厳格化+人間による8行移行+パリティフィクスチャ提案）として起票。
+
 - **repo パス検証の末尾スラッシュ意味論を4実装で統一（監査 Cluster 5）**:
   validate-task-input-manifest.sh の `path_ok` は `output` 引数を**無視**して
   無条件 rstrip しており（ps1 双子の `AllowDirectory` 分岐に相当する分岐が
