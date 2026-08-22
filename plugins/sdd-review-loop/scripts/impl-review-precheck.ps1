@@ -39,6 +39,36 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   if ($normalizedPath -match '(^|/)\.\.?(/|$)') { return $null }
   return $normalizedPath
 }
+# A round's verdict belongs to the text its two reviewers actually read: the
+# two reviewers must have pinned the same hash for each reviewed document, and
+# the contract must record that hash and no other. Mirrors
+# lib/review-precheck-common.sh assert_contract_reviewer_agreement; the gap it
+# closes (a contract recording a hash neither reviewer read) surfaced on
+# epic-136-phase4-docs attempt 2 round 2.
+function Assert-ContractReviewerAgreement([object]$Contract, [string]$Stage, [string]$FeatureName, [string]$RepoRoot) {
+  $docKeys = @{ 'requirements.md' = 'requirements_sha256'; 'acceptance-tests.md' = 'acceptance_sha256'; 'design.md' = 'design_sha256' }
+  foreach ($doc in @('requirements.md', 'acceptance-tests.md', 'design.md')) {
+    $target = "specs/$FeatureName/$doc"
+    $pinned = @{}
+    foreach ($suffix in @('a', 'b')) {
+      $role = "$Stage-reviewer-$suffix"
+      $entries = @($Contract.reviewers |
+        Where-Object { Test-OrdinalEqual $_.role $role } |
+        ForEach-Object { $_.allowed_input_manifest } |
+        Where-Object { Test-OrdinalEqual (Get-ManifestRelativePath ([string]$_.path) $RepoRoot) $target })
+      $pinned[$suffix] = if ($entries.Count -ge 1) { [string]$entries[0].sha256 } else { '' }
+    }
+    if (-not $pinned['a'] -or -not $pinned['b']) { continue }
+    if (-not (Test-OrdinalEqual $pinned['a'] $pinned['b'])) {
+      Fail "persisted $Stage contract: reviewer-a and reviewer-b pinned different ${doc}; they did not review the same text"
+    }
+    $keyProp = $Contract.PSObject.Properties[$docKeys[$doc]]
+    $contractHash = if ($null -ne $keyProp -and $null -ne $keyProp.Value) { [string]$keyProp.Value } else { '' }
+    if ($contractHash -and -not (Test-OrdinalEqual $contractHash $pinned['a'])) {
+      Fail "persisted $Stage contract records a ${doc} hash neither reviewer read; the verdict does not belong to that text"
+    }
+  }
+}
 function Test-AllowedManifestPath(
   [string]$Role,
   [string]$Path,
@@ -181,6 +211,7 @@ function Require-Pass(
       if (-not (Test-ManifestEntry $reviewer $investigationPath @($investigationHash))) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
     }
   }
+  Assert-ContractReviewerAgreement $contract $Stage $FeatureName $repoRoot
   if ($contract.attempt -ne $data.attempt -or $contract.round -ne $data.round -or -not (Test-OrdinalEqual $contract.verdict $data.verdict)) { Fail "persisted $Stage verdict and contract contradict each other" }
   if (Test-OrdinalEqual $Stage 'spec') {
     if (-not (Test-OrdinalEqual $reviewerA.run_id $data.reviewer_a_run_id) -or -not (Test-OrdinalEqual $reviewerB.run_id $data.reviewer_b_run_id) -or -not (Test-OrdinalEqual $reviewerA.host_session_id $data.reviewer_a_host_session_id) -or -not (Test-OrdinalEqual $reviewerB.host_session_id $data.reviewer_b_host_session_id)) { Fail 'persisted spec verdict and contract reviewer identities contradict each other' }

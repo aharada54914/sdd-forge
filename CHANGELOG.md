@@ -4,6 +4,23 @@
 
 ### Fixed
 
+- **レビューprecheckの重複176行関数を共有ライブラリへ統合し、レビュア一致
+  検証の片側欠落を解消**: `require_persisted_pass` は
+  `impl-review-precheck.sh` と `task-review-precheck.sh` に約176行ずつ
+  コピーされ3点で乖離していた（監査報告書 Cluster 1）。統合先
+  `plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh`
+  （sdd-hook-guard.sh と同じ source 方式）は上位集合版で、
+  `assert_contract_reviewer_agreement`（「どちらのレビュアも読んでいない
+  ハッシュを契約が記録する」インシデント級の穴を塞ぐ検証。従来はimpl側
+  のみ）を**全呼び出し元で実行**するようになった。PowerShell 双子2ファイル
+  にも同等の `Assert-ContractReviewerAgreement` を追加（従来は**どちらの
+  ps1 にも存在しなかった**）。loop-driver のfixtureリンク一覧と
+  task-layer テストのテキストピンをライブラリへ追随。
+  検証: downstream-review-precheck / task-review-precheck /
+  impl-review-round2-contract / loop-consistency / task-layer-review-inputs /
+  impl-layer-review-inputs / review-agent-isolation / spec-review-loop の
+  8スイート緑（ps1 レグは CI）。
+
 - **WFI-020 プラグイン側の適用（Issue #322）— 品質ゲートレポートの
   テンプレート再接続とタスク識別フィールドの統一**:
   (1) quality-gate SKILL のステップ 15 から「テンプレートは存在しない」
