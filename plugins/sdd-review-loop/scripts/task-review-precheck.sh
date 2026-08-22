@@ -357,6 +357,40 @@ fi
 [[ "${workflow_match_precheck}" != "FAIL" ]] || fail "Risk/Required Workflow mismatches must be fixed before creating evidence"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# STEP 2b: Record Done When items that name a review-frozen artifact (WFI-030)
+# ──────────────────────────────────────────────────────────────────────────────
+# Detection only -- this never changes the exit code. The frozen-artifact rule
+# in the task decomposition review gate's structural-coverage role is a Major
+# finding evaluated by reviewer judgement alone; nothing deterministic backed
+# it, and a review that reasoned past it sealed an unsatisfiable item into a
+# hash-bound plan. Measured over this repository the trigger fires on 6 items,
+# 3 of them real, so it records rather than fails; the reviewer adjudicates
+# each entry.
+# Items wrap across continuation lines, so lines are joined into whole items
+# before matching: a line-at-a-time scan finds only 1 of the 3 known cases.
+frozen_done_when_tsv="$(awk '
+  function flush(   l) {
+    if (item == "") return
+    l = item
+    if (l ~ /traceability\.md|design\.md|tasks\.md/ &&
+        l ~ /(^|[^a-zA-Z])(record|records|update|updates|add|write|edit|append)([^a-zA-Z]|$)/)
+      printf "%s\t%d\t%s\n", task, itemline, l
+    item = ""
+  }
+  /^##[ \t]+T-[0-9]+/ { flush(); task = $2; sub(/[^A-Za-z0-9-].*$/, "", task); inblk = 0 }
+  /Done When/ { flush(); inblk = 1; next }
+  /^(##|###)[ \t]/ || /^[A-Za-z][A-Za-z ]*:/ { flush(); inblk = 0 }
+  !inblk { next }
+  /^- \[/ { flush(); item = $0; itemline = FNR; next }
+  /^[ \t]+[^ \t]/ { if (item != "") { sub(/^[ \t]+/, " "); item = item $0 }; next }
+  { flush() }
+  END { flush() }
+' "${TASKS_MD}")"
+frozen_done_when_json="$(printf '%s' "${frozen_done_when_tsv}" |
+  jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {task: .[0], line: (.[1]|tonumber), item: .[2]})')"
+[[ -n "${frozen_done_when_json}" ]] || frozen_done_when_json='[]'
+
+# ──────────────────────────────────────────────────────────────────────────────
 # STEP 3: Parse Blockers fields and build dependency-graph.json
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -445,42 +479,46 @@ if [[ "${expecting_blockers_value}" == "true" ]]; then
 fi
 
 [[ "$blockers_format_valid" == "true" ]] || fail "Blockers format is invalid"
-for target_task in "${graph_edges_to[@]}"; do
-  known_task=false
-  for task_id in "${graph_nodes[@]}"; do
-    [[ "$task_id" == "$target_task" ]] && known_task=true && break
-  done
-  [[ "$known_task" == "true" ]] || fail "Blockers references unknown task ${target_task}"
+# Node-keyed lookups via derived variable names (graph_node_T_001=1,
+# graph_adj_T_001="T-002 T-003"): bash-3.2 compatible (no associative arrays),
+# and O(1) instead of the previous linear scans. Task IDs are already
+# validated to T-NNN, so the derived names are safe.
+# The namespaces must start empty: these lookups read shell variables, so an
+# inherited/exported graph_node_T_999=1 could otherwise vouch for a task the
+# parsed tasks.md never declared, and stale graph_adj_*/graph_visit_* values
+# could corrupt the traversal. (graph_node_ does not prefix-match the
+# graph_nodes/graph_edges_* arrays, which survive the sweep.)
+for stale_graph_var in $(compgen -v graph_node_) $(compgen -v graph_adj_) $(compgen -v graph_visit_); do
+  unset "$stale_graph_var"
 done
-declare -a graph_visit_nodes=()
-declare -a graph_visit_states=()
-graph_visit_state() {
-  local node="$1" i
-  for ((i=0; i<${#graph_visit_nodes[@]}; i++)); do
-    [[ "${graph_visit_nodes[$i]}" == "$node" ]] && { echo "${graph_visit_states[$i]}"; return; }
-  done
-  echo 0
-}
-set_graph_visit_state() {
-  local node="$1" state="$2" i
-  for ((i=0; i<${#graph_visit_nodes[@]}; i++)); do
-    if [[ "${graph_visit_nodes[$i]}" == "$node" ]]; then graph_visit_states[$i]="$state"; return; fi
-  done
-  graph_visit_nodes+=("$node"); graph_visit_states+=("$state")
-}
+for task_id in "${graph_nodes[@]}"; do
+  printf -v "graph_node_${task_id//-/_}" 1
+done
+for ((i=0; i<${#graph_edges_from[@]}; i++)); do
+  target_task="${graph_edges_to[$i]}"
+  known_var="graph_node_${target_task//-/_}"
+  [[ -n "${!known_var:-}" ]] || fail "Blockers references unknown task ${target_task}"
+  adj_var="graph_adj_${graph_edges_from[$i]//-/_}"
+  printf -v "$adj_var" '%s %s' "${!adj_var:-}" "$target_task"
+done
+# Recursive three-colour DFS over the Blockers graph (mirrored by the .ps1
+# twin). Visit state lives in graph_visit_<node>: unset/0 = unvisited,
+# 1 = on the current path (seeing it again means a cycle), 2 = fully
+# explored. Depth is bounded by the task count (T-001..T-999), well inside
+# bash's recursion budget. State is written with printf -v, never echoed
+# from a subshell, so mutations survive the recursive calls.
 graph_has_cycle_from() {
-  local node="$1" i next state
-  state="$(graph_visit_state "$node")"
-  [[ "$state" != "1" ]] || return 0
-  [[ "$state" != "2" ]] || return 1
-  set_graph_visit_state "$node" 1
-  for ((i=0; i<${#graph_edges_from[@]}; i++)); do
-    if [[ "${graph_edges_from[$i]}" == "$node" ]]; then
-      next="${graph_edges_to[$i]}"
-      graph_has_cycle_from "$next" && return 0
-    fi
+  local node="$1" next state_var adj_var
+  state_var="graph_visit_${node//-/_}"
+  [[ "${!state_var:-0}" != "1" ]] || return 0
+  [[ "${!state_var:-0}" != "2" ]] || return 1
+  printf -v "$state_var" 1
+  adj_var="graph_adj_${node//-/_}"
+  # Unquoted on purpose: successors are space-separated, all T-NNN validated.
+  for next in ${!adj_var:-}; do
+    graph_has_cycle_from "$next" && return 0
   done
-  set_graph_visit_state "$node" 2
+  printf -v "$state_var" 2
   return 1
 }
 for task_id in "${graph_nodes[@]}"; do
@@ -620,6 +658,7 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "acceptance_sha256": "${acceptance_sha256}",
   "design_sha256": "${design_sha256}",
   "traceability_sha256": "${traceability_sha256}",
+  "frozen_artifact_done_when": ${frozen_done_when_json},
   "layer_sha256": ${layer_sha256},
   "input_sha256": "${input_sha256}",
   "generated_at": "${generated_at}"

@@ -238,6 +238,29 @@ passes. Such an item must instead name a non-frozen addendum record (an
 implementation report, `specs/<feature>/verification/`, or user documentation).
 A Done When item scoped to edit a frozen artifact is a Major finding.
 
+"Normalized status/approval fields" above means something exact, and different
+per artifact. Do not reason from a normalization that is not implemented — the
+persisted-state validator normalizes, at the task stage:
+
+| Artifact | Fields the validator normalizes before hashing |
+|---|---|
+| `tasks.md` | the `Status:`, `Approval:` and `Task-Review-Status:` header lines |
+| `traceability.md` | each requirement row's final delivery-status cell, and only when it already holds one of `Planned`, `In Progress`, `Implementation Complete`, `Done`, `Blocked` |
+| `design.md` | none — every byte is bound |
+| the four layer specs | none — every byte is bound |
+
+Anything outside that table is a body edit, including a delivery-status cell set
+to a value outside the listed vocabulary.
+
+The round's `precheck-result.json` carries a `frozen_artifact_done_when` array
+listing every Done When item whose text names a frozen artifact together with a
+write verb. It is a detector, not a verdict: roughly half its entries are items
+that merely cite a frozen artifact as a source. Your `OBSERVABLE-DONE` finding
+must address **every** entry individually, naming its task ID and stating
+whether the item is satisfiable without editing the frozen artifact and why.
+An `OBSERVABLE-DONE` entry that leaves any flagged item unaddressed is itself a
+Major finding.
+
 ## TRACEABILITY-SYNC (Major, TYPE-D)
 
 Every task ID in tasks.md must have a corresponding entry in traceability.md.

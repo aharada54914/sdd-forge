@@ -291,10 +291,34 @@ foreach ($line in Get-Content -LiteralPath $tasks) {
   if ($expectBlockers -and $line.Trim()) { if ($line.Trim() -ne 'None') { foreach ($target in $line.Split(',')) { if ($target.Trim() -notmatch '^T-[0-9]{3}$') { Fail 'Blockers format is invalid' }; $edges += [ordered]@{from=$current;to=$target.Trim()} } }; $expectBlockers=$false }
 }
 if ($expectBlockers) { Fail "$current Blockers value is missing" }
-$inDegree=@{}; foreach($node in $nodes){ $inDegree[$node]=0 }; foreach($edge in $edges){ if(-not $inDegree.ContainsKey($edge.to)){ Fail 'Blockers reference an unknown task' }; $inDegree[$edge.to]++ }
-$queue=[Collections.Generic.Queue[string]]::new(); foreach($node in $nodes){ if($inDegree[$node] -eq 0){ $queue.Enqueue($node) } }
-$visited=0; while($queue.Count -gt 0){ $node=$queue.Dequeue(); $visited++; foreach($edge in $edges | Where-Object { $_.from -eq $node }){ $inDegree[$edge.to]--; if($inDegree[$edge.to] -eq 0){ $queue.Enqueue($edge.to) } } }
-if($visited -ne $nodes.Count){ Fail 'Blockers dependency graph contains a cycle' }
+$adjacency=@{}; foreach($node in $nodes){ $adjacency[$node]=[Collections.Generic.List[string]]::new() }
+foreach($edge in $edges){ if(-not $adjacency.ContainsKey($edge.to)){ Fail 'Blockers reference an unknown task' }; $adjacency[$edge.from].Add($edge.to) }
+# Three-colour DFS, same algorithm as the .sh twin: absent = unvisited,
+# 1 = on the current path (reaching it again means a cycle), 2 = fully explored.
+# Written with an EXPLICIT stack rather than recursion — the
+# validate-domain-contract.ps1 precedent — because PowerShell's call-depth/
+# stack protection can abort deep recursion within the accepted T-001..T-999
+# chain length, and a precheck must never crash on a valid long chain.
+# Stack frames are ('enter',node)/('exit',node) pairs: a node is colour 1
+# exactly while its 'exit' frame is still on the stack, so popping an 'enter'
+# for a colour-1 node proves a path from that node back to itself.
+function Test-GraphHasCycleFrom { param([string]$Node,[hashtable]$Adjacency,[hashtable]$Visit)
+  if ($Visit[$Node]) { return $false }
+  $stack = [Collections.Generic.Stack[object[]]]::new()
+  $stack.Push(@('enter', $Node))
+  while ($stack.Count -gt 0) {
+    $frame = $stack.Pop(); $op = $frame[0]; $current = $frame[1]
+    if ($op -eq 'exit') { $Visit[$current] = 2; continue }
+    if ($Visit[$current] -eq 1) { return $true }
+    if ($Visit[$current] -eq 2) { continue }
+    $Visit[$current] = 1
+    $stack.Push(@('exit', $current))
+    foreach ($next in $Adjacency[$current]) { $stack.Push(@('enter', $next)) }
+  }
+  return $false
+}
+$visitState=@{}
+foreach($node in $nodes){ if(Test-GraphHasCycleFrom -Node $node -Adjacency $adjacency -Visit $visitState){ Fail 'Blockers dependency graph contains a cycle' } }
 $tasksHash=(Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower(); $requirementsHash=(Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash=(Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower(); $designHash=(Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()
 $traceabilityHash = ''
 $layerHashes = [ordered]@{}
@@ -314,6 +338,36 @@ $riskScript = Join-Path $root 'plugins/sdd-quality-loop/scripts/check-risk.ps1'
 if (-not (Test-Path -LiteralPath $riskScript -PathType Leaf)) { Fail 'shared risk gate is missing' }
 & $riskScript -TasksPath $tasks
 if ($LASTEXITCODE -ne 0) { Fail 'Risk/Required Workflow mismatches must be fixed before creating evidence' }
+# WFI-030 STEP 2b, twin of the awk block in task-review-precheck.sh. Detection
+# only: the exit code is unaffected by a non-empty result. Continuation lines
+# are joined into whole items before matching, because two of the three known
+# real cases put the artifact name and the write verb on different lines.
+$fdwLines = [IO.File]::ReadAllLines($tasks)
+$fdwItems = @(); $fdwTask = ''; $fdwIn = $false; $fdwCur = $null
+for ($fdwI = 0; $fdwI -lt $fdwLines.Count; $fdwI++) {
+  $fdwL = $fdwLines[$fdwI]
+  if ($fdwL -match '^##\s+(T-\d+)') {
+    if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
+    $fdwTask = $Matches[1]; $fdwIn = $false; continue
+  }
+  if ($fdwL -match 'Done When') {
+    if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
+    $fdwIn = $true; continue
+  }
+  if ($fdwL -match '^(##|###)\s' -or $fdwL -match '^[A-Za-z][A-Za-z ]*:') {
+    if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
+    $fdwIn = $false; continue
+  }
+  if (-not $fdwIn) { continue }
+  if ($fdwL -match '^- \[') {
+    if ($fdwCur) { $fdwItems += $fdwCur }
+    $fdwCur = [ordered]@{ task = $fdwTask; line = ($fdwI + 1); item = $fdwL }; continue
+  }
+  if ($fdwL -match '^[ \t]+\S') { if ($fdwCur) { $fdwCur.item = $fdwCur.item + ' ' + $fdwL.TrimStart() }; continue }
+  if ($fdwCur) { $fdwItems += $fdwCur; $fdwCur = $null }
+}
+if ($fdwCur) { $fdwItems += $fdwCur }
+$frozenDoneWhen = @($fdwItems | Where-Object { $_.item -match '(traceability|design|tasks)\.md' -and $_.item -match '(^|[^a-zA-Z])(record|records|update|updates|add|write|edit|append)([^a-zA-Z]|$)' })
 $inputMaterial = if ($fullProfile) {
   $layerJson = $layerHashes | ConvertTo-Json -Compress
   "$tasksHash`:$requirementsHash`:$acceptanceHash`:$designHash`:$traceabilityHash`:$layerJson"
@@ -325,5 +379,5 @@ $base=Join-Path $root 'reports/task-review'; New-Item -ItemType Directory -Path 
 try { [ordered]@{schema='review-contract/v1';stage='task';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;input_sha256=$inputHash;run_id='task-precheck';verdict='PASS'}|ConvertTo-Json -Compress|Set-Content -LiteralPath $temporaryContract -Encoding utf8NoBOM; & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -Feature $Feature -Attempt $Attempt -Round $Round -Stage task -ReportRoot (Join-Path $root "reports/task-review/$Feature") -Contract $temporaryContract | Out-Null } finally { Remove-Item -LiteralPath $temporaryContract -Force -ErrorAction SilentlyContinue }
 New-Item -ItemType Directory -Path $report | Out-Null
 $graph=[ordered]@{schema='dependency-graph/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;nodes=$nodes;edges=$edges;generated_at=[DateTime]::UtcNow.ToString('o')}; $graph|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path $report 'dependency-graph.json') -Encoding utf8NoBOM
-[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
+[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;frozen_artifact_done_when=$frozenDoneWhen;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
 Write-Output "task-review-precheck: complete. Output written to $report/"

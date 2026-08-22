@@ -191,7 +191,7 @@ stateDiagram-v2
 | 7. 指摘修正 (必要時) | AI (fix-by-review-ticket) | 修正コード・テスト | チケット指定範囲を超えていないか？ |
 | 8. 再検証 (指摘有時) | AI (quality-gate 再実行) | 更新契約・レポート | Critical/Major が解消されたか？ |
 | 9. 繰り返し | — | — | 全タスク Done まで 5〜8 を繰り返し |
-| 10. 回顧 | AI (workflow-retrospective) | `reports/retrospective/<timestamp>.md`<br/>`docs/workflow-improvements/WFI-*.md` | 同種指摘の反復はないか？Blocked が頻発していないか？ |
+| 10. 回顧 | AI (workflow-retrospective) | `reports/retrospective/<timestamp>.md`<br/>`docs/workflow-improvements/WFI-*.md` | 同種指摘の反復はないか？Blocked が頻発していないか？friction をなぜなぜ分析（5 Whys）で根本原因（制御可能なプロセス/メカニズム要因）まで掘り下げたか？ |
 | 11. 改善検討 | 人間 | WFI 承認 | 検出された friction を認めるか？ |
 
 > **LITE プロファイル (`spec_profile: lite`)**: ステップ 3b/3c/3e のレビューゲートはスキップされます。acceptance-tests.md が不在の場合も同様。
