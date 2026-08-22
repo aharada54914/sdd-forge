@@ -56,10 +56,15 @@
 
 # Shared collection-layer helpers (timeout/arg validation, bounded runner).
 _script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-if ! . "$_script_dir/lib/panelist-common.sh"; then
+# Probe before sourcing: POSIX shells (dash among them) treat a failed `.`
+# special builtin as fatal, so an if-guard around the dot itself can never
+# run its else branch -- the readability test is what keeps this documented
+# diagnostic and exit code reachable on a partial or damaged installation.
+if [ ! -r "$_script_dir/lib/panelist-common.sh" ]; then
     printf 'run-panelist-gpt: lib/panelist-common.sh unavailable beside this script\n' >&2
     exit 2
 fi
+. "$_script_dir/lib/panelist-common.sh"
 
 task_id=""
 feature=""

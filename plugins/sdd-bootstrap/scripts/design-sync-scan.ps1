@@ -97,6 +97,105 @@ $files = @(Get-ChildItem -LiteralPath $targetDir -Recurse -File -Filter '*.html'
 # Fail closed: every selected file must be readable before scanning begins
 # (AC-007 branch 4) -- an unreadable file is a tool error, not silently
 # skipped while the rest of the set is reported clean.
+foreach ($f in $files) {
+    try {
+        [System.IO.File]::OpenRead($f.FullName).Close()
+    } catch {
+        [Console]::Error.WriteLine("design-sync-scan: cannot read file: $($f.FullName)")
+        exit 2
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Detection pattern catalogue (design.md's Detection pattern catalogue and
+# S7/P2 dual-form block). Placeholder patterns are reused verbatim from
+# check-placeholders.sh:18-19 (AC-009) -- identical to check-placeholders.
+# ps1's own $patternCs/$patternCi, so the two never drift regardless of
+# which runtime's twin a reader consults. The secret and PII sets are this
+# feature's own (AC-010, AC-011). S7 and P2 use the .NET regex forms of
+# design.md's dual-form block (AC-038); the .sh twin uses the POSIX ERE
+# forms.
+#
+# Case-sensitivity sweep (AGENTS.md "Author-time sweeps" item 1), both
+# layers, swept across this entire script: (a) operator-level -- no
+# -match/-notmatch/-eq/-ne/-contains/-notcontains/-replace/-like/-notlike
+# site in this file implements a pattern the .sh original compares
+# case-sensitively (the domain-reserved switch below normalizes to
+# lower-case via .ToLowerInvariant() *before* comparing, mirroring the .sh
+# twin's own `tr '[:upper:]' '[:lower:]'` pre-normalization, so that site's
+# own case-folding setting is a no-op by construction, not an oversight);
+# (b) cmdlet-level -- the two Select-String -CaseSensitive calls below (the
+# placeholder-cs group and the S1-S6 secret-prefix group, the two sites
+# tasks.md's T-002 Done-When names) are this script's only sites matching a
+# pattern the .sh original compares case-sensitively, and TEST-051 in the
+# suite covers both with a mis-cased negative fixture per site. Every other
+# Select-String call below is deliberately case-insensitive (placeholder-ci,
+# S7, P1, P2), mirroring the .sh twin's own `grep -i`/no-`-i` choice per
+# pattern, so none of those is a sweep site.
+# ---------------------------------------------------------------------------
+
+# Placeholder -- reused verbatim from check-placeholders.sh:18-19 /
+# check-placeholders.ps1's own $patternCs/$patternCi. ALL-CAPS stub markers
+# are case-sensitive (their lowercase occurrences are ordinary prose);
+# multi-word phrases are case-insensitive (unambiguous in any casing).
+# Case-sensitivity sweep (AGENTS.md item 1, operator+cmdlet layers): the
+# placeholder-cs group below is matched via Select-String -CaseSensitive
+# (cmdlet-level layer); TEST-051 in the suite proves a lower-cased mutation
+# of each marker is rejected.
+$placeholderPatternCs = 'TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+$placeholderPatternCi = 'not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
+
+# Secret -- S1-S6 (case-sensitive fixed vendor-format prefixes; the format
+# IS the casing) combined as one alternation, matched via Select-String
+# -CaseSensitive (cmdlet-level case-sensitivity sweep site); S7
+# (case-insensitive generic keyword-plus-assignment shape, .NET dual-form)
+# is its own pattern, matched via plain (case-insensitive) Select-String.
+$secretPatternCs = '-----BEGIN [A-Z ]*PRIVATE KEY-----|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{22,}|sk-(proj-|svcacct-)?[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}'
+# Embedded double-quote uses a backtick escape (`") rather than string
+# concatenation, for auditability -- the pattern is otherwise identical to
+# the .sh twin's secret_pattern_s7, just with \s instead of [[:space:]]
+# (design.md's dual-form block: .NET supports \s directly; POSIX ERE
+# needs the bracket-expression form for portability across this
+# repository's CI grep matrix, Edge Case 5).
+$secretPatternS7 = "(api[_-]?key|secret|token|password)\s*[:=]\s*['`"][^'`"\s]{8,}['`"]"
+
+# PII -- exactly two patterns. P1 (email-shaped) is matched here without
+# the RFC 2606/6761 domain exclusion; the exclusion is applied afterward
+# per matched address (below), since a bracket-expression regex cannot
+# express "except these specific domains" directly. P2 (E.164-shaped
+# phone, .NET dual-form: zero-width lookbehind/lookahead bound both sides
+# so it cannot match a substring of a longer digit run) needs no such
+# post-filter.
+$piiPatternP1 = '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
+$piiPatternP2 = '(?<!\d)\+[1-9]\d{7,14}(?!\d)'
+
+function Test-ReservedDomain {
+    param([string]$Domain)
+    $domainLc = $Domain.ToLowerInvariant()
+    switch -Wildcard ($domainLc) {
+        'example.com' { return $true }
+        'example.net' { return $true }
+        'example.org' { return $true }
+        '*.test' { return $true }
+        '*.example' { return $true }
+        '*.invalid' { return $true }
+        '*.localhost' { return $true }
+        default { return $false }
+    }
+}
+
+$findings = New-Object System.Collections.Generic.List[object]
+
+function Add-Finding {
+    param([string]$Category, [string]$File, [int]$Line, [string]$Display)
+    $findings.Add([pscustomobject]@{
+        Category = $Category
+        File     = $File
+        Line     = $Line
+        Display  = $Display
+    }) | Out-Null
+}
+
 # One rule of the detection table: category, pattern, cmdlet-level
 # case-sensitivity, display mode. Display modes mirror the .sh twin:
 #   match         emit the matched text
