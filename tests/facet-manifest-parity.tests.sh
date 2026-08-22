@@ -285,9 +285,11 @@ for f in \
   validate-facet-manifest.py validate-facet-manifest.sh validate-facet-manifest.ps1 \
   validate-capability-summary.py validate-capability-summary.sh validate-capability-summary.ps1 \
   validate-context-projection.py validate-context-projection.sh validate-context-projection.ps1 \
-  compare-facet-manifest-staleness.py compare-facet-manifest-staleness.sh compare-facet-manifest-staleness.ps1
+  compare-facet-manifest-staleness.py compare-facet-manifest-staleness.sh compare-facet-manifest-staleness.ps1 \
+  lib/py-dispatch.sh lib/py-dispatch.ps1
 do
   if [ -f "$SCRIPTS/$f" ]; then
+    mkdir -p "$INSTALLED/scripts/$(dirname "$f")"
     cp "$SCRIPTS/$f" "$INSTALLED/scripts/$f"
     chmod +x "$INSTALLED/scripts/$f" 2>/dev/null || true
   fi
