@@ -282,8 +282,10 @@ shared_paths:
     if (Should-Run 'TEST-040F') {
         $mutantDir = Join-Path $tempRoot 'matcher'
         [IO.Directory]::CreateDirectory($mutantDir) | Out-Null
-        foreach ($name in @('resolve-component-paths.ps1', 'canonicalize-sdd-yaml.ps1', 'canonicalize-sdd-yaml.py')) {
-            Copy-Item (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/$name") (Join-Path $mutantDir $name)
+        foreach ($name in @('resolve-component-paths.ps1', 'canonicalize-sdd-yaml.ps1', 'canonicalize-sdd-yaml.py', 'lib/py-dispatch.ps1')) {
+            $mutantDestination = Join-Path $mutantDir $name
+            [IO.Directory]::CreateDirectory((Split-Path -Parent $mutantDestination)) | Out-Null
+            Copy-Item (Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/$name") $mutantDestination
         }
         $mutantResolver = Join-Path $mutantDir 'resolve-component-paths.ps1'
         $text = [IO.File]::ReadAllText($mutantResolver).Replace('$MATCHER_SEMANTICS_VERSION = "1.0.0"', '$MATCHER_SEMANTICS_VERSION = "1.0.1"')
