@@ -307,8 +307,12 @@ gen_nonce() {
 sha256_stdin() {
   if command -v sha256sum >/dev/null 2>&1; then
     sha256sum | awk '{print $1}'
-  else
+  elif command -v shasum >/dev/null 2>&1; then
     shasum -a 256 | awk '{print $1}'
+  else
+    # Fail closed (same contract as sha256_of): nothing on stdout + nonzero,
+    # never a silent empty digest that passes empty == empty comparisons.
+    return 1
   fi
 }
 

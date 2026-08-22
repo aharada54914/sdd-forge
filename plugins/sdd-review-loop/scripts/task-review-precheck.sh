@@ -35,7 +35,13 @@ calibration_sha256=""
 fail() { echo "ERROR: task-review-precheck: $*" >&2; exit 1; }
 sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
+}
+sha256_stream() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
 }
 reviewed_sha256() {
   local file="$1" status_field="$2" reviewed_status="$3"
@@ -43,13 +49,7 @@ reviewed_sha256() {
   if LC_ALL=C grep -q "^${status_field}:.*"$'\r$' "$file"; then
     replacement+=$'\r'
   fi
-  if command -v sha256sum >/dev/null 2>&1; then
-    sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" |
-      sha256sum | awk '{print $1}'
-  else
-    sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" |
-      shasum -a 256 | awk '{print $1}'
-  fi
+  sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" | sha256_stream
 }
 # Shared predecessor-verdict validation (require_persisted_pass and
 # assert_contract_reviewer_agreement) lives in lib/review-precheck-common.sh,
@@ -61,6 +61,10 @@ if ! . "$(cd "$(dirname "$0")" && pwd -P)/lib/review-precheck-common.sh"; then
 fi
 
 command -v jq >/dev/null 2>&1 || fail "jq is required"
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
+  fail "neither sha256sum nor shasum is available"
 
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
@@ -412,7 +416,7 @@ if $full_profile; then
 else
   input_material="$(printf '%s:%s:%s' "$tasks_sha256" "$requirements_sha256" "$acceptance_sha256")"
 fi
-input_sha256="$(printf '%s' "$input_material" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+input_sha256="$(printf '%s' "$input_material" | sha256_stream)"
 foundation_contract="$(mktemp)"
 trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \

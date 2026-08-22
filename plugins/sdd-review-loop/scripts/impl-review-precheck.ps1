@@ -156,7 +156,7 @@ function Require-Pass(
     @($_.allowed_input_manifest) | Where-Object {
       $relativePath = Get-ManifestRelativePath $_.path $repoRoot
       [string]::IsNullOrWhiteSpace($relativePath) -or
-        $_.sha256 -notmatch '^[0-9a-f]{64}$' -or
+        $_.sha256 -cnotmatch '^[0-9a-f]{64}$' -or
         -not (Test-AllowedManifestPath $role $relativePath $Stage $FeatureName $contract.attempt $contract.round $calibrationPath)
     }
   }).Count -gt 0

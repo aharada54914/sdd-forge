@@ -172,7 +172,7 @@ if ($revExit -ne 0) {
 }
 
 $gitCommit = ($revResult | Out-String).Trim()
-if ($gitCommit -notmatch '^[0-9a-f]{40}$') {
+if ($gitCommit -cnotmatch '^[0-9a-f]{40}$') {
     Write-Error "generate-evidence-bundle: unexpected git HEAD format: $gitCommit"
     exit 1
 }

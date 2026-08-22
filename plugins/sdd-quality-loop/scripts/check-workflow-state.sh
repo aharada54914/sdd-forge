@@ -16,13 +16,21 @@ diagnostic() {
   diagnostic_line "$@"
   exit 1
 }
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 || {
+  diagnostic_line "neither sha256sum nor shasum is available"
+  exit 1
+}
 sha256_file() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}'
+  else diagnostic "neither sha256sum nor shasum is available"; fi
 }
 sha256_stream() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'
-  else shasum -a 256 | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}'
+  else diagnostic "neither sha256sum nor shasum is available"; fi
 }
 # plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
 # evolve normally over time, but historical review evidence under reports/
