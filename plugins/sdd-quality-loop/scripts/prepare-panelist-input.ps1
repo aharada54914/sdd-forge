@@ -263,11 +263,18 @@ if (-not $ConsentKind) {
 #      panelists already raised about source code, one level over). See
 #      Get-PpiContractEvidencePaths.
 #   4. the reviewed task's own implementation report
-#   5. the CURRENT content of every path the report's "## Outputs" table
-#      declares -- appended below, after Invoke-DeclaredOutputsCompleteness
-#      Check resolves each row (see $script:PpiDeclaredContent and
-#      Add-PpiDeclaredOutputContent), reusing that single resolution rather
-#      than re-reading paths a second, differently-behaved way.
+#   5. the CURRENT worktree content of every path the report's "## Outputs"
+#      table declares -- appended below, after
+#      Invoke-DeclaredOutputsCompletenessCheck resolves each row (see
+#      $script:PpiDeclaredContent and Add-PpiDeclaredOutputContent). The
+#      completeness check may still consult the declaration commit to
+#      decide whether a row was ever true, but that historical blob is
+#      never what lands in the bundle: a row whose worktree hash no longer
+#      matches the declared one still contributes its worktree bytes, plus
+#      an in-bundle notice that the report's declaration is stale; a row
+#      absent from the worktree entirely contributes no content, only a
+#      notice -- reviewing material a panelist is told to judge "as it
+#      stands" must never be quietly historical.
 # --input is unchanged for a literal FILE argument (still read verbatim --
 # this is the shape used by secret-sanitization fixtures, and is orthogonal
 # to feature/task composition). --input is retained as the completeness
@@ -636,10 +643,10 @@ $script:PpiDeclaredContent = ""
 # every caller that predates this convention, e.g. this script's own
 # existing test fixtures).
 #
-# Declaration-commit fallback (staleness of shared, living files): a row
-# that is absent, or hash-mismatched, under ProjectRoot after both roots
-# have been tried is not necessarily a lie -- CHANGELOG.md and a feature's
-# own tasks.md are declared as whole-file hashes but are shared files every
+# Declaration-commit check (staleness of shared, living files): a row that
+# is absent, or hash-mismatched, under ProjectRoot after both roots have
+# been tried is not necessarily a lie -- CHANGELOG.md and a feature's own
+# tasks.md are declared as whole-file hashes but are shared files every
 # sibling task edits after this report was written, so an accurate
 # declaration goes stale the moment the next task commits. Rather than
 # recording a commit in the report schema, the "declaration commit" (the
@@ -653,8 +660,20 @@ $script:PpiDeclaredContent = ""
 # translation. A row that only matched under InputRoot has no such form and
 # is never retried this way -- see Invoke-DeclaredOutputsCompletenessCheck.
 # Every acceptance via this path prints a distinct stderr notice (never
-# silent); it must never become a way for a check to quietly stop verifying
-# content it claims to verify.
+# silent).
+#
+# This check decides ONE thing only: whether the row was ever true (was the
+# declaration accurate as of the commit that wrote it), which keeps the
+# build failing exactly as before for a row satisfiable by neither the
+# worktree nor the declaration commit. It must never become a way for a
+# check to quietly stop verifying content it claims to verify -- and, as of
+# the fix below, it must never become a way for a REVIEW BUNDLE to carry
+# historical bytes as if they were current ones either. A row accepted
+# through this path is content-wise handled by Add-PpiDeclaredOutputContent
+# as "StaleHash" (worktree file exists, gets served, hash mismatch is
+# called out in-bundle) or "Missing" (no worktree file at all, no content
+# to serve, called out in-bundle) -- never by reading the declaration-
+# commit blob into the bundle.
 
 $script:PpiDeclCommitChecked = $false
 $script:PpiDeclCommit = $null
@@ -723,16 +742,33 @@ function Test-DeclaredOutputAtDeclarationCommit {
 # used again here, unchanged, by Invoke-DeclaredOutputsCompletenessCheck
 # below.)
 
-# Append the CURRENT content the completeness check just verified for one
-# declared-outputs row into $script:PpiDeclaredContent -- reusing
-# Invoke-DeclaredOutputsCompletenessCheck's own resolution (candidate
-# worktree file, or the declaration-commit blob) rather than re-reading the
-# row a second, differently-behaved way. Skips a row already pulled in by
-# the spec-document/task-verification/implementation-report composition
-# above (see $script:PpiSeenRelPaths) -- comparison is only meaningful for
+# Append review material for one declared-outputs row into
+# $script:PpiDeclaredContent. Invoke-DeclaredOutputsCompletenessCheck
+# decides only whether the row was ever true (build-gate job, unchanged);
+# this function decides what a reviewer actually reads, and it reads from
+# the worktree candidate whenever one exists -- NEVER the declaration-
+# commit blob, which would hand a panelist code that no longer exists in
+# the tree it is asked to review. Skips a row already pulled in by the
+# spec-document/task-verification/implementation-report composition above
+# (see $script:PpiSeenRelPaths) -- comparison is only meaningful for
 # project-root-relative rows (ProjectRelative = $true); a row that only
 # matched under --input has no comparable identity in that set and is never
-# deduplicated.
+# deduplicated. -Staleness selects which case this call is:
+#   ""          a normal match -- the declared hash was verified directly
+#               against the worktree candidate. No notice needed.
+#   "StaleHash" the worktree candidate exists but its hash no longer
+#               matches the declared one (only the declaration-commit blob
+#               matched it, via Test-DeclaredOutputAtDeclarationCommit).
+#               Served content is still $Candidate -- the CURRENT worktree
+#               bytes -- plus an in-bundle notice that the report's
+#               declared hash for this path is stale, so the reviewer
+#               knows both what the code is now and that the report
+#               describing it is out of date.
+#   "Missing"   no worktree candidate exists at all -- the row matched only
+#               at the declaration commit. There is no current content to
+#               serve; falling back to the declaration-commit blob here
+#               would silently hand the reviewer a file that has been
+#               deleted. Instead this appends only a notice.
 function Add-PpiDeclaredOutputContent {
     param(
         [string]$RowPath,
@@ -740,26 +776,27 @@ function Add-PpiDeclaredOutputContent {
         [bool]$ProjectRelative,
         [string]$ProjectRoot,
         [string]$Feature,
-        [string]$TaskId
+        [string]$TaskId,
+        [string]$Staleness = ""
     )
 
     if ($ProjectRelative -and $script:PpiSeenRelPaths.Contains($RowPath)) {
         return
     }
 
-    if ($Candidate) {
-        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate
-        $script:PpiDeclaredContent += "# ---- $RowPath (declared output) ----`n$content`n"
-    } else {
-        $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
-        $tempFile = [IO.Path]::GetTempFileName()
-        try {
-            & git -C $ProjectRoot show "${commit}:${RowPath}" > $tempFile 2>$null
-            $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $tempFile
-        } finally {
-            Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+    switch ($Staleness) {
+        "StaleHash" {
+            $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate
+            $script:PpiDeclaredContent += "# ---- $RowPath (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----`n$content`n"
         }
-        $script:PpiDeclaredContent += "# ---- $RowPath (declared output, at declaration commit $commit) ----`n$content`n"
+        "Missing" {
+            $commit = Get-PpiDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+            $script:PpiDeclaredContent += "# ---- $RowPath (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit $commit, the path no longer exists in the current tree) ----`n[no current content: this declared output does not exist in the worktree]`n"
+        }
+        default {
+            $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $Candidate
+            $script:PpiDeclaredContent += "# ---- $RowPath (declared output) ----`n$content`n"
+        }
     }
 
     if ($ProjectRelative) { $script:PpiSeenRelPaths.Add($RowPath) | Out-Null }
@@ -819,7 +856,7 @@ function Invoke-DeclaredOutputsCompletenessCheck {
                 # (see Test-DeclaredOutputAtDeclarationCommit).
                 if (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash) {
                     Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $null -ProjectRelative $true `
-                        -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+                        -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -Staleness "Missing"
                     continue
                 }
                 $gaps.Add("declared output missing from bundle: $rowPath")
@@ -831,8 +868,8 @@ function Invoke-DeclaredOutputsCompletenessCheck {
         if ($actualHash -ne $rowHash) {
             if ($rowIsProjectRelative -and
                 (Test-DeclaredOutputAtDeclarationCommit -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -RowPath $rowPath -RowHash $rowHash)) {
-                Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $null -ProjectRelative $true `
-                    -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId
+                Add-PpiDeclaredOutputContent -RowPath $rowPath -Candidate $candidate -ProjectRelative $true `
+                    -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -Staleness "StaleHash"
                 continue
             }
             $gaps.Add("declared output hash mismatch: $rowPath")
