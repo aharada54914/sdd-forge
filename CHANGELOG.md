@@ -44,9 +44,11 @@
   と `facet-manifest-parity` 双子の installed フィクスチャにも lib 2件を
   追加（コピー/シンボリックリンク両ループをサブディレクトリ対応化）。
   staged 文脈の手動再現で generate-gate-capabilities / 
-  validate-facet-manifest とも lib ありで正常動作を確認。fixture
-  ステージング一覧が lib 依存を知らないという再発クラス(計7サイト)は
-  WFI 候補として次回レトロスペクティブの対象。
+  validate-facet-manifest とも lib ありで正常動作を確認。第5の同型も CI が
+  検出: `ownership-digest.tests.ps1` の matcher フィクスチャ(ps1 リゾルバが
+  隣の canonicalize ラッパー経由で digest 計算 — sh 側は .py 直呼びで無関係)
+  にも lib を追加。fixture ステージング一覧が lib 依存を知らないという
+  再発クラス(計8サイト)は WFI 候補として次回レトロスペクティブの対象。
 
 - **apply-human-copy のクラッシュ回復経路を分解（ループ監査 items 2-3、
   残り最後の2件）**: (1) `recover_all` の約85%同一な3パスを
