@@ -1,0 +1,47 @@
+ticket_id: RT-20260821-001
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-001"
+  files:
+    - "plugins/sdd-quality-loop/references/risk-classification-policy.md"
+    - "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md"
+summary: >-
+  T-001 gate cycle 1 - policy doc states the forbidden absent->medium mapping;
+  ai-task template omits Risk Rationale; no test pins the delivered shapes
+problem: |
+  QG evaluator (seq 0810, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T050130Z.md) accepted three Major findings, all
+  on bytes untouched since the implementing commit 15b5d24a (verified via
+  git log 15b5d24a..HEAD per file, 0 commits):
+
+  1. risk-classification-policy.md:58-59 says a missing Risk field "is treated
+     as the documented default (medium-baseline)". design.md:86-91,
+     requirements.md:84 and risk-gate-matrix.md:140-149 all state the
+     opposite - absent => legacy mode, NO tier minimum, with the explicit
+     negation "Do NOT map absent->medium". Measured: check-contract passes a
+     no-risk fixture and fails the identical fixture with risk medium added.
+  2. ai-task.template.md:11-21 carries Risk / Required Workflow / Requirements
+     but no Risk Rationale, while tasks.template.md got all four. check-risk
+     fails closed on the missing field (measured both polarities). BEFORE
+     patching, resolve the underlying document conflict deliberately:
+     design.md:50 prose says "three fields", tasks.md:29-30 names four.
+  3. Done-When "Required tests added or updated (presence/format assertions)"
+     has no delivered artifact: the commit touched zero test files and the
+     Outputs table declares no test path. Nothing pins the template and
+     reference shapes against silent later edits.
+expected_fix:
+  - "Fix risk-classification-policy.md:58-59 to state the legacy-mode rule the other three normative docs agree on, with the explicit do-not-map negation"
+  - "Resolve the three-vs-four field count conflict (design.md:50 prose vs tasks.md:29-30) as a recorded decision, then add the Risk Rationale section to ai-task.template.md to match tasks.template.md"
+  - "Add presence/format assertion tests for the delivered template and reference shapes (tasks.template.md fields, ai-task.template.md fields, acceptance-tests/traceability template columns, matrix row invariants), declare them in a recovery appendix row so the re-gate can authorize them"
+  - "Re-run the quality gate for T-001 (new evaluator reservation) once fixed"
+references:
+  - "reports/quality-gate/20260821T050130Z.md"
+  - "specs/risk-adaptive-layer/design.md"
+  - "specs/risk-adaptive-layer/requirements.md"
+  - "plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

@@ -1,0 +1,90 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-037",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every evidence claim was verified against the repository. (1) The friction traces to retrospective FP-03 ('Roles are told to verify artifacts their allowlist forbids them to read') and the T-004 metrics row (3 quality-gate runs, 1 blocked) in reports/retrospective/2026-08-20T000000Z-sdd-domain-concept-contract.md. (2) The quoted boundary-reference text ('Verify the record chain instead...' and 'A reviewer cannot do better than this') appears verbatim in plugins/sdd-review-loop/references/review-context-boundary.md, section 'identity_ledger_sha256: do not re-verify', including the sequence-402 epic-136-phase4-docs incident. (3) path_is_authorized in plugins/sdd-quality-loop/scripts/validate-review-context-set.sh (lines 136-193) names reports/review-context/identity-ledger.json in no role branch (spec, impl, task, quality, domain all verified), and the quoted error 'REVIEW_CONTEXT_PATH: <role> contains a real but role-unlisted path' matches fail() at line 6 plus line 448 exactly. (4) The step-3 measurement was recomputed by this audit: the sha256 of the '796|quality|sdd-evaluator|RUN-...seq0796|SESS-...-0796|d6756a9e...' record material equals the caller-quoted 4a0c740c... value exactly, matching both the pending manifest (pending-sdd-domain-concept-contract-sdd-evaluator-T-004-seq0796-manifest.json) and the 'Manifest Record Hash' in reports/quality-gate/20260819T145125Z.md. (5) The seq-795 orphan exists as pending-...-sdd-evaluator-T-004-seq0795-manifest.json with no corresponding gate report, matching FP-03's account. Moved-but-present note, stated explicitly per audit protocol: the ledger records for these launches now sit at ledger sequences 806/807 with recomputed chain hashes — the ledger was renumbered (+11) when the feature merged at commit a367dda1 — while the WFI's drafting-date sequence numbers 795/796 survive in the run_id/host_session_id fields, the pending manifests, and the gate report. The cited mechanism is present under shifted sequence numbers and is treated as present."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a specific, controllable mechanism rather than restating the symptom: 'The corrective guidance and the allowlist that governs what a reviewer may read are two different surfaces, and only one of them was updated ... path_is_authorized was never extended to admit the artifact that document tells reviewers to inspect, and no test compares the two.' That is a process mechanism (divergent surfaces with no parity check), not a restatement of 'the check cannot be performed'. Caveat recorded, not charged here: the sub-condition that the hypothesis be the terminal cause of the '## Why-Why Analysis' chain could not be evaluated because that section is absent entirely; the absence is charged once, under WHY-CHAIN-VALID, and the chain proposed in this audit's revisions terminates at exactly this mechanism."
+    },
+    {
+      "id": "WHY-CHAIN-VALID",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The WFI contains no '## Why-Why Analysis' section at all: the document proceeds directly from '## Root Cause Hypothesis' to '## Proposed Change' (verified by header scan; the only 'Why' in the file is a column header inside the Problem Evidence step table). A missing section is a Major finding by rule 1 of this check; a why-why chain of at least 3 evidence-cited levels, anchored on the T-004 cycle-3 identity block and terminating at the stated two-surfaces mechanism, must be added on revision. The raw material for every level already exists in the WFI's own Problem Evidence and Root Cause Hypothesis, so this is an omission of form, not of substance — see proposed revision 1."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. 'Category: plugin-improvement' is present and valid. Scanned '## Root Cause Hypothesis', '## Proposed Change' (Change Description column, plus the trailing allowlist-rejection paragraph), and '## Expected Effect' against every Forbidden Term in wfi-category-guide.md Section 2: zero occurrences. Terms that do appear (path_is_authorized, REVIEW_CONTEXT_PATH, REVIEW_CONTEXT_OK, identity ledger, boundary reference) are not on the forbidden list. Raw citations in '## Problem Evidence' are direct report/measurement citations and are exempt by rule. There is no '## Why-Why Analysis' to scan; when it is added per WHY-CHAIN-VALID, its Why/Because columns must observe the same term rules."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "All four rows of '## Proposed Change' fail condition 1 (specific file path in the Target File column). The Target File cells read, in full: 'Review-context validator (generic workflow surface, sh and ps1 twins)', 'Review-context boundary reference (generic workflow surface)', 'Reviewer and evaluator role definitions (generic workflow surface)', 'Boundary-reference parity test (generic workflow surface)'. None is a file path; each is a description an implementer must resolve. The actual targets exist and are unambiguous — plugins/sdd-quality-loop/scripts/validate-review-context-set.sh and .ps1, plugins/sdd-review-loop/references/review-context-boundary.md, the role definition files under plugins/sdd-review-loop/agents/ and plugins/sdd-quality-loop/agents/evaluator.md, and a new parity test under tests/ — so the fix is mechanical. Condition 2 is satisfied: every Change Description is concrete and testable (e.g. row 1 enumerates the exact fields to add to the REVIEW_CONTEXT_OK line). Shared plugins/-path rule, applied on identical conditions as NO-PLUGIN-SCOPE-CREEP: the described targets resolve to plugins/ files, and the carve-out is NOT applied because its condition 2 is unmet (see that check); naming the literal paths is nevertheless the correct revision, paired with the '## Category' statement that activates the carve-out."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The '## Expected Effect' section reads: 'A reviewer can verify its own launch identity to the strength the boundary reference claims, using evidence it is actually given. Today it can verify one of four properties and must take the other three on the launching agent's word...' This names no metric and states no quantitative target within the section. The 'one of four properties' phrasing gestures at a number but never states the target state or the metric that will register it; both requirements of this check are unmet inside this section. The needed content already exists one section down ('metrics.reviewer_identity_boundary_blocks', baseline 2, target 0 of 10), so this is a wording defect: restate the metric name and the numeric targets (2 -> 0 of the next 10 launches; 1-of-4 -> 4-of-4 verifiable properties) inside '## Expected Effect' itself — see proposed revision 4."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Exactly one primary metric is named: 'Target-Metric: metrics.reviewer_identity_boundary_blocks'. Baseline is stated ('2 measured occurrences ... epic-136-phase4-docs seq 402; sdd-domain-concept-contract T-004 seq 795') and matches the retrospective's Improvement Verification Plan WFI-037 row exactly ('Baseline: 2 (seq 402, seq 795)'). Quantitative target is stated ('0 of 10, with every launch carrying chain evidence the role can check unaided'). Checkpoint is stated ('Horizon: within the next 10 reviewer or evaluator launches'), matching the retrospective's 'next 10 reviewer/evaluator launches'."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "The plan is operationally specific — 'For each of the next ten reviewer or evaluator launches, record whether the role verified its launch identity, which of the four properties it verified, and whether it blocked on identity rather than on the work' — and it adds a genuine falsification control (a fabricated REVIEW_CONTEXT_OK line must be rejected, else 'the change has relocated the trust rather than preserved it'). But it never references the specific retrospective metric row the next cycle will compare against: neither the retrospective report path nor its Improvement Verification Plan WFI-037 row is cited, so the comparison anchor is implicit. Minor; one sentence fixes it — see proposed revision 5."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "No Target File cell is a project-side workflow file (AGENTS.md, CLAUDE.md, project-root workflow doc, or specs/ template). All four rows target plugin-side surfaces phrased as generic descriptions — quoted: '| Review-context validator (generic workflow surface, sh and ps1 twins) | Emit the chain facts ... |' — which resolve to plugins/sdd-quality-loop/scripts/validate-review-context-set.{sh,ps1}, plugins/sdd-review-loop/references/review-context-boundary.md, and role definitions under plugins/. This is the lane-split phrasing prior audits already established does not defuse the rule. The carve-out was evaluated explicitly, condition by condition: condition 1 HOLDS ('Category: plugin-improvement'); condition 3 HOLDS ('GitHub-Issue: https://github.com/aharada54914/sdd-forge/issues/310' — verified real, open, filed 2026-08-20 by the repository owner, title 'WFI-037: the boundary reference prescribes a record-chain check no role can perform', content matching this WFI); condition 2 FAILS — the '## Category' section reads, in full, 'Category: plugin-improvement' and nowhere states in its own words that this repository is the plugin's source of truth and that the change travels as a repository commit. The carve-out therefore is NOT applied, and the Major stands. Note for the reviser: repository evidence (plugin-editing commits such as ec7b1c20 and 5d63a74b landing directly in this repo, and this repo hosting the plugins' issues) indicates the source-of-truth statement would be truthful; conditions 1 and 3 are already satisfied, so adding the condition-2 statement plus literal paths resolves this check and CHANGE-CONCRETE together — see proposed revisions 2 and 3."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Why-Why Analysis",
+      "change": "Insert a 4-level chain between '## Root Cause Hypothesis' and '## Proposed Change': evaluator blocked on own launch identity (FP-03, seq-795 orphan); the only alternative procedure reads the ledger no role may read (boundary reference steps 1-4 vs path_is_authorized); the seq-402 fix was written only into the reference document, never the allowlist; the two surfaces stay divergent because no test compares them (hypothesis for the would-have-caught claim).",
+      "rationale": "Resolves WHY-CHAIN-VALID (missing section): 4 levels, anchored on the Problem Evidence friction, each link chained, terminating at the controllable mechanism already named in the Root Cause Hypothesis, every level evidenced or marked as hypothesis. Also discharges the ROOT-CAUSE-PLAUSIBLE terminal-alignment caveat."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Replace the four Target File cells with literal paths, keeping the existing Change Description cells unchanged: row 1 -> validate-review-context-set.sh/.ps1; row 2 -> review-context-boundary.md; row 3 -> the six reviewer agent definitions plus evaluator.md; row 4 -> tests/boundary-reference-authorization-parity.tests.sh (new, with .ps1 twin per repo convention).",
+      "rationale": "Resolves CHANGE-CONCRETE condition 1 (each row gains a specific file path) and, together with the '## Category' revision below, satisfies all three carve-out conditions so the plugins/ paths are not a finding under either path-rule check."
+    },
+    {
+      "section": "## Category",
+      "change": "Extend the section with the source-of-truth statement: this repository is the source of truth for the plugins under plugins/; the change is delivered as a commit to this repository; the tracking issue records the proposal for audit visibility.",
+      "rationale": "Satisfies carve-out condition 2 (the WFI must assert the source-of-truth relationship in its own words), which is the only unmet condition — condition 1 (category) and condition 3 (issue URL, verified open as aharada54914/sdd-forge#310) already hold."
+    },
+    {
+      "section": "## Expected Effect",
+      "change": "Append the measured effect: reduce identity-boundary blocks (metrics.reviewer_identity_boundary_blocks) from 2 baseline occurrences to 0 across the next 10 reviewer or evaluator launches, and raise unaided-verifiable launch-identity properties from 1 of 4 to 4 of 4.",
+      "rationale": "Resolves EFFECT-MEASURABLE: the section itself then names the specific metric and states quantitative targets, consistent with ## Verification Metric and the retrospective's Improvement Verification Plan row for WFI-037."
+    },
+    {
+      "section": "## Verification Plan",
+      "change": "Append the comparison anchor: reports/retrospective/2026-08-20T000000Z-sdd-domain-concept-contract.md, section Improvement Verification Plan, WFI-037 row (baseline 2, target 0 of 10, checkpoint next 10 reviewer/evaluator launches).",
+      "rationale": "Resolves the VERIFICATION-PLAN-SPECIFIC Minor: the plan then references the specific retrospective metric row to be compared in the next cycle."
+    }
+  ]
+}

@@ -1,5 +1,227 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **SHA-256 検証の fail-closed 化と lowercase-only 統一（監査 Cluster 6）**:
+  (1) sh 側 8 ファイルの `sha256` 系ヘルパーのうち、ツール欠如時に**空
+  ダイジェストを黙って返す** fail-open 形（裸の `else shasum`。空 == 空で
+  検証が通る）だった 6 ファイル — impl/task/spec/domain の各 precheck、
+  check-workflow-state、apply-human-copy の stdin 系 — を
+  validate-review-context-set.sh の fail-closed 前例に統一（elif ガード+
+  else fail、および両ツール欠如を起動時に検出する早期プローブ。プローブは
+  既存の `jq is required` メッセージ契約を壊さないよう jq チェックの後段に
+  配置）。インライン重複していた stdin ハッシュのパイプ4箇所は新設
+  `sha256_stream` ヘルパーへ集約。(2) 16進シェイプ検証の3方言 —
+  大文字許容 `[0-9a-fA-F]`、実質大小無視の ps1 `-match/-notmatch`
+  （PowerShell は既定で大小無視）、厳格 `-cmatch` — を **lowercase-only /
+  case-sensitive に統一**（産生側は全twinが `ToLower(Invariant)` 済みで
+  挙動安全）: spec/domain の `is_sha256`、spec の jq `test()` 5箇所、
+  review-contract-validate 双子、check-cross-model 双子、impl/task
+  precheck ps1、run-panelist 双子、apply-human-copy ps1、evidence-bundle
+  双子（40hex git）。sudo 署名・nonce の16進はガード parity 意味論のため
+  対象外。検証: downstream-review-precheck / task-review-precheck /
+  loop-consistency / spec-review-loop / cross-model 70/70 / gates 131 /
+  review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
+  緑（ps1 レグは CI）。
+
+- **PR #328 レビュー対応2件（Codex P1/P2）**: (1) `design-sync-scan.ps1` の
+  テーブル駆動化がパターン定義・`Test-ReservedDomain`・`Add-Finding`・
+  可読性プリチェックまで誤削除していた（`foreach ($f in $files)` が
+  プリチェックと走査の2箇所にあり、置換アンカーが先頭に誤ヒット）—
+  変更前版から走査ループのみを正しく置換して再構築。(2) 新設 sh
+  ラッパー14本+run-panelist 双子の `if ! . lib; then` ガードは dash 等の
+  POSIX シェルで `.` 失敗が致命的なため else が到達不能で、lib 欠損時に
+  文書化済み exit 3 ではなく素の exit 2 で落ちていた — source 前の
+  `[ -r ]` プローブに変更（lib 欠如 = exit 3+トークン、lib あり = 正常
+  ディスパッチを dash 実挙動で確認）。あわせて version-gates 赤の原因
+  だった `generate-registry-digest.tests.ps1` のフィクスチャ
+  ステージングにも lib 2件を追加（sh 側テストと同型の欠落 — ps1 レグは
+  ローカル pwsh 不在で検出できず CI が捕捉）。さらに CI が第3・第4の
+  同型を検出: `capability-registry-parity` 双子（3つのインストール済み
+  プラグイン文脈への STAGED_SCRIPTS ステージング — 全6文脈が exit 3 に）
+  と `facet-manifest-parity` 双子の installed フィクスチャにも lib 2件を
+  追加（コピー/シンボリックリンク両ループをサブディレクトリ対応化）。
+  staged 文脈の手動再現で generate-gate-capabilities / 
+  validate-facet-manifest とも lib ありで正常動作を確認。第5の同型も CI が
+  検出: `ownership-digest.tests.ps1` の matcher フィクスチャ(ps1 リゾルバが
+  隣の canonicalize ラッパー経由で digest 計算 — sh 側は .py 直呼びで無関係)
+  にも lib を追加。fixture ステージング一覧が lib 依存を知らないという
+  再発クラス(計8サイト)は WFI 候補として次回レトロスペクティブの対象。
+
+- **apply-human-copy のクラッシュ回復経路を分解（ループ監査 items 2-3、
+  残り最後の2件）**: (1) `recover_all` の約85%同一な3パスを
+  `classify_batch` / `revert_mixed_batch` / `confirm_all_at_pre` +
+  `probe_or_die`（PROBE_CUR グローバル、文脈別 verbatim メッセージ）+
+  `target_at_pre` + `finalize_recovered_batch` に分解 — die() 意味論の
+  ため全ヘルパー直接呼び出し（`$(...)` 禁止を各ヘッダに明記）、
+  `< file` リダイレクト維持、`rm -f targets_tmp` 13箇所を集約。ps1 双子
+  `Invoke-RecoverAll` も同構造で分解（revert パスが classify のプローブを
+  キャッシュ再利用する既存の意図的乖離は両側のコメントに記録して温存）。
+  (2) awk JSON パーサの END ブロック（4深・6項判定）を `skip_seps` /
+  `parse_quoted` / `parse_target_object` に分解（POSIX awk のみ、
+  確立済みの RES_*/PARSE_ERR グローバルチャネル慣用に追随。回復経路に
+  python3 依存は導入しない — sed→手書きパーサ3世代の失敗クラス記録は
+  維持）。検証: apply-human-copy 247/251（差分は既知の chmod000-as-root
+  4件のみ、ベースライン同一）、human-copy-mirror-freshness 6/6、
+  guard-invariants-epic-a1 82/82（ps1 レグは CI）。ブランチ分岐中は
+  同期ツールが適用済みミラーを pending と誤分類するため epic-189-a1 の
+  apply-human-copy ミラー2件+MANIFEST は手動同期。
+
+- **ループ監査の構造リファクタ3件（Fail-6 ホイスト / ルート導出抽出 /
+  design-sync-scan テーブル駆動化）**: (1) Fail-6 の4深デカルト積ループ
+  4複製（resolve-component-paths.{py,ps1}・check-component-coverage.{py,ps1}）
+  で、不正な adapter path パターンを `catch { continue }` が (component,
+  path) ペアごとに黙殺し毎回再検証していたのを、バインディング単位で1回
+  検証にホイストし、使用不能パターンを警告として表面化（py↔ps1 の警告
+  文言は parity 維持で同一。component-path 系5スイート緑）。
+  (2) `check-workflow-state.ps1` の4深ルート導出から
+  `Get-CandidateRootsForPath` を抽出（`,$set` で unroll 回避）。
+  (3) `design-sync-scan.{sh,ps1}` の6コピペ走査ブロックを検出テーブル+
+  1関数（表示モード match / redact / email-filter）に集約 — sh 側は
+  `grep | while` サブシェル制約どおり一時ファイル経由の emit を維持
+  （スイートの差分はベースライン同一の chmod/root 既知3件のみ）。
+  残る apply-human-copy の awk パーサ分解と recover_all 3パス分解は、
+  クラッシュ回復経路かつ ps1 レグのローカル検証不能のため意図的に未着手
+  — 分解計画は監査報告書 Loop audit 項 2-3 に記録済みで、専用の検証
+  サイクルを持つ変更として実施すべきもの。
+
+- **draft-07 スキーマエンジン3複製のバイト同一性テストを追加、
+  resolve-component-paths の unknown-type fail-open を両 twin で閉鎖
+  （監査「設計制約でブロック」項目）**: design.md は「4つの独立バリデータ、
+  兄弟 import なし」を記録しており複製自体は設計通り — 欠けていたのは
+  「複製が同一であり続ける」ことの実行可能な検証。AST 抽出（行番号非依存）
+  で7エンジン関数を3ファイルから取り出しバイト同一を要求する
+  `tests/schema-engine-identity.tests.sh` を追加（8/8 緑、変異による
+  non-vacuity 付き。validate-approval-sidecar は独立性根拠の記録により、
+  resolve-component-paths は ps1 twin が INV-008 parity で拘束されるため
+  対象外と明記）。第5の弱い変種 `resolve-component-paths.{py,ps1}` の
+  `_schema_type_ok` / `Test-JsonSchemaInstanceType` は未知の type 名で
+  **全インスタンスを黙って通す** fail-open だったため両 twin で fail-closed
+  化（リポジトリ内スキーマは既知7型のみ使用 — 正常系無変更。
+  component-path 系5スイート緑）。engine の `schema_engine.py` への統合は
+  design.md の記録済み判断の変更を要するため人間判断待ちのまま。
+
+- **python ディスパッチャ・ラッパー28本(sh 14+ps1 14)を共有 lib へ統合し、
+  欠如時挙動を文書化済みの exit 3 規約に統一（監査 Cluster 7）**: 4方言
+  （exit 3+フォールバック / exit 1+フォールバック / ガードなし bash
+  =素の127 / ps1 は `&` 演算子とバイト厳密 Process 起動が根拠矛盾のまま
+  混在）を `lib/py-dispatch.{sh,ps1}` に集約。sh は python3→python→
+  fail-closed exit 3、ps1 は canonicalize が計測済みの
+  [System.Diagnostics.Process] バイト厳密パススルー方式を全ラッパーに採用。
+  テスト固定の診断トークン（CANONICALIZER_RUNTIME_UNAVAILABLE 等）は
+  呼び出し側が所有し不変。INV-008 族（check-contract /
+  check-component-coverage / resolve-component-paths — PowerShell 双子への
+  フォールバックと引数変換表を持つ別設計）は対象外。両 lib を
+  `protected_gate_suffixes` に追加し生成物再生成・ミラー同期。
+  generate-registry-digest スイートのフィクスチャステージングに lib を追加
+  （loop-driver と同型の欠落）。さらに epic-190-a2 candidate 側
+  `generate-guard-invariants.py.candidate` の BASELINE に lib 4件を追加 —
+  **PR #325 が live に足した2件が candidate に未反映のため main の
+  version-gates（generate-gate-capabilities の純上位集合検査）は現在赤**で、
+  この修正が回復させる。検証: canonicalize / validate・generate-approval-
+  sidecar / check-hook-activation-handshake / evaluate-predicate /
+  detect-policy-weakening / registry-discovery / facet-manifest 3種 /
+  capability 系 5種 / plugin-contracts・ship-track-selection /
+  generate-gate-capabilities / guard-parity 57 / constant-parity /
+  guard-invariants-epic-a1 82 / phase2-guard-invariants 42 緑、
+  両 lib への Write はガードが deny。
+
+- **タスクライフサイクル語彙の6サイト一致テストを追加、Approval 文法統一は
+  WFI-042 として起票（監査 Cluster 2）**: 語彙 {Planned / In Progress /
+  Blocked / Implementation Complete / Done} は full/lite チェッカー
+  (sh awk 条件・ps1 配列) と workflow-state 双子の REQ 行正規化に計6箇所
+  独立に埋め込まれ、何も一致を検証していなかった（WFI-038 型）。各サイト
+  固有表現から抽出して正準集合と照合する
+  `tests/task-lifecycle-enum-parity.tests.sh` を追加し run-all に登録
+  （7/7 緑）。Approval 注釈文法の分裂（full は任意注釈許容、lite と
+  full 自身の approver 抽出は `<id> <ISO8601>` 厳格 — 同一行が同一
+  スクリプト内で有効かつ無効になる）は、コーパス実測で**厳格形に一致
+  しない人間の承認記録8件**（秒欠落4・ミリ秒付き4）が既存エピックに
+  コミット済みと判明したため、機械判断せず WFI-042（Meta-Change: true、
+  厳格化+人間による8行移行+パリティフィクスチャ提案）として起票。
+
+- **repo パス検証の末尾スラッシュ意味論を4実装で統一（監査 Cluster 5）**:
+  validate-task-input-manifest.sh の `path_ok` は `output` 引数を**無視**して
+  無条件 rstrip しており（ps1 双子の `AllowDirectory` 分岐に相当する分岐が
+  死んでいた）、snapshot 側 ps1 は `-match '^…$'`（大小無視+末尾改行許容）
+  で validator の `\A…\z` と乖離。単一意味論に統一: 末尾スラッシュ
+  （ディレクトリ形）は output/AllowDirectory の場合のみ合法、アンカーは
+  4実装とも `\A…\Z(z)`。検証: turn-first-workflow 緑、task-context-isolation
+  は既知の root コンテナ要因1件のみ（ベースラインでも同一失敗を確認済み）。
+
+- **抽出した共有ライブラリ2件をガードの保護インベントリへ追加 —
+  保護対象スクリプトが source する lib がガード R-10 の対象外だった**:
+  `lib/review-precheck-common.sh`（impl/task-review-precheck が source、
+  `require_persisted_pass` の実体）と `lib/panelist-common.sh`
+  （run-panelist-gpt/gemini が source）は、ラッパーが保護されているのに
+  ライブラリ側が `protected_gate_suffixes` に無く、ラッパーに触れずに
+  ゲートロジックを弱体化できた（PR #325 の Codex レビュー指摘。
+  panelist-common は main 上の既存同型穴）。wfi037 ドリフト検査が
+  `plugins/*/scripts/*` 直下のみ・呼び出し元 blob 基準のため source される
+  lib を検出できないのが見逃しの機構。`generate-guard-invariants.py` の
+  BASELINE と `guard-invariants.json` に2件追加し全生成物を再生成。
+  検証: guard-parity 57/57・constant-parity 2/2・gates 131/131 緑、
+  両 lib への Write がガードで deny（exit 2）・非登録 control パスは
+  allow を実挙動で確認。適用済み human-copy ミラー（epic-189-a1 /
+  190-a2 / 191-a3 の各バンドルと 190-a2 candidate、計23ファイル＋
+  MANIFEST 3件）は `scripts/sync-human-copy-mirrors.py` で live に追随
+  （guard-invariants-epic-a1 82/82・phase2-guard-invariants 42/42・
+  human-copy-mirror-freshness 6/6 緑）。
+
+- **prepare-panelist-input の鍵解決を fail-closed 化 — 存在しない
+  `SDD_SUDO_KEY_FILE` が黙って `~/.sdd/sudo-key` に差し替わる穴を両
+  実装から除去**: sh/ps1 双子とも、`SDD_SUDO_KEY_FILE` が指すファイルが
+  存在しない・読めない場合に home の鍵へフォールバックしていた
+  （監査報告書は ps1 のみ指摘していたが sh にも同一の穴を確認）。
+  明示的に指名された鍵ファイルの欠落は「鍵なし」として検証失敗させる
+  sdd-hook-guard の `Resolve-SudoKey` 意味論に両者を揃えた
+  （優先順: `SDD_SUDO_KEY` → `SDD_SUDO_KEY_FILE`（欠落＝null、
+  フォールバックなし）→ `~/.sdd/sudo-key`）。ps1 は読み取りを
+  `-LiteralPath`/`-Encoding Utf8` 化しトリムをガードと同一の
+  `" `t`r`n"` に統一。回帰テスト PP-014a（home 鍵フォールバックの
+  対照系）/ PP-014b（指名ファイル欠落＝拒否）を追加。
+  検証: prepare-panelist 148/148・phase2-sudo-signature-static 緑
+  （ps1 レグは CI）。
+
+- **レビューprecheckの重複176行関数を共有ライブラリへ統合し、レビュア一致
+  検証の片側欠落を解消**: `require_persisted_pass` は
+  `impl-review-precheck.sh` と `task-review-precheck.sh` に約176行ずつ
+  コピーされ3点で乖離していた（監査報告書 Cluster 1）。統合先
+  `plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh`
+  （sdd-hook-guard.sh と同じ source 方式）は上位集合版で、
+  `assert_contract_reviewer_agreement`（「どちらのレビュアも読んでいない
+  ハッシュを契約が記録する」インシデント級の穴を塞ぐ検証。従来はimpl側
+  のみ）を**全呼び出し元で実行**するようになった。PowerShell 双子2ファイル
+  にも同等の `Assert-ContractReviewerAgreement` を追加（従来は**どちらの
+  ps1 にも存在しなかった**）。loop-driver のfixtureリンク一覧と
+  task-layer テストのテキストピンをライブラリへ追随。
+  検証: downstream-review-precheck / task-review-precheck /
+  impl-review-round2-contract / loop-consistency / task-layer-review-inputs /
+  impl-layer-review-inputs / review-agent-isolation / spec-review-loop の
+  8スイート緑（ps1 レグは CI）。
+
+- **WFI-020 プラグイン側の適用（Issue #322）— 品質ゲートレポートの
+  テンプレート再接続とタスク識別フィールドの統一**:
+  (1) quality-gate SKILL のステップ 15 から「テンプレートは存在しない」
+  という誤記述を削除し、実在しパリティテスト済みの
+  `templates/quality-report.template.md` を参照するように修正（評価者が
+  執筆時に実際に読むファイルに規約を配置 — 可視性ギャップの解消）;
+  (2) テンプレートのヘッダーブロックを `Run ID:` と
+  `Critical:`/`Major:`/`Minor:` を含む全識別ブロックへ拡張（重複していた
+  レガシー `Task:` 行は廃止 — 正準は `Task ID:`）;
+  (3) `emit-run-record.{sh,ps1}` のタスク同定述語を、
+  `check-quality-gate-cycle-limit` がコーパス実測（220件中219件が
+  `Task ID:`）済みのアンカー付き3形式ユニオンに統一 — 従来の非アンカー
+  `Task: <tid>\b` はレガシー少数派しか数えられず gate_reports.total を
+  過少計上していた（epic-136-phase4-mcp で 1 vs 実数 5）;
+  (4) workflow-retrospective のアーティファクトルール 3 を正準
+  `Task ID:`（レガシー `Task:` はテンプレート規約以前のレポートのみ許容）
+  に更新; (5) `tests/template-validator-parity.tests.{sh,ps1}` に新
+  ヘッダー行と消費側ピンの検証を追加（sh 18/18, ps1 は CI で検証）。
+  これで WFI-020 の検証ホライズン（2機能連続）が開く。
+
 ## v1.16.0 (2026-08-22)
 
 ### Added

@@ -1,0 +1,52 @@
+ticket_id: RT-20260821-012
+status: open
+type: defect
+severity: critical
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-004"
+  files:
+    - "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh"
+    - "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1"
+    - "tests/task-context-isolation.tests.sh"
+summary: >-
+  Identity uniqueness bypassable with a trailing newline on both runtimes;
+  PowerShell batch validation fails open through the documented CLI; plus
+  Unicode-digit and bash-3.2 divergences
+problem: |
+  QG evaluator (seq 0826, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T072000Z.md) accepted two Criticals and five
+  Majors.
+
+  Critical 1: ^...$ matches before a trailing newline in Python re and .NET
+  Regex, so "sess-1\n" passes the id format gate then compares unequal to
+  "sess-1" in the dedupe sets. Measured: two manifests sharing sess-1/agent-1,
+  second with trailing newlines => TASK_INPUT_OK on bash --batch and pwsh
+  -Batch. Realises tasks.md:220-221's named risk.
+
+  Critical 2: pwsh -File ... -Batch a b c binds only a to [string[]]$Batch; b
+  and c bind positionally and are discarded. Measured with three manifests
+  sharing run-SAME: bash rejects (duplicate run_id), pwsh returns
+  TASK_INPUT_OK. The comma form errors, so no working ps1 CLI batch form
+  exists.
+
+  Majors: Python \d matches Unicode digits where .NET [0-9] does not
+  (task_id divergence); the single-manifest path crashes on bash 3.2 with an
+  unbound-variable error and no TASK_INPUT_* code; Done-When 2 covers 1 of 6
+  reuse combinations; Done-When 1/5/6 artifacts undeclared; the central
+  orchestrator deliverable drifted and is unreadable this cycle.
+
+  The gate report's Post-Fix Artifacts table declares the three drifted
+  outputs' current bytes for cycle 2 (WFI-036).
+expected_fix:
+  - "Anchor identity regexes with \\A...\\Z (Python) / \\A...\\z (.NET) or reject control characters, so a trailing newline cannot forge a distinct identity - both runtimes, with a fixture"
+  - "Give the ps1 -Batch a working CLI form and an argument-consistency guard matching the sh twin's unknown-argument rejection, so extra positional args cannot silently disable batch dedupe"
+  - "Fix the task_id \\d vs [0-9] divergence and the bash 3.2 empty-array-under-set-u crash; add adjacent+nonadjacent reuse fixtures for all of run/session/agent; declare red.log, the review record, and the rollback fixture in Outputs"
+  - "Re-gate with a manifest naming reports/quality-gate/20260821T072000Z.md as gate_report_declaration to read the drifted orchestrator bytes"
+references:
+  - "reports/quality-gate/20260821T072000Z.md"
+  - "specs/agent-cost-context-isolation/requirements.md"
+  - "specs/agent-cost-context-isolation/tasks.md"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

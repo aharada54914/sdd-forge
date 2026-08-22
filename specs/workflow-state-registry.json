@@ -149,7 +149,8 @@
           "Approved"
         ],
         "allowed_task_statuses": [
-          "Implementation Complete"
+          "Implementation Complete",
+          "Done"
         ]
       }
     },

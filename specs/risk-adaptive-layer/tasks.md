@@ -332,7 +332,7 @@ None
 
 Source Issue: investigation.md INV-001..007 (integration)
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: changes operator-facing workflow; wrong wiring could skip a gate. Behavioral but not cryptographic.
 Required Workflow: acceptance-first

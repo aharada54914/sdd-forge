@@ -1,0 +1,63 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-037",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "PASS",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 5,
+    "auditor_a_pass_count": 4,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four required elements are present. (1) Metric row: 'Target-Metric: metrics.reviewer_identity_boundary_blocks', anchored to 'reports/retrospective/2026-08-20T000000Z-sdd-domain-concept-contract.md, section Improvement Verification Plan, WFI-037 row' — that row exists in the retrospective with matching baseline 2, target 0 of 10, checkpoint next 10 reviewer/evaluator launches. (2) Baseline and target: 'Baseline: 2 measured occurrences ... (epic-136-phase4-docs seq 402; sdd-domain-concept-contract T-004 seq 795)' and 'Target: 0 of 10'. (3) Cycle count: 'Horizon: within the next 10 reviewer or evaluator launches', restated in the plan as 'each of the next ten reviewer or evaluator launches'. (4) Threshold: 'The WFI is verified when ten consecutive launches verify all four from caller-supplied evidence and none blocks on identity.' The plan additionally mandates a falsification control for the caller-supplied evidence channel."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale is structural and cross-cutting: retrospective FP-03 (Confidence High, '2 distinct mechanisms, 6 occurrences', 'measured across all 5 evaluator launches') plus two incidents in two different features (seq 402, seq 795 — the seq0795 orphan manifest is verified present in reports/review-context/). Verified on disk: no role branch of path_is_authorized (validate-review-context-set.sh lines 136-197) admits reports/review-context/identity-ledger.json, so 3 of the 4 prescribed steps are unperformable by any of the 9 listed roles. Change scope matches that scale without over-reach: one enriched output line in the validator sh/ps1 twins, one reference-document correction, a one-statement prohibition across the 9 affected role files, and one new parity-test pair. No workflow restructuring; a narrower change (e.g. doc-only) would leave the missing evidence channel and the missing parity test — the terminal Because — unaddressed."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Four Verified WFIs exist: WFI-002 (AGENTS.md), WFI-007 (sdd-implementation skill/reference files, deterministic-check-policy.md, bootstrap AGENTS template), WFI-008 (specs/*/verification/EVIDENCE-LOSS.md, mcp golden-test files), WFI-011 (AGENTS.md § Rules). None of their Proposed Change targets overlaps any WFI-037 target (validate-review-context-set.{sh,ps1}, review-context-boundary.md, the 9 role definition files, the new tests/boundary-reference-authorization-parity tests). Factual note outside this check's Verified-only scope: WFI-036 (Applied) modified the same validator twins; WFI-037 only adds fields to the validator's stdout OK line and does not alter the declaration-channel logic (evaluator_output_is_declared / gate_report_output_is_declared) that WFI-036 introduced, so no overwrite or contradiction is present there either."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Category is plugin-improvement and the WFI's ## Category section states the delivery mechanism explicitly: this repository is the source of truth for plugins/, the change lands as a commit to this repository, and the GitHub-Issue field records issue 310 for audit visibility. The plugin-file targets are therefore this project's own code and the architectural-misclassification condition does not arise. On the merits, feasibility is plausible: the current output is the bare line at validate-review-context-set.sh:532, so emitting the reserved sequence, previous_record_sha256, pre-append tip, and a uniqueness assertion makes steps 1, 2 and 4 checkable from caller-quoted evidence while adding no readable path and requiring no hash-equality exemption; tests/ already carries the sh/ps1 parity-test convention the new test follows."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Mechanical scan of the revised file for every Section 2 forbidden term produced hits only in exempt locations: ## Problem Evidence citations and Target File column paths (matching the Verified WFI-007 precedent), while the Change Description column text is generic. The checked surfaces are clean: ## Root Cause Hypothesis speaks of 'corrective guidance', 'the allowlist', 'a reference document'; the Why-Why Why/Because columns use 'quality verification gate's evaluator', 'the boundary reference', 'the authorization function', 'launching agents'; ## Expected Effect uses 'reviewer', 'roles', 'launch identity' and cites only metrics.reviewer_identity_boundary_blocks, which is not a forbidden term. The Cycle 1 revisions introduced no forbidden terms."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The 2 -> 0-of-10 target is mechanism-attributed rather than optimistic: both baseline blocks trace to the impossible self-validation instruction and the unperformable guidance, and the change removes both the instruction and the evidence gap. The 1-of-4 to 4-of-4 unaided-verification claim follows directly from the Problem Evidence step table, whose one performable step (step 3) was verified by measurement at sequence 796."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The content maps cleanly onto the Section 4 template. Problem compresses to 2-3 generic sentences (a boundary reference prescribes a four-step launch-identity check; three steps require an artifact no role's allowlist authorizes; two measured launches blocked on their own identity instead of the work under review). The Proposed Change table has four complete rows with target files and generic descriptions, plus a recorded rejected alternative. Expected Effect states quantitative targets (2 baseline occurrences to 0 across the next 10 launches; unaided-verifiable properties from 1 of 4 to 4 of 4). Verification names the metric row and checkpoint. The GitHub-Issue field already carries issue 310."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change: true; all three questions answered from the Proposed Change rows. Q1 — NO, nothing becomes easier to satisfy without improving the outcome: the validator's enforced checks are untouched (the IDENTITY failure branches at validate-review-context-set.sh:371-391 remain; per the Rollback-Plan the change 'only adds fields to a validator's stdout', consistent with line 532); the reference correction and role prohibition remove only steps verified unperformable, so no operative check is weakened; the trivial gaming path (stop checking, hence no blocks) is closed because the Target requires 'every launch carrying chain evidence the role can check unaided' and the plan records which of the four properties each launch verified, and the mandatory control requires a fabricated OK line to be rejected with a stated fallback if it is not. Q2 — counts do not decrease: before, zero parity tests for the boundary-reference/allowlist surface pair and 1 of 4 role-performable steps; after, the same validator check set plus 2 new test files plus the negative control, and 4 of 4 role-performable steps — a strict increase. Q3 — the Target-Metric is computed by the retrospective analysis instrument; no Proposed Change row touches retrospective, run-record, or metric-computation logic, so the verification metric comes from an untouched instrument."
+    }
+  ],
+  "proposed_revisions": []
+}
