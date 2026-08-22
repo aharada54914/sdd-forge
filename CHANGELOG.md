@@ -4,6 +4,57 @@
 
 ### Fixed
 
+- **抽出した共有ライブラリ2件をガードの保護インベントリへ追加 —
+  保護対象スクリプトが source する lib がガード R-10 の対象外だった**:
+  `lib/review-precheck-common.sh`（impl/task-review-precheck が source、
+  `require_persisted_pass` の実体）と `lib/panelist-common.sh`
+  （run-panelist-gpt/gemini が source）は、ラッパーが保護されているのに
+  ライブラリ側が `protected_gate_suffixes` に無く、ラッパーに触れずに
+  ゲートロジックを弱体化できた（PR #325 の Codex レビュー指摘。
+  panelist-common は main 上の既存同型穴）。wfi037 ドリフト検査が
+  `plugins/*/scripts/*` 直下のみ・呼び出し元 blob 基準のため source される
+  lib を検出できないのが見逃しの機構。`generate-guard-invariants.py` の
+  BASELINE と `guard-invariants.json` に2件追加し全生成物を再生成。
+  検証: guard-parity 57/57・constant-parity 2/2・gates 131/131 緑、
+  両 lib への Write がガードで deny（exit 2）・非登録 control パスは
+  allow を実挙動で確認。適用済み human-copy ミラー（epic-189-a1 /
+  190-a2 / 191-a3 の各バンドルと 190-a2 candidate、計23ファイル＋
+  MANIFEST 3件）は `scripts/sync-human-copy-mirrors.py` で live に追随
+  （guard-invariants-epic-a1 82/82・phase2-guard-invariants 42/42・
+  human-copy-mirror-freshness 6/6 緑）。
+
+- **prepare-panelist-input の鍵解決を fail-closed 化 — 存在しない
+  `SDD_SUDO_KEY_FILE` が黙って `~/.sdd/sudo-key` に差し替わる穴を両
+  実装から除去**: sh/ps1 双子とも、`SDD_SUDO_KEY_FILE` が指すファイルが
+  存在しない・読めない場合に home の鍵へフォールバックしていた
+  （監査報告書は ps1 のみ指摘していたが sh にも同一の穴を確認）。
+  明示的に指名された鍵ファイルの欠落は「鍵なし」として検証失敗させる
+  sdd-hook-guard の `Resolve-SudoKey` 意味論に両者を揃えた
+  （優先順: `SDD_SUDO_KEY` → `SDD_SUDO_KEY_FILE`（欠落＝null、
+  フォールバックなし）→ `~/.sdd/sudo-key`）。ps1 は読み取りを
+  `-LiteralPath`/`-Encoding Utf8` 化しトリムをガードと同一の
+  `" `t`r`n"` に統一。回帰テスト PP-014a（home 鍵フォールバックの
+  対照系）/ PP-014b（指名ファイル欠落＝拒否）を追加。
+  検証: prepare-panelist 148/148・phase2-sudo-signature-static 緑
+  （ps1 レグは CI）。
+
+- **レビューprecheckの重複176行関数を共有ライブラリへ統合し、レビュア一致
+  検証の片側欠落を解消**: `require_persisted_pass` は
+  `impl-review-precheck.sh` と `task-review-precheck.sh` に約176行ずつ
+  コピーされ3点で乖離していた（監査報告書 Cluster 1）。統合先
+  `plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh`
+  （sdd-hook-guard.sh と同じ source 方式）は上位集合版で、
+  `assert_contract_reviewer_agreement`（「どちらのレビュアも読んでいない
+  ハッシュを契約が記録する」インシデント級の穴を塞ぐ検証。従来はimpl側
+  のみ）を**全呼び出し元で実行**するようになった。PowerShell 双子2ファイル
+  にも同等の `Assert-ContractReviewerAgreement` を追加（従来は**どちらの
+  ps1 にも存在しなかった**）。loop-driver のfixtureリンク一覧と
+  task-layer テストのテキストピンをライブラリへ追随。
+  検証: downstream-review-precheck / task-review-precheck /
+  impl-review-round2-contract / loop-consistency / task-layer-review-inputs /
+  impl-layer-review-inputs / review-agent-isolation / spec-review-loop の
+  8スイート緑（ps1 レグは CI）。
+
 - **WFI-020 プラグイン側の適用（Issue #322）— 品質ゲートレポートの
   テンプレート再接続とタスク識別フィールドの統一**:
   (1) quality-gate SKILL のステップ 15 から「テンプレートは存在しない」

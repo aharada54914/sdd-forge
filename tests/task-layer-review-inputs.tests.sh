@@ -86,11 +86,14 @@ if python3 "$validator" "$SPEC_DIR/traceability.md" "$SPEC_DIR/requirements.md" 
 fi
 pass "omitted applicable requirement row fails"
 
-grep -q '\$stage == "task".*' "$ROOT/plugins/sdd-review-loop/scripts/task-review-precheck.sh" ||
+# The Bash allowlist lives in the shared precheck library sourced by
+# task-review-precheck.sh (lib/review-precheck-common.sh).
+PRECHECK_COMMON="$ROOT/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh"
+grep -q '\$stage == "task".*' "$PRECHECK_COMMON" ||
   fail "task contract manifest allowlist is missing"
 for name in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
   grep -q "\$path == (\"specs/\" + \$feature + \"/$name\")" \
-    "$ROOT/plugins/sdd-review-loop/scripts/task-review-precheck.sh" ||
+    "$PRECHECK_COMMON" ||
     fail "Bash task contract manifest rejects layer input: $name"
   grep -q "\"specs/\$FeatureName/$name\"" \
     "$ROOT/plugins/sdd-review-loop/scripts/task-review-precheck.ps1" ||
