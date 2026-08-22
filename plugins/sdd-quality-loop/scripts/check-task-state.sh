@@ -3,7 +3,10 @@
 # Usage: check-task-state.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir] [repo-root]
 # Reports dirs default to reports/quality-gate and reports/implementation.
 # Rules enforced:
-#  - Approval is Draft or Approved (bare) or Approved (<any annotation>); Status is a known lifecycle value.
+#  - Approval is Draft or Approved (bare) or Approved (<id> <ISO8601, seconds, Z>);
+#    Status is a known lifecycle value. WFI-042: the annotated form uses the same
+#    strict grammar approver_id() extracts from, so validity and approver
+#    extraction can no longer disagree about one line.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
@@ -82,13 +85,16 @@ function approver_id(s,   rest) {
 function finish() {
   if (approval == "") fail(task " has no Approval line")
   else {
-    # Accept: Draft | Approved | Approved (<any non-empty annotation>)
+    # Accept: Draft | Approved | Approved (<id> <ISO8601, seconds, Z>) — the
+    # strict grammar approver_id() extracts from (WFI-042; matches the lite
+    # checker byte-for-byte).
     is_valid_approval = (approval == "Draft" || approval == "Approved" || \
-      approval ~ /^Approved \(.+\)$/)
+      approval ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
     if (!is_valid_approval) fail(task " has invalid Approval: " approval)
   }
-  # For gate checks, treat Approved (with any non-empty annotation) same as Approved
-  is_approved = (approval == "Approved" || approval ~ /^Approved \(.+\)$/)
+  # For gate checks, an annotated approval counts only in the strict form.
+  is_approved = (approval == "Approved" || \
+    approval ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
   if (status == "") fail(task " has no Status line")
   else if (status != "Planned" && status != "In Progress" && status != "Blocked" && status != "Implementation Complete" && status != "Done")
     fail(task " has invalid Status: " status)

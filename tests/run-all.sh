@@ -66,6 +66,7 @@ tests=(
   tests/repository-release-validation.tests.sh
   tests/template-validator-parity.tests.sh
   tests/task-lifecycle-enum-parity.tests.sh
+  tests/task-state-grammar-parity.tests.sh
   tests/schema-engine-identity.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
