@@ -1,0 +1,3 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/resolve-project-context-match-check.py tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/capability-registry.json
+Placeholder scan passed.
+Exit: 0

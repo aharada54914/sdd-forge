@@ -1,0 +1,106 @@
+Requirement-traceability check (manual — no traceability.json exists for
+this feature, only traceability.md; check-traceability.sh requires JSON
+input and was not run) for T-004, re-verified 2026-08-23 (second pass,
+AC-056 remediation) at HEAD febf7898:
+
+ - tasks.md T-004 Requirements line -> REQ-001 (steps 10-13 only), REQ-002
+   (share — three more of sixteen non-transactional diagnostic-id rows),
+   REQ-004 (share — Evidence assembly logic), REQ-005 (share —
+   determinism baseline), REQ-006 (share — item e's remaining three
+   rows), REQ-008 (share — CHANGELOG). All six confirmed present in
+   requirements.md (grep hit counts: REQ-001=38, REQ-002=60, REQ-004=19,
+   REQ-005=11, REQ-006=5, REQ-008=4) and traceability.md's own Task
+   Mapping table names T-004 explicitly (traceability.md:60): "T-004 |
+   REQ-001 (steps 10-13 only ...), REQ-002 (share ...), REQ-004 (share
+   ...), REQ-005 (share ...), REQ-006 (share ...), REQ-008 (share)".
+ - AC-010..AC-015 (three-more-of-sixteen-rows share), AC-038 (share),
+   AC-040 (first fixture), AC-041 (share) are present in
+   acceptance-tests.md (grep hit counts: AC-010=1, AC-011=2, AC-012=2,
+   AC-013=1, AC-014=1, AC-015=1, AC-038=3, AC-040=1) and TEST-010..
+   TEST-015 / TEST-038 / TEST-040 / TEST-041 are present there too (hit
+   counts: TEST-010=5, TEST-011=1, TEST-012=1, TEST-013=1, TEST-014=1,
+   TEST-015=2, TEST-038=2, TEST-040=1, TEST-041=1).
+ - This task's own production-code obligation additionally covers the
+   full-pipeline behavior surface (AC-003..AC-008, AC-016, AC-043, AC-044,
+   AC-052, AC-056) per tasks.md's own T-004 Requirements text ("cited for
+   the diagnostic behavior this task's own code must implement correctly
+   ... even though their own dedicated test suite, match, is T-005's
+   own") — traceability.md's own Task Mapping table records this
+   split explicitly and assigns the dedicated TEST rows for that surface
+   to T-005 (traceability.md:61), not T-004; T-004's own Done When
+   requires only the three-fixture Block matrix above, confirmed against
+   tasks.md T-004 Done When directly.
+ - **AC-056 GAP CLOSED THIS PASS**: the earlier same-day contract-
+   authoring pass (this same task) found AC-056's own `diagnostics[]`
+   warn/block cardinality behavior genuinely unimplemented in
+   `_write_evidence` — it hardcoded exactly one `severity: "block"`
+   entry unconditionally, discarding the per-node WARN location
+   (`capability_id`/`component_id`/`declaration_index`) `_evaluate_
+   capabilities` computed only as a boolean. Since this task's own Goal/
+   Scope/Requirements text explicitly names AC-056 among the production
+   behavior this task's own code must implement (T-005's own suite only
+   exercises it), and this task was `Implementation Complete`, not
+   `Done`, closing it is this task's own completion work. Fixed:
+   `_evaluate_capabilities` now collects one `severity: "warn"`
+   diagnostics[] entry per individual `outcome: "warn"` DSL-evaluation
+   node (new `_iter_warn_nodes` depth-first walk, replacing the boolean-
+   only `_evidence_has_warn` internals — same public behavior, now
+   reused for node collection too); `_write_evidence`/`_block` gained an
+   optional `warn_diagnostics` parameter, prepended before the summary
+   `severity: "block"` entry, defaulting to `None`/unchanged for every
+   OTHER diagnostic path (verified: every one of the other twelve
+   Block-matrix fixtures' own `diagnostics[]` stayed a single-entry list,
+   byte-identical in shape to before this change).
+ - **Consequence for T-003's own three `dsl-warn-*` block-suite
+   fixtures, disclosed not hidden**: this production change legitimately
+   alters `diagnostics[]`'s own content for every `dsl-warn-on-matched-
+   capability` invocation, including T-003's own three pre-existing
+   fixtures (`dsl-warn-unmatched-trigger`, `dsl-warn-matched-
+   nondetermining`, `dsl-warn-unsorted-affected-components`) — confirmed
+   by first re-running the suite against the fix with the OLD assertions
+   unchanged (138 passed / 3 failed, exactly those three, for the
+   correct reason: a missing `severity: "warn"` entry). This is the old
+   assertion locking the pre-AC-056 wrong shape (a single generic block
+   entry that never distinguished per-node WARN locations), not this
+   change being wrong — `tests/resolve-project-context-block-check.py`
+   is the shared T-002/T-003/T-004 driver (T-004's own REQ-004 "share"
+   scope covers "Resolver Evidence assembly logic in full", and this
+   task's own Done When already requires keeping all thirteen
+   block-suite fixtures — T-002's five, T-003's five, T-004's own three —
+   green together), so updating those three expected-diagnostics shapes
+   to the AC-056-correct one is this task's own completion work, not
+   T-003's. Corrected: 141 passed / 0 failed, both runtimes (see
+   focused-tests-{sh,ps1}.log).
+ - Implemented: tests/resolve-project-context-block-check.py's own
+   run_t003_case()/run_t004_case() functions (confirmed present, the
+   former newly carrying `expected_warn_diagnostic()`/
+   `expected_warn_diagnostics` for the three dsl-warn-* cases) — 141
+   passed / 0 failed, both runtimes, up from the 141/0 already recorded
+   at the top of this same pass before the AC-056 remediation (net
+   count unchanged: no fixture was added or removed, only three existing
+   fixtures' own expected diagnostics[] shapes were corrected).
+ - RED/GREEN for this AC-056 increment specifically (new filenames, the
+   pre-existing red-sh.log/red-ps1.log/green-sh.log/green-ps1.log from
+   this task's original 2026-08-19 commit are untouched):
+   verification/T-004/red-ac056-{sh,ps1}.log (138 passed / 3 failed,
+   captured in an isolated `git clone --no-hardlinks` scratch clone at
+   this branch's own committed HEAD so the real worktree was never
+   reverted), verification/T-004/green-ac056-{sh,ps1}.log (141 passed /
+   0 failed).
+ - Mutation-kill evidence: emitting a second summary `severity: "block"`
+   entry and collapsing the per-node warn entries into one were both
+   applied to the scratch clone (never the real worktree) and confirmed
+   caught — see T-005's own traceability.log for the exact assertion
+   names, since both mutations are killed by T-005's own TEST-056
+   assertions (this task's own block-suite fixtures do not themselves
+   assert cardinality, only exact-document equality, which also happens
+   to catch both mutations incidentally but was not the primary kill
+   evidence recorded).
+ - `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256`'s
+   own `resolve-project-context.py` entry updated to this pass's new
+   sha256 (`ca3c95f6...`); `shasum -a 256 -c` from within `human-copy/`
+   reports 4/4 OK, exit 0.
+ - Not independently re-verified in this pass: REQ-002/REQ-004/REQ-005/
+   REQ-006/REQ-008's own OTHER task rows (T-001, T-002, T-003, T-005,
+   T-007, etc.) -- those are shared REQ ids spanning multiple tasks' own
+   scope, out of T-004's own diff, per tasks.md Global Constraints.

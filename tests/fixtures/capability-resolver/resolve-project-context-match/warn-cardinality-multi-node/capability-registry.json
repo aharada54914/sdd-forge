@@ -1,0 +1,20 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "cap-multi-warn",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.auto_update",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "delivery_strategy": {"kind": "cap-multi-warn"}
+    }
+  ]
+}

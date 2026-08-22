@@ -1,0 +1,76 @@
+Requirement-traceability check (manual — no traceability.json exists for
+this feature, only traceability.md; check-traceability.sh requires JSON
+input and was not run) for T-005, re-verified 2026-08-23 (second pass,
+AC-056 remediation) at HEAD febf7898:
+
+ - tasks.md T-005 Requirements line -> REQ-001 (share — AC-003..AC-008,
+   AC-016, AC-043, AC-044, AC-052, AC-056), REQ-004 (share), REQ-005
+   (share — TEST-016/043/044/052/056), REQ-006 (share — fixture-matrix
+   items a-d, f, g), REQ-008 (share — CHANGELOG). All five confirmed
+   present in requirements.md (grep hit counts: REQ-001=38, REQ-004=19,
+   REQ-005=11, REQ-006=5, REQ-008=4) and traceability.md's own Task
+   Mapping table names T-005 explicitly (traceability.md:61).
+ - AC-003..AC-008, AC-016, AC-043, AC-044, AC-052, AC-056 and their
+   corresponding TEST-003..TEST-008/TEST-016/TEST-043/TEST-044/TEST-052/
+   TEST-056 ids are all present in acceptance-tests.md (grep hit counts:
+   AC-003..AC-008=1 each, AC-016=1, AC-043=1, AC-044=1, AC-052=1,
+   AC-056=3; TEST-003..TEST-008=1 each, TEST-016=1, TEST-043=2,
+   TEST-044=1, TEST-052=2, TEST-056=1) and traceability.md's own AC->TEST
+   table rows (lines 74-79, 87, 114-115, 123, 127) all assign T-005 as
+   the sole owning task for every one of these eleven ACs.
+ - **GAP CLOSED THIS PASS — corrects the prior pass's own recorded
+   finding**: the prior traceability.log (same path, earlier same-day
+   pass) found TEST-056 entirely absent from tests/resolve-project-
+   context-match-check.py/.tests.sh/.tests.ps1 (zero grep hits) and
+   traced the root cause to `resolve-project-context.py`'s own
+   `_write_evidence` hardcoding `severity: "block"` unconditionally.
+   That production-code gap is T-004's own scope (Resolver Evidence
+   assembly, REQ-004 share) — re-read directly against tasks.md T-004's
+   own Requirements/Goal/Scope text, which names AC-056 among the
+   full-pipeline behavior "this task's own production code must
+   implement correctly, even though their own dedicated test suite,
+   match, is T-005's own" (tasks.md:1010-1013). T-004 was `Implementation
+   Complete`, not `Done`, at the time this gap was found — completing an
+   already-declared-but-unimplemented behavior inside a not-yet-Done
+   task's own stated scope is that task's own completion work, not a
+   frozen-spec amendment or a reopening of finished scope. T-004's own
+   `_write_evidence`/`_evaluate_capabilities` were extended accordingly
+   (see T-004's own traceability.log/report for that half); this task's
+   own TEST-056 was then authored against the corrected engine, TDD-first
+   (RED captured against the pre-fix engine, GREEN captured against the
+   fix — verification/T-005/red-ac056-{sh,ps1}.log,
+   verification/T-005/green-ac056-{sh,ps1}.log).
+ - TEST-056 implementation (this task's own diff): two fixtures in
+   `run_warn_cardinality_single_node_case`/`run_warn_cardinality_multi_
+   node_case` (tests/resolve-project-context-match-check.py). The
+   single-node case reuses REQ-006 item (d)'s own existing
+   `dsl-warn-unmatched-trigger` any-branch-WARN fixture verbatim (T-003's
+   own `tests/fixtures/capability-resolver/resolve-project-context-block/
+   dsl-warn-unmatched-trigger/`, per AC-056's own spec-review remedy
+   directing reuse), asserting exactly one `severity: "warn"` entry plus
+   one summary `severity: "block"` entry. The companion multi-node case
+   is a NEW fixture (`tests/fixtures/capability-resolver/resolve-project-
+   context-match/warn-cardinality-multi-node/`, three affected components
+   whose shared trigger predicate warns on all three) asserting the
+   count scales 1:1 with node count (three warn entries) plus exactly one
+   summary entry, and that no `(id, detail)` pair repeats (AC-024).
+ - All eleven of this task's own ACs (AC-003..AC-008, AC-016, AC-043,
+   AC-044, AC-052, AC-056) are now implemented and independently
+   confirmed passing in this same verification pass (see
+   focused-tests-sh.log / focused-tests-ps1.log, 59 passed / 0 failed,
+   both runtimes — grown from the prior pass's own 37/0 by 22 new
+   assertions across the two new TEST-056 fixtures).
+ - Mutation-kill evidence (this task's own diff, not a T-004 concern):
+   two directional mutations applied to a scratch clone of the fixed
+   engine (never the real worktree) — (1) emitting a second summary
+   `severity: "block"` entry is caught by "exactly one summary
+   severity:block entry, never a second (AC-056)"; (2) collapsing the
+   three per-node `severity: "warn"` entries down to one is caught by
+   the multi-node fixture's own "exactly 3 severity:warn entries, one
+   per outcome:warn node, never fewer (AC-056)" — the single-node
+   fixture correctly stays green under mutation (2), isolating the
+   multi-node fixture as its sole killer.
+ - Not independently re-verified in this pass: REQ-001/REQ-004/REQ-005/
+   REQ-006/REQ-008's own OTHER task rows (T-002, T-003, T-004, etc.) --
+   those are shared REQ ids spanning multiple tasks' own scope, out of
+   T-005's own diff, per tasks.md Global Constraints.

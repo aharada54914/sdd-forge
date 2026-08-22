@@ -510,6 +510,182 @@ def run_facet_manifest_state_independence_check(resolver_module, counts):
     )
 
 
+WARN_SUMMARY_DETAIL = "a predicate evaluation produced an outcome: warn evidence node"
+WARN_DIAGNOSTIC_ID = "dsl-warn-on-matched-capability"
+
+
+def _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count):
+    """Shared AC-056 assertion body for both TEST-056 fixtures below:
+    exactly `expected_warn_count` `severity: "warn"` diagnostics[] entries
+    (one per individual `outcome: "warn"` DSL-evaluation node the
+    fixture's own input produces) plus exactly one additional
+    `severity: "block"` summary entry, all sharing the identical
+    `dsl-warn-on-matched-capability` id, every `detail` distinct (no
+    `(id, detail)` pair repeats -- AC-024), and the summary entry's own
+    `detail` the fixed sentence, never a warn entry's own."""
+    if not isinstance(evidence, dict):
+        counts.check(False, f"{case_name}: Resolver Evidence readable", repr(evidence))
+        return
+    diagnostics = evidence.get("diagnostics", [])
+    warn_entries = [d for d in diagnostics if d.get("severity") == "warn"]
+    block_entries = [d for d in diagnostics if d.get("severity") == "block"]
+
+    counts.check(
+        len(warn_entries) == expected_warn_count,
+        f"{case_name}: exactly {expected_warn_count} severity:warn entr{'y' if expected_warn_count == 1 else 'ies'}, "
+        f"one per outcome:warn node, never fewer (AC-056)",
+        repr(diagnostics),
+    )
+    counts.check(
+        len(block_entries) == 1,
+        f"{case_name}: exactly one summary severity:block entry, never a second (AC-056)",
+        repr(diagnostics),
+    )
+    counts.check(
+        diagnostics and all(d.get("id") == WARN_DIAGNOSTIC_ID for d in diagnostics),
+        f"{case_name}: every diagnostics[] entry shares the identical {WARN_DIAGNOSTIC_ID!r} id (AC-056)",
+        repr(diagnostics),
+    )
+    counts.check(
+        bool(block_entries) and block_entries[0].get("detail") == WARN_SUMMARY_DETAIL,
+        f"{case_name}: the summary severity:block entry's own detail is the fixed summary sentence, "
+        f"distinct from every severity:warn entry's own detail (AC-056)",
+        repr(block_entries),
+    )
+    warn_details = [d.get("detail") for d in warn_entries]
+    counts.check(
+        WARN_SUMMARY_DETAIL not in warn_details,
+        f"{case_name}: no severity:warn entry's own detail collides with the summary sentence (AC-056)",
+        repr(warn_details),
+    )
+    all_details = [d.get("detail") for d in diagnostics]
+    counts.check(
+        len(all_details) == len(set(all_details)),
+        f"{case_name}: no (id, detail) pair repeats across diagnostics[] (AC-024)",
+        repr(all_details),
+    )
+    block_check.check_evidence_schema(counts, evidence_path, case_name)
+    unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
+    counts.check(unchanged, f"{case_name}: no partial live artifact")
+
+
+def run_warn_cardinality_single_node_case(kind, counts):
+    """TEST-056 (part 1): reuses REQ-006 item (d)'s own `dsl-warn-
+    unmatched-trigger` any-branch-WARN fixture verbatim (T-003's own
+    already-authored `tests/fixtures/capability-resolver/resolve-project-
+    context-block/dsl-warn-unmatched-trigger/`, per AC-056's own
+    spec-review remedy directing reuse over inventing a new single-node
+    fixture) -- a single affected component (`comp-a`) whose own trigger
+    evaluation produces exactly one `outcome: "warn"` DSL-evaluation node
+    (the `characteristics.auto_update` field is absent), asserting the
+    `diagnostics[]` warn/block cardinality lock for the 1-node case."""
+    case_name = "warn-cardinality-single-node"
+    fixture_dir = block_check.FIXTURES / "dsl-warn-unmatched-trigger"
+    with tempfile.TemporaryDirectory(prefix="resolver-match-warn1-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = block_check.install_scripts(repo)
+        feature_dir, sentinels = block_check.plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+        registry_path = fixture_dir / "capability-registry.json"
+        block_check.install_t003_dependencies(
+            repo, scripts, fixture_dir, registry_capabilities_path=registry_path,
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = block_check.git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "add comp-a")
+
+        argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
+        result = subprocess.run(argv, cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_line = f"capability-resolver: {WARN_DIAGNOSTIC_ID}: {WARN_SUMMARY_DETAIL}\n"
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = block_check.read_evidence(evidence_path)
+        if not isinstance(evidence, dict):
+            counts.check(False, f"{case_name}: Resolver Evidence readable", parse_error or repr(evidence))
+            return
+        _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=1)
+        warn_details = [d.get("detail") for d in evidence.get("diagnostics", []) if d.get("severity") == "warn"]
+        counts.check(
+            bool(warn_details) and "cap-unmatched-warn" in warn_details[0] and "comp-a" in warn_details[0],
+            f"{case_name}: the severity:warn entry's own detail names this node's own capability_id/component_id location (AC-056)",
+            repr(warn_details),
+        )
+
+
+def run_warn_cardinality_multi_node_case(kind, counts):
+    """TEST-056 (part 2, AC-056's own companion fixture): a NEW,
+    purpose-built multi-node fixture -- one Capability's own trigger,
+    evaluated against three affected components (`comp-a`/`comp-b`/
+    `comp-c`), none of which declare `characteristics.auto_update`, so
+    every one of the three per-component trigger evaluations produces its
+    own independent `outcome: "warn"` DSL-evaluation node. Confirms the
+    `diagnostics[]` entry count scales 1:1 with node count (three
+    `severity: "warn"` entries, each naming its own distinct
+    `component_id`) plus exactly one summary `severity: "block"` entry --
+    never fewer, never a second summary entry -- and that no `(id,
+    detail)` pair repeats (AC-024)."""
+    case_name = "warn-cardinality-multi-node"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-match-warnN-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = block_check.install_scripts(repo)
+        feature_dir, sentinels = block_check.plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+        registry_path = fixture_dir / "capability-registry.json"
+        block_check.install_t003_dependencies(
+            repo, scripts, fixture_dir, registry_capabilities_path=registry_path,
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = block_check.git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("a\n", encoding="utf-8")
+        (repo / "comp-b").mkdir()
+        (repo / "comp-b/file.txt").write_text("b\n", encoding="utf-8")
+        (repo / "comp-c").mkdir()
+        (repo / "comp-c/file.txt").write_text("c\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "add comp-a, comp-b, comp-c")
+
+        argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
+        result = subprocess.run(argv, cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_line = f"capability-resolver: {WARN_DIAGNOSTIC_ID}: {WARN_SUMMARY_DETAIL}\n"
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = block_check.read_evidence(evidence_path)
+        if not isinstance(evidence, dict):
+            counts.check(False, f"{case_name}: Resolver Evidence readable", parse_error or repr(evidence))
+            return
+        _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=3)
+        warn_details = [d.get("detail") for d in evidence["diagnostics"] if d.get("severity") == "warn"]
+        counts.check(
+            all("cap-multi-warn" in detail for detail in warn_details)
+            and all(component in " ".join(warn_details) for component in ("comp-a", "comp-b", "comp-c")),
+            f"{case_name}: each of the three severity:warn entries names its own distinct component_id location (AC-056)",
+            repr(warn_details),
+        )
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -518,7 +694,10 @@ def main():
     counts = block_check.Counts()
 
     required_files = [block_check.STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
-    case_labels = ["full-pipeline-match", "enforcement-byte-identity"]
+    case_labels = [
+        "full-pipeline-match", "enforcement-byte-identity",
+        "warn-cardinality-single-node", "warn-cardinality-multi-node",
+    ]
     if not all(path.is_file() for path in required_files):
         for label in case_labels:
             counts.check(False, f"{label}: staged implementation exists", "TDD RED: implementation absent")
@@ -527,6 +706,8 @@ def main():
         run_full_pipeline_match_case(args.launcher, resolver_module, counts)
         run_enforcement_byte_identity_case(args.launcher, counts)
         run_facet_manifest_state_independence_check(resolver_module, counts)
+        run_warn_cardinality_single_node_case(args.launcher, counts)
+        run_warn_cardinality_multi_node_case(args.launcher, counts)
 
     sh_registered = "tests/resolve-project-context-match.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-match.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

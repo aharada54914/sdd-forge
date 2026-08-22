@@ -360,18 +360,53 @@ def _evaluate_predicate(script_dir, predicate, properties):
         os.unlink(properties_name)
 
 
+def _iter_warn_nodes(evidence_nodes, node_path=()):
+    """Depth-first, declaration-order walk of an Evidence tree, yielding
+    `(node, node_path)` for every `outcome: "warn"` node at any depth
+    (step 9, B2's own any-branch, any-depth scope; AC-056). `node_path` is
+    the 0-based child-index path from this tree's own root -- a stable,
+    always-distinct positional identifier for a warn node even when two
+    leaves happen to share an identical `field`/`operator`/`reason`."""
+    for index, node in enumerate(evidence_nodes):
+        this_path = node_path + (index,)
+        if node.get("outcome") == "warn":
+            yield node, this_path
+        yield from _iter_warn_nodes(node.get("children") or [], this_path)
+
+
 def _evidence_has_warn(evidence_nodes):
     """Depth-first scan for an `outcome: "warn"` node anywhere in an
     Evidence tree (step 9, B2's own any-branch, any-depth scope)."""
-    for node in evidence_nodes:
-        if node.get("outcome") == "warn":
-            return True
-        if _evidence_has_warn(node.get("children") or []):
-            return True
+    for _ in _iter_warn_nodes(evidence_nodes):
+        return True
     return False
 
 
-def _evaluate_capabilities(script_dir, registry_document, affected_components, projection_components, capability_evaluations):
+def _warn_diagnostic_detail(capability_id, component_id, declaration_index, node_path, node):
+    """AC-056: one `severity: "warn"` diagnostics[] entry's own `detail`
+    per individual `outcome: "warn"` DSL-evaluation node, naming that
+    node's own `capability_id`/`component_id`/`declaration_index`
+    location plus its own tree position/DSL attributes -- guaranteeing a
+    distinct `detail` per node even across two nodes sharing an identical
+    location (AC-024 no-`(id, detail)`-repeat), and always distinct from
+    the summary `severity: "block"` entry's own fixed sentence (below),
+    which carries no location suffix at all."""
+    location = (
+        f"capability_id={capability_id!r} component_id={component_id!r} "
+        f"declaration_index={declaration_index!r}"
+    )
+    node_position = ".".join(str(index) for index in node_path)
+    return (
+        f"a predicate evaluation produced an outcome: warn evidence node at {location} "
+        f"(node_path={node_position!r}, operator={node.get('operator')!r}, "
+        f"field={node.get('path')!r}, reason={node.get('reason')!r})"
+    )
+
+
+def _evaluate_capabilities(
+    script_dir, registry_document, affected_components, projection_components,
+    capability_evaluations, warn_diagnostics,
+):
     """Steps 7-8. Every Registry Capability, matched or not, is evaluated in
     full against every affected component, in Registry-declaration order
     (capabilities) and ascending-lexicographic order (affected_components,
@@ -383,6 +418,10 @@ def _evaluate_capabilities(script_dir, registry_document, affected_components, p
     Capability only after that Capability's own evaluation set is fully
     built) so a caller can still read every already-completed entry if a
     dependency subprocess failure aborts this function partway through.
+    `warn_diagnostics` is likewise mutated in place, gaining one
+    `severity: "warn"` diagnostics[] entry per individual `outcome: "warn"`
+    DSL-evaluation node found anywhere in any evaluation's own Evidence
+    tree, in this same declaration-order evaluation sequence (AC-056).
     Returns whether any evaluation's own Evidence tree contained an
     `outcome: "warn"` node anywhere (step 9's own condition)."""
     sorted_affected_components = sorted(affected_components)
@@ -394,8 +433,13 @@ def _evaluate_capabilities(script_dir, registry_document, affected_components, p
         for component_id in sorted_affected_components:
             properties = projection_components.get(component_id, {})
             result, evidence = _evaluate_predicate(script_dir, capability["trigger"], properties)
-            if _evidence_has_warn(evidence):
+            for node, node_path in _iter_warn_nodes(evidence):
                 any_warn = True
+                warn_diagnostics.append({
+                    "id": "dsl-warn-on-matched-capability",
+                    "detail": _warn_diagnostic_detail(capability_id, component_id, None, node_path, node),
+                    "severity": "warn",
+                })
             trigger_evaluations.append({"component_id": component_id, "result": result, "evidence": evidence})
             if result:
                 matched = True
@@ -408,8 +452,15 @@ def _evaluate_capabilities(script_dir, registry_document, affected_components, p
                 for component_id in sorted_affected_components:
                     properties = projection_components.get(component_id, {})
                     result, evidence = _evaluate_predicate(script_dir, facet_declaration["when"], properties)
-                    if _evidence_has_warn(evidence):
+                    for node, node_path in _iter_warn_nodes(evidence):
                         any_warn = True
+                        warn_diagnostics.append({
+                            "id": "dsl-warn-on-matched-capability",
+                            "detail": _warn_diagnostic_detail(
+                                capability_id, component_id, declaration_index, node_path, node,
+                            ),
+                            "severity": "warn",
+                        })
                     evaluations.append({"component_id": component_id, "result": result, "evidence": evidence})
                     if result:
                         applied = True
@@ -481,17 +532,28 @@ def _project_context_valid(document, repo_root):
     return not _schema_errors(document, schema)
 
 
-def _write_evidence(repo_root, feature, diagnostic_id, detail, state_marker, capability_evaluations=None):
+def _write_evidence(
+    repo_root, feature, diagnostic_id, detail, state_marker,
+    capability_evaluations=None, warn_diagnostics=None,
+):
     # AC-024 stable-sort discipline: capability_evaluations[] is sorted by
     # capability_id in the written record, even though steps 7-8 evaluate
     # capabilities in Registry-declaration order (the evaluation order
     # itself is never re-sorted, only this feature's own output array).
     sorted_evaluations = sorted(capability_evaluations or [], key=lambda entry: entry["capability_id"])
+    # AC-056: every already-collected `severity: "warn"` diagnostics[]
+    # entry (one per individual `outcome: "warn"` DSL-evaluation node,
+    # already in declaration-evaluation order -- see `_evaluate_
+    # capabilities`) is written first, followed by exactly one summary
+    # `severity: "block"` entry sharing the identical `diagnostic_id`.
+    # Every other diagnostic path passes no `warn_diagnostics`, leaving
+    # this unchanged from its own prior single-entry shape.
+    diagnostics = list(warn_diagnostics or []) + [{"id": diagnostic_id, "detail": detail, "severity": "block"}]
     evidence = {
         "schema": EVIDENCE_SCHEMA,
         "feature": feature,
         "capability_evaluations": sorted_evaluations,
-        "diagnostics": [{"id": diagnostic_id, "detail": detail, "severity": "block"}],
+        "diagnostics": diagnostics,
     }
     if state_marker is not None:
         evidence["state"] = state_marker
@@ -510,8 +572,14 @@ def _write_evidence(repo_root, feature, diagnostic_id, detail, state_marker, cap
             os.unlink(temp_name)
 
 
-def _block(repo_root, feature, diagnostic_id, detail, state_marker, capability_evaluations=None):
-    _write_evidence(repo_root, feature, diagnostic_id, detail, state_marker, capability_evaluations)
+def _block(
+    repo_root, feature, diagnostic_id, detail, state_marker,
+    capability_evaluations=None, warn_diagnostics=None,
+):
+    _write_evidence(
+        repo_root, feature, diagnostic_id, detail, state_marker,
+        capability_evaluations, warn_diagnostics,
+    )
     sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
     return EXIT_BLOCK
 
@@ -1076,9 +1144,11 @@ def main(argv=None):
     # Steps 7-8: per-Capability/per-component trigger evaluation and
     # matched-Capability conditional-facet evaluation.
     capability_evaluations = []
+    warn_diagnostics = []
     try:
         any_warn = _evaluate_capabilities(
-            script_dir, registry_document, affected_components, projection_components, capability_evaluations,
+            script_dir, registry_document, affected_components, projection_components,
+            capability_evaluations, warn_diagnostics,
         )
     except RegistryValidationFailed:
         detail = "a Registry-declared predicate failed predicate-schema validation"
@@ -1090,10 +1160,17 @@ def main(argv=None):
         detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations)
 
-    # Step 9: any-branch WARN check (B2, widened scope).
+    # Step 9: any-branch WARN check (B2, widened scope). AC-056:
+    # `warn_diagnostics` already carries one `severity: "warn"` entry per
+    # individual `outcome: "warn"` DSL-evaluation node `_evaluate_
+    # capabilities` found above; `_block` prepends them before this one
+    # summary `severity: "block"` entry, which shares the identical id.
     if any_warn:
         detail = "a predicate evaluation produced an outcome: warn evidence node"
-        return _block(repo_root, args.feature, "dsl-warn-on-matched-capability", detail, state, capability_evaluations)
+        return _block(
+            repo_root, args.feature, "dsl-warn-on-matched-capability", detail, state,
+            capability_evaluations, warn_diagnostics,
+        )
 
     # Step 10: track branch, decided here, before any publication (B4).
     context_binding = _assemble_context_binding(

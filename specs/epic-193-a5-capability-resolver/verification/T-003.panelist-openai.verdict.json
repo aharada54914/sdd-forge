@@ -8,29 +8,29 @@
   "findings": [
     {
       "severity": "Major",
+      "ref": "resolve-project-context.py:_run_resolve_component_paths",
+      "note": "When --include-untracked is omitted, the implementation passes an invented --no-include-untracked argument instead of omitting the optional flag. This violates REQ-001/AC-004's verbatim pass-through contract and may be rejected by the upstream CLI."
+    },
+    {
+      "severity": "Major",
       "ref": "resolve-project-context.py:_evaluate_capabilities",
-      "note": "The Resolver iterates affected_components in dependency-provided order instead of explicitly sorting component IDs. This violates REQ-005's input-order invariance and T-003's required ascending-lexicographic evaluation order, making evaluation records and subprocess order dependent on upstream array ordering."
+      "note": "The implementation iterates affected_components in the dependency-provided order and merely comments that it is already sorted. REQ-001 and REQ-005 require the Resolver itself to evaluate components in ascending lexicographic order and remain invariant to input ordering."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:main step 9 / _block / _write_evidence",
-      "note": "A WARN Block emits only one severity:block summary diagnostic. REQ-004 and AC-056 require one distinct severity:warn diagnostic per encountered WARN evidence node plus exactly one severity:block summary; the implementation neither retains WARN-node locations nor emits those required entries."
+      "ref": "resolve-project-context.py:_write_evidence and main step 9; tests/resolve-project-context-block-check.py:run_t003_case",
+      "note": "A WARN Block emits only one severity:block diagnostic. REQ-004/AC-056 require one severity:warn diagnostic per individual WARN evidence node plus exactly one severity:block summary; the tests currently encode the incomplete single-entry behavior."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_write_evidence and T-003 Block handlers",
-      "note": "Blocks reached after Registry discovery/evaluation write a minimal Evidence object containing evaluations and diagnostics but omit the already-known context_binding and resolver provenance. TEST-012 and the step-9 design require a full Resolver Evidence record for these post-discovery Blocks; the supplied passing block tests therefore validate an under-specified oracle."
-    },
-    {
-      "severity": "Minor",
-      "ref": "resolve-project-context.sh and resolve-project-context.ps1 runtime-unavailable branch",
-      "note": "The wrappers emit check-id runtime-unavailable and exit 3, outside the Resolver's closed sixteen-value diagnostic enum and fixed 0/1/2 exit-code contract."
+      "ref": "resolve-project-context.py:_evaluate_capabilities exception paths",
+      "note": "A capability entry is appended only after all of that capability's trigger and conditional-facet evaluations finish. If a dependency fails mid-capability, evaluations already performed for that capability are discarded from Resolver Evidence, contrary to the requirement to record every evaluation actually performed."
     }
   ],
   "blind": true,
-  "input_digest": "1faf4782582fcb74c9cf6c3fbc02d8893ad7cc38917f09d05e209710698eeb90",
+  "input_digest": "4723e9fae6f32e2165af22e205216b490bb647f391d205e2f2c1fa2f255cbf6c",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "SDD_SUDO"
   }
 }

@@ -84,7 +84,7 @@
   実サブプロセス経由で end-to-end に検証する新規スイート
   `tests/resolve-project-context-match.tests.{sh,ps1}`（共有ドライバ
   `tests/resolve-project-context-match-check.py`）を追加し、`tests/run-all.
-  {sh,ps1}` に登録。sh/ps1 とも **37 passed / 0 failed**。union-match
+  {sh,ps1}` に登録。sh/ps1 とも **59 passed / 0 failed**。union-match
   (AC-006)、cross-Capability / 同一 Capability 内の同名 facet 二重宣言の
   facet-name 集約 (AC-043/AC-052)、Context Projection のバイト一致
   (AC-003)、`resolve-component-paths`/`generate-registry-digest --whole`
@@ -98,14 +98,15 @@
   `_assemble_facet_manifest` 等の本番関数をそのまま呼び出す形で再構成し、
   実の `validate-facet-manifest` に対して検証する手法（本タスクの実装
   レポート「Specification Differences」で開示）を採用。**AC-056
-  （`diagnostics[]` の warn/block cardinality）は未実装のまま**——現行
-  `_write_evidence`/`_block` は常に `severity: "block"` 1 件のみを書き込み、
-  `outcome: "warn"` ノードごとの `severity: "warn"` エントリは一度も
-  生成されない（スキーマ自体は両 severity を許容する設計だが、T-002/
-  T-003/T-004 のいずれの実装コミットもこの挙動を追加していない）ため、
-  本タスクの Planned Files 外である `resolve-project-context.py` を
-  編集しない限り TEST-056 を可決させることができない、構造的な未解消
-  Done-When 項目として実装レポートに記録。
+  （`diagnostics[]` の warn/block cardinality）は同日中の第2パスで実装
+  完了**——`_write_evidence`/`_block` を、`outcome: "warn"` ノード1件に
+  つき `severity: "warn"` エントリ1件を追加し、既存の要約
+  `severity: "block"` エントリ1件がそれに続く形へ拡張(この production
+  側の修正は T-004 自身の宣言済みスコープ内での完了作業として T-004 が
+  実施、T-005 は REQ-006 item (d) の既存 any-branch-WARN fixture 再利用
+  1件＋新規 multi-node fixture 1件を TDD RED→GREEN で追加し、2方向の
+  mutation kill も確認済み)。詳細は両タスクの実装レポート「Second Pass —
+  AC-056 Remediation」節を参照。
 ### Added
 
 - **Facet Manifest schema と validator (Issue #192,

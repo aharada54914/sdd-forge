@@ -315,6 +315,26 @@ def real_evaluate_predicate(predicate, properties):
         return parsed["result"], parsed["evidence"]
 
 
+def expected_warn_diagnostic(capability_id, component_id, declaration_index, node_path, node):
+    """AC-056: mirrors `_warn_diagnostic_detail` in `resolve-project-
+    context.py` byte-for-byte (recomputed here, never hand-transcribed,
+    matching `real_evaluate_predicate`'s own discipline above) so a
+    `severity: "warn"` diagnostics[] entry's own `detail` can be asserted
+    exactly for the three `dsl-warn-*` T-003 fixtures below, each of which
+    now legitimately carries more than one diagnostics[] entry."""
+    location = (
+        f"capability_id={capability_id!r} component_id={component_id!r} "
+        f"declaration_index={declaration_index!r}"
+    )
+    node_position = ".".join(str(index) for index in node_path)
+    detail = (
+        f"a predicate evaluation produced an outcome: warn evidence node at {location} "
+        f"(node_path={node_position!r}, operator={node.get('operator')!r}, "
+        f"field={node.get('path')!r}, reason={node.get('reason')!r})"
+    )
+    return {"id": "dsl-warn-on-matched-capability", "detail": detail, "severity": "warn"}
+
+
 def run_t003_case(kind, case_name, counts):
     fixture_dir = FIXTURES / case_name
     with tempfile.TemporaryDirectory(prefix="resolver-t003-") as tmp:
@@ -354,6 +374,7 @@ def run_t003_case(kind, case_name, counts):
         target_oid = base_oid
 
         expected_capability_evaluations = []
+        expected_warn_diagnostics = []  # AC-056: populated only by the dsl-warn-* cases below
         state = "advisory"
 
         if case_name == "affected-component-resolution-failed":
@@ -402,6 +423,11 @@ def run_t003_case(kind, case_name, counts):
             expected_detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
 
         elif case_name == "dsl-warn-unsorted-affected-components":
+            # AC-056: two independent WARN nodes (comp-a's own trigger
+            # evaluation and comp-z's own, both against the identical
+            # empty properties) -- diagnostics[] now carries one
+            # `severity: "warn"` entry per node, in sorted-affected-
+            # component evaluation order, plus one summary entry.
             state = "advisory"
             expected_id = "dsl-warn-on-matched-capability"
             expected_detail = "a predicate evaluation produced an outcome: warn evidence node"
@@ -415,6 +441,10 @@ def run_t003_case(kind, case_name, counts):
                     {"component_id": "comp-z", "result": result, "evidence": evidence},
                 ],
             }]
+            expected_warn_diagnostics = [
+                expected_warn_diagnostic("cap-order", "comp-a", None, (0,), evidence[0]),
+                expected_warn_diagnostic("cap-order", "comp-z", None, (0,), evidence[0]),
+            ]
 
         elif case_name == "dsl-warn-unmatched-trigger":
             state = "advisory"
@@ -431,8 +461,15 @@ def run_t003_case(kind, case_name, counts):
                 "matched": result,
                 "trigger_evaluations": [{"component_id": "comp-a", "result": result, "evidence": evidence}],
             }]
+            expected_warn_diagnostics = [
+                expected_warn_diagnostic("cap-unmatched-warn", "comp-a", None, (0,), evidence[0]),
+            ]
 
         elif case_name == "dsl-warn-matched-nondetermining":
+            # AC-056: only comp-b's own trigger evaluation produces a WARN
+            # node (comp-a's own matches cleanly) -- exactly one
+            # `severity: "warn"` entry, naming comp-b's own location, plus
+            # one summary entry.
             state = "required"
             (repo / "comp-a").mkdir()
             (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
@@ -453,6 +490,9 @@ def run_t003_case(kind, case_name, counts):
                 ],
                 "conditional_facet_evaluations": [],
             }]
+            expected_warn_diagnostics = [
+                expected_warn_diagnostic("cap-matched-warn", "comp-b", None, (0,), evidence_b[0]),
+            ]
 
         else:
             raise AssertionError(f"unknown T-003 case: {case_name}")
@@ -480,11 +520,15 @@ def run_t003_case(kind, case_name, counts):
 
         evidence_path = feature_dir / "resolver-evidence.yaml"
         evidence, parse_error = read_evidence(evidence_path)
+        # AC-056: the three dsl-warn-* cases above pre-populate
+        # `expected_warn_diagnostics` with one `severity: "warn"` entry per
+        # WARN node; every other case leaves it `[]`, preserving the
+        # original single-entry shape unchanged.
         expected = {
             "schema": "sdd-resolver-evidence/v1",
             "feature": "example-feature",
             "capability_evaluations": sorted(expected_capability_evaluations, key=lambda e: e["capability_id"]),
-            "diagnostics": [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
+            "diagnostics": expected_warn_diagnostics + [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
             "state": state,
         }
         counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))

@@ -1,0 +1,79 @@
+Scoped + full regression evidence for T-004 (epic-193-a5-capability-resolver),
+re-run at current HEAD (febf7898, second pass -- AC-056 remediation) 2026-08-23.
+
+$ git diff --stat -- plugins/
+(empty)
+Exit: 0
+
+$ git status --short -- plugins/
+(empty -- no untracked file under plugins/** either; AC-032)
+Exit: 0
+
+$ git diff --check
+(empty -- no whitespace errors)
+Exit: 0
+
+$ python3 -m py_compile specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-match-check.py
+(no output)
+Exit: 0
+
+$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-004 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
+20 passed, 0 failed
+Exit: 0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+Exit: 0
+(Note: shasum -c from the repo root instead fails, because MANIFEST.sha256's
+paths are relative to the human-copy root and the LIVE plugins/sdd-quality-
+loop/scripts/resolve-project-context.{py,sh,ps1} paths do not exist yet --
+pending human apply. Expected, by-design state, not a regression -- matching
+T-003's own prior contract's identical finding. The resolve-project-
+context.py entry's own hash changed again this pass -- AC-056 fix --
+verified OK above.)
+
+$ bash tests/resolve-project-context-block.tests.sh && pwsh -NoProfile -File tests/resolve-project-context-block.tests.ps1
+141 passed, 0 failed (both runtimes) -- T-004's own thirteen fixtures plus
+T-002/T-003's own, plus four more from 82f6dbf2 (T-003's own post-hoc
+panelist-remediation commit, landed on this branch after T-004's own
+commit). Every T-004-owned PASS line (lite-check-source-undefined,
+output-schema-validation-failed-{evidence,artifact}, snapshot-generation-
+mismatch) present and green -- INCLUDING T-003's own three dsl-warn-*
+fixtures, whose own expected-diagnostics assertions this pass corrected
+to the AC-056-correct multi-entry shape (see this task's own report
+"Second Pass -- AC-056 Remediation" for the RED/GREEN pair proving this
+correction, not a silent count-preserving swap).
+
+$ bash tests/resolve-project-context-match.tests.sh && pwsh -NoProfile -File tests/resolve-project-context-match.tests.ps1
+59 passed, 0 failed (both runtimes) -- GROWN from 37/0 by T-005's own two
+new TEST-056 fixtures, confirming T-005's own downstream suite (which
+exercises this task's own production code end-to-end, including this
+pass's own AC-056 diagnostics[] fix) is unregressed by re-verification at
+the same HEAD.
+
+Full run-all regression (both runtimes, run detached with no deadline per
+this session's own instructions, read via the trailing "N failing
+suite(s):" enumeration rather than exit code, which is 0 regardless),
+re-run fresh this pass (not carried forward from the first pass's own run):
+
+$ bash tests/run-all.sh   (background, detached)
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+Both self-declare DESIGNED-RED and match this repository's own documented
+standing baseline exactly. No suite beyond these two failed.
+
+$ pwsh -NoProfile -File tests/run-all.ps1   (background, detached)
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Also DESIGNED-RED, identical pre-existing reason.
+deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all --
+pre-existing structural asymmetry between the two runners, not something
+T-004's diff touches or a new gap this pass discovered.
+
+Net: no suite outside the two self-declared DESIGNED-RED ones failed in
+either runtime, both before and after this pass's own AC-056 remediation.
+regression: passes=true.
