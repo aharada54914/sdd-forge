@@ -4,6 +4,21 @@
 
 ### Fixed
 
+- **prepare-panelist-input の鍵解決を fail-closed 化 — 存在しない
+  `SDD_SUDO_KEY_FILE` が黙って `~/.sdd/sudo-key` に差し替わる穴を両
+  実装から除去**: sh/ps1 双子とも、`SDD_SUDO_KEY_FILE` が指すファイルが
+  存在しない・読めない場合に home の鍵へフォールバックしていた
+  （監査報告書は ps1 のみ指摘していたが sh にも同一の穴を確認）。
+  明示的に指名された鍵ファイルの欠落は「鍵なし」として検証失敗させる
+  sdd-hook-guard の `Resolve-SudoKey` 意味論に両者を揃えた
+  （優先順: `SDD_SUDO_KEY` → `SDD_SUDO_KEY_FILE`（欠落＝null、
+  フォールバックなし）→ `~/.sdd/sudo-key`）。ps1 は読み取りを
+  `-LiteralPath`/`-Encoding Utf8` 化しトリムをガードと同一の
+  `" `t`r`n"` に統一。回帰テスト PP-014a（home 鍵フォールバックの
+  対照系）/ PP-014b（指名ファイル欠落＝拒否）を追加。
+  検証: prepare-panelist 148/148・phase2-sudo-signature-static 緑
+  （ps1 レグは CI）。
+
 - **レビューprecheckの重複176行関数を共有ライブラリへ統合し、レビュア一致
   検証の片側欠落を解消**: `require_persisted_pass` は
   `impl-review-precheck.sh` と `task-review-precheck.sh` に約176行ずつ

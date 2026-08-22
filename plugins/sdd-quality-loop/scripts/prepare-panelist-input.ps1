@@ -186,15 +186,31 @@ if (-not $ConsentKind) {
                 $keyBytes = $null
                 if ($env:SDD_SUDO_KEY) {
                     $keyBytes = [System.Text.Encoding]::UTF8.GetBytes($env:SDD_SUDO_KEY)
-                } elseif ($env:SDD_SUDO_KEY_FILE -and (Test-Path $env:SDD_SUDO_KEY_FILE)) {
-                    $keyBytes = [System.Text.Encoding]::UTF8.GetBytes(
-                        (Get-Content -Raw $env:SDD_SUDO_KEY_FILE).TrimEnd())
+                } elseif ($env:SDD_SUDO_KEY_FILE) {
+                    # A named key file that is missing or unreadable fails
+                    # CLOSED with no fallback to ~/.sdd/sudo-key — matching
+                    # sdd-hook-guard.ps1's Resolve-SudoKey. The previous
+                    # `-and (Test-Path ...)` elseif silently substituted the
+                    # home key when the named file was absent: key
+                    # substitution in a signature-verification path. Trim is
+                    # the guard's exact " `t`r`n" set, not bare TrimEnd()
+                    # (all Unicode whitespace).
+                    try {
+                        $raw = (Get-Content -Raw -Encoding Utf8 -LiteralPath $env:SDD_SUDO_KEY_FILE).TrimEnd(" `t`r`n")
+                        if ($raw.Length -gt 0) {
+                            $keyBytes = [System.Text.Encoding]::UTF8.GetBytes($raw)
+                        }
+                    } catch { }
                 } else {
                     $homeDir = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
                     $keyFile = Join-Path $homeDir ".sdd/sudo-key"
-                    if (Test-Path $keyFile) {
-                        $keyBytes = [System.Text.Encoding]::UTF8.GetBytes(
-                            (Get-Content -Raw $keyFile).TrimEnd())
+                    if (Test-Path -LiteralPath $keyFile) {
+                        try {
+                            $raw = (Get-Content -Raw -Encoding Utf8 -LiteralPath $keyFile).TrimEnd(" `t`r`n")
+                            if ($raw.Length -gt 0) {
+                                $keyBytes = [System.Text.Encoding]::UTF8.GetBytes($raw)
+                            }
+                        } catch { }
                     }
                 }
 

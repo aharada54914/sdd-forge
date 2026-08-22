@@ -222,8 +222,16 @@ if [ -z "$consent_kind" ]; then
                 _key=""
                 if [ -n "${SDD_SUDO_KEY:-}" ]; then
                     _key="$SDD_SUDO_KEY"
-                elif [ -n "${SDD_SUDO_KEY_FILE:-}" ] && [ -f "$SDD_SUDO_KEY_FILE" ]; then
-                    _key="$(cat "$SDD_SUDO_KEY_FILE" | tr -d '\n\r')"
+                elif [ -n "${SDD_SUDO_KEY_FILE:-}" ]; then
+                    # A named key file that is missing or unreadable fails
+                    # CLOSED with no fallback to ~/.sdd/sudo-key — matching
+                    # sdd-hook-guard's key resolution. The previous
+                    # `-n && -f` elif silently substituted the home key when
+                    # the named file was absent, which is key substitution in
+                    # a signature-verification path.
+                    if [ -f "$SDD_SUDO_KEY_FILE" ]; then
+                        _key="$(cat "$SDD_SUDO_KEY_FILE" | tr -d '\n\r')"
+                    fi
                 else
                     _key_file="${HOME:-$USERPROFILE}/.sdd/sudo-key"
                     if [ -f "$_key_file" ]; then
