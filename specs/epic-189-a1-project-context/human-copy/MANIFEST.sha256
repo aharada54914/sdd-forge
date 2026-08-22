@@ -7,8 +7,8 @@ d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb  specs/epic-189
 c2d345389d8b96961e294a3009672e6a588ba05762e84a7764c19938e2070533  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d  plugins/sdd-ship/skills/ship/SKILL.md
 c76fa6c294f7630857ac7c1d1aa57179c79823ad6401ba0d58e1f9619b0860a4  plugins/sdd-lite/skills/lite-spec/SKILL.md
-a450c93765e277873da7ccbc18cccaa6ec5fd662c161736a278af9d3e4062691  plugins/sdd-quality-loop/scripts/apply-human-copy.sh
-ed1c1569f89482f9438d8e18b63be0e92ba03c4055f1fa8f2039d1fe79fc882d  plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+93029c02bac7ef5390638cd0a2bcde77803bf07c780baa3d6080ca3caa2db800  plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+2c4eaa6ea12239b024d6dfba4e0a6262d7827275ac9d0207c80975e280a4b402  plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
 b7f2feb691e3b32cc9d37af541844b92f38ec21d9a13b25d72a61b0cba6a5cd8  plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
 a06f433d40a00252d7d17823df5ea3c74b834cb9d14f3fd1caee7c1ff21e4a74  plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
 b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff  plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
