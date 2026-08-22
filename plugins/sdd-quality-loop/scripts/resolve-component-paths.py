@@ -731,7 +731,10 @@ def _schema_type_ok(expected, instance) -> bool:
         return isinstance(instance, (int, float)) and not isinstance(instance, bool)
     if expected == "null":
         return instance is None
-    return True
+    # Unknown type names fail CLOSED: a typo'd "type" keyword must reject
+    # every instance, never silently validate all of them (the same hole
+    # validate-approval-sidecar's engine closed).
+    return False
 
 
 def _schema_validate(schema, instance, path="/", root=None) -> List[str]:
