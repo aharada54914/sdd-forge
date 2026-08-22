@@ -62,6 +62,8 @@
     "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
     "plugins/sdd-domain/scripts/domain-review-precheck.sh",
     "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+    "plugins/sdd-quality-loop/scripts/lib/panelist-common.sh",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
     "plugins/sdd-lite/references/risk-upgrade-policy.md",
     "plugins/sdd-lite/scripts/check-risk-upgrade.sh",
     "plugins/sdd-lite/scripts/check-risk-upgrade.ps1",

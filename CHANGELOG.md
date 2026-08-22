@@ -17,7 +17,11 @@
   BASELINE と `guard-invariants.json` に2件追加し全生成物を再生成。
   検証: guard-parity 57/57・constant-parity 2/2・gates 131/131 緑、
   両 lib への Write がガードで deny（exit 2）・非登録 control パスは
-  allow を実挙動で確認。
+  allow を実挙動で確認。適用済み human-copy ミラー（epic-189-a1 /
+  190-a2 / 191-a3 の各バンドルと 190-a2 candidate、計23ファイル＋
+  MANIFEST 3件）は `scripts/sync-human-copy-mirrors.py` で live に追随
+  （guard-invariants-epic-a1 82/82・phase2-guard-invariants 42/42・
+  human-copy-mirror-freshness 6/6 緑）。
 
 - **prepare-panelist-input の鍵解決を fail-closed 化 — 存在しない
   `SDD_SUDO_KEY_FILE` が黙って `~/.sdd/sudo-key` に差し替わる穴を両

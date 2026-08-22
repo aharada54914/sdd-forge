@@ -131,6 +131,12 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
     "plugins/sdd-domain/scripts/domain-review-precheck.sh",
     "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+    # Sourced libraries that carry the gate logic for protected scripts above
+    # (require_persisted_pass, panelist consent/signature helpers). Leaving one
+    # unprotected lets the gate be weakened without touching any protected
+    # wrapper, so a lib a protected script sources is protected itself.
+    "plugins/sdd-quality-loop/scripts/lib/panelist-common.sh",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",
