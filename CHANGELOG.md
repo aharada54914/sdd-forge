@@ -26,6 +26,20 @@
   review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
   緑（ps1 レグは CI）。
 
+- **PR #328 レビュー対応2件（Codex P1/P2）**: (1) `design-sync-scan.ps1` の
+  テーブル駆動化がパターン定義・`Test-ReservedDomain`・`Add-Finding`・
+  可読性プリチェックまで誤削除していた（`foreach ($f in $files)` が
+  プリチェックと走査の2箇所にあり、置換アンカーが先頭に誤ヒット）—
+  変更前版から走査ループのみを正しく置換して再構築。(2) 新設 sh
+  ラッパー14本+run-panelist 双子の `if ! . lib; then` ガードは dash 等の
+  POSIX シェルで `.` 失敗が致命的なため else が到達不能で、lib 欠損時に
+  文書化済み exit 3 ではなく素の exit 2 で落ちていた — source 前の
+  `[ -r ]` プローブに変更（lib 欠如 = exit 3+トークン、lib あり = 正常
+  ディスパッチを dash 実挙動で確認）。あわせて version-gates 赤の原因
+  だった `generate-registry-digest.tests.ps1` のフィクスチャ
+  ステージングにも lib 2件を追加（sh 側テストと同型の欠落 — ps1 レグは
+  ローカル pwsh 不在で検出できず CI が捕捉）。
+
 - **apply-human-copy のクラッシュ回復経路を分解（ループ監査 items 2-3、
   残り最後の2件）**: (1) `recover_all` の約85%同一な3パスを
   `classify_batch` / `revert_mixed_batch` / `confirm_all_at_pre` +
