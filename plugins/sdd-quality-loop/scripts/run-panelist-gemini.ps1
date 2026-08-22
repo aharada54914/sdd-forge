@@ -206,7 +206,7 @@ Rules:
     if ($verdict.blind -ne $true) {
         [Console]::Error.WriteLine("run-panelist-gemini: blind must be true"); exit 1
     }
-    if ($verdict.input_digest -notmatch '^[0-9a-f]{64}$') {
+    if ($verdict.input_digest -cnotmatch '^[0-9a-f]{64}$') {
         [Console]::Error.WriteLine("run-panelist-gemini: input_digest must be 64 lowercase hex"); exit 1
     }
     if ($verdict.verdict -notin @("PASS","NEEDS_WORK")) {

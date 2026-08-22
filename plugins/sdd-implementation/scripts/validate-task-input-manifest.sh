@@ -86,7 +86,12 @@ def path_ok(path, output=False):
         return False
     if path.startswith("/") or "\\" in path:
         return False
-    parts = path.rstrip("/").split("/")
+    # A trailing slash (directory form) is legal only for outputs — the same
+    # AllowDirectory split the .ps1 twin makes. Inputs must name a file.
+    trimmed = path.rstrip("/") if output else path
+    if not trimmed:
+        return False
+    parts = trimmed.split("/")
     if any(part in ("", ".", "..") for part in parts):
         return False
     return re.match(r"\A[A-Za-z0-9][A-Za-z0-9._/-]*\Z", path) is not None

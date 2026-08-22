@@ -52,7 +52,7 @@ def path_ok(path):
     parts = path.split("/")
     return (
         not any(part in ("", ".", "..") for part in parts)
-        and re.match(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$", path) is not None
+        and re.match(r"\A[A-Za-z0-9][A-Za-z0-9._/-]*\Z", path) is not None
     )
 
 def source_path(repo, rel):

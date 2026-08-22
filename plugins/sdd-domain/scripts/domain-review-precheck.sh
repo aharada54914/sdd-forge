@@ -13,14 +13,17 @@ usage() {
 fail() { echo "ERROR: domain-review-precheck: $*" >&2; exit 1; }
 sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
 }
 sha256_text() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}';
-  else shasum -a 256 | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
 }
 canonical_dir() { (cd "$1" && pwd -P); }
-is_sha256() { [[ "$1" =~ ^[0-9a-fA-F]{64}$ ]]; }
+# Lowercase only: every producer in this tree emits lowercase hex.
+is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 
 [[ $# -ge 2 ]] || usage
 attempt="$1"; round="$2"; shift 2
@@ -96,6 +99,10 @@ status="$(sed -n 's/^Domain-Model-Status:[[:space:]]*//p' "$context_map" | head 
 [[ "$status" =~ ^(Pending|Reviewed|Approved)$ ]] || fail "context-map.md must declare a recognized Domain-Model-Status"
 
 command -v jq >/dev/null 2>&1 || fail "jq is required"
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
+  fail "neither sha256sum nor shasum is available"
 
 # --- Normalized-hash helper (mirrors spec-review-precheck.sh's pattern of
 # substituting the mutable status field before hashing, applied here to

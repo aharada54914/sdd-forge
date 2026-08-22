@@ -4,6 +4,37 @@
 
 ### Fixed
 
+- **SHA-256 検証の fail-closed 化と lowercase-only 統一（監査 Cluster 6）**:
+  (1) sh 側 8 ファイルの `sha256` 系ヘルパーのうち、ツール欠如時に**空
+  ダイジェストを黙って返す** fail-open 形（裸の `else shasum`。空 == 空で
+  検証が通る）だった 6 ファイル — impl/task/spec/domain の各 precheck、
+  check-workflow-state、apply-human-copy の stdin 系 — を
+  validate-review-context-set.sh の fail-closed 前例に統一（elif ガード+
+  else fail、および両ツール欠如を起動時に検出する早期プローブ。プローブは
+  既存の `jq is required` メッセージ契約を壊さないよう jq チェックの後段に
+  配置）。インライン重複していた stdin ハッシュのパイプ4箇所は新設
+  `sha256_stream` ヘルパーへ集約。(2) 16進シェイプ検証の3方言 —
+  大文字許容 `[0-9a-fA-F]`、実質大小無視の ps1 `-match/-notmatch`
+  （PowerShell は既定で大小無視）、厳格 `-cmatch` — を **lowercase-only /
+  case-sensitive に統一**（産生側は全twinが `ToLower(Invariant)` 済みで
+  挙動安全）: spec/domain の `is_sha256`、spec の jq `test()` 5箇所、
+  review-contract-validate 双子、check-cross-model 双子、impl/task
+  precheck ps1、run-panelist 双子、apply-human-copy ps1、evidence-bundle
+  双子（40hex git）。sudo 署名・nonce の16進はガード parity 意味論のため
+  対象外。検証: downstream-review-precheck / task-review-precheck /
+  loop-consistency / spec-review-loop / cross-model 70/70 / gates 131 /
+  review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
+  緑（ps1 レグは CI）。
+
+- **repo パス検証の末尾スラッシュ意味論を4実装で統一（監査 Cluster 5）**:
+  validate-task-input-manifest.sh の `path_ok` は `output` 引数を**無視**して
+  無条件 rstrip しており（ps1 双子の `AllowDirectory` 分岐に相当する分岐が
+  死んでいた）、snapshot 側 ps1 は `-match '^…$'`（大小無視+末尾改行許容）
+  で validator の `\A…\z` と乖離。単一意味論に統一: 末尾スラッシュ
+  （ディレクトリ形）は output/AllowDirectory の場合のみ合法、アンカーは
+  4実装とも `\A…\Z(z)`。検証: turn-first-workflow 緑、task-context-isolation
+  は既知の root コンテナ要因1件のみ（ベースラインでも同一失敗を確認済み）。
+
 - **抽出した共有ライブラリ2件をガードの保護インベントリへ追加 —
   保護対象スクリプトが source する lib がガード R-10 の対象外だった**:
   `lib/review-precheck-common.sh`（impl/task-review-precheck が source、

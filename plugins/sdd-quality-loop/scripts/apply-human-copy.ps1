@@ -369,7 +369,7 @@ function Read-Manifest([string]$Path) {
         }
         $hash = $line.Substring(0, 64)
         $target = $line.Substring(66)
-        if ($hash -notmatch '^[0-9a-f]{64}$' -or [string]::IsNullOrEmpty($target)) {
+        if ($hash -cnotmatch '^[0-9a-f]{64}$' -or [string]::IsNullOrEmpty($target)) {
             Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest line $lineNo is not '<64-hex-lowercase>  <path>': $Path"
         }
         if ($target.StartsWith('/') -or $target.Contains('..')) {
