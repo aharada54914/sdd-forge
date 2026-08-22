@@ -137,7 +137,9 @@ def atomic_publish_no_replace(source, destination):
         rename.restype = ctypes.c_int
         result = rename(source_bytes, destination_bytes, 0x00000004)
     elif os.name == "nt":
-        result = 1 if ctypes.windll.kernel32.MoveFileW(source, destination) else 0
+        # MoveFileW returns nonzero BOOL on success; map to the POSIX
+        # convention (0 = success) shared by the renameat2/renamex_np branches.
+        result = 0 if ctypes.windll.kernel32.MoveFileW(source, destination) else 1
     else:
         fail("PATH", "atomic no-replace publication is unavailable")
     if result != 0:
