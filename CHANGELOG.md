@@ -4,6 +4,21 @@
 
 ### Fixed
 
+- **抽出した共有ライブラリ2件をガードの保護インベントリへ追加 —
+  保護対象スクリプトが source する lib がガード R-10 の対象外だった**:
+  `lib/review-precheck-common.sh`（impl/task-review-precheck が source、
+  `require_persisted_pass` の実体）と `lib/panelist-common.sh`
+  （run-panelist-gpt/gemini が source）は、ラッパーが保護されているのに
+  ライブラリ側が `protected_gate_suffixes` に無く、ラッパーに触れずに
+  ゲートロジックを弱体化できた（PR #325 の Codex レビュー指摘。
+  panelist-common は main 上の既存同型穴）。wfi037 ドリフト検査が
+  `plugins/*/scripts/*` 直下のみ・呼び出し元 blob 基準のため source される
+  lib を検出できないのが見逃しの機構。`generate-guard-invariants.py` の
+  BASELINE と `guard-invariants.json` に2件追加し全生成物を再生成。
+  検証: guard-parity 57/57・constant-parity 2/2・gates 131/131 緑、
+  両 lib への Write がガードで deny（exit 2）・非登録 control パスは
+  allow を実挙動で確認。
+
 - **prepare-panelist-input の鍵解決を fail-closed 化 — 存在しない
   `SDD_SUDO_KEY_FILE` が黙って `~/.sdd/sudo-key` に差し替わる穴を両
   実装から除去**: sh/ps1 双子とも、`SDD_SUDO_KEY_FILE` が指すファイルが
