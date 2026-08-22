@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **WFI-020 プラグイン側の適用（Issue #322）— 品質ゲートレポートの
+  テンプレート再接続とタスク識別フィールドの統一**:
+  (1) quality-gate SKILL のステップ 15 から「テンプレートは存在しない」
+  という誤記述を削除し、実在しパリティテスト済みの
+  `templates/quality-report.template.md` を参照するように修正（評価者が
+  執筆時に実際に読むファイルに規約を配置 — 可視性ギャップの解消）;
+  (2) テンプレートのヘッダーブロックを `Run ID:` と
+  `Critical:`/`Major:`/`Minor:` を含む全識別ブロックへ拡張（重複していた
+  レガシー `Task:` 行は廃止 — 正準は `Task ID:`）;
+  (3) `emit-run-record.{sh,ps1}` のタスク同定述語を、
+  `check-quality-gate-cycle-limit` がコーパス実測（220件中219件が
+  `Task ID:`）済みのアンカー付き3形式ユニオンに統一 — 従来の非アンカー
+  `Task: <tid>\b` はレガシー少数派しか数えられず gate_reports.total を
+  過少計上していた（epic-136-phase4-mcp で 1 vs 実数 5）;
+  (4) workflow-retrospective のアーティファクトルール 3 を正準
+  `Task ID:`（レガシー `Task:` はテンプレート規約以前のレポートのみ許容）
+  に更新; (5) `tests/template-validator-parity.tests.{sh,ps1}` に新
+  ヘッダー行と消費側ピンの検証を追加（sh 18/18, ps1 は CI で検証）。
+  これで WFI-020 の検証ホライズン（2機能連続）が開く。
+
 ## v1.16.0 (2026-08-22)
 
 ### Added

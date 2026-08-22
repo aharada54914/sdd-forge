@@ -166,13 +166,18 @@ invisible to `sdd-forge-mcp`'s `list_active_specs` and `get_next_sdd_command`.
   bare lines before any prose, the full identity block every deterministic
   consumer parses — each line exists for a named consumer, not as
   boilerplate:
-  - `Task ID: T-NNN` — required by `check-evidence-bundle.sh:202`
-  - `Task: T-NNN` — task association in `emit-run-record.sh:129`
+  - `Task ID: T-NNN` — the canonical task identity: required by
+    `check-evidence-bundle.sh:202` and matched by the run-record and
+    cycle-limit counters (`emit-run-record.sh`,
+    `check-quality-gate-cycle-limit.sh`). The separate legacy `Task:` line
+    is retired (WFI-020 reconciliation): the counters still accept it in
+    reports that predate the template contract, but new reports must not
+    add one.
   - `Feature: <slug>` — report selection in `emit-run-record.sh:125`;
     `check-evidence-bundle.sh:231` requires exactly one such line
   - `Run ID: <id>` — value equals the evaluator run id reserved in the
     identity ledger for that gate run; retrospective analysis artifact
-    rule 3 excludes reports without exactly one `Task:` identity and one
+    rule 3 excludes reports without exactly one task-identity line and one
     non-empty `Run ID`
   - `VERDICT: <PASS|NEEDS_WORK|BLOCKED>`
   - `Critical: N`, `Major: N`, `Minor: N` —
