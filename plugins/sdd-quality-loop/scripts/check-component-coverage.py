@@ -231,14 +231,19 @@ def evaluate_fail_conditions(records: List[dict], affected_components: List[str]
             if adapter_paths is None:
                 any_binding_missing_adapter_paths = True
                 continue
+            # Hoisted: validate each declared pattern once per binding. A
+            # malformed pattern is surfaced as a warning instead of being
+            # silently re-swallowed on every (component, path) pair.
+            usable_patterns = []
+            for pattern in adapter_paths:
+                try:
+                    usable_patterns.append((pattern, rcp.validate_and_normalize_pattern(pattern)))
+                except rcp.ConfigError:
+                    warnings.append("Fail-6: a provider binding declares an unusable adapter path pattern; it cannot match anything: " + str(pattern))
             for comp in joined_components:
                 for path in exclusive_by_component.get(comp, []):
                     nfc_path = rcp.normalize_nfc(path)
-                    for pattern in adapter_paths:
-                        try:
-                            normalized_pattern = rcp.validate_and_normalize_pattern(pattern)
-                        except rcp.ConfigError:
-                            continue
+                    for pattern, normalized_pattern in usable_patterns:
                         if rcp.pattern_matches(normalized_pattern, nfc_path):
                             fail6_matches.append({"component": comp, "path": path, "pattern": pattern})
         if any_binding_missing_adapter_paths:

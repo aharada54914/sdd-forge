@@ -26,6 +26,24 @@
   review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
   緑（ps1 レグは CI）。
 
+- **ループ監査の構造リファクタ3件（Fail-6 ホイスト / ルート導出抽出 /
+  design-sync-scan テーブル駆動化）**: (1) Fail-6 の4深デカルト積ループ
+  4複製（resolve-component-paths.{py,ps1}・check-component-coverage.{py,ps1}）
+  で、不正な adapter path パターンを `catch { continue }` が (component,
+  path) ペアごとに黙殺し毎回再検証していたのを、バインディング単位で1回
+  検証にホイストし、使用不能パターンを警告として表面化（py↔ps1 の警告
+  文言は parity 維持で同一。component-path 系5スイート緑）。
+  (2) `check-workflow-state.ps1` の4深ルート導出から
+  `Get-CandidateRootsForPath` を抽出（`,$set` で unroll 回避）。
+  (3) `design-sync-scan.{sh,ps1}` の6コピペ走査ブロックを検出テーブル+
+  1関数（表示モード match / redact / email-filter）に集約 — sh 側は
+  `grep | while` サブシェル制約どおり一時ファイル経由の emit を維持
+  （スイートの差分はベースライン同一の chmod/root 既知3件のみ）。
+  残る apply-human-copy の awk パーサ分解と recover_all 3パス分解は、
+  クラッシュ回復経路かつ ps1 レグのローカル検証不能のため意図的に未着手
+  — 分解計画は監査報告書 Loop audit 項 2-3 に記録済みで、専用の検証
+  サイクルを持つ変更として実施すべきもの。
+
 - **draft-07 スキーマエンジン3複製のバイト同一性テストを追加、
   resolve-component-paths の unknown-type fail-open を両 twin で閉鎖
   （監査「設計制約でブロック」項目）**: design.md は「4つの独立バリデータ、
