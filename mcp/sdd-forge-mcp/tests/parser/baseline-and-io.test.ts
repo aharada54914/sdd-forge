@@ -49,8 +49,34 @@ test("a well-formed tasks.md with a Planned task passes with an empty failures a
   }
 });
 
-test("Approved (<annotation>) is accepted and the annotation is echoed back", () => {
+test("strict Approved (<id> <ISO>) is accepted and the annotation is echoed back (WFI-042)", () => {
   const { root, cleanup } = makeTempSddRoot("sdd-parser-annotation");
+  try {
+    const tasksMd = [
+      "## T-001 Foo",
+      "",
+      "Approval: Approved (alice 2026-08-22T01:02:03Z)",
+      "Status: Planned",
+      "",
+      "### Blockers",
+      "None",
+      "",
+    ].join("\n");
+    writeFile(root.path, "specs/demo/tasks.md", tasksMd);
+
+    const result = parseTaskState(root, "demo", "specs/demo/tasks.md");
+    assert.equal(result.ok, true);
+    if (!result.ok) return;
+    assert.equal(result.data.verdict, "pass");
+    const task = result.data.tasks.find((t) => t.id === "T-001");
+    assert.equal(task?.approvalAnnotation, "alice 2026-08-22T01:02:03Z");
+  } finally {
+    cleanup();
+  }
+});
+
+test("a free-text annotation is rejected as invalid Approval (WFI-042)", () => {
+  const { root, cleanup } = makeTempSddRoot("sdd-parser-annotation-loose");
   try {
     const tasksMd = [
       "## T-001 Foo",
@@ -67,9 +93,9 @@ test("Approved (<annotation>) is accepted and the annotation is echoed back", ()
     const result = parseTaskState(root, "demo", "specs/demo/tasks.md");
     assert.equal(result.ok, true);
     if (!result.ok) return;
-    assert.equal(result.data.verdict, "pass");
-    const task = result.data.tasks.find((t) => t.id === "T-001");
-    assert.equal(task?.approvalAnnotation, "waived pending human sign-off");
+    assert.equal(result.data.verdict, "fail");
+    const invalid = result.data.failures.find((f) => f.rule === "approval-invalid");
+    assert.ok(invalid, "expected an approval-invalid failure for the free-text annotation");
   } finally {
     cleanup();
   }

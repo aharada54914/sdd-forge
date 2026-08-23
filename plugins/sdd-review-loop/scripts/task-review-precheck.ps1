@@ -23,6 +23,34 @@ function Get-ReviewedHash([string]$Path, [string]$StatusField, [string]$Reviewed
     [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($normalized))
   ).ToLower()
 }
+# WFI-025: the STATUS-NORMALIZED task-plan digest -- the same recipe as
+# check-workflow-state.ps1 Get-NormalizedHash for the task stage (canonical
+# form 1), which the accepting side already admits. Recorded instead of the
+# raw digest when the plan's statuses are mixed, so the binding survives the
+# lifecycle transitions the workflow is supposed to perform.
+function Get-TasksNormalizedHash([string]$Path) {
+  $text = [IO.File]::ReadAllText($Path)
+  $text = [regex]::Replace($text, "(?m)^Task-Review-Status:[^\r\n]*(\r?)$", 'Task-Review-Status: Pending$1')
+  $text = [regex]::Replace($text, "(?m)^Approval:[^\r\n]*(\r?)$", 'Approval: Draft$1')
+  $text = [regex]::Replace($text, "(?m)^Status:[^\r\n]*(\r?)$", 'Status: Planned$1')
+  $text = [regex]::Replace($text, "(?m)^Second Approval:[^\r\n]*\r?\n?", '')
+  return [Convert]::ToHexString(
+    [Security.Cryptography.SHA256]::HashData([Text.UTF8Encoding]::new($false).GetBytes($text))
+  ).ToLower()
+}
+# WFI-025: uniform = every ^Status: line carries one value (or none exist).
+# Uniqueness is ORDINAL (case-sensitive): Sort-Object -Unique folds case by
+# default, which would classify a Done/done plan as uniform here while the
+# sh twin's LC_ALL=C sort -u calls it mixed (PR #336 review; the AGENTS.md
+# case-sensitivity sweep's cmdlet layer).
+function Test-TasksStatusesMixed([string]$Path) {
+  $values = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+  foreach ($line in [IO.File]::ReadAllLines($Path)) {
+    $m = [regex]::Match($line, '^Status:[ \t]*(.*?)[ \t]*$')
+    if ($m.Success) { [void]$values.Add($m.Groups[1].Value) }
+  }
+  return $values.Count -gt 1
+}
 function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   $normalizedPath = $Path.Replace('\', '/')
   $normalizedRoot = $RepoRoot.Replace('\', '/').TrimEnd('/')
@@ -247,10 +275,17 @@ if ($VerifyInputs) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "review input is missing or substituted: $path" }
   }
   $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+  # WFI-025: verify the task plan against the digest FORM the precheck
+  # declared. A normalized record tolerates the lifecycle flips it exists to
+  # absorb; a body edit still changes the normalized digest and fails here.
+  $tasksVerifyHash = (Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower()
+  $declaredForm = 'raw'
+  if ($null -ne $precheck.psobject.Properties['tasks_sha256_form']) { $declaredForm = [string]$precheck.tasks_sha256_form }
+  if ($declaredForm -ceq 'normalized') { $tasksVerifyHash = Get-TasksNormalizedHash $tasks }
   if (-not (Test-OrdinalEqual $precheck.schema 'task-review-precheck/v1') -or
       -not (Test-OrdinalEqual $precheck.feature $Feature) -or
       [int64]$precheck.attempt -ne [int64]$Attempt -or [int64]$precheck.round -ne [int64]$Round -or
-      -not (Test-OrdinalEqual $precheck.tasks_sha256 ((Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower())) -or
+      -not (Test-OrdinalEqual $precheck.tasks_sha256 $tasksVerifyHash) -or
       -not (Test-OrdinalEqual $precheck.requirements_sha256 ((Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower())) -or
       -not (Test-OrdinalEqual $precheck.acceptance_sha256 ((Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower()))) {
     Fail 'core review inputs changed after precheck'
@@ -351,6 +386,13 @@ function Test-GraphHasCycleFrom { param([string]$Node,[hashtable]$Adjacency,[has
 $visitState=@{}
 foreach($node in $nodes){ if(Test-GraphHasCycleFrom -Node $node -Adjacency $adjacency -Visit $visitState){ Fail 'Blockers dependency graph contains a cycle' } }
 $tasksHash=(Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower(); $requirementsHash=(Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash=(Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower(); $designHash=(Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()
+# WFI-025: a mixed-status plan records the normalized digest (see the helper's
+# header); a uniform plan keeps today's raw behaviour byte-for-byte.
+$tasksHashForm = 'raw'
+if (Test-TasksStatusesMixed $tasks) {
+  $tasksHashForm = 'normalized'
+  $tasksHash = Get-TasksNormalizedHash $tasks
+}
 $traceabilityHash = ''
 $layerHashes = [ordered]@{}
 if ($fullProfile) {
@@ -410,5 +452,5 @@ $base=Join-Path $root 'reports/task-review'; New-Item -ItemType Directory -Path 
 try { [ordered]@{schema='review-contract/v1';stage='task';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;input_sha256=$inputHash;run_id='task-precheck';verdict='PASS'}|ConvertTo-Json -Compress|Set-Content -LiteralPath $temporaryContract -Encoding utf8NoBOM; & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -Feature $Feature -Attempt $Attempt -Round $Round -Stage task -ReportRoot (Join-Path $root "reports/task-review/$Feature") -Contract $temporaryContract | Out-Null } finally { Remove-Item -LiteralPath $temporaryContract -Force -ErrorAction SilentlyContinue }
 New-Item -ItemType Directory -Path $report | Out-Null
 $graph=[ordered]@{schema='dependency-graph/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;nodes=$nodes;edges=$edges;generated_at=[DateTime]::UtcNow.ToString('o')}; $graph|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path $report 'dependency-graph.json') -Encoding utf8NoBOM
-[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;frozen_artifact_done_when=$frozenDoneWhen;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
+[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;tasks_sha256_form=$tasksHashForm;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;frozen_artifact_done_when=$frozenDoneWhen;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
 Write-Output "task-review-precheck: complete. Output written to $report/"
