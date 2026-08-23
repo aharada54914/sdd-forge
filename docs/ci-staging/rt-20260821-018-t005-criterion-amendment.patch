@@ -1,0 +1,24 @@
+--- a/specs/agent-cost-context-isolation/tasks.md
++++ b/specs/agent-cost-context-isolation/tasks.md
+@@ -322,7 +322,20 @@
+ - [ ] TEST-002 reviewer/evaluator isolation fixtures pass
+ - [ ] Missing manifest, unlisted path, hash mismatch, chat-only input, and reused session fail closed
+ - [ ] All six reviewer roles and the evaluator expose distinct run/session identity
+-- [ ] Independent reviewer `T-005-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-005.md`
++- [ ] An independent reviewer with an isolated, manifest-bound identity records
++  PASS for this task; the recording reviewer identity and report file are those
++  of the round that actually produced the isolated record
++  (`agent-cost-context-isolation-T-005-review-agent-04` in
++  `reports/implementation/agent-cost-context-isolation/T-005-review-4.md`,
++  whose `T-005-review-4.json` manifest exists and binds the review inputs).
++  <!-- Amended 2026-08-23 per RT-20260821-018 adjudication option (b): the
++  criterion's substance (an independent, isolated review records PASS) is
++  unchanged; the named identity is corrected to the round-4 reviewer that
++  actually held an isolated identity. The 2026-06 implementation commit's
++  unilateral rewrite of this line (e28707f0, reverted in 8af2b1fc) remains
++  in git history and is NOT legitimized by this amendment; the bundled
++  guard hardening is WFI-045. Approved by the maintainer's 2026-08-23
++  session directive; applied by human hand via this staged patch. -->
+ - [ ] An isolated rollback fixture restores reviewer/evaluator boundaries and the isolation test passes
+ 
+ ### Out of Scope

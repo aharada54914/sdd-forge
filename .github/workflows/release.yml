@@ -28,6 +28,61 @@ permissions:
   attestations: write  # store build-provenance attestations
 
 jobs:
+  ci-green:
+    # RT-20260821-004 / design.md:209: releases are conditioned on CI green.
+    # This job resolves the released tag's commit and fails closed unless a
+    # successful test.yml run exists for exactly that commit. It also closes
+    # the workflow_dispatch arbitrary-ref hole: manual dispatches are only
+    # allowed from main or a tag ref.
+    permissions:
+      contents: read
+      actions: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restrict manual dispatch to main or a tag ref
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          case "${GITHUB_REF}" in
+            refs/heads/main|refs/tags/*) echo "dispatch ref ${GITHUB_REF} allowed" ;;
+            *)
+              echo "workflow_dispatch is restricted to main or a tag ref; got ${GITHUB_REF}" >&2
+              exit 1
+              ;;
+          esac
+      - name: Verify CI success for the release commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${INPUT_TAG}"
+          if [ -z "$TAG" ]; then TAG="${GITHUB_REF_NAME}"; fi
+          case "$TAG" in
+            *[!A-Za-z0-9._-]*|'')
+              echo "Refusing tag with unexpected characters: ${TAG}" >&2
+              exit 1
+              ;;
+          esac
+          REF_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/git/refs/tags/${TAG}")" || {
+            echo "Tag refs/tags/${TAG} not found - cannot gate a nonexistent release" >&2
+            exit 1
+          }
+          SHA="$(printf '%s' "$REF_JSON" | jq -r '.object.sha')"
+          TYPE="$(printf '%s' "$REF_JSON" | jq -r '.object.type')"
+          if [ "$TYPE" = "tag" ]; then
+            SHA="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${SHA}" --jq '.object.sha')"
+          fi
+          echo "Release commit for ${TAG}: ${SHA}"
+          COUNT="$(gh api \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs?head_sha=${SHA}&status=success&per_page=1" \
+            --jq '.total_count')"
+          if [ "${COUNT}" -lt 1 ]; then
+            echo "No successful test.yml run for ${SHA} - release is gated on CI green (design.md:209)" >&2
+            exit 1
+          fi
+          echo "CI green confirmed for ${SHA} (${COUNT} successful run(s))"
+
   loop-gate:
     # No elevated GitHub Actions permissions requested (REQ-002;
     # security-spec.md B4/OWASP "Elevation of Privilege" row): without this
@@ -48,7 +103,7 @@ jobs:
         run: bash ./tests/loop-inventory.tests.sh
 
   release:
-    needs: loop-gate
+    needs: [ci-green, loop-gate]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

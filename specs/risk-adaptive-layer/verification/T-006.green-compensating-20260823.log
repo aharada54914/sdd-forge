@@ -1,0 +1,27 @@
+HEADER: COMPENSATING GREEN CAPTURE, 2026-08-23 (pair of the compensating
+red capture; same clone-based scratch tree with the pristine generator
+restored byte-for-byte).
+COMMAND: bash tests/gates.tests.sh  (scratch clone, pristine)
+EXIT: 0
+=== T-006: evidence provenance ===
+ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
+ok: T-006.1b: legacy bundle file created at expected path
+ok: T-006.1c: check-evidence-bundle passes on legacy bundle (no risk field)
+ok: T-006.2a: generated bundle contains 'risk' field
+ok: T-006.2b: generated bundle contains 'spec_revision' field
+ok: T-006.2c: generated bundle contains 'build_env' field
+ok: T-006.2d: generated bundle contains 'builder' field
+ok: T-006.2e: generated bundle contains 'review_verdict' field
+ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
+ok: T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance
+ok: T-006.3c: spec_revision is valid 64-char hex
+ok: T-006.3d: review_verdict.verdict is PASS
+ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
+ok: T-006.5: high bundle with empty spec_revision fails check
+ok: T-006.6: risk mismatch (bundle vs contract) fails check
+ok: T-006.7: emptied bundle risk vs high contract fails closed
+
+====== Test Summary ======
+PASS: 151
+FAIL: 0
+==========================
