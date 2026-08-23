@@ -43,13 +43,11 @@
 
 ### Changed
 
-- **`installer-idempotency` の CI 登録・`exit 0` 修正は main 側に一本化**:
-  本ブランチが一時的に `test` ジョブへ入れていた登録と、独自に入れていた
-  終端 `exit 0` は、いずれも main が `2b8e528a` / `9a382c21` で行ったため
-  削除・採用した。その後 main は `ce7eea97` で登録自体を revert している
-  （Windows の `installer-idempotency.tests.ps1` ケース1が解決するまで main
-  を緑に戻す判断）。本ブランチはその状態に追随しており、`test.yml` は
-  `origin/main` と一致する。
+- **`installer-idempotency` 関連は main 側に一本化**: CI 登録・終端 `exit 0`・
+  Windows のバッチエスケープ修正はいずれも main が行った（`2b8e528a` /
+  `9a382c21` / `ce7eea97` の revert / `93cc6070` で再登録）。本ブランチが
+  一時的に持っていた同等実装は全て破棄し、`test.yml` を含むインストーラ・
+  CI 関連ファイルは `origin/main` と byte-identical。
 
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
