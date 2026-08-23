@@ -637,6 +637,33 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
   "$dup_outputs_report" \
   "report with a SECOND ## Outputs table (declaration smuggling surface)"
 
+# Gate seq 851: the guard above was bypassable by ONE invisible byte. A greedy
+# heading capture left the trailing space in the section name, so `## Outputs `
+# keyed as a different section that this validator never parsed -- while the
+# authorization boundary's prefix matcher DID accept it as an Outputs section.
+# A smuggled `../../etc/passwd` row therefore reached an evaluator's authorized
+# input set past both the duplicate-section and the path-traversal guards.
+# Both whitespace forms pinned; the boundary now requires an exact heading.
+for pad_label in space tab; do
+  pad_report="$REPORT_WORK/pad-heading-$pad_label.md"
+  python3 - "$REPORT_WORK/current.md" "$pad_report" "$pad_label" <<'PYEOF'
+import sys
+source, destination, pad_label = sys.argv[1:]
+pad = " " if pad_label == "space" else "\t"
+text = open(source, encoding="utf-8").read()
+text += (
+    "\n## Outputs" + pad + "\n\n"
+    "| Path | SHA-256 |\n"
+    "|---|---|\n"
+    "| `../../etc/passwd` | `" + "d" * 64 + "` |\n"
+)
+open(destination, "w", encoding="utf-8").write(text)
+PYEOF
+  expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
+    "$pad_report" \
+    "second ## Outputs heading padded with a trailing $pad_label (one-byte authorization bypass)"
+done
+
 dup_legacy_report="$REPORT_WORK/dup-legacy-section.md"
 python3 - "$REPORT_WORK/dual-form-v2.md" "$dup_legacy_report" <<'PYEOF'
 import sys

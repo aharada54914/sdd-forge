@@ -52,7 +52,16 @@ required_headings = (
     "Session Handoff",
 )
 
-heading_matches = list(re.finditer(r"(?m)^## ([^\n]+)\s*$", text))
+# The capture is NON-GREEDY so trailing whitespace is excluded from the
+# section name. With a greedy `[^\n]+` the `\s*` absorbed nothing, so
+# `## Outputs ` keyed as "Outputs " -- a section this validator then never
+# found, never row-checked and never path-checked, while
+# validate-review-context-set.sh's evaluator_output_is_declared DID accept
+# it as an Outputs section. One invisible trailing byte therefore smuggled
+# arbitrary paths (including `../../etc/passwd`) into an evaluator's
+# authorized input set, past the very duplicate-section guard this file
+# delivers. Found at gate seq 851.
+heading_matches = list(re.finditer(r"(?m)^## ([^\n]+?)[ \t]*$", text))
 sections = {}
 for index, match in enumerate(heading_matches):
     name = match.group(1)

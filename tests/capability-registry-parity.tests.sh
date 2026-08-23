@@ -140,6 +140,11 @@ STAGED_SCRIPTS = [
     # implementation-ref-missing fires inside the simulated layout.
     "check-contract.py", "check-hook-activation-handshake.py",
     "check-component-coverage.py",
+    # check-criterion-freeze.py joined the scan root with WFI-045; by the
+    # same rule as check-component-coverage above, registering it in the
+    # fixture's gates[] means this list must ship it too, or check (b)
+    # implementation-ref-missing fires inside the simulated layout.
+    "check-criterion-freeze.py",
     # The shared python-master dispatcher every .sh/.ps1 wrapper above
     # sources; an installed plugin ships it beside the wrappers, and
     # without it every wrapper denies RUNTIME_UNAVAILABLE (exit 3).

@@ -68,7 +68,14 @@ is_forbidden_review_output() {
 evaluator_output_is_declared() {
   local path=$1 expected_hash=$2 report=$3 heading=$4
   awk -v expected_path="$path" -v expected_hash="$expected_hash" -v heading="$heading" '
-    index($0, heading) == 1 && substr($0, length(heading) + 1) ~ /^[[:space:]]*$/ {
+    # EXACT heading match. Accepting a padded heading here while
+    # validate-implementation-report.sh keyed `## Outputs ` as a DIFFERENT
+    # section let one invisible trailing byte smuggle arbitrary paths --
+    # `../../etc/passwd` included -- into an authorized input set, past the
+    # duplicate-section guard (gate seq 851). The report validator now
+    # normalizes the section name; this side refuses the padded form
+    # outright, so the two cannot disagree again.
+    $0 == heading {
       in_outputs = 1
       next
     }

@@ -4,7 +4,7 @@
 20892ce09820c0ccb1eb79fc3c4744e4d0b2351fbd3b5a887925b6cdfa04c652  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
 029b17b090bd99d53292279cc55d5efb8f2fb049738553463c2c4409f6d68b65  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 c2d345389d8b96961e294a3009672e6a588ba05762e84a7764c19938e2070533  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
-50257bb16d2fd7820798bc1033244e233d20a6572cc465a48b72cbecb20cc6ac  plugins/sdd-quality-loop/scripts/check-contract.py
+c9f73fa5223cba5296ce072c792791b19bdf5519127157fcb3da907ec78cfeaa  plugins/sdd-quality-loop/scripts/check-contract.py
 df5024e272dbed45e693726d7b9e77440f11489d5484bf768653509bf1f12fd6  plugins/sdd-quality-loop/scripts/check-contract.ps1
 f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5  plugins/sdd-quality-loop/scripts/check-component-coverage.ps1
 9a43e1b584338437fe9cd66e15aca91d2e805461c5ba0819e59e35f078fabbfc  tests/gates.tests.sh

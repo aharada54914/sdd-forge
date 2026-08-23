@@ -104,7 +104,12 @@ fi
 # would not catch the boundary being pointed at a different section, and the
 # literal '## Outputs' alone would not catch the matcher itself being replaced;
 # the template and the boundary can only drift apart if one of these two moves.
-if grep -Fq 'index($0, heading) == 1' "$VALIDATOR" &&
+# The heading matcher was tightened from a prefix test to an EXACT match at
+# gate seq 851: the prefix form accepted `## Outputs ` while the report
+# validator keyed that padded heading as a different section, and the
+# disagreement smuggled arbitrary paths into an authorized input set. Pin the
+# exact-match construct now, keeping both halves of the parameterised form.
+if grep -Fq '$0 == heading' "$VALIDATOR" &&
     grep -Fq "'## Outputs'" "$VALIDATOR"; then
     ok "validator pin: Outputs-section parser still present in launch boundary"
 else
