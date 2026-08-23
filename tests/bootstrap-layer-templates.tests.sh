@@ -210,10 +210,29 @@ if grep -q 'legacy mode' "$POLICY" && grep -q 'Do \*\*NOT\*\* map absent to' "$P
 else
   fail "RT001: classification policy lost the legacy-mode / do-not-map rule"
 fi
-if grep -qi 'absent.*medium.-baseline' "$POLICY"; then
-  fail "RT001: the forbidden absent->medium mapping is back in the policy doc"
+# RT-20260821-001 cycle-2 (seq 834): the load-bearing clause itself must be
+# pinned - deleting "NO tier minimum" previously left the whole suite green.
+if grep -q 'NO tier minimum' "$POLICY"; then
+  pass "RT001: policy states the NO-tier-minimum rule clause"
 else
-  pass "RT001: no absent->medium mapping in the policy doc"
+  fail "RT001: policy lost the 'NO tier minimum' rule clause"
+fi
+# Broadened mapping detector. A textual negative can never be complete
+# (natural language admits unbounded phrasings); the AUTHORITATIVE guard is
+# behavioral - gates.tests.sh T-004.1 pins check-contract's legacy skip. This
+# heuristic catches the common mapping phrasings the cycle-2 evaluator
+# demonstrated slipping past the old exact-phrase pattern.
+if grep -qiE '(absent|missing)[^.]{0,60}(->|→|⇒|maps? to|mapped to|defaults? to|treated as|apply(ing)? the)[^.]{0,30}medium' "$POLICY"    && ! grep -qiE 'Do \*\*NOT\*\* map absent' "$POLICY"; then
+  fail "RT001: an absent/missing->medium mapping statement is back in the policy doc"
+else
+  # the negation sentence itself legitimately contains absent+medium tokens;
+  # require it to remain present so the mapping detector cannot be silenced
+  # by deleting the negation
+  if grep -qiE '(absent|missing)[^.]{0,60}(->|→|⇒|maps? to|mapped to|defaults? to|treated as|apply(ing)? the)[^.]{0,30}medium' "$POLICY"; then
+    fail "RT001: mapping-like sentence present without the do-not-map negation"
+  else
+    pass "RT001: no absent->medium mapping statement in the policy doc (heuristic; behavioral pin is gates T-004.1)"
+  fi
 fi
 
 printf 'PASS: %s\n' "$PASS"
