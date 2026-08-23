@@ -1,6 +1,6 @@
 # Requirements: epic-193-a5-capability-resolver
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/193,
 https://github.com/aharada54914/sdd-forge/issues/187
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (AI-DLC
@@ -543,8 +543,15 @@ document v2 §7/§18.4).
   **different-id** `severity: "block"` summary entry — with no same-id
   `severity: "block"` summary entry, since the invocation did not block
   because of the warn nodes — when the abort and the warns are jointly
-  caused by the same evaluation pass — and no other id ever carries
-  `severity: "warn"` at all (AC-056).
+  caused by the same evaluation pass. One "evaluation pass" here is
+  exactly this invocation's own single steps (f)–(g) evaluation sweep
+  (REQ-001, above — the one no-short-circuit `evaluate-predicate`
+  traversal over every Registry Capability and affected component), an
+  "evaluation abort" is a REQ-002 Block raised from within that sweep
+  before step (h) is reached, and "jointly caused" means the
+  already-collected warn nodes and the abort arose from that identical
+  sweep — never warn nodes carried over from any other invocation or
+  source. No other id ever carries `severity: "warn"` at all (AC-056).
   Resolver Evidence is written on **every** invocation, success or Block
   (REQ-002), **with the sole exception of a Block reached because
   Resolver Evidence itself fails its own schema self-validation** (B3,
@@ -858,7 +865,7 @@ document v2 §7/§18.4).
 | AC-053 | REQ-007 | Anchor-fingerprint lock (M6, NEW): a fixture confirms the recomputed sha256 of the fixed `SKILL.md:54-64` window and the `### Full-Profile Layer Interview` heading's own 1-based ordinal position among every `##`/`###` heading in the live file both match this package's own recorded values (`sha256:d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64` and `3` respectively); a regression fixture that relocates the identical heading text to a different position in the file, while its own immediate neighboring lines stay unchanged, confirms the drift check fails loudly — the exact case an earlier revision's bare "heading text still exists" check could not detect |
 | AC-054 | REQ-001/REQ-004 | Resolver publication transaction reader-side lock (B1, NEW): a fixture confirms `validate-resolver-evidence` fails closed (never a silent read of possibly-torn cross-file state) when a live transaction journal names the `resolver-evidence.yaml` path it is about to read |
 | AC-055 | REQ-002 | `output-schema-validation-failed` dual-artifact-scope lock (spec-review round-1 remedy, closing an EDGE-CASE-COVERAGE finding): two independently-triggerable fixtures — one where Resolver Evidence itself fails its own defensive schema self-validation (writes nothing to any live path, B3), and one where a non-Evidence staged artifact (Facet Manifest, Capability Summary, or Context Projection) fails the identical check while Resolver Evidence itself remains schema-valid (Resolver Evidence is still written recording this diagnostic, per AC-012's own general rule, and the failing non-Evidence artifact itself is not written, AC-011) |
-| AC-056 | REQ-004 | `diagnostics[]` warn/block cardinality lock (spec-review round-1 remedy, closing an AMBIGUITY finding): a fixture confirms `diagnostics[]` carries exactly one `severity: "warn"` entry per individual `outcome: "warn"` DSL-evaluation node encountered anywhere in that invocation (each with a distinct `detail` naming that node's own `capability_id`/`component_id`/`declaration_index` location) plus exactly one additional `severity: "block"` entry sharing the identical `dsl-warn-on-matched-capability` id; a companion multi-node fixture confirms the entry count scales 1:1 with node count plus exactly one summary entry, never fewer, never a second summary entry, and that no `(id, detail)` pair repeats (AC-024) |
+| AC-056 | REQ-004 | `diagnostics[]` warn/block cardinality lock (spec-review round-1 remedy, closing an AMBIGUITY finding): a fixture confirms `diagnostics[]` carries exactly one `severity: "warn"` entry per individual `outcome: "warn"` DSL-evaluation node encountered anywhere in that invocation (each with a distinct `detail` naming that node's own `capability_id`/`component_id`/`declaration_index` location) plus exactly one additional `severity: "block"` entry sharing the identical `dsl-warn-on-matched-capability` id; a companion multi-node fixture confirms the entry count scales 1:1 with node count plus exactly one summary entry, never fewer, never a second summary entry, and that no `(id, detail)` pair repeats (AC-024). Exception (amended 2026-08-24, human-approved, mirroring REQ-004's amended sentence): `severity: "warn"` entries already collected before an evaluation abort — a REQ-002 Block raised from within this invocation's own single steps (f)–(g) evaluation sweep before step (h), the identical sweep that produced the warns ("jointly caused") — lawfully appear alongside that abort's own **different-id** `severity: "block"` summary entry with no same-id summary entry; an abort-exception fixture (`tests/resolve-project-context-block.tests.sh`/`.ps1`, `evaluate-predicate-failure-after-warn`) locks exactly that shape |
 
 ## Field Definitions
 
