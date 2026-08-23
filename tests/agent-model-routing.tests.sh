@@ -14,6 +14,7 @@ assert_contains() {
   local pattern="$2"
   local message="$3"
   grep -Eq "$pattern" "$file" || fail "$message"
+  printf 'ok: %s\n' "$message"
 }
 
 assert_literal() {
@@ -21,6 +22,7 @@ assert_literal() {
   local text="$2"
   local message="$3"
   grep -Fq "$text" "$file" || fail "$message"
+  printf 'ok: %s\n' "$message"
 }
 
 # Portable SHA-256 (mirrors tests/agent-capabilities-v2.tests.sh's
@@ -133,6 +135,7 @@ for reviewer_decl in \
   plugins/sdd-review-loop/agents/task-reviewer-b.md; do
   grep -Eq '^model: (sonnet|opus)$' "$ROOT/$reviewer_decl" ||
     fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewer_decl"
+  printf 'ok: reviewer declaration meets the standard floor: %s\n' "$reviewer_decl"
 done
 
 assert_literal "$ADR" "Turn-first routing optimizes expected iteration count before token price." \

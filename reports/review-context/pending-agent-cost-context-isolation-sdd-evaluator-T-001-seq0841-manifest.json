@@ -1,0 +1,114 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "agent-cost-context-isolation",
+ "task_id": "T-001",
+ "run_id": "RUN-agent-cost-context-isolation-qg-T-001-seq0841",
+ "host_session_id": "SESS-qg-agent-cost-context-isolation-T-001-0841",
+ "sequence": 841,
+ "previous_record_sha256": "0a07084fdb83bc5bb9b8d4eeda3fb13c6c2d0b913dee754f0284b541f3a0b022",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "9ce50fd1d0ff7b856e094c18aa71255b899f9377e6ddf48158d4c58ab02c5ca4",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/agent-cost-context-isolation/requirements.md",
+   "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/design.md",
+   "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+   "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/security-spec.md",
+   "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/tasks.md",
+   "sha256": "59b71685ed2feb7a5b84ef1517d9f37e64e8fcad83131374c4ad38a29befc96f"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/traceability.md",
+   "sha256": "0dd3d808411ed0240ee1228caefbf2fad9623897f08583d6d14598877971d388"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "reports/implementation/agent-cost-context-isolation/T-001.md",
+   "sha256": "3d7beb728c5b38a7d234614ee00314738d8afd9b3fcd72602dd814b91a79025c"
+  },
+  {
+   "path": "contracts/agent-model-capabilities.json",
+   "sha256": "b5a4bd4b156cfbc5f51bedf98c13e0ac3e4d237f1a00c1f79ae4c595b9f444b1"
+  },
+  {
+   "path": "docs/adr/0003-turn-first-agent-routing.md",
+   "sha256": "ed5daea1ebb815d3a2961ee062e674a9f0c408ed26041430f4ddc323fb82dd54"
+  },
+  {
+   "path": "docs/agent-capability-matrix.md",
+   "sha256": "884290f0fc8e014758dffe614b04b71d0276eb598facdce8591d4a7fb715527d"
+  },
+  {
+   "path": "tests/agent-model-routing.tests.sh",
+   "sha256": "19133f9b0d00c862c2b271de3d717c338e141fd32494b1b10ff006776daa0f56"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/verification/qg/T-001/routing-sh-20260823.log",
+   "sha256": "40a3596502a059217aba32d48945b88e84ff04b56aad25bf882ddef789ec6050"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/verification/qg/T-001/routing-ps1-20260823.log",
+   "sha256": "5aa056bea795bc40b0d45a8a8d10a76b78b7053d0138ee6ea917267e286dfa14"
+  },
+  {
+   "path": "plugins/sdd-bootstrap/agents/investigator.md",
+   "sha256": "cf1e6b4bd3cbbb6a3dc767413443677c12a70b9faf2e9608cc402d3cff9e8e0a"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/agents/evaluator.md",
+   "sha256": "3a5e6f8580f27338c814f36a2cf38bbb1656946a3c5bb0fd64d20c851f0fb36d"
+  },
+  {
+   "path": "plugins/sdd-review-loop/agents/spec-reviewer-a.md",
+   "sha256": "ce6c8723c434a8d3620f11dba29b92f14600d597d4f09d84316ee6beae528d4a"
+  },
+  {
+   "path": "plugins/sdd-review-loop/agents/spec-reviewer-b.md",
+   "sha256": "f73b56b0c9746a3f351e58acd3b7d6e7114f697b326b24638ad0f11ff5506d16"
+  },
+  {
+   "path": "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+   "sha256": "a516e1f23e53814a7e7d28cbea76986d477c505d85ada161dbf269c8a988f377"
+  },
+  {
+   "path": "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+   "sha256": "1fc17ed207e03eba96f833e904bc7e9c0dff89d8ef4216d07b751466fa0c061c"
+  },
+  {
+   "path": "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+   "sha256": "bdb7c2cde255ae57c676abf1fc7031d88ea4ce257e7a13223632e4e05b448bdf"
+  },
+  {
+   "path": "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+   "sha256": "9af60291bfabdff5058e870a4f749837f5180853e91435cf8fcdb54cab257e82"
+  },
+  {
+   "path": "reports/implementation/agent-cost-context-isolation/manifests/T-001.json",
+   "sha256": "d8c3ea59e23afcdff582da7553b1649d64d087c5d9d28adfb1b3ca2867b9be54"
+  }
+ ],
+ "gate_report_declaration": {
+  "path": "reports/quality-gate/20260823T113000Z.md",
+  "sha256": "1fb5614f9c717f2e064da923e8f738ba6a0efb12cb25bcf8937ada97dfd42d46"
+ }
+}

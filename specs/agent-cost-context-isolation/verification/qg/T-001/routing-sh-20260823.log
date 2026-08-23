@@ -1,0 +1,52 @@
+COMMAND: bash tests/agent-model-routing.tests.sh
+EXIT: 0
+ok: matrix missing low risk row
+ok: matrix missing medium risk row
+ok: matrix missing high risk row
+ok: matrix missing critical risk row
+ok: low risk matrix row must be 1/1/1
+ok: medium risk matrix row must be 2/1/1
+ok: high risk matrix row must be 3/2/1
+ok: critical risk matrix row must be 3/2/1
+ok: routing priority must put expected iterations before tier and token price
+ok: routing must use invocation-supplied cost estimate
+ok: routing must record cost estimate timestamp
+ok: routing must define lexical final tie-break
+ok: missing closed failure enum: test
+ok: missing closed failure enum: lint
+ok: missing closed failure enum: typecheck
+ok: missing closed failure enum: build
+ok: missing closed failure enum: review-major
+ok: missing closed failure enum: review-critical
+ok: same failure recurrence must be required before escalation
+ok: different failure classes must not trigger escalation
+ok: escalation must advance exactly one tier
+ok: strong recurrence must block with terminal-tier-recurrence
+ok: terminal-tier resume must use deterministic paired validation
+ok: deterministic operations must be excluded from model routing
+ok: routing must fail closed when no availability-checked model satisfies a required tier
+ok: same-tier substitution must preserve canonical tier identity
+ok: strong Codex routing must prefer high before xhigh
+ok: lightweight Anthropic mapping must be Haiku
+ok: standard Anthropic mapping must be Sonnet
+ok: strong Anthropic mapping must be Opus
+ok: lightweight Codex mapping must name gpt-5.1-codex-mini
+ok: standard Codex mapping must name gpt-5.1-codex
+ok: strong Codex mapping must name gpt-5.2-codex and its fallback
+ok: investigator must be lightweight/Haiku with Codex low equivalent
+ok: spec reviewers must be at least standard/Sonnet
+ok: implementation reviewers must be at least standard/Sonnet
+ok: task reviewers must be at least standard/Sonnet
+ok: evaluator must be strong/Opus with Codex high/xhigh equivalent
+ok: Claude investigator must be downgraded to Haiku
+ok: Copilot investigator must document lightweight tier
+ok: Claude evaluator must remain Opus
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/impl-reviewer-b.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-a.md
+ok: reviewer declaration meets the standard floor: plugins/sdd-review-loop/agents/task-reviewer-b.md
+ok: ADR must record turn-first routing decision
+ok: delegation policy must require turn-first routing
+ok: turn-first model routing structure is defined
