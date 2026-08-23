@@ -3,24 +3,29 @@
   "task_id": "T-004",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-004.md \u2014 Specification Differences item 4",
-      "note": "Late Blocks from steps 10-13 deliberately omit context_binding and resolver even though those values are already computable. The design requires a full Resolver Evidence record for these paths; only early pre-discovery cases receive reduced records. Schema permissiveness does not satisfy this semantic requirement."
+      "ref": "resolve-project-context.py:_write_evidence",
+      "note": "diagnostics[] is emitted as warn_diagnostics followed by the block summary, rather than stable-sorted by (id, detail) as REQ-005/AC-024 require. Because the summary detail is a lexical prefix of the per-node WARN details, the required order places the summary first; the implementation and its exact-document tests encode the opposite order."
     },
     {
       "severity": "Major",
-      "ref": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/generate-registry-digest.py",
-      "note": "The snapshot-mismatch stub emits 64 bare hex characters, while the step-6 dependency contract requires a sha256:<64-hex> value and mandates dependency-output-malformed otherwise. Because the fixture passes as snapshot-generation-mismatch, the implementation or test harness accepts a dependency output shape forbidden by the specification, so this test does not validly verify the intended TOCTOU branch."
+      "ref": "resolve-project-context.py:_draft7_validate / step 12",
+      "note": "The defensive output-schema validator does not implement governing draft-07 keywords used by resolver-evidence.schema.json, including not and minimum. It therefore does not actually establish schema conformance; for example, it can accept conditional_facet_evaluations on matched:false and a negative declaration_index, contrary to the schema and REQ-002's fail-closed output-schema-validation-failed contract."
+    },
+    {
+      "severity": "Major",
+      "ref": "resolve-project-context.py:main step 10-13 Block handlers",
+      "note": "Late Blocks such as lite-check-source-undefined, non-Evidence output-schema-validation-failed, and snapshot-generation-mismatch write Resolver Evidence through _block without the already-computed context_binding and resolver provenance blocks. REQ-001 step (j), REQ-004, and T-004's Evidence-assembly scope require the full digest/provenance record once those values are available; the tests currently lock in the incomplete record."
     }
   ],
   "blind": true,
-  "input_digest": "9e102e85a188f563020884db3f66d18d0da011ef71c1ab63f275f0feb63b6835",
+  "input_digest": "bc6f15e2b3f2235796bbe51ae9353fdb042f642a0755300bc1d665fa4c7ab1df",
   "consent": {
     "kind": "sudo",
-    "ref": "T-004 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "sudo 2026-08-08T16:04:17Z"
   }
 }

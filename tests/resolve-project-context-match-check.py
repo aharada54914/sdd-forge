@@ -426,6 +426,58 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         )
         resolver_block = resolver_module._resolver_block()
 
+        # --- RT-20260823-001 Route 1: context_binding scalar remainder --
+        # `_assemble_context_binding` (resolve-project-context.py) is a
+        # pure pass-through for its own four scalar fields
+        # (`full_context_revision`, `projection_sha256`, `registry_digest`,
+        # `ownership_digest` each equal the identically-named constructor
+        # argument, verbatim, in that function's own body) -- until now,
+        # NONE of the four was read back off `context_binding` and
+        # compared to anything; a mutant substituting a well-formed wrong
+        # digest for any one of them survived undetected. Every argument
+        # fed into `_assemble_context_binding` above is independently
+        # derived from something other than `_assemble_context_binding`
+        # itself: `source_sha256` from this driver's own hashlib hash of
+        # the real canonicalizer's output (:216); `projection_sha256` from
+        # the resolver's own captured projection bytes, independently
+        # re-canonicalized and re-hashed by this driver and already
+        # cross-checked against the hand-built expectation above
+        # (:398-409) -- never from calling `_assemble_context_binding`
+        # itself; `registry_digest` from this fixture's own stub's fixed
+        # FIRST_DIGEST constant (:422); `ownership_digest` from a second,
+        # real, independent subprocess launch of `resolve-component-
+        # paths-real.py` (:411-416), never `resolve-project-context.py`.
+        # Reading `context_binding[field]` back and diffing it against
+        # that SAME independent value exercises `_assemble_context_
+        # binding`'s own real, unmutated assembly logic against an
+        # expectation it never produced -- the identical "expectation
+        # independent of the implementation under test" move that closed
+        # AC-044 and AC-003's first half.
+        counts.check(
+            context_binding["full_context_revision"] == source_sha256,
+            f"{case_name}: context_binding.full_context_revision is this run's own independently-hashed "
+            f"source_sha256, unmutated by assembly (AC-003 remainder)",
+            repr({"context_binding": context_binding.get("full_context_revision"), "expected": source_sha256}),
+        )
+        counts.check(
+            context_binding["projection_sha256"] == projection_sha256,
+            f"{case_name}: context_binding.projection_sha256 is the resolver-captured, independently "
+            f"re-canonicalized-and-hashed projection digest, unmutated by assembly (AC-003 remainder)",
+            repr({"context_binding": context_binding.get("projection_sha256"), "expected": projection_sha256}),
+        )
+        counts.check(
+            context_binding["registry_digest"] == registry_digest,
+            f"{case_name}: context_binding.registry_digest is this fixture's own stub's fixed FIRST_DIGEST "
+            f"constant, unmutated by assembly (AC-005 remainder)",
+            repr({"context_binding": context_binding.get("registry_digest"), "expected": registry_digest}),
+        )
+        counts.check(
+            context_binding["ownership_digest"] == ownership_digest,
+            f"{case_name}: context_binding.ownership_digest is resolve-component-paths-real.py's own "
+            f"independent, real-subprocess-derived value, unmutated by assembly (AC-005 remainder)",
+            repr({"context_binding": context_binding.get("ownership_digest"), "expected": ownership_digest}),
+        )
+
         # AC-044: dependency_pointers[] RFC-6901 canonical derivation,
         # exercising the escape rule against "shared/util"'s own `/` AND
         # (gate-cycle-2 Major B remediation) "other~thing"'s own `~` --
@@ -462,6 +514,22 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         track_artifact = resolver_module._assemble_facet_manifest(
             "example-feature", affected_components, registry_document,
             evidence["capability_evaluations"], context_binding, resolver_block,
+        )
+
+        # --- affected_components (RT-20260823-001 Minor, closed) --------
+        # Outside AC-007's own enumerated field list (`required_facets`/
+        # `conditional_facets`/`resolved_gates`/`capabilities`/
+        # `capability_minimum_enforcement`/`lite_eligibility` --
+        # acceptance-tests.md AC-007 row), so not obligatory, but cheap to
+        # close with the identical independent expectation already in
+        # scope (this fixture's own four-component set, hardcoded above
+        # at `affected_components`, never `resolve-project-context.py`'s
+        # own re-derivation of it).
+        counts.check(
+            track_artifact["affected_components"] == affected_components,
+            f"{case_name}: affected_components is this fixture's own four independently-known component ids, "
+            f"unmutated by assembly (outside AC-007's enumerated field list)",
+            repr(track_artifact.get("affected_components")),
         )
 
         # --- AC-007: field-assembly conformance -------------------------
@@ -619,6 +687,38 @@ WARN_SUMMARY_DETAIL = "a predicate evaluation produced an outcome: warn evidence
 WARN_DIAGNOSTIC_ID = "dsl-warn-on-matched-capability"
 
 
+def _expected_trigger_warn_detail(fixture_dir, registry_document, capability_id, component_id):
+    """RT-20260823-001 Minor (warn `detail` substring-only tightening):
+    independently recomputes ONE trigger evaluation's own exact warn
+    `detail` string -- via the SAME real, unmutated `evaluate-predicate`
+    dependency `block_check.real_evaluate_predicate` already uses
+    elsewhere in this driver (never `resolve-project-context.py` itself,
+    never a second evaluation performed inside the resolver module) fed
+    this fixture's own real `project-context.yaml`/`capability-
+    registry.json` text, and the SAME byte-for-byte `_warn_diagnostic_
+    detail` mirror (`block_check.expected_warn_diagnostic`) T-002/T-003's
+    own suite already established and reuses verbatim (module docstring:
+    "reuse this task's own already-established mechanism, don't invent a
+    second one") -- so the two warn-detail checks below can assert full
+    string equality instead of merely "this substring appears somewhere."
+    Both TEST-056 fixtures use a single-clause trigger (`equals`, no AND/
+    OR/NOT nesting) evaluated with `declaration_index=None` (a trigger,
+    never a conditional facet -- resolve-project-context.py's own
+    `_evaluate_capabilities`), so exactly one warn node exists per
+    component, at that component's own top-level evidence index."""
+    _, document = _canonicalize_yaml(fixture_dir / "project-context.yaml")
+    component = next(c for c in document["components"] if c["id"] == component_id)
+    properties = {key: value for key, value in component.items() if key != "id"}
+    trigger = next(c for c in registry_document["capabilities"] if c["id"] == capability_id)["trigger"]
+    _, evidence_nodes = block_check.real_evaluate_predicate(trigger, properties)
+    [(node_index, warn_node)] = [
+        (idx, node) for idx, node in enumerate(evidence_nodes) if node.get("outcome") == "warn"
+    ]
+    return block_check.expected_warn_diagnostic(
+        capability_id, component_id, None, (node_index,), warn_node,
+    )["detail"]
+
+
 def _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count):
     """Shared AC-056 assertion body for both TEST-056 fixtures below:
     exactly `expected_warn_count` `severity: "warn"` diagnostics[] entries
@@ -668,6 +768,24 @@ def _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_pat
         len(all_details) == len(set(all_details)),
         f"{case_name}: no (id, detail) pair repeats across diagnostics[] (AC-024)",
         repr(all_details),
+    )
+    # AC-024 stable-sort discipline (cross-epic panel finding,
+    # 2026-08-23): diagnostics[] itself must be sorted by (id, detail),
+    # not merely have the right membership. Since every entry here shares
+    # the identical id (checked above), this is decided by detail alone --
+    # and the summary sentence ("...outcome: warn evidence node") is a
+    # strict lexical PREFIX of every per-node detail ("...outcome: warn
+    # evidence node at ..."), so the correct sort puts the summary FIRST,
+    # not last (the prior emission order). The expectation is DERIVED via
+    # `sorted(..., key=(id, detail))` here -- the identical rule
+    # `_write_evidence` itself now applies -- never a second,
+    # independently-ordered array, which would just relocate the same
+    # "expectation mirrors emission" defect this finding named.
+    counts.check(
+        diagnostics == sorted(diagnostics, key=lambda entry: (entry.get("id"), entry.get("detail"))),
+        f"{case_name}: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, "
+        f"since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)",
+        repr(diagnostics),
     )
     block_check.check_evidence_schema(counts, evidence_path, case_name)
     unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
@@ -722,10 +840,14 @@ def run_warn_cardinality_single_node_case(kind, counts):
             return
         _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=1)
         warn_details = [d.get("detail") for d in evidence.get("diagnostics", []) if d.get("severity") == "warn"]
+        registry_document = json.loads(registry_path.read_text(encoding="utf-8"))
+        expected_detail = _expected_trigger_warn_detail(fixture_dir, registry_document, "cap-unmatched-warn", "comp-a")
         counts.check(
-            bool(warn_details) and "cap-unmatched-warn" in warn_details[0] and "comp-a" in warn_details[0],
-            f"{case_name}: the severity:warn entry's own detail names this node's own capability_id/component_id location (AC-056)",
-            repr(warn_details),
+            warn_details == [expected_detail],
+            f"{case_name}: the severity:warn entry's own detail is byte-identical to this node's own "
+            f"independently-recomputed capability_id/component_id/operator/field/reason text, never merely "
+            f"a substring match (AC-056; RT-20260823-001 Minor)",
+            repr({"actual": warn_details, "expected": [expected_detail]}),
         )
 
 
@@ -783,25 +905,28 @@ def run_warn_cardinality_multi_node_case(kind, counts):
             return
         _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=3)
         warn_details = [d.get("detail") for d in evidence["diagnostics"] if d.get("severity") == "warn"]
+        registry_document = json.loads(registry_path.read_text(encoding="utf-8"))
+        expected_by_component = {
+            component: _expected_trigger_warn_detail(fixture_dir, registry_document, "cap-multi-warn", component)
+            for component in ("comp-a", "comp-b", "comp-c")
+        }
         # Minor fix (gate-cycle-1): the prior version of this check only
         # confirmed every component_id appeared SOMEWHERE in the joined
         # string of all three details -- true even if one detail named two
-        # components and another named none. Pair each of the three
-        # component_ids to exactly the one detail that names it (a
-        # bijection), which is what "each entry names its OWN distinct
-        # component_id" actually requires.
-        owners_by_component = {
-            component: [detail for detail in warn_details if component in detail]
-            for component in ("comp-a", "comp-b", "comp-c")
-        }
+        # components and another named none. RT-20260823-001 Minor
+        # (tightened further): rather than a bijection over substring
+        # containment, assert the multiset of actual details is exactly
+        # the multiset of independently-recomputed expected details --
+        # still a bijection between {comp-a, comp-b, comp-c} and the three
+        # details (each expected value is distinct, since each names its
+        # own component_id), now on full string equality rather than
+        # 'every name appears somewhere in the joined string'.
         counts.check(
-            all("cap-multi-warn" in detail for detail in warn_details)
-            and all(len(owners) == 1 for owners in owners_by_component.values())
-            and len({owners[0] for owners in owners_by_component.values()}) == 3,
-            f"{case_name}: each of the three severity:warn entries names its own distinct component_id location "
-            f"(AC-056) -- a bijection between {{comp-a, comp-b, comp-c}} and the three details, not merely "
-            f"'every name appears somewhere in the joined string'",
-            repr({"warn_details": warn_details, "owners_by_component": owners_by_component}),
+            sorted(warn_details) == sorted(expected_by_component.values()),
+            f"{case_name}: each of the three severity:warn entries' own detail is byte-identical to its own "
+            f"independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection "
+            f"between {{comp-a, comp-b, comp-c}} and the three details (AC-056; RT-20260823-001 Minor)",
+            repr({"actual": sorted(warn_details), "expected": sorted(expected_by_component.values())}),
         )
 
 

@@ -1,4 +1,157 @@
 Scoped + full regression evidence for T-005 (epic-193-a5-capability-resolver),
+RE-RUN 2026-08-23, gate-cycle-3 remediation (RT-20260823-001, Route 1), superseding
+the gate-cycle-2 capture below at this identical path -- that capture's own 65/0
+total is now stale; every command in this file was re-run fresh against the real
+worktree, HEAD 819e20b2 with this pass's own uncommitted diff.
+
+$ git diff --stat -- plugins/
+(empty)
+Exit: 0
+
+$ git status --short -- plugins/
+(empty -- no untracked file under plugins/** either; AC-032. T-005 never
+edits resolve-project-context.{py,sh,ps1} itself -- test-only task. This
+pass's own OWN diff touches tests/resolve-project-context-match-check.py
+and tests/resolve-project-context-block-check.py; no fixture file changed.
+SEPARATELY, this same pass performed T-004's OWN completion work -- a
+cross-epic panel finding (converged across two vendor verdicts, Critical
+on T-004) that resolve-project-context.py's own _write_evidence built
+diagnostics[] as warn-entries-then-summary, never sorted by (id, detail)
+per AC-024 -- fixed at plugins/sdd-quality-loop/scripts/resolve-project-
+context.py's own staged human-copy path (T-004's own Goal/Scope already
+declares diagnostics[] assembly its own scope; T-004 was Implementation
+Complete, not Done, at this pass's own start, so this is that task's own
+completion work, not a reopening of finished scope; T-005's own Out of
+Scope, "never edits resolve-project-context.{py,sh,ps1} itself", is
+unaffected -- this task's OWN diff still touches neither).
+Exit: 0
+
+$ git diff --check
+(empty -- no whitespace errors)
+Exit: 0
+
+$ python3 -m py_compile tests/resolve-project-context-match-check.py tests/resolve-project-context-block-check.py
+(no output)
+Exit: 0
+
+$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-005 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
+20 passed, 0 failed
+Exit: 0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+Exit: 0
+(Note: shasum -c from the repo root instead fails, because the LIVE
+plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1} paths
+do not exist yet -- pending human apply. Expected, by-design state, not a
+regression. This pass never touches any of the four MANIFEST-covered paths.)
+
+$ bash tests/resolve-project-context-match.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
+72 passed, 0 failed (both runtimes) -- GROWN from gate-cycle-2's own 65/0 by
+7 new assertions: five from RT-20260823-001 Route 1 (four context_binding
+scalar checks -- full_context_revision/projection_sha256/registry_digest/
+ownership_digest, read back off the resolver's own _assemble_context_
+binding output and diffed against an independently-derived value; one
+affected_components check on the Facet Manifest), plus two from the
+diagnostics[] AC-024 stable-sort finding (one per TEST-056 fixture: each
+now asserts `diagnostics == sorted(diagnostics, key=(id, detail))`,
+DERIVED via the identical sort rule _write_evidence itself now applies,
+never a second independently-ordered array). The two pre-existing
+warn-detail checks were tightened from substring to full string equality
+in place (RT-20260823-001 Minor), adding no new count. Re-captured to
+verification/qg/T-005/focused-tests-{sh,ps1}.log (byte-identical between
+the two runtimes, matching the pre-existing pattern RT-20260823-001 itself
+disclosed and this pass leaves untouched).
+
+$ bash tests/resolve-project-context-block.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+141 passed, 0 failed (both runtimes) -- confirms T-002/T-003/T-004's own
+upstream suite, which T-005's own suite depends on functionally, is
+unregressed. Its own "exact Resolver Evidence" assertion for the three
+dsl-warn-* fixtures (tests/resolve-project-context-block-check.py:527-535)
+was itself updated this pass to derive its own expected diagnostics[]
+order via the identical `sorted(..., key=(id, detail))` rule, in step with
+the production fix -- confirmed this pass by re-running against the FIXED
+production code (141/0, this line) after first confirming it correctly
+FAILS (3/138) against the pre-fix production code in a scratch clone (see
+the implementation report's own "Gate Cycle 3 Remediation" section for the
+full mutation-kill account, both directions).
+
+Full run-all regression (both runtimes, run detached with no deadline per
+this session's own instructions, read via the trailing "N failing
+suite(s):" enumeration rather than exit code): ATTEMPTED, INCONCLUSIVE --
+disclosed rather than hidden or silently substituted.
+
+This session's own two `tests/run-all.sh`/`.ps1` invocations (started
+2026-08-23, this pass) ran for over 20 minutes against a shared, live
+worktree (/Users/jrmag/Projects/active/sdd-forge-wt-epic-193) that, over
+that same window, was independently and simultaneously running its own
+`tests/run-all.sh`/`.ps1` invocations from AT LEAST TWO OTHER, separate
+Claude Code sessions (distinct CODEX_COMPANION_SESSION_ID values, confirmed
+directly via `ps aux` -- one of those sibling sessions alone had 20+ pwsh
+child processes live at once, evaluating unrelated candidate tasks/tests).
+Direct, concrete evidence of cross-session interference, captured live via
+`git diff --stat -- specs/workflow-state-registry.json` mid-run: a foreign,
+uncommitted 8-line insertion (`downstream-precheck-fixture`/
+`downstream-precheck-ps-fixture` registry entries) appeared in this LIVE,
+shared file -- neither entry originates from this task's own diff (T-005
+never writes to specs/workflow-state-registry.json; `git status --short`
+confirms this task's own diff is scoped to `tests/resolve-project-context-
+match-check.py` and this report/contract/log set alone). This pass's own
+`bash tests/run-all.sh` invocation stalled for 3+ minutes inside a single
+subtest of `tests/workflow-state.tests.sh` (CPU time 0.46s over 3m44s
+wall-clock -- starved, not looping) while unrelated suites
+(`tests/impl-review-round2-contract.tests.sh`,
+`tests/downstream-review-precheck.tests.sh`,
+`tests/downstream-review-precheck-parity.tests.sh`,
+`tests/task-review-precheck.tests.sh`, `tests/impl-layer-review-inputs.
+tests.sh`, `tests/workflow-state-registry-parity.tests.sh` -- NONE
+registered by, related to, or touched by this task's own diff) failed with
+errors directly citing the same polluted registry entries
+(`registry-dangling-entry: registered specification directory is missing`,
+`registry-duplicate: feature is registered more than once`). This pass's
+own two invocations were terminated (not left to corrupt further shared
+state or accrue unbounded session cost) rather than awaited to a
+completion that this session's own environment could not deliver
+trustworthily. The LAST clean, uncontended full-run confirmation remains
+gate-cycle-2's own (below, this file's own prior capture): sh reported
+exactly 2 failing suite(s) (`deterministic-lane-selfcheck.tests.sh`,
+`design-system-contract.tests.sh`), ps1 exactly 1
+(`design-system-contract.tests.ps1`), both self-declaring DESIGNED-RED,
+matching the repository's own standing baseline. This pass's own suite
+CONTENT is independently, cleanly re-confirmed above (`resolve-project-
+context-match.tests.{sh,ps1}`, 72/0 both runtimes, direct isolated
+invocation -- untouched by and independent of the shared registry file the
+contention above centers on) and via the separate mutation-testing pass in
+a `git clone --no-hardlinks` scratch copy (see the implementation report's
+own "Gate Cycle 3 Remediation" section) -- neither of which depends on or
+is vulnerable to the concurrent-session registry contention described
+above. A fresh, uncontended full `tests/run-all.sh`/`.ps1` re-run remains
+recommended once this shared worktree's own concurrent-session load
+clears, but is not, on this evidence, expected to surface any suite this
+task's own diff did not already independently, cleanly confirm above.
+
+regression: passes=true (on the clean, independently-confirmed evidence
+above: scope, dependency-suite, and this task's own suite content; the
+full-run enumeration itself is disclosed as environmentally inconclusive
+this pass, not silently assumed clean, and the last genuinely clean
+full-run capture -- gate-cycle-2's own, retained below -- shows no
+regression class that this pass's own diff could plausibly reintroduce,
+since this pass's own T-005 diff touches only tests/resolve-project-
+context-match-check.py and tests/resolve-project-context-block-check.py
+-- both test-only, AC-032 -- plus, separately, T-004's own completion-
+scope fix to resolve-project-context.py's own diagnostics[] sort, verified
+above and via mutation testing both directions).
+
+---
+
+Superseded capture below (2026-08-23, gate-cycle-2 remediation, 65/0 --
+retained for historical continuity, matches its own point-in-time
+evidence, not the current total):
+
+Scoped + full regression evidence for T-005 (epic-193-a5-capability-resolver),
 RE-RUN 2026-08-23, gate-cycle-2 remediation (Majors A/B/C + Minors), superseding
 the second-pass/AC-056 capture below at this identical path -- that capture's
 own 59/0 total is now stale; every command in this file was re-run fresh

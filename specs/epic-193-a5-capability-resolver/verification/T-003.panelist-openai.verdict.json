@@ -9,28 +9,18 @@
     {
       "severity": "Major",
       "ref": "resolve-project-context.py:_run_resolve_component_paths",
-      "note": "When --include-untracked is omitted, the implementation passes an invented --no-include-untracked argument instead of omitting the optional flag. This violates REQ-001/AC-004's verbatim pass-through contract and may be rejected by the upstream CLI."
+      "note": "When --include-untracked is omitted, the implementation passes --no-include-untracked to resolve-component-paths. The upstream CLI contract only defines optional --include-untracked, and REQ-001/AC-004 require verbatim pass-through: omission must remain omission. This can reject ordinary invocations or diverge from the required dependency call."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_evaluate_capabilities",
-      "note": "The implementation iterates affected_components in the dependency-provided order and merely comments that it is already sorted. REQ-001 and REQ-005 require the Resolver itself to evaluate components in ascending lexicographic order and remain invariant to input ordering."
-    },
-    {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:_write_evidence and main step 9; tests/resolve-project-context-block-check.py:run_t003_case",
-      "note": "A WARN Block emits only one severity:block diagnostic. REQ-004/AC-056 require one severity:warn diagnostic per individual WARN evidence node plus exactly one severity:block summary; the tests currently encode the incomplete single-entry behavior."
-    },
-    {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:_evaluate_capabilities exception paths",
-      "note": "A capability entry is appended only after all of that capability's trigger and conditional-facet evaluations finish. If a dependency fails mid-capability, evaluations already performed for that capability are discarded from Resolver Evidence, contrary to the requirement to record every evaluation actually performed."
+      "ref": "resolve-project-context.py:_write_evidence",
+      "note": "WARN diagnostics are emitted as collected WARN entries followed by the block-summary entry, without sorting by (id, detail). Because the summary detail is a lexical prefix of the per-node details, this ordering is not the required stable sort; the existing WARN tests encode the incorrect order rather than enforcing REQ-005/AC-024."
     }
   ],
   "blind": true,
-  "input_digest": "4723e9fae6f32e2165af22e205216b490bb647f391d205e2f2c1fa2f255cbf6c",
+  "input_digest": "708041938d6fbb2914f21e18663ff0585b7049ab179fbebcc3ed8f7862b0e18b",
   "consent": {
     "kind": "sudo",
-    "ref": "SDD_SUDO"
+    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

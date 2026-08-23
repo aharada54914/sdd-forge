@@ -541,14 +541,23 @@ def _write_evidence(
     # capabilities in Registry-declaration order (the evaluation order
     # itself is never re-sorted, only this feature's own output array).
     sorted_evaluations = sorted(capability_evaluations or [], key=lambda entry: entry["capability_id"])
-    # AC-056: every already-collected `severity: "warn"` diagnostics[]
-    # entry (one per individual `outcome: "warn"` DSL-evaluation node,
-    # already in declaration-evaluation order -- see `_evaluate_
-    # capabilities`) is written first, followed by exactly one summary
-    # `severity: "block"` entry sharing the identical `diagnostic_id`.
-    # Every other diagnostic path passes no `warn_diagnostics`, leaving
-    # this unchanged from its own prior single-entry shape.
-    diagnostics = list(warn_diagnostics or []) + [{"id": diagnostic_id, "detail": detail, "severity": "block"}]
+    # AC-056/AC-024: every already-collected `severity: "warn"`
+    # diagnostics[] entry (one per individual `outcome: "warn"`
+    # DSL-evaluation node -- see `_evaluate_capabilities`) plus exactly one
+    # summary `severity: "block"` entry sharing the identical
+    # `diagnostic_id` are combined, then the WHOLE array is stable-sorted
+    # by `(id, detail)` (AC-024's own stable-sort discipline covers
+    # `diagnostics[]` generally, not only `capability_evaluations[]`
+    # above) -- never left in declaration-evaluation-then-summary emission
+    # order, which is not itself a `(id, detail)` sort whenever a warn
+    # entry's own `detail` does not happen to sort after the summary's
+    # fixed sentence. Every other diagnostic path passes no
+    # `warn_diagnostics`, so this sort is a no-op there (a 1-element list
+    # is already sorted).
+    diagnostics = sorted(
+        list(warn_diagnostics or []) + [{"id": diagnostic_id, "detail": detail, "severity": "block"}],
+        key=lambda entry: (entry["id"], entry["detail"]),
+    )
     evidence = {
         "schema": EVIDENCE_SCHEMA,
         "feature": feature,

@@ -523,12 +523,26 @@ def run_t003_case(kind, case_name, counts):
         # AC-056: the three dsl-warn-* cases above pre-populate
         # `expected_warn_diagnostics` with one `severity: "warn"` entry per
         # WARN node; every other case leaves it `[]`, preserving the
-        # original single-entry shape unchanged.
+        # original single-entry shape unchanged. AC-024 stable-sort
+        # discipline (cross-epic panel finding, 2026-08-23): `diagnostics[]`
+        # is sorted by `(id, detail)`, never concatenated in emission
+        # order -- the summary sentence ("...outcome: warn evidence node")
+        # is a strict lexical prefix of every per-node detail ("...outcome:
+        # warn evidence node at ..."), so it sorts FIRST, not last. This
+        # expectation is DERIVED via the identical `sorted(..., key=(id,
+        # detail))` rule `_write_evidence` itself now applies -- never a
+        # second, independently-ordered concatenation, which would just
+        # relocate the same "expectation mirrors emission" defect (a
+        # single-entry list's own sort is a no-op, so every non-`dsl-warn-*`
+        # case above is unaffected).
         expected = {
             "schema": "sdd-resolver-evidence/v1",
             "feature": "example-feature",
             "capability_evaluations": sorted(expected_capability_evaluations, key=lambda e: e["capability_id"]),
-            "diagnostics": expected_warn_diagnostics + [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
+            "diagnostics": sorted(
+                expected_warn_diagnostics + [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
+                key=lambda entry: (entry["id"], entry["detail"]),
+            ),
             "state": state,
         }
         counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
