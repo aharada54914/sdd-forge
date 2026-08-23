@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-003
 # feature: epic-193-a5-capability-resolver
-# input_digest: 94e133ca37682b2bb362f84f3d8a3d8c2b5fc97b466632a7323750fcfb145e91
+# input_digest: b1a2186afb38ccc3bc186f14ccacc110c65a757d25cedd78c9476fd2bc7ebf03
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -8114,33 +8114,31 @@ PASS: projection-two-components: exit 0
 PASS: projection-two-components: no diagnostic on either stream
 PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
 PASS: projection-two-components: Context Projection field set is REQ-003's exact five
-[... 7405 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log (original size 13386 bytes; showing first/last 40 lines) ...]
-PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
-PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
-PASS: output-schema-validation-failed-artifact: no partial live artifact
+[... 9111 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log (original size 15280 bytes; showing first/last 40 lines) ...]
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
-PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
 PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
 PASS: snapshot-generation-mismatch: no partial live artifact
 PASS: contract-discovery-failed-governing-schema: exit 1
-PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
-PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-malformed: exit 1
-PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
 PASS: recheck-dependency-failed: exit 1
-PASS: recheck-dependency-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
 PASS: recheck-dependency-failed: exact Resolver Evidence
 PASS: recheck-dependency-failed: Resolver Evidence schema agreement
 PASS: recheck-dependency-failed: no partial live artifact
@@ -8148,13 +8146,15 @@ PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet
 PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
 PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
 PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
 PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 184 passed, 0 failed
+RESULT: 205 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log ----
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -8196,33 +8196,31 @@ PASS: projection-two-components: exit 0
 PASS: projection-two-components: no diagnostic on either stream
 PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
 PASS: projection-two-components: Context Projection field set is REQ-003's exact five
-[... 7405 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log (original size 13386 bytes; showing first/last 40 lines) ...]
-PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
-PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
-PASS: output-schema-validation-failed-artifact: no partial live artifact
+[... 9111 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log (original size 15280 bytes; showing first/last 40 lines) ...]
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
-PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
 PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
 PASS: snapshot-generation-mismatch: no partial live artifact
 PASS: contract-discovery-failed-governing-schema: exit 1
-PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
-PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-malformed: exit 1
-PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
 PASS: recheck-dependency-failed: exit 1
-PASS: recheck-dependency-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
 PASS: recheck-dependency-failed: exact Resolver Evidence
 PASS: recheck-dependency-failed: Resolver Evidence schema agreement
 PASS: recheck-dependency-failed: no partial live artifact
@@ -8230,13 +8228,15 @@ PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet
 PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
 PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
 PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
 PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 184 passed, 0 failed
+RESULT: 205 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-ps1.log ----
 Genuine full-scope RED for T-003's own scope (steps 4-9), re-captured
 2026-08-24 to close the T-003 confirmation-panel Major #1 finding (both
@@ -8606,31 +8606,31 @@ PASS: projection-two-components: exit 0
 PASS: projection-two-components: no diagnostic on either stream
 PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
 PASS: projection-two-components: Context Projection field set is REQ-003's exact five
-[... 8701 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log (original size 14858 bytes; showing first/last 40 lines) ...]
-PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+[... 9111 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log (original size 15280 bytes; showing first/last 40 lines) ...]
 PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
-PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
 PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
 PASS: snapshot-generation-mismatch: no partial live artifact
 PASS: contract-discovery-failed-governing-schema: exit 1
-PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
-PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-malformed: exit 1
-PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
 PASS: recheck-dependency-failed: exit 1
-PASS: recheck-dependency-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
 PASS: recheck-dependency-failed: exact Resolver Evidence
 PASS: recheck-dependency-failed: Resolver Evidence schema agreement
 PASS: recheck-dependency-failed: no partial live artifact
@@ -8646,7 +8646,7 @@ PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _dr
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 201 passed, 0 failed
+RESULT: 205 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log ----
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -8688,31 +8688,31 @@ PASS: projection-two-components: exit 0
 PASS: projection-two-components: no diagnostic on either stream
 PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
 PASS: projection-two-components: Context Projection field set is REQ-003's exact five
-[... 8701 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log (original size 14858 bytes; showing first/last 40 lines) ...]
-PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+[... 9111 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log (original size 15280 bytes; showing first/last 40 lines) ...]
 PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
-PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
 PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
 PASS: snapshot-generation-mismatch: no partial live artifact
 PASS: contract-discovery-failed-governing-schema: exit 1
-PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
-PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
 PASS: contract-discovery-failed-governing-schema-malformed: exit 1
-PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
 PASS: recheck-dependency-failed: exit 1
-PASS: recheck-dependency-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
 PASS: recheck-dependency-failed: exact Resolver Evidence
 PASS: recheck-dependency-failed: Resolver Evidence schema agreement
 PASS: recheck-dependency-failed: no partial live artifact
@@ -8728,7 +8728,7 @@ PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _dr
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 201 passed, 0 failed
+RESULT: 205 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log ----
 Scoped regression evidence for T-003 (epic-193-a5-capability-resolver),
 re-run at current HEAD (217710a2 + this pass's own uncommitted cycle-3
@@ -8770,32 +8770,31 @@ $ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIF
 .github/workflows/test.yml: OK
 plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
 plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
-[... 0 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log (original size 2683 bytes; showing first/last 40 lines) ...]
-
-$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-003 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
-PASS: 20
-FAIL: 0
-Exit: 0
-
-$ bash tests/resolve-project-context-match.tests.sh   # T-005's downstream consumer suite, re-run as a consumer-side non-regression check
-RESULT: 98 passed, 0 failed
-Exit: 0
-
-$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
-RESULT: 98 passed, 0 failed
-Exit: 0
-
-$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
-.github/workflows/test.yml: OK
-plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+[... 2884 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log (original size 6373 bytes; showing first/last 40 lines) ...]
 plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
 plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
 Exit: 0
-(Note: shasum -c run from the repo root instead fails, because
-MANIFEST.sha256's paths are relative to the human-copy root and the LIVE
-plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}
-paths do not exist yet -- pending human apply. This is the expected,
-by-design state for an unapplied human-copy candidate, not a regression.)
+
+$ bash tests/run-all.sh   (full sweep, entire repository, no timeout)
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+Both self-declare DESIGNED-RED and match this repository's own documented
+standing baseline exactly (identical to every prior pass's own capture of
+this same enumeration). No suite beyond these two failed. Exit: 0
+(run-all.sh's own designed-red gate returns 0 when only the documented
+baseline suites fail -- see verification/qg/T-004/regression.log's own
+prior capture and this repository's own run-all-designed-red-gate
+convention.)
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (full sweep, entire repository, no timeout)
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Self-declares DESIGNED-RED, the identical pre-existing reason, matching
+this repository's own documented standing baseline exactly
+(deterministic-lane-selfcheck.tests.sh has no PowerShell twin -- the same
+pre-existing structural asymmetry the sh run's own two-suite enumeration
+already accounts for). No suite beyond this one failed. Exit: 0
 
 $ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
 Task state check passed for 10 task(s).
@@ -8805,18 +8804,35 @@ $ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-1
 workflow-state: ok
 Exit: 0
 
-Not re-run (out of scope / not plausibly affected by this task's diff,
-disclosed identically in the implementation report): the full
-tests/run-all.sh/.ps1 sequence beyond the suites this pass's own diff
-touches or could plausibly affect (resolve-project-context-block,
-resolve-project-context-match, resolver-evidence-schema), verified
-separately above and in the implementation report.
+Net: this round's own diff introduces ZERO regressions anywhere in the
+repository, on either runtime -- both full sweeps match this
+repository's own documented standing baseline (sh: exactly 2 self-
+declared DESIGNED-RED; ps1: exactly 1, no PowerShell twin for
+deterministic-lane-selfcheck) exactly, no other suite failed.
+
+regression: passes=true.
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log ----
 $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
 Placeholder scan passed.
 Exit: 0
-[... 0 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log (original size 249 bytes; showing first/last 40 lines) ...]
+
 $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
+# round-2 confirmation-panel remediation (2026-08-24): re-scanned after
+# Reversal 1, the dependency-stderr pass-through helper, the temp-file-
+# leak fix, the anchored stderr-token classifications, and the
+# _resolved_gates dangling-reference comment.
+Placeholder scan passed.
+Exit: 0
+[... 0 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log (original size 752 bytes; showing first/last 40 lines) ...]
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
+Placeholder scan passed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
+# round-2 confirmation-panel remediation (2026-08-24): re-scanned after
+# Reversal 1, the dependency-stderr pass-through helper, the temp-file-
+# leak fix, the anchored stderr-token classifications, and the
+# _resolved_gates dangling-reference comment.
 Placeholder scan passed.
 Exit: 0
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log ----
@@ -8859,37 +8875,26 @@ input and was not run) passed for T-003:
    TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2) -- unchanged
    from this log's own prior capture, re-confirmed directly.
  - Implemented: tests/resolve-project-context-block-check.py's own
-   ALL_CASE_NAMES tuple (line 276) and run_t003_case() function (line 437)
-   enumerate exactly T-003's own THIRTEEN fixtures (re-measured 2026-08-23,
-   cycle-3 cross-model panel remediation -- eleven from the prior round plus
-   this round's own two new fixtures closing Majors #1/#2) --
+   ALL_CASE_NAMES tuple (line 308) and run_t003_case() function (line 477)
+   enumerate exactly T-003's own FIFTEEN fixtures (unchanged in count/
+   identity since the confirmation-panel 2026-08-24 pass; this round-2
+   pass edits fixture LOGIC/comments only, adds no new fixture) --
    affected-component-resolution-failed, resolve-component-paths-launch-
    failed, contract-discovery-failed, registry-discovery-unimportable,
-   registry-validation-failed, validate-capability-registry-launch-failed,
-   dependency-subprocess-failed, evaluate-predicate-output-malformed,
-   evaluate-predicate-schema-error (NEW, Major #1: the hardcoded
-   `returncode == 2` PREDICATE_SCHEMA_ERROR classification), evaluate-
-   predicate-failure-after-warn (NEW, Major #2: steps 7-8 abort paths now
-   forward already-collected warn_diagnostics), dsl-warn-unmatched-trigger,
-   dsl-warn-matched-nondetermining, dsl-warn-unsorted-affected-components --
-   each invoked from both tests/resolve-project-context-block.tests.sh and
-   .ps1 (thin dispatchers onto the shared Python driver). Confirmed executed
-   and passing in this same verification run: see focused-tests-sh.log /
-   focused-tests-ps1.log (184 passed, 0 failed, both runtimes -- the WHOLE
-   shared driver's own current total: T-002's steps 0-3, T-003's own
-   thirteen fixtures above, T-004's own eight fixtures (five from the prior
-[... 233 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log (original size 5578 bytes; showing first/last 40 lines) ...]
-   REQ-008's own OTHER task rows (T-001, T-002, T-004, etc.) -- those are
-   shared REQ ids spanning multiple tasks' own scope, out of T-003's own
-   diff, per tasks.md Global Constraints.
-
-Superseded 2026-08-23 (cycle-3 cross-model panel remediation, both Critical
-findings on this same log): this log previously enumerated exactly SIX
-T-003 fixtures, cited a `CASE_NAMES` symbol that does not exist in the
-reviewed driver (the real symbol is `ALL_CASE_NAMES`), cited stale line
-numbers (160-165 / 247), and claimed 102 passed / 0 failed while the
-adjacent focused logs already recorded 155 passed / 0 failed -- describing
-three generations of prior state at once. This capture reads the CURRENT
+   registry-discovery-syntax-error, registry-validation-failed,
+   validate-capability-registry-launch-failed, registry-swapped-during-
+   validation, dependency-subprocess-failed, evaluate-predicate-output-
+   malformed, evaluate-predicate-schema-error, evaluate-predicate-failure-
+   after-warn (round-2 confirmation-panel fix, both vendors: the abort-path
+   `warn_diagnostics` forwarding this fixture's own comment previously
+   described is now REVERSED -- collected warns are dropped, not forwarded,
+   on this non-dsl-warn-summary abort path, per requirements.md:526-528's
+   own AC-056 sentence), dsl-warn-unmatched-trigger, dsl-warn-matched-
+   nondetermining, dsl-warn-unsorted-affected-components -- each invoked
+   from both tests/resolve-project-context-block.tests.sh and .ps1 (thin
+   dispatchers onto the shared Python driver). Confirmed executed and
+   passing in this same verification run: see focused-tests-sh.log /
+[... 1393 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log (original size 6732 bytes; showing first/last 40 lines) ...]
 driver directly (ALL_CASE_NAMES at line 276, run_t003_case at line 437,
 thirteen T-003 fixtures, 184 passed / 0 failed both runtimes) rather than
 carrying forward any of that stale text.
@@ -8918,7 +8923,18 @@ runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log) -- the WHOLE
 shared driver's own current total, never the 184 this log's own prior
 revision carried.
 
-TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 201 passed, 0 failed"
+Superseded 2026-08-24 round-2 (confirmation-panel round-2 remediation,
+Anthropic Minor -- "only an appended Superseded paragraph corrects the
+count, the line numbers are never corrected"): this round FIXES the live
+"Implemented:" bullet's own line numbers/counts directly (ALL_CASE_NAMES
+308, run_t003_case 477, fifteen fixtures, 205/0) rather than appending a
+fourth Superseded paragraph describing yet another generation while
+leaving the live bullet itself stale -- closing this recurrence class
+instead of repeating it. Also this round: `evaluate-predicate-failure-
+after-warn`'s own fixture comment/expected-shape reversed (Reversal 1,
+both vendors' confirmation-panel finding) -- see the live bullet above.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 205 passed, 0 failed"
 # ---- reports/implementation/epic-193-a5-capability-resolver/T-003.md ----
 # Implementation Report: T-003
 
@@ -9056,10 +9072,10 @@ this report itself.
 | Path | SHA-256 |
 |---|---|
 | `CHANGELOG.md` | `b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `45bbd79df173108b59cc55e74c9bf06d3c435cb5ec910848753dfbef92c9697e` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `aaf23df2a91f5efa5ca45356968bb01c09e2348715cc3ae50bfcf6c0349929cd` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-ps1.log` | `31194e8a53ee0c508a53d6ca127a6f991c72d81d4b39cf184ef8f6d46658f0a3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-sh.log` | `9b6ec6cf758249b30857e8030e5d7ab59728cf479a8c43127bf70701abc24a2f` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
@@ -9077,13 +9093,13 @@ this report itself.
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py` | `2c4e509c2a96daac329c6b2c7ce61629c80ba7b3902a9e6af77472626cb3d452` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/capability-registry-empty.json` | `87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py` | `8e11f63b463781e3be475124aad322db8ad573e277d79f1ea4a950edc17a594b` |
-| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` |
+| `tests/resolve-project-context-block-check.py` | `d111a5fa0bcfefdc151dd7ce5dc0bc6a0d28178e8821bd2e864832d742f709b8` |
 
 ## Test Evidence
 
 - **Test Command**: `bash tests/resolve-project-context-block.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1`
 - **Test Result**: PASS
-- **Test Evidence Path**: `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` (**re-captured in place 2026-08-23, cross-model panel remediation** — the original 2026-08-17 content described a shared driver that has since grown via T-004 and this same remediation pass; both this file and its `.ps1`/`red-{sh,ps1}` siblings now hold a genuine, current re-run rather than the stale bytes a panel Critical finding identified. See "## Cross-Model Panel Remediation" below for the full account.)
+- **Test Evidence Path**: `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` (confirmation-panel round-2 fix, 2026-08-24 — this pointer previously still named `verification/T-003/green-sh.log`, which the report's own "byte-identical" claim asserted equals this exact path while the two files actually carried different hashes and different assertion counts (184/0 vs 201/0) at the time the panel reviewed this bundle; `verification/T-003/green-{sh,ps1}.log` are re-captured in place this round too, genuinely byte-identical to this path now — see "## Confirmation-Panel Remediation (round 2)" below.)
 
 ### RED
 
@@ -9451,18 +9467,18 @@ row is untouched by this pass.
 
 | Path | SHA-256 (current worktree, 2026-08-23) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `aaf23df2a91f5efa5ca45356968bb01c09e2348715cc3ae50bfcf6c0349929cd` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `45bbd79df173108b59cc55e74c9bf06d3c435cb5ec910848753dfbef92c9697e` — `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
 | `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `e5049324169d9daaf762e4c2deb97e8510a5711812a0bdd4a543991b407d6500` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-sh.log` | `9b6ec6cf758249b30857e8030e5d7ab59728cf479a8c43127bf70701abc24a2f` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-ps1.log` | `31194e8a53ee0c508a53d6ca127a6f991c72d81d4b39cf184ef8f6d46658f0a3` (not byte-identical to the `sh` capture — its own header line names the `.ps1` invocation command; the `RESULT: 89 passed, 63 failed` tally and every fixture-level PASS/FAIL line are identical, independently diffed) |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` (byte-identical to the `sh` capture — this driver's own output carries no runtime marker, and both runs genuinely tally 155/0) |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` (byte-identical to `green-sh.log` above — same run) |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `3107e5d7b2fe0733742b3571c7982791a77ce69b693ea887e78d39422925cf0a` |
-| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` |
-| `tests/resolve-project-context-match-check.py` | `d807e171751d3a6ddbdc0473671fb6b920ae09848b07df13afc812ee61b4b4f8` (T-005's own file — touched only for the AC-004 expectation fix and two now-accurate comments; see the finding above) |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` (byte-identical to the `sh` capture — this driver's own output carries no runtime marker, and both runs genuinely tally 155/0) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` (byte-identical to `green-sh.log` above — same run) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `6c5598940e96bc7d99c42e1f04173a8164ec3ed6d6fc4c1401a75721e6c24a89` |
+| `tests/resolve-project-context-block-check.py` | `d111a5fa0bcfefdc151dd7ce5dc0bc6a0d28178e8821bd2e864832d742f709b8` |
+| `tests/resolve-project-context-match-check.py` | `d5964b39cc9c19ed255bdf0548eefaca38c76b78f0dd67a91b5d587d9dafccd4` (T-005's own file — touched only for the AC-004 expectation fix and two now-accurate comments; see the finding above) |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/validate-capability-registry-launch-failed/capability-registry.json` | `87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae` |
 | `CHANGELOG.md` | `b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407` |
@@ -9609,6 +9625,25 @@ and fixture set (both new fixtures included) overlaid:
   and the `draft7-validator-keywords` / `draft7-keyword-coverage`
   unit-style checks (8 assertions).
 
+**Correction (confirmation-panel round 2, 2026-08-24 — Anthropic Major
+1):** the "byte-identical" claim above did not hold by the time the
+panel reviewed this bundle: a LATER pass (the "Confirmation-Panel
+Remediation (2026-08-24)" section below, which added the
+`registry-swapped-during-validation`/`registry-discovery-syntax-error`
+fixtures, 201/0) re-captured `verification/qg/T-003/focused-tests-
+{sh,ps1}.log` but never re-captured `verification/T-003/green-{sh,ps1}
+.log` in the same pass, leaving the two paths at genuinely different
+byte content (184/0 vs 201/0) despite this section's own prose and the
+"### Outputs (cycle-3 remediation)" table below both asserting equality.
+Both `verification/T-003/green-{sh,ps1}.log` are re-captured in place
+again this round (round 2), now genuinely byte-identical to the current
+`verification/qg/T-003/focused-tests-{sh,ps1}.log` (both **205 passed, 0
+failed** — the 4 new B5-pass-through assertions added this round, on top
+of the 201 from the prior round). See "## Confirmation-Panel Remediation
+(round 2)" below for the full account and current hashes; this
+historical 184/0 claim is left as-is above, corrected here rather than
+rewritten in place.
+
 ### Outputs (cycle-3 remediation — bundle-composition gap closed + this pass's own new files)
 
 Re-derived from `git show --name-only` over the full T-003-touching commit
@@ -9621,18 +9656,18 @@ here.
 
 | Path | SHA-256 (current worktree, 2026-08-24) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `aaf23df2a91f5efa5ca45356968bb01c09e2348715cc3ae50bfcf6c0349929cd` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `45bbd79df173108b59cc55e74c9bf06d3c435cb5ec910848753dfbef92c9697e` — `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
 | `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `e5049324169d9daaf762e4c2deb97e8510a5711812a0bdd4a543991b407d6500` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-sh.log` | `9b6ec6cf758249b30857e8030e5d7ab59728cf479a8c43127bf70701abc24a2f` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-ps1.log` | `31194e8a53ee0c508a53d6ca127a6f991c72d81d4b39cf184ef8f6d46658f0a3` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `a55624f02cd4e6fe1bad103773e17859f081a15490311411182397341fb2a741` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `3107e5d7b2fe0733742b3571c7982791a77ce69b693ea887e78d39422925cf0a` |
-| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `05c3d825707e80811d17d33343f84f8f6fde0eefaea371823fe63e5f5686c5cb` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `6c5598940e96bc7d99c42e1f04173a8164ec3ed6d6fc4c1401a75721e6c24a89` |
+| `tests/resolve-project-context-block-check.py` | `d111a5fa0bcfefdc151dd7ce5dc0bc6a0d28178e8821bd2e864832d742f709b8` |
 | `CHANGELOG.md` | `b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/project-context.yaml` | `ea1c7b4fbb6d6d3a951b9e2a3a86b7cb2b18d22dbb2da23cf08569cf9195cb5a` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-schema-error/capability-registry.json` | `337ed6f8f2addd9db70afa44050e3689655b6bf00c7b522e213c5eff1e8cf4ea` |
@@ -9855,9 +9890,9 @@ findings, closed this pass:
 
 | Path | SHA-256 (current worktree) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — `shasum -a 256 -c`: 4/4 OK |
-| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `aaf23df2a91f5efa5ca45356968bb01c09e2348715cc3ae50bfcf6c0349929cd` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `45bbd79df173108b59cc55e74c9bf06d3c435cb5ec910848753dfbef92c9697e` — `shasum -a 256 -c`: 4/4 OK |
+| `tests/resolve-project-context-block-check.py` | `d111a5fa0bcfefdc151dd7ce5dc0bc6a0d28178e8821bd2e864832d742f709b8` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json` | `87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py` | `21b2faf08f66b9f95f82c86036cd30dce82014936efe8b83ea00fa5e2f5e7758` |
@@ -9868,10 +9903,9 @@ findings, closed this pass:
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-ps1.log` | `4bfcde451aa4aa0881d199871748727b3262e07d45e3e520ccf9de367bac604d` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-evaluate-predicate-schema-error.log` | `b86a06b1f0ac6af619ec030b714312ca964891ad5794e2705639bf357229586a` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-dsl-warn-unsorted-affected-components.log` | `2c9b6708934e5f714b6bacd691f51ff3a40bf140d9bd3ab5c1aa4006ddf5e688` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `a55624f02cd4e6fe1bad103773e17859f081a15490311411182397341fb2a741` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
-| `tests/run-all.sh` / `tests/run-all.ps1` | registered `tests/traceability-log-freshness.tests.{sh,ps1}` (shared across T-003/T-004/T-005) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `05c3d825707e80811d17d33343f84f8f6fde0eefaea371823fe63e5f5686c5cb` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` |
 
 ### Re-verification
 
@@ -9883,6 +9917,155 @@ findings, closed this pass:
   `Verification contract passed for task T-003.`
 - `bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh`:
   `workflow-state: ok`.
+- `bash plugins/sdd-quality-loop/scripts/check-task-state.sh
+  specs/epic-193-a5-capability-resolver/tasks.md`: `Task state check
+  passed for 10 task(s).`
+
+## Confirmation-Panel Remediation (round 2, 2026-08-24)
+
+Closes the six-verdict re-confirmation panel's remaining T-003 Majors and
+two named reversals (the panel returned zero Criticals). Per-item fix,
+kill naming, and counts:
+
+- **Reversal 1 — un-forward warn diagnostics on the steps-7/8 abort
+  paths** (both vendors' Major, T-003 scope). Ground-truth check:
+  `requirements.md:526-528` reads verbatim "A `dsl-warn-on-matched-
+  capability` id therefore never appears with **only** `severity: "warn"`
+  entries and no `severity: "block"` summary entry, and no other id ever
+  carries `severity: "warn"` at all (AC-056)." On the three steps-7/8
+  abort paths (`registry-validation-failed`, `dependency-subprocess-
+  failed`, `dependency-output-malformed`), `main()` was forwarding the
+  already-collected `warn_diagnostics` into `_block(...)` even though the
+  Block reached there carries a DIFFERENT id -- producing exactly the
+  forbidden shape (`dsl-warn-on-matched-capability` warn entries with no
+  same-id block summary, since step 9's own summary is never reached on
+  an abort). The prior in-code comment defending this ("does not collide
+  ... since only ONE id ever carries severity: block") answered a
+  different clause of the same sentence than the one it broke. Reverted:
+  the three abort `_block(...)` calls no longer pass `warn_diagnostics`
+  -- collected warns are dropped, not forwarded, on a non-dsl-warn-summary
+  Block. `evaluate-predicate-failure-after-warn`'s own expected shape
+  updated to match (its own `capability_evaluations` half, an
+  independent field REQ-004/AC-024 govern separately from `diagnostics[]`,
+  is unaffected -- cap-warn-first's WARN evaluation still legitimately
+  appears there). Mutation-kill (scratch clone, reverting to the
+  forwarding shape -- i.e. re-passing `warn_diagnostics` into the three
+  abort `_block` calls): baseline 205/0 → mutant 204/1, exactly
+  `evaluate-predicate-failure-after-warn`'s own "exact Resolver Evidence"
+  assertion, zero collateral -- the mutant's own actual `diagnostics[]`
+  shows precisely the forbidden shape (a warn entry under one id, the
+  block summary under a different id). Retained at
+  `verification/qg/T-003/mutation-kill-reversal1-evaluate-predicate-
+  failure-after-warn.log`.
+- **Stale GREEN naming** (Anthropic Major 1): `verification/T-003/
+  green-{sh,ps1}.log` re-captured in place, now genuinely byte-identical
+  to `verification/qg/T-003/focused-tests-{sh,ps1}.log` (both **205
+  passed, 0 failed**, sha256 `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759
+  769ddc236a3e985b9b121`). The report's "Test Evidence Path" now points
+  at the qg path directly (see "## Test Evidence" above) rather than
+  naming a path whose own claimed equality with the qg path was false at
+  review time.
+- **Dependency stderr swallowed** (Anthropic Major 2). Ground-truth
+  check: `requirements.md` REQ-005 (~line 591) states "a dependency
+  subprocess's own stderr remains visible to a human operator on the
+  terminal exactly as that subprocess itself already writes it, but
+  never participates in this feature's own byte-identity comparison";
+  `design.md` API/Contract Plan step 4 (~line 838) repeats this verbatim
+  ("the underlying script's own stderr remains visible to a human
+  operator on the terminal, exactly as resolve-component-paths itself
+  already writes it; it is simply never copied into this Resolver's own
+  structured `detail` field"); `security-spec.md` B5's own mitigation
+  column matches. All three require terminal visibility while forbidding
+  only the STRUCTURED `detail` field from quoting it verbatim -- the
+  implementation was doing the latter but not the former (`stderr=
+  subprocess.PIPE` captured on all four dependency calls, never
+  re-emitted anywhere). Fixed: new `_reemit_dependency_stderr(result)`
+  helper, writing the dependency's own raw captured bytes verbatim to
+  this process's own stderr (via `sys.stderr.buffer`, never decoded/
+  re-encoded), called immediately after each of the four dependency
+  subprocess calls (`_run_resolve_component_paths`, `_validate_
+  capability_registry`, `_generate_registry_digest_whole`,
+  `_invoke_evaluate_predicate`) succeeds launching, always BEFORE the
+  eventual canonical `_block`/`_block_no_write` line -- so the canonical
+  line stays the LAST line on stderr, matching design.md's own ordering.
+  The `run_t003_case`/`run_t004_case` fixture assertion changed from
+  `stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_
+  FAILURE" not in stderr` (asserting the pass-through this fix now
+  implements would FAIL) to `stdout == "" and stderr.endswith(expected_
+  line)` (canonical line present and last; a silent dependency still
+  passes trivially). Mutation-kill: dropping the `_reemit_dependency_
+  stderr` call would make a stub's own known `FIXTURE_INJECTED_FAILURE`
+  line vanish from stderr entirely; a NEW, targeted exact-equality
+  assertion (`stderr == <known upstream line> + expected_line`) added
+  for the three fixtures whose own stub dependencies inject stderr
+  (`affected-component-resolution-failed`, `dependency-subprocess-
+  failed`, `evaluate-predicate-failure-after-warn` in the block suite;
+  `recheck-dependency-failed` in the T-004 suite, since step 13's own
+  recheck reuses the identical `_run_resolve_component_paths` call site)
+  -- `endswith` alone cannot catch this regression (an empty prefix still
+  "ends with" the canonical line), which is why the exact-equality
+  companion assertion exists specifically to kill it.
+- **Minor closed — temp-file leak**: `_evaluate_predicate`'s own two
+  `tempfile.mkstemp` calls previously both executed before either was in
+  a `try`/`finally`; the second mkstemp's own `try`/`finally` is now
+  nested inside the first's, so a failure allocating the SECOND temp
+  file still cleans up the first (previously leaked for the process's
+  own lifetime).
+- **Minor closed — unanchored stderr-token classifications**: both
+  `PREDICATE_SCHEMA_ERROR` (in `_invoke_evaluate_predicate`) and
+  `canonicalizer-failed` (in `_generate_registry_digest_whole`) were
+  whole-stream substring searches, so Registry/predicate content a
+  dependency happens to echo back mid-line could steer the
+  classification. Anchored to each dependency's own fixed line-start
+  format: `line.startswith("PREDICATE_SCHEMA_ERROR")` (matches
+  `evaluate-predicate.py`'s own `print(f"PREDICATE_SCHEMA_ERROR: ...")`
+  calls, always line-initial) and `line.startswith("generate-registry-
+  digest: canonicalizer-failed")` (matches `generate-registry-digest.py`'s
+  own sole stderr `print` call's fixed prefix) via a per-line scan, never
+  a whole-stream `in` check.
+- **Minor closed — traceability.log stale line numbers**: the prior two
+  "Superseded" paragraphs corrected fixture counts/totals but never the
+  live "Implemented:" bullet's own cited line numbers (`ALL_CASE_NAMES`
+  276/`run_t003_case` 437, both stale since the 2026-08-23 cycle-3 pass
+  actually moved them). This round fixes the LIVE bullet directly (308/
+  477, current) instead of appending a fourth Superseded paragraph that
+  would repeat the same defect -- see the log's own new closing note.
+- **Minors recorded, not fixed this round** (per instruction, "Leave the
+  rest recorded"): the silent-`{}`-default on a missing Context
+  Projection entry (`_evaluate_capabilities`); the hand-narrowed
+  property-subset regression-coverage gap in two `dsl-warn-*` fixtures;
+  the least-evidenced-fixtures Minor (`registry-swapped-during-
+  validation`/`registry-discovery-syntax-error` mutation-kill retention).
+
+### Outputs (round 2)
+
+| Path | SHA-256 (current worktree) |
+|---|---|
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `aaf23df2a91f5efa5ca45356968bb01c09e2348715cc3ae50bfcf6c0349929cd` (**re-measured** — supersedes `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f`; Reversal 1 + `_reemit_dependency_stderr` + temp-file-leak fix + anchored stderr-token classifications + `_resolved_gates` dangling-reference comment) |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `45bbd79df173108b59cc55e74c9bf06d3c435cb5ec910848753dfbef92c9697e` — `shasum -a 256 -c`: 4/4 OK |
+| `tests/resolve-project-context-block-check.py` | `d111a5fa0bcfefdc151dd7ce5dc0bc6a0d28178e8821bd2e864832d742f709b8` (**re-measured** — supersedes `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70`; Reversal 1's fixture update, B5 pass-through assertion rewrite + 4 new targeted checks, `_resolved_gates` cross-reference comment) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-reversal1-evaluate-predicate-failure-after-warn.log` | `e4afdf02f08bb8e80a7cbd0b5ed3f1ef8ead4d5d0c849fb2600122c6588cef4b` (**added** — Reversal 1's own mutation-kill) |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` (**re-captured** — genuinely byte-identical to `focused-tests-sh.log` below now) |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` (**re-captured**, identical to the `sh` capture) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` (**re-measured** — supersedes `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999`; 205/0, +4 assertions this round) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `f312ed07ef31a9e01a10aba45d5aba9b4d1f0259759769ddc236a3e985b9b121` (**re-measured**, identical to the `sh` capture) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `05c3d825707e80811d17d33343f84f8f6fde0eefaea371823fe63e5f5686c5cb` (**re-measured** — supersedes `a55624f02cd4e6fe1bad103773e17859f081a15490311411182397341fb2a741`; live bullet's own line numbers/counts fixed directly, not appended-over) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log` | `8453cc4b2bf42a6f1a5dee8172fe0dad0332772d11edcd1015dd0783b10d266a` (**re-measured** — re-scanned this round's own two touched files) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `6c5598940e96bc7d99c42e1f04173a8164ec3ed6d6fc4c1401a75721e6c24a89` (**re-measured** — round-2 section added, including the FULL `tests/run-all.{sh,ps1}` sweep re-run, both clean against the documented baseline) |
+| `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `e5049324169d9daaf762e4c2deb97e8510a5711812a0bdd4a543991b407d6500` (unchanged — evidence paths/hashes this contract cites were not content-pinned, so no edit was needed here; `check-contract.py` re-confirmed PASSED against the new evidence) |
+| `tests/run-all.sh` | reverted to pre-registration bytes (Reversal 2, T-004 scope; see `T-004.md`'s own Outputs table for hashes) |
+| `tests/run-all.ps1` | reverted to pre-registration bytes (Reversal 2, T-004 scope; see `T-004.md`'s own Outputs table for hashes) |
+
+### Re-verification (round 2)
+
+- `bash tests/resolve-project-context-block.tests.sh` / `pwsh -File
+  tests/resolve-project-context-block.tests.ps1`: 205 passed / 0 failed,
+  both runtimes.
+- `python3 plugins/sdd-quality-loop/scripts/check-contract.py
+  specs/epic-193-a5-capability-resolver/verification/T-003.contract.json`:
+  `Verification contract passed for task T-003.`
+- `bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature
+  epic-193-a5-capability-resolver`: `workflow-state: ok`.
 - `bash plugins/sdd-quality-loop/scripts/check-task-state.sh
   specs/epic-193-a5-capability-resolver/tasks.md`: `Task state check
   passed for 10 task(s).`
@@ -9987,7 +10170,7 @@ findings, closed this pass:
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851  .github/workflows/test.yml
-673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+aaf23df2a91f5efa5ca45356968bb01c09e2348715cc3ae50bfcf6c0349929cd  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -10191,6 +10374,37 @@ def _repo_relative(path, repo_root):
         return path.as_posix()
 
 
+def _reemit_dependency_stderr(result):
+    """B5 (security-spec.md)/REQ-005: "a dependency subprocess's own
+    stderr remains visible to a human operator on the terminal exactly as
+    that subprocess itself already writes it, but never participates in
+    this feature's own byte-identity comparison" -- design.md's API/
+    Contract Plan step 4 and the frozen requirements.md sentence both
+    repeat this verbatim as the reason the canonical `<detail>` field is
+    allowed to omit upstream stderr entirely. Confirmation-panel Major
+    (2026-08-24, both vendors): this feature previously captured every
+    dependency's stderr via `subprocess.PIPE` and never wrote it back out
+    anywhere, making the operator-visibility half of that sentence false
+    -- the operator saw only this feature's own canonical line, pointing
+    at diagnostics it had itself swallowed. Re-emits the dependency's own
+    captured bytes to this process's own stderr, VERBATIM (raw bytes, not
+    decoded/re-encoded, so no transcoding can alter what the subprocess
+    itself wrote) -- called at each dependency call site immediately
+    after that subprocess exits, always before this feature's own later
+    `_block`/`_block_no_write` canonical diagnostic line is written, so
+    the canonical line always stays the LAST line on this process's own
+    stderr. A no-op when the dependency wrote nothing (the common case on
+    a clean, non-Block exit)."""
+    if not result.stderr:
+        return
+    try:
+        sys.stderr.buffer.write(result.stderr)
+        sys.stderr.buffer.flush()
+    except AttributeError:
+        sys.stderr.write(result.stderr.decode("utf-8", errors="replace"))
+        sys.stderr.flush()
+
+
 def _script_argv(script_dir, base_name, tail):
     python_master = script_dir / f"{base_name}.py"
     shell_wrapper = script_dir / f"{base_name}.sh"
@@ -10248,6 +10462,7 @@ def _run_resolve_component_paths(script_dir, args):
         # identical OSError on their own subprocess.run calls -- main()'s
         # own handler discards this exception's payload entirely.
         raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
     if result.returncode != 0:
         raise AffectedComponentResolutionFailed(result.returncode)
     try:
@@ -10373,6 +10588,7 @@ def _validate_capability_registry(script_dir, registry_path):
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     except OSError as exc:
         raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
     if result.returncode != 0:
         raise RegistryValidationFailed(f"exit {result.returncode}")
 
@@ -10390,9 +10606,19 @@ def _generate_registry_digest_whole(script_dir):
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     except OSError as exc:
         raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
     if result.returncode != 0:
-        stderr_text = result.stderr.decode("utf-8", errors="replace")
-        if "canonicalizer-failed" in stderr_text:
+        # Confirmation-panel Minor (Anthropic T-003, unanchored token):
+        # a whole-stream substring search for `canonicalizer-failed`
+        # could be steered by Registry content this dependency's own
+        # error message happens to echo back mid-line. Anchored to
+        # `generate-registry-digest`'s own fixed `"generate-registry-
+        # digest: canonicalizer-failed: ..."` line-start format
+        # (`generate-registry-digest.py`'s own sole stderr `print`
+        # call), matching `_invoke_evaluate_predicate`'s identical
+        # line-start-anchored classification above.
+        stderr_lines = result.stderr.decode("utf-8", errors="replace").splitlines()
+        if any(line.startswith("generate-registry-digest: canonicalizer-failed") for line in stderr_lines):
             raise CanonicalizerFailed("generate-registry-digest")
         raise DependencySubprocessFailed(f"exit {result.returncode}")
     try:
@@ -10409,53 +10635,88 @@ def _evaluate_predicate(script_dir, predicate, properties):
     `evaluate-predicate --predicate <path> --component-properties <path>`.
     Both arguments are written to their own temp file (rather than `-`)
     since exactly one stdin stream cannot carry two independent documents."""
+    # Confirmation-panel Minor (Anthropic T-003, temp-file leak): the two
+    # `mkstemp` calls previously both executed before either was inside a
+    # `try`/`finally` -- if the SECOND call raised (ENOSPC, EMFILE, TMPDIR
+    # removed between the two calls), the FIRST descriptor and its
+    # on-disk temp file leaked for this process's own lifetime, since the
+    # single outer `finally` below only ever runs once both names are
+    # already bound. The second `mkstemp` is now nested inside the first
+    # temp file's own `try`/`finally`, so a failure there still cleans up
+    # the first.
     predicate_fd, predicate_name = tempfile.mkstemp(suffix=".json")
-    properties_fd, properties_name = tempfile.mkstemp(suffix=".json")
     try:
         with os.fdopen(predicate_fd, "w", encoding="utf-8") as handle:
             json.dump(predicate, handle, ensure_ascii=False, separators=(",", ":"))
-        with os.fdopen(properties_fd, "w", encoding="utf-8") as handle:
-            json.dump(properties, handle, ensure_ascii=False, separators=(",", ":"))
-        argv = _script_argv(
-            script_dir, "evaluate-predicate",
-            ["--predicate", predicate_name, "--component-properties", properties_name],
-        )
+        properties_fd, properties_name = tempfile.mkstemp(suffix=".json")
         try:
-            result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-        except OSError as exc:
-            raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
-        if result.returncode != 0:
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): this
-            # branch previously keyed the PREDICATE_SCHEMA_ERROR ->
-            # registry-validation-failed mapping on a hardcoded `returncode
-            # == 2` magic number. `evaluate-predicate`'s own contract
-            # (investigation.md's predicate-DSL-evaluator section) fixes
-            # only a stable stderr token -- "a distinct, non-zero-exit
-            # PREDICATE_SCHEMA_ERROR" -- never a specific exit code; the
-            # SAME stable-stderr-token classification `_generate_registry_
-            # digest_whole` (step 6) already uses for its own
-            # `canonicalizer-failed` sub-branch is reused here rather than
-            # trusting an unfixed number a future revision of `evaluate-
-            # predicate.py` could change without notice.
-            stderr_text = result.stderr.decode("utf-8", errors="replace")
-            if "PREDICATE_SCHEMA_ERROR" in stderr_text:
-                raise RegistryValidationFailed("PREDICATE_SCHEMA_ERROR")
-            raise DependencySubprocessFailed(f"exit {result.returncode}")
-        try:
-            parsed = json.loads(result.stdout.decode("utf-8"), parse_constant=_reject_json_constant)
-        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-            raise DependencyOutputMalformed(str(exc)) from exc
-        if (
-            not isinstance(parsed, dict)
-            or not isinstance(parsed.get("result"), bool)
-            or not isinstance(parsed.get("evidence"), list)
-            or not all(isinstance(node, dict) for node in parsed.get("evidence", []))
-        ):
-            raise DependencyOutputMalformed("evaluate-predicate stdout is not the {result, evidence} shape")
-        return parsed["result"], parsed["evidence"]
+            with os.fdopen(properties_fd, "w", encoding="utf-8") as handle:
+                json.dump(properties, handle, ensure_ascii=False, separators=(",", ":"))
+            return _invoke_evaluate_predicate(script_dir, predicate_name, properties_name)
+        finally:
+            os.unlink(properties_name)
     finally:
         os.unlink(predicate_name)
-        os.unlink(properties_name)
+
+
+def _invoke_evaluate_predicate(script_dir, predicate_name, properties_name):
+    """The real dependency invocation half of `_evaluate_predicate`,
+    split out so the outer function's own two temp-file `try`/`finally`
+    blocks (above) stay uncluttered by this call's own logic."""
+    argv = _script_argv(
+        script_dir, "evaluate-predicate",
+        ["--predicate", predicate_name, "--component-properties", properties_name],
+    )
+    try:
+        result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    except OSError as exc:
+        raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
+    if result.returncode != 0:
+        # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): this
+        # branch previously keyed the PREDICATE_SCHEMA_ERROR ->
+        # registry-validation-failed mapping on a hardcoded `returncode
+        # == 2` magic number. `evaluate-predicate`'s own contract
+        # (investigation.md's predicate-DSL-evaluator section) fixes
+        # only a stable stderr token -- "a distinct, non-zero-exit
+        # PREDICATE_SCHEMA_ERROR" -- never a specific exit code; the
+        # SAME stable-stderr-token classification `_generate_registry_
+        # digest_whole` (step 6) already uses for its own
+        # `canonicalizer-failed` sub-branch is reused here rather than
+        # trusting an unfixed number a future revision of `evaluate-
+        # predicate.py` could change without notice.
+        #
+        # Confirmation-panel Minor (Anthropic T-003, unanchored token):
+        # both this classification and `_generate_registry_digest_whole`'s
+        # own `canonicalizer-failed` classification below previously
+        # searched anywhere in the whole stderr stream for their stable
+        # token -- a Registry-supplied string value that happened to
+        # embed the literal token verbatim (echoed back by a dependency's
+        # own error message) could steer a generic dependency failure
+        # into the wrong Block id. Anchored to the STABLE ERROR-CLASS
+        # PREFIX each dependency's own contract fixes (`evaluate-
+        # predicate`'s own `PREDICATE_SCHEMA_ERROR: ...` lines always
+        # start the line, never appear embedded mid-sentence; same for
+        # `generate-registry-digest`'s own `canonicalizer-failed: ...`),
+        # via a per-line, line-start check rather than a whole-stream
+        # substring search -- Registry/predicate content embedded
+        # mid-line can no longer steer this classification.
+        stderr_lines = result.stderr.decode("utf-8", errors="replace").splitlines()
+        if any(line.startswith("PREDICATE_SCHEMA_ERROR") for line in stderr_lines):
+            raise RegistryValidationFailed("PREDICATE_SCHEMA_ERROR")
+        raise DependencySubprocessFailed(f"exit {result.returncode}")
+    try:
+        parsed = json.loads(result.stdout.decode("utf-8"), parse_constant=_reject_json_constant)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise DependencyOutputMalformed(str(exc)) from exc
+    if (
+        not isinstance(parsed, dict)
+        or not isinstance(parsed.get("result"), bool)
+        or not isinstance(parsed.get("evidence"), list)
+        or not all(isinstance(node, dict) for node in parsed.get("evidence", []))
+    ):
+        raise DependencyOutputMalformed("evaluate-predicate stdout is not the {result, evidence} shape")
+    return parsed["result"], parsed["evidence"]
 
 
 def _iter_warn_nodes(evidence_nodes, node_path=()):
@@ -10775,6 +11036,31 @@ def _resolved_gates(registry_document, matched_capability_ids):
     resolved = []
     for capability_id in matched_capability_ids:
         for gate_id in capabilities_by_id.get(capability_id, {}).get("gate_ids", []):
+            # Confirmation-panel Minor (Anthropic T-004): a `gate_id` this
+            # join cannot resolve against `gates_by_id` is silently
+            # dropped here rather than Blocking, which would be a live
+            # under-population defect if a Registry with a dangling
+            # `gate_ids` reference could ever reach this point. It
+            # cannot: step 5's own `validate-capability-registry` (Epic
+            # A2, check (f) `dangling-gate-reference`) already Blocks
+            # `registry-validation-failed` on exactly this condition --
+            # `capabilities[].gate_ids` referential integrity against
+            # `gates[]` -- for the WHOLE Registry, unconditionally,
+            # before step 7-8 evaluation (and therefore this function,
+            # step 10) ever runs; this feature's own `registry-
+            # validation-failed` Block fixture (`tests/fixtures/
+            # capability-resolver/resolve-project-context-block/
+            # registry-validation-failed/`) already exercises precisely
+            # this condition (its own Registry declares `gate_ids:
+            # ["nonexistent-gate"]` against an empty `gates: []]`, and
+            # this invocation Blocks at step 5, never reaching this
+            # join). Design decision (decision-document v2 s19, "Block
+            # when ambiguous"): this is not ambiguous -- the Registry
+            # content this join would need to under-populate against is
+            # already unreachable, so the `continue` below is
+            # defense-in-depth against a condition Epic A2's own
+            # validator has already fully closed off, never a live
+            # under-population path in production.
             if gate_id in seen or gate_id not in gates_by_id:
                 continue
             seen.add(gate_id)
@@ -11404,28 +11690,26 @@ def main(argv=None):
             capability_evaluations, warn_diagnostics,
         )
     except RegistryValidationFailed:
-        # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): every
-        # already-collected `severity: "warn"` entry in `warn_diagnostics`
-        # (one per `outcome: "warn"` node this invocation's own steps 7-8
-        # already evaluated before this abort fired) is a genuine
-        # diagnostic-worthy condition THIS invocation encountered
-        # (REQ-004's own "recording every diagnostic-worthy condition ...
-        # not only the first/fatal one"), so it is forwarded through to
-        # this abort's own Evidence record exactly as the step-9 WARN call
-        # site already does on a clean WARN outcome -- this does not
-        # collide with REQ-004's own AC-056 sentence ("no other id ever
-        # carries severity: warn at all"), since every forwarded entry
-        # still carries the identical `dsl-warn-on-matched-capability` id;
-        # only ONE id (this abort's own) ever carries `severity: "block"`,
-        # unchanged.
+        # Confirmation-panel finding (2026-08-24, both vendors converged):
+        # forwarding `warn_diagnostics` into a Block whose own id is NOT
+        # `dsl-warn-on-matched-capability` produces exactly the shape
+        # requirements.md's own AC-056 sentence forbids -- `diagnostics[]`
+        # would carry `dsl-warn-on-matched-capability` warn entries with NO
+        # same-id `severity: "block"` summary (step 9 is never reached on
+        # this abort path, so that summary entry is never emitted). The
+        # earlier "does not collide" reasoning above (now removed) checked
+        # only the single-id-carries-block invariant and missed the
+        # per-id "never warn-only" invariant the same sentence also states.
+        # These already-collected warn entries are therefore dropped, not
+        # forwarded, on this abort path.
         detail = "a Registry-declared predicate failed predicate-schema validation"
-        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations, warn_diagnostics)
+        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations)
     except DependencySubprocessFailed:
         detail = "evaluate-predicate failed while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations, warn_diagnostics)
+        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations)
     except DependencyOutputMalformed:
         detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
+        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations)
 
     # Step 9: any-branch WARN check (B2, widened scope). AC-056:
     # `warn_diagnostics` already carries one `severity: "warn"` entry per
@@ -11892,25 +12176,33 @@ Four sections:
    AC-055's own dual-artifact-scope): `lite-check-source-undefined`,
    `output-schema-validation-failed` (sub-case a: Resolver Evidence itself
    fails; sub-case b: a non-Evidence staged artifact fails), and the first,
-   digest-mismatch `snapshot-generation-mismatch` fixture. Two of Epic A4's
-   own three governing output schemas this stage's step 12 self-validates
-   against (`context-projection.schema.json`, `capability-summary.
-   schema.json`) are not yet landed on this branch (Epic A4's own PR has
-   not merged here; T-003's own Dependency Preflight already recorded the
-   identical gap for its own, narrower scope) -- `install_t003_dependencies`
-   below plants this suite's own test-harness-only stand-in copies (their
-   real Epic A4 field shapes, transcribed verbatim from `specs/
-   epic-192-a4-facet-manifest/design.md`'s own frozen API/Contract Plan;
-   `facet-manifest.schema.json` and `resolver-evidence.schema.json` are
-   both real, already-landed contracts and are copied as-is) into every
-   fixture's own isolated `contracts/` directory, exactly like this
-   driver's own already-established "real dependency plus one
-   deliberately-failing stub/schema" pattern. `capability-summary.
-   schema.json` is planted for completeness/future reuse but is never
-   actually exercised by any of this task's own four fixtures below (each
-   is deliberately shaped to Block, or to fail, before step 12 would ever
-   reach a Capability Summary schema check -- see T-004's own
-   implementation report for the exact reasoning).
+   digest-mismatch `snapshot-generation-mismatch` fixture. All four of Epic
+   A4's own governing output schemas this stage's step 12 self-validates
+   against -- `facet-manifest.schema.json`, `resolver-evidence.schema.json`,
+   `context-projection.schema.json`, `capability-summary.schema.json` -- are
+   now landed at `ROOT/contracts/` (confirmation-panel Major, 2026-08-24:
+   an earlier revision of this comment/`install_t003_dependencies` still
+   planted this suite's own test-harness-only stand-in copies for the last
+   two, one of them deliberately LOOSER than the real, now-landed contract
+   -- `projectedComponent: {"additionalProperties": true}, vs. the real
+   schema's own closed, explicitly-enumerated property set -- so no
+   assertion in this suite could ever fail on a staged Context Projection
+   that violated Epic A4's REAL contract). `install_t003_dependencies`
+   below now plants the REAL files at `ROOT/contracts/` for all four,
+   identically to `run_draft7_keyword_coverage_check`'s own
+   `GOVERNING_SCHEMA_FILES` (which already read the real files, never the
+   stand-ins) -- into every fixture's own isolated `contracts/` directory,
+   exactly like this driver's own already-established "real dependency
+   plus one deliberately-failing stub/schema" pattern.
+   `capability-summary.schema.json` was already byte-identical between the
+   stand-in and the real contract (confirmed by diff before this change),
+   so only `context-projection.schema.json` changes this suite's own
+   observable behavior. `capability-summary.schema.json` is planted for
+   completeness/future reuse but is never actually exercised by any of
+   this task's own four fixtures below (each is deliberately shaped to
+   Block, or to fail, before step 12 would ever reach a Capability Summary
+   schema check -- see T-004's own implementation report for the exact
+   reasoning).
 6. Cross-model panelist remediation (T-003.panelist-anthropic.verdict.json,
    three Major findings), four fixtures added to sections 3-4's own
    pattern: `resolve-component-paths-launch-failed` (step 4's own OSError
@@ -12181,16 +12473,15 @@ PROVIDER_TERMS_REAL = ROOT / "plugins/sdd-quality-loop/references/provider-terms
 EVALUATE_PREDICATE_REAL = ROOT / "plugins/sdd-quality-loop/scripts/evaluate-predicate.py"
 EMPTY_REGISTRY_PATH = PROJECTION_FIXTURES / "capability-registry-empty.json"
 
-# T-004 (steps 10-13): step 12's own four governing output schemas.
-# `facet-manifest.schema.json`/`resolver-evidence.schema.json` are real,
-# already-landed contracts; `context-projection.schema.json`/`capability-
-# summary.schema.json` are this suite's own test-harness-only stand-ins
-# for Epic A4's own two not-yet-landed schemas (see module docstring,
-# section 5).
+# T-004 (steps 10-13): step 12's own four governing output schemas -- all
+# four now real, already-landed `ROOT/contracts/` contracts (confirmation-
+# panel Major, 2026-08-24: see module docstring, section 5, for why the
+# earlier `context-projection.schema.json` stand-in was loosened and had
+# to be replaced, not merely relabeled).
 FACET_MANIFEST_SCHEMA_REAL = ROOT / "contracts/facet-manifest.schema.json"
 RESOLVER_EVIDENCE_SCHEMA_REAL = SCHEMA
-CONTEXT_PROJECTION_SCHEMA_STANDIN = PROJECTION_FIXTURES / "context-projection.schema.json"
-CAPABILITY_SUMMARY_SCHEMA_STANDIN = PROJECTION_FIXTURES / "capability-summary.schema.json"
+CONTEXT_PROJECTION_SCHEMA_REAL = ROOT / "contracts/context-projection.schema.json"
+CAPABILITY_SUMMARY_SCHEMA_REAL = ROOT / "contracts/capability-summary.schema.json"
 
 
 def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, registry_capabilities_path=None):
@@ -12221,8 +12512,8 @@ def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, regist
     # `install_scripts`/`_discover_registry` convention.
     shutil.copy2(FACET_MANIFEST_SCHEMA_REAL, contracts / "facet-manifest.schema.json")
     shutil.copy2(RESOLVER_EVIDENCE_SCHEMA_REAL, contracts / "resolver-evidence.schema.json")
-    shutil.copy2(CONTEXT_PROJECTION_SCHEMA_STANDIN, contracts / "context-projection.schema.json")
-    shutil.copy2(CAPABILITY_SUMMARY_SCHEMA_STANDIN, contracts / "capability-summary.schema.json")
+    shutil.copy2(CONTEXT_PROJECTION_SCHEMA_REAL, contracts / "context-projection.schema.json")
+    shutil.copy2(CAPABILITY_SUMMARY_SCHEMA_REAL, contracts / "capability-summary.schema.json")
 
 
 def git_commit_all(repo, message):
@@ -12412,6 +12703,18 @@ def run_t003_case(kind, case_name, counts):
             )
 
         elif case_name == "registry-validation-failed":
+            # Confirmation-panel Minor (Anthropic T-004, `_resolved_gates`
+            # dangling-`gate_ids` silent-drop): this fixture's own
+            # Registry (`cap-dangling`, `gate_ids: ["nonexistent-gate"]`
+            # against `gates: []`) is ALSO the proof this invocation
+            # Blocks at step 5 (Epic A2 `validate-capability-registry`
+            # check (f) `dangling-gate-reference`) and never reaches step
+            # 10's own `_resolved_gates` join -- i.e. that function's own
+            # `gate_id not in gates_by_id` branch is unreachable
+            # defense-in-depth in production, not a live under-population
+            # path. Asserted below (`exit 1`, this id, and step 10-13
+            # never runs at all on a step-5 Block) rather than duplicated
+            # into a second, differently-named fixture.
             expected_id = "registry-validation-failed"
             expected_detail = "capability-registry.json failed validate-capability-registry checks"
 
@@ -12469,20 +12772,28 @@ def run_t003_case(kind, case_name, counts):
             expected_detail = "a Registry-declared predicate failed predicate-schema validation"
 
         elif case_name == "evaluate-predicate-failure-after-warn":
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3, Major
-            # #2): steps 7-8's own three abort handlers (registry-
-            # validation-failed / dependency-subprocess-failed /
-            # dependency-output-malformed) previously omitted every
-            # already-collected `severity: "warn"` diagnostics[] entry on
-            # abort. This fixture's own Registry declares TWO capabilities
-            # in declaration order: `cap-warn-first` (a real WARN outcome
-            # on comp-a, fully evaluated and appended to `capability_
-            # evaluations` first) then `cap-fails-second` (whose own
-            # trigger evaluation is this fixture's own stubbed `evaluate-
-            # predicate`'s SECOND invocation, which fails with a generic
-            # non-zero exit) -- proving the WARN entry `_evaluate_
-            # capabilities` already collected for cap-warn-first survives
-            # the later abort rather than vanishing.
+            # Confirmation-panel finding (2026-08-24, both vendors
+            # converged): the shape this fixture previously locked in --
+            # forwarding steps 7-8's already-collected `severity: "warn"`
+            # `dsl-warn-on-matched-capability` entries into an abort Block
+            # under a DIFFERENT id -- is exactly what requirements.md's own
+            # AC-056 sentence forbids ("a dsl-warn-on-matched-capability id
+            # therefore never appears with only severity: warn entries and
+            # no severity: block summary entry"): step 9's own summary
+            # entry is never reached on this abort path, so a forwarded
+            # warn entry would be warn-only for that id. This fixture's own
+            # Registry still declares TWO capabilities in declaration
+            # order: `cap-warn-first` (a real WARN outcome on comp-a, fully
+            # evaluated and appended to `capability_evaluations` first --
+            # this half is UNCHANGED, since AC-024/REQ-004 govern
+            # `capability_evaluations[]` independently of `diagnostics[]`)
+            # then `cap-fails-second` (whose own trigger evaluation is this
+            # fixture's own stubbed `evaluate-predicate`'s SECOND
+            # invocation, which fails with a generic non-zero exit). The
+            # already-collected WARN entry for cap-warn-first is now
+            # correctly DROPPED, not forwarded, on this abort path --
+            # `expected_warn_diagnostics` stays empty, matching every other
+            # non-`dsl-warn-*` case.
             state = "advisory"
             (repo / "comp-a").mkdir()
             (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
@@ -12498,9 +12809,6 @@ def run_t003_case(kind, case_name, counts):
                 "matched": False,
                 "trigger_evaluations": [{"component_id": "comp-a", "result": False, "evidence": [warn_evidence_node]}],
             }]
-            expected_warn_diagnostics = [
-                expected_warn_diagnostic("cap-warn-first", "comp-a", None, (0,), warn_evidence_node),
-            ]
 
         elif case_name == "dsl-warn-unsorted-affected-components":
             # AC-056: two independent WARN nodes (comp-a's own trigger
@@ -12592,11 +12900,48 @@ def run_t003_case(kind, case_name, counts):
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
+        # Confirmation-panel Major (2026-08-24, both vendors): REQ-005/
+        # design.md step 4/security-spec.md B5 all require a dependency
+        # subprocess's own stderr to "remain visible to a human operator
+        # on the terminal exactly as that subprocess itself already
+        # writes it" -- this feature's own canonical `<detail>` sentence
+        # is the only thing that must never quote it verbatim. The old
+        # exact-equality assertion (`stderr == expected_line`, asserting
+        # "FIXTURE_INJECTED_FAILURE" ABSENT) therefore locked in the
+        # violating, fully-suppressed shape; it would fail now that
+        # `_reemit_dependency_stderr` passes a failing dependency's own
+        # stderr through before this feature's own canonical line. This
+        # asserts stdout stays empty and the canonical line is present and
+        # LAST on stderr (re-emitted upstream content, if any, precedes
+        # it) -- a fixture whose own stub writes no stderr (most cases
+        # above) still passes, since `stderr == expected_line` is one
+        # valid case of `stderr.endswith(expected_line)`.
         counts.check(
-            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
-            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            stdout == "" and stderr.endswith(expected_line),
+            f"{case_name}: canonical diagnostic line present and last on stderr (B5)",
             f"stdout={stdout!r} stderr={stderr!r}",
         )
+        # Mutation-kill for the pass-through itself: `endswith` alone is
+        # satisfied even with NO re-emit at all (an empty prefix is a
+        # valid "ends with"), so it cannot by itself detect
+        # `_reemit_dependency_stderr` being dropped. These three fixtures'
+        # own stub dependencies (`resolve-component-paths.py`/
+        # `generate-registry-digest.py`/`evaluate-predicate.py`) write a
+        # KNOWN, fixed line to their own stderr on the exact failure this
+        # case exercises -- asserting stderr is EXACTLY that upstream line
+        # followed by the canonical line fails if the re-emit call is
+        # ever removed (stderr would then be only the canonical line).
+        injected_stderr_by_case = {
+            "affected-component-resolution-failed": "resolve-component-paths: FIXTURE_INJECTED_FAILURE\n",
+            "dependency-subprocess-failed": "generate-registry-digest: FIXTURE_INJECTED_FAILURE\n",
+            "evaluate-predicate-failure-after-warn": "FIXTURE_INJECTED_FAILURE: evaluate-predicate failed on its second invocation\n",
+        }
+        if case_name in injected_stderr_by_case:
+            counts.check(
+                stderr == injected_stderr_by_case[case_name] + expected_line,
+                f"{case_name}: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)",
+                f"stderr={stderr!r}",
+            )
 
         evidence_path = feature_dir / "resolver-evidence.yaml"
         evidence, parse_error = read_evidence(evidence_path)
@@ -12907,11 +13252,26 @@ def run_t004_case(kind, case_name, counts):
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        # Confirmation-panel Major (2026-08-24, both vendors) -- same fix
+        # as `run_t003_case` above, since this stage's own step-13 recheck
+        # reuses the identical `_run_resolve_component_paths` dependency
+        # call site: the canonical line must be present and LAST, no
+        # longer the WHOLE stream.
         counts.check(
-            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
-            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            stdout == "" and stderr.endswith(expected_line),
+            f"{case_name}: canonical diagnostic line present and last on stderr (B5)",
             f"stdout={stdout!r} stderr={stderr!r}",
         )
+        if case_name == "recheck-dependency-failed":
+            # Mutation-kill: this fixture's own `resolve-component-paths.py`
+            # stub writes a known line to stderr on its second (step-13
+            # recheck) invocation -- exact-equality proves the pass-through
+            # fired, not merely that the canonical line is present.
+            counts.check(
+                stderr == "FIXTURE_INJECTED_FAILURE: resolve-component-paths failed on its second invocation\n" + expected_line,
+                f"{case_name}: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)",
+                f"stderr={stderr!r}",
+            )
 
         evidence_path = feature_dir / "resolver-evidence.yaml"
 
