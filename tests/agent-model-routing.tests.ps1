@@ -91,6 +91,10 @@ Assert-Literal $Matrix 'Expected iterations are optimized first, then the weakes
 Assert-Literal $Matrix 'estimated_cost_per_attempt_usd' 'routing must use invocation-supplied cost estimate'
 Assert-Literal $Matrix 'cost_estimate_timestamp' 'routing must record cost estimate timestamp'
 Assert-Literal $Matrix 'lexicographically smaller provider/model' 'routing must define lexical final tie-break'
+Assert-Literal $Matrix 'preferred over flagged fallbacks' `
+    'routing must deprioritize registry-flagged fallbacks before the lexical tie-break'
+Assert-Literal $Adr 'preferred over flagged fallbacks' `
+    'the ADR must record the fallback-deprioritization rank'
 
 foreach ($failure in @('test', 'lint', 'typecheck', 'build', 'review-major', 'review-critical')) {
     Assert-Literal $Matrix "``$failure``" "missing closed failure enum: $failure"
@@ -1064,7 +1068,6 @@ if ("$fbSel" -cne 'openai/gpt-5.2-codex strong') {
 
 }
 
-
 # RT-20260821-009 cycle-4 (seq 844): port the reviewer standard-minimum floor
 # to the ps1 twin. The sh suite pins all six reviewer declarations; the ps1
 # twin did not, so a Windows-only run could ship a Haiku-downgraded reviewer.
@@ -1085,7 +1088,6 @@ foreach ($reviewerDecl in @(
     }
 
 }
-
 
 Write-Output 'ok: turn-first model routing structure is defined (PowerShell twin)'
 exit 0

@@ -12,6 +12,8 @@ ok: routing priority must put expected iterations before tier and token price
 ok: routing must use invocation-supplied cost estimate
 ok: routing must record cost estimate timestamp
 ok: routing must define lexical final tie-break
+ok: routing must deprioritize registry-flagged fallbacks before the lexical tie-break
+ok: the ADR must record the fallback-deprioritization rank
 ok: missing closed failure enum: test
 ok: missing closed failure enum: lint
 ok: missing closed failure enum: typecheck

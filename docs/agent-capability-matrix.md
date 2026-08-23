@@ -124,8 +124,7 @@ and `cost_estimate_timestamp` so checked-in policy never embeds stale prices.
 At equal cost, models NOT flagged `fallback_for` in the capability registry
 are preferred over flagged fallbacks: a fallback is selected only when it is
 strictly cheaper or no primary remains. Only then is equal cost resolved by
-the lexicographically smaller provider/model identifier, written as the
-lexicographically smaller `provider/model`.
+the lexicographically smaller provider/model identifier.
 
 ### Provider Tier Mapping
 
