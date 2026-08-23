@@ -63,6 +63,70 @@ function Invoke-PluginCommand {
     }
 }
 
+# WFI-041: the external CLIs report an ALREADY-REGISTERED resource as an error.
+# Re-running the installer on an installed machine is a routine upgrade, not a
+# failure, so registering something that is already registered must be treated
+# as success. Matched on the CLIs' own wording, stated once here rather than
+# duplicated per call site (twin of run_plugin_command_idempotent in install.sh).
+#
+# Every other non-zero exit stays fatal with the same message
+# Invoke-PluginCommand throws, so this widens no failure path but the
+# idempotency one. -match is deliberate here (not -cmatch): the sh twin matches
+# case-insensitively via the =~ operator against a lowercase-only pattern, and
+# the CLIs capitalise these messages inconsistently.
+$script:AlreadyPresentPattern = 'already (registered|exists|installed|added)'
+
+function Invoke-PluginCommandIdempotent {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Command,
+        [Parameter(Mandatory)]
+        [string[]]$Arguments
+    )
+
+    # Combined stdout+stderr: the CLIs are not consistent about which stream
+    # carries the "already ..." line.
+    $output = & $Command @Arguments 2>&1
+    $exitCode = $LASTEXITCODE
+    if ($output) { $output | ForEach-Object { Write-Output $_ } }
+    if ($exitCode -eq 0) { return }
+    $text = ($output | Out-String)
+    if ($text -match $script:AlreadyPresentPattern) {
+        Write-Warning "'$Command $($Arguments -join ' ')' reports the resource is already present; treating as success."
+        return
+    }
+    throw "'$Command $($Arguments -join ' ')' failed with exit code $exitCode."
+}
+
+# WFI-041: `claude plugin install` is a no-op when the plugin is already
+# installed -- it reports success and leaves the cache at the old version, so a
+# re-run placed a new install root while every CLI cache stayed behind. Converge
+# the cache explicitly, and report the transition so a run that changed nothing
+# is distinguishable from one that upgraded.
+function Update-ClaudePluginCache {
+    param(
+        [Parameter(Mandatory)][string]$MarketplaceName,
+        [Parameter(Mandatory)][string[]]$PluginNames
+    )
+
+    Invoke-PluginCommandIdempotent "claude" @("plugin", "marketplace", "update", $MarketplaceName)
+    $upgraded = 0
+    foreach ($plugin in $PluginNames) {
+        $output = & "claude" @("plugin", "update", "$plugin@$MarketplaceName") 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "'claude plugin update $plugin@$MarketplaceName' failed; the plugin cache may still hold an older version."
+            continue
+        }
+        if ($output) { $output | ForEach-Object { Write-Output $_ } }
+        if (($output | Out-String) -match 'updated from') { $upgraded++ }
+    }
+    if ($upgraded -gt 0) {
+        Write-Output "Claude plugin cache upgraded: $upgraded plugin(s) moved to the installed version."
+    } else {
+        Write-Output "Claude plugin cache already at the installed version; no plugin was upgraded."
+    }
+}
+
 function Install-CodexPlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
@@ -76,13 +140,13 @@ function Install-CodexPlugins {
         return
     }
 
-    Invoke-PluginCommand "codex" @("plugin", "marketplace", "add", $MarketplaceRoot)
+    Invoke-PluginCommandIdempotent "codex" @("plugin", "marketplace", "add", $MarketplaceRoot)
     if ($SkipPluginInstall) {
         $script:CodexRegistrationStatus = "marketplace registered; plugin install skipped"
         return
     }
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "codex" @("plugin", "add", "$plugin@sdd-plugins")
+        Invoke-PluginCommandIdempotent "codex" @("plugin", "add", "$plugin@sdd-plugins")
     }
     $script:CodexRegistrationStatus = "registered"
 }
@@ -100,13 +164,13 @@ function Install-CopilotPlugins {
         return
     }
 
-    Invoke-PluginCommand "copilot" @("plugin", "marketplace", "add", $MarketplaceRoot)
+    Invoke-PluginCommandIdempotent "copilot" @("plugin", "marketplace", "add", $MarketplaceRoot)
     if ($SkipPluginInstall) {
         $script:CopilotRegistrationStatus = "marketplace registered; plugin install skipped"
         return
     }
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "copilot" @("plugin", "install", "$plugin@sdd-plugins")
+        Invoke-PluginCommandIdempotent "copilot" @("plugin", "install", "$plugin@sdd-plugins")
     }
     $script:CopilotRegistrationStatus = "registered"
 }
@@ -129,14 +193,17 @@ function Install-ClaudePlugins {
     foreach ($plugin in $Plugins) {
         Invoke-PluginCommand "claude" @("plugin", "validate", (Join-Path $MarketplaceRoot "plugins/$plugin"))
     }
-    Invoke-PluginCommand "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
+    Invoke-PluginCommandIdempotent "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
     if ($SkipPluginInstall) {
         $script:ClaudeRegistrationStatus = "marketplace registered; plugin install skipped"
         return
     }
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
+        Invoke-PluginCommandIdempotent "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
     }
+    # WFI-041: `plugin install` no-ops on an installed plugin, so the cache
+    # would stay at the previous version after a re-run. Converge it.
+    Update-ClaudePluginCache -MarketplaceName "sdd-plugins" -PluginNames $Plugins
     $script:ClaudeRegistrationStatus = "registered"
 }
 
@@ -241,7 +308,7 @@ function Register-ClaudeMcp {
     foreach ($name in $Mcp) {
         $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
         if (-not (Test-Path $entryPoint)) { continue }
-        Invoke-PluginCommand "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
+        Invoke-PluginCommandIdempotent "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
     }
 }
 
@@ -523,6 +590,11 @@ $temporaryRoot = $null
 $backupRoot = $null
 $stagingRoot = $null
 $newInstallPlaced = $false
+# WFI-041: set to $true once the install root is in place and every
+# remaining step is an external-CLI registration. The catch block reverts
+# the tree only while this is $false -- see its header (twin of
+# REGISTRATION_PHASE in install.sh).
+$registrationPhase = $false
 $mutex = $null
 $mutexAcquired = $false
 try {
@@ -696,6 +768,10 @@ try {
     # -Target and is controlled only by -SkipMcp / -Mcp.
     Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $resolvedInstallRoot
 
+    # WFI-041: everything below this line is external-CLI registration against a
+    # tree that is already correctly in place. A failure here must not revert it.
+    $registrationPhase = $true
+
     if ($Target -in @("All", "Codex")) {
         Install-CodexPlugins $resolvedInstallRoot
         if (-not $SkipAgentInstall -and (Get-Command "codex" -ErrorAction SilentlyContinue)) {
@@ -718,6 +794,20 @@ try {
     }
 }
 catch {
+    # WFI-041: the rollback protects the PLACEMENT of the install root -- a
+    # failure during download, extraction or placement must not leave a
+    # half-written tree. Once the tree is in place and correct, a failure in an
+    # external CLI's registration step is not a failure OF the tree, and
+    # reverting it discards a correct upgrade (measured: three rollbacks of a
+    # correct 1.16.0 tree back to 1.15.0 on 2026-08-22). From the registration
+    # phase onward, report the failing registration and keep the new tree.
+    if ($registrationPhase) {
+        if ($backupRoot -and (Test-Path $backupRoot)) {
+            Write-Warning "The install root at '$InstallRoot' is the new version and was kept; a registration step failed after placement."
+            Write-Warning "The previous version is preserved at '$backupRoot' -- remove it once the registration issue is resolved."
+        }
+        throw
+    }
     # Rollback is best-effort: wrap each destructive step so that a locked file
     # or other Windows error does not prevent the restore from being attempted.
     if ($backupRoot -and (Test-Path $backupRoot)) {

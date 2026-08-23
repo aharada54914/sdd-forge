@@ -116,6 +116,11 @@ jobs:
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
 
+      - name: Test installer idempotency (bash, WFI-041)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/installer-idempotency.tests.sh
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

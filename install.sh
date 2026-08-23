@@ -165,6 +165,65 @@ run_plugin_command() {
     fi
 }
 
+# WFI-041: the external CLIs report an ALREADY-REGISTERED resource as an error.
+# Re-running the installer on an installed machine is a routine upgrade, not a
+# failure, so registering something that is already registered must be treated
+# as success. Matched on the CLIs' own wording, which is why the pattern is
+# stated once here rather than duplicated per call site.
+#
+# Every other non-zero exit stays fatal with the same message run_plugin_command
+# emits, so this widens no failure path other than the idempotency one.
+ALREADY_PRESENT_RE='already (registered|exists|installed|added)'
+
+run_plugin_command_idempotent() {
+    local cmd="$1"; shift
+    local output rc=0
+    # Combined stdout+stderr: the CLIs are not consistent about which stream
+    # carries the "already …" line.
+    output="$("$cmd" "$@" 2>&1)" || rc=$?
+    [[ -n "$output" ]] && printf '%s\n' "$output"
+    if [[ $rc -eq 0 ]]; then
+        return 0
+    fi
+    if [[ "$output" =~ $ALREADY_PRESENT_RE ]]; then
+        local quoted_args
+        printf -v quoted_args '%q ' "$@"
+        echo "Note: '$cmd ${quoted_args% }' reports the resource is already present; treating as success." >&2
+        return 0
+    fi
+    local quoted_args
+    printf -v quoted_args '%q ' "$@"
+    echo "Error: '$cmd ${quoted_args% }' failed with exit code $rc." >&2
+    return 1
+}
+
+# WFI-041: `claude plugin install` is a no-op when the plugin is already
+# installed — it reports success and leaves the cache at the old version, so a
+# re-run placed a new install root while every CLI cache stayed behind. Converge
+# the cache explicitly, and report the transition so a run that changed nothing
+# is distinguishable from one that upgraded.
+upgrade_claude_plugins() {
+    local marketplace_name="$1"; shift
+    local upgraded=0 p output
+    run_plugin_command_idempotent claude plugin marketplace update "$marketplace_name" || return 1
+    for p in "$@"; do
+        output="$(claude plugin update "${p}@${marketplace_name}" 2>&1)" || {
+            echo "Warning: 'claude plugin update ${p}@${marketplace_name}' failed; the plugin cache may still hold an older version." >&2
+            [[ -n "$output" ]] && printf '%s\n' "$output" >&2
+            continue
+        }
+        [[ -n "$output" ]] && printf '%s\n' "$output"
+        if [[ "$output" =~ updated\ from ]]; then
+            upgraded=$((upgraded + 1))
+        fi
+    done
+    if [[ $upgraded -gt 0 ]]; then
+        echo "Claude plugin cache upgraded: ${upgraded} plugin(s) moved to the installed version."
+    else
+        echo "Claude plugin cache already at the installed version; no plugin was upgraded."
+    fi
+}
+
 target_requires() {
     # Returns 0 if $TARGET is exactly the given value (hard-error context)
     [[ "$TARGET" == "$1" ]]
@@ -180,10 +239,10 @@ install_codex_plugins() {
         echo "Warning: Codex CLI was not found. Codex registration was skipped." >&2
         return 0
     fi
-    run_plugin_command codex plugin marketplace add "$marketplace_root" || return 1
+    run_plugin_command_idempotent codex plugin marketplace add "$marketplace_root" || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do
-            run_plugin_command codex plugin add "${p}@sdd-plugins" || return 1
+            run_plugin_command_idempotent codex plugin add "${p}@sdd-plugins" || return 1
         done
     fi
 }
@@ -203,11 +262,14 @@ install_claude_plugins() {
     for p in "${PLUGIN_LIST[@]}"; do
         run_plugin_command claude plugin validate "${marketplace_root}/plugins/${p}" || return 1
     done
-    run_plugin_command claude plugin marketplace add "$marketplace_root" --scope user || return 1
+    run_plugin_command_idempotent claude plugin marketplace add "$marketplace_root" --scope user || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do
-            run_plugin_command claude plugin install "${p}@sdd-plugins" --scope user || return 1
+            run_plugin_command_idempotent claude plugin install "${p}@sdd-plugins" --scope user || return 1
         done
+        # WFI-041: `plugin install` no-ops on an installed plugin, so the cache
+        # would stay at the previous version after a re-run. Converge it.
+        upgrade_claude_plugins sdd-plugins "${PLUGIN_LIST[@]}" || return 1
     fi
 }
 
@@ -221,10 +283,10 @@ install_copilot_plugins() {
         echo "Warning: Copilot CLI was not found. Copilot registration was skipped." >&2
         return 0
     fi
-    run_plugin_command copilot plugin marketplace add "$marketplace_root" || return 1
+    run_plugin_command_idempotent copilot plugin marketplace add "$marketplace_root" || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do
-            run_plugin_command copilot plugin install "${p}@sdd-plugins" || return 1
+            run_plugin_command_idempotent copilot plugin install "${p}@sdd-plugins" || return 1
         done
     fi
 }
@@ -363,7 +425,7 @@ register_claude_mcp() {
     for name in "${MCP_SELECTION[@]}"; do
         entry_point="${install_root_path}/mcp/${name}/dist/index.js"
         [[ -f "$entry_point" ]] || continue
-        run_plugin_command claude mcp add "$name" --scope user -- node "$entry_point" || return 1
+        run_plugin_command_idempotent claude mcp add "$name" --scope user -- node "$entry_point" || return 1
     done
 }
 
@@ -552,6 +614,10 @@ STAGING_ROOT=""
 NEW_INSTALL_PLACED=0
 LOCK_DIR=""
 LOCK_HELD=0
+# WFI-041: set to 1 once the install root is in place and every remaining step
+# is an external-CLI registration. rollback() reverts the tree only while this
+# is 0 — see its header.
+REGISTRATION_PHASE=0
 
 cleanup() {
     # Called from trap EXIT — runs on every exit path
@@ -570,6 +636,20 @@ cleanup() {
 }
 
 rollback() {
+    # WFI-041: the rollback protects the PLACEMENT of the install root — a
+    # failure during download, extraction or placement must not leave a
+    # half-written tree. Once the tree is in place and correct, a failure in an
+    # external CLI's registration step is not a failure OF the tree, and
+    # reverting it discards a correct upgrade (measured: three rollbacks of a
+    # correct 1.16.0 tree back to 1.15.0 on 2026-08-22). From the registration
+    # phase onward, report the failing registration and keep the new tree.
+    if [[ $REGISTRATION_PHASE -eq 1 ]]; then
+        if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+            echo "Note: the install root at ${INSTALL_ROOT} is the new version and was kept; a registration step failed after placement." >&2
+            echo "      The previous version is preserved at ${BACKUP_ROOT} — remove it once the registration issue is resolved." >&2
+        fi
+        return 0
+    fi
     # Restore previous installation on error
     if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
         if [[ -d "$INSTALL_ROOT" ]]; then
@@ -889,6 +969,10 @@ place_mcp_servers_if_selected "$SOURCE_ROOT" "$RESOLVED_INSTALL_ROOT"
 # ---------------------------------------------------------------------------
 # Registration
 # ---------------------------------------------------------------------------
+# WFI-041: everything below this line is external-CLI registration against a
+# tree that is already correctly in place. A failure here must not revert it.
+REGISTRATION_PHASE=1
+
 # Track whether codex agent install succeeded so we can warn in the summary.
 CODEX_AGENTS_FAILED=0
 

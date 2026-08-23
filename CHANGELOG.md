@@ -4,6 +4,36 @@
 
 ### Changed
 
+- **WFI-041 適用 — インストーラ再実行の冪等化・アップグレード経路・
+  ロールバック範囲の縮小**: 再実行が「既に登録済み」で失敗し、しかも
+  失敗ハンドラが**正しく配置し終えた新バージョンを巻き戻していた**問題
+  （成功した作業を捨てる方向の誤り）を3点で修正。
+  - **冪等化**: `run_plugin_command_idempotent()` が登録系コマンドの出力を
+    捕捉し、`ALREADY_PRESENT_RE`（`already (registered|exists|installed|added)`）
+    に一致する失敗のみ成功として扱う。それ以外の失敗は従来どおり伝播
+    （セクション D が「本物の失敗を握り潰していない」ことを実測）。
+  - **アップグレード経路**: `upgrade_claude_plugins()` が
+    `claude plugin marketplace update` → `plugin update` を実行し、
+    stale キャッシュを更新して遷移を報告。既に最新なら「変更なし」と報告
+    （非空虚性をアサート）。
+  - **ロールバック範囲の縮小**: `REGISTRATION_PHASE`（install.sh:620、
+    :974 で 1）を導入し、配置完了後の登録フェーズでの失敗では
+    `rollback()` を早期 return（:646）。配置フェーズの失敗では従来どおり
+    ロールバックが発火する — **両方向を実測**。
+  - **ps1 双子**: `$script:AlreadyPresentPattern` /
+    `Invoke-PluginCommandIdempotent` / `Update-ClaudePluginCache` /
+    `$registrationPhase`（install.ps1:597、:773、catch は :804）を同一設計で追加。
+  - **新設 `tests/installer-idempotency.tests.sh`（14アサーション）**:
+    シナリオ A（冪等登録）/ B（アップグレード経路＋非空虚性）/
+    C1・C2（縮小したロールバックの両方向）/ D（本物の失敗）。
+    フィクスチャは `REQUIRED_PATHS` をインストーラ自身から導出するため
+    パス集合の変更に追随する。**判別性を実測**: origin/main のインストーラ
+    against では 7失敗/7合格、本変更後は 14/14 緑。C2 と D は両ツリーで
+    合格し、ロールバックが「除去」ではなく「縮小」であることを示す。
+    `tests/run-all.sh:67` と `.github/workflows/test.yml:122` に登録。
+  - **未了（WFI Result に記録）**: `installer-idempotency.tests.ps1` 双子は
+    本コンテナに pwsh が無く作成・検証不能のため見送り。
+
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
   Approved 在庫を全件 Applied へ。
