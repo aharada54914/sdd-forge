@@ -18,17 +18,26 @@
 # cut would report confident conclusions about material they never saw,
 # which is worse than a failed run that says so plainly.
 #
-# Per-file elision (only when --max-bytes is set): a single evidence file —
-# either one under the reviewed task's own verification/<task_id>/
-# directory, or a path the task's own contract.json names in an "evidence",
-# "red_evidence", or "green_evidence" field, wherever in the repo that path
-# lives — that exceeds one quarter of --max-bytes is included as its
-# first/last 40 lines plus a marker stating how many bytes were elided from
-# the middle and from which path — never silently. Spec documents, the
-# task's own contract/evidence.json, the implementation report, and every
-# path the report's "## Outputs" table declares are never elided. If the
-# bundle is still over --max-bytes after elision, this script still fails
-# closed exactly as above.
+# Per-file elision (only when --max-bytes is set, and only when the whole
+# bundle exceeds it): a two-tier, budget-driven cut. Tier one is the
+# reviewed task's own verification/<task_id>/ evidence directory plus every
+# path the task's own contract.json names in an "evidence", "red_evidence",
+# or "green_evidence" field, wherever in the repo that path lives — the
+# task's own raw log/tool-output noise. Tier two — used ONLY once every
+# tier-one candidate has been through the loop below and the bundle is
+# STILL over --max-bytes — is the CURRENT worktree content of every path
+# the implementation report's "## Outputs" table declares. Within each
+# tier, the largest remaining candidate is cut first, to its first/last 40
+# lines plus a marker stating how many bytes were elided from the middle
+# and from which path — never silently — re-measuring the bundle after
+# every single cut and stopping the moment it fits. Tier two is never
+# touched while tier one could still reduce the bundle: a reviewer told to
+# judge material "as it stands" should lose incidental log noise before
+# losing any of the source under review, and only ever as much of either as
+# the cap forces. Spec documents, the task's own contract/evidence.json,
+# and the implementation report are in neither tier — never elided, at any
+# bundle size. If the bundle is still over --max-bytes after both tiers are
+# exhausted, this script still fails closed exactly as above.
 #
 # Security (design.md §6):
 #   • Fail-closed consent gate: exits non-zero without writing output unless
@@ -496,17 +505,39 @@ _ppi_is_seen() {
 # elision can fix that, so refusing to write is correct — identical in
 # spirit to failing closed when there were no elidable candidates at all.
 #
-# Scope: elision applies ONLY to files pulled in by step 3 below (the
-# reviewed task's own verification/<task_id>/ evidence directory). Spec
-# documents (step 1), the task's own contract/evidence.json (step 2), the
-# implementation report (step 4), and every declared-outputs row (step 5
-# — this is precisely "a source file named in the Outputs table") are
-# never elided: those are the bundle's actual claims and their supporting
-# source, not raw log noise, and truncating any of them would gut the
-# bundle's whole purpose. Head/tail size stays a fixed line count (not
-# proportional to the cap) — this exists purely for reviewer legibility
-# (show a log's setup and its final summary), never as a byte dial; the
-# byte-target job stays entirely with --max-bytes and the budget loop.
+# Scope, two tiers. Tier one (elidable first — see $_ppi_elidable_index) is
+# step 3 (the reviewed task's own verification/<task_id>/ evidence
+# directory) plus step 3b (contract-declared evidence found elsewhere in
+# the repo) — the task's own raw log/tool-output noise. Tier two (elidable
+# only once tier one's own budget loop has run and the bundle is STILL over
+# cap — see $_ppi_declared_elidable_index, built by
+# _ppi_capture_declared_output_content/_ppi_build_declared_content below)
+# is step 5, every declared-outputs row — the source the report's claims
+# are actually about. That ordering is the point: a reviewer told to judge
+# review material "as it stands" should lose incidental log noise long
+# before losing any of the source under review, and only ever as much of
+# either as the cap actually forces. It took a real production bundle to
+# justify cutting declared-outputs content at all — a 263,703-byte
+# whole-repo CHANGELOG.md, 25% of the bundle, for a task that appended a
+# handful of lines to it — but that file is still review material, so it
+# is the LAST thing this loop will touch, not the first.
+#
+# Spec documents (step 1), the task's own contract/evidence.json (step 2),
+# and the implementation report (step 4) are in NEITHER tier — never
+# elided, at any bundle size. A cut requirements.md or design.md cannot be
+# reviewed against its own acceptance criteria, and a cut implementation
+# report is the very thing under review; unlike a declared-outputs row —
+# one file among several, each independently readable — these are
+# singular per-bundle documents where head/tail elision would routinely
+# remove the exact criteria or Outputs table a panelist needs to judge the
+# rest of the bundle by. A third tier for either was considered and
+# rejected for that reason: there is no partial version of "the criteria
+# this task is judged against" that stays meaningful once cut.
+#
+# Head/tail size stays a fixed line count (not proportional to the cap) —
+# this exists purely for reviewer legibility (show a log's setup and its
+# final summary), never as a byte dial; the byte-target job stays entirely
+# with --max-bytes and the budget loop, in both tiers.
 _ppi_elide_lines=40
 _ppi_tab="$(printf '\t')"
 
@@ -692,12 +723,31 @@ $(cat "$_pbs_abspath")
     done < <(printf '%s\n' "$_ppi_elidable_index")
 }
 
-# Accumulates the CURRENT content of every "## Outputs" row
-# check_declared_outputs_completeness resolves (step 5 above); folded into
-# every budget-loop attempt below. Populated in both --input modes: a
-# literal-file --input can still name a task with its own implementation
-# report and Outputs table. Computed once — it never depends on the
-# elision decision (declared-outputs rows are never elided).declared_content=""
+# _ppi_declared_rows accumulates one record per "## Outputs" row
+# check_declared_outputs_completeness resolves (step 5 above): row_path,
+# resolved worktree candidate (or the "-" sentinel when there is none —
+# see _ppi_capture_declared_output_content), and staleness ("",
+# "stale-hash", "missing", also "-"-sentineled when empty). Populated in
+# both --input modes: a literal-file --input can still name a task with
+# its own implementation report and Outputs table. Populated once — it
+# never depends on any elision decision, only on what
+# check_declared_outputs_completeness resolved. $_ppi_declared_elidable_index
+# is the SAME tab-separated (bytes, abspath, relpath) shape
+# $_ppi_elidable_index uses, but only for rows that carry real content —
+# never for a "missing" row, which has nothing to elide. declared_content
+# itself is (re)built from $_ppi_declared_rows by _ppi_build_declared_content
+# below, once with an empty elide-set (tier two's own "as if elision never
+# existed" version) and, only if tier one's own loop leaves the bundle
+# still over cap, again with one more relpath added each time — largest
+# tier-two candidate first, exactly mirroring _ppi_build_step3_content's
+# shape for tier one. A "-" sentinel (never a legitimate row_path,
+# candidate, or staleness value) stands in for an empty field here rather
+# than an actual empty string, because IFS-tab `read` collapses adjacent
+# empty fields as if they were unset $IFS whitespace — a real risk once a
+# "missing" row's candidate field is genuinely empty.
+_ppi_declared_rows=""
+_ppi_declared_elidable_index=""
+declared_content=""
 
 # ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
 # Security Boundary B1 (security-spec.md): verifies every path the
@@ -864,17 +914,22 @@ _ppi_verify_at_declaration_commit() {
     return 0
 }
 
-# Append review material for one declared-outputs row into declared_content.
-# check_declared_outputs_completeness decides only whether the row was ever
-# true (build-gate job, unchanged); this function decides what a reviewer
-# actually reads, and it reads from the worktree candidate whenever one
-# exists — NEVER the declaration-commit blob, which would hand a panelist
-# code that no longer exists in the tree it is asked to review. Skips a row
-# already pulled in by the spec-document/task-verification/implementation-
-# report composition above (see _ppi_is_seen) — comparison is only
-# meaningful for project-root-relative rows (row_project_relative = "1"); a
-# row that only matched under --input has no comparable identity in that
-# set and is never deduplicated. $4 selects which case this call is:
+# Record one declared-outputs row into $_ppi_declared_rows (and, when it
+# carries real content, into $_ppi_declared_elidable_index — tier two's own
+# elidable candidate set). check_declared_outputs_completeness decides only
+# whether the row was ever true (build-gate job, unchanged); this function
+# decides what a reviewer actually reads, and it reads from the worktree
+# candidate whenever one exists — NEVER the declaration-commit blob, which
+# would hand a panelist code that no longer exists in the tree it is asked
+# to review. This function itself no longer builds declared_content —
+# _ppi_build_declared_content does, from the rows recorded here, so tier
+# two's own budget loop can rebuild it more than once, exactly as
+# _ppi_build_step3_content already does for tier one. Skips a row already
+# pulled in by the spec-document/task-verification/implementation-report
+# composition above (see _ppi_is_seen) — comparison is only meaningful for
+# project-root-relative rows (row_project_relative = "1"); a row that only
+# matched under --input has no comparable identity in that set and is
+# never deduplicated. $4 selects which case this call is:
 #   ""           a normal match — the declared hash was verified directly
 #                against the worktree candidate. No notice needed.
 #   "stale-hash" the worktree candidate exists but its hash no longer
@@ -884,12 +939,18 @@ _ppi_verify_at_declaration_commit() {
 #                bytes — plus an in-bundle notice that the report's
 #                declared hash for this path is stale, so the reviewer
 #                knows both what the code is now and that the report
-#                describing it is out of date.
+#                describing it is out of date. Both notices (stale-hash and
+#                elided) can land on the same row — see
+#                _ppi_build_declared_content, which prints the staleness
+#                header once and independently decides whether the BODY
+#                that follows it is whole or elided; the two never share a
+#                line, so eliding one never overwrites the other.
 #   "missing"    no worktree candidate exists at all — the row matched only
 #                at the declaration commit. There is no current content to
 #                serve; falling back to the declaration-commit blob here
 #                would silently hand the reviewer a file that has been
-#                deleted. Instead this appends only a notice.
+#                deleted. Instead this appends only a notice, and — having
+#                no candidate — is never a tier-two elision candidate.
 _ppi_capture_declared_output_content() {
     _cdo_row_path="$1"
     _cdo_candidate="$2"          # resolved worktree file path, or "" when
@@ -902,25 +963,142 @@ _ppi_capture_declared_output_content() {
         return 0
     fi
 
-    case "$_cdo_staleness" in
-        stale-hash)
-            declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
-$(cat "$_cdo_candidate")
+    _cdo_candidate_field="${_cdo_candidate:--}"
+    _cdo_staleness_field="${_cdo_staleness:--}"
+    _ppi_declared_rows="${_ppi_declared_rows}${_cdo_row_path}${_ppi_tab}${_cdo_candidate_field}${_ppi_tab}${_cdo_staleness_field}
 "
-            ;;
-        missing)
-            declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit ${_ppi_decl_commit}, the path no longer exists in the current tree) ----
-[no current content: this declared output does not exist in the worktree]
+
+    if [ -n "$_cdo_candidate" ]; then
+        _cdo_bytes=$(wc -c < "$_cdo_candidate" | tr -d ' ')
+        _ppi_declared_elidable_index="${_ppi_declared_elidable_index}${_cdo_bytes}${_ppi_tab}${_cdo_candidate}${_ppi_tab}${_cdo_row_path}
 "
-            ;;
-        *)
-            declared_content="${declared_content}# ---- ${_cdo_row_path} (declared output) ----
-$(cat "$_cdo_candidate")
-"
-            ;;
-    esac
+    fi
 
     [ "$_cdo_project_relative" = "1" ] && _ppi_mark_seen "$_cdo_row_path"
+}
+
+# Rebuilds declared_content from scratch from $_ppi_declared_rows, given a
+# set of relpaths (newline list, $1) that should be elided THIS attempt —
+# mirrors _ppi_build_step3_content's shape exactly, one tier over. A row
+# with no worktree candidate ("missing") is never in the elide set (it has
+# no $_ppi_declared_elidable_index entry to be sorted into) and always
+# renders its own fixed notice body. Every other row renders its staleness
+# header (if any) followed by either its whole content or, when its
+# row_path is in the elide set, _ppi_elide_content's head/tail/marker body
+# — the SAME function tier one uses, so the marker text and byte-accounting
+# are identical between tiers.
+_ppi_build_declared_content() {
+    _pbd_elide_set="$1"
+    declared_content=""
+    [ -n "$_ppi_declared_rows" ] || return 0
+    while IFS="$_ppi_tab" read -r _pbd_row_path _pbd_candidate_f _pbd_staleness_f; do
+        [ -n "$_pbd_row_path" ] || continue
+        [ "$_pbd_candidate_f" = "-" ] && _pbd_candidate_f=""
+        [ "$_pbd_staleness_f" = "-" ] && _pbd_staleness_f=""
+
+        case "$_pbd_staleness_f" in
+            stale-hash)
+                _pbd_header="# ---- ${_pbd_row_path} (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----"
+                ;;
+            missing)
+                _pbd_header="# ---- ${_pbd_row_path} (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit ${_ppi_decl_commit}, the path no longer exists in the current tree) ----"
+                ;;
+            *)
+                _pbd_header="# ---- ${_pbd_row_path} (declared output) ----"
+                ;;
+        esac
+
+        if [ -z "$_pbd_candidate_f" ]; then
+            declared_content="${declared_content}${_pbd_header}
+[no current content: this declared output does not exist in the worktree]
+"
+        elif printf '%s\n' "$_pbd_elide_set" | grep -qxF -- "$_pbd_row_path"; then
+            declared_content="${declared_content}${_pbd_header}
+$(_ppi_elide_content "$_pbd_candidate_f" "$_pbd_row_path")
+"
+        else
+            declared_content="${declared_content}${_pbd_header}
+$(cat "$_pbd_candidate_f")
+"
+        fi
+    done < <(printf '%s\n' "$_ppi_declared_rows")
+}
+
+# Extract every "## Outputs" table row from an implementation report as
+# "ROW<TAB>path<TAB>hash" (one per stdout line), matching the "| `path`
+# ... | `hash`" shape of a row while tolerating free text BETWEEN either
+# backtick-quoted cell and the delimiter around it — never requiring a
+# cell, or the physical line, to contain nothing else. The line-oriented
+# awk parser this replaced required the row to decompose into EXACTLY four
+# backticks with nothing after the closing "| ", which broke on three
+# real, unremarkable shapes, found by running this fix against all seven
+# real corpus bundles rather than reasoning from the shape in isolation:
+# a trailing human annotation sharing the hash cell (e.g. "(drifted —
+# shared file, see note above)", still followed by the table's own closing
+# pipe; epic-193 T-004); the same annotation naming a commit in its own
+# backtick pair (e.g. "extended by `82f6dbf2` after this task's own
+# commit"; epic-193 T-004) — this one changes the line's total backtick
+# count, so the old parser's exact-count check rejected the row outright,
+# not merely its trailing-content check; and an annotation sitting BETWEEN
+# the path cell and the column separator instead of after the hash (e.g.
+# "| `tests/loop-consistency.tests.ps1` (added) | `hash` |"; epic-195
+# T-005). A panelist reviewing epic-193 T-004 caught the first two: two
+# declared rows whose annotation happened to carry an embedded commit hash
+# vanished from the bundle with no notice at all, and every AC-056 claim
+# in that bundle existed as prose only, because the code and test driver
+# those two rows named were silently never in it.
+#
+# A line that begins like a data row ("| `", ignoring leading whitespace)
+# but does not fully match is never silently dropped either — printed as
+# "UNPARSEABLE<TAB>line" (embedded tabs replaced with spaces, so the
+# 2-field shape holds even for pathological content) so the caller can
+# fail the build naming the exact line, the same "never silent" discipline
+# check_declared_outputs_completeness already applies to every other gap
+# kind. A line that does NOT begin that way (the header row, the `---`
+# separator row, blank lines, stray prose) is ordinary table furniture,
+# not a row that failed to parse, and is skipped without comment — exactly
+# as before.
+_ppi_extract_declared_output_rows() {
+    python3 - "$1" <<'PYEOF'
+import re, sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8", errors="replace") as f:
+        lines = f.read().splitlines()
+except Exception:
+    sys.exit(0)
+
+# Neither cell boundary is anchored tight against the backtick that closes
+# it: real annotated rows put the free text in either position -- AFTER
+# the hash, still inside that same cell, e.g. "| `path` | `hash` (drifted
+# -- extended by `sha1` ...) |" (epic-193 T-004), or BETWEEN the path and
+# the column separator, e.g. "| `path` (added) | `hash` |" (epic-195
+# T-005, found by running this exact fix against all seven real corpus
+# bundles, not reasoning from the shape in isolation). "[^|]*" between the
+# two captures tolerates the second case; requiring a full "\|\s*$" at
+# either boundary -- the old awk parser's, and this parser's own first
+# draft -- rejected one or the other for the same reason: an annotation
+# breaking a strict "nothing else in this cell" assumption.
+row_re = re.compile(r'^\|\s*`([^`]*)`[^|]*\|\s*`([^`]*)`')
+candidate_re = re.compile(r'^\|\s*`')
+
+in_outputs = False
+for raw in lines:
+    line = raw.rstrip("\r")
+    if not in_outputs:
+        if line.strip() == "## Outputs":
+            in_outputs = True
+        continue
+    if line.startswith("## "):
+        break
+
+    m = row_re.match(line)
+    if m:
+        print("ROW\t{}\t{}".format(m.group(1), m.group(2)))
+        continue
+    if candidate_re.match(line):
+        print("UNPARSEABLE\t{}".format(line.replace("\t", " ")))
+PYEOF
 }
 
 check_declared_outputs_completeness() {
@@ -929,7 +1107,25 @@ check_declared_outputs_completeness() {
 
     _ppi_tab="$(printf '\t')"
     _gaps=""
-    while IFS="$_ppi_tab" read -r _row_path _row_hash; do
+    while IFS="$_ppi_tab" read -r _row_kind _row_path _row_hash; do
+        [ -n "$_row_kind" ] || continue
+
+        if [ "$_row_kind" = "UNPARSEABLE" ]; then
+            # $_row_path carries the whole offending line here (the second
+            # field of a 2-field "UNPARSEABLE<TAB>line" record read into a
+            # 3-variable loop — the unused third variable is always "").
+            # Nothing about this row's declared path/hash is known, so
+            # there is nothing to check completeness against; unlike a
+            # verified-absent row (declaration-commit fallback below),
+            # NOTHING was checked here at all, which this project treats as
+            # a strictly worse gap, not a milder one. Fails the build
+            # exactly like every other gap kind — never silently skipped,
+            # and never annotated into a bundle that this function is
+            # refusing to let get written in the first place.
+            _gaps="${_gaps}prepare-panelist-input: declared output row could not be parsed: ${_row_path}
+"
+            continue
+        fi
         [ -n "$_row_path" ] || continue
 
         if ! _ppi_is_canonical_declared_path "$_row_path"; then
@@ -991,18 +1187,7 @@ check_declared_outputs_completeness() {
         else
             _ppi_capture_declared_output_content "$_row_path" "$_candidate" "$_row_project_relative"
         fi
-    done < <(awk '
-        /^## Outputs[[:space:]]*$/ { in_outputs = 1; next }
-        in_outputs && /^##[[:space:]]/ { exit }
-        in_outputs {
-            line = $0
-            gsub(/\r$/, "", line)
-            n = split(line, parts, "`")
-            if (n == 5 && parts[1] ~ /^\| *$/ && parts[3] ~ /^ *\| *$/ && parts[5] ~ /^ *\|[[:space:]]*$/) {
-                print parts[2] "\t" parts[4]
-            }
-        }
-    ' "$_impl_report")
+    done < <(_ppi_extract_declared_output_rows "$_impl_report")
 
     if [ -n "$_gaps" ]; then
         printf '%s' "$_gaps" >&2
@@ -1131,20 +1316,28 @@ _ppi_measure_bundle_bytes() {
     printf '%s' "$_ppi_bundle_preview" | wc -c | tr -d ' '
 }
 
-# ── Size guard (fail-closed, --max-bytes only) — budget-driven elision ──────
-# Compose the bundle whole (empty elide-set) and measure it — the exact
-# bytes that would be written and sent to a panelist, not an approximation.
+# ── Size guard (fail-closed, --max-bytes only) — two-tier budget-driven
+# elision ─────────────────────────────────────────────────────────────────
+# Compose the bundle whole (empty elide-sets, both tiers) and measure it —
+# the exact bytes that would be written and sent to a panelist, not an
+# approximation. A bundle that already fits never touches either tier's
+# build function again after this first call, so it is byte-for-byte what
+# it would be with no elision logic in this script at all.
 
 _ppi_elide_set=""
 _ppi_build_step3_content "$_ppi_elide_set"
+_ppi_declared_elide_set=""
+_ppi_build_declared_content "$_ppi_declared_elide_set"
 _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
 _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
 
 _ppi_elided_count=0
+_ppi_declared_elided_count=0
 if [ -n "$max_bytes" ] && [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
-    # Over cap with nothing elided yet. Elide elidable candidates one at a
-    # time, LARGEST FIRST, recomputing the actual sanitized bundle size
-    # after each (never estimated), stopping the moment it fits.
+    # Tier one: the task's own verification/<task_id>/ evidence plus
+    # contract-declared evidence. Elide candidates one at a time, LARGEST
+    # FIRST, recomputing the actual sanitized bundle size after each (never
+    # estimated), stopping the moment it fits.
     if [ -n "$_ppi_elidable_index" ]; then
         while IFS="$_ppi_tab" read -r _ppi_cand_bytes _ppi_cand_abspath _ppi_cand_relpath; do
             [ -n "$_ppi_cand_relpath" ] || continue
@@ -1158,23 +1351,44 @@ ${_ppi_cand_relpath}"
         done < <(printf '%s\n' "$_ppi_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
     fi
 
+    # Tier two: declared-outputs rows — the source under review. Reached
+    # ONLY when tier one's own loop above (every candidate offered a
+    # chance to help, stopping early the moment it was enough) still
+    # leaves the bundle over cap. Same largest-first, re-measure-after-
+    # each, stop-the-moment-it-fits shape as tier one, over
+    # $_ppi_declared_elidable_index instead — see the file header and the
+    # "Scope, two tiers" comment above _ppi_elide_lines for why this tier
+    # exists and why it is never tried first.
+    if [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null && [ -n "$_ppi_declared_elidable_index" ]; then
+        while IFS="$_ppi_tab" read -r _ppi_dcand_bytes _ppi_dcand_abspath _ppi_dcand_relpath; do
+            [ -n "$_ppi_dcand_relpath" ] || continue
+            _ppi_declared_elide_set="${_ppi_declared_elide_set}
+${_ppi_dcand_relpath}"
+            _ppi_declared_elided_count=$((_ppi_declared_elided_count + 1))
+            _ppi_build_declared_content "$_ppi_declared_elide_set"
+            _ppi_sanitize_content "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}${declared_content}"
+            _ppi_bundle_bytes=$(_ppi_measure_bundle_bytes)
+            [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null || break
+        done < <(printf '%s\n' "$_ppi_declared_elidable_index" | sort -t "$_ppi_tab" -k1,1 -rn)
+    fi
+
     if [ "$_ppi_bundle_bytes" -gt "$max_bytes" ] 2>/dev/null; then
-        # Exhausted every elidable candidate (or there were none) and the
-        # bundle is still over cap — the degenerate case where even every
-        # elidable file's own head/tail/marker floor, summed with the
-        # content that is never elided, still exceeds --max-bytes. No
-        # further elision is possible; refusing to write is the only
-        # honest outcome, identical in shape to the no-elidable-candidates
-        # case this replaces.
-        printf 'prepare-panelist-input: sanitized bundle exceeds --max-bytes for %s/%s even after eliding %s elidable file(s) (%s > %s bytes) — refusing to write a silently-truncated bundle.\n' \
-            "$feature" "$task_id" "$_ppi_elided_count" "$_ppi_bundle_bytes" "$max_bytes" >&2
+        # Exhausted every elidable candidate in BOTH tiers (or there were
+        # none) and the bundle is still over cap — the degenerate case
+        # where even every elidable file's own head/tail/marker floor,
+        # summed with the content that is never elided, still exceeds
+        # --max-bytes. No further elision is possible; refusing to write
+        # is the only honest outcome, identical in shape to the
+        # no-elidable-candidates case this replaces.
+        printf 'prepare-panelist-input: sanitized bundle exceeds --max-bytes for %s/%s even after eliding %s task-evidence file(s) and %s declared-output file(s) (%s > %s bytes) — refusing to write a silently-truncated bundle.\n' \
+            "$feature" "$task_id" "$_ppi_elided_count" "$_ppi_declared_elided_count" "$_ppi_bundle_bytes" "$max_bytes" >&2
         printf '  spec documents + task verification + implementation report: %s bytes\n' \
             "$(printf '%s' "${_ppi_content_prefix}${_ppi_step3_content}${_ppi_content_suffix}" | wc -c | tr -d ' ')" >&2
         printf '  of which declared-outputs content:                          %s bytes\n' \
             "$(printf '%s' "$declared_content" | wc -c | tr -d ' ')" >&2
         printf '  sanitized bundle (header + content) that would have been written: %s bytes\n' \
             "$_ppi_bundle_bytes" >&2
-        printf 'Every elidable verification-directory file is already cut to its head/tail; reduce input size further (e.g. split the report itself or a declared-outputs source) and retry, or omit --max-bytes to bypass the guard.\n' >&2
+        printf 'Every elidable verification-directory file and every elidable declared-output file is already cut to its head/tail; reduce input size further (e.g. split the report itself) and retry, or omit --max-bytes to bypass the guard.\n' >&2
         exit 1
     fi
 fi
