@@ -92,7 +92,7 @@ if ($seenIds.Count -eq 0) {
 
 # Extract approver id from an approval string (e.g. "Approved (alice 2026-06-13T...Z)" → "alice")
 function Get-ApproverId([string]$s) {
-    if ($s -match "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
+    if ($s -cmatch "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
         return $Matches[1]
     }
     return ""
@@ -110,15 +110,16 @@ foreach ($task in $allTasks) {
     if (-not $s) { $failures += "$task has no Status line"; continue }
 
     # Validate Approval: Draft | Approved | Approved (<id> <ISO8601, seconds, Z>) (WFI-042)
-    # -match (not -cmatch): the lite twin's identical sites use -match, and the
-    # cross-checker parity fixtures require the two ps1 legs to agree.
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $namedApprovalPattern)
+    # -cmatch: the awk twin's regex is case-sensitive, and AGENTS.md's
+    # case-sensitivity sweep rule (WFI-012) requires ported -match sites to
+    # keep that; the lite twin's identical sites moved with this one.
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
     # For gate checks, an annotated approval counts only in the strict form.
-    $isApproved = ($a -eq "Approved" -or $a -match $namedApprovalPattern)
+    $isApproved = ($a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
 
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
     if ($s -in $approvedOnlyStatuses -and -not $isApproved) {

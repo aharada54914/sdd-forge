@@ -50,7 +50,10 @@ write_fixture() {
 
 # Fixture set: name|approval-line|expected (0 accept / 1 reject).
 # The minutes-precision and fractional-seconds rows are the two shapes of the
-# 8 committed lines measured in WFI-042's Problem Evidence.
+# 8 committed lines measured in WFI-042's Problem Evidence. The mis-cased row
+# is the AGENTS.md case-sensitivity sweep's mandatory negative fixture
+# (WFI-012 rule; PR #336 review): the awk regex is case-sensitive, so the ps1
+# legs must reject it identically via -cmatch.
 run_parity_cases() {
     idx=0
     while IFS='|' read -r name approval expected; do
@@ -91,6 +94,7 @@ minutes-precision|Approved (human 2026-08-17T03:35Z)|1
 fractional-seconds|Approved (sudo 2026-07-13T05:53:16.481Z)|1
 empty-annotation|Approved ()|1
 free-text|Approved (waived pending human sign-off)|1
+mis-cased|approved (alice 2026-08-22T01:02:03Z)|1
 CASES
 }
 # Note the draft row: Draft is a VALID field value, but an In Progress task
