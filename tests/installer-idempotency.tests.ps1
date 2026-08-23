@@ -94,6 +94,47 @@ Set-Content -Path (Join-Path $sourceFixture "mcp/sdd-forge-mcp/package.json") `
 #                      transition (the machine is already at the new version)
 #   unrelated-failure  marketplace-add fails with a message that is not an
 #                      idempotency message
+function ConvertTo-BatchLiteral {
+    # Escapes cmd.exe metacharacters so a message survives inside a
+    # parenthesised block.
+    #
+    # This is not hypothetical tidiness. `claude`'s stub emits
+    # "Plugin is already installed (scope: user)", and in
+    #   ... && (echo Plugin is already installed (scope: user) & exit /b 0)
+    # the unescaped ')' closes the block early. cmd then mis-parses the rest of
+    # the file, swallowing the plugin-add and mcp-add dispatch lines below it —
+    # so `claude mcp add` was invoked, logged, and silently returned 0 without
+    # emitting its "already exists" message. Case 1 then failed with
+    # "Re-run did not tolerate: MCP server 'sdd-forge-mcp'" on Windows only,
+    # because the sh twin puts the same message inside single quotes where
+    # parentheses are inert. The tell in the log was the echoed line missing
+    # its closing paren.
+    #
+    # Codex and Copilot were unaffected only because their message happens to
+    # contain no parentheses — which is luck, not design, hence escaping every
+    # message rather than the one that bit us.
+    #
+    # Quotes are deliberately left alone: cmd prints them literally, and none
+    # of this suite's messages mix quotes with the characters escaped here.
+    param([Parameter(Mandatory)][AllowEmptyString()][string]$Text)
+
+    $escaped = $Text -replace '\^', '^^'
+    foreach ($ch in '&', '<', '>', '|', '(', ')') {
+        $escaped = $escaped -replace [regex]::Escape($ch), ('^' + $ch)
+    }
+    return $escaped
+}
+
+# Self-check: runs on every platform, so a regression in the escaping is caught
+# on the POSIX twins too and not only when a Windows runner happens to execute.
+$probe = ConvertTo-BatchLiteral 'Plugin is already installed (scope: user)'
+if ($probe -ne 'Plugin is already installed ^(scope: user^)') {
+    throw "ConvertTo-BatchLiteral did not escape parentheses; got '$probe'"
+}
+if ((ConvertTo-BatchLiteral 'a^b&c|d<e>f') -ne 'a^^b^&c^|d^<e^>f') {
+    throw "ConvertTo-BatchLiteral did not escape the full metacharacter set."
+}
+
 function New-Stubs {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
@@ -117,13 +158,16 @@ function New-Stubs {
 
     foreach ($command in @("codex", "claude", "copilot")) {
         if ($isWindowsPlatform) {
-            $marketplaceBody = if ($marketplaceFails) { "(echo $marketplaceMsg 1>&2 & exit /b 1)" } else { "exit /b 0" }
-            $mcpBody = if ($mcpFails) { "(echo $MsgMcpExists 1>&2 & exit /b 1)" } else { "exit /b 0" }
+            # Every message goes through ConvertTo-BatchLiteral: an unescaped
+            # ')' inside these blocks terminates them early and corrupts the
+            # rest of the file. See the function's comment.
+            $marketplaceBody = if ($marketplaceFails) { "(echo $(ConvertTo-BatchLiteral $marketplaceMsg) 1>&2 & exit /b 1)" } else { "exit /b 0" }
+            $mcpBody = if ($mcpFails) { "(echo $(ConvertTo-BatchLiteral $MsgMcpExists) 1>&2 & exit /b 1)" } else { "exit /b 0" }
             $installBody = if ($command -eq "claude") {
-                if ($claudeInstallMsg) { "(echo $claudeInstallMsg & exit /b 0)" } else { "exit /b 0" }
+                if ($claudeInstallMsg) { "(echo $(ConvertTo-BatchLiteral $claudeInstallMsg) & exit /b 0)" } else { "exit /b 0" }
             }
-            elseif ($otherInstallFails) { "(echo $MsgPluginAdded 1>&2 & exit /b 1)" } else { "exit /b 0" }
-            $updateBody = if ($updateMsg) { "(echo $updateMsg & exit /b 0)" } else { "exit /b 0" }
+            elseif ($otherInstallFails) { "(echo $(ConvertTo-BatchLiteral $MsgPluginAdded) 1>&2 & exit /b 1)" } else { "exit /b 0" }
+            $updateBody = if ($updateMsg) { "(echo $(ConvertTo-BatchLiteral $updateMsg) & exit /b 0)" } else { "exit /b 0" }
             $lines = @(
                 "@echo off",
                 "echo $command %*>>`"$LogPath`"",
@@ -219,6 +263,12 @@ function Invoke-IdempotencyScenario {
     $env:PATH = "$binRoot$([System.IO.Path]::PathSeparator)$originalPath"
     $env:SDD_CODEX_HOME = Join-Path $testRoot "codex-home"
 
+    # Resolved while the stub PATH is in effect. Reading it after the finally
+    # block restores PATH would report the host's real node and say nothing
+    # about what the installer saw — which is what the first version of this
+    # diagnostic did.
+    $resolvedNode = (Get-Command node -ErrorAction SilentlyContinue).Source
+
     # `*>` sends every stream to the transcript file. Assigning a captured
     # pipeline to a variable instead would lose everything the installer wrote
     # before it threw — which is exactly the output the failure cases assert
@@ -248,11 +298,13 @@ function Invoke-IdempotencyScenario {
     }
 
     return @{
-        Failed      = $failed
-        Output      = (Get-Content -Path $transcript -Raw -ErrorAction SilentlyContinue)
-        Log         = (Get-Content -Path $logPath -Raw -ErrorAction SilentlyContinue)
-        InstallRoot = $installRoot
-        TestRoot    = $testRoot
+        Failed       = $failed
+        Output       = (Get-Content -Path $transcript -Raw -ErrorAction SilentlyContinue)
+        Log          = (Get-Content -Path $logPath -Raw -ErrorAction SilentlyContinue)
+        InstallRoot  = $installRoot
+        TestRoot     = $testRoot
+        ResolvedNode = $resolvedNode
+        StubDir      = $binRoot
     }
 }
 
@@ -279,7 +331,12 @@ function Write-ScenarioDiagnostic {
     Write-Host "----- scenario diagnostic -----"
     Write-Host "install root:            $($Result.InstallRoot)"
     Write-Host "MCP payload placed:      $(Test-Path $mcpEntry)   ($mcpEntry)"
-    Write-Host "node on PATH resolves to: $((Get-Command node -ErrorAction SilentlyContinue).Source)"
+    Write-Host "node during the run:     $($Result.ResolvedNode)"
+    Write-Host "----- stub sources -----"
+    Get-ChildItem -Path $Result.StubDir -ErrorAction SilentlyContinue | ForEach-Object {
+        Write-Host "--- $($_.Name) ---"
+        Write-Host (Get-Content -Path $_.FullName -Raw -ErrorAction SilentlyContinue)
+    }
     Write-Host "----- CLI invocation log -----"
     Write-Host $Result.Log
     Write-Host "----- installer transcript -----"
