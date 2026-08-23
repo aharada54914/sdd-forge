@@ -1,0 +1,3 @@
+COMMAND: bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/risk-adaptive-layer/traceability.json . require-evidence
+EXIT: 0
+Traceability check passed for risk-adaptive-layer: 11 link(s).

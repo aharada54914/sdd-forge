@@ -104,7 +104,7 @@ T-001
 
 Source Issue: investigation.md INV-002
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: modifies the core Default-FAIL gate; a regression here weakens every adopter's assurance. Backward compatibility is load-bearing.
 Required Workflow: tdd
