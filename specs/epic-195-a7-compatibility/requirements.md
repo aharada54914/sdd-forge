@@ -395,9 +395,12 @@ guessing at an undocumented convention.
   observation) a Context-present round drive produces is identical to the
   recorded golden-trace value for that fixture state's canonical
   `compatibility-event-trace/v1` value (REQ-003) — no new suite file is
-  created (INV-005). AC-032 is this criterion's `loop-consistency`-owned
-  counterpart for the skill-invocation-order, review-loop-presence, and
-  approval-checkpoint event kinds.
+  created (INV-005). A named `SKIP` entry in REQ-007's allowlist manifest
+  (AC-034) until Epic A1's Project Context schema exists, activation
+  condition "Epic A1 merged to `main`" (REQ-007). AC-032 is this
+  criterion's `loop-consistency`-owned counterpart for the
+  skill-invocation-order, review-loop-presence, and approval-checkpoint
+  event kinds.
 - AC-011: `emit-run-record.sh`'s no-flag output remains byte-identical to
   today's `sdd-run-record/v1` shape after this epic's Phase 2/3
   implementation (the same invariant its own `v1`/`v2` branch already
