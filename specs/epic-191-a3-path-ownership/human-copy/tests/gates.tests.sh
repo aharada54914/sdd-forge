@@ -343,7 +343,9 @@ else
     fail "C-05.1: valid sudo format should pass"
 fi
 
-# Test: any Approved (...) annotation is accepted (relaxed format per #35.3)
+# Test: a free-text annotation is REJECTED (WFI-042 retired the relaxed
+# format #35.3 introduced: the annotated form is valid only in the strict
+# 'Approved (<id> <ISO8601, seconds, Z>)' grammar approver_id() extracts from)
 mkdir -p "${WORK}/c05_test2/reports/quality-gate"
 mkdir -p "${WORK}/c05_test2/reports/implementation"
 cat > "${WORK}/c05_test2/tasks.md" <<'EOF'
@@ -358,9 +360,9 @@ if check_task_state_passes "${WORK}/c05_test2/tasks.md" \
     "${WORK}/c05_test2/reports/quality-gate" \
     "${WORK}/c05_test2/reports/implementation" \
     "${WORK}/c05_test2"; then
-    ok "C-05.2: any Approved (...) annotation accepted (relaxed format)"
+    fail "C-05.2: Approved (sudo bogus) should be rejected under the strict grammar (WFI-042)"
 else
-    fail "C-05.2: Approved (sudo bogus) should be accepted under relaxed format"
+    ok "C-05.2: free-text annotation rejected (strict grammar, WFI-042)"
 fi
 
 # Test: Approved (sudo ...) allows Done status

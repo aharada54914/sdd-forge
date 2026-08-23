@@ -2,6 +2,63 @@
 
 ## Unreleased
 
+### Changed
+
+- **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
+  各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
+  Approved 在庫を全件 Applied へ。
+  - **WFI-039**（実装済み・2026-08-21 検証済み）: Status 追随のみ。
+  - **WFI-022 — WFI ガード誤検知3経路の修正**: フィールドマッチャを
+    「列0の完全なフィールド行」（multiline、CR 許容）と「コマンドテキスト用
+    非アンカー形」の2本に分離（リダイレクト追記はリテラルが行中の引用内に
+    来るため、アンカー化だけでは取りこぼす）。Edit 経路は `old_string` との
+    **純増比較**（edits 配列は要素ごと）、Bash 経路はガード自身の read-only
+    不変量（複合演算子なし+read-only 動詞開始+書込トークンなし）での免除+
+    書込可能コマンドは広域一致を維持。py/js/ps1 同一変更（sh は
+    dispatcher のため無差分）。parity スイートに `wfi-022:` 10ケース追加 —
+    再現3誤検知は変更前 exit 2 / 変更後 exit 0 を実測、承認除去 sed は
+    設計どおり拒否のまま+Edit 経路の同遷移は許可、実バイパス
+    （列0行を含む Write、リダイレクト追記、フィールド追加 Edit、複合
+    read-then-write）は拒否維持。67/67 緑、guard 系スイート・ミラー同期
+    （7件）済み。
+  - **WFI-042 — タスク承認注釈文法の統一**: check-task-state.{sh,ps1} の
+    妥当性/ゲート判定を approver_id() と同じ厳格文法
+    `Approved (<id> <ISO8601 秒 Z>)` に統一（#35.3 の緩和形式を廃止）。
+    **MCP パーサも追随**（golden シェル等価契約が check-task-state.sh に
+    束縛しているため — 実装時に発見した波及先として WFI Result に記録）。
+    新設 `task-state-grammar-parity.tests.sh`（full↔lite 7fixture parity +
+    抽出一致4ケース、判別性実証: 変更前6失敗/変更後11緑）。gates C-05.2
+    期待値反転（131 緑）、MCP 240 緑。committed 8行の移行は人間作業として
+    `reports/notes/wfi-042-approval-line-migration.patch` にステージ
+    （git apply 検証済み、CI 非依存）。追跡 Issue #330。
+  - **WFI-037 — REVIEW_CONTEXT_OK 行へのチェーン事実の搭載**: validator
+    双子が予約レコードの sequence / previous_record_sha256 /
+    pre-append tip sequence（persisted 検証時は `-`）/ identity_unique を
+    OK 行に出力（各事実は出力前に fail-closed 検査で証明。persisted 分岐に
+    一意性検査を新設）。境界リファレンスの4ステップ手順を「聴衆が実行可能」
+    な形に全面改訂（各ステップに証拠源タグ、台帳読取は無権限と明記、偽造
+    OK 行の反証可能性も記載）。9ロール文書に自己 manifest 検証禁止の
+    同一段落を挿入。新設
+    `boundary-reference-authorization-parity.tests.{sh,ps1}`（19 緑、
+    run-all+CI 登録）。あわせて #325 の lib 統合以来 main で失敗していた
+    `review-context-boundary.tests.sh` の引用ドリフト検査を lib に追随修正
+    （CI 非実行のため未検出だった）。
+  - **WFI-025 — 混在ステータス計画の恒久バインディング**:
+    task-review-precheck.{sh,ps1} が混在時に**正規化ダイジェスト**を記録し
+    `tasks_sha256_form` を宣言（一様計画は raw をバイト同一で維持、
+    --verify-inputs も form 対応）。validate-review-context-set.{sh,ps1} に
+    tasks.md 限定のスコープ付き例外（precheck 宣言+記録一致+live 再正規化
+    一致の3条件、他エントリは raw 厳格のまま。旧方式 manifest は既存
+    round-consistency で拒否）。task-review-loop SKILL STEP 2/4 に
+    verbatim コピー指示。新設
+    `task-plan-binding-durability.tests.sh`（16 緑、run-all+CI 登録）:
+    実 precheck→予約 validator→**無変更の check-workflow-state.sh** の
+    全経路で「正規化バインディングはステータス遷移を生き延び、raw
+    バインディング（変更前の唯一の形）は同じ遷移で壊れる」を実測。
+    完走済み（一様 Done）計画では raw が re-review 形と偶然一致して
+    生き残る — Root Cause の言う偶発的不変性そのもの — ため、fixture は
+    mid-flight 状態から束縛する（テストに記録済み）。
+
 ### Fixed
 
 - **SHA-256 検証の fail-closed 化と lowercase-only 統一（監査 Cluster 6）**:

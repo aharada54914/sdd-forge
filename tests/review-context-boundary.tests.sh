@@ -9,7 +9,10 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DOC="$ROOT/plugins/sdd-review-loop/references/review-context-boundary.md"
 VALIDATOR="$ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
-PRECHECK="$ROOT/plugins/sdd-review-loop/scripts/impl-review-precheck.sh"
+# The previous-round-summary requirement moved from impl-review-precheck.sh
+# into the shared lib in the #325 require_persisted_pass consolidation; the
+# precheck still enforces it by sourcing the lib.
+PRECHECK="$ROOT/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh"
 REVIEWER_A="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md"
 
 fail() { printf 'not ok: %s\n' "$1" >&2; exit 1; }

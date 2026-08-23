@@ -86,12 +86,14 @@ foreach ($task in $allTasks) {
     if (-not $s) { $failures += "$task has no Status line"; continue }
 
     # Validate Approval: Draft | Approved | Approved (<id> YYYY-MM-DDTHH:MM:SSZ)
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $namedApprovalPattern)
+    # -cmatch (WFI-042 / PR #336 review): the awk twin's regex is
+    # case-sensitive; the full checker's identical sites use -cmatch too.
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
-    $isApproved = ($a -eq "Approved" -or $a -match $namedApprovalPattern)
+    $isApproved = ($a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
 
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
     if ($s -in $approvedOnlyStatuses -and -not $isApproved) {

@@ -1,7 +1,10 @@
 # Deterministic gate: validate the tasks.md state machine on disk.
 # Usage: check-task-state.ps1 <path-to-tasks.md> [-ReportsDir <reports/quality-gate>] [-ImplReportsDir <reports/implementation>] [-RepoRoot <path>]
 # Rules enforced:
-#  - Approval is Draft or Approved (bare) or Approved (<any annotation>); Status is a known lifecycle value.
+#  - Approval is Draft or Approved (bare) or Approved (<id> <ISO8601, seconds, Z>);
+#    Status is a known lifecycle value. WFI-042: the annotated form uses the same
+#    strict grammar Get-ApproverId extracts from, so validity and approver
+#    extraction can no longer disagree about one line.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
@@ -27,10 +30,10 @@ if (-not (Test-Path -LiteralPath $TasksPath)) {
 $validStatuses = @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")
 $approvedOnlyStatuses = @("In Progress", "Implementation Complete", "Done")
 
-# Strict pattern for critical two-person approval (named approver + ISO timestamp)
+# Strict pattern for every annotated approval (named approver + ISO timestamp).
+# WFI-042: validity, gate checks, and approver extraction all use this one
+# grammar; the relaxed any-annotation pattern is retired.
 $namedApprovalPattern = "^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
-# Relaxed pattern: Approved (<any non-empty annotation>) — used for non-critical gate checks
-$flexApprovalPattern = "^Approved \(.+\)$"
 
 $failures = @()
 $currentTask = $null
@@ -89,7 +92,7 @@ if ($seenIds.Count -eq 0) {
 
 # Extract approver id from an approval string (e.g. "Approved (alice 2026-06-13T...Z)" → "alice")
 function Get-ApproverId([string]$s) {
-    if ($s -match "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
+    if ($s -cmatch "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
         return $Matches[1]
     }
     return ""
@@ -106,14 +109,17 @@ foreach ($task in $allTasks) {
     if (-not $a) { $failures += "$task has no Approval line"; continue }
     if (-not $s) { $failures += "$task has no Status line"; continue }
 
-    # Validate Approval: Draft | Approved | Approved (<any non-empty annotation>)
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $flexApprovalPattern)
+    # Validate Approval: Draft | Approved | Approved (<id> <ISO8601, seconds, Z>) (WFI-042)
+    # -cmatch: the awk twin's regex is case-sensitive, and AGENTS.md's
+    # case-sensitivity sweep rule (WFI-012) requires ported -match sites to
+    # keep that; the lite twin's identical sites moved with this one.
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
-    # For gate checks, treat Approved (with any non-empty annotation) same as Approved
-    $isApproved = ($a -eq "Approved" -or $a -match $flexApprovalPattern)
+    # For gate checks, an annotated approval counts only in the strict form.
+    $isApproved = ($a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
 
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
     if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
