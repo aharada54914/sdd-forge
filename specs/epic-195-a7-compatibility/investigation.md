@@ -92,3 +92,105 @@ additive-flag pattern (INV-006) rather than register a ninth loop.
 - Preserve the existing 8-entry `loop-inventory/v1` registry and its
   registration-forcing suite (INV-001, INV-002) exactly as-is in this
   spec-only phase.
+
+## Amendment Re-Review Context
+
+This package is in a declared amendment re-review context: its Phase 1
+documents were amended after this epic's implementation phase ran, the
+amendments are human-approved, and this entry — committed into the
+hash-pinned, review-pinned package — is the durable, citable approval
+record.
+
+### Human approval (verbatim, dated)
+
+- 2026-08-23: 「194/195/196の凍結文書について人間は承認する」 — the
+  human's approval of the frozen-document amendments for epics 194, 195,
+  and 196, given as the authorization for re-running the affected review
+  stage against the amended documents at a new attempt.
+- 2026-08-23: 「限定デプロイ + WFI 起票でやれ」 — the human's follow-on
+  instruction authorizing the limited deployment of the amendment
+  re-review lane for epic-195 and epic-194, plus a WFI filing for the
+  durable mechanism.
+
+Because these approvals were given in conversation, this committed entry
+is itself the durable record of them; no other citable artifact carries
+them.
+
+### Amendment commits (full hashes) and amended-document SHA-256 values
+
+- `7652d01b3a152863afefd38bd11e1bac5767e3de` — reworded the
+  acceptance-tests.md AC-009/TEST-009 row (folding AC-009's byte-identity
+  lock around the sanctioned `_loop_trace_emit
+  done-transition:assert-terminal` call) and applied the matching
+  `tests/lib/loop-driver.{sh,ps1}` /
+  `tests/loop-inventory.tests.{sh,ps1}` re-baseline. As of this commit,
+  `specs/epic-195-a7-compatibility/acceptance-tests.md` =
+  `54f6ace65a05570cb8b81a418a5c597bd10ba47c10ebc9c20f97ae5de4c60992`.
+- `a5681c67d9453d4c92e6f6446d8b3959094c215d` — completed that amendment
+  across both documents (spec-review attempt 3 rounds 1-3 remediations:
+  requirements.md AC-009 aligned with TEST-009; TEST-009's dangling
+  cross-references replaced by explicit hash values and in-repo
+  locations; first, narrative form of the Overview/Non-goals note). As
+  of this commit, `specs/epic-195-a7-compatibility/requirements.md` =
+  `fc5f9ffe66edb9c94c865193e8bca9565eb24e91e7fcf55dba354e883106a505` and
+  `specs/epic-195-a7-compatibility/acceptance-tests.md` =
+  `d982efe1eef57b5efdb42c1e40398ee3cd27ec4790da1c9914f0a78b17a09d04`.
+- `27843332c6f07f6286111ebb90b6a900a0385089` — repointed the
+  Overview/Non-goals amendment note at this entry (pointer form). As of
+  this commit, `specs/epic-195-a7-compatibility/requirements.md` =
+  `b302af8dabdee7c59a797d3cf3b25d25937da41313f865a67738ae7c40902811`.
+- This entry is itself an amendment to
+  `specs/epic-195-a7-compatibility/investigation.md`. Its own
+  post-amendment SHA-256 cannot be cited from inside itself; per the
+  calibration's "as applicable" scope it is pinned externally by the
+  attempt-4 reviewer invocation manifests
+  (`reports/review-context/pending-epic-195-a7-compatibility-spec-reviewer-{a,b}-seq*-manifest.json`)
+  and by the identity ledger records those reservations append. The
+  pre-amendment investigation.md (as of both amendment commits above) =
+  `8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b`.
+
+### Later-phase artifacts this package references (commit / SHA-256)
+
+The amended requirements.md (Overview/Non-goals note) and
+acceptance-tests.md (TEST-009 row) reference the following later-phase
+artifacts; every reference is carried here with a commit hash or SHA-256
+fingerprint, never as a bare path:
+
+- `specs/epic-195-a7-compatibility/tasks.md` — SHA-256
+  `80dba0cd7dea38fa6047a238acb6500048074a9cf5141fccff09cf0da444e3fd`,
+  last amended in commit `6b4e87ba095a565cce1833fcacecc03571665229`.
+  Defines T-005 and T-006, the implementation cycle TEST-009's
+  provenance note names.
+- `specs/epic-195-a7-compatibility/traceability.md` — SHA-256
+  `d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f`;
+  `specs/epic-195-a7-compatibility/traceability.json` — SHA-256
+  `53293b9f82198dad9bba4c433e7d82af9f06d7fe8920526d1267063c8c21f9da`.
+- `specs/epic-195-a7-compatibility/design.md` — SHA-256
+  `2e7c0c46d97371565ad93b1e097dcccb9dcdbbb3d15faf6b949584433fd18f78`
+  (the per-kind producer table AC-009 and AC-026 cite).
+- `tests/loop-inventory.tests.sh` — SHA-256
+  `ba8fca9efbb1854d30cac5766e0d0a1e2c981d40f70587aee5339a05347433b4`;
+  records `EXPECTED_TERMINAL_SHA` =
+  `f325a4df4a276cf4a4bc7a4051032693cceb6bff6db99fce27eb4b13b18473df`,
+  the `assert_terminal` function-body hash TEST-009 declares as its
+  binding truth condition (re-baselined in commit
+  `7652d01b3a152863afefd38bd11e1bac5767e3de`).
+- `tests/loop-inventory.tests.ps1` — SHA-256
+  `2b971e92e512c8c97dbb00e9c62a4a55093de42fc704274a22d26b2216e09a54`;
+  records the `Test-LoopTerminal` function-body hash
+  `460467af4a0b89af0b1cc0cb1ec94aa022dec00a81abbcd00924288727367757`
+  (same commit).
+- `tests/lib/loop-driver.sh` — SHA-256
+  `8ae3cc282785a7f352c1d1a99ee2e98d67e0fdfb1577661a2a6de80007dc9789`;
+  `tests/lib/loop-driver.ps1` — SHA-256
+  `b90c84bfffda9f31eae3cdb6ee146c1f9fd69782fe1a0c041de3bdddfee15fb9`
+  (hosts of `assert_artifacts_schema` / `assert_terminal` /
+  `Test-LoopTerminal`; the one sanctioned `assert_terminal` change
+  landed in commit `7652d01b3a152863afefd38bd11e1bac5767e3de`).
+
+### Scope
+
+This entry documents amendment lineage and authorization; it waives no
+review finding. Every check other than the phase-sequencing basis the
+calibration's Amendment Re-Review Context section describes is judged
+exactly as it would be without this entry.
