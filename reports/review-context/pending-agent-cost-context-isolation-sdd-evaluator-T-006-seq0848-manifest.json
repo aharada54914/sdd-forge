@@ -1,0 +1,90 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "agent-cost-context-isolation",
+ "task_id": "T-006",
+ "run_id": "RUN-agent-cost-context-isolation-qg-T-006-seq0848",
+ "host_session_id": "SESS-qg-agent-cost-context-isolation-T-006-0848",
+ "sequence": 848,
+ "previous_record_sha256": "b36f76fd8480f2964e899b091336f2d495e965ded67f8527713015fdd8a0d47c",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "be74c5558cdb78a29baa6e2556fcdb8c52188b5c91df82bccee7d8c03eb6aa7b",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/agent-cost-context-isolation/requirements.md",
+   "sha256": "a386237a9e36d0e584374ef67a3bc56dc048e671213d49bff4c96c5e71e8696a"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/design.md",
+   "sha256": "c7700c4ff46be38e886635b00ebf4e685192f573f128289bea354e45697903f5"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+   "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/security-spec.md",
+   "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/tasks.md",
+   "sha256": "bbc58cfe221743f91aa44912a34112d7d82cca44f33f2f56ae980aee66f8a40f"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/traceability.md",
+   "sha256": "0dd3d808411ed0240ee1228caefbf2fad9623897f08583d6d14598877971d388"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "reports/implementation/agent-cost-context-isolation/T-006.md",
+   "sha256": "b5770681c84ba2fe46a20e4713956500ca53f628d3c914fb56d2ebac24c7657c"
+  },
+  {
+   "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+   "sha256": "51f3f742caf3d4b4e5fc44934d802047750ba5de0a7a7ce538af6631b8f91e68"
+  },
+  {
+   "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+   "sha256": "de8f5fea946f8176cd65967965906fd634e187d2adca21d6759eee9b3baad644"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+   "sha256": "f96bc0d8ed78ece373d8db9eb108f544f6d0a2d4f7026dd0ae51c1889d5497ec"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
+   "sha256": "6082b26e4f72ebfdc28917d919c78bfe00d9e72b5fb84f659278da8b612c6f28"
+  },
+  {
+   "path": "tests/turn-first-workflow.tests.sh",
+   "sha256": "096abf97671b194fe5a2111d395f8b6da79ee224ecf89f584043669711004504"
+  },
+  {
+   "path": "tests/retrospective-loop.tests.sh",
+   "sha256": "e2f73a7a18f9c216fe41e98f5e8edde221a744f4f0f40c681e80d5276c480fb8"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/verification/T-006/green.log",
+   "sha256": "4a75077afbaeba1b1eef3911af73ce58fea503b029d60f0375076b24af9a283a"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/verification/T-006/red.log",
+   "sha256": "2d55ba1182d881354ae7d42f9f1f4a936b24d20632cfd527ea07db7308f29ca7"
+  },
+  {
+   "path": "specs/agent-cost-context-isolation/verification/T-006/green-recapture-20260821.log",
+   "sha256": "0a92ae4a25ef9e58bdc9c994f0be1490e75ebdaea54fb98e88d076736ecd15d2"
+  }
+ ],
+ "gate_report_declaration": {
+  "path": "reports/quality-gate/20260823T184500Z.md",
+  "sha256": "41d0b57e76dee8dcc8242bbb23957a63474c7c625923353935771ba5d8a08286"
+ }
+}
