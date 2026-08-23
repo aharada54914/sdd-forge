@@ -1,0 +1,19 @@
+--- a/specs/risk-adaptive-layer/design.md
++++ b/specs/risk-adaptive-layer/design.md
+@@ -83,10 +83,12 @@
+ }
+ ```
+ 
+-- `risk` absent ⇒ **legacy mode**: `check-contract` applies ONLY its current behavior
+-  (historical baseline-protection of {lint, typecheck, unit-tests, build,
+-  placeholder-scan, task-state-check}); it enforces NO tier minimum. Tier-minimum
+-  enforcement activates **only when `risk` is present**. (Do NOT map absent→medium:
++- `risk` absent, `null`, empty, or whitespace-only ⇒ **legacy mode**: `check-contract`
++  applies ONLY its current behavior (historical baseline-protection of {lint,
++  typecheck, unit-tests, build, placeholder-scan, task-state-check}); it enforces
++  NO tier minimum. Tier-minimum enforcement activates **only when `risk` is a
++  non-empty, non-whitespace string** (both runtime twins already read it this
++  way; this sentence records the ratified reading). (Do NOT map absent→medium:
+   the `medium` minimum adds `acceptance-tests`/`regression`, which pre-feature
+   contracts lack, so mapping absent→medium would fail every existing contract.)
+ - `red_evidence`/`green_evidence` optional in schema; **required by the gate** only when `required_workflow == "tdd"` for checks of type test.
