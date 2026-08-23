@@ -391,7 +391,7 @@ T-002..T-007
 
 Source Issue: reports/implementation/T-011.md Finding 1
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: changes check-contract Pass 4 (the gate engine); must keep all existing contract tests green and stay backward compatible.
 Required Workflow: tdd
