@@ -2,7 +2,52 @@
 
 ## Unreleased
 
+### Fixed
+
+- **タスク承認ゲートが PowerShell ホストで大小文字を無視していた問題
+  （WFI-012 クラスの実在欠陥、WFI-044 の Cycle-2 監査で発見）**:
+  `check-task-state.ps1` / `check-task-state-lite.ps1` の承認・ステータス判定が
+  `-eq` / `-in` / `-notin` を使っていた。PowerShell のこれらは**大小文字を
+  無視する**が、awk 双子の `==` / `!=` は**大小文字を区別する**。結果:
+  - `Approval: approved`（小文字）は awk 側で「invalid Approval」かつ
+    「In Progress without Approval」の2件失敗となるのに対し、ps1 側では
+    **有効な承認として扱われ承認ゲートを通過**していた。
+    つまり誤記した承認値が PowerShell ホストでのみゲートを抜けられた。
+  - `Status: planned` / `in progress` / `done` も同様に ps1 側だけ有効扱い。
+  - `-in $approvedOnlyStatuses` / `-notin $validStatuses` も同じ理由で
+    大小文字を無視していた。
+  該当箇所を `-ceq` / `-cin` / `-cnotin` に修正（両チェッカー計15箇所)。
+  `.ToLower()` を明示している箇所（`sudo` / `none` 判定、Risk は読み取り時に
+  awk の `tolower()` と同様に正規化済み）は awk 双子と一致するため変更なし。
+  MCP パーサは JS の `===`（大小文字区別）で既に一致しており影響なし。
+  **PR #336 の `-match`→`-cmatch` 修正は正規表現層のみを直しており、同じ行の
+  `-eq` は残っていた** — `tests/task-state-grammar-parity.tests.sh` の
+  mis-cased フィクスチャも注釈形式のみを覆っていたため検出できなかった。
+  同スイートに文字列等価層の負フィクスチャ5件を追加
+  (`mis-cased-bare-{lower,upper,mixed}`、`mis-cased-status-{planned,inprogress}`)。
+  17/17 緑、4件すべて sh 脚で reject を実測。
+
+  **追補（PR #339 の Codex レビュー指摘、いずれも同一クラスの取りこぼし）**:
+  - **フィールド名層**: awk 双子は `/^Approval:/` `/^Status:/` で行を選別する
+    （awk 正規表現は大小文字を区別）が、ps1 側は同じアンカーを `-match` で
+    見ていた。`approval: Approved` は ps1 で解析され awk では無視され、
+    awk 側だけが「フィールドが無い」と報告していた。見出し・Risk・
+    Second Approval・Blockers を含む12箇所を `-cmatch` に変更。
+  - **cmdlet 層**（AGENTS.md WFI-012 のリスト (b)）: lite チェッカーの Done
+    判定は品質ゲートレポートを検索するが、awk 双子の `grep -rlw` /
+    `grep -Eq` が大小文字を区別する一方、ps1 の `Select-String` は既定で
+    無視する。`verdict: pass` と書かれたレポートが PowerShell ホストでのみ
+    Done を満たしていた。4箇所に `-CaseSensitive` を追加。
+  - フィクスチャを追加: フィールド名層3件（`mis-cased-key-*`）、cmdlet 層5件
+    （`verdict-case-*`、canonical を control として保持）。25/25 緑。
+
 ### Changed
+
+- **`installer-idempotency` 関連は main 側に一本化**: CI 登録・終端 `exit 0`・
+  Windows のバッチエスケープ修正はいずれも main が行った（`2b8e528a` /
+  `9a382c21` / `ce7eea97` の revert / `93cc6070` で再登録）。本ブランチが
+  一時的に持っていた同等実装は全て破棄し、`test.yml` を含むインストーラ・
+  CI 関連ファイルは `origin/main` と byte-identical。
 
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
