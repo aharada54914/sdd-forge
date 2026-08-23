@@ -120,9 +120,16 @@ review-pinned package — is the durable, citable approval record.
   human's approval of the frozen-document amendments for epics 194, 195,
   and 196, given as the authorization for re-running the affected review
   stage against the amended documents at a new attempt.
+- 2026-08-24: 「A①B①C①でやれ」 — the human's ruling on task-review
+  attempt 2 round 1's Critical finding; C① as presented means T-008's
+  Done-When is amended to target the `discharged` state (the HUMAN APPLY
+  STEP runs Epic A1's now-merged handshake script to produce the real
+  session records that discharge the SKIP cells) and the stale
+  Out-of-Scope rationale is corrected.
 
-Because this approval was given in conversation, this committed entry is
-itself the durable record of it; no other citable artifact carries it.
+Because these approvals were given in conversation, this committed entry
+is itself the durable record of them; no other citable artifact carries
+them.
 
 ### Amendment commits (full hashes) and amended-document SHA-256 values
 
@@ -177,6 +184,18 @@ itself the durable record of it; no other citable artifact carries it.
   spec-review attempt-2 precheck itself set; the status field is
   normalized by the gates and flips to `Passed` only on a spec-review
   PASS).
+- `19005e7741e600ff8b3c4b01cfb33681bb8aec64` — amended T-008 per the
+  human's 2026-08-24 ruling 「A①B①C①でやれ」 (C①, above): the HUMAN
+  APPLY STEP's Done-When criterion targets the `discharged` state
+  (running Epic A1's merged handshake script to produce the genuine
+  session records that discharge the five semantic cells, confirmed by
+  `validate-live-host-proof` observing `discharged`), replacing the
+  `pending` criterion task-review attempt 2 round 1 found unobservable
+  under the amended Activation Gate; the stale "not yet merged"
+  Out-of-Scope rationale is corrected in T-008 and in T-005's
+  cross-reference. Every other Done-When item is byte-identical. As of
+  this commit, `specs/epic-196-a8-integration/tasks.md` =
+  `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`.
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
@@ -189,13 +208,18 @@ itself the durable record of it; no other citable artifact carries it.
   `1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2`;
   as pinned by the impl attempt-4 round-2 and spec attempt-2 round-1
   manifests (sequences 771/772 and 773/774) =
-  `6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209`.
+  `6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209`;
+  as pinned by the impl attempt-5, spec attempt-2 round-2, and
+  task attempt-2 round-1 reviewer manifests (sequences 775-780) =
+  `742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184`.
 
 ### Later-phase artifacts this package references (commit / SHA-256)
 
 - `specs/epic-196-a8-integration/tasks.md` — SHA-256
-  `3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d`,
-  last amended in commit `ff73ebaa7b1e575a7da5d0a1c4fd90f20c8bf117`.
+  `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`,
+  last amended in commit `19005e7741e600ff8b3c4b01cfb33681bb8aec64`
+  (previously `3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d`
+  at commit `ff73ebaa7b1e575a7da5d0a1c4fd90f20c8bf117`).
   Defines T-008, the task the amended Activation Gate names as the sole
   owner of the `AC-015`/`AC-016` allowlist entries, and carries the
   task-stage review evidence this feature's earlier attempts pinned.
