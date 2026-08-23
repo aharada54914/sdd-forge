@@ -65,7 +65,7 @@ None
 
 Source Issue: investigation.md INV-001
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: introduces a new fail-closed deterministic control that other gates depend on; must be cross-runtime correct and unforgeable.
 Required Workflow: tdd
