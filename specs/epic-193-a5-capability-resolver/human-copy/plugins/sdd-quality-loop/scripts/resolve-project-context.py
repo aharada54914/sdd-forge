@@ -281,8 +281,26 @@ def _discover_registry(script_dir):
     sys.path.insert(0, str(script_dir))
     try:
         import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)
-    except ImportError as exc:
-        raise ContractDiscoveryFailed(f"registry_discovery module not importable: {exc}") from exc
+    except Exception as exc:  # noqa: BLE001 (deliberately broad -- see below)
+        # Cross-model confirmation-panel finding (Anthropic T-003 Minor
+        # B5): a co-located sibling-module import failure for any reason
+        # OTHER than ImportError (a SyntaxError, or any exception raised
+        # at that module's own top level) previously escaped this site's
+        # narrow `except ImportError` uncaught -- a raw Python traceback,
+        # no `capability-resolver:` diagnostic line, no Resolver Evidence
+        # written at all, exactly the failure mode the registry-
+        # discovery-unimportable fixture exists to close, and (since a
+        # SyntaxError's own `str()` embeds the failing file's absolute
+        # path) a security-spec.md B5 no-local-path-in-committed-output
+        # containment bypass. Widened to the broad `except Exception` a
+        # module-level import genuinely warrants; only the exception's
+        # own CLASS NAME is interpolated below, never `str(exc)` -- the
+        # identical containment rule `_load_governing_schema` (step 12)
+        # already applies to its own read/parse failure two sections
+        # below, reused here rather than reinvented.
+        raise ContractDiscoveryFailed(
+            f"registry_discovery module not importable ({type(exc).__name__})"
+        ) from exc
 
     try:
         registry_path = registry_discovery.discover_artifact("capability-registry.json")
@@ -290,11 +308,55 @@ def _discover_registry(script_dir):
     except registry_discovery.DiscoveryError as exc:
         raise ContractDiscoveryFailed(str(exc)) from exc
     try:
-        with registry_path.open("r", encoding="utf-8") as handle:
-            registry_document = json.load(handle)
-    except (OSError, json.JSONDecodeError) as exc:
+        registry_raw = registry_path.read_bytes()
+        registry_document = json.loads(registry_raw.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ContractDiscoveryFailed(str(exc)) from exc
-    return registry_path, registry_document
+    # T-004 confirmation-panel Critical (OpenAI) / T-003 Majors (both
+    # vendors agree): `registry_document` (this read), `validate-
+    # capability-registry` (below, an independent re-read of the SAME
+    # `registry_path`), and `generate-registry-digest --whole` (an
+    # independent re-DISCOVERY-and-read) are three separate reads of the
+    # Registry with no binding between them -- neither dependency CLI
+    # accepts a path/bytes argument, and adding one is outside every
+    # task's own Planned Files, so that route stays closed. The raw bytes
+    # digest retained here is this invocation's own single, authoritative
+    # snapshot identity for `registry_path`, compared by
+    # `_recheck_registry_snapshot` (below) immediately after those two
+    # dependency invocations complete.
+    registry_snapshot_digest = hashlib.sha256(registry_raw).hexdigest()
+    return registry_path, registry_document, registry_snapshot_digest
+
+
+def _recheck_registry_snapshot(registry_path, expected_digest):
+    """Detection-only recheck closing the Critical/Major cross-model
+    confirmation-panel finding above: this invocation re-reads the SAME
+    `registry_path` its own `_discover_registry` call already resolved,
+    right after `validate-capability-registry` and `generate-registry-
+    digest --whole` have each independently read the Registry on their
+    own, and compares the fresh bytes' own digest against the one
+    retained at `_discover_registry`'s own first read. Any difference --
+    including this re-read itself failing outright, which is at least as
+    suspicious as a genuine byte difference -- raises
+    SnapshotGenerationMismatch, this design's own existing vocabulary for
+    exactly this condition (step 13's own TOCTOU recheck below reuses the
+    identical `snapshot-generation-mismatch` diagnostic id).
+
+    Honesty limitation, disclosed in the T-004 implementation report:
+    this detects a Registry swap across THIS invocation's own read
+    window (`_discover_registry` through this call, spanning the
+    `validate-capability-registry`/`generate-registry-digest --whole`
+    subprocess invocations in between); it cannot observe, and makes no
+    claim about, what bytes those two subprocesses themselves actually
+    read inside their own separate processes -- only that the bytes at
+    `registry_path`, as seen from THIS process, are unchanged across the
+    window."""
+    try:
+        current_raw = registry_path.read_bytes()
+    except OSError as exc:
+        raise SnapshotGenerationMismatch(f"registry re-read failed: {exc}") from exc
+    if hashlib.sha256(current_raw).hexdigest() != expected_digest:
+        raise SnapshotGenerationMismatch("registry bytes changed since discovery")
 
 
 def _validate_capability_registry(script_dir, registry_path):
@@ -428,16 +490,25 @@ def _evidence_has_warn(evidence_nodes):
 def _warn_diagnostic_detail(capability_id, component_id, declaration_index, node_path, node):
     """AC-056: one `severity: "warn"` diagnostics[] entry's own `detail`
     per individual `outcome: "warn"` DSL-evaluation node, naming that
-    node's own `capability_id`/`component_id`/`declaration_index`
-    location plus its own tree position/DSL attributes -- guaranteeing a
-    distinct `detail` per node even across two nodes sharing an identical
-    location (AC-024 no-`(id, detail)`-repeat), and always distinct from
-    the summary `severity: "block"` entry's own fixed sentence (below),
-    which carries no location suffix at all."""
-    location = (
-        f"capability_id={capability_id!r} component_id={component_id!r} "
-        f"declaration_index={declaration_index!r}"
-    )
+    node's own `capability_id`/`component_id`/(`declaration_index`, only
+    for a `conditional_facets[].when` node -- requirements.md REQ-004's
+    own diagnostics[] severity paragraph, AC-056) location plus its own
+    tree position/DSL attributes -- guaranteeing a distinct `detail` per
+    node even across two nodes sharing an identical location (AC-024
+    no-`(id, detail)`-repeat), and always distinct from the summary
+    `severity: "block"` entry's own fixed sentence (below), which carries
+    no location suffix at all.
+
+    Cross-model confirmation-panel Minor (Anthropic T-003): REQ-004
+    scopes `declaration_index` to a `when` node only -- a trigger-
+    evaluation node (the caller's own `None` sentinel) never carries that
+    key at all, not even as a literal `declaration_index=None`. The
+    `location` text below omits the `declaration_index=...` clause
+    entirely when `declaration_index is None`, rather than rendering it
+    unconditionally."""
+    location = f"capability_id={capability_id!r} component_id={component_id!r}"
+    if declaration_index is not None:
+        location += f" declaration_index={declaration_index!r}"
     node_position = ".".join(str(index) for index in node_path)
     return (
         f"a predicate evaluation produced an outcome: warn evidence node at {location} "
@@ -918,6 +989,25 @@ def _draft7_resolve_ref(ref, root_schema):
     return node
 
 
+def _ecma_anchored_pattern(pattern):
+    """T-004 confirmation-panel Minor (Anthropic): JSON Schema's own
+    `pattern` keyword fixes ECMA-262 regex semantics, where `$` matches
+    ONLY at the true end of the subject string. Python's `re` module's own
+    `$` additionally matches immediately before a single trailing `\\n`,
+    so `re.search(r"^sha256:[0-9a-f]{64}$", "sha256:" + "a" * 64 + "\\n")`
+    -- a value ECMA-262/JSON-Schema itself rejects -- previously passed
+    this file's own step-12 defensive self-check. Every governing schema
+    this feature discovers (`sha256Digest`'s `^sha256:[0-9a-f]{64}$`,
+    `feature`'s `^[a-z0-9][a-z0-9-]*$`, confirmed directly against all
+    four landed documents) uses only a trailing, unescaped `$` -- the one
+    shape translated here, to Python's own `\\Z` (true-end-of-string,
+    no trailing-newline exception); a `$` anywhere else in a pattern, or
+    an escaped `\\$` (a literal dollar sign), is left untouched."""
+    if pattern.endswith("$") and (len(pattern) < 2 or pattern[-2] != "\\"):
+        return pattern[:-1] + r"\Z"
+    return pattern
+
+
 def _draft7_matches(instance, schema, root_schema):
     probe = []
     _draft7_validate(instance, schema, root_schema, "", probe)
@@ -962,7 +1052,7 @@ def _draft7_validate(instance, schema, root_schema, pointer, diags):
     if "not" in schema and _draft7_matches(instance, schema["not"], root_schema):
         diags.append(pointer)
     if isinstance(instance, str):
-        if "pattern" in schema and not re.search(schema["pattern"], instance):
+        if "pattern" in schema and not re.search(_ecma_anchored_pattern(schema["pattern"]), instance):
             diags.append(pointer)
         if "minLength" in schema and len(instance) < schema["minLength"]:
             diags.append(pointer)
@@ -1264,7 +1354,7 @@ def main(argv=None):
 
     # Step 5: Registry discovery (ADR-0025) + validate-capability-registry.
     try:
-        registry_path, registry_document = _discover_registry(script_dir)
+        registry_path, registry_document, registry_snapshot_digest = _discover_registry(script_dir)
     except ContractDiscoveryFailed:
         detail = "registry discovery failed to locate or verify capability-registry.json or capability-registry.schema.json"
         return _block(repo_root, args.feature, "contract-discovery-failed", detail, state)
@@ -1289,6 +1379,27 @@ def main(argv=None):
     except DependencyOutputMalformed:
         detail = "generate-registry-digest returned malformed output while computing registry_digest"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state)
+
+    # Step 6.5 (cross-model confirmation-panel Critical/Major remediation,
+    # both vendors): neither `validate-capability-registry` above nor
+    # `generate-registry-digest --whole` above accepts a path/bytes
+    # argument binding it to THIS invocation's own step-5 `registry_
+    # document` read -- each independently re-discovers/re-reads the
+    # Registry on its own. A Registry swap across that window would let
+    # an unvalidated document reach steps 7-9 while `registry_digest`
+    # describes different bytes entirely. Detection only (see
+    # `_recheck_registry_snapshot`'s own honesty-limitation docstring):
+    # this invocation re-reads the identical `registry_path` right now
+    # and compares against the raw-bytes digest retained at step 5's own
+    # first read.
+    try:
+        _recheck_registry_snapshot(registry_path, registry_snapshot_digest)
+    except SnapshotGenerationMismatch:
+        detail = (
+            "the Registry changed between this invocation's own discovery read (step 5) and its "
+            "post-validation/digest recheck (step 6)"
+        )
+        return _block(repo_root, args.feature, "snapshot-generation-mismatch", detail, state)
 
     # Steps 7-8: per-Capability/per-component trigger evaluation and
     # matched-Capability conditional-facet evaluation.

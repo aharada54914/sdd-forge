@@ -56,3 +56,29 @@ three generations of prior state at once. This capture reads the CURRENT
 driver directly (ALL_CASE_NAMES at line 276, run_t003_case at line 437,
 thirteen T-003 fixtures, 184 passed / 0 failed both runtimes) rather than
 carrying forward any of that stale text.
+
+Superseded 2026-08-24 (confirmation-panel remediation, T-004 Major, same
+staleness class): re-verified against the CURRENT driver directly rather
+than carrying forward the 184-count above. `ALL_CASE_NAMES`/
+`run_t003_case` now enumerate FIFTEEN T-003 fixtures (thirteen above plus
+this pass's own `registry-swapped-during-validation` -- the Critical/
+Major registry-snapshot-binding detection, step 6.5 -- and
+`registry-discovery-syntax-error` -- the widened `except Exception` Minor,
+B5); `run_t004_case` now enumerates NINE T-004 fixtures (eight above plus
+this pass's own `output-schema-validation-failed-facet-manifest`, closing
+the previously-untested track_artifact self-validation branch);
+`draft7-validator-keywords` gained one new trailing-newline `pattern`
+assertion (the ECMA-262-vs-Python `$` fix). REQ-001=38/REQ-002=60/
+REQ-004=19/REQ-005=11/REQ-006=5/REQ-008=4 and every AC-010..AC-015/AC-038
+hit count re-measured identical to the cycle-3 capture above (unchanged --
+requirements.md/acceptance-tests.md were not edited by this pass).
+human-copy MANIFEST entry for resolve-project-context.py:
+`673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f`
+(regenerated via `shasum -a 256` from the human-copy root this pass;
+`shasum -a 256 -c MANIFEST.sha256` reports 4/4 OK). Confirmed executed and
+passing in this same verification run: 201 passed, 0 failed, both
+runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log) -- the WHOLE
+shared driver's own current total, never the 184 this log's own prior
+revision carried.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 201 passed, 0 failed"

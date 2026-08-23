@@ -1,0 +1,7 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json",
+  "title": "T-004 confirmation-panel Minor test-harness-only stand-in: a deliberately unsatisfiable facet-manifest.schema.json, overlaid on top of the real one for exactly this one fixture, so a genuinely well-formed, staged Facet Manifest instance fails this invocation's own step-12 self-check track-exclusive-artifact sub-case (AC-055(b)) -- the branch the panel's Minor named as never exercised by any fixture (only the Context Projection sub-case, output-schema-validation-failed-artifact, existed before this fixture). Resolver Evidence's own schema, and Context Projection's own schema, both stay the real, satisfiable ones so both pass first, exactly as the sibling fixture's own docstring already establishes.",
+  "type": "object",
+  "required": ["__t004_test_only_impossible_field__"]
+}

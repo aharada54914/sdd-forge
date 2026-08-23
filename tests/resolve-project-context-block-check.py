@@ -186,17 +186,41 @@ def real_resolve_component_paths_context_binding(repo, config_rel, source_rev, t
     return parsed["affected_components"], parsed["context_binding"]["ownership_digest"]
 
 
-def _rfc6901_escape(token):
-    return token.replace("~", "~0").replace("/", "~1")
+# Cross-model confirmation-panel Minor (Anthropic T-004): every literal
+# entry here is hand-transcribed, never computed by calling `_dependency_
+# pointers`/`_rfc6901_escape` (resolve-project-context.py) or replicating
+# their own `.replace("~", "~0").replace("/", "~1")` logic -- a shared
+# defect in that escape rule could otherwise pass both sides silently.
+# `"shared/util"`/`"other~thing"` -> `"shared~1util"`/`"other~0thing"` are
+# the identical two escape-bearing ids T-005's own `full-pipeline-match`
+# fixture (tests/resolve-project-context-match-check.py) already
+# hand-transcribes this SAME way against the SAME production function;
+# `expected_dependency_pointers` below extends that literal-string style
+# to this driver's own scope (`recheck-dependency-failed`, below, is the
+# one fixture here whose own `affected_components` are pinned rather than
+# derived from a real git diff, so it is where those two escape-bearing
+# ids are exercised).
+_KNOWN_COMPONENT_POINTER_ESCAPES = {
+    "comp-a": "comp-a",
+    "shared/util": "shared~1util",
+    "other~thing": "other~0thing",
+}
 
 
 def expected_dependency_pointers(affected_components):
     """Independent mirror of `_dependency_pointers` (Data Plan "B9"):
     exactly `/workflow` plus one RFC-6901-escaped `/components/<id>`
-    pointer per affected component, stable-sorted and de-duplicated."""
+    pointer per affected component, stable-sorted and de-duplicated --
+    via the LITERAL lookup table above, never a computed escape (see that
+    table's own docstring)."""
     pointers = {"/workflow"}
     for component_id in affected_components:
-        pointers.add("/components/" + _rfc6901_escape(component_id))
+        if component_id not in _KNOWN_COMPONENT_POINTER_ESCAPES:
+            raise AssertionError(
+                f"expected_dependency_pointers: no literal escape known for {component_id!r} -- "
+                "add it to _KNOWN_COMPONENT_POINTER_ESCAPES (hand-transcribed, never computed)"
+            )
+        pointers.add("/components/" + _KNOWN_COMPONENT_POINTER_ESCAPES[component_id])
     return sorted(pointers)
 
 CASES = (
@@ -294,11 +318,14 @@ ALL_CASE_NAMES = (
         "lite-check-source-undefined",
         "output-schema-validation-failed-evidence",
         "output-schema-validation-failed-artifact",
+        "output-schema-validation-failed-facet-manifest",
         "snapshot-generation-mismatch",
         "contract-discovery-failed-governing-schema",
         "contract-discovery-failed-governing-schema-wrong-version",
         "contract-discovery-failed-governing-schema-malformed",
         "recheck-dependency-failed",
+        "registry-swapped-during-validation",
+        "registry-discovery-syntax-error",
     ]
 )
 
@@ -420,11 +447,17 @@ def expected_warn_diagnostic(capability_id, component_id, declaration_index, nod
     matching `real_evaluate_predicate`'s own discipline above) so a
     `severity: "warn"` diagnostics[] entry's own `detail` can be asserted
     exactly for the three `dsl-warn-*` T-003 fixtures below, each of which
-    now legitimately carries more than one diagnostics[] entry."""
-    location = (
-        f"capability_id={capability_id!r} component_id={component_id!r} "
-        f"declaration_index={declaration_index!r}"
-    )
+    now legitimately carries more than one diagnostics[] entry.
+
+    Cross-model confirmation-panel Minor (Anthropic T-003): REQ-004
+    scopes `declaration_index` to a `conditional_facets[].when` node
+    only -- mirrors production's own omission of the
+    `declaration_index=...` clause for a trigger-evaluation node
+    (`declaration_index is None`), never a literal `declaration_index=
+    None`."""
+    location = f"capability_id={capability_id!r} component_id={component_id!r}"
+    if declaration_index is not None:
+        location += f" declaration_index={declaration_index!r}"
     node_position = ".".join(str(index) for index in node_path)
     detail = (
         f"a predicate evaluation produced an outcome: warn evidence node at {location} "
@@ -449,7 +482,11 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "resolve-component-paths.py"
         elif case_name == "dependency-subprocess-failed":
             stub_name = "generate-registry-digest.py"
+        elif case_name == "registry-swapped-during-validation":
+            stub_name = "generate-registry-digest.py"
         elif case_name == "registry-discovery-unimportable":
+            stub_name = "registry_discovery.py"
+        elif case_name == "registry-discovery-syntax-error":
             stub_name = "registry_discovery.py"
         elif case_name == "evaluate-predicate-output-malformed":
             stub_name = "evaluate-predicate.py"
@@ -521,6 +558,22 @@ def run_t003_case(kind, case_name, counts):
                 "or capability-registry.schema.json"
             )
 
+        elif case_name == "registry-discovery-syntax-error":
+            # Cross-model confirmation-panel Minor (Anthropic, security-
+            # spec.md B5): a THIRD, independent trigger for the identical
+            # `contract-discovery-failed` diagnostic -- a co-located
+            # sibling module that fails to import with a `SyntaxError`
+            # (never `ImportError`), the exact class `_discover_registry`'s
+            # own narrow `except ImportError` previously let escape
+            # uncaught as a raw traceback embedding this fixture's own
+            # absolute path. Byte-identical canonical output to the
+            # `registry-discovery-unimportable` fixture above.
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "registry discovery failed to locate or verify capability-registry.json "
+                "or capability-registry.schema.json"
+            )
+
         elif case_name == "registry-validation-failed":
             expected_id = "registry-validation-failed"
             expected_detail = "capability-registry.json failed validate-capability-registry checks"
@@ -532,6 +585,22 @@ def run_t003_case(kind, case_name, counts):
         elif case_name == "dependency-subprocess-failed":
             expected_id = "dependency-subprocess-failed"
             expected_detail = "generate-registry-digest failed while computing registry_digest"
+
+        elif case_name == "registry-swapped-during-validation":
+            # T-004 confirmation-panel Critical (OpenAI)/Major (both
+            # vendors): closes the "three independent Registry reads, no
+            # binding" gap. This fixture's own `generate-registry-digest`
+            # stub overwrites the discovered Registry file in place as a
+            # side effect of step 6's own dependency invocation; step 6.5's
+            # `_recheck_registry_snapshot` must detect the swap and Block
+            # `snapshot-generation-mismatch` -- the identical id/vocabulary
+            # step 13's own TOCTOU recheck already uses, never a bespoke
+            # second id for the identical condition.
+            expected_id = "snapshot-generation-mismatch"
+            expected_detail = (
+                "the Registry changed between this invocation's own discovery read (step 5) and its "
+                "post-validation/digest recheck (step 6)"
+            )
 
         elif case_name == "evaluate-predicate-output-malformed":
             state = "advisory"
@@ -769,6 +838,20 @@ def run_t004_case(kind, case_name, counts):
         elif case_name == "output-schema-validation-failed-artifact":
             expected_id = "output-schema-validation-failed"
             expected_detail = "the staged context-projection artifact failed its own defensive output schema self-validation"
+        elif case_name == "output-schema-validation-failed-facet-manifest":
+            # Cross-model confirmation-panel Minor (Anthropic T-004):
+            # step 12's track-exclusive-artifact sub-case (AC-055(b)) was
+            # previously exercised only via Context Projection's own
+            # sibling fixture above -- the `track_artifact` branch itself
+            # (Facet Manifest on `full`, Capability Summary on `lite`) had
+            # no fixture of its own. This fixture overrides
+            # `facet-manifest.schema.json` with a deliberately
+            # unsatisfiable stand-in on the Full track, so a genuinely
+            # well-formed, staged Facet Manifest fails step 12's own last
+            # check (Resolver Evidence and Context Projection both still
+            # pass first).
+            expected_id = "output-schema-validation-failed"
+            expected_detail = "the staged facet-manifest artifact failed its own defensive output schema self-validation"
         elif case_name == "snapshot-generation-mismatch":
             stub_name = "generate-registry-digest.py"
             expected_id = "snapshot-generation-mismatch"
@@ -865,6 +948,8 @@ def run_t004_case(kind, case_name, counts):
             shutil.copy2(fixture_dir / "resolver-evidence.schema.json", repo / "contracts/resolver-evidence.schema.json")
         if (fixture_dir / "context-projection.schema.json").is_file():
             shutil.copy2(fixture_dir / "context-projection.schema.json", repo / "contracts/context-projection.schema.json")
+        if (fixture_dir / "facet-manifest.schema.json").is_file():
+            shutil.copy2(fixture_dir / "facet-manifest.schema.json", repo / "contracts/facet-manifest.schema.json")
         if case_name == "contract-discovery-failed-governing-schema":
             # Neither the packaged (`plugins/sdd-quality-loop/contracts/`,
             # never populated by any fixture in this driver, module
@@ -923,7 +1008,14 @@ def run_t004_case(kind, case_name, counts):
                 # first-call output" discipline `snapshot-generation-
                 # mismatch` already applies to its own `registry_digest`,
                 # below.
-                affected_components = ["comp-a"]
+                # Cross-model confirmation-panel Minor (Anthropic T-004,
+                # RFC-6901 escape non-vacuity): the stub's own fixed
+                # output additionally carries two escape-bearing ids
+                # (shared/util, other~thing) alongside comp-a, so
+                # expected_dependency_pointers below exercises the
+                # literal ~->~0//->~1 lookup, not only the no-escape
+                # identity case.
+                affected_components = ["comp-a", "shared/util", "other~thing"]
                 ownership_digest = "sha256:" + ("0" * 64)
             else:
                 affected_components, ownership_digest = real_resolve_component_paths_context_binding(
@@ -1385,6 +1477,30 @@ def run_draft7_validator_keyword_checks(counts):
         "draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)",
     )
 
+    # Cross-model confirmation-panel Minor (Anthropic T-004): `pattern`
+    # fixes ECMA-262 semantics, where `$` matches ONLY at the true end of
+    # the subject string -- Python's own `$` additionally matches
+    # immediately before a single trailing `\n`. `feature`'s own
+    # `^[a-z0-9][a-z0-9-]*$` pattern (this same governing schema's own
+    # top-level `feature` property) is the white-box probe: a value
+    # carrying a trailing newline is schema-illegal under ECMA-262/JSON-
+    # Schema semantics and must be rejected, never silently accepted by a
+    # Python-`$`-specific loophole.
+    trailing_newline_envelope = dict(envelope(unmatched_conforming))
+    trailing_newline_envelope["feature"] = "example-feature\n"
+    counts.check(
+        not resolver_module._draft7_conforms(trailing_newline_envelope, schema),
+        "draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, "
+        "never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics "
+        "(resolver-evidence.schema.json feature pattern)",
+    )
+    clean_envelope = dict(envelope(unmatched_conforming))
+    clean_envelope["feature"] = "example-feature"
+    counts.check(
+        resolver_module._draft7_conforms(clean_envelope, schema),
+        "draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)",
+    )
+
 
 # --- T-004 cross-model panel finding, Major #3: draft-07 engine coverage ---
 # meta-assertion ------------------------------------------------------------
@@ -1545,12 +1661,15 @@ def main():
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
             "dsl-warn-unsorted-affected-components",
+            "registry-swapped-during-validation",
+            "registry-discovery-syntax-error",
         ):
             run_t003_case(args.launcher, case_name, counts)
         for case_name in (
             "lite-check-source-undefined",
             "output-schema-validation-failed-evidence",
             "output-schema-validation-failed-artifact",
+            "output-schema-validation-failed-facet-manifest",
             "snapshot-generation-mismatch",
             "contract-discovery-failed-governing-schema",
             "contract-discovery-failed-governing-schema-wrong-version",

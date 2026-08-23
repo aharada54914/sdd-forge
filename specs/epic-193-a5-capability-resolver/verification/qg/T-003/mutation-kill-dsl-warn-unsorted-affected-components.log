@@ -1,0 +1,63 @@
+Retained mutation-kill evidence for TEST-003's own `dsl-warn-unsorted-
+affected-components` fixture (tests/fixtures/capability-resolver/
+resolve-project-context-block/dsl-warn-unsorted-affected-components/),
+closing the T-003 confirmation-panel Major #2 finding (Anthropic): no
+mutation kill was previously claimed for this fixture at all.
+
+Ground truth check (T-003 confirmation-panel Major #2, part b -- "verify
+whether the prior wave's Outputs re-derivation actually committed [the
+stub] -- the panel could not see it"): `git ls-files tests/fixtures/
+capability-resolver/resolve-project-context-block/dsl-warn-unsorted-
+affected-components/` confirms all three fixture files, INCLUDING
+`resolve-component-paths.py` (the descending-order stub), are committed
+and tracked -- `git status --porcelain` on that directory is empty. The
+stub genuinely returns `affected_components` in DESCENDING order
+(`["comp-z", "comp-a"]`, read directly from the committed file), so this
+fixture's own claim ("comp-a evaluated before comp-z despite the stub's
+own descending raw order") is a real, non-vacuous exercise of the
+resolver's own explicit `sorted(affected_components)` fan-out sort --
+the panel's own "absent from the bundle" finding was a bundle-composition
+artifact (the panelist's own review bundle elided this file), not a
+genuine gap in this worktree; nothing needed to be (re-)shipped.
+
+Technique: identical scratch-clone + inline-`python3`-rewrite technique
+as the sibling `evaluate-predicate-schema-error` mutation-kill log in
+this same directory (see that file for the full technique disclosure).
+The real worktree's own STAGED source was never touched.
+
+--- Step 1: baseline (unmutated scratch clone) ---
+
+$ bash tests/resolve-project-context-block.tests.sh
+RESULT: 201 passed, 0 failed
+
+--- Step 2: mutation applied (scratch clone ONLY) ---
+
+Location: resolve-project-context.py, `_evaluate_capabilities`, the
+explicit REQ-005/AC-024 determinism sort this task's own docstring names
+("never assumed pre-sorted from resolve-component-paths").
+
+    - sorted_affected_components = sorted(affected_components)
+    + sorted_affected_components = affected_components  # MUTATION: sort removed
+
+--- Step 3: mutant re-run ---
+
+$ bash tests/resolve-project-context-block.tests.sh
+FAIL: dsl-warn-unsorted-affected-components: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-order', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-z', ...}, {'component_id': 'comp-a', ...}]}], ...}
+RESULT: 200 passed, 1 failed
+
+(evaluation order reverted to the stub's own raw descending order,
+comp-z before comp-a, contradicting the fixture's own hardcoded
+ascending-order expectation -- full FAIL line elided here for brevity,
+the field-by-field diff is exactly "comp-z"/"comp-a" swapped versus the
+baseline's own comp-a-then-comp-z evaluation order.)
+
+--- Result ---
+
+Exactly `dsl-warn-unsorted-affected-components`'s own single "exact
+Resolver Evidence" assertion fails (201 -> 200 passed, +1 failed, no
+collateral damage to any other case). This fixture's own discriminating
+power for the explicit fan-out sort is confirmed non-vacuous.
+
+Scratch clone discarded after capture (destructive-cleanup permission
+gate declined the `rm -rf`; the clone was left in the isolated,
+session-scoped scratchpad directory, never the repository).

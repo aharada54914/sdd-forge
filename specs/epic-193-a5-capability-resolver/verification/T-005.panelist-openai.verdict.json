@@ -1,0 +1,41 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Done When Self-Check",
+      "note": "TEST-008 is explicitly only PARTIAL: the suite reconstructs a Facet Manifest by directly calling implementation functions and never validates the written facet-manifest.yaml required by AC-008. This does not satisfy T-005's pipeline-correctness Done When criterion."
+    },
+    {
+      "severity": "Major",
+      "ref": "tests/fixtures/capability-resolver/resolve-project-context-match/*/generate-registry-digest.py",
+      "note": "Both digest stubs emit an unprefixed 64-hex value, while the dependency contract requires sha256:<64-hex>. A conforming Resolver should classify this as dependency-output-malformed, so fixtures reaching snapshot-generation-mismatch do not faithfully exercise the specified dependency contract."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Downstream Test-File Update",
+      "note": "TEST-016 deliberately excludes context_binding.full_context_revision and projection_sha256 from the advisory/required comparison. AC-016 states that only Resolver Evidence state may differ; weakening the oracle to ignore additional differing fields leaves the stated byte-identity criterion unmet."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Gate Cycle 2 Remediation, Survivors left open (MUT-7)",
+      "note": "The full-pipeline fixture has no clean unmatched Capability declaring required_facets, so an implementation that collects required facets from every Registry Capability still passes. This leaves T-005's required match/no-match matrix and AC-007 field-assembly rule unverified."
+    },
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Gate Cycle 2 Remediation, Survivors left open (MUT-9)",
+      "note": "No fixture contains multiple WARN nodes within one evaluation evidence tree; truncating WARN traversal to one node per tree still passes. AC-056 requires one diagnostic per individual WARN node anywhere in the tree, so its cardinality guarantee remains incompletely tested."
+    }
+  ],
+  "blind": true,
+  "input_digest": "7a5c5771b91b08653741e5ecefb1bd6e39391aa0cbc27bbd29b8c1fdef821a2d",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-005 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+  }
+}

@@ -10,6 +10,11 @@
       "id": "gate-artifact",
       "stage": "artifact",
       "blocking": false
+    },
+    {
+      "id": "gate-never",
+      "stage": "promotion",
+      "blocking": false
     }
   ],
   "capabilities": [
@@ -90,6 +95,21 @@
       "minimum_enforcement": "required",
       "lite_policy": {"eligible": false, "upgrade_reasons": ["pii"]},
       "delivery_strategy": {"kind": "cap-beta"}
+    },
+    {
+      "id": "cap-gamma",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.auto_update",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": ["gamma-facet"],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": ["gate-never"],
+      "lite_policy": {"eligible": false, "upgrade_reasons": ["external_identity"]},
+      "delivery_strategy": {"kind": "cap-gamma"}
     }
   ]
 }

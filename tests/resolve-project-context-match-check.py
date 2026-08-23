@@ -341,6 +341,21 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
 
         cap_alpha_registry = next(c for c in registry_document["capabilities"] if c["id"] == "cap-alpha")
         cap_beta_registry = next(c for c in registry_document["capabilities"] if c["id"] == "cap-beta")
+        # T-005 confirmation-panel Major 1 (both vendors): `cap-gamma` is
+        # this fixture's own NO-MATCH Capability -- its own `trigger`
+        # (`characteristics.auto_update equals true`) matches NONE of the
+        # four affected components (every one of them declares
+        # `auto_update: false` in `project-context.yaml`, sanity-asserted
+        # below). Before this Capability existed, every Registry Capability
+        # in this fixture matched, so "aggregate over the matched set" and
+        # "aggregate over the whole Registry" were confounded for every one
+        # of AC-007's five fields (the suite's own recorded survivor MUT-7
+        # is one instance of this class). `cap-gamma` declares its own
+        # `required_facets`/`gate_ids`/`lite_policy` (never `conditional_
+        # facets`, so it never contributes a facet-name-aggregation entry
+        # either) that must NOT appear anywhere in the assembled Facet
+        # Manifest below.
+        cap_gamma_registry = next(c for c in registry_document["capabilities"] if c["id"] == "cap-gamma")
 
         cap_alpha_trigger_evals = eval_for(cap_alpha_registry["trigger"], affected_components)
         cap_alpha_matched = any(e["result"] for e in cap_alpha_trigger_evals)
@@ -362,6 +377,15 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
                 "applied": any(e["result"] for e in evals), "evaluations": evals,
             })
 
+        cap_gamma_trigger_evals = eval_for(cap_gamma_registry["trigger"], affected_components)
+        cap_gamma_matched = any(e["result"] for e in cap_gamma_trigger_evals)
+        counts.check(
+            cap_gamma_matched is False,
+            f"{case_name}: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four "
+            f"affected components (T-005 confirmation-panel Major 1's own no-match Capability)",
+            repr(cap_gamma_trigger_evals),
+        )
+
         expected_capability_evaluations = sorted(
             [
                 {
@@ -374,12 +398,21 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
                     "trigger_evaluations": cap_beta_trigger_evals,
                     "conditional_facet_evaluations": cap_beta_cfe,
                 },
+                # cap-gamma's own entry carries NO `conditional_facet_
+                # evaluations` key at all (never an empty list) --
+                # `_evaluate_capabilities` only sets that key `if matched:`,
+                # and cap-gamma is genuinely unmatched (B6).
+                {
+                    "capability_id": "cap-gamma", "matched": cap_gamma_matched,
+                    "trigger_evaluations": cap_gamma_trigger_evals,
+                },
             ],
             key=lambda entry: entry["capability_id"],
         )
         counts.check(
             evidence.get("capability_evaluations") == expected_capability_evaluations,
-            f"{case_name}: exact capability_evaluations, union-match on both Capabilities (AC-006)",
+            f"{case_name}: exact capability_evaluations, union-match on all three Capabilities including "
+            f"cap-gamma's own no-match entry (AC-006)",
             parse_error or repr(evidence.get("capability_evaluations")),
         )
         counts.check(cap_alpha_matched is True and cap_beta_matched is True, f"{case_name}: union-match sanity (only one of several affected components satisfies each trigger)")
@@ -641,19 +674,47 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         )
 
         # --- AC-007: field-assembly conformance -------------------------
-        counts.check(track_artifact["required_facets"] == ["core-facet"], f"{case_name}: required_facets (AC-007)", repr(track_artifact["required_facets"]))
-        counts.check(track_artifact["capabilities"] == ["cap-alpha", "cap-beta"], f"{case_name}: capabilities (AC-007)", repr(track_artifact["capabilities"]))
+        # T-005 confirmation-panel Major 1 (both vendors): every equality
+        # below is now genuinely a MATCHED-SET assertion, not merely "every
+        # Registry Capability" (before cap-gamma existed, the two were
+        # indistinguishable -- the suite's own recorded survivor MUT-7).
+        # cap-gamma's own `required_facets: ["gamma-facet"]`/`gate_ids:
+        # ["gate-never"]`/`lite_policy.upgrade_reasons: ["external_identity"]`
+        # would each leak into the corresponding field below under a
+        # mutant that aggregates over the whole Registry instead of the
+        # matched set. `capabilities` is exact-equality against `_assemble_
+        # facet_manifest`'s own `matched_ids` (never `_required_facets`-
+        # style per-field iteration), so it is unaffected by MUT-7 itself
+        # but still closes the identical class for its own field
+        # (`cap-gamma` leaking into `capabilities` would be a DIFFERENT
+        # bug -- in `_assemble_facet_manifest`'s own `matched_ids`
+        # computation -- not one MUT-7 touches).
+        counts.check(track_artifact["required_facets"] == ["core-facet"], f"{case_name}: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)", repr(track_artifact["required_facets"]))
+        counts.check(track_artifact["capabilities"] == ["cap-alpha", "cap-beta"], f"{case_name}: capabilities, cap-gamma excluded (AC-007)", repr(track_artifact["capabilities"]))
         counts.check(
             track_artifact["resolved_gates"] == [
                 {"id": "gate-artifact", "stage": "artifact", "blocking": False},
                 {"id": "gate-impl", "stage": "promotion", "blocking": True},
             ],
-            f"{case_name}: resolved_gates (AC-007)", repr(track_artifact["resolved_gates"]),
+            f"{case_name}: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)", repr(track_artifact["resolved_gates"]),
         )
-        counts.check(track_artifact.get("capability_minimum_enforcement") == "required", f"{case_name}: capability_minimum_enforcement (AC-007)", repr(track_artifact.get("capability_minimum_enforcement")))
+        # `capability_minimum_enforcement` (Anthropic panelist's own T-005
+        # Major 1 finding explicitly names this field "'required' either
+        # way"): cap-beta ALONE already contributes `minimum_enforcement:
+        # "required"` regardless of whether the matched-set gate is
+        # correctly applied, since cap-beta is matched either way -- this
+        # field's own aggregate answer is genuinely confounded on this
+        # fixture and MUT-7 (which mutates `_required_facets` only, a
+        # DIFFERENT function than `_capability_minimum_enforcement`)
+        # cannot exercise it regardless. Left as-is, disclosed rather than
+        # silently claimed non-vacuous; a future fixture with NO matched
+        # Capability declaring `minimum_enforcement` (only an unmatched
+        # one) would be needed to close this specific field, outside this
+        # pass's own scope.
+        counts.check(track_artifact.get("capability_minimum_enforcement") == "required", f"{case_name}: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)", repr(track_artifact.get("capability_minimum_enforcement")))
         counts.check(
             track_artifact["lite_eligibility"] == {"eligible": False, "upgrade_reasons": ["pii"]},
-            f"{case_name}: lite_eligibility (AC-007)", repr(track_artifact["lite_eligibility"]),
+            f"{case_name}: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)", repr(track_artifact["lite_eligibility"]),
         )
 
         # --- AC-043/AC-052(b): cross-Capability + same-Capability
@@ -1281,6 +1342,118 @@ def run_warn_cardinality_facet_node_case(kind, counts):
         )
 
 
+def _iter_all_warn_nodes(evidence_nodes, node_path=()):
+    """T-005 confirmation-panel Major 2 (both vendors): an INDEPENDENT
+    depth-first walk of an Evidence tree, yielding `(node, node_path)`
+    for every `outcome: "warn"` node at any depth -- reimplemented here
+    from AC-056/design.md's own documented contract text, never by
+    calling `resolve-project-context.py`'s own `_iter_warn_nodes`, which
+    is exactly the function the suite's own recorded survivor MUT-9
+    (truncating this walk to the first warn node per tree) mutates; an
+    oracle that called the mutated function itself could never detect
+    that mutation."""
+    for index, node in enumerate(evidence_nodes):
+        this_path = node_path + (index,)
+        if node.get("outcome") == "warn":
+            yield node, this_path
+        yield from _iter_all_warn_nodes(node.get("children") or [], this_path)
+
+
+def _expected_nested_warn_details(fixture_dir, registry_document, capability_id, component_id):
+    """The `warn-cardinality-nested-node` counterpart of
+    `_expected_trigger_warn_detail`/`_expected_facet_warn_detail` above:
+    independently recomputes EVERY warn node's own exact `detail` string
+    in ONE evidence tree (via `_iter_all_warn_nodes`, above, never
+    production's own `_iter_warn_nodes`), through the SAME real,
+    unmutated `evaluate-predicate` dependency and the SAME byte-for-byte
+    `_warn_diagnostic_detail` mirror every other warn-detail oracle in
+    this driver already reuses."""
+    _, document = _canonicalize_yaml(fixture_dir / "project-context.yaml")
+    component = next(c for c in document["components"] if c["id"] == component_id)
+    properties = {key: value for key, value in component.items() if key != "id"}
+    trigger = next(c for c in registry_document["capabilities"] if c["id"] == capability_id)["trigger"]
+    _, evidence_nodes = block_check.real_evaluate_predicate(trigger, properties)
+    return [
+        block_check.expected_warn_diagnostic(capability_id, component_id, None, path, node)["detail"]
+        for node, path in _iter_all_warn_nodes(evidence_nodes)
+    ]
+
+
+def run_warn_cardinality_nested_node_case(kind, counts):
+    """TEST-056 (T-005 confirmation-panel Major 2, both vendors): AC-056's
+    own governing cardinality claim -- "exactly one severity: warn entry
+    per INDIVIDUAL outcome: warn DSL-evaluation node" -- was not
+    discriminated by any fixture before this one: every WARN fixture in
+    this suite was a flat leaf predicate, so every evidence tree held at
+    most one warn node, and "per node" was indistinguishable from "per
+    tree" (the suite's own recorded survivor MUT-9, open since gate cycle
+    3). This fixture's sole Capability's own `trigger` is a composite
+    `any` node whose own two leaf children BOTH warn (`missing-path`)
+    against `comp-a` -- the Predicate DSL's own grammar genuinely
+    supports this (ADR-0020; `evaluate-predicate.py`'s own `evaluate()`:
+    an `any`/`all` node evaluates EVERY child, no short-circuit, and a
+    child's own WARN outcome counts as `false` for the PARENT's own
+    match/no-match decision, never propagating "warn" upward onto the
+    parent node itself -- confirmed directly against that module before
+    authoring this fixture, never assumed) -- so this single invocation's
+    own ONE evidence tree carries a `no-match` root `any` node with two
+    independent `warn` leaf children at `node_path` `(0, 0)` and
+    `(0, 1)`."""
+    case_name = "warn-cardinality-nested-node"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-match-warnNest-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = block_check.install_scripts(repo)
+        feature_dir, sentinels = block_check.plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+        registry_path = fixture_dir / "capability-registry.json"
+        block_check.install_t003_dependencies(
+            repo, scripts, fixture_dir, registry_capabilities_path=registry_path,
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = block_check.git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("a\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "add comp-a")
+
+        argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
+        result = subprocess.run(argv, cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_line = f"capability-resolver: {WARN_DIAGNOSTIC_ID}: {WARN_SUMMARY_DETAIL}\n"
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = block_check.read_evidence(evidence_path)
+        if not isinstance(evidence, dict):
+            counts.check(False, f"{case_name}: Resolver Evidence readable", parse_error or repr(evidence))
+            return
+        _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=2)
+
+        registry_document = json.loads(registry_path.read_text(encoding="utf-8"))
+        warn_details = [d.get("detail") for d in evidence.get("diagnostics", []) if d.get("severity") == "warn"]
+        expected_details = _expected_nested_warn_details(fixture_dir, registry_document, "cap-nested-warn", "comp-a")
+        counts.check(
+            len(expected_details) == 2,
+            f"{case_name}: fixture sanity -- the independently-recomputed oracle itself finds exactly two "
+            f"warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)",
+            repr(expected_details),
+        )
+        counts.check(
+            sorted(warn_details) == sorted(expected_details),
+            f"{case_name}: diagnostics[] carries exactly the two independently-recomputed warn-node details, "
+            f"both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)",
+            repr({"actual": sorted(warn_details), "expected": sorted(expected_details)}),
+        )
+
+
 _RESOLVER_IDENTITY_PROBE = """
 import importlib.util, json, os, sys
 spec = importlib.util.spec_from_file_location("resolve_project_context_oracle", sys.argv[1])
@@ -1394,7 +1567,7 @@ def main():
     case_labels = [
         "full-pipeline-match", "include-untracked-pass-through", "enforcement-byte-identity",
         "warn-cardinality-single-node", "warn-cardinality-multi-node",
-        "warn-cardinality-facet-node",
+        "warn-cardinality-facet-node", "warn-cardinality-nested-node",
     ]
     if not all(path.is_file() for path in required_files):
         for label in case_labels:
@@ -1408,6 +1581,7 @@ def main():
         run_warn_cardinality_single_node_case(args.launcher, counts)
         run_warn_cardinality_multi_node_case(args.launcher, counts)
         run_warn_cardinality_facet_node_case(args.launcher, counts)
+        run_warn_cardinality_nested_node_case(args.launcher, counts)
         run_resolver_identity_cross_process_check(counts)
         run_dispatcher_delegation_check(counts)
 

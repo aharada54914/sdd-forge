@@ -1,3 +1,43 @@
+T-005 confirmation-panel Minor (Anthropic): the previously-designated RED
+captures (verification/T-005/red-misaggregated-facet-{sh,ps1}.log) are
+from the 63-assertion, gate-cycle-1 era, against a three-component
+fixture (62 passed / 1 failed). Re-captured here 2026-08-24 against the
+SHIPPED, current 112-assertion suite (post T-005 confirmation-panel
+remediation: cap-gamma no-match Capability, the warn-cardinality-nested-
+node fixture, a four-component fixture), under a NEW filename -- the old
+gate-cycle-1 captures are left unchanged alongside this one for
+historical comparison, never overwritten.
+
+Technique: identical to this task's other retained mutation-kill logs
+(see specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+mutation-kill-*.log for the full technique disclosure) -- `git clone
+--no-hardlinks` scratch copy of this worktree, this pass's own
+uncommitted driver/fixture changes overlaid, the real worktree's own
+STAGED source never touched.
+
+Mutant (unchanged from the original gate-cycle-1 capture, evaluator's own
+M4): _aggregate_conditional_facets in resolve-project-context.py -- a
+same-Capability duplicate declaration of the identical facet name is now
+collapsed: only the FIRST declaration_index a given Capability
+contributes to a facet survives the aggregation, the second silently
+dropped.
+
+    for entry in capability_evaluations:
+        ...
+        for cfe in entry.get("conditional_facet_evaluations", []):
+    +       if cfe["facet"] not in contributions:  # collapse: first only
+                contributions.setdefault(cfe["facet"], []).append(...)
+
+Baseline (unmutated scratch clone, this pass's own current driver/fixture
+state): RESULT: 112 passed, 0 failed (both runtimes).
+
+Mutant re-injected: RESULT: 110 passed, 2 failed (both runtimes) --
+non-crashing, exactly the two AC-043/AC-052(b) facet-aggregation
+assertions fail (the reconstructed "shared-facet"/"solo-never-facet"
+nodes are each missing cap-alpha's own second contributing declaration),
+no collateral damage elsewhere, not a Python traceback. Full output
+below.
+
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
@@ -34,8 +74,8 @@ PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded
 PASS: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)
 PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
+FAIL: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b)): {'facet': 'shared-facet', 'applied': True, 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}, {'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.ui'}, {'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}, {'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}]}
+FAIL: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case): {'facet': 'solo-never-facet', 'applied': False, 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.local_persistence'}, {'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.local_persistence'}, {'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.local_persistence'}, {'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.local_persistence'}], 'reason': "no contributing predicate instance's conditional facet matched any affected component (contributing: cap-alpha[2])"}
 PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
 PASS: include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch Block as full-pipeline-match's own --include-untracked-omitting invocation (steps 0-12 all passed here too; this fixture's own argv differs from that one ONLY in supplying --include-untracked)
 PASS: include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting invocation above (AC-004)
@@ -110,4 +150,4 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 112 passed, 0 failed
+RESULT: 110 passed, 2 failed

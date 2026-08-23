@@ -4,7 +4,8 @@ PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
 PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
 PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
 PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
-PASS: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006)
+PASS: full-pipeline-match: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four affected components (T-005 confirmation-panel Major 1's own no-match Capability)
+PASS: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006)
 PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
 PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
 PASS: full-pipeline-match: Resolver Evidence schema agreement
@@ -27,11 +28,11 @@ PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] match
 PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
-PASS: full-pipeline-match: required_facets (AC-007)
-PASS: full-pipeline-match: capabilities (AC-007)
-PASS: full-pipeline-match: resolved_gates (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement (AC-007)
-PASS: full-pipeline-match: lite_eligibility (AC-007)
+PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
+PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
+PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)
+PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
@@ -90,10 +91,23 @@ PASS: warn-cardinality-facet-node: no partial live artifact
 PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
 PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
 PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
 PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
 PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 98 passed, 0 failed
+RESULT: 112 passed, 0 failed

@@ -133,6 +133,16 @@ PASS: dsl-warn-unsorted-affected-components: canonical diagnostic only, no upstr
 PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
 PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
 PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: registry-swapped-during-validation: exit 1
+PASS: registry-swapped-during-validation: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: registry-swapped-during-validation: exact Resolver Evidence
+PASS: registry-swapped-during-validation: Resolver Evidence schema agreement
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+PASS: registry-discovery-syntax-error: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: registry-discovery-syntax-error: exact Resolver Evidence
+PASS: registry-discovery-syntax-error: Resolver Evidence schema agreement
+PASS: registry-discovery-syntax-error: no partial live artifact
 PASS: lite-check-source-undefined: exit 1
 PASS: lite-check-source-undefined: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: lite-check-source-undefined: exact Resolver Evidence
@@ -147,6 +157,11 @@ PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no up
 PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
 PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
 PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: output-schema-validation-failed-facet-manifest: exit 1
+PASS: output-schema-validation-failed-facet-manifest: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: output-schema-validation-failed-facet-manifest: exact Resolver Evidence
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
 PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
@@ -176,10 +191,12 @@ PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet
 PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
 PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
 PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
 PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 184 passed, 0 failed
+RESULT: 201 passed, 0 failed

@@ -1,3 +1,39 @@
+T-005 confirmation-panel Minor (Anthropic): the previously-designated RED
+captures (verification/T-005/red-undermatched-capability-{sh,ps1}.log) are
+from the 65-assertion, cycle-2 era (55 passed / 10 failed against that
+smaller suite). Re-captured here 2026-08-24 against the SHIPPED, current
+112-assertion suite (post T-005 confirmation-panel remediation: cap-gamma
+no-match Capability, the warn-cardinality-nested-node fixture), under a
+NEW filename -- the old cycle-2 captures are left unchanged alongside
+this one for historical comparison, never overwritten.
+
+Technique: identical to this task's other retained mutation-kill logs
+(see specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+mutation-kill-*.log for the full technique disclosure) -- `git clone
+--no-hardlinks` scratch copy of this worktree, this pass's own
+uncommitted driver/fixture changes overlaid, the real worktree's own
+STAGED source never touched.
+
+Mutant (unchanged from the original gate-cycle-1/2 capture, evaluator's
+own M3): _evaluate_capabilities's own union-match loop in
+resolve-project-context.py -- a Capability now "matches" only if EVERY
+affected component's own trigger evaluation is true, never if ANY is (an
+under-matched Capability). Restructures:
+
+    - trigger_evaluations.append({"component_id": ..., "result": result, "evidence": evidence})
+    - if result:
+    -     matched = True
+    + trigger_evaluations.append({"component_id": ..., "result": result, "evidence": evidence})
+    + matched = all(e["result"] for e in trigger_evaluations)
+
+Baseline (unmutated scratch clone, this pass's own current driver/fixture
+state): RESULT: 112 passed, 0 failed (both runtimes).
+
+Mutant re-injected: RESULT: 100 passed, 12 failed (both runtimes) --
+non-crashing, twelve cascading FAILs across AC-006/AC-007/AC-043/AC-052/
+AC-056 (every downstream assertion that depends on cap-alpha/cap-beta
+actually matching), none of them a Python traceback. Full output below.
+
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
@@ -5,9 +41,9 @@ PASS: full-pipeline-match: resolve-component-paths invoked with --config/--sourc
 PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
 PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
 PASS: full-pipeline-match: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four affected components (T-005 confirmation-panel Major 1's own no-match Capability)
-PASS: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006)
+FAIL: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006): [{'capability_id': 'cap-alpha', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}, {'component_id': 'other~thing', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}, {'component_id': 'shared/util', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}]}, {'capability_id': 'cap-beta', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}], 'result': False}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.ui'}], 'result': True}, {'component_id': 'other~thing', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}], 'result': False}, {'component_id': 'shared/util', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}], 'result': False}]}, {'capability_id': 'cap-gamma', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.auto_update'}], 'result': False}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.auto_update'}], 'result': False}, {'component_id': 'other~thing', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.auto_update'}], 'result': False}, {'component_id': 'shared/util', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.auto_update'}], 'result': False}]}]
 PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
-PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
+FAIL: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a)): []
 PASS: full-pipeline-match: Resolver Evidence schema agreement
 PASS: full-pipeline-match: no partial live artifact
 PASS: full-pipeline-match: projection_sha256 independently recomputed from the resolver's own captured projection bytes matches the hand-built expectation's own hash (AC-003 remainder)
@@ -28,14 +64,14 @@ PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] match
 PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
-PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
-PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
-PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)
-PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
-PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
+FAIL: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007): []
+FAIL: full-pipeline-match: capabilities, cap-gamma excluded (AC-007): []
+FAIL: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007): []
+FAIL: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above): None
+FAIL: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007): {'eligible': True, 'upgrade_reasons': []}
+FAIL: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b)): []
+FAIL: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b)): None
+FAIL: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case): None
 PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
 PASS: include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch Block as full-pipeline-match's own --include-untracked-omitting invocation (steps 0-12 all passed here too; this fixture's own argv differs from that one ONLY in supplying --include-untracked)
 PASS: include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting invocation above (AC-004)
@@ -79,7 +115,7 @@ PASS: warn-cardinality-multi-node: no partial live artifact
 PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
 PASS: warn-cardinality-facet-node: exit 1
 PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+FAIL: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056): [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}]
 PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
 PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
 PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
@@ -89,7 +125,7 @@ PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- th
 PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
 PASS: warn-cardinality-facet-node: no partial live artifact
 PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
-PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
+FAIL: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2): {'actual': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')"], 'expected': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')", "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' declaration_index=0 (node_path='0', operator='equals', field='characteristics.ui', reason='missing-path')"]}
 PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
 PASS: warn-cardinality-nested-node: exit 1
 PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
@@ -110,4 +146,4 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 112 passed, 0 failed
+RESULT: 100 passed, 12 failed

@@ -1,0 +1,248 @@
+Genuine full-scope RED for T-003's own scope (steps 4-9), re-captured
+2026-08-24 to close the T-003 confirmation-panel Major #1 finding (both
+vendors): the previously-declared red-{sh,ps1}.log holds a 177/7 delta run
+(12 of 13 T-003 fixtures PASS inside the artifact that exists to prove
+they can fail) because the prior remediation wave overwrote the full-scope
+rewind captures in place -- against the explicit new-filenames instruction
+it was given. The 89/63 (against parent 99b8ba76) and 78/24 generations
+before it were each likewise overwritten in place and are LOST -- no
+artifact for either survives anywhere in this bundle or this worktree's
+own history. That loss is recorded as a fact here, not reconstructed.
+
+This capture is retained under a NEW, permanent filename
+(red-baseline-{sh,ps1}.log) specifically so it is never overwritten again;
+the existing red-{sh,ps1}.log (the smaller delta capture) is left
+unchanged alongside it, and both are now cited from T-003.contract.json's
+own red_evidence.
+
+Technique: `git clone --no-hardlinks` scratch copy of this worktree at
+CURRENT HEAD (never the real worktree). This task's own current test
+driver (tests/resolve-project-context-block-check.py, including this
+pass's own new fixtures), current fixtures, and current dependency
+scripts (Epic A2/A3, unmodified) are all left at CURRENT state --
+ONLY `resolve-project-context.py` is reverted to its own genuinely
+pre-T-003 content, extracted via `git show
+99b8ba76:specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-
+quality-loop/scripts/resolve-project-context.py` (the T-002-only parent
+commit both this bundle's contract comment and the report's own prose
+already name), overlaid onto the scratch clone's copy of that one file.
+(A literal `git checkout 99b8ba76` of the WHOLE scratch clone was tried
+first and does not work for this purpose -- that old commit's own
+`plugins/sdd-quality-loop/scripts/` tree predates Epic A3's
+`resolve-component-paths`/`evaluate-predicate`/`generate-registry-
+digest`/`validate-capability-registry`/`registry_discovery` landing on
+this branch's own history at all, so a real full-repo checkout to that
+commit cannot run this suite meaningfully -- confirmed directly, not
+assumed, by first attempting exactly that and observing the resulting
+FileNotFoundError.)
+
+Every T-003-scope (steps 4-9) fixture genuinely fails below: the
+T-002-only module returns exit 0 (never reaching the step-4+ Block this
+each fixture's own reason exists to trigger) for every case, and every
+T-004-scope (steps 10-13) fixture likewise fails, since none of steps
+10-13 exist in this snapshot either -- `draft7-validator-keywords` fails
+its own guarded pre-check ("_draft7_conforms exists on the staged
+module") rather than crashing, the identical TDD-RED discipline this
+driver already documents for exactly this staged-snapshot gap. Zero
+unexpected tracebacks; every T-002-scope (steps 0-3) fixture still
+PASSES, confirming this is a targeted, single-file rewind, not a broken
+harness. Verified identical (RESULT: 101 passed, 95 failed) in both
+runtimes.
+
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: no Resolver Evidence on the success path
+PASS: projection-two-components: no partial live artifact
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+FAIL: affected-component-resolution-failed: exit 1: got 0
+FAIL: affected-component-resolution-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: affected-component-resolution-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-4lhdye0w/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-resolution-failed: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-resolution-failed: no partial live artifact
+FAIL: resolve-component-paths-launch-failed: exit 1: got 0
+FAIL: resolve-component-paths-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: resolve-component-paths-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-5r0s4vsw/specs/example-feature/resolver-evidence.yaml'
+FAIL: resolve-component-paths-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+FAIL: contract-discovery-failed: exit 1: got 0
+FAIL: contract-discovery-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: contract-discovery-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-pcu71zrh/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed: no partial live artifact
+FAIL: registry-discovery-unimportable: exit 1: got 0
+FAIL: registry-discovery-unimportable: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: registry-discovery-unimportable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-nvyd8uxm/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-unimportable: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-unimportable: no partial live artifact
+FAIL: registry-validation-failed: exit 1: got 0
+FAIL: registry-validation-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: registry-validation-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-zjrbo9el/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-validation-failed: Resolver Evidence schema agreement: evidence absent
+PASS: registry-validation-failed: no partial live artifact
+FAIL: validate-capability-registry-launch-failed: exit 1: got 0
+FAIL: validate-capability-registry-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: validate-capability-registry-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-dzueivjl/specs/example-feature/resolver-evidence.yaml'
+FAIL: validate-capability-registry-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+FAIL: dependency-subprocess-failed: exit 1: got 0
+FAIL: dependency-subprocess-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: dependency-subprocess-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-e0vycwgt/specs/example-feature/resolver-evidence.yaml'
+FAIL: dependency-subprocess-failed: Resolver Evidence schema agreement: evidence absent
+PASS: dependency-subprocess-failed: no partial live artifact
+FAIL: evaluate-predicate-output-malformed: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-5p7ic0ey/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+FAIL: evaluate-predicate-schema-error: exit 1: got 0
+FAIL: evaluate-predicate-schema-error: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: evaluate-predicate-schema-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-59j369yo/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-schema-error: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-schema-error: no partial live artifact
+FAIL: evaluate-predicate-failure-after-warn: exit 1: got 0
+FAIL: evaluate-predicate-failure-after-warn: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: evaluate-predicate-failure-after-warn: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-2gr0upwv/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+FAIL: dsl-warn-unmatched-trigger: exit 1: got 0
+FAIL: dsl-warn-unmatched-trigger: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: dsl-warn-unmatched-trigger: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-6yvinz2x/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+FAIL: dsl-warn-matched-nondetermining: exit 1: got 0
+FAIL: dsl-warn-matched-nondetermining: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: dsl-warn-matched-nondetermining: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-p3vv983l/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+FAIL: dsl-warn-unsorted-affected-components: exit 1: got 0
+FAIL: dsl-warn-unsorted-affected-components: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: dsl-warn-unsorted-affected-components: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-gioiyk86/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+FAIL: registry-swapped-during-validation: exit 1: got 0
+FAIL: registry-swapped-during-validation: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: registry-swapped-during-validation: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-ed3x7tom/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-swapped-during-validation: Resolver Evidence schema agreement: evidence absent
+PASS: registry-swapped-during-validation: no partial live artifact
+FAIL: registry-discovery-syntax-error: exit 1: got 0
+FAIL: registry-discovery-syntax-error: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: registry-discovery-syntax-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-xa9crp8k/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-syntax-error: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-syntax-error: no partial live artifact
+FAIL: lite-check-source-undefined: exit 1: got 0 stderr=''
+FAIL: lite-check-source-undefined: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: lite-check-source-undefined: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-k2xhgqsf/specs/example-feature/resolver-evidence.yaml'
+FAIL: lite-check-source-undefined: Resolver Evidence schema agreement: evidence absent
+PASS: lite-check-source-undefined: no partial live artifact
+FAIL: output-schema-validation-failed-evidence: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-evidence: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+FAIL: output-schema-validation-failed-artifact: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: output-schema-validation-failed-artifact: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-jl_np745/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-artifact: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+FAIL: output-schema-validation-failed-facet-manifest: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-hadd8u3g/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+FAIL: snapshot-generation-mismatch: exit 1: got 0 stderr=''
+FAIL: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: snapshot-generation-mismatch: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-943p10g5/specs/example-feature/resolver-evidence.yaml'
+FAIL: snapshot-generation-mismatch: Resolver Evidence schema agreement: evidence absent
+PASS: snapshot-generation-mismatch: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-yv8vxkg2/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-ifdgtcu6/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-iqbuk0qw/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+FAIL: recheck-dependency-failed: exit 1: got 0 stderr=''
+FAIL: recheck-dependency-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: recheck-dependency-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-qqju6gfp/specs/example-feature/resolver-evidence.yaml'
+FAIL: recheck-dependency-failed: Resolver Evidence schema agreement: evidence absent
+PASS: recheck-dependency-failed: no partial live artifact
+FAIL: draft7-validator-keywords: _draft7_conforms exists on the staged module: TDD RED: T-004 step-12 self-validation absent from this staged snapshot
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 101 passed, 95 failed

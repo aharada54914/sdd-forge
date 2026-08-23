@@ -7,20 +7,25 @@
   "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:_discover_governing_schema/_load_governing_schema",
-      "note": "Governing output-schema discovery only checks that a file exists and parses as JSON; it never performs the required per-artifact `$schema`/`$id` version check. A wrong-version or substituted schema can therefore be accepted and used for self-validation instead of Blocking with `contract-discovery-failed`, contrary to REQ-002, AC-002, and the design's Discovery contract."
+      "severity": "Critical",
+      "ref": "resolve-project-context.py:_discover_registry/_validate_capability_registry/_generate_registry_digest_whole; main steps 5-6",
+      "note": "Registry content, validation, and registry_digest are not bound to one retained snapshot. The resolver reads registry_document, then separately validates the live path and invokes generate-registry-digest --whole, which independently rediscovers/rereads the Registry. A Registry change between these operations can make evaluations use generation A while validation and context_binding.registry_digest describe generation B; the later recheck compares against B and therefore cannot detect the mixed generation. This violates REQ-001/REQ-002's fixed-snapshot and snapshot-generation-mismatch guarantees."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_load_governing_schema and main step 12 ContractDiscoveryFailed handler",
-      "note": "Schema read/parse failures interpolate the raw exception into `ContractDiscoveryFailed`, and main copies that text into the diagnostic detail and Resolver Evidence. An OSError can contain absolute paths, errno wording, and OS-specific text, violating REQ-002/AC-014/REQ-005's canonical Resolver-owned, repository-relative, cross-runtime-stable diagnostic contract. Existing coverage exercises only the fixed missing-file message, not unreadable or malformed schema errors."
+      "ref": "requirements.md AC-016; resolve-project-context.py:_projection/_assemble_context_binding",
+      "note": "The advisory/required byte-identity requirement is not satisfied. Changing workflow.capability_enforcement changes the canonical Project Context, so source_sha256/full_context_revision, the Context Projection workflow and projection_sha256 all change, in addition to Resolver Evidence.state. The implementation preserves those differences, contrary to AC-016's claim that only Evidence.state differs; the requirement or implementation/test oracle must be reconciled."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/qg/T-004/regression.log; verification/T-004.contract.json regression check",
+      "note": "The required regression check is marked passes=true although the latest full PowerShell run explicitly did not complete and the evidence recommends rerunning it before sign-off. For a feature requiring sh/ps1 parity, an incomplete required regression run cannot support a passing verification claim."
     }
   ],
   "blind": true,
-  "input_digest": "85418e865f6821cf8fcb2ac1f3bc4de75e95d543fc0ec34fede3faeefd3b4d00",
+  "input_digest": "2cd7c4051b6bbc5a255ce9c37ad3a0d545f708ff62b2638297381ead2001c58b",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md T-004 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "sudo 2026-08-08T16:04:17Z"
   }
 }
