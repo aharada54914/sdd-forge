@@ -433,6 +433,9 @@ jobs:
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/agent-model-routing.tests.sh
 
+      - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
+        run: bash ./tests/release-config-lock.tests.sh
+
       - name: Test turn-first agent-model routing suite (pwsh)
         shell: pwsh
         run: ./tests/agent-model-routing.tests.ps1
