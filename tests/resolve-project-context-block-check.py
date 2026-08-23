@@ -535,7 +535,7 @@ def run_t003_case(kind, case_name, counts):
         target_oid = base_oid
 
         expected_capability_evaluations = []
-        expected_warn_diagnostics = []  # AC-056: populated only by the dsl-warn-* cases below
+        expected_warn_diagnostics = []  # AC-056: populated only by the dsl-warn-* cases and the amended abort-forwarding case below
         state = "advisory"
 
         if case_name == "affected-component-resolution-failed":
@@ -653,28 +653,27 @@ def run_t003_case(kind, case_name, counts):
             expected_detail = "a Registry-declared predicate failed predicate-schema validation"
 
         elif case_name == "evaluate-predicate-failure-after-warn":
-            # Confirmation-panel finding (2026-08-24, both vendors
-            # converged): the shape this fixture previously locked in --
-            # forwarding steps 7-8's already-collected `severity: "warn"`
-            # `dsl-warn-on-matched-capability` entries into an abort Block
-            # under a DIFFERENT id -- is exactly what requirements.md's own
-            # AC-056 sentence forbids ("a dsl-warn-on-matched-capability id
-            # therefore never appears with only severity: warn entries and
-            # no severity: block summary entry"): step 9's own summary
-            # entry is never reached on this abort path, so a forwarded
-            # warn entry would be warn-only for that id. This fixture's own
-            # Registry still declares TWO capabilities in declaration
-            # order: `cap-warn-first` (a real WARN outcome on comp-a, fully
-            # evaluated and appended to `capability_evaluations` first --
-            # this half is UNCHANGED, since AC-024/REQ-004 govern
-            # `capability_evaluations[]` independently of `diagnostics[]`)
-            # then `cap-fails-second` (whose own trigger evaluation is this
-            # fixture's own stubbed `evaluate-predicate`'s SECOND
-            # invocation, which fails with a generic non-zero exit). The
-            # already-collected WARN entry for cap-warn-first is now
-            # correctly DROPPED, not forwarded, on this abort path --
-            # `expected_warn_diagnostics` stays empty, matching every other
-            # non-`dsl-warn-*` case.
+            # Amendment A① (human-approved 2026-08-24): requirements.md's
+            # AC-056 sentence now carries an explicit "or jointly caused"
+            # exception -- `severity: "warn"` entries already collected
+            # before an evaluation abort lawfully appear alongside that
+            # abort's own DIFFERENT-id `severity: "block"` summary entry
+            # (with no same-id summary, since step 9 is never reached on
+            # this abort path) when the abort and the warns are jointly
+            # caused by the same evaluation pass, reconciling the sentence
+            # with REQ-004's own "recording every diagnostic-worthy
+            # condition" mandate. This fixture's own Registry declares TWO
+            # capabilities in declaration order: `cap-warn-first` (a real
+            # WARN outcome on comp-a, fully evaluated and appended to
+            # `capability_evaluations` first) then `cap-fails-second`
+            # (whose own trigger evaluation is this fixture's own stubbed
+            # `evaluate-predicate`'s SECOND invocation, which fails with a
+            # generic non-zero exit). The already-collected WARN entry for
+            # cap-warn-first is therefore FORWARDED, not dropped, on this
+            # abort path -- the lossless shape: `expected_warn_diagnostics`
+            # carries that one entry, alongside the different-id block
+            # summary composed below (restoring the forwarding 1811ed0e
+            # reversed under the unamended sentence).
             state = "advisory"
             (repo / "comp-a").mkdir()
             (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
@@ -690,6 +689,9 @@ def run_t003_case(kind, case_name, counts):
                 "matched": False,
                 "trigger_evaluations": [{"component_id": "comp-a", "result": False, "evidence": [warn_evidence_node]}],
             }]
+            expected_warn_diagnostics = [
+                expected_warn_diagnostic("cap-warn-first", "comp-a", None, (0,), warn_evidence_node),
+            ]
 
         elif case_name == "dsl-warn-unsorted-affected-components":
             # AC-056: two independent WARN nodes (comp-a's own trigger

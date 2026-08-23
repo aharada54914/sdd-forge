@@ -893,10 +893,18 @@ def run_include_untracked_pass_through_case(kind, counts):
 def run_enforcement_byte_identity_case(kind, counts):
     """TEST-016: a fixture pair identical except `workflow.
     capability_enforcement` (advisory vs. required) produces byte-identical
-    Resolver Evidence except its own `state` field (AC-016). No matched
-    Capability's own `lite_policy.required_lite_checks` key is at issue --
-    this fixture uses the Full track, sidestepping the Lite-track-only
-    caveat AC-016's own row text names entirely."""
+    Resolver Evidence except its own `state` field and its two
+    enforcement-derived `context_binding` digest fields
+    `full_context_revision`/`projection_sha256` (AC-016 as amended
+    2026-08-24, human-approved -- those digests hash canonical bytes that
+    structurally encode `workflow.capability_enforcement`, so their
+    identity across the pair is internally impossible; the assertions
+    below already carried this exact exclusion, with a non-vacuity check
+    that the two digests genuinely differ, since the T-004 cycle-2
+    remediation). No matched Capability's own `lite_policy.
+    required_lite_checks` key is at issue -- this fixture uses the Full
+    track, sidestepping the Lite-track-only caveat AC-016's own row text
+    names entirely."""
     case_name = "enforcement-byte-identity"
     fixture_dir = FIXTURES / case_name
     results = {}

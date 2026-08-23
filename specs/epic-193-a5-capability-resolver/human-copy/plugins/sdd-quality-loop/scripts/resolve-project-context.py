@@ -737,8 +737,11 @@ def _write_evidence(
     # AC-056/AC-024: every already-collected `severity: "warn"`
     # diagnostics[] entry (one per individual `outcome: "warn"`
     # DSL-evaluation node -- see `_evaluate_capabilities`) plus exactly one
-    # summary `severity: "block"` entry sharing the identical
-    # `diagnostic_id` are combined, then the WHOLE array is stable-sorted
+    # summary `severity: "block"` entry -- sharing the identical
+    # `diagnostic_id` on the step-9 Block, or carrying the abort's own
+    # different id on a steps-7/8 abort path (amendment A①, human-approved
+    # 2026-08-24: the abort and the warns are jointly caused by the same
+    # evaluation pass) -- are combined, then the WHOLE array is stable-sorted
     # by `(id, detail)` (AC-024's own stable-sort discipline covers
     # `diagnostics[]` generally, not only `capability_evaluations[]`
     # above) -- never left in declaration-evaluation-then-summary emission
@@ -1550,26 +1553,27 @@ def main(argv=None):
             capability_evaluations, warn_diagnostics,
         )
     except RegistryValidationFailed:
-        # Confirmation-panel finding (2026-08-24, both vendors converged):
-        # forwarding `warn_diagnostics` into a Block whose own id is NOT
-        # `dsl-warn-on-matched-capability` produces exactly the shape
-        # requirements.md's own AC-056 sentence forbids -- `diagnostics[]`
-        # would carry `dsl-warn-on-matched-capability` warn entries with NO
-        # same-id `severity: "block"` summary (step 9 is never reached on
-        # this abort path, so that summary entry is never emitted). The
-        # earlier "does not collide" reasoning above (now removed) checked
-        # only the single-id-carries-block invariant and missed the
-        # per-id "never warn-only" invariant the same sentence also states.
-        # These already-collected warn entries are therefore dropped, not
-        # forwarded, on this abort path.
+        # Amendment A① (human-approved 2026-08-24): requirements.md's
+        # AC-056 sentence now carries an explicit exception in the "or
+        # jointly caused" shape -- `severity: "warn"` entries already
+        # collected before an evaluation abort lawfully appear alongside
+        # that abort's own different-id `severity: "block"` summary entry,
+        # with no same-id summary (step 9 is never reached on this abort
+        # path), when the abort and the warns are jointly caused by the
+        # same evaluation pass. This reconciles the sentence with REQ-004's
+        # own "recording every diagnostic-worthy condition this invocation
+        # encountered" mandate: already-collected warn entries are
+        # therefore FORWARDED, not dropped, on all three steps-7/8 abort
+        # paths (restoring the forwarding 1811ed0e reversed when the
+        # unamended sentence forbade it).
         detail = "a Registry-declared predicate failed predicate-schema validation"
-        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations)
+        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations, warn_diagnostics)
     except DependencySubprocessFailed:
         detail = "evaluate-predicate failed while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations)
+        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations, warn_diagnostics)
     except DependencyOutputMalformed:
         detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations)
+        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
 
     # Step 9: any-branch WARN check (B2, widened scope). AC-056:
     # `warn_diagnostics` already carries one `severity: "warn"` entry per
