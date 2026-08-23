@@ -436,9 +436,15 @@ if (Test-Path $sourceFixtureRoot) { Remove-Item -Path $sourceFixtureRoot -Recurs
 Write-Host ""
 Write-Host "installer-idempotency.tests.ps1: all scenarios passed."
 
-# Every scenario throws on failure, so reaching this line means all passed.
-# The explicit exit is required, not decorative: the last stub CLI invoked by
-# case 7 exits non-zero by design, and `pwsh -File` / `pwsh -command ". script"`
-# returns $LASTEXITCODE as the process exit code. Without this the suite printed
-# "all scenarios passed." and still exited 1, failing CI on a green run.
+# Reaching this line means every assertion held — failures throw, and
+# $ErrorActionPreference is Stop, so there is no path here from a failed case.
+#
+# The explicit exit is not decoration. Several cases drive the installer to
+# fail on purpose, which leaves $LASTEXITCODE at 1 from the stub that failed.
+# GitHub Actions runs `shell: pwsh` as
+#   pwsh -command ". 'script'"; if (Test-Path variable:\LASTEXITCODE) { exit $LASTEXITCODE }
+# so without this the step fails with exit 1 *after* printing that all
+# scenarios passed. That is exactly how this suite first broke main
+# (2026-08-23, run 32648032515): green locally under `pwsh -File`, which uses
+# the script's own exit code and never sees the leaked one.
 exit 0

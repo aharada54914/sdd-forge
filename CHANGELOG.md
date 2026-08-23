@@ -43,13 +43,11 @@
 
 ### Changed
 
-- **`installer-idempotency.tests.ps1` に終端 `exit 0` を追加**: ケース7の
-  スタブ CLI が意図的に残す `$LASTEXITCODE=1` を pwsh がプロセス終了コード
-  として返すため、「all scenarios passed.」と出力しながら exit 1 になる。
-  main の `2b8e528a` が本スイートを `installers` ジョブに登録したことで、
-  この欠陥が CI を赤にする経路に乗った。
-  （CI 登録自体は `2b8e528a` が `installers` ジョブで行っており、本ブランチが
-  一時的に `test` ジョブへ入れていた重複登録は削除した。）
+- **`installer-idempotency` の CI 登録は main 側（`2b8e528a`）を採用**: 本
+  ブランチが一時的に `test` ジョブへ入れていた重複登録は削除し、`test.yml` は
+  `origin/main` と一致。終端 `exit 0` の欠落（スタブが残す `$LASTEXITCODE=1`
+  を pwsh がそのまま返し、「all scenarios passed.」と出しながら exit 1 になる）
+  も main が `9a382c21` で独立に修正したため、そちらを採用した。
 
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
