@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0766",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0766",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-1/integrated-summary.json",
+      "sha256": "cabbd9023ee0c040549e7f0b8e745b1dcb7959d97db9ef22f4965fe67a0c234b"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-3/round-1/precheck-result.json",
+      "sha256": "8d824430e37432703ce9af655c8f067fb6e721e29b7547e754aacd7647c1c2cf"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "54f6ace65a05570cb8b81a418a5c597bd10ba47c10ebc9c20f97ae5de4c60992"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "be0cd28571cc64784c89d687c5c38b8ccbe14bd7dfab0a5ba4c73c8a26311ac9"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:13 (AC-009 row) locks 'assert_terminal's observable behaviour and signature ... at TEST-009.2's re-baselined hash, whose one sanctioned change from the pre-T-006 body is the _loop_trace_emit done-transition:assert-terminal call ... (T-005 cycle-2 correction: the prior hash locked a body that omitted this call ...)'. This references named tasks T-005/T-006 and a 'cycle-2' quality-gate iteration that already produced and re-baselined a hash-locked function body. But requirements.md's own Overview ('No test code, fixtures, or registry edits are produced by this task; tasks.md and traceability.md follow in a later phase') and Non-goals ('Authoring the actual test code, fixtures, or registry/driver/run-record edits. Those are Phase 2/3 deliverables of a later task') state this package has no tasks.md yet and no Phase 2/3 implementation activity has occurred. A downstream task author cannot determine whether T-005/T-006 are pre-committed task-number assignments they must honor when authoring this epic's own tasks.md, a stale reference to a different epic's task cycle that leaked into this AC's text, or forward-looking placeholder language — each reading changes what task decomposition must preserve and whether a specific historical hash value (not recorded anywhere else in this package) is binding. This is a spec-review-scoped defect because it is an internal inconsistency between this package's own Non-goals/Overview and one of its own Acceptance Criteria, not a downstream implementation-policy or task-ordering question; downstream reviewers would otherwise inherit and have to guess at the ambiguity. Major severity because it does not itself produce an impossible/contradictory goal (Critical) but will cause two implementers to diverge on task numbering/hash-binding expectations for this specific AC (downstream mismatch, matching the AMBIGUITY Major calibration)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked the goals/ACs most likely to conflict (REQ-005/AC-028 matrix dispositions, AC-005/AC-042/AC-043 full-track vs lite-track structural clauses, AC-007 vs AC-043 F4-only vs F5/F6 scoping, REQ-004's byte/event/structural three-way decomposition vs the Overview's two-way byte/event framing) and found each internally reconciled: the Overview's 'byte-identical or event-identical' phrasing is explicitly narrowed by the Field Definitions section and AC-029's three mutually-exclusive classes (byte/structural/event), and REQ-004 itself already decomposes into the same three clauses. AC-005/AC-042/AC-043 explicitly flag and correct an earlier draft's track-mixing error rather than leaving it unresolved. No requirement, acceptance criterion, constraint, or non-goal was found to assert mutually exclusive outcomes for the same fixture state. (Excluding the AC-009 T-005/T-006 anomaly, which is evidenced under AMBIGUITY rather than here because I could not establish it as a direct, unambiguous conflict rather than a confusing forward/stale reference.)"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Edge Cases section names the PROJECT_CONTEXT_INVALID distinguishability case, baseline-commit-pinning-vs-later-drift case, and partial per-entry capability-field-extension case; acceptance-tests.md pairs these with concrete negative/boundary tests: AC-002/TEST-002 (deliberately mutated fixture negative self-check), AC-019-AC-021/TEST-019-021 (F3-invalid/F4-invalid PROJECT_CONTEXT_INVALID boundary states), AC-035/TEST-035 (three independent hard-fail negative self-checks: dependency-present SKIP, unknown SKIP, fingerprint drift), and AC-041/TEST-041 (two independent negative fixtures for promote-golden-baseline.sh's refusal guard). Empty/absent states (Context-absent F1/F2, INV-009) and boundary/failure modes implied by REQ-001-REQ-007 are represented with named test IDs, not left as narrative-only claims."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section names three assumptions (unmerged-epic drift risk for A1/A3/A4/A5/A6; docs/ADR authority; jq/bash/PowerShell runtime) and each is either paired with a concrete resolution mechanism (the A1/A3/A5 drift assumption is explicitly tied to AC-035's fingerprint-drift hard-fail, 'this is the exact drift AC-035's fingerprint-mismatch hard-fail ... is designed to catch, not merely tolerate') or stated as a stable premise with no open resolution needed. All three Open Questions (OQ-001-OQ-003) are marked '(resolved)' with an explicit decision and a citation to where that decision is recorded (Non-goals/design.md Design Decisions), leaving no assumption presented as silently unresolved."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The golden-baseline candidate-to-canonical promotion is an explicit human-approval/irreversible-change boundary in scope (REQ-006c, Security Boundaries B1, Roles and Permissions). It is made testable, not merely asserted: AC-018 requires the manifest to record the pinned pre-capability commit SHA, fixed env, and script hashes; AC-040/TEST-040 is a static scan asserting `.github/workflows/test.yml` never references `promote-golden-baseline.sh` or `--write-candidate`; AC-041/TEST-041 directly exercises `promote-golden-baseline.sh`'s own runtime refusal with two independent negative fixtures (CI env var set; --approved-by omitted/empty), each asserting non-zero exit and no file write. This gives a downstream implementer a concrete, verifiable boundary rather than an unenforceable governance statement."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The package fixes an exhaustive compatibility matrix (AC-028), an exhaustive observable-classification table (AC-029), a canonical event-trace schema with per-kind producers/ordering/normalization (AC-022-AC-027), an explicit SKIP-governance allowlist grammar (AC-034/AC-035), and named suite-registration targets (AC-010, AC-015, AC-032) -- consistently deferring only format/schema *details* to design.md (permitted per the calibration's false-positive guard against requiring implementation architecture), never deferring product-level decisions such as which fixture rows exist, which suite owns which event kind, or what the human-approval boundary requires. The single localized AC-009 anomaly is captured under AMBIGUITY above and does not, on its own, require an implementation-policy reviewer to invent missing product behavior across the package."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/context-map.md` or `domain/domain-contract.json` is present in the manifest-listed inputs for this review, and none of requirements.md/acceptance-tests.md/investigation.md provides evidence of a `Domain-Model-Status: Approved` domain context map for this repository. Per the check's own skip condition, this is recorded as skipped rather than evaluated."
+    }
+  ]
+}
