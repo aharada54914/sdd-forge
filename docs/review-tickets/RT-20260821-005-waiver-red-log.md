@@ -31,7 +31,7 @@ A present-day differential proving the delivered enforcement is real:
 - `specs/risk-adaptive-layer/verification/T-006.green-compensating-20260823.log`
   (sha256 `ec184ea2afa988242ae70a020d69e7bcecf33bb944bf0125ac02ecd46ce77872`):
   pristine generator restored byte-for-byte -> suite exit 0, all
-  22 distinct T-006 assertion ids green.
+  21 distinct T-006 assertion ids green.
 
 **Correction, 2026-08-23 (seq 845 quality gate, Critical):** the FIRST version
 of these logs was invalid and has been superseded. The capture script replaced
@@ -43,7 +43,7 @@ artifact as false provenance. The counts above (and the '17 assertions' figure
 in the text superseded at seq 845) are from the corrected capture. Both logs
 were RE-RUN again at seq 846 against the shipped suite: the earlier pair was
 honest for its time but predated the checks[] telemetry pins, so it recorded
-16 T-006 assertion ids where the suite now has 22.
+16 T-006 assertion ids where the suite now has 21.
 
 Both logs carry honest headers stating they are 2026-08-23 compensating
 captures, NOT the original red. Same method as the agci T-006 recapture

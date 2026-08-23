@@ -14,7 +14,7 @@ instead of the emission; that capture failed only T-007a.1d.
 COMMAND: bash tests/gates.tests.sh  (scratch clone, mutated plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh)
 EXIT: 1
 FAILING ASSERTIONS: 6 (T-006: 3)
-DISTINCT T-006 ASSERTION IDS: 22
+DISTINCT T-006 ASSERTION IDS: 21
 === T-006: evidence provenance ===
 ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
 ok: T-006.1b: legacy bundle file created at expected path

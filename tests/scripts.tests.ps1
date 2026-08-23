@@ -149,6 +149,42 @@ Status: Done
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-good.json"
     Assert-ExitCode "check-contract passing" (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
 
+    # --- WFI-046 per-check execution record (design.md section 2) ---
+    # The rule shipped in the python master only; every malformed shape passed
+    # on this runtime while failing on POSIX, and neither suite had a fixture
+    # that entered the code path at all (gate seq 849). Both polarities pinned
+    # here and in the sh twin.
+    function New-Wfi046Contract {
+        param([hashtable]$Fields, [string]$OutFile)
+        $c = Get-Content -Raw -Encoding Utf8 "contract-good.json" | ConvertFrom-Json
+        foreach ($k in $Fields.Keys) {
+            $c.checks[0] | Add-Member -NotePropertyName $k -NotePropertyValue $Fields[$k] -Force
+        }
+        $c | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 $OutFile
+    }
+
+    Assert-ExitCode "T-006.ps.7a: WFI-046 fields absent still passes (grandfathering)" `
+        (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
+
+    New-Wfi046Contract -Fields @{ command = "bash tests/unit.tests.sh"; exit_code = 0;
+        started_at = "2026-08-24T10:00:00Z"; finished_at = "2026-08-24T10:05:00Z" } `
+        -OutFile "contract-wfi046-valid.json"
+    Assert-ExitCode "T-006.ps.7b: WFI-046 valid execution record passes" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-valid.json", "-RepoRoot", ".")) 0
+
+    New-Wfi046Contract -Fields @{ command = "   " } -OutFile "contract-wfi046-cmd.json"
+    Assert-ExitCode "T-006.ps.7c: WFI-046 blank command is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-cmd.json", "-RepoRoot", ".")) 1
+
+    New-Wfi046Contract -Fields @{ exit_code = "zero" } -OutFile "contract-wfi046-rc.json"
+    Assert-ExitCode "T-006.ps.7d: WFI-046 non-integer exit_code is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-rc.json", "-RepoRoot", ".")) 1
+
+    New-Wfi046Contract -Fields @{ started_at = "2026-08-24T10:00:00" } `
+        -OutFile "contract-wfi046-ts.json"
+    Assert-ExitCode "T-006.ps.7e: WFI-046 timestamp without the UTC Z is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-ts.json", "-RepoRoot", ".")) 1
+
     $contract.checks[0].evidence = "missing.log"
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-badev.json"
     Assert-ExitCode "check-contract missing evidence" (Invoke-Gate "check-contract.ps1" @("contract-badev.json", "-RepoRoot", ".")) 1
@@ -1858,7 +1894,13 @@ Quality gate report for T-100.
     # command/exit_code/timestamps are PASS-THROUGH from the contract and are
     # null when the contract does not record them, so they are not asserted
     # non-empty; what is asserted is what the generator guarantees.
-    $checksTel = if ($highBundleJson.PSObject.Properties.Name -contains 'checks') { @($highBundleJson.checks) } else { @() }
+    # Assign the empty array FIRST: `$x = if (...) { @() }` assigns $null,
+    # because PowerShell unrolls an empty array in the output stream, which
+    # turned the intended guard into a PropertyNotFound on .Count instead.
+    $checksTel = @()
+    if ($highBundleJson.PSObject.Properties.Name -contains 'checks') {
+        $checksTel = @($highBundleJson.checks)
+    }
     if ($checksTel.Count -lt 1) {
         throw "T-006.ps.6a: generated bundle missing or empty 'checks' telemetry array"
     }
@@ -1889,7 +1931,11 @@ Quality gate report for T-100.
     }
     Write-Host "ok: T-006.ps.6d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
 
-    if ([string]::IsNullOrWhiteSpace("$($highBundleJson.required_workflow)")) {
+    $requiredWorkflowValue = $null
+    if ($highBundleJson.PSObject.Properties.Name -contains 'required_workflow') {
+        $requiredWorkflowValue = $highBundleJson.required_workflow
+    }
+    if ([string]::IsNullOrWhiteSpace("$requiredWorkflowValue")) {
         throw "T-006.ps.6e: generated bundle missing 'required_workflow' provenance field"
     }
     Write-Host "ok: T-006.ps.6e: generated bundle carries 'required_workflow'"
