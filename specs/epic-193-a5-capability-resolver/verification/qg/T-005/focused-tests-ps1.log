@@ -18,6 +18,14 @@ PASS: full-pipeline-match: context_binding.ownership_digest is resolve-component
 PASS: full-pipeline-match: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)
 PASS: full-pipeline-match: "other~thing"'s own `~` is escaped to `~0` in its dependency_pointers[] entry (AC-044)
 PASS: full-pipeline-match: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- white-box: never written to any live path pre-T-007, so cross-invocation/cross-runtime identity is a structural consequence of .sh/.ps1 delegating unconditionally to this identical .py master, not something a real-subprocess run can itself observe)
+PASS: full-pipeline-match: Resolver Evidence PUBLISHES a context_binding block, never omits it (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.full_context_revision matches this run's own independently-hashed source_sha256 (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.projection_sha256 matches the resolver's own captured projection bytes, independently re-canonicalized and re-hashed (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.registry_digest matches this fixture's own stub's fixed FIRST_DIGEST constant (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.ownership_digest matches resolve-component-paths-real.py's own independent, real-subprocess-derived value (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] matches /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
+PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
 PASS: full-pipeline-match: required_facets (AC-007)
 PASS: full-pipeline-match: capabilities (AC-007)
@@ -65,10 +73,24 @@ PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- th
 PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
 PASS: warn-cardinality-multi-node: no partial live artifact
 PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
+PASS: warn-cardinality-facet-node: the facet-loop warn's own detail names a real, non-None integer declaration_index -- AC-056's own facet-loop clause, unexercised by any fixture before this one
 PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
 PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 73 passed, 0 failed
+RESULT: 95 passed, 0 failed

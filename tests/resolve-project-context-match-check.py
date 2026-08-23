@@ -536,6 +536,86 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
             f".sh/.ps1 delegating unconditionally to this identical .py master, not something a real-subprocess run can itself observe)",
         )
 
+        # --- RT-20260823-001 Finding 1 remediation: read the PUBLISHED
+        # evidence, not only this driver's own reconstruction -----------
+        # Every assertion above this point compares `context_binding`/
+        # `resolver_block` -- objects THIS DRIVER built itself, above, by
+        # calling `_assemble_context_binding`/`_resolver_block` directly
+        # -- against independent expectations. That exercises `_assemble_
+        # context_binding`'s own internals, but never once read what the
+        # REAL resolver subprocess actually WROTE to `resolver-evidence.
+        # yaml` (`evidence["context_binding"]`/`evidence["resolver"]`,
+        # already loaded at :325, sitting unread this whole time). A
+        # mutant corrupting the PUBLISHED `projection_sha256`/`full_
+        # context_revision`/`registry_digest`/`ownership_digest` -- or
+        # deleting the published `context_binding`/`resolver` blocks
+        # entirely -- survived undetected before this remediation,
+        # because nothing here ever looked at the artifact the subprocess
+        # produced (this Route 1 finding is verbatim RT-20260823-001's
+        # own). The reconstruction-based assertions above stay -- they
+        # lock `_assemble_context_binding`'s own internals -- these are
+        # in addition, comparing the PUBLISHED values against the exact
+        # same independent expectations already in scope (`source_
+        # sha256`, `projection_sha256`, `registry_digest`, `ownership_
+        # digest`, `expected_pointers`, `resolver_module.RESOLVER_
+        # VERSION`/`RULE_SET_REVISION`), never against `context_binding`/
+        # `resolver_block` themselves. `.get(...)` throughout: a missing
+        # block must FAIL LOUDLY (every field-level check below also
+        # fails), never crash this driver with an unguarded KeyError
+        # before it can print a RESULT line.
+        published_context_binding = evidence.get("context_binding")
+        counts.check(
+            published_context_binding is not None,
+            f"{case_name}: Resolver Evidence PUBLISHES a context_binding block, never omits it (RT-20260823-001 Finding 1)",
+            repr(published_context_binding),
+        )
+        published_context_binding = published_context_binding or {}
+        counts.check(
+            published_context_binding.get("full_context_revision") == source_sha256,
+            f"{case_name}: PUBLISHED context_binding.full_context_revision matches this run's own independently-hashed "
+            f"source_sha256 (RT-20260823-001 Finding 1)",
+            repr({"published": published_context_binding.get("full_context_revision"), "expected": source_sha256}),
+        )
+        counts.check(
+            published_context_binding.get("projection_sha256") == projection_sha256,
+            f"{case_name}: PUBLISHED context_binding.projection_sha256 matches the resolver's own captured "
+            f"projection bytes, independently re-canonicalized and re-hashed (RT-20260823-001 Finding 1)",
+            repr({"published": published_context_binding.get("projection_sha256"), "expected": projection_sha256}),
+        )
+        counts.check(
+            published_context_binding.get("registry_digest") == registry_digest,
+            f"{case_name}: PUBLISHED context_binding.registry_digest matches this fixture's own stub's fixed "
+            f"FIRST_DIGEST constant (RT-20260823-001 Finding 1)",
+            repr({"published": published_context_binding.get("registry_digest"), "expected": registry_digest}),
+        )
+        counts.check(
+            published_context_binding.get("ownership_digest") == ownership_digest,
+            f"{case_name}: PUBLISHED context_binding.ownership_digest matches resolve-component-paths-real.py's own "
+            f"independent, real-subprocess-derived value (RT-20260823-001 Finding 1)",
+            repr({"published": published_context_binding.get("ownership_digest"), "expected": ownership_digest}),
+        )
+        counts.check(
+            published_context_binding.get("dependency_pointers") == expected_pointers,
+            f"{case_name}: PUBLISHED context_binding.dependency_pointers[] matches /workflow plus one RFC-6901-escaped "
+            f"pointer per affected component, stable-sorted (RT-20260823-001 Finding 1)",
+            repr(published_context_binding.get("dependency_pointers")),
+        )
+
+        published_resolver = evidence.get("resolver")
+        counts.check(
+            published_resolver is not None,
+            f"{case_name}: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)",
+            repr(published_resolver),
+        )
+        published_resolver = published_resolver or {}
+        counts.check(
+            published_resolver.get("version") == resolver_module.RESOLVER_VERSION
+            and published_resolver.get("rule_set_revision") == resolver_module.RULE_SET_REVISION,
+            f"{case_name}: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own "
+            f"single-source-of-truth constants (RT-20260823-001 Finding 1)",
+            repr(published_resolver),
+        )
+
         track_artifact = resolver_module._assemble_facet_manifest(
             "example-feature", affected_components, registry_document,
             evidence["capability_evaluations"], context_binding, resolver_block,
@@ -992,6 +1072,126 @@ def run_warn_cardinality_multi_node_case(kind, counts):
         )
 
 
+def _expected_facet_warn_detail(fixture_dir, registry_document, capability_id, component_id, declaration_index):
+    """RT-20260823-001 Finding 2: the facet-loop counterpart of
+    `_expected_trigger_warn_detail` above. Every prior warn-detail
+    expectation in this driver recomputed a TRIGGER evaluation
+    (`declaration_index=None`, fixed); this one instead independently
+    recomputes ONE `conditional_facets[declaration_index]["when"]`
+    evaluation's own exact warn `detail` string -- a real, non-None
+    integer `declaration_index` -- via the identical real, unmutated
+    `evaluate-predicate` dependency and the identical byte-for-byte
+    `_warn_diagnostic_detail` mirror (`block_check.expected_warn_
+    diagnostic`) `_expected_trigger_warn_detail` already reuses, fed
+    the SAME fixture's own real `project-context.yaml`/`capability-
+    registry.json` text, never `resolve-project-context.py` itself."""
+    _, document = _canonicalize_yaml(fixture_dir / "project-context.yaml")
+    component = next(c for c in document["components"] if c["id"] == component_id)
+    properties = {key: value for key, value in component.items() if key != "id"}
+    capability = next(c for c in registry_document["capabilities"] if c["id"] == capability_id)
+    predicate = capability["conditional_facets"][declaration_index]["when"]
+    _, evidence_nodes = block_check.real_evaluate_predicate(predicate, properties)
+    [(node_index, warn_node)] = [
+        (idx, node) for idx, node in enumerate(evidence_nodes) if node.get("outcome") == "warn"
+    ]
+    return block_check.expected_warn_diagnostic(
+        capability_id, component_id, declaration_index, (node_index,), warn_node,
+    )["detail"]
+
+
+def run_warn_cardinality_facet_node_case(kind, counts):
+    """TEST-056 (part 3, RT-20260823-001 Finding 2): AC-056 requires each
+    warn `detail` to name "that node's own capability_id/component_id/
+    declaration_index location" -- but until this fixture, no TEST-056
+    fixture ever declared a non-empty `conditional_facets[]` on a MATCHED
+    Capability, so the facet-loop half of the warn-collection path
+    (`resolve-project-context.py`'s own `_evaluate_capabilities`,
+    conditional-facet branch) had never produced a single tested output;
+    every prior warn entry carried a fixed `declaration_index=None` (the
+    trigger loop's own value, never the facet loop's).
+
+    This fixture's sole Capability (`cap-facet-warn`) has a trigger that
+    MATCHES on `comp-a` (`characteristics.pii=true` there) and WARNS on
+    `comp-b` (that field genuinely absent there, not merely false --
+    `declaration_index=None`, the trigger loop's own value). Because the
+    Capability matched (via `comp-a`), its own single `conditional_
+    facets[]` entry (index 0) is then evaluated too -- matching on
+    `comp-a` (`characteristics.ui=true` there) and WARNING on `comp-b`
+    (that field likewise absent there -- `declaration_index=0`, a real,
+    non-None integer, the facet-loop's own value). So this single
+    invocation's own `diagnostics[]` carries both shapes in ONE document:
+    an integer-indexed warn entry and a `None`-indexed warn entry,
+    exercising the (id, detail) stable-sort interaction between the two
+    AC-024 requires -- `_warn_diagnostic_detail` embeds `declaration_
+    index!r}` directly into `detail`, and `repr(0) == "0"` sorts lexically
+    BEFORE `repr(None) == "None"` (`"0" < "N"`), so `_check_warn_
+    cardinality`'s shared sort assertion below is genuinely exercised
+    against a mixed-shape pair, not two same-shape entries."""
+    case_name = "warn-cardinality-facet-node"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-match-warnFacet-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = block_check.install_scripts(repo)
+        feature_dir, sentinels = block_check.plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+        registry_path = fixture_dir / "capability-registry.json"
+        block_check.install_t003_dependencies(
+            repo, scripts, fixture_dir, registry_capabilities_path=registry_path,
+        )
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = block_check.git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("a\n", encoding="utf-8")
+        (repo / "comp-b").mkdir()
+        (repo / "comp-b/file.txt").write_text("b\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "add comp-a, comp-b")
+
+        argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
+        result = subprocess.run(argv, cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_line = f"capability-resolver: {WARN_DIAGNOSTIC_ID}: {WARN_SUMMARY_DETAIL}\n"
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = block_check.read_evidence(evidence_path)
+        if not isinstance(evidence, dict):
+            counts.check(False, f"{case_name}: Resolver Evidence readable", parse_error or repr(evidence))
+            return
+        _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=2)
+
+        registry_document = json.loads(registry_path.read_text(encoding="utf-8"))
+        warn_entries = [d for d in evidence.get("diagnostics", []) if d.get("severity") == "warn"]
+        expected_trigger_detail = _expected_trigger_warn_detail(fixture_dir, registry_document, "cap-facet-warn", "comp-b")
+        expected_facet_detail = _expected_facet_warn_detail(fixture_dir, registry_document, "cap-facet-warn", "comp-b", 0)
+        counts.check(
+            expected_trigger_detail != expected_facet_detail,
+            f"{case_name}: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop "
+            f"(declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision",
+            repr({"trigger": expected_trigger_detail, "facet": expected_facet_detail}),
+        )
+        counts.check(
+            sorted(d.get("detail") for d in warn_entries) == sorted([expected_trigger_detail, expected_facet_detail]),
+            f"{case_name}: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the "
+            f"facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed "
+            f"capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)",
+            repr({"actual": sorted(d.get("detail") for d in warn_entries), "expected": sorted([expected_trigger_detail, expected_facet_detail])}),
+        )
+        counts.check(
+            "declaration_index=0" in expected_facet_detail and "declaration_index=None" not in expected_facet_detail,
+            f"{case_name}: the facet-loop warn's own detail names a real, non-None integer declaration_index -- "
+            f"AC-056's own facet-loop clause, unexercised by any fixture before this one",
+            repr(expected_facet_detail),
+        )
+
+
 _RESOLVER_IDENTITY_PROBE = """
 import importlib.util, json, os, sys
 spec = importlib.util.spec_from_file_location("resolve_project_context_oracle", sys.argv[1])
@@ -1105,6 +1305,7 @@ def main():
     case_labels = [
         "full-pipeline-match", "enforcement-byte-identity",
         "warn-cardinality-single-node", "warn-cardinality-multi-node",
+        "warn-cardinality-facet-node",
     ]
     if not all(path.is_file() for path in required_files):
         for label in case_labels:
@@ -1116,6 +1317,7 @@ def main():
         run_facet_manifest_state_independence_check(resolver_module, counts)
         run_warn_cardinality_single_node_case(args.launcher, counts)
         run_warn_cardinality_multi_node_case(args.launcher, counts)
+        run_warn_cardinality_facet_node_case(args.launcher, counts)
         run_resolver_identity_cross_process_check(counts)
         run_dispatcher_delegation_check(counts)
 
