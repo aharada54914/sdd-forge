@@ -128,7 +128,16 @@ def has_escape_hatch(slice_text):
 
 
 needs_scalar = re.search(r"needs:\s*loop-gate\s*$", release_slice, re.MULTILINE)
-needs_inline_list = re.search(r"needs:\s*\[\s*loop-gate\s*\]", release_slice)
+# The inline list may name other jobs alongside loop-gate (RT-20260821-004
+# added a ci-green gate), so match loop-gate as a MEMBER rather than as the
+# sole entry. The assertion is unchanged in substance: the release job must
+# depend on loop-gate.
+# Confined to ONE line: a newline-spanning class would let a `needs:` from a
+# neighbouring job satisfy this after the release job's own line is stripped,
+# which is exactly what the AC-009 negative fixture checks for.
+needs_inline_list = re.search(
+    r"needs:[ \t]*\[[^\]\n]*\bloop-gate\b[^\]\n]*\]", release_slice
+)
 needs_block_list = re.search(r"needs:\s*\n\s*-\s*loop-gate\b", release_slice)
 release_has_needs = bool(needs_scalar or needs_inline_list or needs_block_list)
 
@@ -223,7 +232,12 @@ run_test_009() {
   CLEANUP_ROOTS+=("$fixture_dir")
   fixture_copy="${fixture_dir}/release.yml"
 
-  grep -vE '^[[:space:]]*needs:[[:space:]]*loop-gate[[:space:]]*$' "$RELEASE_YML" > "$fixture_copy"
+  # Strip whichever form the file actually uses. The scalar-only pattern this
+  # started as went vacuous the moment release.yml moved to the inline-list
+  # form (RT-20260821-004's ci-green gate): nothing was removed, so the
+  # checker was asked about an unmutated copy.
+  grep -vE '^[[:space:]]*needs:[[:space:]]*(loop-gate[[:space:]]*|\[[^]]*loop-gate[^]]*\][[:space:]]*)$' \
+    "$RELEASE_YML" > "$fixture_copy"
 
   output="$(check_release_yml "$fixture_copy")"
   if grep -qF 'release_has_needs=False' <<<"$output"; then
