@@ -984,13 +984,16 @@ cells (T-008's own scope) or a real signer identity.
   and countersigns those records — all T-008's exclusive scope, layered on
   top of this task's already-implemented validator.
 - Producing a genuine, real-session `live-host-verification-record/v1`
-  with `verdict: PASS`/`FAIL` for any of the five cells — that requires
-  Epic A1's own handshake script (not yet merged) and a real,
-  installed-toolchain CLI session; out of scope for every task in this
-  feature (Main Workflows step 7, requirements.md).
+  with `verdict: PASS`/`FAIL` for any of the five cells — that is
+  produced only by a human running Epic A1's own handshake script
+  (`check-hook-activation-handshake.{py,sh,ps1}`, merged to `main` on
+  2026-08-08) in a real, installed-toolchain CLI session, inside
+  T-008's HUMAN APPLY STEP; out of scope for this task (Main Workflows
+  step 7, requirements.md).
 - Epic A1's own `check-hook-activation-handshake.{py,sh,ps1}` and its five
   migrated consumer entry points — this task only wires the schema/
-  validator contract they will feed once they exist.
+  validator contract they feed; implementing or modifying Epic A1's own
+  artifacts stays out of scope.
 - The synthetic direct-invocation extension to `cli-hook-enforcement.ps1`
   (T-004) — a structurally separate artifact (AC-017).
 
@@ -1362,7 +1365,7 @@ Depends On: T-001 (functional — appends the `AC-015`/`AC-016` entries to
 the `a8-skip-allowlist.json` T-001 creates with the `AC-006` entry;
 Protected Files, above), T-005 (functional — this task's own TEST-013–016
 cases exercise `validate-live-host-proof`, which must exist first, and the
-HUMAN APPLY STEP's own `pending` confirmation re-runs that same script;
+HUMAN APPLY STEP's own `discharged` confirmation re-runs that same script;
 API/Contract Plan). This task touches neither `tests/run-all.*` nor the
 staged `.github/workflows/test.yml` candidate — it extends T-005's
 already-registered `tests/validate-live-host-proof.tests.{sh,ps1}` in
@@ -1426,9 +1429,13 @@ unsigned draft `SKIP` records for the five semantic cells, each citing the
 `AC-015` allowlist entry; append the `AC-015`/`AC-016` entries to
 `a8-skip-allowlist.json`; and complete the HUMAN APPLY STEP — a
 maintainer and an independent reviewer each generate an Ed25519 keypair,
-register them in `a8-trusted-signers.json`, and sign the five draft
-records — leaving `validate-live-host-proof` (T-005) to independently
-confirm `pending`, never `discharged`, before this task is marked Done.
+register them in `a8-trusted-signers.json`, sign the five draft
+records, and run Epic A1's merged handshake script
+(`check-hook-activation-handshake.{py,sh,ps1}`, on `main` since
+2026-08-08) to produce the genuine session records that discharge the
+five cells — leaving `validate-live-host-proof` (T-005) to independently
+confirm `discharged`, not a hard failure, before this task is marked
+Done.
 
 ### Must Read
 
@@ -1470,7 +1477,7 @@ confirm `pending`, never `discharged`, before this task is marked Done.
 - Author the five draft `SKIP` records; append the `AC-015`/`AC-016`
   entries to `a8-skip-allowlist.json`.
 - Complete the HUMAN APPLY STEP (see Done When) and re-run
-  `validate-live-host-proof` to confirm `pending`.
+  `validate-live-host-proof` to confirm `discharged`.
 
 ### Done When
 
@@ -1492,15 +1499,21 @@ confirm `pending`, never `discharged`, before this task is marked Done.
   cite the `AC-015` allowlist entry, and are explicitly marked
   unsigned/non-authoritative pending the human apply step below; the
   `AC-015`/`AC-016` entries exist in `a8-skip-allowlist.json`.
-- [ ] **HUMAN APPLY STEP — Trusted-Signer Registry + two-party signing:** a
-  maintainer and an independent reviewer each generate an Ed25519 keypair,
-  register them in `a8-trusted-signers.json` with roles `operator`/
-  `reviewer` (and an `issuer`-role entry once Epic A1's handshake script
-  is ready to use it), and sign the five draft `SKIP` records — confirmed
-  by re-running `validate-live-host-proof` and observing `pending` (not a
-  hard failure) before this task is marked Done (AC-028's own `pending`
-  aggregate, discharged by T-005, is the correct pre-merge Done state,
-  never `discharged`).
+- [ ] **HUMAN APPLY STEP — Trusted-Signer Registry, two-party signing,
+  and live-host discharge:** a maintainer and an independent reviewer
+  each generate an Ed25519 keypair, register them in
+  `a8-trusted-signers.json` with roles `operator`/`reviewer` (and the
+  `issuer`-role entry for Epic A1's handshake script, the sole nonce
+  issuer), sign the five draft `SKIP` records, and run Epic A1's merged
+  handshake script (`check-hook-activation-handshake.{py,sh,ps1}`, on
+  `main` since 2026-08-08 and present at the canonical installed path)
+  against the five semantic cells to produce the genuine, attributable
+  session records that discharge them — confirmed by re-running
+  `validate-live-host-proof` and observing `discharged` (not a hard
+  failure) before this task is marked Done (AC-028's own aggregate,
+  computed by T-005, reaching `discharged` is the Done state; a
+  surviving post-activation `SKIP` is `ERR_STALE_SKIP`, a hard failure,
+  per the SKIP Allowlist Activation Gate).
 - [ ] **Non-regression** — every one of T-005's pre-existing
   TEST-026/027/028 cases in `tests/validate-live-host-proof.tests.sh`/
   `.ps1` still passes unmodified after this task's own in-place extension.
@@ -1517,13 +1530,18 @@ confirm `pending`, never `discharged`, before this task is marked Done.
   implementation — T-005's exclusive scope; this task only exercises and
   feeds it.
 - Producing a genuine, real-session `live-host-verification-record/v1`
-  with `verdict: PASS`/`FAIL` for any of the five cells — that requires
-  Epic A1's own handshake script (not yet merged) and a real,
-  installed-toolchain CLI session; out of scope for every task in this
-  feature (Main Workflows step 7, requirements.md).
+  by any agent-automated means — the genuine records are produced only
+  inside the HUMAN APPLY STEP above, by a human running Epic A1's own
+  handshake script (`check-hook-activation-handshake.{py,sh,ps1}`,
+  merged to `main` on 2026-08-08 and present at the canonical installed
+  path) in a real, installed-toolchain CLI session; the agent portion of
+  this task never fabricates, signs, or classifies such a record as
+  genuine (Main Workflows step 7, requirements.md; investigation.md
+  Safety constraints).
 - Epic A1's own `check-hook-activation-handshake.{py,sh,ps1}` and its five
   migrated consumer entry points — this task only wires the inventory
-  contract they will feed once they exist.
+  contract they feed; implementing or modifying Epic A1's own artifacts
+  stays out of scope.
 - The synthetic direct-invocation extension to `cli-hook-enforcement.ps1`
   (T-004) — a structurally separate artifact (AC-017).
 - Any new suite/CI registration — this task extends an already-registered
