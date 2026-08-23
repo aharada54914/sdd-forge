@@ -164,15 +164,32 @@ itself the durable record of it; no other citable artifact carries it.
   `4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e`;
   the layer specifications are unchanged from
   `43b237fa438e2cd23982d5d035f6aa1bbe44ff6f`.
+- `4aafb7f6120cd20ba89dd1949a474c264ff3c593` — completed the amendment
+  in requirements.md's own Assumptions section (spec-review attempt 2
+  round 1's REQ-TESTABILITY/CONTRADICTION Critical): the Epic A1
+  assumption is flagged as superseded with the original text
+  contextualized, mirroring `66d5bdde4cea01b2345f41eee2b4cfcbcf529301`'s
+  design.md treatment into the sibling document that was left behind;
+  the still-true Epic A5/A7 unmerged statements are untouched. As of
+  this commit, `specs/epic-196-a8-integration/requirements.md` =
+  `eb1e4c0fb2b0c2304ebedc1d8d27b1fbec3354f5cde5be4c15436ed599f99476`
+  (with `Spec-Review-Status: Pending`, the reset-lane state the
+  spec-review attempt-2 precheck itself set; the status field is
+  normalized by the gates and flips to `Passed` only on a spec-review
+  PASS).
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
-  externally by the impl-review attempt-4 round-2 reviewer invocation
-  manifests and the identity-ledger records their reservations append.
-  The pre-amendment investigation.md — as pinned by the attempt-4
-  round-1 reviewer manifests (identity-ledger sequences 769/770,
-  evidence commit `f1360cd9979ec5094fc94f5d4db21981c7cf9ce0`) — =
-  `1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2`.
+  externally by the impl-review attempt-4 round-2 and spec-review
+  attempt-2 reviewer invocation manifests and the identity-ledger
+  records their reservations append. The pre-amendment
+  investigation.md — as pinned by the attempt-4 round-1 reviewer
+  manifests (identity-ledger sequences 769/770, evidence commit
+  `f1360cd9979ec5094fc94f5d4db21981c7cf9ce0`) — =
+  `1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2`;
+  as pinned by the impl attempt-4 round-2 and spec attempt-2 round-1
+  manifests (sequences 771/772 and 773/774) =
+  `6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209`.
 
 ### Later-phase artifacts this package references (commit / SHA-256)
 
