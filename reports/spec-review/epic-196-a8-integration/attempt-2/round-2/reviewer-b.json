@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-b-a2r2-seq776",
+  "host_session_id": "SESS-spec-b-epic-196-a8-integration-a2r2-seq776",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "eb1e4c0fb2b0c2304ebedc1d8d27b1fbec3354f5cde5be4c15436ed599f99476"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-2/round-2/precheck-result.json", "sha256": "73c735c582ca38cba6397414c9892f8d7b85e20466740d025aa3128391618077"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-2/round-2/integrated-summary.json", "sha256": "9c07e47317c1112b9d9304738dc544444bbc6b5b901674ba0879a85626b0ed1b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The amended Assumptions section and surrounding text are concretely specific (dated merge fact, named script/entry-point paths, explicit un-skip trigger). Across the wider package, terms load-bearing for implementation (fixture contracts AC-001, record schema AC-026, semantic matrix cells) are fixed with exact field lists and named artifacts, not left to implementer discretion. No unresolved vague term found that would let two implementers reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The amended Assumptions text ('Epic A1 merged… AC-015/AC-016's own un-skip trigger is crossed… activated now', requirements.md Assumptions section) is consistent with AC-006/AC-015/AC-016's own rule text ('Named SKIP… until Epic A1 merges'; 'a SKIP surviving validate-live-host-proof after Epic A1 merges is a non-zero-exit hard failure') and Main Workflow item 7 — the amendment records that the merge-triggered condition those ACs already state is now true; it does not restate a competing rule. No other cross-section conflict found between Goals, Non-goals, Acceptance Criteria, and Assumptions."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section covers manual-required-cell non-dropout, Codex plugin_hooks-disabled correctly-detected-unavailable state, Copilot subagent known non-firing state, an unexpected live-host FAIL result treated as load-bearing evidence, and the preflight-vs-verify 'not installed' distinction for the drift check — each tied to a specific REQ/AC. REQ-004's boundary states (Windows path separator, CRLF/LF, NFC/NFD) are covered directly by AC-018–AC-021 rather than duplicated in Edge Cases. No missing negative/boundary path meeting the evidence bar was found; installer-internal partial-failure/rollback behavior is the installer's own existing behavior, outside this verification-only epic's Non-goals-fixed scope."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Epic A1 assumption is explicitly resolved this round (marked 'superseded' with dated evidence and consequence for AC-015/AC-016). The remaining assumptions are each explicitly flagged as still-open-and-re-verify-required (Epic A5/A7 unmerged) or as stable authoritative sources with no new judgment introduced. OQ-001 is an explicit, clearly-scoped Open Question naming design.md's Classification Table as its resolution point; OQ-002 is marked resolved with citation. No assumption is left silently unresolved."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The live-host verification record (AC-026) requires a two-party operator + independent-reviewer attestation over a canonicalized content hash, with AC-027 fixing a structural classification-mismatch/replay guard (nonce reuse, hash mismatch, unsigned/single-signature rejection) and AC-028 fixing that discharge is computed only by an aggregate validator, never by inspection alone. These boundaries are testable via named, concrete fields and checks rather than narrative description."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements and acceptance criteria are specified to a level (exact fixture byte/hash contracts, exact record schema fields, exact classification vocabulary, exact matrix cells) that does not require a downstream design/task-decomposition reviewer to invent product behavior; design.md is cited throughout as the Phase 1 sibling document that fixes the remaining mechanical detail, consistent with normal Phase 1 scope."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md exists at the project root (confirmed via existence check only, per the manifest's single permitted exception), so the DOMAIN-CONFORMANCE precondition is unmet and the check is out of scope."
+    }
+  ]
+}
