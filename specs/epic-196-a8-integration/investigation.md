@@ -105,3 +105,91 @@ scope without contradicting the v2 role split.
   the existing `tests/cli-hook-enforcement.ps1` pattern, INV-013) must never
   be presented as satisfying the ADR-0019/A1 live-host Done condition
   (INV-004-INV-006).
+
+## Amendment Re-Review Context
+
+This package is in a declared amendment re-review context: its frozen
+Phase 1 documents were amended after earlier attempts of this feature's
+review stages had already reviewed and pinned them, the amendments are
+human-approved, and this entry — committed into the hash-pinned,
+review-pinned package — is the durable, citable approval record.
+
+### Human approval (verbatim, dated)
+
+- 2026-08-23: 「194/195/196の凍結文書について人間は承認する」 — the
+  human's approval of the frozen-document amendments for epics 194, 195,
+  and 196, given as the authorization for re-running the affected review
+  stage against the amended documents at a new attempt.
+
+Because this approval was given in conversation, this committed entry is
+itself the durable record of it; no other citable artifact carries it.
+
+### Amendment commits (full hashes) and amended-document SHA-256 values
+
+- `899eba39929cb9a5caf145ea09c1074c32eea3e8` — revised the SKIP Allowlist
+  Activation Gate so activation required the owning task to have started
+  in addition to the dependency artifacts existing on `main`. As of this
+  commit, `specs/epic-196-a8-integration/design.md` =
+  `f5dae71c7e53efa40faa5bf629ea2d69eaf554c14e60f240a1ee67f95661fcf0`.
+- `caea5556623aa1ba6b26d3dac73404ed203e57ac` — propagated that
+  activation-gate revision across the layer specifications and corrected
+  its justification. As of this commit,
+  `specs/epic-196-a8-integration/design.md` =
+  `b3cd3bc5a0b4a908b1bac518c80149f55bc95f4a5d01388c46a5d2f8a9a0c261`,
+  `specs/epic-196-a8-integration/frontend-spec.md` =
+  `cd8048b30777d10869b6144c23845eb8a7656e12f01d2ee2159df13b531acd82`,
+  `specs/epic-196-a8-integration/infra-spec.md` =
+  `57d2fe6b722691d06e34ccb7325c30bc045eced805376974c974aa348835f9e4`,
+  `specs/epic-196-a8-integration/security-spec.md` =
+  `2b707290e5ea1c5e7267687d82ff18f6cbcf91a74134c388c0f4022795d6e5e4`.
+- `43b237fa438e2cd23982d5d035f6aa1bbe44ff6f` — narrowed the Activation
+  Gate's two-clause predicate to AC-006 alone and restored the
+  single-clause AC-015/AC-016 rule requirements.md:389/:536 state,
+  closing impl-review attempt 3's Critical. As of this commit,
+  `specs/epic-196-a8-integration/design.md` =
+  `fc9e3c830f7c13fee5e6b863ccb670ad347a86f97c201c37829b21a1d68a5549`,
+  `specs/epic-196-a8-integration/frontend-spec.md` =
+  `c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76`,
+  `specs/epic-196-a8-integration/infra-spec.md` =
+  `59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e`,
+  `specs/epic-196-a8-integration/security-spec.md` =
+  `2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975`.
+- `66d5bdde4cea01b2345f41eee2b4cfcbcf529301` — completed the amendment in
+  design.md's own Assumptions section (impl-review attempt 4 round 1's
+  ASSUMPTIONS-VALID Major): the section now flags requirements.md's
+  Epic A1 assumption as superseded (Epic A1 merged on 2026-08-08, its
+  handshake script and five consumer entry points exist on `main`) and
+  keeps the still-true Epic A5/A7 unmerged statements. As of this commit,
+  `specs/epic-196-a8-integration/design.md` =
+  `4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e`;
+  the layer specifications are unchanged from
+  `43b237fa438e2cd23982d5d035f6aa1bbe44ff6f`.
+- This entry is itself an amendment to
+  `specs/epic-196-a8-integration/investigation.md`. Its own
+  post-amendment SHA-256 cannot be cited from inside itself; it is pinned
+  externally by the impl-review attempt-4 round-2 reviewer invocation
+  manifests and the identity-ledger records their reservations append.
+  The pre-amendment investigation.md — as pinned by the attempt-4
+  round-1 reviewer manifests (identity-ledger sequences 769/770,
+  evidence commit `f1360cd9979ec5094fc94f5d4db21981c7cf9ce0`) — =
+  `1e34fc7c0db738d66736194e84521bcd0aaee87a5dd75e62aaa1ee088cd6fdf2`.
+
+### Later-phase artifacts this package references (commit / SHA-256)
+
+- `specs/epic-196-a8-integration/tasks.md` — SHA-256
+  `3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d`,
+  last amended in commit `ff73ebaa7b1e575a7da5d0a1c4fd90f20c8bf117`.
+  Defines T-008, the task the amended Activation Gate names as the sole
+  owner of the `AC-015`/`AC-016` allowlist entries, and carries the
+  task-stage review evidence this feature's earlier attempts pinned.
+- Impl-review attempt-4 round-1 evidence (the round that raised the
+  ASSUMPTIONS-VALID finding `66d5bdde4cea01b2345f41eee2b4cfcbcf529301`
+  remediates) — commit `f1360cd9979ec5094fc94f5d4db21981c7cf9ce0`,
+  `reports/impl-review/epic-196-a8-integration/attempt-4/round-1/`.
+
+### Scope
+
+This entry documents amendment lineage and authorization; it waives no
+review finding. Every check other than the amendment-supersession basis
+the shared reviewer calibration's Amendment Re-Review Context section
+describes is judged exactly as it would be without this entry.
