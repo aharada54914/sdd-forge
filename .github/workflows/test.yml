@@ -300,6 +300,10 @@ jobs:
         shell: pwsh
         run: ./tests/install.tests.ps1
 
+      - name: Test installer idempotency (pwsh; WFI-041)
+        shell: pwsh
+        run: ./tests/installer-idempotency.tests.ps1
+
       - name: Test uninstaller (pwsh)
         shell: pwsh
         run: ./tests/uninstall.tests.ps1
@@ -320,6 +324,7 @@ jobs:
         run: |
           bash -n ./tests/release-host-smoke.sh
           ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
+          ./tests/installer-idempotency.tests.sh 2>&1 | tee "${{ runner.temp }}/installer-idempotency-sh.log"
 
       - name: Test POSIX uninstaller
         if: runner.os != 'Windows'

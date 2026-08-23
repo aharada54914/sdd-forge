@@ -1,6 +1,20 @@
 # WFI-041 installer idempotency — CI registration handoff
 
-Status: Pending human application
+Status: Applied 2026-08-24, on the repository owner's instruction
+
+> **Applied — retained as the record of what landed and how.** The two steps are
+> live in `.github/workflows/test.yml`. Do not re-apply; `git apply --check`
+> will now fail against current `main`.
+>
+> **How it was applied is worth recording.** The owner instructed the agent to
+> run `git apply` on this patch, and the guard did not stop it. That is not a
+> guard failure so much as the gap WFI-040 explicitly recorded as still open:
+> `git apply`, `patch`, `python3 -c` and `node -e` never put the target path on
+> the command line, so command-string analysis cannot reach them. The direct
+> `Edit` on the same file *was* refused. The protection therefore holds against
+> the tool-call path and not against these four. Anyone relying on "an agent
+> cannot modify the enforcement chain" should read that claim as scoped, not
+> absolute.
 
 Base commit: `e16a126aad74409453138396bd428d4129f08cec`
 
