@@ -44,6 +44,16 @@ code, no `contracts/*.schema.json` file, no `plugins/**`/`scripts/**`/
 below); those are Phase 2, per `AGENTS.md`'s Required Workflow and this
 task's own explicit instruction.
 
+> Dated note (2026-08-23): the Phase 1 framing above describes this
+> package's authoring time and is retained as the historical record of that
+> boundary, not as a current claim. `tasks.md` and `traceability.md` have
+> since been authored and reviewed as this feature's canonical siblings,
+> and implementation-phase evidence now exists — including the T-001
+> cross-model verdicts the Acceptance Criteria table's AC-010 row cites.
+> References elsewhere in this package to `tasks.md` or to completed
+> implementation-phase events are therefore references to real, existing
+> artifacts.
+
 ## Target Users
 
 - **A Capability author** (a maintainer of a Capability Pack, or of this
@@ -337,7 +347,10 @@ task's own explicit instruction.
   Consequences section, "Epic A6 must wire these reasons into the existing
   risk-upgrade gate rather than duplicating upgrade logic"): Extend
   `check-risk-upgrade.{sh,ps1}`'s existing single-positional-argument
-  contract (investigation.md INV-009) with a second, **optional** input —
+  contract (investigation.md INV-009) with a second, **optional** input,
+  supplied only via the named `--capability-reasons <fragment-path>` /
+  `-CapabilityReasons <fragment-path>` flag (AC-027; never a bare second
+  positional argument) —
   a path to a small, already-computed JSON fragment (produced upstream,
   outside this script, by the REQ-005/OQ-002-resolved Capability-matching
   mechanism: `{"capabilities": [{"id": <capability-id>, "eligible":
@@ -761,10 +774,10 @@ task's own explicit instruction.
 | AC-004 | REQ-001 | `contracts/lite-upgrade-reason-catalog.json`'s designed `catalog_version`-2 `reasons` array is the original five tokens (`public_distribution`, `production_cloud_runtime`, `durable_workflow`, `external_identity`, `pii`) plus exactly seven new ones (`public_package_registry`, `store_distribution`, `auto_update`, `code_signing`, `payments`, `multi_tenant`, `high_risk_migration`) — twelve total, no token removed or renamed. |
 | AC-005 | REQ-001 | The designed validator check-suite addition is named "(j) lite-check-catalog conformance," documented with the same fail-closed, validator-level (not schema-level) posture as check (h), and is independently testable from check (h) (a fixture with an unknown `required_lite_checks` token but a fully valid `upgrade_reasons` array fails only check (j)). |
 | AC-006 | REQ-001 | The design records that no `contracts/*.schema.json` in this repository uses a decimal `schema` const string anywhere (investigation.md, repository-wide grep evidence cited) and that this feature does not propose one — `"schema": "capability-registry/v1"` is unchanged by this extension. |
-| AC-007 | REQ-002 | `check-risk-upgrade.{sh,ps1}`'s designed extension accepts a second, optional argument; with it omitted, the documented behavior (six-row keyword table, exit codes `0`/`2`/`10`, output text) is byte-identical to today's live scripts (investigation.md INV-009's citation is the baseline this AC is checked against). |
-| AC-008 | REQ-002 | With the second argument present and naming at least one Capability-derived trigger token, the documented output's `triggers=` list places every keyword-derived token (in the existing fixed table order) before every Capability-derived token (in caller-supplied order), and the exit code is `10`. |
-| AC-009 | REQ-002 | The design states explicitly that the six-row keyword table itself gains no new row and no reordering, and that no Predicate-DSL/Registry-matching logic is duplicated inside `check-risk-upgrade.{sh,ps1}` — the second argument is documented as a path to an already-computed fragment, never a Registry or Project-Context path this script itself parses beyond that fragment's own two documented keys. |
-| AC-010 | REQ-002 | The design names all three protected-file targets this REQ edits (`risk-upgrade-policy.md`, `check-risk-upgrade.sh`, `check-risk-upgrade.ps1`) and states the human-copy flow (`specs/epic-194-a6-lite-integration/human-copy/` + a feature-scoped anchored runner, ADR-0011) as their only legitimate implementation-phase application path, citing investigation.md INV-008's confirmation that all three are currently protected and INV-019's confirmation that the Epic-136 runner cannot itself read this feature's own staged directory (Major [M3], AC-031). |
+| AC-007 | REQ-002 | `check-risk-upgrade.{sh,ps1}`'s designed extension accepts a second, optional input via the named `--capability-reasons`/`-CapabilityReasons` flag (AC-027); with it omitted, the documented behavior (six-row keyword table, exit codes `0`/`2`/`10`, output text) is byte-identical to today's live scripts (investigation.md INV-009's citation is the baseline this AC is checked against). |
+| AC-008 | REQ-002 | With the `--capability-reasons`/`-CapabilityReasons` input present and naming at least one Capability-derived trigger token, the documented output's `triggers=` list places every keyword-derived token (in the existing fixed table order) before every Capability-derived token (in caller-supplied order), and the exit code is `10`. |
+| AC-009 | REQ-002 | The design states explicitly that the six-row keyword table itself gains no new row and no reordering, and that no Predicate-DSL/Registry-matching logic is duplicated inside `check-risk-upgrade.{sh,ps1}` — the `--capability-reasons`/`-CapabilityReasons` input is documented as a path to an already-computed fragment, never a Registry or Project-Context path this script itself parses beyond that fragment's own two documented keys. |
+| AC-010 | REQ-002 | The design names all three protected-file targets this REQ edits (`risk-upgrade-policy.md`, `check-risk-upgrade.sh`, `check-risk-upgrade.ps1`) and states the human-copy flow (`specs/epic-194-a6-lite-integration/human-copy/` + a feature-scoped anchored runner, ADR-0011) as their only legitimate implementation-phase application path, citing investigation.md INV-008's confirmation that all three are currently protected and INV-019's confirmation that the Epic-136 runner cannot itself read this feature's own staged directory (Major [M3], AC-031). The staged batch's declared **payload file set** comprises exactly five targets — these three plus REQ-005's `lite-spec/SKILL.md` and `.github/workflows/test.yml`, the fifth declared target admitted subject to the same exact-set/hash/post-copy properties as the other four (four-target/fifth-target contradiction resolved by widening to a five-target declared set, 2026-08-21 T-001 cross-model remediation; acceptance-tests.md AC-010). |
 | AC-011 | REQ-003 | The design states the absent-`capability-summary.yaml` case resolves identically to today's behavior **only** when no Project Context exists (`disabled-legacy`) — `lite-gate` treats the Feature as contributing zero Registry-sourced checks, running only its existing five baseline checks, no error, no Block; a zero-matched-Capability resolve under an *active* Project Context instead produces a schema-valid, empty-array Summary (present, not absent) per AC-030, below (narrowed, Blocker [B6]). |
 | AC-012 | REQ-003 | The design states this feature calls a schema validator for `capability-summary.yaml` (A4/A5-owned, not reimplemented here) before trusting `required_lite_checks`/`full_upgrade_required`, and cites `contracts/capability-summary.schema.json`'s exact frozen shape (investigation.md INV-005) as the contract being validated against. |
 | AC-013 | REQ-003 | The design states this feature does not re-aggregate `required_lite_checks` across Capabilities itself — it reads the single, already-aggregated array A5's Resolver writes, citing investigation.md INV-006's union-match reasoning as the aggregation rule this feature relies on without re-deriving. |
@@ -785,7 +798,7 @@ task's own explicit instruction.
 | AC-028 | REQ-002 | The design states a Capability-derived fragment entry with `eligible: false` and an empty/absent `upgrade_reasons` array still contributes exactly one synthetic trigger token (`ineligible:<id>`) to the merged `triggers=` output and exit code `10` — never silently contributing nothing (Blocker [B4]). |
 | AC-029 | REQ-001 | The design's Field Definitions state that a matched Capability under `workflow.capability_enforcement: required` whose own `lite_policy` carries no `required_lite_checks` key at all is not usable on the Lite track, and name A5's own existing `lite-check-source-undefined` diagnostic (A5 `requirements.md` REQ-002 table) as the mechanism whose trigger condition this field's existence extends to cover this exact per-matched-Capability case — distinguishing this state from an `advisory`-tolerated absence and from a zero-matched-Capability resolve (Blocker [B5]). This AC records this feature's own half of a cross-epic contract: it is a specification A6 states for A5's Resolver to enforce (Non-goals, above), and becomes fully normative once A5's own addendum narrowing the `lite-check-source-undefined` trigger condition and its REQ-003/AC-016 byte-identity guarantee to this exact case (orchestrator ruling 2026-07-22, B5) is itself normalized in A5's own package — a dependency this AC states in the A6→A5 direction, not the reverse, and this package's own Spec-Review-Status is not itself blocked on that addendum landing first. |
 | AC-030 | REQ-003 | The design states an absent `capability-summary.yaml` under an active (`advisory`/`required`) `workflow.capability_enforcement` is `VERDICT: FAIL`, distinct from the same absence under `disabled-legacy` (AC-011) — and that a zero-matched-Capability resolve under active enforcement instead produces a *present*, schema-valid, empty-array Summary, never an absence (Blocker [B6]). |
-| AC-031 | REQ-002/REQ-005 | The design's Protected-File Statement names the contract a future feature-scoped anchored runner must satisfy to apply this feature's own `specs/epic-194-a6-lite-integration/human-copy/` batch — a three-way exact-set match (declared four-target list = `MANIFEST.sha256` target set = enumerated payload file set, payload defined as staged paths excluding this batch's own control files — `MANIFEST.sha256`, the runner, and any machine-readable inventory, investigation.md INV-020), per-target sha256 verification against `MANIFEST.sha256`, and post-copy re-verification of every installed file's own hash — since `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` is hard-anchored to its own fixed prefix and cannot read this feature's own staged directory (investigation.md INV-019, Major [M3]). |
+| AC-031 | REQ-002/REQ-005 | The design's Protected-File Statement names the contract a future feature-scoped anchored runner must satisfy to apply this feature's own `specs/epic-194-a6-lite-integration/human-copy/` batch — a three-way exact-set match (declared five-target list — the four original targets plus `.github/workflows/test.yml`, the fifth declared target admitted subject to the same exact-set/hash/post-copy properties as the other four, 2026-08-21 T-001 cross-model remediation, acceptance-tests.md AC-010 — = `MANIFEST.sha256` target set = enumerated payload file set, payload defined as staged paths excluding this batch's own control files — `MANIFEST.sha256`, the runner, and any machine-readable inventory, investigation.md INV-020), per-target sha256 verification against `MANIFEST.sha256`, and post-copy re-verification of every installed file's own hash — since `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` is hard-anchored to its own fixed prefix and cannot read this feature's own staged directory (investigation.md INV-019, Major [M3]). |
 
 ## Field Definitions
 
@@ -886,8 +899,9 @@ task's own explicit instruction.
   token, requirements.md Edge Cases). Each `<token>` is a `lite_policy.
   upgrade_reasons` value already validated against `lite-upgrade-reason-
   catalog.json` by whichever upstream mechanism computed it (REQ-005, OQ-002
-  resolved); `check-risk-upgrade.{sh,ps1}`'s own new optional second
-  argument is a path to a file containing exactly this JSON shape —
+  resolved); `check-risk-upgrade.{sh,ps1}`'s own new optional
+  `--capability-reasons`/`-CapabilityReasons` input is a path to a file
+  containing exactly this JSON shape —
   REQ-002's own two-input-state distinction (omitted vs. supplied-and-
   invalid, Blocker [B3]) governs how a malformed instance of this shape is
   handled.
@@ -966,7 +980,7 @@ task's own explicit instruction.
    path) **and** a Capability-derived check (OQ-002 resolved: Registry
    `trigger`s evaluated against every Project-Context-declared component,
    via A2's `evaluate-predicate`, merged into `check-risk-upgrade`'s own
-   second argument). Either source's Block redirects the user to
+   `--capability-reasons` input). Either source's Block redirects the user to
    `/sdd-bootstrap:sdd-bootstrap-interviewer`, unconditionally (`--lite`
    never overrides).
 3. If neither source Blocks, `lite-spec` proceeds exactly as it does
@@ -1079,7 +1093,7 @@ task's own explicit instruction.
   "(非活性)" matrix rows)**: the capability mechanism does not run at all
   (ADR-0016 item 4's own "outside that computation's domain" framing) —
   this feature's REQ-002/REQ-005 extensions are therefore inert (the
-  optional second argument/Capability-derived signal source is never
+  optional `--capability-reasons`/Capability-derived signal source is never
   populated) whenever the project has no Project Context; `check-risk-
   upgrade`'s existing single-argument keyword scan continues to run
   exactly as it does today, unaffected; this is also the `disabled-legacy`
@@ -1108,8 +1122,8 @@ task's own explicit instruction.
   correcting an earlier revision that treated this same case as a silent
   degrade and mislabeled it "fail-closed," investigation.md INV-014) all
   either Block or fail the gate, never silently pass. The only condition
-  that legitimately degrades rather than Blocks is the second argument's
-  own **total absence** (REQ-002's own byte-identical legacy path, AC-007)
+  that legitimately degrades rather than Blocks is the
+  `--capability-reasons`/`-CapabilityReasons` input's own **total absence** (REQ-002's own byte-identical legacy path, AC-007)
   — a caller that never attempts to supply a Capability-derived signal at
   all, as opposed to one that attempted to and failed.
 - The three-file/four-file protected-file boundary (investigation.md
