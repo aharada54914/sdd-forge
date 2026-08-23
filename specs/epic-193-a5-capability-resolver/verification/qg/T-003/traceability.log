@@ -1,33 +1,58 @@
-Requirement-traceability check (manual — no traceability.json exists for
+Requirement-traceability check (manual -- no traceability.json exists for
 this feature, only traceability.md; check-traceability.sh requires JSON
 input and was not run) passed for T-003:
 
  - tasks.md T-003 Requirements line -> REQ-001 (steps 4-9 share), REQ-002
-   (share — five more of sixteen rows), REQ-004 (share), REQ-005 (share),
+   (share -- five more of sixteen rows), REQ-004 (share), REQ-005 (share),
    REQ-006 (share), REQ-008 (share). All six present in requirements.md
-   (grep hit counts: REQ-001=18, REQ-002=17, REQ-004=10, REQ-005=6,
-   REQ-006=4, REQ-008=2) and in traceability.md's REQ table rows, which
-   name T-003 explicitly in the REQ-001 and REQ-002 rows' own Code Target
-   cells ("steps 4-9 ... fan-out — T-003") and in the Task Mapping table's
-   own T-003 row (traceability.md:59).
+   (grep hit counts, re-measured 2026-08-23 cycle-3 remediation: REQ-001=38,
+   REQ-002=60, REQ-004=19, REQ-005=11, REQ-006=5, REQ-008=4 -- higher than
+   this log's own prior capture since later passes on this same branch have
+   since added more REQ mentions) and in traceability.md's REQ table rows,
+   which name T-003 explicitly in the REQ-001 and REQ-002 rows' own Code
+   Target cells ("steps 4-9 ... fan-out -- T-003") and in the Task Mapping
+   table's own T-003 row (traceability.md:59).
  - AC-010..AC-015 (this task's own five-rows share) and AC-038 (share) are
    present in acceptance-tests.md (grep hit counts: AC-010=1, AC-011=2,
    AC-012=2, AC-013=1, AC-014=1, AC-015=1, AC-038=3) and TEST-010..TEST-015
    / TEST-038 are present there too (hit counts: TEST-010=5, TEST-011=1,
-   TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2).
+   TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2) -- unchanged
+   from this log's own prior capture, re-confirmed directly.
  - Implemented: tests/resolve-project-context-block-check.py's own
-   run_t003_case() function (line 247) and its CASE_NAMES list (line
-   160-165) enumerate exactly T-003's own six fixtures --
-   affected-component-resolution-failed, contract-discovery-failed,
-   registry-validation-failed, dependency-subprocess-failed,
-   dsl-warn-unmatched-trigger, dsl-warn-matched-nondetermining -- each
-   invoked from both tests/resolve-project-context-block.tests.sh and
-   .ps1 (thin dispatchers onto the shared Python driver). Confirmed
-   executed and passing in this same verification run: see
-   focused-tests-sh.log / focused-tests-ps1.log (102 passed, 0 failed,
-   both runtimes, including all six T-003 fixtures x the four assertions
-   they each carry).
+   ALL_CASE_NAMES tuple (line 276) and run_t003_case() function (line 437)
+   enumerate exactly T-003's own THIRTEEN fixtures (re-measured 2026-08-23,
+   cycle-3 cross-model panel remediation -- eleven from the prior round plus
+   this round's own two new fixtures closing Majors #1/#2) --
+   affected-component-resolution-failed, resolve-component-paths-launch-
+   failed, contract-discovery-failed, registry-discovery-unimportable,
+   registry-validation-failed, validate-capability-registry-launch-failed,
+   dependency-subprocess-failed, evaluate-predicate-output-malformed,
+   evaluate-predicate-schema-error (NEW, Major #1: the hardcoded
+   `returncode == 2` PREDICATE_SCHEMA_ERROR classification), evaluate-
+   predicate-failure-after-warn (NEW, Major #2: steps 7-8 abort paths now
+   forward already-collected warn_diagnostics), dsl-warn-unmatched-trigger,
+   dsl-warn-matched-nondetermining, dsl-warn-unsorted-affected-components --
+   each invoked from both tests/resolve-project-context-block.tests.sh and
+   .ps1 (thin dispatchers onto the shared Python driver). Confirmed executed
+   and passing in this same verification run: see focused-tests-sh.log /
+   focused-tests-ps1.log (184 passed, 0 failed, both runtimes -- the WHOLE
+   shared driver's own current total: T-002's steps 0-3, T-003's own
+   thirteen fixtures above, T-004's own eight fixtures (five from the prior
+   round plus this round's own three closing Majors #1-#3), and the
+   draft7-validator-keywords / draft7-keyword-coverage unit-style checks (8
+   assertions)).
  - Not independently re-verified in this pass: REQ-004/REQ-005/REQ-006/
    REQ-008's own OTHER task rows (T-001, T-002, T-004, etc.) -- those are
    shared REQ ids spanning multiple tasks' own scope, out of T-003's own
    diff, per tasks.md Global Constraints.
+
+Superseded 2026-08-23 (cycle-3 cross-model panel remediation, both Critical
+findings on this same log): this log previously enumerated exactly SIX
+T-003 fixtures, cited a `CASE_NAMES` symbol that does not exist in the
+reviewed driver (the real symbol is `ALL_CASE_NAMES`), cited stale line
+numbers (160-165 / 247), and claimed 102 passed / 0 failed while the
+adjacent focused logs already recorded 155 passed / 0 failed -- describing
+three generations of prior state at once. This capture reads the CURRENT
+driver directly (ALL_CASE_NAMES at line 276, run_t003_case at line 437,
+thirteen T-003 fixtures, 184 passed / 0 failed both runtimes) rather than
+carrying forward any of that stale text.

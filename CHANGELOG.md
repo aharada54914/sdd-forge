@@ -59,6 +59,24 @@
   `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
   **必要な人間アクション: T-002 と共通の staged candidate 4 件（うち
   1 件がこの更新差分）をレビューして適用すること。**
+  **訂正 (2026-08-23, cycle-3 cross-model panel remediation)**: refreshed
+  panel の Major 2 件を是正 — (1) `evaluate-predicate` の
+  `PREDICATE_SCHEMA_ERROR` 分類がハードコードされた `returncode == 2`
+  magic number に依存していた点を、`evaluate-predicate` 自身の契約が
+  固定するのは exit code ではなく安定した stderr トークン
+  `PREDICATE_SCHEMA_ERROR` のみである（investigation.md）ことを確認した
+  上で、step 6 の `canonicalizer-failed` トークン判定と同じ方式に修正。
+  (2) steps 7-8 の abort 経路（`registry-validation-failed` /
+  `dependency-subprocess-failed` / `dependency-output-malformed`）が
+  abort 直前まで収集済みの `severity: "warn"` diagnostics を破棄していた
+  点を、AC-056 の frozen sentence（「no other id ever carries
+  severity: "warn"」）と衝突しないことを確認した上で転送するよう修正。
+  この段自身の寄与は **13 fixture directory・65 assertion** に増加
+  （新規 2 fixture: `evaluate-predicate-schema-error` /
+  `evaluate-predicate-failure-after-warn`）。スイート全体の現在合計は
+  引き続き `reports/implementation/epic-193-a5-capability-resolver/
+  T-003.md` および `verification/qg/T-003/focused-tests-{sh,ps1}.log`
+  を参照（本箇条書きには固定値を記載しない — 直上の訂正と同じ理由）。
 - **Capability Resolver steps 10-13 (Issue #193, epic-193-a5 T-004)**:
   track branch（`full` は Facet Manifest、`lite` は Capability Summary、
   同一 invocation で両方 staging されることはない — B4）、Resolver
@@ -90,6 +108,23 @@
   `shasum -a 256 -c` は引き続き 4/4 OK, exit 0。
   **必要な人間アクション: T-002/T-003 と共通の staged candidate 4 件
   （うち 1 件がこの更新差分）をレビューして適用すること。**
+  **訂正 (2026-08-23, cycle-3 cross-model panel remediation)**: refreshed
+  panel の Major 3 件を是正 — (1) 出力スキーマ自己検証の discovery に
+  `$schema`/`$id` の per-artifact version check を追加（従来はファイルの
+  存在とパース可否のみ確認していた）。(2) スキーマ読込/パース失敗時に
+  生の例外テキストを診断へ埋め込んでいた箇所を、例外クラス名のみを含む
+  安全な文言に修正（絶対パス漏洩防止）。(3)
+  `_pre_publication_recheck` 自身の内部依存 subprocess 失敗が
+  `snapshot-generation-mismatch` に誤ラベルされない、という Fourth Pass の
+  既存修正に対して「テストが存在しない」という指摘を、実際に到達可能な
+  fixture（`recheck-dependency-failed`）を追加して解消。この段自身の
+  寄与は新規 3 fixture（`contract-discovery-failed-governing-schema-
+  wrong-version` / `contract-discovery-failed-governing-schema-malformed`
+  / `recheck-dependency-failed`）および draft-07 governing-schema
+  keyword-coverage のメタアサーション（`draft7-keyword-coverage`、
+  4 assertion）を追加。スイート全体の現在合計は `reports/implementation/
+  epic-193-a5-capability-resolver/T-004.md`「Fifth Pass」節、および
+  `verification/qg/T-004/focused-tests-{sh,ps1}.log` を参照。
 
 - **Capability Resolver full-pipeline match suite (Issue #193, epic-193-a5
   T-005)**: T-002/T-003/T-004 が実装済みの評価パイプライン（steps 0-13）を

@@ -1,0 +1,290 @@
+{
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/resolver-evidence.schema.json.stale-v0",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "capabilityEvaluation": {
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "matched": {
+            "const": false
+          }
+        }
+      },
+      "properties": {
+        "capability_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "conditional_facet_evaluations": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "applied": {
+                "type": "boolean"
+              },
+              "declaration_index": {
+                "minimum": 0,
+                "type": "integer"
+              },
+              "evaluations": {
+                "items": {
+                  "$ref": "#/definitions/componentEvaluation"
+                },
+                "type": "array"
+              },
+              "facet": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "facet",
+              "declaration_index",
+              "applied",
+              "evaluations"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "matched": {
+          "type": "boolean"
+        },
+        "trigger_evaluations": {
+          "items": {
+            "$ref": "#/definitions/componentEvaluation"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "capability_id",
+        "matched",
+        "trigger_evaluations"
+      ],
+      "then": {
+        "not": {
+          "required": [
+            "conditional_facet_evaluations"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "componentEvaluation": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/definitions/evidenceNode"
+          },
+          "type": "array"
+        },
+        "result": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "component_id",
+        "result",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "diagnostic": {
+      "additionalProperties": false,
+      "properties": {
+        "detail": {
+          "type": "string"
+        },
+        "id": {
+          "enum": [
+            "disabled-legacy-invocation",
+            "publication-journal-recovery",
+            "workflow-combination-invalid",
+            "project-context-validation-failed",
+            "affected-component-resolution-failed",
+            "registry-validation-failed",
+            "contract-discovery-failed",
+            "canonicalizer-invocation-failed",
+            "dependency-subprocess-failed",
+            "dependency-output-malformed",
+            "dsl-warn-on-matched-capability",
+            "lite-check-source-undefined",
+            "output-schema-validation-failed",
+            "snapshot-generation-mismatch",
+            "artifact-publication-failed",
+            "post-publication-generation-mismatch"
+          ]
+        },
+        "severity": {
+          "enum": [
+            "block",
+            "warn"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "detail",
+        "severity"
+      ],
+      "type": "object"
+    },
+    "evidenceNode": {
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "outcome": {
+            "const": "warn"
+          }
+        }
+      },
+      "properties": {
+        "children": {
+          "items": {
+            "$ref": "#/definitions/evidenceNode"
+          },
+          "type": "array"
+        },
+        "operator": {
+          "enum": [
+            "all",
+            "any",
+            "not",
+            "equals",
+            "not_equals",
+            "contains",
+            "in",
+            "exists"
+          ]
+        },
+        "outcome": {
+          "enum": [
+            "match",
+            "no-match",
+            "warn"
+          ]
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "operator",
+        "path",
+        "outcome"
+      ],
+      "then": {
+        "required": [
+          "operator",
+          "path",
+          "outcome",
+          "reason"
+        ]
+      },
+      "type": "object"
+    },
+    "sha256Digest": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "properties": {
+    "capability_evaluations": {
+      "items": {
+        "$ref": "#/definitions/capabilityEvaluation"
+      },
+      "type": "array"
+    },
+    "context_binding": {
+      "additionalProperties": false,
+      "properties": {
+        "dependency_pointers": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "full_context_revision": {
+          "$ref": "#/definitions/sha256Digest"
+        },
+        "ownership_digest": {
+          "$ref": "#/definitions/sha256Digest"
+        },
+        "projection_sha256": {
+          "$ref": "#/definitions/sha256Digest"
+        },
+        "registry_digest": {
+          "$ref": "#/definitions/sha256Digest"
+        }
+      },
+      "required": [
+        "full_context_revision",
+        "dependency_pointers",
+        "projection_sha256",
+        "registry_digest",
+        "ownership_digest"
+      ],
+      "type": "object"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "#/definitions/diagnostic"
+      },
+      "type": "array"
+    },
+    "feature": {
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "type": "string"
+    },
+    "resolver": {
+      "additionalProperties": false,
+      "properties": {
+        "rule_set_revision": {
+          "$ref": "#/definitions/sha256Digest"
+        },
+        "version": {
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "rule_set_revision"
+      ],
+      "type": "object"
+    },
+    "schema": {
+      "const": "sdd-resolver-evidence/v1"
+    },
+    "state": {
+      "enum": [
+        "disabled-legacy",
+        "advisory",
+        "required"
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "feature",
+    "capability_evaluations",
+    "diagnostics"
+  ],
+  "title": "SDD Forge Resolver Evidence",
+  "type": "object"
+}

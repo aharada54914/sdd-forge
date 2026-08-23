@@ -286,6 +286,8 @@ ALL_CASE_NAMES = (
         "validate-capability-registry-launch-failed",
         "dependency-subprocess-failed",
         "evaluate-predicate-output-malformed",
+        "evaluate-predicate-schema-error",
+        "evaluate-predicate-failure-after-warn",
         "dsl-warn-unmatched-trigger",
         "dsl-warn-matched-nondetermining",
         "dsl-warn-unsorted-affected-components",
@@ -294,6 +296,9 @@ ALL_CASE_NAMES = (
         "output-schema-validation-failed-artifact",
         "snapshot-generation-mismatch",
         "contract-discovery-failed-governing-schema",
+        "contract-discovery-failed-governing-schema-wrong-version",
+        "contract-discovery-failed-governing-schema-malformed",
+        "recheck-dependency-failed",
     ]
 )
 
@@ -448,6 +453,8 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "registry_discovery.py"
         elif case_name == "evaluate-predicate-output-malformed":
             stub_name = "evaluate-predicate.py"
+        elif case_name == "evaluate-predicate-failure-after-warn":
+            stub_name = "evaluate-predicate.py"
         elif case_name == "dsl-warn-unsorted-affected-components":
             stub_name = "resolve-component-paths.py"
         install_t003_dependencies(
@@ -533,6 +540,61 @@ def run_t003_case(kind, case_name, counts):
             target_oid = git_commit_all(repo, "add comp-a")
             expected_id = "dependency-output-malformed"
             expected_detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
+
+        elif case_name == "evaluate-predicate-schema-error":
+            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3, Major
+            # #1): `_evaluate_predicate`'s own PREDICATE_SCHEMA_ERROR ->
+            # RegistryValidationFailed mapping was keyed on a hardcoded
+            # `returncode == 2` with no fixture at all. This fixture's own
+            # Registry declares a trigger predicate whose `field`
+            # (`characteristics.not_a_real_field`) is NOT one of
+            # evaluate-predicate.py's own ALLOWED_FIELDS -- well-formed
+            # enough to pass `validate-capability-registry`'s own checks
+            # (a)-(i) (none of which inspect a predicate's own field/
+            # operator shape) but rejected by the REAL, unmodified
+            # `evaluate-predicate` at evaluation time with a genuine
+            # `PREDICATE_SCHEMA_ERROR` stderr line and exit 2 -- no stub
+            # planted for this dependency at all.
+            state = "advisory"
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+            expected_id = "registry-validation-failed"
+            expected_detail = "a Registry-declared predicate failed predicate-schema validation"
+
+        elif case_name == "evaluate-predicate-failure-after-warn":
+            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3, Major
+            # #2): steps 7-8's own three abort handlers (registry-
+            # validation-failed / dependency-subprocess-failed /
+            # dependency-output-malformed) previously omitted every
+            # already-collected `severity: "warn"` diagnostics[] entry on
+            # abort. This fixture's own Registry declares TWO capabilities
+            # in declaration order: `cap-warn-first` (a real WARN outcome
+            # on comp-a, fully evaluated and appended to `capability_
+            # evaluations` first) then `cap-fails-second` (whose own
+            # trigger evaluation is this fixture's own stubbed `evaluate-
+            # predicate`'s SECOND invocation, which fails with a generic
+            # non-zero exit) -- proving the WARN entry `_evaluate_
+            # capabilities` already collected for cap-warn-first survives
+            # the later abort rather than vanishing.
+            state = "advisory"
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+            expected_id = "dependency-subprocess-failed"
+            expected_detail = "evaluate-predicate failed while evaluating a predicate"
+            warn_evidence_node = {
+                "operator": "equals", "outcome": "warn",
+                "path": "characteristics.auto_update", "reason": "missing-path",
+            }
+            expected_capability_evaluations = [{
+                "capability_id": "cap-warn-first",
+                "matched": False,
+                "trigger_evaluations": [{"component_id": "comp-a", "result": False, "evidence": [warn_evidence_node]}],
+            }]
+            expected_warn_diagnostics = [
+                expected_warn_diagnostic("cap-warn-first", "comp-a", None, (0,), warn_evidence_node),
+            ]
 
         elif case_name == "dsl-warn-unsorted-affected-components":
             # AC-056: two independent WARN nodes (comp-a's own trigger
@@ -730,6 +792,64 @@ def run_t004_case(kind, case_name, counts):
                 "governing output schema discovery failed: facet-manifest.schema.json not found at the "
                 "packaged or git-root contracts/ location"
             )
+        elif case_name == "contract-discovery-failed-governing-schema-wrong-version":
+            # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
+            # panelist, Major #1): `_load_governing_schema` previously only
+            # checked that a governing schema file EXISTS and parses as
+            # JSON -- never a per-artifact `$schema`/`$id` version check
+            # (REQ-002/AC-002). This fixture's own `contracts/resolver-
+            # evidence.schema.json` override (checked FIRST at step 12, so
+            # this is a genuine, direct reach, not incidental) carries a
+            # deliberately WRONG `$id` -- otherwise byte-identical to the
+            # real schema -- so it is discoverable and parses cleanly, but
+            # must still Block `contract-discovery-failed`, never silently
+            # self-validate Resolver Evidence against a wrong-version
+            # document.
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "governing output schema discovery failed: resolver-evidence.schema.json "
+                "failed its own $schema/$id version check"
+            )
+        elif case_name == "contract-discovery-failed-governing-schema-malformed":
+            # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
+            # panelist, Major #2): a schema read/parse failure previously
+            # interpolated the raw exception text (`{exc}`) into this
+            # Block's own diagnostic detail and Resolver Evidence --
+            # capable of carrying an absolute path/errno wording, violating
+            # AC-014's canonical-sentence rule and security-spec.md B5's
+            # no-local-path containment. This fixture's own `contracts/
+            # resolver-evidence.schema.json` override is genuinely
+            # malformed (not valid JSON at all), so `_load_governing_
+            # schema`'s own `json.JSONDecodeError` handler fires for real;
+            # the expected detail below asserts the exception's own CLASS
+            # NAME only, never its message text (which would embed this
+            # fixture's own absolute temp-directory path).
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "governing output schema discovery failed: resolver-evidence.schema.json "
+                "could not be read or parsed (JSONDecodeError)"
+            )
+        elif case_name == "recheck-dependency-failed":
+            # Fourth Pass finding, tested rather than left as a "no fixture
+            # regression" disclosure: `_pre_publication_recheck`'s own
+            # dependency calls now propagate `AffectedComponentResolution
+            # Failed`/`DependencySubprocessFailed`/etc. UNWRAPPED (Fourth
+            # Pass), mapped by `main()`'s own step-13 handler to the SAME
+            # REQ-002 id step 4 already uses for an identical failure. This
+            # fixture's own `resolve-component-paths` stub succeeds (a
+            # FIXED, deterministic JSON document) on its first invocation
+            # (step 4) and fails with a generic non-zero exit on its
+            # second (step 13's own recheck) -- proving the recheck's own
+            # internal dependency failure is `affected-component-
+            # resolution-failed`, never re-labeled `snapshot-generation-
+            # mismatch` (the earlier, incorrect revision this same pass
+            # replaced).
+            stub_name = "resolve-component-paths.py"
+            expected_id = "affected-component-resolution-failed"
+            expected_detail = (
+                "resolve-component-paths exited 3 re-resolving affected components "
+                "during the pre-publication recheck; see resolve-component-paths diagnostics"
+            )
         else:
             raise AssertionError(f"unknown T-004 case: {case_name}")
 
@@ -790,9 +910,25 @@ def run_t004_case(kind, case_name, counts):
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
             ).stdout
             source_sha256 = "sha256:" + hashlib.sha256(canonical_context).hexdigest()
-            affected_components, ownership_digest = real_resolve_component_paths_context_binding(
-                repo, "project-context.yaml", base_oid, target_oid,
-            )
+            if case_name == "recheck-dependency-failed":
+                # This fixture's own `resolve-component-paths` stub
+                # (installed above) never inspects argv and returns a
+                # FIXED, deterministic document on its first invocation
+                # (this invocation's own step 4) regardless of this repo's
+                # own real git history, so the expected `context_binding`
+                # below is pinned to that SAME fixed value, never
+                # recomputed via the real dependency (which would observe
+                # a different, genuine ownership_digest for this empty
+                # diff) -- the identical "pin to the stub's own known
+                # first-call output" discipline `snapshot-generation-
+                # mismatch` already applies to its own `registry_digest`,
+                # below.
+                affected_components = ["comp-a"]
+                ownership_digest = "sha256:" + ("0" * 64)
+            else:
+                affected_components, ownership_digest = real_resolve_component_paths_context_binding(
+                    repo, "project-context.yaml", base_oid, target_oid,
+                )
             if case_name == "lite-check-source-undefined":
                 projection_workflow = {
                     "spec_profile": "lite", "artifact_layout": "lite-three-file", "capability_enforcement": "required",
@@ -1250,6 +1386,134 @@ def run_draft7_validator_keyword_checks(counts):
     )
 
 
+# --- T-004 cross-model panel finding, Major #3: draft-07 engine coverage ---
+# meta-assertion ------------------------------------------------------------
+#
+# Two consecutive panel rounds each found ONE instance of `_draft7_validate`
+# silently no-op'ing on a keyword its own governing schema actually uses
+# (`not`, then `minimum`) -- each closed keyword-by-keyword. This
+# meta-assertion converts the class from "silent, found one keyword at a
+# time" to "loud, permanently": it enumerates every draft-07 keyword each of
+# the four REAL, landed governing schemas actually uses (walking each
+# document's own schema tree -- `properties`/`definitions`/
+# `patternProperties` values, `items`/`allOf`/`anyOf`/`oneOf` elements,
+# `if`/`then`/`else`/`not`/`contains`/`additionalProperties`/
+# `propertyNames`/`additionalItems` sub-schemas -- never a flat string-key
+# grep, which would also match ordinary property NAMES that happen to look
+# like a keyword, e.g. this feature's own `facet`/`applied`/`title`-shaped
+# field names) and fails if any schema uses a keyword `_draft7_validate`
+# does not implement.
+
+DRAFT7_METADATA_ONLY_KEYWORDS = frozenset({
+    # Annotation/identity keywords that never themselves constrain instance
+    # data -- correctly absent from `_draft7_validate`'s own keyword
+    # handling, not a gap.
+    "$id", "$schema", "title", "description", "definitions", "default", "examples",
+})
+
+# Mirrors `_draft7_validate`'s own implemented keyword set BY HAND (never
+# introspected from the module under test, matching this driver's own
+# "independent oracle" discipline throughout) -- maintained alongside any
+# future change to that function.
+DRAFT7_IMPLEMENTED_KEYWORDS = frozenset({
+    "$ref", "const", "enum", "type", "oneOf", "if", "then", "else", "not",
+    "pattern", "minLength", "minimum", "required", "properties",
+    "propertyNames", "additionalProperties", "items", "uniqueItems", "minItems",
+})
+
+# The FULL draft-07 keyword vocabulary this walker recognizes at a
+# schema-keyword position -- an INDEPENDENT, hardcoded literal (never
+# derived from `DRAFT7_IMPLEMENTED_KEYWORDS` via set union) so that
+# mutating/shrinking `DRAFT7_IMPLEMENTED_KEYWORDS` cannot also shrink this
+# set: this is what makes a real schema using a keyword this engine does
+# NOT implement still show up as `used` below (and therefore as `missing`)
+# instead of silently vanishing because it was never on the "implemented"
+# list to begin with. Covers every standard draft-07 keyword: the ones
+# `_draft7_validate` implements, the metadata-only ones, and every other
+# standard keyword it does not implement.
+DRAFT7_KNOWN_KEYWORDS = frozenset({
+    "$ref", "$id", "$schema", "title", "description", "definitions", "default", "examples",
+    "const", "enum", "type", "oneOf", "allOf", "anyOf", "if", "then", "else", "not",
+    "pattern", "minLength", "maxLength", "minimum", "maximum",
+    "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
+    "required", "properties", "propertyNames", "patternProperties",
+    "additionalProperties", "dependencies",
+    "items", "additionalItems", "maxItems", "minItems", "uniqueItems", "contains",
+    "maxProperties", "minProperties",
+    "format", "contentEncoding", "contentMediaType",
+})
+
+GOVERNING_SCHEMA_FILES = {
+    "resolver-evidence.schema.json": RESOLVER_EVIDENCE_SCHEMA_REAL,
+    "context-projection.schema.json": ROOT / "contracts/context-projection.schema.json",
+    "facet-manifest.schema.json": FACET_MANIFEST_SCHEMA_REAL,
+    "capability-summary.schema.json": ROOT / "contracts/capability-summary.schema.json",
+}
+
+
+def _draft7_schema_keywords_used(node, found):
+    """Test-harness-only schema walker (never imported from the module
+    under test): collects every draft-07 KEYWORD position this schema tree
+    actually uses, correctly distinguishing a keyword position from a
+    sibling property-NAME/definition-NAME/enum-value position (a flat
+    string-key grep cannot make this distinction -- it would also match
+    this feature's own field names like `facet`/`applied` that happen to
+    share a spelling with no real keyword here, and would MISS keywords
+    nested only inside `if`/`then`/`else`/`not`/`allOf` branches, which a
+    naive regex-based counterpart earlier in this investigation did in
+    fact reach for these four schemas). Membership in `found` is decided
+    against `DRAFT7_KNOWN_KEYWORDS` -- the full vocabulary superset, NEVER
+    `DRAFT7_IMPLEMENTED_KEYWORDS` alone -- so this walker still records a
+    real, unimplemented keyword's own usage instead of silently dropping
+    it (which would make `run_draft7_keyword_coverage_check`'s own
+    `missing` computation vacuously empty regardless of what
+    `DRAFT7_IMPLEMENTED_KEYWORDS` says)."""
+    if isinstance(node, bool) or not isinstance(node, dict):
+        return
+    for key, value in node.items():
+        if key in DRAFT7_KNOWN_KEYWORDS:
+            found.add(key)
+        if key in ("properties", "patternProperties", "definitions"):
+            if isinstance(value, dict):
+                for sub in value.values():
+                    _draft7_schema_keywords_used(sub, found)
+        elif key == "items":
+            if isinstance(value, list):
+                for sub in value:
+                    _draft7_schema_keywords_used(sub, found)
+            else:
+                _draft7_schema_keywords_used(value, found)
+        elif key in (
+            "additionalItems", "additionalProperties", "propertyNames",
+            "if", "then", "else", "not", "contains",
+        ):
+            _draft7_schema_keywords_used(value, found)
+        elif key in ("allOf", "anyOf", "oneOf"):
+            if isinstance(value, list):
+                for sub in value:
+                    _draft7_schema_keywords_used(sub, found)
+        elif key == "dependencies":
+            if isinstance(value, dict):
+                for sub in value.values():
+                    if isinstance(sub, dict):
+                        _draft7_schema_keywords_used(sub, found)
+
+
+def run_draft7_keyword_coverage_check(counts):
+    for filename, path in GOVERNING_SCHEMA_FILES.items():
+        with path.open("r", encoding="utf-8") as handle:
+            schema = json.load(handle)
+        used = set()
+        _draft7_schema_keywords_used(schema, used)
+        used -= DRAFT7_METADATA_ONLY_KEYWORDS
+        missing = sorted(used - DRAFT7_IMPLEMENTED_KEYWORDS)
+        counts.check(
+            not missing,
+            f"draft7-keyword-coverage: {filename} uses only keywords _draft7_validate implements",
+            f"missing={missing}",
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
@@ -1276,6 +1540,8 @@ def main():
             "validate-capability-registry-launch-failed",
             "dependency-subprocess-failed",
             "evaluate-predicate-output-malformed",
+            "evaluate-predicate-schema-error",
+            "evaluate-predicate-failure-after-warn",
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
             "dsl-warn-unsorted-affected-components",
@@ -1287,9 +1553,13 @@ def main():
             "output-schema-validation-failed-artifact",
             "snapshot-generation-mismatch",
             "contract-discovery-failed-governing-schema",
+            "contract-discovery-failed-governing-schema-wrong-version",
+            "contract-discovery-failed-governing-schema-malformed",
+            "recheck-dependency-failed",
         ):
             run_t004_case(args.launcher, case_name, counts)
         run_draft7_validator_keyword_checks(counts)
+        run_draft7_keyword_coverage_check(counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

@@ -369,9 +369,22 @@ def _evaluate_predicate(script_dir, predicate, properties):
             result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         except OSError as exc:
             raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
-        if result.returncode == 2:
-            raise RegistryValidationFailed("PREDICATE_SCHEMA_ERROR")
         if result.returncode != 0:
+            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): this
+            # branch previously keyed the PREDICATE_SCHEMA_ERROR ->
+            # registry-validation-failed mapping on a hardcoded `returncode
+            # == 2` magic number. `evaluate-predicate`'s own contract
+            # (investigation.md's predicate-DSL-evaluator section) fixes
+            # only a stable stderr token -- "a distinct, non-zero-exit
+            # PREDICATE_SCHEMA_ERROR" -- never a specific exit code; the
+            # SAME stable-stderr-token classification `_generate_registry_
+            # digest_whole` (step 6) already uses for its own
+            # `canonicalizer-failed` sub-branch is reused here rather than
+            # trusting an unfixed number a future revision of `evaluate-
+            # predicate.py` could change without notice.
+            stderr_text = result.stderr.decode("utf-8", errors="replace")
+            if "PREDICATE_SCHEMA_ERROR" in stderr_text:
+                raise RegistryValidationFailed("PREDICATE_SCHEMA_ERROR")
             raise DependencySubprocessFailed(f"exit {result.returncode}")
         try:
             parsed = json.loads(result.stdout.decode("utf-8"), parse_constant=_reject_json_constant)
@@ -1028,13 +1041,55 @@ def _discover_governing_schema(script_dir, repo_root, filename):
     raise ContractDiscoveryFailed(f"{filename} not found at the packaged or git-root contracts/ location")
 
 
+# Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI panelist):
+# every real governing schema this feature discovers publishes the
+# identical `https://github.com/aharada54914/sdd-forge/contracts/<filename>`
+# `$id` convention (confirmed directly against all four landed documents),
+# mirroring `registry_discovery.EXPECTED_SCHEMA_ID`'s own identical
+# prefix-plus-filename shape for the Registry's own schema sibling (step
+# 5) -- reimplemented locally here rather than reused, for the same
+# `plugins/**` Global-Constraints reason `_discover_governing_schema`'s
+# own docstring already gives.
+GOVERNING_SCHEMA_ID_PREFIX = "https://github.com/aharada54914/sdd-forge/contracts/"
+
+
+def _governing_schema_version_ok(document, filename):
+    """REQ-002/AC-002's own per-artifact `$schema`/`$id` version check for
+    a governing output schema (step 12): presence of `$schema` plus an
+    EXACT `$id` match, never merely "a JSON document was found at this
+    location" -- the identical check `registry_discovery.
+    check_capability_registry_schema` already applies to the Registry's
+    own schema sibling. A wrong-version or substituted schema document
+    must Block `contract-discovery-failed` rather than silently
+    self-validate against it (cross-model panel finding, T-004 NEEDS_WORK
+    cycle 2, OpenAI panelist)."""
+    return (
+        isinstance(document, dict)
+        and "$schema" in document
+        and document.get("$id") == GOVERNING_SCHEMA_ID_PREFIX + filename
+    )
+
+
 def _load_governing_schema(script_dir, repo_root, filename):
     path = _discover_governing_schema(script_dir, repo_root, filename)
     try:
         with path.open("r", encoding="utf-8") as handle:
-            return json.load(handle)
+            document = json.load(handle)
     except (OSError, json.JSONDecodeError) as exc:
-        raise ContractDiscoveryFailed(f"{filename} could not be read/parsed: {exc}")
+        # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
+        # panelist): the raw exception text (an absolute path, errno
+        # wording, OS-specific phrasing) must never be interpolated into a
+        # diagnostic this invocation writes to Resolver Evidence/stderr --
+        # AC-014's own canonical-sentence rule and security-spec.md B5's
+        # no-local-path containment. Only the exception's own CLASS NAME
+        # (a fixed, stable, cross-runtime-identical token, e.g. "OSError"/
+        # "JSONDecodeError") is included, never `str(exc)`.
+        raise ContractDiscoveryFailed(
+            f"{filename} could not be read or parsed ({type(exc).__name__})"
+        ) from exc
+    if not _governing_schema_version_ok(document, filename):
+        raise ContractDiscoveryFailed(f"{filename} failed its own $schema/$id version check")
+    return document
 
 
 def _self_validate_output(script_dir, repo_root, evidence, context_projection, track_artifact, track_artifact_schema_filename, track_artifact_name):
@@ -1245,14 +1300,28 @@ def main(argv=None):
             capability_evaluations, warn_diagnostics,
         )
     except RegistryValidationFailed:
+        # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): every
+        # already-collected `severity: "warn"` entry in `warn_diagnostics`
+        # (one per `outcome: "warn"` node this invocation's own steps 7-8
+        # already evaluated before this abort fired) is a genuine
+        # diagnostic-worthy condition THIS invocation encountered
+        # (REQ-004's own "recording every diagnostic-worthy condition ...
+        # not only the first/fatal one"), so it is forwarded through to
+        # this abort's own Evidence record exactly as the step-9 WARN call
+        # site already does on a clean WARN outcome -- this does not
+        # collide with REQ-004's own AC-056 sentence ("no other id ever
+        # carries severity: warn at all"), since every forwarded entry
+        # still carries the identical `dsl-warn-on-matched-capability` id;
+        # only ONE id (this abort's own) ever carries `severity: "block"`,
+        # unchanged.
         detail = "a Registry-declared predicate failed predicate-schema validation"
-        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations)
+        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations, warn_diagnostics)
     except DependencySubprocessFailed:
         detail = "evaluate-predicate failed while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations)
+        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations, warn_diagnostics)
     except DependencyOutputMalformed:
         detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations)
+        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
 
     # Step 9: any-branch WARN check (B2, widened scope). AC-056:
     # `warn_diagnostics` already carries one `severity: "warn"` entry per

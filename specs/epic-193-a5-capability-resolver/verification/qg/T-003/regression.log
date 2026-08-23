@@ -1,5 +1,9 @@
 Scoped regression evidence for T-003 (epic-193-a5-capability-resolver),
-re-run at current HEAD (4f7fed00 + this pass's own uncommitted panel-remediation diff) rather than trusted from a prior recording:
+re-run at current HEAD (217710a2 + this pass's own uncommitted cycle-3
+cross-model panel remediation diff) rather than trusted from a prior
+recording -- superseding the previously recorded capture (4f7fed00 +
+prior panel diff), which predates this pass's own two new fixtures and
+production fixes.
 
 $ git diff --stat -- plugins/
 (empty)
@@ -18,28 +22,16 @@ $ python3 -m py_compile specs/epic-193-a5-capability-resolver/human-copy/plugins
 Exit: 0
 
 $ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-003 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
-PASS: TEST-017 schema file exists
-PASS: TEST-017 schema is valid JSON
-PASS: TEST-017 $schema is draft-07
-PASS: TEST-017 $id matches contracts/*.schema.json convention
-PASS: valid fixture conforms: clean-success.json
-PASS: valid fixture conforms: conditional-facet-scoping.json
-PASS: valid fixture conforms: exact-set-two-capabilities.json
-PASS: valid fixture conforms: zero-affected-components.json
-PASS: invalid fixture rejected: additional-property.json
-PASS: invalid fixture rejected: bad-sha256-digest.json
-PASS: invalid fixture rejected: matched-false-with-conditional-facets.json
-PASS: invalid fixture rejected: missing-required-top-level.json
-PASS: invalid fixture rejected: pattern-violation-feature.json
-PASS: invalid fixture rejected: warn-outcome-missing-reason.json
-PASS: invalid fixture rejected: wrong-enum-state.json
-PASS: invalid fixture rejected: wrong-type-feature.json
-PASS: TEST-020 clean-success fixture has diagnostics: []
-PASS: TEST-018 exact-set fixture has exactly one matched and one unmatched entry
-PASS: TEST-018 zero-affected-component fixture: every trigger_evaluations is []
-PASS: TEST-019 conditional-facet scoping: declaration_index-keyed, unmatched entry omits key
 PASS: 20
 FAIL: 0
+Exit: 0
+
+$ bash tests/resolve-project-context-match.tests.sh   # T-005's downstream consumer suite, re-run as a consumer-side non-regression check
+RESULT: 98 passed, 0 failed
+Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
+RESULT: 98 passed, 0 failed
 Exit: 0
 
 $ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
@@ -54,8 +46,17 @@ plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}
 paths do not exist yet -- pending human apply. This is the expected,
 by-design state for an unapplied human-copy candidate, not a regression.)
 
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
+workflow-state: ok
+Exit: 0
+
 Not re-run (out of scope / not plausibly affected by this task's diff,
 disclosed identically in the implementation report): the full
-tests/run-all.sh/.ps1 sequence beyond the two suites this pass's own diff
-touches (resolve-project-context-block, resolve-project-context-match),
-verified separately below and in the implementation report.
+tests/run-all.sh/.ps1 sequence beyond the suites this pass's own diff
+touches or could plausibly affect (resolve-project-context-block,
+resolve-project-context-match, resolver-evidence-schema), verified
+separately above and in the implementation report.
