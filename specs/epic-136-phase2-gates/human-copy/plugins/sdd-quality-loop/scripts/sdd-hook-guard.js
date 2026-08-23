@@ -109,6 +109,14 @@ const SECOND_APPROVAL_RE = /Second Approval:\s*Approved/g;
 // alone would miss it.
 const WFI_APPROVAL_LINE_RE = /^Status:[ \t]*Approved[ \t]*\r?$/gm;
 const WFI_APPROVAL_CMD_RE = /Status:\s*Approved/;
+// WFI-022 amendment (external review, PR #336): shell syntax that can EXECUTE
+// a further command — command/process substitution, backticks, backgrounding,
+// or a physical line break — disqualifies the read-only exemption below,
+// because the embedded command is invisible to the write vocabulary (e.g. a
+// tar extraction inside $() overwrites files while the outer verb is a
+// reader). Plain $VAR expansion stays exempt-eligible: it expands to words,
+// not to an executed command. Fail closed back to the broad match.
+const WFI_EXEMPTION_UNSAFE_RE = /\$\(|`|<\(|>\(|&|\n|\r/;
 const DOMAIN_MODEL_APPROVAL_RE = /Domain-Model-Status:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
@@ -1151,7 +1159,8 @@ function wfiApprovalIncreases(payload) {
       if (
         !SHELL_COMPOUND_RE.test(command) &&
         SHELL_SUDO_READ_ONLY_RE.test(command) &&
-        !SHELL_SUDO_WRITE_RE.test(command)
+        !SHELL_SUDO_WRITE_RE.test(command) &&
+        !WFI_EXEMPTION_UNSAFE_RE.test(command)
       ) {
         return false;
       }

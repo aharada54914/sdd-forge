@@ -1223,7 +1223,13 @@ function Test-WfiApprovalIncreases {
             $hasCompound = [regex]::IsMatch($command, $ShellCompoundRe)
             $isReadOnlyStart = [regex]::IsMatch($command, $ShellReadOnlyStartRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
             $hasWrite = [regex]::IsMatch($command, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-            if (-not $hasCompound -and $isReadOnlyStart -and -not $hasWrite) { return $false }
+            # WFI-022 amendment (external review, PR #336): syntax that can
+            # EXECUTE a further command -- command/process substitution,
+            # backticks, backgrounding, or a physical line break --
+            # disqualifies the exemption; the embedded command is invisible
+            # to the write vocabulary. Fail closed back to the broad match.
+            $hasUnsafeSyntax = [regex]::IsMatch($command, '\$\(|`|<\(|>\(|&|\n|\r')
+            if (-not $hasCompound -and $isReadOnlyStart -and -not $hasWrite -and -not $hasUnsafeSyntax) { return $false }
             return $true
         }
         return $false

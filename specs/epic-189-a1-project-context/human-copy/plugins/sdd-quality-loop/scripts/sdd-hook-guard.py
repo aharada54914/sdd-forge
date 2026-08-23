@@ -57,6 +57,14 @@ SECOND_APPROVAL_RE = re.compile(r"Second Approval:\s*Approved")
 # alone would miss it.
 WFI_APPROVAL_LINE_RE = re.compile(r"^Status:[ \t]*Approved[ \t]*\r?$", re.MULTILINE)
 WFI_APPROVAL_CMD_RE = re.compile(r"Status:\s*Approved")
+# WFI-022 amendment (external review, PR #336): shell syntax that can EXECUTE
+# a further command — command/process substitution, backticks, backgrounding,
+# or a physical line break — disqualifies the read-only exemption below,
+# because the embedded command is invisible to the write vocabulary (e.g. a
+# tar extraction inside $() overwrites files while the outer verb is a
+# reader). Plain $VAR expansion stays exempt-eligible: it expands to words,
+# not to an executed command. Fail closed back to the broad match.
+WFI_EXEMPTION_UNSAFE_RE = re.compile(r"\$\(|`|<\(|>\(|&|\n|\r")
 DOMAIN_MODEL_APPROVAL_RE = re.compile(r"Domain-Model-Status:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
 TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
@@ -742,6 +750,7 @@ def wfi_approval_increases(payload):
                 not _SHELL_COMPOUND_RE.search(cmd)
                 and SHELL_SUDO_READ_ONLY_RE.match(cmd)
                 and not SHELL_SUDO_WRITE_RE.search(cmd)
+                and not WFI_EXEMPTION_UNSAFE_RE.search(cmd)
             ):
                 return False
             return True

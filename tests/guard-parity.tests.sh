@@ -256,6 +256,19 @@ parity_check "wfi-022: redirect append still refused" 2 \
 parity_check "wfi-022: compound read-then-write still refused" 2 \
     "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -l 'Status: Approved' ${WORK}/docs/workflow-improvements/WFI-001.md && rm ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
 
+# (7, WFI-022 amendment — external review PR #336) Syntax that can EXECUTE a
+# further command disqualifies the read-only exemption: the embedded command
+# is invisible to the write vocabulary, so a reader-shaped outer verb can
+# smuggle an unmodeled writer. All four forms stay refused.
+parity_check "wfi-022: command substitution not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cat \"$(tar -xf /tmp/approved.tar -C .)\" docs/workflow-improvements/WFI-999.md Status: Approved"}}'
+parity_check "wfi-022: backtick substitution not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cat `tar -xf /tmp/approved.tar -C .` docs/workflow-improvements/WFI-999.md Status: Approved"}}'
+parity_check "wfi-022: newline-joined second command not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"grep -H Status: Approved docs/workflow-improvements/WFI-001.md\ntar -xf /tmp/approved.tar -C ."}}'
+parity_check "wfi-022: backgrounded second command not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cat docs/workflow-improvements/WFI-001.md Status: Approved & tar -xf /tmp/approved.tar -C ."}}'
+
 # ---------------------------------------------------------------------------
 # Scenario 6: Second Approval guard — Write adding Second Approval: Approved (deny — exit 2)
 # ---------------------------------------------------------------------------

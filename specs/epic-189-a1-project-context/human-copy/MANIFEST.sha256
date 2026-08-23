@@ -12,6 +12,6 @@ c76fa6c294f7630857ac7c1d1aa57179c79823ad6401ba0d58e1f9619b0860a4  plugins/sdd-li
 b7f2feb691e3b32cc9d37af541844b92f38ec21d9a13b25d72a61b0cba6a5cd8  plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
 a06f433d40a00252d7d17823df5ea3c74b834cb9d14f3fd1caee7c1ff21e4a74  plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
 b357a8252a7ece91161f1eca6ec6ba434a0fa9f45a29abf77efb6f90477ee0ff  plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py
-ce6e7f454743a37faab02975c024e71aadafe9f3283a23e18d4fa42232db36f6  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
-47dee1e0e667dfe966e7a299b2676bed5e8d3729ecd1c6c83767c882ef4b9541  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
-00d14ac697fd856e8f4252b3c25c6253302963461208b84638277d54ca7bf8f9  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+edc887fd053c7a2d63b7d5b53bab08db9a3853f02a3c832493e9a620ae605a50  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+50c1453ea8f2eebfbb76135803820986ca7191befae9b23dd1257163b47d0ace  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+2132f283103ef50176af6b19b387a78795e47bc9aae11357a1c81ab31dc0b7c4  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
