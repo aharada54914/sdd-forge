@@ -87,7 +87,7 @@ if ($found) {
 # because `^## Outputs\s*$` and the parameterised prefix-plus-trailing-space
 # match are equivalent for this heading.
 $validatorText = Get-Content -Raw $validator
-if ($validatorText.Contains('index($0, heading) == 1') -and
+if ($validatorText.Contains('"$line" == "$heading"*') -and
     $validatorText.Contains("'## Outputs'")) {
     Ok "validator pin: Outputs-section parser still present in launch boundary"
 } else {
