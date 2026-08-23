@@ -245,7 +245,7 @@ OQ-001).
   branch), TEST-004 (full 3-hop chain, `handoff-02`'s nonce reused end to
   end), TEST-005 (per-CLI headless-contract marker), TEST-006 (canary case
   present, `SKIP`, citing Epic A1's tracking issue, `coverage_complete:
-  false` while `SKIP`ped pre-merge is itself asserted as the correct,
+  false` while `SKIP`ped pre-activation is itself asserted as the correct,
   non-`FAIL` state).
 - CI resilience per Global Constraints.
 - Register `cross-runtime-handoff` (`.sh`/`.ps1`) in `tests/run-all.sh`/
@@ -289,8 +289,11 @@ OQ-001).
 - The install/uninstall matrix (T-003), the drift check (T-002), the
   `cli-hook-enforcement.ps1` extension (T-004), the path/line-ending matrix
   (T-006), and the classification/scope-boundary static checks (T-007).
-- Un-skipping AC-006 or exercising Epic A1's own artifacts — that is a
-  follow-up task once Epic A1 merges (Main Workflows step 7, requirements.md).
+- Un-skipping AC-006 or exercising Epic A1's own artifacts — Epic A1
+  merged on 2026-08-08; AC-006's un-skip follows its own two-clause
+  Activation Gate (design.md), and AC-015/AC-016's discharge is T-008's
+  HUMAN APPLY STEP (Main Workflows step 7, requirements.md) — out of
+  scope for this task.
 
 ### Blockers
 
@@ -781,7 +784,7 @@ AC-027 classification-mismatch/replay guard, and the aggregate
 "conditioned on the hook-activation handshake" defense claim. A silent
 defect (a forged or replayed record accepted, a digest mismatch silently
 passed, a single-signature record accepted as two-party, a stale
-post-merge `SKIP` reported `pending`) would let a fabricated security
+post-activation `SKIP` reported `pending`) would let a fabricated security
 proof pass as genuine — the exact "silent defect causes material harm"
 surface the policy's `high` tier names on an access-control-adjacent
 enforcement surface (matching `specs/epic-190-a2-capability-registry/
@@ -855,7 +858,7 @@ Planned Files:
   `ERR_SIGNER_IDENTITY_MISMATCH`, `ERR_SIGNER_KEY_COLLISION`,
   `ERR_SYNTHETIC_SUBSTITUTION`, `ERR_STALE_SKIP`); a disposable
   `SKIP`-record fixture per SKIP Representation state (missing/valid
-  pre-merge/stale post-merge); a `discharged`-state fixture set proving
+  pre-activation/stale post-activation); a `discharged`-state fixture set proving
   the aggregate gate cannot pass vacuously)
 - `tests/run-all.sh` (existing, agent-editable — this suite's registration)
 - `tests/run-all.ps1` (existing, agent-editable)
@@ -884,8 +887,8 @@ required/non-null per `verdict`), the `matrix_cell` ↔ `runtime`/
 (unknown/reused/cell-mismatch/issued-after-session/expired/duplicate-entry),
 the Expected-Digest Manifest comparison, the Signing Contract (RFC 8785
 JCS canonicalization, domain-separated Ed25519 verification per ADR-0028),
-the three-state SKIP Representation (missing / valid pre-merge SKIP /
-stale post-merge SKIP), the AC-027 classification-mismatch/replay guard,
+the three-state SKIP Representation (missing / valid pre-activation SKIP /
+stale post-activation SKIP), the AC-027 classification-mismatch/replay guard,
 and the aggregate `discharged`/`pending`/hard-failure gate. Seed the
 Trusted-Signer Registry, Expected-Digest Manifest, and Nonce Ledger as
 real (empty or deterministically-computed) files; every behavior this
@@ -940,8 +943,8 @@ cells (T-008's own scope) or a real signer identity.
   (`ERR_SCHEMA_INVALID`, `ERR_CELL_RUNTIME_MISMATCH`,
   `ERR_FEATURE_CONFIG_MISMATCH`, `ERR_HASH_MISMATCH`,
   `ERR_DIGEST_MISMATCH`) is independently exercised, including all three
-  SKIP Representation states (missing/valid pre-merge SKIP/stale
-  post-merge SKIP) against disposable fixture records (AC-026).
+  SKIP Representation states (missing/valid pre-activation SKIP/stale
+  post-activation SKIP) against disposable fixture records (AC-026).
 - [ ] **Nonce ledger + signing verification** — TEST-026/027 pass: every
   ledger error code (`ERR_NONCE_UNKNOWN`, `ERR_NONCE_REUSED`,
   `ERR_NONCE_CELL_MISMATCH`, `ERR_NONCE_ISSUED_AFTER_SESSION`,
@@ -958,7 +961,7 @@ cells (T-008's own scope) or a real signer identity.
   SUBSTITUTION` for the last case) (AC-027).
 - [ ] **Aggregate gate** — TEST-028 passes: `discharged` only when all
   five cells pass in full; `pending` (exit 0) when every cell is a valid
-  pre-merge `SKIP`; a hard, non-zero-exit failure with a named error code
+  pre-activation `SKIP`; a hard, non-zero-exit failure with a named error code
   on any missing/stale/`FAIL`/digest-mismatched/duplicate-nonce record; the
   one `consumed_by_record` write is lock-guarded, atomic, and idempotent
   under a repeat run against the same record (AC-028).
@@ -1424,7 +1427,7 @@ classification (`Copilot-primary-active`/`Copilot-subagent-expected-
 unavailable`), each `manual-required`/`automated-pending-confirmation`
 until a genuine, native-dispatcher-engaging session contract is confirmed
 for that runtime; wire the five-migrated-consumer fingerprinted inventory
-`SKIP`ped pre-merge (AC-016); author five schema-complete but explicitly
+as an explicit draft `SKIP` (AC-016); author five schema-complete but explicitly
 unsigned draft `SKIP` records for the five semantic cells, each citing the
 `AC-015` allowlist entry; append the `AC-015`/`AC-016` entries to
 `a8-skip-allowlist.json`; and complete the HUMAN APPLY STEP — a
@@ -1470,8 +1473,9 @@ Done.
   behavior, plus a reference to `docs/troubleshooting.md`'s documented
   fallback), TEST-015 (all five semantic cells' `SKIP`/`PASS`/`FAIL`
   handling against the actual draft records this task commits), TEST-016
-  (the 5-consumer fingerprinted-inventory shape, `SKIP`ped pre-merge,
-  wired for Epic A1's own five entry points once they exist).
+  (the 5-consumer fingerprinted-inventory shape, wired as an explicit
+  draft `SKIP` for Epic A1's own five entry points, on `main` since
+  2026-08-08).
 - Confirm every one of T-005's pre-existing TEST-026/027/028 cases still
   passes unmodified after this task's own extension (non-regression).
 - Author the five draft `SKIP` records; append the `AC-015`/`AC-016`
@@ -1488,12 +1492,13 @@ Done.
   the Copilot-subagent cell (AC-013, AC-014).
 - [ ] **Five-cell live-host proof handling** — TEST-015 passes against the
   five draft records this task commits: all three SKIP Representation
-  states (missing/valid pre-merge SKIP/stale post-merge SKIP) are
+  states (missing/valid pre-activation SKIP/stale post-activation SKIP) are
   correctly distinguished across all five semantic cells (AC-015).
 - [ ] **Consumer-entry-point inventory shape** — TEST-016 passes: the
   fingerprinted-inventory schema for Epic A1's five migrated consumers is
-  wired and `SKIP`ped pre-merge, never a partial inventory silently
-  presented as complete (AC-016).
+  wired as an explicit draft `SKIP` pending the HUMAN APPLY STEP's
+  discharge, never a partial inventory silently presented as complete
+  (AC-016).
 - [ ] **Draft SKIP records + allowlist entries committed, unsigned** — the
   five files under `tests/hook-activation-live-proof/` are schema-complete,
   cite the `AC-015` allowlist entry, and are explicitly marked

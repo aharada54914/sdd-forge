@@ -123,7 +123,15 @@ Update requirement status only from saved test evidence and quality-gate
 reports. Implementation reports are claims, not independent verification
 evidence. REQ-003's own Status additionally stays gated on the AC-013–016
 manual-required/SKIP disposition (Assumptions, requirements.md): a
-`Done` status for T-004/T-005/T-008 records `validate-live-host-proof`
-reporting `pending` (the correct pre-Epic-A1-merge state), never
-`discharged`, until a follow-up task un-skips AC-006/AC-015/AC-016 after
-Epic A1 merges (Main Workflows step 7, requirements.md).
+`Done` status for T-008 records `validate-live-host-proof` reporting
+`discharged` (not a hard failure) — Epic A1 merged on 2026-08-08, so
+AC-015/AC-016's single-clause Activation Gate is activated, a surviving
+post-activation `SKIP` is `ERR_STALE_SKIP`, a hard failure, and T-008's
+own HUMAN APPLY STEP is the follow-up task Main Workflows step 7
+(requirements.md) names, producing the genuine session records that
+discharge the five cells (tasks.md T-008 Done When, amendment
+`19005e7741e600ff8b3c4b01cfb33681bb8aec64`). A `Done` status for
+T-004/T-005, which precede T-008, does not record a passing aggregate:
+in their window `validate-live-host-proof`'s designed-red hard failure
+is the intended, correct signal (design.md, Designed-red window), and
+their Done rests on their own saved test evidence above.
