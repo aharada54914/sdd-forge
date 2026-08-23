@@ -114,6 +114,13 @@ New top-level fields + per-check optional Red/Green + requirement mapping:
 | two-person approval        |  —  |   —    |  —   |    ✓     |
 
 ¹ low: `unit-tests` may be `required:false` with a `waiver_reason` (test-after allowed).
+² all tiers, non-compiled repositories only (T-012, ratified 2026-06-14): when the
+contract declares `stack: shell|docs|spec`, the three compile-oriented checks
+(`lint`, `typecheck`, `build`) may be `required:false` with a non-empty
+`waiver_reason`. Only those three; unknown `stack` values fail the gate and fall
+back to the strict `code` interpretation. Canonical home:
+`references/risk-gate-matrix.md`, enforced by `check-contract` Pass 4, tested in
+`tests/gates.tests.sh` T-012.1–7 and `tests/scripts.tests.ps1`.
 
 `required_workflow` derivation: low→`test-after`, medium→`acceptance-first`, high/critical→`tdd`.
 

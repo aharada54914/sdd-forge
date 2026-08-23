@@ -50,7 +50,21 @@ from pathlib import Path
 
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
 SECOND_APPROVAL_RE = re.compile(r"Second Approval:\s*Approved")
-WFI_APPROVAL_RE = re.compile(r"Status:\s*Approved")
+# WFI-022: two matchers for one WFI field. Content paths (Write/Edit/patch)
+# count only a column-0 full field line, so prose that merely quotes the field
+# never matches. Shell command text keeps the unanchored form: there the
+# literal sits inside quotes mid-line (e.g. a redirect append), so anchoring
+# alone would miss it.
+WFI_APPROVAL_LINE_RE = re.compile(r"^Status:[ \t]*Approved[ \t]*\r?$", re.MULTILINE)
+WFI_APPROVAL_CMD_RE = re.compile(r"Status:\s*Approved")
+# WFI-022 amendment (external review, PR #336): shell syntax that can EXECUTE
+# a further command — command/process substitution, backticks, backgrounding,
+# or a physical line break — disqualifies the read-only exemption below,
+# because the embedded command is invisible to the write vocabulary (e.g. a
+# tar extraction inside $() overwrites files while the outer verb is a
+# reader). Plain $VAR expansion stays exempt-eligible: it expands to words,
+# not to an executed command. Fail closed back to the broad match.
+WFI_EXEMPTION_UNSAFE_RE = re.compile(r"\$\(|`|<\(|>\(|&|\n|\r")
 DOMAIN_MODEL_APPROVAL_RE = re.compile(r"Domain-Model-Status:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
 TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
@@ -231,10 +245,10 @@ def is_wfi_path(path):
 
 
 def wfi_count(text):
-    """Count Status: Approved occurrences in WFI file content."""
+    """Count column-0 'Status: Approved' field lines in WFI file content."""
     if not text:
         return 0
-    return len(WFI_APPROVAL_RE.findall(text))
+    return len(WFI_APPROVAL_LINE_RE.findall(text))
 
 
 def is_domain_context_map_path(path):
@@ -725,7 +739,20 @@ def wfi_approval_increases(payload):
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
-        if "workflow-improvements/" in cmd.lower() and WFI_APPROVAL_RE.search(cmd):
+        if "workflow-improvements/" in cmd.lower() and WFI_APPROVAL_CMD_RE.search(cmd):
+            # WFI-022: a single simple command that starts with a read-only
+            # verb and carries no write verb or redirect token cannot grant an
+            # approval, so it is exempt. Every write-capable command keeps the
+            # broad match: whether shell text nets out to a removal is not
+            # decidable here, and the Edit path is the supported route for
+            # approval-preserving transitions.
+            if (
+                not _SHELL_COMPOUND_RE.search(cmd)
+                and SHELL_SUDO_READ_ONLY_RE.match(cmd)
+                and not SHELL_SUDO_WRITE_RE.search(cmd)
+                and not WFI_EXEMPTION_UNSAFE_RE.search(cmd)
+            ):
+                return False
             return True
         return False
 
@@ -733,13 +760,19 @@ def wfi_approval_increases(payload):
     if not is_wfi_path(file_path):
         return False
 
+    # WFI-022: the Edit path fires on a net increase of field lines, exactly
+    # as the Write path does — an edit that removes or preserves the field is
+    # not a grant.
     if isinstance(tool_input.get("edits"), list):
         for edit in tool_input["edits"]:
-            if wfi_count((edit or {}).get("new_string")) > 0:
+            e = edit or {}
+            if wfi_count(e.get("new_string")) > wfi_count(e.get("old_string")):
                 return True
         return False
     elif "new_string" in tool_input:
-        return wfi_count(tool_input.get("new_string")) > 0
+        return wfi_count(tool_input.get("new_string")) > wfi_count(
+            tool_input.get("old_string")
+        )
     elif "content" in tool_input:
         return _wfi_write_content_increases(file_path, tool_input.get("content") or "")
     else:

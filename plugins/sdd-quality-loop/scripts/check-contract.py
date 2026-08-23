@@ -201,6 +201,20 @@ def _pass4_risk_tier(checks, contract, root, failures):
         failures.append(f"contract risk is invalid: {risk}")
         return
 
+    # RT-20260821-005(c) / AC-005 contract side: under verification-contract/v2
+    # a high/critical contract must carry a well-formed spec_revision (a 40-hex
+    # git commit or 64-hex corpus digest - both live conventions, measured
+    # 7:119 across shipped contracts). v1/absent-schema contracts are exempt:
+    # ~40 shipped high/critical contracts predate the field and backfilling a
+    # historical corpus hash would fabricate provenance.
+    if (contract.get("schema") or "").strip() == "verification-contract/v2" and risk in {"high", "critical"}:
+        spec_revision = (contract.get("spec_revision") or "").strip()
+        if not (len(spec_revision) in (40, 64)
+                and all(ch in "0123456789abcdef" for ch in spec_revision)):
+            failures.append(
+                f"risk {risk} requires a well-formed spec_revision "
+                f"(40- or 64-hex lowercase) under verification-contract/v2")
+
     required_ids = RISK_TIERS[risk]
     if not _capability_enforcement_declared(root):
         required_ids = required_ids - CAPABILITY_STATE_GATED_IDS
@@ -248,12 +262,22 @@ def _pass5_tdd_evidence(checks, contract, root, failures):
 
 
 def _pass5b_risk_workflow(contract, failures):
-    """Risk→Workflow consistency: high/critical requires required_workflow: tdd."""
+    """Risk→Workflow consistency: high/critical requires required_workflow: tdd.
+
+    RT-20260821-003: an absent, empty, or whitespace required_workflow used to
+    disable BOTH this pass and Pass 5, so one omitted field silently dropped
+    the entire Red→Green obligation at high/critical tier. The field is now
+    mandatory whenever the risk tier demands a workflow.
+    """
     risk = (contract.get("risk") or "").strip()
     required_workflow = (contract.get("required_workflow") or "").strip()
-    if risk and required_workflow:
-        if risk in {"high", "critical"} and required_workflow != "tdd":
-            failures.append(f"risk {risk} requires required_workflow: tdd (got '{required_workflow}')")
+    if risk in {"high", "critical"}:
+        if not required_workflow:
+            failures.append(
+                f"risk {risk} requires required_workflow: tdd (field missing or empty)")
+        elif required_workflow != "tdd":
+            failures.append(
+                f"risk {risk} requires required_workflow: tdd (got '{required_workflow}')")
 
 
 def _pass6_cross_model(checks, contract, failures):
@@ -350,6 +374,26 @@ def run(contract_path, root):
 
     if not isinstance(checks_raw, list):
         failures.append(f"contract 'checks' is not a list (got {type(checks_raw).__name__})")
+        return contract.get("task_id", "?"), failures
+
+    # RT-20260821-007: non-string scalar fields previously crashed the pass
+    # chain with an uncaught traceback (exit code was correct, the diagnostic
+    # was not). Fail closed with a proper message and skip the passes.
+    non_string = [
+        name for name in ("risk", "stack", "required_workflow", "spec_revision", "cross_model")
+        if contract.get(name) is not None and not isinstance(contract.get(name), str)
+    ]
+    if non_string:
+        for name in non_string:
+            failures.append(f"contract {name} must be a string")
+        return contract.get("task_id", "?"), failures
+
+    # RT-20260821-005(c): contract schema versioning. Absent schema = v1
+    # (legacy, 194 shipped contracts) - current behavior unchanged. A declared
+    # schema must be a recognized version; anything else fails closed.
+    contract_schema = (contract.get("schema") or "").strip()
+    if contract_schema and contract_schema != "verification-contract/v2":
+        failures.append(f"contract schema is unrecognized: {contract_schema}")
         return contract.get("task_id", "?"), failures
 
     non_dict_indices = [i for i, c in enumerate(checks_raw) if not isinstance(c, dict)]
