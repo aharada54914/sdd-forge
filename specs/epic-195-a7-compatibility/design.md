@@ -1064,6 +1064,20 @@ what AC-028 requires.
   (requirements.md Non-goals).
 - No tasks.md/traceability.md in this Phase 1 package.
 
+> Amendment note (2026-08-24): the constraint list above — including its
+> "No edits to … `tests/**` …" and "No tasks.md/traceability.md" items —
+> described this package at its authoring time and is retained unchanged
+> as a record of what was claimed then. This package has since been
+> amended under a human-approved frozen-document amendment. The dated
+> verbatim approval record, the full amendment commit hashes, the
+> SHA-256 of each amended document as of each amendment commit, and
+> commit/SHA-256 citations for every later-phase artifact this package
+> references (`tasks.md`, `traceability.md`/`traceability.json`, and the
+> `tests/**` edits of the T-005/T-006 `assert_terminal` re-baseline) are
+> recorded in `investigation.md` under `## Amendment Re-Review Context`.
+> That entry's citations are the authoritative framing; the constraint
+> list above describes authoring time, not the present state.
+
 ## Security Boundaries
 
 | Trust Boundary | Auth/Authz Mechanism | Data Classification | OWASP Concerns |
