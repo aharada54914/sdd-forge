@@ -77,7 +77,9 @@ New top-level fields + per-check optional Red/Green + requirement mapping:
       "id": "unit-tests", "required": true, "passes": false,
       "evidence": "", "waiver_reason": "",
       "requirement_ids": ["REQ-001"],
-      "red_evidence": "",   "green_evidence": ""
+      "red_evidence": "",   "green_evidence": "",
+      "command": "bash tests/unit.tests.sh", "exit_code": 0,
+      "started_at": "<ISO-8601>", "finished_at": "<ISO-8601>"
     }
   ]
 }
@@ -93,6 +95,14 @@ New top-level fields + per-check optional Red/Green + requirement mapping:
   contracts lack, so mapping absent→medium would fail every existing contract.)
 - `red_evidence`/`green_evidence` optional in schema; **required by the gate** only when `required_workflow == "tdd"` for checks of type test.
 - `requirement_ids` optional in schema; **required by `check-traceability`** for high/critical.
+- `command`/`exit_code`/`started_at`/`finished_at` optional per check: the
+  execution record REQ-006 names. `generate-evidence-bundle` passes them
+  through verbatim into the bundle's `checks[]` telemetry, so a contract
+  that omits them yields nulls there. When present they are format-checked:
+  `command` a non-empty string, `exit_code` an integer, and both timestamps
+  ISO-8601 UTC. Optional because the contracts shipped before this field
+  set exist and must stay valid -- the same grandfathering principle as
+  `verification-contract/v2`.
 
 ### 3. Risk → gate matrix (canonical; lives in `references/risk-gate-matrix.md` + encoded in `check-contract`)
 
