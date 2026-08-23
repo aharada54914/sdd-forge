@@ -309,6 +309,7 @@ invoke_installer_scenario() {
     local plugins_arg=""
     local fail_pattern=""
     local seed_existing=0
+    local fail_phase="placement"
 
     # Parse named keyword args: plugins=..., fail_pattern=..., seed_existing=1
     while [[ $# -gt 0 ]]; do
@@ -316,6 +317,7 @@ invoke_installer_scenario() {
             plugins=*)      plugins_arg="${1#plugins=}"; shift ;;
             fail_pattern=*) fail_pattern="${1#fail_pattern=}"; shift ;;
             seed_existing=*)seed_existing="${1#seed_existing=}"; shift ;;
+            fail_phase=*) fail_phase="${1#fail_phase=}"; shift ;;
             *) echo "invoke_installer_scenario: unknown arg $1" >&2; return 1 ;;
         esac
     done
@@ -360,7 +362,29 @@ invoke_installer_scenario() {
             fail "installer should have failed for pattern '${fail_pattern}'"
             scenario_ok=0
         fi
-        if [[ $seed_existing -eq 1 ]]; then
+        if [[ $seed_existing -eq 1 && "$fail_phase" == "registration" ]]; then
+            # WFI-041: a registration-phase failure on an UPGRADE keeps the new
+            # tree and preserves the previous version in a sibling backup,
+            # instead of reverting a correctly-placed upgrade. Both halves are
+            # asserted: keeping the new tree is only correct if the old one is
+            # still recoverable.
+            if [[ ! -d "$install_root" ]]; then
+                fail "installer discarded the correctly-placed new tree on a registration failure (pattern '${fail_pattern}')"
+                scenario_ok=0
+            elif [[ -f "${install_root}/existing.marker" ]]; then
+                fail "installer reverted to the previous version on a registration failure (pattern '${fail_pattern}')"
+                scenario_ok=0
+            fi
+            local _backup_marker=""
+            local _b
+            for _b in "$(dirname "$install_root")"/sdd-plugins-backup-*; do
+                [[ -f "${_b}/existing.marker" ]] && _backup_marker="$_b" && break
+            done
+            if [[ -z "$_backup_marker" ]]; then
+                fail "installer did not preserve the previous installation in a backup (seed_existing, pattern '${fail_pattern}')"
+                scenario_ok=0
+            fi
+        elif [[ $seed_existing -eq 1 ]]; then
             if [[ ! -f "${install_root}/existing.marker" ]]; then
                 fail "installer did not restore previous installation (seed_existing, pattern '${fail_pattern}')"
                 scenario_ok=0
@@ -555,10 +579,13 @@ invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins"
 ok "failure on registration removes incomplete fresh install"
 
 # ---------------------------------------------------------------------------
-# Scenario (d): failure during registration → existing install restored
+# Scenario (d): registration failure on an upgrade → new tree kept, previous
+# version preserved in a sibling backup (WFI-041 narrowed the rollback here;
+# before that change this scenario asserted the reverse — a full revert to the
+# previous version — which discarded correctly-placed upgrades).
 # ---------------------------------------------------------------------------
-invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins" seed_existing=1
-ok "failure on registration restores pre-existing install"
+invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins" seed_existing=1 fail_phase=registration
+ok "registration failure on an upgrade keeps the new tree and preserves the previous version"
 
 # ---------------------------------------------------------------------------
 # Scenario (e): invalid source directory rejected before touching existing install

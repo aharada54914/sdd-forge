@@ -799,13 +799,17 @@ catch {
     # half-written tree. Once the tree is in place and correct, a failure in an
     # external CLI's registration step is not a failure OF the tree, and
     # reverting it discards a correct upgrade (measured: three rollbacks of a
-    # correct 1.16.0 tree back to 1.15.0 on 2026-08-22). From the registration
-    # phase onward, report the failing registration and keep the new tree.
-    if ($registrationPhase) {
-        if ($backupRoot -and (Test-Path $backupRoot)) {
-            Write-Warning "The install root at '$InstallRoot' is the new version and was kept; a registration step failed after placement."
-            Write-Warning "The previous version is preserved at '$backupRoot' -- remove it once the registration issue is resolved."
-        }
+    # correct 1.16.0 tree back to 1.15.0 on 2026-08-22).
+    #
+    # The suppression is limited to the UPGRADE case, which is the one the
+    # measurement covers: a previous version exists, so reverting trades a
+    # correct new tree for an older one. A fresh install has nothing to trade --
+    # an unregistered tree on a machine that had none is inert, not a working
+    # version worth keeping -- so the placement rollback still applies there, and
+    # the re-run is now safe by the idempotency change above.
+    if ($registrationPhase -and $backupRoot -and (Test-Path $backupRoot)) {
+        Write-Warning "The install root at '$InstallRoot' is the new version and was kept; a registration step failed after placement."
+        Write-Warning "The previous version is preserved at '$backupRoot' -- remove it once the registration issue is resolved."
         throw
     }
     # Rollback is best-effort: wrap each destructive step so that a locked file

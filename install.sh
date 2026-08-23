@@ -641,13 +641,17 @@ rollback() {
     # half-written tree. Once the tree is in place and correct, a failure in an
     # external CLI's registration step is not a failure OF the tree, and
     # reverting it discards a correct upgrade (measured: three rollbacks of a
-    # correct 1.16.0 tree back to 1.15.0 on 2026-08-22). From the registration
-    # phase onward, report the failing registration and keep the new tree.
-    if [[ $REGISTRATION_PHASE -eq 1 ]]; then
-        if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
-            echo "Note: the install root at ${INSTALL_ROOT} is the new version and was kept; a registration step failed after placement." >&2
-            echo "      The previous version is preserved at ${BACKUP_ROOT} — remove it once the registration issue is resolved." >&2
-        fi
+    # correct 1.16.0 tree back to 1.15.0 on 2026-08-22).
+    #
+    # The suppression is limited to the UPGRADE case, which is the one the
+    # measurement covers: a previous version exists, so reverting trades a
+    # correct new tree for an older one. A fresh install has nothing to trade —
+    # an unregistered tree on a machine that had none is inert, not a working
+    # version worth keeping — so the placement rollback still applies there, and
+    # the re-run is now safe by the idempotency change above.
+    if [[ $REGISTRATION_PHASE -eq 1 && -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+        echo "Note: the install root at ${INSTALL_ROOT} is the new version and was kept; a registration step failed after placement." >&2
+        echo "      The previous version is preserved at ${BACKUP_ROOT} — remove it once the registration issue is resolved." >&2
         return 0
     fi
     # Restore previous installation on error
