@@ -525,7 +525,17 @@ document v2 §7/§18.4).
   this invocation blocked overall because at least one such node exists.
   A `dsl-warn-on-matched-capability` id therefore never appears with
   **only** `severity: "warn"` entries and no `severity: "block"` summary
-  entry, and no other id ever carries `severity: "warn"` at all (AC-056).
+  entry — with exactly one exception (amended 2026-08-24, human-approved,
+  reconciling this sentence with this REQ's own "recording **every**
+  diagnostic-worthy condition this invocation encountered" mandate above,
+  in the "or jointly caused" shape this REQ already uses for block-entry
+  causation): `severity: "warn"` entries already collected before an
+  evaluation abort lawfully appear alongside that abort's own
+  **different-id** `severity: "block"` summary entry — with no same-id
+  `severity: "block"` summary entry, since the invocation did not block
+  because of the warn nodes — when the abort and the warns are jointly
+  caused by the same evaluation pass — and no other id ever carries
+  `severity: "warn"` at all (AC-056).
   Resolver Evidence is written on **every** invocation, success or Block
   (REQ-002), **with the sole exception of a Block reached because
   Resolver Evidence itself fails its own schema self-validation** (B3,
