@@ -311,8 +311,13 @@ Requirements: REQ-009, REQ-010
 ### Goal
 Author `docs/THREAT-MODEL.md` (consolidate sudo/kill-switch/install/risk-layer
 threats, trust assumptions, mitigations) and `docs/agent-capability-matrix.md`
-(per-agent tool scopes). Add `model` / reasoning routing to `.codex/agents/sdd-investigator.toml`
-and `sdd-evaluator.toml` (cost-aware: cheap for investigate, stronger for evaluate).
+(per-agent tool scopes). Document cost-aware `model` / reasoning routing for
+`.codex/agents/sdd-investigator.toml` and `sdd-evaluator.toml` as a RUNTIME
+control (`--model`/`--effort` at invocation, capability-matrix M-04; cheap for
+investigate, stronger for evaluate). The role toml files intentionally carry no
+`model` key (unconfirmed schema key → "malformed agent role" reject risk;
+RT-20260821-002 residual, reconciled 2026-08-23 — cycle-1's census missed this
+Goal line, measured in reports/quality-gate/20260823T090000Z.md).
 
 ### Must Read
 - specs/risk-adaptive-layer/design.md (§Security)

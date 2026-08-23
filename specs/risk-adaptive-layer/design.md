@@ -47,7 +47,7 @@ dispatchers) and **backward compatibility** with pre-feature artifacts.
 
 ### 1. Task fields (tasks.template.md / ai-task.template.md)
 
-Add three fields to each task, after `Status:`:
+Add four fields to each task, after `Status:`:
 
 ```
 Risk: high            # low | medium | high | critical   (REQUIRED; agent proposes, human confirms)
@@ -83,10 +83,12 @@ New top-level fields + per-check optional Red/Green + requirement mapping:
 }
 ```
 
-- `risk` absent ⇒ **legacy mode**: `check-contract` applies ONLY its current behavior
-  (historical baseline-protection of {lint, typecheck, unit-tests, build,
-  placeholder-scan, task-state-check}); it enforces NO tier minimum. Tier-minimum
-  enforcement activates **only when `risk` is present**. (Do NOT map absent→medium:
+- `risk` absent, `null`, empty, or whitespace-only ⇒ **legacy mode**: `check-contract`
+  applies ONLY its current behavior (historical baseline-protection of {lint,
+  typecheck, unit-tests, build, placeholder-scan, task-state-check}); it enforces
+  NO tier minimum. Tier-minimum enforcement activates **only when `risk` is a
+  non-empty, non-whitespace string** (both runtime twins already read it this
+  way; this sentence records the ratified reading). (Do NOT map absent→medium:
   the `medium` minimum adds `acceptance-tests`/`regression`, which pre-feature
   contracts lack, so mapping absent→medium would fail every existing contract.)
 - `red_evidence`/`green_evidence` optional in schema; **required by the gate** only when `required_workflow == "tdd"` for checks of type test.
@@ -229,7 +231,7 @@ both runtimes. Regression: all pre-feature fixtures MUST still pass unchanged
 - References (new): `risk-classification-policy.md`, `risk-gate-matrix.md`. (changed): `spec-id-rules.md`, `test-policy.md`, `deterministic-check-policy.md`, `verification-policy.md`, `sudo-mode-policy.md`.
 - Scripts (new): `check-risk.{sh,ps1}`, `check-traceability.{sh,ps1}`. (changed): `check-contract.{sh,ps1}`, `generate-evidence-bundle.{sh,ps1}`, `check-evidence-bundle.{sh,ps1}`, `check-task-state.{sh,ps1}`, `sdd-hook-guard.{py,sh,ps1,js}` (second-approval guard).
 - Skills: `sdd-bootstrap-interviewer/SKILL.md` (+`references/phase-quality-gates.md`), `quality-gate/SKILL.md`, `implement-task/SKILL.md`.
-- CI/docs: `.github/rulesets/main.json`, `CODEOWNERS`, `.github/workflows/{test,release,self-improvement}.yml`, `docs/THREAT-MODEL.md`, `docs/agent-capability-matrix.md`, `docs/workflow-guide.md`, `.codex/agents/*.toml` (model routing).
+- CI/docs: `.github/rulesets/main.json`, `CODEOWNERS`, `.github/workflows/{test,release,self-improvement}.yml`, `docs/THREAT-MODEL.md`, `docs/agent-capability-matrix.md`, `docs/workflow-guide.md`. (`.codex/agents/*.toml` intentionally NOT changed: model routing is a runtime control per capability-matrix M-04 — RT-20260821-002 residual, reconciled 2026-08-23.)
 - Tests: `tests/gates.tests.sh`, `tests/scripts.tests.ps1`, `tests/guards.tests.sh`, `tests/hooks.tests.ps1`, `tests/eval.tests.sh`.
 
 ## Assumptions
