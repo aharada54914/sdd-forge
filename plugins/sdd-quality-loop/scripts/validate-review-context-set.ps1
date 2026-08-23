@@ -324,6 +324,16 @@ try {
             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
         }
+        # Row parsing tolerates annotation around either backtick-quoted cell
+        # value; see the matching comment on the Bash twin's
+        # evaluator_output_is_declared for the three real annotated shapes
+        # (45e37566) and why loosening the match cannot loosen authorization:
+        # both captures are positional (the FIRST backtick pair after the
+        # row's opening "| ", and the FIRST backtick pair after the next
+        # "| "), compared with -ceq / HashSet membership against the exact
+        # requested path and hash -- never substring-matched -- and
+        # annotation may not contain "|", so an extra pipe-delimited column
+        # still cannot be absorbed as annotation and still fails to match.
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {
             if ($line -cmatch '^## Outputs\s*$') {
@@ -334,7 +344,7 @@ try {
                 break
             }
             if ($inOutputs -and
-                $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
                 [void]$evaluatorOutputs.Add("$($Matches.path)`n$($Matches.sha)")
             }
         }
@@ -377,7 +387,7 @@ try {
                     break
                 }
                 if ($inPostFix -and
-                    $line -cmatch '^\| `(?<path>[^`]+)` \| `(?<sha>[0-9a-f]{64})` \|$') {
+                    $line -cmatch '^\|\s*`(?<path>[^`]+)`[^|]*\|\s*`(?<sha>[0-9a-f]{64})`[^|]*\|\s*$') {
                     [void]$gateReportOutputs.Add("$($Matches.path)`n$($Matches.sha)")
                 }
             }

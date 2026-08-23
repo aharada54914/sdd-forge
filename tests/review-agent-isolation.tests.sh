@@ -339,6 +339,141 @@ jq --arg hash "$(sha256 "$bash_repository/plugins/task/authorized-output.txt")" 
 assert_rejected_both malformed-output-extra-column "$tmp/malformed-output-row.json" "$bash_repository" REVIEW_CONTEXT_PATH
 cp "$tmp/canonical-report.md" "$bash_repository/reports/implementation/f/T-001.md"
 
+# --- Outputs-row annotation tolerance -------------------------------------
+# The workflow expects a report to say when a row was added, drifted, or is
+# a shared append-only file, so evaluator_output_is_declared must authorize
+# a row's exact (path, hash) pair regardless of annotation text around
+# either backtick-quoted cell -- not force every annotated row into
+# REVIEW_CONTEXT_PATH. The authorization property itself must not weaken:
+# path and hash still have to match in full, a differently-hashed row for
+# the same path is still refused, an undeclared path is still refused, a
+# longer/shorter sibling path is still refused, and a forged 64-hex string
+# sitting inside annotation text must never authorize anything the row does
+# not genuinely declare.
+annot_repository="$tmp/annotation-repository"
+make_repository "$annot_repository"
+
+annot_plain_path='plugins/task/authorized-output.txt'
+annot_plain_hash="$(sha256 "$annot_repository/$annot_plain_path")"
+
+printf 'trailing-annotation candidate\n' > "$annot_repository/plugins/task/trailing.txt"
+annot_trailing_path='plugins/task/trailing.txt'
+annot_trailing_hash="$(sha256 "$annot_repository/$annot_trailing_path")"
+
+printf 'leading-annotation candidate\n' > "$annot_repository/plugins/task/leading.txt"
+annot_leading_path='plugins/task/leading.txt'
+annot_leading_hash="$(sha256 "$annot_repository/$annot_leading_path")"
+
+printf 'commit-annotated candidate\n' > "$annot_repository/plugins/task/commit-annotated.txt"
+annot_commit_path='plugins/task/commit-annotated.txt'
+annot_commit_hash="$(sha256 "$annot_repository/$annot_commit_path")"
+
+printf 'similar-prefix candidate\n' > "$annot_repository/plugins/task/similar.txt"
+printf 'similar-prefix candidate, longer sibling name\n' > "$annot_repository/plugins/task/similar.txt.bak"
+annot_similar_path='plugins/task/similar.txt'
+annot_similar_hash="$(sha256 "$annot_repository/$annot_similar_path")"
+annot_similar_bak_hash="$(sha256 "$annot_repository/$annot_similar_path.bak")"
+
+annot_wrong_hash="$(printf '%064d' 0 | tr '0' 'd')"
+
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Outputs\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `%s` | `%s` |\n' "$annot_plain_path" "$annot_plain_hash"
+  printf '| `%s` | `%s` (**added** -- registered by this task) |\n' \
+    "$annot_trailing_path" "$annot_trailing_hash"
+  printf '| `%s` (added) | `%s` |\n' "$annot_leading_path" "$annot_leading_hash"
+  printf '| `%s` | `%s` (drifted -- extended by `%s`) |\n' \
+    "$annot_commit_path" "$annot_commit_hash" 'a1b2c3d'
+  printf '| `%s` | `%s` (see also `%s`, an unrelated hash) |\n' \
+    "$annot_similar_path" "$annot_similar_hash" "$annot_wrong_hash"
+} > "$annot_repository/reports/implementation/f/T-001.md"
+
+annot_manifest="$tmp/annot-evaluator.json"
+make_manifest "$annot_repository" sdd-evaluator "$annot_manifest"
+
+annot_add_input() {
+  # annot_add_input <out> <path> <hash>
+  local output=$1 path=$2 hash=$3
+  jq --arg p "$path" --arg h "$hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' "$annot_manifest" > "$output"
+}
+
+# ANNOT-01: unannotated row, exactly as today.
+annot_add_input "$tmp/annot-plain.json" "$annot_plain_path" "$annot_plain_hash"
+run_bash "$tmp/annot-plain.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-01: Bash rejected an unannotated Outputs row'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-plain.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-01: PowerShell rejected an unannotated Outputs row'
+fi
+
+# ANNOT-02: annotation after the hash cell.
+annot_add_input "$tmp/annot-trailing.json" "$annot_trailing_path" "$annot_trailing_hash"
+run_bash "$tmp/annot-trailing.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-02: Bash rejected annotation after the hash cell'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-trailing.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-02: PowerShell rejected annotation after the hash cell'
+fi
+
+# ANNOT-03: annotation between the path cell and the column separator.
+annot_add_input "$tmp/annot-leading.json" "$annot_leading_path" "$annot_leading_hash"
+run_bash "$tmp/annot-leading.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-03: Bash rejected annotation between the path cell and the separator'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-leading.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-03: PowerShell rejected annotation between the path cell and the separator'
+fi
+
+# ANNOT-04: annotation containing its own backtick-quoted commit id.
+annot_add_input "$tmp/annot-commit.json" "$annot_commit_path" "$annot_commit_hash"
+run_bash "$tmp/annot-commit.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-04: Bash rejected annotation containing a backtick-quoted commit id'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-commit.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-04: PowerShell rejected annotation containing a backtick-quoted commit id'
+fi
+
+# TEST-080: a 64-hex string embedded inside annotation text must never be
+# treated as the row's hash. Only the real hash -- the first backtick pair
+# immediately after the column separator -- authorizes; the forged one
+# sitting in the annotation must not, and the real one must still work on
+# the very same row.
+annot_add_input "$tmp/annot-forged-hex-rejected.json" "$annot_similar_path" "$annot_wrong_hash"
+assert_rejected_both ANNOT-05a-forged-hex-in-annotation-does-not-authorize \
+  "$tmp/annot-forged-hex-rejected.json" "$annot_repository" REVIEW_CONTEXT_PATH
+annot_add_input "$tmp/annot-forged-hex-real.json" "$annot_similar_path" "$annot_similar_hash"
+run_bash "$tmp/annot-forged-hex-real.json" "$annot_repository" >/dev/null ||
+  fail 'ANNOT-05b: Bash rejected the real hash despite a forged hex string in annotation'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/annot-forged-hex-real.json" "$annot_repository" >/dev/null ||
+    fail 'ANNOT-05b: PowerShell rejected the real hash despite a forged hex string in annotation'
+fi
+
+# ANNOT-06: same path, wrong hash is still refused even on an annotated row.
+annot_add_input "$tmp/annot-wrong-hash.json" "$annot_trailing_path" "$annot_wrong_hash"
+assert_rejected_both ANNOT-06-annotated-row-same-path-wrong-hash-still-refused \
+  "$tmp/annot-wrong-hash.json" "$annot_repository" REVIEW_CONTEXT_PATH
+
+# ANNOT-07: a path not declared anywhere in the table is still refused.
+annot_add_input "$tmp/annot-undeclared.json" 'plugins/internal/arbitrary-existing.txt' \
+  "$(sha256 "$annot_repository/plugins/internal/arbitrary-existing.txt")"
+assert_rejected_both ANNOT-07-undeclared-path-still-refused \
+  "$tmp/annot-undeclared.json" "$annot_repository" REVIEW_CONTEXT_PATH
+
+# ANNOT-08: prefix confusion. The table declares plugins/task/similar.txt,
+# never plugins/task/similar.txt.bak. The declared row must not satisfy a
+# manifest requesting the longer sibling path, even at a hash that is
+# byte-correct for that longer path's own real content.
+annot_add_input "$tmp/annot-prefix-confusion.json" "$annot_similar_path.bak" "$annot_similar_bak_hash"
+assert_rejected_both ANNOT-08-prefix-confusion-longer-sibling-path-refused \
+  "$tmp/annot-prefix-confusion.json" "$annot_repository" REVIEW_CONTEXT_PATH
+
 lock_repository="$tmp/lock-repository"
 make_repository "$lock_repository"
 make_manifest "$lock_repository" spec-reviewer-a "$candidate"

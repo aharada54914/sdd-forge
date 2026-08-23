@@ -69,27 +69,42 @@ grep -Fq -- '- Task ID: $task_id' "$VALIDATOR" &&
     ok "validator pin: Task ID rule still present in launch boundary" ||
     fail "validator pin: Task ID rule text changed in launch boundary"
 
-# Rule 3: the "## Outputs" table must declare outputs in the exact row shape
-# evaluator_output_is_declared parses. The awk program below replicates the
+# Rule 3: the "## Outputs" table must declare outputs in the row shape
+# evaluator_output_is_declared parses. The bash replica below tracks the
 # validator's parser verbatim.
 # WFI-036 parameterised the section heading so a second declaration channel
 # (the gate report's `## Post-Fix Artifacts`) could reuse the same row parser.
-# The replica below tracks that change: the heading arrives as a variable and is
-# matched by prefix-plus-trailing-whitespace instead of a baked-in regex. Row
-# matching is unchanged -- still exact equality on the two-column backtick row.
+# The heading arrives as a variable and is matched by prefix-plus-trailing-
+# whitespace instead of a baked-in regex.
+#
+# Row matching tolerates annotation around either backtick-quoted cell value
+# (a report is expected to say when a row was added, drifted, or is shared;
+# see the validator's own comment on evaluator_output_is_declared for the
+# three real annotated shapes and why loosening the match cannot loosen
+# authorization). Path and hash are still each captured positionally -- the
+# first backtick pair after the row's opening "| " and the first backtick
+# pair after the next "| " -- and compared with `==` against the caller's
+# exact expected values, never substring-matched.
 declared() {
-    awk -v expected_path="$1" -v expected_hash="$2" -v heading='## Outputs' '
-        index($0, heading) == 1 && substr($0, length(heading) + 1) ~ /^[[:space:]]*$/ {
-            in_outputs = 1
-            next
-        }
-        in_outputs && /^##[[:space:]]/ { exit }
-        in_outputs {
-            expected_line = "| `" expected_path "` | `" expected_hash "` |"
-            if ($0 == expected_line) found = 1
-        }
-        END { exit(found ? 0 : 1) }
-    ' "$3"
+    local expected_path=$1 expected_hash=$2 report=$3
+    local heading='## Outputs'
+    local row_pattern='^\|[[:space:]]*`([^`]+)`[^|]*\|[[:space:]]*`([0-9a-f]{64})`[^|]*\|[[:space:]]*$'
+    local in_outputs=false found=false line remainder
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if ! $in_outputs; then
+            if [[ "$line" == "$heading"* ]]; then
+                remainder=${line#"$heading"}
+                [[ "$remainder" =~ ^[[:space:]]*$ ]] && in_outputs=true
+            fi
+            continue
+        fi
+        [[ "$line" =~ ^##[[:space:]] ]] && break
+        if [[ "$line" =~ $row_pattern ]]; then
+            [[ "${BASH_REMATCH[1]}" == "$expected_path" && "${BASH_REMATCH[2]}" == "$expected_hash" ]] &&
+                found=true
+        fi
+    done < "$report"
+    $found
 }
 if declared "$OUT_PATH" "$OUT_HASH" "$IMPL_RENDERED"; then
     ok "impl-report template: Outputs table row parses via the evaluator's declared-output rule"
@@ -100,7 +115,7 @@ fi
 # would not catch the boundary being pointed at a different section, and the
 # literal '## Outputs' alone would not catch the matcher itself being replaced;
 # the template and the boundary can only drift apart if one of these two moves.
-if grep -Fq 'index($0, heading) == 1' "$VALIDATOR" &&
+if grep -Fq '"$line" == "$heading"*' "$VALIDATOR" &&
     grep -Fq "'## Outputs'" "$VALIDATOR"; then
     ok "validator pin: Outputs-section parser still present in launch boundary"
 else

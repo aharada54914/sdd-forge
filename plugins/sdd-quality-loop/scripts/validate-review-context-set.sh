@@ -63,22 +63,63 @@ is_forbidden_review_output() {
 # WFI-036. A declaration channel is one markdown document plus one section
 # heading. Two channels exist: the frozen implementation report's `## Outputs`
 # table, and -- only when the manifest explicitly names and hash-pins one --
-# the gate report's `## Post-Fix Artifacts` table. Both are matched by exact
-# row equality, so both are hash-checked identically.
+# the gate report's `## Post-Fix Artifacts` table. Both are matched by the
+# same row parser below, so both are hash-checked identically.
+#
+# A row is authorized cell-by-cell, not by whole-line equality: the path cell
+# and the hash cell must each match in full, but either cell may carry
+# annotation text around its backtick-quoted value. Three annotated shapes
+# are real (found by running prepare-panelist-input's identical fix against
+# the actual report corpus, see 45e37566): annotation after the hash, still
+# inside that cell -- "| `path` | `hash` (drifted -- extended by `sha1` ...) |"
+# (epic-193 T-004/T-005); annotation between the path and the column
+# separator -- "| `path` (added) | `hash` |" (epic-195 T-005); and annotation
+# containing its own backtick-quoted commit id, nested inside either of the
+# above.
+#
+# What stays exact, and why loosening the match cannot loosen authorization:
+#   * The path capture is bounded by the FIRST backtick pair immediately
+#     after the row's opening "| ", and the hash capture is bounded by the
+#     FIRST backtick pair immediately after the column-separator "| ". A row
+#     is compared with `==` against the caller's expected path and hash, not
+#     substring-matched against them, so `tests/run-all.ps1` cannot be
+#     satisfied by a row for `tests/run-all.ps1.bak` (or the reverse): the
+#     captured text and the expected text must be byte-identical, full cell
+#     to full cell.
+#   * Annotation text (`[^|]*` on either side of a backtick-quoted cell
+#     value) may contain anything except a literal `|` -- including its own
+#     backtick-quoted 64-hex string, e.g. "(edited by `deadbeef...`)". That
+#     text can never become the row's path or hash capture: both captures
+#     are positional (the first backtick pair after "| ", and the first
+#     backtick pair after the next "| "), not "any 64-hex string anywhere in
+#     the row". A forged hex string inside annotation is inert -- at worst it
+#     makes an otherwise-good row fail to match (over-strict, safe), never
+#     authorizes a path/hash pair the row does not genuinely declare.
+#   * Forbidding `|` inside annotation means an extra pipe-delimited column
+#     (e.g. a row corrupted into "| `path` | `hash` | extra-column") cannot
+#     be absorbed as annotation: the trailing "\|[[:space:]]*$" anchor still
+#     requires the row to end at a pipe followed by nothing but whitespace,
+#     so that shape still fails to match and the row still fails to
+#     authorize -- unchanged from before this fix.
 evaluator_output_is_declared() {
   local path=$1 expected_hash=$2 report=$3 heading=$4
-  awk -v expected_path="$path" -v expected_hash="$expected_hash" -v heading="$heading" '
-    index($0, heading) == 1 && substr($0, length(heading) + 1) ~ /^[[:space:]]*$/ {
-      in_outputs = 1
-      next
-    }
-    in_outputs && /^##[[:space:]]/ { exit }
-    in_outputs {
-      expected_line = "| `" expected_path "` | `" expected_hash "` |"
-      if ($0 == expected_line) found = 1
-    }
-    END { exit(found ? 0 : 1) }
-  ' "$report"
+  local row_pattern='^\|[[:space:]]*`([^`]+)`[^|]*\|[[:space:]]*`([0-9a-f]{64})`[^|]*\|[[:space:]]*$'
+  local in_outputs=false found=false line remainder
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if ! $in_outputs; then
+      if [[ "$line" == "$heading"* ]]; then
+        remainder=${line#"$heading"}
+        [[ "$remainder" =~ ^[[:space:]]*$ ]] && in_outputs=true
+      fi
+      continue
+    fi
+    [[ "$line" =~ ^##[[:space:]] ]] && break
+    if [[ "$line" =~ $row_pattern ]]; then
+      [[ "${BASH_REMATCH[1]}" == "$path" && "${BASH_REMATCH[2]}" == "$expected_hash" ]] &&
+        found=true
+    fi
+  done < "$report"
+  $found
 }
 
 # WFI-036 second channel. Consulted only when the manifest named a gate report
