@@ -7524,6 +7524,15 @@
       "host_session_id": "SESS-qg-agent-cost-context-isolation-T-001-0836",
       "previous_record_sha256": "46b2834f008f7e07a2d6e4edc6dc220b07b52163541abc88a5daefa0a2ce2de2",
       "record_sha256": "488e37de5e4bb7a2dbba27f6c0a247ab36ef3b795684c27d9e09e43137439fcc"
+    },
+    {
+      "sequence": 837,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-risk-adaptive-layer-qg-T-004-seq0837",
+      "host_session_id": "SESS-qg-risk-adaptive-layer-T-004-0837",
+      "previous_record_sha256": "488e37de5e4bb7a2dbba27f6c0a247ab36ef3b795684c27d9e09e43137439fcc",
+      "record_sha256": "c8c7cc0316d70ad3564438d61552673a9a69ba7be4e10bb1f4118d6e70d09a9f"
     }
   ]
 }
