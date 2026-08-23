@@ -104,6 +104,184 @@ plugins_hash_matches() {
   [[ "$historical" == "$expected" ]]
 }
 
+# The amendment re-review lane (spec-review's `## Amendment Re-Review
+# Context` section, extended to impl/task in reviewer-calibration.md)
+# creates a structural oscillation none of the tolerances above cover: each
+# downstream stage's OWN recovery legitimately appends to the SAME
+# specs/<feature>/investigation.md section that an UPSTREAM stage's
+# reviewer manifest already pinned (investigation.md is an allowed input
+# for all three stages -- see the unconditional `allowed()` clause above).
+# That re-stales the upstream pin with a change whose entire content is the
+# record of the very recovery the lane exists to permit -- not a change to
+# anything reviewed. Unlike the --opening tolerance above, this must work
+# STANDALONE: the oscillation bites precisely when no stage is currently
+# being opened (a later stage's recovery already landed and closed; an
+# earlier stage's pin is what went stale). Scoping this to one named
+# section is what makes a standalone, unconditional tolerance safe: the
+# section is the lane's own declared channel, its conformance is judged by
+# every reviewer who reads investigation.md as part of that stage's normal
+# review (the calibration docs define the evidence bar), and the checks
+# below guarantee nothing outside that section -- and no mutation of an
+# already-reviewed line inside it -- can ride through this path even if a
+# byte anywhere else changed.
+#
+# Prints "START END" (1-indexed, inclusive) for the FIRST line reading
+# exactly "## Amendment Re-Review Context" in $1: START is that heading's
+# own line, END is the line before the next line starting with "## " after
+# it, or the file's last line if none follows (the section runs to EOF).
+# Prints nothing and fails if the heading is not present at all. Assumes
+# the file ends with a trailing newline, consistent with every other
+# line-oriented check in this script.
+amendment_section_bounds() {
+  local file="$1" start end total
+  start="$(grep -n '^## Amendment Re-Review Context$' "$file" | head -1 | cut -d: -f1)"
+  [[ -n "$start" ]] || return 1
+  total="$(wc -l < "$file" | tr -d ' ')"
+  end="$(awk -v s="$start" 'NR>s && /^## /{print NR-1; exit}' "$file")"
+  [[ -n "$end" ]] || end="$total"
+  printf '%s %s\n' "$start" "$end"
+}
+# Verifies the pinned bytes ($1, already-verified content -- see the only
+# caller) differ from live bytes ($2) in a shape that is PURE, CONTIGUOUS
+# GROWTH confined to the `## Amendment Re-Review Context` section as
+# computed on the LIVE file. Checked directly via line ranges rather than
+# parsing a diff(1) hunk format (which differs subtly between GNU and BSD
+# diff and would need cross-platform parsing on both twins for no benefit
+# here -- the required shape is narrow enough to verify directly):
+#   (1) every line before the section must be byte-identical between
+#       pinned and live -- nothing outside the section may change at all.
+#   (2) if the section existed in the pinned version, its lines must be an
+#       EXACT PREFIX of the live section's lines. Growth (more lines
+#       appended after) is fine; fewer lines, or ANY changed line within
+#       the shared prefix, is not -- a mutated already-reviewed entry line
+#       is rewriting reviewed history, not recording new history, so it is
+#       deliberately NOT tolerated even though it is still "inside" the
+#       section window. Tolerating it would let a downstream recovery
+#       silently rewrite an upstream-pinned entry under cover of this
+#       path; refusing it means the only thing this reconciliation can
+#       ever waive through is strictly additive.
+#   (3) if the section did NOT exist in the pinned version, it may ONLY be
+#       a pure, contiguous creation whose live-side boundary reaches the
+#       live file's own LAST line -- i.e. "created at EOF" literally, not
+#       merely "inserted somewhere that happens to satisfy (1) and the
+#       trailing-content check below". A brand-new section spliced into
+#       the middle of the file, ahead of pre-existing trailing content,
+#       is rejected even though such a splice would still pass a bare
+#       prefix/suffix-identity check. The heading may land a line or two
+#       after pinned's own last line (e.g. a conventional blank-line
+#       separator before a new `## ` heading) -- that gap is itself brand
+#       new content with nothing pinned to compare it against, so it is
+#       swept into the same tolerance as the section rather than forced
+#       to equal a fixed offset from pinned's length.
+#   (4) every line after the section (present only when the section is
+#       not the file's last -- e.g. an unrelated later "## " section
+#       exists) must be byte-identical too -- growth is licensed strictly
+#       inside the section, nowhere else.
+investigation_growth_only_change() {
+  local pinned="$1" live="$2"
+  local live_bounds live_start live_end live_total pinned_total prefix_len
+  live_bounds="$(amendment_section_bounds "$live")" || return 1
+  read -r live_start live_end <<<"$live_bounds"
+  live_total="$(wc -l < "$live" | tr -d ' ')"
+  pinned_total="$(wc -l < "$pinned" | tr -d ' ')"
+
+  local pinned_bounds="" pinned_start="" pinned_end=""
+  if pinned_bounds="$(amendment_section_bounds "$pinned")"; then
+    read -r pinned_start pinned_end <<<"$pinned_bounds"
+    # Sanity check, made explicit rather than left implicit in (1) below:
+    # the section must start at the same absolute line in both files.
+    [[ "$pinned_start" == "$live_start" ]] || return 1
+    prefix_len=$((live_start - 1))
+    if ((prefix_len > 0)); then
+      cmp -s <(head -n "$prefix_len" "$pinned") <(head -n "$prefix_len" "$live") || return 1
+    fi
+  else
+    # No fixed offset to compare against: the heading's live position is
+    # unconstrained beyond "strictly after all of pinned's own content"
+    # (see comment (3) above), so the prefix check here compares ALL of
+    # pinned against live's own first pinned_total lines, not a window
+    # sized by live_start.
+    ((live_start > pinned_total)) || return 1
+    if ((pinned_total > 0)); then
+      cmp -s <(head -n "$pinned_total" "$pinned") <(head -n "$pinned_total" "$live") || return 1
+    fi
+    [[ "$live_end" -eq "$live_total" ]] || return 1
+  fi
+
+  if [[ -n "$pinned_start" ]]; then
+    local pinned_section_len=$((pinned_end - pinned_start + 1))
+    local live_section_len=$((live_end - live_start + 1))
+    ((live_section_len >= pinned_section_len)) || return 1
+    cmp -s \
+      <(sed -n "${pinned_start},${pinned_end}p" "$pinned") \
+      <(sed -n "${live_start},$((live_start + pinned_section_len - 1))p" "$live") || return 1
+
+    local pinned_after=$((pinned_total - pinned_end))
+    local live_after=$((live_total - live_end))
+    if ((pinned_after > 0 || live_after > 0)); then
+      ((pinned_after == live_after)) || return 1
+      cmp -s \
+        <(tail -n "+$((pinned_end + 1))" "$pinned") \
+        <(tail -n "+$((live_end + 1))" "$live") || return 1
+    fi
+  fi
+  return 0
+}
+# Resolves the pinned bytes of specs/<feature>/investigation.md at the
+# CONTRACT's introducing commit (--diff-filter=A -- the SAME machinery
+# plugins_pin_commit/plugins_hash_at_pin already use for plugins/
+# reference docs, reused rather than duplicated: the contract JSON whose
+# manifest entry is being checked is itself immutable, committed
+# historical fact, so its introducing commit stands for "when this review
+# ran" exactly as it does there) and writes them to $4. Returns success
+# ONLY after independently re-verifying that the written bytes' own sha256
+# equals $2 -- a forged pin, an ambiguous introducing commit, or a
+# contract whose commit predates reconstructable history all fail here,
+# with nothing written that the caller could diff against, so the
+# reconciliation below can never proceed from an unverified base.
+resolve_verified_investigation_pin() {
+  local contract="$1" expected="$2" relative="$3" out_file="$4" pin
+  pin="$(plugins_pin_commit "$contract")" || return 1
+  [[ "$(plugins_hash_at_pin "$pin" "$relative")" == "$expected" ]] || return 1
+  git -C "$SCRIPT_ROOT" show "$pin:$relative" > "$out_file" 2>/dev/null || return 1
+  [[ "$(sha256_file "$out_file")" == "$expected" ]]
+}
+# Top-level entry point for the amendment-oscillation tolerance: returns
+# success only when $2 (the manifest's recorded sha256 for
+# specs/<feature>/investigation.md) resolves to independently-verified
+# historical bytes (see resolve_verified_investigation_pin) whose ONLY
+# difference from $1 (the live file) is pure growth confined to the
+# `## Amendment Re-Review Context` section (see
+# investigation_growth_only_change). Applies uniformly to every stage
+# (spec/impl/task): investigation.md is an allowed input for all three,
+# the oscillation is structurally identical regardless of which stage's
+# pin went stale, and the same calibration-governed section is what makes
+# it safe for all three alike.
+investigation_amendment_reconciles() {
+  local manifest_file="$1" expected="$2" contract="$3" relative tmp_pinned result
+  case "$manifest_file" in
+    "$REPO_ROOT"/*) relative="${manifest_file#"$REPO_ROOT/"}" ;;
+    *) return 1 ;;
+  esac
+  tmp_pinned="$(mktemp)" || return 1
+  if resolve_verified_investigation_pin "$contract" "$expected" "$relative" "$tmp_pinned"; then
+    investigation_growth_only_change "$tmp_pinned" "$manifest_file"
+    result=$?
+  else
+    result=1
+  fi
+  rm -f "$tmp_pinned"
+  return "$result"
+}
+# Visible notice, not a silent pass: names the file, both hashes, and that
+# the delta is confined to amendment-record growth, so the recovery is
+# observable in the run's output rather than waved through unremarked.
+print_investigation_amendment_notice() {
+  local feature="$1" stage="$2" suffix="$3" recorded="$4" current="$5"
+  printf 'workflow-state: %s: stage-provenance-tolerated: %s (%s stage) recorded %s, now %s (amendment-record growth only)\n' \
+    "$feature" "${suffix#/}" "$stage" "$recorded" "$current" >&2
+}
+
 while (($#)); do
   case "$1" in
     --feature)
@@ -722,6 +900,23 @@ validate_passed_stage() {
       plugins/*)
         plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract" ||
           diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+      # Tolerated STANDALONE (no --opening needed): the amendment
+      # re-review lane's own oscillation, where a downstream stage's
+      # recovery grows this file's `## Amendment Re-Review Context`
+      # section after an upstream stage already pinned it. Tried first;
+      # falls through to the ordinary --opening-based tolerance (and, if
+      # that does not apply either, the original diagnostic) when the
+      # live change is not pure, section-confined growth over
+      # independently-verified historical bytes.
+      "specs/$feature/investigation.md")
+        current_hash="$(sha256_file "$manifest_file")"
+        if [[ "$current_hash" != "$manifest_hash" ]]; then
+          if investigation_amendment_reconciles "$manifest_file" "$manifest_hash" "$contract"; then
+            print_investigation_amendment_notice "$feature" "$stage" "$manifest_relative" "$manifest_hash" "$current_hash"
+          else
+            diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale"
+          fi
+        fi ;;
       *)
         [[ "$(sha256_file "$manifest_file")" == "$manifest_hash" ]] ||
           diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage reviewer manifest input hash is stale" ;;

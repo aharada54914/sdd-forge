@@ -1391,4 +1391,237 @@ set -e
    "$(printf '%s\n' "$design_stale_standalone_ps_output" | rule_id)" ]] ||
   fail "deadlock-design-stale standalone twins diverged: Shell=$design_stale_standalone_output PowerShell=$design_stale_standalone_ps_output"
 
+# --- Amendment-oscillation reconciliation for specs/<feature>/investigation.md ---
+#
+# The amendment re-review lane's own `## Amendment Re-Review Context`
+# section (spec-review's own lane, extended to impl/task by
+# reviewer-calibration.md) creates a structural oscillation none of the
+# --opening tolerances above cover: a DOWNSTREAM stage's recovery
+# legitimately grows the SAME investigation.md section an UPSTREAM stage's
+# manifest already pinned, re-staling the upstream pin STANDALONE -- no
+# --opening involved, no BLOCKED verdict to reopen. investigation.md is an
+# allowed input for all three stages -- the base fixture's spec AND impl
+# rounds both already reference it, so seeding must repoint BOTH, not just
+# spec's -- and these fixtures also explicitly wire it into the TASK
+# round (which does not reference it naturally) to prove the tolerance is
+# not spec-only.
+#
+# These use the scratch-git technique (make_git_fixture, above) rather than
+# expect_rule/expect_valid: the reconciliation depends on git history this
+# suite must construct byte-for-byte, not on $ROOT's own real commits.
+
+INVESTIGATION_REL="specs/workflow-state-integrity/investigation.md"
+INV_TASK_CONTRACT_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+INV_TASK_REVIEWER_A_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-a.json"
+INV_TASK_REVIEWER_B_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-b.json"
+
+# Repoints every EXISTING manifest occurrence of $2 (a repo-relative path,
+# e.g. investigation.md or a plugins/ reference doc), across every
+# *-review-contract.json / reviewer-a.json / reviewer-b.json under
+# reports/ in this fixture, to $3 (a sha256). A path not currently declared
+# anywhere is left untouched (this repoints, it does not add) -- adding a
+# brand-new declaration, where a fixture needs one, is a separate step.
+repoint_manifest_path_everywhere() {
+  local target="$1" path="$2" hash="$3" repoint file
+  repoint='(.. | objects | select(.path? == $path) | .sha256) |= $hash'
+  while IFS= read -r file; do
+    jq --arg path "$path" --arg hash "$hash" "$repoint" "$file" > "$file.repoint.tmp"
+    mv "$file.repoint.tmp" "$file"
+  done < <(find "$target/reports" -type f \
+    \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+}
+
+# make_git_fixture commits a fresh "baseline" built from the CURRENT copy
+# of every file, so the introducing commit's content for a shared plugins/
+# reference doc is TODAY's content -- not necessarily what
+# workflow-state-integrity's own historical round recorded, which can
+# (legitimately, incidentally) have drifted since. Left un-neutralized this
+# fires an UNRELATED stale-hash diagnostic on whichever plugins/ doc
+# drifted, masking the investigation.md assertions these fixtures exist to
+# make. Repointing to current content does not touch investigation.md or
+# weaken anything these fixtures test -- it only keeps an orthogonal,
+# pre-existing drift out of the way.
+neutralize_reference_doc_drift() {
+  local target="$1" rel hash
+  for rel in \
+    plugins/sdd-review-loop/references/spec-review-calibration.md \
+    plugins/sdd-review-loop/references/reviewer-calibration.md \
+    plugins/sdd-quality-loop/references/risk-gate-matrix.md \
+    plugins/sdd-quality-loop/references/risk-classification-policy.md
+  do
+    [[ -f "$target/$rel" ]] || continue
+    hash="$(shasum -a 256 "$target/$rel" | awk '{print $1}')"
+    repoint_manifest_path_everywhere "$target" "$rel" "$hash"
+  done
+}
+
+# Overwrites investigation.md with $2's content and returns its sha256
+# (no commit yet -- the caller repoints/adds manifest entries first, so
+# everything lands in ONE single baseline commit).
+write_investigation_content() {
+  local target="$1" content_file="$2"
+  cp "$content_file" "$target/$INVESTIGATION_REL"
+  shasum -a 256 "$target/$INVESTIGATION_REL" | awk '{print $1}'
+}
+
+# Adds NEW investigation.md manifest entries to the task round (which does
+# not reference it in the base fixture at all) -- contract entries for both
+# task reviewers, plus each reviewer's OWN recorded manifest copy, so
+# manifest_superset_ok stays satisfied.
+add_task_investigation_entries() {
+  local target="$1" hash="$2" entry
+  entry='{"path": $path, "sha256": $hash}'
+  jq --arg path "$INVESTIGATION_REL" --arg hash "$hash" \
+    ".reviewers |= map(.allowed_input_manifest += [$entry])" \
+    "$target/$INV_TASK_CONTRACT_REL" > "$target/add.tmp"
+  mv "$target/add.tmp" "$target/$INV_TASK_CONTRACT_REL"
+  jq --arg path "$INVESTIGATION_REL" --arg hash "$hash" \
+    ".manifest += [$entry]" \
+    "$target/$INV_TASK_REVIEWER_A_REL" > "$target/add.tmp"
+  mv "$target/add.tmp" "$target/$INV_TASK_REVIEWER_A_REL"
+  jq --arg path "$INVESTIGATION_REL" --arg hash "$hash" \
+    ".manifest.allowed_inputs += [$entry]" \
+    "$target/$INV_TASK_REVIEWER_B_REL" > "$target/add.tmp"
+  mv "$target/add.tmp" "$target/$INV_TASK_REVIEWER_B_REL"
+}
+
+commit_investigation_baseline() {
+  git -C "$1" add -A
+  git -C "$1" commit -q -m "baseline"
+}
+
+INV_NO_SECTION="$TMP/investigation-no-section.md"
+INV_WITH_SECTION="$TMP/investigation-with-section.md"
+printf '# Investigation\n\n## Findings\n\nInitial findings text.\n' > "$INV_NO_SECTION"
+printf '# Investigation\n\n## Findings\n\nInitial findings text.\n\n## Amendment Re-Review Context\n\n- Entry 1: commit abc123, sha256 def456.\n' \
+  > "$INV_WITH_SECTION"
+
+run_investigation_twin() {
+  local target="$1" label="$2"
+  local sh_out sh_status ps_out ps_status
+  set +e
+  sh_out="$(bash "$target/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+    --registry "$target/specs/workflow-state-registry.json" 2>&1)"
+  sh_status=$?
+  ps_out="$(pwsh -NoProfile -File "$target/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    --registry "$target/specs/workflow-state-registry.json" 2>&1)"
+  ps_status=$?
+  set -e
+  INV_LAST_SH_OUTPUT="$sh_out"; INV_LAST_SH_STATUS="$sh_status"
+  INV_LAST_PS_OUTPUT="$ps_out"; INV_LAST_PS_STATUS="$ps_status"
+}
+
+# Case 1: pin has no section at all; live creates it at EOF. Tolerated,
+# with a visible notice naming the file and both hashes.
+inv_created="$(make_git_fixture investigation-amendment-created-at-eof)"
+neutralize_reference_doc_drift "$inv_created"
+inv_created_hash="$(write_investigation_content "$inv_created" "$INV_NO_SECTION")"
+repoint_manifest_path_everywhere "$inv_created" "$INVESTIGATION_REL" "$inv_created_hash"
+commit_investigation_baseline "$inv_created"
+printf '\n## Amendment Re-Review Context\n\n- Entry 1: commit xyz789, sha256 aaa111.\n' \
+  >> "$inv_created/$INVESTIGATION_REL"
+inv_created_live="$(shasum -a 256 "$inv_created/$INVESTIGATION_REL" | awk '{print $1}')"
+[[ "$inv_created_hash" != "$inv_created_live" ]] ||
+  fail "investigation-amendment-created-at-eof precondition not met: live did not actually change"
+run_investigation_twin "$inv_created" created-at-eof
+[[ $INV_LAST_SH_STATUS -eq 0 ]] || fail "investigation-amendment-created-at-eof Shell unexpectedly failed: $INV_LAST_SH_OUTPUT"
+[[ $INV_LAST_PS_STATUS -eq 0 ]] || fail "investigation-amendment-created-at-eof PowerShell unexpectedly failed: $INV_LAST_PS_OUTPUT"
+[[ "$INV_LAST_SH_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md"*"amendment-record growth only"* ]] ||
+  fail "investigation-amendment-created-at-eof: expected a tolerance notice, got: $INV_LAST_SH_OUTPUT"
+[[ "$INV_LAST_PS_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md"*"amendment-record growth only"* ]] ||
+  fail "investigation-amendment-created-at-eof: expected a tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
+
+# Case 2: pin already has the section; live appends another entry to it
+# (still growth-only). Tolerated, with a visible notice.
+inv_grows="$(make_git_fixture investigation-amendment-grows-section)"
+neutralize_reference_doc_drift "$inv_grows"
+inv_grows_hash="$(write_investigation_content "$inv_grows" "$INV_WITH_SECTION")"
+repoint_manifest_path_everywhere "$inv_grows" "$INVESTIGATION_REL" "$inv_grows_hash"
+commit_investigation_baseline "$inv_grows"
+printf -- '- Entry 2: commit zzz222, sha256 bbb333.\n' >> "$inv_grows/$INVESTIGATION_REL"
+run_investigation_twin "$inv_grows" grows-section
+[[ $INV_LAST_SH_STATUS -eq 0 ]] || fail "investigation-amendment-grows-section Shell unexpectedly failed: $INV_LAST_SH_OUTPUT"
+[[ $INV_LAST_PS_STATUS -eq 0 ]] || fail "investigation-amendment-grows-section PowerShell unexpectedly failed: $INV_LAST_PS_OUTPUT"
+[[ "$INV_LAST_SH_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md"*"amendment-record growth only"* ]] ||
+  fail "investigation-amendment-grows-section: expected a tolerance notice, got: $INV_LAST_SH_OUTPUT"
+[[ "$INV_LAST_PS_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md"*"amendment-record growth only"* ]] ||
+  fail "investigation-amendment-grows-section: expected a tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
+
+# Case 3: live also changes a line OUTSIDE the section (as well as growing
+# it). One byte outside the section fails exactly as today -- growth
+# elsewhere does not buy tolerance for an unrelated change.
+inv_outside="$(make_git_fixture investigation-amendment-outside-section-fails)"
+neutralize_reference_doc_drift "$inv_outside"
+inv_outside_hash="$(write_investigation_content "$inv_outside" "$INV_WITH_SECTION")"
+repoint_manifest_path_everywhere "$inv_outside" "$INVESTIGATION_REL" "$inv_outside_hash"
+commit_investigation_baseline "$inv_outside"
+sed -i.bak 's/Initial findings text\./Rewritten findings text./' "$inv_outside/$INVESTIGATION_REL"
+printf -- '- Entry 2: commit zzz222, sha256 bbb333.\n' >> "$inv_outside/$INVESTIGATION_REL"
+rm -f "$inv_outside/$INVESTIGATION_REL.bak"
+run_investigation_twin "$inv_outside" outside-section-fails
+[[ $INV_LAST_SH_STATUS -ne 0 ]] || fail "investigation-amendment-outside-section-fails Shell unexpectedly passed"
+[[ $INV_LAST_PS_STATUS -ne 0 ]] || fail "investigation-amendment-outside-section-fails PowerShell unexpectedly passed"
+[[ "$INV_LAST_SH_OUTPUT" == *": stage-provenance:"* ]] ||
+  fail "investigation-amendment-outside-section-fails: wrong rule: $INV_LAST_SH_OUTPUT"
+[[ "$(printf '%s\n' "$INV_LAST_SH_OUTPUT" | rule_id)" == "$(printf '%s\n' "$INV_LAST_PS_OUTPUT" | rule_id)" ]] ||
+  fail "investigation-amendment-outside-section-fails: twins diverged: Shell=$INV_LAST_SH_OUTPUT PowerShell=$INV_LAST_PS_OUTPUT"
+
+# Case 4: live MUTATES an existing entry line inside the section (not pure
+# growth). Deliberately NOT tolerated -- a mutated already-reviewed entry
+# line rewrites reviewed history rather than recording new history, so it
+# fails exactly as today even though it is still "inside" the section
+# window (see Test-InvestigationGrowthOnlyChange / investigation_growth_only_change).
+inv_mutate="$(make_git_fixture investigation-amendment-mutation-inside-section-fails)"
+neutralize_reference_doc_drift "$inv_mutate"
+inv_mutate_hash="$(write_investigation_content "$inv_mutate" "$INV_WITH_SECTION")"
+repoint_manifest_path_everywhere "$inv_mutate" "$INVESTIGATION_REL" "$inv_mutate_hash"
+commit_investigation_baseline "$inv_mutate"
+sed -i.bak 's/Entry 1: commit abc123, sha256 def456\./Entry 1: commit MUTATED, sha256 def456./' \
+  "$inv_mutate/$INVESTIGATION_REL"
+rm -f "$inv_mutate/$INVESTIGATION_REL.bak"
+run_investigation_twin "$inv_mutate" mutation-inside-fails
+[[ $INV_LAST_SH_STATUS -ne 0 ]] || fail "investigation-amendment-mutation-inside-section-fails Shell unexpectedly passed"
+[[ $INV_LAST_PS_STATUS -ne 0 ]] || fail "investigation-amendment-mutation-inside-section-fails PowerShell unexpectedly passed"
+[[ "$INV_LAST_SH_OUTPUT" == *": stage-provenance:"* ]] ||
+  fail "investigation-amendment-mutation-inside-section-fails: wrong rule: $INV_LAST_SH_OUTPUT"
+[[ "$(printf '%s\n' "$INV_LAST_SH_OUTPUT" | rule_id)" == "$(printf '%s\n' "$INV_LAST_PS_OUTPUT" | rule_id)" ]] ||
+  fail "investigation-amendment-mutation-inside-section-fails: twins diverged: Shell=$INV_LAST_SH_OUTPUT PowerShell=$INV_LAST_PS_OUTPUT"
+
+# Case 5: the manifest-recorded hash does not resolve at the contract's
+# introducing commit at all (forged/tampered pin) -- the reconciliation
+# never proceeds from an unverified base, and this fails exactly as today.
+inv_unresolvable="$(make_git_fixture investigation-amendment-unresolvable-pin-fails)"
+neutralize_reference_doc_drift "$inv_unresolvable"
+inv_unresolvable_hash="$(write_investigation_content "$inv_unresolvable" "$INV_WITH_SECTION")"
+repoint_manifest_path_everywhere "$inv_unresolvable" "$INVESTIGATION_REL" "$inv_unresolvable_hash"
+commit_investigation_baseline "$inv_unresolvable"
+inv_bogus_hash="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+repoint_manifest_path_everywhere "$inv_unresolvable" "$INVESTIGATION_REL" "$inv_bogus_hash"
+run_investigation_twin "$inv_unresolvable" unresolvable-pin-fails
+[[ $INV_LAST_SH_STATUS -ne 0 ]] || fail "investigation-amendment-unresolvable-pin-fails Shell unexpectedly passed"
+[[ $INV_LAST_PS_STATUS -ne 0 ]] || fail "investigation-amendment-unresolvable-pin-fails PowerShell unexpectedly passed"
+[[ "$INV_LAST_SH_OUTPUT" == *": stage-provenance:"* ]] ||
+  fail "investigation-amendment-unresolvable-pin-fails: wrong rule: $INV_LAST_SH_OUTPUT"
+[[ "$(printf '%s\n' "$INV_LAST_SH_OUTPUT" | rule_id)" == "$(printf '%s\n' "$INV_LAST_PS_OUTPUT" | rule_id)" ]] ||
+  fail "investigation-amendment-unresolvable-pin-fails: twins diverged: Shell=$INV_LAST_SH_OUTPUT PowerShell=$INV_LAST_PS_OUTPUT"
+
+# Case 6: the SAME oscillation, but on the TASK stage's pin (investigation.md
+# wired in explicitly -- the base fixture's task round does not reference it
+# naturally). Proves the tolerance covers every stage's investigation.md
+# pin, not just spec's/impl's.
+inv_task="$(make_git_fixture investigation-amendment-task-stage-grows)"
+neutralize_reference_doc_drift "$inv_task"
+inv_task_hash="$(write_investigation_content "$inv_task" "$INV_WITH_SECTION")"
+repoint_manifest_path_everywhere "$inv_task" "$INVESTIGATION_REL" "$inv_task_hash"
+add_task_investigation_entries "$inv_task" "$inv_task_hash"
+commit_investigation_baseline "$inv_task"
+printf -- '- Entry 2: commit zzz222, sha256 bbb333.\n' >> "$inv_task/$INVESTIGATION_REL"
+run_investigation_twin "$inv_task" task-stage-grows
+[[ $INV_LAST_SH_STATUS -eq 0 ]] || fail "investigation-amendment-task-stage-grows Shell unexpectedly failed: $INV_LAST_SH_OUTPUT"
+[[ $INV_LAST_PS_STATUS -eq 0 ]] || fail "investigation-amendment-task-stage-grows PowerShell unexpectedly failed: $INV_LAST_PS_OUTPUT"
+[[ "$INV_LAST_SH_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md (task stage)"* ]] ||
+  fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice, got: $INV_LAST_SH_OUTPUT"
+[[ "$INV_LAST_PS_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md (task stage)"* ]] ||
+  fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'

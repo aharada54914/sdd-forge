@@ -110,6 +110,173 @@ function Test-PluginsHashMatches([string]$PluginsFile, [string]$Expected, [strin
     if (-not $historical) { return $false }
     return $historical -eq $Expected
 }
+
+# The amendment re-review lane (spec-review's own "## Amendment Re-Review
+# Context" section, extended to impl/task in reviewer-calibration.md)
+# creates a structural oscillation none of the tolerances above cover: each
+# downstream stage's OWN recovery legitimately appends to the SAME
+# specs/<feature>/investigation.md section that an UPSTREAM stage's
+# reviewer manifest already pinned (investigation.md is an allowed input
+# for all three stages -- see Test-ManifestPaths' unconditional allowance).
+# That re-stales the upstream pin with a change whose entire content is the
+# record of the very recovery the lane exists to permit -- not a change to
+# anything reviewed. Unlike Stop-WorkflowStateOrTolerate below, this must
+# work STANDALONE (no --opening): the oscillation bites precisely when no
+# stage is currently being opened. Scoping this to one named section is
+# what makes a standalone, unconditional tolerance safe: the section is the
+# lane's own declared channel, its conformance is judged by every reviewer
+# who reads investigation.md as part of that stage's normal review, and the
+# checks below guarantee nothing outside that section -- and no mutation of
+# an already-reviewed line inside it -- can ride through this path. See the
+# Bash twin (check-workflow-state.sh) for the full reasoning; kept in
+# parity here, not duplicated verbatim in every comment.
+#
+# Assumes LF-only line endings, consistent with this repo's markdown files
+# and with every other line array this script builds; a CRLF
+# investigation.md is out of scope for this reconciliation (unlike the
+# tasks.md/CRLF handling elsewhere in this file, which predates it).
+#
+# Mirrors amendment_section_bounds in the Bash twin: returns @(start, end)
+# (0-based, inclusive -- PowerShell array convention, unlike the Bash
+# twin's 1-based line numbers) for the FIRST line reading exactly
+# "## Amendment Re-Review Context" in $Lines, or $null if absent.
+function Get-AmendmentSectionBounds([string[]]$Lines) {
+    $start = -1
+    for ($i = 0; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -ceq "## Amendment Re-Review Context") { $start = $i; break }
+    }
+    if ($start -lt 0) { return $null }
+    $end = $Lines.Count - 1
+    for ($i = $start + 1; $i -lt $Lines.Count; $i++) {
+        if ($Lines[$i] -clike "## *") { $end = $i - 1; break }
+    }
+    return @($start, $end)
+}
+# Case-sensitive, ordered, exact array equality -- used everywhere below
+# instead of Compare-Object so a length mismatch and a content mismatch are
+# both a plain $false, with no SideIndicator bookkeeping to misread.
+function Test-LineArraysEqual([string[]]$A, [string[]]$B) {
+    if ($A.Count -ne $B.Count) { return $false }
+    for ($i = 0; $i -lt $A.Count; $i++) {
+        if ($A[$i] -cne $B[$i]) { return $false }
+    }
+    return $true
+}
+# Mirrors investigation_growth_only_change in the Bash twin exactly --
+# verifies the ONLY difference between $PinnedLines and $LiveLines is pure,
+# contiguous growth confined to the "## Amendment Re-Review Context"
+# section as computed on $LiveLines. See the Bash function's own comments
+# for the full (1)-(4) reasoning (prefix identity, growth-only /
+# no-mutation section body, EOF-only creation, suffix identity); this is
+# the same logic in 0-based form.
+function Test-InvestigationGrowthOnlyChange([string[]]$PinnedLines, [string[]]$LiveLines) {
+    $liveBounds = Get-AmendmentSectionBounds $LiveLines
+    if ($null -eq $liveBounds) { return $false }
+    $liveStart = $liveBounds[0]
+    $liveEnd = $liveBounds[1]
+    $liveTotal = $LiveLines.Count
+    $pinnedTotal = $PinnedLines.Count
+
+    $pinnedBounds = Get-AmendmentSectionBounds $PinnedLines
+    if ($null -ne $pinnedBounds) {
+        $pinnedStart = $pinnedBounds[0]
+        $pinnedEnd = $pinnedBounds[1]
+        # Sanity check, made explicit rather than left implicit in the
+        # prefix comparison: the section must start at the same absolute
+        # line in both files.
+        if ($pinnedStart -ne $liveStart) { return $false }
+        if ($liveStart -gt 0) {
+            if (-not (Test-LineArraysEqual $PinnedLines[0..($liveStart - 1)] $LiveLines[0..($liveStart - 1)])) {
+                return $false
+            }
+        }
+    } else {
+        # No fixed offset to compare against: the heading's live position is
+        # unconstrained beyond "strictly after all of pinned's own content"
+        # (a conventional blank-line separator before a brand-new heading
+        # is itself new content, with nothing pinned to compare it
+        # against), so the prefix check here compares ALL of pinned against
+        # live's own first $pinnedTotal lines, not a window sized by
+        # $liveStart.
+        if ($liveStart -lt $pinnedTotal) { return $false }
+        if ($pinnedTotal -gt 0) {
+            if (-not (Test-LineArraysEqual $PinnedLines[0..($pinnedTotal - 1)] $LiveLines[0..($pinnedTotal - 1)])) {
+                return $false
+            }
+        }
+        # Created-at-EOF requirement, literal: the section must reach the
+        # live file's own last line -- a brand-new section spliced ahead of
+        # pre-existing trailing content is rejected even though it would
+        # still pass a bare prefix/suffix-identity check.
+        if ($liveEnd -ne ($liveTotal - 1)) { return $false }
+    }
+
+    if ($null -ne $pinnedBounds) {
+        $pinnedStart = $pinnedBounds[0]
+        $pinnedEnd = $pinnedBounds[1]
+        $pinnedSectionLen = $pinnedEnd - $pinnedStart + 1
+        $liveSectionLen = $liveEnd - $liveStart + 1
+        if ($liveSectionLen -lt $pinnedSectionLen) { return $false }
+        $pinnedSection = $PinnedLines[$pinnedStart..$pinnedEnd]
+        $liveSectionHead = $LiveLines[$liveStart..($liveStart + $pinnedSectionLen - 1)]
+        if (-not (Test-LineArraysEqual $pinnedSection $liveSectionHead)) { return $false }
+
+        $pinnedAfter = $pinnedTotal - 1 - $pinnedEnd
+        $liveAfter = $liveTotal - 1 - $liveEnd
+        if ($pinnedAfter -gt 0 -or $liveAfter -gt 0) {
+            if ($pinnedAfter -ne $liveAfter) { return $false }
+            if ($pinnedAfter -gt 0) {
+                $pinnedSuffix = $PinnedLines[($pinnedEnd + 1)..($pinnedTotal - 1)]
+                $liveSuffix = $LiveLines[($liveEnd + 1)..($liveTotal - 1)]
+                if (-not (Test-LineArraysEqual $pinnedSuffix $liveSuffix)) { return $false }
+            }
+        }
+    }
+    return $true
+}
+# Mirrors resolve_verified_investigation_pin in the Bash twin: resolves the
+# pinned bytes of specs/<feature>/investigation.md at $Contract's
+# introducing commit (Get-PluginsPinCommit/Get-PluginsHashAtPin -- the SAME
+# machinery plugins/ reference docs use, reused rather than duplicated) and
+# writes them to $OutFile. Returns $true only after independently
+# re-verifying the written bytes' own sha256 equals $Expected -- a forged
+# pin, an ambiguous introducing commit, or an unreconstructable history all
+# fail here with nothing written that the caller could diff against.
+function Resolve-VerifiedInvestigationPin([string]$Contract, [string]$Expected, [string]$Relative, [string]$OutFile) {
+    $pin = Get-PluginsPinCommit $Contract
+    if (-not $pin) { return $false }
+    $historical = Get-PluginsHashAtPin $pin $Relative
+    if ($historical -ne $Expected) { return $false }
+    & git -C $ScriptRoot show "${pin}:${Relative}" > $OutFile 2>$null
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return (Get-Sha256 $OutFile) -eq $Expected
+}
+# Mirrors investigation_amendment_reconciles in the Bash twin: the
+# top-level entry point, applied uniformly to every stage (spec/impl/task)
+# since investigation.md is an allowed input for all three and the
+# oscillation is structurally identical regardless of which stage's pin
+# went stale.
+function Test-InvestigationAmendmentReconciles([string]$ManifestFile, [string]$Expected, [string]$Contract) {
+    $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $ManifestFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
+    $relative = $ManifestFile.Substring($prefix.Length).Replace("\", "/")
+    $tempFile = [IO.Path]::GetTempFileName()
+    try {
+        if (-not (Resolve-VerifiedInvestigationPin $Contract $Expected $relative $tempFile)) { return $false }
+        $pinnedLines = @(Get-Content -LiteralPath $tempFile)
+        $liveLines = @(Get-Content -LiteralPath $ManifestFile)
+        return Test-InvestigationGrowthOnlyChange $pinnedLines $liveLines
+    } finally {
+        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+    }
+}
+# Visible notice, not a silent pass: names the file, both hashes, and that
+# the delta is confined to amendment-record growth.
+function Write-InvestigationAmendmentNotice([string]$Feature, [string]$Stage, [string]$Suffix, [string]$Recorded, [string]$Current) {
+    [Console]::Error.WriteLine(
+        "workflow-state: ${Feature}: stage-provenance-tolerated: ${Suffix} (${Stage} stage) recorded ${Recorded}, now ${Current} (amendment-record growth only)")
+}
+
 function Get-NormalizedHash([string]$Path, [string]$Stage) {
     $text = [IO.File]::ReadAllText($Path)
     switch ($Stage) {
@@ -919,6 +1086,24 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             if ($manifestRelative -like "plugins/*") {
                 if (-not (Test-PluginsHashMatches $manifestFile ([string]$item.sha256) $contractPath)) {
                     Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                }
+            } elseif ($manifestRelative -eq "specs/$Feature/investigation.md") {
+                # Tolerated STANDALONE (no --opening needed): the amendment
+                # re-review lane's own oscillation, where a downstream
+                # stage's recovery grows this file's
+                # "## Amendment Re-Review Context" section after an
+                # upstream stage already pinned it. Tried first; falls
+                # through to the ordinary --opening-based tolerance (and,
+                # if that does not apply either, the original diagnostic)
+                # when the live change is not pure, section-confined growth
+                # over independently-verified historical bytes.
+                $currentHash = Get-Sha256 $manifestFile
+                if ($currentHash -ne [string]$item.sha256) {
+                    if (Test-InvestigationAmendmentReconciles $manifestFile ([string]$item.sha256) $contractPath) {
+                        Write-InvestigationAmendmentNotice $Feature $Stage $manifestRelative ([string]$item.sha256) $currentHash
+                    } else {
+                        Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                    }
                 }
             } elseif ((Get-Sha256 $manifestFile) -ne [string]$item.sha256) {
                 Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
