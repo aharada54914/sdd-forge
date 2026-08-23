@@ -1,0 +1,66 @@
+{
+ "schema": "review-context-invocation/v2",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "risk-adaptive-layer",
+ "task_id": "T-012",
+ "run_id": "RUN-risk-adaptive-layer-qg-T-012-seq0831",
+ "host_session_id": "SESS-qg-risk-adaptive-layer-T-012-0831",
+ "sequence": 831,
+ "previous_record_sha256": "c166f30d5f3cd75c005cf146413ed5cdd7744fa60d99b0056a68b509ec590cc8",
+ "identity_ledger_path": "reports/review-context/identity-ledger.json",
+ "identity_ledger_sha256": "8154044cc6b8d397357aafa4a25f86ba5955500534c296fbb3b97cae7d520522",
+ "input_mode": "file-manifest",
+ "fallback_mode": "none",
+ "read_only": true,
+ "allowed_input_manifest": [
+  {
+   "path": "specs/risk-adaptive-layer/requirements.md",
+   "sha256": "6eeaa30e8c8348a8bb8e0f08c45ce3b7df0ee0725729a9adcf7438971542e7f0"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/design.md",
+   "sha256": "38b39607eda436d25f72748cd3df99db254c7070d15452702084b7958ff7f3ca"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+   "sha256": "bebcc8b7222d27dba533ced804898a6829f297cfff208013e807826e10201a73"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/tasks.md",
+   "sha256": "028232492079a2d654b3be296582dc5bf64aa376af0830d18ad678f020e848b5"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/traceability.md",
+   "sha256": "218b70f1877464b31834dad19558f7085cc30489ce49daa51fa448831677f6de"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+   "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+  },
+  {
+   "path": "reports/implementation/risk-adaptive-layer/T-012.md",
+   "sha256": "3b83f31ad8ce5632f07d9e5cc03450d3b0fd57e1070d8b5eb72155bd45d68f5d"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+   "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+  },
+  {
+   "path": "plugins/sdd-quality-loop/scripts/check-contract.sh",
+   "sha256": "fc3a081d4e584ac13e4e09821815b8a14ca637e214fc70b8d470aff1bfecb416"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/verification/T-012.green.log",
+   "sha256": "40f4138bc0f7a978ad244ea84a4f4ccd84b630b9b2324578be22f214d9d470eb"
+  },
+  {
+   "path": "specs/risk-adaptive-layer/verification/T-012.red.log",
+   "sha256": "f64bb977504f45ab3130e4c14b3910db34008035a7110b6f0b5d070c68faf576"
+  }
+ ],
+ "gate_report_declaration": {
+  "path": "reports/quality-gate/20260821T073000Z.md",
+  "sha256": "44b49bbbf2e1b00e409f2fa45250e5fc33167ba5d46476678a5a4411e038cc82"
+ }
+}

@@ -1,0 +1,29 @@
+--- a/specs/risk-adaptive-layer/design.md
++++ b/specs/risk-adaptive-layer/design.md
+@@ -229,7 +229,7 @@
+ - References (new): `risk-classification-policy.md`, `risk-gate-matrix.md`. (changed): `spec-id-rules.md`, `test-policy.md`, `deterministic-check-policy.md`, `verification-policy.md`, `sudo-mode-policy.md`.
+ - Scripts (new): `check-risk.{sh,ps1}`, `check-traceability.{sh,ps1}`. (changed): `check-contract.{sh,ps1}`, `generate-evidence-bundle.{sh,ps1}`, `check-evidence-bundle.{sh,ps1}`, `check-task-state.{sh,ps1}`, `sdd-hook-guard.{py,sh,ps1,js}` (second-approval guard).
+ - Skills: `sdd-bootstrap-interviewer/SKILL.md` (+`references/phase-quality-gates.md`), `quality-gate/SKILL.md`, `implement-task/SKILL.md`.
+-- CI/docs: `.github/rulesets/main.json`, `CODEOWNERS`, `.github/workflows/{test,release,self-improvement}.yml`, `docs/THREAT-MODEL.md`, `docs/agent-capability-matrix.md`, `docs/workflow-guide.md`, `.codex/agents/*.toml` (model routing).
++- CI/docs: `.github/rulesets/main.json`, `CODEOWNERS`, `.github/workflows/{test,release,self-improvement}.yml`, `docs/THREAT-MODEL.md`, `docs/agent-capability-matrix.md`, `docs/workflow-guide.md`. (`.codex/agents/*.toml` intentionally NOT changed: model routing is a runtime control per capability-matrix M-04 — RT-20260821-002 residual, reconciled 2026-08-23.)
+ - Tests: `tests/gates.tests.sh`, `tests/scripts.tests.ps1`, `tests/guards.tests.sh`, `tests/hooks.tests.ps1`, `tests/eval.tests.sh`.
+ 
+ ## Assumptions
+--- a/specs/risk-adaptive-layer/tasks.md
++++ b/specs/risk-adaptive-layer/tasks.md
+@@ -311,8 +311,13 @@
+ ### Goal
+ Author `docs/THREAT-MODEL.md` (consolidate sudo/kill-switch/install/risk-layer
+ threats, trust assumptions, mitigations) and `docs/agent-capability-matrix.md`
+-(per-agent tool scopes). Add `model` / reasoning routing to `.codex/agents/sdd-investigator.toml`
+-and `sdd-evaluator.toml` (cost-aware: cheap for investigate, stronger for evaluate).
++(per-agent tool scopes). Document cost-aware `model` / reasoning routing for
++`.codex/agents/sdd-investigator.toml` and `sdd-evaluator.toml` as a RUNTIME
++control (`--model`/`--effort` at invocation, capability-matrix M-04; cheap for
++investigate, stronger for evaluate). The role toml files intentionally carry no
++`model` key (unconfirmed schema key → "malformed agent role" reject risk;
++RT-20260821-002 residual, reconciled 2026-08-23 — cycle-1's census missed this
++Goal line, measured in reports/quality-gate/20260823T090000Z.md).
+ 
+ ### Must Read
+ - specs/risk-adaptive-layer/design.md (§Security)
