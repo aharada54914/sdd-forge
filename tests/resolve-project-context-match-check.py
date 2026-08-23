@@ -57,6 +57,7 @@ convention already treats "recompute the expected shape via the real,
 unmodified producer" as the correct oracle technique.
 """
 
+import copy
 import hashlib
 import importlib.util
 import json
@@ -719,6 +720,38 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
             "capability_minimum_enforcement" not in track_artifact,
             f"{case_name}: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)",
             repr(track_artifact.get("capability_minimum_enforcement")),
+        )
+        # T-005 confirmation-panel Major (2026-08-24, Anthropic v3): the
+        # exclusion assertion above only proves the field is correctly
+        # omitted when NO matched Capability declares `minimum_
+        # enforcement` -- it cannot discriminate an implementation that
+        # unconditionally omits the field regardless of input (the
+        # positive branch was untested everywhere in this suite once
+        # cap-beta's own declaration moved to the unmatched cap-gamma).
+        # Re-assemble the Facet Manifest against a `registry_document`
+        # variant where cap-alpha (genuinely MATCHED -- `cap_alpha_
+        # matched` above) also declares `minimum_enforcement: "required"`,
+        # holding every other input (`affected_components`,
+        # `capability_evaluations`, `context_binding`, `resolver_block`)
+        # byte-identical to the real pipeline run above: a correct
+        # implementation must now surface the field, and this is
+        # independent of the exclusion case (cap-gamma stays unmatched
+        # and undeclared-on-any-matched-Capability in the un-mutated
+        # `registry_document` the exclusion assertion itself reads).
+        registry_with_matched_enforcement = copy.deepcopy(registry_document)
+        cap_alpha_variant = next(
+            c for c in registry_with_matched_enforcement["capabilities"] if c["id"] == "cap-alpha"
+        )
+        cap_alpha_variant["minimum_enforcement"] = "required"
+        track_artifact_matched_enforcement = resolver_module._assemble_facet_manifest(
+            "example-feature", affected_components, registry_with_matched_enforcement,
+            evidence["capability_evaluations"], context_binding, resolver_block,
+        )
+        counts.check(
+            track_artifact_matched_enforcement.get("capability_minimum_enforcement") == "required",
+            f"{case_name}: capability_minimum_enforcement, cap-alpha's own MATCHED 'required' correctly "
+            f"surfaces (AC-007, de-confounds the omission direction from the exclusion assertion above)",
+            repr(track_artifact_matched_enforcement.get("capability_minimum_enforcement")),
         )
         counts.check(
             track_artifact["lite_eligibility"] == {"eligible": False, "upgrade_reasons": ["pii"]},

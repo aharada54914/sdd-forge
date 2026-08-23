@@ -1,3 +1,4 @@
+# runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
 PASS: disabled-legacy-invocation: exact Resolver Evidence
@@ -136,6 +137,7 @@ PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present a
 PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
 PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
 PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
 PASS: registry-swapped-during-validation: exit 1
 PASS: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5)
 PASS: registry-swapped-during-validation: exact Resolver Evidence
@@ -185,6 +187,16 @@ PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic
 PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
 PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exit 1
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
 PASS: recheck-dependency-failed: exit 1
 PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
 PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
@@ -203,4 +215,4 @@ PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _dr
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 205 passed, 0 failed
+RESULT: 216 passed, 0 failed

@@ -1,0 +1,53 @@
+Retained mutation-kill evidence for the _draft7_conforms_or_raise ref-
+resolution catch (T-004 confirmation-panel bookkeeping-lag delta, OpenAI
+v3 Major 3): a governing schema whose own $ref names a definition that
+does not exist previously escaped step 12 self-validation as an uncaught
+KeyError traceback.
+
+Mutation: _draft7_conforms_or_raise in the STAGED resolve-project-context.py
+rewritten to 'return _draft7_conforms(instance, schema)' unconditionally,
+dropping its own try/except entirely.
+
+Technique: full-subtree cp scratch copy of this worktree (never the real
+worktree); mutation applied only inside the scratch copy's own STAGED source;
+run via 'python3 tests/resolve-project-context-block-check.py --launcher sh'
+from inside the scratch copy.
+
+Result: RESULT: 213 passed, 3 failed -- exactly the three
+contract-discovery-failed-governing-schema-malformed-ref assertions
+('canonical diagnostic line present and last on stderr (B5)', 'exact Resolver
+Evidence', 'Resolver Evidence schema agreement') fail, and the captured
+stderr shows a genuine raw traceback ending 'KeyError:
+'sha256DigestMissingDefinition'', tracing through _draft7_resolve_ref ->
+_draft7_validate -> _draft7_conforms -> _draft7_conforms_or_raise ->
+_self_validate_output, confirming context_binding.full_context_revision's
+own $ref is genuinely reached (never a dead branch) and the mutant makes
+the exception escape uncaught exactly as intended. The fixture's own
+'exit 1' and 'no partial live artifact' assertions still pass, so only the
+three B5/Evidence-shape assertions discriminate -- no collateral elsewhere
+in the suite (216 - 3 = 213).
+
+Full driver output (tail) follows.
+
+----------------------------------------------------------------------
+
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 213 passed, 3 failed

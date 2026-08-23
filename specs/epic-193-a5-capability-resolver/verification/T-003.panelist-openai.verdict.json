@@ -3,24 +3,29 @@
   "task_id": "T-003",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.6-sol",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_evaluate_capabilities/main steps 7-9",
-      "note": "When a WARN is collected and a later predicate evaluation aborts, the resulting Evidence contains severity:\"warn\" entries with id dsl-warn-on-matched-capability but no severity:\"block\" summary for that id. REQ-004 and AC-056 explicitly prohibit WARN-only occurrences and require exactly one block summary whenever any WARN node exists."
+      "ref": "resolve-project-context.py:_evaluate_capabilities",
+      "note": "A capability entry is appended only after all of its trigger and conditional-facet evaluations finish. If a dependency fails midway through that capability, evaluations already performed for it disappear from the Resolver Evidence, contrary to REQ-004's requirement to record every evaluation actually performed. The failure-after-WARN fixture only fails in a later capability and does not cover this partial-current-capability case."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_evaluate_capabilities and tests/resolve-project-context-block-check.py:evaluate-predicate-failure-after-warn",
-      "note": "A dependency failure partway through evaluation writes a semantically incomplete capability_evaluations array: the current or remaining Registry Capabilities are omitted because entries are appended only after completing a Capability. This conflicts with REQ-004's exact Registry-capability-set binding; the fixture validates only JSON-schema shape and therefore accepts Evidence that the specified semantic validator would reject."
+      "ref": "resolve-project-context.py:main steps 7-8 exception handlers",
+      "note": "The three evaluation-abort handlers deliberately discard warn_diagnostics already encountered. This conflicts with REQ-004's requirement that diagnostics record every diagnostic-worthy condition encountered, not only the fatal condition; the implementation avoids a warn-only diagnostic ID by omitting known WARNs entirely."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/T-003.contract.json comment",
+      "note": "The verification contract retains a stale claim that the current staged resolver hash is f6bc6796..., while the bundled MANIFEST and declared output identify aaf23df2.... Later report text supersedes other historical values, but the contract's own current-hash statement remains internally inconsistent."
     }
   ],
   "blind": true,
-  "input_digest": "94e133ca37682b2bb362f84f3d8a3d8c2b5fc97b466632a7323750fcfb145e91",
+  "input_digest": "b1a2186afb38ccc3bc186f14ccacc110c65a757d25cedd78c9476fd2bc7ebf03",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo 2026-08-08T16:04:17Z"
+    "ref": "T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

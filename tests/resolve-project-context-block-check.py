@@ -331,6 +331,8 @@ ALL_CASE_NAMES = (
         "contract-discovery-failed-governing-schema",
         "contract-discovery-failed-governing-schema-wrong-version",
         "contract-discovery-failed-governing-schema-malformed",
+        "contract-discovery-failed-governing-schema-invalid-utf8",
+        "contract-discovery-failed-governing-schema-malformed-ref",
         "recheck-dependency-failed",
         "registry-swapped-during-validation",
         "registry-discovery-syntax-error",
@@ -764,8 +766,19 @@ def run_t003_case(kind, case_name, counts):
         else:
             raise AssertionError(f"unknown T-003 case: {case_name}")
 
+        # T-003 confirmation-panel Minor (Anthropic v3): `dsl-warn-
+        # unsorted-affected-components` is the one T-003 fixture whose own
+        # `resolve-component-paths` stub already ignores its argv content
+        # (module docstring, that fixture's own stub), so wiring THIS case
+        # to supply `include_untracked=True` exercises the SUPPLIED half
+        # of AC-004's pass-through claim (asserted below via that stub's
+        # own `rcp-argv-capture.json`) without perturbing any other
+        # case's own `include_untracked=False` (every pre-existing
+        # caller's own byte-identical argv, per `t003_resolver_argv`'s own
+        # docstring).
+        include_untracked = case_name == "dsl-warn-unsorted-affected-components"
         result = subprocess.run(
-            t003_resolver_argv(kind, scripts, base_oid, target_oid),
+            t003_resolver_argv(kind, scripts, base_oid, target_oid, include_untracked=include_untracked),
             cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
         )
         stdout = result.stdout.decode("utf-8", errors="replace")
@@ -854,6 +867,34 @@ def run_t003_case(kind, case_name, counts):
         check_evidence_schema(counts, evidence_path, case_name)
         unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
         counts.check(unchanged, f"{case_name}: no partial live artifact")
+
+        if case_name == "dsl-warn-unsorted-affected-components":
+            # AC-004 SUPPLIED-half pass-through (T-003 confirmation-panel
+            # Minor, Anthropic v3): this fixture's own `resolve-component-
+            # paths` stub records its own received argv verbatim to
+            # `rcp-argv-capture.json` (that stub's own module docstring).
+            # A resolver-side mutant that filters `--include-untracked`
+            # out of every downstream argv, or synthesizes a bespoke
+            # `--no-include-untracked` in its place, would leave this
+            # capture missing the flag or carrying the wrong one.
+            rcp_capture_path = scripts / "rcp-argv-capture.json"
+            rcp_argv, rcp_parse_error = read_evidence(rcp_capture_path)
+            expected_rcp_argv = [
+                "--config", "project-context.yaml",
+                "--source-rev", base_oid,
+                "--target-rev", target_oid,
+                "--include-untracked",
+                "--json",
+            ]
+            counts.check(
+                rcp_argv == expected_rcp_argv,
+                f"{case_name}: resolve-component-paths invoked with --include-untracked forwarded verbatim, "
+                f"in its own CLI-contract position (immediately before --json, design.md API/Contract Plan "
+                f"step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half "
+                f"of AC-004's pass-through claim, now covered by T-003's own suite (previously only "
+                f"T-005's resolve-project-context-match-check.py)",
+                rcp_parse_error or repr(rcp_argv),
+            )
 
 
 # --- T-004 (steps 10-13) additions ------------------------------------------
@@ -972,6 +1013,56 @@ def run_t004_case(kind, case_name, counts):
             expected_detail = (
                 "governing output schema discovery failed: resolver-evidence.schema.json "
                 "could not be read or parsed (JSONDecodeError)"
+            )
+        elif case_name == "contract-discovery-failed-governing-schema-invalid-utf8":
+            # T-004 confirmation-panel bookkeeping-lag delta (OpenAI v3
+            # Major 3): `_load_governing_schema`'s own `except (OSError,
+            # json.JSONDecodeError)` previously let a genuinely invalid-
+            # UTF-8 governing schema file escape uncaught -- `json.load`
+            # raises `UnicodeDecodeError` (a `ValueError` subclass, not an
+            # `OSError`/`JSONDecodeError`) while consuming the open
+            # text-mode handle, before any JSON parsing is even attempted.
+            # This fixture's own `contracts/resolver-evidence.schema.json`
+            # override is byte-identical to the real schema except for one
+            # deliberately invalid UTF-8 byte sequence (a lone continuation
+            # byte, `\\xff\\x80`) inserted into the `title` string value --
+            # confirmed genuinely invalid UTF-8 at fixture-authoring time
+            # (`bytes.decode("utf-8")` raises `UnicodeDecodeError` on it
+            # directly). The expected detail asserts the exception's own
+            # CLASS NAME only, matching the identical no-raw-text
+            # discipline the `-malformed` fixture above already
+            # established.
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "governing output schema discovery failed: resolver-evidence.schema.json "
+                "could not be read or parsed (UnicodeDecodeError)"
+            )
+        elif case_name == "contract-discovery-failed-governing-schema-malformed-ref":
+            # T-004 confirmation-panel bookkeeping-lag delta (OpenAI v3
+            # Major 3): `_draft7_resolve_ref` walks a `$ref`'s own fragment
+            # path directly against `root_schema` with no existence guard
+            # -- a `$ref` naming a definition the schema's own
+            # `definitions` block never declares previously escaped
+            # `_self_validate_output` as an uncaught `KeyError`, a raw
+            # traceback rather than the canonical `contract-discovery-
+            # failed` Block REQ-002 requires. This fixture's own
+            # `contracts/resolver-evidence.schema.json` override is
+            # otherwise byte-identical to the real schema (genuinely
+            # discoverable, correct `$schema`/`$id`, valid UTF-8/JSON) --
+            # only `properties.context_binding.properties.
+            # full_context_revision`'s own `$ref` is renamed to
+            # `#/definitions/sha256DigestMissingDefinition`, a name
+            # `definitions` never declares. `context_binding` is always
+            # populated (all five required sub-fields, including
+            # `full_context_revision`) by the time step 12 runs (T-004's
+            # own "late Blocks drop provenance" fix), so this `$ref` is
+            # genuinely reached during a normal step-12 self-validation of
+            # this fixture's own otherwise-successful Evidence, never a
+            # dead branch.
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "governing output schema discovery failed: resolver-evidence.schema.json "
+                "contains a malformed $ref (KeyError)"
             )
         elif case_name == "recheck-dependency-failed":
             # Fourth Pass finding, tested rather than left as a "no fixture
@@ -1750,6 +1841,8 @@ def main():
             "contract-discovery-failed-governing-schema",
             "contract-discovery-failed-governing-schema-wrong-version",
             "contract-discovery-failed-governing-schema-malformed",
+            "contract-discovery-failed-governing-schema-invalid-utf8",
+            "contract-discovery-failed-governing-schema-malformed-ref",
             "recheck-dependency-failed",
         ):
             run_t004_case(args.launcher, case_name, counts)

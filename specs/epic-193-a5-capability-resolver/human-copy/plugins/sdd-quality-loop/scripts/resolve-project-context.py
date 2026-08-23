@@ -1268,7 +1268,7 @@ def _load_governing_schema(script_dir, repo_root, filename):
     try:
         with path.open("r", encoding="utf-8") as handle:
             document = json.load(handle)
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
         # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
         # panelist): the raw exception text (an absolute path, errno
         # wording, OS-specific phrasing) must never be interpolated into a
@@ -1276,13 +1276,49 @@ def _load_governing_schema(script_dir, repo_root, filename):
         # AC-014's own canonical-sentence rule and security-spec.md B5's
         # no-local-path containment. Only the exception's own CLASS NAME
         # (a fixed, stable, cross-runtime-identical token, e.g. "OSError"/
-        # "JSONDecodeError") is included, never `str(exc)`.
+        # "JSONDecodeError") is included, never `str(exc)`. `UnicodeDecode
+        # Error` (T-004 confirmation-panel bookkeeping-lag delta, OpenAI
+        # v3 Major 3): a governing schema file containing invalid UTF-8
+        # bytes previously escaped this handler entirely -- `json.load`
+        # raises `UnicodeDecodeError` (a `ValueError` subclass, not an
+        # `OSError`/`JSONDecodeError`) while consuming the open text-mode
+        # handle, and would surface as a raw, uncaught traceback rather
+        # than the canonical `contract-discovery-failed` Block REQ-002
+        # requires for every governing-schema-handling failure.
         raise ContractDiscoveryFailed(
             f"{filename} could not be read or parsed ({type(exc).__name__})"
         ) from exc
     if not _governing_schema_version_ok(document, filename):
         raise ContractDiscoveryFailed(f"{filename} failed its own $schema/$id version check")
     return document
+
+
+def _draft7_conforms_or_raise(instance, schema, filename):
+    """Wraps `_draft7_conforms` so a MALFORMED governing schema document
+    (never the instance under validation) cannot escape as a raw,
+    uncaught traceback (T-004 confirmation-panel bookkeeping-lag delta,
+    OpenAI v3 Major 3): `_draft7_resolve_ref` walks a `$ref`'s own
+    fragment path directly against `root_schema` with no existence/type
+    guard, so a `$ref` naming a definition the schema's own `definitions`
+    block never declares raises `KeyError` (or `TypeError`/`IndexError` if
+    an intermediate node is not a dict/list at all), and a `$ref` that is
+    not itself a string raises `AttributeError` from its own leading
+    `.startswith` check; `_draft7_resolve_ref`'s own explicit
+    non-fragment guard raises `ValueError`. Every one of these is a
+    property of the malformed governing SCHEMA document, not the instance
+    -- reclassified here as `ContractDiscoveryFailed`, matching every
+    other `_load_governing_schema`-adjacent failure this same function's
+    caller already funnels into the identical `contract-discovery-failed`
+    id (REQ-002), never `OutputSchemaValidationFailed` (that id is
+    reserved for a well-formed schema the CORRECT instance still fails).
+    Only the exception's own CLASS NAME is included in the diagnostic,
+    matching `_load_governing_schema`'s own no-raw-text discipline."""
+    try:
+        return _draft7_conforms(instance, schema)
+    except (KeyError, TypeError, AttributeError, IndexError, ValueError) as exc:
+        raise ContractDiscoveryFailed(
+            f"{filename} contains a malformed $ref ({type(exc).__name__})"
+        ) from exc
 
 
 def _self_validate_output(script_dir, repo_root, evidence, context_projection, track_artifact, track_artifact_schema_filename, track_artifact_name):
@@ -1297,15 +1333,15 @@ def _self_validate_output(script_dir, repo_root, evidence, context_projection, t
     Resolver Evidence itself (already independently schema-valid) is still
     written normally as this Block's own record."""
     evidence_schema = _load_governing_schema(script_dir, repo_root, RESOLVER_EVIDENCE_SCHEMA_FILENAME)
-    if not _draft7_conforms(evidence, evidence_schema):
+    if not _draft7_conforms_or_raise(evidence, evidence_schema, RESOLVER_EVIDENCE_SCHEMA_FILENAME):
         raise OutputSchemaValidationFailed("resolver-evidence")
 
     projection_schema = _load_governing_schema(script_dir, repo_root, CONTEXT_PROJECTION_SCHEMA_FILENAME)
-    if not _draft7_conforms(context_projection, projection_schema):
+    if not _draft7_conforms_or_raise(context_projection, projection_schema, CONTEXT_PROJECTION_SCHEMA_FILENAME):
         raise OutputSchemaValidationFailed("context-projection")
 
     track_schema = _load_governing_schema(script_dir, repo_root, track_artifact_schema_filename)
-    if not _draft7_conforms(track_artifact, track_schema):
+    if not _draft7_conforms_or_raise(track_artifact, track_schema, track_artifact_schema_filename):
         raise OutputSchemaValidationFailed(track_artifact_name)
 
 

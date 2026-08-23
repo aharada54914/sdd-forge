@@ -1,4 +1,35 @@
-# runner: bash
+Retained mutation-kill evidence for the WHOLE-REGISTRY direction of this
+pass's own capability_minimum_enforcement de-confounding fix (T-005
+confirmation-panel Major, 2026-08-24, Anthropic v3): this is the same
+aggregation-scope defect class as MUT-7 (see mutation-kill-mut7-required-
+facets.log), applied to the capability_minimum_enforcement field itself.
+
+Mutation: _capability_minimum_enforcement in the STAGED resolve-project-
+context.py rewritten to iterate registry_document['capabilities'] (the
+WHOLE Registry) instead of filtering through matched_capability_ids,
+otherwise identical (still returns 'required' on the first Capability
+whose own minimum_enforcement == 'required', else None).
+
+Technique: full-subtree cp scratch copy of this worktree (never the real
+worktree); mutation applied only inside the scratch copy's own STAGED
+source; run via 'python3 tests/resolve-project-context-match-check.py
+--launcher sh' from inside the scratch copy.
+
+Result: RESULT: 112 passed, 1 failed -- the ONE failure is exactly the
+pre-existing exclusion assertion ('full-pipeline-match:
+capability_minimum_enforcement, cap-gamma's own 'required' excluded
+(AC-007)'), now reading 'required' instead of being absent, because
+cap-gamma (genuinely unmatched -- see the fixture's own 'cap_gamma_
+matched is False' sanity assertion) leaks in under whole-Registry
+aggregation. This pass's own new positive-branch assertion ('cap-alpha's
+own MATCHED 'required' correctly surfaces') still PASSES under this
+mutant, confirming the two assertions discriminate genuinely independent
+directions.
+
+Full driver output follows.
+
+----------------------------------------------------------------------
+
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
@@ -32,7 +63,7 @@ PASS: full-pipeline-match: affected_components is this fixture's own four indepe
 PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
 PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
 PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)
+FAIL: full-pipeline-match: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007): 'required'
 PASS: full-pipeline-match: capability_minimum_enforcement, cap-alpha's own MATCHED 'required' correctly surfaces (AC-007, de-confounds the omission direction from the exclusion assertion above)
 PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
@@ -112,4 +143,4 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 113 passed, 0 failed
+RESULT: 112 passed, 1 failed

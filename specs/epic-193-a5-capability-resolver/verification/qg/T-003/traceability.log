@@ -19,7 +19,7 @@ input and was not run) passed for T-003:
    TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2) -- unchanged
    from this log's own prior capture, re-confirmed directly.
  - Implemented: tests/resolve-project-context-block-check.py's own
-   ALL_CASE_NAMES tuple (line 308) and run_t003_case() function (line 477)
+   ALL_CASE_NAMES tuple (line 308) and run_t003_case() function (line 479)
    enumerate exactly T-003's own FIFTEEN fixtures (unchanged in count/
    identity since the confirmation-panel 2026-08-24 pass; this round-2
    pass edits fixture LOGIC/comments only, adds no new fixture) --
@@ -38,15 +38,23 @@ input and was not run) passed for T-003:
    from both tests/resolve-project-context-block.tests.sh and .ps1 (thin
    dispatchers onto the shared Python driver). Confirmed executed and
    passing in this same verification run: see focused-tests-sh.log /
-   focused-tests-ps1.log (205 passed, 0 failed, both runtimes -- the WHOLE
+   focused-tests-ps1.log (216 passed, 0 failed, both runtimes -- the WHOLE
    shared driver's own current total: T-002's steps 0-3, T-003's own
-   fifteen fixtures above (net +4 assertions this round: the general
-   canonical-diagnostic-line-present-and-last check plus 3 targeted
-   dependency-stderr-pass-through exact-equality checks, closing the B5/
-   REQ-005 Major -- see "## Confirmation-Panel Remediation (round 2)" in
+   fifteen fixtures above (net +1 assertion the bookkeeping-lag pass added:
+   the AC-004 SUPPLIED-half pass-through assertion wired into the
+   dsl-warn-unsorted-affected-components fixture, closing the Anthropic v3
+   Minor that no caller in this driver ever exercised
+   `include_untracked=True` -- see
    reports/implementation/epic-193-a5-capability-resolver/T-003.md), T-004's
-   own nine fixtures, and the draft7-validator-keywords /
-   draft7-keyword-coverage unit-style checks (8 assertions)).
+   own ELEVEN fixtures (nine above plus this delta's own two new
+   governing-schema-malformed-input fixtures -- see the live bullet in
+   traceability.log's own T-004 sibling for detail), and the
+   draft7-validator-keywords / draft7-keyword-coverage unit-style checks
+   (8 assertions)). Both
+   tests/resolve-project-context-block.tests.sh and .ps1 now also emit a
+   leading `# runner: bash` / `# runner: pwsh` marker line (recurring Minor
+   every round) -- present in this run's own captures but outside the
+   driver's own PASS/FAIL count.
  - Not independently re-verified in this pass: REQ-004/REQ-005/REQ-006/
    REQ-008's own OTHER task rows (T-001, T-002, T-004, etc.) -- those are
    shared REQ ids spanning multiple tasks' own scope, out of T-003's own
@@ -98,4 +106,25 @@ instead of repeating it. Also this round: `evaluate-predicate-failure-
 after-warn`'s own fixture comment/expected-shape reversed (Reversal 1,
 both vendors' confirmation-panel finding) -- see the live bullet above.
 
-TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 205 passed, 0 failed"
+Superseded 2026-08-24 bookkeeping-lag pass (a fresh two-vendor confirmation
+panel, Anthropic v3 Critical/Major, OpenAI v3 Minor): this pass FIXES the
+live "Implemented:" bullet's own count directly (206/0), the same
+discipline round-2 established, rather than appending a fifth paragraph
+that leaves the live bullet stale. The one substantive change this pass
+made to this driver's own T-003 scope is the AC-004 SUPPLIED-half
+pass-through assertion described in the live bullet above; T-003's own
+fixture identity/count (fifteen) and line numbers (ALL_CASE_NAMES 308,
+run_t003_case 477) are unchanged from round-2's own correction, confirmed
+by direct grep this pass rather than assumed carried-forward.
+
+Superseded 2026-08-24 governing-schema delta (unfroze-for-exactly-this,
+T-004 OpenAI v3 Major 3): the live "Implemented:" bullet's own count is
+fixed directly again (216/0), same discipline. This delta's own diff is
+entirely T-004-scope (`_load_governing_schema`'s new `UnicodeDecodeError`
+catch, the new `_draft7_conforms_or_raise` wrapper, two new T-004
+fixtures) -- T-003's own fixture identity/count (fifteen) is unchanged,
+but `run_t003_case`'s own line number shifted 477->479 (the two new
+`ALL_CASE_NAMES` tuple entries above it), corrected in the live bullet
+above, confirmed by direct grep this pass.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 216 passed, 0 failed"

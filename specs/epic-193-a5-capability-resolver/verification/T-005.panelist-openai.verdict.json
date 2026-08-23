@@ -8,29 +8,24 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Confirmation-Panel Remediation / REQ-006(g)",
-      "note": "The report explicitly leaves REQ-006(g)'s real zero-affected-component pipeline case incomplete: only a static Resolver-Evidence fixture covers empty trigger_evaluations, while no T-005 fixture verifies the required Facet Manifest result capabilities: []. T-005 owns REQ-006 items a-d/f/g, so this is an unmet task requirement."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Done When Self-Check / Specification Differences",
+      "note": "TEST-008 does not exercise the required written facet-manifest.yaml. Every full-pipeline fixture intentionally Blocks at step 13, and the test reconstructs the manifest by directly calling production assembly functions. The report itself marks pipeline correctness PARTIAL, so AC-008 and T-005's Done When are not satisfied."
     },
     {
       "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Confirmation-Panel Remediation / capability_minimum_enforcement; tests/resolve-project-context-match-check.py full-pipeline-match",
-      "note": "AC-007's capability_minimum_enforcement aggregation remains confounded by the fixture: a matched Capability already declares minimum_enforcement required, so implementations aggregating over matched Capabilities and implementations incorrectly aggregating over the entire Registry produce the same value. The report acknowledges this survivor; therefore the claimed field-assembly conformance is not independently demonstrated."
+      "ref": "AC-016 / reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Unresolved Items",
+      "note": "The advisory/required test compares published Resolver Evidence but does not byte-compare the Facet Manifest half of the required track-exclusive output set; it substitutes a function-signature structural proxy. The report explicitly leaves this AC-016 gap unresolved."
     },
     {
       "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Specification Differences item 2 and Done When Self-Check; AC-016/TEST-016",
-      "note": "The advisory/required test does not prove the specified byte-identical Full-track output set. It compares Block-path Resolver Evidence after excluding state and two context-binding hashes, while the Facet Manifest portion is represented only by a function-signature proxy rather than serialization and byte comparison of the assembled artifact. This materially weakens AC-016's stated output-byte-identity requirement."
-    },
-    {
-      "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-005.contract.json comment; verification/qg/T-005/focused-tests-{sh,ps1}.log",
-      "note": "The verification contract's current-evidence narrative still says the focused suites reproduced 98/0, while the bundled focused logs and final implementation report show 112/0. The evidence files pass, but the contract metadata is stale and internally inconsistent."
+      "ref": "REQ-006(g), AC-027 / reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Confirmation-Panel Remediation",
+      "note": "The required zero-affected-component real-pipeline case remains incomplete. A schema fixture checks empty trigger_evaluations, but no Resolver pipeline fixture verifies the required Facet Manifest result capabilities: []. The report explicitly records this half as unfixed even though T-005 owns REQ-006 item g."
     }
   ],
   "blind": true,
-  "input_digest": "c84c20be1bc1064db0ff40c6d46ccf8eb853ee3779a22a3f66c074eff50fbf0f",
+  "input_digest": "85d81a496ba380a90b532158db1cebb00fa2744b66fbd390de01a90c22f88635",
   "consent": {
     "kind": "sudo",
-    "ref": "T-005 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "sudo 2026-08-08T16:04:17Z"
   }
 }

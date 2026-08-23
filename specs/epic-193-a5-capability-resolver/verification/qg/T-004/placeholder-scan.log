@@ -10,3 +10,27 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # (reverted to prior clean bytes) and are not in this scan's own scope.
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-block.tests.sh tests/resolve-project-context-block.tests.ps1 tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py
+# bookkeeping-lag remediation pass (2026-08-24, ordering fix -- code/
+# fixtures first, then FREEZE, then evidence, then bookkeeping): T-004
+# shares this identical driver file (steps 10-13 sit inside it); re-scanned
+# after the AC-004 SUPPLIED-half pass-through assertion (T-003-scope
+# fixture, unaffected content) and the runtime-marker line added to both
+# wrapper scripts.
+Placeholder scan passed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/resolver-evidence.schema.json tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/resolver-evidence.schema.json tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/project-context.yaml
+# governing-schema delta (2026-08-24, unfroze-for-exactly-this, T-004
+# OpenAI v3 Major 3): closes the gap that _load_governing_schema/
+# _draft7_resolve_ref did not fully preserve the closed Block taxonomy --
+# UTF-8 decode failures and malformed $ref structures could previously
+# escape uncaught. New production code: UnicodeDecodeError added to
+# _load_governing_schema's own except tuple; new _draft7_conforms_or_raise
+# wrapper (KeyError/TypeError/AttributeError/IndexError/ValueError ->
+# contract-discovery-failed, class-name-only detail). Two new fixtures:
+# contract-discovery-failed-governing-schema-invalid-utf8,
+# -malformed-ref.
+Placeholder scan passed.
+Exit: 0

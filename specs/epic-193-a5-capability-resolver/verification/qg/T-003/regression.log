@@ -1,9 +1,12 @@
-Scoped regression evidence for T-003 (epic-193-a5-capability-resolver),
-re-run at current HEAD (217710a2 + this pass's own uncommitted cycle-3
-cross-model panel remediation diff) rather than trusted from a prior
-recording -- superseding the previously recorded capture (4f7fed00 +
-prior panel diff), which predates this pass's own two new fixtures and
-production fixes.
+Scoped regression evidence for T-003 (epic-193-a5-capability-resolver).
+This header previously self-dated to "current HEAD (217710a2 + ... cycle-3
+cross-model panel remediation diff)" while the file's own body had already
+grown past that point (the "Round-2" section below) -- a stale-header
+recurrence (bookkeeping-lag pass, Anthropic v3 Minor). The AUTHORITATIVE,
+most-recent capture is the "Bookkeeping-lag pass confirmation-panel
+remediation (2026-08-24)" section at the bottom of this file; every
+section above it (including this original header's own claim) is retained
+for historical continuity only, not current evidence.
 
 $ git diff --stat -- plugins/
 (empty)
@@ -147,5 +150,201 @@ repository, on either runtime -- both full sweeps match this
 repository's own documented standing baseline (sh: exactly 2 self-
 declared DESIGNED-RED; ps1: exactly 1, no PowerShell twin for
 deterministic-lane-selfcheck) exactly, no other suite failed.
+
+--- Bookkeeping-lag pass confirmation-panel remediation (2026-08-24) ----
+
+Re-run at current HEAD + this pass's own uncommitted diff: the AC-004
+SUPPLIED-half pass-through assertion wired into
+dsl-warn-unsorted-affected-components (T-003 scope), the
+capability_minimum_enforcement positive-branch assertion (T-005 scope),
+and the runtime-marker line added to all four wrapper scripts
+(resolve-project-context-block/match.tests.{sh,ps1}). Production code
+(resolve-project-context.py) is untouched this pass. Full
+tests/run-all.{sh,ps1} sweep re-run given the wrapper-script changes touch
+every captured suite's own output shape.
+
+$ git diff --stat -- plugins/
+(empty)
+Exit: 0
+
+$ git status --short -- plugins/
+(empty)
+Exit: 0
+
+$ git diff --check
+(empty -- no whitespace errors)
+Exit: 0
+
+$ python3 -m py_compile specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-match-check.py
+(no output)
+Exit: 0
+
+$ bash tests/resolve-project-context-block.tests.sh
+RESULT: 206 passed, 0 failed
+Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+RESULT: 206 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-match.tests.sh
+RESULT: 113 passed, 0 failed
+Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
+RESULT: 113 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite, incidental-breakage check
+PASS: 20
+FAIL: 0
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-block.tests.sh tests/resolve-project-context-block.tests.ps1 tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py
+Placeholder scan passed.
+Exit: 0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+Exit: 0
+(byte-identical to every prior pass's own capture -- resolve-project-
+context.py is unchanged this pass.)
+
+$ bash tests/run-all.sh   (full sweep, entire repository, no timeout)
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+Both self-declare DESIGNED-RED and match this repository's own documented
+standing baseline exactly. No suite beyond these two failed. Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (full sweep, entire repository, no timeout)
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Self-declares DESIGNED-RED, the identical pre-existing reason, matching
+this repository's own documented standing baseline exactly
+(deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all, the
+same pre-existing structural asymmetry the sh run's own two-suite
+enumeration already accounts for). No suite beyond this one failed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
+workflow-state: ok
+Exit: 0
+
+$ python3 plugins/sdd-quality-loop/scripts/check-contract.py specs/epic-193-a5-capability-resolver/verification/T-003.contract.json
+Verification contract passed for task T-003.
+Exit: 0
+
+Net: this pass's own diff introduces ZERO regressions anywhere in the
+repository, on either runtime -- both full sweeps match this repository's
+own documented standing baseline exactly (sh: exactly 2 self-declared
+DESIGNED-RED; ps1: exactly 1, no PowerShell twin for
+deterministic-lane-selfcheck) exactly, no other suite failed.
+
+regression: passes=true.
+
+--- Governing-schema delta (2026-08-24, unfroze-for-exactly-this) -------
+
+T-004 OpenAI v3 Major 3: `_load_governing_schema`/`_draft7_resolve_ref`
+gained a `UnicodeDecodeError` catch and a new `_draft7_conforms_or_raise`
+wrapper (malformed `$ref` -> `contract-discovery-failed`), with two new
+T-004 fixtures. The staged resolve-project-context.py itself changed for
+the first time in this whole session.
+
+$ git diff --stat -- plugins/
+(empty)
+Exit: 0
+
+$ git status --short -- plugins/
+(empty)
+Exit: 0
+
+$ git diff --check
+(empty -- no whitespace errors)
+Exit: 0
+
+$ python3 -m py_compile specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-match-check.py
+(no output)
+Exit: 0
+
+$ bash tests/resolve-project-context-block.tests.sh
+RESULT: 216 passed, 0 failed
+Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+RESULT: 216 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-match.tests.sh
+RESULT: 113 passed, 0 failed
+Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
+RESULT: 113 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolver-evidence-schema.tests.sh
+PASS: 20
+FAIL: 0
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/resolver-evidence.schema.json tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/resolver-evidence.schema.json tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/project-context.yaml
+Placeholder scan passed.
+Exit: 0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+Exit: 0
+(resolve-project-context.py's own entry changed this delta -- regenerated
+by procedure, shasum -a 256 over all four MANIFEST-listed paths from the
+human-copy root, same file list/order as the original; only that one
+entry's own hash differs from the prior capture.)
+
+$ bash tests/run-all.sh   (full sweep, entire repository, no timeout)
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+Both self-declare DESIGNED-RED and match this repository's own documented
+standing baseline exactly. No suite beyond these two failed. Exit: 0
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (full sweep, entire repository, no timeout)
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Self-declares DESIGNED-RED, the identical pre-existing reason, matching
+this repository's own documented standing baseline exactly
+(deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all, the
+same pre-existing structural asymmetry the sh run's own two-suite
+enumeration already accounts for). No suite beyond this one failed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
+workflow-state: ok
+Exit: 0
+
+$ python3 plugins/sdd-quality-loop/scripts/check-contract.py specs/epic-193-a5-capability-resolver/verification/T-003.contract.json
+Verification contract passed for task T-003.
+Exit: 0
+
+Net: this delta introduces ZERO regressions anywhere in the repository,
+on either runtime -- both full sweeps match this repository's own
+documented standing baseline exactly (sh: exactly 2 self-declared
+DESIGNED-RED; ps1: exactly 1, no PowerShell twin for
+deterministic-lane-selfcheck), no other suite failed. Both new
+governing-schema fixtures are registered and green within this same
+`tests/resolve-project-context-block` suite run inside the full sweep.
 
 regression: passes=true.

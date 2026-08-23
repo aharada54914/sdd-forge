@@ -82,6 +82,19 @@ against the CURRENT driver (never merely re-asserted from a prior log):
      this pass) -> the track_artifact failure branch of
      `_self_validate_output`, previously unexercised by any fixture in
      this driver (Anthropic T-004 Minor).
+ - Governing-schema delta (2026-08-24, unfroze-for-exactly-this, T-004
+   OpenAI v3 Major 3 -- `_load_governing_schema`/`_draft7_resolve_ref` did
+   not fully preserve the closed Block taxonomy):
+   - `_load_governing_schema`'s new `UnicodeDecodeError` branch (added to
+     its own `except` tuple alongside `OSError`/`json.JSONDecodeError`) ->
+     `contract-discovery-failed-governing-schema-invalid-utf8`
+     (run_t004_case, new this delta).
+   - The new `_draft7_conforms_or_raise` wrapper (`KeyError`/`TypeError`/
+     `AttributeError`/`IndexError`/`ValueError` from `_draft7_resolve_ref`
+     -> `contract-discovery-failed`, class-name-only detail, identical
+     no-raw-text discipline) ->
+     `contract-discovery-failed-governing-schema-malformed-ref`
+     (run_t004_case, new this delta).
 
 Bundle self-consistency (re-verified this pass, not assumed):
  - human-copy MANIFEST entry for `plugins/sdd-quality-loop/scripts/
@@ -131,4 +144,31 @@ driver this round, now at 205/0 (the round-2 dependency-stderr
 pass-through assertions, +4 over the 201 this trailer previously
 recorded).
 
-TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 205 passed, 0 failed"
+Bookkeeping-lag pass (2026-08-24, a fresh two-vendor confirmation panel;
+T-004's own Anthropic v3 slot returned this feature's first PASS, with
+prose-staleness Minors only): the reviewed driver's own current total is
+206 passed / 0 failed, both runtimes (net +1 over the 205 above -- the
+AC-004 SUPPLIED-half pass-through assertion this pass wired into T-003's
+own dsl-warn-unsorted-affected-components fixture; T-004's own nine
+fixtures and their own mapping are otherwise unchanged). Both
+tests/resolve-project-context-block.tests.sh and .ps1 now also emit a
+leading `# runner: bash` / `# runner: pwsh` marker line (recurring Minor
+every round), present in this run's own captures but outside the driver's
+own PASS/FAIL count.
+
+Governing-schema delta (2026-08-24, unfroze-for-exactly-this, T-004 OpenAI
+v3 Major 3): the reviewed driver's own current total is 216 passed / 0
+failed, both runtimes (net +10 over the 206 above -- two new fixtures,
+five assertions each, per the live mapping bullets above). T-004's own
+fixture count grows nine -> ELEVEN. The staged resolve-project-context.py
+itself changed for the first time since this task's own Fifth Pass:
+human-copy MANIFEST entry for `plugins/sdd-quality-loop/scripts/resolve-
+project-context.py` is now `437c861a5c0acd60429c64eb0b88954c964397ecf95
+227852cb75ac0a1b7cb84` (regenerated via `shasum -a 256` from the human-copy
+root this delta; `shasum -a 256 -c MANIFEST.sha256` reports 4/4 OK, exit
+0), superseding the `673e634a...` value the "Bundle self-consistency"
+paragraph above still cites (that paragraph is retained verbatim above as
+historical narrative for its own dated pass, not re-edited in place, per
+this log's own established discipline).
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 216 passed, 0 failed"

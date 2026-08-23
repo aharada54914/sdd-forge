@@ -3,17 +3,27 @@
   "task_id": "T-004",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "requirements.md AC-016 / reports/implementation/epic-193-a5-capability-resolver/T-004.md Confirmation-Panel Remediation",
-      "note": "AC-016 requires advisory and required invocations to be byte-identical except for Resolver Evidence.state, but context_binding.full_context_revision and projection_sha256 necessarily change because capability_enforcement is included in both hashed inputs. The implementation report explicitly confirms the criterion is unmet; the frozen requirement and implementation behavior must be reconciled before this task can pass."
+      "ref": "requirements.md AC-016; resolve-project-context.py main/_assemble_context_binding",
+      "note": "The advisory/required byte-identity criterion is unsatisfied and internally impossible as written. capability_enforcement is embedded in the canonical Project Context and Context Projection, so changing it necessarily changes full_context_revision and projection_sha256 in context_binding, not only Resolver Evidence.state. The implementation report explicitly acknowledges this unresolved conflict."
+    },
+    {
+      "severity": "Major",
+      "ref": "tasks.md T-004 Goal/Scope; resolve-project-context.py _write_evidence/_block",
+      "note": "T-004 promises a staged-only steps-10\u201313 implementation with no live-path writes before T-007 adds step 14, but every Block calls _write_evidence, which creates specs/<feature>, writes a temporary file, fsyncs it, and replaces the live resolver-evidence.yaml directly without the required journaled publication transaction."
+    },
+    {
+      "severity": "Major",
+      "ref": "resolve-project-context.py _load_governing_schema/_draft7_resolve_ref/_self_validate_output",
+      "note": "Governing-schema handling does not fully preserve the closed Block taxonomy. UTF-8 decoding failures are not caught by _load_governing_schema, and malformed internal $ref structures can raise uncaught KeyError/ValueError during validation, producing a traceback instead of contract-discovery-failed or output-schema-validation-failed with canonical evidence."
     }
   ],
   "blind": true,
-  "input_digest": "d156d0f925be87fb772a2e60411dd3de805214ea4c5216a575c28af5ac44caf3",
+  "input_digest": "03a089949827467fe41f4b1f23c3eb7c3f971e974409131bf62a8ebec7069029",
   "consent": {
     "kind": "sudo",
     "ref": "sudo 2026-08-08T16:04:17Z"

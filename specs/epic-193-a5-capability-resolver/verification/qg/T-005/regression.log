@@ -345,3 +345,43 @@ full-repo sweep). Result: `tests/resolve-project-context-match.tests.sh`/
 repository's own documented standing baseline exactly (sh: 2 self-
 declared DESIGNED-RED; ps1: 1) -- no suite outside those failed.
 regression: passes=true.
+
+--- Bookkeeping-lag pass confirmation-panel remediation (2026-08-24) ----
+
+Re-run and re-captured against the current tree, covering the
+`capability_minimum_enforcement` omission-direction fix (a second
+in-process `_assemble_facet_manifest` call in `full-pipeline-match`
+against a `registry_document` variant declaring `minimum_enforcement`
+on the genuinely MATCHED `cap-alpha`) and the runtime-marker line added
+to `tests/resolve-project-context-match.tests.{sh,ps1}`. This task's own
+production code (`resolve-project-context.py`) is untouched this pass.
+Full transcript (git diff/status/whitespace checks, py_compile, both
+focused suites both runtimes, full `tests/run-all.{sh,ps1}` sweeps,
+MANIFEST verification, check-task-state/check-workflow-state,
+check-contract.py) retained once, shared, at
+verification/qg/T-003/regression.log's own "Bookkeeping-lag pass
+confirmation-panel remediation" section (not duplicated here). Result:
+`tests/resolve-project-context-match.tests.sh`/`.ps1` both 113 passed, 0
+failed (net +1 over 112 -- the new positive-branch assertion); sh full
+sweep matches this repository's own documented standing baseline exactly
+(2 self-declared DESIGNED-RED, no suite outside those two); ps1 full
+sweep result recorded in that same shared section once captured. `python3
+plugins/sdd-quality-loop/scripts/check-contract.py
+specs/epic-193-a5-capability-resolver/verification/T-005.contract.json`:
+Verification contract passed for task T-005.
+regression: passes=true.
+
+--- Governing-schema delta (2026-08-24, unfroze-for-exactly-this) -------
+
+T-004 OpenAI v3 Major 3, T-004-scope only -- this task's own diff: none.
+Re-confirmed as a downstream, unaffected consumer since
+resolve-project-context.py itself changed for the first time this whole
+session: `bash tests/resolve-project-context-match.tests.sh` / `pwsh
+-File tests/resolve-project-context-match.tests.ps1`: 113 passed, 0
+failed, both runtimes -- byte-identical count and content to the
+bookkeeping-lag pass's own capture immediately above (this task's own
+suite exercises no governing-schema-malformed-input code path). Full
+transcript retained once, shared, at
+verification/qg/T-003/regression.log's own "Governing-schema delta"
+section.
+regression: passes=true.

@@ -9,3 +9,21 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # _resolved_gates dangling-reference comment.
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-block.tests.sh tests/resolve-project-context-block.tests.ps1 tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/resolve-component-paths.py
+# bookkeeping-lag remediation pass (2026-08-24, ordering fix -- code/
+# fixtures first, then FREEZE, then evidence, then bookkeeping): re-scanned
+# after wiring the AC-004 SUPPLIED-half pass-through assertion into this
+# fixture's own resolve-component-paths stub, and after the runtime-marker
+# line (# runner: bash / # runner: pwsh) added to both wrapper scripts.
+Placeholder scan passed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/resolver-evidence.schema.json tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/resolver-evidence.schema.json tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed-ref/project-context.yaml
+# governing-schema delta (2026-08-24, unfroze-for-exactly-this): re-scanned
+# after _load_governing_schema's new UnicodeDecodeError catch and the new
+# _draft7_conforms_or_raise wrapper (malformed $ref), plus the two new
+# T-004 fixtures this delta adds (T-003 shares this identical driver file,
+# steps 4-9 are T-004's own precondition).
+Placeholder scan passed.
+Exit: 0

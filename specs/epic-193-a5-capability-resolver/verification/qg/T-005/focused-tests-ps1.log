@@ -1,3 +1,4 @@
+# runner: pwsh
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
@@ -32,6 +33,7 @@ PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' exclud
 PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
 PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
 PASS: full-pipeline-match: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement, cap-alpha's own MATCHED 'required' correctly surfaces (AC-007, de-confounds the omission direction from the exclusion assertion above)
 PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
@@ -110,4 +112,4 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 112 passed, 0 failed
+RESULT: 113 passed, 0 failed

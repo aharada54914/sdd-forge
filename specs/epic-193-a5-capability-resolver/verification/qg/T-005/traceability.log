@@ -121,32 +121,53 @@ Superseded 2026-08-24 (confirmation-panel remediation, both vendors' T-005
 Majors 1/2, same staleness class this file's own predecessor cycles
 already went through): re-verified against the CURRENT driver directly
 rather than carrying forward the count above. `resolve-project-context-
-match-check.py`'s own `case_labels`/`main()` now register EIGHT cases
-(the pre-existing six plus this pass's own `warn-cardinality-nested-node`
--- Major 2, a composite `any` predicate whose two leaf children both WARN
-in one evidence tree, closing the survivor MUT-9). `full-pipeline-match`'s
-own fixture Registry gained a third Capability, `cap-gamma` (Major 1, a
-genuine no-match Capability whose own `required_facets`/`gate_ids`/
-`lite_policy` must not leak into the assembled Facet Manifest, closing the
-survivor MUT-7 for `required_facets` specifically -- `capabilities`/
-`resolved_gates`/`lite_eligibility` are closed by the SAME fixture via
-their own separately-scoped assembly functions, never by MUT-7 itself;
-`capability_minimum_enforcement` remains confounded on this fixture by
-construction, disclosed in the driver's own comment, not claimed closed).
-Confirmed executed and passing in this same verification run: 112 passed,
-0 failed, both runtimes (`bash tests/resolve-project-context-match.tests.
-sh` / `pwsh -File tests/resolve-project-context-match.tests.ps1`) -- the
-suite's own current total, never the count this log's own prior revision
-carried. Both survivor mutants (MUT-7's own `_required_facets` scope,
-MUT-9's own `_iter_warn_nodes` per-tree truncation) were re-injected via
-the identical scratch-clone technique this file's own prior cycles
-already established and confirmed killed non-vacuously, collateral-free:
-MUT-7 -> 98 passed / 1 failed (exactly the `required_facets` assertion);
-MUT-9 -> 110 passed / 2 failed (exactly the two `warn-cardinality-nested-
-node` assertions). REQ-001 (share)/REQ-004 (share)/REQ-005 (share)/
-REQ-006 (share, items a-d/f/g)/REQ-008 (share) presence in requirements.md
-and AC-003..AC-008/AC-016/AC-043/AC-044/AC-052/AC-056 presence in
-acceptance-tests.md re-confirmed unchanged (neither document was edited
-by this pass).
+match-check.py`'s own `case_labels`/`main()` register SEVEN cases (the
+pre-existing six plus this round's own `warn-cardinality-nested-node` --
+Major 2, a composite `any` predicate whose two leaf children both WARN
+in one evidence tree, closing the survivor MUT-9; `case_labels` itself
+confirmed by direct read of `main()`, not assumed -- this corrects a
+transcription error this log's own prior revision carried, "EIGHT",
+6+1=7 not 8). `full-pipeline-match`'s own fixture Registry gained a third
+Capability, `cap-gamma` (Major 1, a genuine no-match Capability whose own
+`required_facets`/`gate_ids`/`lite_policy` must not leak into the
+assembled Facet Manifest, closing the survivor MUT-7 for `required_facets`
+specifically -- `capabilities`/`resolved_gates`/`lite_eligibility` are
+closed by the SAME fixture via their own separately-scoped assembly
+functions, never by MUT-7 itself). MUT-7's own figure below is corrected
+from this log's own prior revision's "98 passed / 1 failed" (a
+transcription error, independently re-investigated and reconciled in
+verification/qg/T-005/mutation-kill-mut7-required-facets.log: re-running
+the IDENTICAL mutation against both the current tree and a reconstructed
+pre-fix tree state reproduces a clean 111/1 both times, never 98/1) to
+111 passed / 1 failed, balancing exactly against the 112-assertion
+baseline this figure was measured against.
 
-TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 112 passed, 0 failed"
+Superseded 2026-08-24 bookkeeping-lag pass (Anthropic v3 Major --
+`capability_minimum_enforcement` "remains confounded... not claimed
+closed" is now FALSE): the omission direction (a matched Capability's own
+`minimum_enforcement` correctly surfacing) was untested everywhere in this
+suite once the paragraph above moved the suite's only declaration onto
+never-matching `cap-gamma`. Closed this pass by re-assembling the Facet
+Manifest a second time, in-process, against a `registry_document` variant
+where `cap-alpha` (genuinely MATCHED) also declares `minimum_enforcement:
+"required"`, holding every other input byte-identical to the real
+pipeline run -- both mutation directions (unconditional omission; whole-
+Registry aggregation) confirmed killed non-vacuously in
+verification/qg/T-005/mutation-kill-minimum-enforcement-omitted.log and
+mutation-kill-minimum-enforcement-whole-registry.log. `full-pipeline-
+match`'s own exclusion assertion (`cap-gamma`'s own `"required"` excluded)
+is unchanged and still passes. Confirmed executed and passing in this same
+verification run: 113 passed, 0 failed, both runtimes (`bash
+tests/resolve-project-context-match.tests.sh` / `pwsh -File
+tests/resolve-project-context-match.tests.ps1`) -- net +1 assertion over
+the 112 above, the suite's own current total, never any prior count this
+log carried. Both `tests/resolve-project-context-match.tests.sh` and
+`.ps1` now also emit a leading `# runner: bash` / `# runner: pwsh` marker
+line (recurring Minor every round), present in this run's own captures but
+outside the driver's own PASS/FAIL count. REQ-001 (share)/REQ-004
+(share)/REQ-005 (share)/REQ-006 (share, items a-d/f/g)/REQ-008 (share)
+presence in requirements.md and AC-003..AC-008/AC-016/AC-043/AC-044/
+AC-052/AC-056 presence in acceptance-tests.md re-confirmed unchanged
+(neither document was edited by this pass).
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 113 passed, 0 failed"
