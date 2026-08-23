@@ -579,6 +579,39 @@ for missing_text in "${missing_cases[@]}"; do
   esac
 done
 
+# RT-20260821-017 cycle-2 (seq 833): the required-headings enforcement had
+# ZERO coverage - a mutant that neutered the missing/duplicate-heading loop
+# survived every suite while accepting a report with two conflicting
+# ## Isolation Evidence sections (identity forgery surface, REQ-008).
+# Both polarities, pinned here.
+missing_heading_report="$REPORT_WORK/missing-heading.md"
+python3 - "$REPORT_WORK/current.md" "$missing_heading_report" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?ms)^## Session Handoff\s*$.*?(?=^## |\Z)", "", text, count=1)
+assert n == 1, "Session Handoff section not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$missing_heading_report" 2>&1)" &&
+  fail "report with a MISSING required heading unexpectedly passed"
+[[ "$heading_output" == *'missing ## Session Handoff'* ]] ||
+  fail "unexpected missing-heading diagnostic: $heading_output"
+
+dup_heading_report="$REPORT_WORK/dup-heading.md"
+python3 - "$REPORT_WORK/current.md" "$dup_heading_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Isolation Evidence\n\n"
+          "- **Run ID**: ATTACKER-RUN\n"
+          "- **Isolation Mode**: same-session-file-reload\n"
+          "- **Fallback Reason**: operator-prefers-one-session\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$dup_heading_report" 2>&1)" &&
+  fail "report with a DUPLICATE ## Isolation Evidence section unexpectedly passed (identity forgery surface)"
+[[ "$heading_output" == *'duplicate ## Isolation Evidence'* ]] ||
+  fail "unexpected duplicate-heading diagnostic: $heading_output"
+
 # Boundary cases cover partial escalation records and isolation-mode-specific
 # fallback evidence rather than merely checking for non-empty labels.
 replace_report_text \
