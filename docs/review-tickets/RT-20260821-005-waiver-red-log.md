@@ -22,14 +22,25 @@ requirement for the ORIGINAL implementation increment is waived.
 A present-day differential proving the delivered enforcement is real:
 
 - `specs/risk-adaptive-layer/verification/T-006.red-compensating-20260823.log`
-  (sha256 `ee6e3c6d49ca883bb4dbd33043905bec5e4e0faa0eceaf7e218bf084a3541355`):
-  the spec_revision emission in generate-evidence-bundle.sh disabled by a
-  one-token mutation in a clone-based scratch tree -> gate suite exit 1,
-  T-006.2b fails closed.
+  (sha256 `e85facddbbf539b683052ac1c00a75f313384833fcf3a7cfbb19c8a7c3a43813`):
+  the spec_revision EMISSION line in generate-evidence-bundle.sh renamed in a
+  clone-based scratch tree -> gate suite exit 1 with three T-006 assertions
+  failing inline (T-006.2b missing field, T-006.3b bundle check, T-006.3c not
+  valid 64-char hex), plus three T-007a signature assertions that depend on the
+  same field. 6 failing assertions total.
 - `specs/risk-adaptive-layer/verification/T-006.green-compensating-20260823.log`
-  (sha256 `cdd9bc44ef9877b002db8124722317463cfaec7af19bc880c6e65824157cf688`):
-  pristine generator restored byte-for-byte -> suite exit 0, all 17 T-006
+  (sha256 `eca3ba9a8c38439f6b6cfed48b89995d97aa2800a6370f1863583c70127768e9`):
+  pristine generator restored byte-for-byte -> suite exit 0, all 16 T-006
   assertions green.
+
+**Correction, 2026-08-23 (seq 845 quality gate, Critical):** the FIRST version
+of these logs was invalid and has been superseded. The capture script replaced
+the first textual occurrence of the quoted token, which is the HMAC signature
+canonicalizer rather than the emission, so the run failed only T-007a.1d while
+every T-006 assertion stayed green - contradicting the header the agent wrote
+over it. The evaluator reproduced both mutations independently and rejected the
+artifact as false provenance. The counts above (and the '17 assertions' figure
+in the superseded text; the real number is 16) are from the corrected capture.
 
 Both logs carry honest headers stating they are 2026-08-23 compensating
 captures, NOT the original red. Same method as the agci T-006 recapture

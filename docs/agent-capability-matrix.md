@@ -121,8 +121,11 @@ The selector chooses the minimum predicted-attempt count. Ties choose the lower
 vendor-neutral tier. Only equal-tier routes compare invocation-supplied
 `estimated_cost_per_attempt_usd`; the route also records `cost_estimate_source`
 and `cost_estimate_timestamp` so checked-in policy never embeds stale prices.
-Equal cost is resolved by the lexicographically smaller provider/model
-identifier, written as the lexicographically smaller `provider/model`.
+At equal cost, models NOT flagged `fallback_for` in the capability registry
+are preferred over flagged fallbacks: a fallback is selected only when it is
+strictly cheaper or no primary remains. Only then is equal cost resolved by
+the lexicographically smaller provider/model identifier, written as the
+lexicographically smaller `provider/model`.
 
 ### Provider Tier Mapping
 

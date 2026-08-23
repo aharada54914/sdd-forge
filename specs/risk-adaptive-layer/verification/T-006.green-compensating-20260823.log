@@ -3,6 +3,7 @@ red capture; same clone-based scratch tree with the pristine generator
 restored byte-for-byte).
 COMMAND: bash tests/gates.tests.sh  (scratch clone, pristine)
 EXIT: 0
+T-006 ASSERTIONS GREEN: 16
 === T-006: evidence provenance ===
 ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
 ok: T-006.1b: legacy bundle file created at expected path

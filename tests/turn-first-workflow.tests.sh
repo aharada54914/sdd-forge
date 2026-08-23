@@ -617,8 +617,12 @@ heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$dup_heading_report" 
 # coverage - four mutants (duplicate/missing section, duplicate path,
 # malformed row) survived every suite, two of them admitting forged
 # declaration reports into the evaluator authorization chain
-# (evaluator_output_is_declared parses the same section). All six guards
-# pinned here, each against its specific diagnostic.
+# (evaluator_output_is_declared parses the same section). The six cases below
+# pin the ## Outputs TABLE branch, each against its specific diagnostic.
+# NOTE (corrected at cycle 4, seq 843): the original wording claimed these
+# pinned EVERY outputs-section guard. That was false - the legacy
+# ## Output Paths And Hashes branch had four surviving mutants and is now
+# pinned separately further down.
 dup_outputs_report="$REPORT_WORK/dup-outputs-section.md"
 python3 - "$REPORT_WORK/current.md" "$dup_outputs_report" <<'PYEOF'
 import sys
@@ -688,6 +692,56 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
 
 # Boundary cases cover partial escalation records and isolation-mode-specific
 # fallback evidence rather than merely checking for non-empty labels.
+
+# RT-20260821-017 cycle-4 (seq 843): the cycle-3 remediation pinned only the
+# `## Outputs` TABLE branch. The legacy `## Output Paths And Hashes` branch --
+# which is the form this feature's own reports and their evaluator manifests
+# are authorized through -- still had zero negative coverage, and four of its
+# guards survived mutation. Pinned here against bullet-only-v2.md.
+python3 - "$REPORT_WORK/bullet-only-v2.md" "$REPORT_WORK/legacy-no-entry.md" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?m)^- \*\*Path\*\*: .*\n", "", text)
+assert n >= 1, "legacy bullet not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-no-entry.md" \
+  "legacy section present but declaring no output at all (REQ-008 evasion)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-malformed.md" \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- **Path**: plugins/malformed.md; SHA-256: not-a-hash'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-malformed.md" \
+  "malformed legacy bullet (silent-skip surface)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-traversal.md" \
+  '- **Path**: `plugins/example.md`;' \
+  '- **Path**: `../../etc/passwd`;'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: invalid output path' \
+  "$REPORT_WORK/legacy-traversal.md" \
+  "legacy bullet declaring a path that escapes the repository"
+
+# A sole short-hash bullet reports 'missing ... entry' (the 64-hex pattern
+# matches nothing, so the not-found branch fires first). To pin the hex-length
+# requirement on the malformed branch instead, keep one valid bullet and add a
+# short-hash one: the parsed count then disagrees with the bullet count.
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-short-hash.md" \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+- **Path**: `plugins/short.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-short-hash.md" \
+  "legacy bullet carrying a 62-hex hash instead of 64"
+
 replace_report_text \
   "$REPORT_WORK/current.md" \
   "$REPORT_WORK/partial-escalation.md" \

@@ -1,33 +1,48 @@
 HEADER: COMPENSATING RED CAPTURE, 2026-08-23 (NOT the original 2026-06 red).
 The task's original tdd red log was never preserved (RT-20260821-005 item 3).
 Per the maintainer's waiver decision of 2026-08-23, this differential was
-captured against the CURRENT generator: the spec_revision emission in
-generate-evidence-bundle.sh was disabled in a clone-based scratch tree
-(one-token mutation: "spec_revision" -> "spec_revision_DISABLED"), the
-gate suite re-run, and the enforcement observed to fail closed. This proves
-the assertions guard the delivered behavior today; it does not and cannot
+captured against the CURRENT generator: the spec_revision EMISSION line in
+generate-evidence-bundle.sh ("spec_revision": spec_revision) was renamed in a
+clone-based scratch tree and the gate suite re-run. This proves the T-006
+assertions guard the delivered behavior today; it does not and cannot
 reconstruct the historical red state.
+
+CORRECTION NOTICE: the first version of this file (committed 2026-08-23,
+superseded) carried this same header over the output of a DIFFERENT mutation.
+The capture script replaced the first textual occurrence of the quoted token,
+which is the HMAC signature canonicalizer, not the emission; that run failed
+only T-007a.1d and left every T-006 assertion green, contradicting its own
+header. The seq-845 quality gate caught it (Critical). This file is the
+honest re-capture of the mutation the header describes.
 COMMAND: bash tests/gates.tests.sh  (scratch clone, mutated plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh)
 EXIT: 1
+FAILING ASSERTIONS: 6 (T-006: 3)
 === T-006: evidence provenance ===
 ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
 ok: T-006.1b: legacy bundle file created at expected path
 ok: T-006.1c: check-evidence-bundle passes on legacy bundle (no risk field)
 ok: T-006.2a: generated bundle contains 'risk' field
-ok: T-006.2b: generated bundle contains 'spec_revision' field
+FAIL: T-006.2b: generated bundle missing 'spec_revision' field
 ok: T-006.2c: generated bundle contains 'build_env' field
 ok: T-006.2d: generated bundle contains 'builder' field
 ok: T-006.2e: generated bundle contains 'review_verdict' field
 ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
-ok: T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance
-ok: T-006.3c: spec_revision is valid 64-char hex
+FAIL: T-006.3b: check-evidence-bundle should pass on high-risk bundle: Verification contract passed for task T-100.
+FAIL: T-006.3c: spec_revision is not valid 64-char hex
 ok: T-006.3d: review_verdict.verdict is PASS
 ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
 ok: T-006.5: high bundle with empty spec_revision fails check
 ok: T-006.6: risk mismatch (bundle vs contract) fails check
 ok: T-006.7: emptied bundle risk vs high contract fails closed
 
+FAIL: T-006.2b: generated bundle missing 'spec_revision' field
+FAIL: T-006.3b: check-evidence-bundle should pass on high-risk bundle: Verification contract passed for task T-100.
+FAIL: T-006.3c: spec_revision is not valid 64-char hex
+FAIL: T-007a.1d: check-evidence-bundle should pass: Verification contract passed for task T-200.
+FAIL: T-007a.5: sigstore with SIGSTORE_VERIFIED should pass: Verification contract passed for task T-201.
+FAIL: T-007a.9: high-risk bundle should pass without signature: Verification contract passed for task T-100.
+
 ====== Test Summary ======
-PASS: 150
-FAIL: 1
+PASS: 145
+FAIL: 6
 ==========================

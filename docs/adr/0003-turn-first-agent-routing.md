@@ -17,8 +17,10 @@ Turn-first routing optimizes expected iteration count before token price.
 Routing uses the checked-in predicted-attempt matrix in
 `docs/agent-capability-matrix.md`, then chooses the weakest sufficient
 capability tier, then compares invocation-supplied cost estimates only for
-equal-tier routes. Equal-cost ties use the lexicographically smaller
-`provider/model` identifier.
+equal-tier routes. At equal cost, models NOT flagged `fallback_for` in the
+capability registry are preferred over flagged fallbacks (a fallback wins
+only when it is strictly cheaper or no primary remains); the final
+tie-break is the lexicographically smaller `provider/model` identifier.
 
 The canonical tiers are:
 

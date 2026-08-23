@@ -78,6 +78,10 @@ assert_literal "$MATRIX" "Expected iterations are optimized first, then the weak
 assert_literal "$MATRIX" "estimated_cost_per_attempt_usd" "routing must use invocation-supplied cost estimate"
 assert_literal "$MATRIX" "cost_estimate_timestamp" "routing must record cost estimate timestamp"
 assert_literal "$MATRIX" "lexicographically smaller provider/model" "routing must define lexical final tie-break"
+assert_literal "$MATRIX" "preferred over flagged fallbacks" \
+  "routing must deprioritize registry-flagged fallbacks before the lexical tie-break"
+assert_literal "$ADR" "preferred over flagged fallbacks" \
+  "the ADR must record the fallback-deprioritization rank"
 
 for failure in test lint typecheck build review-major review-critical; do
   assert_literal "$MATRIX" "\`$failure\`" "missing closed failure enum: $failure"

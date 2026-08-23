@@ -1,0 +1,52 @@
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -2366,6 +2366,49 @@
+     fail "T-006.3d: review_verdict.verdict is not PASS"
+ fi
+ 
++# Test: T-006.5 (RT-20260821-005 cycle 2, seq 845) - the REQ-006 per-check
++# telemetry ships but was guarded by nothing in either runtime: deleting the
++# emission from either generator left both suites fully green. Pinned here and
++# in the ps1 twin (T-006.ps.5a-5e).
++#
++# What is asserted is what the generator actually guarantees: one telemetry
++# entry per contract check, every structural key present, and a real 64-hex
++# evidence_sha256 for each entry whose evidence file exists. The command /
++# exit_code / started_at / finished_at values are PASS-THROUGH from the
++# contract, so they are null for contracts that do not record them; asserting
++# them non-empty would assert a behavior the generator does not have.
++t006_high_contract="${T006_REPO}/specs/test-feature/verification/T-100.contract.json"
++
++if python3 -c "import json; b=json.load(open('${high_bundle}')); c=b.get('checks'); assert isinstance(c, list) and len(c) >= 1, 'checks missing, not a list, or empty'" 2>/dev/null; then
++    ok "T-006.5a: generated bundle contains non-empty 'checks' telemetry"
++else
++    fail "T-006.5a: generated bundle missing or empty 'checks' telemetry array"
++fi
++
++if python3 -c "import json; b=json.load(open('${high_bundle}')); c=json.load(open('${t006_high_contract}')); assert len(b.get('checks') or []) == len(c.get('checks') or []), 'telemetry entry count != contract check count'" 2>/dev/null; then
++    ok "T-006.5b: 'checks' telemetry has one entry per contract check"
++else
++    fail "T-006.5b: 'checks' telemetry does not mirror the contract's check list"
++fi
++
++if python3 -c "import json; keys={'id','required','passes','command','exit_code','started_at','finished_at','evidence','evidence_sha256'}; b=json.load(open('${high_bundle}')); assert all(keys <= set(e) for e in (b.get('checks') or [])), 'telemetry entry missing a structural key'" 2>/dev/null; then
++    ok "T-006.5c: every 'checks' entry carries the full REQ-006 key set"
++else
++    fail "T-006.5c: a 'checks' telemetry entry is missing a structural key"
++fi
++
++if python3 -c "import json, re; b=json.load(open('${high_bundle}')); h=[e for e in (b.get('checks') or []) if e.get('evidence_sha256')]; assert h, 'no computed evidence hash'; assert all(re.fullmatch(r'[a-f0-9]{64}', e['evidence_sha256']) for e in h), 'evidence_sha256 not 64-hex'" 2>/dev/null; then
++    ok "T-006.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
++else
++    fail "T-006.5d: 'checks' telemetry lacks a valid computed evidence_sha256"
++fi
++
++if python3 -c "import json; b=json.load(open('${high_bundle}')); assert (b.get('required_workflow') or '').strip(), 'required_workflow empty'" 2>/dev/null; then
++    ok "T-006.5e: generated bundle carries 'required_workflow'"
++else
++    fail "T-006.5e: generated bundle missing 'required_workflow' provenance field"
++fi
++
+ # Test: T-006.4 - high bundle with VERDICT: NEEDS_WORK (not PASS) → check FAILS
+ cat > "${T006_REPO}/reports/quality-gate/T-101.md" <<'EOF'
+ Task ID: T-101

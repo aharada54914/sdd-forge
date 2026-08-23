@@ -436,6 +436,9 @@ jobs:
       - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
         run: bash ./tests/release-config-lock.tests.sh
 
+      - name: Criterion-freeze guard (WFI-045; frozen Done-When prose vs commit composition)
+        run: bash ./tests/criterion-freeze.tests.sh
+
       - name: Test turn-first agent-model routing suite (pwsh)
         shell: pwsh
         run: ./tests/agent-model-routing.tests.ps1
