@@ -7,6 +7,7 @@ cd "$ROOT"
 
 tests=(
   tests/install.tests.sh
+  tests/installer-idempotency.tests.sh
   tests/uninstall.tests.sh
   tests/guards.tests.sh
   tests/approval-boundary.tests.sh
