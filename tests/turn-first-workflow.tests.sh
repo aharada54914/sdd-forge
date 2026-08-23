@@ -612,6 +612,80 @@ heading_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$dup_heading_report" 
 [[ "$heading_output" == *'duplicate ## Isolation Evidence'* ]] ||
   fail "unexpected duplicate-heading diagnostic: $heading_output"
 
+# RT-20260821-017 cycle-3 (seq 840): the WFI-017 move of the outputs-section
+# enforcement into validate-implementation-report.sh lost ALL negative
+# coverage - four mutants (duplicate/missing section, duplicate path,
+# malformed row) survived every suite, two of them admitting forged
+# declaration reports into the evaluator authorization chain
+# (evaluator_output_is_declared parses the same section). All six guards
+# pinned here, each against its specific diagnostic.
+dup_outputs_report="$REPORT_WORK/dup-outputs-section.md"
+python3 - "$REPORT_WORK/current.md" "$dup_outputs_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Outputs\n\n"
+          "| Path | SHA-256 |\n"
+          "|---|---|\n"
+          "| `plugins/ATTACKER-SMUGGLED.md` | `cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc` |\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
+  "$dup_outputs_report" \
+  "report with a SECOND ## Outputs table (declaration smuggling surface)"
+
+dup_legacy_report="$REPORT_WORK/dup-legacy-section.md"
+python3 - "$REPORT_WORK/dual-form-v2.md" "$dup_legacy_report" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+forged = ("\n## Output Paths And Hashes\n\n"
+          "- **Path**: `plugins/ATTACKER-LEGACY.md`; **SHA-256**: `dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd`\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text + forged)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Output Paths And Hashes' \
+  "$dup_legacy_report" \
+  "report with a SECOND ## Output Paths And Hashes section"
+
+no_outputs_report="$REPORT_WORK/no-outputs-section.md"
+python3 - "$REPORT_WORK/current.md" "$no_outputs_report" <<'PYEOF'
+import re, sys
+text = open(sys.argv[1], encoding="utf-8").read()
+out, n = re.subn(r"(?ms)^## Outputs\s*$.*?(?=^## |\Z)", "", text, count=1)
+assert n == 1, "Outputs section not found"
+open(sys.argv[2], "w", encoding="utf-8").write(out)
+PYEOF
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing ## Outputs' \
+  "$no_outputs_report" \
+  "v2 report with NO outputs section (REQ-008 evasion)"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/dup-output-path.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate output path' \
+  "$REPORT_WORK/dup-output-path.md" \
+  "report declaring the same output path twice in the Outputs table"
+
+replace_report_text \
+  "$REPORT_WORK/dual-form-v2.md" \
+  "$REPORT_WORK/cross-section-dup.md" \
+  '- **Path**: `plugins/example-legacy.md`; ' \
+  '- **Path**: `plugins/example.md`; '
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate output path' \
+  "$REPORT_WORK/cross-section-dup.md" \
+  "duplicate output path spanning the Outputs table and the legacy section"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/malformed-outputs-row.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| plugins/malformed.md | not-a-hash |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/malformed-outputs-row.md" \
+  "report with a malformed Outputs table row (silent-skip surface)"
+
 # Boundary cases cover partial escalation records and isolation-mode-specific
 # fallback evidence rather than merely checking for non-empty labels.
 replace_report_text \
