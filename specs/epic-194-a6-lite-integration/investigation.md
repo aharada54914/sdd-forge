@@ -700,12 +700,7 @@ per `plugins/sdd-review-loop/references/spec-review-calibration.md`
 ("Amendment Re-Review Context"). It records, with full citations, the
 human-approved post-implementation amendments under which this package is
 being re-reviewed (spec-review attempt 2, and attempt 3 after the
-completion chain below). The same declaration serves the impl- and
-task-stage amendment re-review lane, per
-`plugins/sdd-review-loop/references/reviewer-calibration.md`
-("Amendment Re-Review Context (impl and task stages)"): the impl and task
-re-reviews that follow the spec-stage PASS run against the amended
-documents this section pins.
+completion chain below).
 
 ### Amendment commits (full hashes)
 
@@ -756,24 +751,11 @@ As of `f577a3615ce79db3bd04cacdba23ea51df0add20`:
 - `specs/epic-194-a6-lite-integration/investigation.md`:
   `92e46294fbf98f13ff6be1195cd92f6d636c96a3a1b4429b4ee9e9d41688c077`
 
-As of `e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9` — the spec-review
-attempt-3 round-1 evidence commit that validated the completion chain
-above and, per the state table, flipped requirements.md's
-`Spec-Review-Status` from `Pending` to `Passed` (a lifecycle transition
-the workflow-state gate's normalized hashing absorbs, not a content
-amendment; its investigation.md change is this section's own extension):
-
-- `specs/epic-194-a6-lite-integration/requirements.md`:
-  `c2a0be281775fdd94ce67b09f3e043416f4748ba5f982436cac256ea5080ae41`
-- `specs/epic-194-a6-lite-integration/investigation.md`:
-  `fe78fa618a206fb9173a91aa0e874175407ebaba3424e8385bb267d020b46b85`
-
 This `investigation.md` is itself amended by the commits that introduce and
 extend this section; a document cannot embed its own post-amendment hash, so
 each such revision's fingerprint is pinned instead by the reviewer
-invocation manifests and evidence commits of the review round that
-reviewed it (attempt 2 round 3 for the first revision; spec-review
-attempt 3 round 1 for the `fe78fa61` revision; the impl re-review round's
+invocation manifests and evidence commits of the spec-review round that
+reviewed it (attempt 2 round 3 for the first revision; the current round's
 manifests for this one).
 
 ### Human approval (verbatim, dated)
