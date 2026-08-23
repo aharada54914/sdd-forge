@@ -1,6 +1,6 @@
 # Requirements: epic-195-a7-compatibility
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195 (Epic A7,
 tracked under #187 / Epic A0 #188)
 
@@ -33,6 +33,18 @@ This package is Phase 1 (specification) only: `investigation.md`,
 fixtures, or registry edits are produced by this task; `tasks.md` and
 `traceability.md` follow in a later phase once this package passes
 `spec-review-loop`.
+
+> Amendment note (2026-08-23, human-approved frozen-document amendment):
+> the Phase 1 framing in the paragraph above — and the matching Phase 2/3
+> deferral in Non-goals — described this package at its authoring time and
+> is retained unchanged as a record of what was claimed then. The epic's
+> implementation phase has since run: `tasks.md` and `traceability.md`
+> exist, and the T-005/T-006 implementation cycle whose `assert_terminal`
+> re-baseline AC-009's provenance note references is part of that recorded
+> history (`specs/epic-195-a7-compatibility/tasks.md`). Where AC-009/
+> TEST-009 speak of that cycle in the past tense, they and this note are
+> the authoritative framing; the original paragraphs describe authoring
+> time, not the present state.
 
 ## Target Users
 
@@ -235,7 +247,10 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   build them.
 - Authoring the actual test code, fixtures, or registry/driver/run-record
   edits. Those are Phase 2/3 deliverables of a later task once this
-  package passes `spec-review-loop`/`impl-review-loop`.
+  package passes `spec-review-loop`/`impl-review-loop`. (See the
+  Overview's dated amendment note: this deferral described authoring
+  time; those later-phase deliverables have since been produced and are
+  recorded in `specs/epic-195-a7-compatibility/tasks.md`.)
 - Registering a new `loop-inventory/v1` loop `id` (a ninth loop). Per
   decision doc §4.3/§19 and INV-002, capability events extend existing
   entries; if a genuinely new loop-shaped surface (its own cap/round/
@@ -358,13 +373,19 @@ guessing at an undocumented convention.
   Design Decisions) carries a new, additive `capability_applicability`
   field enumerating that entry's own capability-applicability outcomes
   (`disabled-legacy` / `advisory` / `required`, INV-014, scoped to the
-  component-coverage Gate shape, AC-039). `assert_artifacts_schema` and
-  `assert_terminal` (`tests/lib/loop-driver.sh`, INV-004) are themselves
-  unmodified by this addition — the new field is read by a new, dedicated
-  `assert_capability_applicability` helper (API / Contract Plan,
-  design.md), not by either existing function; this corrects a prior
-  draft's inaccurate "existing helpers read it with no code change"
-  framing (INV-002's caveat, above).
+  component-coverage Gate shape, AC-039). `assert_artifacts_schema`
+  (`tests/lib/loop-driver.sh`, INV-004) remains fully unmodified;
+  `assert_terminal`'s observable behaviour and signature (parameters,
+  `expected`/`observed` comparison semantics, return contract) are
+  locked byte-identical at the re-baselined function-body hashes
+  TEST-009 (acceptance-tests.md) records, whose one sanctioned change
+  is the `_loop_trace_emit done-transition:assert-terminal` call
+  design.md's per-kind producer table — and AC-026 below — places
+  inside `assert_terminal`. The new field itself is read by a new,
+  dedicated `assert_capability_applicability` helper (API / Contract
+  Plan, design.md), not by either existing function; this corrects a
+  prior draft's inaccurate "existing helpers read it with no code
+  change" framing (INV-002's caveat, above).
 - AC-010: A new numbered case, `TEST-019`, is added to
   `tests/loop-escalation.tests.sh` (design.md Design Decisions) asserting
   that the quality-gate-outcome event kind (capability-applicability
