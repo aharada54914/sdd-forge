@@ -1065,5 +1065,27 @@ if ("$fbSel" -cne 'openai/gpt-5.2-codex strong') {
 }
 
 
+# RT-20260821-009 cycle-4 (seq 844): port the reviewer standard-minimum floor
+# to the ps1 twin. The sh suite pins all six reviewer declarations; the ps1
+# twin did not, so a Windows-only run could ship a Haiku-downgraded reviewer.
+foreach ($reviewerDecl in @(
+    'plugins/sdd-review-loop/agents/spec-reviewer-a.md',
+    'plugins/sdd-review-loop/agents/spec-reviewer-b.md',
+    'plugins/sdd-review-loop/agents/impl-reviewer-a.md',
+    'plugins/sdd-review-loop/agents/impl-reviewer-b.md',
+    'plugins/sdd-review-loop/agents/task-reviewer-a.md',
+    'plugins/sdd-review-loop/agents/task-reviewer-b.md')) {
+
+    $declPath = Join-Path $root $reviewerDecl
+
+    if (-not (Select-String -LiteralPath $declPath -Pattern '^model: (sonnet|opus)$' -CaseSensitive -Quiet)) {
+
+        Fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewerDecl"
+
+    }
+
+}
+
+
 Write-Output 'ok: turn-first model routing structure is defined (PowerShell twin)'
 exit 0

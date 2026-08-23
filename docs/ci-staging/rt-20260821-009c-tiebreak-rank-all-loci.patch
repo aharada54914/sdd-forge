@@ -1,0 +1,60 @@
+--- a/specs/agent-cost-context-isolation/requirements.md
++++ b/specs/agent-cost-context-isolation/requirements.md
+@@ -31,8 +31,11 @@
+   policy-inconsistent value before routing.
+   The minimum predicted attempts win; ties choose the lower tier; only
+   equal-tier provider routes compare the invocation-supplied
+-  `estimated_cost_per_attempt_usd` decimal; equal cost is resolved by the
+-  lexicographically smaller `provider/model` identifier. The estimate and its
++  `estimated_cost_per_attempt_usd` decimal; at equal cost, models NOT
++  flagged `fallback_for` in the capability registry are preferred over
++  flagged fallbacks (a fallback wins only when it is strictly cheaper or no
++  primary remains), and the final tie-break is the lexicographically smaller
++  `provider/model` identifier. The estimate and its
+   source timestamp are recorded, so the workflow does not embed stale prices.
+   Failure classes are the closed enum `test`, `lint`, `typecheck`, `build`,
+   `review-major`, and `review-critical`; equality means the same enum value for
+--- a/docs/adr/0003-turn-first-agent-routing.md
++++ b/docs/adr/0003-turn-first-agent-routing.md
+@@ -17,8 +17,10 @@
+ Routing uses the checked-in predicted-attempt matrix in
+ `docs/agent-capability-matrix.md`, then chooses the weakest sufficient
+ capability tier, then compares invocation-supplied cost estimates only for
+-equal-tier routes. Equal-cost ties use the lexicographically smaller
+-`provider/model` identifier.
++equal-tier routes. At equal cost, models NOT flagged `fallback_for` in the
++capability registry are preferred over flagged fallbacks (a fallback wins
++only when it is strictly cheaper or no primary remains); the final
++tie-break is the lexicographically smaller `provider/model` identifier.
+ 
+ The canonical tiers are:
+ 
+--- a/docs/agent-capability-matrix.md
++++ b/docs/agent-capability-matrix.md
+@@ -121,8 +121,11 @@
+ vendor-neutral tier. Only equal-tier routes compare invocation-supplied
+ `estimated_cost_per_attempt_usd`; the route also records `cost_estimate_source`
+ and `cost_estimate_timestamp` so checked-in policy never embeds stale prices.
+-Equal cost is resolved by the lexicographically smaller provider/model
+-identifier, written as the lexicographically smaller `provider/model`.
++At equal cost, models NOT flagged `fallback_for` in the capability registry
++are preferred over flagged fallbacks: a fallback is selected only when it is
++strictly cheaper or no primary remains. Only then is equal cost resolved by
++the lexicographically smaller provider/model identifier, written as the
++lexicographically smaller `provider/model`.
+ 
+ ### Provider Tier Mapping
+ 
+--- a/tests/agent-model-routing.tests.sh
++++ b/tests/agent-model-routing.tests.sh
+@@ -78,6 +78,10 @@
+ assert_literal "$MATRIX" "estimated_cost_per_attempt_usd" "routing must use invocation-supplied cost estimate"
+ assert_literal "$MATRIX" "cost_estimate_timestamp" "routing must record cost estimate timestamp"
+ assert_literal "$MATRIX" "lexicographically smaller provider/model" "routing must define lexical final tie-break"
++assert_literal "$MATRIX" "preferred over flagged fallbacks" \
++  "routing must deprioritize registry-flagged fallbacks before the lexical tie-break"
++assert_literal "$ADR" "preferred over flagged fallbacks" \
++  "the ADR must record the fallback-deprioritization rank"
+ 
+ for failure in test lint typecheck build review-major review-critical; do
+   assert_literal "$MATRIX" "\`$failure\`" "missing closed failure enum: $failure"

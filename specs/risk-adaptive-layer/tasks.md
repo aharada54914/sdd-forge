@@ -19,7 +19,7 @@ Only `quality-gate` may set `Done`.
 
 Source Issue: investigation.md INV-001, INV-004
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: template/reference/doc changes only; no gate logic yet, but foundational for all later tasks.
 Required Workflow: acceptance-first
