@@ -219,3 +219,28 @@ exactly as it would be without this entry.
   cited from inside itself and is pinned externally by the attempt-4
   round-2 reviewer invocation manifests and the identity-ledger records
   their reservations append.
+
+### Impl-round-2 extension (2026-08-24): design.md Global Constraints pointer
+
+- Amendment commit (full hash):
+  `41dac120d31a5d7fe6efd5161460e727ff79fc7b` — adds the dated
+  amendment-note pointer to design.md's `## Global Constraints` section,
+  mirroring the treatment the human-approved amendment already gave
+  requirements.md's Overview/Non-goals: the original constraint text
+  ("No edits to ... `tests/**` ..."; "No tasks.md/traceability.md in
+  this Phase 1 package") is retained unchanged as an authoring-time
+  record, and the note points at this entry as the authoritative
+  framing. This closes impl-review attempt 3 round 1's
+  NO-REQ-CONTRADICTION finding (design.md was the one package document
+  the amendment's reconciling pointer never reached). design.md thereby
+  joins the amended-document set of this entry. As of this commit,
+  `specs/epic-195-a7-compatibility/design.md` =
+  `3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383`.
+- Authorization: completion of the same human-approved amendment quoted
+  verbatim at the top of this entry (2026-08-23 approvals); no new
+  approval statement was issued for this propagation step.
+- This extension is itself a further amendment to investigation.md; as
+  stated above for this entry, its own post-amendment SHA-256 cannot be
+  cited from inside itself and is pinned externally by the impl-review
+  attempt-3 round-2 reviewer invocation manifests and the
+  identity-ledger records their reservations append.
