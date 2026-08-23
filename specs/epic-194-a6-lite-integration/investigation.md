@@ -699,7 +699,8 @@ This section is the declared amendment re-review context for this package,
 per `plugins/sdd-review-loop/references/spec-review-calibration.md`
 ("Amendment Re-Review Context"). It records, with full citations, the
 human-approved post-implementation amendments under which this package is
-being re-reviewed at spec-review attempt 2.
+being re-reviewed (spec-review attempt 2, and attempt 3 after the
+completion chain below).
 
 ### Amendment commits (full hashes)
 
@@ -712,6 +713,15 @@ being re-reviewed at spec-review attempt 2.
   to the same five-target set; Overview dated phase note added; positional
   CLI wording aligned to the named-flag form the staged implementation
   uses), remediating spec-review attempt 2 round 1 findings (2026-08-23).
+- `c362d3f508792c6415fc6308c4143f6c5883808f` — reworded the Overview's
+  dated note to point at this section and recorded the attempt-2 round-3
+  evidence; the revision of this document that first carried this section
+  (2026-08-23).
+- `f577a3615ce79db3bd04cacdba23ea51df0add20` — grounded the fifth payload
+  target in this feature's own scope (INV-022, below, and REQ-002's
+  fifth-target requirement statement with the AC-010/AC-031 trace
+  citations), remediating attempt 2 round 3's ASSUMPTIONS-RESOLVABLE /
+  DOWNSTREAM-READINESS findings (2026-08-23).
 
 ### Amended-document fingerprints (SHA-256, as of each amendment commit)
 
@@ -727,11 +737,26 @@ As of `fae561c9d323cf32914f6885cb6f3d24053bd9af`:
 - `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
   `d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b`
 
-This `investigation.md` is itself amended by the commit that introduces this
-section; a document cannot embed its own post-amendment hash, so that
-fingerprint is pinned instead by the spec-review attempt 2 round 3 reviewer
-invocation manifests and the round-3 evidence commit that record this exact
-revision.
+As of `c362d3f508792c6415fc6308c4143f6c5883808f`:
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `fbcca3c04b1f66374cb7e03483c64a47dd9a32749b80f61ba8231272405df5f6`
+- `specs/epic-194-a6-lite-integration/investigation.md`:
+  `e82a6cd6fa5aad1a4da058d67e84f06daaa38eea18c10d980d6008009e8db593`
+
+As of `f577a3615ce79db3bd04cacdba23ea51df0add20`:
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `fafd348b2bdb0b58456a8016324bd363a690cbe36032a440fd0a3e66aa78b179`
+- `specs/epic-194-a6-lite-integration/investigation.md`:
+  `92e46294fbf98f13ff6be1195cd92f6d636c96a3a1b4429b4ee9e9d41688c077`
+
+This `investigation.md` is itself amended by the commits that introduce and
+extend this section; a document cannot embed its own post-amendment hash, so
+each such revision's fingerprint is pinned instead by the reviewer
+invocation manifests and evidence commits of the spec-review round that
+reviewed it (attempt 2 round 3 for the first revision; the current round's
+manifests for this one).
 
 ### Human approval (verbatim, dated)
 
