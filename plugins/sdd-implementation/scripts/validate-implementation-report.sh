@@ -61,10 +61,21 @@ required_headings = (
 # arbitrary paths (including `../../etc/passwd`) into an evaluator's
 # authorized input set, past the very duplicate-section guard this file
 # delivers. Found at gate seq 851.
-heading_matches = list(re.finditer(r"(?m)^## ([^\n]+?)[ \t]*$", text))
+# The first fix stripped only space and tab. Form feed, vertical tab, NBSP and
+# NUL all still keyed a padded heading to a DIFFERENT section, so it escaped
+# every outputs check while the authorization boundary still honoured it
+# (gate seq 853). Reject control characters outright -- they have no business
+# in a heading, and str.strip() does not remove NUL -- then strip whatever
+# whitespace remains, which str.strip() defines over the full Unicode set.
+heading_matches = list(re.finditer(r"(?m)^## ([^\n]+)$", text))
 sections = {}
 for index, match in enumerate(heading_matches):
-    name = match.group(1)
+    raw_name = match.group(1)
+    if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", raw_name):
+        print("IMPLEMENTATION_REPORT_FIELD: control character in section heading",
+              file=sys.stderr)
+        raise SystemExit(1)
+    name = raw_name.strip()
     end = heading_matches[index + 1].start() if index + 1 < len(heading_matches) else len(text)
     sections.setdefault(name, []).append(text[match.end():end])
 

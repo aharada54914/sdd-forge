@@ -8,7 +8,6 @@ reports/implementation/agent-cost-context-isolation/T-001.md
 reports/implementation/agent-cost-context-isolation/T-002.md
 reports/implementation/agent-cost-context-isolation/T-003.md
 reports/implementation/agent-cost-context-isolation/T-004.md
-reports/implementation/agent-cost-context-isolation/T-006.md
 reports/implementation/agent-cost-context-isolation/T-008.md
 reports/implementation/ci-mcp/T-001.md
 reports/implementation/ci-mcp/T-002.md

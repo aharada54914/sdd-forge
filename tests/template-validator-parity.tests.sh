@@ -116,6 +116,19 @@ else
     fail "validator pin: Outputs-section parser changed in launch boundary"
 fi
 
+# gate seq 853: tightening only the table heading left the LEGACY heading on a
+# prefix test, so `## Output Paths And Hashes ` was still honoured here while
+# the report validator skipped the section -- the same one-byte bypass moved to
+# the other heading. Both matchers must stay exact, and neither may return to
+# the prefix form.
+if grep -Fq '$0 == "## Output Paths And Hashes"' "$VALIDATOR" &&
+    ! grep -Fq 'index($0, "## Output Paths And Hashes") == 1' "$VALIDATOR" &&
+    ! grep -Fq 'index($0, heading) == 1' "$VALIDATOR"; then
+    ok "validator pin: both heading matchers in the launch boundary are exact"
+else
+    fail "validator pin: a launch-boundary heading matcher returned to a prefix test"
+fi
+
 # ---------------------------------------------------------------------------
 # WFI-017 leg: implementation report template vs its OWN authoring-time
 # validator (validate-implementation-report.sh). `render` above only fills

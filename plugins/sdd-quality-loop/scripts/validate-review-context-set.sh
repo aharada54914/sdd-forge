@@ -107,8 +107,12 @@ evaluator_output_is_declared() {
 implementation_report_legacy_declares() {
   local path=$1 expected_hash=$2 report=$3
   awk -v expected_path="$path" -v expected_hash="$expected_hash" '
-    index($0, "## Output Paths And Hashes") == 1 &&
-      substr($0, length("## Output Paths And Hashes") + 1) ~ /^[[:space:]]*$/ {
+    # EXACT match, for the same reason as evaluator_output_is_declared above.
+    # Tightening only that one left THIS heading on a prefix test, so a padded
+    # `## Output Paths And Hashes` was still honoured here while the report
+    # validator skipped the section entirely -- the same one-byte bypass, moved
+    # to the other heading (gate seq 853).
+    $0 == "## Output Paths And Hashes" {
       in_legacy = 1
       next
     }

@@ -644,12 +644,19 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
 # A smuggled `../../etc/passwd` row therefore reached an evaluator's authorized
 # input set past both the duplicate-section and the path-traversal guards.
 # Both whitespace forms pinned; the boundary now requires an exact heading.
-for pad_label in space tab; do
+# Gate seq 853 broke the first fix: `[ \t]` covered only space and tab, so
+# form feed, vertical tab, NBSP and NUL still keyed a padded heading to a
+# different section, and the LEGACY heading was still matched by prefix at
+# the boundary. The whole whitespace-and-control class is enumerated here,
+# on BOTH headings, so the mutation that reopened it cannot survive.
+for pad_label in space tab cr ff vt nbsp nul; do
   pad_report="$REPORT_WORK/pad-heading-$pad_label.md"
   python3 - "$REPORT_WORK/current.md" "$pad_report" "$pad_label" <<'PYEOF'
 import sys
 source, destination, pad_label = sys.argv[1:]
-pad = " " if pad_label == "space" else "\t"
+pads = {"space": " ", "tab": "\t", "cr": "\r", "ff": "\x0c",
+        "vt": "\x0b", "nbsp": "\u00a0", "nul": "\x00"}
+pad = pads[pad_label]
 text = open(source, encoding="utf-8").read()
 text += (
     "\n## Outputs" + pad + "\n\n"
@@ -659,7 +666,13 @@ text += (
 )
 open(destination, "w", encoding="utf-8").write(text)
 PYEOF
-  expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
+  # A control character is refused before section keying; ordinary whitespace
+  # is stripped so the padded heading collides with the clean one.
+  case "$pad_label" in
+    ff|vt|nul) pad_expect='IMPLEMENTATION_REPORT_FIELD: control character in section heading' ;;
+    *)         pad_expect='IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' ;;
+  esac
+  expect_report_rejection "$pad_expect" \
     "$pad_report" \
     "second ## Outputs heading padded with a trailing $pad_label (one-byte authorization bypass)"
 done
