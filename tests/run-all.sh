@@ -33,6 +33,7 @@ tests=(
   tests/emit-run-record-feature-scope.tests.sh
   tests/rollback-1.5.0.tests.sh
   tests/release-config-lock.tests.sh
+  tests/criterion-freeze.tests.sh
   tests/cross-model.tests.sh
   tests/eval.tests.sh
   tests/crlf-parity.tests.sh
