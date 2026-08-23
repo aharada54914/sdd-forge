@@ -1,0 +1,55 @@
+ticket_id: RT-20260823-002
+status: open
+type: defect
+severity: minor
+target:
+  feature: "test-infrastructure"
+  task: ""
+  files:
+    - "tests/lib/loop-driver.sh"
+    - "tests/loop-driver.tests.sh"
+    - "tests/loop-consistency.tests.sh"
+summary: >-
+  tests/lib/loop-driver.sh:419 uses a fixed mktemp template shared by the
+  two loop suites, so a parallel run-all collides with itself and both
+  suites go red non-deterministically while each is green in isolation
+problem: |
+  Found by the cycle-3 QG evaluator for agent-cost-context-isolation T-006
+  (seq 0840, report reports/quality-gate/20260823T153000Z.md) while running
+  the full regression sweep, and deliberately excluded from that task's
+  counts as out of scope.
+
+  Observed (2026-08-23): `bash tests/run-all.sh` completed with
+  "4 failing suite(s): deterministic-lane-selfcheck, loop-driver,
+  loop-consistency, design-system-contract". The first and last are the
+  documented 2-suite DESIGNED-RED baseline. The two loop suites, however,
+  failed on a mktemp collision: both source tests/lib/loop-driver.sh and
+  use the same fixed template
+  (/var/folders/.../loop-manifest.XXXXXX.json at loop-driver.sh:419), so
+  when run-all executes them concurrently one run's cleanup/creation races
+  the other's and every downstream FAIL cascades from a single
+  "No such file or directory". Re-run in isolation, both suites exit 0
+  (22 and 27 ok assertions, zero FAIL, zero mkstemp errors), including
+  TEST-009.1, whose batch-run failure read as a "RED differential
+  regression lock" trip but was pure cascade.
+
+  Consequence: the run-all baseline judgment ("exactly 2 failing suites")
+  becomes flaky under parallelism - a green tree can report 4 failing
+  suites, which wastes triage time and could mask or be mistaken for a
+  real regression in the loop suites.
+expected_fix: |
+  1. Make the temp-file identity unique per suite invocation in
+     tests/lib/loop-driver.sh (e.g. include the caller's PID / a
+     per-invocation mktemp -d working directory) so concurrent consumers
+     cannot collide on path or cleanup glob.
+  2. Verify by running loop-driver and loop-consistency concurrently in a
+     loop (or via run-all) with no cross-talk failures, and once each in
+     isolation to confirm no behavior change.
+  3. Keep the two suites' assertion counts unchanged (22 / 27); this is an
+     infrastructure fix, not a coverage change.
+references:
+  - "reports/quality-gate/20260823T153000Z.md"
+  - "docs/review-tickets/RT-20260821-STATUS.md"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
