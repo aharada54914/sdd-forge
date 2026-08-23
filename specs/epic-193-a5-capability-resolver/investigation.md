@@ -885,3 +885,40 @@ human, verbatim:
   since the T-004 NEEDS_WORK cycle-2 "late Blocks drop provenance"
   remediation; commit `18d90c67a201a5a1a082f905159dcf1e3b987932` updates
   only that driver's docstring to cite the amended criterion.
+
+### Round-1 remediation extension (attempt 3, spec re-review)
+
+The completion chain gained three commits after the entry above was
+authored; per the calibration's re-extension rule they are recorded here:
+
+- `fafa65720c2235d6fedac1aa2030139fbefd8b75` — opens spec re-review
+  attempt 3 round 1 (reset lane; manual-precheck fallback documented in
+  `reports/spec-review/epic-193-a5-capability-resolver/attempt-3/round-1/manual-precheck-note.md`
+  beside `precheck-result.json`, whose SHA-256
+  `c7231832ee90d95f831ed325777fd950da2428977e8e16df6ed2a83a4d297200`
+  both round-1 reviewer manifests pin).
+- `bb048f1df0b8c0c6f1dd7697dc450422a2b45651` — persists round 1
+  (blind reviewers at ledger seq 0770/0771; integrated verdict
+  NEEDS_WORK, 2 Critical / 3 Major, all findings converging on the
+  then-un-mirrored AC-056 restatement rows plus the undefined
+  "evaluation pass" term and the missing abort-exception fixture
+  description).
+- `f585cb0e89a65e194d62197f72cf72c2b02bcf73` — the round-1 remediation:
+  mirrors ruling A①'s exception into requirements.md's own AC-056 table
+  row and acceptance-tests.md's AC-056/TEST-056 row in the amended
+  sentence's own words, anchors "evaluation pass" to REQ-001's steps
+  (f)–(g) sweep vocabulary, and names the abort-exception fixture
+  (`tests/resolve-project-context-block.tests.sh`/`.ps1`,
+  `evaluate-predicate-failure-after-warn`). This commit also carries the
+  lane's reset transition (`Spec-Review-Status: Passed` → `Pending`),
+  the state under which attempt 3 reviews run. As of this commit:
+  - `specs/epic-193-a5-capability-resolver/requirements.md` =
+    `5461fd7e50a4140cfcc71b07a08503906f698587d1dca377c9bef5c2b96ef618`
+  - `specs/epic-193-a5-capability-resolver/acceptance-tests.md` =
+    `531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33`
+
+The verbatim, dated human approvals and both ruling sentences remain
+exactly as quoted in the parent section; the remediation introduces no
+new ruling — it propagates ruling A① into the two restatement rows the
+round-1 reviewers identified, as the ruling's own "where a restatement
+exists, mirror" instruction requires.
