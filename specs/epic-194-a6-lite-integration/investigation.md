@@ -775,3 +775,59 @@ Referenced by the amended AC-010 row and TEST-031 row
 Every fingerprint above is of the committed state at authoring time
 (`git show <commit>:<path>` hashed with SHA-256), never of uncommitted
 working-tree bytes.
+
+## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
+
+Recorded 2026-08-23, in this document's amendment-context era (see
+`## Amendment Re-Review Context`, above), grounding the five-target
+declared payload set's fifth member in this feature's own scope.
+
+**The panel finding.** Both vendor slots of the T-001 blind cross-model
+panel — reviewing independently, neither seeing the other's output —
+raised the same pair of Major findings (2026-08-21):
+
+- `specs/epic-194-a6-lite-integration/verification/T-001.panelist-anthropic.verdict.json`
+  — SHA-256
+  `18471b6023754934a8f1b371c78f7fe222a3b27b4fee298ce122bdd2294f0da7`,
+  recorded in commit `89a0700d42e8badf348f8d9322417ff0044c8043`.
+- `specs/epic-194-a6-lite-integration/verification/T-001.panelist-openai.verdict.json`
+  — SHA-256
+  `37d15b1811698a4f3639fac438fb9ab18beec2615d6b1265ddcbd92e29cfb9aa`,
+  recorded in commit `2461da5d08a6cb90d36e338dc5291d89ff217dda`.
+
+The finding, seen from its two ends: `tasks.md`'s own Protected Files
+item 3 (tasks.md:68, "`.github/workflows/test.yml` (R-10 protected)";
+tasks.md — SHA-256
+`b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`)
+directs every task registering a test pair to stage its CI steps under
+this feature's `human-copy/` directory and commits the runner to applying
+that staged candidate "the same way it applies the four payload files" —
+while the pre-widening AC-010 capped the payload set at exactly four.
+`Test-ExactSet` therefore rejected the real staged tree: the runner could
+never complete one successful run against the directory it exists to
+apply. The then-staged README's documented workaround directed a human to
+remove the extras and bare-`cp` the CI file to its R-10-protected live
+path — no `MANIFEST.sha256` entry, no pre-copy hash check, no post-copy
+re-verification.
+
+**Conclusion (the investigation's own).** That workaround is exactly the
+operation the design's runner contract exists to forbid: design.md's
+Protected-File Statement requires per-target hash verification before any
+copy and post-copy re-verification of every installed file's own hash —
+"never a bare `cp` with no confirmation the bytes actually landed
+correctly" (design.md:262; the five-target amendment commit's own message
+refers to this same discipline as its STRIDE tampering row, B5). An
+R-10-protected CI workflow file was reaching the live tree outside any
+integrity mechanism. The requirement-level consequence: any CI-workflow
+candidate this feature stages must ride the same exact-set /
+`MANIFEST.sha256` / post-copy re-verification envelope as the other four
+payload targets — which is precisely what the five-target widening
+(commit
+`9997091c71244e8cf3f9e46732f7ba164aa49843`) implements, and what its
+commit message demonstrates by measurement: the real committed staging
+directory copied byte-for-byte into a scratch root, the actual runner
+invoked out-of-process, exit `0`, and every one of the five installed
+files verified byte-identical to its staged source afterwards, including
+the CI workflow, "which now gets the same integrity envelope as the
+rest."
