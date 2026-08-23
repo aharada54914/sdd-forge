@@ -1620,10 +1620,29 @@ its full, broadened coverage surface (Coverage Scope, Data Plan).
 
 ## Assumptions
 
-See requirements.md's own Assumptions section (Epic A1/A5/A7 unmerged
-status; decision doc/ADR-0019 as unrevised authoritative source;
-`.gitattributes`/installer/hook-config files as this epic's own stable
-cross-runtime surfaces).
+See requirements.md's own Assumptions section for the full statements,
+with one supersession that this document's own gate logic already
+reflects:
+
+- **Epic A1 — superseded.** requirements.md's Assumptions still state
+  Epic A1 as unmerged, with its hook-activation handshake script and five
+  migrated consumer entry points (INV-007) absent from `main`; that
+  assumption is superseded, not silently rewritten here. Epic A1 merged
+  on 2026-08-08, so `check-hook-activation-handshake.{py,sh,ps1}` and the
+  five consumer entry points exist on `main`, and the AC-015/AC-016
+  designed-red gate this document describes is activated now — exactly as
+  the SKIP Allowlist Activation Gate, Deployment / CI Plan, and Risks
+  sections already state.
+- **Epic A5 and Epic A7 — still current.** Epic A5
+  (`sdd-forge-wt-epic-193`) and Epic A7 (`sdd-forge-wt-epic-195`) remain
+  unmerged; any cross-epic fact this package cites from either (INV-008,
+  INV-009) may shift before this epic's own Phase 2/3 begins and is
+  re-verified then, per investigation.md's Safety constraints.
+- **Unchanged.** The decision doc (`docs/ai-dlc-foundation-decision-v2.
+  md`) and ADR-0019 remain the authoritative, unrevised sources, and
+  `.gitattributes`/installer/hook-config files remain this epic's own
+  stable cross-runtime surfaces, both exactly as requirements.md's
+  Assumptions state.
 
 ## Open Questions
 
