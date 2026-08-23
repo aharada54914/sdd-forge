@@ -717,14 +717,21 @@ user-facing entry point; the UI Integration Checklist is not applicable.
 
 ## Assumptions
 
-- Epic A1 (`sdd-forge-wt-epic-189`) remains unmerged and in active
+- **Epic A1 — superseded.** This assumption originally stated: "Epic A1
+  (`sdd-forge-wt-epic-189`) remains unmerged and in active
   implementation/review through this epic's own Phase 1; its own
   hook-activation handshake script (`check-hook-activation-handshake.
   {py,sh,ps1}`) and five migrated consumer entry points (INV-007) do not
-  exist on `main` yet. AC-006/AC-015/AC-016's own `SKIP` status is the
-  direct consequence, matching Epic A7's own established SKIP-governance
-  precedent (`specs/epic-195-a7-compatibility/requirements.md` REQ-007) —
-  this package does not invent a competing SKIP mechanism.
+  exist on `main` yet." That premise is superseded, not silently
+  rewritten here: Epic A1 merged on 2026-08-08, so
+  `check-hook-activation-handshake.{py,sh,ps1}` and the five consumer
+  entry points exist on `main`, and AC-015/AC-016's own un-skip trigger
+  is crossed — a surviving `SKIP` against either is the designed-red
+  hard failure AC-015 states, activated now. The SKIP-governance shape
+  itself is unchanged: statuses follow Epic A7's own established
+  SKIP-governance precedent
+  (`specs/epic-195-a7-compatibility/requirements.md` REQ-007) — this
+  package does not invent a competing SKIP mechanism.
 - Epic A5 (`sdd-forge-wt-epic-193`) and Epic A7
   (`sdd-forge-wt-epic-195`) remain unmerged; any cross-epic fact this
   package cites from either (INV-008, INV-009) may shift before this
