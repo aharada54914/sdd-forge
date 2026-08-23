@@ -149,6 +149,26 @@ function Get-RereviewNormalizedHash([string]$Path, [string]$Status) {
     try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
+# Twin of traceability_normalized_hash() in check-workflow-state.sh. Rewrites
+# only each REQ row's final delivery-status cell, and only over the closed
+# lifecycle vocabulary; every other byte still participates in the digest.
+# [^\S\r\n] is horizontal whitespace only, so the explicit (\r?)$ keeps CRLF
+# input byte-identical -- matching the convention of the functions above.
+function Get-TraceabilityNormalizedHash([string]$Path) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace(
+        $text,
+        '(?m)^(\|[^\S\r\n]*REQ-.*\|)([^\S\r\n]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([^\S\r\n]*\|[^\S\r\n]*)(\r?)$',
+        '${1}${2}Planned${4}${5}')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+function Test-TraceabilityHash([string]$Candidate, [string]$Raw, [string]$Normalized) {
+    if ([string]::IsNullOrEmpty($Candidate)) { return $false }
+    return ($Candidate -eq $Raw -or $Candidate -eq $Normalized)
+}
 function Get-Header([string]$Path, [string]$Header) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return "" }
     $match = [regex]::Match([IO.File]::ReadAllText($Path), "(?m)^$([regex]::Escape($Header)):\s*(\S+)")
@@ -636,9 +656,53 @@ function Test-StageIsBeingOpened([string]$Stage, [string]$Feature, [int]$BestAtt
     if (-not $script:OpeningStage -or $script:OpeningStage -ne $Stage -or $FeatureFilter -ne $Feature) {
         return $false
     }
-    if ($script:OpeningAttempt -eq $BestAttempt -and $script:OpeningRound -eq ($BestRound + 1)) { return $true }
-    if ($script:OpeningAttempt -eq ($BestAttempt + 1) -and $script:OpeningRound -eq 1) { return $true }
+    if (($script:OpeningAttempt -eq $BestAttempt -and $script:OpeningRound -eq ($BestRound + 1)) -or
+        ($script:OpeningAttempt -eq ($BestAttempt + 1) -and $script:OpeningRound -eq 1)) {
+        # Recorded as a side effect (not just a boolean return) so the
+        # downstream-staleness tolerance below can be granted independently
+        # of whether THIS stage's own PASS check happens to need the
+        # exemption -- see the call site right after $latest is computed.
+        $script:OpeningVerifiedStage = $Stage
+        return $true
+    }
     return $false
+}
+# Walk order for the three review stages, spec first. Used only to decide
+# which stages are "downstream" of the one -Opening names: opening impl
+# must still require spec to be fully sound (upstream, untouched), while
+# task -- reviewed after impl and liable to have pinned impl's own inputs
+# (e.g. design.md) -- is where the recovery -Opening exists for shows up
+# as staleness, not corruption.
+function Get-StageOrder([string]$Stage) {
+    switch ($Stage) {
+        "spec" { return 1 }
+        "impl" { return 2 }
+        "task" { return 3 }
+    }
+}
+# Empty unless a -Opening slot has been independently verified (via
+# Test-StageIsBeingOpened) as the structurally-next one for the stage it
+# names. Never set for a standalone invocation (no -Opening), and never set
+# for a slot that fails that verification.
+$script:OpeningVerifiedStage = ""
+# True only when $Stage is strictly downstream (in walk order) of the
+# verified -Opening stage. False when -Opening was not passed or did not
+# verify, false for the opened stage itself (it keeps its own pre-existing
+# exemption above, not this one), and false for any upstream stage.
+function Test-StageDownstreamOfOpening([string]$Stage) {
+    if (-not $script:OpeningVerifiedStage) { return $false }
+    return (Get-StageOrder $Stage) -gt (Get-StageOrder $script:OpeningVerifiedStage)
+}
+# Like Stop-WorkflowState(), but tolerated -- returns instead of throwing/
+# exiting -- when the stage under validation is strictly downstream of a
+# verified -Opening slot. Reserved for diagnostics that mean "the pinned
+# bytes moved": the expected, recoverable state of a downstream stage whose
+# own reviewed input (e.g. design.md, a layer spec) was legitimately
+# amended as part of the very recovery -Opening exists to permit. Every
+# call site below is commented with why that specific diagnostic qualifies.
+function Stop-WorkflowStateOrTolerate([string]$Feature, [string]$Stage, [string]$Rule, [string]$Message) {
+    if (Test-StageDownstreamOfOpening $Stage) { return }
+    Stop-WorkflowState $Feature $Rule $Message
 }
 function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {
     $root = Join-Path $RepoRoot "reports/$Stage-review/$Feature"
@@ -665,6 +729,15 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         $candidates += [pscustomobject]@{ File=$file; Attempt=[int]$Matches[1]; Round=[int]$Matches[2] }
     }
     $latest = $candidates | Sort-Object Attempt, Round -Descending | Select-Object -First 1
+    # Verify -Opening's slot for THIS stage now, unconditionally -- not only
+    # when this stage's own verdict later turns out to need excusing. A
+    # re-review opened after an already-valid PASS (--provenance-rereview)
+    # never reaches the failure branch below, but downstream tolerance must
+    # still be available in that case: the flag names the slot, not "this
+    # stage is currently broken".
+    $bestAttemptForOpening = if ($latest) { $latest.Attempt } else { 0 }
+    $bestRoundForOpening = if ($latest) { $latest.Round } else { 0 }
+    [void](Test-StageIsBeingOpened $Stage $Feature $bestAttemptForOpening $bestRoundForOpening)
     if (-not $latest) { Stop-WorkflowState $Feature "stage-provenance" "$Stage PASS has no integrated verdict" }
     $contractPath = Join-Path $latest.File.DirectoryName "$Stage-review-contract.json"
     if (-not (Test-Path -LiteralPath $contractPath -PathType Leaf) -or (Get-Item $contractPath -Force).LinkType) {
@@ -752,12 +825,18 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 (Get-Item -LiteralPath $manifestFile -Force).LinkType) {
                 Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest input is missing or unreadable"
             }
+            # Tolerated downstream: for each entry the manifest already
+            # recorded, this asks "does the live file still match what was
+            # pinned" -- an unambiguous freshness check with no existence
+            # question folded in (an entry that was never recorded is never
+            # visited by this loop at all, so a missing declaration can't
+            # hide behind this tolerance).
             if ($manifestRelative -like "plugins/*") {
                 if (-not (Test-PluginsHashMatches $manifestFile ([string]$item.sha256) $contractPath)) {
-                    Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
                 }
             } elseif ((Get-Sha256 $manifestFile) -ne [string]$item.sha256) {
-                Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage reviewer manifest input hash is stale"
             }
         }
     }
@@ -886,10 +965,17 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     }
     if ($Stage -eq "spec") { $reqHash = Get-NormalizedHash $requirements "spec" }
     else { $reqHash = Get-Sha256 $requirements }
+    # Tolerated downstream: direct comparison of the contract's own
+    # top-level field against a freshly computed live-file hash --
+    # unambiguous freshness, no manifest-array existence question involved.
     if ([string]$contract.requirements_sha256 -ne $reqHash -or
         [string]$contract.acceptance_sha256 -ne (Get-Sha256 $acceptance)) {
-        Stop-WorkflowState $Feature "stage-provenance" "$Stage top-level contract hashes are stale"
+        Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "$Stage top-level contract hashes are stale"
     }
+    # NOT tolerated even downstream: Test-ManifestHash asks "does some
+    # manifest entry match this (path, hash) pair", which cannot distinguish
+    # "entry present with a now-stale hash" from "entry never declared at
+    # all" (a genuine provenance gap). Ambiguous; fails closed.
     if (-not (Test-ManifestHash $contract "/specs/$Feature/requirements.md" $reqHash $RepoRoot) -or
         -not (Test-ManifestHash $contract "/specs/$Feature/acceptance-tests.md" (Get-Sha256 $acceptance) $RepoRoot)) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage contract hashes are stale"
@@ -909,17 +995,31 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         Stop-WorkflowState $Feature "stage-provenance" "$Stage required review inputs are missing"
     }
     $precheckData = Get-Content -LiteralPath $precheck -Raw | ConvertFrom-Json
+    # NOT tolerated even downstream: same Test-ManifestHash existence
+    # ambiguity as above -- "omit" here could mean stale or genuinely
+    # undeclared, and the calibration doc already has its own plugins/
+    # historical-pin fallback (Test-ManifestHashForFile) that is unrelated
+    # to this recovery.
     if (-not (Test-ManifestHashForFile $contract "/$calibrationRelative" $calibration $RepoRoot $contractPath) -or
         -not (Test-ManifestHash $contract "/$precheckRelative" (Get-Sha256 $precheck) $RepoRoot)) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifests omit required inputs"
     }
     if ($Stage -eq "impl") {
         $design = Join-Path $FeatureDir "design.md"
+        # Tolerated downstream: Test-ManifestReviewedHash tries every
+        # canonical hash form design.md's own reviewed state can
+        # legitimately take (raw, lifecycle-normalized, re-review). Unlike
+        # the plain Test-ManifestHash "omit" checks below, this represents
+        # the document's own provenance-hash pin, not an array-membership
+        # existence question -- the same role "task plan hash is stale"
+        # plays for tasks.md, which the deadlock this fix resolves depends
+        # on tolerating.
         if (-not (Test-ManifestReviewedHash $contract "/specs/$Feature/design.md" $design "impl" $RepoRoot)) {
-            Stop-WorkflowState $Feature "stage-provenance" "implementation design hash is stale"
+            Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "implementation design hash is stale"
         }
+        # Tolerated downstream: direct top-level field vs live-hash comparison.
         if (-not (Test-ReviewedHash $design "impl" ([string]$contract.design_sha256))) {
-            Stop-WorkflowState $Feature "stage-provenance" "implementation top-level design hash is stale"
+            Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "implementation top-level design hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
         $layerProperties = if ($null -eq $layerManifestProperty -or $null -eq $layerManifestProperty.Value) {
@@ -940,10 +1040,14 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                     Stop-WorkflowState $Feature "stage-provenance" "implementation layer input is missing or linked"
                 }
                 $layerHash = Get-Sha256 $layerPath
+                # Tolerated downstream: direct precheck/contract field vs
+                # live-hash comparison.
                 if ([string]$precheckData.layer_sha256.$layer -ne $layerHash -or
                     [string]$contract.layer_sha256.$layer -ne $layerHash) {
-                    Stop-WorkflowState $Feature "stage-provenance" "implementation layer hash is stale"
+                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "implementation layer hash is stale"
                 }
+                # NOT tolerated even downstream: Test-ManifestHash existence
+                # ambiguity, same as above.
                 if (-not (Test-ManifestHash $contract "/specs/$Feature/$layer" $layerHash $RepoRoot)) {
                     Stop-WorkflowState $Feature "stage-provenance" "implementation reviewer manifests omit layer inputs"
                 }
@@ -951,11 +1055,15 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
     } elseif ($Stage -eq "task") {
         $tasks = Join-Path $FeatureDir "tasks.md"
+        # Tolerated downstream: same class as the design.md pin above -- the
+        # document's own provenance-hash pin, tried across every canonical
+        # form. This is the literal diagnostic the epic-196 deadlock names.
         if (-not (Test-ManifestReviewedHash $contract "/specs/$Feature/tasks.md" $tasks "task" $RepoRoot)) {
-            Stop-WorkflowState $Feature "stage-provenance" "task plan hash is stale"
+            Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task plan hash is stale"
         }
+        # Tolerated downstream: direct top-level field vs live-hash comparison.
         if (-not (Test-ReviewedHash $tasks "task" ([string]$contract.tasks_sha256))) {
-            Stop-WorkflowState $Feature "stage-provenance" "task top-level plan hash is stale"
+            Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task top-level plan hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
         $layerProperties = if ($null -eq $layerManifestProperty -or $null -eq $layerManifestProperty.Value) { @() } else { @($layerManifestProperty.Value.psobject.Properties) }
@@ -965,14 +1073,25 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 Stop-WorkflowState $Feature "stage-provenance" "task traceability input is missing or linked"
             }
             $traceabilityHash = Get-Sha256 $traceability
-            if ([string]$precheckData.traceability_sha256 -ne $traceabilityHash -or [string]$contract.traceability_sha256 -ne $traceabilityHash) {
-                Stop-WorkflowState $Feature "stage-provenance" "task traceability hash is stale"
+            $traceabilityNormalized = Get-TraceabilityNormalizedHash $traceability
+            # Tolerated downstream: direct precheck/contract field vs
+            # live-hash (raw or normalized) comparison.
+            if (-not (Test-TraceabilityHash ([string]$precheckData.traceability_sha256) $traceabilityHash $traceabilityNormalized) -or
+                -not (Test-TraceabilityHash ([string]$contract.traceability_sha256) $traceabilityHash $traceabilityNormalized)) {
+                Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task traceability hash is stale"
             }
             $taskDesign = Join-Path $FeatureDir "design.md"
             $taskDesignHash = Get-Sha256 $taskDesign
+            # Tolerated downstream: direct precheck/contract field vs
+            # live-hash comparison -- this is design.md's staleness
+            # surfacing on the task side of the epic-196 deadlock (design.md
+            # is impl's own reviewed input, task's contract separately pins
+            # its hash too).
             if ([string]$precheckData.design_sha256 -ne (Get-Sha256 $taskDesign) -or [string]$contract.design_sha256 -ne $taskDesignHash) {
-                Stop-WorkflowState $Feature "stage-provenance" "task design hash is stale"
+                Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task design hash is stale"
             }
+            # NOT tolerated even downstream: Test-ManifestHash existence
+            # ambiguity, same as the impl-stage layer "omit" checks above.
             if (-not (Test-ManifestHash $contract "/specs/$Feature/design.md" $taskDesignHash $RepoRoot)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit design"
             }
@@ -989,9 +1108,13 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                     Stop-WorkflowState $Feature "stage-provenance" "task layer input is missing or linked"
                 }
                 $layerHash = Get-Sha256 $layerPath
+                # Tolerated downstream: direct precheck/contract field vs
+                # live-hash comparison.
                 if ([string]$precheckData.layer_sha256.$layer -ne $layerHash -or [string]$contract.layer_sha256.$layer -ne $layerHash) {
-                    Stop-WorkflowState $Feature "stage-provenance" "task layer hash is stale"
+                    Stop-WorkflowStateOrTolerate $Feature $Stage "stage-provenance" "task layer hash is stale"
                 }
+                # NOT tolerated even downstream: Test-ManifestHash existence
+                # ambiguity.
                 if (-not (Test-ManifestHash $contract "/specs/$Feature/$layer" $layerHash $RepoRoot)) {
                     Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit layer inputs"
                 }

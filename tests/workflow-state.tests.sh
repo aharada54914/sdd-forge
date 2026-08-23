@@ -986,4 +986,151 @@ set -e
 [[ "$(printf '%s\n' "$pin_multi_add_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_multi_add_ps_output" | rule_id)" ]] ||
   fail "plugins-pin-multi-add fixture diverged: Shell=$pin_multi_add_sh_output PowerShell=$pin_multi_add_ps_output"
 
+# --- Downstream input-hash staleness tolerance under --opening ---
+#
+# epic-196's deadlock: task-review-precheck's --provenance-rereview requires
+# the latest IMPL verdict to be PASS (it is BLOCKED), so task re-review
+# cannot open; impl-review-precheck's --opening correctly exempts that
+# BLOCKED verdict (0732ec97), but the already-Passed TASK stage's OWN
+# reviewed-hash pins (e.g. tasks.md, design.md) have since gone stale,
+# because the human-approved amendment wave that will let impl re-pass
+# moved the very documents task pinned when it last passed. That staleness
+# is the recovery's expected intermediate state, not corruption -- impl
+# re-passes first, task then re-binds against the amended documents. These
+# fixtures cover: the deadlock case itself; that a standalone (no
+# --opening) caller is completely unaffected; that the tolerance is
+# strictly diagnostic-scoped (a genuinely missing input, or a forbidden
+# reviewer-report path, still fails even downstream); and that the
+# tolerance is strictly stage-scoped (opening task grants nothing to
+# spec, which is upstream of task in walk order).
+
+# THE deadlock case: impl's latest verdict is BLOCKED (exempted by the
+# pre-existing --opening mechanism, unchanged), and the already-Passed task
+# stage's own tasks.md pin has gone stale (its own reviewed-hash pin, the
+# same class of diagnostic "task plan hash is stale" -- tasks.md carries no
+# later "omit" check the way design.md/layer specs do, so this is a clean,
+# unambiguous demonstration of the tolerance without also tripping the
+# separately-not-tolerated manifest-existence checks). Opening impl over
+# this must now succeed.
+deadlock_recovery="$(make_full_fixture deadlock-recovery)"
+jq '.verdict = "BLOCKED"' \
+  "$deadlock_recovery/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$deadlock_recovery/verdict.tmp"
+mv "$deadlock_recovery/verdict.tmp" \
+  "$deadlock_recovery/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+printf '\n<!-- amendment wave: tasks.md updated after task review -->\n' \
+  >> "$deadlock_recovery/specs/workflow-state-integrity/tasks.md"
+
+run_opening "$deadlock_recovery" workflow-state-integrity impl:2:1 0 \
+  "deadlock-recovery-opening-impl-tolerates-stale-task-pin"
+
+# Same fixture, standalone: no --opening means no exemption of any kind --
+# the checker must still fail, and specifically on the impl verdict itself
+# (the very first stage-provenance check reached, since spec is sound and
+# impl is validated before task), exactly as it did before this change.
+set +e
+deadlock_standalone_output="$(bash "$CHECKER" \
+  --registry "$deadlock_recovery/specs/workflow-state-registry.json" 2>&1)"
+deadlock_standalone_status=$?
+deadlock_standalone_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$deadlock_recovery/specs/workflow-state-registry.json" 2>&1)"
+deadlock_standalone_ps_status=$?
+set -e
+[[ $deadlock_standalone_status -ne 0 ]] || fail "deadlock-recovery standalone Shell unexpectedly passed"
+[[ $deadlock_standalone_ps_status -ne 0 ]] || fail "deadlock-recovery standalone PowerShell unexpectedly passed"
+[[ "$deadlock_standalone_output" == *"integrated verdict is not a valid PASS"* ]] ||
+  fail "deadlock-recovery standalone: expected the impl verdict diagnostic unchanged, got: $deadlock_standalone_output"
+[[ "$(printf '%s\n' "$deadlock_standalone_output" | rule_id)" == \
+   "$(printf '%s\n' "$deadlock_standalone_ps_output" | rule_id)" ]] ||
+  fail "deadlock-recovery standalone twins diverged: Shell=$deadlock_standalone_output PowerShell=$deadlock_standalone_ps_output"
+
+# Opening impl over the same BLOCKED verdict, but the task stage's reviewer
+# record is now missing an input file it declared (not stale -- genuinely
+# absent). The tolerance is scoped to staleness diagnostics only; a missing
+# input must still fail even though it surfaces inside the downstream
+# (task) stage's own validation while impl is being opened.
+deadlock_missing_input="$(make_full_fixture deadlock-missing-input)"
+jq '.verdict = "BLOCKED"' \
+  "$deadlock_missing_input/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$deadlock_missing_input/verdict.tmp"
+mv "$deadlock_missing_input/verdict.tmp" \
+  "$deadlock_missing_input/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+rm "$deadlock_missing_input/reports/task-review/workflow-state-integrity/attempt-4/round-2/dependency-graph.json"
+
+set +e
+deadlock_missing_output="$(bash "$CHECKER" \
+  --registry "$deadlock_missing_input/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening impl:2:1 2>&1)"
+deadlock_missing_status=$?
+deadlock_missing_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$deadlock_missing_input/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening impl:2:1 2>&1)"
+deadlock_missing_ps_status=$?
+set -e
+[[ $deadlock_missing_status -ne 0 ]] || fail "deadlock-missing-input Shell unexpectedly passed under --opening impl:2:1"
+[[ $deadlock_missing_ps_status -ne 0 ]] || fail "deadlock-missing-input PowerShell unexpectedly passed under --opening impl:2:1"
+[[ "$deadlock_missing_output" == *"missing"* ]] ||
+  fail "deadlock-missing-input: expected a missing-input diagnostic, got: $deadlock_missing_output"
+[[ "$(printf '%s\n' "$deadlock_missing_output" | rule_id)" == \
+   "$(printf '%s\n' "$deadlock_missing_ps_output" | rule_id)" ]] ||
+  fail "deadlock-missing-input twins diverged: Shell=$deadlock_missing_output PowerShell=$deadlock_missing_ps_output"
+
+# Opening impl over the same BLOCKED verdict, but the task stage's contract
+# now carries a forbidden manifest entry -- a raw reviewer report path,
+# which the canonical-path allowlist never permits for any role or stage.
+# Forbidden paths are a shape violation, not staleness, and must still fail
+# even downstream while impl is being opened.
+#
+# The identical entry is added to BOTH the contract's manifest AND
+# reviewer-a.json's own manifest (kept in sync) so the manifest-superset
+# consistency check (contract manifest subset of reviewer's own) still
+# passes and does not itself independently fail first -- isolating the
+# assertion to the canonical-path allowlist specifically, rather than
+# "some stage-provenance diagnostic or other fires."
+deadlock_forbidden_path="$(make_full_fixture deadlock-forbidden-path)"
+jq '.verdict = "BLOCKED"' \
+  "$deadlock_forbidden_path/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$deadlock_forbidden_path/verdict.tmp"
+mv "$deadlock_forbidden_path/verdict.tmp" \
+  "$deadlock_forbidden_path/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+forbidden_entry='{
+  "path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-a.json",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000"
+}'
+forbidden_contract="$deadlock_forbidden_path/reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+jq --argjson entry "$forbidden_entry" '.reviewers[0].allowed_input_manifest += [$entry]' \
+  "$forbidden_contract" > "$deadlock_forbidden_path/contract.tmp"
+mv "$deadlock_forbidden_path/contract.tmp" "$forbidden_contract"
+forbidden_reviewer_a="$deadlock_forbidden_path/reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-a.json"
+jq --argjson entry "$forbidden_entry" '.manifest += [$entry]' \
+  "$forbidden_reviewer_a" > "$deadlock_forbidden_path/reviewer-a.tmp"
+mv "$deadlock_forbidden_path/reviewer-a.tmp" "$forbidden_reviewer_a"
+
+run_opening "$deadlock_forbidden_path" workflow-state-integrity impl:2:1 1 \
+  "deadlock-forbidden-reviewer-report-path-still-fails"
+
+# Opening TASK (not impl) with a stale SPEC-stage pin. Spec is upstream of
+# task in walk order, so opening task must grant it nothing: the tolerance
+# is strictly downstream-of-S, never upstream, regardless of how the
+# opened slot itself validates. attempt-5/round-1 is task's own genuine
+# structurally-next slot here (best_attempt=4, best_round=2), so this
+# proves the upstream refusal is not just "the --opening slot was
+# rejected" -- the slot IS valid, and spec still fails anyway.
+#
+# Mutating investigation.md rather than requirements.md deliberately: it is
+# the one spec-manifest entry checked ONLY by the generic per-entry
+# staleness loop, with no separate top-level-field or manifest-existence
+# check standing behind it (unlike requirements.md/acceptance-tests.md,
+# which have a second, NOT-tolerated "contract hashes are stale" check that
+# would independently catch a stale pin and mask a broken downstream-scope
+# guard as a false-negative-proof "still fails").
+deadlock_upstream_stale="$(make_full_fixture deadlock-upstream-stale)"
+printf '\n<!-- amendment wave: investigation.md updated after spec review -->\n' \
+  >> "$deadlock_upstream_stale/specs/workflow-state-integrity/investigation.md"
+
+run_opening "$deadlock_upstream_stale" workflow-state-integrity task:5:1 1 \
+  "deadlock-upstream-stale-spec-pin-not-tolerated-by-opening-task"
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'
