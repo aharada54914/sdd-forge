@@ -43,11 +43,13 @@
 
 ### Changed
 
-- **`installer-idempotency` の CI 登録は main 側（`2b8e528a`）を採用**: 本
-  ブランチが一時的に `test` ジョブへ入れていた重複登録は削除し、`test.yml` は
-  `origin/main` と一致。終端 `exit 0` の欠落（スタブが残す `$LASTEXITCODE=1`
-  を pwsh がそのまま返し、「all scenarios passed.」と出しながら exit 1 になる）
-  も main が `9a382c21` で独立に修正したため、そちらを採用した。
+- **`installer-idempotency` の CI 登録・`exit 0` 修正は main 側に一本化**:
+  本ブランチが一時的に `test` ジョブへ入れていた登録と、独自に入れていた
+  終端 `exit 0` は、いずれも main が `2b8e528a` / `9a382c21` で行ったため
+  削除・採用した。その後 main は `ce7eea97` で登録自体を revert している
+  （Windows の `installer-idempotency.tests.ps1` ケース1が解決するまで main
+  を緑に戻す判断）。本ブランチはその状態に追随しており、`test.yml` は
+  `origin/main` と一致する。
 
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
