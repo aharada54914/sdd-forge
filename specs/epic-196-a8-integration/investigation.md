@@ -196,6 +196,21 @@ them.
   cross-reference. Every other Done-When item is byte-identical. As of
   this commit, `specs/epic-196-a8-integration/tasks.md` =
   `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`.
+- `e36a4436f7d12cc368d36e17dcdba04748b4547e` — completed the
+  discharged-state amendment across every swept statement of the
+  superseded pending-state rule (task-review attempt 2 round 2's
+  TRACEABILITY-SYNC Major): traceability.md's Final Status now records
+  that a `Done` for T-008 shows `validate-live-host-proof` reporting
+  `discharged`, with T-004/T-005's window carrying the designed-red
+  hard failure design.md names as intended; tasks.md's
+  "pre-merge/post-merge" SKIP-state vocabulary is renamed to design.md's
+  own amended "pre-activation/post-activation" names, and the remaining
+  temporally-stale phrases ("once Epic A1 merges", "once they exist",
+  "`SKIP`ped pre-merge") are corrected to the merged fact. As of this
+  commit, `specs/epic-196-a8-integration/tasks.md` =
+  `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`
+  and `specs/epic-196-a8-integration/traceability.md` =
+  `b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61`.
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
@@ -216,13 +231,20 @@ them.
 ### Later-phase artifacts this package references (commit / SHA-256)
 
 - `specs/epic-196-a8-integration/tasks.md` — SHA-256
-  `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`,
-  last amended in commit `19005e7741e600ff8b3c4b01cfb33681bb8aec64`
-  (previously `3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d`
+  `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`,
+  last amended in commit `e36a4436f7d12cc368d36e17dcdba04748b4547e`
+  (previously `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`
+  at commit `19005e7741e600ff8b3c4b01cfb33681bb8aec64`, and
+  `3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d`
   at commit `ff73ebaa7b1e575a7da5d0a1c4fd90f20c8bf117`).
   Defines T-008, the task the amended Activation Gate names as the sole
   owner of the `AC-015`/`AC-016` allowlist entries, and carries the
   task-stage review evidence this feature's earlier attempts pinned.
+- `specs/epic-196-a8-integration/traceability.md` — SHA-256
+  `b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61`,
+  last amended in commit `e36a4436f7d12cc368d36e17dcdba04748b4547e`
+  (previously `fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2`,
+  the hash every prior stage's evidence pinned).
 - Impl-review attempt-4 round-1 evidence (the round that raised the
   ASSUMPTIONS-VALID finding `66d5bdde4cea01b2345f41eee2b4cfcbcf529301`
   remediates) — commit `f1360cd9979ec5094fc94f5d4db21981c7cf9ce0`,
