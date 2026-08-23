@@ -121,7 +121,18 @@ jobs:
         shell: bash
         run: bash ./tests/installer-idempotency.tests.sh
 
+      # Registered here because no workflow invokes tests/run-all.*; the suite
+      # main added was listed only there, so it had never run in CI.
+      #
+      # Windows is excluded pending a fix in the suite's own Windows fixture:
+      # its .cmd stub's `mcp add` branch does not fire, so case 1 fails with
+      # "Re-run did not tolerate: MCP server 'sdd-forge-mcp'" while the POSIX
+      # stub emits the message and passes. The exclusion is not a judgement
+      # that the case does not matter -- it is a known gap, recorded in the PR
+      # rather than papered over, and should be removed once the fixture is
+      # fixed on a host that can run pwsh on Windows.
       - name: Test installer idempotency (pwsh, WFI-041)
+        if: runner.os != 'Windows'
         shell: pwsh
         run: ./tests/installer-idempotency.tests.ps1
 

@@ -48,7 +48,7 @@ $lines = Get-Content -Encoding Utf8 $TasksPath
 $inBlockers = $false
 
 foreach ($line in $lines) {
-    if ($line -match '^##\s+(T-\d+)') {
+    if ($line -cmatch '^##\s+(T-\d+)') {
         $newTask = $Matches[1]
         $inBlockers = $false
         if ($seenIds.ContainsKey($newTask)) {
@@ -60,21 +60,21 @@ foreach ($line in $lines) {
             $seenIds[$currentTask] = $true
             if (-not $blockers.ContainsKey($currentTask)) { $blockers[$currentTask] = "" }
         }
-    } elseif ($currentTask -and $line -match '^Approval:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Approval:\s*(.+)$') {
         $approval[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Status:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Status:\s*(.+)$') {
         $status[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Risk:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Risk:\s*(.+)$') {
         $risk[$currentTask] = $Matches[1].Trim().ToLower()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^Second Approval:\s*(.+)$') {
+    } elseif ($currentTask -and $line -cmatch '^Second Approval:\s*(.+)$') {
         $second[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
-    } elseif ($currentTask -and $line -match '^###\s+Blockers') {
+    } elseif ($currentTask -and $line -cmatch '^###\s+Blockers') {
         $inBlockers = $true
-    } elseif ($line -match '^##') {
+    } elseif ($line -cmatch '^##') {
         $inBlockers = $false
     } elseif ($currentTask -and $inBlockers) {
         # Collect non-trivial blocker content
@@ -194,7 +194,7 @@ foreach ($task in $allTasks) {
         $taskWordPattern = "\b" + [regex]::Escape($task) + "\b"
         if (Test-Path -LiteralPath $ImplReportsDir) {
             $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -Quiet })
+                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -CaseSensitive -Quiet })
         }
         if (-not $hasImplReport) {
             $failures += "$task is Implementation Complete but no implementation report in $ImplReportsDir mentions it"

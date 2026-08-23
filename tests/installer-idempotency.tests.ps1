@@ -435,3 +435,10 @@ if (Test-Path $sourceFixtureRoot) { Remove-Item -Path $sourceFixtureRoot -Recurs
 
 Write-Host ""
 Write-Host "installer-idempotency.tests.ps1: all scenarios passed."
+
+# Every scenario throws on failure, so reaching this line means all passed.
+# The explicit exit is required, not decorative: the last stub CLI invoked by
+# case 7 exits non-zero by design, and `pwsh -File` / `pwsh -command ". script"`
+# returns $LASTEXITCODE as the process exit code. Without this the suite printed
+# "all scenarios passed." and still exited 1, failing CI on a green run.
+exit 0

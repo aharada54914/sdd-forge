@@ -27,6 +27,20 @@
   (`mis-cased-bare-{lower,upper,mixed}`、`mis-cased-status-{planned,inprogress}`)。
   17/17 緑、4件すべて sh 脚で reject を実測。
 
+  **追補（PR #339 の Codex レビュー指摘、いずれも同一クラスの取りこぼし）**:
+  - **フィールド名層**: awk 双子は `/^Approval:/` `/^Status:/` で行を選別する
+    （awk 正規表現は大小文字を区別）が、ps1 側は同じアンカーを `-match` で
+    見ていた。`approval: Approved` は ps1 で解析され awk では無視され、
+    awk 側だけが「フィールドが無い」と報告していた。見出し・Risk・
+    Second Approval・Blockers を含む12箇所を `-cmatch` に変更。
+  - **cmdlet 層**（AGENTS.md WFI-012 のリスト (b)）: lite チェッカーの Done
+    判定は品質ゲートレポートを検索するが、awk 双子の `grep -rlw` /
+    `grep -Eq` が大小文字を区別する一方、ps1 の `Select-String` は既定で
+    無視する。`verdict: pass` と書かれたレポートが PowerShell ホストでのみ
+    Done を満たしていた。4箇所に `-CaseSensitive` を追加。
+  - フィクスチャを追加: フィールド名層3件（`mis-cased-key-*`）、cmdlet 層5件
+    （`verdict-case-*`、canonical を control として保持）。25/25 緑。
+
 ### Changed
 
 - **`installer-idempotency` スイートを CI に登録**: main の WFI-041 適用
