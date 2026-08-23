@@ -2474,6 +2474,490 @@ if ($bundleText066.Contains("deleted.txt (declared output") -and
     fail "TEST-066c: expected an in-bundle missing/stale notice naming deleted.txt"
 }
 
+# ============================================================================
+# TEST-067/068/069/070: "## Outputs" row parsing. A panelist reviewing
+# epic-193 T-004 found that a declared row carrying a trailing human
+# annotation after its hash cell vanished from the bundle with no notice --
+# and when that annotation itself named a commit in its own backtick pair
+# (a real, unremarkable shape: "extended by `82f6dbf2` after this task's
+# own commit"), the row's total backtick count changed too, so the old
+# regex's "\| `hash` \|$" end-anchor rejected it outright. Both variants
+# are exercised here, plus the "never silent" requirement this repository
+# already applies to every other declared-outputs gap: a line that begins
+# like a data row but fails to parse must fail the build naming the exact
+# line, not vanish, and a table of ordinary plain rows must behave exactly
+# as it always has.
+# ============================================================================
+
+Write-Host "=== TEST-067: annotated row (no embedded backticks) is parsed and its content included ==="
+
+$d067 = Join-Path $Work "pp067"
+New-Item -ItemType Directory -Path (Join-Path $d067 "input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d067 "specs/cross-model-verification/tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d067 "bar.txt") -Value "MARKER_067 plain annotation content" -NoNewline
+$hash067 = Get-Sha256OfFile (Join-Path $d067 "bar.txt")
+$reportPath067 = Join-Path $d067 "reports/implementation/cross-model-verification/T-004.md"
+New-Item -ItemType Directory -Path (Split-Path $reportPath067) -Force | Out-Null
+$lines067 = @(
+    "# Implementation Report: T-004", "", "## Outputs", "",
+    "| Path | SHA-256 |", "|---|---|",
+    "| ${BT}bar.txt${BT} | ${BT}$hash067${BT} (drifted — shared file, see note above) |",
+    "", "## Test Evidence", "", "N/A (fixture)."
+)
+Set-Content -Encoding Utf8 -Path $reportPath067 -Value ($lines067 -join "`n")
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d067 "input"),
+    "--tasks-file", (Join-Path $d067 "specs/cross-model-verification/tasks.md"),
+    "--project-root", $d067,
+    "--out", (Join-Path $d067 "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-067a: exit 0"
+} else {
+    fail "TEST-067a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText067 = if (Test-Path (Join-Path $d067 "out.txt")) { Get-Content -Raw (Join-Path $d067 "out.txt") } else { "" }
+if ($bundleText067.Contains("MARKER_067")) {
+    ok "TEST-067b: annotated row's content made it into the bundle"
+} else {
+    fail "TEST-067b: expected bar.txt's content in the bundle, not found. Output: $($script:PP_Output)"
+}
+
+Write-Host "=== TEST-068: annotated row whose annotation embeds its own backtick-quoted commit hash is parsed and its content included ==="
+
+$d068 = Join-Path $Work "pp068"
+New-Item -ItemType Directory -Path (Join-Path $d068 "input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d068 "specs/cross-model-verification/tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d068 "foo.py") -Value "MARKER_068 content behind an embedded-backtick annotation" -NoNewline
+$hash068 = Get-Sha256OfFile (Join-Path $d068 "foo.py")
+$reportPath068 = Join-Path $d068 "reports/implementation/cross-model-verification/T-004.md"
+New-Item -ItemType Directory -Path (Split-Path $reportPath068) -Force | Out-Null
+$lines068 = @(
+    "# Implementation Report: T-004", "", "## Outputs", "",
+    "| Path | SHA-256 |", "|---|---|",
+    "| ${BT}foo.py${BT} | ${BT}$hash068${BT} (drifted — extended by ${BT}82f6dbf2${BT} after this task's own commit, see note above) |",
+    "", "## Test Evidence", "", "N/A (fixture)."
+)
+Set-Content -Encoding Utf8 -Path $reportPath068 -Value ($lines068 -join "`n")
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d068 "input"),
+    "--tasks-file", (Join-Path $d068 "specs/cross-model-verification/tasks.md"),
+    "--project-root", $d068,
+    "--out", (Join-Path $d068 "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-068a: exit 0 (real epic-193 T-004 row shape: an embedded backtick pair inside the annotation)"
+} else {
+    fail "TEST-068a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText068 = if (Test-Path (Join-Path $d068 "out.txt")) { Get-Content -Raw (Join-Path $d068 "out.txt") } else { "" }
+if ($bundleText068.Contains("MARKER_068")) {
+    ok "TEST-068b: the row's content made it into the bundle despite the embedded backtick pair"
+} else {
+    fail "TEST-068b: expected foo.py's content in the bundle, not found -- this is the exact defect a panelist caught on epic-193 T-004. Output: $($script:PP_Output)"
+}
+
+Write-Host "=== TEST-069: a candidate row that fails to parse fails the build, naming the exact line ==="
+
+$d069 = Join-Path $Work "pp069"
+New-Item -ItemType Directory -Path (Join-Path $d069 "input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d069 "specs/cross-model-verification/tasks.md") -TaskId "T-004"
+$reportPath069 = Join-Path $d069 "reports/implementation/cross-model-verification/T-004.md"
+New-Item -ItemType Directory -Path (Split-Path $reportPath069) -Force | Out-Null
+$lines069 = @(
+    "# Implementation Report: T-004", "", "## Outputs", "",
+    "| Path | SHA-256 |", "|---|---|",
+    "| ${BT}broken-row-no-closing-backtick-for-hash",
+    "", "## Test Evidence", "", "N/A (fixture)."
+)
+Set-Content -Encoding Utf8 -Path $reportPath069 -Value ($lines069 -join "`n")
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d069 "input"),
+    "--tasks-file", (Join-Path $d069 "specs/cross-model-verification/tasks.md"),
+    "--project-root", $d069,
+    "--out", (Join-Path $d069 "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-069a: unparseable candidate row -> nonzero exit"
+} else {
+    fail "TEST-069a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d069 "out.txt"))) {
+    ok "TEST-069b: bundle file NOT written -- the row is never silently skipped into an incomplete bundle"
+} else {
+    fail "TEST-069b: bundle file must not be written when a declared row could not be parsed"
+}
+if ($script:PP_Output -match "(?i)could not be parsed" -and
+    $script:PP_Output.Contains("broken-row-no-closing-backtick-for-hash")) {
+    ok "TEST-069c: the failure names the exact offending line, not a generic message"
+} else {
+    fail "TEST-069c: expected the offending line quoted in the failure. Output: $($script:PP_Output)"
+}
+
+Write-Host "=== TEST-070: a table of ordinary plain rows (no annotation) behaves exactly as before ==="
+
+$d070 = Join-Path $Work "pp070"
+New-Item -ItemType Directory -Path (Join-Path $d070 "input") -Force | Out-Null
+Set-Content -Encoding Utf8 -Path (Join-Path $d070 "a.txt") -Value "MARKER_070_A first plain file" -NoNewline
+Set-Content -Encoding Utf8 -Path (Join-Path $d070 "b.txt") -Value "MARKER_070_B second plain file" -NoNewline
+$hash070a = Get-Sha256OfFile (Join-Path $d070 "a.txt")
+$hash070b = Get-Sha256OfFile (Join-Path $d070 "b.txt")
+Write-TasksWithConsent -Path (Join-Path $d070 "tasks.md") -TaskId "T-004"
+Write-ImplReport -ProjectRoot $d070 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("a.txt", "b.txt") -Hashes @($hash070a, $hash070b)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d070 "input"),
+    "--tasks-file", (Join-Path $d070 "tasks.md"),
+    "--project-root", $d070,
+    "--out", (Join-Path $d070 "out.txt")
+)
+
+$bundleText070 = if (Test-Path (Join-Path $d070 "out.txt")) { Get-Content -Raw (Join-Path $d070 "out.txt") } else { "" }
+if ($script:PP_Exit -eq 0 -and $bundleText070.Contains("MARKER_070_A") -and $bundleText070.Contains("MARKER_070_B")) {
+    ok "TEST-070a: a table of plain (unannotated) rows still resolves both rows into the bundle, unchanged"
+} else {
+    fail "TEST-070a: plain-row table regressed. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-071..076: declared-outputs content as a SECOND elision tier, used
+# only once the task's own verification/<task_id>/ evidence and
+# contract-declared evidence (tier one, unchanged) are already through
+# their own budget loop and the bundle is STILL over --max-bytes. Tier two
+# exists because a real epic-193 T-003 bundle was 1,063,236 bytes against
+# codex's 1,048,576 cap with every tier-one candidate already fully
+# elided, and a 263,703-byte whole-repo CHANGELOG.md -- a declared output --
+# was a quarter of it. The ordering (tier one exhausted FIRST, tier two
+# only as a last resort) is the substance of this change; TEST-074 below
+# is the one that actually asserts the order, not merely the outcome.
+# ============================================================================
+
+Write-Host "=== TEST-071: a bundle that fits without tier two carries every declared output whole, no marker anywhere ==="
+
+$d071 = Join-Path $Work "pp071"
+$specDir071 = Join-Path $d071 "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir071 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d071 "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir071 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $specDir071 "verification/T-004/small-evidence.log") -Count 20 -Prefix "EVID071"
+Write-FillerLines -Path (Join-Path $d071 "declared-071.txt") -Count 20 -Prefix "DECL071"
+$hash071 = Get-Sha256OfFile (Join-Path $d071 "declared-071.txt")
+Write-ImplReport -ProjectRoot $d071 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("declared-071.txt") -Hashes @($hash071)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d071 "empty-input"),
+    "--tasks-file", (Join-Path $specDir071 "tasks.md"),
+    "--project-root", $d071,
+    "--out", (Join-Path $d071 "out.txt"),
+    "--max-bytes", "1000000"
+)
+
+$bundleText071 = if (Test-Path (Join-Path $d071 "out.txt")) { Get-Content -Raw (Join-Path $d071 "out.txt") } else { "" }
+if ($script:PP_Exit -eq 0 -and
+    $bundleText071.Contains("EVID071 line 0001") -and $bundleText071.Contains("EVID071 line 0020") -and
+    $bundleText071.Contains("DECL071 line 0001") -and $bundleText071.Contains("DECL071 line 0020")) {
+    ok "TEST-071a: both the tier-one evidence file and the declared output are present whole"
+} else {
+    fail "TEST-071a: expected both files present whole. Output: $($script:PP_Output)"
+}
+if (-not $bundleText071.ToLower().Contains("elided from the middle")) {
+    ok "TEST-071b: no elision marker anywhere -- this bundle is byte-for-byte what it would be with no elision logic at all"
+} else {
+    fail "TEST-071b: an elision marker appeared even though the bundle already fit --max-bytes"
+}
+
+Write-Host "=== TEST-072: over-cap bundle where tier-one elision alone suffices -> tier two is never touched ==="
+
+$d072 = Join-Path $Work "pp072"
+$specDir072 = Join-Path $d072 "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir072 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d072 "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir072 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $specDir072 "verification/T-004/big.log") -Count 500 -Prefix "BIGT072"
+Write-FillerLines -Path (Join-Path $d072 "small-declared.txt") -Count 20 -Prefix "SMALLT072"
+$hash072 = Get-Sha256OfFile (Join-Path $d072 "small-declared.txt")
+Write-ImplReport -ProjectRoot $d072 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("small-declared.txt") -Hashes @($hash072)
+# Whole bundle ~24,700B; eliding big.log alone brings it to ~5,600B -- the
+# declared output (~920B) was never the reason for the overage and must
+# stay untouched.
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d072 "empty-input"),
+    "--tasks-file", (Join-Path $specDir072 "tasks.md"),
+    "--project-root", $d072,
+    "--out", (Join-Path $d072 "out.txt"),
+    "--max-bytes", "15000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-072a: exit 0 (eliding the tier-one file alone let the bundle fit)"
+} else {
+    fail "TEST-072a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText072 = if (Test-Path (Join-Path $d072 "out.txt")) { Get-Content -Raw (Join-Path $d072 "out.txt") } else { "" }
+$markerCount072 = ([regex]::Matches($bundleText072, "elided from the middle")).Count
+if ($markerCount072 -eq 1 -and $bundleText072.Contains("big.log")) {
+    ok "TEST-072b: exactly one elision marker, on the tier-one file"
+} else {
+    fail "TEST-072b: expected exactly one elision marker naming big.log. Output: $($script:PP_Output)"
+}
+if ($bundleText072.Contains("SMALLT072 line 0001") -and $bundleText072.Contains("SMALLT072 line 0020")) {
+    ok "TEST-072c: the declared output is left completely whole -- tier two was never touched"
+} else {
+    fail "TEST-072c: the declared output was cut, or is missing, even though tier one alone was enough"
+}
+
+Write-Host "=== TEST-073: over-cap bundle where tier one is exhausted -> tier two elides the largest declared output only ==="
+
+$d073 = Join-Path $Work "pp073"
+$specDir073 = Join-Path $d073 "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir073 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d073 "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir073 "tasks.md") -TaskId "T-004"
+# No tier-one candidates at all: verification/T-004/ is empty, no
+# contract.json. Tier one's own loop is trivially exhausted (nothing to
+# elide), so tier two is reached immediately.
+Write-FillerLines -Path (Join-Path $d073 "big-declared.txt") -Count 500 -Prefix "BIGT073"
+Write-FillerLines -Path (Join-Path $d073 "small-declared.txt") -Count 20 -Prefix "SMALLT073"
+$hash073b = Get-Sha256OfFile (Join-Path $d073 "big-declared.txt")
+$hash073s = Get-Sha256OfFile (Join-Path $d073 "small-declared.txt")
+Write-ImplReport -ProjectRoot $d073 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("big-declared.txt", "small-declared.txt") -Hashes @($hash073b, $hash073s)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d073 "empty-input"),
+    "--tasks-file", (Join-Path $specDir073 "tasks.md"),
+    "--project-root", $d073,
+    "--out", (Join-Path $d073 "out.txt"),
+    "--max-bytes", "15000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-073a: exit 0 (eliding the largest declared output alone let the bundle fit)"
+} else {
+    fail "TEST-073a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText073 = if (Test-Path (Join-Path $d073 "out.txt")) { Get-Content -Raw (Join-Path $d073 "out.txt") } else { "" }
+$markerCount073 = ([regex]::Matches($bundleText073, "elided from the middle")).Count
+if ($markerCount073 -eq 1 -and $bundleText073.Contains("big-declared.txt")) {
+    ok "TEST-073b: exactly one elision marker, on the largest declared output"
+} else {
+    fail "TEST-073b: expected exactly one elision marker naming big-declared.txt. Output: $($script:PP_Output)"
+}
+if ($bundleText073.Contains("SMALLT073 line 0001") -and $bundleText073.Contains("SMALLT073 line 0020")) {
+    ok "TEST-073c: the smaller declared output is left completely whole"
+} else {
+    fail "TEST-073c: the smaller declared output was cut, or is missing, even though it was never the cause of the overage"
+}
+
+Write-Host "=== TEST-074 (order-sensitive): tier one is attempted to exhaustion BEFORE tier two, even when tier two's own single candidate is far larger ==="
+
+$d074 = Join-Path $Work "pp074"
+$specDir074 = Join-Path $d074 "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir074 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d074 "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir074 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $specDir074 "verification/T-004/tiny.log") -Count 100 -Prefix "TINYT074"
+Write-FillerLines -Path (Join-Path $d074 "big-declared.txt") -Count 500 -Prefix "BIGT074"
+$hash074 = Get-Sha256OfFile (Join-Path $d074 "big-declared.txt")
+Write-ImplReport -ProjectRoot $d074 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("big-declared.txt") -Hashes @($hash074)
+# tiny.log (~4,700B) is tier one's ONLY candidate; big-declared.txt
+# (~23,000B) dominates the overage and, cut alone, would already bring the
+# bundle under --max-bytes 15000. A "declared outputs promoted into tier
+# one" bug would sort the combined pool by size, cut big-declared.txt
+# first (it is larger), see the bundle already fits, and stop -- leaving
+# tiny.log untouched. Correct behavior always finishes tier one's own loop
+# (its one candidate) before tier two is ever consulted, regardless of
+# whether cutting it alone would have been enough, so BOTH files must
+# carry a marker here.
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d074 "empty-input"),
+    "--tasks-file", (Join-Path $specDir074 "tasks.md"),
+    "--project-root", $d074,
+    "--out", (Join-Path $d074 "out.txt"),
+    "--max-bytes", "15000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-074a: exit 0"
+} else {
+    fail "TEST-074a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText074 = if (Test-Path (Join-Path $d074 "out.txt")) { Get-Content -Raw (Join-Path $d074 "out.txt") } else { "" }
+$markerCount074 = ([regex]::Matches($bundleText074, "elided from the middle")).Count
+if ($markerCount074 -eq 2) {
+    ok "TEST-074b: exactly two elision markers -- tier one's own candidate was cut even though tier two alone would have sufficed"
+} else {
+    fail "TEST-074b: expected exactly two elision markers (tiny.log AND big-declared.txt). Output: $($script:PP_Output)"
+}
+if ($bundleText074.Contains("tiny.log") -and $bundleText074.Contains("big-declared.txt")) {
+    ok "TEST-074c: both markers name the expected files"
+} else {
+    fail "TEST-074c: the elision markers did not name both tiny.log and big-declared.txt"
+}
+if (-not $bundleText074.Contains("TINYT074 line 0050")) {
+    ok "TEST-074d: tier one's own (small) candidate genuinely lost a middle line -- it was not skipped just because tier two alone would fit"
+} else {
+    fail "TEST-074d: tiny.log's middle line survived -- tier one was skipped in favor of cutting only the larger tier-two file"
+}
+
+Write-Host "=== TEST-075: both tiers exhausted and still over --max-bytes -> fail closed, unchanged ==="
+
+$d075 = Join-Path $Work "pp075"
+$specDir075 = Join-Path $d075 "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir075 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d075 "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir075 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $d075 "big-declared.txt") -Count 500 -Prefix "BIGT075"
+Write-FillerLines -Path (Join-Path $d075 "small-declared.txt") -Count 20 -Prefix "SMALLT075"
+$hash075b = Get-Sha256OfFile (Join-Path $d075 "big-declared.txt")
+$hash075s = Get-Sha256OfFile (Join-Path $d075 "small-declared.txt")
+Write-ImplReport -ProjectRoot $d075 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("big-declared.txt", "small-declared.txt") -Hashes @($hash075b, $hash075s)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d075 "empty-input"),
+    "--tasks-file", (Join-Path $specDir075 "tasks.md"),
+    "--project-root", $d075,
+    "--out", (Join-Path $d075 "out.txt"),
+    "--max-bytes", "2000"
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-075a: over --max-bytes even after exhausting BOTH tiers -> nonzero exit"
+} else {
+    fail "TEST-075a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d075 "out.txt"))) {
+    ok "TEST-075b: bundle file NOT written -- exhausting both tiers is never a truncation loophole"
+} else {
+    fail "TEST-075b: bundle file must not be written when still over --max-bytes after both tiers"
+}
+if ($script:PP_Output -match "(?i)max-bytes" -and
+    $script:PP_Output -match "eliding \d+ task-evidence file\(s\) and \d+ declared-output file\(s\)") {
+    ok "TEST-075c: the failure names how many candidates each tier contributed, not just an aggregate count"
+} else {
+    fail "TEST-075c: expected a per-tier elision count in the failure message. Output: $($script:PP_Output)"
+}
+
+Write-Host "=== TEST-076: a declared output that is BOTH stale and elided carries both notices, without either clobbering the other ==="
+
+$d076 = Join-Path $Work "pp076"
+New-Item -ItemType Directory -Path (Join-Path $d076 "input") -Force | Out-Null
+New-PpiGitScratchRepo $d076
+Write-TasksWithConsent -Path (Join-Path $d076 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $d076 "shared-big.txt") -Count 500 -Prefix "V1T076"
+$hash076v1 = Get-Sha256OfFile (Join-Path $d076 "shared-big.txt")
+Write-ImplReport -ProjectRoot $d076 -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("shared-big.txt") -Hashes @($hash076v1)
+Invoke-PpiGitCommit -Root $d076 -Message "declare shared-big.txt v1"
+
+# A later sibling task drifts the shared file to a different, still-large
+# (same line count, different prefix) body, so the report's declared hash
+# is stale AND the current worktree content is still big enough to need
+# eliding at a tight --max-bytes.
+Write-FillerLines -Path (Join-Path $d076 "shared-big.txt") -Count 500 -Prefix "V2T076"
+Invoke-PpiGitCommit -Root $d076 -Message "sibling task drifts shared-big.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d076 "input"),
+    "--tasks-file", (Join-Path $d076 "tasks.md"),
+    "--project-root", $d076,
+    "--out", (Join-Path $d076 "out.txt"),
+    "--max-bytes", "5000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-076a: exit 0"
+} else {
+    fail "TEST-076a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText076 = if (Test-Path (Join-Path $d076 "out.txt")) { Get-Content -Raw (Join-Path $d076 "out.txt") } else { "" }
+if ($bundleText076.Contains("shared-big.txt (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE")) {
+    ok "TEST-076b: the stale-hash header notice is present"
+} else {
+    fail "TEST-076b: expected the stale-hash header notice. Output: $($script:PP_Output)"
+}
+if ($bundleText076.Contains("elided from the middle of shared-big.txt")) {
+    ok "TEST-076c: the elision marker is ALSO present -- the stale notice did not suppress eliding an oversized row"
+} else {
+    fail "TEST-076c: expected an elision marker on shared-big.txt alongside the stale notice"
+}
+if ($bundleText076.Contains("V2T076 line 0001") -and $bundleText076.Contains("V2T076 line 0500") -and
+    (-not $bundleText076.Contains("V1T076"))) {
+    ok "TEST-076d: the head/tail shown is the CURRENT (v2) content -- never the historical declaration-commit bytes"
+} else {
+    fail "TEST-076d: expected only v2 content in the elided head/tail, and no v1 (historical) bytes anywhere. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-077: a third real annotation shape, found by running this exact fix
+# against all seven real epic-193/194/195 corpus bundles rather than
+# reasoning from the two shapes a panelist had already reported -- epic-195
+# T-005 declares rows like "| `path` (added) | `hash` |", where the
+# annotation sits BETWEEN the path cell and the column separator instead
+# of after the hash. Row-parsing is only genuinely fixed if both positions
+# are tolerated, not just the one a panelist happened to see first.
+# ============================================================================
+
+Write-Host "=== TEST-077: annotation sitting between the path cell and the column separator is parsed and its content included ==="
+
+$d077 = Join-Path $Work "pp077"
+New-Item -ItemType Directory -Path (Join-Path $d077 "input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d077 "specs/cross-model-verification/tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d077 "baz.tests.sh") -Value "MARKER_077 content behind a path-cell annotation" -NoNewline
+$hash077 = Get-Sha256OfFile (Join-Path $d077 "baz.tests.sh")
+$reportPath077 = Join-Path $d077 "reports/implementation/cross-model-verification/T-004.md"
+New-Item -ItemType Directory -Path (Split-Path $reportPath077) -Force | Out-Null
+$lines077 = @(
+    "# Implementation Report: T-004", "", "## Outputs", "",
+    "| Path | SHA-256 |", "|---|---|",
+    "| ${BT}baz.tests.sh${BT} (added) | ${BT}$hash077${BT} |",
+    "", "## Test Evidence", "", "N/A (fixture)."
+)
+Set-Content -Encoding Utf8 -Path $reportPath077 -Value ($lines077 -join "`n")
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d077 "input"),
+    "--tasks-file", (Join-Path $d077 "specs/cross-model-verification/tasks.md"),
+    "--project-root", $d077,
+    "--out", (Join-Path $d077 "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-077a: exit 0 (real epic-195 T-005 row shape: annotation between the path cell and the column separator)"
+} else {
+    fail "TEST-077a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$bundleText077 = if (Test-Path (Join-Path $d077 "out.txt")) { Get-Content -Raw (Join-Path $d077 "out.txt") } else { "" }
+if ($bundleText077.Contains("MARKER_077")) {
+    ok "TEST-077b: the row's content made it into the bundle despite the path-cell annotation"
+} else {
+    fail "TEST-077b: expected baz.tests.sh's content in the bundle, not found. Output: $($script:PP_Output)"
+}
+
 } finally {
     Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 }
