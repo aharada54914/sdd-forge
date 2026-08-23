@@ -43,6 +43,137 @@ make_full_fixture() {
   printf '%s\n' "$target"
 }
 
+# Builds on make_full_fixture: adds the four layer spec files (absent from
+# the base fixture, which is why its task round's layer_sha256 is normally
+# empty and the design.md/layer-omit checks are never even reached), wires
+# their hashes into the task round's precheck-result.json and
+# task-review-contract.json layer_sha256 fields, and adds design.md plus
+# all four layer files to whichever of the two task reviewers' manifests
+# does not already carry them (task-reviewer-b lacks traceability.md in the
+# base fixture; neither reviewer carries design.md or the layer files) --
+# in BOTH the contract's own manifest AND each reviewer's own recorded
+# manifest, kept in sync so the manifest-superset consistency check does
+# not independently fail and mask what these fixtures are actually testing.
+# This is the minimum wiring needed to exercise the omit-vs-stale
+# disambiguation for design.md at all.
+make_layer_wired_fixture() {
+  local name="$1" target feature_dir round_dir contract precheck reviewer_a reviewer_b layer
+  target="$(make_full_fixture "$name")"
+  feature_dir="$target/specs/workflow-state-integrity"
+  round_dir="$target/reports/task-review/workflow-state-integrity/attempt-4/round-2"
+  contract="$round_dir/task-review-contract.json"
+  precheck="$round_dir/precheck-result.json"
+  reviewer_a="$round_dir/reviewer-a.json"
+  reviewer_b="$round_dir/reviewer-b.json"
+
+  for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+    printf '# %s\n\nPlaceholder layer spec for workflow-state-integrity test fixtures.\n' "$layer" \
+      > "$feature_dir/$layer"
+  done
+
+  local ux_hash frontend_hash infra_hash security_hash design_hash trace_hash_field
+  ux_hash="$(shasum -a 256 "$feature_dir/ux-spec.md" | awk '{print $1}')"
+  frontend_hash="$(shasum -a 256 "$feature_dir/frontend-spec.md" | awk '{print $1}')"
+  infra_hash="$(shasum -a 256 "$feature_dir/infra-spec.md" | awk '{print $1}')"
+  security_hash="$(shasum -a 256 "$feature_dir/security-spec.md" | awk '{print $1}')"
+  design_hash="$(shasum -a 256 "$feature_dir/design.md" | awk '{print $1}')"
+  trace_hash_field="$(shasum -a 256 "$feature_dir/traceability.md" | awk '{print $1}')"
+  # task-reviewer-a's EXISTING traceability.md manifest entry already
+  # disagrees with the live file's current bytes (a pre-existing drift in
+  # this base fixture's data, invisible under normal use because
+  # layer_sha256 -- the sole gate into this whole code path -- is normally
+  # empty). Repoint it to the current raw hash first, so every reference to
+  # traceability.md this function sets or adds is internally consistent,
+  # independent of that unrelated pre-existing drift.
+  local repoint_traceability='(.. | objects | select(.path? == "specs/workflow-state-integrity/traceability.md") | .sha256) |= $trace'
+  jq --arg trace "$trace_hash_field" "$repoint_traceability" "$contract" > "$target/contract-trace.tmp"
+  mv "$target/contract-trace.tmp" "$contract"
+  jq --arg trace "$trace_hash_field" "$repoint_traceability" "$reviewer_a" > "$target/reviewer-a-trace.tmp"
+  mv "$target/reviewer-a-trace.tmp" "$reviewer_a"
+
+  # layer_sha256, design_sha256, and traceability_sha256 are all fields the
+  # base fixture's task round never populated (its layer_sha256 was empty,
+  # so the whole layer/design/traceability block was never reached at all).
+  # Setting design_sha256 to the current live hash and traceability_sha256
+  # to the value above establishes a clean, non-stale baseline before any
+  # fixture-specific mutation.
+  local wire_fields='
+    .layer_sha256 = {"ux-spec.md": $ux, "frontend-spec.md": $fe, "infra-spec.md": $infra, "security-spec.md": $sec} |
+    .design_sha256 = $design |
+    .traceability_sha256 = $trace'
+  jq --arg ux "$ux_hash" --arg fe "$frontend_hash" --arg infra "$infra_hash" --arg sec "$security_hash" \
+    --arg design "$design_hash" --arg trace "$trace_hash_field" \
+    "$wire_fields" "$precheck" > "$target/precheck.tmp"
+  mv "$target/precheck.tmp" "$precheck"
+  jq --arg ux "$ux_hash" --arg fe "$frontend_hash" --arg infra "$infra_hash" --arg sec "$security_hash" \
+    --arg design "$design_hash" --arg trace "$trace_hash_field" \
+    "$wire_fields" "$contract" > "$target/contract.tmp"
+  mv "$target/contract.tmp" "$contract"
+
+  # Adding layer_sha256 changed precheck-result.json's own bytes, so every
+  # manifest entry that already pinned its pre-edit hash (the contract's
+  # own two reviewer arrays, plus each reviewer's own recorded copy) must
+  # be repointed at the new one -- otherwise the generic per-entry
+  # staleness loop would (correctly, but confusingly for these fixtures)
+  # flag precheck-result.json itself as stale before ever reaching design.md.
+  local precheck_relative="reports/task-review/workflow-state-integrity/attempt-4/round-2/precheck-result.json"
+  local precheck_hash_new
+  precheck_hash_new="$(shasum -a 256 "$precheck" | awk '{print $1}')"
+  local repoint_precheck='(.. | objects | select(.path? == $path) | .sha256) |= $hash'
+  jq --arg path "$precheck_relative" --arg hash "$precheck_hash_new" "$repoint_precheck" \
+    "$contract" > "$target/contract-precheck.tmp"
+  mv "$target/contract-precheck.tmp" "$contract"
+  jq --arg path "$precheck_relative" --arg hash "$precheck_hash_new" "$repoint_precheck" \
+    "$reviewer_a" > "$target/reviewer-a-precheck.tmp"
+  mv "$target/reviewer-a-precheck.tmp" "$reviewer_a"
+  jq --arg path "$precheck_relative" --arg hash "$precheck_hash_new" "$repoint_precheck" \
+    "$reviewer_b" > "$target/reviewer-b-precheck.tmp"
+  mv "$target/reviewer-b-precheck.tmp" "$reviewer_b"
+
+  local without_traceability='
+    [
+      {path: "specs/workflow-state-integrity/design.md", sha256: $design},
+      {path: "specs/workflow-state-integrity/ux-spec.md", sha256: $ux},
+      {path: "specs/workflow-state-integrity/frontend-spec.md", sha256: $fe},
+      {path: "specs/workflow-state-integrity/infra-spec.md", sha256: $infra},
+      {path: "specs/workflow-state-integrity/security-spec.md", sha256: $sec}
+    ] as $entries |'
+  local with_traceability='
+    [
+      {path: "specs/workflow-state-integrity/design.md", sha256: $design},
+      {path: "specs/workflow-state-integrity/traceability.md", sha256: $trace},
+      {path: "specs/workflow-state-integrity/ux-spec.md", sha256: $ux},
+      {path: "specs/workflow-state-integrity/frontend-spec.md", sha256: $fe},
+      {path: "specs/workflow-state-integrity/infra-spec.md", sha256: $infra},
+      {path: "specs/workflow-state-integrity/security-spec.md", sha256: $sec}
+    ] as $entries |'
+  # reviewer-a (contract + its own file) already carries traceability.md.
+  jq --arg design "$design_hash" --arg ux "$ux_hash" --arg fe "$frontend_hash" \
+    --arg infra "$infra_hash" --arg sec "$security_hash" \
+    "$without_traceability .reviewers[0].allowed_input_manifest += \$entries" \
+    "$contract" > "$target/contract2.tmp"
+  mv "$target/contract2.tmp" "$contract"
+  jq --arg design "$design_hash" --arg ux "$ux_hash" --arg fe "$frontend_hash" \
+    --arg infra "$infra_hash" --arg sec "$security_hash" \
+    "$without_traceability .manifest += \$entries" \
+    "$reviewer_a" > "$target/reviewer-a.tmp"
+  mv "$target/reviewer-a.tmp" "$reviewer_a"
+
+  # reviewer-b (contract + its own file) does not, so it also gets it here.
+  jq --arg design "$design_hash" --arg trace "$trace_hash_field" --arg ux "$ux_hash" --arg fe "$frontend_hash" \
+    --arg infra "$infra_hash" --arg sec "$security_hash" \
+    "$with_traceability .reviewers[1].allowed_input_manifest += \$entries" \
+    "$contract" > "$target/contract3.tmp"
+  mv "$target/contract3.tmp" "$contract"
+  jq --arg design "$design_hash" --arg trace "$trace_hash_field" --arg ux "$ux_hash" --arg fe "$frontend_hash" \
+    --arg infra "$infra_hash" --arg sec "$security_hash" \
+    "$with_traceability .manifest.allowed_inputs += \$entries" \
+    "$reviewer_b" > "$target/reviewer-b.tmp"
+  mv "$target/reviewer-b.tmp" "$reviewer_b"
+
+  printf '%s\n' "$target"
+}
+
 expect_rule() {
   local root="$1" rule="$2" output status ps_output ps_status
   set +e
@@ -994,5 +1125,131 @@ printf '\n<!-- amendment wave: investigation.md updated after spec review -->\n'
 run_opening "$deadlock_upstream_stale" workflow-state-integrity task:5:1 1 \
   "deadlock-upstream-stale-spec-pin-not-tolerated-by-opening-task"
 
+# --- Omit-vs-stale disambiguation for the existence-check diagnostics ---
+#
+# manifest_has_hash's "no (path, hash) pair matches" failure conflates two
+# provenance states: the path was never declared (a genuine gap) and the
+# path was declared but review ran before the file's current amendment
+# (staleness wearing the same diagnostic). The epic-196 scratch-clone
+# verification showed this exact conflation firing for real: design.md's
+# manifest entry, recorded at the pre-amendment hash, produced "task
+# reviewer manifests omit design" -- indistinguishable, by the OLD check,
+# from design.md never having been declared at all. These fixtures cover:
+# the epic-196 shape itself (stale entry, tolerated with a visible notice);
+# the entry genuinely deleted (still fails, unchanged); a mixed aggregate
+# (one stale layer plus one genuinely absent layer, still fails); and
+# standalone on the stale-entry fixture (still fails, unchanged).
+
+# THE epic-196 shape: design.md's manifest entry is present but recorded at
+# the pre-amendment hash. Opening impl over the BLOCKED verdict must now
+# succeed, and the recovery must be visible -- not silently waved through
+# -- via a tolerance notice naming the path and both hashes.
+deadlock_design_stale="$(make_layer_wired_fixture deadlock-design-stale)"
+jq '.verdict = "BLOCKED"' \
+  "$deadlock_design_stale/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$deadlock_design_stale/verdict.tmp"
+mv "$deadlock_design_stale/verdict.tmp" \
+  "$deadlock_design_stale/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+printf '\n<!-- amendment wave: design.md updated after task review -->\n' \
+  >> "$deadlock_design_stale/specs/workflow-state-integrity/design.md"
+
+set +e
+design_stale_output="$(bash "$CHECKER" --registry "$deadlock_design_stale/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening impl:2:1 2>&1)"
+design_stale_status=$?
+design_stale_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$deadlock_design_stale/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening impl:2:1 2>&1)"
+design_stale_ps_status=$?
+set -e
+[[ $design_stale_status -eq 0 ]] || fail "deadlock-design-stale Shell unexpectedly failed: $design_stale_output"
+[[ $design_stale_ps_status -eq 0 ]] || fail "deadlock-design-stale PowerShell unexpectedly failed: $design_stale_ps_output"
+[[ "$design_stale_output" == *"stage-provenance-tolerated: specs/workflow-state-integrity/design.md recorded"* ]] ||
+  fail "deadlock-design-stale: expected a tolerance notice naming design.md, got: $design_stale_output"
+[[ "$design_stale_ps_output" == *"stage-provenance-tolerated: specs/workflow-state-integrity/design.md recorded"* ]] ||
+  fail "deadlock-design-stale: expected a tolerance notice naming design.md (PowerShell), got: $design_stale_ps_output"
+
+# Same fixture, but design.md's manifest entry is DELETED from both task
+# reviewers entirely (not stale -- genuinely absent). The second query must
+# tell these apart: zero recorded hashes for the path leaves the original
+# omit diagnostic firing exactly as before, even under --opening.
+deadlock_design_deleted="$(make_layer_wired_fixture deadlock-design-deleted)"
+jq '.verdict = "BLOCKED"' \
+  "$deadlock_design_deleted/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$deadlock_design_deleted/verdict.tmp"
+mv "$deadlock_design_deleted/verdict.tmp" \
+  "$deadlock_design_deleted/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+# Deleted from the contract's own manifest AND from each reviewer's own
+# recorded manifest -- otherwise the reviewer's manifest would still carry
+# design.md and the contract would not, which fails the manifest-superset
+# consistency check FIRST (task stage permits no reviewer-manifest excess
+# beyond the contract at all, unlike impl's layer-spec allowance), masking
+# the omit-diagnostic assertion this fixture exists to make.
+deleted_round="$deadlock_design_deleted/reports/task-review/workflow-state-integrity/attempt-4/round-2"
+deleted_contract="$deleted_round/task-review-contract.json"
+jq '(.reviewers[].allowed_input_manifest) |= map(select(.path != "specs/workflow-state-integrity/design.md"))' \
+  "$deleted_contract" > "$deadlock_design_deleted/contract-deleted.tmp"
+mv "$deadlock_design_deleted/contract-deleted.tmp" "$deleted_contract"
+jq '.manifest |= map(select(.path != "specs/workflow-state-integrity/design.md"))' \
+  "$deleted_round/reviewer-a.json" > "$deadlock_design_deleted/reviewer-a-deleted.tmp"
+mv "$deadlock_design_deleted/reviewer-a-deleted.tmp" "$deleted_round/reviewer-a.json"
+jq '.manifest.allowed_inputs |= map(select(.path != "specs/workflow-state-integrity/design.md"))' \
+  "$deleted_round/reviewer-b.json" > "$deadlock_design_deleted/reviewer-b-deleted.tmp"
+mv "$deadlock_design_deleted/reviewer-b-deleted.tmp" "$deleted_round/reviewer-b.json"
+
+run_opening "$deadlock_design_deleted" workflow-state-integrity impl:2:1 1 \
+  "deadlock-design-deleted-from-manifest-still-fails"
+
+# Mixed aggregate: one layer (ux-spec.md) is merely stale, but a DIFFERENT
+# layer (frontend-spec.md) is genuinely absent from both reviewers'
+# manifests. Per-path disambiguation must still fail the whole "omit layer
+# inputs" check -- one absent path is not forgiven by the other being
+# explainable as staleness.
+deadlock_mixed_omit="$(make_layer_wired_fixture deadlock-mixed-omit)"
+jq '.verdict = "BLOCKED"' \
+  "$deadlock_mixed_omit/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$deadlock_mixed_omit/verdict.tmp"
+mv "$deadlock_mixed_omit/verdict.tmp" \
+  "$deadlock_mixed_omit/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+printf '\n<!-- amendment wave: ux-spec.md updated after task review -->\n' \
+  >> "$deadlock_mixed_omit/specs/workflow-state-integrity/ux-spec.md"
+# Same reasoning as deadlock-design-deleted above: delete from the
+# contract AND from each reviewer's own recorded manifest, so the
+# manifest-superset check does not independently fail first.
+mixed_round="$deadlock_mixed_omit/reports/task-review/workflow-state-integrity/attempt-4/round-2"
+mixed_contract="$mixed_round/task-review-contract.json"
+jq '(.reviewers[].allowed_input_manifest) |= map(select(.path != "specs/workflow-state-integrity/frontend-spec.md"))' \
+  "$mixed_contract" > "$deadlock_mixed_omit/contract-mixed.tmp"
+mv "$deadlock_mixed_omit/contract-mixed.tmp" "$mixed_contract"
+jq '.manifest |= map(select(.path != "specs/workflow-state-integrity/frontend-spec.md"))' \
+  "$mixed_round/reviewer-a.json" > "$deadlock_mixed_omit/reviewer-a-mixed.tmp"
+mv "$deadlock_mixed_omit/reviewer-a-mixed.tmp" "$mixed_round/reviewer-a.json"
+jq '.manifest.allowed_inputs |= map(select(.path != "specs/workflow-state-integrity/frontend-spec.md"))' \
+  "$mixed_round/reviewer-b.json" > "$deadlock_mixed_omit/reviewer-b-mixed.tmp"
+mv "$deadlock_mixed_omit/reviewer-b-mixed.tmp" "$mixed_round/reviewer-b.json"
+
+run_opening "$deadlock_mixed_omit" workflow-state-integrity impl:2:1 1 \
+  "deadlock-mixed-stale-plus-absent-layer-still-fails"
+
+# Standalone on the epic-196-shape (stale-entry) fixture: no --opening means
+# no exemption of any kind -- still fails on the impl verdict, unchanged,
+# exactly like the original deadlock-recovery fixture's standalone check.
+set +e
+design_stale_standalone_output="$(bash "$CHECKER" \
+  --registry "$deadlock_design_stale/specs/workflow-state-registry.json" 2>&1)"
+design_stale_standalone_status=$?
+design_stale_standalone_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$deadlock_design_stale/specs/workflow-state-registry.json" 2>&1)"
+design_stale_standalone_ps_status=$?
+set -e
+[[ $design_stale_standalone_status -ne 0 ]] || fail "deadlock-design-stale standalone Shell unexpectedly passed"
+[[ $design_stale_standalone_ps_status -ne 0 ]] || fail "deadlock-design-stale standalone PowerShell unexpectedly passed"
+[[ "$design_stale_standalone_output" == *"integrated verdict is not a valid PASS"* ]] ||
+  fail "deadlock-design-stale standalone: expected the impl verdict diagnostic unchanged, got: $design_stale_standalone_output"
+[[ "$(printf '%s\n' "$design_stale_standalone_output" | rule_id)" == \
+   "$(printf '%s\n' "$design_stale_standalone_ps_output" | rule_id)" ]] ||
+  fail "deadlock-design-stale standalone twins diverged: Shell=$design_stale_standalone_output PowerShell=$design_stale_standalone_ps_output"
 
 printf 'ok: Shell workflow-state validation fixtures passed\n'

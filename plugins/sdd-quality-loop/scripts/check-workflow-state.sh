@@ -354,6 +354,37 @@ manifest_has_hash_for_file() {
   historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
   manifest_has_hash "$contract" "$suffix" "$historical" "$recorded_root"
 }
+# Reuses the EXACT relative_path resolution manifest_has_hash uses (not a
+# substring probe -- an annotated/prefix-confused path must resolve the
+# same way here as it does everywhere else this manifest is read) to answer
+# a narrower question than manifest_has_hash: ignoring sha256 entirely, was
+# $suffix ever recorded in this manifest at all, and if so, at what
+# hash(es)? Prints one distinct recorded sha256 per line. Zero lines means
+# no reviewer declared this path -- a genuine provenance gap. Exactly one
+# line means every entry for this path agrees on a single hash, which is
+# what lets a caller tell "the manifest already knows this input, just at
+# stale bytes" apart from "the manifest never knew this input at all."
+# More than one line (reviewers disagree with each other about this path)
+# is deliberately left for the caller to treat as inconclusive -- that is
+# not simple staleness and must not be waved through by this function.
+manifest_recorded_hashes_for_path() {
+  local contract="$1" suffix="$2" recorded_root="$3"
+  jq -r --arg suffix "$suffix" \
+    --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg recorded "${recorded_root:+$recorded_root/}" '
+    def relative_path:
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      elif test("^(/|[A-Za-z]:/)") then null
+      else . end;
+    ($suffix | ltrimstr("/")) as $target |
+    [.reviewers[]?.allowed_input_manifest[]? |
+      select(.path | type == "string" and relative_path == $target) |
+      .sha256] | unique[]
+  ' "$contract"
+}
 # Recorded manifest paths are absolute paths from the clone that produced the
 # review evidence, whose directory name has no relation to this checkout's
 # (worktrees, CI fixtures, and renamed clones are all legal). Split them on
@@ -484,6 +515,58 @@ stage_downstream_of_opening() {
 diagnostic_or_tolerate() {
   local feature="$1" stage="$2" category="$3" message="$4"
   stage_downstream_of_opening "$stage" && return 0
+  diagnostic "$feature" "$category" "$message"
+}
+# manifest_has_hash's "no (path, hash) pair matches" failure conflates two
+# different provenance states: the path was never declared (a genuine gap)
+# and the path was declared but the review ran before the file's current
+# amendment (staleness wearing the same diagnostic). Both produce the
+# identical boolean false, so every "reviewer manifests omit ..." /
+# "contract hashes are stale" diagnostic built on it inherited that
+# ambiguity. This resolves it, narrowly: only when downstream of a verified
+# --opening slot (never standalone, never upstream -- same discipline as
+# diagnostic_or_tolerate above), ask manifest_recorded_hashes_for_path
+# whether the path was recorded at all. Exactly one recorded hash,
+# different from the expected (current) one, is unambiguous staleness --
+# the manifest already knew this input, just at pre-amendment bytes -- and
+# is tolerated with a notice naming the path and both hashes, so the
+# recovery is visible rather than silently waved through. Zero recorded
+# hashes (the path never appeared) or more than one distinct recorded hash
+# (reviewers disagree about this path, which is not simple staleness)
+# leave the original diagnostic firing exactly as before.
+print_tolerated_omit_notice() {
+  local feature="$1" suffix="$2" recorded="$3" expected="$4"
+  printf 'workflow-state: %s: stage-provenance-tolerated: %s recorded %s, now %s\n' \
+    "$feature" "${suffix#/}" "$recorded" "$expected" >&2
+}
+# $1=feature $2=stage $3=category $4=message $5=contract $6=recorded_root,
+# followed by any number of (ok, suffix, expected) triples -- one per path
+# the failing check covers. A check that aggregates several paths (e.g.
+# calibration doc + precheck-result.json, or requirements.md +
+# acceptance-tests.md) must still fail with its ORIGINAL diagnostic if even
+# ONE of its paths is a genuine omission, regardless of whether the others
+# are merely stale -- so every not-ok triple must independently explain as
+# staleness for the whole check to be tolerated.
+diagnostic_or_tolerate_omit() {
+  local feature="$1" stage="$2" category="$3" message="$4" contract="$5" recorded_root="$6"
+  shift 6
+  local all_explained=1 ok suffix expected hashes count explained
+  while (($#)); do
+    ok="$1"; suffix="$2"; expected="$3"; shift 3
+    ((ok)) && continue
+    explained=0
+    if stage_downstream_of_opening "$stage"; then
+      hashes="$(manifest_recorded_hashes_for_path "$contract" "$suffix" "$recorded_root")"
+      count=0
+      [[ -z "$hashes" ]] || count="$(printf '%s\n' "$hashes" | grep -c .)"
+      if [[ "$count" -eq 1 && "$hashes" != "$expected" ]]; then
+        print_tolerated_omit_notice "$feature" "$suffix" "$hashes" "$expected"
+        explained=1
+      fi
+    fi
+    ((explained)) || all_explained=0
+  done
+  ((all_explained)) && return 0
   diagnostic "$feature" "$category" "$message"
 }
 validate_passed_stage() {
@@ -822,13 +905,19 @@ validate_passed_stage() {
     .requirements_sha256 == $req and .acceptance_sha256 == $accept
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic_or_tolerate "$feature" "$stage" stage-provenance "$stage top-level contract hashes are stale"
-  # NOT tolerated even downstream: manifest_has_hash asks "does some
-  # manifest entry match this (path, hash) pair", which cannot distinguish
-  # "entry present with a now-stale hash" from "entry never declared at
-  # all" (a genuine provenance gap). Ambiguous; fails closed.
-  manifest_has_hash "$contract" "/specs/$feature/requirements.md" "$req_hash" "$recorded_root" &&
-    manifest_has_hash "$contract" "/specs/$feature/acceptance-tests.md" "$accept_hash" "$recorded_root" ||
-    diagnostic "$feature" stage-provenance "$stage contract hashes are stale"
+  # manifest_has_hash's ambiguity, disambiguated per path: if EVERY
+  # not-matching path is explainable as "recorded, just at a stale hash"
+  # (downstream of a verified --opening slot only), tolerate; a single
+  # genuinely undeclared path among them still fails the whole check.
+  local req_manifest_ok accept_manifest_ok
+  req_manifest_ok=0
+  manifest_has_hash "$contract" "/specs/$feature/requirements.md" "$req_hash" "$recorded_root" && req_manifest_ok=1
+  accept_manifest_ok=0
+  manifest_has_hash "$contract" "/specs/$feature/acceptance-tests.md" "$accept_hash" "$recorded_root" && accept_manifest_ok=1
+  diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+    "$stage contract hashes are stale" "$contract" "$recorded_root" \
+    "$req_manifest_ok" "/specs/$feature/requirements.md" "$req_hash" \
+    "$accept_manifest_ok" "/specs/$feature/acceptance-tests.md" "$accept_hash"
   local calibration precheck
   if [[ "$stage" == spec ]]; then
     calibration="$REPO_ROOT/plugins/sdd-review-loop/references/spec-review-calibration.md"
@@ -838,14 +927,24 @@ validate_passed_stage() {
   precheck="$root/attempt-$best_attempt/round-$best_round/precheck-result.json"
   [[ -f "$calibration" && ! -L "$calibration" && -f "$precheck" && ! -L "$precheck" ]] ||
     diagnostic "$feature" stage-provenance "$stage required review inputs are missing"
-  # NOT tolerated even downstream: same manifest_has_hash existence
-  # ambiguity as above -- "omit" here could mean stale or genuinely
-  # undeclared, and the calibration doc already has its own plugins/
-  # historical-pin fallback (manifest_has_hash_for_file) that is unrelated
-  # to this recovery.
+  # Same per-path disambiguation. The calibration doc's own plugins/
+  # historical-pin fallback (manifest_has_hash_for_file) is tried FIRST and
+  # is unrelated to this recovery; only if that ALSO fails does the
+  # omit-vs-stale query run, comparing against the calibration doc's
+  # current live hash like every other check here.
+  local calibration_hash precheck_hash calibration_manifest_ok precheck_manifest_ok
+  calibration_hash="$(sha256_file "$calibration")"
+  calibration_manifest_ok=0
   manifest_has_hash_for_file "$contract" "/${calibration#"$REPO_ROOT/"}" "$calibration" "$recorded_root" &&
-    manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$(sha256_file "$precheck")" "$recorded_root" ||
-    diagnostic "$feature" stage-provenance "$stage reviewer manifests omit required inputs"
+    calibration_manifest_ok=1
+  precheck_hash="$(sha256_file "$precheck")"
+  precheck_manifest_ok=0
+  manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$precheck_hash" "$recorded_root" &&
+    precheck_manifest_ok=1
+  diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+    "$stage reviewer manifests omit required inputs" "$contract" "$recorded_root" \
+    "$calibration_manifest_ok" "/${calibration#"$REPO_ROOT/"}" "$calibration_hash" \
+    "$precheck_manifest_ok" "/${precheck#"$REPO_ROOT/"}" "$precheck_hash"
   if [[ "$stage" == impl ]]; then
     local design="$feature_dir/design.md"
     [[ -f "$design" && ! -L "$design" ]] ||
@@ -865,6 +964,11 @@ validate_passed_stage() {
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
         diagnostic "$feature" stage-provenance "implementation layer precheck manifest is incomplete"
+      # The omit-vs-stale disambiguation runs once across all four layers
+      # (an aggregate check, like calibration+precheck and req/accept
+      # above): one genuinely undeclared layer must still fail the whole
+      # check even if the other three are merely stale.
+      local layer_omit_triples=()
       for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
         layer_path="$feature_dir/$layer"
         [[ -f "$layer_path" && ! -L "$layer_path" ]] ||
@@ -875,11 +979,14 @@ validate_passed_stage() {
         [[ "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$precheck")" == "$layer_hash" &&
            "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$contract")" == "$layer_hash" ]] ||
           diagnostic_or_tolerate "$feature" "$stage" stage-provenance "implementation layer hash is stale"
-        # NOT tolerated even downstream: manifest_has_hash existence
-        # ambiguity, same as above.
-        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" ||
-          diagnostic "$feature" stage-provenance "implementation reviewer manifests omit layer inputs"
+        local layer_manifest_ok
+        layer_manifest_ok=0
+        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" && layer_manifest_ok=1
+        layer_omit_triples+=("$layer_manifest_ok" "/specs/$feature/$layer" "$layer_hash")
       done
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "implementation reviewer manifests omit layer inputs" "$contract" "$recorded_root" \
+        "${layer_omit_triples[@]}"
     fi
   elif [[ "$stage" == task ]]; then
     local tasks="$feature_dir/tasks.md" traceability="$feature_dir/traceability.md"
@@ -916,15 +1023,36 @@ validate_passed_stage() {
       [[ "$(jq -r '.design_sha256 // empty' "$precheck")" == "$task_design_hash" &&
          "$(jq -r '.design_sha256 // empty' "$contract")" == "$task_design_hash" ]] ||
         diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task design hash is stale"
-      # NOT tolerated even downstream: manifest_has_hash existence
-      # ambiguity, same as the impl-stage layer "omit" checks above.
-      manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" ||
-        diagnostic "$feature" stage-provenance "task reviewer manifests omit design"
-      manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
-      manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_normalized" "$recorded_root" ||
-        diagnostic "$feature" stage-provenance "task reviewer manifests omit traceability"
+      # manifest_has_hash's ambiguity, disambiguated: this is the literal
+      # epic-196 residual gate ("task reviewer manifests omit design") --
+      # design.md's manifest entry recorded at the pre-amendment hash reads
+      # identically to design.md never having been declared at all, unless
+      # this second query tells them apart.
+      local design_manifest_ok
+      design_manifest_ok=0
+      manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" &&
+        design_manifest_ok=1
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "task reviewer manifests omit design" "$contract" "$recorded_root" \
+        "$design_manifest_ok" "/specs/$feature/design.md" "$task_design_hash"
+      # Traceability accepts either the raw or the lifecycle-normalized
+      # form as "ok"; within the not-ok branch the recorded hash (if
+      # singular) is therefore guaranteed to differ from both, so comparing
+      # it against the raw form alone is sufficient for the notice.
+      local traceability_manifest_ok
+      traceability_manifest_ok=0
+      { manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
+        manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_normalized" "$recorded_root"; } &&
+        traceability_manifest_ok=1
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "task reviewer manifests omit traceability" "$contract" "$recorded_root" \
+        "$traceability_manifest_ok" "/specs/$feature/traceability.md" "$traceability_hash"
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
         diagnostic "$feature" stage-provenance "task layer precheck manifest is incomplete"
+      # Aggregate, same as the impl-stage layer loop above: one genuinely
+      # undeclared layer must still fail the whole check even if the other
+      # three are merely stale.
+      local layer_omit_triples=()
       for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
         layer_path="$feature_dir/$layer"
         [[ -f "$layer_path" && ! -L "$layer_path" ]] ||
@@ -935,11 +1063,14 @@ validate_passed_stage() {
         [[ "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$precheck")" == "$layer_hash" &&
            "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$contract")" == "$layer_hash" ]] ||
           diagnostic_or_tolerate "$feature" "$stage" stage-provenance "task layer hash is stale"
-        # NOT tolerated even downstream: manifest_has_hash existence
-        # ambiguity.
-        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" ||
-          diagnostic "$feature" stage-provenance "task reviewer manifests omit layer inputs"
+        local layer_manifest_ok
+        layer_manifest_ok=0
+        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" && layer_manifest_ok=1
+        layer_omit_triples+=("$layer_manifest_ok" "/specs/$feature/$layer" "$layer_hash")
       done
+      diagnostic_or_tolerate_omit "$feature" "$stage" stage-provenance \
+        "task reviewer manifests omit layer inputs" "$contract" "$recorded_root" \
+        "${layer_omit_triples[@]}"
     fi
   fi
 }
