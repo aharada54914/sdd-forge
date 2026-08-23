@@ -29,6 +29,10 @@ function Render([string]$TemplatePath) {
     $text = $text.Replace("{{output_path}}", $outPath)
     $text = $text.Replace("{{output_sha256}}", $outHash)
     $text = $text.Replace("{{verdict}}", "PASS")
+    $text = $text.Replace("{{run_id}}", "RUN-20260822T000000Z-fixture")
+    $text = $text.Replace("{{critical_count}}", "0")
+    $text = $text.Replace("{{major_count}}", "1")
+    $text = $text.Replace("{{minor_count}}", "2")
     $text = [regex]::Replace($text, "\{\{[A-Za-z_|]*\}\}", "fixture-value")
     return $text
 }
@@ -78,7 +82,17 @@ if ($found) {
 } else {
     Fail "impl-report template: Outputs table row NOT recognized by the evaluator's declared-output parser"
 }
-if ((Get-Content -Raw $validator).Contains('/^## Outputs[[:space:]]*$/')) {
+# WFI-036 parameterised the section heading so a second declaration channel
+# (the gate report's `## Post-Fix Artifacts`) could reuse the same row parser,
+# replacing the baked-in regex with a heading variable. Pin both halves: the
+# heading-match construct alone would not catch the boundary being pointed at a
+# different section, and the literal '## Outputs' alone would not catch the
+# matcher itself being replaced. The replicated state machine above stays valid
+# because `^## Outputs\s*$` and the parameterised prefix-plus-trailing-space
+# match are equivalent for this heading.
+$validatorText = Get-Content -Raw $validator
+if ($validatorText.Contains('index($0, heading) == 1') -and
+    $validatorText.Contains("'## Outputs'")) {
     Ok "validator pin: Outputs-section parser still present in launch boundary"
 } else {
     Fail "validator pin: Outputs-section parser changed in launch boundary"
@@ -173,6 +187,37 @@ if (@($qgLines | Where-Object { $_ -match "^VERDICT:\s*PASS\s*$" }).Count -ge 1)
     Ok "quality-report template: VERDICT line present"
 } else {
     Fail "quality-report template: VERDICT line missing"
+}
+
+# Rule 7 (WFI-020): the extended identity header — Run ID plus the
+# Critical/Major/Minor lines generate-evidence-bundle parses.
+if (@($qgLines | Where-Object { $_ -match "^Run ID:\s*RUN-20260822T000000Z-fixture\s*$" }).Count -ge 1) {
+    Ok "quality-report template: Run ID line present"
+} else {
+    Fail "quality-report template: Run ID line missing"
+}
+foreach ($sev in @(@("Critical", "0"), @("Major", "1"), @("Minor", "2"))) {
+    $sevName = $sev[0]; $sevVal = $sev[1]
+    if (@($qgLines | Where-Object { $_ -match "^${sevName}:\s*${sevVal}\s*$" }).Count -ge 1) {
+        Ok "quality-report template: $sevName count line present"
+    } else {
+        Fail "quality-report template: $sevName count line missing"
+    }
+}
+
+# Rule 8 (WFI-020): the run-record counter accepts the template's canonical
+# `Task ID:` identity.
+$emitRunRecord = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/emit-run-record.ps1"
+if ((Get-Content -Raw $emitRunRecord).Contains("(Task ID|Task):")) {
+    Ok "consumer pin: run-record counter accepts the canonical Task ID identity"
+} else {
+    Fail "consumer pin: run-record counter lacks the canonical Task ID identity"
+}
+$genBundle = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.ps1"
+if ((Get-Content -Raw $genBundle).Contains("Critical:")) {
+    Ok "consumer pin: severity-count parser still present in generate-evidence-bundle"
+} else {
+    Fail "consumer pin: severity-count parser missing from generate-evidence-bundle"
 }
 
 Write-Output ""

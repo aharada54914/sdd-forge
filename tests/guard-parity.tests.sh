@@ -196,6 +196,80 @@ parity_check "wfi-guard: write Status: Approved" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"content\":\"Status: Approved\"}}"
 
 # ---------------------------------------------------------------------------
+# Scenario 5b (WFI-022): the three reproduced false positives become allowed,
+# and three operations that could grant (or hide a grant of) an approval stay
+# refused. The three allowed cases replay the 2026-08-04 refusals recorded in
+# WFI-022's Problem Evidence.
+# ---------------------------------------------------------------------------
+# (1) Prose-quoting edit: the edit's new text names the field mid-sentence
+# but adds no column-0 field line. Previously refused (Edit path looked only
+# at new_string with an unanchored matcher).
+parity_check "wfi-022: prose-quoting edit allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Pending\",\"new_string\":\"The guard denies any edit that sets \`Status: Approved\` in a WFI file.\"}}"
+
+# (2) Read-only listing: grep across WFI files quoting the field. No write
+# verb, no redirect, no compound operator. Previously refused (Bash path was
+# a substring test blind to read-vs-write).
+parity_check "wfi-022: read-only grep allowed" 0 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -H 'Status: Approved' ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# (3) Creating a WFI document whose prose quotes the field (no column-0 field
+# line). Previously refused — WFI-022.md itself could only be created in
+# split form.
+parity_check "wfi-022: create doc quoting field in prose allowed" 0 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/docs/workflow-improvements/WFI-099.md\",\"content\":\"# WFI\\n\\nThe guard refuses any operation that sets \`Status: Approved\` in this file.\\n\"}}"
+
+# (4) The approval-removing sed stays refused BY DESIGN: it is write-capable,
+# and whether shell text nets out to a removal is not decidable, so the broad
+# match is kept. Paired with the allowed Edit-path equivalent of the same
+# transition below.
+parity_check "wfi-022: approval-removing sed still refused" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"sed -i '' 's/Status: Approved/Status: Applied/' ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# The supported route for that transition: an Edit that REMOVES the field
+# (old_string has it at column 0, new_string does not) is a net decrease.
+parity_check "wfi-022: status-advance via Edit path allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Status: Approved\",\"new_string\":\"Status: Applied\"}}"
+
+# An edit that PRESERVES the field (both sides carry it) is not a grant.
+parity_check "wfi-022: field-preserving edit allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Status: Approved\\nold prose\",\"new_string\":\"Status: Approved\\nnew prose\"}}"
+
+# (5) Real bypass, kept refused: a Write whose content carries the column-0
+# field line inside a larger document (the anchored matcher must still count
+# it; scenario 5 above covers the field as the whole content).
+parity_check "wfi-022: write with embedded column-0 field still refused" 2 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"content\":\"# WFI\\n\\nStatus: Approved\\n\\nprose\\n\"}}"
+
+# An Edit whose new_string ADDS a column-0 field line stays refused (net
+# increase — new 1 > old 0), even though the surrounding text is prose.
+parity_check "wfi-022: edit adding column-0 field still refused" 2 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"old_string\":\"Pending\",\"new_string\":\"prose\\nStatus: Approved\\nprose\"}}"
+
+# (6) Real bypass, kept refused: an append via a shell redirect. The field
+# literal sits inside quotes mid-line, which is why the Bash path keeps the
+# unanchored match; echo is not a read-only verb and >> is a write token.
+parity_check "wfi-022: redirect append still refused" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"echo 'Status: Approved' >> ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# A compound command is never exempt even when it starts read-only.
+parity_check "wfi-022: compound read-then-write still refused" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"grep -l 'Status: Approved' ${WORK}/docs/workflow-improvements/WFI-001.md && rm ${WORK}/docs/workflow-improvements/WFI-001.md\"}}"
+
+# (7, WFI-022 amendment — external review PR #336) Syntax that can EXECUTE a
+# further command disqualifies the read-only exemption: the embedded command
+# is invisible to the write vocabulary, so a reader-shaped outer verb can
+# smuggle an unmodeled writer. All four forms stay refused.
+parity_check "wfi-022: command substitution not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cat \"$(tar -xf /tmp/approved.tar -C .)\" docs/workflow-improvements/WFI-999.md Status: Approved"}}'
+parity_check "wfi-022: backtick substitution not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cat `tar -xf /tmp/approved.tar -C .` docs/workflow-improvements/WFI-999.md Status: Approved"}}'
+parity_check "wfi-022: newline-joined second command not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"grep -H Status: Approved docs/workflow-improvements/WFI-001.md\ntar -xf /tmp/approved.tar -C ."}}'
+parity_check "wfi-022: backgrounded second command not exempt" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cat docs/workflow-improvements/WFI-001.md Status: Approved & tar -xf /tmp/approved.tar -C ."}}'
+
+# ---------------------------------------------------------------------------
 # Scenario 6: Second Approval guard — Write adding Second Approval: Approved (deny — exit 2)
 # ---------------------------------------------------------------------------
 parity_check "second-approval-guard: Write adds Second Approval" 2 \
@@ -528,6 +602,120 @@ printf '{"verdict":"FAIL"}' \
 parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
     "wfi016: outside CWD + FAIL verdict still denied" 2 \
     "$WFI016_PAYLOAD"
+
+# ---------------------------------------------------------------------------
+# WFI-040: the protected set must cover every script the chain executes
+# ---------------------------------------------------------------------------
+# The guard's denial message names a category ("gate scripts"); what it holds is
+# a hand-maintained suffix list. Measured 2026-08-19, 31 scripts that CI, the
+# suite runner or a SKILL invokes matched no protected suffix. Enumeration
+# drifts silently, because a missing entry presents as "allowed" rather than as
+# an error. This is the check that makes the next omission fail loudly.
+wfi037_drift="$(cd "${REPO_ROOT}" && python3 - <<'PY'
+import glob, importlib.util, os
+spec = importlib.util.spec_from_file_location(
+    "gi", "plugins/sdd-quality-loop/scripts/generated/guard_invariants.py")
+gi = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(gi)
+protected = set(gi.PROTECTED_GATE_SUFFIXES) | {
+    s.lstrip("/") for s in gi.PROTECTED_GATE_PLUGIN_JSON_SUFFIXES}
+callers = ["tests/run-all.sh", "tests/run-all.ps1"]
+callers += glob.glob("plugins/*/skills/*/SKILL.md")
+callers += glob.glob(os.path.join(".github", "workflows", "*"))
+blob = ""
+for c in callers:
+    if os.path.exists(c):
+        with open(c, encoding="utf-8", errors="replace") as fh:
+            blob += fh.read()
+for path in sorted(glob.glob("plugins/*/scripts/*")):
+    if not os.path.isfile(path):
+        continue
+    if any(path.endswith(s) for s in protected):
+        continue
+    if os.path.basename(path) in blob:
+        print(path)
+PY
+)"
+if [ -z "${wfi037_drift}" ]; then
+    ok "wfi037: every chain-invoked script under plugins/*/scripts is protected"
+else
+    fail "wfi037: chain-invoked scripts are unprotected: $(echo "${wfi037_drift}" | tr '\n' ' ')"
+fi
+
+# ---------------------------------------------------------------------------
+# WFI-040 item 2b: the generated modules must agree with their JSON source
+# ---------------------------------------------------------------------------
+# The guard reads the generated modules, not the JSON. An applied JSON change
+# that was never regenerated leaves behaviour unchanged while every suite
+# reports green -- observed once already. Regenerate into a throwaway copy and
+# require the result to be byte-identical to what is committed.
+wfi037_gen="${WORK}/regen"
+mkdir -p "${wfi037_gen}/plugins/sdd-quality-loop"
+cp -R "${REPO_ROOT}/plugins/sdd-quality-loop/scripts" "${wfi037_gen}/plugins/sdd-quality-loop/"
+cp -R "${REPO_ROOT}/plugins/sdd-quality-loop/references" "${wfi037_gen}/plugins/sdd-quality-loop/"
+if (cd "${wfi037_gen}/plugins/sdd-quality-loop/scripts" \
+        && python3 generate-guard-invariants.py >/dev/null 2>&1); then
+    wfi037_stale=""
+    for wfi037_mod in guard_invariants.py guard-invariants.generated.js \
+                      guard-invariants.generated.ps1 guard-invariants.generated.sh; do
+        if ! cmp -s "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/generated/${wfi037_mod}" \
+                    "${wfi037_gen}/plugins/sdd-quality-loop/scripts/generated/${wfi037_mod}"; then
+            wfi037_stale="${wfi037_stale} ${wfi037_mod}"
+        fi
+    done
+    if [ -z "${wfi037_stale}" ]; then
+        ok "wfi037: generated invariant modules match guard-invariants.json"
+    else
+        fail "wfi037: generated modules are stale (run generate-guard-invariants.py):${wfi037_stale}"
+    fi
+else
+    fail "wfi037: generate-guard-invariants.py rejected the committed JSON"
+fi
+
+# ---------------------------------------------------------------------------
+# WFI-040: write-vocabulary coverage, both directions
+# ---------------------------------------------------------------------------
+# Every payload aims at kill-switch.sh, a path the guard's own predicate treats
+# as protected, so a permissive verdict cannot be blamed on the target. Group A
+# is the non-vacuity control: the verbs the original vocabulary modelled, which
+# must stay denied. Group B is what this WFI adds. Group D is the anti-Goodhart
+# control -- coverage must not have been bought by denying reads.
+wfi037_target="plugins/sdd-quality-loop/scripts/kill-switch.sh"
+wfi037_payload() { printf '{"tool_name":"Bash","tool_input":{"command":"%s"}}' "$1"; }
+
+for wfi037_case in \
+    "cp src ${wfi037_target}" \
+    "tee ${wfi037_target}" \
+    "rm ${wfi037_target}"; do
+    parity_check "wfi037 vocabulary A (modelled, deny): ${wfi037_case%% *}" 2 \
+        "$(wfi037_payload "${wfi037_case}")"
+done
+
+for wfi037_case in \
+    "git checkout -- ${wfi037_target}" \
+    "git restore ${wfi037_target}" \
+    "git reset --hard HEAD ${wfi037_target}" \
+    "sed -i '' s/a/b/ ${wfi037_target}" \
+    "install -m 755 src ${wfi037_target}" \
+    "ln -sf src ${wfi037_target}" \
+    "truncate -s 0 ${wfi037_target}" \
+    "dd if=src of=${wfi037_target}" \
+    "perl -pi -e s/a/b/ ${wfi037_target}"; do
+    parity_check "wfi037 vocabulary B (widened, deny): ${wfi037_case%% *}" 2 \
+        "$(wfi037_payload "${wfi037_case}")"
+done
+
+# Readers must survive. sed and git are in the fail-closed vocabulary, so these
+# two cases are what proves the regex admits sed only in its -i form and git
+# only on worktree-writing subcommands.
+for wfi037_case in \
+    "cat ${wfi037_target}" \
+    "grep x ${wfi037_target}" \
+    "sed -n 1,5p ${wfi037_target}" \
+    "git log -- ${wfi037_target}"; do
+    parity_check "wfi037 vocabulary D (reader, allow): ${wfi037_case%% *}" 0 \
+        "$(wfi037_payload "${wfi037_case}")"
+done
 
 # ---------------------------------------------------------------------------
 # Summary

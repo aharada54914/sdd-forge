@@ -479,6 +479,175 @@ if command -v pwsh >/dev/null 2>&1; then
   esac
 fi
 
+# WFI-036: an in-gate fix produces bytes the frozen implementation report can
+# never describe, so the very evaluator that must review the fix cannot
+# authorize the artifact under review. The validator therefore consults a
+# SECOND declaration channel: a gate report the manifest names explicitly and
+# pins by SHA-256. Every case below exists because this WFI WIDENS an
+# authorization set, and an unverified widening is indistinguishable from
+# removing the check: the source must be named rather than discovered, the
+# source must be hash-verified before a single row is read from it, and rows
+# must be hash-checked exactly as the implementation report's rows are.
+wfi036_repository="$tmp/wfi036-repository"
+make_repository "$wfi036_repository"
+mkdir -p "$wfi036_repository/reports/quality-gate" "$wfi036_repository/plugins/gate-fix"
+printf 'bytes produced by an in-gate fix\n' \
+  > "$wfi036_repository/plugins/gate-fix/post-fix-output.txt"
+wfi036_fix_path='plugins/gate-fix/post-fix-output.txt'
+wfi036_fix_hash="$(sha256 "$wfi036_repository/$wfi036_fix_path")"
+wfi036_unlisted_path='plugins/internal/arbitrary-existing.txt'
+wfi036_unlisted_hash="$(sha256 "$wfi036_repository/$wfi036_unlisted_path")"
+wfi036_wrong_hash="$(printf '%064d' 0 | tr '0' 'c')"
+
+wfi036_write_gate_report() {
+  # wfi036_write_gate_report <relative-path> <declared-path> <declared-hash>
+  # An empty <declared-path> writes a gate report carrying no post-fix table.
+  local relative=$1 declared_path=$2 declared_hash=$3
+  {
+    printf '# Quality Gate Report\n\n'
+    printf 'Task ID: T-001\n\n'
+    printf '## Decision\n\nPASS\n\n'
+    if [[ -n "$declared_path" ]]; then
+      printf '## Post-Fix Artifacts\n\n'
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `%s` | `%s` |\n' "$declared_path" "$declared_hash"
+      printf '\n'
+    fi
+  } > "$wfi036_repository/$relative"
+}
+
+wfi036_gate='reports/quality-gate/20260819T110000Z.md'
+wfi036_gate_no_table='reports/quality-gate/20260819T120000Z.md'
+wfi036_gate_wrong_row='reports/quality-gate/20260819T130000Z.md'
+wfi036_gate_naming_a_gate='reports/quality-gate/20260819T140000Z.md'
+wfi036_write_gate_report "$wfi036_gate" "$wfi036_fix_path" "$wfi036_fix_hash"
+wfi036_write_gate_report "$wfi036_gate_no_table" '' ''
+wfi036_write_gate_report "$wfi036_gate_wrong_row" "$wfi036_fix_path" "$wfi036_wrong_hash"
+wfi036_write_gate_report "$wfi036_gate_naming_a_gate" "$wfi036_gate_no_table" \
+  "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")"
+wfi036_gate_hash="$(sha256 "$wfi036_repository/$wfi036_gate")"
+
+# A document that is NOT a gate report but carries a correct post-fix row for a
+# real artifact. Its only defect is that it lives outside the gate's own report
+# namespace, which is exactly what the namespace requirement must catch.
+mkdir -p "$wfi036_repository/reports/notes"
+wfi036_forged='reports/notes/forged-declaration.md'
+{
+  printf '# Not a gate report\n\n'
+  printf '## Post-Fix Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `%s` | `%s` |\n' "$wfi036_fix_path" "$wfi036_fix_hash"
+} > "$wfi036_repository/$wfi036_forged"
+
+wfi036_evaluator="$tmp/wfi036-evaluator.json"
+make_manifest "$wfi036_repository" sdd-evaluator "$wfi036_evaluator"
+
+wfi036_manifest() {
+  # wfi036_manifest <out> <gate-path|-> <gate-sha|-> <extra-path> <extra-sha>
+  local output=$1 gate_path=$2 gate_hash=$3 extra_path=$4 extra_hash=$5
+  local program='.allowed_input_manifest += [{path:$p, sha256:$h}]'
+  if [[ "$gate_path" != - ]]; then
+    program="${program} | .gate_report_declaration = {path:\$gp, sha256:\$gh}"
+  fi
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+     --arg gp "$gate_path" --arg gh "$gate_hash" \
+     "$program" "$wfi036_evaluator" > "$output"
+}
+
+# Happy path: the artifact an in-gate fix produced, declared in the gate report
+# the manifest names and pins, at its true hash, IS authorized. Before WFI-036
+# this exact manifest was rejected as role-unlisted and the cycle could not
+# review its own fix.
+wfi036_manifest "$tmp/wfi036-happy.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" "$wfi036_fix_path" "$wfi036_fix_hash"
+run_bash "$tmp/wfi036-happy.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-036: Bash rejected a post-fix artifact declared in the named gate report'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi036-happy.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-036: PowerShell rejected a post-fix artifact declared in the named gate report'
+fi
+
+# Negative control (WFI-036 Verification Plan 1). A real, existing file that is
+# in NEITHER the implementation report nor the named gate report is still
+# role-unlisted. If this case ever passes, the channel removed the boundary.
+wfi036_manifest "$tmp/wfi036-negative.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" "$wfi036_unlisted_path" "$wfi036_unlisted_hash"
+assert_rejected_both wfi036-declared-in-neither-document \
+  "$tmp/wfi036-negative.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# Positive control (WFI-036 Verification Plan 2), both polarities of a wrong
+# row hash, plus a stale declaration source.
+#  (a) the gate report's row hash disagrees with the manifest: no row matches,
+#      so the path is never authorized in the first place.
+wfi036_manifest "$tmp/wfi036-row-disagrees.json" \
+  "$wfi036_gate_wrong_row" "$(sha256 "$wfi036_repository/$wfi036_gate_wrong_row")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-gate-row-hash-disagrees-with-manifest \
+  "$tmp/wfi036-row-disagrees.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+#  (b) row and manifest agree on a hash the file on disk does not have: the row
+#      authorizes, and the live-bytes check must still reject.
+wfi036_manifest "$tmp/wfi036-row-wrong.json" \
+  "$wfi036_gate_wrong_row" "$(sha256 "$wfi036_repository/$wfi036_gate_wrong_row")" \
+  "$wfi036_fix_path" "$wfi036_wrong_hash"
+assert_rejected_both wfi036-gate-row-hash-does-not-match-disk \
+  "$tmp/wfi036-row-wrong.json" "$wfi036_repository" REVIEW_CONTEXT_HASH
+#  (c) the declaration source itself is stale or forged: refused on the
+#      document's own hash, before any row is read from it.
+wfi036_manifest "$tmp/wfi036-stale-source.json" \
+  "$wfi036_gate" "$wfi036_wrong_hash" "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-stale-gate-report-declaration \
+  "$tmp/wfi036-stale-source.json" "$wfi036_repository" REVIEW_CONTEXT_HASH
+
+# The source is named, never discovered. With no declaration, and with a
+# different real gate report named, the same declared artifact stays refused --
+# the validator does not scan reports/quality-gate/ for a matching row.
+wfi036_manifest "$tmp/wfi036-unnamed.json" - - "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-gate-report-not-named \
+  "$tmp/wfi036-unnamed.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+wfi036_manifest "$tmp/wfi036-other-report.json" \
+  "$wfi036_gate_no_table" "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-other-gate-report-named \
+  "$tmp/wfi036-other-report.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# The declaration source must be a gate report, and no gate report authorizes
+# another gate report: an evaluator must not be handed a prior verdict.
+# Discriminating on purpose: the named document carries a correct post-fix row
+# for a real artifact, so the ONLY thing that can reject this manifest is the
+# requirement that a declaration source be a gate report. Drop that requirement
+# and this manifest validates.
+wfi036_manifest "$tmp/wfi036-foreign-source.json" \
+  "$wfi036_forged" "$(sha256 "$wfi036_repository/$wfi036_forged")" \
+  "$wfi036_fix_path" "$wfi036_fix_hash"
+assert_rejected_both wfi036-declaration-source-outside-quality-gate \
+  "$tmp/wfi036-foreign-source.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+wfi036_manifest "$tmp/wfi036-gate-authorizes-gate.json" \
+  "$wfi036_gate_naming_a_gate" \
+  "$(sha256 "$wfi036_repository/$wfi036_gate_naming_a_gate")" \
+  "$wfi036_gate_no_table" "$(sha256 "$wfi036_repository/$wfi036_gate_no_table")"
+assert_rejected_both wfi036-gate-report-cannot-authorize-a-gate-report \
+  "$tmp/wfi036-gate-authorizes-gate.json" "$wfi036_repository" REVIEW_CONTEXT_PATH
+
+# The field is quality-only, and adding it never weakens the frozen-report
+# channel it sits beside.
+make_manifest "$wfi036_repository" spec-reviewer-a "$tmp/wfi036-spec-base.json"
+jq --arg gp "$wfi036_gate" --arg gh "$wfi036_gate_hash" \
+  '.gate_report_declaration = {path:$gp, sha256:$gh}' \
+  "$tmp/wfi036-spec-base.json" > "$tmp/wfi036-spec-stage.json"
+assert_rejected_both wfi036-gate-declaration-on-a-reviewer-stage \
+  "$tmp/wfi036-spec-stage.json" "$wfi036_repository" REVIEW_CONTEXT_CONTRACT
+wfi036_manifest "$tmp/wfi036-report-channel.json" \
+  "$wfi036_gate" "$wfi036_gate_hash" 'plugins/task/authorized-output.txt' \
+  "$(sha256 "$wfi036_repository/plugins/task/authorized-output.txt")"
+run_bash "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+  fail 'WFI-036: Bash implementation-report channel regressed while a gate report was named'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/wfi036-report-channel.json" "$wfi036_repository" >/dev/null ||
+    fail 'WFI-036: PowerShell implementation-report channel regressed while a gate report was named'
+fi
+
 # Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
 # Files introduced after that commit must be deleted, and all surviving files
 # must be byte-identical to the archived baseline.
@@ -533,5 +702,177 @@ done
 find "$rollback_target" -depth -type d -empty -delete
 diff -qr "$rollback_baseline" "$rollback_target" >/dev/null ||
   fail 'restored reviewer/evaluator boundary is not equal to baseline 7df7318'
+
+# WFI-017 ratified the legacy `## Output Paths And Hashes` bullet section on the
+# implementation-report contract ("retained solely so previously committed
+# bullet-only and dual-form v2 reports remain valid") but never taught this
+# authorization boundary to read it. A report the repository considers valid
+# could therefore declare artifacts the evaluator could not be given, and the
+# task became ungateable through no fault of its own. These cases pin the
+# boundary to the SAME grammar validate-implementation-report.sh enforces --
+# no looser, and no artifact the table form would not have admitted.
+legacy_repository="$tmp/legacy-declaration-repository"
+make_repository "$legacy_repository"
+legacy_output_hash="$(sha256 "$legacy_repository/plugins/task/authorized-output.txt")"
+legacy_unlisted_hash="$(sha256 "$legacy_repository/plugins/internal/arbitrary-existing.txt")"
+legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
+
+# Rewrite the fixture's report so the artifact is declared ONLY in the legacy
+# section -- no `## Outputs` table at all, which is the shape of the historical
+# reports WFI-017 exists to keep valid.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' \
+    "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+
+legacy_manifest_for() {
+  # legacy_manifest_for <out> <extra-path> <extra-sha>
+  local output=$1 extra_path=$2 extra_hash=$3
+  local base="$tmp/legacy-base.json"
+  make_manifest "$legacy_repository" sdd-evaluator "$base"
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' "$base" > "$output"
+}
+
+# Positive: an artifact declared only in the ratified legacy section IS
+# authorized. Before this change the identical manifest was role-unlisted.
+legacy_manifest_for "$tmp/legacy-happy.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+run_bash "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+  fail 'WFI-017 boundary: Bash rejected an artifact declared in the ratified legacy section'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+    fail 'WFI-017 boundary: PowerShell rejected an artifact declared in the ratified legacy section'
+fi
+
+# Negative control: a real file the legacy section does not name is still
+# role-unlisted. If this ever passes, the change removed the boundary.
+legacy_manifest_for "$tmp/legacy-negative.json" \
+  'plugins/internal/arbitrary-existing.txt' "$legacy_unlisted_hash"
+assert_rejected_both wfi017-legacy-path-not-declared \
+  "$tmp/legacy-negative.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The legacy row is hash-checked exactly as a table row is: a manifest naming
+# the declared path under a different hash matches no row.
+legacy_manifest_for "$tmp/legacy-wrong-hash.json" \
+  'plugins/task/authorized-output.txt' "$legacy_wrong_hash"
+assert_rejected_both wfi017-legacy-row-hash-mismatch \
+  "$tmp/legacy-wrong-hash.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The grammar is the ratified one, not "any bullet mentioning a path and a
+# hash". A report using a near-miss serialization authorizes nothing, so this
+# change cannot be mistaken for a licence to invent further formats.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- `plugins/task/authorized-output.txt`: `%s`\n' "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+legacy_manifest_for "$tmp/legacy-nearmiss.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+assert_rejected_both wfi017-legacy-unratified-serialization \
+  "$tmp/legacy-nearmiss.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# WFI-038 third target: the control whose absence let the drift happen.
+#
+# WFI-017 taught validate-implementation-report.sh a second declaration grammar
+# and nothing taught this boundary. The result was a report the repository
+# formally accepts whose declared artifacts the evaluator could not be given --
+# reported as `role-unlisted` on a path that was, in fact, listed. Neither
+# validator was wrong on its own; what was missing was anything asserting that
+# the two agree.
+#
+# This block is driven BY the report validator's own declaration, not by a list
+# maintained here. It extracts the section names that script consults for the
+# outputs contract and requires the boundary to read every one. Add a third
+# grammar there without teaching the boundary and this goes red, naming the
+# grammar -- which is the failure mode WFI-038 documents.
+report_validator="$ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+[[ -f "$report_validator" ]] || fail 'declaration-grammar parity: report validator is missing'
+ratified_grammars="$(grep -oE '^[a-z_]+_sections = sections\.get\("[^"]+"' "$report_validator" |
+  sed -E 's/.*sections\.get\("([^"]+)".*/\1/' | sort -u)"
+[[ -n "$ratified_grammars" ]] ||
+  fail 'declaration-grammar parity: extracted no ratified grammar -- the report validator changed shape, so this control is no longer measuring anything'
+
+parity_repository="$tmp/grammar-parity-repository"
+make_repository "$parity_repository"
+parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
+
+# Emit the declaration row shape for one ratified section name. A section this
+# does not know how to write is an unteachable grammar -- fail rather than
+# silently skip, because skipping is exactly how the boundary fell behind.
+write_declaration() {
+  local section=$1
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## %s\n\n' "$section"
+  case "$section" in
+    'Outputs')
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+      ;;
+    'Output Paths And Hashes')
+      printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' "$parity_hash"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+# Collect into an array BEFORE iterating. A `while read ... done <<HEREDOC`
+# loop hands its stdin to every command in the body, and pwsh binds inherited
+# stdin as pipeline input -- it then fails with "the input object cannot be
+# bound to any parameters" while the suite still exits 0, so the PowerShell leg
+# would silently not be exercised. Observed here before this was fixed.
+parity_grammars=()
+while IFS= read -r grammar; do
+  [[ -n "$grammar" ]] && parity_grammars+=("$grammar")
+done <<PARITY_GRAMMARS
+$ratified_grammars
+PARITY_GRAMMARS
+[[ ${#parity_grammars[@]} -gt 0 ]] ||
+  fail 'declaration-grammar parity: no grammar collected'
+
+for grammar in "${parity_grammars[@]}"; do
+  write_declaration "$grammar" > "$parity_repository/reports/implementation/f/T-001.md" ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but this suite cannot write it -- teach both the boundary and this control, do not delete the case"
+  make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+  jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+    "$tmp/parity-base.json" > "$tmp/parity-manifest.json"
+  run_bash "$tmp/parity-manifest.json" "$parity_repository" >/dev/null ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the Bash boundary cannot read it"
+  if command -v pwsh >/dev/null 2>&1; then
+    run_pwsh "$tmp/parity-manifest.json" "$parity_repository" >/dev/null </dev/null ||
+      fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the PowerShell boundary cannot read it"
+  fi
+done
+
+# Non-vacuity: the loop above only proves acceptance. A section name the report
+# validator does NOT ratify must not be readable by the boundary either, or the
+# parity claim is satisfied by a boundary that reads everything.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Declared Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+} > "$parity_repository/reports/implementation/f/T-001.md"
+make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+  '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+  "$tmp/parity-base.json" > "$tmp/parity-unratified.json"
+assert_rejected_both wfi038-unratified-section-name \
+  "$tmp/parity-unratified.json" "$parity_repository" REVIEW_CONTEXT_PATH
 
 printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'

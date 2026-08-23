@@ -74,7 +74,7 @@ def write_aggregate(panelists, vendors_distinct, non_anthropic_count,
         json.dump(agg, f, indent=2)
         f.write("\n")
 
-HEX64 = re.compile(r'^[0-9a-fA-F]{64}$')
+HEX64 = re.compile(r'^[0-9a-f]{64}$')
 VALID_CONSENT_KINDS = {"human-flag", "sudo"}
 
 # ── Step 0: discover verdict files ─────────────────────────────────────────

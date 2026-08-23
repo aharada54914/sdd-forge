@@ -70,8 +70,33 @@ fi
 count=0
 if [ -d "$reports_dir" ]; then
     feature_re="$(printf '%s\n' "$feature" | sed 's/[][\\.^$*+?(){}|]/\\&/g')"
+    task_re="$(printf '%s\n' "$task_id" | sed 's/[][\\.^$*+?(){}|]/\\&/g')"
+    # WFI-035: count a report only when its OWN identity header names this
+    # task, never when the id merely appears somewhere in the text.
+    #
+    # The previous predicate was a whole-file word-boundary search. That
+    # measures "reports that MENTION this task" rather than "gate cycles this
+    # task has had", and the report template guarantees mentions: it mandates
+    # `## Out-Of-Scope Waivers` and `## Traceability And Drift`, and filling
+    # those in honestly means naming the sibling tasks that own the
+    # out-of-scope surfaces. A feature whose tasks extend the same files
+    # accumulates cross-references at exactly the rate that trips the limit --
+    # the better the reports, the sooner siblings are falsely escalated.
+    # Measured in sdd-domain-concept-contract: all five tasks returned
+    # Escalate-Human against honest counts of 1/2/1/3/2, and T-005 was barred
+    # from its FIRST gate with zero reports of its own.
+    #
+    # Three anchored identity forms are accepted because all three occur in
+    # the committed corpus and dropping any would UNDER-count, weakening the
+    # limit. Measured across all 220 reports under reports/quality-gate/:
+    # 219 carry `Task ID:`, 77 carry `Task:`, 16 carry the H1 heading, and
+    # exactly one (2026-07-15T133723Z-epic-136-phase2-gates-T-005.md) carries
+    # only the heading. The union covers 220 of 220. Every form is anchored,
+    # so none of them can match prose.
+    identity_re="^(Task ID|Task):[[:space:]]*${task_re}[[:space:]]*\$"
+    identity_re="${identity_re}|^#[[:space:]]+Quality Gate Report:?[[:space:]]*${task_re}([^0-9]|\$)"
     set +e
-    task_matches="$(grep -rlwF -e "$task_id" "$reports_dir" 2>/dev/null)"
+    task_matches="$(grep -rlE -e "$identity_re" "$reports_dir" 2>/dev/null)"
     rc=$?
     set -e
     if [ "$rc" -ge 2 ]; then

@@ -161,7 +161,18 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    one `reports/implementation/<feature>/T-NNN.md`, the task's required
    specification and calibration files, and only those changed, test, contract,
    ADR, or deterministic-evidence files whose exact canonical path and lowercase
-   SHA-256 pair appears in that implementation report's `## Outputs` table.
+   SHA-256 pair appears in that implementation report's `## Outputs` table, or
+   in the `## Post-Fix Artifacts` table of a gate report the manifest names in
+   `gate_report_declaration` and pins by SHA-256 (WFI-036). The implementation
+   report is frozen, so it can never describe bytes produced by a fix this gate
+   itself raised; a cycle that follows a review-ticket or in-gate fix therefore
+   records the post-fix path/hash rows in its own report, and the next cycle
+   names that report. The second channel is checked exactly as the first: the
+   named report's own hash is verified before a single row is read from it, a
+   path in neither document is still unlisted, and a row carrying the wrong
+   hash still fails. Do not add the rows to an earlier cycle's report -- that
+   report recorded a verdict at a point in time and must not later declare
+   bytes that did not exist then.
    Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
    authorizes an evaluator input.
    Reverify every hash immediately before launch and bind the manifest path/hash,
@@ -186,7 +197,27 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    future or replayed reviewer contexts.
    Reject a missing manifest, unlisted path, hash mismatch, chat-only input, or
    any implementation/review/evaluation session reuse.
+   Never direct an evaluator to reach an artifact the manifest does not
+   authorize -- not through `git show`, not through the live tree, and not by
+   reproducing its contents in the launch prompt. Authorization comes from the
+   persisted, validator-checked manifest, never from the launching agent's
+   prose; a launcher that can widen the evaluator's reachable set by asking has
+   removed the boundary this machinery exists to enforce. When a needed
+   artifact is undeclared, declare it and relaunch rather than instructing
+   around it (WFI-036).
    No same-session fallback is permitted for the evaluator.
+   Allocate the evaluator a scratch directory of its own and name it in the
+   launch brief: a path used by no implementation context for this feature and
+   by no earlier evaluator run. Tell the evaluator to write nothing outside it.
+   This is not housekeeping (WFI-034). Sharing one scratch root across roles
+   puts the implementing agent's intermediates -- a `.bak` of the suite under
+   review, per-task append scripts, raw red/green logs -- inside reach of the
+   agent grading that work, through a channel the manifest does not describe
+   and the hash checks never see. Observed in `sdd-domain-concept-contract`:
+   the evaluator found exactly those files and disclosed that it had declined
+   to read them. What held there was the reviewer's judgement, not a mechanism,
+   and a boundary that depends on the reviewed party declining an available
+   capability is not a boundary.
    For `high`/`critical` tasks, record
    the evaluator's verdict as `review_verdict` in the evidence bundle;
    `check-evidence-bundle` requires `review_verdict.verdict == PASS`.
@@ -207,13 +238,22 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
     run described in `deterministic-check-policy.md`.
 13. Create review-ticket YAML for unresolved or non-auto-fixable findings.
 14. Update traceability and detect drift using `integrity-policy.md`.
-15. Create `reports/quality-gate/<timestamp>.md` naming the task id. Record
-    the same `- Model:` / `- Effort:` two-line requirement the
-    implementation report carries (`implementation-report.template.md`,
+15. Create `reports/quality-gate/<timestamp>.md` from
+    `plugins/sdd-quality-loop/templates/quality-report.template.md` — the
+    template exists and is parity-tested
+    (`tests/template-validator-parity.tests.{sh,ps1}`); do not author the
+    report freeform. Its identity header block (`Task ID:` / `Feature:` /
+    `Run ID:` / `VERDICT:` / `Critical:` / `Major:` / `Minor:`) is parsed
+    by deterministic consumers (check-evidence-bundle, emit-run-record,
+    generate-evidence-bundle, the retrospective's artifact rules): keep
+    each as a bare line before any prose, and never start a later body
+    line with `Feature: ` or `Task ID: ` — two consumers require exactly
+    one match each. Record the same `- Model:` / `- Effort:` two-line
+    requirement the implementation report carries
+    (`implementation-report.template.md`,
     `validate-implementation-report.sh` present-and-format-only check):
     name the model and effort the gate's own critical-review pass ran
-    under, freely-authored (no separate template file exists for this
-    report).
+    under. (WFI-020)
 
 ### Sudo Mode
 

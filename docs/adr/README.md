@@ -261,3 +261,4 @@ must never rely on a bare legacy number.
 | 0029 | Registry Discovery Contract | Accepted |
 | 0030 | Component Path Ownership Resolver Semantics | Accepted |
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
+| 0032 | Concept Design Layer — Phased Introduction | Accepted |

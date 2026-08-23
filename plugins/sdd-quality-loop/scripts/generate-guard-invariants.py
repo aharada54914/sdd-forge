@@ -97,6 +97,48 @@ BASELINE_SUFFIXES = (
     "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
     "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
     "plugins/sdd-ship/skills/ship/SKILL.md",
+    # WFI-040 step (a): scripts the enforcement and verification chain executes
+    # -- named by a file under .github/workflows/, by tests/run-all.*, or by a
+    # SKILL.md -- that matched no protected suffix before this change.
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+    "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+    "plugins/sdd-quality-loop/scripts/check-cross-model.sh",
+    "plugins/sdd-quality-loop/scripts/check-cross-model.ps1",
+    "plugins/sdd-quality-loop/scripts/check-placeholders.sh",
+    "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh",
+    "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+    "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+    "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+    "plugins/sdd-quality-loop/scripts/detect-panel.sh",
+    "plugins/sdd-quality-loop/scripts/detect-panel.ps1",
+    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh",
+    "plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh",
+    "plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh",
+    "plugins/sdd-quality-loop/scripts/vendor-capability-registry.py",
+    "plugins/sdd-review-loop/scripts/spec-review-precheck.sh",
+    "plugins/sdd-review-loop/scripts/impl-review-precheck.sh",
+    "plugins/sdd-review-loop/scripts/task-review-precheck.sh",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh",
+    "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+    "plugins/sdd-implementation/scripts/select-agent-model.sh",
+    "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
+    "plugins/sdd-bootstrap/scripts/design-sync-scan.sh",
+    "plugins/sdd-domain/scripts/domain-review-precheck.sh",
+    "plugins/sdd-lite/scripts/check-task-state-lite.sh",
+    # Sourced libraries that carry the gate logic for protected scripts above
+    # (require_persisted_pass, panelist consent/signature helpers). Leaving one
+    # unprotected lets the gate be weakened without touching any protected
+    # wrapper, so a lib a protected script sources is protected itself.
+    "plugins/sdd-quality-loop/scripts/lib/panelist-common.sh",
+    "plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh",
+    "plugins/sdd-quality-loop/scripts/lib/py-dispatch.sh",
+    "plugins/sdd-quality-loop/scripts/lib/py-dispatch.ps1",
 )
 EPIC_A1_TARGETS = (
     "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py",

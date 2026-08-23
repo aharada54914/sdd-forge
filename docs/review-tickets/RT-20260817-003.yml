@@ -1,0 +1,42 @@
+ticket_id: RT-20260817-003
+status: open
+type: test-gap
+severity: minor
+target:
+  feature: epic-192-a4-facet-manifest
+  task: T-002
+  files:
+    - tests/capability-summary-schema.tests.sh
+    - tests/capability-summary-schema.tests.ps1
+    - specs/epic-192-a4-facet-manifest/verification/T-002/metaschema-conformance.md
+    - reports/implementation/epic-192-a4-facet-manifest/T-002.md
+    - specs/epic-192-a4-facet-manifest/verification/T-002/red-sh.log
+summary: "T-002 QG (seq0757, PASS) の非ブロッキング Minor 4 件の記録"
+problem: |
+  seq0757 の quality-gate evaluator（VERDICT: PASS、Critical 0 / Major 0）が
+  検出した Accepted Minor 4 件の記録。いずれも Done 判定を妨げない。
+  (1) 帰属誤記: tests/capability-summary-schema.tests.sh:147-148 と
+  metaschema-conformance.md:90 が ECMA-262 `$`→`\Z` 修正の出所を
+  「design.md の指示」等と記載するが、design.md/tasks.md/acceptance-tests.md
+  に該当文言はない。実際の出所は T-001 の QG 教訓（ゲートセッション指示）。
+  修正自体は requirements.md:282 の pattern 要件により正当。
+  (2) 仕様矛盾報告の範囲不足: design.md keyword-audit 段落(:711-713)が JSON
+  ブロックから落としているのは `pattern` と `minLength` の 2 つだが、
+  実装レポート Specification Differences は `pattern` のみ記載。
+  (3) RED 証跡の網羅性: red-sh.log は set -euo pipefail により最初の
+  fixture 依存 assertion で中断し 22 中 1 件の FAIL のみ記録
+  （evaluator が全 11 negative fixture の非空虚性を弱化スキーマ比較で
+  独自実証済み）。
+  (4) Discovery contract の $schema/$id バージョンチェック未実装は
+  RT-20260817-001 と同根で、T-005/AC-032 で 4 validator 横断の確認が必要。
+expected_fix:
+  - "帰属文言を「T-001 quality-gate の教訓を適用」に訂正（コメント/検証文書のみ、挙動不変）"
+  - "実装レポートの Specification Differences に minLength の脱落も追記"
+  - "後続タスクの RED 証跡は per-fixture の失敗を記録する方式（abort しない collect モード等）を検討"
+  - "T-005 実装時に RT-20260817-001 と併せて 4 validator の Discovery バージョンチェックを確認"
+references:
+  - "RUN-epic-192-a4-facet-manifest-qg-T-002-seq0757 evaluator findings (Minor x4)"
+  - "docs/review-tickets/RT-20260817-001.yml"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

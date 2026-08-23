@@ -1,0 +1,45 @@
+ticket_id: RT-20260821-004
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-008"
+  files:
+    - ".github/rulesets/main.json"
+    - ".github/workflows/test.yml"
+    - "reports/implementation/risk-adaptive-layer/T-008.md"
+summary: >-
+  AC-008 release gating never discharged (compensating control falsifiable via
+  workflow_dispatch arbitrary ref and admin bypass_actors); three of four
+  AC-008 clauses have no automated lock
+problem: |
+  QG evaluator (seq 0818, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T053500Z.md) accepted two Majors.
+
+  1. The task commit e391e3a5 never touched release.yml while design.md:209
+     and AC-008 require release gated on CI. The documented compensating
+     control ("gated at merge, so tagged releases on green main are already
+     tested") is falsifiable: workflow_dispatch accepts an arbitrary ref, and
+     rulesets/main.json:38-44 grants an always-on admin bypass, so green-main
+     is not guaranteed.
+  2. Only the apply script has tests (13/13). Deleting merge_group from
+     test.yml or breaking the ruleset JSON passes every gate in CI. The
+     clauses hold today by direct measurement; no standing gate locks them.
+
+  Launcher defect recorded in the gate report: the declared evidence file
+  specs/risk-adaptive-layer/verification/T-008.config.log exists on disk but
+  was absent from the evaluator manifest, so the primary AC-008 evidence was
+  unreadable this cycle.
+expected_fix:
+  - "Either add .github/workflows/release.yml to the report's declaration set so gating can be judged, or record the gated-at-merge compensating control as an approved spec change amending design.md:209 and AC-008 - including a decision on the workflow_dispatch arbitrary-ref and bypass_actors holes"
+  - "Add a standing config lock asserting ruleset JSON parses, CODEOWNERS parses, and merge_group is present in test.yml"
+  - "Declare specs/risk-adaptive-layer/verification/T-008.config.log in the report's recovery appendix so the re-gate manifest can carry it"
+  - "Re-run the quality gate for T-008 once fixed"
+references:
+  - "reports/quality-gate/20260821T053500Z.md"
+  - "specs/risk-adaptive-layer/design.md"
+  - "specs/risk-adaptive-layer/acceptance-tests.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

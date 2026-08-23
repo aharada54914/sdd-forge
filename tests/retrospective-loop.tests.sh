@@ -161,13 +161,36 @@ sed 's/T-101/T-999/' \
   "$METRIC_WORK/reports/quality-gate/gate-a.md" \
   > "$METRIC_WORK/reports/quality-gate/unrelated.md"
 
-python3 - "$METRIC_WORK" <<'PY'
+python3 - "$METRIC_WORK" "$SKILL" <<'PY'
 import pathlib
 import re
 import sys
 
 root = pathlib.Path(sys.argv[1])
 task = "T-101"
+
+# RT-20260821-017: the selection/tie-break/de-dup directions are PARSED from
+# the real SKILL.md instead of being re-implemented as constants, so editing
+# the production document's algorithm (e.g. inverting "smallest" to
+# "greatest") changes this engine's behavior and fails the hardcoded
+# expectations below. Previously this block never opened any repository file
+# and passed in an empty directory.
+skill_text = pathlib.Path(sys.argv[2]).read_text()
+
+def rule_direction(pattern):
+    match = re.search(pattern, skill_text, re.S)
+    assert match, f"SKILL.md lost the pinned rule: {pattern}"
+    return match.group(1)
+
+DEDUP_PATH_DIR = rule_direction(
+    r"De-duplicate candidates with the same `\(task ID, Run ID\)` by\s+"
+    r"retaining the lexicographically (smallest|greatest) canonical path\.\s+Select")
+ATTEMPT_DIR = rule_direction(
+    r"Select the current\s+task report by the (greatest|smallest) numeric `Task Attempt Count`")
+TIE_RUN_DIR = rule_direction(
+    r"break a tie by the\s+lexicographically (greatest|smallest) `Run ID`")
+TIE_PATH_DIR = rule_direction(
+    r"`Run ID`, then the lexicographically (smallest|greatest)\s+canonical path")
 impl_root = root / "reports/implementation/demo"
 
 def one(pattern, text):
@@ -217,14 +240,27 @@ for path in sorted(impl_root.glob("*.md")):
 
 by_run = {}
 for record in implementation:
-    by_run.setdefault(record["run"], record)
+    existing = by_run.get(record["run"])
+    if existing is None:
+        by_run[record["run"]] = record
+    else:
+        pick = min if DEDUP_PATH_DIR == "smallest" else max
+        by_run[record["run"]] = pick(
+            existing, record, key=lambda item: item["path"].as_posix())
 retained_impl = list(by_run.values())
+def _lex_key(value, direction):
+    # For use inside a max(): "greatest" keeps the natural ordering,
+    # "smallest" inverts it so max() picks the lexicographically smallest.
+    if direction == "greatest":
+        return tuple(ord(char) for char in value)
+    return tuple(-ord(char) for char in value)
+
 selected = max(
     retained_impl,
     key=lambda record: (
-        record["attempt"],
-        record["run"],
-        tuple(-ord(char) for char in record["path"].as_posix()),
+        record["attempt"] if ATTEMPT_DIR == "greatest" else -record["attempt"],
+        _lex_key(record["run"], TIE_RUN_DIR),
+        _lex_key(record["path"].as_posix(), TIE_PATH_DIR),
     ),
 )
 assert selected["path"].name == "T-101-attempt-2.md"
@@ -296,8 +332,17 @@ grep -Fq 'Current baseline and target' "$AUDITOR_B" || fail "auditor B must chec
 grep -Fq 'proposed_revisions' "$AUDITOR_A" || fail "auditor A must return structured proposed revisions"
 grep -Fq 'proposed_revisions' "$AUDITOR_B" || fail "auditor B must return structured proposed revisions"
 grep -Fq 'proposed_revisions' "$AUDIT_CYCLE" || fail "audit cycle must consume structured proposed revisions"
-grep -Fq '"auditor_a_pass_count": 8' "$AUDITOR_B" || fail "auditor B schema example must match auditor A check count"
+grep -Fq '"auditor_a_pass_count": 9' "$AUDITOR_B" || fail "auditor B schema example must match auditor A check count"
 grep -Fq 'VERIFICATION-METRIC-DEFINED' "$AUDIT_CYCLE" || fail "audit cycle summary must include new auditor A check"
-grep -Fq '"auditor_a_pass_count": 8' "$AUDIT_CYCLE" || fail "audit cycle example pass count must match auditor A check count"
+grep -Fq '"auditor_a_pass_count": 9' "$AUDIT_CYCLE" || fail "audit cycle example pass count must match auditor A check count"
+
+# Why-why (5 Whys) root-cause analysis must stay wired through the whole WFI flow:
+# template section, drafting instruction, auditor check, and audit-cycle bridge.
+grep -Fq '## Why-Why Analysis' "$WFI_TEMPLATE" || fail "WFI template must include why-why analysis section"
+grep -Fq '## Why-Why Analysis' "$SKILL" || fail "workflow-retrospective WFI draft must include why-why analysis section"
+grep -Fq 'Run the why-why analysis' "$SKILL" || fail "workflow-retrospective must instruct running the why-why analysis before drafting the root cause"
+grep -Fq 'WHY-CHAIN-VALID' "$AUDITOR_A" || fail "auditor A must validate the why-why chain"
+grep -Fq 'WHY-CHAIN-VALID' "$AUDIT_CYCLE" || fail "audit cycle summary must include the why-chain check"
+grep -Fq 'process/mechanism cause' "$AUDITOR_A" || fail "auditor A why-chain check must require a controllable process/mechanism terminal cause"
 
 printf 'ok: retrospective loop prompts and templates are synchronized\n'

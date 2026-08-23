@@ -1,0 +1,10 @@
+{
+  "schema": "sdd-context-projection/v1",
+  "workflow": {
+    "spec_profile": "full",
+    "artifact_layout": "facet-native",
+    "capability_enforcement": "required"
+  },
+  "components": {},
+  "shared_paths": []
+}

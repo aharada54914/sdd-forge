@@ -61,11 +61,13 @@ audit logic, or run-record definitions (anything that MEASURES the workflow)?
 For `Category: plugin-improvement` WFIs, the following sections **must** use only
 generic workflow terms:
 - `## Root Cause Hypothesis`
+- `## Why-Why Analysis` (Why/Because columns)
 - `## Proposed Change` (Change Description column)
 - `## Expected Effect`
 
-The `## Problem Evidence` section **may** cite raw metric names and report paths as
-they appear in retrospective reports (they are direct evidence, not prose description).
+The `## Problem Evidence` section and the Evidence column of `## Why-Why Analysis`
+**may** cite raw metric names and report paths as they appear in retrospective
+reports (they are direct evidence, not prose description).
 
 ### Forbidden Terms → Required Generic Substitutions
 

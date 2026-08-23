@@ -35,7 +35,13 @@ calibration_sha256=""
 fail() { echo "ERROR: task-review-precheck: $*" >&2; exit 1; }
 sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
+}
+sha256_stream() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
 }
 reviewed_sha256() {
   local file="$1" status_field="$2" reviewed_status="$3"
@@ -43,200 +49,37 @@ reviewed_sha256() {
   if LC_ALL=C grep -q "^${status_field}:.*"$'\r$' "$file"; then
     replacement+=$'\r'
   fi
-  if command -v sha256sum >/dev/null 2>&1; then
-    sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" |
-      sha256sum | awk '{print $1}'
-  else
-    sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" |
-      shasum -a 256 | awk '{print $1}'
-  fi
+  sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" | sha256_stream
 }
-require_persisted_pass() {
-  local root="$1" stage="$2" requirements_hash="$3" acceptance_hash="$4" design_hash="$5"
-  local requirements_current_hash="$6" design_current_hash="$7" verdict="" contract contract_dir
-  local stage_calibration stage_calibration_hash
-  if [[ "$stage" == "spec" ]]; then
-    stage_calibration="plugins/sdd-review-loop/references/spec-review-calibration.md"
-  else
-    stage_calibration="$CALIBRATION_MD"
-  fi
-  stage_calibration_hash="$(sha256 "${repo_root}/${stage_calibration}")"
-  [[ -d "$root" && ! -L "$root" ]] || fail "missing ${stage} predecessor report root"
-  local candidate candidate_dir relative_dir candidate_attempt candidate_round
-  local latest_attempt=0 latest_round=0
-  while IFS= read -r candidate; do
-    candidate_dir="$(dirname "$candidate")"
-    relative_dir="${candidate_dir#"${root}/"}"
-    [[ "$relative_dir" =~ ^attempt-([1-9][0-9]*)/round-([1-9][0-9]*)$ ]] ||
-      fail "persisted ${stage} verdict is outside a canonical attempt/round directory"
-    candidate_attempt="${BASH_REMATCH[1]}"
-    candidate_round="${BASH_REMATCH[2]}"
-    if (( candidate_attempt > latest_attempt ||
-          (candidate_attempt == latest_attempt && candidate_round > latest_round) )); then
-      latest_attempt="$candidate_attempt"
-      latest_round="$candidate_round"
-      verdict="$candidate"
-    fi
-  done < <(find "$root" -type f -name integrated-verdict.json ! -lname '*' -print)
-  [[ -n "$verdict" ]] || fail "missing persisted ${stage} PASS verdict"
-  contract_dir="$(dirname "$verdict")"; contract="${contract_dir}/${stage}-review-contract.json"
-  [[ -f "$contract" && ! -L "$contract" ]] || fail "missing persisted ${stage} review contract"
-  [[ "$contract_dir" =~ /attempt-([1-9][0-9]*)/round-([1-9][0-9]*)$ ]] ||
-    fail "persisted ${stage} contract is outside a canonical attempt/round directory"
-  local stored_attempt="${BASH_REMATCH[1]}" stored_round="${BASH_REMATCH[2]}"
-  jq -e --arg feature "$FEATURE" --arg stage "$stage" '
-    .feature == $feature and .stage == $stage and (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and .verdict == "PASS" and
-    (if $stage == "spec" then .schema == "spec-review-integrated-verdict/v1" and
-      ([.reviewer_a_run_id, .reviewer_b_run_id, .reviewer_a_host_session_id, .reviewer_b_host_session_id] | all(type == "string" and length > 0)) and
-      .reviewer_a_run_id != .reviewer_b_run_id and .reviewer_a_host_session_id != .reviewer_b_host_session_id
-     else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
-    fail "persisted ${stage} verdict is not a complete PASS contract"
-  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
-    --arg accept "$acceptance_hash" --arg design "$design_hash" --arg design_current "$design_current_hash" \
-    --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" '
-    # Contracts persisted by predecessor gates record absolute paths of the
-    # checkout that generated them. Relativize against the known repository
-    # anchors so evidence stays verifiable from any checkout (issue #61).
-    def relative_path:
-      if startswith($repo) then .[($repo | length):]
-      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
-      else . end;
-    def allowed_input($role; $path; $attempt; $round):
-      ($stage + "-reviewer-a") as $role_a |
-      ($stage + "-reviewer-b") as $role_b |
-      ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt | tostring)) as $attempt_root |
-      ($attempt_root + "/round-" + ($round | tostring)) as $round_root |
-      (($path == ("specs/" + $feature + "/requirements.md")) or
-       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
-       ($stage == "spec" and $path == ("specs/" + $feature + "/investigation.md")) or
-       ($stage == "impl" and
-        ($path == ("specs/" + $feature + "/design.md") or
-         $path == ("specs/" + $feature + "/ux-spec.md") or
-         $path == ("specs/" + $feature + "/frontend-spec.md") or
-         $path == ("specs/" + $feature + "/infra-spec.md") or
-         $path == ("specs/" + $feature + "/security-spec.md") or
-         $path == ("specs/" + $feature + "/investigation.md"))) or
-       ($stage == "task" and
-        ($path == ("specs/" + $feature + "/tasks.md") or
-         $path == ("specs/" + $feature + "/design.md") or
-         $path == ("specs/" + $feature + "/traceability.md") or
-         $path == ("specs/" + $feature + "/ux-spec.md") or
-         $path == ("specs/" + $feature + "/frontend-spec.md") or
-         $path == ("specs/" + $feature + "/infra-spec.md") or
-         $path == ("specs/" + $feature + "/security-spec.md"))) or
-       ($path == $calibration) or
-       ($path == ($round_root + "/precheck-result.json")) or
-       ($stage == "spec" and $role == $role_b and
-        $path == ($round_root + "/integrated-summary.json")) or
-       ($stage == "impl" and $role == $role_b and
-        $path == ($round_root + "/integrated-summary.json")) or
-       ($stage == "impl" and $role == $role_a and $round > 1 and
-        $path == ($attempt_root + "/round-" + (($round - 1) | tostring) + "/integrated-summary.json")) or
-       ($stage == "task" and $role == $role_a and
-        $path == ($round_root + "/dependency-graph.json")) or
-       ($stage == "task" and $role == $role_b and
-        ($path == ($round_root + "/integrated-summary.json") or
-         $path == "plugins/sdd-quality-loop/references/risk-gate-matrix.md" or
-         $path == "plugins/sdd-quality-loop/references/risk-classification-policy.md")));
-    .schema == ($stage + "-review-contract/v1") and .feature == $feature and .stage == $stage and
-    (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and
-    (.run_id | type == "string" and length > 0) and .verdict == "PASS" and
-    ([.reviewers[]? | .role] | sort) == [($stage + "-reviewer-a"), ($stage + "-reviewer-b")] and
-    ([.reviewers[]? | .host_session_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
-    ([.reviewers[]? | .run_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
-    (.attempt as $attempt | .round as $round |
-      all(.reviewers[]?;
-        .role as $role |
-        ([.allowed_input_manifest[]? | (.path | relative_path)] as $paths |
-          ($paths | length) > 0 and ($paths | length) == ($paths | unique | length)) and
-        all(.allowed_input_manifest[]?;
-          .path as $raw_path |
-          (($raw_path | type == "string") and
-           (($raw_path | relative_path) as $path |
-             (($path | startswith("/")) | not) and
-             ($path | test("(^|/)\\.\\.?(/|$)") | not) and
-             allowed_input($role; $path; $attempt; $round) and
-             (.sha256 | type == "string") and
-             (.sha256 | test("^[0-9a-f]{64}$"))))
-        )
-      )
-    ) and
-    (any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == ("specs/" + $feature + "/requirements.md") and (.sha256 == $req or .sha256 == $req_current))) and
-    (any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == ("specs/" + $feature + "/acceptance-tests.md") and .sha256 == $accept)) and
-    ($stage != "impl" or any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == ("specs/" + $feature + "/design.md") and (.sha256 == $design or .sha256 == $design_current))) and
-    all(.reviewers[]?; any(.allowed_input_manifest[]?; (.path | relative_path) == $calibration and .sha256 == $calibration_hash))
-  ' "$contract" >/dev/null || fail "persisted ${stage} contract does not match canonical current inputs"
-  [[ "$(jq -r '.attempt' "$contract")" == "$stored_attempt" &&
-     "$(jq -r '.round' "$contract")" == "$stored_round" ]] ||
-    fail "persisted ${stage} contract attempt/round does not match its directory"
-
-  local role_a="${stage}-reviewer-a" role_b="${stage}-reviewer-b"
-  local precheck_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/precheck-result.json"
-  local summary_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/integrated-summary.json"
-  local investigation_path="specs/${FEATURE}/investigation.md"
-  manifest_has() {
-    local role="$1" path="$2" hash_one="$3" hash_two="${4:-}"
-    jq -e --arg role "$role" --arg path "$path" --arg repo "${repo_root}/" \
-      --arg hash_one "$hash_one" --arg hash_two "$hash_two" '
-      def relative_path:
-        if startswith($repo) then .[($repo | length):]
-        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
-        else . end;
-      any(.reviewers[]?;
-        .role == $role and
-        any(.allowed_input_manifest[]?;
-          ((.path | relative_path) == $path) and
-          (.sha256 == $hash_one or ($hash_two != "" and .sha256 == $hash_two))
-        )
-      )' "$contract" >/dev/null
-  }
-  for role in "$role_a" "$role_b"; do
-    manifest_has "$role" "specs/${FEATURE}/requirements.md" "$requirements_hash" "$requirements_current_hash" ||
-      fail "persisted ${stage} contract reviewer manifest is missing canonical requirements"
-    manifest_has "$role" "specs/${FEATURE}/acceptance-tests.md" "$acceptance_hash" ||
-      fail "persisted ${stage} contract reviewer manifest is missing canonical acceptance tests"
-    manifest_has "$role" "$stage_calibration" "$stage_calibration_hash" ||
-      fail "persisted ${stage} contract reviewer manifest is missing canonical calibration"
-    manifest_has "$role" "$precheck_path" "$(sha256 "${repo_root}/${precheck_path}")" ||
-      fail "persisted ${stage} contract reviewer manifest is missing canonical precheck evidence"
-    if [[ "$stage" == "impl" ]]; then
-      manifest_has "$role" "specs/${FEATURE}/design.md" "$design_hash" "$design_current_hash" ||
-        fail "persisted impl contract reviewer manifest is missing canonical design"
-      if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$contract")" -gt 0 ]]; then
-        for layer in "${LAYER_FILES[@]}"; do
-          manifest_has "$role" "specs/${FEATURE}/${layer}" "$(sha256 "${repo_root}/specs/${FEATURE}/${layer}")" ||
-            fail "persisted impl contract reviewer manifest is missing canonical layer input: ${layer}"
-        done
-      fi
-    fi
-    if [[ -f "${repo_root}/${investigation_path}" ]]; then
-      manifest_has "$role" "$investigation_path" "$(sha256 "${repo_root}/${investigation_path}")" ||
-        fail "persisted ${stage} contract reviewer manifest is missing investigation evidence"
-    fi
-  done
-  manifest_has "$role_b" "$summary_path" "$(sha256 "${repo_root}/${summary_path}")" ||
-    fail "persisted ${stage} reviewer-b manifest is missing canonical integrated summary"
-  if [[ "$stage" == "impl" && "$stored_round" -gt 1 ]]; then
-    local previous_summary="reports/impl-review/${FEATURE}/attempt-${stored_attempt}/round-$((stored_round - 1))/integrated-summary.json"
-    manifest_has "$role_a" "$previous_summary" "$(sha256 "${repo_root}/${previous_summary}")" ||
-      fail "persisted impl reviewer-a manifest is missing previous-round summary"
-  fi
-  jq -e --slurpfile verdict "$verdict" --arg stage "$stage" '
-    . as $contract | $verdict[0] as $verdict |
-    $contract.attempt == $verdict.attempt and
-    $contract.round == $verdict.round and
-    $contract.verdict == $verdict.verdict and
-    (if $stage == "spec" then
-       ($contract.reviewers | map({key: .role, value: {run_id: .run_id, host_session_id: .host_session_id}}) | from_entries) as $reviewers |
-       $reviewers["spec-reviewer-a"].run_id == $verdict.reviewer_a_run_id and
-       $reviewers["spec-reviewer-b"].run_id == $verdict.reviewer_b_run_id and
-       $reviewers["spec-reviewer-a"].host_session_id == $verdict.reviewer_a_host_session_id and
-       $reviewers["spec-reviewer-b"].host_session_id == $verdict.reviewer_b_host_session_id
-     else $contract.run_id == $verdict.run_id end)
-  ' "$contract" >/dev/null || fail "persisted ${stage} verdict and contract contradict each other"
+# WFI-025: the STATUS-NORMALIZED task-plan digest — byte-for-byte the same
+# recipe as check-workflow-state.sh normalized_hash() for the task stage
+# (canonical form 1), which the accepting side already admits. Recorded
+# instead of the raw digest when the plan's statuses are mixed, so the
+# binding survives the lifecycle transitions the workflow is supposed to
+# perform; every byte outside the lifecycle fields still binds.
+tasks_normalized_hash() {
+  local file="$1" cr=""
+  LC_ALL=C grep -q $'^Task-Review-Status:.*\r$' "$file" && cr=$'\r'
+  sed \
+    -e "s/^Task-Review-Status:[[:space:]]*.*/Task-Review-Status: Pending${cr}/" \
+    -e "s/^Approval:[[:space:]]*.*/Approval: Draft${cr}/" \
+    -e "s/^Status:[[:space:]]*.*/Status: Planned${cr}/" \
+    -e "/^Second Approval:/d" "$file" | sha256_stream
 }
+# Shared predecessor-verdict validation (require_persisted_pass and
+# assert_contract_reviewer_agreement) lives in lib/review-precheck-common.sh,
+# shared with the sibling precheck. It calls this script's fail/sha256/
+# reviewed_sha256 helpers and reads FEATURE/repo_root/CALIBRATION_MD/
+# LAYER_FILES, all defined above.
+if ! . "$(cd "$(dirname "$0")" && pwd -P)/lib/review-precheck-common.sh"; then
+  fail "lib/review-precheck-common.sh unavailable beside this script"
+fi
 
 command -v jq >/dev/null 2>&1 || fail "jq is required"
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
+  fail "neither sha256sum nor shasum is available"
 
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
@@ -252,7 +95,14 @@ if [[ "$MODE" == "--verify-inputs" ]]; then
   for path in "$TASKS_MD" "$REQS_MD" "$ACCEPT_MD" "$DESIGN_MD"; do
     [[ -f "$path" && ! -L "$path" ]] || fail "review input is missing or substituted: $path"
   done
-  jq -e --arg tasks "$(sha256 "$TASKS_MD")" --arg requirements "$(sha256 "$REQS_MD")" \
+  # WFI-025: verify the task plan against the digest FORM the precheck
+  # declared. A normalized record tolerates the lifecycle flips it exists to
+  # absorb; a body edit still changes the normalized digest and fails here.
+  tasks_verify_hash="$(sha256 "$TASKS_MD")"
+  if [[ "$(jq -r '.tasks_sha256_form // "raw"' "$precheck" | tr -d '\r')" == "normalized" ]]; then
+    tasks_verify_hash="$(tasks_normalized_hash "$TASKS_MD")"
+  fi
+  jq -e --arg tasks "$tasks_verify_hash" --arg requirements "$(sha256 "$REQS_MD")" \
     --arg acceptance "$(sha256 "$ACCEPT_MD")" --arg design "$(sha256 "$DESIGN_MD")" \
     --arg feature "$FEATURE" \
     --argjson attempt "$ATTEMPT" --argjson round "$ROUND" '
@@ -357,6 +207,40 @@ fi
 [[ "${workflow_match_precheck}" != "FAIL" ]] || fail "Risk/Required Workflow mismatches must be fixed before creating evidence"
 
 # ──────────────────────────────────────────────────────────────────────────────
+# STEP 2b: Record Done When items that name a review-frozen artifact (WFI-030)
+# ──────────────────────────────────────────────────────────────────────────────
+# Detection only -- this never changes the exit code. The frozen-artifact rule
+# in the task decomposition review gate's structural-coverage role is a Major
+# finding evaluated by reviewer judgement alone; nothing deterministic backed
+# it, and a review that reasoned past it sealed an unsatisfiable item into a
+# hash-bound plan. Measured over this repository the trigger fires on 6 items,
+# 3 of them real, so it records rather than fails; the reviewer adjudicates
+# each entry.
+# Items wrap across continuation lines, so lines are joined into whole items
+# before matching: a line-at-a-time scan finds only 1 of the 3 known cases.
+frozen_done_when_tsv="$(awk '
+  function flush(   l) {
+    if (item == "") return
+    l = item
+    if (l ~ /traceability\.md|design\.md|tasks\.md/ &&
+        l ~ /(^|[^a-zA-Z])(record|records|update|updates|add|write|edit|append)([^a-zA-Z]|$)/)
+      printf "%s\t%d\t%s\n", task, itemline, l
+    item = ""
+  }
+  /^##[ \t]+T-[0-9]+/ { flush(); task = $2; sub(/[^A-Za-z0-9-].*$/, "", task); inblk = 0 }
+  /Done When/ { flush(); inblk = 1; next }
+  /^(##|###)[ \t]/ || /^[A-Za-z][A-Za-z ]*:/ { flush(); inblk = 0 }
+  !inblk { next }
+  /^- \[/ { flush(); item = $0; itemline = FNR; next }
+  /^[ \t]+[^ \t]/ { if (item != "") { sub(/^[ \t]+/, " "); item = item $0 }; next }
+  { flush() }
+  END { flush() }
+' "${TASKS_MD}")"
+frozen_done_when_json="$(printf '%s' "${frozen_done_when_tsv}" |
+  jq -R -s -c 'split("\n") | map(select(length > 0) | split("\t") | {task: .[0], line: (.[1]|tonumber), item: .[2]})')"
+[[ -n "${frozen_done_when_json}" ]] || frozen_done_when_json='[]'
+
+# ──────────────────────────────────────────────────────────────────────────────
 # STEP 3: Parse Blockers fields and build dependency-graph.json
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -445,42 +329,46 @@ if [[ "${expecting_blockers_value}" == "true" ]]; then
 fi
 
 [[ "$blockers_format_valid" == "true" ]] || fail "Blockers format is invalid"
-for target_task in "${graph_edges_to[@]}"; do
-  known_task=false
-  for task_id in "${graph_nodes[@]}"; do
-    [[ "$task_id" == "$target_task" ]] && known_task=true && break
-  done
-  [[ "$known_task" == "true" ]] || fail "Blockers references unknown task ${target_task}"
+# Node-keyed lookups via derived variable names (graph_node_T_001=1,
+# graph_adj_T_001="T-002 T-003"): bash-3.2 compatible (no associative arrays),
+# and O(1) instead of the previous linear scans. Task IDs are already
+# validated to T-NNN, so the derived names are safe.
+# The namespaces must start empty: these lookups read shell variables, so an
+# inherited/exported graph_node_T_999=1 could otherwise vouch for a task the
+# parsed tasks.md never declared, and stale graph_adj_*/graph_visit_* values
+# could corrupt the traversal. (graph_node_ does not prefix-match the
+# graph_nodes/graph_edges_* arrays, which survive the sweep.)
+for stale_graph_var in $(compgen -v graph_node_) $(compgen -v graph_adj_) $(compgen -v graph_visit_); do
+  unset "$stale_graph_var"
 done
-declare -a graph_visit_nodes=()
-declare -a graph_visit_states=()
-graph_visit_state() {
-  local node="$1" i
-  for ((i=0; i<${#graph_visit_nodes[@]}; i++)); do
-    [[ "${graph_visit_nodes[$i]}" == "$node" ]] && { echo "${graph_visit_states[$i]}"; return; }
-  done
-  echo 0
-}
-set_graph_visit_state() {
-  local node="$1" state="$2" i
-  for ((i=0; i<${#graph_visit_nodes[@]}; i++)); do
-    if [[ "${graph_visit_nodes[$i]}" == "$node" ]]; then graph_visit_states[$i]="$state"; return; fi
-  done
-  graph_visit_nodes+=("$node"); graph_visit_states+=("$state")
-}
+for task_id in "${graph_nodes[@]}"; do
+  printf -v "graph_node_${task_id//-/_}" 1
+done
+for ((i=0; i<${#graph_edges_from[@]}; i++)); do
+  target_task="${graph_edges_to[$i]}"
+  known_var="graph_node_${target_task//-/_}"
+  [[ -n "${!known_var:-}" ]] || fail "Blockers references unknown task ${target_task}"
+  adj_var="graph_adj_${graph_edges_from[$i]//-/_}"
+  printf -v "$adj_var" '%s %s' "${!adj_var:-}" "$target_task"
+done
+# Recursive three-colour DFS over the Blockers graph (mirrored by the .ps1
+# twin). Visit state lives in graph_visit_<node>: unset/0 = unvisited,
+# 1 = on the current path (seeing it again means a cycle), 2 = fully
+# explored. Depth is bounded by the task count (T-001..T-999), well inside
+# bash's recursion budget. State is written with printf -v, never echoed
+# from a subshell, so mutations survive the recursive calls.
 graph_has_cycle_from() {
-  local node="$1" i next state
-  state="$(graph_visit_state "$node")"
-  [[ "$state" != "1" ]] || return 0
-  [[ "$state" != "2" ]] || return 1
-  set_graph_visit_state "$node" 1
-  for ((i=0; i<${#graph_edges_from[@]}; i++)); do
-    if [[ "${graph_edges_from[$i]}" == "$node" ]]; then
-      next="${graph_edges_to[$i]}"
-      graph_has_cycle_from "$next" && return 0
-    fi
+  local node="$1" next state_var adj_var
+  state_var="graph_visit_${node//-/_}"
+  [[ "${!state_var:-0}" != "1" ]] || return 0
+  [[ "${!state_var:-0}" != "2" ]] || return 1
+  printf -v "$state_var" 1
+  adj_var="graph_adj_${node//-/_}"
+  # Unquoted on purpose: successors are space-separated, all T-NNN validated.
+  for next in ${!adj_var:-}; do
+    graph_has_cycle_from "$next" && return 0
   done
-  set_graph_visit_state "$node" 2
+  printf -v "$state_var" 2
   return 1
 }
 for task_id in "${graph_nodes[@]}"; do
@@ -492,6 +380,19 @@ done
 # ──────────────────────────────────────────────────────────────────────────────
 
 tasks_sha256=$(sha256 "${TASKS_MD}")
+# WFI-025: a plan whose task statuses are MIXED has a raw digest that
+# coincides with none of the accepting side's status-invariant forms, so a
+# raw binding breaks on the next lifecycle flip of any task. Record the
+# normalized digest for that case — and only that case: a uniform plan (all
+# statuses equal, or no Status lines) keeps today's raw behaviour
+# byte-for-byte. The recorded form travels in `tasks_sha256_form` so the
+# reservation validator can cross-check which form the manifest may declare.
+tasks_sha256_form="raw"
+distinct_status_count=$(sed -n 's/^Status:[[:space:]]*//p' "${TASKS_MD}" | sed -e 's/\r$//' -e 's/[[:space:]]*$//' | sort -u | grep -c . || true)
+if [[ "${distinct_status_count}" -gt 1 ]]; then
+  tasks_sha256_form="normalized"
+  tasks_sha256="$(tasks_normalized_hash "${TASKS_MD}")"
+fi
 requirements_sha256=$(sha256 "${REQS_MD}")
 acceptance_sha256=$(sha256 "${ACCEPT_MD}")
 design_sha256=$(sha256 "${DESIGN_MD}")
@@ -550,7 +451,7 @@ if $full_profile; then
 else
   input_material="$(printf '%s:%s:%s' "$tasks_sha256" "$requirements_sha256" "$acceptance_sha256")"
 fi
-input_sha256="$(printf '%s' "$input_material" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+input_sha256="$(printf '%s' "$input_material" | sha256_stream)"
 foundation_contract="$(mktemp)"
 trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
@@ -616,10 +517,12 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "workflow_match_precheck": "${workflow_match_precheck}",
   "blockers_format_valid": ${blockers_format_valid},
   "tasks_sha256": "${tasks_sha256}",
+  "tasks_sha256_form": "${tasks_sha256_form}",
   "requirements_sha256": "${requirements_sha256}",
   "acceptance_sha256": "${acceptance_sha256}",
   "design_sha256": "${design_sha256}",
   "traceability_sha256": "${traceability_sha256}",
+  "frozen_artifact_done_when": ${frozen_done_when_json},
   "layer_sha256": ${layer_sha256},
   "input_sha256": "${input_sha256}",
   "generated_at": "${generated_at}"

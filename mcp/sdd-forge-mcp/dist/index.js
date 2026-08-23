@@ -34330,7 +34330,7 @@ function isRisk(value) {
 }
 
 // src/parsers/task-validation.ts
-var APPROVED_ANNOTATION_PATTERN = /^Approved \((.+)\)$/;
+var APPROVED_ANNOTATION_PATTERN = /^Approved \(([^ )]+ \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\)$/;
 var APPROVER_ID_PATTERN = /^Approved \(([^ )]+) \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$/;
 function approverId(value) {
   const match = APPROVER_ID_PATTERN.exec(value);

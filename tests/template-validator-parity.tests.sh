@@ -38,6 +38,10 @@ render() {
         -e "s|{{output_path}}|$OUT_PATH|g" \
         -e "s|{{output_sha256}}|$OUT_HASH|g" \
         -e "s|{{verdict}}|PASS|g" \
+        -e "s|{{run_id}}|RUN-20260822T000000Z-fixture|g" \
+        -e "s|{{critical_count}}|0|g" \
+        -e "s|{{major_count}}|1|g" \
+        -e "s|{{minor_count}}|2|g" \
         -e "s|{{[a-zA-Z_|]*}}|fixture-value|g" \
         "$1"
 }
@@ -72,9 +76,17 @@ grep -Fq -- '- Task ID: $task_id' "$VALIDATOR" &&
 # Rule 3: the "## Outputs" table must declare outputs in the exact row shape
 # evaluator_output_is_declared parses. The awk program below replicates the
 # validator's parser verbatim.
+# WFI-036 parameterised the section heading so a second declaration channel
+# (the gate report's `## Post-Fix Artifacts`) could reuse the same row parser.
+# The replica below tracks that change: the heading arrives as a variable and is
+# matched by prefix-plus-trailing-whitespace instead of a baked-in regex. Row
+# matching is unchanged -- still exact equality on the two-column backtick row.
 declared() {
-    awk -v expected_path="$1" -v expected_hash="$2" '
-        /^## Outputs[[:space:]]*$/ { in_outputs = 1; next }
+    awk -v expected_path="$1" -v expected_hash="$2" -v heading='## Outputs' '
+        index($0, heading) == 1 && substr($0, length(heading) + 1) ~ /^[[:space:]]*$/ {
+            in_outputs = 1
+            next
+        }
         in_outputs && /^##[[:space:]]/ { exit }
         in_outputs {
             expected_line = "| `" expected_path "` | `" expected_hash "` |"
@@ -88,9 +100,16 @@ if declared "$OUT_PATH" "$OUT_HASH" "$IMPL_RENDERED"; then
 else
     fail "impl-report template: Outputs table row NOT recognized by the evaluator's declared-output parser"
 fi
-grep -Fq '/^## Outputs[[:space:]]*$/' "$VALIDATOR" &&
-    ok "validator pin: Outputs-section parser still present in launch boundary" ||
+# Pin both halves of the parameterised form. The heading-match construct alone
+# would not catch the boundary being pointed at a different section, and the
+# literal '## Outputs' alone would not catch the matcher itself being replaced;
+# the template and the boundary can only drift apart if one of these two moves.
+if grep -Fq 'index($0, heading) == 1' "$VALIDATOR" &&
+    grep -Fq "'## Outputs'" "$VALIDATOR"; then
+    ok "validator pin: Outputs-section parser still present in launch boundary"
+else
     fail "validator pin: Outputs-section parser changed in launch boundary"
+fi
 
 # ---------------------------------------------------------------------------
 # WFI-017 leg: implementation report template vs its OWN authoring-time
@@ -168,6 +187,40 @@ if grep -Eq "^VERDICT:[[:space:]]*PASS[[:space:]]*$" "$QG_RENDERED"; then
     ok "quality-report template: VERDICT line present"
 else
     fail "quality-report template: VERDICT line missing"
+fi
+
+# Rule 7 (WFI-020): the extended identity header — Run ID plus the
+# Critical/Major/Minor lines generate-evidence-bundle parses (it records
+# zeros when they are absent), rendered as bare numeric lines.
+if grep -Eq "^Run ID:[[:space:]]*RUN-20260822T000000Z-fixture[[:space:]]*$" "$QG_RENDERED"; then
+    ok "quality-report template: Run ID line present"
+else
+    fail "quality-report template: Run ID line missing"
+fi
+for sev_pair in "Critical=0" "Major=1" "Minor=2"; do
+    sev_name="${sev_pair%%=*}"
+    sev_val="${sev_pair##*=}"
+    if grep -Eq "^${sev_name}:[[:space:]]*${sev_val}[[:space:]]*$" "$QG_RENDERED"; then
+        ok "quality-report template: ${sev_name} count line present"
+    else
+        fail "quality-report template: ${sev_name} count line missing"
+    fi
+done
+
+# Rule 8 (WFI-020): the run-record counter accepts the template's canonical
+# `Task ID:` identity (the field-name split it used to have with
+# check-evidence-bundle under-counted 219 of 220 committed reports).
+EMIT_RUN_RECORD="$REPO_ROOT/plugins/sdd-quality-loop/scripts/emit-run-record.sh"
+if grep -Fq '(Task ID|Task):' "$EMIT_RUN_RECORD"; then
+    ok "consumer pin: run-record counter accepts the canonical Task ID identity"
+else
+    fail "consumer pin: run-record counter lacks the canonical Task ID identity"
+fi
+GEN_BUNDLE="$REPO_ROOT/plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh"
+if grep -Fq 'Critical:' "$GEN_BUNDLE"; then
+    ok "consumer pin: severity-count parser still present in generate-evidence-bundle"
+else
+    fail "consumer pin: severity-count parser missing from generate-evidence-bundle"
 fi
 
 printf '\ntemplate-validator-parity.tests.sh: %d passed, %d failed\n' "$PASS_COUNT" "$FAIL_COUNT"

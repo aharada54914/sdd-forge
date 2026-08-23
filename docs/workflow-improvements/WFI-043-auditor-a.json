@@ -1,0 +1,76 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-043",
+  "category": "app-dev-efficiency",
+  "cycle": 1,
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every evidence claim was verified against the repository. (1) The fresh/stale/pending definitions quoted from scripts/human_copy_mirrors.py:20-27 appear verbatim in that module's docstring, including the sentence that staged==origin/main-live is what separates stale from pending. (2) The two manual-sync occurrences are corroborated: occurrence 2's manual cp plus MANIFEST.sha256 rewrite is recorded in the PR #336 session, and occurrence 1 in the PR #328 session. (3) The counter-example bundle specs/epic-159-pillar-c/human-copy/ is real and does stage bytes differing from main's live files. (4) The pending inventory was recomputed live by this audit: python3 scripts/human_copy_mirrors.py . emits 66 rows, 51 FRESH and 15 PENDING. Minor discrepancy in units, charged below and not here: the WFI calls those 15 'bundles'; they are 15 mirrors spread across 9 distinct bundles."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a controllable mechanism -- the applied-vs-pending test compares staged bytes against origin/main alone, so a bundle applied and re-edited on the same branch satisfies both pending clauses -- rather than restating 'the tool refused'. It is the terminal level of the why-chain and is exactly what the Proposed Change acts on."
+    },
+    {
+      "id": "WHY-CHAIN-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Four levels, each with a distinct evidence cell, descending from the observed symptom (two manual syncs in two days) to the classifier's origin/main-only applied-test and finally to why that test was chosen (it is the only file-derivable signal that distinguishes an applied bundle from unapplied human work). No level restates its predecessor and none terminates at a person."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category: app-dev-efficiency is present and valid. Scanned Root Cause Hypothesis, Proposed Change and Expected Effect against every Forbidden Term in wfi-category-guide.md Section 2: zero occurrences. Terms present (pending, stale, mirror, MANIFEST.sha256) are not on the list."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Both rows name literal paths (scripts/human_copy_mirrors.py, tests/human-copy-mirror-freshness.tests.sh and its .ps1 twin) and the descriptions are implementable as written: the widened applied-test is specified down to the git rev-list origin/main..HEAD walk and the fallback ordering, and the fixture row names both the positive fixture and the safety counter-fixture."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The effect is stated as a number with a direction: manual mirror syncs fall from 2 in two days to 0, with the pending set held at its measured size as an explicit non-regression."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Target-Metric, Expected-Direction, Horizon, Baseline and Target are all present and populated, and both secondaries (honesty of the --check exit code; safety of the pending set) carry their own baselines."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Five steps, each naming what is run and what must be observed. Step 1 states the discriminating order explicitly (assert the current classifier calls the fixture pending, then assert the changed one does not), and step 2 mutates the counter-fixture so it cannot pass for the wrong reason."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. No plugins/ path appears in any Target File cell. The two targets are scripts/human_copy_mirrors.py and tests/human-copy-mirror-freshness.tests.{sh,ps1}, both repository-level. The carve-out is not needed and is not invoked."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "severity": "Minor",
+      "section": "## Verification Metric",
+      "instruction": "Replace 'the 15 bundles currently classified pending' with '15 mirrors spread across 9 bundles', and state the measurement command and the full histogram (66 mirrors: 51 FRESH, 15 PENDING) so the baseline is reproducible. The unit error understates the blast radius of a misclassification by a factor of ~1.7."
+    },
+    {
+      "severity": "Minor",
+      "section": "## Proposed Change",
+      "instruction": "Apply the same mirror-vs-bundle correction in row 1 ('the other 14 informational pending bundles') and in Verification Plan step 3."
+    }
+  ],
+  "generated_at": "2026-08-23T14:05:00Z"
+}

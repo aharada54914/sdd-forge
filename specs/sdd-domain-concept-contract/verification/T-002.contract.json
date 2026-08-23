@@ -1,0 +1,26 @@
+{
+  "task_id": "T-002",
+  "feature": "sdd-domain-concept-contract",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "1cfbbbe61282d7d2d95f06ffd63f6ce109dda44c",
+  "created": "2026-08-19T04:40:00Z",
+  "comment": "Default-FAIL verification contract. Every check started at passes=false and was flipped only after its verification command ran and the recorded evidence file was inspected. risk=high adds requirement-traceability to the tier minimum. required_workflow=tdd, so every test-type check carries non-empty red_evidence and green_evidence. stack=shell: the deliverables are a python3-stdlib shell twin and a PS5.1-safe PowerShell twin, so the three compile-oriented checks carry waiver_reason per risk-gate-matrix.md's stack descriptor.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "No lint toolchain is configured for shell, python or PowerShell in this repository; .github/workflows/test.yml runs test suites only, with no linter step.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No static type checker is configured for the sh twin (python3 stdlib, run inline) or the ps1 twin.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No compile or build step; both twins are interpreted scripts with no external dependency.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-002/acceptance-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-004"], "red_evidence": "specs/sdd-domain-concept-contract/verification/T-002/red.log", "green_evidence": "specs/sdd-domain-concept-contract/verification/T-002/green.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No consumer is wired in Phase 0 per design.md's Deployment / CI Plan; the twins have no integration surface yet.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-002/acceptance-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-004"], "red_evidence": "specs/sdd-domain-concept-contract/verification/T-002/red.log", "green_evidence": "specs/sdd-domain-concept-contract/verification/T-002/green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-002/regression.log", "waiver_reason": "", "requirement_ids": ["REQ-007"], "red_evidence": "specs/sdd-domain-concept-contract/verification/T-002/red.log", "green_evidence": "specs/sdd-domain-concept-contract/verification/T-002/green.log" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-002/placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-002/task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/sdd-domain-concept-contract/verification/qg/T-002/traceability.log", "waiver_reason": "", "requirement_ids": ["REQ-004"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No runnable service or UI; the twins are invoked directly by the suite and by the gate's own out-of-suite probes.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "Not a refactor or bugfix task and no baseline-behavior.md exists; T-002 creates two new files with no prior behavior to diff.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No user-facing UI surface.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system/ directory in this repository and no UI-layer files were touched.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

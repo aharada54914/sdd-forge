@@ -120,6 +120,22 @@ function Get-ArgvFlat {
     return ""
 }
 
+# codex-cli 0.147.0 contract (invocation-fix hardening): the assembled argv
+# is `exec --model <m> [-c model_reasoning_effort=<e>] --sandbox read-only
+# --skip-git-repo-check -C <scratch-dir> -`. The scratch dir is a fresh
+# per-invocation path, so this matches the fixed tokens/order via regex
+# rather than a byte-exact golden string (mirrors this suite's own
+# established DRIFT-detection style, TEST-038).
+function Test-CodexArgv {
+    param([string]$Model, [string]$Effort = "")
+    $pattern = if ($Effort) {
+        "^exec --model $([regex]::Escape($Model)) -c model_reasoning_effort=$([regex]::Escape($Effort)) --sandbox read-only --skip-git-repo-check -C \S+ -$"
+    } else {
+        "^exec --model $([regex]::Escape($Model)) --sandbox read-only --skip-git-repo-check -C \S+ -$"
+    }
+    return ((Get-ArgvFlat) -cmatch $pattern)
+}
+
 function Invoke-RunGpt {
     param([string[]]$ArgList)
     $savedPath = $env:PATH
@@ -145,8 +161,8 @@ $specRoot = Join-Path $work "specroot"
 Reset-StubState
 Invoke-RunGpt @("--task", "T-035", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.2-codex", "--effort", "high", "--digest", $zeroDigest)
-if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "--model openai/gpt-5.2-codex --effort high --no-project-doc")) {
-    Ok "TEST-035: -Effort is forwarded into the assembled codex argv, positioned after -Model"
+if ((Test-Path -LiteralPath $markerFile) -and (Test-CodexArgv -Model "openai/gpt-5.2-codex" -Effort "high")) {
+    Ok "TEST-035: -Effort is forwarded into the assembled codex argv as -c model_reasoning_effort=<e>, positioned after -Model"
 } else {
     Fail "TEST-035: -Effort was not forwarded correctly into the codex argv -- $(Get-ArgvFlat)"
 }
@@ -154,8 +170,8 @@ if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "--model open
 Reset-StubState
 Invoke-RunGpt @("--task", "T-035b", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.2-codex", "--digest", $zeroDigest)
-if ((Get-ArgvFlat) -ceq "--model openai/gpt-5.2-codex --no-project-doc") {
-    Ok "TEST-035: omitting -Effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)"
+if (Test-CodexArgv -Model "openai/gpt-5.2-codex") {
+    Ok "TEST-035: omitting -Effort omits the -c model_reasoning_effort override from the codex argv"
 } else {
     Fail "TEST-035: omitting -Effort changed the codex argv shape -- got: $(Get-ArgvFlat)"
 }
@@ -194,7 +210,7 @@ $fwdEffort = $effortLine -replace '^effort=', ''
 Reset-StubState
 Invoke-RunGpt @("--task", "T-036", "--feature", "stub-feat", "--input", $bundleOut, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.1-codex", "--effort", $fwdEffort, "--digest", $zeroDigest)
-if ((Get-ArgvFlat) -clike "*--effort medium*") {
+if ((Get-ArgvFlat) -clike "*-c model_reasoning_effort=medium*") {
     Ok "TEST-036: the value threaded by prepare-panelist-input.ps1 reaches run-panelist-gpt's assembled codex argv unchanged"
 } else {
     Fail "TEST-036: threaded effort value did not reach the assembled codex argv -- $(Get-ArgvFlat)"
@@ -241,7 +257,7 @@ foreach ($pair in @(@{ Role = "sdd-evaluator"; Toml = $evaluatorToml }, @{ Role 
     Reset-StubState
     Invoke-RunGpt @("--task", "T-037-$($pair.Role)", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
         "--model", $selModel, "--effort", $selEffort, "--digest", $zeroDigest)
-    if (-not ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "--model $selModel --effort $selEffort --no-project-doc"))) {
+    if (-not ((Test-Path -LiteralPath $markerFile) -and (Test-CodexArgv -Model $selModel -Effort $selEffort))) {
         $test037Ok = $false
     }
 }

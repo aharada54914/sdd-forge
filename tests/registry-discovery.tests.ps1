@@ -161,6 +161,14 @@ New-Item -ItemType Directory -Path (Join-Path $driftRoot 'plugins/sdd-quality-lo
 Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-registry-valid.json') -Destination (Join-Path $driftRoot 'contracts/capability-registry.json')
 Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-schemafile-valid.json') -Destination (Join-Path $driftRoot 'contracts/capability-registry.schema.json')
 Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-catalog-valid.json') -Destination (Join-Path $driftRoot 'contracts/lite-upgrade-reason-catalog.json')
+# epic-192-a4-facet-manifest T-005 extended vendor-capability-registry.py's
+# ARTIFACTS with three more schema filenames. That script fails closed when
+# a canonical source is missing, so this fixture tree must carry every
+# ARTIFACTS entry; otherwise the freshly-vendored assertions below exercise
+# the missing-source error path instead of the drift path they test.
+foreach ($extra in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json')) {
+    Copy-Item -LiteralPath (Join-Path $root "contracts/$extra") -Destination (Join-Path $driftRoot "contracts/$extra")
+}
 Copy-Item -LiteralPath $realDiscovery -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/registry_discovery.py')
 Copy-Item -LiteralPath $realVendor -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/scripts/vendor-capability-registry.py')
 Copy-Item -LiteralPath (Join-Path $fixturesDir 'registry-discovery-registry-bad-schema.json') -Destination (Join-Path $driftRoot 'plugins/sdd-quality-loop/contracts/capability-registry.json')

@@ -431,10 +431,29 @@ def _check_no_publish_in_progress(*paths_being_read):
 # NOT rejected by schema conformance. `effective_at` is separately parsed
 # and gated by _check_effective_at; `approved_at` has no equivalent gate,
 # and adding one would be a new requirement, not a conformance fix.
+#
+# HARDENED (2026-08-21 fail-closed sweep): three fail-open holes closed —
+# (1) an unrecognized or array-form `type` no longer falls through to
+# "accept everything" (unknown names fail closed; union lists recurse);
+# (2) `pattern` now compiles under ECMA-262 `$` semantics (`$` → `\Z`) and
+# applies draft-07 search semantics, so a trailing-newline digest such as
+# "sha256:<64hex>\n" is rejected as the schema author intended;
+# (3) `additionalProperties` given as a SCHEMA (not a boolean) now validates
+# extra properties instead of ignoring them. All three match the behaviour
+# of the sibling shared-shape engines (validate-facet-manifest.py et al.);
+# the engine itself stays standalone per this file's independence rationale.
 # ---------------------------------------------------------------------------
 
 
 def _schema_type_ok(t, instance):
+    # Array-form union types recurse over each member. An unrecognized type
+    # name fails CLOSED: the previous `return True` tail meant a typo'd
+    # `"type"` silently validated every instance — a fail-open hole this
+    # validator's own fail-closed discipline forbids (the sibling draft-07
+    # engines, e.g. validate-facet-manifest.py `_type_matches`, already
+    # return False here).
+    if isinstance(t, list):
+        return any(_schema_type_ok(member, instance) for member in t)
     if t == "object":
         return isinstance(instance, dict)
     if t == "array":
@@ -451,7 +470,67 @@ def _schema_type_ok(t, instance):
         return isinstance(instance, bool)
     if t == "null":
         return instance is None
-    return True
+    return False
+
+
+# Draft-07 `pattern` follows ECMA-262 regex semantics, where a bare `$`
+# asserts absolute end-of-string. Python's `$` additionally matches just
+# before a single trailing "\n", so "sha256:<64hex>\n" would wrongly satisfy
+# `^sha256:[0-9a-f]{64}$` — exactly the hole this schema's digest and hmac
+# patterns exist to close. Every unescaped `$` outside a `[...]` class is
+# rewritten to `\Z` before compiling (same treatment as
+# validate-facet-manifest.py `_ecma_anchor`; kept as an independent copy
+# because design keeps this validator standalone). Draft-07 `pattern` is a
+# SEARCH, not an anchored match, so the compiled regex is applied with
+# `.search()`.
+_PATTERN_CACHE = {}
+
+
+def _ecma_anchor(pattern):
+    out = []
+    i = 0
+    length = len(pattern)
+    in_class = False
+    while i < length:
+        ch = pattern[i]
+        if ch == "\\" and i + 1 < length:
+            out.append(ch)
+            out.append(pattern[i + 1])
+            i += 2
+            continue
+        if not in_class:
+            if ch == "[":
+                in_class = True
+                out.append(ch)
+                i += 1
+                if i < length and pattern[i] == "^":
+                    out.append(pattern[i])
+                    i += 1
+                if i < length and pattern[i] == "]":
+                    out.append(pattern[i])
+                    i += 1
+                continue
+            if ch == "$":
+                out.append(r"\Z")
+                i += 1
+                continue
+            out.append(ch)
+            i += 1
+            continue
+        else:
+            if ch == "]":
+                in_class = False
+            out.append(ch)
+            i += 1
+    return "".join(out)
+
+
+def _compile_pattern(pattern):
+    compiled = _PATTERN_CACHE.get(pattern)
+    if compiled is None:
+        compiled = re.compile(_ecma_anchor(pattern))
+        _PATTERN_CACHE[pattern] = compiled
+    return compiled
 
 
 def _schema_validate(schema, instance, path="/", root=None):
@@ -480,7 +559,7 @@ def _schema_validate(schema, instance, path="/", root=None):
     if t is not None and not _schema_type_ok(t, instance):
         errors.append("%s: expected %s" % (path, t))
     if "pattern" in schema:
-        if not isinstance(instance, str) or re.match(schema["pattern"], instance) is None:
+        if not isinstance(instance, str) or _compile_pattern(schema["pattern"]).search(instance) is None:
             errors.append("%s: %r does not match pattern %r" % (path, instance, schema["pattern"]))
     if "minimum" in schema:
         if (not isinstance(instance, (int, float))) or isinstance(instance, bool) or instance < schema["minimum"]:
@@ -491,10 +570,17 @@ def _schema_validate(schema, instance, path="/", root=None):
             if req not in instance:
                 errors.append("%s: missing required field %r" % (path, req))
         props = schema.get("properties", {})
-        if schema.get("additionalProperties") is False:
-            for k in instance:
-                if k not in props:
+        additional = schema.get("additionalProperties", True)
+        if additional is not True:
+            extra_keys = [k for k in instance if k not in props]
+            if additional is False:
+                for k in extra_keys:
                     errors.append("%s: additional property %r not allowed" % (path, k))
+            else:
+                # additionalProperties given as a schema: previously ignored
+                # silently (fail-open); extra properties now validate against it.
+                for k in extra_keys:
+                    errors.extend(_schema_validate(additional, instance[k], path.rstrip("/") + "/" + k, root))
         for k, v in instance.items():
             if k in props:
                 errors.extend(_schema_validate(props[k], v, path.rstrip("/") + "/" + k, root))
