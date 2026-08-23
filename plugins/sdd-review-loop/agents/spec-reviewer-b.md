@@ -62,6 +62,13 @@ Before reviewing, read
 every check. The integrated summary is only a counts-and-IDs bridge; it is not
 evidence for a finding.
 
+Check `specs/<feature>/investigation.md` for a conforming `## Amendment
+Re-Review Context` entry (defined in the calibration's own "Amendment
+Re-Review Context" section) before judging any check that could turn on
+phase-sequencing. Apply the calibration's scoped suppression exactly as
+written when a conforming entry is present; otherwise judge phase-sequencing
+under the default Phase-1 calibration, with no benefit of the doubt.
+
 # Review
 
 All checks default to FAIL. Emit PASS only when the artifact gives enough

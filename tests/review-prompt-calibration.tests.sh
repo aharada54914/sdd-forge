@@ -94,4 +94,41 @@ for role in a b; do
     fail "spec-reviewer-${role} id list drifted from the gate: role=[${role_ids}] gate=[${gate_ids}]"
 done
 
+# Amendment Re-Review Context: the spec stage's sanctioned re-review lane for
+# a human-approved post-implementation amendment. The calibration must define
+# it, both spec roles must recognize it symmetrically (the impl stage's
+# legacy_design asymmetry between reviewer A and B caused verdict flip-flops
+# and must not be reproduced here), and the suppression it grants must stay
+# scoped to the phase-sequencing finding class only.
+
+grep -Fq '## Amendment Re-Review Context' "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration missing the Amendment Re-Review Context section"
+grep -Fq 'This is the phase-sequencing class only.' "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration must scope suppression to the phase-sequencing class only"
+grep -Fq 'is judged exactly as it would be without this' "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration must state every other class is judged unaffected by the amendment declaration"
+grep -Fq 'given in full (not abbreviated' "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration must require full (not abbreviated) amendment commit hashes"
+grep -Fq 'The SHA-256 of each amended document' "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration must require the sha256 of each amended document at the amendment commit"
+grep -Fq "verbatim, dated quotation of the human's approval statement" "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration must require a verbatim, dated quotation of the human's approval"
+grep -Fq 'never a bare path alone' "$ROOT/$SPEC_CALIBRATION" || \
+  fail "spec calibration must forbid bare-path references to later-phase artifacts"
+
+# The recognition instruction must be symmetric across both spec roles. Extract
+# the identical block from each role file and compare it byte-for-byte, rather
+# than asserting each against a hand-written literal, so a one-sided edit (the
+# asymmetry class of defect that caused impl-stage verdict flip-flops) fails
+# this suite instead of silently landing.
+extract_amendment_recognition() {
+  sed -n '/^Check `specs\/<feature>\/investigation\.md` for a conforming/,/with no benefit of the doubt\.$/p' "$1"
+}
+spec_a_amend="$(extract_amendment_recognition "$AGENTS/spec-reviewer-a.md")"
+spec_b_amend="$(extract_amendment_recognition "$AGENTS/spec-reviewer-b.md")"
+[[ -n "$spec_a_amend" ]] || fail "spec-reviewer-a.md missing amendment re-review recognition instruction"
+[[ -n "$spec_b_amend" ]] || fail "spec-reviewer-b.md missing amendment re-review recognition instruction"
+[[ "$spec_a_amend" == "$spec_b_amend" ]] || \
+  fail "spec-reviewer-a/b amendment re-review recognition text diverged (asymmetric, like the impl-stage legacy_design defect)"
+
 printf 'ok: review prompt calibration inventory is synchronized\n'
