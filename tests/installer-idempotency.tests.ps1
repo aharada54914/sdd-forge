@@ -266,6 +266,27 @@ function Test-NoBackupLeft {
     return -not (Get-ChildItem -Path $TestRoot -Filter "sdd-plugins-backup-*" -ErrorAction SilentlyContinue)
 }
 
+function Write-ScenarioDiagnostic {
+    # Dumps a failing scenario's captured state to the log.
+    #
+    # Not via the exception message: PowerShell truncates a long message in its
+    # error rendering, and the transcript is exactly the kind of long text that
+    # gets cut — which already cost one CI round trip on the Windows-only MCP
+    # failure. Write-Host is not truncated.
+    param([Parameter(Mandatory)][hashtable]$Result)
+
+    $mcpEntry = Join-Path $Result.InstallRoot "mcp/sdd-forge-mcp/dist/index.js"
+    Write-Host "----- scenario diagnostic -----"
+    Write-Host "install root:            $($Result.InstallRoot)"
+    Write-Host "MCP payload placed:      $(Test-Path $mcpEntry)   ($mcpEntry)"
+    Write-Host "node on PATH resolves to: $((Get-Command node -ErrorAction SilentlyContinue).Source)"
+    Write-Host "----- CLI invocation log -----"
+    Write-Host $Result.Log
+    Write-Host "----- installer transcript -----"
+    Write-Host $Result.Output
+    Write-Host "----- end diagnostic -----"
+}
+
 # ---------------------------------------------------------------------------
 # Case 1: re-running against already-registered CLIs succeeds
 # ---------------------------------------------------------------------------
@@ -275,7 +296,8 @@ try {
     if (-not (Test-InstalledTreePresent $c1.InstallRoot)) { throw "Re-run did not leave the new tree in the install root." }
     if (-not (Test-NoBackupLeft $c1.TestRoot)) { throw "Re-run left a backup directory behind." }
     if ($c1.Output -notmatch "is already registered; keeping the existing registration") {
-        throw "Re-run did not report the tolerated registrations. Installer output:`n$($c1.Output)"
+        Write-ScenarioDiagnostic $c1
+        throw "Re-run did not report the tolerated registrations."
     }
     # The marketplace, the MCP server and the per-plugin registrations must all
     # be tolerated. Asserting only one of them would pass on a fix that covered
@@ -283,13 +305,14 @@ try {
     # a real upgrade would hit first.
     foreach ($label in @("the Codex sdd-plugins marketplace", "MCP server 'sdd-forge-mcp'", "Codex plugin 'sdd-bootstrap'", "Copilot plugin 'sdd-bootstrap'")) {
         if ($c1.Output -notmatch [regex]::Escape("Note: $label is already registered")) {
-            # The installer output is attached because the interesting
-            # failures are the ones where a registration never ran at all —
-            # the scenario runner sends every stream to a transcript, so the
-            # warning that explains why (skipped MCP placement, missing Node,
-            # absent payload) is captured rather than printed, and without it
-            # the message says only that something did not happen.
-            throw "Re-run did not tolerate: $label`nInstaller output:`n$($c1.Output)"
+            # The diagnostic is dumped because the interesting failures are the
+            # ones where a registration never ran at all — the scenario runner
+            # sends every stream to a transcript, so the warning that explains
+            # why (skipped MCP placement, missing Node, absent payload) is
+            # captured rather than printed, and without it the message says
+            # only that something did not happen.
+            Write-ScenarioDiagnostic $c1
+            throw "Re-run did not tolerate: $label"
         }
     }
     Write-Host "ok: already-registered marketplaces and MCP servers are tolerated"
