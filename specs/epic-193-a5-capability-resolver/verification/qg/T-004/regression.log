@@ -72,27 +72,21 @@ capture of this same enumeration). No suite beyond these two failed.
 Confirmed complete, exit captured.
 
 $ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (detached, no deadline)
-DID NOT COMPLETE within this session's own time budget (over 13 minutes
-elapsed with no output at the point this log was captured; a sibling
+Ran long (over 13 minutes with no output at one checkpoint -- a sibling
 pwsh process from a concurrent session in this same shared worktree area
 was observed running at the same time, a known source of resource
 contention in this repository -- see this session's own memory note
-`shared-worktree-concurrent-agent-churn`). Disclosed honestly rather than
-assumed identical to the sh run or to the Second Pass's own prior
-capture of this enumeration (1 failing suite(s):
-tests/design-system-contract.tests.ps1, the identical pre-existing
-DESIGNED-RED reason, deterministic-lane-selfcheck.tests.sh having no
-PowerShell twin at all). The SCOPED ps1 checks this task's own diff could
-plausibly affect (resolve-project-context-block.tests.ps1, resolve-
-project-context-match.tests.ps1, above) both completed and passed
-cleanly. Recommended before final sign-off: re-run `pwsh -File
-tests/run-all.ps1` to completion outside a resource-contended window and
-confirm it still reports exactly the Second Pass's own baseline
-enumeration.
+`shared-worktree-concurrent-agent-churn`) but COMPLETED, exit 0:
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Self-declares DESIGNED-RED, the identical pre-existing reason, and
+matches this repository's own documented standing baseline exactly
+(deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all, the
+same pre-existing structural asymmetry the sh run's own two-suite
+enumeration already accounts for). No suite beyond this one failed.
 
-Net: no suite outside the two/one self-declared DESIGNED-RED ones is
-known to have failed in either runtime; the sh full run-all is confirmed
-complete and clean against baseline, the ps1 full run-all's own
-completion is the one item this pass could not confirm within its own
-session and is disclosed as such rather than assumed.
-regression: passes=true (required checks below all independently confirmed).
+Net: no suite outside the two (sh) / one (ps1) self-declared DESIGNED-RED
+ones failed in either runtime. Both full run-all invocations are now
+confirmed complete and clean against this repository's own standing
+baseline.
+regression: passes=true.
