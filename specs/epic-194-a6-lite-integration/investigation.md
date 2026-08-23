@@ -722,6 +722,13 @@ completion chain below).
   fifth-target requirement statement with the AC-010/AC-031 trace
   citations), remediating attempt 2 round 3's ASSUMPTIONS-RESOLVABLE /
   DOWNSTREAM-READINESS findings (2026-08-23).
+- `f8cfd7a1febd54ff805cd05f2a7490bac6c62a3a` — mechanically annotated
+  design.md's existing passages with AC-ID labels for seven of the eleven
+  IDs the impl-review AC-coverage precheck names (AC-001/003/009/012/014/
+  017/021), substance unchanged, per the 2026-08-24 human ruling quoted
+  below; the four IDs whose substance design.md does not contain
+  (AC-006, AC-010, AC-023, AC-024) were deliberately left unannotated
+  (2026-08-24).
 
 ### Amended-document fingerprints (SHA-256, as of each amendment commit)
 
@@ -751,12 +758,34 @@ As of `f577a3615ce79db3bd04cacdba23ea51df0add20`:
 - `specs/epic-194-a6-lite-integration/investigation.md`:
   `92e46294fbf98f13ff6be1195cd92f6d636c96a3a1b4429b4ee9e9d41688c077`
 
+As of `e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9` — the spec-review
+attempt-3 round-1 evidence commit that validated the completion chain
+above and, per the state table, flipped requirements.md's
+`Spec-Review-Status` from `Pending` to `Passed` (a lifecycle transition
+the workflow-state gate's normalized hashing absorbs, not a content
+amendment; its investigation.md change is this section's own extension):
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `c2a0be281775fdd94ce67b09f3e043416f4748ba5f982436cac256ea5080ae41`
+- `specs/epic-194-a6-lite-integration/investigation.md`:
+  `fe78fa618a206fb9173a91aa0e874175407ebaba3424e8385bb267d020b46b85`
+
+As of `f8cfd7a1febd54ff805cd05f2a7490bac6c62a3a` (the design.md AC-ID
+annotation amendment, 2026-08-24):
+
+- `specs/epic-194-a6-lite-integration/design.md`:
+  `7875ac5fab3d9336edc710dc735d5fae60f42bb21b1fe2c490e0fb3139ae8b13`
+
 This `investigation.md` is itself amended by the commits that introduce and
 extend this section; a document cannot embed its own post-amendment hash, so
 each such revision's fingerprint is pinned instead by the reviewer
-invocation manifests and evidence commits of the spec-review round that
-reviewed it (attempt 2 round 3 for the first revision; the current round's
-manifests for this one).
+invocation manifests and evidence commits of the review round that
+reviewed it (attempt 2 round 3 for the first revision; spec-review
+attempt 3 round 1 for the `fe78fa61` revision; the impl re-review round's
+manifests for this one — with the disclosed fixed-point handling: prior
+contracts validate against the bytes they reviewed, restored temporarily
+for that validation only, and the new round's manifests pin the amended
+bytes).
 
 ### Human approval (verbatim, dated)
 
@@ -764,6 +793,11 @@ manifests for this one).
 - 2026-08-23: 「限定デプロイ + WFI 起票でやれ」 (authorizing limited
   deployment of this amendment re-review lane for epic-194 and epic-195,
   plus a workflow-improvement filing for the durable mechanism)
+- 2026-08-24: 「①でやれ」 (option ① as presented: mechanically annotate
+  design.md's existing passages with the AC-ID labels the post-freeze
+  impl-review AC-coverage gate requires, substance unchanged, honesty of
+  the annotations verified by the blind impl re-review that follows; the
+  same ruling applies to epic-195)
 
 These approvals were given in conversation; this entry, committed into the
 hash-pinned package under review and pinned by the round-3 reviewer
