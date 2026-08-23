@@ -114,7 +114,8 @@ reasoning).
   full_upgrade_required     │  true → VERDICT: FAIL (Step 2a, B2,
                              │   resolves OQ-003) / false → continue
                              ▼
-  lite-gate/SKILL.md Process (existing, unprotected) ── extended:
+  lite-gate/SKILL.md Process (existing, unprotected) ── extended
+  (requirements.md AC-014):
     Step 1: placeholder-scan (unchanged)
     Step 2: project lint/typecheck/build/test (unchanged)
     Step 2a (NEW, B2): full_upgrade_required true → VERDICT: FAIL
@@ -162,7 +163,7 @@ This design therefore splits its own file edits into two distinct
 application paths, unlike every sibling epic's own single-path Protected-
 File Statement:
 
-1. **Human-copy path (REQ-002, REQ-005)** — `check-risk-upgrade.sh`,
+1. **Human-copy path (REQ-002, REQ-005; requirements.md AC-021)** — `check-risk-upgrade.sh`,
    `check-risk-upgrade.ps1`, `risk-upgrade-policy.md`, `lite-spec/
    SKILL.md`. A future implementation task develops and tests the edited
    file content at an unprotected working location, then stages the
@@ -174,7 +175,7 @@ File Statement:
    live repository tree under `specs/`/`plugins/`/`.github/`, and carries
    its own `apply-protected-files.ps1` + `MANIFEST.sha256` — this design
    reuses that exact structure, not a new one).
-2. **Direct-edit path (REQ-004)** — `lite-gate/SKILL.md`. Per the live
+2. **Direct-edit path (REQ-004; requirements.md AC-017)** — `lite-gate/SKILL.md`. Per the live
    `guard-invariants.json` evidence above, and per OQ-001's now-**closed**
    ruling (investigation.md, Minor finding — this design does not itself
    propose expanding the protected-file inventory), a future
@@ -349,7 +350,7 @@ ADR by this package itself.
 
 ## Data Plan
 
-- **`lite_policy` (Registry, v1.1 design)** —
+- **`lite_policy` (Registry, v1.1 design; requirements.md AC-001)** —
   ```json
   {
     "type": "object",
@@ -388,7 +389,7 @@ ADR by this package itself.
   statement of what "absent" means at the consumer level, this schema
   fragment only fixes shape.)
 - **`contracts/lite-check-catalog.json` (new; seed revised, Blocker
-  [M1], investigation.md INV-017)** —
+  [M1], investigation.md INV-017; requirements.md AC-003)** —
   ```json
   {
     "schema": "lite-check-catalog/v1",
@@ -502,7 +503,7 @@ check-risk-upgrade.ps1 -Path <source-path> [-CapabilityReasons <fragment-path>]
 ```
 
 Processing (added steps only; everything else is today's live logic,
-unmodified, requirements.md AC-007):
+unmodified, requirements.md AC-007/AC-009):
 
 ```
 1. run today's existing 6-row keyword scan over <source-path>, exactly as
@@ -596,7 +597,8 @@ Step 2a (NEW, Blocker [B6]/[B2]):
        (Blocker [B6] — a successful Lite resolve always stages a Summary
        under active enforcement, investigation.md INV-016)
      - present → validate against contracts/capability-summary.schema.
-       json (call A4/A5-owned validator; do not reimplement)
+       json (call A4/A5-owned validator; do not reimplement —
+       requirements.md AC-012)
        - invalid → VERDICT: FAIL, reason = validation failure text,
          Status unchanged (Edge Cases, requirements.md, unchanged)
        - valid → required_lite_checks = summary.required_lite_checks;
