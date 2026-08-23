@@ -64,8 +64,7 @@ $tests = @(
     'tests/design-sync-scan.tests.ps1',
     'tests/resolver-evidence-schema.tests.ps1',
     'tests/resolve-project-context-block.tests.ps1',
-    'tests/resolve-project-context-match.tests.ps1',
-    'tests/traceability-log-freshness.tests.ps1',
+    'tests/resolve-project-context-match.tests.ps1'
     'tests/capability-registry-schema.tests.ps1',
     'tests/evaluate-predicate.tests.ps1',
     'tests/registry-discovery.tests.ps1',

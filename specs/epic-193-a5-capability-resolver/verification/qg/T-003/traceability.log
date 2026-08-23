@@ -19,28 +19,34 @@ input and was not run) passed for T-003:
    TEST-012=1, TEST-013=1, TEST-014=1, TEST-015=2, TEST-038=2) -- unchanged
    from this log's own prior capture, re-confirmed directly.
  - Implemented: tests/resolve-project-context-block-check.py's own
-   ALL_CASE_NAMES tuple (line 276) and run_t003_case() function (line 437)
-   enumerate exactly T-003's own THIRTEEN fixtures (re-measured 2026-08-23,
-   cycle-3 cross-model panel remediation -- eleven from the prior round plus
-   this round's own two new fixtures closing Majors #1/#2) --
+   ALL_CASE_NAMES tuple (line 308) and run_t003_case() function (line 477)
+   enumerate exactly T-003's own FIFTEEN fixtures (unchanged in count/
+   identity since the confirmation-panel 2026-08-24 pass; this round-2
+   pass edits fixture LOGIC/comments only, adds no new fixture) --
    affected-component-resolution-failed, resolve-component-paths-launch-
    failed, contract-discovery-failed, registry-discovery-unimportable,
-   registry-validation-failed, validate-capability-registry-launch-failed,
-   dependency-subprocess-failed, evaluate-predicate-output-malformed,
-   evaluate-predicate-schema-error (NEW, Major #1: the hardcoded
-   `returncode == 2` PREDICATE_SCHEMA_ERROR classification), evaluate-
-   predicate-failure-after-warn (NEW, Major #2: steps 7-8 abort paths now
-   forward already-collected warn_diagnostics), dsl-warn-unmatched-trigger,
-   dsl-warn-matched-nondetermining, dsl-warn-unsorted-affected-components --
-   each invoked from both tests/resolve-project-context-block.tests.sh and
-   .ps1 (thin dispatchers onto the shared Python driver). Confirmed executed
-   and passing in this same verification run: see focused-tests-sh.log /
-   focused-tests-ps1.log (184 passed, 0 failed, both runtimes -- the WHOLE
+   registry-discovery-syntax-error, registry-validation-failed,
+   validate-capability-registry-launch-failed, registry-swapped-during-
+   validation, dependency-subprocess-failed, evaluate-predicate-output-
+   malformed, evaluate-predicate-schema-error, evaluate-predicate-failure-
+   after-warn (round-2 confirmation-panel fix, both vendors: the abort-path
+   `warn_diagnostics` forwarding this fixture's own comment previously
+   described is now REVERSED -- collected warns are dropped, not forwarded,
+   on this non-dsl-warn-summary abort path, per requirements.md:526-528's
+   own AC-056 sentence), dsl-warn-unmatched-trigger, dsl-warn-matched-
+   nondetermining, dsl-warn-unsorted-affected-components -- each invoked
+   from both tests/resolve-project-context-block.tests.sh and .ps1 (thin
+   dispatchers onto the shared Python driver). Confirmed executed and
+   passing in this same verification run: see focused-tests-sh.log /
+   focused-tests-ps1.log (205 passed, 0 failed, both runtimes -- the WHOLE
    shared driver's own current total: T-002's steps 0-3, T-003's own
-   thirteen fixtures above, T-004's own eight fixtures (five from the prior
-   round plus this round's own three closing Majors #1-#3), and the
-   draft7-validator-keywords / draft7-keyword-coverage unit-style checks (8
-   assertions)).
+   fifteen fixtures above (net +4 assertions this round: the general
+   canonical-diagnostic-line-present-and-last check plus 3 targeted
+   dependency-stderr-pass-through exact-equality checks, closing the B5/
+   REQ-005 Major -- see "## Confirmation-Panel Remediation (round 2)" in
+   reports/implementation/epic-193-a5-capability-resolver/T-003.md), T-004's
+   own nine fixtures, and the draft7-validator-keywords /
+   draft7-keyword-coverage unit-style checks (8 assertions)).
  - Not independently re-verified in this pass: REQ-004/REQ-005/REQ-006/
    REQ-008's own OTHER task rows (T-001, T-002, T-004, etc.) -- those are
    shared REQ ids spanning multiple tasks' own scope, out of T-003's own
@@ -81,4 +87,15 @@ runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log) -- the WHOLE
 shared driver's own current total, never the 184 this log's own prior
 revision carried.
 
-TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 201 passed, 0 failed"
+Superseded 2026-08-24 round-2 (confirmation-panel round-2 remediation,
+Anthropic Minor -- "only an appended Superseded paragraph corrects the
+count, the line numbers are never corrected"): this round FIXES the live
+"Implemented:" bullet's own line numbers/counts directly (ALL_CASE_NAMES
+308, run_t003_case 477, fifteen fixtures, 205/0) rather than appending a
+fourth Superseded paragraph describing yet another generation while
+leaving the live bullet itself stale -- closing this recurrence class
+instead of repeating it. Also this round: `evaluate-predicate-failure-
+after-warn`'s own fixture comment/expected-shape reversed (Reversal 1,
+both vendors' confirmation-panel finding) -- see the live bullet above.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 205 passed, 0 failed"

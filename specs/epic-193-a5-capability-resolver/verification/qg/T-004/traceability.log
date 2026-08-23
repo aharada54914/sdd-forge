@@ -115,4 +115,20 @@ recurrence" section records why a standalone suite was chosen over
 editing check-contract.py (guard-protected, out of every task's own
 Planned Files).
 
-TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 201 passed, 0 failed"
+Reversal 2 (round-2 confirmation-panel remediation, 2026-08-24, both
+vendors' Major, "T-004 scope violation"): the paragraph above's own
+`tests/traceability-log-freshness.tests.{sh,ps1}` registration in
+`tests/run-all.{sh,ps1}` is REVERTED -- it violated this task's own
+Done-When/Scope text ("tests/run-all.* byte-unchanged ... no new suite
+registered"). `tests/run-all.{sh,ps1}` are restored to their
+pre-registration bytes; the suite's own two files are removed from this
+branch (content preserved outside the repository for re-homing on
+another branch -- see reports/implementation/epic-193-a5-capability-
+resolver/T-004.md's own "Confirmation-Panel Remediation (round 2)"
+section). This TRAILER LINE below stays (it is content, not the suite or
+its registration) and is re-verified by a genuine re-run of the cited
+driver this round, now at 205/0 (the round-2 dependency-stderr
+pass-through assertions, +4 over the 201 this trailer previously
+recorded).
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 205 passed, 0 failed"

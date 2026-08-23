@@ -8,24 +8,19 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_generate_registry_digest_whole / main steps 5-6",
-      "note": "The discovered Registry is parsed into registry_document, but registry_digest is computed by a separate dependency invocation that independently rediscovers and rereads the Registry. A Registry change between steps 5 and 6 can therefore make evaluations use the old document while context_binding binds the new document; the later recheck compares against the new digest and can pass. This violates the fixed-snapshot and generation-consistency requirements."
+      "ref": "resolve-project-context.py:_evaluate_capabilities/main steps 7-9",
+      "note": "When a WARN is collected and a later predicate evaluation aborts, the resulting Evidence contains severity:\"warn\" entries with id dsl-warn-on-matched-capability but no severity:\"block\" summary for that id. REQ-004 and AC-056 explicitly prohibit WARN-only occurrences and require exactly one block summary whenever any WARN node exists."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_evaluate_predicate",
-      "note": "Zero-exit evaluator output validation checks only that result is boolean, evidence is an array, and its members are objects. Evidence nodes missing required operator/path/outcome fields or containing malformed nested children are accepted, later becoming output-schema-validation-failed instead of the required dependency-output-malformed classification."
-    },
-    {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:main steps 7-8 exception handlers / _write_evidence",
-      "note": "When an evaluation WARN is collected before a later predicate subprocess failure, the implementation forwards severity:warn entries but adds only the later failure's block diagnostic. This leaves dsl-warn-on-matched-capability present with warn entries and no block summary, directly contradicting REQ-004/AC-056. Additionally, if failure occurs later within the same capability, completed earlier evaluations for that capability are lost because the capability entry is appended only after its entire evaluation finishes."
+      "ref": "resolve-project-context.py:_evaluate_capabilities and tests/resolve-project-context-block-check.py:evaluate-predicate-failure-after-warn",
+      "note": "A dependency failure partway through evaluation writes a semantically incomplete capability_evaluations array: the current or remaining Registry Capabilities are omitted because entries are appended only after completing a Capability. This conflicts with REQ-004's exact Registry-capability-set binding; the fixture validates only JSON-schema shape and therefore accepts Evidence that the specified semantic validator would reject."
     }
   ],
   "blind": true,
-  "input_digest": "96327ace0ef79f4aaa53f3b7689b37099126d10d9fec89a822845161abc2cdc1",
+  "input_digest": "94e133ca37682b2bb362f84f3d8a3d8c2b5fc97b466632a7323750fcfb145e91",
   "consent": {
     "kind": "sudo",
-    "ref": "T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "ref": "sudo 2026-08-08T16:04:17Z"
   }
 }

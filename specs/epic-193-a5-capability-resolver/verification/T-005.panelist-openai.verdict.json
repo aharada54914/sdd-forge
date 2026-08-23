@@ -8,32 +8,27 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Done When Self-Check",
-      "note": "TEST-008 is explicitly only PARTIAL: the suite reconstructs a Facet Manifest by directly calling implementation functions and never validates the written facet-manifest.yaml required by AC-008. This does not satisfy T-005's pipeline-correctness Done When criterion."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Confirmation-Panel Remediation / REQ-006(g)",
+      "note": "The report explicitly leaves REQ-006(g)'s real zero-affected-component pipeline case incomplete: only a static Resolver-Evidence fixture covers empty trigger_evaluations, while no T-005 fixture verifies the required Facet Manifest result capabilities: []. T-005 owns REQ-006 items a-d/f/g, so this is an unmet task requirement."
     },
     {
       "severity": "Major",
-      "ref": "tests/fixtures/capability-resolver/resolve-project-context-match/*/generate-registry-digest.py",
-      "note": "Both digest stubs emit an unprefixed 64-hex value, while the dependency contract requires sha256:<64-hex>. A conforming Resolver should classify this as dependency-output-malformed, so fixtures reaching snapshot-generation-mismatch do not faithfully exercise the specified dependency contract."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Confirmation-Panel Remediation / capability_minimum_enforcement; tests/resolve-project-context-match-check.py full-pipeline-match",
+      "note": "AC-007's capability_minimum_enforcement aggregation remains confounded by the fixture: a matched Capability already declares minimum_enforcement required, so implementations aggregating over matched Capabilities and implementations incorrectly aggregating over the entire Registry produce the same value. The report acknowledges this survivor; therefore the claimed field-assembly conformance is not independently demonstrated."
     },
     {
       "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Downstream Test-File Update",
-      "note": "TEST-016 deliberately excludes context_binding.full_context_revision and projection_sha256 from the advisory/required comparison. AC-016 states that only Resolver Evidence state may differ; weakening the oracle to ignore additional differing fields leaves the stated byte-identity criterion unmet."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Specification Differences item 2 and Done When Self-Check; AC-016/TEST-016",
+      "note": "The advisory/required test does not prove the specified byte-identical Full-track output set. It compares Block-path Resolver Evidence after excluding state and two context-binding hashes, while the Facet Manifest portion is represented only by a function-signature proxy rather than serialization and byte comparison of the assembled artifact. This materially weakens AC-016's stated output-byte-identity requirement."
     },
     {
-      "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Gate Cycle 2 Remediation, Survivors left open (MUT-7)",
-      "note": "The full-pipeline fixture has no clean unmatched Capability declaring required_facets, so an implementation that collects required facets from every Registry Capability still passes. This leaves T-005's required match/no-match matrix and AC-007 field-assembly rule unverified."
-    },
-    {
-      "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-005.md \u2014 Gate Cycle 2 Remediation, Survivors left open (MUT-9)",
-      "note": "No fixture contains multiple WARN nodes within one evaluation evidence tree; truncating WARN traversal to one node per tree still passes. AC-056 requires one diagnostic per individual WARN node anywhere in the tree, so its cardinality guarantee remains incompletely tested."
+      "severity": "Minor",
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-005.contract.json comment; verification/qg/T-005/focused-tests-{sh,ps1}.log",
+      "note": "The verification contract's current-evidence narrative still says the focused suites reproduced 98/0, while the bundled focused logs and final implementation report show 112/0. The evidence files pass, but the contract metadata is stale and internally inconsistent."
     }
   ],
   "blind": true,
-  "input_digest": "7a5c5771b91b08653741e5ecefb1bd6e39391aa0cbc27bbd29b8c1fdef821a2d",
+  "input_digest": "c84c20be1bc1064db0ff40c6d46ccf8eb853ee3779a22a3f66c074eff50fbf0f",
   "consent": {
     "kind": "sudo",
     "ref": "T-005 Approval: Approved (sudo 2026-08-08T16:04:17Z)"

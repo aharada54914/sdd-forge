@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-005
 # feature: epic-193-a5-capability-resolver
-# input_digest: 7a5c5771b91b08653741e5ecefb1bd6e39391aa0cbc27bbd29b8c1fdef821a2d
+# input_digest: c84c20be1bc1064db0ff40c6d46ccf8eb853ee3779a22a3f66c074eff50fbf0f
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -7932,7 +7932,7 @@ REQ-004.
         "REQ-005",
         "REQ-006"
       ],
-      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-sh.log",
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-sh.log",
       "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log"
     },
     {
@@ -7959,7 +7959,7 @@ REQ-004.
         "REQ-005",
         "REQ-006"
       ],
-      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-ps1.log",
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-ps1.log",
       "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log"
     },
     {
@@ -8616,6 +8616,168 @@ PASS: resolver-identity-dispatcher-delegation: resolve-project-context.ps1 deleg
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 62 passed, 1 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-recaptured-ps1.log ----
+T-005 confirmation-panel Minor (Anthropic): the previously-designated RED
+captures (verification/T-005/red-misaggregated-facet-{sh,ps1}.log) are
+from the 63-assertion, gate-cycle-1 era, against a three-component
+fixture (62 passed / 1 failed). Re-captured here 2026-08-24 against the
+SHIPPED, current 112-assertion suite (post T-005 confirmation-panel
+remediation: cap-gamma no-match Capability, the warn-cardinality-nested-
+node fixture, a four-component fixture), under a NEW filename -- the old
+gate-cycle-1 captures are left unchanged alongside this one for
+historical comparison, never overwritten.
+
+Technique: identical to this task's other retained mutation-kill logs
+(see specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+mutation-kill-*.log for the full technique disclosure) -- `git clone
+--no-hardlinks` scratch copy of this worktree, this pass's own
+uncommitted driver/fixture changes overlaid, the real worktree's own
+STAGED source never touched.
+
+Mutant (unchanged from the original gate-cycle-1 capture, evaluator's own
+M4): _aggregate_conditional_facets in resolve-project-context.py -- a
+same-Capability duplicate declaration of the identical facet name is now
+collapsed: only the FIRST declaration_index a given Capability
+contributes to a facet survives the aggregation, the second silently
+dropped.
+
+    for entry in capability_evaluations:
+        ...
+        for cfe in entry.get("conditional_facet_evaluations", []):
+    +       if cfe["facet"] not in contributions:  # collapse: first only
+                contributions.setdefault(cfe["facet"], []).append(...)
+
+Baseline (unmutated scratch clone, this pass's own current driver/fixture
+state): RESULT: 112 passed, 0 failed (both runtimes).
+
+Mutant re-injected: RESULT: 110 passed, 2 failed (both runtimes) --
+non-crashing, exactly the two AC-043/AC-052(b) facet-aggregation
+assertions fail (the reconstructed "shared-facet"/"solo-never-facet"
+nodes are each missing cap-alpha's own second contributing declaration),
+no collateral damage elsewhere, not a Python traceback. Full output
+below.
+[... 11087 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-recaptured-ps1.log (original size 19186 bytes; showing first/last 40 lines) ...]
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
+PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
+PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 110 passed, 2 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-recaptured-sh.log ----
+T-005 confirmation-panel Minor (Anthropic): the previously-designated RED
+captures (verification/T-005/red-misaggregated-facet-{sh,ps1}.log) are
+from the 63-assertion, gate-cycle-1 era, against a three-component
+fixture (62 passed / 1 failed). Re-captured here 2026-08-24 against the
+SHIPPED, current 112-assertion suite (post T-005 confirmation-panel
+remediation: cap-gamma no-match Capability, the warn-cardinality-nested-
+node fixture, a four-component fixture), under a NEW filename -- the old
+gate-cycle-1 captures are left unchanged alongside this one for
+historical comparison, never overwritten.
+
+Technique: identical to this task's other retained mutation-kill logs
+(see specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+mutation-kill-*.log for the full technique disclosure) -- `git clone
+--no-hardlinks` scratch copy of this worktree, this pass's own
+uncommitted driver/fixture changes overlaid, the real worktree's own
+STAGED source never touched.
+
+Mutant (unchanged from the original gate-cycle-1 capture, evaluator's own
+M4): _aggregate_conditional_facets in resolve-project-context.py -- a
+same-Capability duplicate declaration of the identical facet name is now
+collapsed: only the FIRST declaration_index a given Capability
+contributes to a facet survives the aggregation, the second silently
+dropped.
+
+    for entry in capability_evaluations:
+        ...
+        for cfe in entry.get("conditional_facet_evaluations", []):
+    +       if cfe["facet"] not in contributions:  # collapse: first only
+                contributions.setdefault(cfe["facet"], []).append(...)
+
+Baseline (unmutated scratch clone, this pass's own current driver/fixture
+state): RESULT: 112 passed, 0 failed (both runtimes).
+
+Mutant re-injected: RESULT: 110 passed, 2 failed (both runtimes) --
+non-crashing, exactly the two AC-043/AC-052(b) facet-aggregation
+assertions fail (the reconstructed "shared-facet"/"solo-never-facet"
+nodes are each missing cap-alpha's own second contributing declaration),
+no collateral damage elsewhere, not a Python traceback. Full output
+below.
+[... 11087 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-recaptured-sh.log (original size 19186 bytes; showing first/last 40 lines) ...]
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
+PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
+PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 110 passed, 2 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-sh.log ----
 NOTE (T-005 gate-cycle-1 Major 2 remediation): captured against an
 isolated scratch clone (`git clone --no-hardlinks` of this worktree at its
@@ -9108,6 +9270,170 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 55 passed, 10 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-ps1.log ----
+T-005 confirmation-panel Minor (Anthropic): the previously-designated RED
+captures (verification/T-005/red-undermatched-capability-{sh,ps1}.log) are
+from the 65-assertion, cycle-2 era (55 passed / 10 failed against that
+smaller suite). Re-captured here 2026-08-24 against the SHIPPED, current
+112-assertion suite (post T-005 confirmation-panel remediation: cap-gamma
+no-match Capability, the warn-cardinality-nested-node fixture), under a
+NEW filename -- the old cycle-2 captures are left unchanged alongside
+this one for historical comparison, never overwritten.
+
+Technique: identical to this task's other retained mutation-kill logs
+(see specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+mutation-kill-*.log for the full technique disclosure) -- `git clone
+--no-hardlinks` scratch copy of this worktree, this pass's own
+uncommitted driver/fixture changes overlaid, the real worktree's own
+STAGED source never touched.
+
+Mutant (unchanged from the original gate-cycle-1/2 capture, evaluator's
+own M3): _evaluate_capabilities's own union-match loop in
+resolve-project-context.py -- a Capability now "matches" only if EVERY
+affected component's own trigger evaluation is true, never if ANY is (an
+under-matched Capability). Restructures:
+
+    - trigger_evaluations.append({"component_id": ..., "result": result, "evidence": evidence})
+    - if result:
+    -     matched = True
+    + trigger_evaluations.append({"component_id": ..., "result": result, "evidence": evidence})
+    + matched = all(e["result"] for e in trigger_evaluations)
+
+Baseline (unmutated scratch clone, this pass's own current driver/fixture
+state): RESULT: 112 passed, 0 failed (both runtimes).
+
+Mutant re-injected: RESULT: 100 passed, 12 failed (both runtimes) --
+non-crashing, twelve cascading FAILs across AC-006/AC-007/AC-043/AC-052/
+AC-056 (every downstream assertion that depends on cap-alpha/cap-beta
+actually matching), none of them a Python traceback. Full output below.
+
+PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
+[... 11680 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-ps1.log (original size 21244 bytes; showing first/last 40 lines) ...]
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+FAIL: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056): [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}]
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+FAIL: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2): {'actual': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')"], 'expected': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')", "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' declaration_index=0 (node_path='0', operator='equals', field='characteristics.ui', reason='missing-path')"]}
+PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
+PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 100 passed, 12 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-sh.log ----
+T-005 confirmation-panel Minor (Anthropic): the previously-designated RED
+captures (verification/T-005/red-undermatched-capability-{sh,ps1}.log) are
+from the 65-assertion, cycle-2 era (55 passed / 10 failed against that
+smaller suite). Re-captured here 2026-08-24 against the SHIPPED, current
+112-assertion suite (post T-005 confirmation-panel remediation: cap-gamma
+no-match Capability, the warn-cardinality-nested-node fixture), under a
+NEW filename -- the old cycle-2 captures are left unchanged alongside
+this one for historical comparison, never overwritten.
+
+Technique: identical to this task's other retained mutation-kill logs
+(see specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+mutation-kill-*.log for the full technique disclosure) -- `git clone
+--no-hardlinks` scratch copy of this worktree, this pass's own
+uncommitted driver/fixture changes overlaid, the real worktree's own
+STAGED source never touched.
+
+Mutant (unchanged from the original gate-cycle-1/2 capture, evaluator's
+own M3): _evaluate_capabilities's own union-match loop in
+resolve-project-context.py -- a Capability now "matches" only if EVERY
+affected component's own trigger evaluation is true, never if ANY is (an
+under-matched Capability). Restructures:
+
+    - trigger_evaluations.append({"component_id": ..., "result": result, "evidence": evidence})
+    - if result:
+    -     matched = True
+    + trigger_evaluations.append({"component_id": ..., "result": result, "evidence": evidence})
+    + matched = all(e["result"] for e in trigger_evaluations)
+
+Baseline (unmutated scratch clone, this pass's own current driver/fixture
+state): RESULT: 112 passed, 0 failed (both runtimes).
+
+Mutant re-injected: RESULT: 100 passed, 12 failed (both runtimes) --
+non-crashing, twelve cascading FAILs across AC-006/AC-007/AC-043/AC-052/
+AC-056 (every downstream assertion that depends on cap-alpha/cap-beta
+actually matching), none of them a Python traceback. Full output below.
+
+PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
+PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
+[... 11680 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-sh.log (original size 21244 bytes; showing first/last 40 lines) ...]
+PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-multi-node: no partial live artifact
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries' own detail is byte-identical to its own independently-recomputed capability_id/component_id/operator/field/reason text -- a bijection between {comp-a, comp-b, comp-c} and the three details (AC-056; RT-20260823-001 Minor)
+PASS: warn-cardinality-facet-node: exit 1
+PASS: warn-cardinality-facet-node: canonical diagnostic only, no upstream stderr embedded (M8)
+FAIL: warn-cardinality-facet-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056): [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}]
+PASS: warn-cardinality-facet-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-facet-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-facet-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-facet-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-facet-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-facet-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-facet-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-facet-node: no partial live artifact
+PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
+FAIL: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2): {'actual': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')"], 'expected': ["a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' (node_path='0', operator='equals', field='characteristics.pii', reason='missing-path')", "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-facet-warn' component_id='comp-b' declaration_index=0 (node_path='0', operator='equals', field='characteristics.ui', reason='missing-path')"]}
+PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
+PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 100 passed, 12 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-sh.log ----
 NOTE (T-005 gate-cycle-2 remediation -- Minor "driver not robust to
 malformed evidence"): re-captured against a FRESH isolated scratch clone
@@ -9197,7 +9523,8 @@ PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
 PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
 PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
 PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
-PASS: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006)
+PASS: full-pipeline-match: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four affected components (T-005 confirmation-panel Major 1's own no-match Capability)
+PASS: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006)
 PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
 PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
 PASS: full-pipeline-match: Resolver Evidence schema agreement
@@ -9220,31 +9547,17 @@ PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] match
 PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
-PASS: full-pipeline-match: required_facets (AC-007)
-PASS: full-pipeline-match: capabilities (AC-007)
-PASS: full-pipeline-match: resolved_gates (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement (AC-007)
-PASS: full-pipeline-match: lite_eligibility (AC-007)
+PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
+PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
+PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)
+PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
 PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
 PASS: include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch Block as full-pipeline-match's own --include-untracked-omitting invocation (steps 0-12 all passed here too; this fixture's own argv differs from that one ONLY in supplying --include-untracked)
-PASS: include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting invocation above (AC-004)
-[... 1772 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log (original size 14124 bytes; showing first/last 40 lines) ...]
-PASS: warn-cardinality-single-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
-PASS: warn-cardinality-single-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
-PASS: warn-cardinality-single-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
-PASS: warn-cardinality-single-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
-PASS: warn-cardinality-single-node: Resolver Evidence schema agreement
-PASS: warn-cardinality-single-node: no partial live artifact
-PASS: warn-cardinality-single-node: the severity:warn entry's own detail is byte-identical to this node's own independently-recomputed capability_id/component_id/operator/field/reason text, never merely a substring match (AC-056; RT-20260823-001 Minor)
-PASS: warn-cardinality-multi-node: exit 1
-PASS: warn-cardinality-multi-node: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: warn-cardinality-multi-node: exactly 3 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
-PASS: warn-cardinality-multi-node: exactly one summary severity:block entry, never a second (AC-056)
-PASS: warn-cardinality-multi-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
-PASS: warn-cardinality-multi-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+[... 3827 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log (original size 16187 bytes; showing first/last 40 lines) ...]
 PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
 PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
 PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
@@ -9265,13 +9578,26 @@ PASS: warn-cardinality-facet-node: no partial live artifact
 PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
 PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
 PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
 PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
 PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 98 passed, 0 failed
+RESULT: 112 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log ----
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
@@ -9279,7 +9605,8 @@ PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
 PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
 PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
 PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
-PASS: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006)
+PASS: full-pipeline-match: fixture sanity -- cap-gamma's own trigger genuinely matches NONE of the four affected components (T-005 confirmation-panel Major 1's own no-match Capability)
+PASS: full-pipeline-match: exact capability_evaluations, union-match on all three Capabilities including cap-gamma's own no-match entry (AC-006)
 PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
 PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
 PASS: full-pipeline-match: Resolver Evidence schema agreement
@@ -9302,31 +9629,17 @@ PASS: full-pipeline-match: PUBLISHED context_binding.dependency_pointers[] match
 PASS: full-pipeline-match: Resolver Evidence PUBLISHES a resolver block, never omits it (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: PUBLISHED resolver.version/rule_set_revision match this Resolver revision's own single-source-of-truth constants (RT-20260823-001 Finding 1)
 PASS: full-pipeline-match: affected_components is this fixture's own four independently-known component ids, unmutated by assembly (outside AC-007's enumerated field list)
-PASS: full-pipeline-match: required_facets (AC-007)
-PASS: full-pipeline-match: capabilities (AC-007)
-PASS: full-pipeline-match: resolved_gates (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement (AC-007)
-PASS: full-pipeline-match: lite_eligibility (AC-007)
+PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
+PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
+PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
+PASS: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)
+PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
 PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
 PASS: include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch Block as full-pipeline-match's own --include-untracked-omitting invocation (steps 0-12 all passed here too; this fixture's own argv differs from that one ONLY in supplying --include-untracked)
-PASS: include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting invocation above (AC-004)
-[... 1772 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log (original size 14124 bytes; showing first/last 40 lines) ...]
-PASS: warn-cardinality-single-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
-PASS: warn-cardinality-single-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
-PASS: warn-cardinality-single-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
-PASS: warn-cardinality-single-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
-PASS: warn-cardinality-single-node: Resolver Evidence schema agreement
-PASS: warn-cardinality-single-node: no partial live artifact
-PASS: warn-cardinality-single-node: the severity:warn entry's own detail is byte-identical to this node's own independently-recomputed capability_id/component_id/operator/field/reason text, never merely a substring match (AC-056; RT-20260823-001 Minor)
-PASS: warn-cardinality-multi-node: exit 1
-PASS: warn-cardinality-multi-node: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: warn-cardinality-multi-node: exactly 3 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
-PASS: warn-cardinality-multi-node: exactly one summary severity:block entry, never a second (AC-056)
-PASS: warn-cardinality-multi-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
-PASS: warn-cardinality-multi-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+[... 3827 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log (original size 16187 bytes; showing first/last 40 lines) ...]
 PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
 PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
 PASS: warn-cardinality-multi-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
@@ -9347,13 +9660,26 @@ PASS: warn-cardinality-facet-node: no partial live artifact
 PASS: warn-cardinality-facet-node: fixture sanity -- the trigger-loop (declaration_index=None) and facet-loop (declaration_index=0) warn details are genuinely distinct strings, not a coincidental collision
 PASS: warn-cardinality-facet-node: diagnostics[] carries exactly the trigger-loop warn (declaration_index=None) and the facet-loop warn (declaration_index=0), each byte-identical to its own independently-recomputed capability_id/component_id/declaration_index/operator/field/reason text (AC-056; RT-20260823-001 Finding 2)
 PASS: warn-cardinality-facet-node: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production output directly, which the assertion above already does)
+PASS: warn-cardinality-nested-node: exit 1
+PASS: warn-cardinality-nested-node: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: warn-cardinality-nested-node: exactly 2 severity:warn entries, one per outcome:warn node, never fewer (AC-056)
+PASS: warn-cardinality-nested-node: exactly one summary severity:block entry, never a second (AC-056)
+PASS: warn-cardinality-nested-node: every diagnostics[] entry shares the identical 'dsl-warn-on-matched-capability' id (AC-056)
+PASS: warn-cardinality-nested-node: the summary severity:block entry's own detail is the fixed summary sentence, distinct from every severity:warn entry's own detail (AC-056)
+PASS: warn-cardinality-nested-node: no severity:warn entry's own detail collides with the summary sentence (AC-056)
+PASS: warn-cardinality-nested-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
+PASS: warn-cardinality-nested-node: diagnostics[] is sorted by (id, detail) -- the summary entry sorts FIRST, since its own fixed sentence is a strict lexical prefix of every per-node detail (AC-024)
+PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
+PASS: warn-cardinality-nested-node: no partial live artifact
+PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
+PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
 PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
 PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 98 passed, 0 failed
+RESULT: 112 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-005/regression.log ----
 Scoped + full regression evidence for T-005 (epic-193-a5-capability-resolver),
 RE-RUN 2026-08-23, gate-cycle-3 remediation (RT-20260823-001, Route 1), superseding
@@ -9850,7 +10176,7 @@ same rows again at 72/0 — see the table's own current values and the
 |---|---|
 | `CHANGELOG.md` | `b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407` |
 | `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml` | `29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `f71519b627e98f5f0a4a0382220ce4b5be25bc7389dd68f75bcb610f23069134` (**drifted** — T-004's own AC-024 Third Pass updated the shared `resolve-project-context.py` entry again; T-005's own diff never touches this file directly) |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` (**drifted** — T-004's own AC-024 Third Pass updated the shared `resolve-project-context.py` entry again; T-005's own diff never touches this file directly) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/green-ps1.log` | `653bca168b04725f04c8ae0ef5516cab9dcbbd8edd57f5de24ad57bcd153b73d` |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/green-sh.log` | `653bca168b04725f04c8ae0ef5516cab9dcbbd8edd57f5de24ad57bcd153b73d` |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-ps1.log` | `9219ad2f5df0872309a2f0ed775ef00c5431de62024caa48a5a164af92725d11` |
@@ -9859,15 +10185,15 @@ same rows again at 72/0 — see the table's own current values and the
 | `tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/generate-registry-digest.py` | `6bb714aed3b1e01676e91a73a219cfbbb28b78e62974a28d445ed263a6de62b1` |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-advisory.yaml` | `78b1398bc6f7a46a705cc22a65fe76e67600a1d0a5e941f35b3643f773508f60` |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-required.yaml` | `c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad` |
-| `tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json` | `b3a1171934d7a9312ebb0b1df5ab2ef2b3a874eea3135df36859be60b0cac275` (**re-measured, gate-cycle-2 Major C** — supersedes `70e1b286502409ce6c7813dbc73f0e6fc51f68b24f0c6cdfdd2859aca72f3eac`; cap-beta now declares its own second `solo-never-facet` conditional facet, an always-false predicate, so the aggregated reason must name two contributing instances, not one) |
+| `tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json` | `f80d20525d731c8f20ab8e527e840d77c5d41af04c1e64708076e713baa52cfa` (**re-measured, gate-cycle-2 Major C** — supersedes `70e1b286502409ce6c7813dbc73f0e6fc51f68b24f0c6cdfdd2859aca72f3eac`; cap-beta now declares its own second `solo-never-facet` conditional facet, an always-false predicate, so the aggregated reason must name two contributing instances, not one) |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/generate-registry-digest.py` | `0e8c03ffdbf743bfe2bb66eba895008c0d1fdeaf22afa66de6f7a9f606d202c1` |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/project-context.yaml` | `46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41` (**re-measured, gate-cycle-2 Major B** — supersedes `36461eb36edee8160bb9b7cb48ee5c41c4c7c45645a7f7b141cf36b525128199`; a fourth component, `other~thing`, added so the RFC-6901 `~`->`~0` escape rule has a fixture to exercise it) |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/resolve-component-paths.py` | `e88b3da3c38ccda7a3cf5d57985a4504fc0d0bacd1204851337b6b91a52d1d23` |
-| `tests/resolve-project-context-match-check.py` | `b971254442488ec6634d647e6075acb44c8407ee1f3cc289977936353572fcea` (**re-measured, gate-cycle-5** — supersedes `01719b3a2fa7d6d2a915f077a807d4362e1cd1d094d7424080f4e6e2c6dd1bb7` (gate-cycle-4), `c6e7655bfd42d3f3200497e9fdb3b70f38f955dd0d91d3ca2c8eff1c0bf19d55` (gate-cycle-3 second addendum), `6dfb08e49833608bd73fda3a546476797876abb0fd04f7741bef2c9e887c1505` (gate-cycle-3 Route 1), `f1ff15988ee9102e88def555261246cef948f2fea35959445055a454f38eecd0` (gate-cycle-2), `3fb0f5dd14c4f8abd0d430e15e388b386993bd73e4ae4fa3c191c96fffd7b70d` (gate-cycle-1), and `04cbcd46ee8f9dffb0c483d221fd7ee1c8bf93be95fd85b7998059c7d0328f64` (original); new `include-untracked-pass-through` fixture (`run_include_untracked_pass_through_case`, three new assertions) closing the AC-004 Major, plus two stale comment-label fixes (Minors) — see "## Gate Cycle 5 Remediation" below) |
+| `tests/resolve-project-context-match-check.py` | `d807e171751d3a6ddbdc0473671fb6b920ae09848b07df13afc812ee61b4b4f8` (**re-measured, gate-cycle-5** — supersedes `01719b3a2fa7d6d2a915f077a807d4362e1cd1d094d7424080f4e6e2c6dd1bb7` (gate-cycle-4), `c6e7655bfd42d3f3200497e9fdb3b70f38f955dd0d91d3ca2c8eff1c0bf19d55` (gate-cycle-3 second addendum), `6dfb08e49833608bd73fda3a546476797876abb0fd04f7741bef2c9e887c1505` (gate-cycle-3 Route 1), `f1ff15988ee9102e88def555261246cef948f2fea35959445055a454f38eecd0` (gate-cycle-2), `3fb0f5dd14c4f8abd0d430e15e388b386993bd73e4ae4fa3c191c96fffd7b70d` (gate-cycle-1), and `04cbcd46ee8f9dffb0c483d221fd7ee1c8bf93be95fd85b7998059c7d0328f64` (original); new `include-untracked-pass-through` fixture (`run_include_untracked_pass_through_case`, three new assertions) closing the AC-004 Major, plus two stale comment-label fixes (Minors) — see "## Gate Cycle 5 Remediation" below) |
 | `tests/resolve-project-context-match.tests.ps1` | `3b87b166287c17a8b788702cf984af504eed4b85e237fa0c76f83b301d2d311b` |
 | `tests/resolve-project-context-match.tests.sh` | `52786f00d417aab41b3088480900dae72e9139c0b8d89ecd0ce773d2fa69db51` |
-| `tests/run-all.ps1` | `5c62b3421bb2319538792429cf4791eb47a212847d21aa14550a50b0e26b9563` (**added** — missing from the original table; edited by this task's own commit to register the `match` suite) |
-| `tests/run-all.sh` | `a5750732627f3de66f5d3af88f0849959ea4c01214562600dfbecfc576c3e767` (**added** — missing from the original table; edited by this task's own commit to register the `match` suite) |
+| `tests/run-all.ps1` | `d88f36eb58a4cc8c7cb168e3ee7173872f278252fcf6c9395f35e2f23c2f55a9` (**added** — missing from the original table; edited by this task's own commit to register the `match` suite) |
+| `tests/run-all.sh` | `03bc0b5ead841ea6a41cb54033bf1f15b17f5992d1fffed93bff9d642c1fac0c` (**added** — missing from the original table; edited by this task's own commit to register the `match` suite) |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/project-context.yaml` | `290c85f8891a90a7644595064ecdbc8b62ae14e8fe727b09609192da5b48f448` (folded in from the former second-pass sub-table, unchanged) |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/capability-registry.json` | `ae0d763d1767e29fcf8695f37f580d2cd306cf173bb5d83ff0936692af23ff7a` (folded in from the former second-pass sub-table, unchanged) |
 | `tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/project-context.yaml` | `dd94fc0799ff3135941e140792c74eb7fbf638dd0a0ba8e0cb79f8af98f1cb11` (**new, gate-cycle-4** — RT-20260823-001 Finding 2's own fixture; `comp-a` matches both the Capability's trigger and its own conditional facet, `comp-b` warns on both, exercising an integer-`declaration_index` warn entry in tested output for the first time) |
@@ -9876,20 +10202,20 @@ same rows again at 72/0 — see the table's own current values and the
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-ac056-ps1.log` | `1a200d6804f0f5148f19f33fa61ea66ecb718edd027bc595dae9622fad7891ce` (folded in from the former second-pass sub-table, unchanged) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/green-ac056-sh.log` | `c6bd2071b7cf42a18929f5ac30a686f28a682b7486e67ac9002e157600209329` (folded in from the former second-pass sub-table, unchanged) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/green-ac056-ps1.log` | `c6bd2071b7cf42a18929f5ac30a686f28a682b7486e67ac9002e157600209329` (folded in from the former second-pass sub-table, unchanged) |
-| `specs/epic-193-a5-capability-resolver/verification/T-005.contract.json` | `481c357be02da13d1b32d1ffa89a171ac32daa8536018312d7f4897ab143e9e3` (**re-measured, gate-cycle-5** — supersedes `5df75db4bdb4e62a8cdc9e4790f2a930efb687844c2de7ccfd2e241acf6b6d32` (gate-cycle-4), `9020345b9eb9ab843c3d006c758686381e2509594ba5498b6aa882e0cd986a10` (gate-cycle-3), `f69802badbb86773ccafb7671681b99632f0e803be391fcf636b994f6a2c52dd` (gate-cycle-2), and `660e5cc291aca2e1c240a0950347e82a98b56c6d0bafeeed779f8c6212f345fd` (gate-cycle-1); this pass's own "GATE CYCLE 5 REMEDIATION" comment addendum, plus the opening sentence's own count fixed to match current evidence (see "## Gate Cycle 5 Remediation" below); `evidence`/`green_evidence` paths unchanged, content behind them re-captured at 98/0; `python3 plugins/sdd-quality-loop/scripts/check-contract.py` re-confirmed PASSED) |
+| `specs/epic-193-a5-capability-resolver/verification/T-005.contract.json` | `4a3974f73414e01d7eb9194d23d6cd07c7e2e928b9e279f70656d82be5744934` (**re-measured, gate-cycle-5** — supersedes `5df75db4bdb4e62a8cdc9e4790f2a930efb687844c2de7ccfd2e241acf6b6d32` (gate-cycle-4), `9020345b9eb9ab843c3d006c758686381e2509594ba5498b6aa882e0cd986a10` (gate-cycle-3), `f69802badbb86773ccafb7671681b99632f0e803be391fcf636b994f6a2c52dd` (gate-cycle-2), and `660e5cc291aca2e1c240a0950347e82a98b56c6d0bafeeed779f8c6212f345fd` (gate-cycle-1); this pass's own "GATE CYCLE 5 REMEDIATION" comment addendum, plus the opening sentence's own count fixed to match current evidence (see "## Gate Cycle 5 Remediation" below); `evidence`/`green_evidence` paths unchanged, content behind them re-captured at 98/0; `python3 plugins/sdd-quality-loop/scripts/check-contract.py` re-confirmed PASSED) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-sh.log` | `427ae330668d951b970923c398bf69d3825e5ff4155fbf68474e1ed4e726f61b` (**re-captured, gate-cycle-2 Minor** — supersedes `55ead5c43b4a313e7e6575edc2733b69c87a701350510b04d8f6df349de58b88` (gate-cycle-1); identical M3 union-match `any`->`all` mutant, but the driver's own `.get("conditional_facet_evaluations", [])` guard now reaches a clean RESULT line instead of crashing with an unguarded `KeyError`) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-ps1.log` | `0984161b36fa388e2672ffa3af97f210adef445ef114da0b922180cc63108719` (**re-captured, gate-cycle-2 Minor**, identical to the `sh` capture) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-sh.log` | `a4a8e781f8aa59c5798fca5e76dd92bf91c4c05e221f7956a5225e8f4534fa3f` (**added**, gate-cycle-1 Major 2 — same-Capability duplicate-facet collapse mutant, AC-043/AC-052(b), scratch clone only) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-ps1.log` | `a4a8e781f8aa59c5798fca5e76dd92bf91c4c05e221f7956a5225e8f4534fa3f` (**added**, gate-cycle-1 Major 2, identical to the `sh` capture) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-noncanonical-provenance-sh.log` | `459901f2a8032592ab1603bc671c42f68bf2f2b3eb165497d2e130d2832b2283` (**added**, gate-cycle-1 Major 1/2 — `RULE_SET_STRING`/`os.getpid()` per-process mutant, scratch clone only; not byte-identical to the `ps1` capture since the mutant itself is pid-dependent, but fails the identical single assertion for the identical reason) |
 | `specs/epic-193-a5-capability-resolver/verification/T-005/red-noncanonical-provenance-ps1.log` | `d9a234e151b0bc765a70adfdab0c04f2a193908d716496527e6ad670f6b1914f` (**added**, gate-cycle-1 Major 1/2, same defect class as the `sh` capture) |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log` | `d3981a874d2484c326454c5a483dc9ef5d5e6e07d53f586bb542885c852ad89e` (**re-measured, gate-cycle-5** — supersedes `f9ef9374d79ca39a7ce7fdfd79cc265a87de2cc57d13948a91ca1d3a7e815b1d` (gate-cycle-4), `594c8294aba640e20e1d6afbf55f42d025483c1f619d2f40f93ec38851ee4cff` (gate-cycle-3 second addendum), `64f1ef0712d90bd75a63f2115ce9e0082ef62844978b01972e7ab489a6a396fc` (RT-20260823-001), and `b35b6968a044802e380d538e44edab23ad0bd152c058367a1002827fb11f6030` (gate-cycle-2); this contract's own `green_evidence`/`unit-tests` `evidence` path, re-captured at the new 98/0 total) |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log` | `d3981a874d2484c326454c5a483dc9ef5d5e6e07d53f586bb542885c852ad89e` (**re-measured, gate-cycle-5**, identical to the `sh` capture; this contract's own `green_evidence` for `acceptance-tests`) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log` | `b1aebc3485dff73a61f8dde715ad62db56aed05407f28a9f2c8b6f0405aaf2df` (**re-measured, gate-cycle-5** — supersedes `f9ef9374d79ca39a7ce7fdfd79cc265a87de2cc57d13948a91ca1d3a7e815b1d` (gate-cycle-4), `594c8294aba640e20e1d6afbf55f42d025483c1f619d2f40f93ec38851ee4cff` (gate-cycle-3 second addendum), `64f1ef0712d90bd75a63f2115ce9e0082ef62844978b01972e7ab489a6a396fc` (RT-20260823-001), and `b35b6968a044802e380d538e44edab23ad0bd152c058367a1002827fb11f6030` (gate-cycle-2); this contract's own `green_evidence`/`unit-tests` `evidence` path, re-captured at the new 98/0 total) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log` | `b1aebc3485dff73a61f8dde715ad62db56aed05407f28a9f2c8b6f0405aaf2df` (**re-measured, gate-cycle-5**, identical to the `sh` capture; this contract's own `green_evidence` for `acceptance-tests`) |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-005/regression.log` | `7cc4e6a3eee6e8f58fa3b219dde34b86c7cc67f9e26902dfdb2f416c1b71068f` (**re-measured, gate-cycle-3 second addendum (AC-024)** — supersedes `b7d79f4f4a6626b2a9dc650265441a68caba394e36e6a1a784990511a5ed97b6` (RT-20260823-001) and `5da68b4cd5c251700812627d50b6b3e70a380e9b6a0f5c8413716226fb2acd16` (gate-cycle-2); this contract's own `regression` check evidence path; re-captured — scope/dependency-suite/this-task's-own-suite-content all clean (72/0 both runtimes, block suite re-confirmed 141/0 against the FIXED production code after first confirming 138/3 against the pre-fix code in a scratch clone); the full `tests/run-all.{sh,ps1}` re-run remains disclosed as environmentally INCONCLUSIVE — see the log's own preface note — with the last clean full-run confirmation (gate-cycle-2's own, 2/1 DESIGNED-RED) retained beneath a `---` separator in the same file, and the second-pass 59/0 capture beneath that) |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-005/placeholder-scan.log` | `a68c6afbf43700c9118b0fd37a3e78fb5813f7775a1f532c00261a7af26da5cd` (**re-measured, gate-cycle-3 second addendum** — supersedes `17a37d50dca2b00fa6ecf5f57c6b21ad5b5563da1d09aa7edee2eb8c03e1b405` (RT-20260823-001) and `f649038aef059f071840023d1fc05c6b803cff4d38a9b06d9ecf092aed2a00e5` (gate-cycle-2); this addendum's own scan invocation, covering `tests/resolve-project-context-match-check.py`/`tests/resolve-project-context-block-check.py`/both dispatcher twins/the staged `resolve-project-context.py`, appended below the prior invocations, PASS) |
-| `tests/resolve-project-context-block-check.py` | `834b9ab26bd252a427251758dd9d2bf4fb4e82c19e5a4b0c8a9a4f8f58b47b51` (**re-measured, gate-cycle-5 — this row moves TO T-005's own report this pass**, following the established convention (see "excluded" note above) that attributes this shared T-002/T-003/T-004 driver file to whichever task's own report last extended it; supersedes `9b504735d0b399f456ee52ac7e80919ffb34e183e7ce4f1e0f45e1ab3298a19f` (T-004's own AC-024 `dsl-warn-*` fix, see `reports/implementation/epic-193-a5-capability-resolver/T-004.md`'s own "Outputs (third pass's own updates)" for that prior row); this pass's own edit: `t003_resolver_argv` gained an `include_untracked=False` keyword parameter, default unchanged, every pre-existing caller's own byte-identical argv preserved — only the new `include-untracked-pass-through` fixture (this same table's `tests/resolve-project-context-match-check.py` row) ever passes `True`) |
+| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` (**re-measured, gate-cycle-5 — this row moves TO T-005's own report this pass**, following the established convention (see "excluded" note above) that attributes this shared T-002/T-003/T-004 driver file to whichever task's own report last extended it; supersedes `9b504735d0b399f456ee52ac7e80919ffb34e183e7ce4f1e0f45e1ab3298a19f` (T-004's own AC-024 `dsl-warn-*` fix, see `reports/implementation/epic-193-a5-capability-resolver/T-004.md`'s own "Outputs (third pass's own updates)" for that prior row); this pass's own edit: `t003_resolver_argv` gained an `include_untracked=False` keyword parameter, default unchanged, every pre-existing caller's own byte-identical argv preserved — only the new `include-untracked-pass-through` fixture (this same table's `tests/resolve-project-context-match-check.py` row) ever passes `True`) |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-005/task-state.log` | `7dd25def4f74510383ecb66dca460e20d963a3d800b4b5372c8dcb131bc75f7a` (**added, gate-cycle-2 Minor** — this contract's own `task-state-check` evidence path, unchanged content; re-run this pass, still byte-identical, not re-measured) |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/traceability.log` | `9992268cf2486f11da156757af2cccba035c643fc28228732cf4f3e7e47a90cb` (**added, gate-cycle-5 Minor** — this contract's own `requirement-traceability` finding path, cited as load-bearing in `T-005.contract.json`'s own comment since this contract's original authoring but never reachable from this Outputs table until now, the exact reachability defect gate-cycle-2 fixed for the other five qg logs; content also regenerated this pass — the prior capture at this same path had gone stale at 59/0, three generations behind gate-cycles 1-4's own suite growth, the identical stale-justification class flagged elsewhere this cycle) |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/traceability.log` | `2de4ccc18c9d90c8bbc830445dba650c0026867b0da5786f98ffc52df5d8c5a4` (**added, gate-cycle-5 Minor** — this contract's own `requirement-traceability` finding path, cited as load-bearing in `T-005.contract.json`'s own comment since this contract's original authoring but never reachable from this Outputs table until now, the exact reachability defect gate-cycle-2 fixed for the other five qg logs; content also regenerated this pass — the prior capture at this same path had gone stale at 59/0, three generations behind gate-cycles 1-4's own suite growth, the identical stale-justification class flagged elsewhere this cycle) |
 
 ## Test Evidence
 
@@ -11268,30 +11594,168 @@ pass-through assertion, and the no-partial-live-artifact check on the new
   evaluation found it was not, and this run closes it in full, five
   mutants killed.
 
+## Confirmation-Panel Remediation (2026-08-24)
+
+A six-verdict confirmation panel (both vendors x T-003/T-004/T-005)
+returned NEEDS_WORK across the board. This task's own share of the
+findings, closed this pass:
+
+- **Major (both vendors) — no no-match Capability exists anywhere in the
+  suite**: `full-pipeline-match` declared exactly two Capabilities and
+  both matched, so all five of AC-007's aggregate Facet-Manifest fields
+  (`required_facets`, `capabilities`, `resolved_gates`,
+  `capability_minimum_enforcement`, `lite_eligibility`) were confounded
+  between "aggregate over the matched set" and "aggregate over the whole
+  Registry" — the suite's own recorded survivor MUT-7 is one instance of
+  this class, open since gate cycle 2. Fixed: a third Capability,
+  `cap-gamma` (trigger `characteristics.auto_update equals true`, which
+  NONE of the fixture's four components declare — a sanity assertion
+  confirms it genuinely never matches), declaring its own
+  `required_facets: ["gamma-facet"]`, `gate_ids: ["gate-never"]`
+  (a new gate added to the Registry), and
+  `lite_policy.upgrade_reasons: ["external_identity"]` (a valid
+  `lite-upgrade-reason-catalog.json` entry — the fixture's own first
+  choice, `"gamma-reason"`, failed `validate-capability-registry`'s real
+  `unknown-upgrade-reason` check, caught immediately by re-running the
+  real validator before assuming the fixture was schema-valid). Every one
+  of the five field-assembly assertions now asserts exclusion of
+  `cap-gamma`'s own contribution. **Which fields MUT-7 covers, checked
+  directly rather than assumed**: MUT-7 mutates `_required_facets` only;
+  `_resolved_gates`/`_lite_eligibility`/`_capability_minimum_enforcement`
+  are each separately-scoped functions with their own independent
+  `matched_capability_ids` loop, so MUT-7 cannot exercise them —
+  `capabilities` is a structural pass-through of `_assemble_facet_
+  manifest`'s own `matched_ids` computation, also outside MUT-7's own
+  reach. Re-injecting MUT-7 in a scratch clone: baseline 112/0 → mutant
+  98/1, EXACTLY the `required_facets` assertion, confirming (not merely
+  asserting) that the other four fields are unaffected by this specific
+  mutant — they are closed by this same fixture addition's own
+  exact-equality checks, but would need their own separate mutants to
+  prove non-vacuous; none currently exist, and none were added this pass
+  (outside this pass's own two named Majors). `capability_minimum_
+  enforcement` stays genuinely confounded on this fixture regardless —
+  cap-beta alone already contributes `"required"` whether or not the
+  matched-set gate is correctly applied — disclosed in the driver's own
+  comment, not claimed closed; a fixture with NO matched Capability
+  declaring `minimum_enforcement` would be needed, outside this pass's
+  own scope.
+- **Major (both vendors) — every WARN fixture was a flat leaf
+  predicate**, so no evidence tree ever held two warn nodes and "per
+  node" was indistinguishable from "per tree" — MUT-9, open since gate
+  cycle 3. Fixed: a new fixture, `warn-cardinality-nested-node`, whose
+  sole Capability's trigger is a composite `any` predicate with two leaf
+  children, both of which WARN (`missing-path`) against the fixture's
+  own single component — confirmed directly against the Predicate DSL's
+  own grammar (`evaluate-predicate.py`'s `evaluate()`: an `any`/`all`
+  node evaluates every child with no short-circuit, and a child's own
+  WARN counts as `false` for the PARENT's own match/no-match, never
+  propagating "warn" upward) before authoring the fixture, not assumed —
+  verified by direct invocation, producing exactly the two-warn-node,
+  one-tree shape needed. A new independent oracle,
+  `_iter_all_warn_nodes` (reimplemented from AC-056's own documented
+  contract text, never by calling production's own `_iter_warn_nodes`,
+  which is exactly what MUT-9 mutates), recomputes both expected warn
+  details. Re-injecting MUT-9 in a scratch clone: baseline 112/0 →
+  mutant 110/2, EXACTLY this new fixture's own two assertions
+  (truncated to the first of two warn nodes), zero collateral —
+  confirming the pre-existing `warn-cardinality-multi-node`/`-single-
+  node`/`-facet-node` fixtures remain unaffected (each is still a
+  one-node-per-tree shape, as their own survivor status already implied).
+- **Minor (Anthropic) — REQ-006(g) zero-affected-component fixture**:
+  checked directly rather than assumed covered. `tests/resolver-
+  evidence-schema.tests.sh`'s own TEST-018 (T-001's suite,
+  traceability.md's own explicit AC-018 → TEST-018 → T-001 mapping)
+  confirms, via a static schema-fixture (`zero-affected-components.json`),
+  that every Capability's own `trigger_evaluations[]` is `[]` when there
+  are zero affected components — the `trigger_evaluations[]` HALF of
+  REQ-006(g). **Disclosed, not silently claimed fully closed**: REQ-006(g)
+  ALSO names `capabilities: []` — a FACET MANIFEST field, which T-001's
+  schema-fixture-only suite has no way to exercise (Resolver Evidence
+  carries no `capabilities` field at all) and no fixture in this task's
+  own suite exercises either, since the Facet Manifest is never published
+  to any live path pre-T-007 and a zero-affected-component `full-
+  pipeline-match`-style fixture was not added this pass (out of scope for
+  a Minor, given the size of this pass's own two Majors above). Recorded
+  here, not fixed: a genuine zero-affected-component real-pipeline
+  fixture, closing the `capabilities: []` half via the same oracle-
+  reconstruction technique `full-pipeline-match` already establishes, is
+  a follow-on.
+- **Minor (Anthropic) — designated RED captures from the 63/65-assertion
+  era**: `red-undermatched-capability-{sh,ps1}.log` (65-assertion,
+  gate-cycle-2 era, 55/10) and `red-misaggregated-facet-{sh,ps1}.log`
+  (63-assertion, gate-cycle-1 era, 62/1) were stale relative to the
+  shipped, current 112-assertion suite. Both mutants (M3 union-match
+  `any`→`all`, M4 same-Capability duplicate-facet collapse — unchanged
+  from their own original definitions) were re-injected via the
+  identical scratch-clone technique and re-captured under NEW filenames:
+  `red-undermatched-capability-recaptured-{sh,ps1}.log` (112/0 baseline →
+  100/12 mutant, non-crashing, twelve cascading FAILs across every
+  downstream assertion depending on cap-alpha/cap-beta actually
+  matching) and `red-misaggregated-facet-recaptured-{sh,ps1}.log` (112/0
+  → 110/2, exactly the two AC-043/AC-052(b) aggregation assertions). The
+  old era's own captures remain on disk unchanged at their original
+  filenames; `T-005.contract.json`'s own `red_evidence` re-pointed to the
+  recaptured M3 pair.
+- **Left as instructed**: AC-016's own signature-proxy Minor (disputed
+  value — the evaluator/panel's own read differs from this task's; not
+  touched) and the bundle-elision scope note (bundler-side, not this
+  feature's own diff).
+
+### Outputs (confirmation-panel remediation pass, 2026-08-24)
+
+| Path | SHA-256 (current worktree) |
+|---|---|
+| `tests/resolve-project-context-match-check.py` | `d807e171751d3a6ddbdc0473671fb6b920ae09848b07df13afc812ee61b4b4f8` |
+| `tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json` | `f80d20525d731c8f20ab8e527e840d77c5d41af04c1e64708076e713baa52cfa` |
+| `tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/project-context.yaml` | `8a789a9432ba0e9d4293c99d2d41497f704ae415545f71871892b680169429ae` |
+| `tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/capability-registry.json` | `b5d9b5e2439da9e843cfd36de445f2df54e06455dbd7e694d954411311c84bc4` |
+| `specs/epic-193-a5-capability-resolver/verification/T-005.contract.json` | `4a3974f73414e01d7eb9194d23d6cd07c7e2e928b9e279f70656d82be5744934` — `red_evidence` re-pointed to `red-undermatched-capability-recaptured-{sh,ps1}.log` |
+| `specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-sh.log` | `59edb34c9088380306d70e89e1aa9792e2d989b11911737163a61dfa36a5b37e` |
+| `specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-ps1.log` | `59edb34c9088380306d70e89e1aa9792e2d989b11911737163a61dfa36a5b37e` |
+| `specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-recaptured-sh.log` | `9a40e50e2578867d9ae8b7c0429aee18b884dea9bad60a8612daab44a64345ca` |
+| `specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-recaptured-ps1.log` | `9a40e50e2578867d9ae8b7c0429aee18b884dea9bad60a8612daab44a64345ca` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/traceability.log` | `2de4ccc18c9d90c8bbc830445dba650c0026867b0da5786f98ffc52df5d8c5a4` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log` | `b1aebc3485dff73a61f8dde715ad62db56aed05407f28a9f2c8b6f0405aaf2df` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log` | `b1aebc3485dff73a61f8dde715ad62db56aed05407f28a9f2c8b6f0405aaf2df` |
+| `tests/traceability-log-freshness.tests.sh` / `.ps1` | shared across T-003/T-004/T-005; see `T-004.md`'s own Outputs table for hashes |
+
+### Re-verification
+
+- `bash tests/resolve-project-context-match.tests.sh` / `pwsh -File
+  tests/resolve-project-context-match.tests.ps1`: 112 passed / 0 failed,
+  both runtimes.
+- `python3 plugins/sdd-quality-loop/scripts/check-contract.py
+  specs/epic-193-a5-capability-resolver/verification/T-005.contract.json`:
+  `Verification contract passed for task T-005.`
+- `bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh`:
+  `workflow-state: ok`.
+- `bash plugins/sdd-quality-loop/scripts/check-task-state.sh
+  specs/epic-193-a5-capability-resolver/tasks.md`: `Task state check
+  passed for 10 task(s).`
+
 ## Session Handoff
 
 - **Current Status**: Implementation Complete
 - **Next Action**: Independent quality gate reviews this task's own diff
   (including the 2026-08-23 Second Pass, Gate Cycle 1, Gate Cycle 2, Gate
   Cycle 3/RT-20260823-001, the same-day cross-epic panel AC-024 addendum,
-  the downstream T-003/T-004 cross-model panel remediation, and Gate
-  Cycle 4/RT-20260823-001 cycle-4) and Test Evidence — TEST-056 is
-  implemented and passing (including its own facet-loop
-  `declaration_index` branch as of this cycle), RT-20260823-001's own
-  Major is now closed in substance (published-evidence assertions, not
-  only reconstruction), and the AC-024 `diagnostics[]` stable-sort
-  finding is closed on both the production (T-004) and test (T-005)
-  sides, so no Done-When item and no open review-ticket or panel finding
-  remains unmet on this task's own side — and owns the task-status flip
-  to `Done` (and the ticket's own status, separately). Separately, a
-  human reviews/applies the human-copy `test.yml`/`MANIFEST.sha256`
-  candidates and T-004's own updated `resolve-project-context.py`
-  candidate (now carrying the AC-056 and AC-024 fixes; unaffected by this
-  cycle's own test-only diff).
+  the downstream T-003/T-004 cross-model panel remediation, Gate Cycle
+  4/RT-20260823-001 cycle-4, and this 2026-08-24 "Confirmation-Panel
+  Remediation" section) and Test Evidence — TEST-056 is implemented and
+  passing (including its own nested-node, 2-warn-per-tree branch as of
+  this pass), both of this pass's own named Majors (MUT-7/MUT-9 no
+  longer confounded) are closed, so no Done-When item and no open
+  review-ticket or panel finding remains unmet on this task's own side —
+  and owns the task-status flip to `Done` (and the ticket's own status,
+  separately). Separately, a human reviews/applies the human-copy
+  `test.yml`/`MANIFEST.sha256` candidates and T-003/T-004's own updated
+  `resolve-project-context.py` candidate (now carrying this pass's own
+  registry-snapshot-binding/pattern/declaration_index fixes; unaffected
+  by this cycle's own test-only diff).
 - **Unresolved Items**: see above (only the pre-existing AC-044
-  white-box-only item and the standing human-copy/gate-status items
-  remain — the `declaration_index` branch-coverage item and the
-  reconstruction-vs-published gap are both closed as of this cycle).
+  white-box-only item, the standing human-copy/gate-status items, the
+  REQ-006(g) `capabilities: []` half, and the disputed AC-016 signature-
+  proxy Minor remain).
 # ---- CHANGELOG.md (declared output) ----
 # Changelog
 
@@ -12286,7 +12750,7 @@ jobs:
           echo "all required checks passed"
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851  .github/workflows/test.yml
-f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/capability-registry.json (declared output) ----
@@ -12386,6 +12850,11 @@ components:
       "id": "gate-artifact",
       "stage": "artifact",
       "blocking": false
+    },
+    {
+      "id": "gate-never",
+      "stage": "promotion",
+      "blocking": false
     }
   ],
   "capabilities": [
@@ -12466,6 +12935,21 @@ components:
       "minimum_enforcement": "required",
       "lite_policy": {"eligible": false, "upgrade_reasons": ["pii"]},
       "delivery_strategy": {"kind": "cap-beta"}
+    },
+    {
+      "id": "cap-gamma",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.auto_update",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": ["gamma-facet"],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": ["gate-never"],
+      "lite_policy": {"eligible": false, "upgrade_reasons": ["external_identity"]},
+      "delivery_strategy": {"kind": "cap-gamma"}
     }
   ]
 }
@@ -12640,8 +13124,7 @@ this task's own target ACs
 artifacts that are therefore never externally observable via a real
 subprocess invocation alone, on this tree, today. This driver closes that
 gap the same way this driver's own predecessors already recompute
-[... 80580 bytes elided from the middle of tests/resolve-project-context-match-check.py (original size 85174 bytes; showing first/last 40 lines) ...]
-
+[... 91541 bytes elided from the middle of tests/resolve-project-context-match-check.py (original size 96235 bytes; showing first/last 40 lines) ...]
 def main():
     import argparse
     parser = argparse.ArgumentParser()
@@ -12653,7 +13136,7 @@ def main():
     case_labels = [
         "full-pipeline-match", "include-untracked-pass-through", "enforcement-byte-identity",
         "warn-cardinality-single-node", "warn-cardinality-multi-node",
-        "warn-cardinality-facet-node",
+        "warn-cardinality-facet-node", "warn-cardinality-nested-node",
     ]
     if not all(path.is_file() for path in required_files):
         for label in case_labels:
@@ -12667,6 +13150,7 @@ def main():
         run_warn_cardinality_single_node_case(args.launcher, counts)
         run_warn_cardinality_multi_node_case(args.launcher, counts)
         run_warn_cardinality_facet_node_case(args.launcher, counts)
+        run_warn_cardinality_nested_node_case(args.launcher, counts)
         run_resolver_identity_cross_process_check(counts)
         run_dispatcher_delegation_check(counts)
 
@@ -12778,7 +13262,8 @@ $tests = @(
     'tests/design-sync-scan.tests.ps1',
     'tests/resolver-evidence-schema.tests.ps1',
     'tests/resolve-project-context-block.tests.ps1',
-    'tests/resolve-project-context-match.tests.ps1'
+    'tests/resolve-project-context-match.tests.ps1',
+    'tests/traceability-log-freshness.tests.ps1',
     'tests/capability-registry-schema.tests.ps1',
     'tests/evaluate-predicate.tests.ps1',
     'tests/registry-discovery.tests.ps1',
@@ -12932,6 +13417,7 @@ tests=(
   tests/resolver-evidence-schema.tests.sh
   tests/resolve-project-context-block.tests.sh
   tests/resolve-project-context-match.tests.sh
+  tests/traceability-log-freshness.tests.sh
   tests/capability-registry-schema.tests.sh
   tests/evaluate-predicate.tests.sh
   tests/registry-discovery.tests.sh
@@ -13108,1503 +13594,7 @@ Four sections:
    capability` WARN fixtures. Every dependency this stage invokes
    (`resolve-component-paths`, Registry discovery + `validate-capability-
    registry`, `generate-registry-digest --whole`, `evaluate-predicate`) is a
-   REAL subprocess against a real, isolated git repository and a real
-   fixture Registry -- matching this task's own Depends On text ("this
-   task's own script invokes them as real subprocesses, not mocked
-   stand-ins") -- except where the fixture itself is a deliberately-failing
-   stub standing in for one specific dependency, exactly as section 1 above
-   already does for `canonicalize-sdd-yaml`.
-4. Section 3's own T-003 Resolver Evidence assertions recompute the expected
-   `trigger_evaluations[].evidence` content by invoking the REAL
-   `evaluate-predicate` directly against the identical predicate/properties
-   pair, rather than hand-transcribing its own Evidence JSON Schema output
-   -- the same "recompute via the real dependency" discipline section 2
-   already uses for `source_sha256`.
-5. T-004's own three new Block diagnostic-id rows (steps 10-13, four
-   invocations -- `output-schema-validation-failed` gets two fixtures per
-   AC-055's own dual-artifact-scope): `lite-check-source-undefined`,
-   `output-schema-validation-failed` (sub-case a: Resolver Evidence itself
-   fails; sub-case b: a non-Evidence staged artifact fails), and the first,
-   digest-mismatch `snapshot-generation-mismatch` fixture. Two of Epic A4's
-   own three governing output schemas this stage's step 12 self-validates
-   against (`context-projection.schema.json`, `capability-summary.
-   schema.json`) are not yet landed on this branch (Epic A4's own PR has
-   not merged here; T-003's own Dependency Preflight already recorded the
-   identical gap for its own, narrower scope) -- `install_t003_dependencies`
-   below plants this suite's own test-harness-only stand-in copies (their
-   real Epic A4 field shapes, transcribed verbatim from `specs/
-   epic-192-a4-facet-manifest/design.md`'s own frozen API/Contract Plan;
-   `facet-manifest.schema.json` and `resolver-evidence.schema.json` are
-   both real, already-landed contracts and are copied as-is) into every
-   fixture's own isolated `contracts/` directory, exactly like this
-   driver's own already-established "real dependency plus one
-   deliberately-failing stub/schema" pattern. `capability-summary.
-   schema.json` is planted for completeness/future reuse but is never
-   actually exercised by any of this task's own four fixtures below (each
-   is deliberately shaped to Block, or to fail, before step 12 would ever
-   reach a Capability Summary schema check -- see T-004's own
-   implementation report for the exact reasoning).
-6. Cross-model panelist remediation (T-003.panelist-anthropic.verdict.json,
-   three Major findings), four fixtures added to sections 3-4's own
-   pattern: `resolve-component-paths-launch-failed` (step 4's own OSError
-   subprocess-launch path -- previously untested by any fixture here --
-   deletes the fixture repo's own `resolve-component-paths.py` sibling so
-   `_script_argv` falls back to a bare, off-PATH name, forcing a genuine
-   OSError rather than a non-zero exit); `registry-discovery-unimportable`
-   (a second, independent trigger for the existing `contract-discovery-
-   failed` diagnostic -- an unimportable `registry_discovery` sibling
-   module, rather than a missing Registry artifact); `evaluate-predicate-
-   output-malformed` (a zero-exit `evaluate-predicate` whose own
-   `evidence[]` array elements are not objects); and `dsl-warn-unsorted-
-   affected-components` (a stub `resolve-component-paths` returning
-   `affected_components` in descending order, asserting the fan-out itself
-   sorts ascending rather than trusting the upstream order every other
-   fixture here happens to already receive pre-sorted).
-"""
-
-import argparse
-import hashlib
-import json
-import os
-from pathlib import Path
-import shutil
-import subprocess
-import sys
-import tempfile
-
-
-ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ROOT / "tests/fixtures/capability-resolver/resolve-project-context-block"
-PROJECTION_FIXTURES = ROOT / "tests/fixtures/capability-resolver/resolve-project-context-projection"
-STAGED = (
-    ROOT
-    / "specs/epic-193-a5-capability-resolver/human-copy"
-    / "plugins/sdd-quality-loop/scripts"
-)
-REAL_CANONICALIZER = ROOT / "plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py"
-SCHEMA = ROOT / "contracts/resolver-evidence.schema.json"
-SCHEMA_CHECK = ROOT / "tests/resolver-evidence-schema-check.py"
-
-PROJECTION_SCHEMA = "sdd-context-projection/v1"
-PROJECTION_FIELDS = ["components", "schema", "shared_paths", "source_sha256", "workflow"]
-
-# Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late Blocks drop
-# provenance"): `resolve-project-context.py` now threads `context_binding`/
-# `resolver` into every Block reached at/after step 10 (those values are
-# already computed by then). `RESOLVER_VERSION_LITERAL`/`RULE_SET_STRING_
-# LITERAL` mirror resolve-project-context.py's own fixed top-of-module
-# constants as INDEPENDENT literals (never imported from the module under
-# test), the identical discipline `resolve-project-context-match-check.py`
-# already applies to the same two constants.
-RESOLVER_VERSION_LITERAL = "1.0.0"
-RULE_SET_STRING_LITERAL = "sdd-resolver-rule-set/v1"
-EXPECTED_RESOLVER_BLOCK = {
-    "version": RESOLVER_VERSION_LITERAL,
-    "rule_set_revision": "sha256:" + hashlib.sha256(RULE_SET_STRING_LITERAL.encode("utf-8")).hexdigest(),
-}
-
-
-def _canonicalize_json_document(document):
-    """Canonicalize an in-memory JSON-compatible document via the REAL
-    canonicalizer's JSON mode -- the identical technique `resolve-project-
-    context-match-check.py` already established for the same purpose,
-    reused rather than reinvented."""
-    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", suffix=".json", delete=False, newline="\n") as handle:
-        json.dump(document, handle, ensure_ascii=False, separators=(",", ":"))
-        temp_path = Path(handle.name)
-    try:
-        result = subprocess.run(
-            [sys.executable, str(REAL_CANONICALIZER), str(temp_path), "--input-format", "json"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
-        )
-        return result.stdout
-    finally:
-        temp_path.unlink(missing_ok=True)
-
-
-def real_registry_digest(registry_path):
-    """Recompute `context_binding.registry_digest`'s own expected value
-    independently of `generate-registry-digest --whole`: canonicalize the
-    REAL registry file's own full document via the REAL canonicalizer
-    (JSON mode) and hash it -- the identical "hash the real canonicalizer's
-    own output" discipline `source_sha256`/`projection_sha256` already use
-    throughout this driver, applied here to the Registry's own bytes."""
-    document = json.loads(registry_path.read_text(encoding="utf-8"))
-    canonical = _canonicalize_json_document(document)
-    return "sha256:" + hashlib.sha256(canonical).hexdigest()
-
-
-def real_resolve_component_paths_context_binding(repo, config_rel, source_rev, target_rev):
-    """Recompute `{affected_components, context_binding.ownership_digest}`
-    via the REAL, unmodified `resolve-component-paths.py` (Epic A3) -- the
-    identical "recompute via the real dependency" discipline `real_
-    evaluate_predicate` already established for `evaluate-predicate` -- so
-    a fixture's own expected `context_binding` can be derived independently
-    of `resolve-project-context.py` itself. Invoked with the identical
-    `--config`/`--source-rev`/`--target-rev` values (and the identical
-    `--include-untracked` omission, matching AC-004's own pass-through
-    fix) the resolver's own step 4 call already used."""
-    real_rcp = ROOT / "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
-    result = subprocess.run(
-        [
-            sys.executable, str(real_rcp),
-            "--config", config_rel, "--source-rev", source_rev, "--target-rev", target_rev, "--json",
-        ],
-        cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
-    )
-    parsed = json.loads(result.stdout.decode("utf-8"))
-    return parsed["affected_components"], parsed["context_binding"]["ownership_digest"]
-
-
-def _rfc6901_escape(token):
-    return token.replace("~", "~0").replace("/", "~1")
-
-
-def expected_dependency_pointers(affected_components):
-    """Independent mirror of `_dependency_pointers` (Data Plan "B9"):
-    exactly `/workflow` plus one RFC-6901-escaped `/components/<id>`
-    pointer per affected component, stable-sorted and de-duplicated."""
-    pointers = {"/workflow"}
-    for component_id in affected_components:
-        pointers.add("/components/" + _rfc6901_escape(component_id))
-    return sorted(pointers)
-
-CASES = (
-    ("disabled-legacy-invocation", "absent", "disabled-legacy-invocation", "sdd/project-context.yaml", "disabled-legacy"),
-    ("workflow-combination-invalid-lite", "workflow-combination-invalid/lite-wrong-layout.yaml", "workflow-combination-invalid", "workflow spec_profile/artifact_layout combination is invalid", "advisory"),
-    ("workflow-combination-invalid-full", "workflow-combination-invalid/full-lite-layout.yaml", "workflow-combination-invalid", "workflow spec_profile/artifact_layout combination is invalid", "required"),
-    ("project-context-validation-failed", "project-context-validation-failed/missing-enforcement.yaml", "project-context-validation-failed", "project context does not conform to contracts/project-context.schema.json", None),
-    ("canonicalizer-invocation-failed", "canonicalizer-invocation-failed/project-context.yaml", "canonicalizer-invocation-failed", "canonicalize-sdd-yaml failed while canonicalizing project context", None),
-    ("dependency-output-malformed", "dependency-output-malformed/project-context.yaml", "dependency-output-malformed", "canonicalize-sdd-yaml returned malformed JSON while canonicalizing project context", None),
-)
-
-# The two Context Projection sources, with the projection each must produce
-# per REQ-003. `source_sha256` is not spelled out here: it is recomputed
-# independently, by hashing the real canonicalizer's own YAML-mode output
-# over the same fixture (see expected_projection below).
-PROJECTION_SOURCES = {
-    "two-components": {
-        "schema": PROJECTION_SCHEMA,
-        "workflow": {
-            "spec_profile": "full",
-            "artifact_layout": "facet-hybrid",
-            "capability_enforcement": "required",
-        },
-        "components": {
-            "desktop-client": {
-                "artifact_kinds": ["desktop-app"],
-                "runtime_classes": ["electron"],
-                "characteristics": {"pii": False, "ui": True},
-                "paths": {"include": ["apps/desktop/**"]},
-            },
-            "Desktop/App": {
-                "artifact_kinds": ["installer"],
-                "paths": {"include": ["apps/installer/**"]},
-            },
-        },
-        "shared_paths": [
-            {"pattern": "shared/**", "classification": "cross-cutting"},
-            {"pattern": "libs/core/**", "components": ["desktop-client"]},
-        ],
-    },
-    "omits-components": {
-        "schema": PROJECTION_SCHEMA,
-        "workflow": {
-            "spec_profile": "full",
-            "artifact_layout": "facet-native",
-            "capability_enforcement": "advisory",
-        },
-        "components": {},
-        "shared_paths": [],
-    },
-}
-
-# (case name, projection source, stub mode, expected diagnostic id, detail,
-#  expected `state`). The two Block rows below are step 3's own second
-# canonicalizer pass, distinct from the step 2 rows in CASES: same two
-# diagnostic ids, different detail text, and `state` is already known by the
-# time step 3 runs, so it must be present.
-PROJECTION_BLOCK_CASES = (
-    (
-        "projection-canonicalizer-invocation-failed",
-        "two-components",
-        "json-fail",
-        "canonicalizer-invocation-failed",
-        "canonicalize-sdd-yaml failed while canonicalizing context projection",
-        "required",
-    ),
-    (
-        "projection-dependency-output-malformed",
-        "omits-components",
-        "json-garbage",
-        "dependency-output-malformed",
-        "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection",
-        "advisory",
-    ),
-)
-
-ALL_CASE_NAMES = (
-    [case[0] for case in CASES]
-    + [f"projection-{name}" for name in PROJECTION_SOURCES]
-    + [case[0] for case in PROJECTION_BLOCK_CASES]
-    + [
-        "affected-component-resolution-failed",
-        "resolve-component-paths-launch-failed",
-        "contract-discovery-failed",
-        "registry-discovery-unimportable",
-        "registry-validation-failed",
-        "validate-capability-registry-launch-failed",
-        "dependency-subprocess-failed",
-        "evaluate-predicate-output-malformed",
-        "evaluate-predicate-schema-error",
-        "evaluate-predicate-failure-after-warn",
-        "dsl-warn-unmatched-trigger",
-        "dsl-warn-matched-nondetermining",
-        "dsl-warn-unsorted-affected-components",
-        "lite-check-source-undefined",
-        "output-schema-validation-failed-evidence",
-        "output-schema-validation-failed-artifact",
-        "snapshot-generation-mismatch",
-        "contract-discovery-failed-governing-schema",
-        "contract-discovery-failed-governing-schema-wrong-version",
-        "contract-discovery-failed-governing-schema-malformed",
-        "recheck-dependency-failed",
-    ]
-)
-
-# --- T-003 (steps 4-9) additions -------------------------------------------
-
-DEPENDENCY_SCRIPTS = (
-    "resolve-component-paths.py",
-    "evaluate-predicate.py",
-    "generate-registry-digest.py",
-    "validate-capability-registry.py",
-    "registry_discovery.py",
-)
-REGISTRY_SCHEMA_REAL = ROOT / "contracts/capability-registry.schema.json"
-LITE_CATALOG_REAL = ROOT / "contracts/lite-upgrade-reason-catalog.json"
-PROVIDER_TERMS_REAL = ROOT / "plugins/sdd-quality-loop/references/provider-terms.json"
-EVALUATE_PREDICATE_REAL = ROOT / "plugins/sdd-quality-loop/scripts/evaluate-predicate.py"
-EMPTY_REGISTRY_PATH = PROJECTION_FIXTURES / "capability-registry-empty.json"
-
-# T-004 (steps 10-13): step 12's own four governing output schemas.
-# `facet-manifest.schema.json`/`resolver-evidence.schema.json` are real,
-# already-landed contracts; `context-projection.schema.json`/`capability-
-# summary.schema.json` are this suite's own test-harness-only stand-ins
-# for Epic A4's own two not-yet-landed schemas (see module docstring,
-# section 5).
-FACET_MANIFEST_SCHEMA_REAL = ROOT / "contracts/facet-manifest.schema.json"
-RESOLVER_EVIDENCE_SCHEMA_REAL = SCHEMA
-CONTEXT_PROJECTION_SCHEMA_STANDIN = PROJECTION_FIXTURES / "context-projection.schema.json"
-CAPABILITY_SUMMARY_SCHEMA_STANDIN = PROJECTION_FIXTURES / "capability-summary.schema.json"
-
-
-def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, registry_capabilities_path=None):
-    """Install every real Epic A2/A3 dependency this stage invokes, then
-    overlay `fixture_dir`'s own stub (if any) on top of exactly one of
-    them -- the same "real dependency plus one deliberately-failing stub"
-    pattern `install_scripts`/`copy_inputs` already use for
-    `canonicalize-sdd-yaml`."""
-    for name in DEPENDENCY_SCRIPTS:
-        shutil.copy2(ROOT / "plugins/sdd-quality-loop/scripts" / name, scripts / name)
-    if stub_name is not None:
-        shutil.copy2(fixture_dir / stub_name, scripts / stub_name)
-    references = repo / "plugins/sdd-quality-loop/references"
-    references.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(PROVIDER_TERMS_REAL, references / "provider-terms.json")
-    contracts = repo / "contracts"
-    shutil.copy2(REGISTRY_SCHEMA_REAL, contracts / "capability-registry.schema.json")
-    shutil.copy2(LITE_CATALOG_REAL, contracts / "lite-upgrade-reason-catalog.json")
-    if registry_capabilities_path is not None:
-        shutil.copy2(registry_capabilities_path, contracts / "capability-registry.json")
-    # T-004 (step 12): every governing output schema this stage may
-    # self-validate against, planted unconditionally so a fixture that
-    # legitimately reaches step 10-13 (a success path, or one of T-004's
-    # own new Block fixtures) can discover them via the identical
-    # packaged-then-git-root ADR-0025 order `_discover_governing_schema`
-    # uses -- these fixture repos only ever populate the git-root
-    # location, matching this driver's own already-established
-    # `install_scripts`/`_discover_registry` convention.
-    shutil.copy2(FACET_MANIFEST_SCHEMA_REAL, contracts / "facet-manifest.schema.json")
-    shutil.copy2(RESOLVER_EVIDENCE_SCHEMA_REAL, contracts / "resolver-evidence.schema.json")
-    shutil.copy2(CONTEXT_PROJECTION_SCHEMA_STANDIN, contracts / "context-projection.schema.json")
-    shutil.copy2(CAPABILITY_SUMMARY_SCHEMA_STANDIN, contracts / "capability-summary.schema.json")
-
-
-def git_commit_all(repo, message):
-    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True, capture_output=True)
-    subprocess.run(
-        [
-            "git", "-C", str(repo),
-            "-c", "user.email=resolver-test@example.com", "-c", "user.name=resolver-test",
-            "commit", "-q", "-m", message,
-        ],
-        check=True, capture_output=True,
-    )
-    return subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True, capture_output=True, text=True,
-    ).stdout.strip()
-
-
-def t003_resolver_argv(kind, scripts, source_rev, target_rev, include_untracked=False):
-    """AC-004 gate-cycle-5 Major remediation: `include_untracked` defaults
-    to `False` (every pre-existing caller's own byte-identical argv,
-    unchanged) and, when `True`, inserts `--include-untracked` in its own
-    CLI-contract position (design.md API/Contract Plan: `--config
-    [--source-rev] --target-rev [--include-untracked] --feature`) --
-    between `--target-rev <rev>` and `--feature <slug>` -- so a caller can
-    exercise the SUPPLIED half of AC-004's own pass-through claim, not
-    only the omission half every existing fixture already covers."""
-    argv = launcher_args(kind, scripts) + [
-        "--config", "project-context.yaml",
-        "--source-rev", source_rev,
-        "--target-rev", target_rev,
-    ]
-    if include_untracked:
-        argv.append("--include-untracked")
-    argv += ["--feature", "example-feature"]
-    return argv
-
-
-def real_evaluate_predicate(predicate, properties):
-    """Recompute the exact `{result, evidence}` shape via the REAL
-    `evaluate-predicate`, mirroring section 2's own `expected_projection`
-    discipline (recompute via the real dependency, never hand-transcribed)."""
-    with tempfile.TemporaryDirectory(prefix="evaluate-predicate-expected-") as tmp:
-        predicate_path = Path(tmp) / "predicate.json"
-        properties_path = Path(tmp) / "properties.json"
-        predicate_path.write_text(json.dumps(predicate), encoding="utf-8")
-        properties_path.write_text(json.dumps(properties), encoding="utf-8")
-        result = subprocess.run(
-            [sys.executable, str(EVALUATE_PREDICATE_REAL), "--predicate", str(predicate_path),
-             "--component-properties", str(properties_path)],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
-        )
-        parsed = json.loads(result.stdout.decode("utf-8"))
-        return parsed["result"], parsed["evidence"]
-
-
-def expected_warn_diagnostic(capability_id, component_id, declaration_index, node_path, node):
-    """AC-056: mirrors `_warn_diagnostic_detail` in `resolve-project-
-    context.py` byte-for-byte (recomputed here, never hand-transcribed,
-    matching `real_evaluate_predicate`'s own discipline above) so a
-    `severity: "warn"` diagnostics[] entry's own `detail` can be asserted
-    exactly for the three `dsl-warn-*` T-003 fixtures below, each of which
-    now legitimately carries more than one diagnostics[] entry."""
-    location = (
-        f"capability_id={capability_id!r} component_id={component_id!r} "
-        f"declaration_index={declaration_index!r}"
-    )
-    node_position = ".".join(str(index) for index in node_path)
-    detail = (
-        f"a predicate evaluation produced an outcome: warn evidence node at {location} "
-        f"(node_path={node_position!r}, operator={node.get('operator')!r}, "
-        f"field={node.get('path')!r}, reason={node.get('reason')!r})"
-    )
-    return {"id": "dsl-warn-on-matched-capability", "detail": detail, "severity": "warn"}
-
-
-def run_t003_case(kind, case_name, counts):
-    fixture_dir = FIXTURES / case_name
-    with tempfile.TemporaryDirectory(prefix="resolver-t003-") as tmp:
-        repo = Path(tmp).resolve()
-        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
-        scripts = install_scripts(repo)
-        feature_dir, sentinels = plant_sentinels(repo, scripts)
-        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
-
-        registry_path = fixture_dir / "capability-registry.json"
-        stub_name = None
-        if case_name == "affected-component-resolution-failed":
-            stub_name = "resolve-component-paths.py"
-        elif case_name == "dependency-subprocess-failed":
-            stub_name = "generate-registry-digest.py"
-        elif case_name == "registry-discovery-unimportable":
-            stub_name = "registry_discovery.py"
-        elif case_name == "evaluate-predicate-output-malformed":
-            stub_name = "evaluate-predicate.py"
-        elif case_name == "evaluate-predicate-failure-after-warn":
-            stub_name = "evaluate-predicate.py"
-        elif case_name == "dsl-warn-unsorted-affected-components":
-            stub_name = "resolve-component-paths.py"
-        install_t003_dependencies(
-            repo, scripts, fixture_dir, stub_name=stub_name,
-            registry_capabilities_path=registry_path if registry_path.is_file() else None,
-        )
-        if case_name == "resolve-component-paths-launch-failed":
-            # Neither a `.py` nor a `.sh` sibling is planted for this one
-            # case, so `_script_argv` falls back to a bare, unqualified
-            # `resolve-component-paths` -- not present on PATH in this test
-            # environment -- forcing subprocess.run's own OSError launch
-            # failure at step 4, the exact path the panelist's Major #1
-            # finding names as untested by any existing fixture.
-            (scripts / "resolve-component-paths.py").unlink()
-        if case_name == "validate-capability-registry-launch-failed":
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 2, step-5
-            # launch-failure mislabel): the identical technique
-            # `resolve-component-paths-launch-failed` already established
-            # for step 4, reused here for step 5's OWN OSError launch path
-            # -- neither a `.py` nor a `.sh` sibling planted for `validate-
-            # capability-registry`, so `_script_argv` falls back to a bare,
-            # unqualified name not present on PATH, forcing subprocess.run's
-            # own OSError. Previously mapped to `registry-validation-
-            # failed` (blaming the Registry's own content for a local
-            # environment fault); now the SAME `dependency-subprocess-
-            # failed` path steps 4/6/7-8 already use for an identical
-            # OSError.
-            (scripts / "validate-capability-registry.py").unlink()
-
-        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
-        base_oid = git_commit_all(repo, "baseline")
-        target_oid = base_oid
-
-        expected_capability_evaluations = []
-        expected_warn_diagnostics = []  # AC-056: populated only by the dsl-warn-* cases below
-        state = "advisory"
-
-        if case_name == "affected-component-resolution-failed":
-            expected_id = "affected-component-resolution-failed"
-            repo_relative_config = "project-context.yaml"
-            expected_detail = None  # computed after the run, from the real exit code
-
-        elif case_name == "resolve-component-paths-launch-failed":
-            expected_id = "dependency-subprocess-failed"
-            expected_detail = "resolve-component-paths failed to launch while resolving affected components"
-
-        elif case_name == "contract-discovery-failed":
-            expected_id = "contract-discovery-failed"
-            expected_detail = (
-                "registry discovery failed to locate or verify capability-registry.json "
-                "or capability-registry.schema.json"
-            )
-
-        elif case_name == "registry-discovery-unimportable":
-            # A second, independent trigger for the identical
-            # `contract-discovery-failed` diagnostic above (an unimportable
-            # sibling module, rather than a missing artifact) -- both must
-            # produce byte-identical canonical output, never a raw
-            # ImportError traceback with no diagnostic line and no
-            # Resolver Evidence at all (the panelist's Major #3 finding).
-            expected_id = "contract-discovery-failed"
-            expected_detail = (
-                "registry discovery failed to locate or verify capability-registry.json "
-                "or capability-registry.schema.json"
-            )
-
-        elif case_name == "registry-validation-failed":
-            expected_id = "registry-validation-failed"
-            expected_detail = "capability-registry.json failed validate-capability-registry checks"
-
-        elif case_name == "validate-capability-registry-launch-failed":
-            expected_id = "dependency-subprocess-failed"
-            expected_detail = "validate-capability-registry failed to launch while validating the located Registry"
-
-        elif case_name == "dependency-subprocess-failed":
-            expected_id = "dependency-subprocess-failed"
-            expected_detail = "generate-registry-digest failed while computing registry_digest"
-
-        elif case_name == "evaluate-predicate-output-malformed":
-            state = "advisory"
-            (repo / "comp-a").mkdir()
-            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
-            target_oid = git_commit_all(repo, "add comp-a")
-            expected_id = "dependency-output-malformed"
-            expected_detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
-
-        elif case_name == "evaluate-predicate-schema-error":
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3, Major
-            # #1): `_evaluate_predicate`'s own PREDICATE_SCHEMA_ERROR ->
-            # RegistryValidationFailed mapping was keyed on a hardcoded
-            # `returncode == 2` with no fixture at all. This fixture's own
-            # Registry declares a trigger predicate whose `field`
-            # (`characteristics.not_a_real_field`) is NOT one of
-            # evaluate-predicate.py's own ALLOWED_FIELDS -- well-formed
-            # enough to pass `validate-capability-registry`'s own checks
-            # (a)-(i) (none of which inspect a predicate's own field/
-            # operator shape) but rejected by the REAL, unmodified
-            # `evaluate-predicate` at evaluation time with a genuine
-            # `PREDICATE_SCHEMA_ERROR` stderr line and exit 2 -- no stub
-            # planted for this dependency at all.
-            state = "advisory"
-            (repo / "comp-a").mkdir()
-            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
-            target_oid = git_commit_all(repo, "add comp-a")
-            expected_id = "registry-validation-failed"
-            expected_detail = "a Registry-declared predicate failed predicate-schema validation"
-
-        elif case_name == "evaluate-predicate-failure-after-warn":
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3, Major
-            # #2): steps 7-8's own three abort handlers (registry-
-            # validation-failed / dependency-subprocess-failed /
-            # dependency-output-malformed) previously omitted every
-            # already-collected `severity: "warn"` diagnostics[] entry on
-            # abort. This fixture's own Registry declares TWO capabilities
-            # in declaration order: `cap-warn-first` (a real WARN outcome
-            # on comp-a, fully evaluated and appended to `capability_
-            # evaluations` first) then `cap-fails-second` (whose own
-            # trigger evaluation is this fixture's own stubbed `evaluate-
-            # predicate`'s SECOND invocation, which fails with a generic
-            # non-zero exit) -- proving the WARN entry `_evaluate_
-            # capabilities` already collected for cap-warn-first survives
-            # the later abort rather than vanishing.
-            state = "advisory"
-            (repo / "comp-a").mkdir()
-            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
-            target_oid = git_commit_all(repo, "add comp-a")
-            expected_id = "dependency-subprocess-failed"
-            expected_detail = "evaluate-predicate failed while evaluating a predicate"
-            warn_evidence_node = {
-                "operator": "equals", "outcome": "warn",
-                "path": "characteristics.auto_update", "reason": "missing-path",
-            }
-            expected_capability_evaluations = [{
-                "capability_id": "cap-warn-first",
-                "matched": False,
-                "trigger_evaluations": [{"component_id": "comp-a", "result": False, "evidence": [warn_evidence_node]}],
-            }]
-            expected_warn_diagnostics = [
-                expected_warn_diagnostic("cap-warn-first", "comp-a", None, (0,), warn_evidence_node),
-            ]
-
-        elif case_name == "dsl-warn-unsorted-affected-components":
-            # AC-056: two independent WARN nodes (comp-a's own trigger
-            # evaluation and comp-z's own, both against the identical
-            # empty properties) -- diagnostics[] now carries one
-            # `severity: "warn"` entry per node, in sorted-affected-
-            # component evaluation order, plus one summary entry.
-            state = "advisory"
-            expected_id = "dsl-warn-on-matched-capability"
-            expected_detail = "a predicate evaluation produced an outcome: warn evidence node"
-            predicate = {"scope": "affected_component", "field": "characteristics.auto_update", "operator": "equals", "value": True}
-            result, evidence = real_evaluate_predicate(predicate, {})
-            expected_capability_evaluations = [{
-                "capability_id": "cap-order",
-                "matched": result,
-                "trigger_evaluations": [
-                    {"component_id": "comp-a", "result": result, "evidence": evidence},
-                    {"component_id": "comp-z", "result": result, "evidence": evidence},
-                ],
-            }]
-            expected_warn_diagnostics = [
-                expected_warn_diagnostic("cap-order", "comp-a", None, (0,), evidence[0]),
-                expected_warn_diagnostic("cap-order", "comp-z", None, (0,), evidence[0]),
-            ]
-
-        elif case_name == "dsl-warn-unmatched-trigger":
-            state = "advisory"
-            (repo / "comp-a").mkdir()
-            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
-            target_oid = git_commit_all(repo, "add comp-a")
-            expected_id = "dsl-warn-on-matched-capability"
-            expected_detail = "a predicate evaluation produced an outcome: warn evidence node"
-            predicate = {"scope": "affected_component", "field": "characteristics.auto_update", "operator": "equals", "value": True}
-            properties = {"characteristics": {"pii": True}}
-            result, evidence = real_evaluate_predicate(predicate, properties)
-            expected_capability_evaluations = [{
-                "capability_id": "cap-unmatched-warn",
-                "matched": result,
-                "trigger_evaluations": [{"component_id": "comp-a", "result": result, "evidence": evidence}],
-            }]
-            expected_warn_diagnostics = [
-                expected_warn_diagnostic("cap-unmatched-warn", "comp-a", None, (0,), evidence[0]),
-            ]
-
-        elif case_name == "dsl-warn-matched-nondetermining":
-            # AC-056: only comp-b's own trigger evaluation produces a WARN
-            # node (comp-a's own matches cleanly) -- exactly one
-            # `severity: "warn"` entry, naming comp-b's own location, plus
-            # one summary entry.
-            state = "required"
-            (repo / "comp-a").mkdir()
-            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
-            (repo / "comp-b").mkdir()
-            (repo / "comp-b/file.txt").write_text("y\n", encoding="utf-8")
-            target_oid = git_commit_all(repo, "add comp-a and comp-b")
-            expected_id = "dsl-warn-on-matched-capability"
-            expected_detail = "a predicate evaluation produced an outcome: warn evidence node"
-            predicate = {"scope": "affected_component", "field": "characteristics.pii", "operator": "equals", "value": True}
-            result_a, evidence_a = real_evaluate_predicate(predicate, {"characteristics": {"pii": True}})
-            result_b, evidence_b = real_evaluate_predicate(predicate, {})
-            expected_capability_evaluations = [{
-                "capability_id": "cap-matched-warn",
-                "matched": result_a or result_b,
-                "trigger_evaluations": [
-                    {"component_id": "comp-a", "result": result_a, "evidence": evidence_a},
-                    {"component_id": "comp-b", "result": result_b, "evidence": evidence_b},
-                ],
-                "conditional_facet_evaluations": [],
-            }]
-            expected_warn_diagnostics = [
-                expected_warn_diagnostic("cap-matched-warn", "comp-b", None, (0,), evidence_b[0]),
-            ]
-
-        else:
-            raise AssertionError(f"unknown T-003 case: {case_name}")
-
-        result = subprocess.run(
-            t003_resolver_argv(kind, scripts, base_oid, target_oid),
-            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
-        )
-        stdout = result.stdout.decode("utf-8", errors="replace")
-        stderr = result.stderr.decode("utf-8", errors="replace")
-
-        if case_name == "affected-component-resolution-failed":
-            expected_detail = (
-                f"resolve-component-paths exited 3 resolving project-context.yaml; "
-                f"see resolve-component-paths diagnostics"
-            )
-
-        expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
-        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
-        counts.check(
-            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
-            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
-            f"stdout={stdout!r} stderr={stderr!r}",
-        )
-
-        evidence_path = feature_dir / "resolver-evidence.yaml"
-        evidence, parse_error = read_evidence(evidence_path)
-        # AC-056: the three dsl-warn-* cases above pre-populate
-        # `expected_warn_diagnostics` with one `severity: "warn"` entry per
-        # WARN node; every other case leaves it `[]`, preserving the
-        # original single-entry shape unchanged. AC-024 stable-sort
-        # discipline (cross-epic panel finding, 2026-08-23): `diagnostics[]`
-        # is sorted by `(id, detail)`, never concatenated in emission
-        # order -- the summary sentence ("...outcome: warn evidence node")
-        # is a strict lexical prefix of every per-node detail ("...outcome:
-        # warn evidence node at ..."), so it sorts FIRST, not last. This
-        # expectation is DERIVED via the identical `sorted(..., key=(id,
-        # detail))` rule `_write_evidence` itself now applies -- never a
-        # second, independently-ordered concatenation, which would just
-        # relocate the same "expectation mirrors emission" defect (a
-        # single-entry list's own sort is a no-op, so every non-`dsl-warn-*`
-        # case above is unaffected).
-        expected = {
-            "schema": "sdd-resolver-evidence/v1",
-            "feature": "example-feature",
-            "capability_evaluations": sorted(expected_capability_evaluations, key=lambda e: e["capability_id"]),
-            "diagnostics": sorted(
-                expected_warn_diagnostics + [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
-                key=lambda entry: (entry["id"], entry["detail"]),
-            ),
-            "state": state,
-        }
-        counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
-
-        check_evidence_schema(counts, evidence_path, case_name)
-        unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
-        counts.check(unchanged, f"{case_name}: no partial live artifact")
-
-
-# --- T-004 (steps 10-13) additions ------------------------------------------
-
-
-def run_t004_case(kind, case_name, counts):
-    """T-004's own four new Block-suite invocations (steps 10-13):
-    `lite-check-source-undefined`, the two `output-schema-validation-
-    failed` sub-cases (AC-055), and the first, digest-mismatch
-    `snapshot-generation-mismatch` fixture. Every real dependency this
-    stage invokes (`resolve-component-paths`, Registry discovery +
-    `validate-capability-registry`, `generate-registry-digest --whole`,
-    `evaluate-predicate`) is a REAL subprocess, matching T-003's own
-    established discipline -- except where a fixture deliberately swaps
-    in a failing stub/schema for exactly the one dependency this fixture
-    exists to break."""
-    fixture_dir = FIXTURES / case_name
-    with tempfile.TemporaryDirectory(prefix="resolver-t004-") as tmp:
-        repo = Path(tmp).resolve()
-        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
-        scripts = install_scripts(repo)
-        feature_dir, sentinels = plant_sentinels(repo, scripts)
-        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
-
-        state = "advisory"
-        expected_capability_evaluations = []
-        stub_name = None
-        registry_capabilities_path = EMPTY_REGISTRY_PATH
-        target_oid_extra_commit = False
-
-        if case_name == "lite-check-source-undefined":
-            state = "required"
-            registry_capabilities_path = fixture_dir / "capability-registry.json"
-            target_oid_extra_commit = True
-            expected_id = "lite-check-source-undefined"
-            expected_detail = (
-                "matched Capability 'cap-lite' has no lite_policy.required_lite_checks "
-                "source while capability_enforcement is required"
-            )
-        elif case_name == "output-schema-validation-failed-evidence":
-            expected_id = "output-schema-validation-failed"
-            expected_detail = "resolver-evidence.yaml failed its own defensive output schema self-validation"
-        elif case_name == "output-schema-validation-failed-artifact":
-            expected_id = "output-schema-validation-failed"
-            expected_detail = "the staged context-projection artifact failed its own defensive output schema self-validation"
-        elif case_name == "snapshot-generation-mismatch":
-            stub_name = "generate-registry-digest.py"
-            expected_id = "snapshot-generation-mismatch"
-            expected_detail = (
-                "a pre-publication recheck of the Project Context, Registry, or "
-                "ownership-source snapshot detected drift since this invocation's own snapshot"
-            )
-        elif case_name == "contract-discovery-failed-governing-schema":
-            # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late
-            # Blocks drop provenance"): step 12's OWN `ContractDiscoveryFailed`
-            # handler (a governing output schema itself missing, distinct
-            # from step 5's Registry-discovery `contract-discovery-failed`
-            # -- same id, reused, matching this driver's own established
-            # "registry-discovery-unimportable" precedent for the SAME id
-            # under a distinct case name) was previously entirely
-            # unexercised by any fixture; `context_binding`/`resolver` are
-            # already computed by the time this Block fires (step 10, before
-            # step 12), so this is also this finding's third affected site.
-            expected_id = "contract-discovery-failed"
-            expected_detail = (
-                "governing output schema discovery failed: facet-manifest.schema.json not found at the "
-                "packaged or git-root contracts/ location"
-            )
-        elif case_name == "contract-discovery-failed-governing-schema-wrong-version":
-            # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
-            # panelist, Major #1): `_load_governing_schema` previously only
-            # checked that a governing schema file EXISTS and parses as
-            # JSON -- never a per-artifact `$schema`/`$id` version check
-            # (REQ-002/AC-002). This fixture's own `contracts/resolver-
-            # evidence.schema.json` override (checked FIRST at step 12, so
-            # this is a genuine, direct reach, not incidental) carries a
-            # deliberately WRONG `$id` -- otherwise byte-identical to the
-            # real schema -- so it is discoverable and parses cleanly, but
-            # must still Block `contract-discovery-failed`, never silently
-            # self-validate Resolver Evidence against a wrong-version
-            # document.
-            expected_id = "contract-discovery-failed"
-            expected_detail = (
-                "governing output schema discovery failed: resolver-evidence.schema.json "
-                "failed its own $schema/$id version check"
-            )
-        elif case_name == "contract-discovery-failed-governing-schema-malformed":
-            # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
-            # panelist, Major #2): a schema read/parse failure previously
-            # interpolated the raw exception text (`{exc}`) into this
-            # Block's own diagnostic detail and Resolver Evidence --
-            # capable of carrying an absolute path/errno wording, violating
-            # AC-014's canonical-sentence rule and security-spec.md B5's
-            # no-local-path containment. This fixture's own `contracts/
-            # resolver-evidence.schema.json` override is genuinely
-            # malformed (not valid JSON at all), so `_load_governing_
-            # schema`'s own `json.JSONDecodeError` handler fires for real;
-            # the expected detail below asserts the exception's own CLASS
-            # NAME only, never its message text (which would embed this
-            # fixture's own absolute temp-directory path).
-            expected_id = "contract-discovery-failed"
-            expected_detail = (
-                "governing output schema discovery failed: resolver-evidence.schema.json "
-                "could not be read or parsed (JSONDecodeError)"
-            )
-        elif case_name == "recheck-dependency-failed":
-            # Fourth Pass finding, tested rather than left as a "no fixture
-            # regression" disclosure: `_pre_publication_recheck`'s own
-            # dependency calls now propagate `AffectedComponentResolution
-            # Failed`/`DependencySubprocessFailed`/etc. UNWRAPPED (Fourth
-            # Pass), mapped by `main()`'s own step-13 handler to the SAME
-            # REQ-002 id step 4 already uses for an identical failure. This
-            # fixture's own `resolve-component-paths` stub succeeds (a
-            # FIXED, deterministic JSON document) on its first invocation
-            # (step 4) and fails with a generic non-zero exit on its
-            # second (step 13's own recheck) -- proving the recheck's own
-            # internal dependency failure is `affected-component-
-            # resolution-failed`, never re-labeled `snapshot-generation-
-            # mismatch` (the earlier, incorrect revision this same pass
-            # replaced).
-            stub_name = "resolve-component-paths.py"
-            expected_id = "affected-component-resolution-failed"
-            expected_detail = (
-                "resolve-component-paths exited 3 re-resolving affected components "
-                "during the pre-publication recheck; see resolve-component-paths diagnostics"
-            )
-        else:
-            raise AssertionError(f"unknown T-004 case: {case_name}")
-
-        install_t003_dependencies(
-            repo, scripts, fixture_dir, stub_name=stub_name,
-            registry_capabilities_path=registry_capabilities_path,
-        )
-        # T-004's own two output-schema-validation-failed fixtures each
-        # overlay exactly one governing schema with a deliberately
-        # unsatisfiable stand-in, on top of the otherwise-real/stand-in set
-        # `install_t003_dependencies` just planted.
-        if (fixture_dir / "resolver-evidence.schema.json").is_file():
-            shutil.copy2(fixture_dir / "resolver-evidence.schema.json", repo / "contracts/resolver-evidence.schema.json")
-        if (fixture_dir / "context-projection.schema.json").is_file():
-            shutil.copy2(fixture_dir / "context-projection.schema.json", repo / "contracts/context-projection.schema.json")
-        if case_name == "contract-discovery-failed-governing-schema":
-            # Neither the packaged (`plugins/sdd-quality-loop/contracts/`,
-            # never populated by any fixture in this driver, module
-            # docstring section 5) nor the git-root location this line
-            # just deleted resolves -- a genuine, both-locations-absent
-            # ADR-0025 discovery failure for the full-track's own
-            # `facet-manifest.schema.json`, step 12's own last governing
-            # schema check (Resolver Evidence and Context Projection are
-            # both still present and conformant).
-            (repo / "contracts/facet-manifest.schema.json").unlink()
-
-        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
-        base_oid = git_commit_all(repo, "baseline")
-        target_oid = base_oid
-
-        if target_oid_extra_commit:
-            (repo / "comp-a").mkdir()
-            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
-            target_oid = git_commit_all(repo, "add comp-a")
-            predicate = {"scope": "affected_component", "field": "characteristics.pii", "operator": "equals", "value": True}
-            properties = {"characteristics": {"pii": True}}
-            result, evidence_nodes = real_evaluate_predicate(predicate, properties)
-            expected_capability_evaluations = [{
-                "capability_id": "cap-lite",
-                "matched": result,
-                "trigger_evaluations": [{"component_id": "comp-a", "result": result, "evidence": evidence_nodes}],
-                "conditional_facet_evaluations": [],
-            }]
-
-        # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late Blocks
-        # drop provenance"): steps 10-13 have already computed
-        # `context_binding`/`resolver` by the time any of this function's
-        # own three non-"evidence" Block cases fires, so this feature's own
-        # Resolver Evidence record for each now carries both -- recomputed
-        # here independently of `resolve-project-context.py` (never read
-        # back off its own stdout/Evidence), via the REAL dependencies
-        # (`resolve-component-paths`, the real canonicalizer) plus this
-        # driver's own already-established oracle helpers, above.
-        expected_context_binding = None
-        if case_name != "output-schema-validation-failed-evidence":
-            canonical_context = subprocess.run(
-                [sys.executable, str(REAL_CANONICALIZER), str(repo / "project-context.yaml"), "--input-format", "yaml"],
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
-            ).stdout
-            source_sha256 = "sha256:" + hashlib.sha256(canonical_context).hexdigest()
-            if case_name == "recheck-dependency-failed":
-                # This fixture's own `resolve-component-paths` stub
-                # (installed above) never inspects argv and returns a
-                # FIXED, deterministic document on its first invocation
-                # (this invocation's own step 4) regardless of this repo's
-                # own real git history, so the expected `context_binding`
-                # below is pinned to that SAME fixed value, never
-                # recomputed via the real dependency (which would observe
-                # a different, genuine ownership_digest for this empty
-                # diff) -- the identical "pin to the stub's own known
-                # first-call output" discipline `snapshot-generation-
-                # mismatch` already applies to its own `registry_digest`,
-                # below.
-                affected_components = ["comp-a"]
-                ownership_digest = "sha256:" + ("0" * 64)
-            else:
-                affected_components, ownership_digest = real_resolve_component_paths_context_binding(
-                    repo, "project-context.yaml", base_oid, target_oid,
-                )
-            if case_name == "lite-check-source-undefined":
-                projection_workflow = {
-                    "spec_profile": "lite", "artifact_layout": "lite-three-file", "capability_enforcement": "required",
-                }
-                projection_components = {"comp-a": {"characteristics": {"pii": True}, "paths": {"include": ["comp-a/**"]}}}
-                registry_digest = real_registry_digest(fixture_dir / "capability-registry.json")
-            else:
-                projection_workflow = {
-                    "spec_profile": "full", "artifact_layout": "facet-native", "capability_enforcement": "advisory",
-                }
-                projection_components = {}
-                if case_name == "snapshot-generation-mismatch":
-                    # This fixture's own `generate-registry-digest.py` stub
-                    # (installed above) returns a FIXED digest on its first
-                    # call (this invocation's own step 6, staged into
-                    # Resolver Evidence at step 11) and a DIFFERENT fixed
-                    # digest on its second (step 13's own recheck, which
-                    # never re-writes anything already staged) -- so the
-                    # value this fixture's own Evidence record actually
-                    # carries is the stub's own first, FIRST_DIGEST value,
-                    # never the real registry file's own canonical digest.
-                    registry_digest = "sha256:" + ("1" * 64)
-                else:
-                    registry_digest = real_registry_digest(EMPTY_REGISTRY_PATH)
-            projection_document = {
-                "schema": PROJECTION_SCHEMA,
-                "source_sha256": source_sha256,
-                "workflow": projection_workflow,
-                "components": projection_components,
-                "shared_paths": [],
-            }
-            projection_sha256 = "sha256:" + hashlib.sha256(_canonicalize_json_document(projection_document)).hexdigest()
-            expected_context_binding = {
-                "full_context_revision": source_sha256,
-                "dependency_pointers": expected_dependency_pointers(affected_components),
-                "projection_sha256": projection_sha256,
-                "registry_digest": registry_digest,
-                "ownership_digest": ownership_digest,
-            }
-
-        result = subprocess.run(
-            t003_resolver_argv(kind, scripts, base_oid, target_oid),
-            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
-        )
-        stdout = result.stdout.decode("utf-8", errors="replace")
-        stderr = result.stderr.decode("utf-8", errors="replace")
-
-        expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
-        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
-        counts.check(
-            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
-            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
-            f"stdout={stdout!r} stderr={stderr!r}",
-        )
-
-        evidence_path = feature_dir / "resolver-evidence.yaml"
-
-        if case_name == "output-schema-validation-failed-evidence":
-            # B3's sole exception: nothing is written to any live path at
-            # all, not even a best-effort Evidence instance.
-            counts.check(not evidence_path.exists(), f"{case_name}: no Resolver Evidence written (B3)")
-        else:
-            evidence, parse_error = read_evidence(evidence_path)
-            expected = {
-                "schema": "sdd-resolver-evidence/v1",
-                "feature": "example-feature",
-                "capability_evaluations": sorted(expected_capability_evaluations, key=lambda e: e["capability_id"]),
-                "diagnostics": [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
-                "state": state,
-                "context_binding": expected_context_binding,
-                "resolver": EXPECTED_RESOLVER_BLOCK,
-            }
-            counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
-            check_evidence_schema(counts, evidence_path, case_name)
-
-        unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
-        counts.check(unchanged, f"{case_name}: no partial live artifact")
-
-
-class Counts:
-    def __init__(self):
-        self.passed = 0
-        self.failed = 0
-
-    def check(self, condition, label, detail=""):
-        if condition:
-            self.passed += 1
-            print(f"PASS: {label}")
-        else:
-            self.failed += 1
-            suffix = f": {detail}" if detail else ""
-            print(f"FAIL: {label}{suffix}")
-
-
-def install_scripts(repo):
-    scripts = repo / "plugins/sdd-quality-loop/scripts"
-    scripts.mkdir(parents=True)
-    for suffix in ("py", "sh", "ps1"):
-        shutil.copy2(STAGED / f"resolve-project-context.{suffix}", scripts)
-    shutil.copy2(REAL_CANONICALIZER, scripts)
-    contracts = repo / "contracts"
-    contracts.mkdir()
-    shutil.copy2(ROOT / "contracts/project-context.schema.json", contracts)
-    return scripts
-
-
-def copy_inputs(repo, fixture_rel, case_name):
-    scripts = install_scripts(repo)
-    config = repo / "sdd/project-context.yaml"
-    config.parent.mkdir()
-    if fixture_rel != "absent":
-        shutil.copy2(FIXTURES / fixture_rel, config)
-    if case_name in ("canonicalizer-invocation-failed", "dependency-output-malformed"):
-        shutil.copy2(FIXTURES / case_name / "canonicalize-sdd-yaml.py", scripts / "canonicalize-sdd-yaml.py")
-
-
-def copy_projection_inputs(repo, source_name):
-    """Install the real canonicalizer under a delegate name and put the
-    capture stub in its place, so step 2 stays production-faithful while
-    step 3's own input becomes observable."""
-    scripts = install_scripts(repo)
-    shutil.copy2(REAL_CANONICALIZER, scripts / "canonicalize-sdd-yaml-real.py")
-    shutil.copy2(PROJECTION_FIXTURES / "canonicalize-sdd-yaml.py", scripts / "canonicalize-sdd-yaml.py")
-    config = repo / "sdd/project-context.yaml"
-    config.parent.mkdir()
-    shutil.copy2(PROJECTION_FIXTURES / f"{source_name}.yaml", config)
-
-
-def plant_sentinels(repo, scripts):
-    feature_dir = repo / "specs/example-feature"
-    feature_dir.mkdir(parents=True)
-    sentinels = {
-        feature_dir / "facet-manifest.yaml": b"facet-preimage\n",
-        feature_dir / "capability-summary.yaml": b"summary-preimage\n",
-        scripts / "generated/project-context.resolved.json": b"projection-preimage\n",
-    }
-    for path, value in sentinels.items():
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(value)
-    return feature_dir, sentinels
-
-
-def install_spy(repo):
-    """A PATH shim for every step-4-or-later dependency this task must never
-    reach. Firing it leaves a marker file behind."""
-    spy = repo / "subprocess-spy-fired"
-    spy_bin = repo / "spy-bin"
-    spy_bin.mkdir()
-    for name in ("resolve-component-paths", "validate-capability-registry"):
-        path = spy_bin / name
-        path.write_text(f"#!/bin/sh\nprintf fired > '{spy}'\nexit 91\n", encoding="utf-8", newline="\n")
-        path.chmod(0o755)
-    env = os.environ.copy()
-    env["PATH"] = str(spy_bin) + os.pathsep + env.get("PATH", "")
-    return spy, env
-
-
-def launcher_args(kind, scripts):
-    if kind == "sh":
-        return ["sh", str(scripts / "resolve-project-context.sh")]
-    return ["pwsh", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(scripts / "resolve-project-context.ps1")]
-
-
-def resolver_argv(kind, scripts):
-    return launcher_args(kind, scripts) + [
-        "--config", "sdd/project-context.yaml",
-        "--target-rev", "HEAD",
-        "--feature", "example-feature",
-    ]
-
-
-def read_evidence(evidence_path):
-    try:
-        return json.loads(evidence_path.read_text(encoding="utf-8")), ""
-    except (OSError, json.JSONDecodeError) as exc:
-        return None, str(exc)
-
-
-def check_evidence_schema(counts, evidence_path, case_name):
-    schema_result = subprocess.run(
-        [sys.executable, str(SCHEMA_CHECK), str(SCHEMA), str(evidence_path), "valid"],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
-    ) if evidence_path.is_file() else None
-    counts.check(schema_result is not None and schema_result.returncode == 0,
-                 f"{case_name}: Resolver Evidence schema agreement",
-                 "evidence absent" if schema_result is None else schema_result.stderr.decode("utf-8", errors="replace"))
-
-
-def expected_projection(source_name):
-    """REQ-003's expected projection for one source fixture, with
-    `source_sha256` recomputed here from the real canonicalizer rather than
-    taken from the resolver under test."""
-    canonical = subprocess.run(
-        [sys.executable, str(REAL_CANONICALIZER), str(PROJECTION_FIXTURES / f"{source_name}.yaml"),
-         "--input-format", "yaml"],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
-    ).stdout
-    expected = dict(PROJECTION_SOURCES[source_name])
-    expected["source_sha256"] = "sha256:" + hashlib.sha256(canonical).hexdigest()
-    return expected
-
-
-def run_case(kind, case, counts):
-    case_name, fixture_rel, expected_id, expected_detail, expected_state = case
-    with tempfile.TemporaryDirectory(prefix="resolver-block-") as tmp:
-        repo = Path(tmp).resolve()
-        subprocess.run(["git", "init", "-q", str(repo)], check=True)
-        copy_inputs(repo, fixture_rel, case_name)
-        scripts = repo / "plugins/sdd-quality-loop/scripts"
-        feature_dir, sentinels = plant_sentinels(repo, scripts)
-        spy, env = install_spy(repo)
-
-        result = subprocess.run(resolver_argv(kind, scripts), cwd=repo, env=env,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-        stderr = result.stderr.decode("utf-8", errors="replace")
-        stdout = result.stdout.decode("utf-8", errors="replace")
-        expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
-        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
-        counts.check(stdout == "" and stderr == expected_line and "UPSTREAM_SECRET" not in stderr,
-                     f"{case_name}: canonical diagnostic only", f"stdout={stdout!r} stderr={stderr!r}")
-
-        evidence_path = feature_dir / "resolver-evidence.yaml"
-        evidence, parse_error = read_evidence(evidence_path)
-        expected = {
-            "schema": "sdd-resolver-evidence/v1",
-            "feature": "example-feature",
-            "capability_evaluations": [],
-            "diagnostics": [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
-        }
-        if expected_state is not None:
-            expected["state"] = expected_state
-        counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
-
-        check_evidence_schema(counts, evidence_path, case_name)
-        unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
-        counts.check(unchanged, f"{case_name}: no partial live artifact")
-        counts.check(not spy.exists(), f"{case_name}: no step-4-or-later subprocess")
-
-
-def run_projection_success_case(kind, source_name, counts):
-    """Step 3 runs to completion; assert the projection handed to the second
-    canonicalizer pass is exactly REQ-003's shape.
-
-    T-003 extends this same script past step 3, so a step-3-only success now
-    continues into steps 4-9 (`resolve-component-paths`, Registry discovery,
-    `registry_digest`, evaluation) before this invocation's own `exit 0`.
-    This fixture is widened, not narrowed, to keep exercising a genuine
-    end-to-end clean resolve: an empty-capabilities Registry (T-003's own
-    `EMPTY_REGISTRY_PATH`) and one baseline commit (so `resolve-component-
-    paths`'s own `git rev-parse HEAD` resolves) make steps 4-9 a legitimate,
-    real-subprocess no-op (zero Registry Capabilities to evaluate) rather
-    than a stub -- the original step-3 assertions below are otherwise
-    unchanged."""
-    case_name = f"projection-{source_name}"
-    with tempfile.TemporaryDirectory(prefix="resolver-projection-") as tmp:
-        repo = Path(tmp).resolve()
-        subprocess.run(["git", "init", "-q", str(repo)], check=True)
-        copy_projection_inputs(repo, source_name)
-        scripts = repo / "plugins/sdd-quality-loop/scripts"
-        feature_dir, sentinels = plant_sentinels(repo, scripts)
-        # `omits-components` deliberately omits `components` to exercise
-        # step 3's own default-fill rule; the REAL resolve-component-paths
-        # cannot parse that omission (Epic A3's own restricted YAML parser
-        # requires the key present, verified directly), so this one source
-        # gets a fixed, always-succeeding step-4 stub instead -- see that
-        # stub's own module docstring.
-        install_t003_dependencies(
-            repo, scripts, fixture_dir=None, stub_name=None,
-            registry_capabilities_path=EMPTY_REGISTRY_PATH,
-        )
-        if source_name == "omits-components":
-            shutil.copy2(
-                PROJECTION_FIXTURES / "resolve-component-paths-stub-empty.py",
-                scripts / "resolve-component-paths.py",
-            )
-        git_commit_all(repo, "baseline")
-        spy, env = install_spy(repo)
-        env["SDD_T002_PROJECTION_MODE"] = "passthrough"
-
-        result = subprocess.run(resolver_argv(kind, scripts), cwd=repo, env=env,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-        stdout = result.stdout.decode("utf-8", errors="replace")
-        stderr = result.stderr.decode("utf-8", errors="replace")
-        counts.check(result.returncode == 0, f"{case_name}: exit 0", f"got {result.returncode} stderr={stderr!r}")
-        counts.check(stdout == "" and stderr == "", f"{case_name}: no diagnostic on either stream",
-                     f"stdout={stdout!r} stderr={stderr!r}")
-
-        capture_path = repo / "projection-capture.json"
-        captured, parse_error = read_evidence(capture_path)
-        counts.check(isinstance(captured, dict),
-                     f"{case_name}: step 3 second canonicalizer pass ran in JSON mode",
-                     parse_error or "no projection was handed to a JSON-mode canonicalizer invocation")
-
-        expected = expected_projection(source_name)
-        fields = sorted(captured) if isinstance(captured, dict) else None
-        counts.check(fields == PROJECTION_FIELDS,
-                     f"{case_name}: Context Projection field set is REQ-003's exact five", repr(fields))
-        got = captured if isinstance(captured, dict) else {}
-        counts.check(got.get("schema") == PROJECTION_SCHEMA,
-                     f"{case_name}: Context Projection schema const", repr(got.get("schema")))
-        counts.check(got.get("source_sha256") == expected["source_sha256"],
-                     f"{case_name}: source_sha256 binds the canonical Project Context",
-                     f"{got.get('source_sha256')!r} != {expected['source_sha256']!r}")
-        counts.check(got.get("workflow") == expected["workflow"],
-                     f"{case_name}: workflow copied verbatim", repr(got.get("workflow")))
-        counts.check(got.get("components") == expected["components"],
-                     f"{case_name}: components re-keyed by id with id stripped", repr(got.get("components")))
-        counts.check(got.get("shared_paths") == expected["shared_paths"],
-                     f"{case_name}: shared_paths carried as-is", repr(got.get("shared_paths")))
-        counts.check(captured == expected, f"{case_name}: exact Context Projection document", repr(captured))
-
-        if source_name == "two-components":
-            counts.check(not (feature_dir / "resolver-evidence.yaml").exists(),
-                         f"{case_name}: no Resolver Evidence on the success path")
-            unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
-            counts.check(unchanged, f"{case_name}: no partial live artifact")
-            # T-003 note: this fixture now legitimately drives steps 4-9 (a
-            # real, empty-capabilities Registry resolve) to reach this same
-            # `exit 0`, so the PATH-based spy this suite installs is no
-            # longer expected to stay unfired -- `_script_argv` finds each
-            # T-003 dependency directly in `script_dir` before ever
-            # consulting PATH, so the spy simply never intercepts anything
-            # either way, and asserting on it here would no longer test what
-            # its own label claims.
-
-
-def run_projection_block_case(kind, case, counts):
-    """Step 3's own second canonicalizer pass fails; assert its two Block
-    rows, which are distinct from step 2's same-id rows."""
-    case_name, source_name, mode, expected_id, expected_detail, expected_state = case
-    with tempfile.TemporaryDirectory(prefix="resolver-projection-") as tmp:
-        repo = Path(tmp).resolve()
-        subprocess.run(["git", "init", "-q", str(repo)], check=True)
-        copy_projection_inputs(repo, source_name)
-        scripts = repo / "plugins/sdd-quality-loop/scripts"
-        feature_dir, sentinels = plant_sentinels(repo, scripts)
-        spy, env = install_spy(repo)
-        env["SDD_T002_PROJECTION_MODE"] = mode
-
-        result = subprocess.run(resolver_argv(kind, scripts), cwd=repo, env=env,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-        stdout = result.stdout.decode("utf-8", errors="replace")
-        stderr = result.stderr.decode("utf-8", errors="replace")
-        expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
-        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
-        counts.check(stdout == "" and stderr == expected_line and "UPSTREAM_SECRET" not in stderr,
-                     f"{case_name}: canonical diagnostic only", f"stdout={stdout!r} stderr={stderr!r}")
-
-        evidence_path = feature_dir / "resolver-evidence.yaml"
-        evidence, parse_error = read_evidence(evidence_path)
-        expected = {
-            "schema": "sdd-resolver-evidence/v1",
-            "feature": "example-feature",
-            "capability_evaluations": [],
-            "diagnostics": [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
-            "state": expected_state,
-        }
-        counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
-
-        check_evidence_schema(counts, evidence_path, case_name)
-        unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
-        counts.check(unchanged, f"{case_name}: no partial live artifact")
-        counts.check(not spy.exists(), f"{case_name}: no step-4-or-later subprocess")
-
-
-def run_draft7_validator_keyword_checks(counts):
-    """Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
-    panelist): step 12's own defensive draft-07-subset output-schema
-    validator (`_draft7_validate`) did not implement `not`/`minimum` --
-    two keywords the REAL, unmodified governing `contracts/resolver-
-    evidence.schema.json` itself uses (`capabilityEvaluation.then.not.
-    required` forbids `conditional_facet_evaluations` on a `matched: false`
-    entry, B6; `declaration_index`'s own `minimum: 0`). An unimplemented
-    keyword this validator's own governing schema declares is not a no-op
-    defensive check -- it is a silent pass on exactly the malformed shape
-    that keyword exists to reject.
-
-    Loads the SAME staged `resolve-project-context.py` file (never a
-    second, reimplemented copy) and calls its own `_draft7_conforms`
-    directly against the REAL governing schema, fed hand-built instances --
-    the identical "call the real staged function directly" white-box
-    discipline `resolve-project-context-match-check.py`'s own
-    `run_facet_manifest_state_independence_check` already established for
-    a property with no CLI-observable trigger (a correctly-behaved
-    resolver never itself emits the non-conforming shape this validator
-    exists to catch, so this property cannot be exercised end-to-end
-    through a real subprocess invocation alone)."""
-    staged_py = STAGED / "resolve-project-context.py"
-    if not staged_py.is_file():
-        counts.check(False, "draft7-validator-keywords: staged implementation exists", "TDD RED: implementation absent")
-        return
-
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("resolve_project_context_draft7_oracle", staged_py)
-    resolver_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(resolver_module)
-
-    if not hasattr(resolver_module, "_draft7_conforms"):
-        # `_draft7_conforms`/`_draft7_validate` are T-004's own step-12
-        # additions (output schema self-validation) -- absent from a T-003-
-        # or-earlier snapshot (e.g. this driver's own RED reconstruction,
-        # which rewinds resolve-project-context.py to its pre-T-003
-        # content). A clean, reportable FAIL here, never an unguarded
-        # AttributeError crashing the whole suite before it prints a
-        # RESULT line (the identical discipline `cfe_pairs` already
-        # applies in resolve-project-context-match-check.py for the same
-        # class of "staged code predates this check's own dependency"
-        # gap).
-        counts.check(False, "draft7-validator-keywords: _draft7_conforms exists on the staged module",
-                     "TDD RED: T-004 step-12 self-validation absent from this staged snapshot")
-        return
-
-    with SCHEMA.open("r", encoding="utf-8") as handle:
-        schema = json.load(handle)
-
-    def envelope(evaluation):
-        return {
-            "schema": "sdd-resolver-evidence/v1",
-            "feature": "example-feature",
-            "capability_evaluations": [evaluation],
-            "diagnostics": [],
-        }
-
-    unmatched_conforming = {"capability_id": "cap-a", "matched": False, "trigger_evaluations": []}
-    counts.check(
-        resolver_module._draft7_conforms(envelope(unmatched_conforming), schema),
-        "draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)",
-    )
-
-    unmatched_with_cfe = dict(unmatched_conforming)
-    unmatched_with_cfe["conditional_facet_evaluations"] = []
-    counts.check(
-        not resolver_module._draft7_conforms(envelope(unmatched_with_cfe), schema),
-        "draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is "
-        "rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)",
-    )
-
-    def matched_with_index(declaration_index):
-        return {
-            "capability_id": "cap-b", "matched": True, "trigger_evaluations": [],
-            "conditional_facet_evaluations": [{
-                "facet": "some-facet", "declaration_index": declaration_index,
-                "applied": False, "evaluations": [],
-            }],
-        }
-
-    counts.check(
-        not resolver_module._draft7_conforms(envelope(matched_with_index(-1)), schema),
-        "draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected "
-        "(resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)",
-    )
-    counts.check(
-        resolver_module._draft7_conforms(envelope(matched_with_index(0)), schema),
-        "draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)",
-    )
-
-
-# --- T-004 cross-model panel finding, Major #3: draft-07 engine coverage ---
-# meta-assertion ------------------------------------------------------------
-#
-# Two consecutive panel rounds each found ONE instance of `_draft7_validate`
-# silently no-op'ing on a keyword its own governing schema actually uses
-# (`not`, then `minimum`) -- each closed keyword-by-keyword. This
-# meta-assertion converts the class from "silent, found one keyword at a
-# time" to "loud, permanently": it enumerates every draft-07 keyword each of
-# the four REAL, landed governing schemas actually uses (walking each
-# document's own schema tree -- `properties`/`definitions`/
-# `patternProperties` values, `items`/`allOf`/`anyOf`/`oneOf` elements,
-# `if`/`then`/`else`/`not`/`contains`/`additionalProperties`/
-# `propertyNames`/`additionalItems` sub-schemas -- never a flat string-key
-# grep, which would also match ordinary property NAMES that happen to look
-# like a keyword, e.g. this feature's own `facet`/`applied`/`title`-shaped
-# field names) and fails if any schema uses a keyword `_draft7_validate`
-# does not implement.
-
-DRAFT7_METADATA_ONLY_KEYWORDS = frozenset({
-    # Annotation/identity keywords that never themselves constrain instance
-    # data -- correctly absent from `_draft7_validate`'s own keyword
-    # handling, not a gap.
-    "$id", "$schema", "title", "description", "definitions", "default", "examples",
-})
-
-# Mirrors `_draft7_validate`'s own implemented keyword set BY HAND (never
-# introspected from the module under test, matching this driver's own
-# "independent oracle" discipline throughout) -- maintained alongside any
-# future change to that function.
-DRAFT7_IMPLEMENTED_KEYWORDS = frozenset({
-    "$ref", "const", "enum", "type", "oneOf", "if", "then", "else", "not",
-    "pattern", "minLength", "minimum", "required", "properties",
-    "propertyNames", "additionalProperties", "items", "uniqueItems", "minItems",
-})
-
-# The FULL draft-07 keyword vocabulary this walker recognizes at a
-# schema-keyword position -- an INDEPENDENT, hardcoded literal (never
-# derived from `DRAFT7_IMPLEMENTED_KEYWORDS` via set union) so that
-# mutating/shrinking `DRAFT7_IMPLEMENTED_KEYWORDS` cannot also shrink this
-# set: this is what makes a real schema using a keyword this engine does
-# NOT implement still show up as `used` below (and therefore as `missing`)
-# instead of silently vanishing because it was never on the "implemented"
-# list to begin with. Covers every standard draft-07 keyword: the ones
-# `_draft7_validate` implements, the metadata-only ones, and every other
-# standard keyword it does not implement.
-DRAFT7_KNOWN_KEYWORDS = frozenset({
-    "$ref", "$id", "$schema", "title", "description", "definitions", "default", "examples",
-    "const", "enum", "type", "oneOf", "allOf", "anyOf", "if", "then", "else", "not",
-    "pattern", "minLength", "maxLength", "minimum", "maximum",
-    "exclusiveMinimum", "exclusiveMaximum", "multipleOf",
-    "required", "properties", "propertyNames", "patternProperties",
-    "additionalProperties", "dependencies",
-    "items", "additionalItems", "maxItems", "minItems", "uniqueItems", "contains",
-    "maxProperties", "minProperties",
-    "format", "contentEncoding", "contentMediaType",
-})
-
-GOVERNING_SCHEMA_FILES = {
-    "resolver-evidence.schema.json": RESOLVER_EVIDENCE_SCHEMA_REAL,
-    "context-projection.schema.json": ROOT / "contracts/context-projection.schema.json",
-    "facet-manifest.schema.json": FACET_MANIFEST_SCHEMA_REAL,
-    "capability-summary.schema.json": ROOT / "contracts/capability-summary.schema.json",
-}
-
-
-def _draft7_schema_keywords_used(node, found):
-    """Test-harness-only schema walker (never imported from the module
-    under test): collects every draft-07 KEYWORD position this schema tree
-    actually uses, correctly distinguishing a keyword position from a
-    sibling property-NAME/definition-NAME/enum-value position (a flat
-    string-key grep cannot make this distinction -- it would also match
-    this feature's own field names like `facet`/`applied` that happen to
-    share a spelling with no real keyword here, and would MISS keywords
-    nested only inside `if`/`then`/`else`/`not`/`allOf` branches, which a
-    naive regex-based counterpart earlier in this investigation did in
-    fact reach for these four schemas). Membership in `found` is decided
-    against `DRAFT7_KNOWN_KEYWORDS` -- the full vocabulary superset, NEVER
-    `DRAFT7_IMPLEMENTED_KEYWORDS` alone -- so this walker still records a
-    real, unimplemented keyword's own usage instead of silently dropping
-    it (which would make `run_draft7_keyword_coverage_check`'s own
-    `missing` computation vacuously empty regardless of what
-    `DRAFT7_IMPLEMENTED_KEYWORDS` says)."""
-    if isinstance(node, bool) or not isinstance(node, dict):
-        return
-    for key, value in node.items():
-        if key in DRAFT7_KNOWN_KEYWORDS:
-            found.add(key)
-        if key in ("properties", "patternProperties", "definitions"):
-            if isinstance(value, dict):
-                for sub in value.values():
-                    _draft7_schema_keywords_used(sub, found)
-        elif key == "items":
-            if isinstance(value, list):
-                for sub in value:
-                    _draft7_schema_keywords_used(sub, found)
-            else:
-                _draft7_schema_keywords_used(value, found)
-        elif key in (
-            "additionalItems", "additionalProperties", "propertyNames",
-            "if", "then", "else", "not", "contains",
-        ):
-            _draft7_schema_keywords_used(value, found)
-        elif key in ("allOf", "anyOf", "oneOf"):
-            if isinstance(value, list):
-                for sub in value:
-                    _draft7_schema_keywords_used(sub, found)
-        elif key == "dependencies":
-            if isinstance(value, dict):
-                for sub in value.values():
-                    if isinstance(sub, dict):
-                        _draft7_schema_keywords_used(sub, found)
-
-
-def run_draft7_keyword_coverage_check(counts):
-    for filename, path in GOVERNING_SCHEMA_FILES.items():
-        with path.open("r", encoding="utf-8") as handle:
-            schema = json.load(handle)
-        used = set()
-        _draft7_schema_keywords_used(schema, used)
-        used -= DRAFT7_METADATA_ONLY_KEYWORDS
-        missing = sorted(used - DRAFT7_IMPLEMENTED_KEYWORDS)
-        counts.check(
-            not missing,
-            f"draft7-keyword-coverage: {filename} uses only keywords _draft7_validate implements",
-            f"missing={missing}",
-        )
-
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
-    args = parser.parse_args()
-    counts = Counts()
-
-    required = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
-    if not all(path.is_file() for path in required):
-        for case_name in ALL_CASE_NAMES:
-            counts.check(False, f"{case_name}: staged implementation exists", "TDD RED: implementation absent")
-    else:
-        for case in CASES:
-            run_case(args.launcher, case, counts)
-        for source_name in PROJECTION_SOURCES:
-            run_projection_success_case(args.launcher, source_name, counts)
-        for case in PROJECTION_BLOCK_CASES:
-            run_projection_block_case(args.launcher, case, counts)
-        for case_name in (
-            "affected-component-resolution-failed",
-            "resolve-component-paths-launch-failed",
-            "contract-discovery-failed",
+[... 87861 bytes elided from the middle of tests/resolve-project-context-block-check.py (original size 92036 bytes; showing first/last 40 lines) ...]
             "registry-discovery-unimportable",
             "registry-validation-failed",
             "validate-capability-registry-launch-failed",
@@ -14615,12 +13605,15 @@ def main():
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
             "dsl-warn-unsorted-affected-components",
+            "registry-swapped-during-validation",
+            "registry-discovery-syntax-error",
         ):
             run_t003_case(args.launcher, case_name, counts)
         for case_name in (
             "lite-check-source-undefined",
             "output-schema-validation-failed-evidence",
             "output-schema-validation-failed-artifact",
+            "output-schema-validation-failed-facet-manifest",
             "snapshot-generation-mismatch",
             "contract-discovery-failed-governing-schema",
             "contract-discovery-failed-governing-schema-wrong-version",
@@ -14761,3 +13754,37 @@ this cycle) at HEAD:
    REQ-006/REQ-008's own OTHER task rows (T-002, T-003, T-004, etc.) --
    those are shared REQ ids spanning multiple tasks' own scope, out of
    T-005's own diff, per tasks.md Global Constraints.
+
+Superseded 2026-08-24 (confirmation-panel remediation, both vendors' T-005
+Majors 1/2, same staleness class this file's own predecessor cycles
+already went through): re-verified against the CURRENT driver directly
+rather than carrying forward the count above. `resolve-project-context-
+match-check.py`'s own `case_labels`/`main()` now register EIGHT cases
+(the pre-existing six plus this pass's own `warn-cardinality-nested-node`
+-- Major 2, a composite `any` predicate whose two leaf children both WARN
+in one evidence tree, closing the survivor MUT-9). `full-pipeline-match`'s
+own fixture Registry gained a third Capability, `cap-gamma` (Major 1, a
+genuine no-match Capability whose own `required_facets`/`gate_ids`/
+`lite_policy` must not leak into the assembled Facet Manifest, closing the
+survivor MUT-7 for `required_facets` specifically -- `capabilities`/
+`resolved_gates`/`lite_eligibility` are closed by the SAME fixture via
+their own separately-scoped assembly functions, never by MUT-7 itself;
+`capability_minimum_enforcement` remains confounded on this fixture by
+construction, disclosed in the driver's own comment, not claimed closed).
+Confirmed executed and passing in this same verification run: 112 passed,
+0 failed, both runtimes (`bash tests/resolve-project-context-match.tests.
+sh` / `pwsh -File tests/resolve-project-context-match.tests.ps1`) -- the
+suite's own current total, never the count this log's own prior revision
+carried. Both survivor mutants (MUT-7's own `_required_facets` scope,
+MUT-9's own `_iter_warn_nodes` per-tree truncation) were re-injected via
+the identical scratch-clone technique this file's own prior cycles
+already established and confirmed killed non-vacuously, collateral-free:
+MUT-7 -> 98 passed / 1 failed (exactly the `required_facets` assertion);
+MUT-9 -> 110 passed / 2 failed (exactly the two `warn-cardinality-nested-
+node` assertions). REQ-001 (share)/REQ-004 (share)/REQ-005 (share)/
+REQ-006 (share, items a-d/f/g)/REQ-008 (share) presence in requirements.md
+and AC-003..AC-008/AC-016/AC-043/AC-044/AC-052/AC-056 presence in
+acceptance-tests.md re-confirmed unchanged (neither document was edited
+by this pass).
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 112 passed, 0 failed"

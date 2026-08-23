@@ -156,7 +156,10 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
     """The primary `resolve-project-context-match` fixture: a real,
     non-empty Registry (two Capabilities, three affected components,
     cross-Capability AND same-Capability duplicate-facet-name conditional
-    facets, a required-minimum-enforcement Capability, mixed lite_policy)
+    facets, an UNMATCHED required-minimum-enforcement Capability
+    (cap-gamma, confirmation-panel Major 2026-08-24 -- de-confounds
+    `capability_minimum_enforcement` from a matched-set-vs-whole-Registry
+    aggregation bug), mixed lite_policy)
     driven all the way through steps 0-13 via a real subprocess, forced to
     Block at step 13 (`snapshot-generation-mismatch`, via the identical
     two-fixed-digest technique T-004's own suite already established) so
@@ -698,20 +701,25 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
             ],
             f"{case_name}: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)", repr(track_artifact["resolved_gates"]),
         )
-        # `capability_minimum_enforcement` (Anthropic panelist's own T-005
-        # Major 1 finding explicitly names this field "'required' either
-        # way"): cap-beta ALONE already contributes `minimum_enforcement:
-        # "required"` regardless of whether the matched-set gate is
-        # correctly applied, since cap-beta is matched either way -- this
-        # field's own aggregate answer is genuinely confounded on this
-        # fixture and MUT-7 (which mutates `_required_facets` only, a
-        # DIFFERENT function than `_capability_minimum_enforcement`)
-        # cannot exercise it regardless. Left as-is, disclosed rather than
-        # silently claimed non-vacuous; a future fixture with NO matched
-        # Capability declaring `minimum_enforcement` (only an unmatched
-        # one) would be needed to close this specific field, outside this
-        # pass's own scope.
-        counts.check(track_artifact.get("capability_minimum_enforcement") == "required", f"{case_name}: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)", repr(track_artifact.get("capability_minimum_enforcement")))
+        # `capability_minimum_enforcement` (confirmation-panel Major,
+        # 2026-08-24, both vendors -- previously "'required' either way"):
+        # closed by moving `minimum_enforcement: "required"` from cap-beta
+        # (matched) to cap-gamma (deliberately UNMATCHED -- see the
+        # `cap_gamma_matched` sanity check above). Neither MATCHED
+        # Capability (cap-alpha/cap-beta) declares `minimum_enforcement`
+        # now, so the CORRECT matched-set-only aggregation returns `None`
+        # (key absent, per `_capability_minimum_enforcement`'s own
+        # omit-rather-than-false-ish-placeholder contract); an
+        # implementation that wrongly aggregates over the WHOLE Registry
+        # (the exact MUT-7-class defect this fixture's other AC-007
+        # fields already catch) would instead pick up cap-gamma's own
+        # `"required"` and return it -- this field is now genuinely
+        # discriminating, not merely disclosed-as-vacuous.
+        counts.check(
+            "capability_minimum_enforcement" not in track_artifact,
+            f"{case_name}: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)",
+            repr(track_artifact.get("capability_minimum_enforcement")),
+        )
         counts.check(
             track_artifact["lite_eligibility"] == {"eligible": False, "upgrade_reasons": ["pii"]},
             f"{case_name}: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)", repr(track_artifact["lite_eligibility"]),

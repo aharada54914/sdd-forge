@@ -325,3 +325,23 @@ Net: no suite outside the two self-declared DESIGNED-RED ones failed in
 either runtime; this task's own suite registration is confirmed live and
 green inside the full regression run, both before and after this pass's
 own AC-056 remediation. regression: passes=true.
+
+--- Round-2 confirmation-panel remediation (2026-08-24) -----------------
+
+Re-run and re-captured against the current tree, covering the
+`capability_minimum_enforcement` de-confounding fix (`minimum_
+enforcement` moved from cap-beta to cap-gamma in `tests/fixtures/
+capability-resolver/resolve-project-context-match/full-pipeline-match/
+capability-registry.json`) and the corresponding assertion/docstring
+rewrite in `tests/resolve-project-context-match-check.py`. Full
+transcript (git diff/status/whitespace checks, py_compile, both focused
+suites both runtimes, full `tests/run-all.{sh,ps1}` sweeps, MANIFEST
+verification, check-task-state/check-workflow-state) retained once,
+shared, at verification/qg/T-003/regression.log's own "Round-2
+confirmation-panel remediation" section (not duplicated here, since
+T-005's own two touched files are part of that same diff and that same
+full-repo sweep). Result: `tests/resolve-project-context-match.tests.sh`/
+`.ps1` both 112 passed, 0 failed; both full sweeps match this
+repository's own documented standing baseline exactly (sh: 2 self-
+declared DESIGNED-RED; ps1: 1) -- no suite outside those failed.
+regression: passes=true.

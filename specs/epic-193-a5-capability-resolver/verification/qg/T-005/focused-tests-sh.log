@@ -31,7 +31,7 @@ PASS: full-pipeline-match: affected_components is this fixture's own four indepe
 PASS: full-pipeline-match: required_facets, cap-gamma's own 'gamma-facet' excluded (AC-007)
 PASS: full-pipeline-match: capabilities, cap-gamma excluded (AC-007)
 PASS: full-pipeline-match: resolved_gates, cap-gamma's own 'gate-never' excluded (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement (AC-007; confounded on this fixture, see comment above)
+PASS: full-pipeline-match: capability_minimum_enforcement, cap-gamma's own 'required' excluded (AC-007)
 PASS: full-pipeline-match: lite_eligibility, cap-gamma's own 'external_identity' excluded (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))

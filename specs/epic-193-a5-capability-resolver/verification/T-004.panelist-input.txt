@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-004
 # feature: epic-193-a5-capability-resolver
-# input_digest: 2cd7c4051b6bbc5a255ce9c37ad3a0d545f708ff62b2638297381ead2001c58b
+# input_digest: d156d0f925be87fb772a2e60411dd3de805214ea4c5216a575c28af5ac44caf3
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -9754,11 +9754,9 @@ PASS: projection-two-components: exit 0
 PASS: projection-two-components: no diagnostic on either stream
 PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
 PASS: projection-two-components: Context Projection field set is REQ-003's exact five
-[... 7405 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-sh.log (original size 13386 bytes; showing first/last 40 lines) ...]
-PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
-PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
-PASS: output-schema-validation-failed-artifact: no partial live artifact
+[... 8701 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-sh.log (original size 14858 bytes; showing first/last 40 lines) ...]
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
 PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
@@ -9788,13 +9786,15 @@ PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet
 PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
 PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
 PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
 PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 184 passed, 0 failed
+RESULT: 201 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-ps1.log ----
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -9836,11 +9836,9 @@ PASS: projection-two-components: exit 0
 PASS: projection-two-components: no diagnostic on either stream
 PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
 PASS: projection-two-components: Context Projection field set is REQ-003's exact five
-[... 7405 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-ps1.log (original size 13386 bytes; showing first/last 40 lines) ...]
-PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
-PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
-PASS: output-schema-validation-failed-artifact: no partial live artifact
+[... 8701 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-ps1.log (original size 14858 bytes; showing first/last 40 lines) ...]
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
 PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
@@ -9870,13 +9868,15 @@ PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet
 PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
 PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
 PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
 PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 184 passed, 0 failed
+RESULT: 201 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-004/regression.log ----
 Scoped + full regression evidence for T-004 (epic-193-a5-capability-resolver),
 re-run at current HEAD (217710a2 + this pass's own uncommitted cycle-3
@@ -9918,7 +9918,13 @@ pending human apply. Expected, by-design state, not a regression. The
 resolve-project-context.py entry's own hash changed again this pass --
 cycle-3 panel remediation fixes -- verified OK above:
 f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9.)
-[... 1079 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/regression.log (original size 5176 bytes; showing first/last 40 lines) ...]
+[... 849 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/regression.log (original size 4668 bytes; showing first/last 40 lines) ...]
+AC-004 expectation fix), so this is a genuine current-tree confirmation.
+
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
 $ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
 workflow-state: ok
 Exit: 0
@@ -9935,30 +9941,24 @@ capture of this same enumeration). No suite beyond these two failed.
 Confirmed complete, exit captured.
 
 $ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (detached, no deadline)
-DID NOT COMPLETE within this session's own time budget (over 13 minutes
-elapsed with no output at the point this log was captured; a sibling
+Ran long (over 13 minutes with no output at one checkpoint -- a sibling
 pwsh process from a concurrent session in this same shared worktree area
 was observed running at the same time, a known source of resource
 contention in this repository -- see this session's own memory note
-`shared-worktree-concurrent-agent-churn`). Disclosed honestly rather than
-assumed identical to the sh run or to the Second Pass's own prior
-capture of this enumeration (1 failing suite(s):
-tests/design-system-contract.tests.ps1, the identical pre-existing
-DESIGNED-RED reason, deterministic-lane-selfcheck.tests.sh having no
-PowerShell twin at all). The SCOPED ps1 checks this task's own diff could
-plausibly affect (resolve-project-context-block.tests.ps1, resolve-
-project-context-match.tests.ps1, above) both completed and passed
-cleanly. Recommended before final sign-off: re-run `pwsh -File
-tests/run-all.ps1` to completion outside a resource-contended window and
-confirm it still reports exactly the Second Pass's own baseline
-enumeration.
+`shared-worktree-concurrent-agent-churn`) but COMPLETED, exit 0:
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Self-declares DESIGNED-RED, the identical pre-existing reason, and
+matches this repository's own documented standing baseline exactly
+(deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all, the
+same pre-existing structural asymmetry the sh run's own two-suite
+enumeration already accounts for). No suite beyond this one failed.
 
-Net: no suite outside the two/one self-declared DESIGNED-RED ones is
-known to have failed in either runtime; the sh full run-all is confirmed
-complete and clean against baseline, the ps1 full run-all's own
-completion is the one item this pass could not confirm within its own
-session and is disclosed as such rather than assumed.
-regression: passes=true (required checks below all independently confirmed).
+Net: no suite outside the two (sh) / one (ps1) self-declared DESIGNED-RED
+ones failed in either runtime. Both full run-all invocations are now
+confirmed complete and clean against this repository's own standing
+baseline.
+regression: passes=true.
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-004/placeholder-scan.log ----
 $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
 Placeholder scan passed.
@@ -9986,87 +9986,87 @@ Evidence bundle passed for task T-002.
 Task state check passed for 10 task(s).
 exit=0
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-004/traceability.log ----
-Requirement-traceability check (manual — no traceability.json exists for
+Requirement-traceability check (manual -- no traceability.json exists for
 this feature, only traceability.md; check-traceability.sh requires JSON
-input and was not run) for T-004, re-verified 2026-08-23 (second pass,
-AC-056 remediation) at HEAD febf7898:
+input and was not run) for T-004, re-verified 2026-08-24 (third pass,
+confirmation-panel remediation) at current HEAD (d392b5e4) + this pass's
+own uncommitted cross-model-panel remediation diff -- SUPERSEDES the
+prior capture, which self-dated to "second pass, AC-056 remediation" at
+HEAD febf7898 and was found stale by the T-004 confirmation-panel Major
+(Anthropic, this pass): three subsequent supersessions of the human-copy
+MANIFEST entry (783b7f11 -> cb9f050b -> f6bc6796 -> this pass's own
+673e634a) and a driver invocation/assertion count describing a
+four-invocation/141-assertion state against a since-grown, 36-invocation/
+201-assertion driver, neither re-verified at the time cited.
 
  - tasks.md T-004 Requirements line -> REQ-001 (steps 10-13 only), REQ-002
-   (share — three more of sixteen non-transactional diagnostic-id rows),
-   REQ-004 (share — Evidence assembly logic), REQ-005 (share —
-   determinism baseline), REQ-006 (share — item e's remaining three
-   rows), REQ-008 (share — CHANGELOG). All six confirmed present in
-   requirements.md (grep hit counts: REQ-001=38, REQ-002=60, REQ-004=19,
-   REQ-005=11, REQ-006=5, REQ-008=4) and traceability.md's own Task
-   Mapping table names T-004 explicitly (traceability.md:60): "T-004 |
-   REQ-001 (steps 10-13 only ...), REQ-002 (share ...), REQ-004 (share
-   ...), REQ-005 (share ...), REQ-006 (share ...), REQ-008 (share)".
+   (share -- three more of sixteen non-transactional diagnostic-id rows),
+   REQ-004 (share -- Evidence assembly logic), REQ-005 (share --
+   determinism baseline), REQ-006 (share -- item e's remaining three
+   rows), REQ-008 (share -- CHANGELOG). All six confirmed present in
+   requirements.md (grep hit counts, re-verified this pass: REQ-001=38,
+   REQ-002=60, REQ-004=19, REQ-005=11, REQ-006=5, REQ-008=4 -- identical
+   to every prior pass's own counts; requirements.md was not edited by
+   this pass) and traceability.md's own Task Mapping table names T-004
+   explicitly (traceability.md:60).
  - AC-010..AC-015 (three-more-of-sixteen-rows share), AC-038 (share),
    AC-040 (first fixture), AC-041 (share) are present in
-   acceptance-tests.md (grep hit counts: AC-010=1, AC-011=2, AC-012=2,
-   AC-013=1, AC-014=1, AC-015=1, AC-038=3, AC-040=1) and TEST-010..
-   TEST-015 / TEST-038 / TEST-040 / TEST-041 are present there too (hit
-   counts: TEST-010=5, TEST-011=1, TEST-012=1, TEST-013=1, TEST-014=1,
-   TEST-015=2, TEST-038=2, TEST-040=1, TEST-041=1).
+   acceptance-tests.md (grep hit counts, re-verified this pass: AC-010=1,
+   AC-011=2, AC-012=2, AC-013=1, AC-014=1, AC-015=1, AC-038=3, AC-040=1,
+   AC-041=1 -- identical to every prior pass) and TEST-010..TEST-015 /
+   TEST-038 / TEST-040 / TEST-041 are present there too (hit counts,
+   re-verified: TEST-010=5, TEST-011=1, TEST-012=1, TEST-013=1,
+   TEST-014=1, TEST-015=2, TEST-038=2, TEST-040=1, TEST-041=1).
  - This task's own production-code obligation additionally covers the
    full-pipeline behavior surface (AC-003..AC-008, AC-016, AC-043, AC-044,
-   AC-052, AC-056) per tasks.md's own T-004 Requirements text ("cited for
-   the diagnostic behavior this task's own code must implement correctly
-   ... even though their own dedicated test suite, match, is T-005's
-   own") — traceability.md's own Task Mapping table records this
-   split explicitly and assigns the dedicated TEST rows for that surface
-   to T-005 (traceability.md:61), not T-004; T-004's own Done When
-   requires only the three-fixture Block matrix above, confirmed against
-   tasks.md T-004 Done When directly.
- - **AC-056 GAP CLOSED THIS PASS**: the earlier same-day contract-
-   authoring pass (this same task) found AC-056's own `diagnostics[]`
-   warn/block cardinality behavior genuinely unimplemented in
-   `_write_evidence` — it hardcoded exactly one `severity: "block"`
-   entry unconditionally, discarding the per-node WARN location
-   (`capability_id`/`component_id`/`declaration_index`) `_evaluate_
-   capabilities` computed only as a boolean. Since this task's own Goal/
-   Scope/Requirements text explicitly names AC-056 among the production
-[... 1797 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/traceability.log (original size 7036 bytes; showing first/last 40 lines) ...]
-   scope covers "Resolver Evidence assembly logic in full", and this
-   task's own Done When already requires keeping all thirteen
-   block-suite fixtures — T-002's five, T-003's five, T-004's own three —
-   green together), so updating those three expected-diagnostics shapes
-   to the AC-056-correct one is this task's own completion work, not
-   T-003's. Corrected: 141 passed / 0 failed, both runtimes (see
-   focused-tests-{sh,ps1}.log).
- - Implemented: tests/resolve-project-context-block-check.py's own
-   run_t003_case()/run_t004_case() functions (confirmed present, the
-   former newly carrying `expected_warn_diagnostic()`/
-   `expected_warn_diagnostics` for the three dsl-warn-* cases) — 141
-   passed / 0 failed, both runtimes, up from the 141/0 already recorded
-   at the top of this same pass before the AC-056 remediation (net
-   count unchanged: no fixture was added or removed, only three existing
-   fixtures' own expected diagnostics[] shapes were corrected).
- - RED/GREEN for this AC-056 increment specifically (new filenames, the
-   pre-existing red-sh.log/red-ps1.log/green-sh.log/green-ps1.log from
-   this task's original 2026-08-19 commit are untouched):
-   verification/T-004/red-ac056-{sh,ps1}.log (138 passed / 3 failed,
-   captured in an isolated `git clone --no-hardlinks` scratch clone at
-   this branch's own committed HEAD so the real worktree was never
-   reverted), verification/T-004/green-ac056-{sh,ps1}.log (141 passed /
-   0 failed).
- - Mutation-kill evidence: emitting a second summary `severity: "block"`
-   entry and collapsing the per-node warn entries into one were both
-   applied to the scratch clone (never the real worktree) and confirmed
-   caught — see T-005's own traceability.log for the exact assertion
-   names, since both mutations are killed by T-005's own TEST-056
-   assertions (this task's own block-suite fixtures do not themselves
-   assert cardinality, only exact-document equality, which also happens
-   to catch both mutations incidentally but was not the primary kill
-   evidence recorded).
- - `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256`'s
-   own `resolve-project-context.py` entry updated to this pass's new
-   sha256 (`ca3c95f6...`); `shasum -a 256 -c` from within `human-copy/`
-   reports 4/4 OK, exit 0.
+   AC-052, AC-056) per tasks.md's own T-004 Requirements text -- the
+   dedicated TEST rows for that surface belong to T-005 (traceability.md:
+   61), not T-004; T-004's own Done When requires only the Block-matrix
+   fixtures the driver below actually runs.
+ - AC-056's own `diagnostics[]` warn/block cardinality behavior remains
+   implemented in `_write_evidence` exactly as this task's own
+   second-pass capture already recorded (unchanged by this pass's own
+[... 2336 bytes elided from the middle of specs/epic-193-a5-capability-resolver/verification/qg/T-004/traceability.log (original size 7481 bytes; showing first/last 40 lines) ...]
+     newline semantics) -> `draft7-validator-keywords`'s own new
+     trailing-newline `pattern` assertion (new this pass).
+   - `output-schema-validation-failed-facet-manifest` (run_t004_case, new
+     this pass) -> the track_artifact failure branch of
+     `_self_validate_output`, previously unexercised by any fixture in
+     this driver (Anthropic T-004 Minor).
+
+Bundle self-consistency (re-verified this pass, not assumed):
+ - human-copy MANIFEST entry for `plugins/sdd-quality-loop/scripts/
+   resolve-project-context.py`: `673e634a3117a70a0d5a8db393d18cce9c8faa47
+   ef5d4a8d1e13ef773538b45f` (regenerated via `shasum -a 256` from the
+   human-copy root this pass; `shasum -a 256 -c MANIFEST.sha256` reports
+   4/4 OK, exit 0).
+ - Reviewed driver (`tests/resolve-project-context-block-check.py`, T-002
+   steps 0-3 + T-003 steps 4-9 + T-004 steps 10-13, one shared file) runs
+   36 distinct fixture/case invocations at 201 passed / 0 failed, exit 0,
+   both runtimes (`bash tests/resolve-project-context-block.tests.sh` /
+   `pwsh -File tests/resolve-project-context-block.tests.ps1`) -- never
+   the stale "four-invocation/141-assertion" count this log's own prior
+   revision carried. The requirement -> implementing-test mapping above
+   is established against THIS driver, at THIS hash, today.
  - Not independently re-verified in this pass: REQ-002/REQ-004/REQ-005/
    REQ-006/REQ-008's own OTHER task rows (T-001, T-002, T-003, T-005,
    T-007, etc.) -- those are shared REQ ids spanning multiple tasks' own
    scope, out of T-004's own diff, per tasks.md Global Constraints.
+
+Third-recurrence remediation (this exact staleness class -- second-pass
+febf7898, this pass's own predecessor, and now this one): a check was
+added to this epic's own test suite so a future traceability.log
+recording a fixture count or MANIFEST hash that disagrees with the LIVE
+driver/MANIFEST fails loudly at the next `bash tests/run-all.sh`, rather
+than being discovered only by a later confirmation panel. See
+tests/traceability-log-freshness.tests.sh/.ps1 (registered in
+tests/run-all.sh/.ps1) for the check itself and its own rationale; the
+T-004 implementation report's own "Traceability-log staleness, third
+recurrence" section records why a standalone suite was chosen over
+editing check-contract.py (guard-protected, out of every task's own
+Planned Files).
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 201 passed, 0 failed"
 # ---- reports/implementation/epic-193-a5-capability-resolver/T-004.md ----
 # Implementation Report: T-004
 
@@ -10272,8 +10272,8 @@ with `git show 56155686:<path>`.
 | Path | SHA-256 (current worktree, 2026-08-23) |
 |---|---|
 | `CHANGELOG.md` | `b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407` (drifted — shared file, see note above) |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `f71519b627e98f5f0a4a0382220ce4b5be25bc7389dd68f75bcb610f23069134` (drifted — shared file, see note above) |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9` (drifted — extended by `82f6dbf2` after this task's own commit, see note above) |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` (drifted — shared file, see note above) |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` (drifted — extended by `82f6dbf2` after this task's own commit, see note above) |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/green-ps1.log` | `0d855d255491a6cdefda0b27271f0fea796bd69aebdde5068d4d7562defd95d0` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/green-sh.log` | `0d855d255491a6cdefda0b27271f0fea796bd69aebdde5068d4d7562defd95d0` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-ps1.log` | `913350b0331eb22dd7e105f5aa71998c1a79d0d9f83be789eea95bb547656a90` |
@@ -10288,7 +10288,7 @@ with `git show 56155686:<path>`.
 | `tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/capability-summary.schema.json` | `09d4ace8cc599b4ef7632aaa09c7477e765bcfa69943f2231f8870aac4cbc42f` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/context-projection.schema.json` | `c2818f9f9885572a443f4e72a3656bf93069061f49692b69a6ee837732d207af` |
-| `tests/resolve-project-context-block-check.py` | `834b9ab26bd252a427251758dd9d2bf4fb4e82c19e5a4b0c8a9a4f8f58b47b51` (this is now the Third Pass's own current value — see "Outputs (third pass's own updates)" below; the `ad84ee05...` value recorded here was itself already drifted, extended by `82f6dbf2` after this task's own original commit) |
+| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` (this is now the Third Pass's own current value — see "Outputs (third pass's own updates)" below; the `ad84ee05...` value recorded here was itself already drifted, extended by `82f6dbf2` after this task's own original commit) |
 
 ## Test Evidence
 
@@ -10664,9 +10664,9 @@ in T-005's own suite are).
 
 | Path | SHA-256 (current worktree, 2026-08-23) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `ca3c95f6516064dc3540fd4959f5ff1e78adf67a8c61ffd995304864c1cb836b` (this pass's own new value — supersedes the `b1bef77b...` row above) |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` (this pass's own new value — supersedes the `b1bef77b...` row above) |
 | `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | edited — the `resolve-project-context.py` entry updated to `ca3c95f6...`; `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
-| `tests/resolve-project-context-block-check.py` | `ad84ee059582c21f1a964c72a0505c3b85df7760ba11ee6c74629509eb420874` (this pass's own new value — supersedes the `8fdb240e...` row above) |
+| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` (this pass's own new value — supersedes the `8fdb240e...` row above) |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-ac056-sh.log` | `cbf8a287d71e766df35d05dbd0f048bb26fd33a26cb60318e1eed57806b708e3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-ac056-ps1.log` | `cbf8a287d71e766df35d05dbd0f048bb26fd33a26cb60318e1eed57806b708e3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/green-ac056-sh.log` | `b751fe968358d1c24b1e56fb4fc5f9ab2e1cb72f489232ee45d4bd6d75948f9c` |
@@ -10805,9 +10805,9 @@ the four second-pass log rows are unaffected.
 
 | Path | SHA-256 (current worktree, 2026-08-23) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `783b7f11f33da53612d7e81a08c94eafb344fd80e2e39a16998e1ae8d388541b` (this pass's own new value — supersedes the second pass's own `ca3c95f6...` row above) |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `654b2f23fc8de9c0a1a455128e9038cbd54886dd48fea92cae3274f498fab3ef` — the `resolve-project-context.py` entry updated to `783b7f11...`; `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
-| `tests/resolve-project-context-block-check.py` | `9b504735d0b399f456ee52ac7e80919ffb34e183e7ce4f1e0f45e1ab3298a19f` (this pass's own new value — supersedes the second pass's own `ad84ee05...` row above) |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` (this pass's own new value — supersedes the second pass's own `ca3c95f6...` row above) |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — the `resolve-project-context.py` entry updated to `783b7f11...`; `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
+| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` (this pass's own new value — supersedes the second pass's own `ad84ee05...` row above) |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-ac024-sh.log` | `2f3065e4a84524d6f937539a4b0279133f79804cc2f6cfe90c284b30beb8fb7e` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-ac024-ps1.log` | `3a8286183bbb1d0690bfcb99265aa7995eec5111d3e730e7cc98a653e7073e78` (not byte-identical to the `sh` capture -- its own header line names the `.ps1` invocation command; the `RESULT: 138 passed, 3 failed` tally and every fixture-level PASS/FAIL line are identical) |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/green-ac024-sh.log` | `b751fe968358d1c24b1e56fb4fc5f9ab2e1cb72f489232ee45d4bd6d75948f9c` (byte-identical to the second pass's own `green-ac056-sh.log` -- both capture the identical bare 141/0 run) |
@@ -10989,10 +10989,10 @@ narrative, since that fix's own production code is T-003 scope).
 
 | Path | SHA-256 (current worktree, 2026-08-23) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `cb9f050be3b7110b177fef061cb4af5a9b39724c37cd2f6c618a601c07728aa7` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `499f5f5e89a9979f0d23c1a45164e25c91a708875b791de65968d5cd36e13b0c` — the `resolve-project-context.py` entry updated; `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
-| `tests/resolve-project-context-block-check.py` | `3c531cf0081a89c8ba6331f956d3195ff98eeaf6dffdba5edabe05c17ca11844` |
-| `tests/resolve-project-context-match-check.py` | `f0191977c0a92042b2fe88d7b7b1a1f1f9bc053c6a1390126aa136bcefdc1d65` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — the `resolve-project-context.py` entry updated; `shasum -a 256 -c` from within `human-copy/`: 4/4 OK |
+| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` |
+| `tests/resolve-project-context-match-check.py` | `d807e171751d3a6ddbdc0473671fb6b920ae09848b07df13afc812ee61b4b4f8` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-panel-sh.log` | `35b1df173cf79339f76e8816f868d14dcb02687b45e1ae6d4e81c3b633bdf8b3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-panel-ps1.log` | `35b1df173cf79339f76e8816f868d14dcb02687b45e1ae6d4e81c3b633bdf8b3` (byte-identical to the `sh` capture — this driver's own output carries no runtime marker either way, but the fixture-level PASS/FAIL pattern was independently diffed byte-for-byte against the `sh` run above, not merely assumed identical from a matching hash) |
@@ -11197,21 +11197,21 @@ rows are unaffected except where noted.
 
 | Path | SHA-256 (current worktree, 2026-08-24) |
 |---|---|
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `f71519b627e98f5f0a4a0382220ce4b5be25bc7389dd68f75bcb610f23069134` — `shasum -a 256 -c`: 4/4 OK |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — `shasum -a 256 -c`: 4/4 OK |
 | `specs/epic-193-a5-capability-resolver/verification/T-004.contract.json` | `ecf5936ec230131272472beb25f21d922200a19dbf9743fe08b20561263be810` — `red_evidence`/`green_evidence` re-pointed to this pass's own `red-cycle5-{sh,ps1}.log`/`focused-tests-{sh,ps1}.log` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-cycle5-sh.log` | `9b6ec6cf758249b30857e8030e5d7ab59728cf479a8c43127bf70701abc24a2f` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/red-cycle5-ps1.log` | `31194e8a53ee0c508a53d6ca127a6f991c72d81d4b39cf184ef8f6d46658f0a3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/green-cycle5-sh.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
 | `specs/epic-193-a5-capability-resolver/verification/T-004/green-cycle5-ps1.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-sh.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-ps1.log` | `e60da9468f9817f7d0592cbc8644ce14f6478b2a044ad131f7c207086b1a9e82` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-sh.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-ps1.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-wrong-version/resolver-evidence.schema.json` | `41634b0328c5acb1c95f80f156042d8fde9d81d8f4910924590cdf5bca1fd3eb` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-malformed/resolver-evidence.schema.json` | `54dcf34a93a6f8f1c7b9132fd8dfa9cf9f9789fe2e63d83075202d5955e92c4f` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
-| `tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py` | `8170c9857edea269dec1dba174e69e783172ee9d60209ab4440efc0e1b1415d8` |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py` | `746c8f384c7399329b967d2437cab3275eee217b92f865570ab00a18e4d64caa` |
 
 (`tests/resolve-project-context-block-check.py` is T-003-scope's own row
 this pass, since T-003's own commit is the one that will carry this
@@ -11341,6 +11341,151 @@ than worked around.
   code already discovers them correctly via the real ADR-0025 procedure,
   unchanged by this pass.
 
+## Confirmation-Panel Remediation (2026-08-24)
+
+A six-verdict confirmation panel (both vendors x T-003/T-004/T-005)
+returned NEEDS_WORK across the board. This task's own share of the
+findings, closed this pass:
+
+- **Minor (Anthropic) — `_draft7_validate`'s `pattern` used Python `$`
+  semantics**: JSON Schema's own `pattern` keyword fixes ECMA-262 regex
+  semantics, where `$` matches ONLY at the true end of the subject
+  string. Python's `re` module's own `$` additionally matches immediately
+  before a single trailing `\n` — a value ECMA-262/JSON-Schema itself
+  rejects (e.g. `"sha256:" + "a"*64 + "\n"` against `^sha256:[0-9a-f]{64}$`)
+  previously passed step 12's own defensive self-check. Fixed via a new
+  `_ecma_anchored_pattern` helper translating a trailing, unescaped `$`
+  to Python's own `\Z` (no trailing-newline exception); every governing
+  schema this feature discovers uses only this trailing shape, confirmed
+  directly. White-box test added to
+  `run_draft7_validator_keyword_checks` (a `feature` value carrying a
+  trailing newline, against the real `resolver-evidence.schema.json`).
+  Mutant kill (scratch clone, reverting to plain `re.search`): baseline
+  201/0 → mutant 200/1, exactly this new assertion, zero collateral.
+- **Minor (Anthropic) — the track_artifact failure branch of
+  `_self_validate_output` had no fixture**: step 12's track-exclusive-
+  artifact sub-case (AC-055(b)) was exercised only via the sibling
+  Context Projection fixture; the `track_artifact` branch itself (Facet
+  Manifest on `full`, Capability Summary on `lite`) was never observed
+  failing. New fixture: `output-schema-validation-failed-facet-manifest`
+  (a deliberately unsatisfiable `facet-manifest.schema.json` stand-in on
+  the Full track, Resolver Evidence and Context Projection both still
+  passing first) — this fixture's own real subprocess run through the
+  actual, unmutated branch is itself the demonstration; no separate
+  mutant needed for a previously-dead code path.
+- **Minor (Anthropic) — RFC-6901 test oracle hand-duplicated the
+  production escape**: `tests/resolve-project-context-block-check.py`'s
+  own `expected_dependency_pointers` called `_rfc6901_escape`, a
+  byte-for-byte copy of `_dependency_pointers`'s own escape logic — a
+  shared defect in the escape rule could pass both sides silently — and
+  no fixture in this driver's own scope ever exercised a `~`/`/`-bearing
+  component id (T-005's own `full-pipeline-match` fixture already does,
+  in a different suite). Fixed: replaced the computed escape with a
+  LITERAL, hand-transcribed lookup table
+  (`_KNOWN_COMPONENT_POINTER_ESCAPES`) covering the two escape-bearing
+  ids T-005's own fixture already hand-transcribes (`shared/util` →
+  `shared~1util`, `other~thing` → `other~0thing`), extended to this
+  driver's own scope via `recheck-dependency-failed`'s own PINNED
+  `affected_components` (that fixture's own Registry stays empty, so
+  only `context_binding.dependency_pointers[]` is affected by the
+  addition). Confirmed against the real, unmutated resolver's own written
+  Evidence (not vacuous).
+- **Major (both vendors, shared with T-003) — registry snapshot-
+  generation binding**: see `T-003.md`'s own "Confirmation-Panel
+  Remediation" section for the fix (`_recheck_registry_snapshot`, step
+  6.5) and its own honesty-limitation disclosure — this is the identical
+  Critical the OpenAI T-004 verdict raised.
+- **Major (both vendors) — `traceability.log` stale (third recurrence)**:
+  self-dated to "second pass" at HEAD `febf7898`, citing a superseded
+  MANIFEST hash (three supersessions behind: `ca3c95f6` →
+  `783b7f11`/`cb9f050b`/`f6bc6796` → this pass's own `673e634a`) and a
+  four-invocation/141-assertion state against the current 36-invocation/
+  201-assertion driver. Regenerated truthfully against current HEAD.
+  **Third-recurrence structural fix**: a new standalone suite,
+  `tests/traceability-log-freshness.tests.{sh,ps1}` (registered in
+  `tests/run-all.{sh,ps1}`), scans every
+  `verification/qg/T-0*/traceability.log` for a machine-readable
+  `TRACEABILITY-LOG-LIVE-TOTAL: driver=<path> result="RESULT: N passed,
+  M failed"` trailer, re-runs the cited driver for real, and fails
+  loudly on any mismatch. **Why a trailer, not a free-prose parser**: a
+  first attempt parsing the LAST "N passed / M failed" occurrence
+  directly out of each log's own prose failed on three genuinely
+  demonstrated failure modes — T-002's own citation line-wraps across two
+  lines, this file's own uses `" / "` where siblings use `", "`/`"/"`
+  without spaces, and T-005's own prose legitimately cites a LATER,
+  smaller mutant-kill count after its own genuine baseline, so "the last
+  number mentioned" is not reliably "the current true state." Editing
+  `check-contract.py` itself (the brief's own first-choice location) was
+  rejected: that file is guard-protected and out of every task's own
+  Planned Files. Trailers were added to T-003/T-004/T-005's own logs
+  (the three whose prose already claims to describe "the driver's
+  current live state"); T-001/T-002's own logs describe a fixed
+  historical snapshot and were left without one, by design, never
+  retrofitted. Verified: mutating a trailer's own cited count to a wrong
+  value makes the new suite FAIL with a clear "this traceability.log is
+  STALE" message; restoring it passes again (2/1 → 3/0, sanity-tested
+  directly, not assumed).
+- **Additional finding surfaced during triage, not fixed this pass**:
+  OpenAI's own T-004 Major named `AC-016`'s "byte-identical except
+  `state`" claim as unmet — checked directly and confirmed TRUE by
+  construction, not a test bug: `context_binding.full_context_revision`/
+  `projection_sha256` are hashes of bytes that themselves ENCODE
+  `workflow.capability_enforcement` (the canonical Project Context text
+  and the Context Projection's own verbatim `workflow` copy), so they
+  are structurally guaranteed to differ across an advisory/required
+  fixture pair for ANY correct implementation — requirements.md's own
+  AC-016 row text is the side that needs reconciling, not the code. This
+  is a frozen-document (requirements.md) conflict this task's own scope
+  cannot resolve at task level — recorded as a WFI candidate, not fixed.
+  (T-005's own match suite already narrows its comparably-scoped
+  `enforcement-byte-identity` fixture to exclude exactly these two fields
+  from its own byte-identity check, with a sanity assertion confirming
+  they genuinely DO differ — the identical fact this finding names,
+  already accounted for on the test side; only the requirements.md prose
+  itself remains unreconciled.) OpenAI's own regression.log Major (an
+  incomplete ps1 run) was independently found already resolved by an
+  earlier commit on this branch (`d392b5e4`, "record the completed ps1
+  regression run") — verified directly, not fixed again.
+
+### Outputs (confirmation-panel remediation pass, 2026-08-24)
+
+Supersedes the Fifth Pass's own `resolve-project-context.py`/
+`MANIFEST.sha256`/`T-004.contract.json` rows.
+
+| Path | SHA-256 (current worktree) |
+|---|---|
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `3245c79910c4cb2462f600863387a35e423929c856cb3c286e324befff2b9318` — `shasum -a 256 -c`: 4/4 OK |
+| `tests/resolve-project-context-block-check.py` | `e5a03640f1694cc60a9fca41e5a95da8af14c431f1465ad1522537f820d2fa70` (T-003's own row this pass owns this shared driver file; see `T-003.md`) |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/output-schema-validation-failed-facet-manifest/facet-manifest.schema.json` | `949da1c07d4c339649b7e44f6e011fef6b3646580b8657eabbd6f20dc40ceb19` |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py` | `746c8f384c7399329b967d2437cab3275eee217b92f865570ab00a18e4d64caa` |
+| `specs/epic-193-a5-capability-resolver/verification/T-004.contract.json` | `ecf5936ec230131272472beb25f21d922200a19dbf9743fe08b20561263be810` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/traceability.log` | `90023be4a26f56529f9ead0bc141e09485dc1c0b21bc5dd26d89e9b1acf8b86c` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-sh.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-004/focused-tests-ps1.log` | `93862324493dbe40d4d2e6d4b9d5093f7179c0d6b758685e9cdcdf373389b999` |
+| `tests/traceability-log-freshness.tests.sh` | `439b8fcf735f35f9c47ac9e3cc555baf1ed27f016afbb9914b126fba0bfd2b06` |
+| `tests/traceability-log-freshness.tests.ps1` | `e3aed5925131a22bf5ec20a1dfa203dadd2ace645b2c37e8facc2f8a2f281f3c` |
+| `tests/run-all.sh` | `03bc0b5ead841ea6a41cb54033bf1f15b17f5992d1fffed93bff9d642c1fac0c` |
+| `tests/run-all.ps1` | `d88f36eb58a4cc8c7cb168e3ee7173872f278252fcf6c9395f35e2f23c2f55a9` |
+
+### Re-verification
+
+- `bash tests/resolve-project-context-block.tests.sh` / `pwsh -File
+  tests/resolve-project-context-block.tests.ps1`: 201 passed / 0 failed,
+  both runtimes.
+- `bash tests/traceability-log-freshness.tests.sh` / `pwsh -File
+  tests/traceability-log-freshness.tests.ps1`: 3 passed / 0 failed, both
+  runtimes.
+- `python3 plugins/sdd-quality-loop/scripts/check-contract.py
+  specs/epic-193-a5-capability-resolver/verification/T-004.contract.json`:
+  `Verification contract passed for task T-004.`
+- `bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh`:
+  `workflow-state: ok`.
+- `bash plugins/sdd-quality-loop/scripts/check-task-state.sh
+  specs/epic-193-a5-capability-resolver/tasks.md`: `Task state check
+  passed for 10 task(s).`
+
 ## Session Handoff
 
 - **Current Status**: Implementation Complete
@@ -11348,14 +11493,18 @@ than worked around.
   (including the 2026-08-23 Second Pass, which closes the AC-056 gap
   T-005's own contract-authoring pass found earlier the same day, the
   2026-08-23 Third Pass, which closes the AC-024 diagnostics[]
-  stable-sort gap a cross-model panel found on both T-003 and T-004, and
-  the 2026-08-23 Fourth Pass, which closes this task's own three-finding
-  share of a refreshed two-vendor panel's NEEDS_WORK verdict) and Test
+  stable-sort gap a cross-model panel found on both T-003 and T-004, the
+  2026-08-23 Fourth Pass, which closes this task's own three-finding
+  share of a refreshed two-vendor panel's NEEDS_WORK verdict, and this
+  2026-08-24 "Confirmation-Panel Remediation" section) and Test
   Evidence, and owns the task-status flip to `Done`; a human
   separately reviews/applies the four `human-copy/` candidates (two
   updated by this task: `resolve-project-context.py` and
   `MANIFEST.sha256`).
-- **Unresolved Items**: see above.
+- **Unresolved Items**: see above. The AC-016 requirements.md/design
+  conflict named above is recommended as a WFI candidate for the epic
+  owner's own attention (frozen-document text vs. structural
+  construction, not resolvable inside this task's own diff).
 # ---- CHANGELOG.md (declared output) ----
 # Changelog
 
@@ -11440,7 +11589,7 @@ than worked around.
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851  .github/workflows/test.yml
-f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+673e634a3117a70a0d5a8db393d18cce9c8faa47ef5d4a8d1e13ef773538b45f  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -11727,8 +11876,26 @@ def _discover_registry(script_dir):
     sys.path.insert(0, str(script_dir))
     try:
         import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)
-    except ImportError as exc:
-        raise ContractDiscoveryFailed(f"registry_discovery module not importable: {exc}") from exc
+    except Exception as exc:  # noqa: BLE001 (deliberately broad -- see below)
+        # Cross-model confirmation-panel finding (Anthropic T-003 Minor
+        # B5): a co-located sibling-module import failure for any reason
+        # OTHER than ImportError (a SyntaxError, or any exception raised
+        # at that module's own top level) previously escaped this site's
+        # narrow `except ImportError` uncaught -- a raw Python traceback,
+        # no `capability-resolver:` diagnostic line, no Resolver Evidence
+        # written at all, exactly the failure mode the registry-
+        # discovery-unimportable fixture exists to close, and (since a
+        # SyntaxError's own `str()` embeds the failing file's absolute
+        # path) a security-spec.md B5 no-local-path-in-committed-output
+        # containment bypass. Widened to the broad `except Exception` a
+        # module-level import genuinely warrants; only the exception's
+        # own CLASS NAME is interpolated below, never `str(exc)` -- the
+        # identical containment rule `_load_governing_schema` (step 12)
+        # already applies to its own read/parse failure two sections
+        # below, reused here rather than reinvented.
+        raise ContractDiscoveryFailed(
+            f"registry_discovery module not importable ({type(exc).__name__})"
+        ) from exc
 
     try:
         registry_path = registry_discovery.discover_artifact("capability-registry.json")
@@ -11736,11 +11903,55 @@ def _discover_registry(script_dir):
     except registry_discovery.DiscoveryError as exc:
         raise ContractDiscoveryFailed(str(exc)) from exc
     try:
-        with registry_path.open("r", encoding="utf-8") as handle:
-            registry_document = json.load(handle)
-    except (OSError, json.JSONDecodeError) as exc:
+        registry_raw = registry_path.read_bytes()
+        registry_document = json.loads(registry_raw.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ContractDiscoveryFailed(str(exc)) from exc
-    return registry_path, registry_document
+    # T-004 confirmation-panel Critical (OpenAI) / T-003 Majors (both
+    # vendors agree): `registry_document` (this read), `validate-
+    # capability-registry` (below, an independent re-read of the SAME
+    # `registry_path`), and `generate-registry-digest --whole` (an
+    # independent re-DISCOVERY-and-read) are three separate reads of the
+    # Registry with no binding between them -- neither dependency CLI
+    # accepts a path/bytes argument, and adding one is outside every
+    # task's own Planned Files, so that route stays closed. The raw bytes
+    # digest retained here is this invocation's own single, authoritative
+    # snapshot identity for `registry_path`, compared by
+    # `_recheck_registry_snapshot` (below) immediately after those two
+    # dependency invocations complete.
+    registry_snapshot_digest = hashlib.sha256(registry_raw).hexdigest()
+    return registry_path, registry_document, registry_snapshot_digest
+
+
+def _recheck_registry_snapshot(registry_path, expected_digest):
+    """Detection-only recheck closing the Critical/Major cross-model
+    confirmation-panel finding above: this invocation re-reads the SAME
+    `registry_path` its own `_discover_registry` call already resolved,
+    right after `validate-capability-registry` and `generate-registry-
+    digest --whole` have each independently read the Registry on their
+    own, and compares the fresh bytes' own digest against the one
+    retained at `_discover_registry`'s own first read. Any difference --
+    including this re-read itself failing outright, which is at least as
+    suspicious as a genuine byte difference -- raises
+    SnapshotGenerationMismatch, this design's own existing vocabulary for
+    exactly this condition (step 13's own TOCTOU recheck below reuses the
+    identical `snapshot-generation-mismatch` diagnostic id).
+
+    Honesty limitation, disclosed in the T-004 implementation report:
+    this detects a Registry swap across THIS invocation's own read
+    window (`_discover_registry` through this call, spanning the
+    `validate-capability-registry`/`generate-registry-digest --whole`
+    subprocess invocations in between); it cannot observe, and makes no
+    claim about, what bytes those two subprocesses themselves actually
+    read inside their own separate processes -- only that the bytes at
+    `registry_path`, as seen from THIS process, are unchanged across the
+    window."""
+    try:
+        current_raw = registry_path.read_bytes()
+    except OSError as exc:
+        raise SnapshotGenerationMismatch(f"registry re-read failed: {exc}") from exc
+    if hashlib.sha256(current_raw).hexdigest() != expected_digest:
+        raise SnapshotGenerationMismatch("registry bytes changed since discovery")
 
 
 def _validate_capability_registry(script_dir, registry_path):
@@ -11874,16 +12085,25 @@ def _evidence_has_warn(evidence_nodes):
 def _warn_diagnostic_detail(capability_id, component_id, declaration_index, node_path, node):
     """AC-056: one `severity: "warn"` diagnostics[] entry's own `detail`
     per individual `outcome: "warn"` DSL-evaluation node, naming that
-    node's own `capability_id`/`component_id`/`declaration_index`
-    location plus its own tree position/DSL attributes -- guaranteeing a
-    distinct `detail` per node even across two nodes sharing an identical
-    location (AC-024 no-`(id, detail)`-repeat), and always distinct from
-    the summary `severity: "block"` entry's own fixed sentence (below),
-    which carries no location suffix at all."""
-    location = (
-        f"capability_id={capability_id!r} component_id={component_id!r} "
-        f"declaration_index={declaration_index!r}"
-    )
+    node's own `capability_id`/`component_id`/(`declaration_index`, only
+    for a `conditional_facets[].when` node -- requirements.md REQ-004's
+    own diagnostics[] severity paragraph, AC-056) location plus its own
+    tree position/DSL attributes -- guaranteeing a distinct `detail` per
+    node even across two nodes sharing an identical location (AC-024
+    no-`(id, detail)`-repeat), and always distinct from the summary
+    `severity: "block"` entry's own fixed sentence (below), which carries
+    no location suffix at all.
+
+    Cross-model confirmation-panel Minor (Anthropic T-003): REQ-004
+    scopes `declaration_index` to a `when` node only -- a trigger-
+    evaluation node (the caller's own `None` sentinel) never carries that
+    key at all, not even as a literal `declaration_index=None`. The
+    `location` text below omits the `declaration_index=...` clause
+    entirely when `declaration_index is None`, rather than rendering it
+    unconditionally."""
+    location = f"capability_id={capability_id!r} component_id={component_id!r}"
+    if declaration_index is not None:
+        location += f" declaration_index={declaration_index!r}"
     node_position = ".".join(str(index) for index in node_path)
     return (
         f"a predicate evaluation produced an outcome: warn evidence node at {location} "
@@ -12364,6 +12584,25 @@ def _draft7_resolve_ref(ref, root_schema):
     return node
 
 
+def _ecma_anchored_pattern(pattern):
+    """T-004 confirmation-panel Minor (Anthropic): JSON Schema's own
+    `pattern` keyword fixes ECMA-262 regex semantics, where `$` matches
+    ONLY at the true end of the subject string. Python's `re` module's own
+    `$` additionally matches immediately before a single trailing `\\n`,
+    so `re.search(r"^sha256:[0-9a-f]{64}$", "sha256:" + "a" * 64 + "\\n")`
+    -- a value ECMA-262/JSON-Schema itself rejects -- previously passed
+    this file's own step-12 defensive self-check. Every governing schema
+    this feature discovers (`sha256Digest`'s `^sha256:[0-9a-f]{64}$`,
+    `feature`'s `^[a-z0-9][a-z0-9-]*$`, confirmed directly against all
+    four landed documents) uses only a trailing, unescaped `$` -- the one
+    shape translated here, to Python's own `\\Z` (true-end-of-string,
+    no trailing-newline exception); a `$` anywhere else in a pattern, or
+    an escaped `\\$` (a literal dollar sign), is left untouched."""
+    if pattern.endswith("$") and (len(pattern) < 2 or pattern[-2] != "\\"):
+        return pattern[:-1] + r"\Z"
+    return pattern
+
+
 def _draft7_matches(instance, schema, root_schema):
     probe = []
     _draft7_validate(instance, schema, root_schema, "", probe)
@@ -12408,7 +12647,7 @@ def _draft7_validate(instance, schema, root_schema, pointer, diags):
     if "not" in schema and _draft7_matches(instance, schema["not"], root_schema):
         diags.append(pointer)
     if isinstance(instance, str):
-        if "pattern" in schema and not re.search(schema["pattern"], instance):
+        if "pattern" in schema and not re.search(_ecma_anchored_pattern(schema["pattern"]), instance):
             diags.append(pointer)
         if "minLength" in schema and len(instance) < schema["minLength"]:
             diags.append(pointer)
@@ -12710,7 +12949,7 @@ def main(argv=None):
 
     # Step 5: Registry discovery (ADR-0025) + validate-capability-registry.
     try:
-        registry_path, registry_document = _discover_registry(script_dir)
+        registry_path, registry_document, registry_snapshot_digest = _discover_registry(script_dir)
     except ContractDiscoveryFailed:
         detail = "registry discovery failed to locate or verify capability-registry.json or capability-registry.schema.json"
         return _block(repo_root, args.feature, "contract-discovery-failed", detail, state)
@@ -12735,6 +12974,27 @@ def main(argv=None):
     except DependencyOutputMalformed:
         detail = "generate-registry-digest returned malformed output while computing registry_digest"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state)
+
+    # Step 6.5 (cross-model confirmation-panel Critical/Major remediation,
+    # both vendors): neither `validate-capability-registry` above nor
+    # `generate-registry-digest --whole` above accepts a path/bytes
+    # argument binding it to THIS invocation's own step-5 `registry_
+    # document` read -- each independently re-discovers/re-reads the
+    # Registry on its own. A Registry swap across that window would let
+    # an unvalidated document reach steps 7-9 while `registry_digest`
+    # describes different bytes entirely. Detection only (see
+    # `_recheck_registry_snapshot`'s own honesty-limitation docstring):
+    # this invocation re-reads the identical `registry_path` right now
+    # and compares against the raw-bytes digest retained at step 5's own
+    # first read.
+    try:
+        _recheck_registry_snapshot(registry_path, registry_snapshot_digest)
+    except SnapshotGenerationMismatch:
+        detail = (
+            "the Registry changed between this invocation's own discovery read (step 5) and its "
+            "post-validation/digest recheck (step 6)"
+        )
+        return _block(repo_root, args.feature, "snapshot-generation-mismatch", detail, state)
 
     # Steps 7-8: per-Capability/per-component trigger evaluation and
     # matched-Capability conditional-facet evaluation.
@@ -13279,17 +13539,41 @@ def real_resolve_component_paths_context_binding(repo, config_rel, source_rev, t
     return parsed["affected_components"], parsed["context_binding"]["ownership_digest"]
 
 
-def _rfc6901_escape(token):
-    return token.replace("~", "~0").replace("/", "~1")
+# Cross-model confirmation-panel Minor (Anthropic T-004): every literal
+# entry here is hand-transcribed, never computed by calling `_dependency_
+# pointers`/`_rfc6901_escape` (resolve-project-context.py) or replicating
+# their own `.replace("~", "~0").replace("/", "~1")` logic -- a shared
+# defect in that escape rule could otherwise pass both sides silently.
+# `"shared/util"`/`"other~thing"` -> `"shared~1util"`/`"other~0thing"` are
+# the identical two escape-bearing ids T-005's own `full-pipeline-match`
+# fixture (tests/resolve-project-context-match-check.py) already
+# hand-transcribes this SAME way against the SAME production function;
+# `expected_dependency_pointers` below extends that literal-string style
+# to this driver's own scope (`recheck-dependency-failed`, below, is the
+# one fixture here whose own `affected_components` are pinned rather than
+# derived from a real git diff, so it is where those two escape-bearing
+# ids are exercised).
+_KNOWN_COMPONENT_POINTER_ESCAPES = {
+    "comp-a": "comp-a",
+    "shared/util": "shared~1util",
+    "other~thing": "other~0thing",
+}
 
 
 def expected_dependency_pointers(affected_components):
     """Independent mirror of `_dependency_pointers` (Data Plan "B9"):
     exactly `/workflow` plus one RFC-6901-escaped `/components/<id>`
-    pointer per affected component, stable-sorted and de-duplicated."""
+    pointer per affected component, stable-sorted and de-duplicated --
+    via the LITERAL lookup table above, never a computed escape (see that
+    table's own docstring)."""
     pointers = {"/workflow"}
     for component_id in affected_components:
-        pointers.add("/components/" + _rfc6901_escape(component_id))
+        if component_id not in _KNOWN_COMPONENT_POINTER_ESCAPES:
+            raise AssertionError(
+                f"expected_dependency_pointers: no literal escape known for {component_id!r} -- "
+                "add it to _KNOWN_COMPONENT_POINTER_ESCAPES (hand-transcribed, never computed)"
+            )
+        pointers.add("/components/" + _KNOWN_COMPONENT_POINTER_ESCAPES[component_id])
     return sorted(pointers)
 
 CASES = (
@@ -13387,11 +13671,14 @@ ALL_CASE_NAMES = (
         "lite-check-source-undefined",
         "output-schema-validation-failed-evidence",
         "output-schema-validation-failed-artifact",
+        "output-schema-validation-failed-facet-manifest",
         "snapshot-generation-mismatch",
         "contract-discovery-failed-governing-schema",
         "contract-discovery-failed-governing-schema-wrong-version",
         "contract-discovery-failed-governing-schema-malformed",
         "recheck-dependency-failed",
+        "registry-swapped-during-validation",
+        "registry-discovery-syntax-error",
     ]
 )
 
@@ -13513,11 +13800,17 @@ def expected_warn_diagnostic(capability_id, component_id, declaration_index, nod
     matching `real_evaluate_predicate`'s own discipline above) so a
     `severity: "warn"` diagnostics[] entry's own `detail` can be asserted
     exactly for the three `dsl-warn-*` T-003 fixtures below, each of which
-    now legitimately carries more than one diagnostics[] entry."""
-    location = (
-        f"capability_id={capability_id!r} component_id={component_id!r} "
-        f"declaration_index={declaration_index!r}"
-    )
+    now legitimately carries more than one diagnostics[] entry.
+
+    Cross-model confirmation-panel Minor (Anthropic T-003): REQ-004
+    scopes `declaration_index` to a `conditional_facets[].when` node
+    only -- mirrors production's own omission of the
+    `declaration_index=...` clause for a trigger-evaluation node
+    (`declaration_index is None`), never a literal `declaration_index=
+    None`."""
+    location = f"capability_id={capability_id!r} component_id={component_id!r}"
+    if declaration_index is not None:
+        location += f" declaration_index={declaration_index!r}"
     node_position = ".".join(str(index) for index in node_path)
     detail = (
         f"a predicate evaluation produced an outcome: warn evidence node at {location} "
@@ -13542,7 +13835,11 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "resolve-component-paths.py"
         elif case_name == "dependency-subprocess-failed":
             stub_name = "generate-registry-digest.py"
+        elif case_name == "registry-swapped-during-validation":
+            stub_name = "generate-registry-digest.py"
         elif case_name == "registry-discovery-unimportable":
+            stub_name = "registry_discovery.py"
+        elif case_name == "registry-discovery-syntax-error":
             stub_name = "registry_discovery.py"
         elif case_name == "evaluate-predicate-output-malformed":
             stub_name = "evaluate-predicate.py"
@@ -13614,6 +13911,22 @@ def run_t003_case(kind, case_name, counts):
                 "or capability-registry.schema.json"
             )
 
+        elif case_name == "registry-discovery-syntax-error":
+            # Cross-model confirmation-panel Minor (Anthropic, security-
+            # spec.md B5): a THIRD, independent trigger for the identical
+            # `contract-discovery-failed` diagnostic -- a co-located
+            # sibling module that fails to import with a `SyntaxError`
+            # (never `ImportError`), the exact class `_discover_registry`'s
+            # own narrow `except ImportError` previously let escape
+            # uncaught as a raw traceback embedding this fixture's own
+            # absolute path. Byte-identical canonical output to the
+            # `registry-discovery-unimportable` fixture above.
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "registry discovery failed to locate or verify capability-registry.json "
+                "or capability-registry.schema.json"
+            )
+
         elif case_name == "registry-validation-failed":
             expected_id = "registry-validation-failed"
             expected_detail = "capability-registry.json failed validate-capability-registry checks"
@@ -13625,6 +13938,22 @@ def run_t003_case(kind, case_name, counts):
         elif case_name == "dependency-subprocess-failed":
             expected_id = "dependency-subprocess-failed"
             expected_detail = "generate-registry-digest failed while computing registry_digest"
+
+        elif case_name == "registry-swapped-during-validation":
+            # T-004 confirmation-panel Critical (OpenAI)/Major (both
+            # vendors): closes the "three independent Registry reads, no
+            # binding" gap. This fixture's own `generate-registry-digest`
+            # stub overwrites the discovered Registry file in place as a
+            # side effect of step 6's own dependency invocation; step 6.5's
+            # `_recheck_registry_snapshot` must detect the swap and Block
+            # `snapshot-generation-mismatch` -- the identical id/vocabulary
+            # step 13's own TOCTOU recheck already uses, never a bespoke
+            # second id for the identical condition.
+            expected_id = "snapshot-generation-mismatch"
+            expected_detail = (
+                "the Registry changed between this invocation's own discovery read (step 5) and its "
+                "post-validation/digest recheck (step 6)"
+            )
 
         elif case_name == "evaluate-predicate-output-malformed":
             state = "advisory"
@@ -13862,6 +14191,20 @@ def run_t004_case(kind, case_name, counts):
         elif case_name == "output-schema-validation-failed-artifact":
             expected_id = "output-schema-validation-failed"
             expected_detail = "the staged context-projection artifact failed its own defensive output schema self-validation"
+        elif case_name == "output-schema-validation-failed-facet-manifest":
+            # Cross-model confirmation-panel Minor (Anthropic T-004):
+            # step 12's track-exclusive-artifact sub-case (AC-055(b)) was
+            # previously exercised only via Context Projection's own
+            # sibling fixture above -- the `track_artifact` branch itself
+            # (Facet Manifest on `full`, Capability Summary on `lite`) had
+            # no fixture of its own. This fixture overrides
+            # `facet-manifest.schema.json` with a deliberately
+            # unsatisfiable stand-in on the Full track, so a genuinely
+            # well-formed, staged Facet Manifest fails step 12's own last
+            # check (Resolver Evidence and Context Projection both still
+            # pass first).
+            expected_id = "output-schema-validation-failed"
+            expected_detail = "the staged facet-manifest artifact failed its own defensive output schema self-validation"
         elif case_name == "snapshot-generation-mismatch":
             stub_name = "generate-registry-digest.py"
             expected_id = "snapshot-generation-mismatch"
@@ -13958,6 +14301,8 @@ def run_t004_case(kind, case_name, counts):
             shutil.copy2(fixture_dir / "resolver-evidence.schema.json", repo / "contracts/resolver-evidence.schema.json")
         if (fixture_dir / "context-projection.schema.json").is_file():
             shutil.copy2(fixture_dir / "context-projection.schema.json", repo / "contracts/context-projection.schema.json")
+        if (fixture_dir / "facet-manifest.schema.json").is_file():
+            shutil.copy2(fixture_dir / "facet-manifest.schema.json", repo / "contracts/facet-manifest.schema.json")
         if case_name == "contract-discovery-failed-governing-schema":
             # Neither the packaged (`plugins/sdd-quality-loop/contracts/`,
             # never populated by any fixture in this driver, module
@@ -14016,7 +14361,14 @@ def run_t004_case(kind, case_name, counts):
                 # first-call output" discipline `snapshot-generation-
                 # mismatch` already applies to its own `registry_digest`,
                 # below.
-                affected_components = ["comp-a"]
+                # Cross-model confirmation-panel Minor (Anthropic T-004,
+                # RFC-6901 escape non-vacuity): the stub's own fixed
+                # output additionally carries two escape-bearing ids
+                # (shared/util, other~thing) alongside comp-a, so
+                # expected_dependency_pointers below exercises the
+                # literal ~->~0//->~1 lookup, not only the no-escape
+                # identity case.
+                affected_components = ["comp-a", "shared/util", "other~thing"]
                 ownership_digest = "sha256:" + ("0" * 64)
             else:
                 affected_components, ownership_digest = real_resolve_component_paths_context_binding(
@@ -14478,6 +14830,30 @@ def run_draft7_validator_keyword_checks(counts):
         "draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)",
     )
 
+    # Cross-model confirmation-panel Minor (Anthropic T-004): `pattern`
+    # fixes ECMA-262 semantics, where `$` matches ONLY at the true end of
+    # the subject string -- Python's own `$` additionally matches
+    # immediately before a single trailing `\n`. `feature`'s own
+    # `^[a-z0-9][a-z0-9-]*$` pattern (this same governing schema's own
+    # top-level `feature` property) is the white-box probe: a value
+    # carrying a trailing newline is schema-illegal under ECMA-262/JSON-
+    # Schema semantics and must be rejected, never silently accepted by a
+    # Python-`$`-specific loophole.
+    trailing_newline_envelope = dict(envelope(unmatched_conforming))
+    trailing_newline_envelope["feature"] = "example-feature\n"
+    counts.check(
+        not resolver_module._draft7_conforms(trailing_newline_envelope, schema),
+        "draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, "
+        "never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics "
+        "(resolver-evidence.schema.json feature pattern)",
+    )
+    clean_envelope = dict(envelope(unmatched_conforming))
+    clean_envelope["feature"] = "example-feature"
+    counts.check(
+        resolver_module._draft7_conforms(clean_envelope, schema),
+        "draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)",
+    )
+
 
 # --- T-004 cross-model panel finding, Major #3: draft-07 engine coverage ---
 # meta-assertion ------------------------------------------------------------
@@ -14638,12 +15014,15 @@ def main():
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
             "dsl-warn-unsorted-affected-components",
+            "registry-swapped-during-validation",
+            "registry-discovery-syntax-error",
         ):
             run_t003_case(args.launcher, case_name, counts)
         for case_name in (
             "lite-check-source-undefined",
             "output-schema-validation-failed-evidence",
             "output-schema-validation-failed-artifact",
+            "output-schema-validation-failed-facet-manifest",
             "snapshot-generation-mismatch",
             "contract-discovery-failed-governing-schema",
             "contract-discovery-failed-governing-schema-wrong-version",

@@ -55,25 +55,33 @@ Four sections:
    AC-055's own dual-artifact-scope): `lite-check-source-undefined`,
    `output-schema-validation-failed` (sub-case a: Resolver Evidence itself
    fails; sub-case b: a non-Evidence staged artifact fails), and the first,
-   digest-mismatch `snapshot-generation-mismatch` fixture. Two of Epic A4's
-   own three governing output schemas this stage's step 12 self-validates
-   against (`context-projection.schema.json`, `capability-summary.
-   schema.json`) are not yet landed on this branch (Epic A4's own PR has
-   not merged here; T-003's own Dependency Preflight already recorded the
-   identical gap for its own, narrower scope) -- `install_t003_dependencies`
-   below plants this suite's own test-harness-only stand-in copies (their
-   real Epic A4 field shapes, transcribed verbatim from `specs/
-   epic-192-a4-facet-manifest/design.md`'s own frozen API/Contract Plan;
-   `facet-manifest.schema.json` and `resolver-evidence.schema.json` are
-   both real, already-landed contracts and are copied as-is) into every
-   fixture's own isolated `contracts/` directory, exactly like this
-   driver's own already-established "real dependency plus one
-   deliberately-failing stub/schema" pattern. `capability-summary.
-   schema.json` is planted for completeness/future reuse but is never
-   actually exercised by any of this task's own four fixtures below (each
-   is deliberately shaped to Block, or to fail, before step 12 would ever
-   reach a Capability Summary schema check -- see T-004's own
-   implementation report for the exact reasoning).
+   digest-mismatch `snapshot-generation-mismatch` fixture. All four of Epic
+   A4's own governing output schemas this stage's step 12 self-validates
+   against -- `facet-manifest.schema.json`, `resolver-evidence.schema.json`,
+   `context-projection.schema.json`, `capability-summary.schema.json` -- are
+   now landed at `ROOT/contracts/` (confirmation-panel Major, 2026-08-24:
+   an earlier revision of this comment/`install_t003_dependencies` still
+   planted this suite's own test-harness-only stand-in copies for the last
+   two, one of them deliberately LOOSER than the real, now-landed contract
+   -- `projectedComponent: {"additionalProperties": true}, vs. the real
+   schema's own closed, explicitly-enumerated property set -- so no
+   assertion in this suite could ever fail on a staged Context Projection
+   that violated Epic A4's REAL contract). `install_t003_dependencies`
+   below now plants the REAL files at `ROOT/contracts/` for all four,
+   identically to `run_draft7_keyword_coverage_check`'s own
+   `GOVERNING_SCHEMA_FILES` (which already read the real files, never the
+   stand-ins) -- into every fixture's own isolated `contracts/` directory,
+   exactly like this driver's own already-established "real dependency
+   plus one deliberately-failing stub/schema" pattern.
+   `capability-summary.schema.json` was already byte-identical between the
+   stand-in and the real contract (confirmed by diff before this change),
+   so only `context-projection.schema.json` changes this suite's own
+   observable behavior. `capability-summary.schema.json` is planted for
+   completeness/future reuse but is never actually exercised by any of
+   this task's own four fixtures below (each is deliberately shaped to
+   Block, or to fail, before step 12 would ever reach a Capability Summary
+   schema check -- see T-004's own implementation report for the exact
+   reasoning).
 6. Cross-model panelist remediation (T-003.panelist-anthropic.verdict.json,
    three Major findings), four fixtures added to sections 3-4's own
    pattern: `resolve-component-paths-launch-failed` (step 4's own OSError
@@ -344,16 +352,15 @@ PROVIDER_TERMS_REAL = ROOT / "plugins/sdd-quality-loop/references/provider-terms
 EVALUATE_PREDICATE_REAL = ROOT / "plugins/sdd-quality-loop/scripts/evaluate-predicate.py"
 EMPTY_REGISTRY_PATH = PROJECTION_FIXTURES / "capability-registry-empty.json"
 
-# T-004 (steps 10-13): step 12's own four governing output schemas.
-# `facet-manifest.schema.json`/`resolver-evidence.schema.json` are real,
-# already-landed contracts; `context-projection.schema.json`/`capability-
-# summary.schema.json` are this suite's own test-harness-only stand-ins
-# for Epic A4's own two not-yet-landed schemas (see module docstring,
-# section 5).
+# T-004 (steps 10-13): step 12's own four governing output schemas -- all
+# four now real, already-landed `ROOT/contracts/` contracts (confirmation-
+# panel Major, 2026-08-24: see module docstring, section 5, for why the
+# earlier `context-projection.schema.json` stand-in was loosened and had
+# to be replaced, not merely relabeled).
 FACET_MANIFEST_SCHEMA_REAL = ROOT / "contracts/facet-manifest.schema.json"
 RESOLVER_EVIDENCE_SCHEMA_REAL = SCHEMA
-CONTEXT_PROJECTION_SCHEMA_STANDIN = PROJECTION_FIXTURES / "context-projection.schema.json"
-CAPABILITY_SUMMARY_SCHEMA_STANDIN = PROJECTION_FIXTURES / "capability-summary.schema.json"
+CONTEXT_PROJECTION_SCHEMA_REAL = ROOT / "contracts/context-projection.schema.json"
+CAPABILITY_SUMMARY_SCHEMA_REAL = ROOT / "contracts/capability-summary.schema.json"
 
 
 def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, registry_capabilities_path=None):
@@ -384,8 +391,8 @@ def install_t003_dependencies(repo, scripts, fixture_dir, stub_name=None, regist
     # `install_scripts`/`_discover_registry` convention.
     shutil.copy2(FACET_MANIFEST_SCHEMA_REAL, contracts / "facet-manifest.schema.json")
     shutil.copy2(RESOLVER_EVIDENCE_SCHEMA_REAL, contracts / "resolver-evidence.schema.json")
-    shutil.copy2(CONTEXT_PROJECTION_SCHEMA_STANDIN, contracts / "context-projection.schema.json")
-    shutil.copy2(CAPABILITY_SUMMARY_SCHEMA_STANDIN, contracts / "capability-summary.schema.json")
+    shutil.copy2(CONTEXT_PROJECTION_SCHEMA_REAL, contracts / "context-projection.schema.json")
+    shutil.copy2(CAPABILITY_SUMMARY_SCHEMA_REAL, contracts / "capability-summary.schema.json")
 
 
 def git_commit_all(repo, message):
@@ -575,6 +582,18 @@ def run_t003_case(kind, case_name, counts):
             )
 
         elif case_name == "registry-validation-failed":
+            # Confirmation-panel Minor (Anthropic T-004, `_resolved_gates`
+            # dangling-`gate_ids` silent-drop): this fixture's own
+            # Registry (`cap-dangling`, `gate_ids: ["nonexistent-gate"]`
+            # against `gates: []`) is ALSO the proof this invocation
+            # Blocks at step 5 (Epic A2 `validate-capability-registry`
+            # check (f) `dangling-gate-reference`) and never reaches step
+            # 10's own `_resolved_gates` join -- i.e. that function's own
+            # `gate_id not in gates_by_id` branch is unreachable
+            # defense-in-depth in production, not a live under-population
+            # path. Asserted below (`exit 1`, this id, and step 10-13
+            # never runs at all on a step-5 Block) rather than duplicated
+            # into a second, differently-named fixture.
             expected_id = "registry-validation-failed"
             expected_detail = "capability-registry.json failed validate-capability-registry checks"
 
@@ -632,20 +651,28 @@ def run_t003_case(kind, case_name, counts):
             expected_detail = "a Registry-declared predicate failed predicate-schema validation"
 
         elif case_name == "evaluate-predicate-failure-after-warn":
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3, Major
-            # #2): steps 7-8's own three abort handlers (registry-
-            # validation-failed / dependency-subprocess-failed /
-            # dependency-output-malformed) previously omitted every
-            # already-collected `severity: "warn"` diagnostics[] entry on
-            # abort. This fixture's own Registry declares TWO capabilities
-            # in declaration order: `cap-warn-first` (a real WARN outcome
-            # on comp-a, fully evaluated and appended to `capability_
-            # evaluations` first) then `cap-fails-second` (whose own
-            # trigger evaluation is this fixture's own stubbed `evaluate-
-            # predicate`'s SECOND invocation, which fails with a generic
-            # non-zero exit) -- proving the WARN entry `_evaluate_
-            # capabilities` already collected for cap-warn-first survives
-            # the later abort rather than vanishing.
+            # Confirmation-panel finding (2026-08-24, both vendors
+            # converged): the shape this fixture previously locked in --
+            # forwarding steps 7-8's already-collected `severity: "warn"`
+            # `dsl-warn-on-matched-capability` entries into an abort Block
+            # under a DIFFERENT id -- is exactly what requirements.md's own
+            # AC-056 sentence forbids ("a dsl-warn-on-matched-capability id
+            # therefore never appears with only severity: warn entries and
+            # no severity: block summary entry"): step 9's own summary
+            # entry is never reached on this abort path, so a forwarded
+            # warn entry would be warn-only for that id. This fixture's own
+            # Registry still declares TWO capabilities in declaration
+            # order: `cap-warn-first` (a real WARN outcome on comp-a, fully
+            # evaluated and appended to `capability_evaluations` first --
+            # this half is UNCHANGED, since AC-024/REQ-004 govern
+            # `capability_evaluations[]` independently of `diagnostics[]`)
+            # then `cap-fails-second` (whose own trigger evaluation is this
+            # fixture's own stubbed `evaluate-predicate`'s SECOND
+            # invocation, which fails with a generic non-zero exit). The
+            # already-collected WARN entry for cap-warn-first is now
+            # correctly DROPPED, not forwarded, on this abort path --
+            # `expected_warn_diagnostics` stays empty, matching every other
+            # non-`dsl-warn-*` case.
             state = "advisory"
             (repo / "comp-a").mkdir()
             (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
@@ -661,9 +688,6 @@ def run_t003_case(kind, case_name, counts):
                 "matched": False,
                 "trigger_evaluations": [{"component_id": "comp-a", "result": False, "evidence": [warn_evidence_node]}],
             }]
-            expected_warn_diagnostics = [
-                expected_warn_diagnostic("cap-warn-first", "comp-a", None, (0,), warn_evidence_node),
-            ]
 
         elif case_name == "dsl-warn-unsorted-affected-components":
             # AC-056: two independent WARN nodes (comp-a's own trigger
@@ -755,11 +779,48 @@ def run_t003_case(kind, case_name, counts):
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
+        # Confirmation-panel Major (2026-08-24, both vendors): REQ-005/
+        # design.md step 4/security-spec.md B5 all require a dependency
+        # subprocess's own stderr to "remain visible to a human operator
+        # on the terminal exactly as that subprocess itself already
+        # writes it" -- this feature's own canonical `<detail>` sentence
+        # is the only thing that must never quote it verbatim. The old
+        # exact-equality assertion (`stderr == expected_line`, asserting
+        # "FIXTURE_INJECTED_FAILURE" ABSENT) therefore locked in the
+        # violating, fully-suppressed shape; it would fail now that
+        # `_reemit_dependency_stderr` passes a failing dependency's own
+        # stderr through before this feature's own canonical line. This
+        # asserts stdout stays empty and the canonical line is present and
+        # LAST on stderr (re-emitted upstream content, if any, precedes
+        # it) -- a fixture whose own stub writes no stderr (most cases
+        # above) still passes, since `stderr == expected_line` is one
+        # valid case of `stderr.endswith(expected_line)`.
         counts.check(
-            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
-            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            stdout == "" and stderr.endswith(expected_line),
+            f"{case_name}: canonical diagnostic line present and last on stderr (B5)",
             f"stdout={stdout!r} stderr={stderr!r}",
         )
+        # Mutation-kill for the pass-through itself: `endswith` alone is
+        # satisfied even with NO re-emit at all (an empty prefix is a
+        # valid "ends with"), so it cannot by itself detect
+        # `_reemit_dependency_stderr` being dropped. These three fixtures'
+        # own stub dependencies (`resolve-component-paths.py`/
+        # `generate-registry-digest.py`/`evaluate-predicate.py`) write a
+        # KNOWN, fixed line to their own stderr on the exact failure this
+        # case exercises -- asserting stderr is EXACTLY that upstream line
+        # followed by the canonical line fails if the re-emit call is
+        # ever removed (stderr would then be only the canonical line).
+        injected_stderr_by_case = {
+            "affected-component-resolution-failed": "resolve-component-paths: FIXTURE_INJECTED_FAILURE\n",
+            "dependency-subprocess-failed": "generate-registry-digest: FIXTURE_INJECTED_FAILURE\n",
+            "evaluate-predicate-failure-after-warn": "FIXTURE_INJECTED_FAILURE: evaluate-predicate failed on its second invocation\n",
+        }
+        if case_name in injected_stderr_by_case:
+            counts.check(
+                stderr == injected_stderr_by_case[case_name] + expected_line,
+                f"{case_name}: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)",
+                f"stderr={stderr!r}",
+            )
 
         evidence_path = feature_dir / "resolver-evidence.yaml"
         evidence, parse_error = read_evidence(evidence_path)
@@ -1070,11 +1131,26 @@ def run_t004_case(kind, case_name, counts):
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        # Confirmation-panel Major (2026-08-24, both vendors) -- same fix
+        # as `run_t003_case` above, since this stage's own step-13 recheck
+        # reuses the identical `_run_resolve_component_paths` dependency
+        # call site: the canonical line must be present and LAST, no
+        # longer the WHOLE stream.
         counts.check(
-            stdout == "" and stderr == expected_line and "FIXTURE_INJECTED_FAILURE" not in stderr,
-            f"{case_name}: canonical diagnostic only, no upstream stderr embedded (M8)",
+            stdout == "" and stderr.endswith(expected_line),
+            f"{case_name}: canonical diagnostic line present and last on stderr (B5)",
             f"stdout={stdout!r} stderr={stderr!r}",
         )
+        if case_name == "recheck-dependency-failed":
+            # Mutation-kill: this fixture's own `resolve-component-paths.py`
+            # stub writes a known line to stderr on its second (step-13
+            # recheck) invocation -- exact-equality proves the pass-through
+            # fired, not merely that the canonical line is present.
+            counts.check(
+                stderr == "FIXTURE_INJECTED_FAILURE: resolve-component-paths failed on its second invocation\n" + expected_line,
+                f"{case_name}: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)",
+                f"stderr={stderr!r}",
+            )
 
         evidence_path = feature_dir / "resolver-evidence.yaml"
 

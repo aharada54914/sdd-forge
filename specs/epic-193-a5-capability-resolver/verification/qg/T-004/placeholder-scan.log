@@ -1,3 +1,12 @@
 $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
+# round-2 confirmation-panel remediation (2026-08-24): re-scanned after
+# Reversal 2 (tests/run-all.* reverted, freshness suite removed), the
+# real-schema seeding fix, and the _resolved_gates comment. tests/run-
+# all.{sh,ps1} themselves carry no placeholder-scannable content changes
+# (reverted to prior clean bytes) and are not in this scan's own scope.
+Placeholder scan passed.
+Exit: 0

@@ -198,6 +198,37 @@ def _repo_relative(path, repo_root):
         return path.as_posix()
 
 
+def _reemit_dependency_stderr(result):
+    """B5 (security-spec.md)/REQ-005: "a dependency subprocess's own
+    stderr remains visible to a human operator on the terminal exactly as
+    that subprocess itself already writes it, but never participates in
+    this feature's own byte-identity comparison" -- design.md's API/
+    Contract Plan step 4 and the frozen requirements.md sentence both
+    repeat this verbatim as the reason the canonical `<detail>` field is
+    allowed to omit upstream stderr entirely. Confirmation-panel Major
+    (2026-08-24, both vendors): this feature previously captured every
+    dependency's stderr via `subprocess.PIPE` and never wrote it back out
+    anywhere, making the operator-visibility half of that sentence false
+    -- the operator saw only this feature's own canonical line, pointing
+    at diagnostics it had itself swallowed. Re-emits the dependency's own
+    captured bytes to this process's own stderr, VERBATIM (raw bytes, not
+    decoded/re-encoded, so no transcoding can alter what the subprocess
+    itself wrote) -- called at each dependency call site immediately
+    after that subprocess exits, always before this feature's own later
+    `_block`/`_block_no_write` canonical diagnostic line is written, so
+    the canonical line always stays the LAST line on this process's own
+    stderr. A no-op when the dependency wrote nothing (the common case on
+    a clean, non-Block exit)."""
+    if not result.stderr:
+        return
+    try:
+        sys.stderr.buffer.write(result.stderr)
+        sys.stderr.buffer.flush()
+    except AttributeError:
+        sys.stderr.write(result.stderr.decode("utf-8", errors="replace"))
+        sys.stderr.flush()
+
+
 def _script_argv(script_dir, base_name, tail):
     python_master = script_dir / f"{base_name}.py"
     shell_wrapper = script_dir / f"{base_name}.sh"
@@ -255,6 +286,7 @@ def _run_resolve_component_paths(script_dir, args):
         # identical OSError on their own subprocess.run calls -- main()'s
         # own handler discards this exception's payload entirely.
         raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
     if result.returncode != 0:
         raise AffectedComponentResolutionFailed(result.returncode)
     try:
@@ -380,6 +412,7 @@ def _validate_capability_registry(script_dir, registry_path):
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     except OSError as exc:
         raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
     if result.returncode != 0:
         raise RegistryValidationFailed(f"exit {result.returncode}")
 
@@ -397,9 +430,19 @@ def _generate_registry_digest_whole(script_dir):
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     except OSError as exc:
         raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
     if result.returncode != 0:
-        stderr_text = result.stderr.decode("utf-8", errors="replace")
-        if "canonicalizer-failed" in stderr_text:
+        # Confirmation-panel Minor (Anthropic T-003, unanchored token):
+        # a whole-stream substring search for `canonicalizer-failed`
+        # could be steered by Registry content this dependency's own
+        # error message happens to echo back mid-line. Anchored to
+        # `generate-registry-digest`'s own fixed `"generate-registry-
+        # digest: canonicalizer-failed: ..."` line-start format
+        # (`generate-registry-digest.py`'s own sole stderr `print`
+        # call), matching `_invoke_evaluate_predicate`'s identical
+        # line-start-anchored classification above.
+        stderr_lines = result.stderr.decode("utf-8", errors="replace").splitlines()
+        if any(line.startswith("generate-registry-digest: canonicalizer-failed") for line in stderr_lines):
             raise CanonicalizerFailed("generate-registry-digest")
         raise DependencySubprocessFailed(f"exit {result.returncode}")
     try:
@@ -416,53 +459,88 @@ def _evaluate_predicate(script_dir, predicate, properties):
     `evaluate-predicate --predicate <path> --component-properties <path>`.
     Both arguments are written to their own temp file (rather than `-`)
     since exactly one stdin stream cannot carry two independent documents."""
+    # Confirmation-panel Minor (Anthropic T-003, temp-file leak): the two
+    # `mkstemp` calls previously both executed before either was inside a
+    # `try`/`finally` -- if the SECOND call raised (ENOSPC, EMFILE, TMPDIR
+    # removed between the two calls), the FIRST descriptor and its
+    # on-disk temp file leaked for this process's own lifetime, since the
+    # single outer `finally` below only ever runs once both names are
+    # already bound. The second `mkstemp` is now nested inside the first
+    # temp file's own `try`/`finally`, so a failure there still cleans up
+    # the first.
     predicate_fd, predicate_name = tempfile.mkstemp(suffix=".json")
-    properties_fd, properties_name = tempfile.mkstemp(suffix=".json")
     try:
         with os.fdopen(predicate_fd, "w", encoding="utf-8") as handle:
             json.dump(predicate, handle, ensure_ascii=False, separators=(",", ":"))
-        with os.fdopen(properties_fd, "w", encoding="utf-8") as handle:
-            json.dump(properties, handle, ensure_ascii=False, separators=(",", ":"))
-        argv = _script_argv(
-            script_dir, "evaluate-predicate",
-            ["--predicate", predicate_name, "--component-properties", properties_name],
-        )
+        properties_fd, properties_name = tempfile.mkstemp(suffix=".json")
         try:
-            result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-        except OSError as exc:
-            raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
-        if result.returncode != 0:
-            # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): this
-            # branch previously keyed the PREDICATE_SCHEMA_ERROR ->
-            # registry-validation-failed mapping on a hardcoded `returncode
-            # == 2` magic number. `evaluate-predicate`'s own contract
-            # (investigation.md's predicate-DSL-evaluator section) fixes
-            # only a stable stderr token -- "a distinct, non-zero-exit
-            # PREDICATE_SCHEMA_ERROR" -- never a specific exit code; the
-            # SAME stable-stderr-token classification `_generate_registry_
-            # digest_whole` (step 6) already uses for its own
-            # `canonicalizer-failed` sub-branch is reused here rather than
-            # trusting an unfixed number a future revision of `evaluate-
-            # predicate.py` could change without notice.
-            stderr_text = result.stderr.decode("utf-8", errors="replace")
-            if "PREDICATE_SCHEMA_ERROR" in stderr_text:
-                raise RegistryValidationFailed("PREDICATE_SCHEMA_ERROR")
-            raise DependencySubprocessFailed(f"exit {result.returncode}")
-        try:
-            parsed = json.loads(result.stdout.decode("utf-8"), parse_constant=_reject_json_constant)
-        except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-            raise DependencyOutputMalformed(str(exc)) from exc
-        if (
-            not isinstance(parsed, dict)
-            or not isinstance(parsed.get("result"), bool)
-            or not isinstance(parsed.get("evidence"), list)
-            or not all(isinstance(node, dict) for node in parsed.get("evidence", []))
-        ):
-            raise DependencyOutputMalformed("evaluate-predicate stdout is not the {result, evidence} shape")
-        return parsed["result"], parsed["evidence"]
+            with os.fdopen(properties_fd, "w", encoding="utf-8") as handle:
+                json.dump(properties, handle, ensure_ascii=False, separators=(",", ":"))
+            return _invoke_evaluate_predicate(script_dir, predicate_name, properties_name)
+        finally:
+            os.unlink(properties_name)
     finally:
         os.unlink(predicate_name)
-        os.unlink(properties_name)
+
+
+def _invoke_evaluate_predicate(script_dir, predicate_name, properties_name):
+    """The real dependency invocation half of `_evaluate_predicate`,
+    split out so the outer function's own two temp-file `try`/`finally`
+    blocks (above) stay uncluttered by this call's own logic."""
+    argv = _script_argv(
+        script_dir, "evaluate-predicate",
+        ["--predicate", predicate_name, "--component-properties", properties_name],
+    )
+    try:
+        result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+    except OSError as exc:
+        raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
+    _reemit_dependency_stderr(result)
+    if result.returncode != 0:
+        # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): this
+        # branch previously keyed the PREDICATE_SCHEMA_ERROR ->
+        # registry-validation-failed mapping on a hardcoded `returncode
+        # == 2` magic number. `evaluate-predicate`'s own contract
+        # (investigation.md's predicate-DSL-evaluator section) fixes
+        # only a stable stderr token -- "a distinct, non-zero-exit
+        # PREDICATE_SCHEMA_ERROR" -- never a specific exit code; the
+        # SAME stable-stderr-token classification `_generate_registry_
+        # digest_whole` (step 6) already uses for its own
+        # `canonicalizer-failed` sub-branch is reused here rather than
+        # trusting an unfixed number a future revision of `evaluate-
+        # predicate.py` could change without notice.
+        #
+        # Confirmation-panel Minor (Anthropic T-003, unanchored token):
+        # both this classification and `_generate_registry_digest_whole`'s
+        # own `canonicalizer-failed` classification below previously
+        # searched anywhere in the whole stderr stream for their stable
+        # token -- a Registry-supplied string value that happened to
+        # embed the literal token verbatim (echoed back by a dependency's
+        # own error message) could steer a generic dependency failure
+        # into the wrong Block id. Anchored to the STABLE ERROR-CLASS
+        # PREFIX each dependency's own contract fixes (`evaluate-
+        # predicate`'s own `PREDICATE_SCHEMA_ERROR: ...` lines always
+        # start the line, never appear embedded mid-sentence; same for
+        # `generate-registry-digest`'s own `canonicalizer-failed: ...`),
+        # via a per-line, line-start check rather than a whole-stream
+        # substring search -- Registry/predicate content embedded
+        # mid-line can no longer steer this classification.
+        stderr_lines = result.stderr.decode("utf-8", errors="replace").splitlines()
+        if any(line.startswith("PREDICATE_SCHEMA_ERROR") for line in stderr_lines):
+            raise RegistryValidationFailed("PREDICATE_SCHEMA_ERROR")
+        raise DependencySubprocessFailed(f"exit {result.returncode}")
+    try:
+        parsed = json.loads(result.stdout.decode("utf-8"), parse_constant=_reject_json_constant)
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise DependencyOutputMalformed(str(exc)) from exc
+    if (
+        not isinstance(parsed, dict)
+        or not isinstance(parsed.get("result"), bool)
+        or not isinstance(parsed.get("evidence"), list)
+        or not all(isinstance(node, dict) for node in parsed.get("evidence", []))
+    ):
+        raise DependencyOutputMalformed("evaluate-predicate stdout is not the {result, evidence} shape")
+    return parsed["result"], parsed["evidence"]
 
 
 def _iter_warn_nodes(evidence_nodes, node_path=()):
@@ -782,6 +860,31 @@ def _resolved_gates(registry_document, matched_capability_ids):
     resolved = []
     for capability_id in matched_capability_ids:
         for gate_id in capabilities_by_id.get(capability_id, {}).get("gate_ids", []):
+            # Confirmation-panel Minor (Anthropic T-004): a `gate_id` this
+            # join cannot resolve against `gates_by_id` is silently
+            # dropped here rather than Blocking, which would be a live
+            # under-population defect if a Registry with a dangling
+            # `gate_ids` reference could ever reach this point. It
+            # cannot: step 5's own `validate-capability-registry` (Epic
+            # A2, check (f) `dangling-gate-reference`) already Blocks
+            # `registry-validation-failed` on exactly this condition --
+            # `capabilities[].gate_ids` referential integrity against
+            # `gates[]` -- for the WHOLE Registry, unconditionally,
+            # before step 7-8 evaluation (and therefore this function,
+            # step 10) ever runs; this feature's own `registry-
+            # validation-failed` Block fixture (`tests/fixtures/
+            # capability-resolver/resolve-project-context-block/
+            # registry-validation-failed/`) already exercises precisely
+            # this condition (its own Registry declares `gate_ids:
+            # ["nonexistent-gate"]` against an empty `gates: []]`, and
+            # this invocation Blocks at step 5, never reaching this
+            # join). Design decision (decision-document v2 s19, "Block
+            # when ambiguous"): this is not ambiguous -- the Registry
+            # content this join would need to under-populate against is
+            # already unreachable, so the `continue` below is
+            # defense-in-depth against a condition Epic A2's own
+            # validator has already fully closed off, never a live
+            # under-population path in production.
             if gate_id in seen or gate_id not in gates_by_id:
                 continue
             seen.add(gate_id)
@@ -1411,28 +1514,26 @@ def main(argv=None):
             capability_evaluations, warn_diagnostics,
         )
     except RegistryValidationFailed:
-        # Cross-model panel finding (T-003 NEEDS_WORK cycle 3): every
-        # already-collected `severity: "warn"` entry in `warn_diagnostics`
-        # (one per `outcome: "warn"` node this invocation's own steps 7-8
-        # already evaluated before this abort fired) is a genuine
-        # diagnostic-worthy condition THIS invocation encountered
-        # (REQ-004's own "recording every diagnostic-worthy condition ...
-        # not only the first/fatal one"), so it is forwarded through to
-        # this abort's own Evidence record exactly as the step-9 WARN call
-        # site already does on a clean WARN outcome -- this does not
-        # collide with REQ-004's own AC-056 sentence ("no other id ever
-        # carries severity: warn at all"), since every forwarded entry
-        # still carries the identical `dsl-warn-on-matched-capability` id;
-        # only ONE id (this abort's own) ever carries `severity: "block"`,
-        # unchanged.
+        # Confirmation-panel finding (2026-08-24, both vendors converged):
+        # forwarding `warn_diagnostics` into a Block whose own id is NOT
+        # `dsl-warn-on-matched-capability` produces exactly the shape
+        # requirements.md's own AC-056 sentence forbids -- `diagnostics[]`
+        # would carry `dsl-warn-on-matched-capability` warn entries with NO
+        # same-id `severity: "block"` summary (step 9 is never reached on
+        # this abort path, so that summary entry is never emitted). The
+        # earlier "does not collide" reasoning above (now removed) checked
+        # only the single-id-carries-block invariant and missed the
+        # per-id "never warn-only" invariant the same sentence also states.
+        # These already-collected warn entries are therefore dropped, not
+        # forwarded, on this abort path.
         detail = "a Registry-declared predicate failed predicate-schema validation"
-        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations, warn_diagnostics)
+        return _block(repo_root, args.feature, "registry-validation-failed", detail, state, capability_evaluations)
     except DependencySubprocessFailed:
         detail = "evaluate-predicate failed while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations, warn_diagnostics)
+        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations)
     except DependencyOutputMalformed:
         detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
-        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
+        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations)
 
     # Step 9: any-branch WARN check (B2, widened scope). AC-056:
     # `warn_diagnostics` already carries one `severity: "warn"` entry per

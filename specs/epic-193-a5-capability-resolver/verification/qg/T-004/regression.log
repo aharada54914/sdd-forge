@@ -90,3 +90,24 @@ ones failed in either runtime. Both full run-all invocations are now
 confirmed complete and clean against this repository's own standing
 baseline.
 regression: passes=true.
+
+--- Round-2 confirmation-panel remediation (2026-08-24) -----------------
+
+Re-run and re-captured against the current tree (this exact Anthropic
+Major -- "stale regression/placeholder evidence, recurring"), covering
+Reversal 2 (tests/run-all.* reverted to pre-registration bytes, freshness
+suite removed), the real-schema seeding fix, and the `_resolved_gates`
+dangling-reference comment. Full transcript (git diff/status/whitespace
+checks, py_compile, both focused suites both runtimes, full
+`tests/run-all.{sh,ps1}` sweeps, MANIFEST verification, check-task-state/
+check-workflow-state) retained once, shared, at
+verification/qg/T-003/regression.log's own "Round-2 confirmation-panel
+remediation" section (T-003 and T-004 share the identical `resolve-
+project-context.py`/`resolve-project-context-block-check.py` diff this
+round; not duplicated here). Result: both full sweeps match this
+repository's own documented standing baseline exactly (sh: 2 self-
+declared DESIGNED-RED; ps1: 1) -- specifically confirming `tests/
+run-all.{sh,ps1}` themselves are genuinely clean and unregistered-suite-
+free after the Reversal 2 revert (the exact claim this task's own "Done
+When Self-Check" makes).
+regression: passes=true.

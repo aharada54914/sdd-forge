@@ -3,27 +3,17 @@
   "task_id": "T-004",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5",
+  "model": "gpt-5.6-sol",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Critical",
-      "ref": "resolve-project-context.py:_discover_registry/_validate_capability_registry/_generate_registry_digest_whole; main steps 5-6",
-      "note": "Registry content, validation, and registry_digest are not bound to one retained snapshot. The resolver reads registry_document, then separately validates the live path and invokes generate-registry-digest --whole, which independently rediscovers/rereads the Registry. A Registry change between these operations can make evaluations use generation A while validation and context_binding.registry_digest describe generation B; the later recheck compares against B and therefore cannot detect the mixed generation. This violates REQ-001/REQ-002's fixed-snapshot and snapshot-generation-mismatch guarantees."
-    },
-    {
       "severity": "Major",
-      "ref": "requirements.md AC-016; resolve-project-context.py:_projection/_assemble_context_binding",
-      "note": "The advisory/required byte-identity requirement is not satisfied. Changing workflow.capability_enforcement changes the canonical Project Context, so source_sha256/full_context_revision, the Context Projection workflow and projection_sha256 all change, in addition to Resolver Evidence.state. The implementation preserves those differences, contrary to AC-016's claim that only Evidence.state differs; the requirement or implementation/test oracle must be reconciled."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/qg/T-004/regression.log; verification/T-004.contract.json regression check",
-      "note": "The required regression check is marked passes=true although the latest full PowerShell run explicitly did not complete and the evidence recommends rerunning it before sign-off. For a feature requiring sh/ps1 parity, an incomplete required regression run cannot support a passing verification claim."
+      "ref": "requirements.md AC-016 / reports/implementation/epic-193-a5-capability-resolver/T-004.md Confirmation-Panel Remediation",
+      "note": "AC-016 requires advisory and required invocations to be byte-identical except for Resolver Evidence.state, but context_binding.full_context_revision and projection_sha256 necessarily change because capability_enforcement is included in both hashed inputs. The implementation report explicitly confirms the criterion is unmet; the frozen requirement and implementation behavior must be reconciled before this task can pass."
     }
   ],
   "blind": true,
-  "input_digest": "2cd7c4051b6bbc5a255ce9c37ad3a0d545f708ff62b2638297381ead2001c58b",
+  "input_digest": "d156d0f925be87fb772a2e60411dd3de805214ea4c5216a575c28af5ac44caf3",
   "consent": {
     "kind": "sudo",
     "ref": "sudo 2026-08-08T16:04:17Z"
