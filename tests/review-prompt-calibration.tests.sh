@@ -94,4 +94,27 @@ for role in a b; do
     fail "spec-reviewer-${role} id list drifted from the gate: role=[${role_ids}] gate=[${gate_ids}]"
 done
 
+# Amendment Re-Review Context, impl/task stages: the recognition lives in the
+# shared reviewer-calibration.md ONLY, because all four impl/task role files
+# are guard-protected (PROTECTED_GATE_SUFFIXES) and cannot carry it. The
+# load-bearing link is therefore each role file's existing directive to apply
+# reviewer-calibration.md -- if that directive disappears from any role file,
+# the lane silently dies for that role, so it is pinned here per file.
+
+SHARED_CALIBRATION="plugins/sdd-review-loop/references/reviewer-calibration.md"
+grep -Fq '## Amendment Re-Review Context (impl and task stages)' "$ROOT/$SHARED_CALIBRATION" || \
+  fail "shared reviewer calibration missing the impl/task Amendment Re-Review Context section"
+grep -Fq 'This is the amendment-supersession class only.' "$ROOT/$SHARED_CALIBRATION" || \
+  fail "shared calibration must scope suppression to the amendment-supersession class only"
+grep -Fq 'is judged exactly as it would be' "$ROOT/$SHARED_CALIBRATION" || \
+  fail "shared calibration must state every other class is judged unaffected"
+grep -Fq "full evidence bar" "$ROOT/$SHARED_CALIBRATION" && grep -Fq "spec-review-calibration.md" "$ROOT/$SHARED_CALIBRATION" || \
+  fail "shared calibration must delegate the evidence bar to the spec calibration definition"
+for role in impl-reviewer-a impl-reviewer-b task-reviewer-a task-reviewer-b; do
+  grep -Fq 'reviewer-calibration.md' "$AGENTS/$role.md" || \
+    fail "$role.md no longer references reviewer-calibration.md -- the amendment lane's load-bearing link is gone"
+  grep -Eq 'reviewer-calibration\.md.*and apply it|apply it before' "$AGENTS/$role.md" || \
+    fail "$role.md no longer directs the reviewer to APPLY reviewer-calibration.md"
+done
+
 printf 'ok: review prompt calibration inventory is synchronized\n'
