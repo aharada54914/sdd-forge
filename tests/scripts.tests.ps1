@@ -135,6 +135,8 @@ Status: Done
     # and many derived fixtures inherit from it — so it must validate in legacy mode.
     $contract.risk = ""
     "evidence log" | Set-Content -Encoding Utf8 "ev.log"
+    "red evidence" | Set-Content -Encoding Utf8 "ev.red.log"
+    "green evidence" | Set-Content -Encoding Utf8 "ev.green.log"
     foreach ($check in $contract.checks) {
         if ($check.required) {
             $check.passes = $true
@@ -241,15 +243,15 @@ Status: Done
     # T-003-CM: cross_model descriptor (conditional cross-model-verification)
     # =========================================================
 @'
-{ "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+{ "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd", "cross_model": "required",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" , "red_evidence": "ev.red.log", "green_evidence": "ev.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" , "red_evidence": "ev.red.log", "green_evidence": "ev.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "cross-model-verification", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" } ] }
@@ -272,30 +274,30 @@ Status: Done
     Assert-ExitCode "CM.2: cross_model:required missing check -> fail" (Invoke-Gate "check-contract.ps1" @("contract-cm2.json", "-RepoRoot", ".")) 1
 
 @'
-{ "task_id": "CM-3", "feature": "test-feature", "risk": "critical",
+{ "task_id": "CM-3", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" , "red_evidence": "ev.red.log", "green_evidence": "ev.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" , "red_evidence": "ev.red.log", "green_evidence": "ev.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" } ] }
 '@ | Set-Content -Encoding Utf8 "contract-cm3.json"
     Assert-ExitCode "CM.3: cross_model absent (legacy) -> pass" (Invoke-Gate "check-contract.ps1" @("contract-cm3.json", "-RepoRoot", ".")) 0
 
 @'
-{ "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "cross_model": "waived",
+{ "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "required_workflow": "tdd", "cross_model": "waived",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" , "red_evidence": "ev.red.log", "green_evidence": "ev.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" , "red_evidence": "ev.red.log", "green_evidence": "ev.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
     { "id": "cross-model-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "air-gapped repo" } ] }
@@ -345,6 +347,8 @@ Status: Done
 
     # Test: T-003.1 - LEGACY: contract with NO risk field passes (regression test)
     New-Evidence "reports/test.log"
+    New-Evidence "reports/test.red.log"
+    New-Evidence "reports/test.green.log"
     $t003_1 = @{
         task_id = "T-003.1"
         feature = "test-feature"
@@ -467,6 +471,7 @@ Status: Done
         task_id = "T-003.7"
         feature = "test-feature"
         risk = "high"
+        required_workflow = "tdd"
         created = "2026-06-13T00:00:00Z"
         comment = "risk: high, full required set"
         checks = @(
@@ -475,8 +480,8 @@ Status: Done
             @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
             @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
             @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
-            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
-            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" ; red_evidence = "reports/test.red.log"; green_evidence = "reports/test.green.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" ; red_evidence = "reports/test.red.log"; green_evidence = "reports/test.green.log" },
             @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
             @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
         )
@@ -489,6 +494,7 @@ Status: Done
         task_id = "T-003.8"
         feature = "test-feature"
         risk = "critical"
+        required_workflow = "tdd"
         created = "2026-06-13T00:00:00Z"
         comment = "risk: critical, full required set (same as high)"
         checks = @(
@@ -497,8 +503,8 @@ Status: Done
             @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
             @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
             @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
-            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
-            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" ; red_evidence = "reports/test.red.log"; green_evidence = "reports/test.green.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" ; red_evidence = "reports/test.red.log"; green_evidence = "reports/test.green.log" },
             @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
             @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
         )

@@ -280,6 +280,10 @@ jobs:
         shell: pwsh
         run: ./tests/install.tests.ps1
 
+      - name: Test installer idempotency (pwsh; WFI-041)
+        shell: pwsh
+        run: ./tests/installer-idempotency.tests.ps1
+
       - name: Test uninstaller (pwsh)
         shell: pwsh
         run: ./tests/uninstall.tests.ps1
@@ -300,6 +304,7 @@ jobs:
         run: |
           bash -n ./tests/release-host-smoke.sh
           ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
+          ./tests/installer-idempotency.tests.sh 2>&1 | tee "${{ runner.temp }}/installer-idempotency-sh.log"
 
       - name: Test POSIX uninstaller
         if: runner.os != 'Windows'
@@ -345,6 +350,24 @@ jobs:
       - name: Test template-validator parity (pwsh)
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
+
+      - name: Test task-state grammar parity (bash, WFI-042)
+        shell: bash
+        # The suite probes for pwsh itself and runs the ps1 checker legs when
+        # it is present, so the three GitHub-hosted runners all cover them.
+        run: bash ./tests/task-state-grammar-parity.tests.sh
+
+      - name: Test boundary-reference authorization parity (bash, WFI-037)
+        shell: bash
+        run: bash ./tests/boundary-reference-authorization-parity.tests.sh
+
+      - name: Test boundary-reference authorization parity (pwsh, WFI-037)
+        shell: pwsh
+        run: ./tests/boundary-reference-authorization-parity.tests.ps1
+
+      - name: Test task-plan binding durability (bash, WFI-025)
+        shell: bash
+        run: bash ./tests/task-plan-binding-durability.tests.sh
 
       - name: Test loop inventory registration forcing (bash)
         shell: bash
@@ -414,6 +437,9 @@ jobs:
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/agent-model-routing.tests.sh
+
+      - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
+        run: bash ./tests/release-config-lock.tests.sh
 
       - name: Test turn-first agent-model routing suite (pwsh)
         shell: pwsh

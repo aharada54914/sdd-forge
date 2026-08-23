@@ -7,6 +7,7 @@ cd "$ROOT"
 
 tests=(
   tests/install.tests.sh
+  tests/installer-idempotency.tests.sh
   tests/uninstall.tests.sh
   tests/guards.tests.sh
   tests/approval-boundary.tests.sh
@@ -66,12 +67,15 @@ tests=(
   tests/repository-release-validation.tests.sh
   tests/template-validator-parity.tests.sh
   tests/task-lifecycle-enum-parity.tests.sh
+  tests/task-state-grammar-parity.tests.sh
+  tests/task-plan-binding-durability.tests.sh
   tests/schema-engine-identity.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh
   tests/review-prompt-calibration.tests.sh
   tests/review-context-boundary.tests.sh
+  tests/boundary-reference-authorization-parity.tests.sh
   tests/design-system-contract.tests.sh
   tests/design-system-compliance.tests.sh
   tests/loop-escalation.tests.sh
