@@ -690,6 +690,57 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
   "$REPORT_WORK/malformed-outputs-row.md" \
   "report with a malformed Outputs table row (silent-skip surface)"
 
+# RT-20260821-017 cycle-5 (seq 848): the 64-hex requirement was pinned on the
+# LEGACY branch only, so mutating the TABLE row pattern to `[0-9a-f]+` survived
+# every suite in the repository. The table branch is the form the template
+# emits and the form the authorization chain parses, so the hash half of
+# TEST-004's "path/hash" requirement needs the same mirror the path half has.
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-short-hash.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+| `plugins/short.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-short-hash.md" \
+  "table row carrying a 62-hex hash instead of 64"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-upper-hash.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| `plugins/example.md` | `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-upper-hash.md" \
+  "table row carrying an uppercase hash (the declared form is lowercase)"
+
+replace_report_text \
+  "$REPORT_WORK/bullet-only-v2.md" \
+  "$REPORT_WORK/legacy-upper-hash.md" \
+  '**SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`' \
+  '**SHA-256**: `AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA`'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: missing Output Paths And Hashes entry' \
+  "$REPORT_WORK/legacy-upper-hash.md" \
+  "legacy bullet carrying an uppercase hash"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-unquoted.md" \
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |' \
+  '| plugins/example.md | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Outputs entry' \
+  "$REPORT_WORK/table-unquoted.md" \
+  "table row without the backticks the authorization boundary matches on"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/table-tilde-path.md" \
+  '| `plugins/example.md` |' \
+  '| `~/secrets.md` |'
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: invalid output path' \
+  "$REPORT_WORK/table-tilde-path.md" \
+  "table row declaring a tilde-home path"
+
 # Boundary cases cover partial escalation records and isolation-mode-specific
 # fallback evidence rather than merely checking for non-empty labels.
 
@@ -781,6 +832,27 @@ ordinary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolati
   fail "ordinary handoff/reload prose tripped the WFI-044 narrative rule (false positive)"
 [[ "$ordinary_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
   fail "unexpected diagnostic for ordinary handoff prose: $ordinary_output"
+
+# The rule's two NARROWING semantics need their own fixtures, or `and`->`or`
+# and per-sentence->whole-document both survive (seq 848). These two carry the
+# terms the previous false-positive fixture lacked.
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe host quota was reached during the run. A later paragraph notes that the batch resumed normally afterwards.\n'
+} > "$REPORT_WORK/isolation-split-sentences.md"
+split_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-split-sentences.md")" ||
+  fail "WFI-044 fired across sentence boundaries (the rule is per-sentence)"
+[[ "$split_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for split-sentence narrative: $split_output"
+
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe provider quota for this account is documented in the runbook.\n'
+} > "$REPORT_WORK/isolation-interruption-only.md"
+interrupt_only_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-interruption-only.md")" ||
+  fail "WFI-044 fired on an interruption term alone (the rule needs the conjunction)"
+[[ "$interrupt_only_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for interruption-only narrative: $interrupt_only_output"
 
 replace_report_text \
   "$REPORT_WORK/current.md" \

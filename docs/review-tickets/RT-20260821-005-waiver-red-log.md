@@ -22,16 +22,16 @@ requirement for the ORIGINAL implementation increment is waived.
 A present-day differential proving the delivered enforcement is real:
 
 - `specs/risk-adaptive-layer/verification/T-006.red-compensating-20260823.log`
-  (sha256 `e85facddbbf539b683052ac1c00a75f313384833fcf3a7cfbb19c8a7c3a43813`):
+  (sha256 `e9dc024a7eabbbe10447aceaa08c61a65a4333d29c1bb19e2c19962d19b4be07`):
   the spec_revision EMISSION line in generate-evidence-bundle.sh renamed in a
   clone-based scratch tree -> gate suite exit 1 with three T-006 assertions
   failing inline (T-006.2b missing field, T-006.3b bundle check, T-006.3c not
   valid 64-char hex), plus three T-007a signature assertions that depend on the
   same field. 6 failing assertions total.
 - `specs/risk-adaptive-layer/verification/T-006.green-compensating-20260823.log`
-  (sha256 `eca3ba9a8c38439f6b6cfed48b89995d97aa2800a6370f1863583c70127768e9`):
-  pristine generator restored byte-for-byte -> suite exit 0, all 16 T-006
-  assertions green.
+  (sha256 `ec184ea2afa988242ae70a020d69e7bcecf33bb944bf0125ac02ecd46ce77872`):
+  pristine generator restored byte-for-byte -> suite exit 0, all
+  22 distinct T-006 assertion ids green.
 
 **Correction, 2026-08-23 (seq 845 quality gate, Critical):** the FIRST version
 of these logs was invalid and has been superseded. The capture script replaced
@@ -40,7 +40,10 @@ canonicalizer rather than the emission, so the run failed only T-007a.1d while
 every T-006 assertion stayed green - contradicting the header the agent wrote
 over it. The evaluator reproduced both mutations independently and rejected the
 artifact as false provenance. The counts above (and the '17 assertions' figure
-in the superseded text; the real number is 16) are from the corrected capture.
+in the text superseded at seq 845) are from the corrected capture. Both logs
+were RE-RUN again at seq 846 against the shipped suite: the earlier pair was
+honest for its time but predated the checks[] telemetry pins, so it recorded
+16 T-006 assertion ids where the suite now has 22.
 
 Both logs carry honest headers stating they are 2026-08-23 compensating
 captures, NOT the original red. Same method as the agci T-006 recapture

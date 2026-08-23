@@ -105,7 +105,8 @@ def canonical_repository_path(value, field_name):
         or value.startswith("/")
         or re.match(r"^[A-Za-z]:", value)
         or "\\" in value
-        or any(component in ("", ".", "..") for component in components)
+        or any(component in ("", ".", "..", "~") for component in components)
+        or value.startswith("~")
     ):
         fail(f"invalid {field_name}")
     return value

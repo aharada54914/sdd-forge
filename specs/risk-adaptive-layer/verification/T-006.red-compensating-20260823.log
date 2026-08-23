@@ -1,22 +1,20 @@
-HEADER: COMPENSATING RED CAPTURE, 2026-08-23 (NOT the original 2026-06 red).
-The task's original tdd red log was never preserved (RT-20260821-005 item 3).
-Per the maintainer's waiver decision of 2026-08-23, this differential was
-captured against the CURRENT generator: the spec_revision EMISSION line in
-generate-evidence-bundle.sh ("spec_revision": spec_revision) was renamed in a
-clone-based scratch tree and the gate suite re-run. This proves the T-006
-assertions guard the delivered behavior today; it does not and cannot
-reconstruct the historical red state.
+HEADER: COMPENSATING RED CAPTURE, re-run 2026-08-23 against the CURRENT suite
+(NOT the original 2026-06 red, which was never preserved -- RT-20260821-005
+item 3, waived by the maintainer on 2026-08-23).
+Mutation: the spec_revision EMISSION line in generate-evidence-bundle.sh
+("spec_revision": spec_revision) renamed in a clone-based scratch tree.
 
-CORRECTION NOTICE: the first version of this file (committed 2026-08-23,
-superseded) carried this same header over the output of a DIFFERENT mutation.
-The capture script replaced the first textual occurrence of the quoted token,
-which is the HMAC signature canonicalizer, not the emission; that run failed
-only T-007a.1d and left every T-006 assertion green, contradicting its own
-header. The seq-845 quality gate caught it (Critical). This file is the
-honest re-capture of the mutation the header describes.
+RE-CAPTURE NOTICE (gate seq 846): the previous version of this file was an
+honest capture of its time but became STALE -- it was taken before the
+REQ-006 checks[] telemetry pins landed (human commit 6135b0ab), so its
+tallies described a suite five assertions smaller than the one shipped
+beside it. Superseded before that, at gate seq 845, a FALSE-PROVENANCE
+version carried this header over a mutation of the HMAC canonicalizer
+instead of the emission; that capture failed only T-007a.1d.
 COMMAND: bash tests/gates.tests.sh  (scratch clone, mutated plugins/sdd-quality-loop/scripts/generate-evidence-bundle.sh)
 EXIT: 1
 FAILING ASSERTIONS: 6 (T-006: 3)
+DISTINCT T-006 ASSERTION IDS: 22
 === T-006: evidence provenance ===
 ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
 ok: T-006.1b: legacy bundle file created at expected path
@@ -30,6 +28,11 @@ ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
 FAIL: T-006.3b: check-evidence-bundle should pass on high-risk bundle: Verification contract passed for task T-100.
 FAIL: T-006.3c: spec_revision is not valid 64-char hex
 ok: T-006.3d: review_verdict.verdict is PASS
+ok: T-006.5a: generated bundle contains non-empty 'checks' telemetry
+ok: T-006.5b: 'checks' telemetry has one entry per contract check
+ok: T-006.5c: every 'checks' entry carries the full REQ-006 key set
+ok: T-006.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256
+ok: T-006.5e: generated bundle carries 'required_workflow'
 ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
 ok: T-006.5: high bundle with empty spec_revision fails check
 ok: T-006.6: risk mismatch (bundle vs contract) fails check
@@ -43,6 +46,6 @@ FAIL: T-007a.5: sigstore with SIGSTORE_VERIFIED should pass: Verification contra
 FAIL: T-007a.9: high-risk bundle should pass without signature: Verification contract passed for task T-100.
 
 ====== Test Summary ======
-PASS: 145
+PASS: 150
 FAIL: 6
 ==========================

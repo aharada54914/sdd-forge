@@ -1852,47 +1852,47 @@ Quality gate report for T-100.
     }
     Write-Host "ok: T-006.ps.3d: review_verdict.verdict is PASS"
 
-    # T-006.ps.5 (RT-20260821-005 cycle 2, seq 845): the REQ-006 per-check
+    # T-006.ps.6 (RT-20260821-005 cycle 2, seq 845): the REQ-006 per-check
     # telemetry ships but was guarded by nothing in either runtime -- deleting
     # the emission left both suites fully green. Pinned here and in the sh twin.
     # command/exit_code/timestamps are PASS-THROUGH from the contract and are
     # null when the contract does not record them, so they are not asserted
     # non-empty; what is asserted is what the generator guarantees.
-    $checksTel = @($highBundleJson.checks)
+    $checksTel = if ($highBundleJson.PSObject.Properties.Name -contains 'checks') { @($highBundleJson.checks) } else { @() }
     if ($checksTel.Count -lt 1) {
-        throw "T-006.ps.5a: generated bundle missing or empty 'checks' telemetry array"
+        throw "T-006.ps.6a: generated bundle missing or empty 'checks' telemetry array"
     }
-    Write-Host "ok: T-006.ps.5a: generated bundle contains non-empty 'checks' telemetry"
+    Write-Host "ok: T-006.ps.6a: generated bundle contains non-empty 'checks' telemetry"
 
     $highContractPath = "$t006Repo/specs/test-feature/verification/T-100.contract.json"
     $contractChecks = @((Get-Content -Raw -Encoding Utf8 $highContractPath | ConvertFrom-Json).checks)
     if ($checksTel.Count -ne $contractChecks.Count) {
-        throw "T-006.ps.5b: telemetry entry count $($checksTel.Count) != contract check count $($contractChecks.Count)"
+        throw "T-006.ps.6b: telemetry entry count $($checksTel.Count) != contract check count $($contractChecks.Count)"
     }
-    Write-Host "ok: T-006.ps.5b: 'checks' telemetry has one entry per contract check"
+    Write-Host "ok: T-006.ps.6b: 'checks' telemetry has one entry per contract check"
 
     foreach ($field in @('id', 'required', 'passes', 'command', 'exit_code', 'started_at', 'finished_at', 'evidence', 'evidence_sha256')) {
         $absent = $checksTel | Where-Object { -not ($_.PSObject.Properties.Name -contains $field) }
         if (@($absent).Count -gt 0) {
-            throw "T-006.ps.5c: a 'checks' telemetry entry is missing the structural key '$field'"
+            throw "T-006.ps.6c: a 'checks' telemetry entry is missing the structural key '$field'"
         }
     }
-    Write-Host "ok: T-006.ps.5c: every 'checks' entry carries the full REQ-006 key set"
+    Write-Host "ok: T-006.ps.6c: every 'checks' entry carries the full REQ-006 key set"
 
     $hashed = @($checksTel | Where-Object { $_.evidence_sha256 })
     if ($hashed.Count -lt 1) {
-        throw "T-006.ps.5d: no 'checks' telemetry entry carries a computed evidence hash"
+        throw "T-006.ps.6d: no 'checks' telemetry entry carries a computed evidence hash"
     }
     $badHash = @($hashed | Where-Object { "$($_.evidence_sha256)" -notmatch '^[a-f0-9]{64}$' })
     if ($badHash.Count -gt 0) {
-        throw "T-006.ps.5d: 'checks' telemetry evidence_sha256 is not valid 64-char hex"
+        throw "T-006.ps.6d: 'checks' telemetry evidence_sha256 is not valid 64-char hex"
     }
-    Write-Host "ok: T-006.ps.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
+    Write-Host "ok: T-006.ps.6d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256"
 
     if ([string]::IsNullOrWhiteSpace("$($highBundleJson.required_workflow)")) {
-        throw "T-006.ps.5e: generated bundle missing 'required_workflow' provenance field"
+        throw "T-006.ps.6e: generated bundle missing 'required_workflow' provenance field"
     }
-    Write-Host "ok: T-006.ps.5e: generated bundle carries 'required_workflow'"
+    Write-Host "ok: T-006.ps.6e: generated bundle carries 'required_workflow'"
 
     # Test: T-006.ps.4 - same as .3 but quality report VERDICT: NEEDS_WORK → check FAILS
     @"

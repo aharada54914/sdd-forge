@@ -1,9 +1,16 @@
-HEADER: COMPENSATING GREEN CAPTURE, 2026-08-23 (pair of the compensating
-red capture; same clone-based scratch tree with the pristine generator
-restored byte-for-byte).
+HEADER: COMPENSATING GREEN CAPTURE, re-run 2026-08-23 against the CURRENT
+suite (pair of the compensating red capture; same clone-based scratch tree
+with the pristine generator restored byte-for-byte).
+
+RE-CAPTURE NOTICE (gate seq 846): the previous version was a genuine
+pristine run, but predated the REQ-006 checks[] telemetry pins, so it
+contained no record of the telemetry assertions. Because both runs were
+pristine runs of the same suite, its body was byte-identical to the version
+before it, which is why git showed only a header-line change. This run
+covers the shipped suite.
 COMMAND: bash tests/gates.tests.sh  (scratch clone, pristine)
 EXIT: 0
-T-006 ASSERTIONS GREEN: 16
+DISTINCT T-006 ASSERTION IDS: 22
 === T-006: evidence provenance ===
 ok: T-006.1a: generate-evidence-bundle succeeds for legacy contract
 ok: T-006.1b: legacy bundle file created at expected path
@@ -17,12 +24,17 @@ ok: T-006.3a: generate-evidence-bundle succeeds for high-risk contract
 ok: T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance
 ok: T-006.3c: spec_revision is valid 64-char hex
 ok: T-006.3d: review_verdict.verdict is PASS
+ok: T-006.5a: generated bundle contains non-empty 'checks' telemetry
+ok: T-006.5b: 'checks' telemetry has one entry per contract check
+ok: T-006.5c: every 'checks' entry carries the full REQ-006 key set
+ok: T-006.5d: evidence-bearing 'checks' entries carry a computed 64-hex evidence_sha256
+ok: T-006.5e: generated bundle carries 'required_workflow'
 ok: T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly
 ok: T-006.5: high bundle with empty spec_revision fails check
 ok: T-006.6: risk mismatch (bundle vs contract) fails check
 ok: T-006.7: emptied bundle risk vs high contract fails closed
 
 ====== Test Summary ======
-PASS: 151
+PASS: 156
 FAIL: 0
 ==========================
