@@ -39,13 +39,17 @@ function Get-TasksNormalizedHash([string]$Path) {
   ).ToLower()
 }
 # WFI-025: uniform = every ^Status: line carries one value (or none exist).
+# Uniqueness is ORDINAL (case-sensitive): Sort-Object -Unique folds case by
+# default, which would classify a Done/done plan as uniform here while the
+# sh twin's LC_ALL=C sort -u calls it mixed (PR #336 review; the AGENTS.md
+# case-sensitivity sweep's cmdlet layer).
 function Test-TasksStatusesMixed([string]$Path) {
-  $values = @()
+  $values = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
   foreach ($line in [IO.File]::ReadAllLines($Path)) {
     $m = [regex]::Match($line, '^Status:[ \t]*(.*?)[ \t]*$')
-    if ($m.Success) { $values += $m.Groups[1].Value }
+    if ($m.Success) { [void]$values.Add($m.Groups[1].Value) }
   }
-  return (@($values | Sort-Object -Unique)).Count -gt 1
+  return $values.Count -gt 1
 }
 function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   $normalizedPath = $Path.Replace('\', '/')

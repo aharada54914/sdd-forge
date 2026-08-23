@@ -210,6 +210,23 @@ else
 fi
 sed -i.bak '$d' "$SPEC_DIR/tasks.md"; rm -f "$SPEC_DIR"/*.bak
 
+# Mis-cased mixture (PR #336 review; AGENTS.md case-sensitivity sweep): a
+# Done/done plan is MIXED — status values compare case-sensitively, exactly
+# as LC_ALL=C sort -u does. This is the fixture the ps1 twin's ordinal
+# HashSet must mirror.
+write_tasks_mixed
+sed -i.bak 's/^Status: Planned$/Status: done/' "$SPEC_DIR/tasks.md"
+sed -i.bak2 's/^Approval: Draft$/Approval: Approved (bob 2026-08-22T01:02:03Z)/' "$SPEC_DIR/tasks.md"
+rm -f "$SPEC_DIR"/*.bak "$SPEC_DIR"/*.bak2
+if ! (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 3 1) >/dev/null; then
+  fail "P1 setup: precheck on the mis-cased mixed plan should succeed"
+else
+  [[ "$(jq -r '.tasks_sha256_form' "$TASK_REPORT/attempt-3/round-1/precheck-result.json")" == "normalized" ]] \
+    && ok "P1: a Done/done plan is classified mixed (case-sensitive uniqueness)" \
+    || fail "P1: a Done/done plan was classified uniform — case-insensitive comparison crept in"
+fi
+write_tasks_mixed
+
 # ---------------------------------------------------------------------------
 # P2 — the reservation validator's scoped exception, on isolated fixtures.
 # ---------------------------------------------------------------------------
