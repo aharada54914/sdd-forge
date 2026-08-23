@@ -88,7 +88,14 @@ Spawn task-reviewer-a as a fresh agent (no shared context) with:
   four layer specs (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
   `security-spec.md`) with current hashes: the persisted-state validator
   (`check-workflow-state.sh`) rejects task-stage evidence whose reviewer
-  manifests omit any layer input.
+  manifests omit any layer input. WFI-025 — the `tasks.md` entry is the one
+  exception to "current hashes": read the round's `precheck-result.json`
+  first, and when it declares `tasks_sha256_form: normalized`, copy its
+  recorded `tasks_sha256` verbatim into the `tasks.md` manifest entry
+  instead of recomputing (the reservation validator re-derives the
+  normalized digest from the live file itself, so the entry still binds
+  every byte outside the lifecycle fields). Otherwise recompute the raw
+  digest as for every other entry.
 
 The agent reads inputs itself and writes:
 `reports/task-review/<feature>/attempt-<M>/round-<N>/reviewer-a.json`
@@ -138,7 +145,14 @@ Spawn task-reviewer-b as a fresh agent (no shared context) with:
   four layer specs (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
   `security-spec.md`) with current hashes: the persisted-state validator
   (`check-workflow-state.sh`) rejects task-stage evidence whose reviewer
-  manifests omit any layer input.
+  manifests omit any layer input. WFI-025 — the `tasks.md` entry is the one
+  exception to "current hashes": read the round's `precheck-result.json`
+  first, and when it declares `tasks_sha256_form: normalized`, copy its
+  recorded `tasks_sha256` verbatim into the `tasks.md` manifest entry
+  instead of recomputing (the reservation validator re-derives the
+  normalized digest from the live file itself, so the entry still binds
+  every byte outside the lifecycle fields). Otherwise recompute the raw
+  digest as for every other entry.
 
 task-reviewer-b has `disallowedPaths` covering reviewer-a.json. The agent reads
 its own inputs and writes:

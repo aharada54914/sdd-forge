@@ -291,41 +291,82 @@ foreach ($bid in $BASELINE_IDS) {
     }
 }
 
+# RT-20260821-007: non-string scalar fields must fail closed with a proper
+# diagnostic (a JSON array risk was silently string-coerced here while the
+# python twin crashed). Parity with the python twin's early return.
+$nonStringFields = @()
+foreach ($scalarField in @('risk', 'stack', 'required_workflow', 'spec_revision', 'cross_model')) {
+    $scalarProp = $contract.PSObject.Properties[$scalarField]
+    if ($scalarProp -and $null -ne $scalarProp.Value -and $scalarProp.Value -isnot [string]) {
+        $nonStringFields += $scalarField
+    }
+}
+if ($nonStringFields.Count -gt 0) {
+    foreach ($scalarField in $nonStringFields) {
+        $failures += "contract $scalarField must be a string"
+    }
+    Write-Output "Verification contract FAILED for task $($contract.task_id):"
+    $failures | ForEach-Object { Write-Output " - $_" }
+    exit 1
+}
+
+# RT-20260821-005(c): contract schema versioning (parity with the python
+# twin). Absent schema = v1 legacy, behavior unchanged; a declared schema
+# must be a recognized version.
+$contractSchema = ([string]($contract.schema)).Trim()
+if ($contractSchema -and $contractSchema -cne 'verification-contract/v2') {
+    Write-Output "Verification contract FAILED for task $($contract.task_id):"
+    Write-Output " - contract schema is unrecognized: $contractSchema"
+    exit 1
+}
+
 # Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
 $risk = ([string]($contract.risk)).Trim()
 $stack = ([string]($contract.stack)).Trim()
 if (-not $stack) { $stack = "code" }  # absent/empty == code (legacy)
 if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
     # Validate stack value; unknown -> fail and fall back to strictest (code).
-    if ($stack -notin $KNOWN_STACKS) {
+    if ($stack -cnotin $KNOWN_STACKS) {
         $failures += "contract stack is invalid: $stack"
         $stack = "code"
     }
     # Validate risk tier value
-    if ($risk -notin $RISK_TIERS.Keys) {
+    if ($risk -cnotin @($RISK_TIERS.Keys)) {
         $failures += "contract risk is invalid: $risk"
     } else {
         # Enforce tier's required-id set. Capability-state-gated ids drop out
         # while the project declares no capability-enforcement posture, so the
         # requirement activates exactly when the corresponding gate stops
         # being inert (see $CAPABILITY_STATE_GATED_IDS).
+        # RT-20260821-005(c) / AC-005 contract side (see the python twin's
+        # rationale comment): v2 high/critical requires a well-formed
+        # spec_revision; v1/absent-schema contracts are exempt.
+        if ($contractSchema -ceq 'verification-contract/v2' -and ($risk -cin @('high', 'critical'))) {
+            $specRevision = ([string]($contract.spec_revision)).Trim()
+            $srOk = ($specRevision.Length -eq 40 -or $specRevision.Length -eq 64) -and
+                    ($specRevision -cmatch '\A[0-9a-f]+\z')
+            if (-not $srOk) {
+                $failures += "risk $risk requires a well-formed spec_revision (40- or 64-hex lowercase) under verification-contract/v2"
+            }
+        }
+
         $requiredIds = $RISK_TIERS[$risk]
         if (-not (Test-CapabilityEnforcementDeclared -Root $absRoot)) {
             $requiredIds = @($requiredIds | Where-Object { $CAPABILITY_STATE_GATED_IDS -notcontains $_ })
         }
         $presentIdSet = $contract.checks | ForEach-Object { $_.id }
-        $compileWaivable = ($stack -in $NONCODE_STACKS)
+        $compileWaivable = ($stack -cin $NONCODE_STACKS)
 
         foreach ($reqId in ($requiredIds | Sort-Object)) {
-            if ($reqId -notin $presentIdSet) {
+            if ($reqId -cnotin $presentIdSet) {
                 $failures += "risk $risk requires check '$reqId' present and required:true (missing)"
             } else {
                 # Find the check and verify required:true
-                $check = $contract.checks | Where-Object { $_.id -eq $reqId } | Select-Object -First 1
+                $check = $contract.checks | Where-Object { $_.id -ceq $reqId } | Select-Object -First 1
                 if (-not [bool]$check.required) {
                     # Non-code stack: compile-oriented checks are waivable (required:false).
                     # The waiver_reason itself is enforced by Pass 2/3. Everything else stays mandatory.
-                    if ($compileWaivable -and ($reqId -in $COMPILE_CHECKS)) {
+                    if ($compileWaivable -and ($reqId -cin $COMPILE_CHECKS)) {
                         # accepted as N/A for this stack
                     } else {
                         $failures += "risk $risk requires check '$reqId' to be required:true"
@@ -338,7 +379,7 @@ if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
 
 # Pass 5: Red→Green evidence enforcement (only when required_workflow == "tdd")
 $requiredWorkflow = ([string]($contract.required_workflow)).Trim()
-if ($requiredWorkflow -eq "tdd") {
+if ($requiredWorkflow -ceq "tdd") {
     # TDD test-check ids that require red_evidence and green_evidence when required=true
     $tddTestIds = @("unit-tests", "acceptance-tests")
 
@@ -377,12 +418,16 @@ if ($requiredWorkflow -eq "tdd") {
     }
 }
 
-# Pass 5b: Risk→Workflow consistency (only when BOTH risk AND required_workflow are present)
-if ($risk -and $requiredWorkflow) {  # Enforce only if both fields are present and non-empty
-    if ($risk -in @("high", "critical")) {
-        if ($requiredWorkflow -ne "tdd") {
-            $failures += "risk $risk requires required_workflow: tdd (got '$requiredWorkflow')"
-        }
+# Pass 5b: Risk→Workflow consistency. RT-20260821-003: an absent, empty, or
+# whitespace required_workflow used to disable BOTH this pass and Pass 5, so
+# one omitted field silently dropped the Red→Green obligation at
+# high/critical tier. The field is now mandatory whenever the tier demands a
+# workflow (parity with the python twin).
+if ($risk -cin @("high", "critical")) {
+    if (-not $requiredWorkflow) {
+        $failures += "risk $risk requires required_workflow: tdd (field missing or empty)"
+    } elseif ($requiredWorkflow -cne "tdd") {
+        $failures += "risk $risk requires required_workflow: tdd (got '$requiredWorkflow')"
     }
 }
 
