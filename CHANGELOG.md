@@ -43,13 +43,13 @@
 
 ### Changed
 
-- **`installer-idempotency` スイートを CI に登録**: main の WFI-041 適用
-  (`8ef826d7`) はこのスイートを `tests/run-all.{sh,ps1}` にのみ登録している。
-  しかし **どのワークフローも `run-all` を呼んでいない** — CI は
-  `.github/workflows/test.yml` でスイートを明示列挙する方式であり、
-  `test.yml:549` のコメントもその二重登録規約に言及している。したがって
-  登録は run-all 側だけでは CI に届かない。sh/ps1 双方のステップを
-  `test.yml` に追加した(`:119-126`)。
+- **`installer-idempotency.tests.ps1` に終端 `exit 0` を追加**: ケース7の
+  スタブ CLI が意図的に残す `$LASTEXITCODE=1` を pwsh がプロセス終了コード
+  として返すため、「all scenarios passed.」と出力しながら exit 1 になる。
+  main の `2b8e528a` が本スイートを `installers` ジョブに登録したことで、
+  この欠陥が CI を赤にする経路に乗った。
+  （CI 登録自体は `2b8e528a` が `installers` ジョブで行っており、本ブランチが
+  一時的に `test` ジョブへ入れていた重複登録は削除した。）
 
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
