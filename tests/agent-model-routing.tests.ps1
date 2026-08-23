@@ -1068,6 +1068,21 @@ if ("$fbSel" -cne 'openai/gpt-5.2-codex strong') {
 
 }
 
+# Gate seq 852: the probe above resolves to the v1 registry (no -Registry), so
+# stripping fallback_for from the v2 registry reintroduced the defect on both
+# twins with eight suites green. The capability matrix documents `matrix` as
+# the default effort policy, resolving from v2, so that file is a live path.
+Assert-Literal $RegistryV2 '"fallback_for": "openai/gpt-5.2-codex"' `
+    'v2 registry must keep the fallback_for designation'
+
+$fbSelV2 = & $SelectorPs -Risk high -Registry $RegistryV2 -Candidate @('openai/gpt-5.1-codex-max:strong:0.090', 'openai/gpt-5.2-codex:strong:0.090')
+
+if ("$fbSelV2" -cne 'openai/gpt-5.2-codex strong') {
+
+    Fail "fallback model won the equal-cost tie on the v2 registry (ps1 twin): $fbSelV2"
+
+}
+
 # RT-20260821-009 cycle-4 (seq 844): port the reviewer standard-minimum floor
 # to the ps1 twin. The sh suite pins all six reviewer declarations; the ps1
 # twin did not, so a Windows-only run could ship a Haiku-downgraded reviewer.

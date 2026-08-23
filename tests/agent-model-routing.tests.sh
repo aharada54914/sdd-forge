@@ -1199,4 +1199,23 @@ fi
 grep -q '"fallback_for": "openai/gpt-5.2-codex"' "$REGISTRY" ||
   fail "registry lost the fallback_for designation (design.md:44)"
 
+# Gate seq 852: the RT-20260821-009 fix designated the fallback in BOTH
+# registries, but every probe above resolves to v1 (no --registry), so
+# stripping the designation from the v2 registry reintroduced the exact defect
+# on both twins while eight suites stayed green. The capability matrix
+# documents `matrix` as the default effort policy, resolving from v2, so a
+# caller on the documented default gets its tie-breaking from this file.
+grep -q '"fallback_for": "openai/gpt-5.2-codex"' "$REGISTRY_V2" ||
+  fail "v2 registry lost the fallback_for designation (design.md:44)"
+fb_sel_v2="$(bash "$SELECTOR_SH" --risk high --registry "$REGISTRY_V2" \
+  --candidate openai/gpt-5.1-codex-max:strong:0.090 \
+  --candidate openai/gpt-5.2-codex:strong:0.090)"
+[[ "$fb_sel_v2" == "openai/gpt-5.2-codex strong" ]] ||
+  fail "fallback model won an equal-cost tie against its primary on the v2 registry: $fb_sel_v2"
+if command -v pwsh >/dev/null 2>&1; then
+  fb_ps_v2="$(pwsh -NoProfile -Command "& '$SELECTOR_PS' -Risk high -Registry '$REGISTRY_V2' -Candidate @('openai/gpt-5.1-codex-max:strong:0.090','openai/gpt-5.2-codex:strong:0.090')")"
+  [[ "$fb_ps_v2" == "openai/gpt-5.2-codex strong" ]] ||
+    fail "PowerShell selector let the fallback win the equal-cost tie on the v2 registry: $fb_ps_v2"
+fi
+
 printf 'ok: turn-first model routing structure is defined\n'
