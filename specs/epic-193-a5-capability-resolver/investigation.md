@@ -788,3 +788,100 @@ entirely within requirements.md/design.md/acceptance-tests.md themselves:
   guard-invariants.json`, `contracts/` directory listing, `specs/
   workflow-state-registry.json` (this worktree,
   `/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/`).
+
+## Amendment Re-Review Context
+
+This feature's specification package was amended post-implementation under
+an explicit, dated human approval, and is re-reviewed under the amendment
+re-review lane (`plugins/sdd-review-loop/references/spec-review-calibration.md`,
+section `## Amendment Re-Review Context`). Every citation below is a full
+commit hash or a SHA-256 fingerprint per that section's evidence bar.
+
+### Amendment commits (full hashes)
+
+1. `d5701194ab11d8d5348d91fc96fdca5e857bb9b5` — ruling A①: amends
+   `requirements.md`'s AC-056 sentence (the "warn-only never appears"
+   claim) with the "or jointly caused" evaluation-abort exception.
+2. `b572fcd65292b1652e6c03f8a08b26e6d8507160` — ruling B①: amends the
+   AC-016 byte-identity criterion in all three statement sites
+   (`requirements.md` REQ-003 prose, `requirements.md` AC-016 table row,
+   `acceptance-tests.md` AC-016/TEST-016 row) to scope byte-identity to
+   everything except `state` and the two named enforcement-derived
+   `context_binding` digest fields
+   (`full_context_revision`/`projection_sha256`).
+
+### Per-document SHA-256 at each amendment commit
+
+As of `d5701194ab11d8d5348d91fc96fdca5e857bb9b5`:
+
+- `specs/epic-193-a5-capability-resolver/requirements.md` =
+  `f62043223685ba18c2ec76a1d6268301a5b2045a7bba7ca2306ca437825f3d1e`
+- `specs/epic-193-a5-capability-resolver/acceptance-tests.md` =
+  `581cc5e9931c62a8f020771302e91ddbea2d9b530f073f1732a73bcfff6d50cc`
+  (unchanged by this commit)
+
+As of `b572fcd65292b1652e6c03f8a08b26e6d8507160`:
+
+- `specs/epic-193-a5-capability-resolver/requirements.md` =
+  `fefdf075a7309dd30f30a89c8a01274d079b44755f63c15719a72689d74d6425`
+- `specs/epic-193-a5-capability-resolver/acceptance-tests.md` =
+  `ef78ed2463854cc01933b8e9af860540d2deca1c53387f4feeecda149fec4aa2`
+- `specs/epic-193-a5-capability-resolver/investigation.md` =
+  `4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532`
+  (this document, as of the amendment commits, before this very section
+  was appended; the appended section changes this document's bytes, so
+  this pin is the fixed-point-safe pre-entry fingerprint, and the review
+  precheck re-pins the post-entry bytes)
+
+### Verbatim, dated human approvals
+
+The human ruled, dated 2026-08-24: 「A①B①C①でやれ」, following the standing
+approval, dated 2026-08-23: 「194/195/196の凍結文書について人間は承認する」 —
+this epic's frozen-document amendments join that approval family by the
+same 2026-08-24 ruling. The rulings, as presented to and approved by the
+human, verbatim:
+
+- **A①**: requirements.md's AC-056 sentence (`:526-528` — "A
+  `dsl-warn-on-matched-capability` id therefore never appears with only
+  `severity: "warn"` entries and no `severity: "block"` summary entry…")
+  is amended minimally so that warn entries collected before an
+  evaluation abort may lawfully appear alongside a different-id block
+  summary when the abort and the warns are jointly caused by the same
+  evaluation pass — the "or jointly caused" shape one blind reviewer
+  identified as the lossless option. This reconciles the sentence with
+  REQ-004's "record every diagnostic-worthy condition", which both
+  vendors have now flagged from opposite sides across two rounds.
+- **B①**: the AC-016 byte-identity criterion ("advisory and required
+  invocations byte-identical except state") is amended minimally to
+  exclude enforcement-derived digests — `context_binding.
+  full_context_revision` and `projection_sha256` structurally encode
+  `workflow.capability_enforcement` because it is part of the canonical
+  Project Context, so the criterion as written is (per the panel)
+  "internally impossible". The amended text scopes byte-identity to
+  everything except `state` and the enforcement-derived digest fields,
+  naming them.
+
+### Later-phase artifacts referenced (commit / SHA-256 for each)
+
+- The forwarding reversal this amendment supersedes, and the panel
+  findings ("both vendors converged" AC-056 reading; the "AC-016
+  byte-identity frozen-doc conflict (WFI candidate)" left open):
+  commit `1811ed0edf8bcded80f9093e0f85447279f5516e`.
+- The production follow-through restoring `warn_diagnostics` forwarding
+  on the three steps-7/8 abort paths, with its mutation-kill evidence:
+  commit `18d90c67a201a5a1a082f905159dcf1e3b987932`. As of that commit:
+  - `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` =
+    `d3360c518bf1831e70a63e1344acf64b71852f6310e4ace8c3fce6d033efe73e`
+  - `tests/resolve-project-context-block-check.py` =
+    `607014db9c43b90d045f1863511df8112d5576c8c1fac72e5555efe3ede50ce1`
+  - `tests/resolve-project-context-match-check.py` =
+    `d1e3d9a6629a223ce0fb14724d5740ca41c1c497298fe6075a8943424420df7e`
+- B① required no production or assertion change: the
+  `enforcement-byte-identity` fixture driver
+  (`tests/resolve-project-context-match-check.py`, SHA-256 above) already
+  asserts the amended scope — it excludes exactly `state` and
+  `context_binding.full_context_revision`/`projection_sha256`, with a
+  separate non-vacuity assertion that the two digests genuinely differ —
+  since the T-004 NEEDS_WORK cycle-2 "late Blocks drop provenance"
+  remediation; commit `18d90c67a201a5a1a082f905159dcf1e3b987932` updates
+  only that driver's docstring to cite the amended criterion.
