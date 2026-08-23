@@ -8,24 +8,19 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_write_evidence",
-      "note": "diagnostics[] is emitted as warn_diagnostics followed by the block summary, rather than stable-sorted by (id, detail) as REQ-005/AC-024 require. Because the summary detail is a lexical prefix of the per-node WARN details, the required order places the summary first; the implementation and its exact-document tests encode the opposite order."
+      "ref": "resolve-project-context.py:_discover_governing_schema/_load_governing_schema",
+      "note": "Governing output-schema discovery only checks that a file exists and parses as JSON; it never performs the required per-artifact `$schema`/`$id` version check. A wrong-version or substituted schema can therefore be accepted and used for self-validation instead of Blocking with `contract-discovery-failed`, contrary to REQ-002, AC-002, and the design's Discovery contract."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_draft7_validate / step 12",
-      "note": "The defensive output-schema validator does not implement governing draft-07 keywords used by resolver-evidence.schema.json, including not and minimum. It therefore does not actually establish schema conformance; for example, it can accept conditional_facet_evaluations on matched:false and a negative declaration_index, contrary to the schema and REQ-002's fail-closed output-schema-validation-failed contract."
-    },
-    {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:main step 10-13 Block handlers",
-      "note": "Late Blocks such as lite-check-source-undefined, non-Evidence output-schema-validation-failed, and snapshot-generation-mismatch write Resolver Evidence through _block without the already-computed context_binding and resolver provenance blocks. REQ-001 step (j), REQ-004, and T-004's Evidence-assembly scope require the full digest/provenance record once those values are available; the tests currently lock in the incomplete record."
+      "ref": "resolve-project-context.py:_load_governing_schema and main step 12 ContractDiscoveryFailed handler",
+      "note": "Schema read/parse failures interpolate the raw exception into `ContractDiscoveryFailed`, and main copies that text into the diagnostic detail and Resolver Evidence. An OSError can contain absolute paths, errno wording, and OS-specific text, violating REQ-002/AC-014/REQ-005's canonical Resolver-owned, repository-relative, cross-runtime-stable diagnostic contract. Existing coverage exercises only the fixed missing-file message, not unreadable or malformed schema errors."
     }
   ],
   "blind": true,
-  "input_digest": "bc6f15e2b3f2235796bbe51ae9353fdb042f642a0755300bc1d665fa4c7ab1df",
+  "input_digest": "85418e865f6821cf8fcb2ac1f3bc4de75e95d543fc0ec34fede3faeefd3b4d00",
   "consent": {
     "kind": "sudo",
-    "ref": "sudo 2026-08-08T16:04:17Z"
+    "ref": "tasks.md T-004 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

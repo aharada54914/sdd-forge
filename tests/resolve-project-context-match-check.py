@@ -532,8 +532,11 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
             and resolver_block["rule_set_revision"] == resolver_module.RULE_SET_REVISION
             and resolver_block["rule_set_revision"] == "sha256:" + hashlib.sha256(resolver_module.RULE_SET_STRING.encode("utf-8")).hexdigest(),
             f"{case_name}: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- "
-            f"white-box: never written to any live path pre-T-007, so cross-invocation/cross-runtime identity is a structural consequence of "
-            f".sh/.ps1 delegating unconditionally to this identical .py master, not something a real-subprocess run can itself observe)",
+            f"this call exercises _resolver_block()'s own reconstruction directly, diffed against the identical loaded module's own constants; "
+            f"gate-cycle-4 Minor: this label previously claimed both fields are 'never written to any live path pre-T-007', which is now stale -- "
+            f"resolver-evidence.yaml HAS published both since T-004's own NEEDS_WORK cycle 2 remediation, on every Block reached AT OR AFTER step "
+            f"10 (this fixture's own forced snapshot-generation-mismatch Block among them); the PUBLISHED equivalent is read back off that written "
+            f"artifact and compared against this identical expectation further below, RT-20260823-001 Finding 1)",
         )
 
         # --- RT-20260823-001 Finding 1 remediation: read the PUBLISHED
@@ -701,6 +704,88 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
             f"{case_name}: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)",
             validate_result.stdout.decode("utf-8", errors="replace") + validate_result.stderr.decode("utf-8", errors="replace"),
         )
+
+
+def run_include_untracked_pass_through_case(kind, counts):
+    """AC-004 gate-cycle-5 Major remediation: `run_full_pipeline_match_case`
+    above's own AC-004 assertion (`expected_rcp_argv`) never supplies
+    `--include-untracked` on this invocation's own resolver CLI call, so it
+    proves only the OMISSION half of AC-004's pass-through claim -- the
+    identical omission (never a synthesized `--no-include-untracked`) is
+    forwarded verbatim, per the cross-model-panel finding recorded in that
+    fixture's own comment. It never proves the SUPPLIED half: that a caller
+    who DOES pass `--include-untracked` gets it forwarded byte-identical, in
+    its own CLI-contract position, to `resolve-component-paths`. Gate-cycle-5
+    evaluator's own proof: a resolver-side mutant filtering
+    `--include-untracked` out of every downstream argv survived the
+    pre-existing suite at 95/0 -- this fixture closes that gap.
+
+    Reuses the identical `full-pipeline-match` fixture directory and
+    `resolve-component-paths` capture-and-delegate spy stub
+    `run_full_pipeline_match_case` already installs (module docstring's own
+    "capture, then delegate to a `-real` sibling" technique) -- this
+    invocation's own argv differs from that fixture's ONLY in supplying
+    `--include-untracked`, so the two are non-vacuously comparable: this
+    case reaches the identical forced `snapshot-generation-mismatch` Block
+    (sanity check below) via the identical steps 0-12, differing only in
+    whether `--include-untracked` reaches `resolve-component-paths`."""
+    case_name = "full-pipeline-match"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-match-iu-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = block_check.install_scripts(repo)
+        feature_dir, sentinels = block_check.plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+        registry_path = fixture_dir / "capability-registry.json"
+        _install_full_pipeline_dependencies(repo, scripts, fixture_dir, registry_path)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = block_check.git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("a\n", encoding="utf-8")
+        (repo / "comp-b").mkdir()
+        (repo / "comp-b/file.txt").write_text("b\n", encoding="utf-8")
+        (repo / "shared/util").mkdir(parents=True)
+        (repo / "shared/util/file.txt").write_text("s\n", encoding="utf-8")
+        (repo / "other-thing").mkdir()
+        (repo / "other-thing/file.txt").write_text("o\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "add comp-a, comp-b, shared/util, other-thing")
+
+        argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid, include_untracked=True)
+        env = os.environ.copy()
+        env["SDD_T002_PROJECTION_MODE"] = "passthrough"
+        result = subprocess.run(argv, cwd=repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.check(
+            result.returncode == 1 and stdout == "" and stderr == SNAPSHOT_MISMATCH_LINE,
+            "include-untracked-pass-through: sanity -- reaches the identical forced snapshot-generation-mismatch "
+            f"Block as {case_name}'s own --include-untracked-omitting invocation (steps 0-12 all passed here too; "
+            "this fixture's own argv differs from that one ONLY in supplying --include-untracked)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        rcp_capture_path = scripts / "rcp-argv-capture.json"
+        rcp_argv, rcp_parse_error = block_check.read_evidence(rcp_capture_path)
+        expected_rcp_argv = [
+            "--config", "project-context.yaml",
+            "--source-rev", base_oid,
+            "--target-rev", target_oid,
+            "--include-untracked",
+            "--json",
+        ]
+        counts.check(
+            rcp_argv == expected_rcp_argv,
+            "include-untracked-pass-through: resolve-component-paths invoked with --include-untracked forwarded "
+            "verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan "
+            "step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of "
+            "AC-004's pass-through claim, never exercised by full-pipeline-match's own --include-untracked-omitting "
+            "invocation above (AC-004)",
+            rcp_parse_error or repr(rcp_argv),
+        )
+        unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
+        counts.check(unchanged, "include-untracked-pass-through: no partial live artifact")
 
 
 def run_enforcement_byte_identity_case(kind, counts):
@@ -1186,8 +1271,12 @@ def run_warn_cardinality_facet_node_case(kind, counts):
         )
         counts.check(
             "declaration_index=0" in expected_facet_detail and "declaration_index=None" not in expected_facet_detail,
-            f"{case_name}: the facet-loop warn's own detail names a real, non-None integer declaration_index -- "
-            f"AC-056's own facet-loop clause, unexercised by any fixture before this one",
+            f"{case_name}: sanity -- the independently-recomputed facet-loop EXPECTATION itself names a real, "
+            f"non-None integer declaration_index (never the trigger-loop's own None), confirming this fixture's "
+            f"own oracle genuinely exercises AC-056's facet-loop clause rather than accidentally re-deriving the "
+            f"trigger-loop shape; the real comparison against the ACTUAL emitted diagnostics[] is the assertion "
+            f"immediately above (gate-cycle-5 Minor: this label previously implied it asserted against production "
+            f"output directly, which the assertion above already does)",
             repr(expected_facet_detail),
         )
 
@@ -1303,7 +1392,7 @@ def main():
 
     required_files = [block_check.STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
     case_labels = [
-        "full-pipeline-match", "enforcement-byte-identity",
+        "full-pipeline-match", "include-untracked-pass-through", "enforcement-byte-identity",
         "warn-cardinality-single-node", "warn-cardinality-multi-node",
         "warn-cardinality-facet-node",
     ]
@@ -1313,6 +1402,7 @@ def main():
     else:
         resolver_module = _load_module(block_check.STAGED / "resolve-project-context.py", "resolve_project_context_oracle")
         run_full_pipeline_match_case(args.launcher, resolver_module, counts)
+        run_include_untracked_pass_through_case(args.launcher, counts)
         run_enforcement_byte_identity_case(args.launcher, counts)
         run_facet_manifest_state_independence_check(resolver_module, counts)
         run_warn_cardinality_single_node_case(args.launcher, counts)

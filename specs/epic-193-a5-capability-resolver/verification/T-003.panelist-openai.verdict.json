@@ -8,17 +8,17 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_run_resolve_component_paths",
-      "note": "When --include-untracked is omitted, the implementation passes --no-include-untracked to resolve-component-paths. The upstream CLI contract only defines optional --include-untracked, and REQ-001/AC-004 require verbatim pass-through: omission must remain omission. This can reject ordinary invocations or diverge from the required dependency call."
+      "ref": "resolve-project-context.py:_discover_registry/_validate_capability_registry/_generate_registry_digest_whole",
+      "note": "Registry processing is not bound to one fixed snapshot as REQ-001 requires. The resolver parses the discovered Registry, the validator independently re-reads its path, and generate-registry-digest independently rediscovers and reads it without receiving the located path or retained bytes. A Registry change between these operations can therefore make capability evaluations use the old document while validation and context_binding.registry_digest describe newer bytes; the later recheck can still pass if the newer bytes remain stable. This silent mixed-generation provenance defect is acknowledged as unresolved in the implementation report and lacks a fixture for the step-5-to-step-6 race."
     },
     {
-      "severity": "Major",
-      "ref": "resolve-project-context.py:_write_evidence",
-      "note": "WARN diagnostics are emitted as collected WARN entries followed by the block-summary entry, without sorting by (id, detail). Because the summary detail is a lexical prefix of the per-node details, this ordering is not the required stable sort; the existing WARN tests encode the incorrect order rather than enforcing REQ-005/AC-024."
+      "severity": "Minor",
+      "ref": "verification/qg/T-003/traceability.log",
+      "note": "The required traceability evidence remains stale after the reported recapture: it claims six T-003 fixtures and focused-test totals of 102, while the current contract/report and focused logs describe eleven fixtures and 155 passing assertions. The manual evidence therefore does not accurately verify the reviewed tree."
     }
   ],
   "blind": true,
-  "input_digest": "708041938d6fbb2914f21e18663ff0585b7049ab179fbebcc3ed8f7862b0e18b",
+  "input_digest": "77f2e5a0035e73117c7b959fece24573f12a3d234c2a31122d8e89e5cf5502fd",
   "consent": {
     "kind": "sudo",
     "ref": "tasks.md T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"

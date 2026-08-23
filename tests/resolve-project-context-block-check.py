@@ -371,13 +371,24 @@ def git_commit_all(repo, message):
     ).stdout.strip()
 
 
-def t003_resolver_argv(kind, scripts, source_rev, target_rev):
-    return launcher_args(kind, scripts) + [
+def t003_resolver_argv(kind, scripts, source_rev, target_rev, include_untracked=False):
+    """AC-004 gate-cycle-5 Major remediation: `include_untracked` defaults
+    to `False` (every pre-existing caller's own byte-identical argv,
+    unchanged) and, when `True`, inserts `--include-untracked` in its own
+    CLI-contract position (design.md API/Contract Plan: `--config
+    [--source-rev] --target-rev [--include-untracked] --feature`) --
+    between `--target-rev <rev>` and `--feature <slug>` -- so a caller can
+    exercise the SUPPLIED half of AC-004's own pass-through claim, not
+    only the omission half every existing fixture already covers."""
+    argv = launcher_args(kind, scripts) + [
         "--config", "project-context.yaml",
         "--source-rev", source_rev,
         "--target-rev", target_rev,
-        "--feature", "example-feature",
     ]
+    if include_untracked:
+        argv.append("--include-untracked")
+    argv += ["--feature", "example-feature"]
+    return argv
 
 
 def real_evaluate_predicate(predicate, properties):
