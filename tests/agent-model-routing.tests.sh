@@ -120,6 +120,21 @@ assert_contains "$INVESTIGATOR" '^model: haiku$' "Claude investigator must be do
 assert_literal "$COPILOT_INVESTIGATOR" "Model tier: lightweight" "Copilot investigator must document lightweight tier"
 assert_contains "$EVALUATOR" '^model: opus$' "Claude evaluator must remain Opus"
 
+# RT-20260821-009 cycle-2 (seq 836): reviewer floor pins. The standard-minimum
+# reviewer floor was matrix-prose-only - downgrading any reviewer declaration
+# to Haiku shipped green (measured on 4/4 tested files by the cycle-2
+# evaluator). Pin all six declarations at sonnet-or-stronger.
+for reviewer_decl in \
+  plugins/sdd-review-loop/agents/spec-reviewer-a.md \
+  plugins/sdd-review-loop/agents/spec-reviewer-b.md \
+  plugins/sdd-review-loop/agents/impl-reviewer-a.md \
+  plugins/sdd-review-loop/agents/impl-reviewer-b.md \
+  plugins/sdd-review-loop/agents/task-reviewer-a.md \
+  plugins/sdd-review-loop/agents/task-reviewer-b.md; do
+  grep -Eq '^model: (sonnet|opus)$' "$ROOT/$reviewer_decl" ||
+    fail "reviewer declaration below the standard floor (model must be sonnet or opus): $reviewer_decl"
+done
+
 assert_literal "$ADR" "Turn-first routing optimizes expected iteration count before token price." \
   "ADR must record turn-first routing decision"
 assert_literal "$POLICY" "Apply the turn-first routing matrix before choosing an implementation model." \

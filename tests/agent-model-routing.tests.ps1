@@ -1050,5 +1050,20 @@ Status: Planned
     Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue
 }
 
+# RT-20260821-009 cycle-2 (seq 836): pin the fallback tie-break in the ps1
+
+# suite itself - the cross-runtime pin lived only in the sh suite, so a
+
+# Windows-only run missed a fallback regression in either twin.
+
+$fbSel = & $SelectorPs -Risk high -Candidate @('openai/gpt-5.1-codex-max:strong:0.090', 'openai/gpt-5.2-codex:strong:0.090')
+
+if ("$fbSel" -cne 'openai/gpt-5.2-codex strong') {
+
+    Fail "fallback model won the equal-cost tie on the ps1 twin: $fbSel"
+
+}
+
+
 Write-Output 'ok: turn-first model routing structure is defined (PowerShell twin)'
 exit 0

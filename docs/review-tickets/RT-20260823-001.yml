@@ -1,0 +1,71 @@
+ticket_id: RT-20260823-001
+status: open
+type: defect
+severity: major
+target:
+  feature: "agent-cost-context-isolation"
+  task: "T-002"
+  files:
+    - "plugins/sdd-implementation/scripts/select-agent-model.sh"
+    - "plugins/sdd-implementation/scripts/select-agent-model.ps1"
+    - "plugins/sdd-implementation/references/agent-model-capabilities.json"
+summary: >-
+  Both selector twins fail OPEN when the capability registry is missing,
+  malformed, or empty: they exit 0 and silently reproduce the pre-fix
+  defective selection (fallback model wins the equal-cost tie), violating
+  the design's fail-closed principle for deterministic operations
+problem: |
+  Found by the cycle-2 QG evaluator for T-001 (seq 0836, report
+  reports/quality-gate/20260823T113000Z.md, Minor 1) while probing the
+  RT-20260821-009 tie-break fix for hardcoding. The fix itself is genuine
+  and registry-driven - which is exactly why the registry read path matters.
+
+  Reproduced on this branch (2026-08-23):
+
+    bash plugins/sdd-implementation/scripts/select-agent-model.sh \
+      --risk high --registry /nonexistent-registry.json \
+      --candidate 'openai/gpt-5.1-codex-max:strong:0.090' \
+      --candidate 'openai/gpt-5.2-codex:strong:0.090'
+    -> stdout: "openai/gpt-5.1-codex-max strong", exit 0
+
+  With the registry absent the fallback-deprioritization rank cannot be
+  read, so the fallback model wins the equal-cost tie - byte-identical to
+  the defective pre-fix selection that RT-20260821-009 was raised to
+  eliminate - and the caller gets exit 0 with no diagnostic. The ps1 twin
+  behaves the same. A deleted, truncated, or JSON-broken
+  agent-model-capabilities.json therefore reverts routing to the defect
+  SILENTLY, and no test pins the failure mode because the routing suites
+  only exercise a present, well-formed registry.
+
+  This contradicts specs/agent-cost-context-isolation/design.md:85-89,
+  which requires deterministic operations to fail closed rather than
+  substitute (a missing runtime must fail as
+  deterministic-runtime-unavailable; the registry is the same class of
+  deterministic input). Related, smaller surface: --role is accepted but
+  inert, and unknown role values are silently swallowed (fails safe, but
+  the same silent-acceptance pattern).
+
+  Scope note: the cycle-2 evaluator judged this out of T-001's declared
+  scope (T-001 delivers declarations and the tie-break; the selector's
+  input-validation contract is T-002's registry/selection surface), so it
+  is recorded here against T-002 rather than blocking T-001.
+expected_fix: |
+  1. Both twins MUST fail closed on a missing, unreadable, JSON-malformed,
+     or empty-model-list registry: non-zero exit, no selection on stdout,
+     and a named diagnostic (e.g. "selector-registry-unavailable: <path>")
+     on stderr. Behavior must be byte-identical across sh and ps1.
+  2. Decide and document the --role contract: either make it operative or
+     reject unknown/inert values with a diagnostic; silent acceptance is
+     not an option.
+  3. Extend tests/agent-model-routing.tests.sh and .ps1 with
+     mutation-verified pins for each failure mode (missing path, malformed
+     JSON, empty registry) on BOTH twins, asserting non-zero exit and the
+     diagnostic, and asserting that no selection line is emitted.
+references:
+  - "reports/quality-gate/20260823T113000Z.md"
+  - "docs/review-tickets/RT-20260821-009.yml"
+  - "specs/agent-cost-context-isolation/design.md"
+  - "specs/agent-cost-context-isolation/tasks.md"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
