@@ -143,7 +143,7 @@ T-001, T-002
 
 Source Issue: investigation.md INV-003
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: enforces TDD proof for high/critical; incorrect logic would either block valid work or admit fake TDD.
 Required Workflow: tdd
