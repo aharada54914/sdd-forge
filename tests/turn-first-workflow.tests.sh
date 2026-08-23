@@ -742,6 +742,46 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: malformed Output Paths And
   "$REPORT_WORK/legacy-short-hash.md" \
   "legacy bullet carrying a 62-hex hash instead of 64"
 
+# WFI-044 (RT-20260821-016): a quota interruption ends the recording agent's
+# turn, so the resuming orchestrator -- a different actor -- is the one that
+# knows the run fell back, and presence-only checking let agci T-007 ship
+# `fresh-agent` over a narrative describing exactly that fallback. Both
+# polarities plus the false-positive guard are pinned here.
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe first attempt stopped when the host quota was hit, and the orchestrator resumed the work from the handoff file.\n'
+} > "$REPORT_WORK/isolation-contradiction.md"
+expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: isolation narrative contradicts declared mode' \
+  "$REPORT_WORK/isolation-contradiction.md" \
+  "fresh-agent declared over an interrupted-and-resumed narrative"
+
+python3 - "$REPORT_WORK/current.md" "$REPORT_WORK/isolation-truthful.md" <<'PYEOF'
+import sys
+text = open(sys.argv[1], encoding="utf-8").read()
+text = (text.replace("- **Isolation Mode**: fresh-agent",
+                     "- **Isolation Mode**: same-session-file-reload")
+            .replace("- **Fallback Reason**: None",
+                     "- **Fallback Reason**: host-does-not-support-implementation-subagents")
+            .replace("- **Handoff Reload Evidence Hash**: None",
+                     "- **Handoff Reload Evidence Hash**: " + "a" * 64))
+text += ("\n\nThe first attempt stopped when the host quota was hit, and the "
+         "orchestrator resumed the work from the handoff file.\n")
+open(sys.argv[2], "w", encoding="utf-8").write(text)
+PYEOF
+truthful_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-truthful.md")" ||
+  fail "a truthful same-session declaration with the same narrative was rejected"
+[[ "$truthful_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for truthful same-session narrative: $truthful_output"
+
+{
+  cat "$REPORT_WORK/current.md"
+  printf '\n\nThe manifest is the only handoff input; chat history is forbidden. Evidence was reloaded from disk.\n'
+} > "$REPORT_WORK/isolation-ordinary-prose.md"
+ordinary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/isolation-ordinary-prose.md")" ||
+  fail "ordinary handoff/reload prose tripped the WFI-044 narrative rule (false positive)"
+[[ "$ordinary_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected diagnostic for ordinary handoff prose: $ordinary_output"
+
 replace_report_text \
   "$REPORT_WORK/current.md" \
   "$REPORT_WORK/partial-escalation.md" \

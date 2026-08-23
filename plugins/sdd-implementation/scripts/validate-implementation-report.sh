@@ -246,6 +246,33 @@ elif isolation_mode == "same-session-file-reload":
 else:
     fail("invalid Isolation Mode")
 
+# WFI-044: a quota interruption ends the recording agent's turn, so the
+# RESUMING orchestrator -- a different actor -- is the one that knows the run
+# fell back to same-session-file-reload, and nothing obliged it to say so.
+# Presence-only checking therefore let agci T-007 ship `fresh-agent` over a
+# narrative describing exactly that fallback (RT-20260821-016).
+#
+# The rule fires only on a `fresh-agent` declaration, and only when ONE
+# sentence carries both an interruption term and a resumption term -- the
+# conjunction is what distinguishes "this run was interrupted and resumed"
+# from the framework's ordinary talk of handoffs and reloads. Fail-closed: a
+# false positive is corrected by making the declaration truthful, never by
+# deleting the narrative.
+if isolation_mode == "fresh-agent":
+    _interruption = re.compile(
+        r"\b(quota|rate[- ]limit\w*|interrupt\w*|"
+        r"ran out of context|context (?:limit|window) (?:hit|exhausted))\b",
+        re.IGNORECASE,
+    )
+    _resumption = re.compile(
+        r"\b(resum\w+|took over|picked (?:it |the work )?up|"
+        r"orchestrator (?:completed|finished|continued))\b",
+        re.IGNORECASE,
+    )
+    for _sentence in re.split(r"(?<=[.!?])\s+", text):
+        if _interruption.search(_sentence) and _resumption.search(_sentence):
+            fail("isolation narrative contradicts declared mode")
+
 unresolved_body = sections["Unresolved Items"][0].strip()
 if is_unfilled(unresolved_body):
     fail("missing Unresolved Items section value")

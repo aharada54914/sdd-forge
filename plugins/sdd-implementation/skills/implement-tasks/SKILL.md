@@ -169,6 +169,17 @@ For each task in the set (run these concurrently across the set):
      path/hash, and reload validation result in the implementation report.
    Chat history or compaction summaries alone are forbidden handoff input and
    cannot satisfy any reload step.
+   - **On resuming an interrupted task (WFI-044).** A provider quota limit,
+     rate limit, or any other interruption ends the implementing agent's turn,
+     so the agent that recorded `Isolation Mode: fresh-agent` is no longer the
+     one that knows what happened. Whenever you resume a task from a handoff
+     file after such an interruption, update that task's implementation report
+     isolation fields — mode, fallback reason, and reload evidence hash — to
+     the values that are now true, BEFORE continuing implementation. Leaving a
+     stale `fresh-agent` declaration over an interrupted-and-resumed run is the
+     RT-20260821-016 defect; `validate-implementation-report` now rejects that
+     contradiction, and the fix is always to make the declaration truthful,
+     never to remove the narrative that revealed it.
 5. The persisted manifest and immutable snapshot are the only task handoff in
    either host path. If launch identity, snapshot validation, saved reload
    evidence, or output-root enforcement cannot be established, fail closed
