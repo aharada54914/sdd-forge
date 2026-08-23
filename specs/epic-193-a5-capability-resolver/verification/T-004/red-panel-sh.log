@@ -125,7 +125,7 @@ PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
 PASS: dsl-warn-unsorted-affected-components: no partial live artifact
 PASS: lite-check-source-undefined: exit 1
 PASS: lite-check-source-undefined: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: lite-check-source-undefined: exact Resolver Evidence
+FAIL: lite-check-source-undefined: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-lite', 'conditional_facet_evaluations': [], 'matched': True, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}]}], 'diagnostics': [{'detail': "matched Capability 'cap-lite' has no lite_policy.required_lite_checks source while capability_enforcement is required", 'id': 'lite-check-source-undefined', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'required'}
 PASS: lite-check-source-undefined: Resolver Evidence schema agreement
 PASS: lite-check-source-undefined: no partial live artifact
 PASS: output-schema-validation-failed-evidence: exit 1
@@ -134,23 +134,24 @@ PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3
 PASS: output-schema-validation-failed-evidence: no partial live artifact
 PASS: output-schema-validation-failed-artifact: exit 1
 PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+FAIL: output-schema-validation-failed-artifact: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': 'the staged context-projection artifact failed its own defensive output schema self-validation', 'id': 'output-schema-validation-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
 PASS: output-schema-validation-failed-artifact: no partial live artifact
 PASS: snapshot-generation-mismatch: exit 1
 PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: snapshot-generation-mismatch: exact Resolver Evidence
+FAIL: snapshot-generation-mismatch: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': "a pre-publication recheck of the Project Context, Registry, or ownership-source snapshot detected drift since this invocation's own snapshot", 'id': 'snapshot-generation-mismatch', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
 PASS: snapshot-generation-mismatch: no partial live artifact
 PASS: contract-discovery-failed-governing-schema: exit 1
 PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
-PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+FAIL: contract-discovery-failed-governing-schema: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': 'governing output schema discovery failed: facet-manifest.schema.json not found at the packaged or git-root contracts/ location', 'id': 'contract-discovery-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
 PASS: contract-discovery-failed-governing-schema: no partial live artifact
 PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
-PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
-PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+FAIL: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+FAIL: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
 PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 155 passed, 0 failed
+RESULT: 149 passed, 6 failed
+exitcode 1

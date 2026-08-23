@@ -1,4 +1,3 @@
-Command: bash tests/resolve-project-context-block.tests.sh
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
 PASS: disabled-legacy-invocation: exact Resolver Evidence
@@ -74,21 +73,41 @@ PASS: affected-component-resolution-failed: canonical diagnostic only, no upstre
 PASS: affected-component-resolution-failed: exact Resolver Evidence
 PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
 PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+PASS: resolve-component-paths-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: resolve-component-paths-launch-failed: exact Resolver Evidence
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
 PASS: contract-discovery-failed: exit 1
 PASS: contract-discovery-failed: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: contract-discovery-failed: exact Resolver Evidence
 PASS: contract-discovery-failed: Resolver Evidence schema agreement
 PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+PASS: registry-discovery-unimportable: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: registry-discovery-unimportable: exact Resolver Evidence
+PASS: registry-discovery-unimportable: Resolver Evidence schema agreement
+PASS: registry-discovery-unimportable: no partial live artifact
 PASS: registry-validation-failed: exit 1
 PASS: registry-validation-failed: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: registry-validation-failed: exact Resolver Evidence
 PASS: registry-validation-failed: Resolver Evidence schema agreement
 PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
 PASS: dependency-subprocess-failed: exit 1
 PASS: dependency-subprocess-failed: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: dependency-subprocess-failed: exact Resolver Evidence
 PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
 PASS: dependency-subprocess-failed: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+PASS: evaluate-predicate-output-malformed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed: no partial live artifact
 PASS: dsl-warn-unmatched-trigger: exit 1
 PASS: dsl-warn-unmatched-trigger: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: dsl-warn-unmatched-trigger: exact Resolver Evidence
@@ -99,7 +118,39 @@ PASS: dsl-warn-matched-nondetermining: canonical diagnostic only, no upstream st
 PASS: dsl-warn-matched-nondetermining: exact Resolver Evidence
 PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
 PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: lite-check-source-undefined: exit 1
+PASS: lite-check-source-undefined: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: lite-check-source-undefined: exact Resolver Evidence
+PASS: lite-check-source-undefined: Resolver Evidence schema agreement
+PASS: lite-check-source-undefined: no partial live artifact
+PASS: output-schema-validation-failed-evidence: exit 1
+PASS: output-schema-validation-failed-evidence: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+PASS: output-schema-validation-failed-artifact: exit 1
+PASS: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 102 passed, 0 failed
-Exit: 0
+RESULT: 155 passed, 0 failed

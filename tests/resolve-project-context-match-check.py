@@ -21,12 +21,19 @@ disclosure):** T-002/T-003/T-004 already established -- and this task's
 own Depends On text repeats -- that this Resolver's steps 0-13 are
 staged-only: "a clean resolve (exit 0) writes nothing to any live path"
 (resolve-project-context.py's own module docstring). Every Block path
-T-002/T-003/T-004 already built writes only `{schema, feature,
-capability_evaluations, diagnostics, state}` to Resolver Evidence --
-never `context_binding`, `resolver`, or the track-exclusive artifact
-(Facet Manifest/Capability Summary) itself, on ANY path, Block or clean.
-Live publication of those fields is entirely T-007's own step-14 scope,
-not yet landed on this branch. Several of this task's own target ACs
+reached BEFORE step 10 (disabled-legacy/workflow-invalid/project-context-
+invalid/steps 4-9) writes only `{schema, feature, capability_evaluations,
+diagnostics, state}` to Resolver Evidence; every Block reached AT OR
+AFTER step 10 (`lite-check-source-undefined`, step 12's own two
+`output-schema-validation-failed`/`contract-discovery-failed` sub-cases,
+`snapshot-generation-mismatch`) additionally carries `context_binding`/
+`resolver` (T-004 NEEDS_WORK cycle 2 remediation, "late Blocks drop
+provenance" -- those values are already computed by step 10, before any
+of these Blocks fire). The track-exclusive artifact (Facet Manifest/
+Capability Summary) itself is never written to any live path on ANY
+path, Block or clean -- live publication of that artifact is entirely
+T-007's own step-14 scope, not yet landed on this branch. Several of
+this task's own target ACs
 (AC-007/008/016/043/044/052's Facet-Manifest half) describe the CONTENT of
 artifacts that are therefore never externally observable via a real
 subprocess invocation alone, on this tree, today. This driver closes that
@@ -259,18 +266,30 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         )
 
         # --- AC-004: resolve-component-paths pass-through --------------
+        # Cross-model panel finding (T-003 NEEDS_WORK cycle 2): this
+        # fixture's own resolver invocation (`block_check.t003_resolver_
+        # argv`) never supplies `--include-untracked`, so AC-004's own
+        # "identical values it itself received" rule requires the identical
+        # OMISSION be passed through -- never a synthesized
+        # `--no-include-untracked`, which is not part of this feature's own
+        # CLI contract at all (design.md API/Contract Plan step 4:
+        # `[--include-untracked]`, passed only when supplied). An earlier
+        # revision of `resolve-project-context.py` synthesized that flag
+        # unconditionally; this expectation previously pinned that
+        # (incorrect) synthesized-flag behavior instead of asserting it.
         rcp_capture_path = scripts / "rcp-argv-capture.json"
         rcp_argv, rcp_parse_error = block_check.read_evidence(rcp_capture_path)
         expected_rcp_argv = [
             "--config", "project-context.yaml",
             "--source-rev", base_oid,
             "--target-rev", target_oid,
-            "--no-include-untracked",
             "--json",
         ]
         counts.check(
             rcp_argv == expected_rcp_argv,
-            f"{case_name}: resolve-component-paths invoked with --config/--source-rev/--target-rev/--include-untracked byte-identical to received flags (AC-004)",
+            f"{case_name}: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical "
+            "to received flags, and --include-untracked's own omission passed through verbatim, never synthesized "
+            "as --no-include-untracked (AC-004)",
             rcp_parse_error or repr(rcp_argv),
         )
 
@@ -289,8 +308,14 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         # differs between the two calls is this stub's own digest value,
         # so this fixture's own Block is attributable to `registry_digest`
         # alone, proving the step-6 value is retained and compared (bound)
-        # at step 13 (AC-005 binding half; `context_binding` itself is
-        # never externally observable pre-T-007, see module docstring).
+        # at step 13 (AC-005 binding half). T-004 NEEDS_WORK cycle 2
+        # remediation ("late Blocks drop provenance"): `context_binding`
+        # is now written into THIS fixture's own Block evidence too (steps
+        # 10-13 have already computed it) -- the assertion further below
+        # re-derives and checks it directly; the Facet Manifest/Capability
+        # Summary/Context Projection track-exclusive artifacts remain
+        # unobservable pre-T-007 (module docstring), which is what this
+        # driver's own oracle-reconstruction section (below) is for.
         counts.check(
             stderr == SNAPSHOT_MISMATCH_LINE,
             f"{case_name}: snapshot mismatch attributable to registry_digest alone (AC-005 binding)",
@@ -652,12 +677,49 @@ def run_enforcement_byte_identity_case(kind, counts):
     advisory = results.get("advisory")
     required = results.get("required")
     if isinstance(advisory, dict) and isinstance(required, dict):
-        advisory_minus_state = {k: v for k, v in advisory.items() if k != "state"}
-        required_minus_state = {k: v for k, v in required.items() if k != "state"}
+        # T-004 NEEDS_WORK cycle 2 remediation ("late Blocks drop
+        # provenance"): `context_binding` is now present on this fixture's
+        # own `snapshot-generation-mismatch` Block (steps 10-13 have
+        # already computed it), so this comparison must additionally
+        # exclude `context_binding.full_context_revision`/`projection_
+        # sha256` -- both are hashes of bytes that themselves ENCODE
+        # `workflow.capability_enforcement` (the canonical Project
+        # Context text and the canonical Context Projection text, which
+        # copies `workflow` verbatim), so they are STRUCTURALLY
+        # guaranteed to differ between this advisory/required fixture
+        # pair for any correct implementation -- never identical, by
+        # construction of a hash function over differing input bytes.
+        # AC-016's own "byte-identical ... except state" claim is
+        # therefore precise for every OTHER field (unaffected by which
+        # single scalar differs in the source config), asserted
+        # separately below rather than folded into a blanket exclusion
+        # that would silently stop checking `context_binding` at all.
+        def _without(evidence, *keys):
+            stripped = {k: v for k, v in evidence.items() if k != "state"}
+            context_binding = dict(stripped.get("context_binding") or {})
+            for key in keys:
+                context_binding.pop(key, None)
+            if "context_binding" in stripped:
+                stripped["context_binding"] = context_binding
+            return stripped
+
+        advisory_minus_state = _without(advisory, "full_context_revision", "projection_sha256")
+        required_minus_state = _without(required, "full_context_revision", "projection_sha256")
         counts.check(
             advisory_minus_state == required_minus_state,
-            f"{case_name}: Resolver Evidence byte-identical across advisory/required except state (AC-016)",
+            f"{case_name}: Resolver Evidence byte-identical across advisory/required except state and the two "
+            "config-byte-derived context_binding digests (AC-016)",
             f"advisory={advisory_minus_state!r} required={required_minus_state!r}",
+        )
+
+        advisory_binding = advisory.get("context_binding") or {}
+        required_binding = required.get("context_binding") or {}
+        counts.check(
+            advisory_binding.get("full_context_revision") != required_binding.get("full_context_revision")
+            and advisory_binding.get("projection_sha256") != required_binding.get("projection_sha256"),
+            f"{case_name}: full_context_revision/projection_sha256 genuinely DO differ across advisory/required "
+            "(sanity -- confirms the exclusion above is not vacuous)",
+            f"advisory={advisory_binding!r} required={required_binding!r}",
         )
     else:
         counts.check(False, f"{case_name}: both advisory/required Resolver Evidence readable")

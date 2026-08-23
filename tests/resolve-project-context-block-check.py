@@ -118,6 +118,87 @@ SCHEMA_CHECK = ROOT / "tests/resolver-evidence-schema-check.py"
 PROJECTION_SCHEMA = "sdd-context-projection/v1"
 PROJECTION_FIELDS = ["components", "schema", "shared_paths", "source_sha256", "workflow"]
 
+# Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late Blocks drop
+# provenance"): `resolve-project-context.py` now threads `context_binding`/
+# `resolver` into every Block reached at/after step 10 (those values are
+# already computed by then). `RESOLVER_VERSION_LITERAL`/`RULE_SET_STRING_
+# LITERAL` mirror resolve-project-context.py's own fixed top-of-module
+# constants as INDEPENDENT literals (never imported from the module under
+# test), the identical discipline `resolve-project-context-match-check.py`
+# already applies to the same two constants.
+RESOLVER_VERSION_LITERAL = "1.0.0"
+RULE_SET_STRING_LITERAL = "sdd-resolver-rule-set/v1"
+EXPECTED_RESOLVER_BLOCK = {
+    "version": RESOLVER_VERSION_LITERAL,
+    "rule_set_revision": "sha256:" + hashlib.sha256(RULE_SET_STRING_LITERAL.encode("utf-8")).hexdigest(),
+}
+
+
+def _canonicalize_json_document(document):
+    """Canonicalize an in-memory JSON-compatible document via the REAL
+    canonicalizer's JSON mode -- the identical technique `resolve-project-
+    context-match-check.py` already established for the same purpose,
+    reused rather than reinvented."""
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", suffix=".json", delete=False, newline="\n") as handle:
+        json.dump(document, handle, ensure_ascii=False, separators=(",", ":"))
+        temp_path = Path(handle.name)
+    try:
+        result = subprocess.run(
+            [sys.executable, str(REAL_CANONICALIZER), str(temp_path), "--input-format", "json"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+        )
+        return result.stdout
+    finally:
+        temp_path.unlink(missing_ok=True)
+
+
+def real_registry_digest(registry_path):
+    """Recompute `context_binding.registry_digest`'s own expected value
+    independently of `generate-registry-digest --whole`: canonicalize the
+    REAL registry file's own full document via the REAL canonicalizer
+    (JSON mode) and hash it -- the identical "hash the real canonicalizer's
+    own output" discipline `source_sha256`/`projection_sha256` already use
+    throughout this driver, applied here to the Registry's own bytes."""
+    document = json.loads(registry_path.read_text(encoding="utf-8"))
+    canonical = _canonicalize_json_document(document)
+    return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
+def real_resolve_component_paths_context_binding(repo, config_rel, source_rev, target_rev):
+    """Recompute `{affected_components, context_binding.ownership_digest}`
+    via the REAL, unmodified `resolve-component-paths.py` (Epic A3) -- the
+    identical "recompute via the real dependency" discipline `real_
+    evaluate_predicate` already established for `evaluate-predicate` -- so
+    a fixture's own expected `context_binding` can be derived independently
+    of `resolve-project-context.py` itself. Invoked with the identical
+    `--config`/`--source-rev`/`--target-rev` values (and the identical
+    `--include-untracked` omission, matching AC-004's own pass-through
+    fix) the resolver's own step 4 call already used."""
+    real_rcp = ROOT / "plugins/sdd-quality-loop/scripts/resolve-component-paths.py"
+    result = subprocess.run(
+        [
+            sys.executable, str(real_rcp),
+            "--config", config_rel, "--source-rev", source_rev, "--target-rev", target_rev, "--json",
+        ],
+        cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+    )
+    parsed = json.loads(result.stdout.decode("utf-8"))
+    return parsed["affected_components"], parsed["context_binding"]["ownership_digest"]
+
+
+def _rfc6901_escape(token):
+    return token.replace("~", "~0").replace("/", "~1")
+
+
+def expected_dependency_pointers(affected_components):
+    """Independent mirror of `_dependency_pointers` (Data Plan "B9"):
+    exactly `/workflow` plus one RFC-6901-escaped `/components/<id>`
+    pointer per affected component, stable-sorted and de-duplicated."""
+    pointers = {"/workflow"}
+    for component_id in affected_components:
+        pointers.add("/components/" + _rfc6901_escape(component_id))
+    return sorted(pointers)
+
 CASES = (
     ("disabled-legacy-invocation", "absent", "disabled-legacy-invocation", "sdd/project-context.yaml", "disabled-legacy"),
     ("workflow-combination-invalid-lite", "workflow-combination-invalid/lite-wrong-layout.yaml", "workflow-combination-invalid", "workflow spec_profile/artifact_layout combination is invalid", "advisory"),
@@ -202,6 +283,7 @@ ALL_CASE_NAMES = (
         "contract-discovery-failed",
         "registry-discovery-unimportable",
         "registry-validation-failed",
+        "validate-capability-registry-launch-failed",
         "dependency-subprocess-failed",
         "evaluate-predicate-output-malformed",
         "dsl-warn-unmatched-trigger",
@@ -211,6 +293,7 @@ ALL_CASE_NAMES = (
         "output-schema-validation-failed-evidence",
         "output-schema-validation-failed-artifact",
         "snapshot-generation-mismatch",
+        "contract-discovery-failed-governing-schema",
     ]
 )
 
@@ -368,6 +451,20 @@ def run_t003_case(kind, case_name, counts):
             # failure at step 4, the exact path the panelist's Major #1
             # finding names as untested by any existing fixture.
             (scripts / "resolve-component-paths.py").unlink()
+        if case_name == "validate-capability-registry-launch-failed":
+            # Cross-model panel finding (T-003 NEEDS_WORK cycle 2, step-5
+            # launch-failure mislabel): the identical technique
+            # `resolve-component-paths-launch-failed` already established
+            # for step 4, reused here for step 5's OWN OSError launch path
+            # -- neither a `.py` nor a `.sh` sibling planted for `validate-
+            # capability-registry`, so `_script_argv` falls back to a bare,
+            # unqualified name not present on PATH, forcing subprocess.run's
+            # own OSError. Previously mapped to `registry-validation-
+            # failed` (blaming the Registry's own content for a local
+            # environment fault); now the SAME `dependency-subprocess-
+            # failed` path steps 4/6/7-8 already use for an identical
+            # OSError.
+            (scripts / "validate-capability-registry.py").unlink()
 
         (repo / "README.md").write_text("baseline\n", encoding="utf-8")
         base_oid = git_commit_all(repo, "baseline")
@@ -409,6 +506,10 @@ def run_t003_case(kind, case_name, counts):
         elif case_name == "registry-validation-failed":
             expected_id = "registry-validation-failed"
             expected_detail = "capability-registry.json failed validate-capability-registry checks"
+
+        elif case_name == "validate-capability-registry-launch-failed":
+            expected_id = "dependency-subprocess-failed"
+            expected_detail = "validate-capability-registry failed to launch while validating the located Registry"
 
         elif case_name == "dependency-subprocess-failed":
             expected_id = "dependency-subprocess-failed"
@@ -602,6 +703,22 @@ def run_t004_case(kind, case_name, counts):
                 "a pre-publication recheck of the Project Context, Registry, or "
                 "ownership-source snapshot detected drift since this invocation's own snapshot"
             )
+        elif case_name == "contract-discovery-failed-governing-schema":
+            # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late
+            # Blocks drop provenance"): step 12's OWN `ContractDiscoveryFailed`
+            # handler (a governing output schema itself missing, distinct
+            # from step 5's Registry-discovery `contract-discovery-failed`
+            # -- same id, reused, matching this driver's own established
+            # "registry-discovery-unimportable" precedent for the SAME id
+            # under a distinct case name) was previously entirely
+            # unexercised by any fixture; `context_binding`/`resolver` are
+            # already computed by the time this Block fires (step 10, before
+            # step 12), so this is also this finding's third affected site.
+            expected_id = "contract-discovery-failed"
+            expected_detail = (
+                "governing output schema discovery failed: facet-manifest.schema.json not found at the "
+                "packaged or git-root contracts/ location"
+            )
         else:
             raise AssertionError(f"unknown T-004 case: {case_name}")
 
@@ -617,6 +734,16 @@ def run_t004_case(kind, case_name, counts):
             shutil.copy2(fixture_dir / "resolver-evidence.schema.json", repo / "contracts/resolver-evidence.schema.json")
         if (fixture_dir / "context-projection.schema.json").is_file():
             shutil.copy2(fixture_dir / "context-projection.schema.json", repo / "contracts/context-projection.schema.json")
+        if case_name == "contract-discovery-failed-governing-schema":
+            # Neither the packaged (`plugins/sdd-quality-loop/contracts/`,
+            # never populated by any fixture in this driver, module
+            # docstring section 5) nor the git-root location this line
+            # just deleted resolves -- a genuine, both-locations-absent
+            # ADR-0025 discovery failure for the full-track's own
+            # `facet-manifest.schema.json`, step 12's own last governing
+            # schema check (Resolver Evidence and Context Projection are
+            # both still present and conformant).
+            (repo / "contracts/facet-manifest.schema.json").unlink()
 
         (repo / "README.md").write_text("baseline\n", encoding="utf-8")
         base_oid = git_commit_all(repo, "baseline")
@@ -635,6 +762,65 @@ def run_t004_case(kind, case_name, counts):
                 "trigger_evaluations": [{"component_id": "comp-a", "result": result, "evidence": evidence_nodes}],
                 "conditional_facet_evaluations": [],
             }]
+
+        # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late Blocks
+        # drop provenance"): steps 10-13 have already computed
+        # `context_binding`/`resolver` by the time any of this function's
+        # own three non-"evidence" Block cases fires, so this feature's own
+        # Resolver Evidence record for each now carries both -- recomputed
+        # here independently of `resolve-project-context.py` (never read
+        # back off its own stdout/Evidence), via the REAL dependencies
+        # (`resolve-component-paths`, the real canonicalizer) plus this
+        # driver's own already-established oracle helpers, above.
+        expected_context_binding = None
+        if case_name != "output-schema-validation-failed-evidence":
+            canonical_context = subprocess.run(
+                [sys.executable, str(REAL_CANONICALIZER), str(repo / "project-context.yaml"), "--input-format", "yaml"],
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+            ).stdout
+            source_sha256 = "sha256:" + hashlib.sha256(canonical_context).hexdigest()
+            affected_components, ownership_digest = real_resolve_component_paths_context_binding(
+                repo, "project-context.yaml", base_oid, target_oid,
+            )
+            if case_name == "lite-check-source-undefined":
+                projection_workflow = {
+                    "spec_profile": "lite", "artifact_layout": "lite-three-file", "capability_enforcement": "required",
+                }
+                projection_components = {"comp-a": {"characteristics": {"pii": True}, "paths": {"include": ["comp-a/**"]}}}
+                registry_digest = real_registry_digest(fixture_dir / "capability-registry.json")
+            else:
+                projection_workflow = {
+                    "spec_profile": "full", "artifact_layout": "facet-native", "capability_enforcement": "advisory",
+                }
+                projection_components = {}
+                if case_name == "snapshot-generation-mismatch":
+                    # This fixture's own `generate-registry-digest.py` stub
+                    # (installed above) returns a FIXED digest on its first
+                    # call (this invocation's own step 6, staged into
+                    # Resolver Evidence at step 11) and a DIFFERENT fixed
+                    # digest on its second (step 13's own recheck, which
+                    # never re-writes anything already staged) -- so the
+                    # value this fixture's own Evidence record actually
+                    # carries is the stub's own first, FIRST_DIGEST value,
+                    # never the real registry file's own canonical digest.
+                    registry_digest = "sha256:" + ("1" * 64)
+                else:
+                    registry_digest = real_registry_digest(EMPTY_REGISTRY_PATH)
+            projection_document = {
+                "schema": PROJECTION_SCHEMA,
+                "source_sha256": source_sha256,
+                "workflow": projection_workflow,
+                "components": projection_components,
+                "shared_paths": [],
+            }
+            projection_sha256 = "sha256:" + hashlib.sha256(_canonicalize_json_document(projection_document)).hexdigest()
+            expected_context_binding = {
+                "full_context_revision": source_sha256,
+                "dependency_pointers": expected_dependency_pointers(affected_components),
+                "projection_sha256": projection_sha256,
+                "registry_digest": registry_digest,
+                "ownership_digest": ownership_digest,
+            }
 
         result = subprocess.run(
             t003_resolver_argv(kind, scripts, base_oid, target_oid),
@@ -665,6 +851,8 @@ def run_t004_case(kind, case_name, counts):
                 "capability_evaluations": sorted(expected_capability_evaluations, key=lambda e: e["capability_id"]),
                 "diagnostics": [{"id": expected_id, "detail": expected_detail, "severity": "block"}],
                 "state": state,
+                "context_binding": expected_context_binding,
+                "resolver": EXPECTED_RESOLVER_BLOCK,
             }
             counts.check(evidence == expected, f"{case_name}: exact Resolver Evidence", parse_error or repr(evidence))
             check_evidence_schema(counts, evidence_path, case_name)
@@ -959,6 +1147,98 @@ def run_projection_block_case(kind, case, counts):
         counts.check(not spy.exists(), f"{case_name}: no step-4-or-later subprocess")
 
 
+def run_draft7_validator_keyword_checks(counts):
+    """Cross-model panel finding (T-004 NEEDS_WORK cycle 2, OpenAI
+    panelist): step 12's own defensive draft-07-subset output-schema
+    validator (`_draft7_validate`) did not implement `not`/`minimum` --
+    two keywords the REAL, unmodified governing `contracts/resolver-
+    evidence.schema.json` itself uses (`capabilityEvaluation.then.not.
+    required` forbids `conditional_facet_evaluations` on a `matched: false`
+    entry, B6; `declaration_index`'s own `minimum: 0`). An unimplemented
+    keyword this validator's own governing schema declares is not a no-op
+    defensive check -- it is a silent pass on exactly the malformed shape
+    that keyword exists to reject.
+
+    Loads the SAME staged `resolve-project-context.py` file (never a
+    second, reimplemented copy) and calls its own `_draft7_conforms`
+    directly against the REAL governing schema, fed hand-built instances --
+    the identical "call the real staged function directly" white-box
+    discipline `resolve-project-context-match-check.py`'s own
+    `run_facet_manifest_state_independence_check` already established for
+    a property with no CLI-observable trigger (a correctly-behaved
+    resolver never itself emits the non-conforming shape this validator
+    exists to catch, so this property cannot be exercised end-to-end
+    through a real subprocess invocation alone)."""
+    staged_py = STAGED / "resolve-project-context.py"
+    if not staged_py.is_file():
+        counts.check(False, "draft7-validator-keywords: staged implementation exists", "TDD RED: implementation absent")
+        return
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("resolve_project_context_draft7_oracle", staged_py)
+    resolver_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(resolver_module)
+
+    if not hasattr(resolver_module, "_draft7_conforms"):
+        # `_draft7_conforms`/`_draft7_validate` are T-004's own step-12
+        # additions (output schema self-validation) -- absent from a T-003-
+        # or-earlier snapshot (e.g. this driver's own RED reconstruction,
+        # which rewinds resolve-project-context.py to its pre-T-003
+        # content). A clean, reportable FAIL here, never an unguarded
+        # AttributeError crashing the whole suite before it prints a
+        # RESULT line (the identical discipline `cfe_pairs` already
+        # applies in resolve-project-context-match-check.py for the same
+        # class of "staged code predates this check's own dependency"
+        # gap).
+        counts.check(False, "draft7-validator-keywords: _draft7_conforms exists on the staged module",
+                     "TDD RED: T-004 step-12 self-validation absent from this staged snapshot")
+        return
+
+    with SCHEMA.open("r", encoding="utf-8") as handle:
+        schema = json.load(handle)
+
+    def envelope(evaluation):
+        return {
+            "schema": "sdd-resolver-evidence/v1",
+            "feature": "example-feature",
+            "capability_evaluations": [evaluation],
+            "diagnostics": [],
+        }
+
+    unmatched_conforming = {"capability_id": "cap-a", "matched": False, "trigger_evaluations": []}
+    counts.check(
+        resolver_module._draft7_conforms(envelope(unmatched_conforming), schema),
+        "draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)",
+    )
+
+    unmatched_with_cfe = dict(unmatched_conforming)
+    unmatched_with_cfe["conditional_facet_evaluations"] = []
+    counts.check(
+        not resolver_module._draft7_conforms(envelope(unmatched_with_cfe), schema),
+        "draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is "
+        "rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)",
+    )
+
+    def matched_with_index(declaration_index):
+        return {
+            "capability_id": "cap-b", "matched": True, "trigger_evaluations": [],
+            "conditional_facet_evaluations": [{
+                "facet": "some-facet", "declaration_index": declaration_index,
+                "applied": False, "evaluations": [],
+            }],
+        }
+
+    counts.check(
+        not resolver_module._draft7_conforms(envelope(matched_with_index(-1)), schema),
+        "draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected "
+        "(resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)",
+    )
+    counts.check(
+        resolver_module._draft7_conforms(envelope(matched_with_index(0)), schema),
+        "draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)",
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
@@ -982,6 +1262,7 @@ def main():
             "contract-discovery-failed",
             "registry-discovery-unimportable",
             "registry-validation-failed",
+            "validate-capability-registry-launch-failed",
             "dependency-subprocess-failed",
             "evaluate-predicate-output-malformed",
             "dsl-warn-unmatched-trigger",
@@ -994,8 +1275,10 @@ def main():
             "output-schema-validation-failed-evidence",
             "output-schema-validation-failed-artifact",
             "snapshot-generation-mismatch",
+            "contract-discovery-failed-governing-schema",
         ):
             run_t004_case(args.launcher, case_name, counts)
+        run_draft7_validator_keyword_checks(counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

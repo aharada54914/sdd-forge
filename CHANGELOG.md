@@ -30,16 +30,28 @@
   および any-branch WARN チェック（B2 の拡張スコープ）を実装。
   既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
   （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
-  が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段の
-  診断行 5 種・6 invocation
-  （`affected-component-resolution-failed` /
-  `contract-discovery-failed` / `registry-validation-failed` /
-  `dependency-subprocess-failed` / `dsl-warn-on-matched-capability`
-  ×2 fixture）を追加し、sh/ps1 とも **102 passed / 0 failed**
-  （T-002 由来の既存 96 assertion を含む）。TDD RED は同一ドライバ・
-  同一フィクスチャ集合を T-002 時点の実装（steps 0-3 のみ）に対して
-  実行し、sh/ps1 とも 78 passed / 24 failed で新規 6 fixture のみが
-  一貫して失敗することを確認済み。
+  が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
+  自身が所有する fixture として **11 fixture directory・55 assertion**
+  （`run_t003_case`: `affected-component-resolution-failed` /
+  `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
+  `registry-discovery-unimportable` / `registry-validation-failed` /
+  `validate-capability-registry-launch-failed` /
+  `dependency-subprocess-failed` / `evaluate-predicate-output-malformed` /
+  `dsl-warn-on-matched-capability` ×3 fixture）を追加。
+  **訂正 (2026-08-23, cross-model panel remediation)**: この項目が
+  以前記載していた「5 診断行・6 invocation・sh/ps1 とも 102 passed /
+  0 failed」は、この共有ドライバが後続タスク（T-004 の steps 10-13、
+  および本パスの panel 是正）で成長し続けた後の値とはもはや一致せず
+  不正確だった（cross-model panel が T-003 自身の Critical 指摘として
+  再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
+  同一ファイルに同居するため、
+  スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
+  すぐ陳腐化する — T-003 自身の寄与分（上記 11 fixture・55 assertion）
+  のみをここでは確定的に記載し、スイート全体の現在合計は
+  `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
+  「Cross-Model Panel Remediation」節、および
+  `specs/epic-193-a5-capability-resolver/verification/qg/T-003/
+  focused-tests-{sh,ps1}.log` を参照。
   R-10 保護対象の適用候補のうち `resolve-project-context.py` を
   steps 4-9 分だけ更新し、`.sh`/`.ps1`/`.github/workflows/test.yml` は
   byte-unchanged（新規 CI 登録なし）。`MANIFEST.sha256` は

@@ -212,14 +212,31 @@ def _run_resolve_component_paths(script_dir, args):
     """Step 4: invoke `resolve-component-paths` with this invocation's own
     `--config`/`--source-rev`/`--target-rev`/`--include-untracked` values
     passed through verbatim -- no rev resolution, merge-base computation, or
-    diff-basis logic performed here."""
+    diff-basis logic performed here.
+
+    `--include-untracked` is this feature's own CLI's sole bracketed,
+    optional flag (`_parse_args`, `action="store_true"`, no `--no-...`
+    counterpart of its own): its own argparse namespace cannot distinguish
+    "the caller explicitly omitted it" from any other false-ish state, so
+    the identical omission is the only value this invocation could ever
+    pass through verbatim. AC-004/design.md step 4 both spell the
+    dependency's own flag as bracketed-optional (`[--include-untracked]`),
+    passed only when supplied -- never synthesizing the dependency's own
+    separate `--no-include-untracked` flag as a stand-in for "not supplied"
+    (cross-model panel finding, T-003 NEEDS_WORK cycle 2): that flag is not
+    part of this feature's own CLI contract at all, and always emitting one
+    of the two turns a caller's genuine omission into an explicit,
+    unrequested `false`, diverging from `resolve-component-paths`'s own
+    default (`True`) whenever this invocation's own caller never mentioned
+    the flag either way."""
     tail = [
         "--config", args.config,
         "--source-rev", args.source_rev,
         "--target-rev", args.target_rev,
-        "--include-untracked" if args.include_untracked else "--no-include-untracked",
-        "--json",
     ]
+    if args.include_untracked:
+        tail.append("--include-untracked")
+    tail.append("--json")
     argv = _script_argv(script_dir, "resolve-component-paths", tail)
     try:
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
@@ -282,12 +299,25 @@ def _discover_registry(script_dir):
 
 def _validate_capability_registry(script_dir, registry_path):
     """Step 5, validation half: Epic A2's own `validate-capability-registry`
-    checks (a)-(i), run against the located Registry as a real subprocess."""
+    checks (a)-(i), run against the located Registry as a real subprocess.
+
+    A launch failure (missing binary, unreadable/non-executable wrapper) is
+    a local-environment fault, never a defect in the Registry itself, so it
+    is routed through the SAME closed-enum, fixed-sentence
+    DependencySubprocessFailed path steps 4/6/7-8 already use for an
+    identical OSError on their own subprocess.run calls -- never
+    RegistryValidationFailed, whose own `registry-validation-failed`
+    diagnostic id REQ-002 defines as "the located Registry fails ...
+    validate-capability-registry checks", which blames the project's own
+    Registry content for a fault this invocation's own environment caused
+    (cross-model panel finding, T-003 NEEDS_WORK cycle 2 -- this step
+    previously contradicted the launch-vs-outcome rule this same file
+    already states at step 4)."""
     argv = _script_argv(script_dir, "validate-capability-registry", ["--registry", str(registry_path)])
     try:
         result = subprocess.run(argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     except OSError as exc:
-        raise RegistryValidationFailed(f"launch failed: {exc}") from exc
+        raise DependencySubprocessFailed(f"launch failed: {exc}") from exc
     if result.returncode != 0:
         raise RegistryValidationFailed(f"exit {result.returncode}")
 
@@ -535,6 +565,7 @@ def _project_context_valid(document, repo_root):
 def _write_evidence(
     repo_root, feature, diagnostic_id, detail, state_marker,
     capability_evaluations=None, warn_diagnostics=None,
+    context_binding=None, resolver_block=None,
 ):
     # AC-024 stable-sort discipline: capability_evaluations[] is sorted by
     # capability_id in the written record, even though steps 7-8 evaluate
@@ -566,6 +597,22 @@ def _write_evidence(
     }
     if state_marker is not None:
         evidence["state"] = state_marker
+    # Cross-model panel finding (T-004 NEEDS_WORK cycle 2, "late Blocks
+    # drop provenance"): once step 10 has computed `context_binding`/
+    # `resolver` (design.md step 11 defines their derivation; step 14
+    # publishes "Resolver Evidence alone" on any Block reached at step
+    # 10/12/13, the identical already-assembled record, never a
+    # provenance-stripped one), every later Block call site threads those
+    # SAME values through so this record is REQ-004's "full Resolver
+    # Evidence record", not just its diagnostics/capability_evaluations
+    # half. A Block reached before step 10 (disabled-legacy/workflow-
+    # invalid/project-context-invalid/steps 4-9) never has these values to
+    # give, so every call site there simply omits both kwargs (default
+    # None) and this record is unaffected -- identical to before this fix.
+    if context_binding is not None:
+        evidence["context_binding"] = context_binding
+    if resolver_block is not None:
+        evidence["resolver"] = resolver_block
     target = repo_root / "specs" / feature / "resolver-evidence.yaml"
     target.parent.mkdir(parents=True, exist_ok=True)
     payload = (json.dumps(evidence, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
@@ -584,10 +631,12 @@ def _write_evidence(
 def _block(
     repo_root, feature, diagnostic_id, detail, state_marker,
     capability_evaluations=None, warn_diagnostics=None,
+    context_binding=None, resolver_block=None,
 ):
     _write_evidence(
         repo_root, feature, diagnostic_id, detail, state_marker,
         capability_evaluations, warn_diagnostics,
+        context_binding, resolver_block,
     )
     sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
     return EXIT_BLOCK
@@ -890,10 +939,30 @@ def _draft7_validate(instance, schema, root_schema, pointer, diags):
                 _draft7_validate(instance, schema["then"], root_schema, pointer, diags)
         elif "else" in schema:
             _draft7_validate(instance, schema["else"], root_schema, pointer, diags)
+    # `not` (T-004 NEEDS_WORK cycle 2, OpenAI panelist): this driver's own
+    # `resolver-evidence.schema.json` uses `"then": {"not": {"required":
+    # [...]}}` to forbid `conditional_facet_evaluations` on an unmatched
+    # `capabilityEvaluation` entry (B6) -- an unimplemented `not` silently
+    # no-ops that whole branch (`_draft7_validate` returns having checked
+    # nothing), so a `matched: false` entry carrying that key previously
+    # passed step 12's self-validation regardless.
+    if "not" in schema and _draft7_matches(instance, schema["not"], root_schema):
+        diags.append(pointer)
     if isinstance(instance, str):
         if "pattern" in schema and not re.search(schema["pattern"], instance):
             diags.append(pointer)
         if "minLength" in schema and len(instance) < schema["minLength"]:
+            diags.append(pointer)
+    # `minimum` (T-004 NEEDS_WORK cycle 2, OpenAI panelist): only
+    # `capabilityEvaluation.conditional_facet_evaluations[].declaration_
+    # index` declares `"minimum": 0` among this driver's own four
+    # governing schemas -- an unimplemented `minimum` previously let a
+    # negative `declaration_index` (never producible by this feature's own
+    # `_evaluate_capabilities`, which only ever `enumerate()`s, but a
+    # defensive check this task's REQ-002 fail-closed contract still
+    # requires actually enforcing) pass step 12 unnoticed.
+    if isinstance(instance, (int, float)) and not isinstance(instance, bool):
+        if "minimum" in schema and instance < schema["minimum"]:
             diags.append(pointer)
     if isinstance(instance, dict):
         for required_key in schema.get("required", []):
@@ -1003,22 +1072,35 @@ def _pre_publication_recheck(script_dir, args, absolute_config, source_sha256, a
     still matching), raises SnapshotGenerationMismatch. This function
     performs no live write of any kind -- the values it recomputes are
     used only for this comparison; a passing recheck changes nothing this
-    invocation has already computed."""
-    try:
-        fresh_canonical, _fresh_document = _canonicalize(absolute_config, "yaml")
-    except (CanonicalizerFailed, CanonicalizerOutputMalformed):
-        raise SnapshotGenerationMismatch("project context recheck canonicalization failed")
+    invocation has already computed.
+
+    A dependency subprocess this function itself invokes (the second
+    canonicalizer pass, the second `resolve-component-paths` call, the
+    second `generate-registry-digest --whole` call) failing to even RUN is
+    a distinct condition from that same subprocess running and reporting
+    genuine drift -- re-labeling every such failure as
+    `snapshot-generation-mismatch` (an earlier revision of this function
+    did exactly that) asserts "a pre-publication recheck ... detected
+    drift" when the true cause is a subprocess failure, which is neither
+    accurate (AC-014's own canonical-sentence rule) nor this function's own
+    fail-closed contract's most specific match (cross-model panel finding,
+    T-004 NEEDS_WORK cycle 2). Every helper below is therefore called
+    UNWRAPPED here: `CanonicalizerFailed`/`CanonicalizerOutputMalformed`/
+    `AffectedComponentResolutionFailed`/`DependencySubprocessFailed`/
+    `DependencyOutputMalformed` propagate to the caller unchanged, mapped
+    by `main()`'s own step-13 handler to the SAME REQ-002 diagnostic id
+    steps 2/4/6 already use for an identical failure (ids are already
+    reused across multiple steps throughout this file -- `canonicalizer-
+    invocation-failed` alone already covers steps 2/3/6). This function's
+    own `SnapshotGenerationMismatch` is raised ONLY by the drift comparison
+    below, never as a catch-all for a recheck subprocess that could not
+    even run."""
+    fresh_canonical, _fresh_document = _canonicalize(absolute_config, "yaml")
     fresh_source_sha256 = "sha256:" + hashlib.sha256(fresh_canonical).hexdigest()
 
-    try:
-        fresh_affected_components, fresh_ownership_digest = _run_resolve_component_paths(script_dir, args)
-    except (AffectedComponentResolutionFailed, DependencySubprocessFailed, DependencyOutputMalformed):
-        raise SnapshotGenerationMismatch("affected-component recheck failed")
+    fresh_affected_components, fresh_ownership_digest = _run_resolve_component_paths(script_dir, args)
 
-    try:
-        fresh_registry_digest = _generate_registry_digest_whole(script_dir)
-    except (CanonicalizerFailed, DependencySubprocessFailed, DependencyOutputMalformed):
-        raise SnapshotGenerationMismatch("registry_digest recheck failed")
+    fresh_registry_digest = _generate_registry_digest_whole(script_dir)
 
     if (
         fresh_source_sha256 != source_sha256
@@ -1136,6 +1218,9 @@ def main(argv=None):
     except RegistryValidationFailed:
         detail = "capability-registry.json failed validate-capability-registry checks"
         return _block(repo_root, args.feature, "registry-validation-failed", detail, state)
+    except DependencySubprocessFailed:
+        detail = "validate-capability-registry failed to launch while validating the located Registry"
+        return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state)
 
     # Step 6: registry_digest.
     try:
@@ -1209,7 +1294,10 @@ def main(argv=None):
                 f"matched Capability {capability_id!r} has no lite_policy.required_lite_checks "
                 "source while capability_enforcement is required"
             )
-            return _block(repo_root, args.feature, "lite-check-source-undefined", detail, state, capability_evaluations)
+            return _block(
+                repo_root, args.feature, "lite-check-source-undefined", detail, state, capability_evaluations,
+                context_binding=context_binding, resolver_block=resolver_block,
+            )
         track_artifact_schema_filename = CAPABILITY_SUMMARY_SCHEMA_FILENAME
         track_artifact_name = "capability-summary"
 
@@ -1224,25 +1312,79 @@ def main(argv=None):
         )
     except ContractDiscoveryFailed as exc:
         detail = f"governing output schema discovery failed: {exc}"
-        return _block(repo_root, args.feature, "contract-discovery-failed", detail, state, capability_evaluations)
+        return _block(
+            repo_root, args.feature, "contract-discovery-failed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
     except OutputSchemaValidationFailed as exc:
         if exc.artifact_name == "resolver-evidence":
             detail = "resolver-evidence.yaml failed its own defensive output schema self-validation"
             return _block_no_write("output-schema-validation-failed", detail)
         detail = f"the staged {exc.artifact_name} artifact failed its own defensive output schema self-validation"
-        return _block(repo_root, args.feature, "output-schema-validation-failed", detail, state, capability_evaluations)
+        return _block(
+            repo_root, args.feature, "output-schema-validation-failed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
 
-    # Step 13: pre-publication snapshot recheck (B8 TOCTOU).
+    # Step 13: pre-publication snapshot recheck (B8 TOCTOU). A recheck
+    # dependency subprocess that fails to even run is mapped to the SAME
+    # REQ-002 id its own step (2/4/6) already uses for an identical
+    # failure -- never re-labeled as `snapshot-generation-mismatch`, which
+    # is reserved for the genuine drift comparison
+    # `_pre_publication_recheck` itself raises (cross-model panel finding,
+    # T-004 NEEDS_WORK cycle 2).
     try:
         _pre_publication_recheck(
             script_dir, args, absolute_config, source_sha256, affected_components, ownership_digest, registry_digest,
+        )
+    except CanonicalizerFailed:
+        detail = "canonicalize-sdd-yaml failed while re-canonicalizing the project context during the pre-publication recheck"
+        return _block(
+            repo_root, args.feature, "canonicalizer-invocation-failed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+    except CanonicalizerOutputMalformed:
+        detail = "canonicalize-sdd-yaml returned malformed JSON while re-canonicalizing the project context during the pre-publication recheck"
+        return _block(
+            repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+    except AffectedComponentResolutionFailed as exc:
+        detail = (
+            f"resolve-component-paths exited {exc.returncode} re-resolving affected components "
+            "during the pre-publication recheck; see resolve-component-paths diagnostics"
+        )
+        return _block(
+            repo_root, args.feature, "affected-component-resolution-failed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+    except DependencySubprocessFailed:
+        detail = (
+            "a dependency subprocess failed while re-deriving affected components or registry_digest "
+            "during the pre-publication recheck"
+        )
+        return _block(
+            repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+    except DependencyOutputMalformed:
+        detail = (
+            "a dependency subprocess returned malformed output while re-deriving affected components or "
+            "registry_digest during the pre-publication recheck"
+        )
+        return _block(
+            repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
         )
     except SnapshotGenerationMismatch:
         detail = (
             "a pre-publication recheck of the Project Context, Registry, or "
             "ownership-source snapshot detected drift since this invocation's own snapshot"
         )
-        return _block(repo_root, args.feature, "snapshot-generation-mismatch", detail, state, capability_evaluations)
+        return _block(
+            repo_root, args.feature, "snapshot-generation-mismatch", detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
 
     # T-004 owns staging only through step 13 -- step 14's own journaled
     # publication transaction (T-007's own scope) is the sole component

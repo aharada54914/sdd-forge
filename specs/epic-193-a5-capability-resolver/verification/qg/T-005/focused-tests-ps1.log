@@ -1,7 +1,7 @@
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
-PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev/--include-untracked byte-identical to received flags (AC-004)
+PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev byte-identical to received flags, and --include-untracked's own omission passed through verbatim, never synthesized as --no-include-untracked (AC-004)
 PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
 PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
 PASS: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006)
@@ -38,7 +38,8 @@ PASS: enforcement-byte-identity-required: canonical diagnostic only
 PASS: enforcement-byte-identity-required: state field records 'required'
 PASS: enforcement-byte-identity-required: Resolver Evidence schema agreement
 PASS: enforcement-byte-identity-required: no partial live artifact
-PASS: enforcement-byte-identity: Resolver Evidence byte-identical across advisory/required except state (AC-016)
+PASS: enforcement-byte-identity: Resolver Evidence byte-identical across advisory/required except state and the two config-byte-derived context_binding digests (AC-016)
+PASS: enforcement-byte-identity: full_context_revision/projection_sha256 genuinely DO differ across advisory/required (sanity -- confirms the exclusion above is not vacuous)
 PASS: enforcement-byte-identity: _assemble_facet_manifest takes no state/capability_enforcement parameter (structural proof the Facet Manifest itself is enforcement-independent on the Full track, AC-016 remainder)
 PASS: warn-cardinality-single-node: exit 1
 PASS: warn-cardinality-single-node: canonical diagnostic only, no upstream stderr embedded (M8)
@@ -70,4 +71,4 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 72 passed, 0 failed
+RESULT: 73 passed, 0 failed

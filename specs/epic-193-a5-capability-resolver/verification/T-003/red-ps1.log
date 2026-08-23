@@ -1,4 +1,3 @@
-Command: python3 tests/resolve-project-context-block-check.py --launcher ps1 (resolve-project-context.py reverted to pre-T-003, commit 99b8ba76)
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
 PASS: disabled-legacy-invocation: exact Resolver Evidence
@@ -71,35 +70,84 @@ PASS: projection-dependency-output-malformed: no partial live artifact
 PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
 FAIL: affected-component-resolution-failed: exit 1: got 0
 FAIL: affected-component-resolution-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
-FAIL: affected-component-resolution-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1tpt7lnu/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-resolution-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-okmtmqpu/specs/example-feature/resolver-evidence.yaml'
 FAIL: affected-component-resolution-failed: Resolver Evidence schema agreement: evidence absent
 PASS: affected-component-resolution-failed: no partial live artifact
+FAIL: resolve-component-paths-launch-failed: exit 1: got 0
+FAIL: resolve-component-paths-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: resolve-component-paths-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-p8e5y37s/specs/example-feature/resolver-evidence.yaml'
+FAIL: resolve-component-paths-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: resolve-component-paths-launch-failed: no partial live artifact
 FAIL: contract-discovery-failed: exit 1: got 0
 FAIL: contract-discovery-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
-FAIL: contract-discovery-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-l22rat2v/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-sdpqojwb/specs/example-feature/resolver-evidence.yaml'
 FAIL: contract-discovery-failed: Resolver Evidence schema agreement: evidence absent
 PASS: contract-discovery-failed: no partial live artifact
+FAIL: registry-discovery-unimportable: exit 1: got 0
+FAIL: registry-discovery-unimportable: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: registry-discovery-unimportable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-9k677pqc/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-unimportable: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-unimportable: no partial live artifact
 FAIL: registry-validation-failed: exit 1: got 0
 FAIL: registry-validation-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
-FAIL: registry-validation-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-hsjxotp2/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-validation-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-dfqnm3bx/specs/example-feature/resolver-evidence.yaml'
 FAIL: registry-validation-failed: Resolver Evidence schema agreement: evidence absent
 PASS: registry-validation-failed: no partial live artifact
+FAIL: validate-capability-registry-launch-failed: exit 1: got 0
+FAIL: validate-capability-registry-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: validate-capability-registry-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-vi8hgbjg/specs/example-feature/resolver-evidence.yaml'
+FAIL: validate-capability-registry-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: validate-capability-registry-launch-failed: no partial live artifact
 FAIL: dependency-subprocess-failed: exit 1: got 0
 FAIL: dependency-subprocess-failed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
-FAIL: dependency-subprocess-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-8jsntjh8/specs/example-feature/resolver-evidence.yaml'
+FAIL: dependency-subprocess-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-heftj69t/specs/example-feature/resolver-evidence.yaml'
 FAIL: dependency-subprocess-failed: Resolver Evidence schema agreement: evidence absent
 PASS: dependency-subprocess-failed: no partial live artifact
+FAIL: evaluate-predicate-output-malformed: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-2d7ve2c_/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed: no partial live artifact
 FAIL: dsl-warn-unmatched-trigger: exit 1: got 0
 FAIL: dsl-warn-unmatched-trigger: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
-FAIL: dsl-warn-unmatched-trigger: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-7h1d0yc8/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unmatched-trigger: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-pm0v348s/specs/example-feature/resolver-evidence.yaml'
 FAIL: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement: evidence absent
 PASS: dsl-warn-unmatched-trigger: no partial live artifact
 FAIL: dsl-warn-matched-nondetermining: exit 1: got 0
 FAIL: dsl-warn-matched-nondetermining: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
-FAIL: dsl-warn-matched-nondetermining: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-ew2dp4yq/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-matched-nondetermining: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-s83kfbw7/specs/example-feature/resolver-evidence.yaml'
 FAIL: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement: evidence absent
 PASS: dsl-warn-matched-nondetermining: no partial live artifact
+FAIL: dsl-warn-unsorted-affected-components: exit 1: got 0
+FAIL: dsl-warn-unsorted-affected-components: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: dsl-warn-unsorted-affected-components: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-q_pb62ll/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+FAIL: lite-check-source-undefined: exit 1: got 0 stderr=''
+FAIL: lite-check-source-undefined: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: lite-check-source-undefined: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-0gfgvgq2/specs/example-feature/resolver-evidence.yaml'
+FAIL: lite-check-source-undefined: Resolver Evidence schema agreement: evidence absent
+PASS: lite-check-source-undefined: no partial live artifact
+FAIL: output-schema-validation-failed-evidence: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-evidence: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+FAIL: output-schema-validation-failed-artifact: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-artifact: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: output-schema-validation-failed-artifact: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-oby2trsb/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-artifact: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+FAIL: snapshot-generation-mismatch: exit 1: got 0 stderr=''
+FAIL: snapshot-generation-mismatch: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: snapshot-generation-mismatch: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-bc5k5qsd/specs/example-feature/resolver-evidence.yaml'
+FAIL: snapshot-generation-mismatch: Resolver Evidence schema agreement: evidence absent
+PASS: snapshot-generation-mismatch: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-fyl62h7e/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+FAIL: draft7-validator-keywords: _draft7_conforms exists on the staged module: TDD RED: T-004 step-12 self-validation absent from this staged snapshot
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 78 passed, 24 failed
-Exit: 1
+RESULT: 89 passed, 63 failed

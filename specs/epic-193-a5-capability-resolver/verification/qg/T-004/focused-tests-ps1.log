@@ -93,6 +93,11 @@ PASS: registry-validation-failed: canonical diagnostic only, no upstream stderr 
 PASS: registry-validation-failed: exact Resolver Evidence
 PASS: registry-validation-failed: Resolver Evidence schema agreement
 PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
 PASS: dependency-subprocess-failed: exit 1
 PASS: dependency-subprocess-failed: canonical diagnostic only, no upstream stderr embedded (M8)
 PASS: dependency-subprocess-failed: exact Resolver Evidence
@@ -137,6 +142,15 @@ PASS: snapshot-generation-mismatch: canonical diagnostic only, no upstream stder
 PASS: snapshot-generation-mismatch: exact Resolver Evidence
 PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
 PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic only, no upstream stderr embedded (M8)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 141 passed, 0 failed
+RESULT: 155 passed, 0 failed
