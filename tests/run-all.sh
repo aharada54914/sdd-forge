@@ -7,6 +7,7 @@ cd "$ROOT"
 
 tests=(
   tests/install.tests.sh
+  tests/installer-idempotency.tests.sh
   tests/uninstall.tests.sh
   tests/guards.tests.sh
   tests/approval-boundary.tests.sh
@@ -64,7 +65,6 @@ tests=(
   tests/deterministic-lane-selfcheck.tests.sh
   tests/guard-ps1-ascii.tests.sh
   tests/repository-release-validation.tests.sh
-  tests/installer-idempotency.tests.sh
   tests/template-validator-parity.tests.sh
   tests/task-lifecycle-enum-parity.tests.sh
   tests/task-state-grammar-parity.tests.sh

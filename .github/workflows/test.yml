@@ -121,6 +121,10 @@ jobs:
         shell: bash
         run: bash ./tests/installer-idempotency.tests.sh
 
+      - name: Test installer idempotency (pwsh, WFI-041)
+        shell: pwsh
+        run: ./tests/installer-idempotency.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

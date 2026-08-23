@@ -309,7 +309,6 @@ invoke_installer_scenario() {
     local plugins_arg=""
     local fail_pattern=""
     local seed_existing=0
-    local fail_phase="placement"
 
     # Parse named keyword args: plugins=..., fail_pattern=..., seed_existing=1
     while [[ $# -gt 0 ]]; do
@@ -317,7 +316,6 @@ invoke_installer_scenario() {
             plugins=*)      plugins_arg="${1#plugins=}"; shift ;;
             fail_pattern=*) fail_pattern="${1#fail_pattern=}"; shift ;;
             seed_existing=*)seed_existing="${1#seed_existing=}"; shift ;;
-            fail_phase=*) fail_phase="${1#fail_phase=}"; shift ;;
             *) echo "invoke_installer_scenario: unknown arg $1" >&2; return 1 ;;
         esac
     done
@@ -355,45 +353,33 @@ invoke_installer_scenario() {
         export SDD_CODEX_HOME="$_orig_codex_home"
     fi
 
-    # Error path
+    # Error path.
+    #
+    # WFI-041 flipped this contract. $fail_pattern targets a plugin id, so the
+    # stub fails inside `codex plugin add` — a *registration*-phase failure,
+    # after the tree is already in the install root. This suite used to assert
+    # that such a failure reverted the install root; it now asserts the
+    # opposite, because reverting discarded a correct install for a failure
+    # that was not the install's. The old contract was only defensible while
+    # registration was non-idempotent: a partially registered new tree could
+    # not be recovered by re-running. run_idempotent_plugin_command removed
+    # that constraint, so the tree now stays and the re-run converges.
+    # Placement-phase rollback is unchanged and is asserted by
+    # installer-idempotency.tests.sh.
     if [[ -n "$fail_pattern" ]]; then
-        local scenario_ok=1
         if [[ $installer_failed -eq 0 ]]; then
             fail "installer should have failed for pattern '${fail_pattern}'"
-            scenario_ok=0
         fi
-        if [[ $seed_existing -eq 1 && "$fail_phase" == "registration" ]]; then
-            # WFI-041: a registration-phase failure on an UPGRADE keeps the new
-            # tree and preserves the previous version in a sibling backup,
-            # instead of reverting a correctly-placed upgrade. Both halves are
-            # asserted: keeping the new tree is only correct if the old one is
-            # still recoverable.
-            if [[ ! -d "$install_root" ]]; then
-                fail "installer discarded the correctly-placed new tree on a registration failure (pattern '${fail_pattern}')"
-                scenario_ok=0
-            elif [[ -f "${install_root}/existing.marker" ]]; then
-                fail "installer reverted to the previous version on a registration failure (pattern '${fail_pattern}')"
-                scenario_ok=0
-            fi
-            local _backup_marker=""
-            local _b
-            for _b in "$(dirname "$install_root")"/sdd-plugins-backup-*; do
-                [[ -f "${_b}/existing.marker" ]] && _backup_marker="$_b" && break
-            done
-            if [[ -z "$_backup_marker" ]]; then
-                fail "installer did not preserve the previous installation in a backup (seed_existing, pattern '${fail_pattern}')"
-                scenario_ok=0
-            fi
-        elif [[ $seed_existing -eq 1 ]]; then
-            if [[ ! -f "${install_root}/existing.marker" ]]; then
-                fail "installer did not restore previous installation (seed_existing, pattern '${fail_pattern}')"
-                scenario_ok=0
-            fi
-        else
-            if [[ -d "$install_root" ]]; then
-                fail "installer left incomplete initial installation (pattern '${fail_pattern}')"
-                scenario_ok=0
-            fi
+        if [[ ! -f "${install_root}/plugins/sdd-bootstrap/.codex-plugin/plugin.json" ]]; then
+            fail "registration failure did not leave the newly placed tree in the install root (pattern '${fail_pattern}')"
+        fi
+        if [[ $seed_existing -eq 1 && -f "${install_root}/existing.marker" ]]; then
+            fail "registration failure reverted to the previous installation (seed_existing, pattern '${fail_pattern}')"
+        fi
+        # The backup is superseded once the new tree is declared authoritative;
+        # leaving it behind would litter the install parent forever.
+        if compgen -G "${test_root}/sdd-plugins-backup-*" > /dev/null; then
+            fail "registration failure left a backup directory behind (pattern '${fail_pattern}')"
         fi
         rm -rf "$test_root"
         return 0
@@ -573,19 +559,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Scenario (c): failure during registration → no half-installed root (fresh)
+# Scenario (c): failure during registration → freshly placed tree is kept
 # ---------------------------------------------------------------------------
 invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins"
-ok "failure on registration removes incomplete fresh install"
+ok "failure on registration keeps the freshly placed install"
 
 # ---------------------------------------------------------------------------
-# Scenario (d): registration failure on an upgrade → new tree kept, previous
-# version preserved in a sibling backup (WFI-041 narrowed the rollback here;
-# before that change this scenario asserted the reverse — a full revert to the
-# previous version — which discarded correctly-placed upgrades).
+# Scenario (d): failure during registration → new version kept, not reverted
 # ---------------------------------------------------------------------------
-invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins" seed_existing=1 fail_phase=registration
-ok "registration failure on an upgrade keeps the new tree and preserves the previous version"
+invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins" seed_existing=1
+ok "failure on registration keeps the new version over the pre-existing install"
 
 # ---------------------------------------------------------------------------
 # Scenario (e): invalid source directory rejected before touching existing install

@@ -1,271 +1,374 @@
 #!/usr/bin/env bash
-# installer-idempotency.tests.sh — WFI-041: re-running the installer on an
-# already-installed machine must be a no-op or an upgrade, never a rollback.
+# installer-idempotency.tests.sh — WFI-041 regression suite.
 #
-# The installer's failure mode was invisible without external CLIs, so this
-# suite supplies stubbed `claude`, `copilot` and `codex` executables on PATH
-# that emit the messages the real CLIs emitted on 2026-08-22, with the exit
-# codes they used. Each scenario asserts an installer outcome, not a stub
-# behaviour.
+# Covers the three behaviours WFI-041 introduced, and the one it deliberately
+# preserved:
 #
-# Scenario map (mirrors WFI-041's Verification Plan):
-#  A. idempotent registration — "already registered"/"already exists" is
-#     success, the install root is the new version, no backup is left behind
-#  B. upgrade path — a stale plugin cache is converged and the transition is
-#     reported; an already-current cache reports no change
-#  C. narrowed rollback, both directions — a placement-phase failure still
-#     reverts; a registration-phase failure does not
-#  D. genuine failures stay fatal — an unrelated non-zero exit is not
-#     swallowed by the idempotency matcher
-set -uo pipefail
+#   1. Registration is idempotent. An external CLI reporting "already
+#      registered" / "already exists" is the desired end state, not a failure.
+#   2. `claude plugin install` reporting an existing installation triggers an
+#      upgrade path, and the version transition is reported.
+#   3. A registration failure no longer reverts the install root.
+#   4. A *placement*-phase failure still does.
+#
+# Cases 2 and 4 each carry their own negative control, because both are easy to
+# satisfy vacuously: an upgrade check passes on a tool that always updates, and
+# a "rollback did not fire" check passes on an installer that never rolls back.
+#
+# Run from any directory. Uses --source-directory so no network is needed.
+set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-INSTALLER="$ROOT/install.sh"
-
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+INSTALLER="${REPO_ROOT}/install.sh"
 PASS=0
 FAIL=0
-ok()   { echo "ok: $*";   PASS=$((PASS+1)); }
-bad()  { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
 
-WORK="$(mktemp -d)"
-trap 'rm -rf "$WORK"' EXIT
-
-[ -f "$INSTALLER" ] || { echo "FAIL: installer not found at $INSTALLER"; exit 1; }
+ok() { echo "ok: $*"; PASS=$((PASS+1)); }
+fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
 
 # ---------------------------------------------------------------------------
-# Stub CLIs. STUB_MODE selects the behaviour under test; STUB_LOG records the
-# invocations so the upgrade-path assertions can check what was called.
+# Source fixture (mirrors install.tests.sh, trimmed to what this suite needs)
 # ---------------------------------------------------------------------------
-STUB_BIN="$WORK/bin"
-mkdir -p "$STUB_BIN"
+SOURCE_FIXTURE_ROOT="$(mktemp -d)"
+SOURCE_FIXTURE="${SOURCE_FIXTURE_ROOT}/source"
+trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
 
-make_stub() {
-    local name="$1"
-    cat > "$STUB_BIN/$name" <<STUB
-#!/usr/bin/env bash
-printf '%s %s\n' "$name" "\$*" >> "\$STUB_LOG"
-case "\$*" in
-  *"plugin validate"*) exit 0 ;;
-  *"marketplace add"*)
-      if [ "\${STUB_MODE:-}" = "already" ] || [ "\${STUB_MODE:-}" = "stale-cache" ] || [ "\${STUB_MODE:-}" = "current-cache" ]; then
-          echo 'Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered' >&2
-          exit 1
-      fi
-      exit 0 ;;
-  *"mcp add"*)
-      if [ "\${STUB_MODE:-}" = "already" ] || [ "\${STUB_MODE:-}" = "stale-cache" ] || [ "\${STUB_MODE:-}" = "current-cache" ]; then
-          echo 'MCP server sdd-forge-mcp already exists in user config' >&2
-          exit 1
-      fi
-      exit 0 ;;
-  *"marketplace update"*) echo 'Updated marketplace sdd-plugins'; exit 0 ;;
-  *"plugin update"*)
-      if [ "\${STUB_MODE:-}" = "stale-cache" ]; then
-          echo 'updated from 1.15.0 to 1.16.0'; exit 0
-      fi
-      echo 'Plugin is up to date'; exit 0 ;;
-  *"plugin install"*|*"plugin add"*)
-      if [ "\${STUB_MODE:-}" = "genuine-failure" ]; then
-          echo 'Error: manifest is malformed at line 3' >&2
-          exit 1
-      fi
-      if [ "\${STUB_MODE:-}" = "already" ] || [ "\${STUB_MODE:-}" = "stale-cache" ] || [ "\${STUB_MODE:-}" = "current-cache" ]; then
-          echo 'Plugin "sdd-bootstrap" is already installed (scope: user)'; exit 0
-      fi
-      exit 0 ;;
-esac
-exit 0
-STUB
-    chmod +x "$STUB_BIN/$name"
-}
-make_stub claude
-make_stub copilot
-make_stub codex
+mkdir -p "$SOURCE_FIXTURE"
+git -C "$REPO_ROOT" archive --format=tar HEAD -- ':(exclude)specs' ':(exclude)reports' \
+    | tar -xf - -C "$SOURCE_FIXTURE"
+git -C "$SOURCE_FIXTURE" init -q
+# Commits here can spawn detached background maintenance that races teardown.
+git -C "$SOURCE_FIXTURE" config gc.auto 0
+git -C "$SOURCE_FIXTURE" config gc.autoDetach false
+git -C "$SOURCE_FIXTURE" config maintenance.auto false
+# Overlay the working tree's installer so the suite exercises this checkout
+# rather than HEAD.
+cp -p "${REPO_ROOT}/install.sh" "${SOURCE_FIXTURE}/install.sh"
+cp -p "${REPO_ROOT}/install.ps1" "${SOURCE_FIXTURE}/install.ps1"
+git -C "$SOURCE_FIXTURE" add -A
+git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" \
+    -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
+
+# Minimal MCP payload. place_mcp_servers copies this during the *placement*
+# phase, which is what the placement-failure case injects into.
+mkdir -p "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/dist"
+printf '%s\n' '#!/usr/bin/env node' 'console.log("stub");' \
+    > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/dist/index.js"
+printf '%s\n' '{ "name": "sdd-forge-mcp", "version": "0.1.0", "private": true }' \
+    > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/package.json"
 
 # ---------------------------------------------------------------------------
-# A source tree the installer accepts via --source-directory: a git repository
-# whose root carries the plugin manifests the installer copies.
+# Stubs
 # ---------------------------------------------------------------------------
-# The required-path list is read from the installer itself rather than
-# duplicated here: a fixture that hard-codes it would silently stop covering a
-# path the installer later adds.
-SRC="$WORK/src"
-mkdir -p "$SRC"
-while IFS= read -r rel; do
-    mkdir -p "$SRC/$(dirname "$rel")"
-    case "$rel" in
-        *.json) printf '{"name":"fixture","version":"9.9.9"}\n' > "$SRC/$rel" ;;
-        # Codex agent role files are validated for content: name and
-        # developer_instructions must both be present, and no BOM.
-        *.toml) printf 'name = "fixture"\ndeveloper_instructions = "fixture"\n' > "$SRC/$rel" ;;
-        *)      printf 'fixture\n' > "$SRC/$rel" ;;
+# The messages below are the ones the real CLIs emitted on 2026-08-22 while
+# upgrading a developer machine from 1.15.0 to 1.16.0 (WFI-041 "Problem
+# Evidence"). They are the contract this suite pins: if a CLI changes its
+# wording, the tolerance must be revisited, and this suite is where that shows
+# up first.
+MSG_MARKETPLACE_EXISTS='Failed to add marketplace: Error: Marketplace "sdd-plugins" already registered'
+MSG_MCP_EXISTS='MCP server sdd-forge-mcp already exists in user config'
+MSG_PLUGIN_INSTALLED='Plugin is already installed (scope: user)'
+# The two CLI families disagree about which outcome an existing plugin is.
+# Codex and Copilot report it the way they report an existing marketplace — as
+# a non-zero error — which is why the plugin-add loops need the same tolerance
+# as the marketplace-add calls. The real 2026-08-22 upgrade never reached these
+# calls (marketplace-add failed first), so this half of the contract is
+# inferred from the marketplace behaviour rather than observed.
+# Deliberately does not name a plugin: the stub is shared across the whole
+# dependency closure, and a hardcoded name would read as if only that plugin
+# were affected. Batch-safe (no quotes, no & | > characters) so the pwsh twin
+# can emit the identical string from a .cmd shim.
+MSG_PLUGIN_ADDED='Error: this plugin is already added'
+MSG_PLUGIN_UPGRADED='Plugin updated from 1.15.0 to 1.16.0'
+MSG_PLUGIN_CURRENT='Plugin is up to date at 1.16.0'
+MSG_UNRELATED='Error: could not write to disk'
+
+# make_stubs <bin_dir> <log_path> <mode>
+#
+# Modes:
+#   fresh              every registration succeeds silently (clean machine)
+#   installed          marketplace-add and mcp-add fail with the real
+#                      "already ..." messages; plugin install reports an
+#                      existing installation; plugin update reports a
+#                      version transition
+#   current            like `installed`, but plugin update reports no
+#                      transition (the machine is already at the new version)
+#   unrelated-failure  marketplace-add fails with a message that is not an
+#                      idempotency message
+make_stubs() {
+    local bin_dir="$1"
+    local log_path="$2"
+    local mode="$3"
+    mkdir -p "$bin_dir"
+
+    local marketplace_add_body="exit 0"
+    local mcp_add_body="exit 0"
+    local claude_install_body="exit 0"
+    local other_install_body="exit 0"
+    local plugin_update_body="exit 0"
+    case "$mode" in
+        fresh) ;;
+        installed)
+            marketplace_add_body="echo '${MSG_MARKETPLACE_EXISTS}' >&2; exit 1"
+            mcp_add_body="echo '${MSG_MCP_EXISTS}' >&2; exit 1"
+            claude_install_body="echo '${MSG_PLUGIN_INSTALLED}'; exit 0"
+            other_install_body="echo '${MSG_PLUGIN_ADDED}' >&2; exit 1"
+            plugin_update_body="echo '${MSG_PLUGIN_UPGRADED}'; exit 0"
+            ;;
+        current)
+            marketplace_add_body="echo '${MSG_MARKETPLACE_EXISTS}' >&2; exit 1"
+            mcp_add_body="echo '${MSG_MCP_EXISTS}' >&2; exit 1"
+            claude_install_body="echo '${MSG_PLUGIN_INSTALLED}'; exit 0"
+            other_install_body="echo '${MSG_PLUGIN_ADDED}' >&2; exit 1"
+            plugin_update_body="echo '${MSG_PLUGIN_CURRENT}'; exit 0"
+            ;;
+        unrelated-failure)
+            marketplace_add_body="echo '${MSG_UNRELATED}' >&2; exit 1"
+            ;;
+        *) echo "make_stubs: unknown mode '$mode'" >&2; return 1 ;;
     esac
-done < <(sed -n '/^REQUIRED_PATHS=(/,/^)/p' "$INSTALLER" | sed -n 's/^[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p')
-if [ ! -s "$SRC/.agents/plugins/marketplace.json" ]; then
-    echo "FAIL: could not derive REQUIRED_PATHS from the installer"; exit 1
-fi
-printf 'marker\n' > "$SRC/VERSION"
-git -C "$SRC" init -q 2>/dev/null
-git -C "$SRC" -c user.email=t@t -c user.name=t add -A >/dev/null 2>&1
-git -C "$SRC" -c user.email=t@t -c user.name=t commit -qm init >/dev/null 2>&1
 
-# run_installer <mode> <install-root>
-# Sets LAST_RC (exit code) and LAST_OUT (captured output path). Deliberately
-# NOT called through a command substitution: a subshell would discard both
-# globals, leaving later greps reading a stale file.
-LAST_OUT=""
-LAST_RC=0
-run_installer() {
-    local mode="$1" install_root="$2"; shift 2
-    LAST_RC=0
-    LAST_OUT="$WORK/out-$RANDOM$RANDOM.txt"
-    STUB_MODE="$mode" STUB_LOG="$WORK/stub.log" \
-        PATH="$STUB_BIN:$PATH" \
-        bash "$INSTALLER" \
-            --source-directory "$SRC" \
-            --install-root "$install_root" \
-            --target Claude \
-            --plugins sdd-bootstrap \
-            > "$LAST_OUT" 2>&1 || LAST_RC=$?
+    local cmd plugin_install_body
+    for cmd in codex claude copilot; do
+        if [[ "$cmd" == "claude" ]]; then
+            plugin_install_body="$claude_install_body"
+        else
+            plugin_install_body="$other_install_body"
+        fi
+        {
+            printf '%s\n' '#!/bin/sh'
+            printf 'echo "%s $*" >> "%s"\n' "$cmd" "$log_path"
+            printf '%s\n' 'case "$*" in'
+            printf '  "plugin marketplace update"*) exit 0 ;;\n'
+            printf '  "plugin marketplace add"*) %s ;;\n' "$marketplace_add_body"
+            printf '  "plugin update"*) %s ;;\n' "$plugin_update_body"
+            printf '  "plugin install"*|"plugin add"*) %s ;;\n' "$plugin_install_body"
+            printf '  "mcp add"*) %s ;;\n' "$mcp_add_body"
+            printf '%s\n' 'esac'
+            printf '%s\n' 'exit 0'
+        } > "${bin_dir}/${cmd}"
+        chmod +x "${bin_dir}/${cmd}"
+    done
+
+    # Report a Node version that clears the >= 22.19.0 gate, so MCP placement
+    # runs on every host regardless of the real toolchain.
+    printf '%s\n%s\n' '#!/bin/sh' 'echo v22.19.0' > "${bin_dir}/node"
+    chmod +x "${bin_dir}/node"
 }
 
-installed_marker() {
-    # The installer places the source tree; VERSION is our version marker.
-    [ -f "$1/VERSION" ] && cat "$1/VERSION" 2>/dev/null || echo "ABSENT"
+# Shadow `cp` with a failing stub. install.sh reaches `cp` first inside
+# place_mcp_servers, which runs before REGISTRATION_STARTED flips — so this is
+# a genuine placement-phase failure, not a simulated one.
+make_failing_cp() {
+    printf '%s\n%s\n%s\n' '#!/bin/sh' 'echo "cp: simulated placement failure" >&2' 'exit 1' \
+        > "${1}/cp"
+    chmod +x "${1}/cp"
+}
+
+# run_case <mode> <seed_existing:0|1>
+# Populates: RC, OUT, LOG, INSTALL_ROOT_PATH, TEST_ROOT
+run_case() {
+    local mode="$1"
+    local seed_existing="$2"
+
+    TEST_ROOT="$(mktemp -d)"
+    INSTALL_ROOT_PATH="${TEST_ROOT}/installed"
+    local bin_dir="${TEST_ROOT}/bin"
+    local log_path="${TEST_ROOT}/commands.log"
+    : > "$log_path"
+
+    make_stubs "$bin_dir" "$log_path" "$mode"
+    if [[ "${FAILING_CP:-0}" -eq 1 ]]; then
+        make_failing_cp "$bin_dir"
+    fi
+
+    if [[ $seed_existing -eq 1 ]]; then
+        mkdir -p "$INSTALL_ROOT_PATH"
+        echo "keep" > "${INSTALL_ROOT_PATH}/existing.marker"
+    fi
+
+    local original_path="$PATH"
+    local original_codex_home="${SDD_CODEX_HOME:-}"
+    export PATH="${bin_dir}:${original_path}"
+    export SDD_CODEX_HOME="${TEST_ROOT}/codex-home"
+
+    RC=0
+    OUT="$(bash "$INSTALLER" \
+        --source-directory "$SOURCE_FIXTURE" \
+        --install-root "$INSTALL_ROOT_PATH" \
+        --target All \
+        --plugins sdd-bootstrap \
+        --mcp sdd-forge-mcp \
+        2>&1)" || RC=$?
+
+    export PATH="$original_path"
+    if [[ -z "$original_codex_home" ]]; then
+        unset SDD_CODEX_HOME
+    else
+        export SDD_CODEX_HOME="$original_codex_home"
+    fi
+    LOG="$(cat "$log_path")"
+}
+
+installed_tree_present() {
+    [[ -f "${INSTALL_ROOT_PATH}/plugins/sdd-bootstrap/.codex-plugin/plugin.json" ]]
+}
+
+no_backup_left() {
+    ! compgen -G "${TEST_ROOT}/sdd-plugins-backup-*" > /dev/null
 }
 
 # ---------------------------------------------------------------------------
-# A — idempotent registration on an already-installed machine
+# Case 1: re-running against already-registered CLIs succeeds
 # ---------------------------------------------------------------------------
-: > "$WORK/stub.log"
-ROOT_A="$WORK/root-a"
-run_installer clean "$ROOT_A"; rc=$LAST_RC
-if [ "$rc" != "0" ]; then
-    bad "A setup: first install should succeed (rc=$rc): $(tail -3 "$LAST_OUT")"
-else
-    ok "A setup: first install succeeds on a clean machine"
+_c1_ok=1
+run_case installed 1
+if [[ $RC -ne 0 ]]; then
+    echo "  installer output: $OUT" >&2
+    fail "re-run against already-registered CLIs should exit 0 (exit ${RC})"
+    _c1_ok=0
 fi
-
-# Second run: every registration reports "already ..." and exits non-zero.
-printf 'OLD\n' > "$ROOT_A/VERSION"   # make a revert detectable
-printf 'marker-v2\n' > "$SRC/VERSION"
-git -C "$SRC" -c user.email=t@t -c user.name=t commit -aqm v2 >/dev/null 2>&1
-: > "$WORK/stub.log"
-run_installer already "$ROOT_A"; rc=$LAST_RC
-if [ "$rc" != "0" ]; then
-    bad "A: re-run against an already-registered machine should exit 0 (rc=$rc): $(grep -iE 'error|failed' "$LAST_OUT" | head -2)"
-else
-    ok "A: re-run exits 0 when every registration reports already-present"
-fi
-if [ "$(installed_marker "$ROOT_A")" = "marker-v2" ]; then
-    ok "A: install root holds the NEW version after the re-run (no rollback)"
-else
-    bad "A: install root was reverted — holds '$(installed_marker "$ROOT_A")', expected marker-v2"
-fi
-if compgen -G "$(dirname "$ROOT_A")/sdd-plugins-backup-*" > /dev/null 2>&1; then
-    bad "A: a backup directory was left behind after a successful run"
-else
-    ok "A: no backup directory remains after a successful run"
-fi
+installed_tree_present || { fail "re-run did not leave the new tree in the install root"; _c1_ok=0; }
+no_backup_left || { fail "re-run left a backup directory behind"; _c1_ok=0; }
+echo "$OUT" | grep -q "is already registered; keeping the existing registration" \
+    || { fail "re-run did not report the tolerated registrations"; _c1_ok=0; }
+# The marketplace, the MCP server and the per-plugin registrations must all be
+# tolerated. Asserting only one of them would pass on a fix that covered the
+# marketplace and left the plugin loops fatal — which is what run 2 of a real
+# upgrade would hit first.
+for _c1_label in "the Codex sdd-plugins marketplace" "MCP server 'sdd-forge-mcp'" "Codex plugin 'sdd-bootstrap'" "Copilot plugin 'sdd-bootstrap'"; do
+    echo "$OUT" | grep -qF "Note: ${_c1_label} is already registered" \
+        || { fail "re-run did not tolerate: ${_c1_label}"; _c1_ok=0; }
+done
+rm -rf "$TEST_ROOT"
+[[ $_c1_ok -eq 1 ]] && ok "already-registered marketplaces and MCP servers are tolerated"
 
 # ---------------------------------------------------------------------------
-# B — upgrade path
+# Case 2 (negative control for case 1): an unrelated failure is still fatal
 # ---------------------------------------------------------------------------
-: > "$WORK/stub.log"
-ROOT_B="$WORK/root-b"
-run_installer clean "$ROOT_B"
-: > "$WORK/stub.log"
-run_installer stale-cache "$ROOT_B"; rc=$LAST_RC
-if [ "$rc" != "0" ]; then
-    bad "B: run against a stale cache should exit 0 (rc=$rc)"
-else
-    ok "B: run against a stale cache exits 0"
+_c2_ok=1
+run_case unrelated-failure 0
+if [[ $RC -eq 0 ]]; then
+    fail "a registration failure with an unrelated message must stay fatal"
+    _c2_ok=0
 fi
-if grep -q "marketplace update" "$WORK/stub.log" && grep -q "plugin update" "$WORK/stub.log"; then
-    ok "B: the installer invoked marketplace-update and plugin-update"
-else
-    bad "B: the installer did not invoke the upgrade commands: $(grep claude "$WORK/stub.log" | head -3)"
+echo "$OUT" | grep -q "failed with exit code" \
+    || { fail "unrelated registration failure did not name the failing command"; _c2_ok=0; }
+if echo "$OUT" | grep -q "is already registered; keeping"; then
+    fail "unrelated registration failure was wrongly tolerated as idempotent"
+    _c2_ok=0
 fi
-if grep -q "cache upgraded" "$LAST_OUT"; then
-    ok "B: the version transition is reported"
-else
-    bad "B: no upgrade transition reported: $(tail -3 "$LAST_OUT")"
-fi
-# Non-vacuity: an already-current cache must report NO change, otherwise the
-# check above would pass on a tool that always claims an upgrade.
-: > "$WORK/stub.log"
-run_installer current-cache "$ROOT_B"; rc=$LAST_RC
-if grep -q "already at the installed version" "$LAST_OUT"; then
-    ok "B: an already-current cache reports no change (non-vacuity)"
-else
-    bad "B: a current cache did not report 'no change': $(tail -3 "$LAST_OUT")"
-fi
+rm -rf "$TEST_ROOT"
+[[ $_c2_ok -eq 1 ]] && ok "a non-idempotency registration failure is still fatal"
 
 # ---------------------------------------------------------------------------
-# C — narrowed rollback, both directions
+# Case 3: an existing Claude installation is upgraded, and the transition is
+#         reported
 # ---------------------------------------------------------------------------
-# C1: registration-phase failure must NOT revert the tree. `genuine-failure`
-# makes `plugin install` fail with an unrelated error, after placement.
-ROOT_C="$WORK/root-c"
-: > "$WORK/stub.log"
-run_installer clean "$ROOT_C"
-printf 'OLD\n' > "$ROOT_C/VERSION"
-printf 'marker-v3\n' > "$SRC/VERSION"
-git -C "$SRC" -c user.email=t@t -c user.name=t commit -aqm v3 >/dev/null 2>&1
-: > "$WORK/stub.log"
-run_installer genuine-failure "$ROOT_C"; rc=$LAST_RC
-C1_OUT="$LAST_OUT"   # section D asserts on this run's diagnostics
-if [ "$rc" = "0" ]; then
-    bad "C1: an unrelated registration error must still fail the run (rc=0)"
-else
-    ok "C1: an unrelated registration error fails the run (rc=$rc)"
+_c3_ok=1
+run_case installed 0
+[[ $RC -eq 0 ]] || { fail "upgrade run should exit 0 (exit ${RC})"; _c3_ok=0; }
+echo "$LOG" | grep -qF "claude plugin marketplace update sdd-plugins" \
+    || { fail "upgrade path did not refresh the marketplace"; _c3_ok=0; }
+echo "$LOG" | grep -qF "claude plugin update sdd-bootstrap@sdd-plugins" \
+    || { fail "upgrade path did not update the already-installed plugin"; _c3_ok=0; }
+echo "$OUT" | grep -qF "sdd-forge: upgraded sdd-bootstrap (updated from 1.15.0 to 1.16.0)" \
+    || { fail "upgrade run did not report the version transition"; _c3_ok=0; }
+# The summary count must equal the number of per-plugin transition lines.
+# Comparing the two rather than hardcoding a number keeps this independent of
+# the dependency closure --plugins expands to (sdd-bootstrap pulls in
+# sdd-review-loop), while still catching a summary that reports a fixed count.
+_c3_lines="$(echo "$OUT" | grep -cE '^sdd-forge: upgraded [a-z-]+ \(updated from ' || true)"
+_c3_summary="$(echo "$OUT" | sed -n 's/^sdd-forge: upgraded \([0-9][0-9]*\) Claude plugin(s)\.$/\1/p')"
+if [[ "$_c3_summary" != "$_c3_lines" || -z "$_c3_summary" ]]; then
+    fail "upgrade summary count ('${_c3_summary}') does not match the ${_c3_lines} reported transitions"
+    _c3_ok=0
 fi
-if [ "$(installed_marker "$ROOT_C")" = "marker-v3" ]; then
-    ok "C1: a registration-phase failure leaves the NEW tree in place (narrowed rollback)"
-else
-    bad "C1: the tree was reverted on a registration-phase failure — holds '$(installed_marker "$ROOT_C")'"
-fi
-
-# C2: a placement-phase failure must STILL revert. Point --source-directory at
-# a path that fails before placement; the pre-existing install must survive.
-ROOT_C2="$WORK/root-c2"
-: > "$WORK/stub.log"
-run_installer clean "$ROOT_C2"
-printf 'PRESERVED\n' > "$ROOT_C2/VERSION"
-rc=0
-STUB_MODE=clean STUB_LOG="$WORK/stub.log" PATH="$STUB_BIN:$PATH" \
-    bash "$INSTALLER" --source-directory "$WORK/does-not-exist" \
-        --install-root "$ROOT_C2" --target Claude --plugins sdd-bootstrap \
-        > "$WORK/out-c2.txt" 2>&1 || rc=$?
-if [ "$rc" = "0" ]; then
-    bad "C2: a missing source directory must fail the run"
-else
-    ok "C2: a placement-phase failure fails the run (rc=$rc)"
-fi
-if [ "$(installed_marker "$ROOT_C2")" = "PRESERVED" ]; then
-    ok "C2: a placement-phase failure preserves the existing install (rollback still fires)"
-else
-    bad "C2: the existing install was lost on a placement-phase failure — holds '$(installed_marker "$ROOT_C2")'"
-fi
+rm -rf "$TEST_ROOT"
+[[ $_c3_ok -eq 1 ]] && ok "an already-installed Claude plugin is upgraded and the transition reported"
 
 # ---------------------------------------------------------------------------
-# D — the idempotency matcher must not swallow genuine failures
+# Case 4 (negative control for case 3): a machine already at the new version
+#         reports no change
 # ---------------------------------------------------------------------------
-# C1's run above failed on an unrelated `plugin install` error. The operator
-# must see that error text, not a silent "already present" note, or the
-# idempotency matcher would be indistinguishable from swallowing everything.
-if grep -qiE "manifest is malformed|failed with exit code" "$C1_OUT"; then
-    ok "D: a genuine registration error is reported, not swallowed"
-else
-    bad "D: the genuine error text did not reach the operator: $(tail -3 "$C1_OUT")"
+_c4_ok=1
+run_case current 0
+[[ $RC -eq 0 ]] || { fail "no-change run should exit 0 (exit ${RC})"; _c4_ok=0; }
+echo "$OUT" | grep -qF "sdd-forge: sdd-bootstrap was already up to date" \
+    || { fail "no-change run did not report that nothing moved"; _c4_ok=0; }
+echo "$OUT" | grep -qF "sdd-forge: no Claude plugin needed an upgrade." \
+    || { fail "no-change run did not summarise zero upgrades"; _c4_ok=0; }
+if echo "$OUT" | grep -qF "sdd-forge: upgraded sdd-bootstrap"; then
+    fail "no-change run reported an upgrade that did not happen"
+    _c4_ok=0
 fi
-if grep -qi "already present; treating as success" "$C1_OUT"; then
-    bad "D: a genuine failure was reported as already-present"
-else
-    ok "D: a genuine failure is not mislabelled as already-present"
-fi
+rm -rf "$TEST_ROOT"
+[[ $_c4_ok -eq 1 ]] && ok "a machine already at the new version reports no upgrade"
 
+# ---------------------------------------------------------------------------
+# Case 5 (second control for case 3): a clean machine never enters the upgrade
+#         path
+# ---------------------------------------------------------------------------
+_c5_ok=1
+run_case fresh 0
+[[ $RC -eq 0 ]] || { fail "clean install should exit 0 (exit ${RC})"; _c5_ok=0; }
+if echo "$LOG" | grep -qF "claude plugin update"; then
+    fail "clean install invoked the upgrade path it had no reason to enter"
+    _c5_ok=0
+fi
+if echo "$OUT" | grep -qF "sdd-forge: upgraded"; then
+    fail "clean install reported an upgrade"
+    _c5_ok=0
+fi
+rm -rf "$TEST_ROOT"
+[[ $_c5_ok -eq 1 ]] && ok "a clean install does not enter the upgrade path"
+
+# ---------------------------------------------------------------------------
+# Case 6: a placement-phase failure still reverts the install root
+# ---------------------------------------------------------------------------
+_c6_ok=1
+FAILING_CP=1 run_case fresh 1
+if [[ $RC -eq 0 ]]; then
+    fail "a placement-phase failure must be fatal"
+    _c6_ok=0
+fi
+if [[ ! -f "${INSTALL_ROOT_PATH}/existing.marker" ]]; then
+    fail "a placement-phase failure did not restore the previous installation"
+    _c6_ok=0
+fi
+if installed_tree_present; then
+    fail "a placement-phase failure left the half-written tree in place"
+    _c6_ok=0
+fi
+rm -rf "$TEST_ROOT"
+[[ $_c6_ok -eq 1 ]] && ok "a placement-phase failure still reverts the install root"
+
+# ---------------------------------------------------------------------------
+# Case 7: a registration-phase failure does not revert, and names what failed
+# ---------------------------------------------------------------------------
+_c7_ok=1
+run_case unrelated-failure 1
+if [[ $RC -eq 0 ]]; then
+    fail "a registration-phase failure must still be fatal"
+    _c7_ok=0
+fi
+if [[ -f "${INSTALL_ROOT_PATH}/existing.marker" ]]; then
+    fail "a registration-phase failure reverted the install root"
+    _c7_ok=0
+fi
+installed_tree_present \
+    || { fail "a registration-phase failure discarded the newly placed tree"; _c7_ok=0; }
+no_backup_left || { fail "a registration-phase failure left a backup directory behind"; _c7_ok=0; }
+echo "$OUT" | grep -qF "was left at the newly installed version" \
+    || { fail "a registration-phase failure did not say the install root was kept"; _c7_ok=0; }
+echo "$OUT" | grep -qF "plugin marketplace add" \
+    || { fail "a registration-phase failure did not name the failing registration"; _c7_ok=0; }
+rm -rf "$TEST_ROOT"
+[[ $_c7_ok -eq 1 ]] && ok "a registration-phase failure keeps the new version and names what failed"
+
+# ---------------------------------------------------------------------------
+# Summary
+# ---------------------------------------------------------------------------
 echo ""
-echo "installer-idempotency.tests.sh: ${PASS} passed, ${FAIL} failed"
-[ "$FAIL" -eq 0 ] || exit 1
-exit 0
+echo "Results: ${PASS} passed, ${FAIL} failed."
+[[ $FAIL -eq 0 ]]

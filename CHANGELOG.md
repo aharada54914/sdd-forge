@@ -29,35 +29,13 @@
 
 ### Changed
 
-- **WFI-041 適用 — インストーラ再実行の冪等化・アップグレード経路・
-  ロールバック範囲の縮小**: 再実行が「既に登録済み」で失敗し、しかも
-  失敗ハンドラが**正しく配置し終えた新バージョンを巻き戻していた**問題
-  （成功した作業を捨てる方向の誤り）を3点で修正。
-  - **冪等化**: `run_plugin_command_idempotent()` が登録系コマンドの出力を
-    捕捉し、`ALREADY_PRESENT_RE`（`already (registered|exists|installed|added)`）
-    に一致する失敗のみ成功として扱う。それ以外の失敗は従来どおり伝播
-    （セクション D が「本物の失敗を握り潰していない」ことを実測）。
-  - **アップグレード経路**: `upgrade_claude_plugins()` が
-    `claude plugin marketplace update` → `plugin update` を実行し、
-    stale キャッシュを更新して遷移を報告。既に最新なら「変更なし」と報告
-    （非空虚性をアサート）。
-  - **ロールバック範囲の縮小**: `REGISTRATION_PHASE`（install.sh:620、
-    :974 で 1）を導入し、配置完了後の登録フェーズでの失敗では
-    `rollback()` を早期 return（:646）。配置フェーズの失敗では従来どおり
-    ロールバックが発火する — **両方向を実測**。
-  - **ps1 双子**: `$script:AlreadyPresentPattern` /
-    `Invoke-PluginCommandIdempotent` / `Update-ClaudePluginCache` /
-    `$registrationPhase`（install.ps1:597、:773、catch は :804）を同一設計で追加。
-  - **新設 `tests/installer-idempotency.tests.sh`（14アサーション）**:
-    シナリオ A（冪等登録）/ B（アップグレード経路＋非空虚性）/
-    C1・C2（縮小したロールバックの両方向）/ D（本物の失敗）。
-    フィクスチャは `REQUIRED_PATHS` をインストーラ自身から導出するため
-    パス集合の変更に追随する。**判別性を実測**: origin/main のインストーラ
-    against では 7失敗/7合格、本変更後は 14/14 緑。C2 と D は両ツリーで
-    合格し、ロールバックが「除去」ではなく「縮小」であることを示す。
-    `tests/run-all.sh:67` と `.github/workflows/test.yml:122` に登録。
-  - **未了（WFI Result に記録）**: `installer-idempotency.tests.ps1` 双子は
-    本コンテナに pwsh が無く作成・検証不能のため見送り。
+- **`installer-idempotency` スイートを CI に登録**: main の WFI-041 適用
+  (`8ef826d7`) はこのスイートを `tests/run-all.{sh,ps1}` にのみ登録している。
+  しかし **どのワークフローも `run-all` を呼んでいない** — CI は
+  `.github/workflows/test.yml` でスイートを明示列挙する方式であり、
+  `test.yml:549` のコメントもその二重登録規約に言及している。したがって
+  登録は run-all 側だけでは CI に届かない。sh/ps1 双方のステップを
+  `test.yml` に追加した(`:119-126`)。
 
 - **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
   各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
@@ -115,6 +93,37 @@
     mid-flight 状態から束縛する（テストに記録済み）。
 
 ### Fixed
+
+- **WFI-041 — インストーラが既導入マシンで再実行できない**: 外部 CLI が
+  「既に登録済み」を*エラー*として返すため、`install.sh` / `install.ps1` の
+  再実行が毎回 EXIT トラップで install root 全体を巻き戻し、無関係な
+  エラーを報告しながら旧バージョンへ戻していた（1.15.0→1.16.0 の実測で
+  4 回実行・3 回ロールバック）。3 点を修正: (1) marketplace-add と
+  `claude mcp add` を新設 `run_idempotent_plugin_command` /
+  `Invoke-IdempotentPluginCommand` 経由にし、CLI 自身の文言
+  （`already registered` / `already exists` 等）に一致した場合のみ成功扱い
+  — それ以外の非零終了は従来どおり致命。**WFI が列挙した 3 箇所に加え
+  `codex plugin add` / `copilot plugin install` も同経路へ**（実測時は
+  marketplace-add が先に落ちてこの 2 つは未到達＝挙動未測定だが、同じ CLI の
+  marketplace-add は「既登録」をエラーで返す。除外すると WFI の計測指標
+  「アップグレード 1 回」が 2 回目の実行で破れる）。(2) `claude plugin install` が
+  「導入済み」を*成功*として返し何も上げないため、該当プラグインを収集して
+  `claude plugin marketplace update` + `claude plugin update` を実行し、
+  バージョン遷移を報告（無変更の実行と区別可能）。(3) rollback を配置
+  フェーズまでに限定 — ツリー配置後の登録失敗は失敗した登録を報告して
+  install root を新バージョンのまま残す。
+  **既存契約の反転を伴う**: `install.tests.{sh,ps1}` のシナリオ (c)/(d) は
+  「登録フェーズの失敗 → 巻き戻し」を明示検証していたため、削除ではなく
+  反転し理由をインラインに記録。正当化は (1) に依存する（冪等化前は部分
+  登録された新ツリーが再実行で回復不能だった）。新設
+  `installer-idempotency.tests.{sh,ps1}`（各 7 緑、run-all 登録済み）:
+  冪等許容・アップグレード経路・フェーズ別 rollback を、それぞれ**負の
+  対照付き**で検証（常に更新するツールでも通る主張と、そもそも巻き戻さない
+  実装でも通る主張を潰すため）。3 通りの mutation で非空虚性を実測
+  （それぞれ sh 3/10/6 失敗、ps1 は case 7/1/3 で停止）。CI 登録は
+  `.github/workflows/test.yml` が保護対象のため
+  `docs/ci-staging/wfi-041-installer-idempotency-ci.patch` に staging
+  （`git apply --check` 通過、`--numstat` は `5 0`）。
 
 - **SHA-256 検証の fail-closed 化と lowercase-only 統一（監査 Cluster 6）**:
   (1) sh 側 8 ファイルの `sha256` 系ヘルパーのうち、ツール欠如時に**空
