@@ -194,3 +194,28 @@ This entry documents amendment lineage and authorization; it waives no
 review finding. Every check other than the phase-sequencing basis the
 calibration's Amendment Re-Review Context section describes is judged
 exactly as it would be without this entry.
+
+### Round-2 extension (2026-08-24): AC-010 named-SKIP disposition
+
+- Human ruling (verbatim, dated): 2026-08-24 「①でやれ」 — "do option 1",
+  where ① in the decision presented to the human referred to the
+  named-SKIP disposition for AC-010/TEST-019: TEST-019 gains the same
+  "named SKIP entry in REQ-007's allowlist ... until Epic A1 merges"
+  clause every sibling Context-present AC (AC-007, AC-019-AC-021,
+  AC-042, AC-043) carries, the omission being an authoring gap rather
+  than a deliberate exception.
+- Amendment commit (full hash):
+  `47cb338ae8e748761ae793c38a02e1f77fb38df4` — adds the named-SKIP
+  clause to requirements.md AC-010 (the AC-042-form sentence) and to the
+  acceptance-tests.md AC-010 row (Test Type "integration (named SKIP,
+  allowlist-governed, until Epic A1 merges)"; REQ-007 added to the
+  Requirement column), mirroring the sibling rows exactly. As of this
+  commit, `specs/epic-195-a7-compatibility/requirements.md` =
+  `f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2`
+  and `specs/epic-195-a7-compatibility/acceptance-tests.md` =
+  `7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8`.
+- This extension is itself a further amendment to investigation.md; as
+  stated above for this entry, its own post-amendment SHA-256 cannot be
+  cited from inside itself and is pinned externally by the attempt-4
+  round-2 reviewer invocation manifests and the identity-ledger records
+  their reservations append.
