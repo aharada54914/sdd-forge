@@ -34,17 +34,19 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
 `traceability.md` follow in a later phase once this package passes
 `spec-review-loop`.
 
-> Amendment note (2026-08-23, human-approved frozen-document amendment):
-> the Phase 1 framing in the paragraph above — and the matching Phase 2/3
-> deferral in Non-goals — described this package at its authoring time and
-> is retained unchanged as a record of what was claimed then. The epic's
-> implementation phase has since run: `tasks.md` and `traceability.md`
-> exist, and the T-005/T-006 implementation cycle whose `assert_terminal`
-> re-baseline AC-009's provenance note references is part of that recorded
-> history (`specs/epic-195-a7-compatibility/tasks.md`). Where AC-009/
-> TEST-009 speak of that cycle in the past tense, they and this note are
-> the authoritative framing; the original paragraphs describe authoring
-> time, not the present state.
+> Amendment note (2026-08-23): the Phase 1 framing in the paragraph
+> above — and the matching Phase 2/3 deferral in Non-goals — described
+> this package at its authoring time and is retained unchanged as a
+> record of what was claimed then. This package has since been amended
+> under a human-approved frozen-document amendment. The dated verbatim
+> approval record, the full amendment commit hashes, the SHA-256 of each
+> amended document as of each amendment commit, and commit/SHA-256
+> citations for every later-phase artifact this package references
+> (`tasks.md`, `traceability.md`/`traceability.json`, and the T-005/
+> T-006 `assert_terminal` re-baseline AC-009's provenance note names)
+> are recorded in `investigation.md` under `## Amendment Re-Review
+> Context`. That entry's citations are the authoritative framing; the
+> paragraphs above describe authoring time, not the present state.
 
 ## Target Users
 
@@ -248,9 +250,10 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
 - Authoring the actual test code, fixtures, or registry/driver/run-record
   edits. Those are Phase 2/3 deliverables of a later task once this
   package passes `spec-review-loop`/`impl-review-loop`. (See the
-  Overview's dated amendment note: this deferral described authoring
-  time; those later-phase deliverables have since been produced and are
-  recorded in `specs/epic-195-a7-compatibility/tasks.md`.)
+  Overview's dated amendment note and `investigation.md` `## Amendment
+  Re-Review Context`: this deferral described authoring time; the
+  later-phase deliverables it deferred are cited there by commit and
+  SHA-256.)
 - Registering a new `loop-inventory/v1` loop `id` (a ninth loop). Per
   decision doc §4.3/§19 and INV-002, capability events extend existing
   entries; if a genuinely new loop-shaped surface (its own cap/round/
