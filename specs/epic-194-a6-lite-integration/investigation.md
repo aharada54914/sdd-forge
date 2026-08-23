@@ -692,3 +692,86 @@ obligation, not this package's:
   clarification (A6→A5), not a substantive change to what this package
   itself already specifies. Tracked for closure in A5's own package, not
   this one.
+
+## Amendment Re-Review Context
+
+This section is the declared amendment re-review context for this package,
+per `plugins/sdd-review-loop/references/spec-review-calibration.md`
+("Amendment Re-Review Context"). It records, with full citations, the
+human-approved post-implementation amendments under which this package is
+being re-reviewed at spec-review attempt 2.
+
+### Amendment commits (full hashes)
+
+- `9997091c71244e8cf3f9e46732f7ba164aa49843` — widened acceptance-tests.md
+  AC-010 from a four-target to a five-target declared payload set, closing
+  two Major findings both vendor slots of the T-001 blind cross-model panel
+  raised independently (2026-08-21).
+- `fae561c9d323cf32914f6885cb6f3d24053bd9af` — completed that amendment
+  consistently across the document set (TEST-031/AC-031 sibling rows widened
+  to the same five-target set; Overview dated phase note added; positional
+  CLI wording aligned to the named-flag form the staged implementation
+  uses), remediating spec-review attempt 2 round 1 findings (2026-08-23).
+
+### Amended-document fingerprints (SHA-256, as of each amendment commit)
+
+As of `9997091c71244e8cf3f9e46732f7ba164aa49843`:
+
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `691db158e25045959809f32d67e1132974163cb72ef6729806427b3c193180f5`
+
+As of `fae561c9d323cf32914f6885cb6f3d24053bd9af`:
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `580cce4d0f10ccf11667f90fd9d0286ab9b735fc257379bbc051d5ea6e7a4be5`
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b`
+
+This `investigation.md` is itself amended by the commit that introduces this
+section; a document cannot embed its own post-amendment hash, so that
+fingerprint is pinned instead by the spec-review attempt 2 round 3 reviewer
+invocation manifests and the round-3 evidence commit that record this exact
+revision.
+
+### Human approval (verbatim, dated)
+
+- 2026-08-23: 「194/195/196の凍結文書について人間は承認する」
+- 2026-08-23: 「限定デプロイ + WFI 起票でやれ」 (authorizing limited
+  deployment of this amendment re-review lane for epic-194 and epic-195,
+  plus a workflow-improvement filing for the durable mechanism)
+
+These approvals were given in conversation; this entry, committed into the
+hash-pinned package under review and pinned by the round-3 reviewer
+invocation manifests, is itself the durable, citable approval record.
+
+### Later-phase artifacts referenced by this package (commit / SHA-256)
+
+Referenced by the amended AC-010 row and TEST-031 row
+(acceptance-tests.md), the AC-010/AC-031 rows and the Overview's dated note
+(requirements.md):
+
+- `specs/epic-194-a6-lite-integration/tasks.md` — SHA-256
+  `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+  last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`. Its
+  Protected Files item 3 is the text whose fifth staged target AC-010's
+  five-target widening admits into the declared payload set.
+- `specs/epic-194-a6-lite-integration/traceability.md` — SHA-256
+  `0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e`,
+  last amended in commit `522a1ccab0cdc08e4094e12a2a84b156caf0dc7f`.
+- `specs/epic-194-a6-lite-integration/traceability.json` — SHA-256
+  `9f292087e4e2466c8e8ee3530a91af96698be1a4408c1f703e6ccf4d37208b84`,
+  last amended in commit `859209955dcf1f99d4be0305f3dea317577b8006`.
+- The T-001 cross-model verdicts (2026-08-21), the panel evidence the
+  amended AC-010 row cites:
+  - `specs/epic-194-a6-lite-integration/verification/T-001.panelist-anthropic.verdict.json`
+    — SHA-256
+    `18471b6023754934a8f1b371c78f7fe222a3b27b4fee298ce122bdd2294f0da7`,
+    last amended in commit `89a0700d42e8badf348f8d9322417ff0044c8043`.
+  - `specs/epic-194-a6-lite-integration/verification/T-001.panelist-openai.verdict.json`
+    — SHA-256
+    `37d15b1811698a4f3639fac438fb9ab18beec2615d6b1265ddcbd92e29cfb9aa`,
+    last amended in commit `2461da5d08a6cb90d36e338dc5291d89ff217dda`.
+
+Every fingerprint above is of the committed state at authoring time
+(`git show <commit>:<path>` hashed with SHA-256), never of uncommitted
+working-tree bytes.

@@ -46,13 +46,15 @@ task's own explicit instruction.
 
 > Dated note (2026-08-23): the Phase 1 framing above describes this
 > package's authoring time and is retained as the historical record of that
-> boundary, not as a current claim. `tasks.md` and `traceability.md` have
-> since been authored and reviewed as this feature's canonical siblings,
-> and implementation-phase evidence now exists — including the T-001
-> cross-model verdicts the Acceptance Criteria table's AC-010 row cites.
-> References elsewhere in this package to `tasks.md` or to completed
-> implementation-phase events are therefore references to real, existing
-> artifacts.
+> boundary, not as a current claim. This package is under a declared,
+> human-approved amendment re-review: investigation.md's
+> `## Amendment Re-Review Context` section records the amendment commit
+> hashes in full, the SHA-256 of each amended document as of each amendment
+> commit, the verbatim dated human approval, and a commit/SHA-256 citation
+> for every later-phase artifact this package references (`tasks.md`,
+> `traceability.md`, and the T-001 cross-model verdicts the Acceptance
+> Criteria table's AC-010 row cites). The claims in this note inherit that
+> entry's citations rather than standing as bare assertions.
 
 ## Target Users
 
