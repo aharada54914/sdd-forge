@@ -34,14 +34,14 @@ compatible; see design.md "Migration & backward compatibility").
 ## Goals
 
 - Risk tier is a first-class, validated field on every task; absent ⇒ deterministic gate fails closed (REQ-001).
-- A canonical, documented **risk → required-gates matrix** auto-determines the required check set; the contract gate enforces the tier minimum as a non-downgradable superset (REQ-002).
+- A canonical, documented **risk → required-gates matrix** auto-determines the required check set; the contract gate enforces the tier minimum as a non-downgradable superset (REQ-002). Exception, ratified by T-012 (Approval: Approved, tasks.md): a contract whose `stack` descriptor declares a non-compiled repository (`shell`/`docs`/`spec`) may mark ONLY the three compile-oriented checks (`lint`, `typecheck`, `build`) `required:false` with a non-empty `waiver_reason`; every test/quality check stays mandatory at its tier. Canonical rule text: `references/risk-gate-matrix.md` (Stack descriptor section).
 - High/Critical tasks require **Red→Green** evidence; the gate rejects a `tdd` workflow lacking failing-then-passing proof (REQ-003).
 - `AC-NNN` and `TEST-NNN` IDs are standardized; a deterministic gate verifies every REQ maps to ≥1 AC, every AC to ≥1 TEST, and (high/critical) every TEST to passing evidence (REQ-004).
 - Contract and evidence bundle carry `spec_revision`; spec changes during implementation are recorded as diff + reason + approver (REQ-005).
 - Evidence bundle carries provenance (`spec_revision`, `risk`, `required_workflow`, per-check `command`/`exit_code`/timestamps, `build_env`, builder identity, structured `review_verdict`) and, for Critical, a verifiable signature (REQ-006).
 - Critical tasks require a recorded **two-person approval**; High/Critical record a structured independent-review verdict in the bundle (REQ-007).
 - Branch protection, required checks, and merge queue are codified in-repo (rulesets/CODEOWNERS/`merge_group`) with an apply path for free-tier limits; release is gated on CI (REQ-008).
-- A standalone `docs/THREAT-MODEL.md` and an agent capability/privilege matrix exist; shipped Codex agents declare cost-aware `model` routing (REQ-009, REQ-010).
+- A standalone `docs/THREAT-MODEL.md` and an agent capability/privilege matrix exist; cost-aware `model` routing for the shipped Codex agent roles is a documented **runtime control** (`--model`/`--effort` at invocation, capability-matrix M-04) and is intentionally NOT pinned as a `model` key in the role toml files (unconfirmed schema key → "malformed agent role" reject risk) (REQ-009, REQ-010; wording reconciled 2026-08-21 with the ratified AC-009 alignment, commit `91fa6645` — RT-20260821-002).
 - sdd-forge dogfoods this feature: a versioned self-spec under `specs/risk-adaptive-layer/` with risk-tiered tasks and evidence (REQ-011).
 
 ## Non-goals
@@ -63,7 +63,7 @@ See `acceptance-tests.md` for AC-NNN ↔ TEST-NNN mapping. Summary:
 - AC-006 A generated evidence bundle contains the provenance fields; `check-evidence-bundle` validates them and (Critical) verifies the signature.
 - AC-007 A Critical task marked Done without two recorded approvers fails the gate.
 - AC-008 CI codification exists and is valid (rulesets/CODEOWNERS parse; `merge_group` present; release gated).
-- AC-009 `docs/THREAT-MODEL.md` and the capability matrix exist and enumerate the controls/agents; Codex agents declare `model`.
+- AC-009 `docs/THREAT-MODEL.md` and the capability matrix exist and enumerate the controls/agents; cost-aware `model` routing is documented in capability-matrix M-04 as a runtime control (`--model`/`--effort`), intentionally not pinned in the role toml files (matches acceptance-tests.md AC-009).
 - AC-010 All pre-existing contracts/bundles/tests still pass (no regression of STR-001..006).
 
 ## Roles and Permissions

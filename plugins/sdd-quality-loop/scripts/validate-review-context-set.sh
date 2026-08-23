@@ -192,6 +192,20 @@ path_is_authorized() {
   esac
 }
 
+# WFI-025: the STATUS-NORMALIZED task-plan digest — byte-for-byte the same
+# recipe as check-workflow-state.sh normalized_hash() for the task stage
+# (canonical form 1). The one scoped exception to the raw hash-equality rule
+# below is defined over exactly the fields this normalization rewrites.
+tasks_normalized_hash() {
+  local file="$1" cr=""
+  LC_ALL=C grep -q $'^Task-Review-Status:.*\r$' "$file" && cr=$'\r'
+  sed \
+    -e "s/^Task-Review-Status:[[:space:]]*.*/Task-Review-Status: Pending${cr}/" \
+    -e "s/^Approval:[[:space:]]*.*/Approval: Draft${cr}/" \
+    -e "s/^Status:[[:space:]]*.*/Status: Planned${cr}/" \
+    -e "/^Second Approval:/d" "$file" | sha256_text
+}
+
 jq -e . "$manifest" >/dev/null 2>&1 ||
   fail JSON 'manifest is not valid JSON'
 
@@ -375,6 +389,16 @@ if [[ -n "$persisted_match" ]]; then
     fail IDENTITY 'invocation role does not match the persisted identity-ledger record'
   [[ "$persisted_previous" == "$previous_record_sha256" ]] ||
     fail IDENTITY 'invocation previous-record hash does not match the persisted identity-ledger record'
+  # WFI-037: the uniqueness the REVIEW_CONTEXT_OK line asserts must be
+  # proven in this branch too, not inherited from the reserve path.
+  persisted_count=$(jq -r --arg run "$run_id" --arg session "$host_session_id" '
+    [.records[] | select(.run_id == $run and .host_session_id == $session)] | length
+  ' "$ledger")
+  [[ "$persisted_count" -eq 1 ]] ||
+    fail IDENTITY 'run and host-session identity appears more than once in the canonical identity ledger'
+  # Tip position is meaningless for a persisted verification (see above), so
+  # the emitted chain fact says so explicitly.
+  pre_append_tip_sequence='-'
 else
   # A partial match -- one of the two identity fields already persisted
   # under a DIFFERENT value for the other -- means two different launches
@@ -396,6 +420,8 @@ else
     fail IDENTITY 'canonical identity ledger hash is stale or mismatched'
   [[ "$sequence" -eq "$expected_sequence" && "$previous_record_sha256" == "$expected_previous" ]] ||
     fail IDENTITY 'invocation does not extend the canonical identity ledger'
+  # WFI-037: the record extends the pre-append tip, proven just above.
+  pre_append_tip_sequence=$((expected_sequence - 1))
 fi
 
 implementation_report_path=''
@@ -439,6 +465,17 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
   fi
 fi
 
+# Located before the manifest-entry loop: the WFI-025 task-plan exception
+# inside the loop cross-checks the round's precheck record. The precheck
+# entry's own raw-hash verification still runs in the loop, so a tampered
+# precheck cannot buy a reservation — any mismatch fails the whole run.
+precheck_rel=$(jq -r '
+  .allowed_input_manifest[].path
+  | select(test("^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\\.json$"))
+' "$manifest" | tr -d '\r' | head -1)
+precheck_abs=''
+[[ -n "$precheck_rel" ]] && precheck_abs="$repository_root/$precheck_rel"
+
 while IFS=$'\t' read -r path expected_hash; do
   is_canonical_path "$path" ||
     fail PATH "$role contains a non-canonical repository-relative path: $path"
@@ -458,8 +495,25 @@ while IFS=$'\t' read -r path expected_hash; do
   [[ ! -L "$candidate" && -f "$candidate" ]] ||
     fail PATH "$role contains a missing or non-regular input: $path"
   actual_hash=$(sha256_file "$candidate")
-  [[ "$actual_hash" == "$expected_hash" ]] ||
-    fail HASH "$role hash mismatch: $path"
+  if [[ "$actual_hash" != "$expected_hash" ]]; then
+    # WFI-025: the ONE scoped exception to the raw-equality rule. A
+    # task-stage manifest may declare the task plan's normalized digest, but
+    # only when the same round's precheck declares tasks_sha256_form:
+    # normalized AND pinned exactly this digest AND the live file still
+    # normalizes to it — the entry keeps binding every byte outside the
+    # lifecycle fields. Every other entry keeps the strict raw requirement.
+    if [[ "$stage" == task && "$path" == "specs/$feature/tasks.md" &&
+          -n "$precheck_abs" && -f "$precheck_abs" && ! -L "$precheck_abs" ]]; then
+      [[ "$(jq -r '.tasks_sha256_form // "raw"' "$precheck_abs" | tr -d '\r')" == normalized ]] ||
+        fail HASH "$role hash mismatch: $path"
+      [[ "$expected_hash" == "$(jq -r '.tasks_sha256 // empty' "$precheck_abs" | tr -d '\r')" ]] ||
+        fail HASH "$role hash mismatch: $path (a normalized task-plan digest must be the one this round's precheck recorded)"
+      [[ "$(tasks_normalized_hash "$candidate")" == "$expected_hash" ]] ||
+        fail HASH "$role hash mismatch: $path (the live task plan does not normalize to the declared digest)"
+    else
+      fail HASH "$role hash mismatch: $path"
+    fi
+  fi
 done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
 
 # Round consistency. A manifest freezes hashes at reservation time; the round's
@@ -468,12 +522,7 @@ done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest"
 # reviewers of one round would be judging different text. Precheck replay is
 # forbidden, so that state is unrecoverable once a reviewer has run -- refuse the
 # reservation now rather than discovering it a round later.
-precheck_rel=$(jq -r '
-  .allowed_input_manifest[].path
-  | select(test("^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\\.json$"))
-' "$manifest" | tr -d '\r' | head -1)
 if [[ -n "$precheck_rel" ]]; then
-  precheck_abs="$repository_root/$precheck_rel"
   if [[ -f "$precheck_abs" && ! -L "$precheck_abs" ]]; then
     while IFS=$'\t' read -r pinned_path pinned_hash; do
       [[ -n "$pinned_path" ]] || continue
@@ -529,4 +578,12 @@ if $reserve; then
   trap - EXIT
 fi
 
-printf 'REVIEW_CONTEXT_OK %s\n' "$record_hash"
+# WFI-037: the OK line carries the chain facts a launched role needs to
+# verify its own identity WITHOUT reading the ledger (which no role's
+# manifest may authorize): the reserved record's sequence, the
+# previous-record hash the record chains from, the pre-append tip sequence
+# ('-' when verifying an already-persisted identity, where tip position is
+# meaningless), and the uniqueness assertion for the run/session ids —
+# every one proven by a fail-closed check above before this line prints.
+printf 'REVIEW_CONTEXT_OK %s sequence=%s previous_record_sha256=%s pre_append_tip_sequence=%s identity_unique=yes\n' \
+  "$record_hash" "$sequence" "${previous_record_sha256:--}" "$pre_append_tip_sequence"
