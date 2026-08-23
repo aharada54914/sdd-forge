@@ -40,27 +40,40 @@ if [ "$HAVE_PWSH" -eq 0 ]; then
     echo "skip - ps1 legs: pwsh not found on this host (CI runs them)"
 fi
 
-# write_fixture <dir> <approval-line>: an In Progress task carrying the form
-# under test. In Progress requires a valid approval and nothing else, so the
-# checker verdict isolates the grammar decision.
+# write_fixture <dir> <approval-line> [status-line]: a task carrying the forms
+# under test. The default status, In Progress, requires a valid approval and
+# nothing else, so the checker verdict isolates the grammar decision.
 write_fixture() {
+    _status="${3:-In Progress}"
     mkdir -p "$1"
-    printf '# Tasks\n\n## T-001\n\nApproval: %s\nStatus: In Progress\n' "$2" > "$1/tasks.md"
+    printf '# Tasks\n\n## T-001\n\nApproval: %s\nStatus: %s\n' "$2" "$_status" > "$1/tasks.md"
 }
 
-# Fixture set: name|approval-line|expected (0 accept / 1 reject).
+# Fixture set: name|approval-line|status-line|expected (0 accept / 1 reject).
 # The minutes-precision and fractional-seconds rows are the two shapes of the
-# 8 committed lines measured in WFI-042's Problem Evidence. The mis-cased row
-# is the AGENTS.md case-sensitivity sweep's mandatory negative fixture
-# (WFI-012 rule; PR #336 review): the awk regex is case-sensitive, so the ps1
-# legs must reject it identically via -cmatch.
+# 8 committed lines measured in WFI-042's Problem Evidence.
+#
+# The mis-cased rows are the AGENTS.md case-sensitivity sweep's mandatory
+# negative fixtures (WFI-012 rule), and they cover BOTH operator layers the
+# ps1 legs use to judge these fields:
+#   - mis-cased-annotated exercises the REGEX layer, governed by -cmatch
+#     (added by the PR #336 review).
+#   - mis-cased-bare-* exercise the STRING-EQUALITY layer. The awk twin
+#     compares with ==, which is case-sensitive; PowerShell's -eq is not.
+#     Until those sites moved to -ceq, `Approval: approved` was rejected by
+#     the awk leg and accepted as a valid, gate-satisfying approval by both
+#     ps1 legs -- a mis-cased value passed the approval gate on PowerShell
+#     hosts and failed it on POSIX.
+#   - mis-cased-status-* exercise the same layer for Status, where the ps1
+#     legs tested membership with -in / -notin against $validStatuses, also
+#     case-insensitive, against an awk twin comparing with == and !=.
 run_parity_cases() {
     idx=0
-    while IFS='|' read -r name approval expected; do
+    while IFS='|' read -r name approval status expected; do
         [ -z "$name" ] && continue
         idx=$((idx+1))
         dir="$WORK/case-$idx"
-        write_fixture "$dir" "$approval"
+        write_fixture "$dir" "$approval" "$status"
 
         full_rc=0
         sh "$FULL_SH" "$dir/tasks.md" "$WORK/reports/quality-gate" "$WORK/reports/implementation" "$WORK" >/dev/null 2>&1 || full_rc=$?
@@ -87,14 +100,19 @@ run_parity_cases() {
             fi
         fi
     done <<'CASES'
-bare-approved|Approved|0
-draft|Draft|1
-strict-annotated|Approved (alice 2026-08-22T01:02:03Z)|0
-minutes-precision|Approved (human 2026-08-17T03:35Z)|1
-fractional-seconds|Approved (sudo 2026-07-13T05:53:16.481Z)|1
-empty-annotation|Approved ()|1
-free-text|Approved (waived pending human sign-off)|1
-mis-cased|approved (alice 2026-08-22T01:02:03Z)|1
+bare-approved|Approved|In Progress|0
+draft|Draft|In Progress|1
+strict-annotated|Approved (alice 2026-08-22T01:02:03Z)|In Progress|0
+minutes-precision|Approved (human 2026-08-17T03:35Z)|In Progress|1
+fractional-seconds|Approved (sudo 2026-07-13T05:53:16.481Z)|In Progress|1
+empty-annotation|Approved ()|In Progress|1
+free-text|Approved (waived pending human sign-off)|In Progress|1
+mis-cased-annotated|approved (alice 2026-08-22T01:02:03Z)|In Progress|1
+mis-cased-bare-lower|approved|In Progress|1
+mis-cased-bare-upper|APPROVED|In Progress|1
+mis-cased-bare-mixed|ApProVeD|In Progress|1
+mis-cased-status-planned|Draft|planned|1
+mis-cased-status-inprogress|Approved|in progress|1
 CASES
 }
 # Note the draft row: Draft is a VALID field value, but an In Progress task

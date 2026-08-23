@@ -113,22 +113,22 @@ foreach ($task in $allTasks) {
     # -cmatch: the awk twin's regex is case-sensitive, and AGENTS.md's
     # case-sensitivity sweep rule (WFI-012) requires ported -match sites to
     # keep that; the lite twin's identical sites moved with this one.
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
+    $isValidApproval = ($a -ceq "Draft" -or $a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
     # For gate checks, an annotated approval counts only in the strict form.
-    $isApproved = ($a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
+    $isApproved = ($a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
 
-    if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
-    if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
+    if ($s -cnotin $validStatuses) { $failures += "$task has invalid Status: $s" }
+    if ($s -cin $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
-    if ($s -eq "Done") {
+    if ($s -ceq "Done") {
         # Two-person approval enforcement for critical Done tasks
         $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
-        if ($taskRisk -eq "critical") {
+        if ($taskRisk -ceq "critical") {
             $primId = Get-ApproverId -s $a
             $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
             $secId = Get-ApproverId -s $secValue
@@ -188,7 +188,7 @@ foreach ($task in $allTasks) {
         # Do not search the shared report directory by task id: task ids are only
         # unique within a feature and a global search can select another feature.
     }
-    if ($s -eq "Implementation Complete") {
+    if ($s -ceq "Implementation Complete") {
         $hasImplReport = $false
         # C-07: word-boundary match to prevent T-001 matching T-0010 (parity with grep -w in .sh)
         $taskWordPattern = "\b" + [regex]::Escape($task) + "\b"
@@ -200,7 +200,7 @@ foreach ($task in $allTasks) {
             $failures += "$task is Implementation Complete but no implementation report in $ImplReportsDir mentions it"
         }
     }
-    if ($s -eq "Blocked") {
+    if ($s -ceq "Blocked") {
         $blockersContent = $blockers[$task]
         if ([string]::IsNullOrWhiteSpace($blockersContent)) {
             $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"

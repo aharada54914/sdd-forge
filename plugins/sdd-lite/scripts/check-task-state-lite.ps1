@@ -88,20 +88,20 @@ foreach ($task in $allTasks) {
     # Validate Approval: Draft | Approved | Approved (<id> YYYY-MM-DDTHH:MM:SSZ)
     # -cmatch (WFI-042 / PR #336 review): the awk twin's regex is
     # case-sensitive; the full checker's identical sites use -cmatch too.
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
+    $isValidApproval = ($a -ceq "Draft" -or $a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
-    $isApproved = ($a -eq "Approved" -or $a -cmatch $namedApprovalPattern)
+    $isApproved = ($a -ceq "Approved" -or $a -cmatch $namedApprovalPattern)
 
-    if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
-    if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
+    if ($s -cnotin $validStatuses) { $failures += "$task has invalid Status: $s" }
+    if ($s -cin $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
 
     # Implementation report required for Implementation Complete AND Done
-    if ($s -eq "Implementation Complete" -or $s -eq "Done") {
+    if ($s -ceq "Implementation Complete" -or $s -ceq "Done") {
         $hasImplReport = $false
         if (Test-Path -LiteralPath $ImplReportsDir) {
             $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
@@ -113,7 +113,7 @@ foreach ($task in $allTasks) {
     }
 
     # Lite Done: require a quality-gate report mentioning the task with VERDICT: PASS
-    if ($s -eq "Done") {
+    if ($s -ceq "Done") {
         $qaFound = $false
         if (Test-Path -LiteralPath $ReportsDir) {
             $candidates = Get-ChildItem $ReportsDir -File -Recurse |
@@ -128,7 +128,7 @@ foreach ($task in $allTasks) {
         }
     }
 
-    if ($s -eq "Blocked") {
+    if ($s -ceq "Blocked") {
         $blockersContent = $blockers[$task]
         if ([string]::IsNullOrWhiteSpace($blockersContent)) {
             $failures += "$task is Blocked but ### Blockers section has no content (not None or empty)"

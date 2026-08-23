@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+### Fixed
+
+- **タスク承認ゲートが PowerShell ホストで大小文字を無視していた問題
+  （WFI-012 クラスの実在欠陥、WFI-044 の Cycle-2 監査で発見）**:
+  `check-task-state.ps1` / `check-task-state-lite.ps1` の承認・ステータス判定が
+  `-eq` / `-in` / `-notin` を使っていた。PowerShell のこれらは**大小文字を
+  無視する**が、awk 双子の `==` / `!=` は**大小文字を区別する**。結果:
+  - `Approval: approved`（小文字）は awk 側で「invalid Approval」かつ
+    「In Progress without Approval」の2件失敗となるのに対し、ps1 側では
+    **有効な承認として扱われ承認ゲートを通過**していた。
+    つまり誤記した承認値が PowerShell ホストでのみゲートを抜けられた。
+  - `Status: planned` / `in progress` / `done` も同様に ps1 側だけ有効扱い。
+  - `-in $approvedOnlyStatuses` / `-notin $validStatuses` も同じ理由で
+    大小文字を無視していた。
+  該当箇所を `-ceq` / `-cin` / `-cnotin` に修正（両チェッカー計15箇所)。
+  `.ToLower()` を明示している箇所（`sudo` / `none` 判定、Risk は読み取り時に
+  awk の `tolower()` と同様に正規化済み）は awk 双子と一致するため変更なし。
+  MCP パーサは JS の `===`（大小文字区別）で既に一致しており影響なし。
+  **PR #336 の `-match`→`-cmatch` 修正は正規表現層のみを直しており、同じ行の
+  `-eq` は残っていた** — `tests/task-state-grammar-parity.tests.sh` の
+  mis-cased フィクスチャも注釈形式のみを覆っていたため検出できなかった。
+  同スイートに文字列等価層の負フィクスチャ5件を追加
+  (`mis-cased-bare-{lower,upper,mixed}`、`mis-cased-status-{planned,inprogress}`)。
+  17/17 緑、4件すべて sh 脚で reject を実測。
+
 ### Changed
 
 - **WFI-041 適用 — インストーラ再実行の冪等化・アップグレード経路・
