@@ -31,3 +31,12 @@ components:
     paths:
       include:
         - "shared/util/**"
+  - id: other~thing
+    characteristics:
+      pii: false
+      ui: false
+      auto_update: false
+      local_persistence: false
+    paths:
+      include:
+        - "other-thing/**"

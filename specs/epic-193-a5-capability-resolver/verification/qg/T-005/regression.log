@@ -1,4 +1,95 @@
 Scoped + full regression evidence for T-005 (epic-193-a5-capability-resolver),
+RE-RUN 2026-08-23, gate-cycle-2 remediation (Majors A/B/C + Minors), superseding
+the second-pass/AC-056 capture below at this identical path -- that capture's
+own 59/0 total is now stale; every command in this file was re-run fresh
+against the real worktree, HEAD 7d55b5f0 with this pass's own uncommitted diff.
+
+$ git diff --stat -- plugins/
+(empty)
+Exit: 0
+
+$ git status --short -- plugins/
+(empty -- no untracked file under plugins/** either; AC-032. T-005 never
+edits resolve-project-context.{py,sh,ps1} itself -- test-only task. This
+pass's own two fixture edits (project-context.yaml, capability-registry.json)
+live under tests/fixtures/, not plugins/.)
+Exit: 0
+
+$ git diff --check
+(empty -- no whitespace errors)
+Exit: 0
+
+$ python3 -m py_compile tests/resolve-project-context-match-check.py
+(no output)
+Exit: 0
+
+$ bash tests/resolver-evidence-schema.tests.sh   # T-001's sibling suite; T-005 does not edit contracts/resolver-evidence.schema.json, re-run to confirm no incidental breakage
+20 passed, 0 failed
+Exit: 0
+
+$ (cd specs/epic-193-a5-capability-resolver/human-copy && shasum -a 256 -c MANIFEST.sha256)
+.github/workflows/test.yml: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.py: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.sh: OK
+plugins/sdd-quality-loop/scripts/resolve-project-context.ps1: OK
+Exit: 0
+(Note: shasum -c from the repo root instead fails, because the LIVE
+plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1} paths
+do not exist yet -- pending human apply. Expected, by-design state, not a
+regression. This pass never touches any of the four MANIFEST-covered paths.)
+
+$ bash tests/resolve-project-context-match.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-match.tests.ps1
+65 passed, 0 failed (both runtimes) -- GROWN from gate-cycle-1's own 63/0 by
+2 new assertions (Major A's independently-recomputed projection_sha256
+remainder; Major B's dedicated other~thing `~`-escape assertion). Major C
+(the two-contributing-instance solo-never-facet reason) and Major A's own
+first half (the hand-built expected_projection) both strengthen an EXISTING
+assertion slot in place, adding no new count. Re-captured to
+verification/qg/T-005/focused-tests-{sh,ps1}.log.
+
+$ bash tests/resolve-project-context-block.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+141 passed, 0 failed (both runtimes) -- confirms T-002/T-003/T-004's own
+upstream suite, which T-005's own suite depends on functionally, is
+unregressed by this pass's own diff (which touches no path under plugins/).
+
+Full run-all regression (both runtimes, run detached with no deadline per
+this session's own instructions, read via the trailing "N failing
+suite(s):" enumeration rather than exit code, which is 0 regardless),
+re-run fresh this pass (not carried forward from any earlier pass's own run):
+
+$ bash tests/run-all.sh   (background, detached)
+2 failing suite(s):
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/design-system-contract.tests.sh
+Both self-declare DESIGNED-RED and match this repository's own documented
+standing baseline exactly. No suite beyond these two failed -- this task's
+own tests/resolve-project-context-match.tests.sh suite is registered and
+green within this same run (verified directly: line 4593/4659 of the
+captured run log show `==> tests/resolve-project-context-match.tests.sh`
+immediately followed, 65 lines later, by `RESULT: 65 passed, 0 failed`).
+
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (background, detached)
+1 failing suite(s):
+  tests/design-system-contract.tests.ps1
+Also DESIGNED-RED, identical pre-existing reason.
+deterministic-lane-selfcheck.tests.sh has no PowerShell twin at all --
+pre-existing structural asymmetry, not something T-005's diff touches.
+This task's own tests/resolve-project-context-match.tests.ps1 is registered
+and green within this same run (line 3658/3724: `==> tests/resolve-project-
+context-match.tests.ps1` through `RESULT: 65 passed, 0 failed`).
+
+Net: no suite outside the two self-declared DESIGNED-RED ones failed in
+either runtime; this task's own suite registration is confirmed live and
+green inside the full regression run, both before and after this pass's own
+gate-cycle-2 remediation. regression: passes=true.
+
+---
+
+Superseded capture below (2026-08-23, second pass -- AC-056 remediation,
+59/0 -- retained for historical continuity, matches its own point-in-time
+evidence, not the current total):
+
+Scoped + full regression evidence for T-005 (epic-193-a5-capability-resolver),
 re-run at current HEAD (febf7898, second pass -- AC-056 remediation) 2026-08-23.
 
 $ git diff --stat -- plugins/

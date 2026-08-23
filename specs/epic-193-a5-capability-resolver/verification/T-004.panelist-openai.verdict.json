@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-004",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "openai",
+  "model": "gpt-5.6-sol",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-004.md \u2014 Specification Differences item 4",
+      "note": "Late Blocks from steps 10-13 deliberately omit context_binding and resolver even though those values are already computable. The design requires a full Resolver Evidence record for these paths; only early pre-discovery cases receive reduced records. Schema permissiveness does not satisfy this semantic requirement."
+    },
+    {
+      "severity": "Major",
+      "ref": "tests/fixtures/capability-resolver/resolve-project-context-block/snapshot-generation-mismatch/generate-registry-digest.py",
+      "note": "The snapshot-mismatch stub emits 64 bare hex characters, while the step-6 dependency contract requires a sha256:<64-hex> value and mandates dependency-output-malformed otherwise. Because the fixture passes as snapshot-generation-mismatch, the implementation or test harness accepts a dependency output shape forbidden by the specification, so this test does not validly verify the intended TOCTOU branch."
+    }
+  ],
+  "blind": true,
+  "input_digest": "9e102e85a188f563020884db3f66d18d0da011ef71c1ab63f275f0feb63b6835",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-004 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+  }
+}

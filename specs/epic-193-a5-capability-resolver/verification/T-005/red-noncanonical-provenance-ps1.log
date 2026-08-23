@@ -1,3 +1,25 @@
+NOTE (T-005 gate-cycle-1 Major 2 remediation, Major 1's own mutant): captured
+against an isolated scratch clone (`git clone --no-hardlinks` of this
+worktree at its own committed HEAD), never the real worktree, with this
+pass's own updated tests/resolve-project-context-match-check.py (the two
+new resolver-identity assertions this same remediation added) overlaid on
+top. The mutant below targets RULE_SET_STRING in resolve-project-context.py
+(scratch clone only): folding os.getpid() into the string so
+resolver.rule_set_revision is derived per-process rather than being this
+Resolver revision's own fixed, versioned constant -- a non-canonical
+provenance field (tasks.md's own third named defect class; this is the
+identical mutant the isolated evaluator itself demonstrated against gate
+cycle 1). Demonstrates: the NEW "resolver-identity-cross-process" check
+(Major 1) is the only assertion in this suite that can see this defect --
+it fails cleanly, naming both processes' own distinct pid and diverging
+rule_set_revision -- while every pre-existing assertion, including the
+original in-process "resolver.version/rule_set_revision are this Resolver
+revision's own single-source-of-truth constants" check, still PASSES
+against this exact mutant (a same-process self-comparison cannot see a
+per-process derivation). The real worktree's own resolve-project-context.py
+was never touched (git status --short confirmed empty for that path both
+before and after this capture).
+
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
@@ -9,10 +31,8 @@ PASS: full-pipeline-match: union-match sanity (only one of several affected comp
 PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
 PASS: full-pipeline-match: Resolver Evidence schema agreement
 PASS: full-pipeline-match: no partial live artifact
-PASS: full-pipeline-match: projection_sha256 independently recomputed from the resolver's own captured projection bytes matches the hand-built expectation's own hash (AC-003 remainder)
-PASS: full-pipeline-match: independently-recomputed affected_components matches the fixture's own four components
+PASS: full-pipeline-match: independently-recomputed affected_components matches the fixture's own three components
 PASS: full-pipeline-match: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)
-PASS: full-pipeline-match: "other~thing"'s own `~` is escaped to `~0` in its dependency_pointers[] entry (AC-044)
 PASS: full-pipeline-match: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- white-box: never written to any live path pre-T-007, so cross-invocation/cross-runtime identity is a structural consequence of .sh/.ps1 delegating unconditionally to this identical .py master, not something a real-subprocess run can itself observe)
 PASS: full-pipeline-match: required_facets (AC-007)
 PASS: full-pipeline-match: capabilities (AC-007)
@@ -21,7 +41,7 @@ PASS: full-pipeline-match: capability_minimum_enforcement (AC-007)
 PASS: full-pipeline-match: lite_eligibility (AC-007)
 PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
 PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
+PASS: full-pipeline-match: 'solo-never-facet' (single contributing instance, not applied) names cap-alpha[2] in its own reason (AC-043's own N/A-reason case)
 PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
 PASS: enforcement-byte-identity-advisory: exit 1
 PASS: enforcement-byte-identity-advisory: canonical diagnostic only
@@ -56,11 +76,11 @@ PASS: warn-cardinality-multi-node: no severity:warn entry's own detail collides 
 PASS: warn-cardinality-multi-node: no (id, detail) pair repeats across diagnostics[] (AC-024)
 PASS: warn-cardinality-multi-node: Resolver Evidence schema agreement
 PASS: warn-cardinality-multi-node: no partial live artifact
-PASS: warn-cardinality-multi-node: each of the three severity:warn entries names its own distinct component_id location (AC-056) -- a bijection between {comp-a, comp-b, comp-c} and the three details, not merely 'every name appears somewhere in the joined string'
+PASS: warn-cardinality-multi-node: each of the three severity:warn entries names its own distinct component_id location (AC-056)
 PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
-PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
-PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
-PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+FAIL: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see): [{'version': '1.0.0', 'rule_set_revision': 'sha256:ec13f2f8d83dcaaf350daf455813b978eb618291696a3001813312365d363b22', 'pid': 15271}, {'version': '1.0.0', 'rule_set_revision': 'sha256:02db2cc3c3e07d9a65d8a149d5f868611630fa58ec34b9ded1575fcbc57ce27c', 'pid': 15272}]
+PASS: resolver-identity-dispatcher-delegation: resolve-project-context.sh delegates unconditionally to resolve-project-context.py and carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
+PASS: resolver-identity-dispatcher-delegation: resolve-project-context.ps1 delegates unconditionally to resolve-project-context.py and carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 65 passed, 0 failed
+RESULT: 62 passed, 1 failed

@@ -74,6 +74,15 @@
             "operator": "equals",
             "value": true
           }
+        },
+        {
+          "facet": "solo-never-facet",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.local_persistence",
+            "operator": "equals",
+            "value": true
+          }
         }
       ],
       "review_check_ids": [],

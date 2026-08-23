@@ -1,0 +1,86 @@
+ticket_id: RT-20260823-001
+status: open
+type: verification-gap
+severity: major
+target:
+  feature: epic-193-a5-capability-resolver
+  task: T-005
+  files:
+    - tests/resolve-project-context-match-check.py
+summary: >-
+  AC-003's projection_sha256 clause has no assertion that can fail. The check
+  added in gate cycle 3 to close it compares two driver-computed values that the
+  preceding assertion has already made equal, so it is entailed rather than
+  independent. The value AC-003 actually names -- the Resolver's own
+  projection_sha256 -- survives replacement with a well-formed wrong digest at
+  65/0.
+problem: |
+  tests/resolve-project-context-match-check.py:398-410 asserts
+  resolver_projection_sha256 == hand_projection_sha256. Both sides are computed
+  by the driver from data compared one assertion earlier at :255
+  (captured == expected_projection). The canonicalizer is key-order
+  insensitive, so canonical bytes are a pure function of the parsed value: if
+  :255 holds, :404 cannot fail, and if :255 fails the run has already stopped.
+  The assertion therefore adds no discrimination.
+
+  Measured rather than argued: replacing the Resolver's own projection_sha256
+  with sha256:000...0 leaves the suite at 65 passed / 0 failed.
+
+  This is the third appearance in this task of one pattern, and the pattern is
+  the real subject of this ticket:
+
+    Where an expectation is produced by the implementation under test, the
+    assertion is decorative.
+
+  Cycle 1 found it in AC-044's identity clause, comparing _resolver_block()
+  against constants from the same in-process module load. Cycle 2 found it in
+  AC-003's byte-identity check, computing its expectation from
+  resolver_module._projection(). Both were closed. This is the residue: the
+  half of AC-003 that names a value the driver never obtains from the Resolver.
+
+  The related fixture-shaped variant -- a criterion whose input feature the
+  fixture lacks, so the assertion never gets the chance to discriminate -- was
+  closed this cycle for AC-044's tilde escape and AC-043's multi-instance
+  reason.
+expected_fix: |
+  Three routes close this, and choosing between them is a judgement rather than
+  an edit:
+
+  1. Capture the Resolver's own derived projection_sha256 from its output and
+     compare the hand-built expectation against that value, so the assertion
+     reads something the implementation produced rather than something the
+     driver derived.
+  2. Add a structural white-box check on main()'s derivation of the field, in
+     the manner of the dispatcher-delegation check added for AC-044.
+  3. Disclose it as a structurally unverifiable remainder, alongside AC-044's
+     resolver.version, and withdraw the claim that cycle 2's Major A is closed.
+
+  Route 3 is honest but leaves an approved acceptance criterion unlocked, which
+  is why this ticket does not pick one.
+
+  Six Minor findings from the same gate run are carried here rather than in
+  separate tickets, since none blocks and all touch the same files:
+
+  - T-005.md Specification Differences item 2 describes input construction as
+    if it were verification ("independently recomputes every context_binding
+    scalar").
+  - The Facet Manifest's affected_components is unasserted
+    (match-check.py:462-481). Outside AC-007's enumerated field list.
+  - Warn detail is asserted by substring only (:724-729, :785-805).
+  - Five sh/ps1 log pairs are byte-identical because the output format carries
+    no runtime marker, so the .ps1 artefacts cannot evidence that pwsh produced
+    them. The gate ran pwsh itself and confirmed both runtimes execute.
+  - red-misaggregated-facet-*.log and red-noncanonical-provenance-*.log are
+    63-assertion-era captures (62/1), disclosed as historical rather than
+    re-taken. Each still fails at its own named assertion.
+  - MUT-7 (_required_facets ignoring the matched set) and MUT-9 (truncating
+    _iter_warn_nodes per evidence tree) remain vacuous by fixture. Cycle 3
+    re-verified both after this cycle's fixture edits and judged leaving them
+    defensible; closing either needs a fixture-design change.
+references:
+  - reports/quality-gate/20260823T120000Z-epic-193-a5-capability-resolver-T-005.md
+  - specs/epic-193-a5-capability-resolver/acceptance-tests.md
+  - reports/review-context/pending-epic-193-a5-capability-resolver-sdd-evaluator-T-005-seq0767-manifest.json
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 3

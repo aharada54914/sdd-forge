@@ -1,12 +1,49 @@
+NOTE (T-005 gate-cycle-2 remediation -- Minor "driver not robust to
+malformed evidence"): re-captured against a FRESH isolated scratch clone
+(`git clone --no-hardlinks` of this worktree at its own committed HEAD),
+never the real worktree, with this cycle's own updated
+tests/resolve-project-context-match-check.py (Major A hand-built
+expected_projection + independently-recomputed projection_sha256, Major B
+the "other~thing" fixture component + its dedicated RFC-6901 `~`-escape
+assertion, Major C the two-contributing-instance solo-never-facet reason,
+and the `.get("conditional_facet_evaluations", [])` guard below) and this
+cycle's own updated fixture/registry (four affected components; cap-beta's
+own second `solo-never-facet` conditional_facets declaration) overlaid on
+top. The mutant below is unchanged from gate-cycle-1's own capture and
+still targets _evaluate_capabilities's own union-match loop in
+resolve-project-context.py (scratch clone only, evaluator's own M3): a
+Capability now "matches" only if EVERY affected component's own trigger
+evaluation is true, never if ANY is -- an under-matched Capability --
+restructuring "if result: matched = True" inside the per-component loop
+into "matched = all(evaluation results)" after it.
+
+Gate-cycle-1's own capture of this identical mutant crashed with an
+unguarded KeyError once a downstream line indexed
+`cap_alpha_evidence["conditional_facet_evaluations"]` directly -- a key
+genuinely absent (never an empty list) on an entry whose own `matched` is
+False (resolve-project-context.py's own `_evaluate_capabilities`, "if
+matched:" gate before that key is ever set) -- so the driver produced no
+RESULT line at all. That line now reads
+`cap_alpha_evidence.get("conditional_facet_evaluations", [])`, so a
+still-under-matched cap-alpha instead produces a real, reportable
+`cfe_pairs == [...]` FAIL and the run below reaches its own trailing
+RESULT line cleanly (10 real FAILs, exit 1, no traceback) -- still
+demonstrating the same real, meaningful FAIL at this Done-When bullet's
+own defect-class assertion (AC-006 union-match) that gate-cycle-1's
+capture already demonstrated, now without the driver itself crashing. The
+real worktree's own resolve-project-context.py was never touched (git
+status --short confirmed empty for that path both before and after this
+capture).
+
 PASS: full-pipeline-match: exit 1 (forced snapshot-generation-mismatch)
 PASS: full-pipeline-match: canonical diagnostic only, reached step 13 (steps 0-12 all passed)
 PASS: full-pipeline-match: Context Projection byte-identity (AC-003)
 PASS: full-pipeline-match: resolve-component-paths invoked with --config/--source-rev/--target-rev/--include-untracked byte-identical to received flags (AC-004)
 PASS: full-pipeline-match: generate-registry-digest invoked with exactly --whole, never a --capability-ids/--gate-ids fragment (AC-005 flag)
 PASS: full-pipeline-match: snapshot mismatch attributable to registry_digest alone (AC-005 binding)
-PASS: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006)
+FAIL: full-pipeline-match: exact capability_evaluations, union-match on both Capabilities (AC-006): [{'capability_id': 'cap-alpha', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}, {'component_id': 'other~thing', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}, {'component_id': 'shared/util', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}]}, {'capability_id': 'cap-beta', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}], 'result': False}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.ui'}], 'result': True}, {'component_id': 'other~thing', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}], 'result': False}, {'component_id': 'shared/util', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.ui'}], 'result': False}]}]
 PASS: full-pipeline-match: union-match sanity (only one of several affected components satisfies each trigger)
-PASS: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))
+FAIL: full-pipeline-match: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a)): []
 PASS: full-pipeline-match: Resolver Evidence schema agreement
 PASS: full-pipeline-match: no partial live artifact
 PASS: full-pipeline-match: projection_sha256 independently recomputed from the resolver's own captured projection bytes matches the hand-built expectation's own hash (AC-003 remainder)
@@ -14,14 +51,14 @@ PASS: full-pipeline-match: independently-recomputed affected_components matches 
 PASS: full-pipeline-match: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)
 PASS: full-pipeline-match: "other~thing"'s own `~` is escaped to `~0` in its dependency_pointers[] entry (AC-044)
 PASS: full-pipeline-match: resolver.version/rule_set_revision are this Resolver revision's own single-source-of-truth constants (AC-044 remainder -- white-box: never written to any live path pre-T-007, so cross-invocation/cross-runtime identity is a structural consequence of .sh/.ps1 delegating unconditionally to this identical .py master, not something a real-subprocess run can itself observe)
-PASS: full-pipeline-match: required_facets (AC-007)
-PASS: full-pipeline-match: capabilities (AC-007)
-PASS: full-pipeline-match: resolved_gates (AC-007)
-PASS: full-pipeline-match: capability_minimum_enforcement (AC-007)
-PASS: full-pipeline-match: lite_eligibility (AC-007)
-PASS: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))
-PASS: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)
+FAIL: full-pipeline-match: required_facets (AC-007): []
+FAIL: full-pipeline-match: capabilities (AC-007): []
+FAIL: full-pipeline-match: resolved_gates (AC-007): []
+FAIL: full-pipeline-match: capability_minimum_enforcement (AC-007): None
+FAIL: full-pipeline-match: lite_eligibility (AC-007): {'eligible': True, 'upgrade_reasons': []}
+FAIL: full-pipeline-match: conditional_facets[] facet-name-unique set (AC-043/AC-052(b)): []
+FAIL: full-pipeline-match: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b)): None
+FAIL: full-pipeline-match: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case): None
 PASS: full-pipeline-match: reconstructed Facet Manifest validates via the real validate-facet-manifest (AC-008)
 PASS: enforcement-byte-identity-advisory: exit 1
 PASS: enforcement-byte-identity-advisory: canonical diagnostic only
@@ -63,4 +100,4 @@ PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 65 passed, 0 failed
+RESULT: 55 passed, 10 failed

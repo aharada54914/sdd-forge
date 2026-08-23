@@ -183,7 +183,9 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         (repo / "comp-b/file.txt").write_text("b\n", encoding="utf-8")
         (repo / "shared/util").mkdir(parents=True)
         (repo / "shared/util/file.txt").write_text("s\n", encoding="utf-8")
-        target_oid = block_check.git_commit_all(repo, "add comp-a, comp-b, shared/util")
+        (repo / "other-thing").mkdir()
+        (repo / "other-thing/file.txt").write_text("o\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "add comp-a, comp-b, shared/util, other-thing")
 
         argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
         env = os.environ.copy()
@@ -199,9 +201,55 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         )
 
         # --- AC-003: Context Projection byte-identity -----------------
+        # gate-cycle-2 Major A remediation: `expected_projection` used to be
+        # `resolver_module._projection(document, source_sha256)` -- the
+        # SAME function under test computing its own expectation, so the
+        # comparison below could never fail (the evaluator proved this by
+        # mutating every `paths.include` to `MUTANT-WRONG-PATH/**` inside
+        # the real resolver subprocess and still seeing 63/0). Per
+        # acceptance-tests.md:45 ("computed once by hand per Epic A4's own
+        # REQ-003 procedure"), this is now literal expected data,
+        # hand-transcribed from this fixture's own
+        # `project-context.yaml` (see that file, checked into this same
+        # directory) and sharing no code with `resolve-project-context.py`.
         canonical_context, document = _canonicalize_yaml(repo / "project-context.yaml")
         source_sha256 = "sha256:" + hashlib.sha256(canonical_context).hexdigest()
-        expected_projection = resolver_module._projection(document, source_sha256)
+        expected_projection = {
+            "schema": "sdd-context-projection/v1",
+            "source_sha256": source_sha256,
+            "workflow": {
+                "spec_profile": "full",
+                "artifact_layout": "facet-hybrid",
+                "capability_enforcement": "required",
+            },
+            "components": {
+                "comp-a": {
+                    "characteristics": {
+                        "pii": True, "ui": False, "auto_update": False, "local_persistence": False,
+                    },
+                    "paths": {"include": ["comp-a/**"]},
+                },
+                "comp-b": {
+                    "characteristics": {
+                        "pii": False, "ui": True, "auto_update": False, "local_persistence": False,
+                    },
+                    "paths": {"include": ["comp-b/**"]},
+                },
+                "shared/util": {
+                    "characteristics": {
+                        "pii": False, "ui": False, "auto_update": False, "local_persistence": False,
+                    },
+                    "paths": {"include": ["shared/util/**"]},
+                },
+                "other~thing": {
+                    "characteristics": {
+                        "pii": False, "ui": False, "auto_update": False, "local_persistence": False,
+                    },
+                    "paths": {"include": ["other-thing/**"]},
+                },
+            },
+            "shared_paths": [],
+        }
         capture_path = repo / "projection-capture.json"
         captured, capture_parse_error = block_check.read_evidence(capture_path)
         counts.check(
@@ -264,7 +312,7 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
                 entries.append({"component_id": component_id, "result": result_, "evidence": evidence_nodes})
             return entries
 
-        affected_components = sorted(["comp-a", "comp-b", "shared/util"])
+        affected_components = sorted(["comp-a", "comp-b", "shared/util", "other~thing"])
 
         cap_alpha_registry = next(c for c in registry_document["capabilities"] if c["id"] == "cap-alpha")
         cap_beta_registry = next(c for c in registry_document["capabilities"] if c["id"] == "cap-beta")
@@ -314,7 +362,17 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         # --- AC-052(a): Resolver Evidence never collapses a same-
         # Capability duplicate facet name to one entry -----------------
         cap_alpha_evidence = next(e for e in evidence["capability_evaluations"] if e["capability_id"] == "cap-alpha")
-        cfe_pairs = [(e["facet"], e["declaration_index"]) for e in cap_alpha_evidence["conditional_facet_evaluations"]]
+        # gate-cycle-2 Minor remediation: `conditional_facet_evaluations` is
+        # genuinely absent (never an empty list) on an entry whose own
+        # `matched` is False (resolve-project-context.py:447/473) -- e.g. an
+        # under-matched-Capability mutant. `.get(..., [])` turns that into a
+        # real, reportable `cfe_pairs == [...]` FAIL instead of an unguarded
+        # `KeyError` crashing the whole driver before it prints a RESULT
+        # line (see verification/T-005/red-undermatched-capability-*.log).
+        cfe_pairs = [
+            (e["facet"], e["declaration_index"])
+            for e in cap_alpha_evidence.get("conditional_facet_evaluations", [])
+        ]
         counts.check(
             cfe_pairs == [("shared-facet", 0), ("shared-facet", 1), ("solo-never-facet", 2)],
             f"{case_name}: cap-alpha's own duplicate 'shared-facet' declarations recorded as two independent entries, never collapsed (AC-052(a))",
@@ -328,7 +386,28 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         # --- Oracle reconstruction (module docstring): Facet Manifest /
         # context_binding, via the REAL, unmodified staged functions,
         # fed this run's own already-verified capability_evaluations. ---
-        projection_sha256 = "sha256:" + hashlib.sha256(_canonicalize_json_document(expected_projection)).hexdigest()
+        # gate-cycle-2 Major A remediation (second half): `projection_sha256`
+        # used to be derived solely from this driver's own hand-built
+        # `expected_projection` and fed into `_assemble_context_binding`
+        # without ever being compared against anything the resolver itself
+        # produced. Canonicalize `capture_path` -- the resolver's own real,
+        # captured in-memory projection bytes (module docstring; NOT
+        # `expected_projection`) -- via the identical real canonicalizer,
+        # independently of the hand-built value, and assert the two hashes
+        # agree before using the resolver-produced one going forward.
+        hand_projection_sha256 = "sha256:" + hashlib.sha256(_canonicalize_json_document(expected_projection)).hexdigest()
+        canonical_captured_projection = subprocess.run(
+            [sys.executable, str(block_check.REAL_CANONICALIZER), str(capture_path), "--input-format", "json"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+        ).stdout
+        resolver_projection_sha256 = "sha256:" + hashlib.sha256(canonical_captured_projection).hexdigest()
+        counts.check(
+            resolver_projection_sha256 == hand_projection_sha256,
+            f"{case_name}: projection_sha256 independently recomputed from the resolver's own captured "
+            f"projection bytes matches the hand-built expectation's own hash (AC-003 remainder)",
+            repr({"resolver": resolver_projection_sha256, "hand": hand_projection_sha256}),
+        )
+        projection_sha256 = resolver_projection_sha256
         real_rcp = subprocess.run(
             [sys.executable, str(scripts / "resolve-component-paths-real.py")] + expected_rcp_argv,
             cwd=repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
@@ -337,7 +416,7 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         ownership_digest = real_rcp_parsed["context_binding"]["ownership_digest"]
         counts.check(
             sorted(real_rcp_parsed["affected_components"]) == affected_components,
-            f"{case_name}: independently-recomputed affected_components matches the fixture's own three components",
+            f"{case_name}: independently-recomputed affected_components matches the fixture's own four components",
             repr(real_rcp_parsed.get("affected_components")),
         )
         registry_digest = "sha256:" + ("1" * 64)  # this fixture's own stub's FIRST_DIGEST (step 6's own value)
@@ -348,11 +427,27 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
         resolver_block = resolver_module._resolver_block()
 
         # AC-044: dependency_pointers[] RFC-6901 canonical derivation,
-        # exercising the escape rule against "shared/util"'s own `/`.
-        expected_pointers = sorted({"/workflow", "/components/comp-a", "/components/comp-b", "/components/shared~1util"})
+        # exercising the escape rule against "shared/util"'s own `/` AND
+        # (gate-cycle-2 Major B remediation) "other~thing"'s own `~` --
+        # dropping the `~`->`~0` rule while keeping `/`->`~1` used to
+        # survive undetected (no fixture component id contained `~`).
+        expected_pointers = sorted({
+            "/workflow", "/components/comp-a", "/components/comp-b",
+            "/components/shared~1util", "/components/other~0thing",
+        })
         counts.check(
             context_binding["dependency_pointers"] == expected_pointers,
             f"{case_name}: dependency_pointers[] is /workflow plus one RFC-6901-escaped pointer per affected component, stable-sorted (AC-044)",
+            repr(context_binding["dependency_pointers"]),
+        )
+        # gate-cycle-2 Major B remediation: a dedicated, narrow assertion
+        # that the `~` half of the escape rule specifically fires --
+        # dropping only `token.replace("~", "~0")` while keeping the `/`
+        # half survived undetected before "other~thing" existed in this
+        # fixture, since no prior component id ever exercised it.
+        counts.check(
+            "/components/other~0thing" in context_binding["dependency_pointers"],
+            f"{case_name}: \"other~thing\"'s own `~` is escaped to `~0` in its dependency_pointers[] entry (AC-044)",
             repr(context_binding["dependency_pointers"]),
         )
         counts.check(
@@ -403,16 +498,26 @@ def run_full_pipeline_match_case(kind, resolver_module, counts):
             f"{case_name}: 'shared-facet' aggregates cap-alpha[0], cap-alpha[1] (both declarations, never collapsed), and cap-beta[0], OR'd, evidence concatenated capability_id-then-declaration_index-then-component_id ascending (AC-043/AC-052(b))",
             repr(conditional_facets_by_name.get("shared-facet")),
         )
+        # gate-cycle-2 Major C remediation: `solo-never-facet` used to have
+        # exactly one contributing predicate instance (cap-alpha[2]), so
+        # "names every contributing instance" and "names the first" were
+        # indistinguishable and a mutant that only named the first survived
+        # vacuously. cap-beta now ALSO declares `solo-never-facet` (index 1,
+        # `capability-registry.json`) with its own always-false predicate,
+        # so `reason` must name both, in `capability_id`-then-
+        # `declaration_index` ascending order (cap-alpha[2] before
+        # cap-beta[1]).
         solo_never_evidence = []
-        for entry in sorted(cap_alpha_cfe[2]["evaluations"], key=lambda e: e["component_id"]):
-            solo_never_evidence.extend(entry["evidence"])
+        for evals in (cap_alpha_cfe[2]["evaluations"], cap_beta_cfe[1]["evaluations"]):
+            for entry in sorted(evals, key=lambda e: e["component_id"]):
+                solo_never_evidence.extend(entry["evidence"])
         expected_solo_node = {
             "facet": "solo-never-facet", "applied": False, "evidence": solo_never_evidence,
-            "reason": "no contributing predicate instance's conditional facet matched any affected component (contributing: cap-alpha[2])",
+            "reason": "no contributing predicate instance's conditional facet matched any affected component (contributing: cap-alpha[2], cap-beta[1])",
         }
         counts.check(
             conditional_facets_by_name.get("solo-never-facet") == expected_solo_node,
-            f"{case_name}: 'solo-never-facet' (single contributing instance, not applied) names cap-alpha[2] in its own reason (AC-043's own N/A-reason case)",
+            f"{case_name}: 'solo-never-facet' (two contributing instances, not applied) names BOTH cap-alpha[2] AND cap-beta[1] in its own reason, never just the first (AC-043's own N/A-reason case)",
             repr(conditional_facets_by_name.get("solo-never-facet")),
         )
 
@@ -678,11 +783,127 @@ def run_warn_cardinality_multi_node_case(kind, counts):
             return
         _check_warn_cardinality(counts, case_name, evidence, sentinels, evidence_path, expected_warn_count=3)
         warn_details = [d.get("detail") for d in evidence["diagnostics"] if d.get("severity") == "warn"]
+        # Minor fix (gate-cycle-1): the prior version of this check only
+        # confirmed every component_id appeared SOMEWHERE in the joined
+        # string of all three details -- true even if one detail named two
+        # components and another named none. Pair each of the three
+        # component_ids to exactly the one detail that names it (a
+        # bijection), which is what "each entry names its OWN distinct
+        # component_id" actually requires.
+        owners_by_component = {
+            component: [detail for detail in warn_details if component in detail]
+            for component in ("comp-a", "comp-b", "comp-c")
+        }
         counts.check(
             all("cap-multi-warn" in detail for detail in warn_details)
-            and all(component in " ".join(warn_details) for component in ("comp-a", "comp-b", "comp-c")),
-            f"{case_name}: each of the three severity:warn entries names its own distinct component_id location (AC-056)",
-            repr(warn_details),
+            and all(len(owners) == 1 for owners in owners_by_component.values())
+            and len({owners[0] for owners in owners_by_component.values()}) == 3,
+            f"{case_name}: each of the three severity:warn entries names its own distinct component_id location "
+            f"(AC-056) -- a bijection between {{comp-a, comp-b, comp-c}} and the three details, not merely "
+            f"'every name appears somewhere in the joined string'",
+            repr({"warn_details": warn_details, "owners_by_component": owners_by_component}),
+        )
+
+
+_RESOLVER_IDENTITY_PROBE = """
+import importlib.util, json, os, sys
+spec = importlib.util.spec_from_file_location("resolve_project_context_oracle", sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+print(json.dumps({
+    "version": module.RESOLVER_VERSION,
+    "rule_set_revision": module.RULE_SET_REVISION,
+    "pid": os.getpid(),
+}))
+"""
+
+
+def run_resolver_identity_cross_process_check(counts):
+    """AC-044 remainder (Major 1 remediation): `resolver.version`/
+    `resolver.rule_set_revision` must be identical 'across repeated
+    invocations and across the .py/.sh/.ps1 runtimes' -- a claim about
+    INDEPENDENT invocations, not about one already-loaded module compared
+    against itself. `run_full_pipeline_match_case`'s own AC-044 assertion
+    (above) loads `resolve-project-context.py` exactly once per test-driver
+    process and diffs the assembled `resolver_block` against that SAME
+    load's own `RESOLVER_VERSION`/`RULE_SET_REVISION` -- invisible to a
+    per-process derivation (e.g. folding `os.getpid()` into
+    `RULE_SET_STRING`), since both sides of that comparison necessarily
+    share one pid. This check instead spawns the staged `.py` master TWICE,
+    as two genuinely separate OS processes (fresh `python3` interpreter,
+    fresh `importlib` load each time -- never the driver's own in-process
+    module), and diffs the two independently-produced values."""
+    staged_py = block_check.STAGED / "resolve-project-context.py"
+    runs = []
+    for _ in range(2):
+        result = subprocess.run(
+            [sys.executable, "-c", _RESOLVER_IDENTITY_PROBE, str(staged_py)],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+        )
+        runs.append(json.loads(result.stdout.decode("utf-8")))
+    first, second = runs
+    counts.check(
+        first["pid"] != second["pid"],
+        "resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS "
+        "processes (distinct pid), not one process's own module compared against itself",
+        repr(runs),
+    )
+    counts.check(
+        first["version"] == second["version"] and first["rule_set_revision"] == second["rule_set_revision"],
+        "resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two "
+        "genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a "
+        "per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process "
+        "self-comparison cannot see)",
+        repr(runs),
+    )
+
+
+def run_dispatcher_delegation_check(counts):
+    """AC-044 remainder (Major 1 remediation), structural half: the
+    cross-process check above proves the .py master's own two constants
+    are invocation-stable, but AC-044's own text also spans the `.sh`/
+    `.ps1` runtimes, and neither dispatcher ever surfaces
+    `resolver.version`/`resolver.rule_set_revision` to any externally
+    observable location pre-T-007 (module docstring), so no real
+    subprocess run can black-box-compare them. This white-box structural
+    check instead reads each staged dispatcher's own source text and
+    confirms (a) every mention of the identical staged
+    `resolve-project-context.py` in the dispatcher's own text is a genuine
+    process-launch statement -- never a bare textual mention (e.g. a
+    comment) and never a second, forked implementation -- and (b) it
+    carries no copy of its own -- no `RESOLVER_VERSION`/`RULE_SET_REVISION`/
+    `RULE_SET_STRING` identifier appears anywhere in either dispatcher's own
+    text -- so cross-runtime identity is a structural consequence of
+    single-sourcing, not two values that merely happen to agree today.
+
+    gate-cycle-2 Minor remediation: this used to label itself "delegates
+    unconditionally" while its own check only substring-tested for
+    "resolve-project-context.py" ANYWHERE in the file -- satisfied even by
+    a stray comment mentioning the filename with no invocation at all. Each
+    runtime's own launch marker (`exec` for the POSIX `sh` dispatcher,
+    `ArgumentList.Add` for the `.ps1` dispatcher's own process object) must
+    now appear on the SAME line as every delegation-marker occurrence --
+    both of the real `sh` dispatcher's own two interpreter-fallback `exec`
+    lines (`python3` then `python`) legitimately satisfy this, so the check
+    is "every mention is a real launch," never "exactly one mention" (which
+    would false-fail the real, correct dispatcher)."""
+    identity_identifiers = ("RESOLVER_VERSION", "RULE_SET_REVISION", "RULE_SET_STRING")
+    launch_markers = {"sh": "exec", "ps1": "ArgumentList.Add"}
+    for suffix, delegation_marker in (("sh", "resolve-project-context.py"), ("ps1", "resolve-project-context.py")):
+        dispatcher_path = block_check.STAGED / f"resolve-project-context.{suffix}"
+        text = dispatcher_path.read_text(encoding="utf-8")
+        launch_marker = launch_markers[suffix]
+        mention_lines = [line for line in text.splitlines() if delegation_marker in line]
+        genuine_launch_lines = [line for line in mention_lines if launch_marker in line]
+        delegates_only_via_real_launch = bool(genuine_launch_lines) and genuine_launch_lines == mention_lines
+        carries_own_copy = any(identifier in text for identifier in identity_identifiers)
+        counts.check(
+            delegates_only_via_real_launch and not carries_own_copy,
+            f"resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in "
+            f"resolve-project-context.{suffix} is a real process-launch statement (never a bare textual "
+            f"mention, never a second implementation) and it carries no own copy of "
+            f"RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)",
+            f"mention_lines={mention_lines!r} genuine_launch_lines={genuine_launch_lines!r} carries_own_copy={carries_own_copy}",
         )
 
 
@@ -708,6 +929,8 @@ def main():
         run_facet_manifest_state_independence_check(resolver_module, counts)
         run_warn_cardinality_single_node_case(args.launcher, counts)
         run_warn_cardinality_multi_node_case(args.launcher, counts)
+        run_resolver_identity_cross_process_check(counts)
+        run_dispatcher_delegation_check(counts)
 
     sh_registered = "tests/resolve-project-context-match.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-match.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
