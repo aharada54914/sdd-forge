@@ -922,3 +922,133 @@ exactly as quoted in the parent section; the remediation introduces no
 new ruling — it propagates ruling A① into the two restatement rows the
 round-1 reviewers identified, as the ruling's own "where a restatement
 exists, mirror" instruction requires.
+
+### `design.md` extension (option ①, human-approved 2026-08-24)
+
+The completion chain gained one further commit, extending both rulings
+into `design.md` — the fourth frozen document, and the one document
+neither ruling A① nor ruling B① had reached. Per the calibration's
+re-extension rule it is recorded here.
+
+**Why this commit exists.** `impl-review-precheck.sh:488-494` requires
+every unique `AC-[0-9]{3}` id in `requirements.md` to appear as a literal
+substring in `design.md`. 35 of the 56 ids did not. Re-derivation of that
+list against the two documents established three classes: 19 criteria
+whose substance `design.md` already fixed and which needed only their id
+cited beside the discharging sentence; 12 criteria whose substance was
+absent or incomplete and had to be written; and 4 meta-criteria
+(AC-033/AC-035/AC-036/AC-037, about this package's own registration
+commit and a per-task `CHANGELOG.md` entry) which **no** design document
+can honestly name and which are therefore deliberately still absent — a
+separate lane owns the narrow gate exception for those four. The two
+priority items in the middle class were AC-016 and AC-056: the rulings
+below had amended them in `requirements.md` and `acceptance-tests.md`
+while `design.md` remained completely silent on both, so the amendment
+existed in three of four frozen documents. This commit closes that gap.
+
+**Amendment commit.** The commit that carries this entry is the
+`design.md` amendment itself — a single commit, as required, since
+`impl-review-precheck.sh:241-243` and `task-review-precheck.sh:210-213`
+each demand the predecessor contract pin `investigation.md` at its
+*current* hash, and splitting the design edit from this record would
+re-stale the predecessor between them. Its own hash is therefore not
+quotable from inside itself; the per-document SHA-256 pins immediately
+below are the verifiable evidence, and are exact.
+
+**Per-document SHA-256, as of that commit:**
+
+- `specs/epic-193-a5-capability-resolver/design.md` =
+  `32f51bb9704e9666eda65949d30945293ad3f5fa9909a66a9904312e72123bda`
+  (the amended bytes; its immediate predecessor, as of
+  `233c48c1074a88d2b1272c578197af1d47ad2c32`, was
+  `ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2`)
+- `specs/epic-193-a5-capability-resolver/requirements.md` =
+  `56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb`
+  (unchanged by this commit; last written by
+  `a8ea3bfd6f35592eadae5235405a71d6d3c6dc18`)
+- `specs/epic-193-a5-capability-resolver/acceptance-tests.md` =
+  `531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33`
+  (unchanged by this commit; last written by
+  `f585cb0e89a65e194d62197f72cf72c2b02bcf73`)
+- `specs/epic-193-a5-capability-resolver/investigation.md` =
+  `0693dc91fb1e3d29b9b2a72ad7f7f4d431156abd44ba69199cc640a420705883`
+  (this document, immediately **before** this subsection was appended;
+  as in the parent section, appending changes this document's own bytes,
+  so this pin is the fixed-point-safe pre-entry fingerprint and the
+  review precheck re-pins the post-entry bytes. Its last committed state
+  is `582b588a10fc6122bbb91354a1c80038e07f5467`)
+
+**Verbatim, dated human approval.** The same 2026-08-24 ruling family
+this entry's parent section already quotes governs this extension. The
+human ruled, dated 2026-08-24: 「A①B①C①でやれ」, following the standing
+approval, dated 2026-08-23: 「194/195/196の凍結文書について人間は承認する」.
+The `design.md` extension is that ruling's option ①, applied to the one
+frozen document rulings A① and B① had not yet reached; no new ruling is
+introduced here, and the two ruling sentences remain exactly as quoted
+in the parent section.
+
+**What this commit changed in `design.md`.**
+
+- **Ruling A① imported (AC-056).** A new Design Decision,
+  "`diagnostics[]` warn/block cardinality, and its evaluation-abort
+  exception", quotes `acceptance-tests.md`'s own AC-056/TEST-056
+  exception clause verbatim, maps `requirements.md` REQ-001's steps
+  (f)/(g)/(h) onto this design's own API / Contract Plan steps 7/8 and
+  step 9, and states the two resulting shapes: the ordinary one warn
+  entry per `outcome: "warn"` node plus exactly one same-id block summary
+  entry, and the abort exception in which warns already collected by the
+  steps-7-8 sweep stand alongside that abort's own different-id block
+  entry with no same-id summary. Test Strategy item 2 additionally names
+  the `evaluate-predicate-failure-after-warn` fixture the amended
+  criterion itself names.
+- **Ruling B① imported (AC-016).** A new Design Decision, "`advisory`
+  and `required` produce byte-identical output, with exactly three named
+  exceptions", quotes `acceptance-tests.md`'s own AC-016/TEST-016 row
+  verbatim and states the three design-level consequences: no assembly
+  step branches on `capability_enforcement`; `context_binding.full_
+  context_revision` and `projection_sha256` structurally encode it and
+  therefore *must* differ, making `state` plus those two the complete
+  and closed exception set; and the `lite-check-source-undefined` branch
+  is excluded from the criterion's own scope. Test Strategy item 3
+  additionally names the `enforcement-byte-identity` fixture pair, with
+  its non-vacuity assertion.
+- **Other written substance** (each the minimum true statement that
+  discharges its criterion, cited to the source the requirements
+  themselves cite): AC-003 (Context Projection generated by Epic A4's
+  REQ-003 procedure verbatim, computed on every track, published on the
+  Full track only, plus the hand-computed/Resolver-computed byte-identity
+  fixture pair); AC-007 (`capability_minimum_enforcement` and
+  `lite_eligibility` named explicitly as Full-track Facet Manifest output
+  fields — the delegation to Epic A4's field semantics is genuine and
+  deliberate, fixed by `requirements.md` Dependencies and Field
+  Definitions, and is now stated rather than left to step 10a's
+  catch-all); AC-008 (Facet Manifest schema-conformance fixture);
+  AC-009 (the three non-Blocking Lite states each producing a
+  schema-valid Capability Summary and neither Full-track artifact);
+  AC-025 (the no-clock rule, its repository-wide grep check, and the
+  Epic A2 DSL-evaluator carve-out, added to Security Boundaries — which
+  `Constraint Compliance` already cross-referenced for exactly this
+  content); AC-029/AC-030/AC-031 (the capability interview phase's
+  question budget, Open-Questions persistence and resumability rules
+  citing decision document v2 §18.4; the Context-absent event-identical
+  rule citing §4.3; the on-Block never-silently-degrade rule citing §7);
+  AC-042 (the `derives disabled-legacy` sub-case added to Test Strategy
+  item 10's spy-harness fixture); AC-046 (the missing fourth lettered
+  sub-item, exactly-one-invocation-per-run, plus an explicit mapping
+  between this item's own lettering and AC-046's).
+- **Class-A citations only** (id appended beside the already-discharging
+  sentence, no substance added): AC-002, AC-004, AC-005, AC-013, AC-015,
+  AC-017, AC-018, AC-019, AC-020, AC-027, AC-032, AC-038, AC-039,
+  AC-040, AC-041, AC-043, AC-045, AC-054, AC-055.
+- **Deliberately not cited**: AC-033, AC-035, AC-036, AC-037. Each is a
+  meta-criterion about this package's own registration commit
+  (`check-workflow-state`/`check-sdd-structure` exit status, the
+  `workflow-state-registry.json` entry) or a per-task `CHANGELOG.md`
+  check. No statement `design.md` could make would discharge any of
+  them, and citing them would make this document claim coverage it does
+  not have. They remain the only four ids `impl-review-precheck.sh`'s
+  own substring loop still reports missing, by design.
+
+No requirement, acceptance criterion, or test row was changed by this
+commit; `requirements.md` and `acceptance-tests.md` are byte-unchanged,
+as their pins above show.
