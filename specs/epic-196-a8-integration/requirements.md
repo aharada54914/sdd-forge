@@ -25,11 +25,24 @@ name, as this epic's own mandatory Done condition (ADR-0019; INV-004–
 INV-007) — a verification duty only a real host session can discharge, not
 a re-implementation of A1's own script.
 
-This package is Phase 1 (specification) only: `investigation.md`,
-`requirements.md`, `design.md`, `acceptance-tests.md`. No test code,
-fixtures, or registry edits are produced by this task; `tasks.md` and
-`traceability.md` follow in a later phase once this package passes
-`spec-review-loop`.
+This package was authored as Phase 1 (specification) only:
+`investigation.md`, `requirements.md`, `design.md`, `acceptance-tests.md`.
+No test code, fixtures, or registry edits are produced by this task; the
+original text of this paragraph continued "`tasks.md` and `traceability.md`
+follow in a later phase once this package passes `spec-review-loop`."
+
+Superseded as of 2026-08-24 (this amendment, under the human's 2026-08-23
+frozen-document approval): that later phase has since happened. All nine of
+`check-sdd-structure.sh`'s counted per-feature files — `requirements.md`,
+`design.md`, `ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+`security-spec.md`, `acceptance-tests.md`, `tasks.md`, `traceability.md` —
+now exist in `specs/epic-196-a8-integration/`, and `tasks.md` and
+`traceability.md` have each been amended twice (commits
+`19005e7741e600ff8b3c4b01cfb33681bb8aec64` and
+`e36a4436f7d12cc368d36e17dcdba04748b4547e`). The Phase-1-only sentence
+above records this package's original authoring mandate and is retained for
+lineage; it must not be read as a claim that any of those files is still
+absent.
 
 ## Target Users
 
@@ -205,10 +218,17 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   name; those two ACs map to this REQ-007 instead of to "REQ (process),"
   a placeholder label acceptance-tests.md must not use. REQ-007 also
   fixes that design.md's Automated / Manual Classification Table (AC-025)
-  is this package's single normative source for every check's
-  classification — acceptance-tests.md's own `Test Type` column must
-  cite that table's value directly rather than carrying an independent
-  `TBD` marker once design.md has already fixed it.
+  is this package's single normative source for the classification of
+  every check REQ-001 through REQ-005 name — that is, AC-001 through
+  AC-024 plus AC-028, the twenty-five checks the table's own scope
+  sentence declares it exhaustive over. For those checks,
+  acceptance-tests.md's own `Test Type` column must cite that table's
+  value directly rather than carrying an independent `TBD` marker once
+  design.md has already fixed it. REQ-006's and REQ-007's own process
+  checks (AC-025, AC-026, AC-027, AC-029, AC-030) are deliberately outside
+  that table and are classified in acceptance-tests.md directly; the table
+  is not, and must not be described as, the classification source for
+  them.
 
 ## Non-goals
 
@@ -483,8 +503,12 @@ a weaker, unlogged substitute.
   REQ-001 through REQ-005 name and marks each one `automated`,
   `automated-pending-confirmation` (naming the exact unconfirmed
   capability gating it, INV-021), or `manual-required` (naming the exact
-  reason no automated path exists) — exhaustive over every check this
-  package names, never partial.
+  reason no automated path exists) — exhaustive over every check REQ-001
+  through REQ-005 name (AC-001 through AC-024 plus AC-028), never partial.
+  REQ-006's and REQ-007's own process checks (AC-025, AC-026, AC-027,
+  AC-029, AC-030) are outside this table's scope by design and are
+  classified in acceptance-tests.md directly; "exhaustive" is exhaustive
+  over the REQ-001–REQ-005 check set, not over all thirty ACs.
 - AC-026: A single manual-session record schema (design.md;
   `live-host-verification-record/v1`) fixes the required fields for every
   `manual-required` (and `automated`-classified, once upgraded) item
@@ -787,12 +811,19 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   implementer conflating the two could accidentally make the existing
   synthetic suite depend on an unavailable live-host session and fail CI
   for an unrelated reason.
-- Medium: this package's deliberate 4-file (no layer-spec, no Phase-2)
-  scope deviates from `check-sdd-structure.sh`'s own full-profile
-  expectation (INV-018), matching Epic A7's own established precedent; a
-  `check-sdd-structure.sh <root> epic-196-a8-integration` run before Phase
-  2 begins is expected to report six `missing:` lines
+- Medium (discharged 2026-08-24; retained for lineage): as originally
+  written, this bullet recorded that "this package's deliberate 4-file (no
+  layer-spec, no Phase-2) scope deviates from `check-sdd-structure.sh`'s own
+  full-profile expectation (INV-018), matching Epic A7's own established
+  precedent; a `check-sdd-structure.sh <root> epic-196-a8-integration` run
+  before Phase 2 begins is expected to report six `missing:` lines
   (`ux-spec.md`/`frontend-spec.md`/`infra-spec.md`/`security-spec.md`/
   `tasks.md`/`traceability.md`) — intentional per this task's explicit
-  Phase-1-only mandate, not a defect to silently "fix" with placeholder
-  files.
+  Phase-1-only mandate, not a defect to silently 'fix' with placeholder
+  files." That expectation was true only while the package was four files.
+  It no longer holds: all nine counted per-feature files now exist, so the
+  correct current expectation for that same command is **zero** `missing:`
+  lines, and the deviation this bullet described is discharged rather than
+  outstanding. The original wording is preserved above so the lineage of the
+  Phase-1 deviation stays auditable; the six-line expectation must not be
+  used as a current oracle.
