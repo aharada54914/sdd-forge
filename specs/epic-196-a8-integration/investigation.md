@@ -320,6 +320,54 @@ them.
   already stale by roughly twenty lines before this commit, design.md is
   hash-pinned by the impl attempt-5 PASS contract, and it is not amended
   here.
+- **This commit** — remediated task-review attempt 3 round 1's
+  `SCOPE-DISJOINT` and `DEPENDENCY-OVERLAP` Majors (reviewer B; the two
+  findings are one defect stated twice). T-002's, T-005's and T-006's
+  own `### Blockers` fields read `None` while each one's own Planned
+  Files entry required a *named* predecessor's already-staged content to
+  exist: T-002 appends its CI steps "after T-001's", T-005 "after
+  T-003's", and T-006 "after T-005's", all to the single staged
+  `specs/epic-196-a8-integration/human-copy/.github/workflows/test.yml`
+  candidate that T-001 creates and every later chain task appends to;
+  and each of the three additionally lists
+  `specs/epic-196-a8-integration/human-copy/MANIFEST.sha256` as
+  *existing*, a classification that holds only once T-001 has run. Each
+  of the three now names its own immediate shared-resource-chain
+  predecessor — T-002 → `T-001`, T-005 → `T-003`, T-006 → `T-005` — in
+  the exact shape T-003 (`T-002`), T-007 (`T-001, T-002, T-003, T-005,
+  T-006`) and T-008 (`T-001, T-005`) already use: one line of
+  comma-separated task IDs, no new notation. Nothing else in tasks.md is
+  touched: no `Status:` line, no `Depends On:` line, no Scope, Done When,
+  Out of Scope or Planned Files text — those three lines are the whole of
+  this commit's tasks.md diff. As of this commit,
+  `specs/epic-196-a8-integration/tasks.md` =
+  `0b590a8fc78b6cb51236790325e905eb843a86ae7a32ee57f25fe8902f94fa75`.
+  Three boundaries are disclosed rather than silently taken. First,
+  unlike every entry above, this bullet is committed *together with* the
+  amendment it records rather than in a following "extend the Amendment
+  Re-Review Context with `<hash>`" commit, so it cannot cite its own
+  commit SHA from inside itself; the post-amendment tasks.md SHA-256
+  above is the citable fingerprint, and the commit is otherwise
+  identified by its subject line and by being the sole commit whose
+  tasks.md diff is exactly these three `### Blockers` lines. Second, the
+  `Depends On:` parentheticals of the three amended tasks still read
+  "Global Constraints — serialized only; no functional dependency". That
+  wording is not contradicted on this package's own reading of the
+  field — all three predecessors were already named in those same
+  `Depends On:` lines, and `### Blockers` here records the immediate
+  shared-resource-chain predecessor whether or not the dependency is
+  functional, which is precisely why T-003 lists `T-002` and not the
+  transitively-required `T-001`. A reader who instead takes `###
+  Blockers` to be strictly the functional subset of `Depends On:` would
+  need those parentheticals amended as well; that reading was not taken,
+  and the question is recorded here rather than resolved silently.
+  Third, the same round's two other Major findings — `TASK-SIZE` (T-005)
+  and `EDGE-CASE-COVERAGE` (T-001: AC-006's Activation Gate clause (a),
+  "T-005 ... has started", has no defined machine-detection mechanism in
+  design.md, security-spec.md or tasks.md, unlike clause (b)'s plain
+  file-existence check) — are deliberately **not** remediated by this
+  commit and are pending a human decision. This entry records them as
+  open, not as waived (Scope, below).
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
@@ -340,9 +388,13 @@ them.
 ### Later-phase artifacts this package references (commit / SHA-256)
 
 - `specs/epic-196-a8-integration/tasks.md` — SHA-256
-  `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`,
-  last amended in commit `e36a4436f7d12cc368d36e17dcdba04748b4547e`
-  (previously `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`
+  `0b590a8fc78b6cb51236790325e905eb843a86ae7a32ee57f25fe8902f94fa75`,
+  last amended in this commit (the `### Blockers` remediation recorded as
+  the final amendment bullet above; that bullet cannot cite its own
+  commit SHA, so this line names the commit the same way)
+  (previously `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`
+  at commit `e36a4436f7d12cc368d36e17dcdba04748b4547e`,
+  `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`
   at commit `19005e7741e600ff8b3c4b01cfb33681bb8aec64`, and
   `3568d38c77cb8df69791cf99a2ad5eb234d2ac242715e83de4648ec123ad285d`
   at commit `ff73ebaa7b1e575a7da5d0a1c4fd90f20c8bf117`).

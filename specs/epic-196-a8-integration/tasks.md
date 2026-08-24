@@ -460,7 +460,7 @@ either mode.
 
 ### Blockers
 
-None
+T-001
 
 ---
 
@@ -1002,7 +1002,7 @@ cells (T-008's own scope) or a real signer identity.
 
 ### Blockers
 
-None
+T-003
 
 ---
 
@@ -1138,7 +1138,7 @@ epic owns independently of `.gitattributes`.
 
 ### Blockers
 
-None
+T-005
 
 ---
 
