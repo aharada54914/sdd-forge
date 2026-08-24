@@ -21,9 +21,9 @@ flowchart LR
   A5["A5 Resolver (Pending)"] -->|"capability-summary.yaml (A4 schema)"| GATE["lite-gate/SKILL.md Process (direct edit)"]
   GATE -->|"Step 2a: full_upgrade_required backstop"| GATE
   GATE -->|"Step 2b: command-discovery contract"| SCRIPTS["repo-root package.json scripts[id] / scripts/<id>.{sh,ps1}"]
-  IMPLTASK["future implementation task"] -->|"stages 4-file payload + MANIFEST.sha256"| HUMANCOPY["specs/epic-194-a6-lite-integration/human-copy/ (feature-scoped anchored runner)"]
-  HUMANCOPY -->|"exact-set + hash + post-copy verify, human cp only"| PROTECTED["check-risk-upgrade.{sh,ps1}; risk-upgrade-policy.md; lite-spec/SKILL.md"]
-  CI["GitHub Actions (test.yml, unmodified by this feature)"] -->|"generate-gate-capabilities.py --check (existing, re-runs unmodified)"| REGISTRY2["Registry v1.1 + expanded catalogs"]
+  IMPLTASK["future implementation task"] -->|"stages 5-file payload + MANIFEST.sha256"| HUMANCOPY["specs/epic-194-a6-lite-integration/human-copy/ (feature-scoped anchored runner)"]
+  HUMANCOPY -->|"exact-set + hash + post-copy verify, human cp only"| PROTECTED["check-risk-upgrade.{sh,ps1}; risk-upgrade-policy.md; lite-spec/SKILL.md; .github/workflows/test.yml"]
+  CI["GitHub Actions (test.yml live file byte-unchanged by this feature commits; staged append applied by a human)"] -->|"generate-gate-capabilities.py --check (existing, re-runs unmodified)"| REGISTRY2["Registry v1.1 + expanded catalogs"]
 ```
 
 No cloud, no region, no network boundary — this feature's own edits are
@@ -36,14 +36,14 @@ single script invocation or skill-process run (CI job or local Lite/
 Full workflow) — this feature introduces no shared/long-running service
 and no multi-target transactional writer of its own (unlike A5's
 Resolver); the closest analog to a "publication" step is the human-copy
-application of four already-reviewed files, governed by B5 below.
+application of five already-reviewed files, governed by B5 below.
 
 ## CI/CD Sequence
 
 ```mermaid
 sequenceDiagram
   actor D as Developer / Maintainer
-  participant CI as GitHub Actions (test.yml, unmodified)
+  participant CI as GitHub Actions (test.yml live file byte-unchanged by this feature commits)
   D->>CI: Push / PR (Registry v1.1 schema, lite-check-catalog.json, catalog_version-2 reasons, or later human-copy-applied script edits)
   CI->>CI: generate-gate-capabilities.py --check (existing A2 projection drift-detection cycle, re-runs unmodified in its own logic, requirements.md REQ-001 item 5)
   CI->>CI: (future implementation task) tests/*.tests.sh/.ps1 pairs wired the same way every sibling epic's own new pairs already are — no new CI job introduced by this Phase 1 package
@@ -56,7 +56,24 @@ This feature adds no new CI job itself (design.md Deployment / CI Plan:
 design-phase target fixtures) are wired into `.github/workflows/
 test.yml` the same way every sibling epic's own new test pairs already
 are — this design does not itself edit that file (requirements.md
-Non-goals). The only CI-visible change this package's own registration
+Non-goals).
+
+**CI workflow, scoped (2026-08-25 ruling).** Every "unmodified"/"byte-
+unchanged" reference to `test.yml` in this document means this feature's
+own commits leave the live `.github/workflows/test.yml` byte-unchanged —
+permanently, not incidentally, because that path is R-10 protected
+(`guard-invariants.json` `protected_gate_suffixes`), so no agent can
+write it. Separately, the feature's declared deliverables include a
+staged append to that same workflow: it is the fifth member of the
+five-target declared payload set (requirements.md AC-010/AC-031), staged
+under `specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml`
+by T-001..T-004 and installed only by a human running the
+feature-scoped anchored runner (security-spec.md B5). The two statements
+answer different questions — what this feature's commits write, versus
+what it declares for human application — and neither is a reversal of the
+other. The "no new CI job" statement above is unaffected: the staged
+append adds steps to the existing job, not a new job or matrix
+dimension. The only CI-visible change this package's own registration
 commit introduces is the pre-existing structural/workflow-state
 registration check (`scripts/check-sdd-structure.sh`, `plugins/sdd-
 quality-loop/scripts/check-workflow-state.sh`), re-verified as
@@ -67,7 +84,7 @@ quality-loop/scripts/check-workflow-state.sh`), re-verified as
 | Environment | URL | Auth | Trigger | Classification | Promotion Rule |
 |---|---|---|---|---|---|
 | local dev (monorepo checkout) | `plugins/sdd-lite/` + `contracts/` + `specs/<feature>/` (repo-relative) | OS user (filesystem) | manual script invocation / Lite workflow run | internal | PR + CI green |
-| CI (GitHub Actions `test.yml`, unmodified by this feature) | N/A — ephemeral runner | GitHub Actions default | push / PR | internal | required check before merge (existing `--check` drift cycle) |
+| CI (GitHub Actions `test.yml`, live file byte-unchanged by this feature's own commits; the staged append is applied by a human) | N/A — ephemeral runner | GitHub Actions default | push / PR | internal | required check before merge (existing `--check` drift cycle) |
 | staging / production | N/A | — | — | — | N/A — no runtime service, no cloud deployment (design.md External Integrations: "None") |
 
 No installed-plugin-layout discovery row applies — unlike A5's Resolver
@@ -111,7 +128,7 @@ complete (security-spec.md B5, design.md Protected-File Statement).
 |---|---|---|---|---|---|---|
 | `contracts/lite-check-catalog.json` (new) | repository working tree (git) | git-versioned; content-frozen once design review passes | git remote(s) — no separate backup mechanism | not applicable; no delete operation exists in scope | REQ-001 | — |
 | `contracts/lite-upgrade-reason-catalog.json` (`catalog_version` 2) | repository working tree (git) | git-versioned; additive-only growth (no token removal, AC-004) | git remote(s) | not applicable | REQ-001 | AC-004 |
-| `specs/epic-194-a6-lite-integration/human-copy/` payload (four files) + `MANIFEST.sha256` + the anchored runner script | repository working tree (git), staged pending human application | git-versioned; superseded once applied to the live protected paths | git remote(s) | not applicable; the runner's own post-copy re-verification is the deletion/application-correctness check, not a separate backup | REQ-002, REQ-005 | AC-031 |
+| `specs/epic-194-a6-lite-integration/human-copy/` payload (five files) + `MANIFEST.sha256` + the anchored runner script | repository working tree (git), staged pending human application | git-versioned; superseded once applied to the live protected paths | git remote(s) | not applicable; the runner's own post-copy re-verification is the deletion/application-correctness check, not a separate backup | REQ-002, REQ-005 | AC-031 |
 | Capability-derived trigger fragment (in-process/CLI JSON) | local filesystem, transient (a temp path for the duration of one `check-risk-upgrade` invocation) | not persisted beyond the invocation that produced/consumed it | none — transient by design | deleted by the producing process's own temp-file lifecycle | REQ-002, REQ-005 | — |
 
 No database, no migration, no runtime storage anywhere in this feature
@@ -132,7 +149,8 @@ requirements.md REQ-001's own migration rule: an absent
 
 N/A — no cloud cost. Every deliverable is a data-file or process-
 extension change reviewed and applied inside the repository's existing
-CI compute (`test.yml`, already provisioned, unmodified) and on local
+CI compute (`test.yml`, already provisioned; live file byte-unchanged
+by this feature's own commits) and on local
 developer/maintainer machines; no new infrastructure spend is introduced
 (design.md External Integrations: "None").
 

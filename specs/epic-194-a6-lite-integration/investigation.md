@@ -736,6 +736,21 @@ completion chain below).
   disposition of the four-versus-five payload count was superseded within
   the same day by the ruling recorded in the next bullet; item 2 below
   records both states.
+- `8e736b82aff9ca7f6fbf925355bc7ac263c41665` — propagated the five-target
+  declared payload set into design.md and rewrote the superseded dated
+  note the previous commit had placed in its Protected-File Statement, per
+  the second 2026-08-24 ruling quoted below (2026-08-24).
+- `c917556d0ebd29d4789ffb859f96cc432c567a49` — propagated the same count into
+  tasks.md (six payload-set counts, plus the extraneous-path negative
+  check that had to move from "fifth" to "sixth"), updated tasks.md's
+  SHA-256 pin in both places this document carries it, and recorded the
+  `security-spec.md`/`infra-spec.md` blocker rather than resolving it
+  (2026-08-24).
+- This entry's own commit — scoped the CI-workflow claim in
+  `security-spec.md` and `infra-spec.md` and propagated the payload count
+  into both, per the 2026-08-25 ruling quoted below; its own commit hash
+  cannot be embedded in itself and is pinned by the impl re-review round's
+  manifests (2026-08-25).
   1. **AC-010 — annotated; the earlier "does not contain" reason
      retracted.** design.md's Protected-File Statement already carried
      that criterion's entire design-content clause before this commit: it
@@ -834,31 +849,73 @@ completion chain below).
      item 1's four; the three "four-point contract"/"all four contract
      points" references count the runner contract's items (i)-(iv), not
      targets; and the two "four new suites" references count test suites.
-     **BLOCKED, not propagated: `security-spec.md` and `infra-spec.md`.**
-     Propagating the payload count into either surfaces a substantive
-     contradiction this lane must not resolve on its own. Both documents
-     state, in five places, that this feature does not modify CI:
-     `infra-spec.md:26` "GitHub Actions (test.yml, **unmodified by this
-     feature**)", `:46` "participant CI as GitHub Actions (test.yml,
-     unmodified)", `:70` "CI (GitHub Actions `test.yml`, unmodified by
-     this feature)", `:135` "CI compute (`test.yml`, already provisioned,
-     unmodified)", and `security-spec.md:83` "a CI runner (`test.yml`,
-     unmodified by this feature)". The five-target declared payload set
-     stages an append to `.github/workflows/test.yml` for human
-     application, so those five statements and the widened payload set
-     cannot both be true. The contradiction is **not created by this
-     lane** — `tasks.md` Protected Files item 3 and `traceability.md`'s
-     T-001..T-004 rows already stage that file today — but resolving it is
-     a design decision about whether this feature modifies CI, not a count
-     substitution. `infra-spec.md:25`'s own `PROTECTED` node likewise
-     enumerates only the four `sdd-lite` paths, so changing the adjacent
-     "stages 4-file payload" edge label at `:24` would have made that one
-     diagram self-contradictory. Both documents are therefore left
-     untouched pending a ruling. Note that `security-spec.md:24`, `:74`
-     and `:120`, and `infra-spec.md:151` and `:156`, legitimately keep
-     "four" regardless — like (a) above they count `sdd-lite`-owned paths,
-     and `:120`'s "the fifth" already denotes `lite-gate/SKILL.md`, not
-     `.github/workflows/test.yml`.
+     **`security-spec.md` and `infra-spec.md`, propagated 2026-08-25
+     after the blocker was ruled on.** The first attempt at these two
+     documents stopped rather than propagating, because both assert in
+     five places that this feature does not modify CI — `infra-spec.md`'s
+     flowchart CI node, its sequence-diagram participant, its
+     provisioning row and its cost row, and `security-spec.md`'s actor
+     list — all of the form "unmodified by this feature" applied to
+     `.github/workflows/test.yml`, which the five-target payload set
+     stages an append to. That was reported rather than resolved. The
+     human ruled on it (2026-08-25, quoted verbatim below): **scope the
+     claim so both statements are true, then propagate.**
+     **The reconciliation is a scoping distinction, not a reversal**, and
+     is recorded as such for the blind reviewer to judge rather than
+     absorb. The two statements answer different questions. (i) This
+     feature's own commits leave the live `.github/workflows/test.yml`
+     byte-unchanged — permanently, not incidentally, because that path is
+     R-10 protected (`guard-invariants.json` `protected_gate_suffixes`),
+     so no agent can write it and only a human applies the staged batch.
+     That is what the diagrams and provisioning tables were describing.
+     (ii) The feature's declared deliverables include a staged append to
+     that same workflow, the fifth member of the five-target declared
+     payload set, staged by T-001..T-004 and installed by a human via the
+     anchored runner. That is what `traceability.md` and AC-010/AC-031
+     were describing. Each of the five sites is amended to say (i)
+     explicitly instead of the unqualified "unmodified by this feature",
+     and one reconciling paragraph naming the staged append and its
+     human-apply path was added to each document.
+     Payload-set counts then propagated to five at `security-spec.md`'s
+     B5 boundary row (five instances in that one row: the staged payload
+     enumeration, which now names the workflow file; the live
+     already-protected path count; the write-boundary integrity count;
+     the direct-write deny clause; and the exact-set item (ii)), its
+     human-maintainer authorization row, its data-asset row, and its Test
+     Strategy item 17 row; and at `infra-spec.md`'s flowchart payload edge
+     label, its publication-step sentence, and its rollback/backup row.
+     **The `:24`/`:25` diagram pair was fixed together, not separately.**
+     Raising the `stages 4-file payload` edge label alone would have left
+     the adjacent `PROTECTED` node enumerating only the four `sdd-lite`
+     paths, making that one flowchart self-contradictory; the node now
+     also names `.github/workflows/test.yml`, so edge and node agree.
+     **Verified not to contradict the "no new CI job" claims.**
+     `infra-spec.md` states "no new CI job introduced by this Phase 1
+     package" and "This feature adds no new CI job itself", quoting
+     design.md's Deployment / CI Plan, and `traceability.md` adds "no new
+     CI job/matrix dimension is added". The staged append adds steps to
+     the existing job, so all of these remain true and are untouched.
+     Both documents already carried the scoping distinction latently —
+     `infra-spec.md` and design.md both already said the future task's
+     suite pairs "are wired into `.github/workflows/test.yml` ... this
+     design does not itself edit that file" — so this amendment makes an
+     existing distinction explicit rather than introducing a new claim.
+     **Five sites in these two documents deliberately stay at four**,
+     each an `sdd-lite`-owned count rather than a payload count:
+     `security-spec.md`'s ADR-0011 mechanism split (four already-protected
+     plus one unprotected), its B5 threat row ("four protected
+     `sdd-lite` paths"), its Broken Access Control row ("Four
+     already-protected `sdd-lite` paths") — whose own "the fifth"
+     already denotes `lite-gate/SKILL.md` and must not be allowed to
+     collide with the CI file — and `infra-spec.md`'s two rollback
+     references to "the four `sdd-lite`-owned paths". Two further
+     "unmodified" phrases in `infra-spec.md` are also untouched because
+     they describe the `generate-gate-capabilities.py --check` step's own
+     logic and the concurrency posture, not the workflow file.
+     **Still not staged, and correctly so:** the live `human-copy/` tree
+     contains only the four `sdd-lite` files today. The fifth target is
+     *declared*, not yet staged; staging it is T-001..T-004's own
+     implementation work and no part of this documentation lane.
   3. **AC-006 — substance added.** design.md carried no trace of this
      criterion (`grep` for `decimal` and for `capability-registry/v1`
      returned nothing), so no annotation could discharge it and a minimum
@@ -973,14 +1030,28 @@ design amendment's first commit, 2026-08-24):
 - `specs/epic-194-a6-lite-integration/design.md`:
   `c57b197e74838acd883928eaedc13e22eca2cc25c4c40fc34e14690fad375c14`
 
-As of this entry's own commit (the four-to-five payload-set propagation,
-2026-08-24 — the commit that rewrites item 2 above and adds the two later
-rulings below; its own commit hash cannot be embedded in itself and is
-pinned by the impl re-review round's manifests, the same self-pinning
-handling the closing paragraph of this subsection states):
+As of `8e736b82aff9ca7f6fbf925355bc7ac263c41665` (the four-to-five payload-set
+propagation into design.md, 2026-08-24):
 
 - `specs/epic-194-a6-lite-integration/design.md`:
   `43d486353958d1b344774dfd0604461dc667c8eb5fd1ec84df313773a3090c3c`
+
+As of `c917556d0ebd29d4789ffb859f96cc432c567a49` (the same propagation into
+tasks.md, 2026-08-24):
+
+- `specs/epic-194-a6-lite-integration/tasks.md`:
+  `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`
+
+As of this entry's own commit (the layer-spec CI-workflow scoping and
+payload-count propagation, 2026-08-25; its own commit hash cannot be
+embedded in itself and is pinned by the impl re-review round's manifests,
+the same self-pinning handling the closing paragraph of this subsection
+states):
+
+- `specs/epic-194-a6-lite-integration/security-spec.md`:
+  `7aee7ea715e9abe36a9bbc3ee8cd3368d3b38a12595830022a03775bf2d3f88d`
+- `specs/epic-194-a6-lite-integration/infra-spec.md`:
+  `245e19aa940e95118502671eb4b6ce16799e72a02115e43f36161c83e763991e`
 
 This `investigation.md` is itself amended by the commits that introduce and
 extend this section; a document cannot embed its own post-amendment hash, so
@@ -1021,6 +1092,20 @@ bytes).
   human-copy payload is a real design commitment: option ① as presented,
   **propagate the widening into design.md**. This is the ruling item 2
   above executes.
+- 2026-08-25, on the layer-spec blocker reported after that propagation —
+  that `security-spec.md` and `infra-spec.md` deny in five places that
+  this feature modifies CI, while `traceability.md` already lists the
+  staged CI-workflow append as a declared output of all four of T-001
+  through T-004: option ① as presented, **scope the claim so both
+  statements are true, then propagate**. The option's text stated the
+  reconciliation it authorizes: this feature's own commits leave the live
+  CI workflow byte-unchanged, permanently, because the file is R-10
+  protected and only a human applies the staged batch; and the feature's
+  declared deliverables separately include a staged append to that
+  workflow, applied by a human. Each of the five sites is to say the
+  first thing explicitly, with one reconciling sentence per layer spec
+  naming the staged append and its human-apply path. This is the ruling
+  the final paragraphs of item 2 above execute.
 
 These approvals were given in conversation; this entry, committed into the
 hash-pinned package under review and pinned by the round-3 reviewer
