@@ -463,6 +463,65 @@ fi
   fail "impl precheck should have produced round evidence once AC-001 is named (got: $ac_out)"
 rm -rf "$IMPL_REPORT"
 
+# The narrow Global-scope exception (human ruling, 2026-08-24), and the half of
+# it that matters just as much: the exception must not become a loophole.
+#
+# Some acceptance criteria are structurally not design content. epic-194's
+# AC-023/AC-024 and epic-193's AC-035..AC-037 are criteria about the spec
+# package's OWN registration commit -- AC-024 requires both status headers to
+# read Pending "at commit time", which no design plans for and which is now
+# historically false since both read Passed. The exception keys on the scope the
+# requirements table itself declares in the criterion's own defining row, in
+# both spellings the repository uses, never on a list of AC ids and never on
+# "cited somewhere in the package". A REQ-traced criterion -- which is what
+# every epic-136-class gap-closer is -- is still demanded of the design.
+#
+# Both halves are asserted from ONE run, so neither can pass by accident: a
+# one-sided test would let a blanket loosening through.
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT"
+write_inputs
+cat >> "$SPEC_DIR/requirements.md" <<'EOF'
+
+| AC-ID | Requirement | Criterion |
+|---|---|---|
+| AC-002 | REQ-001 | Behaviour this design must plan for. |
+| AC-003 | Global | This package's own registration commit creates no file outside its spec directory. |
+| AC-004 (Global) | — | `check-sdd-structure.sh` exits 0 after this package's registration commit. |
+EOF
+write_spec_pass
+rm -rf "$IMPL_REPORT"
+ac_out="$(ac_run || true)"
+ac_error="$(grep 'never names these acceptance criteria' <<<"$ac_out" || true)"
+[[ -n "$ac_error" ]] ||
+  fail "a REQ-traced AC missing from design.md must still be refused (got: $ac_out)"
+[[ "$ac_error" == *AC-002* ]] ||
+  fail "the refusal must name the REQ-traced AC-002 (got: $ac_error)"
+[[ "$ac_error" != *AC-003* ]] ||
+  fail "a criterion the requirements table scopes Global must not be demanded of design.md (got: $ac_error)"
+[[ "$ac_error" != *AC-004* ]] ||
+  fail "the '(Global)' spelling must be read as Global scope too (got: $ac_error)"
+[[ "$ac_out" == *"scopes Global"*AC-003*AC-004* ]] ||
+  fail "an exercised exception must be reported, naming the excused criteria (got: $ac_out)"
+[[ ! -d "$IMPL_REPORT/attempt-1/round-1" ]] ||
+  fail 'AC-coverage refusal must fail closed before creating round evidence'
+# The diagnostic must assert only what this script evaluates. It consults no
+# testability or traceability attribute anywhere, and never did.
+[[ "$ac_out" != *"testable and traceable"* ]] ||
+  fail "the AC-coverage diagnostic claims a predicate this script never evaluates (got: $ac_out)"
+
+# Naming only the REQ-traced criterion clears the gate: proof the two Global
+# rows were genuinely excused and were not merely riding on some other failure.
+printf '\nCovers AC-002 in the plan.\n' >> "$SPEC_DIR/design.md"
+write_spec_pass   # re-pin the contract now that design.md changed
+rm -rf "$IMPL_REPORT"
+ac_out="$(ac_run || true)"
+if grep -q 'never names these acceptance criteria' <<<"$ac_out"; then
+  fail "Global-scoped criteria must not be demanded of design.md (got: $ac_out)"
+fi
+[[ -f "$IMPL_REPORT/attempt-1/round-1/precheck-result.json" ]] ||
+  fail "impl precheck should have produced round evidence once AC-002 is named (got: $ac_out)"
+rm -rf "$IMPL_REPORT"
+
 # Contract/reviewer agreement: a round's recorded hashes must be the hashes its
 # two reviewers actually pinned. On epic-136-phase4-docs attempt 2 round 2 the
 # contract was written after a remediation edit and recorded a design.md hash
