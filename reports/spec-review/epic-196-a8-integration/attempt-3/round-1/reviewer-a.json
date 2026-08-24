@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-a-a3r1-seq785",
+  "host_session_id": "SESS-spec-a-epic-196-a8-integration-a3r1-seq785",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-196-a8-integration/requirements.md",
+      "sha256": "eb1e4c0fb2b0c2304ebedc1d8d27b1fbec3354f5cde5be4c15436ed599f99476"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+      "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+    },
+    {
+      "path": "specs/epic-196-a8-integration/investigation.md",
+      "sha256": "469b26f986577fd253a4649a1e49552dff077334f81149a11402866365afc6f4"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-196-a8-integration/attempt-3/round-1/precheck-result.json",
+      "sha256": "6ff0e4a94c02927054fbd5c47aa75a441b4af64911352967d0440025536654b7"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's REQ-006 Goals text (\"specify a single classification — for every check REQ-001 through REQ-005 name — of whether it is fully automatable today...\") and AC-025 (\"A single classification table (design.md) lists every check REQ-001 through REQ-005 name and marks each one automated, automated-pending-confirmation..., or manual-required... — exhaustive over every check this package names, never partial\") explicitly scope the normative Automated/Manual Classification Table to REQ-001 through REQ-005's checks only (i.e. AC-001–AC-024/AC-028's REQ-003 lineage), excluding REQ-006's and REQ-007's own checks (AC-025–AC-027, AC-029–AC-030). But acceptance-tests.md's closing paragraph states the opposite scope for the same table: \"The Test Type column's classification markers on AC-002/AC-003/AC-004 (and every other AC) cite design.md's own Automated / Manual Classification Table (AC-025) directly... that table is this package's single normative classification source (REQ-007), fixed once and covering every check in this document\" — and acceptance-tests.md's own rows for AC-025 through AC-030 each carry a Test Type value tagged \"(classification: automated, design.md Classification Table)\", i.e. sourced from that same table. A design.md author cannot determine, from this package alone, whether the Classification Table must enumerate 25 checks (REQ-001–REQ-005 lineage, per requirements.md's own explicit text) or all 30 (per acceptance-tests.md's explicit \"covering every check in this document\"); building the narrower table (as requirements.md instructs) would leave acceptance-tests.md's own claim that AC-025–AC-030's Test Type values are table-sourced unverifiable, and building the broader table would exceed AC-025's own stated scope. This is a direct textual contradiction between the two Phase-1 documents under review, not an implementation-time ambiguity, and it prevents an implementer from testably satisfying AC-025's own \"exhaustive... never partial\" criterion because \"exhaustive over what set\" is unresolved. Severity Critical: it is a contradiction between two frozen specification documents' own explicit scope statements for the same normative artifact, not a merely missing clarification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": ""
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "The allowed input manifest for this review contains no domain/context-map.md or domain/domain-contract.json, and this check's file scope does not permit reading outside the five-file manifest to confirm or rule out a domain/ directory with an Approved model. Per calibration, when the Approved domain-model precondition cannot be established, this check is recorded as skipped."
+    }
+  ]
+}
