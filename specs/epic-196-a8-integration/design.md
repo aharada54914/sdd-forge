@@ -1330,7 +1330,58 @@ reference without an A8-specific instance of it:
   it happens to hold (informational only) — it is never the activation
   condition itself, and its own failure never suppresses activation when
   the canonical artifacts are actually present.
-- **Stale/unknown/drift handling**: once activated (by existence), each
+- **`Status:`-based detection (AC-006's clause (a) only)**: clause (a) —
+  "T-005 ... has started" — is machine-detected by reading T-005's own
+  `Status:` field in `specs/epic-196-a8-integration/tasks.md`, and holds
+  exactly when that field's value is one of `In Progress`,
+  `Implementation Complete`, or `Done`; it does not hold for `Planned`,
+  `Draft`, or `Blocked`. That value set is not invented here:
+  `plugins/sdd-quality-loop/scripts/check-task-state.sh:93` already
+  parses this same field and enumerates exactly the five lifecycle values
+  `Planned`/`In Progress`/`Blocked`/`Implementation Complete`/`Done` that
+  tasks.md's own Lifecycle section fixes, so clause (a) is a
+  deterministic read of a repository-tracked file through an
+  already-existing parser — the same shape as clause (b)'s file-existence
+  check against `main`, and the "named, machine-checkable enforcement
+  mechanism" requirements.md's own AC-006 bullet already claims for this
+  gate. Both the REQ-001 fixture driver
+  (`tests/cross-runtime-handoff.tests.{sh,ps1}`, Test Strategy item 1)
+  and `validate-live-host-proof` apply this same read, and only where the
+  `a8-skip-allowlist.json` entry under evaluation carries `case_id:
+  "AC-006"`; every other `case_id` takes the single-clause predicate
+  above and never reads any task's lifecycle state. Four nearby signals
+  are deliberately **not** used, each rejected on evidence rather than on
+  taste: (1) the existence of
+  `specs/epic-196-a8-integration/verification/T-005/` — that directory
+  already holds four files while T-005's own lifecycle field still reads
+  `Planned`, so keying clause (a) to it would activate AC-006
+  immediately, the exact outcome clause (a) exists to prevent; (2) a
+  T-005 implementation report, which this repository requires only at
+  `Implementation Complete` — strictly later than "has started", so it
+  would under-activate; (3) a T-005 quality-gate report, later still, for
+  the same reason; and (4) an identity-ledger record, which identifies a
+  reviewer, never a task start.
+- **Clause (a) is self-flipping, and that is accepted (AC-006 only)**:
+  because clause (a) reads T-005's own lifecycle field, T-005 flips the
+  gate that governs it. The moment T-005 moves to `In Progress`, clause
+  (a) holds; clause (b) has held since Epic A1 merged on 2026-08-08; so
+  AC-006 activates at that instant and the canary `SKIP` T-001 registered
+  becomes a non-zero-exit hard failure while T-005's own `tdd` red phase
+  is still running. This is stated here rather than left to be
+  discovered, and it is never routed around, silenced, re-allowlisted, or
+  reclassified: it is the same designed-red shape this design already
+  accepts for AC-015/AC-016, whose own single-clause predicate fired at
+  that same 2026-08-08 merge, and in each case the hard failure stands
+  until discharged by the task this section already names as owning that
+  case's substantive verification — T-005 for AC-006, T-008 for
+  AC-015/AC-016 (Designed-red window; Risks, below). It does not make
+  T-001's own approved contract unsatisfiable: T-001 precedes T-005 in
+  the serialized chain (Global Constraints, tasks.md), so AC-006 remains
+  an allowlisted, non-failing `SKIP` for the whole of T-001 — precisely
+  the guarantee clause (a) was introduced to provide.
+- **Stale/unknown/drift handling**: once activated (by whichever
+  predicate governs the case — existence alone for AC-015/AC-016,
+  existence plus the clause-(a) lifecycle read for AC-006), each
   activated case's own content-level check re-resolves
   `upstream_epic_a1_path_blob_ids` against the *current* blob ID of each
   now-existing canonical artifact on `main`; `validate-live-host-

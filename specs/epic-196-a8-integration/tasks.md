@@ -79,7 +79,19 @@ AC-027).
   ordering is followed even where two adjacent tasks in the chain have no
   functional dependency on each other, matching this repository's own
   established convention (`specs/epic-190-a2-capability-registry/tasks.md`
-  Global Constraints). **T-004 is deliberately outside this chain**: it
+  Global Constraints). That allowance is what the convention permits, not
+  a claim about this particular chain: in this package every chain edge
+  after T-001 *is* functional as well as ordered, because each chain task
+  appends its CI steps to whatever the previous chain task already staged
+  and lists `human-copy/MANIFEST.sha256` as already existing. Each
+  therefore names its own functional predecessor(s) in its own
+  `### Blockers` field (T-002 → T-001, T-003 → T-002, T-005 → T-003,
+  T-006 → T-005, and T-007 → all five of T-001/T-002/T-003/T-005/T-006,
+  because its own Done When must observe every one of those tasks'
+  registrations), and each task's own `Depends On:` parenthetical
+  states, predecessor by predecessor, which entries are ordering-only and
+  which are functional — `### Blockers` carries exactly the functional
+  subset. **T-004 is deliberately outside this chain**: it
   extends `tests/cli-hook-enforcement.ps1`, a file already registered in
   both `tests/run-all.*` and `.github/workflows/test.yml`, so it touches
   neither shared resource and carries no ordering requirement relative to
@@ -247,6 +259,19 @@ OQ-001).
   present, `SKIP`, citing Epic A1's tracking issue, `coverage_complete:
   false` while `SKIP`ped pre-activation is itself asserted as the correct,
   non-`FAIL` state).
+- Evaluate AC-006's Activation Gate on **every** run rather than baking the
+  canary's `SKIP` in as a constant, per design.md's Test Strategy item 1
+  ("the canary case ... `SKIP`ped, against the SKIP Allowlist Activation
+  Gate ... until that gate's own two-clause predicate activates it"). Both
+  clauses are machine-read by the driver at each invocation: clause (b) by
+  the plain file-existence check against `main` design.md already fixes,
+  and clause (a) by reading T-005's own lifecycle field in
+  `specs/epic-196-a8-integration/tasks.md` — holding for exactly
+  `In Progress`, `Implementation Complete`, or `Done`, and not holding for
+  `Planned`, `Draft`, or `Blocked` (design.md SKIP Allowlist Activation
+  Gate, `Status:`-based detection). A driver that hard-codes the canary as
+  a non-failing `SKIP`, or that consults only clause (b), does not satisfy
+  this task's own Done When.
 - CI resilience per Global Constraints.
 - Register `cross-runtime-handoff` (`.sh`/`.ps1`) in `tests/run-all.sh`/
   `.ps1`; stage the `.github/workflows/test.yml` candidate under
@@ -272,6 +297,17 @@ OQ-001).
 - [ ] **Canary presence** — TEST-006 passes: the hook-activation canary is
   a named, mandatory case inside the trace, `SKIP`ped citing Epic A1's
   tracking issue, registered in `a8-skip-allowlist.json` (AC-006).
+- [ ] **Canary Activation-Gate evaluation** — TEST-006 also passes both
+  branches of AC-006's own two-clause predicate, resolved freshly on each
+  run rather than baked in (AC-006; design.md SKIP Allowlist Activation
+  Gate). Clause (a) unmet — T-005's lifecycle field read as `Planned`,
+  `Draft`, or `Blocked` — leaves the canary a non-failing, allowlisted
+  `SKIP` with the trace's own top-level `result` still `PASS`. Clause (a)
+  met — the same field read as `In Progress`, `Implementation Complete`,
+  or `Done`, exercised against a disposable fixture copy of that field
+  and never by mutating the frozen `tasks.md` — turns the same canary
+  into a non-zero-exit hard failure with `coverage_complete: false`,
+  with clause (b) holding in both branches.
 - [ ] **Suite/CI registration** — `tests/cross-runtime-handoff.tests.sh`/
   `.ps1` self-register in `tests/run-all.sh`/`.ps1`; the staged
   `test.yml` candidate exists with a correct `MANIFEST.sha256` entry; the
@@ -338,8 +374,15 @@ Cross-Model: not enabled
 
 Requirements: REQ-005 (AC-022, AC-023)
 
-Depends On: T-001 (Global Constraints — serialized only; no functional
-dependency, this drift check is independent of the handoff fixture).
+Depends On: T-001 (Global Constraints — serialized ordering for the two
+shared resources; the drift check's own logic is independent of the handoff
+fixture, but this task's own Planned Files carry a real artifact
+dependency on T-001: this task appends its CI steps to the staged
+`human-copy/.github/workflows/test.yml` candidate *after T-001's* and
+lists `human-copy/MANIFEST.sha256` as *existing*, neither of which holds
+until T-001 has run — which is why `### Blockers` names T-001, following
+this file's own convention that `### Blockers` carries exactly the
+functional subset of `Depends On:`, as T-003, T-007 and T-008 already do).
 
 Planned Files:
 - `plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.py` (new,
@@ -796,6 +839,41 @@ one write (marking a consumed nonce) is a narrow, lock-guarded, reversible
 ledger update, not itself the security decision. Required Workflow is
 `tdd` per the policy's high-tier row.
 
+Size Rationale: this task is large, and that observation — raised as a
+Major (not Critical) `TASK-SIZE` finding in task-review attempt 3 round 1
+by the same reviewer that passed `RISK-APPROPRIATE` and
+`HIGH-CRITICAL-EVIDENCE` on this same task — is correct and is accepted
+here with reasons rather than rebutted. The size is retained because the
+only split available is worse than the size it would relieve. A split has
+to be traceability-legal: every resulting task must carry at least one
+AC of its own or it fails task-reviewer-a's own AC-traceability check.
+This task carries exactly three ACs (AC-026, AC-027, AC-028), so the only
+legal decomposition is a 3-way split along them; the other bundled
+areas — the `matrix_cell` ↔ `runtime`/`plugin_hooks_flag` discriminator,
+the Expected-Digest Manifest comparison, and the three-state SKIP
+Representation — have no AC of their own and would produce
+AC-less tasks. That legal 3-way split does not even separate the two
+heaviest areas: the Nonce Issuance Ledger checks and the Signing
+Contract's JCS canonicalization plus domain-separated Ed25519
+verification both sit under AC-026 and AC-028, so both would land in the
+same fragment and this task's real weight would be unchanged. Against
+that, the split would have to rewrite the twelve `traceability.md` rows
+that name T-005 and the fifty-five further T-005 citation sites spread
+across seven other documents of this frozen package (acceptance-tests.md,
+design.md, frontend-spec.md, infra-spec.md, investigation.md,
+requirements.md, security-spec.md), each measured at this commit; it
+would re-open the impl and spec review stages, both
+currently green, at the last stage of the walk; and each new task would
+need a fresh human approval of its own, which it cannot inherit from
+this task's existing `Approval:` line. The size is therefore accepted as
+the smaller cost, with the coherence that makes it one unit stated
+plainly: every area above is a branch of a single deterministic
+verification pass over one artifact — `validate-live-host-proof` reading
+one `live-host-verification-record/v1` and returning one verdict — and
+`tdd` (this task's Required Workflow) plus the per-error-code fixture
+tree keeps each branch independently red-then-green rather than
+verifiable only in aggregate.
+
 Required Workflow: tdd
 
 Security-Sensitive: true
@@ -804,13 +882,19 @@ Cross-Model: not enabled
 
 Requirements: REQ-003 (AC-028), REQ-006 (AC-026, AC-027)
 
-Depends On: T-001, T-002, T-003 (Global Constraints — serialized only; no
-functional dependency on any of them — this validator's own TDD suite
+Depends On: T-001, T-002 (Global Constraints — serialized ordering only;
+no functional dependency on either — this validator's own TDD suite
 exercises its schema/nonce/signing/aggregate-gate logic entirely against
 disposable fixture keypairs and fixture allowlist/registry records under
 `tests/fixtures/live-host-proof/`, never the shared, real
 `a8-skip-allowlist.json`/`a8-trusted-signers.json` entries T-001/T-008
-create).
+create), T-003 (functional — this task appends its own CI steps to the
+staged `human-copy/.github/workflows/test.yml` candidate *after T-003's*
+and lists `human-copy/MANIFEST.sha256` as *existing*, so T-003's staged
+content must already be there; this is why `### Blockers` names T-003,
+following this file's own convention that `### Blockers` carries exactly
+the functional subset of `Depends On:`, as T-003, T-007 and T-008 already
+do).
 
 Planned Files:
 - `plugins/sdd-review-loop/references/a8-trusted-signers.json` (new,
@@ -935,6 +1019,28 @@ cells (T-008's own scope) or a real signer identity.
   digests.json` computed, and `nonce-ledger.json` empty — the three real
   registries this validator reads/writes; `a8-skip-allowlist.json` and the
   five draft `SKIP` records are T-008's own scope, not this task's.
+- Apply the correct activation predicate per `case_id` wherever this
+  validator evaluates an `a8-skip-allowlist.json` entry (a read; this task
+  writes no entry): the single-clause, artifact-existence predicate for
+  `AC-015`/`AC-016`, and for `AC-006` that same artifact clause plus
+  clause (a)'s read of T-005's own lifecycle field in
+  `specs/epic-196-a8-integration/tasks.md`, holding for exactly
+  `In Progress`, `Implementation Complete`, or `Done` (design.md SKIP
+  Allowlist Activation Gate, `Status:`-based detection). Applying
+  AC-015/AC-016's single-clause predicate to the `AC-006` entry would
+  hard-fail it immediately and contradict design.md.
+- **Known designed-red condition this task creates for itself**: because
+  clause (a) reads *this* task's own lifecycle field, moving this task to
+  `In Progress` activates AC-006 at that instant (clause (b) has held
+  since Epic A1 merged on 2026-08-08), so T-001's canary in
+  `tests/cross-runtime-handoff.tests.{sh,ps1}` is a non-zero-exit hard
+  failure from that instant onward, including the whole of this task's
+  own TDD red phase. That is the
+  same designed-red shape this package already accepts for AC-015/AC-016
+  (design.md Risks, Designed-red window), not a defect this task
+  introduces: it is never routed around, silenced, re-allowlisted, or
+  reclassified, and this task edits neither T-001's canary nor the
+  `AC-006` entry in `a8-skip-allowlist.json` (Protected Files, above).
 
 ### Done When
 
@@ -1036,8 +1142,15 @@ Cross-Model: not enabled
 
 Requirements: REQ-004 (AC-018, AC-019, AC-020, AC-021)
 
-Depends On: T-001, T-002, T-003, T-005 (Global Constraints — serialized
-only; no functional dependency on any of them).
+Depends On: T-001, T-002, T-003 (Global Constraints — serialized ordering
+only; no functional dependency on any of them), T-005 (functional — this
+task appends its own CI steps to the staged
+`human-copy/.github/workflows/test.yml` candidate *after T-005's* and
+lists `human-copy/MANIFEST.sha256` as *existing*, so T-005's staged
+content must already be there; this is why `### Blockers` names T-005,
+following this file's own convention that `### Blockers` carries exactly
+the functional subset of `Depends On:`, as T-003, T-007 and T-008 already
+do).
 
 Planned Files:
 - `tests/path-lineending-regression.tests.sh` (new — enumerates the full

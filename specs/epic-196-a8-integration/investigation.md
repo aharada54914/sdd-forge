@@ -368,6 +368,141 @@ them.
   file-existence check) — are deliberately **not** remediated by this
   commit and are pending a human decision. This entry records them as
   open, not as waived (Scope, below).
+- **This commit** — closes the two Majors the bullet above left open,
+  under two human rulings dated 2026-08-25, and resolves the `Depends
+  On:` question that bullet recorded rather than answered. All four
+  changes land in this single commit deliberately: each stage's
+  re-review pins `specs/epic-196-a8-integration/investigation.md` at its
+  *current* hash (`impl-review-precheck.sh:241-243`,
+  `task-review-precheck.sh:210-213`), so amending across several commits
+  would re-stale each predecessor as soon as it had been refreshed.
+  Nothing is appended to this file after task-review attempt 3 round 2
+  opens.
+  **(a) `EDGE-CASE-COVERAGE` (T-001 / AC-006 clause (a)) — human ruling,
+  option ①.** "T-005 ... has started" is now defined as: T-005's own
+  lifecycle field in `specs/epic-196-a8-integration/tasks.md` reading one
+  of `In Progress`, `Implementation Complete`, `Done`. The mechanism
+  lives in design.md's SKIP Allowlist Activation Gate as a new
+  `Status:`-based detection bullet sibling to the existing
+  Existence-based detection bullet, and T-001's and T-005's own
+  Scope/Done When now carry the corresponding per-run obligation
+  (Test Strategy item 1). The rationale recorded for the ruling:
+  `plugins/sdd-quality-loop/scripts/check-task-state.sh:93` already
+  parses that same field and enumerates exactly that five-value
+  lifecycle, so clause (a) becomes a deterministic read of a
+  repository-tracked file through an existing parser — the same shape as
+  clause (b)'s file-existence check against `main`, and the "named,
+  machine-checkable enforcement mechanism" requirements.md's own AC-006
+  bullet already claimed for this gate before any mechanism existed. The
+  three tempting alternatives were rejected on evidence, not taste:
+  `specs/epic-196-a8-integration/verification/T-005/` already holds four
+  files while T-005's lifecycle field still reads `Planned`, so keying
+  clause (a) to that directory would activate AC-006 immediately — the
+  exact outcome clause (a) exists to prevent; an implementation report is
+  required only at `Implementation Complete`, strictly later than
+  "started"; a quality-gate report is later still; and an identity-ledger
+  record identifies a reviewer, never a task start. Two consequences are
+  recorded rather than smoothed over, both accepted by the human. First,
+  the gate is **self-flipping**: the moment T-005 moves to `In Progress`,
+  clause (a) holds, clause (b) has held since Epic A1's 2026-08-08 merge,
+  so AC-006 activates and T-001's canary `SKIP` becomes a non-zero-exit
+  hard failure while T-005's own TDD red phase is still running. This is
+  stated explicitly in design.md's new bullet and in T-005's own Scope
+  as the same designed-red shape this package already accepts for
+  AC-015/AC-016, not left to be discovered. It does not make T-001's own
+  approved contract unsatisfiable, because T-001 precedes T-005 in the
+  serialized chain — which is the guarantee clause (a) was introduced to
+  provide. Second, reading the lifecycle field makes an ordinary task
+  status edit a security-relevant state change that security-spec.md's
+  B3 authorization column did not cover; B3's `AuthN/AuthZ` cell is
+  amended to authorize it explicitly, using only content this repository
+  already fixes (tasks.md's own Lifecycle sentence for who may write the
+  field; `check-task-state.sh` for the deterministic enforcement,
+  including its refusal of the three activating values on a task without
+  a recorded approval), and discloses rather than mitigates the residual
+  that `Blocked` — a lifecycle-legal exit from any active state — is not
+  an activating value, so moving T-005 to `Blocked` after activation
+  returns AC-006's `SKIP` to a valid, non-failing state. No new security
+  judgment beyond that was invented; where the amendment needed content
+  the ruling had not authorized, the residual is disclosed instead. Two
+  sibling statements of the same fact elsewhere in security-spec.md were
+  swept with it — the B3 STRIDE row's mitigation cell and the Test
+  Strategy item 5 verification row, both of which described AC-006's
+  activation without the mechanism.
+  **(b) `TASK-SIZE` (T-005) — human ruling: accept the size with a
+  recorded rationale.** T-005 is not split. A new `Size Rationale:` field
+  in T-005 records why, and records it as accepted-with-reasons rather
+  than as a rebuttal: the reviewer's observation that T-005 is large is
+  correct. The reasons: only a 3-way split along AC-026/AC-027/AC-028 is
+  traceability-legal, because the other bundled areas (the `matrix_cell`
+  discriminator, the Expected-Digest Manifest comparison, the three-state
+  SKIP Representation) carry no AC of their own and would yield tasks
+  that fail task-reviewer-a's AC-traceability check; that legal split
+  does not separate the two heaviest areas, since the Nonce Issuance
+  Ledger checks and the Signing Contract's Ed25519 verification both sit
+  under AC-026 and AC-028 and would land in the same fragment; the split
+  would rewrite the twelve `traceability.md` rows naming T-005 and the
+  fifty-five further T-005 citations across seven other documents of this
+  frozen package (all counts measured at this commit); it would re-open
+  the impl and spec stages, both currently green, at the last stage of
+  the walk; and each new task would need a fresh human approval it cannot
+  inherit. It is also recorded that the same reviewer passed
+  `RISK-APPROPRIATE` and `HIGH-CRITICAL-EVIDENCE` on this same task and
+  raised `TASK-SIZE` as Major, not Critical.
+  **(c) The `Depends On:` question the previous bullet left open is now
+  resolved by amending, and that bullet's reading is superseded.** That
+  bullet took `### Blockers` to mean "the immediate shared-resource-chain
+  predecessor, functional or not", citing T-003 naming `T-002` and not
+  the transitively-required `T-001`. Re-checked against all eight
+  entries, that reading does not hold: T-007's `### Blockers` names all
+  five of its predecessors, not its immediate chain predecessor alone.
+  The reading that fits all three pre-existing entries exactly — T-003
+  (`T-002`, its one functional `Depends On:` entry), T-007 (all five,
+  each marked functional) and T-008 (`T-001, T-005`, both marked
+  functional) — is that `### Blockers` carries exactly the *functional*
+  subset of `Depends On:`. Under that convention the three
+  `Blockers` values the previous commit recorded are correct and the
+  dependencies are genuinely functional (each of T-002/T-005/T-006
+  appends to a predecessor's already-staged
+  `human-copy/.github/workflows/test.yml` candidate and lists
+  `human-copy/MANIFEST.sha256` as existing), but the matching `Depends
+  On:` parentheticals were then wrong to read "no functional dependency".
+  All three are amended to name the artifact dependency precisely while
+  keeping the ordering-only characterisation for the predecessors it
+  still fits, and tasks.md's Global Constraints paragraph is given one
+  sentence recording that in this package every chain edge after T-001
+  turns out to be functional as well as ordered, so its "even where two
+  adjacent tasks ... have no functional dependency" allowance is not read
+  as a claim about this chain. Leaving the question open into a terminal
+  review round would have converted it into a BLOCKED attempt, which is
+  why it is answered here rather than carried forward.
+  **Pins knowingly moved by this commit.** `specs/epic-196-a8-integration/
+  design.md` (pinned by the impl-review attempt-6 round-1 PASS contract at
+  `4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e`),
+  `specs/epic-196-a8-integration/security-spec.md` (pinned by that same
+  contract's four-entry layer map at
+  `2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975`),
+  `specs/epic-196-a8-integration/tasks.md`, and this file. As of this
+  commit: tasks.md =
+  `219a7a23735ca1667dd13bd42e1781365968442986f3392741f2683b79cc74e3`,
+  design.md =
+  `14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c`,
+  security-spec.md =
+  `45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7`.
+  The consequence was known and accepted before the amendment was
+  written: because this file and security-spec.md are both freshness-
+  checked (never `continue`d) by `check-workflow-state.sh`'s stage-
+  provenance loop, the spec stage and then the impl stage must each be
+  re-bound by a provenance re-review, in that order, before task-review
+  attempt 3 round 2's own precheck can pass. requirements.md,
+  acceptance-tests.md and traceability.md are byte-unchanged by this
+  commit. No review finding is waived here; both Majors are closed by
+  amendment under a human ruling, and the remaining round-1 findings
+  (`SCOPE-DISJOINT`, `DEPENDENCY-OVERLAP`) were closed by the commit the
+  bullet above records.
+  Like that bullet, this one is committed *together with* the amendment
+  it records and so cannot cite its own commit SHA; the three
+  post-amendment hashes above are its citable fingerprint.
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
@@ -388,11 +523,16 @@ them.
 ### Later-phase artifacts this package references (commit / SHA-256)
 
 - `specs/epic-196-a8-integration/tasks.md` — SHA-256
-  `0b590a8fc78b6cb51236790325e905eb843a86ae7a32ee57f25fe8902f94fa75`,
-  last amended in this commit (the `### Blockers` remediation recorded as
-  the final amendment bullet above; that bullet cannot cite its own
-  commit SHA, so this line names the commit the same way)
-  (previously `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`
+  `219a7a23735ca1667dd13bd42e1781365968442986f3392741f2683b79cc74e3`,
+  last amended in this commit (the clause-(a) detection obligation in
+  T-001/T-005, T-005's `Size Rationale:`, the three amended `Depends On:`
+  parentheticals and the Global Constraints sentence, recorded as the
+  final amendment bullet above; that bullet cannot cite its own commit
+  SHA, so this line names the commit the same way)
+  (previously `0b590a8fc78b6cb51236790325e905eb843a86ae7a32ee57f25fe8902f94fa75`
+  at the `### Blockers` remediation commit
+  `e28e12d8bf965640fdfa6726fbf671df0a86d1fe`,
+  `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`
   at commit `e36a4436f7d12cc368d36e17dcdba04748b4547e`,
   `e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa`
   at commit `19005e7741e600ff8b3c4b01cfb33681bb8aec64`, and
