@@ -2669,6 +2669,23 @@ None — every input and output this feature touches is repository-local
   workflow (Test Strategy, above) and the existing vendored-copy drift
   check (bullet one, above) — this feature introduces no new deployment
   topology.
+- **Per-task `CHANGELOG.md` discipline (REQ-008/AC-033).** Every
+  implementation task this package's future task phase schedules lands
+  **its own** `CHANGELOG.md` `## Unreleased` entry citing #193, inside
+  that task's own diff. "Its own" is both per-task and in-diff: a single
+  batched entry covering several tasks, or an entry added by a commit
+  later than the task it describes, does not satisfy this rule. This is
+  the documentation half of the same REQ-008 discipline whose versioning
+  half this design already fixes (Data Plan, "`resolver.version`/
+  `resolver.rule_set_revision`": no version string is mutated outside a
+  `scripts/bump-version.sh` invocation, REQ-008/AC-034), and it binds the
+  future Phase-2 implementation task in exactly the way this design
+  already binds it elsewhere — the human-copy staging discipline
+  (Protected-File Statement, above) and the `tests/run-all.sh`/`.ps1`
+  registration rule (Test Strategy, above, AC-026). This Phase 1 package
+  schedules no implementation task of its own and therefore lands no such
+  entry itself; the rule is stated here so the future task phase inherits
+  it from this design rather than rediscovering it.
 
 ## Constraint Compliance
 

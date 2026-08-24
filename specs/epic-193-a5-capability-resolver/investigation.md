@@ -935,18 +935,18 @@ every unique `AC-[0-9]{3}` id in `requirements.md` to appear as a literal
 substring in `design.md`. 35 of the 56 ids did not. Re-derivation of that
 list against the two documents established three classes: 19 criteria
 whose substance `design.md` already fixed and which needed only their id
-cited beside the discharging sentence; 12 criteria whose substance was
-absent or incomplete and had to be written; and 4 meta-criteria
-(AC-033/AC-035/AC-036/AC-037, about this package's own registration
-commit and a per-task `CHANGELOG.md` entry) which **no** design document
-can honestly name and which are therefore deliberately still absent — a
-separate lane owns the narrow gate exception for those four. The two
+cited beside the discharging sentence; 13 criteria whose substance was
+absent or incomplete and had to be written (12 in the first commit, plus
+AC-033 — see "AC-033 reopened", below, which corrects a mis-grouping in
+the first commit's own version of this entry); and 3 registration-commit
+criteria (AC-035/AC-036/AC-037) which **no** design document can honestly
+name and which are therefore deliberately still absent. The two
 priority items in the middle class were AC-016 and AC-056: the rulings
 below had amended them in `requirements.md` and `acceptance-tests.md`
 while `design.md` remained completely silent on both, so the amendment
 existed in three of four frozen documents. This commit closes that gap.
 
-**Amendment commits.** This extension landed in two commits, and the
+**Amendment commits.** This extension landed in three commits, and the
 invariant `impl-review-precheck.sh:241-243` and
 `task-review-precheck.sh:210-213` impose — that no commit may change
 `design.md` without updating this record in that *same* commit, since
@@ -958,18 +958,24 @@ holds for each of them individually:
    citations, class-B substance, class-C omissions), together with the
    first version of this record. `design.md` as of that commit =
    `32f51bb9704e9666eda65949d30945293ad3f5fa9909a66a9904312e72123bda`.
-2. The commit carrying *this* revision of the record — the two internal
+2. `2f35de22924aa51b70035650126d05dc0a9b32f2` — the two internal
    inconsistencies documented under "corrections made beyond the
-   citation work", below, together with this record's own update for
-   them. Its own hash is not quotable from inside itself; the
+   citation work", below, together with that record update.
+   `design.md` as of that commit =
+   `9ff13a09750bf1ede99ac1c210b48728c3d7f744b08b33fd35174bdd69008015`.
+3. The commit carrying *this* revision of the record — AC-033 reopened,
+   re-examined on the merits, and cited (see "AC-033 reopened", below),
+   together with this record's own correction of the mis-grouping that
+   left it uncited. Its own hash is not quotable from inside itself; the
    per-document SHA-256 pins immediately below are the verifiable
    evidence for its resulting tree, and are exact.
 
-(A single amending commit was the first choice and was attempted; this
-worktree's own pre-commit safety gate declines `git commit --amend`, so
-the follow-up form was used instead. It satisfies the same invariant:
-commit 2 changes `design.md` and updates this record in that one commit,
-exactly as commit 1 did.)
+(A single amending commit was the first choice for commit 2 and was
+attempted; this worktree's own pre-commit safety gate declines `git
+commit --amend`, so the follow-up form was used, and commit 3 follows
+the same form. Each satisfies the invariant independently: every one of
+the three changes `design.md` and updates this record in that same
+commit.)
 
 **This self-reference was a deliberate decision, not an oversight.** The
 evidence bar in `reviewer-calibration.md:139-149` asks for full amendment
@@ -991,8 +997,10 @@ inside the commit.
 **Per-document SHA-256, as of that commit:**
 
 - `specs/epic-193-a5-capability-resolver/design.md` =
-  `9ff13a09750bf1ede99ac1c210b48728c3d7f744b08b33fd35174bdd69008015`
-  (the final amended bytes, as of commit 2; its state after commit 1 was
+  `1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a`
+  (the final amended bytes, as of commit 3; its state after commit 2 was
+  `9ff13a09750bf1ede99ac1c210b48728c3d7f744b08b33fd35174bdd69008015`,
+  after commit 1 was
   `32f51bb9704e9666eda65949d30945293ad3f5fa9909a66a9904312e72123bda`,
   and its pre-amendment state, as of
   `233c48c1074a88d2b1272c578197af1d47ad2c32`, was
@@ -1075,14 +1083,70 @@ in the parent section.
   sentence, no substance added): AC-002, AC-004, AC-005, AC-013, AC-015,
   AC-017, AC-018, AC-019, AC-020, AC-027, AC-032, AC-038, AC-039,
   AC-040, AC-041, AC-043, AC-045, AC-054, AC-055.
-- **Deliberately not cited**: AC-033, AC-035, AC-036, AC-037. Each is a
-  meta-criterion about this package's own registration commit
-  (`check-workflow-state`/`check-sdd-structure` exit status, the
-  `workflow-state-registry.json` entry) or a per-task `CHANGELOG.md`
-  check. No statement `design.md` could make would discharge any of
-  them, and citing them would make this document claim coverage it does
-  not have. They remain the only four ids `impl-review-precheck.sh`'s
-  own substring loop still reports missing, by design.
+- **Deliberately not cited**: AC-035, AC-036, AC-037 — and **only**
+  these three. Each is a criterion about this package's own registration
+  commit: `check-workflow-state.sh` exits 0 after it lands,
+  `check-sdd-structure.sh` exits 0 after it lands, and
+  `specs/workflow-state-registry.json`'s new entry is exactly a given
+  literal. Each asserts a property of a *commit and repository state*,
+  not a property any design can plan for, so no statement `design.md`
+  could make would discharge them and citing them would make this
+  document claim coverage it does not have. `requirements.md` scopes all
+  three `Global` in their own defining rows (`| AC-035 (Global) | — |`
+  and siblings), and the AC-coverage gate reads exactly that cell —
+  commit `64915ecf7945215df18e530a8c2c4052c7aa6e80`, "except
+  Global-scoped criteria from AC coverage" — so the gate now discharges
+  them rather than demanding them. Their absence from `design.md` is
+  therefore resolved, not outstanding. They remain the only three ids
+  `impl-review-precheck.sh`'s own substring loop reports missing, by
+  design and by that gate's own exception.
+
+**AC-033 reopened, and cited (this commit) — correcting a mis-grouping
+in the first commit's own version of this entry.** The first commit
+grouped AC-033 with AC-035/AC-036/AC-037 as a fourth "package-meta"
+criterion and left it uncited. That grouping was wrong, and the evidence
+against it is in `requirements.md` itself:
+
+- **The gate's own key refutes it.** The AC-coverage exception
+  (`64915ecf`) excuses a criterion only when its own defining row's
+  requirement-trace cell reads `Global`. AC-033's row reads
+  `| AC-033 | REQ-008 | …` — traced to a real requirement, not scoped
+  `Global`. `requirements.md` therefore does not treat it as package-meta.
+- **REQ-008 has exactly three clauses, and `design.md` already
+  discharges the other two.** REQ-008 requires (i) "every implementation
+  task this package's future task phase schedules lands its own
+  `CHANGELOG.md` `## Unreleased` entry citing #193"; (ii) "no new ADR is
+  authored by this feature"; (iii) "a grep-based self-check confirms no
+  version string is mutated anywhere in this feature's diff outside a
+  `scripts/bump-version.sh` invocation". Clause (ii) is discharged at
+  `design.md`'s ADR Change Log ("No new ADR is authored by this
+  feature"); clause (iii) is discharged in the Data Plan, which already
+  carries the explicit citation "mutated only via
+  `scripts/bump-version.sh` (REQ-008/AC-034)". Clause (i) was the **only**
+  REQ-008 clause `design.md` did not state — `grep -n CHANGELOG
+  design.md` returned no match at all before this commit.
+- **AC-033's own sibling under the same requirement was already cited.**
+  AC-034 is REQ-008-traced exactly as AC-033 is, and `design.md`
+  discharges it with a real design statement. A requirement cannot be
+  package-meta for one of its criteria and design-scoped for the other.
+- **This document already states future-task obligations as design
+  content.** The `tests/run-all.sh`/`.ps1` registration rule (AC-026),
+  the human-copy staging discipline (Protected-File Statement items 1-3),
+  and the CI-registration staging rule (Deployment / CI Plan) each bind
+  the future Phase-2 task rather than describing this package. A
+  CHANGELOG-discipline statement is that same class of content.
+
+The first commit's reasoning ("no statement `design.md` could make would
+discharge it") conflated two different things: `design.md` cannot assert
+**as fact** that a not-yet-existing commit's diff carries an entry — but
+it can **fix the obligation** that it must, which is precisely what
+AC-026 and AC-034 already do in this same document. The second reading is
+the one AC-033 needs, and it is discharged honestly: an implementer
+following `design.md` alone would land exactly the entry AC-033 demands.
+Written as a new Deployment / CI Plan bullet, "Per-task `CHANGELOG.md`
+discipline (REQ-008/AC-033)", stating the per-task, in-diff rule, naming
+its REQ-008 versioning-half sibling, and recording that this Phase 1
+package schedules no implementation task and so lands no entry itself.
 
 **Two corrections made beyond the citation work, both human-authorized
 on 2026-08-24 and both flagged here for the reviewer to judge rather
