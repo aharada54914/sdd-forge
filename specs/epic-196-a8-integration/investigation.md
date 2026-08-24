@@ -211,6 +211,39 @@ them.
   `0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d`
   and `specs/epic-196-a8-integration/traceability.md` =
   `b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61`.
+- `fa861f510d5bbd6485a4d21ac209487865876bd0` — completed both of
+  spec-review attempt 3 round 1's amendments across every swept sibling
+  statement. (a) Classification-table scope (reviewer A's REQ-TESTABILITY
+  Critical): arbitrated by reading design.md's own table, whose scope
+  sentence declares it exhaustive over "every check REQ-001 through
+  REQ-005 name" and which contains rows for AC-001–AC-024 plus one AC-028
+  row and none for AC-025/AC-026/AC-027/AC-029/AC-030. requirements.md's
+  REQ-007 and AC-025 wordings are narrowed to that twenty-five-check set,
+  acceptance-tests.md's closing paragraph no longer claims the table
+  covers "every check in this document", and the five REQ-006/REQ-007
+  process-check rows are re-attributed to this document instead of the
+  table; design.md is unchanged because it already stated the surviving
+  scope. (b) Phase framing and structure-check expectation (reviewer B's
+  CONTRADICTION Major): requirements.md's Phase-1-only paragraph and
+  Risks bullet and this file's INV-018 now record that all nine counted
+  per-feature files exist and that the correct expectation for
+  `check-sdd-structure.sh` is zero `missing:` lines, with each original
+  claim preserved verbatim as a dated quotation rather than erased. As of
+  this commit, `specs/epic-196-a8-integration/requirements.md` =
+  `598dcf737dc2544fc81b59e84a0b1ad201ee4201d03edc38ef9f21b068cd29cf`
+  (with `Spec-Review-Status: Pending`, the reset-lane state the
+  spec-review attempt-3 precheck set; the status field is normalized by
+  the spec gate and flips to `Passed` only on a spec-review PASS),
+  `specs/epic-196-a8-integration/acceptance-tests.md` =
+  `0324cdaa476f9657a5380fdfe788d156d62640bd74c409c05e8d4b5b41b074ad`,
+  and `specs/epic-196-a8-integration/investigation.md` =
+  `e95fdcaa97558cb478f3f6b87d194d12327a2a24a4f2f237c17c1e861b87af1c`.
+  design.md, tasks.md, traceability.md and the layer specifications are
+  deliberately unchanged by this commit: they carry sibling statements of
+  the phase framing (design.md:1667, infra-spec.md:249, infra-spec.md:288,
+  tasks.md:1258) but are hash-pinned by the impl attempt-5 and task
+  attempt-2 round-3 PASS contracts, so amending them here would fire
+  those stages' own staleness diagnostics; they belong to those gates.
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
