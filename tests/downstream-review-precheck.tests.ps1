@@ -140,6 +140,150 @@ try {
   & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 | Out-Null
   if (-not (Test-Path $taskReport)) { throw 'not ok: canonical risk policy rejected medium test-after' }
   Remove-Item $taskReport -Recurse -Force
+  # --- spec-review-precheck.ps1: a sealed contract is evidence about the past --
+  # Every entry of the expected reviewer manifest is rebuilt from an immutable
+  # source except one: investigation.md used to be hashed from the LIVE working
+  # tree. That is the single worst file to read live, because by design it is the
+  # document that accumulates the amendment record ACROSS stages -- so it grows
+  # after a round is sealed as a matter of course. Comparing today's bytes with
+  # the correctly-pinned ones mismatched and refused -Reset with 'previous
+  # terminal contract is invalid', permanently, since nothing can un-grow the
+  # file (reproduced on epic-195). The shell twin's identical defect is covered
+  # by tests/spec-review-loop.tests.sh. The live-vs-pinned question belongs to
+  # check-workflow-state.ps1, which asks it deliberately and carries the
+  # amendment-record growth tolerance for exactly this file.
+  $specPrecheck = Join-Path $root 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1'
+  $pwshPath = (Get-Process -Id $PID).Path
+  $investigation = Join-Path $spec 'investigation.md'
+  $requirementsPath = Join-Path $spec 'requirements.md'
+  $acceptancePath = Join-Path $spec 'acceptance-tests.md'
+  $specCalibration = Join-Path $root 'plugins/sdd-review-loop/references/spec-review-calibration.md'
+  $sealedDir = Join-Path (Join-Path $specReport 'attempt-1') 'round-1'
+  function Invoke-SpecPrecheck([string[]]$PrecheckArgs) {
+    & $pwshPath -NoProfile -File $specPrecheck @PrecheckArgs *> $null
+    return $LASTEXITCODE
+  }
+  function Get-Sha256Lower([string]$Path) { return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLower() }
+  # A terminal round-1 contract whose two reviewers both report only PASS, which
+  # the validator's own merge rule resolves to a terminal PASS -- the shape
+  # -Reset re-validates.
+  function Write-SpecTerminalPass([string]$Directory) {
+    $idsA = @('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY', 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE', 'DOMAIN-CONFORMANCE')
+    $idsB = @('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE')
+    $precheckPath = Join-Path $Directory 'precheck-result.json'
+    $pr = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+    $summaryPath = Join-Path $Directory 'integrated-summary.json'
+    [ordered]@{
+      schema                 = 'integrated-summary/v1'
+      attempt                = [int]$pr.attempt
+      round                  = [int]$pr.round
+      reviewer_a_checks      = @($idsA | ForEach-Object { [ordered]@{ id = $_; result = 'PASS'; severity = 'Minor' } })
+      reviewer_a_fail_count  = 0
+      reviewer_a_pass_count  = $idsA.Count
+      reviewer_a_skip_count  = 0
+      generated_at           = '2026-06-23T00:00:00Z'
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
+    $reqSha = [string]$pr.requirements_sha256
+    $accSha = [string]$pr.acceptance_sha256
+    $precheckSha = Get-Sha256Lower $precheckPath
+    $summarySha = Get-Sha256Lower $summaryPath
+    $calibrationSha = Get-Sha256Lower $specCalibration
+    $manifestA = @(
+      [ordered]@{ path = $requirementsPath; sha256 = $reqSha },
+      [ordered]@{ path = $acceptancePath; sha256 = $accSha },
+      [ordered]@{ path = $precheckPath; sha256 = $precheckSha },
+      [ordered]@{ path = $specCalibration; sha256 = $calibrationSha }
+    )
+    $manifestB = @($manifestA | ForEach-Object { [ordered]@{ path = $_.path; sha256 = $_.sha256 } })
+    $manifestB += [ordered]@{ path = $summaryPath; sha256 = $summarySha }
+    [ordered]@{
+      schema = 'spec-reviewer-a/v1'; stage = 'spec'; role = 'spec-reviewer-a'; run_id = 'fixture-a'; host_session_id = 'session-a'
+      allowed_input_manifest = $manifestA
+      verdict = 'PASS'
+      checks = @($idsA | ForEach-Object { [ordered]@{ id = $_; result = 'PASS'; severity = 'Minor'; finding = 'No issues found.' } })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'reviewer-a.json') -Encoding utf8NoBOM
+    [ordered]@{
+      schema = 'spec-reviewer-b/v1'; stage = 'spec'; role = 'spec-reviewer-b'; run_id = 'fixture-b'; host_session_id = 'session-b'
+      allowed_input_manifest = $manifestB
+      verdict = 'PASS'
+      checks = @($idsB | ForEach-Object { [ordered]@{ id = $_; result = 'PASS'; severity = 'Minor'; finding = 'No issues found.' } })
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'reviewer-b.json') -Encoding utf8NoBOM
+    [ordered]@{
+      schema = 'spec-review-integrated-verdict/v1'; stage = 'spec'; feature = $feature
+      attempt = [int]$pr.attempt; round = [int]$pr.round
+      reviewer_a_run_id = 'fixture-a'; reviewer_b_run_id = 'fixture-b'
+      reviewer_a_host_session_id = 'session-a'; reviewer_b_host_session_id = 'session-b'
+      finding_counts = [ordered]@{ critical = 0; major = 0; minor = 0 }
+      verdict = 'PASS'; warningCount = 0
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'integrated-verdict.json') -Encoding utf8NoBOM
+    [ordered]@{
+      schema = 'spec-review-contract/v1'; stage = 'spec'; feature = $feature
+      attempt = [int]$pr.attempt; round = [int]$pr.round
+      requirements_sha256 = $reqSha; acceptance_sha256 = $accSha
+      reviewers = @(
+        [ordered]@{ role = 'spec-reviewer-a'; run_id = 'fixture-a'; host_session_id = 'session-a'; allowed_input_manifest = $manifestA },
+        [ordered]@{ role = 'spec-reviewer-b'; run_id = 'fixture-b'; host_session_id = 'session-b'; allowed_input_manifest = $manifestB }
+      )
+      run_id = 'fixture-orchestrator'; verdict = 'PASS'; warningCount = 0
+    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $Directory 'spec-review-contract.json') -Encoding utf8NoBOM
+  }
+  # Seals the CURRENT bytes of investigation.md into every manifest, exactly as a
+  # real round does when its reviewers read the file.
+  function Add-InvestigationPin([string]$Directory) {
+    $sha = Get-Sha256Lower $investigation
+    foreach ($name in @('reviewer-a.json', 'reviewer-b.json')) {
+      $path = Join-Path $Directory $name
+      $data = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+      $data.allowed_input_manifest = @($data.allowed_input_manifest) + [pscustomobject]@{ path = $investigation; sha256 = $sha }
+      $data | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $path -Encoding utf8NoBOM
+    }
+    $contractPath = Join-Path $Directory 'spec-review-contract.json'
+    $contractData = Get-Content -LiteralPath $contractPath -Raw | ConvertFrom-Json
+    foreach ($reviewer in $contractData.reviewers) {
+      $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest) + [pscustomobject]@{ path = $investigation; sha256 = $sha }
+    }
+    $contractData | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $contractPath -Encoding utf8NoBOM
+  }
+
+  Remove-Item -LiteralPath $specReport, $implReport, $taskReport -Recurse -Force -ErrorAction SilentlyContinue
+  'Spec-Review-Status: Pending' | Set-Content -LiteralPath $requirementsPath -Encoding utf8NoBOM
+  @('# Investigation', '', '- INV-001 recorded before the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  if ((Invoke-SpecPrecheck @($feature, '1', '1')) -ne 0) { throw 'not ok: spec precheck could not open the sealed-contract fixture round' }
+  Write-SpecTerminalPass $sealedDir
+  Add-InvestigationPin $sealedDir
+  $sealedInvestigationSha = Get-Sha256Lower $investigation
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: a terminal contract pinning investigation.md must validate while the file is untouched' }
+
+  # The real shape: the amendment record grows after the seal. The pin is still
+  # correct evidence; only the present moved on.
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  Add-Content -LiteralPath $investigation -Value "`n## Amendment Re-Review Context`n`n- Recorded after the round was sealed."
+  if ((Get-Sha256Lower $investigation) -eq $sealedInvestigationSha) { throw 'not ok: growth fixture did not actually change investigation.md, so it proves nothing' }
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: investigation.md growing after the seal must not invalidate the sealed contract' }
+
+  # The mirror image: a contract that never pinned investigation.md must not be
+  # invalidated by the file appearing in the tree afterwards either.
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $investigation -Force
+  Write-SpecTerminalPass $sealedDir
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: baseline - a contract with no investigation.md pin must validate' }
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  @('# Investigation', '', '- Created after the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -ne 0) { throw 'not ok: an investigation.md created after the seal must not invalidate an unpinning contract' }
+
+  # Deriving from the contract must not mean trusting whatever it says: the
+  # reviewers have to agree on the bytes they read.
+  Remove-Item -LiteralPath (Join-Path $specReport 'attempt-2') -Recurse -Force -ErrorAction SilentlyContinue
+  @('# Investigation', '', '- INV-001 recorded before the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  Write-SpecTerminalPass $sealedDir
+  Add-InvestigationPin $sealedDir
+  $forgedPath = Join-Path $sealedDir 'spec-review-contract.json'
+  $forged = Get-Content -LiteralPath $forgedPath -Raw | ConvertFrom-Json
+  ($forged.reviewers[1].allowed_input_manifest | Where-Object { $_.path -ceq $investigation }).sha256 = ('c' * 64)
+  $forged | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $forgedPath -Encoding utf8NoBOM
+  if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -eq 0) { throw 'not ok: reviewers disagreeing about investigation.md must not validate' }
+  Remove-Item -LiteralPath $specReport -Recurse -Force -ErrorAction SilentlyContinue
+
   Write-Output 'ok: PowerShell downstream prechecks fail closed and preserve graph semantics'
 } finally {
   [IO.File]::WriteAllText($registry, $registryOriginal)
