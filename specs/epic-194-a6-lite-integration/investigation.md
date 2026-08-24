@@ -732,7 +732,7 @@ completion chain below).
   contain" — was wrong for AC-010 and is corrected in the next bullet.**
 - `113b97a3a864141e0b0f08cd1f395341d449d35a` — the AC-006/AC-010 design
   amendment's first commit (2026-08-24): three edits to design.md and the
-  corrections recorded in the four numbered items below. Its own
+  corrections recorded in the numbered items below. Its own
   disposition of the four-versus-five payload count was superseded within
   the same day by the ruling recorded in the next bullet; item 2 below
   records both states.
@@ -805,22 +805,60 @@ completion chain below).
      declared" rather than falsified. A cross-reference for (b)/(c) was
      added so the surviving fours cannot be misread as unpropagated
      siblings.
-     **Still unpropagated, outside this lane's scope and needing its own
-     ruling:** `security-spec.md` (the B5 boundary row's "three-way
-     exact-set equality among the four declared payload targets", the
-     human-maintainer row's "payload (four files)", and the data-asset
-     row's "payload (four staged files)"), `infra-spec.md` ("application
-     of four already-reviewed files" and its rollback row's "payload
-     (four files)"), and `tasks.md` (Protected Files item "Human-copy path
-     (four files, R-10 protected today)" plus its T-001 fixture and
-     acceptance-check wording). These now disagree with design.md,
-     requirements.md and acceptance-tests.md alike. They were not touched:
-     the layer specs are separate frozen documents, and `tasks.md` is
-     hash-pinned in this very section at
-     `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
-     so editing it would break that pin. Note that `security-spec.md:74`
-     and `:120` legitimately keep "four" — like (a) above, they count
-     already-protected `sdd-lite` paths, not payload targets.
+     **`tasks.md`, propagated in this entry's own commit (2026-08-24
+     ruling).** Six payload-set counts moved to five: the T-001 fixture
+     root's "correct five-target payload", the runner contract's declared
+     payload list (now enumerating `.github/workflows/test.yml`), the
+     `guard-invariants.json` input note's "five target paths", the
+     acceptance-check fixture's "correct five-target payload", and the
+     negative check's "missing one of the five declared targets". One
+     further change was forced by the widening and is not a count
+     substitution: the extraneous-path negative check read "a payload file
+     set with an undeclared **fifth** path is rejected", which the
+     five-target set makes describe a legitimate member — it now reads
+     "undeclared **sixth** path". `tasks.md`'s SHA-256 pin is updated in
+     this same commit at both places this document pins it — the
+     later-phase artifact block and INV-022's inline citation — each
+     retaining the superseded fingerprint
+     `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`
+     alongside the new one, so no pin is left behind and the prior state
+     stays auditable. No `Status:` line was touched.
+     **Seven `tasks.md` sites deliberately left at four**, each checked
+     against its own predicate: Protected Files item 1 ("Human-copy path
+     (four files, R-10 protected today)") enumerates only the four
+     `sdd-lite` files and is listed *alongside* item 3, which carries
+     `.github/workflows/test.yml` separately — raising item 1 to five
+     would double-count the fifth target; item 3's own "applies this
+     staged candidate the same way it applies the four payload files" is
+     the very sentence AC-010's widening quotes, where "the four" means
+     item 1's four; the three "four-point contract"/"all four contract
+     points" references count the runner contract's items (i)-(iv), not
+     targets; and the two "four new suites" references count test suites.
+     **BLOCKED, not propagated: `security-spec.md` and `infra-spec.md`.**
+     Propagating the payload count into either surfaces a substantive
+     contradiction this lane must not resolve on its own. Both documents
+     state, in five places, that this feature does not modify CI:
+     `infra-spec.md:26` "GitHub Actions (test.yml, **unmodified by this
+     feature**)", `:46` "participant CI as GitHub Actions (test.yml,
+     unmodified)", `:70` "CI (GitHub Actions `test.yml`, unmodified by
+     this feature)", `:135` "CI compute (`test.yml`, already provisioned,
+     unmodified)", and `security-spec.md:83` "a CI runner (`test.yml`,
+     unmodified by this feature)". The five-target declared payload set
+     stages an append to `.github/workflows/test.yml` for human
+     application, so those five statements and the widened payload set
+     cannot both be true. The contradiction is **not created by this
+     lane** — `tasks.md` Protected Files item 3 and `traceability.md`'s
+     T-001..T-004 rows already stage that file today — but resolving it is
+     a design decision about whether this feature modifies CI, not a count
+     substitution. `infra-spec.md:25`'s own `PROTECTED` node likewise
+     enumerates only the four `sdd-lite` paths, so changing the adjacent
+     "stages 4-file payload" edge label at `:24` would have made that one
+     diagram self-contradictory. Both documents are therefore left
+     untouched pending a ruling. Note that `security-spec.md:24`, `:74`
+     and `:120`, and `infra-spec.md:151` and `:156`, legitimately keep
+     "four" regardless — like (a) above they count `sdd-lite`-owned paths,
+     and `:120`'s "the fifth" already denotes `lite-gate/SKILL.md`, not
+     `.github/workflows/test.yml`.
   3. **AC-006 — substance added.** design.md carried no trace of this
      criterion (`grep` for `decimal` and for `capability-registry/v1`
      returned nothing), so no annotation could discharge it and a minimum
@@ -847,7 +885,25 @@ completion chain below).
      `schema_version`, whose const is the integer `1`, under a different
      property name. No decimal (`vN.M`) `schema` const exists anywhere in
      `contracts/*.schema.json`.
-  4. **Correction to `d5e8d143b1d7b8ef00dcfd3b69726bd065dbdd90`'s commit
+  4. **AC-023 and AC-024 are discharged by a gate exception, not left
+     outstanding.** design.md names neither, and no design document can
+     honestly name either: both are `Global`-scoped criteria about this
+     spec package's own registration commit, and AC-024 requires both
+     review-status headers to read `Pending` "at commit time", which is
+     historically false now that both read `Passed`. Commit
+     `64915ecf7945215df18e530a8c2c4052c7aa6e80` ("fix(impl-review): except
+     Global-scoped criteria from AC coverage, and stop overclaiming", on
+     branch `claude/plugins-pin-stability`, 2026-08-24) adds the narrow
+     exception a human ruled for on 2026-08-24. It keys on the
+     requirement-trace cell of the criterion's **own** defining row in
+     requirements.md — a `REQ-NNN` trace is still required to appear in
+     design.md, only a `Global` declaration is excused — and this
+     package's rows read `| AC-023 | Global |` and `| AC-024 | Global |`
+     (requirements.md), so both are excused and reported to stderr rather
+     than refused. The AC-coverage loop's residual list of exactly AC-023
+     and AC-024 is therefore the correct terminal state for this package,
+     not outstanding design work.
+  5. **Correction to `d5e8d143b1d7b8ef00dcfd3b69726bd065dbdd90`'s commit
      message.** That message concluded that because
      "impl-review-precheck's `--verify-inputs` mode does not read
      investigation.md, ... the route stays open at the impl stage." The
@@ -977,10 +1033,13 @@ Referenced by the amended AC-010 row and TEST-031 row
 (requirements.md):
 
 - `specs/epic-194-a6-lite-integration/tasks.md` — SHA-256
-  `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
-  last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`. Its
-  Protected Files item 3 is the text whose fifth staged target AC-010's
-  five-target widening admits into the declared payload set.
+  `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`,
+  last amended in this entry's own commit (the payload-count propagation
+  described in item 2 above). Its Protected Files item 3 is the text whose
+  fifth staged target AC-010's five-target widening admits into the
+  declared payload set. Its previous fingerprint, pinned here until that
+  commit, was `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+  last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`.
 - `specs/epic-194-a6-lite-integration/traceability.md` — SHA-256
   `0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e`,
   last amended in commit `522a1ccab0cdc08e4094e12a2a84b156caf0dc7f`.
@@ -1024,8 +1083,10 @@ raised the same pair of Major findings (2026-08-21):
 The finding, seen from its two ends: `tasks.md`'s own Protected Files
 item 3 (tasks.md:68, "`.github/workflows/test.yml` (R-10 protected)";
 tasks.md — SHA-256
-`b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
-last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`)
+`d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`,
+last amended in this document's own payload-count propagation commit;
+`b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1` at the time this INV was
+written)
 directs every task registering a test pair to stage its CI steps under
 this feature's `human-copy/` directory and commits the runner to applying
 that staged candidate "the same way it applies the four payload files" —

@@ -258,7 +258,7 @@ Planned Files:
 - `tests/human-copy-runner-contract.tests.sh` (new, agent-editable)
 - `tests/human-copy-runner-contract.tests.ps1` (new, agent-editable)
 - `tests/fixtures/epic-194-human-copy/` (new fixture tree — a disposable
-  staging root with a correct four-target payload + `MANIFEST.sha256`, a
+  staging root with a correct five-target payload + `MANIFEST.sha256`, a
   payload-set-mismatch fixture, a hash-mismatch fixture, a control-file-
   miscounted-as-payload fixture, and a post-copy-corruption fixture)
 - `tests/run-all.sh` (existing, agent-editable — this suite's
@@ -294,9 +294,10 @@ runner's own shape, hard-anchored to `specs/epic-194-a6-lite-integration/
 human-copy` instead of the Epic-136 prefix, implementing the four-point
 contract design.md's Protected-File Statement fixes: (1) feature-scoped,
 not fixed-prefix, target/digest resolution; (2) three-way exact-set
-verification among the declared four-target payload list
+verification among the declared five-target payload list
 (`risk-upgrade-policy.md`, `check-risk-upgrade.sh`, `check-risk-upgrade.
-ps1`, `lite-spec/SKILL.md`), `MANIFEST.sha256`'s own target set, and the
+ps1`, `lite-spec/SKILL.md`, `.github/workflows/test.yml`),
+`MANIFEST.sha256`'s own target set, and the
 staged directory's own payload file set (control files — `MANIFEST.
 sha256`, the runner itself, and any machine-readable target-inventory file
 — excluded by construction, investigation.md INV-020); (3) per-target
@@ -317,18 +318,18 @@ hash against the staged/manifest hash.
   CanonicalTargets`/`Get-ManifestDigests`/`VerifyPublished`/`Invoke-
   PostInstallVerification` cited by design.md as the functions whose
   discipline this new script re-implements against its own prefix)
-- `plugins/sdd-quality-loop/references/guard-invariants.json` (the four
+- `plugins/sdd-quality-loop/references/guard-invariants.json` (the five
   target paths' own live protected-file registration this runner's exact-
   set check validates against)
 
 ### Scope
 
 Commit A (implementation — runner + suite + fixtures + CI wiring):
-- Write the acceptance checks first (TDD Red→Green): a correct four-target
+- Write the acceptance checks first (TDD Red→Green): a correct five-target
   payload + matching `MANIFEST.sha256` copies cleanly and every installed
   file's post-copy hash matches; a payload file set with an undeclared
-  fifth path is rejected before any copy; a payload missing one of the
-  four declared targets is rejected before any copy; a per-target hash
+  sixth path is rejected before any copy; a payload missing one of the
+  five declared targets is rejected before any copy; a per-target hash
   mismatch against `MANIFEST.sha256` is rejected before any copy; a
   control file (`MANIFEST.sha256` itself, or the runner script) is
   correctly excluded from the payload-set comparison, never flagged as
