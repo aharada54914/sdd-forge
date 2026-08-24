@@ -145,7 +145,7 @@ reasoning).
 | A Capability-aware signal source (OQ-002 resolved: candidate (a)) | supplies the pre-generation-gate Capability-derived trigger fragment REQ-002's second argument consumes — a call to A2's `evaluate-predicate` against every Project-Context-declared component | A2's existing `evaluate-predicate` CLI | invocation only, not a new evaluator (REQ-005) | not protected — reuses an existing, unprotected A2 script |
 | `contracts/capability-summary.schema.json` | read-only dependency; `lite-gate` validates against it (not reimplemented) | JSON Schema | existing (A4-owned, content-frozen), unmodified by this feature | already A4's own registered protection, if any; this feature does not touch it |
 | Project Context (`workflow.capability_enforcement`, Epic A1) | read-only source distinguishing `disabled-legacy` from `advisory`/`required` for REQ-003's own absent-Summary handling (Step 2a, Blocker [B6]) | YAML (Epic A1 schema) | existing (A1-owned), read-only, no new field | not protected — ordinary project data |
-| A feature-scoped anchored human-copy application runner | applies this feature's own `specs/epic-194-a6-lite-integration/human-copy/` batch (4 files) — exact-set/hash/post-copy verified (Blocker [M3]) | PowerShell (mirroring Epic-136's own runner shape) | new, to be authored by a future implementation task, self-hosted under `specs/epic-194-a6-lite-integration/human-copy/` | the runner itself is not a protected file (mirrors the Epic-136 runner, which is likewise self-hosted inside its own human-copy directory) |
+| A feature-scoped anchored human-copy application runner | applies this feature's own `specs/epic-194-a6-lite-integration/human-copy/` batch (5 files — the four `sdd-lite` targets plus `.github/workflows/test.yml`, requirements.md AC-010/AC-031) — exact-set/hash/post-copy verified (Blocker [M3]) | PowerShell (mirroring Epic-136's own runner shape) | new, to be authored by a future implementation task, self-hosted under `specs/epic-194-a6-lite-integration/human-copy/` | the runner itself is not a protected file (mirrors the Epic-136 runner, which is likewise self-hosted inside its own human-copy directory) |
 
 ## Protected-File Statement
 
@@ -200,7 +200,7 @@ files.ps1`, is hard-anchored to its own fixed `specs/epic-136-phase2-
 gates/human-copy` prefix (`$HumanCopyPrefix`, investigation.md INV-019)
 and additionally requires a staged canonical `guard-invariants.json` copy
 at that same fixed prefix, cross-checked against the live file's own
-`phase2_human_copy_targets` array — a file this feature's own four-target
+`phase2_human_copy_targets` array — a file this feature's own five-target
 batch does not stage (this feature does not propose changing the
 protected-file inventory, OQ-001, CLOSED, above). This runner therefore
 **cannot** apply this feature's own `specs/epic-194-a6-lite-integration/
@@ -230,34 +230,35 @@ then forbade the runner and manifest it also requires from ever
 occupying — a self-contradiction the adversarial final verification
 caught (design.md previously placed the runner and `MANIFEST.sha256`
 inside `human-copy/` while requiring that directory's own file set
-contain *only* the four payload targets). This definition corrects it:
+contain *only* the four payload targets it then declared — a count since
+widened to five, dated note above). This definition corrects it:
 the runner and `MANIFEST.sha256` live alongside the payload, as control
 files, excluded from the payload-set comparison by construction, exactly
 as Epic-136's own runner and its own staged canonical-inventory copy
 already are relative to its own eighteen-target payload.
 
-> **Dated note (2026-08-24) — what this document's AC-010/AC-031
-> citations do and do not discharge.** Every "four-target"/"four payload
-> targets"/"four declared payload targets" statement in this document
-> (Components table; this Statement, including the exact-set contract
-> item 2 below; Test Strategy item 17) records this design's own
-> **pre-amendment** declared payload set. On 2026-08-21 the T-001 blind
-> cross-model panel's Major findings widened requirements.md AC-010 and
-> AC-031, and acceptance-tests.md AC-010 and TEST-031, to a **five**-target
-> declared payload set — those four plus `.github/workflows/test.yml`
-> (investigation.md INV-022). That widening was **not** propagated into
-> this document, and propagating it would change the runner contract
-> stated below — a design change the 2026-08-24 annotation ruling does not
-> authorize. This document's AC-010 and AC-031 citations therefore
-> discharge only those criteria's design-content clauses: the three
-> protected-file targets this REQ edits, the human-copy flow plus a
-> feature-scoped anchored runner as their only legitimate
-> implementation-phase application path (investigation.md INV-008,
-> INV-019; Major [M3]), and the three-way exact-set / per-target-hash /
-> post-copy-re-verification runner contract *shape*. The declared target
-> **count** stated in this document is superseded by requirements.md
-> AC-010's own five-target declaration and is not discharged here. This
-> divergence is recorded in investigation.md
+> **Dated note (2026-08-24) — the declared payload set is five targets,
+> not four.** On 2026-08-21 the T-001 blind cross-model panel's Major
+> findings widened requirements.md AC-010 and AC-031, and
+> acceptance-tests.md AC-010 and TEST-031, to a **five**-target declared
+> payload set: the four `sdd-lite`-owned targets plus
+> `.github/workflows/test.yml`, admitted subject to the same
+> exact-set/hash/post-copy properties as the other four and to no others
+> (investigation.md INV-022). That widening initially reached
+> requirements.md, acceptance-tests.md and README.md but not this
+> document; per the 2026-08-24 human ruling it is now propagated here, and
+> every payload-set count in this document reads five. Two distinctions
+> this widening does **not** disturb, both re-verified against the live
+> `guard-invariants.json` on 2026-08-24: the Protected-File Statement's
+> opening count of **four** is the number of `sdd-lite`-**owned**
+> protected paths, and `.github/workflows/test.yml` is not `sdd-lite`-owned
+> — that count stays four; and ADR-0022 item 5 authorizes human-copy for
+> exactly those four `sdd-lite` files, so the Cross-Layer Dependencies and
+> Constraint Compliance statements of ADR-0022's authorization scope also
+> stay four. The fifth target's own human-copy authority is
+> `guard-invariants.json`'s `phase2_human_copy_targets` array, which
+> already lists `.github/workflows/test.yml`, under ADR-0011's general
+> mechanism — not ADR-0022 item 5. Recorded in investigation.md
 > `## Amendment Re-Review Context`.
 
 This runner's own required contract:
@@ -267,10 +268,14 @@ This runner's own required contract:
    prefix, or a dedicated copy of the Epic-136 runner with this feature's
    own prefix hard-coded the same way Epic-136's own copy is,
    `apply-protected-files.ps1:31`) — never the Epic-136 prefix.
-2. **Exact-set verification** — three-way equality among (i) the four
+2. **Exact-set verification** — three-way equality among (i) the five
    declared payload targets this design names (`risk-upgrade-policy.md`,
    `check-risk-upgrade.sh`, `check-risk-upgrade.ps1`, `lite-spec/
-   SKILL.md`), (ii) `MANIFEST.sha256`'s own target set, and (iii) the
+   SKILL.md`, and `.github/workflows/test.yml` — the fifth declared
+   target, subject to the same exact-set/hash/post-copy properties as the
+   other four, 2026-08-21 T-001 cross-model remediation, requirements.md
+   AC-010/AC-031, investigation.md INV-022), (ii) `MANIFEST.sha256`'s own
+   target set, and (iii) the
    staged directory's own **payload file set** (defined above, control
    files excluded) — no fewer, no more, no payload path outside that
    declared set (mirrors `Get-ManifestDigests`'s own one-line-per-target,
@@ -345,7 +350,14 @@ Not applicable — no UI surface.
 - **REQ-002/REQ-005 → ADR-0011's human-copy mechanism and ADR-0022 item
   5's own authorization to use it for these exact four files**: this
   feature's own file edits do not invent a new protected-file application
-  path.
+  path. (Four is ADR-0022 item 5's own authorization scope — it names
+  `lite-spec`'s `SKILL.md`, `risk-upgrade-policy.md` and
+  `check-risk-upgrade.*` and no others — not the declared payload set,
+  which is five. The fifth declared payload target,
+  `.github/workflows/test.yml`, draws its human-copy authority from
+  `guard-invariants.json`'s own `phase2_human_copy_targets` array, which
+  already lists it, under ADR-0011's general mechanism; this feature
+  widens no protected-file inventory by its own authority either way.)
 - **REQ-002/REQ-005 → a feature-scoped anchored human-copy runner (NEW
   obligation, Major [M3])**: `specs/epic-136-phase2-gates/human-copy/
   apply-protected-files.ps1` cannot apply this feature's own staged batch
@@ -885,10 +897,11 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     feature-scoped anchored runner's own payload-file-set-defined
     (control files excluded, 2026-07-22 adversarial final verification,
     investigation.md INV-020) exact-set/hash/post-copy-verification
-    contract — a three-way equality among the declared four-target
-    payload list, the manifest's own target set, and the enumerated
-    payload set — distinct from the Epic-136 fixed-prefix runner it
-    cannot reuse unmodified (requirements.md AC-031).
+    contract — a three-way equality among the declared five-target
+    payload list (the four `sdd-lite` targets plus
+    `.github/workflows/test.yml`), the manifest's own target set, and the
+    enumerated payload set — distinct from the Epic-136 fixed-prefix
+    runner it cannot reuse unmodified (requirements.md AC-031).
 
 ## Design Decisions (resolving open questions)
 

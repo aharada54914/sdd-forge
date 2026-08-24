@@ -730,12 +730,12 @@ completion chain below).
   left unannotated in that commit (2026-08-24). **The reason that bullet
   originally gave — "the four IDs whose substance design.md does not
   contain" — was wrong for AC-010 and is corrected in the next bullet.**
-- This entry's own commit (the AC-006/AC-010 design amendment,
-  2026-08-24; its own hash is pinned by the impl re-review round's
-  manifests under the same self-pinning disclosure this section already
-  applies to `investigation.md`, since a commit cannot embed its own
-  hash) — three edits to design.md and the corrections recorded here,
-  all under the same 2026-08-24 ruling quoted below:
+- `113b97a3a864141e0b0f08cd1f395341d449d35a` — the AC-006/AC-010 design
+  amendment's first commit (2026-08-24): three edits to design.md and the
+  corrections recorded in the four numbered items below. Its own
+  disposition of the four-versus-five payload count was superseded within
+  the same day by the ruling recorded in the next bullet; item 2 below
+  records both states.
   1. **AC-010 — annotated; the earlier "does not contain" reason
      retracted.** design.md's Protected-File Statement already carried
      that criterion's entire design-content clause before this commit: it
@@ -752,34 +752,86 @@ completion chain below).
      it is not merely absent but contradicted: design.md declares a
      **four**-target set with explicit "no fewer, no more" exact-set
      wording. The `(AC-010)` citation added at the Human-copy path bullet
-     is therefore explicitly scoped to the design-content clause, and a
-     dated note in the same Statement records that the target count is
-     superseded by requirements.md AC-010 and not discharged there.
-  2. **The 2026-08-21 five-target widening was never propagated into
-     design.md — recorded, not silently repaired.** Commits
-     `9997091c71244e8cf3f9e46732f7ba164aa49843` and
+     names that criterion's design-content clause explicitly. **AC-010 is
+     now discharged in full**, the count included, by the propagation
+     recorded in item 2.
+  2. **The 2026-08-21 five-target widening, and its propagation into
+     design.md.** Commits `9997091c71244e8cf3f9e46732f7ba164aa49843` and
      `fae561c9d323cf32914f6885cb6f3d24053bd9af` widened
      acceptance-tests.md AC-010/TEST-031 and requirements.md
-     AC-010/AC-031 to five targets; README.md follows them. design.md
-     does not: it still states four at its Components table, at its
-     Protected-File Statement (the payload-set definition and exact-set
-     contract item 2), and at Test Strategy item 17 — where its
-     pre-existing `(requirements.md AC-031)` citation, written by
-     `32b8bf57` **before** the widening, has been stale ever since.
-     Propagating five targets would change the runner contract design.md
-     fixes, which the annotation-scoped 2026-08-24 ruling does not
-     authorize; this commit therefore records the divergence in design.md
-     and here rather than closing it. Closing it needs its own human
-     ruling.
+     AC-010/AC-031 to a five-target declared payload set; README.md
+     followed them. design.md did not, and commit
+     `113b97a3a864141e0b0f08cd1f395341d449d35a` recorded that divergence
+     rather than closing it, on the reading that the earlier
+     annotation-scoped ruling did not authorize a runner-contract change.
+     A further human ruling the same day (2026-08-24, quoted verbatim
+     below) directed the opposite: **propagate the widening into
+     design.md**. This commit does so. Every payload-set count in
+     design.md now reads five and enumerates `.github/workflows/test.yml`
+     as the fifth declared target — Components table, the Major [M3]
+     paragraph's staged-batch reference, exact-set contract item 2, and
+     Test Strategy item 17. No property was invented for the fifth target
+     beyond the one requirements.md already fixes: it is subject to the
+     same exact-set/hash/post-copy properties as the other four, and to no
+     others. The dated note the previous commit placed in the
+     Protected-File Statement, which said the count was "superseded by
+     requirements.md AC-010's own five-target declaration and is not
+     discharged here", is rewritten accordingly — leaving it would have
+     been a left-behind sibling of this lane's own making.
+     **Test Strategy item 17's `(requirements.md AC-031)` citation was
+     stale, not correct, for the three days between `9997091c` and this
+     commit**: `32b8bf57` wrote it against a four-target contract before
+     the widening existed, and it is recorded here as having been stale
+     rather than being allowed to become quietly true.
+     **Four sites in design.md say "four" and were deliberately left
+     alone, each re-verified on 2026-08-24 rather than pattern-matched:**
+     (a) the Protected-File Statement's opening "exactly four
+     `sdd-lite`-owned paths are protected today" — that is the count of
+     `sdd-lite`-**owned** protected paths, and `.github/workflows/test.yml`
+     is not `sdd-lite`-owned (`guard-invariants.json`
+     `protected_gate_suffixes` lines 34-37 versus line 44); (b) and (c)
+     the Cross-Layer Dependencies bullet and the Constraint Compliance
+     bullet stating ADR-0022 item 5's authorization scope — ADR-0022
+     item 5 (`docs/adr/0022-lite-capability-upgrade.md:73-77`) names
+     `lite-spec`'s `SKILL.md`, `risk-upgrade-policy.md` and
+     `check-risk-upgrade.*` and no others, so widening either to five
+     would have asserted an authorization ADR-0022 does not grant; the
+     fifth target's human-copy authority is instead
+     `guard-invariants.json`'s own `phase2_human_copy_targets` array,
+     which already lists `.github/workflows/test.yml` at line 157, under
+     ADR-0011's general mechanism; and (d) the "Payload file set,
+     defined" paragraph's historical account of a superseded revision,
+     which genuinely declared four at the time — clarified with "it then
+     declared" rather than falsified. A cross-reference for (b)/(c) was
+     added so the surviving fours cannot be misread as unpropagated
+     siblings.
+     **Still unpropagated, outside this lane's scope and needing its own
+     ruling:** `security-spec.md` (the B5 boundary row's "three-way
+     exact-set equality among the four declared payload targets", the
+     human-maintainer row's "payload (four files)", and the data-asset
+     row's "payload (four staged files)"), `infra-spec.md` ("application
+     of four already-reviewed files" and its rollback row's "payload
+     (four files)"), and `tasks.md` (Protected Files item "Human-copy path
+     (four files, R-10 protected today)" plus its T-001 fixture and
+     acceptance-check wording). These now disagree with design.md,
+     requirements.md and acceptance-tests.md alike. They were not touched:
+     the layer specs are separate frozen documents, and `tasks.md` is
+     hash-pinned in this very section at
+     `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+     so editing it would break that pin. Note that `security-spec.md:74`
+     and `:120` legitimately keep "four" — like (a) above, they count
+     already-protected `sdd-lite` paths, not payload targets.
   3. **AC-006 — substance added.** design.md carried no trace of this
      criterion (`grep` for `decimal` and for `capability-registry/v1`
      returned nothing), so no annotation could discharge it and a minimum
      true statement was written into the Data Plan's `lite_policy` (v1.1)
-     entry instead. **This is a substance addition, not a mechanical
-     annotation, and therefore goes beyond the "substance unchanged"
-     wording of the 2026-08-24 ruling as quoted below** — disclosed here
-     rather than folded in silently, for the blind impl re-review to
-     judge. Its factual claim was verified against the live contract
+     entry instead. This is a substance addition rather than a mechanical
+     annotation. Commit `113b97a3a864141e0b0f08cd1f395341d449d35a`
+     disclosed it as exceeding the earlier ruling's "substance unchanged"
+     wording; the second 2026-08-24 ruling quoted below resolves that by
+     authorizing design 加筆 and naming AC-006 explicitly, so the addition
+     is within its authorization and the earlier caveat is withdrawn. Its
+     factual claim was verified against the live contract
      files before it was written, not carried over on trust: every
      `schema` const/enum in every `contracts/*.schema.json` in this
      worktree is an integer `vN` form (`capability-registry/v1`,
@@ -859,14 +911,20 @@ annotation amendment, 2026-08-24):
 - `specs/epic-194-a6-lite-integration/design.md`:
   `7875ac5fab3d9336edc710dc735d5fae60f42bb21b1fe2c490e0fb3139ae8b13`
 
-As of this entry's own commit (the AC-006/AC-010 design amendment,
-2026-08-24 — the commit that adds the four numbered items to the
-amendment list above; its own commit hash cannot be embedded in itself
-and is pinned by the impl re-review round's manifests, the same
-self-pinning handling the closing paragraph of this subsection states):
+As of `113b97a3a864141e0b0f08cd1f395341d449d35a` (the AC-006/AC-010
+design amendment's first commit, 2026-08-24):
 
 - `specs/epic-194-a6-lite-integration/design.md`:
   `c57b197e74838acd883928eaedc13e22eca2cc25c4c40fc34e14690fad375c14`
+
+As of this entry's own commit (the four-to-five payload-set propagation,
+2026-08-24 — the commit that rewrites item 2 above and adds the two later
+rulings below; its own commit hash cannot be embedded in itself and is
+pinned by the impl re-review round's manifests, the same self-pinning
+handling the closing paragraph of this subsection states):
+
+- `specs/epic-194-a6-lite-integration/design.md`:
+  `43d486353958d1b344774dfd0604461dc667c8eb5fd1ec84df313773a3090c3c`
 
 This `investigation.md` is itself amended by the commits that introduce and
 extend this section; a document cannot embed its own post-amendment hash, so
@@ -890,6 +948,23 @@ bytes).
   impl-review AC-coverage gate requires, substance unchanged, honesty of
   the annotations verified by the blind impl re-review that follows; the
   same ruling applies to epic-195)
+- 2026-08-24, later the same day, on the question of the four IDs the
+  first ruling left unannotated: 「① 注記＋design 加筆＋狭いゲート例外」
+  (option ① as presented: a dated note, plus substantive addition to
+  design.md — the option's text named AC-006 explicitly as one of the
+  criteria whose substance is to be written into design.md — plus a
+  narrow gate exception for the two `Global` meta-criteria, AC-023 and
+  AC-024, that no design document can honestly name). This ruling
+  authorizes the design 加筆 that the first ruling's "substance
+  unchanged" wording did not, and supersedes the caveat commit
+  `113b97a3a864141e0b0f08cd1f395341d449d35a` recorded against the AC-006
+  addition.
+- 2026-08-24, on the four-versus-five declared payload count, after the
+  operational consequence was put to the human — that the fifth target is
+  `.github/workflows/test.yml`, a CI workflow file, so admitting it to a
+  human-copy payload is a real design commitment: option ① as presented,
+  **propagate the widening into design.md**. This is the ruling item 2
+  above executes.
 
 These approvals were given in conversation; this entry, committed into the
 hash-pinned package under review and pinned by the round-3 reviewer
