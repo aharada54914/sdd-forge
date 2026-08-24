@@ -163,7 +163,9 @@ This design therefore splits its own file edits into two distinct
 application paths, unlike every sibling epic's own single-path Protected-
 File Statement:
 
-1. **Human-copy path (REQ-002, REQ-005; requirements.md AC-021)** — `check-risk-upgrade.sh`,
+1. **Human-copy path (REQ-002, REQ-005; requirements.md AC-021, and
+   AC-010's design-content clause — see the dated note below on AC-010's
+   declared target *count*)** — `check-risk-upgrade.sh`,
    `check-risk-upgrade.ps1`, `risk-upgrade-policy.md`, `lite-spec/
    SKILL.md`. A future implementation task develops and tests the edited
    file content at an unprotected working location, then stages the
@@ -233,6 +235,30 @@ the runner and `MANIFEST.sha256` live alongside the payload, as control
 files, excluded from the payload-set comparison by construction, exactly
 as Epic-136's own runner and its own staged canonical-inventory copy
 already are relative to its own eighteen-target payload.
+
+> **Dated note (2026-08-24) — what this document's AC-010/AC-031
+> citations do and do not discharge.** Every "four-target"/"four payload
+> targets"/"four declared payload targets" statement in this document
+> (Components table; this Statement, including the exact-set contract
+> item 2 below; Test Strategy item 17) records this design's own
+> **pre-amendment** declared payload set. On 2026-08-21 the T-001 blind
+> cross-model panel's Major findings widened requirements.md AC-010 and
+> AC-031, and acceptance-tests.md AC-010 and TEST-031, to a **five**-target
+> declared payload set — those four plus `.github/workflows/test.yml`
+> (investigation.md INV-022). That widening was **not** propagated into
+> this document, and propagating it would change the runner contract
+> stated below — a design change the 2026-08-24 annotation ruling does not
+> authorize. This document's AC-010 and AC-031 citations therefore
+> discharge only those criteria's design-content clauses: the three
+> protected-file targets this REQ edits, the human-copy flow plus a
+> feature-scoped anchored runner as their only legitimate
+> implementation-phase application path (investigation.md INV-008,
+> INV-019; Major [M3]), and the three-way exact-set / per-target-hash /
+> post-copy-re-verification runner contract *shape*. The declared target
+> **count** stated in this document is superseded by requirements.md
+> AC-010's own five-target declaration and is not discharged here. This
+> divergence is recorded in investigation.md
+> `## Amendment Re-Review Context`.
 
 This runner's own required contract:
 
@@ -388,6 +414,23 @@ ADR by this package itself.
   omitted; REQ-001's own migration rule, requirements.md, is the operative
   statement of what "absent" means at the consumer level, this schema
   fragment only fixes shape.)
+  (**Wire-level `schema` discriminator: unchanged (requirements.md
+  AC-006).** The "v1.1" label above is a human/changelog-facing name for
+  this feature's own additive revision of the Registry schema's design; it
+  is not a wire-level value and this feature does **not** propose changing
+  the Registry instance's own top-level
+  `"schema": "capability-registry/v1"` const string, which this extension
+  leaves byte-identical. No
+  `contracts/*.schema.json` in this repository uses a decimal (`vN.M`)
+  wire-level `schema` const string anywhere: the investigation-time
+  repository-wide grep across every `contracts/*.schema.json` in this
+  worktree found only integer `vN` forms — requirements.md REQ-001 item 4
+  records that grep and is the evidence citation for this statement — so
+  this design introduces neither a decimal discriminator nor a precedent
+  for one. An additive, backward-compatible field addition does not change
+  which major shape a document conforms to; a `required_lite_checks`-absent
+  and a `required_lite_checks`-present instance are equally valid
+  `capability-registry/v1` documents.)
 - **`contracts/lite-check-catalog.json` (new; seed revised, Blocker
   [M1], investigation.md INV-017; requirements.md AC-003)** —
   ```json

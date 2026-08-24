@@ -726,9 +726,92 @@ completion chain below).
   design.md's existing passages with AC-ID labels for seven of the eleven
   IDs the impl-review AC-coverage precheck names (AC-001/003/009/012/014/
   017/021), substance unchanged, per the 2026-08-24 human ruling quoted
-  below; the four IDs whose substance design.md does not contain
-  (AC-006, AC-010, AC-023, AC-024) were deliberately left unannotated
-  (2026-08-24).
+  below; the remaining four IDs (AC-006, AC-010, AC-023, AC-024) were
+  left unannotated in that commit (2026-08-24). **The reason that bullet
+  originally gave — "the four IDs whose substance design.md does not
+  contain" — was wrong for AC-010 and is corrected in the next bullet.**
+- This entry's own commit (the AC-006/AC-010 design amendment,
+  2026-08-24; its own hash is pinned by the impl re-review round's
+  manifests under the same self-pinning disclosure this section already
+  applies to `investigation.md`, since a commit cannot embed its own
+  hash) — three edits to design.md and the corrections recorded here,
+  all under the same 2026-08-24 ruling quoted below:
+  1. **AC-010 — annotated; the earlier "does not contain" reason
+     retracted.** design.md's Protected-File Statement already carried
+     that criterion's entire design-content clause before this commit: it
+     names all three protected-file targets REQ-002 edits
+     (`risk-upgrade-policy.md`, `check-risk-upgrade.sh`,
+     `check-risk-upgrade.ps1`), states staging under
+     `specs/epic-194-a6-lite-integration/human-copy/` with a
+     `MANIFEST.sha256` entry for a human to apply via
+     `apply-protected-files` (ADR-0011) as their application path, cites
+     INV-008 for all of them being protected today, and cites INV-019 in
+     its Major [M3] paragraph for the Epic-136 runner being unable to
+     read this feature's own staged directory. Only AC-010's second
+     sentence — the **five**-target declared payload set — is absent, and
+     it is not merely absent but contradicted: design.md declares a
+     **four**-target set with explicit "no fewer, no more" exact-set
+     wording. The `(AC-010)` citation added at the Human-copy path bullet
+     is therefore explicitly scoped to the design-content clause, and a
+     dated note in the same Statement records that the target count is
+     superseded by requirements.md AC-010 and not discharged there.
+  2. **The 2026-08-21 five-target widening was never propagated into
+     design.md — recorded, not silently repaired.** Commits
+     `9997091c71244e8cf3f9e46732f7ba164aa49843` and
+     `fae561c9d323cf32914f6885cb6f3d24053bd9af` widened
+     acceptance-tests.md AC-010/TEST-031 and requirements.md
+     AC-010/AC-031 to five targets; README.md follows them. design.md
+     does not: it still states four at its Components table, at its
+     Protected-File Statement (the payload-set definition and exact-set
+     contract item 2), and at Test Strategy item 17 — where its
+     pre-existing `(requirements.md AC-031)` citation, written by
+     `32b8bf57` **before** the widening, has been stale ever since.
+     Propagating five targets would change the runner contract design.md
+     fixes, which the annotation-scoped 2026-08-24 ruling does not
+     authorize; this commit therefore records the divergence in design.md
+     and here rather than closing it. Closing it needs its own human
+     ruling.
+  3. **AC-006 — substance added.** design.md carried no trace of this
+     criterion (`grep` for `decimal` and for `capability-registry/v1`
+     returned nothing), so no annotation could discharge it and a minimum
+     true statement was written into the Data Plan's `lite_policy` (v1.1)
+     entry instead. **This is a substance addition, not a mechanical
+     annotation, and therefore goes beyond the "substance unchanged"
+     wording of the 2026-08-24 ruling as quoted below** — disclosed here
+     rather than folded in silently, for the blind impl re-review to
+     judge. Its factual claim was verified against the live contract
+     files before it was written, not carried over on trust: every
+     `schema` const/enum in every `contracts/*.schema.json` in this
+     worktree is an integer `vN` form (`capability-registry/v1`,
+     `sdd-capability-summary/v1`, `sdd-project-context/v1`,
+     `sdd-provider-bindings/v1`, `sdd-approver-registry/v1`,
+     `sdd-context-projection/v1`, `sdd-facet-manifest/v1`,
+     `domain-contract/v1`, `design-system-contract/v1`,
+     `review-contract/v1`, `task-input-manifest/v1`,
+     `terminal-tier-blocked-state/v1`, and
+     `approval-sidecar.schema.json`'s two-member enum); the four
+     remaining `*.schema.json` files declare no `schema` const at all;
+     `workflow-state-registry.schema.json`'s nearest neighbour is
+     `schema_version`, whose const is the integer `1`, under a different
+     property name. No decimal (`vN.M`) `schema` const exists anywhere in
+     `contracts/*.schema.json`.
+  4. **Correction to `d5e8d143b1d7b8ef00dcfd3b69726bd065dbdd90`'s commit
+     message.** That message concluded that because
+     "impl-review-precheck's `--verify-inputs` mode does not read
+     investigation.md, ... the route stays open at the impl stage." The
+     premise is true and the conclusion is false. `--verify-inputs`
+     (`plugins/sdd-review-loop/scripts/impl-review-precheck.sh:281-308`)
+     is the *reviewer-invocation* mode: it hashes only design.md,
+     requirements.md, acceptance-tests.md and the layer files against
+     `precheck-result.json`, then exits. The **round-opening** invocation
+     is a different code path — it falls through that block and calls
+     `assert_contract_reviewer_agreement` (`:254`), which requires the
+     persisted predecessor-stage contract's reviewer manifests to carry
+     `specs/<feature>/investigation.md` at its **current live** SHA-256
+     (`:241-243`); `task-review-precheck.sh:210-213` imposes the same
+     requirement. Editing investigation.md therefore does stale the
+     predecessor contract for the next round-opening, which is exactly
+     why every amendment in this lane is made in a single commit.
 
 ### Amended-document fingerprints (SHA-256, as of each amendment commit)
 
@@ -775,6 +858,15 @@ annotation amendment, 2026-08-24):
 
 - `specs/epic-194-a6-lite-integration/design.md`:
   `7875ac5fab3d9336edc710dc735d5fae60f42bb21b1fe2c490e0fb3139ae8b13`
+
+As of this entry's own commit (the AC-006/AC-010 design amendment,
+2026-08-24 — the commit that adds the four numbered items to the
+amendment list above; its own commit hash cannot be embedded in itself
+and is pinned by the impl re-review round's manifests, the same
+self-pinning handling the closing paragraph of this subsection states):
+
+- `specs/epic-194-a6-lite-integration/design.md`:
+  `c57b197e74838acd883928eaedc13e22eca2cc25c4c40fc34e14690fad375c14`
 
 This `investigation.md` is itself amended by the commits that introduce and
 extend this section; a document cannot embed its own post-amendment hash, so
