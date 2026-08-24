@@ -1147,6 +1147,51 @@ make_git_fixture() {
     "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
     "$target/plugins/sdd-quality-loop/scripts/"
   cp "$ROOT/contracts/workflow-state-registry.schema.json" "$target/contracts/"
+  # make_full_fixture copies plugins/ reference docs from $ROOT's CURRENT
+  # working tree, but the copied reports/ evidence records each doc's
+  # sha256 from whenever that evidence was actually produced -- a moment
+  # that keeps receding as $ROOT's reference docs legitimately evolve (see
+  # reference-doc-evolved above). Fixtures that run the checker in place
+  # tolerate this for free: SCRIPT_ROOT resolves to $ROOT itself, so
+  # plugins_pin_commit/Get-PluginsPinCommit walk $ROOT's REAL git history
+  # and land on content that matches. A make_git_fixture fixture embeds its
+  # own copy of the checker and builds a SELF-CONTAINED git history instead
+  # (that is the whole point -- see the comment above this function), so it
+  # gets no such benefit: bundling a doc's already-drifted live content
+  # together with older evidence into the single "baseline" commit below
+  # would make that commit chronologically unfaithful for any doc this
+  # fixture is not deliberately evolving, and falsely reject it. Reseed each
+  # canonical plugins/ reference doc from $ROOT's OWN real historical
+  # content -- resolved via the SAME introducing-commit pin the production
+  # code uses, keyed off whichever copied evidence file actually recorded a
+  # non-matching hash for it -- whenever doing so provably reconstructs the
+  # recorded hash. This changes fixture SETUP fidelity only, never a
+  # fixture's asserted outcome: it makes "baseline" a drift-free starting
+  # point except where a fixture (like plugins-pin-amended-after-review)
+  # deliberately introduces drift afterward, which remains untouched.
+  local doc_rel evidence live_hash recorded root_evidence_rel intro historical
+  for doc_rel in \
+    plugins/sdd-review-loop/references/spec-review-calibration.md \
+    plugins/sdd-review-loop/references/reviewer-calibration.md \
+    plugins/sdd-quality-loop/references/risk-gate-matrix.md \
+    plugins/sdd-quality-loop/references/risk-classification-policy.md; do
+    live_hash="$(shasum -a 256 "$target/$doc_rel" | awk '{print $1}')"
+    while IFS= read -r evidence; do
+      recorded="$(jq -r --arg name "$(basename "$doc_rel")" '
+        [(.reviewers[]?.allowed_input_manifest[]?), (.manifest.allowed_inputs[]?)][] |
+        select(.path? and (.path | type == "string") and (.path | endswith($name))) | .sha256
+      ' "$evidence" 2>/dev/null | head -1)"
+      [[ -n "$recorded" && "$recorded" != "$live_hash" ]] || continue
+      root_evidence_rel="${evidence#"$target"/}"
+      intro="$(git -C "$ROOT" log --diff-filter=A -1 --format='%H' -- "$root_evidence_rel" 2>/dev/null)"
+      [[ -n "$intro" ]] || continue
+      historical="$(git -C "$ROOT" show "$intro:$doc_rel" 2>/dev/null | shasum -a 256 | awk '{print $1}')"
+      [[ "$historical" == "$recorded" ]] || continue
+      git -C "$ROOT" show "$intro:$doc_rel" > "$target/$doc_rel"
+      live_hash="$recorded"
+    done < <(find "$target/reports" -type f \
+      \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+  done
   git -C "$target" init -q
   git -C "$target" config user.email "workflow-state-tests@example.com"
   git -C "$target" config user.name "workflow-state tests"
