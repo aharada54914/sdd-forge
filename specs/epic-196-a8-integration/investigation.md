@@ -126,18 +126,6 @@ review-pinned package — is the durable, citable approval record.
   STEP runs Epic A1's now-merged handshake script to produce the real
   session records that discharge the SKIP cells) and the stale
   Out-of-Scope rationale is corrected.
-- 2026-08-24: the human's ruling on spec-review attempt 3 round 2's
-  reviewer-A `REQ-TESTABILITY` Major — option ① as presented: activate
-  AC-006 and make all three Epic-A1-dependent cases (AC-006/AC-015/
-  AC-016) consistent, propagating the activation to every statement of
-  the rule, while not copying AC-015's "a surviving `SKIP` is a hard
-  failure" clause onto AC-006, whose own text carries none. The same
-  ruling authorized adding the missing `ux-spec.md` citation below to
-  close reviewer B's `APPROVAL-BOUNDARY` Critical. Unlike the two
-  entries above, this one is recorded as the substance of the ruling as
-  relayed to the executing agent rather than as a verbatim transcript
-  string, because no verbatim string is available for it; it is marked
-  as such rather than presented as a quotation.
 
 Because these approvals were given in conversation, this committed entry
 is itself the durable record of them; no other citable artifact carries
@@ -256,60 +244,6 @@ them.
   tasks.md:1258) but are hash-pinned by the impl attempt-5 and task
   attempt-2 round-3 PASS contracts, so amending them here would fire
   those stages' own staleness diagnostics; they belong to those gates.
-- This amendment (2026-08-24; the commit that carries this entry — its
-  own commit hash cannot be cited from inside itself, so the amended
-  documents' post-amendment SHA-256 values below are its fingerprint)
-  closed both of spec-review attempt 3 round 2's findings across every
-  swept sibling statement. (a) AC-006 activation (reviewer A's
-  `REQ-TESTABILITY` Major), under the human's 2026-08-24 option-①
-  ruling above: requirements.md's AC-006 bullet, Main Workflows items 2
-  and 7, and the Assumptions "Epic A1 — superseded" bullet, plus
-  acceptance-tests.md's AC-006 row, now all record that Epic A1's
-  2026-08-08 merge crossed AC-006's own "until Epic A1 merges" trigger,
-  that AC-006's substantive presence claim is live and directly verified
-  by TEST-006 against this package's own fixture chain, and that AC-006
-  carries no hard-failure clause of its own — AC-015's single-clause
-  hard-failure sentence is deliberately not copied onto it, and
-  design.md's own two-clause SKIP Allowlist Activation Gate predicate
-  remains the single normative source for when a `SKIP` record still
-  standing for AC-006 becomes a non-zero-exit hard failure. Each
-  original sentence is preserved verbatim and marked superseded rather
-  than erased. design.md, tasks.md, traceability.md, infra-spec.md,
-  frontend-spec.md and security-spec.md are deliberately unchanged
-  because every one of them already states this identical rule
-  (design.md's SKIP Allowlist Activation Gate and Risks sections;
-  tasks.md T-001's Done When and Out of Scope; infra-spec.md:21, :95,
-  :144-146, :154; frontend-spec.md:47; security-spec.md's B3 Trust
-  Boundary and STRIDE rows) — requirements.md and acceptance-tests.md
-  were the only two documents the earlier activation sweep left behind,
-  and this amendment brings those two into line with the other six
-  rather than moving the rule itself. (b) `ux-spec.md` citation
-  (reviewer B's `APPROVAL-BOUNDARY` Critical): the "Later-phase
-  artifacts this package references" list below now carries
-  `ux-spec.md`'s creating commit and SHA-256; it was verified against
-  the amended Overview's nine-file inventory to be the only counted
-  per-feature file this section referenced by bare path alone. As of
-  this commit, `specs/epic-196-a8-integration/requirements.md` =
-  `a240355ad5b237fd6502782423e00497365535272668d79289e48c0473236363`
-  (with `Spec-Review-Status: Pending`, the reset-lane state the
-  spec-review attempt-3 precheck set; the status field is normalized by
-  the spec gate and flips to `Passed` only on a spec-review PASS), and
-  `specs/epic-196-a8-integration/acceptance-tests.md` =
-  `4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1`.
-  Two boundaries are disclosed rather than silently taken. First, the
-  remaining Epic-A1-conditional phrasings in requirements.md's REQ-003
-  goal text, AC-016, AC-028 and Main Workflows item 4, and in
-  acceptance-tests.md's AC-015/AC-016/AC-028 rows, are statements of
-  *those* cases' own rule and not of AC-006's; they were already
-  superseded by the Assumptions bullet in commit
-  `4aafb7f6120cd20ba89dd1949a474c264ff3c593`, and neither round-2
-  reviewer raised them, so they are left as they stand. Second, because
-  this amendment inserts lines into requirements.md above AC-015,
-  design.md's own raw-line citations of requirements.md (`:283-287`,
-  `:389`, `:536`, `:665-670`) drift further; those citations were
-  already stale by roughly twenty lines before this commit, design.md is
-  hash-pinned by the impl attempt-5 PASS contract, and it is not amended
-  here.
 - This entry is itself an amendment to
   `specs/epic-196-a8-integration/investigation.md`. Its own
   post-amendment SHA-256 cannot be cited from inside itself; it is pinned
@@ -344,21 +278,6 @@ them.
   last amended in commit `e36a4436f7d12cc368d36e17dcdba04748b4547e`
   (previously `fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2`,
   the hash every prior stage's evidence pinned).
-- `specs/epic-196-a8-integration/ux-spec.md` — SHA-256
-  `c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286`,
-  created in commit `7f50a58acfa87b1ee2fb0a548aa626dad66d6d11` and never
-  amended since (it carries no amendment-commit line above for that
-  reason, not because its fingerprint is unrecorded). It is one of the
-  nine counted per-feature files requirements.md's amended Overview names
-  as now existing, and it restates this package's own "no user-facing
-  entry point; the UI Integration Checklist is not applicable"
-  determination in the review harness's canonical layer-file shape; no
-  Layer Spec cell in traceability.md cites it directly, since no REQ has
-  a UX surface of its own to point at. Added 2026-08-24 to close
-  spec-review attempt 3 round 2's APPROVAL-BOUNDARY Critical: it was the
-  single artifact named by the amended Overview's nine-file inventory
-  that this section referenced only by bare path, and the calibration's
-  evidence bar (item 4) is all-or-nothing.
 - Impl-review attempt-4 round-1 evidence (the round that raised the
   ASSUMPTIONS-VALID finding `66d5bdde4cea01b2345f41eee2b4cfcbcf529301`
   remediates) — commit `f1360cd9979ec5094fc94f5d4db21981c7cf9ce0`,
