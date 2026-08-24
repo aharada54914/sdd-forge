@@ -305,6 +305,36 @@ a weaker, unlogged substitute.
   fixture chain — its own live-host proof procedure is REQ-003's, but its
   presence in the handoff fixture is asserted here. Named `SKIP` (citing
   Epic A1's tracking issue) until Epic A1 merges (Edge Cases, below).
+  Trigger crossed as of 2026-08-24 (this amendment, under the human's
+  2026-08-23 frozen-document approval; the sentence above is retained
+  verbatim for lineage and must not be read as leaving this criterion's
+  status open-ended): Epic A1 merged on 2026-08-08, so AC-006's own
+  "until Epic A1 merges" window has closed, exactly as AC-015's and
+  AC-016's have — this criterion is no longer omitted from that list
+  (Assumptions, below). What being past that trigger means for AC-006 is
+  what AC-006 itself claims and nothing more: the canary case's
+  *presence* as a named, mandatory case inside the REQ-001 fixture chain
+  is asserted and enforced now, verified directly by TEST-006 against
+  this package's own fixture chain and never against Epic A1's own
+  artifacts, so no part of this criterion is deferred or conditional
+  today. AC-006 carries no "a surviving `SKIP` is a hard failure" clause
+  of its own — that sentence is AC-015's alone (AC-015, below) and is
+  not extended to a third case here. When a `SKIP` record still standing
+  for this case in a run's own output becomes a non-zero-exit hard
+  failure is fixed instead by AC-006's own two-clause SKIP Allowlist
+  Activation Gate predicate in design.md: BOTH (a) T-005 — the task
+  owning AC-006's substantive verification — having started, AND (b)
+  `check-hook-activation-handshake.{py,sh,ps1}` existing at its own fixed
+  repo-relative path on `main`. Clause (b) holds as of Epic A1's merge;
+  clause (a) does not yet, so this case's own `SKIP` is presently a
+  valid, allowlisted, non-failing state under a named, machine-checkable
+  enforcement mechanism — never an unenforced one, and never AC-015's own
+  single-clause trigger applied to a third case. design.md's own SKIP
+  Allowlist Activation Gate, not this bullet, is the single normative
+  source for that trigger; design.md, tasks.md (T-001's own Done When and
+  Out of Scope), infra-spec.md, frontend-spec.md and security-spec.md
+  already state the identical rule, and this bullet is brought into line
+  with them rather than competing with them.
 - AC-007: The install/uninstall matrix (REQ-002) is defined as exactly the
   cycle install→verify→uninstall→verify, run independently against each of
   `--target All`, `--target Codex`, `--target Claude`, `--target Copilot`
@@ -664,7 +694,16 @@ a weaker, unlogged substitute.
 2. That task builds the REQ-001 fixture project and its two adjacent-CLI
    handoff assertions (AC-001–AC-004), registering the v2-new
    hook-activation canary probe (AC-006) as a named case, `SKIP`ped
-   (citing Epic A1's tracking issue) until Epic A1 merges.
+   (citing Epic A1's tracking issue) until Epic A1 merges. Trigger
+   crossed as of 2026-08-24 (this amendment): Epic A1 merged on
+   2026-08-08, so this step's own "until Epic A1 merges" window has
+   closed. The step itself is otherwise unchanged — the case is still
+   registered as a named, mandatory case, and its allowlisted `SKIP`
+   record stays a valid, non-failing state, because AC-006's own
+   hard-failure trigger is design.md's two-clause SKIP Allowlist
+   Activation Gate predicate (T-005 having started AND the handshake
+   script existing on `main`), whose task-start clause is not yet met
+   (AC-006, Goals).
 3. That task extends `tests/cli-hook-enforcement.ps1`'s existing
    direct-invocation/config-drift checks (INV-013) with the REQ-003
    cross-runtime fixture (AC-012–AC-014) and the Codex `plugin_hooks`
@@ -691,7 +730,17 @@ a weaker, unlogged substitute.
    package's citations first) and exercises all five of A1's migrated
    consumer entry points per runtime, in a fingerprinted inventory
    (AC-016) — never a single sampled entry point standing in for the
-   remaining four.
+   remaining four. Trigger crossed as of 2026-08-24 (this amendment):
+   Epic A1 merged on 2026-08-08. The three cases this item groups do not
+   share one un-skip event, and this item's "as Epic A1 merges" framing
+   is retained for lineage rather than as a single shared trigger for all
+   three: AC-015/AC-016 activated at that merge on their own
+   single-clause predicate, and the "follow-up task" this item names is
+   T-008 for them (tasks.md T-008 Done When; traceability.md Final
+   Status), while AC-006 un-skips on its own separate two-clause
+   predicate whose owning task is T-005, so AC-006's allowlisted `SKIP`
+   stays a valid, non-failing state until T-005 starts (AC-006, Goals;
+   design.md SKIP Allowlist Activation Gate).
 
 ## Edge Cases
 
@@ -749,9 +798,24 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   exist on `main` yet." That premise is superseded, not silently
   rewritten here: Epic A1 merged on 2026-08-08, so
   `check-hook-activation-handshake.{py,sh,ps1}` and the five consumer
-  entry points exist on `main`, and AC-015/AC-016's own un-skip trigger
-  is crossed — a surviving `SKIP` against either is the designed-red
-  hard failure AC-015 states, activated now. The SKIP-governance shape
+  entry points exist on `main`, and AC-006/AC-015/AC-016's own un-skip
+  triggers are all crossed — this list names all three, and no longer
+  omits AC-006. For AC-015/AC-016, a surviving `SKIP` against either is
+  the designed-red hard failure AC-015 states, activated now, on their
+  own single-clause predicate. AC-006 is stated here on its own terms
+  rather than folded into that same sentence: its substantive claim —
+  the canary case's presence as a named, mandatory case inside the
+  REQ-001 fixture chain — is live and directly verified by TEST-006 now,
+  but AC-006 carries no hard-failure clause of its own, and a `SKIP`
+  record still standing for that case becomes a non-zero-exit hard
+  failure only under AC-006's own two-clause SKIP Allowlist Activation
+  Gate predicate (design.md): T-005 having started AND
+  `check-hook-activation-handshake.{py,sh,ps1}` existing on `main`. The
+  artifact clause holds as of the merge; the task-start clause does not
+  yet, so AC-006's `SKIP` is presently a valid, allowlisted, non-failing
+  state under a named, machine-checkable enforcement mechanism — never
+  an unenforced one, and never AC-015's own single-clause trigger
+  applied to a third case (AC-006, Goals). The SKIP-governance shape
   itself is unchanged: statuses follow Epic A7's own established
   SKIP-governance precedent
   (`specs/epic-195-a7-compatibility/requirements.md` REQ-007) — this
