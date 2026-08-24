@@ -156,6 +156,48 @@ function Get-WrongHash {
     return ("f" * 64)
 }
 
+# ── TEST-051..055 helpers (per-file elision) ─────────────────────────────────
+
+# Write a deterministic filler file with exactly $Count lines, each of the
+# form "<Prefix> line NNNN filler filler filler filler". Used to build
+# oversized evidence-log/spec-doc/source-file fixtures with byte counts
+# computable independently of the elision code under test.
+function Write-FillerLines {
+    param([string]$Path, [int]$Count, [string]$Prefix)
+    New-Item -ItemType Directory -Path (Split-Path $Path) -Force | Out-Null
+    $lines = 1..$Count | ForEach-Object { "{0} line {1:D4} filler filler filler filler" -f $Prefix, $_ }
+    Set-Content -Encoding Utf8 -Path $Path -Value ($lines -join "`n")
+}
+
+# ── TEST-057..062 helpers (contract-declared evidence) ──────────────────────
+
+# Write a minimal <TaskId>.contract.json fixture at
+# <SpecDir>/verification/<TaskId>.contract.json. $Checks is an array of
+# hashtables, each with Id/Evidence/RedEvidence/GreenEvidence keys (any of
+# the latter three may be "" -- a real contract carries mostly-empty
+# evidence fields on unrequired/waived checks, which is the norm this
+# fixture reproduces). The outer @() around the ForEach-Object pipeline
+# forces a JSON array even for a single check (PowerShell would otherwise
+# unwrap a one-element pipeline result to a scalar).
+function Write-PpiContract {
+    param([string]$SpecDir, [string]$TaskId, [object[]]$Checks)
+    $verifDir = Join-Path $SpecDir "verification"
+    New-Item -ItemType Directory -Path $verifDir -Force | Out-Null
+    $contract = [ordered]@{
+        task_id = $TaskId
+        checks  = @($Checks | ForEach-Object {
+            [ordered]@{
+                id             = $_.Id
+                evidence       = $_.Evidence
+                red_evidence   = $_.RedEvidence
+                green_evidence = $_.GreenEvidence
+            }
+        })
+    }
+    $json = $contract | ConvertTo-Json -Depth 10
+    Set-Content -Encoding Utf8 -Path (Join-Path $verifDir "$TaskId.contract.json") -Value $json
+}
+
 # Write an implementation report fixture at
 # <ProjectRoot>/reports/implementation/<Feature>/<TaskId>.md with an
 # "## Outputs" table. $Paths and $Hashes are parallel arrays.
@@ -178,6 +220,27 @@ function Write-ImplReport {
     $lines.Add("")
     $lines.Add("N/A (fixture).")
     Set-Content -Encoding Utf8 -Path (Join-Path $dir "$TaskId.md") -Value ($lines -join "`n")
+}
+
+# ── TEST-039..044 helpers (declaration-commit fallback for shared/living
+# files, drifted after the implementation report was written) ──────────────
+
+function New-PpiGitScratchRepo {
+    param([string]$Root)
+    New-Item -ItemType Directory -Path $Root -Force | Out-Null
+    & git -C $Root init -q
+    if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git init failed: $Root" }
+    & git -C $Root config user.email "test@example.invalid"
+    & git -C $Root config user.name "Prepare Panelist Test"
+    & git -C $Root config commit.gpgsign false
+}
+
+function Invoke-PpiGitCommit {
+    param([string]$Root, [string]$Message, [string[]]$Paths = @("-A"))
+    & git -C $Root add @Paths
+    if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git add failed: $Root" }
+    & git -C $Root commit -q -m $Message
+    if ($LASTEXITCODE -ne 0) { throw "prepare-panelist fixture: git commit failed: $Root" }
 }
 
 # ============================================================================
@@ -551,21 +614,31 @@ try {
 }
 
 # ============================================================================
-# TEST-013 (AC-013): recursion — subdirectory file included in the bundle,
-# independent of the completeness check (no implementation report fixture).
+# TEST-013 (AC-013, redefined for task-scoped composition): a file under the
+# REVIEWED TASK'S OWN specs/<feature>/verification/<task_id>/ directory is
+# recursed into and included in the bundle -- independent of the --input
+# argument, which the composed bundle no longer walks at all in directory
+# mode. A marker planted ONLY under --input (an unrelated directory) must
+# NOT appear, proving the whole-directory walk of --input is gone (this is
+# also the property the "reintroduce whole-directory walk" mutation trips).
 # ============================================================================
 
-Write-Host "=== TEST-013: recursion — subdirectory file included in bundle (AC-013) ==="
+Write-Host "=== TEST-013: task's own verification/<task_id>/ recursed; --input directory NOT walked (AC-013) ==="
 
 $d = Join-Path $Work "pp013"
-New-Item -ItemType Directory -Path (Join-Path $d "input/sub") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "specs/cross-model-verification/verification/T-004/sub") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "other-input") -Force | Out-Null
 Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
-Set-Content -Encoding Utf8 -Path (Join-Path $d "input/top.txt") -Value "top-level marker TOPLEVEL013"
-Set-Content -Encoding Utf8 -Path (Join-Path $d "input/sub/evidence.md") -Value "subdirectory marker SUBDIRMARKER013"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-004/top.txt") `
+    -Value "own-task top-level marker OWNTASKTOPLEVEL013"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-004/sub/evidence.md") `
+    -Value "own-task subdirectory marker SUBDIRMARKER013"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "other-input/unrelated.txt") `
+    -Value "input-only marker INPUTONLYMARKER013"
 
 Invoke-Prepare @(
     "--task", "T-004", "--feature", "cross-model-verification",
-    "--input", (Join-Path $d "input"),
+    "--input", (Join-Path $d "other-input"),
     "--tasks-file", (Join-Path $d "tasks.md"),
     "--project-root", $d,
     "--out", (Join-Path $d "out.txt")
@@ -577,9 +650,14 @@ if ($script:PP_Exit -eq 0) {
     fail "TEST-013a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
 }
 if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "out.txt")) -match "SUBDIRMARKER013")) {
-    ok "TEST-013b: subdirectory file content included in bundle (recursion)"
+    ok "TEST-013b: task's own verification/<task_id>/sub/ content included in bundle (recursion)"
 } else {
-    fail "TEST-013b: subdirectory file content missing from bundle — collector did not recurse"
+    fail "TEST-013b: task's own verification subdirectory content missing from bundle — collector did not recurse"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and (-not ((Get-Content -Raw (Join-Path $d "out.txt")) -match "INPUTONLYMARKER013"))) {
+    ok "TEST-013c: content planted only under --input is NOT in the bundle (no whole-directory walk of --input)"
+} else {
+    fail "TEST-013c: INPUTONLYMARKER013 leaked into the bundle -- --input directory is still being walked wholesale"
 }
 
 # ============================================================================
@@ -798,6 +876,1438 @@ if (-not (Test-Path (Join-Path $d "out.txt"))) {
     ok "TEST-032e: bundle file not written on path-traversal gap"
 } else {
     fail "TEST-032e: bundle file must not be written on a path-traversal gap"
+}
+
+# ============================================================================
+# TEST-033: project-root-relative declared output resolves via the
+# --project-root fallback when it is absent under --input. Real
+# implementation reports declare rows relative to project_root (the same
+# convention generate-evidence-bundle/check-evidence-bundle use), not
+# --input — this is the exact defect this fix addresses; before the fix
+# every such row was reported "missing from bundle" and the check could
+# never pass against a real report.
+# ============================================================================
+
+Write-Host "=== TEST-033: project-root-relative declared output resolves via fallback ==="
+
+$d = Join-Path $Work "pp033"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "other") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "other/artifact.txt") -Value "other artifact content"
+$hash033 = Get-Sha256OfFile (Join-Path $d "other/artifact.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("other/artifact.txt") -Hashes @($hash033)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-033a: project-root-relative row not present under --input resolves via fallback -> exit 0"
+} else {
+    fail "TEST-033a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ([regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+    ok "TEST-033b: digest printed on project-root fallback success"
+} else {
+    fail "TEST-033b: expected a printed digest, got: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-035: declared output absent under BOTH --input and --project-root
+# still fails closed with the unchanged "missing from bundle" message —
+# proves the two-root fallback does not degenerate into accepting anything.
+# (TEST-034 is intentionally not added: TEST-014/TEST-017 already cover an
+# --input-relative row still resolving under the unchanged first-try path.)
+# ============================================================================
+
+Write-Host "=== TEST-035: declared output missing under both roots -> fail closed ==="
+
+$d = Join-Path $Work "pp035"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("nowhere.txt") -Hashes @((Get-WrongHash))
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-035a: missing under both roots -> nonzero exit"
+} else {
+    fail "TEST-035a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output missing from bundle: nowhere.txt")) {
+    ok "TEST-035b: unchanged 'missing from bundle' message text"
+} else {
+    fail "TEST-035b: expected unchanged missing-from-bundle message, got: $($script:PP_Output)"
+}
+if (-not [regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+    ok "TEST-035c: no digest line printed"
+} else {
+    fail "TEST-035c: digest must not print. Output: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-035d: bundle file not written"
+} else {
+    fail "TEST-035d: bundle file must not be written"
+}
+
+# ============================================================================
+# TEST-036: hash mismatch on a row resolved via the --project-root fallback
+# still fails closed (mirrors TEST-016's --input-root case, for the NEW
+# fallback root).
+# ============================================================================
+
+Write-Host "=== TEST-036: hash-mismatch on project-root-fallback row -> fail closed ==="
+
+$d = Join-Path $Work "pp036"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "other") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "other/artifact.txt") -Value "real other content for hash mismatch"
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("other/artifact.txt") -Hashes @((Get-WrongHash))
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-036a: hash-mismatch on project-root fallback row -> nonzero exit"
+} else {
+    fail "TEST-036a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output hash mismatch: other/artifact.txt")) {
+    ok "TEST-036b: unchanged 'hash mismatch' message text"
+} else {
+    fail "TEST-036b: expected hash-mismatch message, got: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-036c: bundle file not written on project-root-fallback hash mismatch"
+} else {
+    fail "TEST-036c: bundle file must not be written on a hash-mismatch gap"
+}
+
+# ============================================================================
+# TEST-037: a row that would escape --input via a symlinked component is
+# still rejected — containment holds for the --input root even though a
+# --project-root fallback now exists.
+# ============================================================================
+
+Write-Host "=== TEST-037: symlink-escape under --input root -> fail closed (containment) ==="
+
+$d = Join-Path $Work "pp037"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "outside") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$sentinel037 = "SENTINEL-TEST037-DO-NOT-LEAK-$PID"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "outside/secret.txt") -Value $sentinel037
+$hash037 = Get-Sha256OfFile (Join-Path $d "outside/secret.txt")
+$symlink037Created = $true
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $d "input/linkdir") -Target (Join-Path $d "outside") -ErrorAction Stop | Out-Null
+} catch {
+    $symlink037Created = $false
+}
+
+if (-not $symlink037Created) {
+    ok "TEST-037: symlink creation unsupported/unprivileged on this host — skip (runs where symlinks are permitted)"
+} else {
+    Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+        -Paths @("linkdir/secret.txt") -Hashes @($hash037)
+
+    Invoke-Prepare @(
+        "--task", "T-004", "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--project-root", $d,
+        "--out", (Join-Path $d "out.txt")
+    )
+
+    if ($script:PP_Exit -ne 0) {
+        ok "TEST-037a: symlink escape under --input -> nonzero exit"
+    } else {
+        fail "TEST-037a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+    }
+    if (-not [regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+        ok "TEST-037b: no digest line printed"
+    } else {
+        fail "TEST-037b: digest must not print. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch [regex]::Escape($sentinel037)) {
+        ok "TEST-037c: sentinel content does not appear in output"
+    } else {
+        fail "TEST-037c: SENTINEL LEAK via --input symlink escape"
+    }
+    if (-not (Test-Path (Join-Path $d "out.txt"))) {
+        ok "TEST-037d: bundle file not written"
+    } else {
+        fail "TEST-037d: bundle file must not be written"
+    }
+}
+
+# ============================================================================
+# TEST-038: a row absent under --input but reachable ONLY via a symlinked
+# component under --project-root must still be rejected by the fallback's
+# OWN containment guard — proves the project-root retry independently
+# re-applies the symlink component-walk rather than skipping it.
+# ============================================================================
+
+Write-Host "=== TEST-038: symlink-escape under --project-root fallback -> fail closed ==="
+
+$d = Join-Path $Work "pp038"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "outside") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$sentinel038 = "SENTINEL-TEST038-DO-NOT-LEAK-$PID"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "outside/secret.txt") -Value $sentinel038
+$hash038 = Get-Sha256OfFile (Join-Path $d "outside/secret.txt")
+$symlink038Created = $true
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $d "linkdir") -Target (Join-Path $d "outside") -ErrorAction Stop | Out-Null
+} catch {
+    $symlink038Created = $false
+}
+
+if (-not $symlink038Created) {
+    ok "TEST-038: symlink creation unsupported/unprivileged on this host — skip (runs where symlinks are permitted)"
+} else {
+    Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+        -Paths @("linkdir/secret.txt") -Hashes @($hash038)
+
+    Invoke-Prepare @(
+        "--task", "T-004", "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--project-root", $d,
+        "--out", (Join-Path $d "out.txt")
+    )
+
+    if ($script:PP_Exit -ne 0) {
+        ok "TEST-038a: symlink escape under --project-root fallback -> nonzero exit"
+    } else {
+        fail "TEST-038a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+    }
+    if (-not [regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+        ok "TEST-038b: no digest line printed"
+    } else {
+        fail "TEST-038b: digest must not print. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch [regex]::Escape($sentinel038)) {
+        ok "TEST-038c: sentinel content does not appear in output"
+    } else {
+        fail "TEST-038c: SENTINEL LEAK via --project-root symlink escape"
+    }
+    if (-not (Test-Path (Join-Path $d "out.txt"))) {
+        ok "TEST-038d: bundle file not written"
+    } else {
+        fail "TEST-038d: bundle file must not be written"
+    }
+}
+
+# ============================================================================
+# TEST-039: a project-root-relative row whose worktree content has DRIFTED
+# (a later sibling commit edited the shared file after the implementation
+# report was written) is re-checked against the tree as of the report's own
+# DECLARATION COMMIT -- the commit that last touched the report itself --
+# and, verified there, accepted with a distinct, non-silent stderr notice
+# naming the row and exit 0 + a printed digest. Models the real defect this
+# feature fixes: CHANGELOG.md/tasks.md-shaped shared, living files.
+# ============================================================================
+
+Write-Host "=== TEST-039: worktree-drifted row verified at declaration commit ==="
+
+$d = Join-Path $Work "pp039"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "shared file v1" -NoNewline
+$hash039v1 = Get-Sha256OfFile (Join-Path $d "shared.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("shared.txt") -Hashes @($hash039v1)
+Invoke-PpiGitCommit -Root $d -Message "declare shared.txt v1"
+
+# A later sibling task edits the shared file; the report itself is
+# untouched, so its declaration commit is still the commit above.
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "shared file v2 (drifted by a sibling task)" -NoNewline
+Invoke-PpiGitCommit -Root $d -Message "sibling task drifts shared.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-039a: drifted-but-verified-at-declaration-commit row -> exit 0"
+} else {
+    fail "TEST-039a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ([regex]::Match($script:PP_Output, '[0-9a-f]{64}').Success) {
+    ok "TEST-039b: digest printed"
+} else {
+    fail "TEST-039b: expected a printed digest, got: $($script:PP_Output)"
+}
+if (($script:PP_Output -match "declared output verified at declaration commit") -and
+    ($script:PP_Output -match [regex]::Escape("shared.txt"))) {
+    ok "TEST-039c: distinct drift notice printed, naming shared.txt"
+} else {
+    fail "TEST-039c: expected a declaration-commit drift notice naming shared.txt, got: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-040: a project-root-relative row whose worktree content still
+# matches the declared hash (never drifted) exits 0 and prints NO drift
+# notice -- proves the notice does not become background noise on every
+# git-backed report, only on rows the fast path actually had to fall back
+# past.
+# ============================================================================
+
+Write-Host "=== TEST-040: undrifted project-root row -> exit 0, NO drift notice ==="
+
+$d = Join-Path $Work "pp040"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "stable.txt") -Value "stable content" -NoNewline
+$hash040 = Get-Sha256OfFile (Join-Path $d "stable.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("stable.txt") -Hashes @($hash040)
+Invoke-PpiGitCommit -Root $d -Message "declare stable.txt"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-040a: undrifted row -> exit 0"
+} else {
+    fail "TEST-040a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+    ok "TEST-040b: no drift notice printed for a row that matched the worktree"
+} else {
+    fail "TEST-040b: drift notice must not print when the worktree already matches. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-041: a row mismatched at BOTH the worktree AND the declaration
+# commit still fails closed with the unchanged "hash mismatch" message --
+# proves the declaration-commit fallback does not degenerate into accepting
+# anything just because a commit exists.
+# ============================================================================
+
+Write-Host "=== TEST-041: row mismatched at both worktree and declaration commit -> fail closed ==="
+
+$d = Join-Path $Work "pp041"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "mismatch.txt") -Value "actual content at report time" -NoNewline
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("mismatch.txt") -Hashes @((Get-WrongHash))
+Invoke-PpiGitCommit -Root $d -Message "declare mismatch.txt with a wrong hash"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-041a: mismatched at both worktree and declaration commit -> nonzero exit"
+} else {
+    fail "TEST-041a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output hash mismatch: mismatch.txt")) {
+    ok "TEST-041b: unchanged 'hash mismatch' message text"
+} else {
+    fail "TEST-041b: expected unchanged hash-mismatch message, got: $($script:PP_Output)"
+}
+if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+    ok "TEST-041c: no drift notice printed (declaration commit did not verify either)"
+} else {
+    fail "TEST-041c: drift notice must not print when the declaration commit also mismatches. Output: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-041d: bundle file not written"
+} else {
+    fail "TEST-041d: bundle file must not be written"
+}
+
+# ============================================================================
+# TEST-042: a row absent under both roots, AND absent at the declaration
+# commit (a path that was declared but never actually created) still fails
+# closed with the unchanged "missing from bundle" message.
+# ============================================================================
+
+Write-Host "=== TEST-042: row absent under both roots and at declaration commit -> fail closed ==="
+
+$d = Join-Path $Work "pp042"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("never-existed.txt") -Hashes @((Get-WrongHash))
+Invoke-PpiGitCommit -Root $d -Message "declare a row for a file that was never created"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-042a: absent under both roots and at declaration commit -> nonzero exit"
+} else {
+    fail "TEST-042a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output missing from bundle: never-existed.txt")) {
+    ok "TEST-042b: unchanged 'missing from bundle' message text"
+} else {
+    fail "TEST-042b: expected unchanged missing-from-bundle message, got: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-042c: bundle file not written"
+} else {
+    fail "TEST-042c: bundle file must not be written"
+}
+
+# ============================================================================
+# TEST-043: the implementation report itself is UNCOMMITTED (added to a git
+# repo with other history, but the report file is untracked) -- `git log -1
+# -- <report>` finds no commit, so the declaration-commit fallback is inert
+# and behaviour is identical to today: unchanged "hash mismatch" gap, no
+# invented pass.
+# ============================================================================
+
+Write-Host "=== TEST-043: uncommitted implementation report -> declaration-commit fallback inert ==="
+
+$d = Join-Path $Work "pp043"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "unrelated.txt") -Value "unrelated" -NoNewline
+Invoke-PpiGitCommit -Root $d -Message "unrelated commit; implementation report not yet committed" -Paths @("unrelated.txt", "tasks.md")
+
+Set-Content -Encoding Utf8 -Path (Join-Path $d "shared.txt") -Value "drifted content" -NoNewline
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("shared.txt") -Hashes @((Get-WrongHash))
+# Deliberately NOT committed -- the report is untracked.
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-043a: uncommitted report -> nonzero exit (no invented pass)"
+} else {
+    fail "TEST-043a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match [regex]::Escape("declared output hash mismatch: shared.txt")) {
+    ok "TEST-043b: unchanged 'hash mismatch' message text"
+} else {
+    fail "TEST-043b: expected unchanged hash-mismatch message, got: $($script:PP_Output)"
+}
+if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+    ok "TEST-043c: no drift notice printed (report has no declaration commit)"
+} else {
+    fail "TEST-043c: drift notice must not print without a declaration commit. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-044: a row that escapes --project-root via a symlinked component is
+# STILL rejected even when the git history at the declaration commit would,
+# byte-for-byte, verify the same relative path -- proves containment (the
+# b3f6d1a9 symlink component-walk guard) gates BEFORE the declaration-
+# commit fallback is even attempted, so a symlink escape can never be
+# laundered through git history.
+# ============================================================================
+
+Write-Host "=== TEST-044: symlink-escape under --project-root not bypassed by declaration-commit fallback ==="
+
+$d = Join-Path $Work "pp044"
+New-Item -ItemType Directory -Path (Join-Path $d "input") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "linkdir") -Force | Out-Null
+New-PpiGitScratchRepo $d
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+$sentinel044 = "SENTINEL-TEST044-DO-NOT-LEAK-$PID"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "linkdir/secret.txt") -Value $sentinel044
+$hash044 = Get-Sha256OfFile (Join-Path $d "linkdir/secret.txt")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("linkdir/secret.txt") -Hashes @($hash044)
+Invoke-PpiGitCommit -Root $d -Message "declare linkdir/secret.txt as a plain file"
+
+# A later change replaces linkdir with a symlink pointing outside the
+# project root. The content at the same relative path, at the declaration
+# commit above, still hash-matches the original declaration -- the
+# adversarial shape this test targets: containment must gate before any
+# declaration-commit fallback is attempted, or a symlink escape could be
+# laundered through history.
+Remove-Item -Recurse -Force (Join-Path $d "linkdir")
+New-Item -ItemType Directory -Path (Join-Path $d "outside") -Force | Out-Null
+Set-Content -Encoding Utf8 -Path (Join-Path $d "outside/secret.txt") -Value $sentinel044
+$symlink044Created = $true
+try {
+    New-Item -ItemType SymbolicLink -Path (Join-Path $d "linkdir") -Target (Join-Path $d "outside") -ErrorAction Stop | Out-Null
+} catch {
+    $symlink044Created = $false
+}
+
+if (-not $symlink044Created) {
+    ok "TEST-044: symlink creation unsupported/unprivileged on this host -- skip (runs where symlinks are permitted)"
+} else {
+    Invoke-Prepare @(
+        "--task", "T-004", "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--project-root", $d,
+        "--out", (Join-Path $d "out.txt")
+    )
+
+    if ($script:PP_Exit -ne 0) {
+        ok "TEST-044a: symlink escape -> nonzero exit even though declaration-commit content would match"
+    } else {
+        fail "TEST-044a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch "declared output verified at declaration commit") {
+        ok "TEST-044b: declaration-commit fallback never attempted (no notice) -- containment gates first"
+    } else {
+        fail "TEST-044b: declaration-commit fallback must not run past a symlink escape. Output: $($script:PP_Output)"
+    }
+    if ($script:PP_Output -notmatch [regex]::Escape($sentinel044)) {
+        ok "TEST-044c: sentinel content does not appear in output"
+    } else {
+        fail "TEST-044c: SENTINEL LEAK via declaration-commit fallback bypassing symlink containment"
+    }
+    if (-not (Test-Path (Join-Path $d "out.txt"))) {
+        ok "TEST-044d: bundle file not written"
+    } else {
+        fail "TEST-044d: bundle file must not be written"
+    }
+}
+
+# ============================================================================
+# TEST-045: cross-task isolation -- a feature with two tasks, each with its
+# own verification/<task_id>/ evidence directory. T-001's bundle carries
+# T-001's own evidence and NOT T-002's -- the core epic-195 defect (a
+# panelist reviewing one task received every OTHER task's evidence too).
+# ============================================================================
+
+Write-Host "=== TEST-045: cross-task isolation -- T-001 bundle excludes T-002's evidence ==="
+
+$d = Join-Path $Work "pp045"
+New-Item -ItemType Directory -Path (Join-Path $d "specs/cross-model-verification/verification/T-001") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "specs/cross-model-verification/verification/T-002") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-001"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-001/evidence.log") `
+    -Value "T-001 own evidence marker T001MARKER045"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-002/evidence.log") `
+    -Value "T-002 own evidence marker T002MARKER045"
+
+Invoke-Prepare @(
+    "--task", "T-001", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-045a: exit 0"
+} else {
+    fail "TEST-045a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "out.txt")) -match "T001MARKER045")) {
+    ok "TEST-045b: T-001's own evidence present in T-001's bundle"
+} else {
+    fail "TEST-045b: T-001's own evidence missing from its bundle"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and (-not ((Get-Content -Raw (Join-Path $d "out.txt")) -match "T002MARKER045"))) {
+    ok "TEST-045c: T-002's evidence is NOT in T-001's bundle (cross-task isolation)"
+} else {
+    fail "TEST-045c: T-002's evidence leaked into T-001's bundle -- cross-task isolation broken"
+}
+
+# ============================================================================
+# TEST-046: a file named in the reviewed task's Outputs table, living OUTSIDE
+# specs/ entirely (a plugin source file -- exactly the shape both epic-195
+# panelists said was missing), has its CURRENT content appear in the bundle
+# -- not just verified by the completeness check, actually included.
+# ============================================================================
+
+Write-Host "=== TEST-046: Outputs-declared source file content appears in bundle ==="
+
+$d = Join-Path $Work "pp046"
+New-Item -ItemType Directory -Path (Join-Path $d "specs/cross-model-verification") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "plugins/some-plugin/scripts") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "plugins/some-plugin/scripts/do-thing.sh") `
+    -Value "source file marker SOURCEFILEMARKER046"
+$hash046 = Get-Sha256OfFile (Join-Path $d "plugins/some-plugin/scripts/do-thing.sh")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("plugins/some-plugin/scripts/do-thing.sh") -Hashes @($hash046)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-046a: exit 0"
+} else {
+    fail "TEST-046a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "out.txt")) -match "SOURCEFILEMARKER046")) {
+    ok "TEST-046b: declared output's current content is in the bundle"
+} else {
+    fail "TEST-046b: declared output was verified but its content never made it into the bundle"
+}
+
+# ============================================================================
+# TEST-047: the panel's own artifacts remain excluded under the new
+# task-scoped composition -- both as siblings of verification/<task_id>/
+# (never read by any composition step) and as a stray file INSIDE
+# verification/<task_id>/ (excluded by the same panel-artifact filters the
+# old whole-directory walk applied, now scoped to the task's own directory).
+# ============================================================================
+
+Write-Host "=== TEST-047: panel's own artifacts excluded from the task-scoped bundle ==="
+
+$d = Join-Path $Work "pp047"
+New-Item -ItemType Directory -Path (Join-Path $d "specs/cross-model-verification/verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $d "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-004/evidence.log") `
+    -Value "legit evidence marker LEGITMARKER047"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-004.panelist-anthropic.verdict.json") `
+    -Value "SENTINEL VERDICTMARKER047"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-004.panelist-input.txt") `
+    -Value "SENTINEL BUNDLEMARKER047"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "specs/cross-model-verification/verification/T-004/stray.verdict.json") `
+    -Value "SENTINEL NESTEDVERDICTMARKER047"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $d "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-047a: exit 0"
+} else {
+    fail "TEST-047a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "out.txt")) -match "LEGITMARKER047")) {
+    ok "TEST-047b: legitimate evidence still included"
+} else {
+    fail "TEST-047b: legitimate evidence missing from bundle"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and
+    (-not ((Get-Content -Raw (Join-Path $d "out.txt")) -match "VERDICTMARKER047|BUNDLEMARKER047"))) {
+    ok "TEST-047c: sibling panel artifacts (verification/T-004.*) excluded"
+} else {
+    fail "TEST-047c: a sibling panel artifact leaked into the bundle"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and (-not ((Get-Content -Raw (Join-Path $d "out.txt")) -match "NESTEDVERDICTMARKER047"))) {
+    ok "TEST-047d: stray panel artifact inside verification/T-004/ excluded"
+} else {
+    fail "TEST-047d: a panel artifact nested inside the task's own evidence dir leaked into the bundle"
+}
+
+# ============================================================================
+# TEST-048: the feature's spec documents (requirements/design/acceptance-
+# tests/tasks/traceability/investigation + layer specs when present) are all
+# present in the bundle.
+# ============================================================================
+
+Write-Host "=== TEST-048: spec documents all present in the bundle ==="
+
+$d = Join-Path $Work "pp048"
+$specDir048 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir048 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir048 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir048 "requirements.md")    -Value "REQMARKER048"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir048 "design.md")         -Value "DESIGNMARKER048"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir048 "acceptance-tests.md") -Value "ACMARKER048"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir048 "traceability.md")   -Value "TRACEMARKER048"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir048 "investigation.md") -Value "INVESTMARKER048"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir048 "ux-spec.md")       -Value "UXMARKER048"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir048 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-048a: exit 0"
+} else {
+    fail "TEST-048a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText048 = Get-Content -Raw (Join-Path $d "out.txt")
+    $missing048 = @()
+    foreach ($marker048 in @("REQMARKER048", "DESIGNMARKER048", "ACMARKER048", "TRACEMARKER048",
+            "INVESTMARKER048", "UXMARKER048")) {
+        if ($bundleText048 -notmatch $marker048) { $missing048 += $marker048 }
+    }
+    if ($missing048.Count -eq 0) {
+        ok "TEST-048b: every spec document is present in the bundle"
+    } else {
+        fail "TEST-048b: missing spec document markers: $($missing048 -join ', ')"
+    }
+    if ($bundleText048 -match "Cross-Model: enabled") {
+        ok "TEST-048c: tasks.md itself is present in the bundle"
+    } else {
+        fail "TEST-048c: tasks.md content missing from the bundle"
+    }
+} else {
+    fail "TEST-048b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-049 (size guard, fail-closed branch): --max-bytes set below the
+# sanitized bundle's actual size -> refuses to write a silently-truncated
+# bundle, exits nonzero, announces the overage on stderr, prints no digest.
+# ============================================================================
+
+Write-Host "=== TEST-049: --max-bytes exceeded -> fail closed, no truncated bundle written ==="
+
+$d = Join-Path $Work "pp049"
+$specDir049 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path $specDir049 -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir049 "tasks.md") -TaskId "T-004"
+$lines049 = 1..50 | ForEach-Object { "requirements line $_ filler content filler content filler" }
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir049 "requirements.md") -Value ($lines049 -join "`n")
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir049 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "200"
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-049a: over --max-bytes -> nonzero exit"
+} else {
+    fail "TEST-049a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match "(?i)max-bytes") {
+    ok "TEST-049b: overage announced on stderr (mentions --max-bytes)"
+} else {
+    fail "TEST-049b: expected an announcement mentioning --max-bytes, got: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-049c: bundle file NOT written (fail closed, never truncated)"
+} else {
+    fail "TEST-049c: bundle file must not be written when --max-bytes is exceeded"
+}
+if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+    ok "TEST-049d: no digest line printed on a size-guard failure"
+} else {
+    fail "TEST-049d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-050 (size guard, pass-through branch): --max-bytes set generously
+# above the bundle's actual size -> the guard does not interfere with an
+# otherwise-successful run.
+# ============================================================================
+
+Write-Host "=== TEST-050: --max-bytes generous -> guard does not block a normal bundle ==="
+
+$d = Join-Path $Work "pp050"
+$specDir050 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path $specDir050 -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir050 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir050 "requirements.md") -Value "REQMARKER050"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir050 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "1048576"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-050a: exit 0 under a generous --max-bytes"
+} else {
+    fail "TEST-050a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if ((Test-Path (Join-Path $d "out.txt")) -and ((Get-Content -Raw (Join-Path $d "out.txt")) -match "REQMARKER050")) {
+    ok "TEST-050b: bundle written normally with content intact"
+} else {
+    fail "TEST-050b: bundle missing or content lost under a generous --max-bytes"
+}
+if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+    ok "TEST-050c: digest printed normally"
+} else {
+    fail "TEST-050c: expected a printed digest, got: $($script:PP_Output)"
+}
+
+
+# ============================================================================
+# TEST-051: a bundle that fits --max-bytes whole is written whole -- no
+# elision marker anywhere, even though a single verification-dir file is
+# large in absolute terms. Budget-driven elision only activates when the
+# composed-and-measured bundle is actually over cap; file size alone is
+# never sufficient to trigger it.
+# ============================================================================
+
+Write-Host "=== TEST-051: bundle under --max-bytes stays whole, regardless of one file's absolute size ==="
+
+$d = Join-Path $Work "pp051"
+$specDir051 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir051 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir051 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $specDir051 "verification/T-004/big.log") -Count 500 -Prefix "LOG051"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir051 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "1000000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-051a: exit 0"
+} else {
+    fail "TEST-051a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText051 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText051.Contains("LOG051 line 0001 filler filler filler filler") -and
+        $bundleText051.Contains("LOG051 line 0500 filler filler filler filler") -and
+        $bundleText051.Contains("LOG051 line 0250 filler filler filler filler")) {
+        ok "TEST-051b: the file is present whole (first, middle, and last lines all intact)"
+    } else {
+        fail "TEST-051b: a file was elided even though the whole bundle already fit --max-bytes"
+    }
+    if (-not ($bundleText051 -match "(?i)elided from the middle")) {
+        ok "TEST-051c: no elision marker anywhere in a bundle that never needed one"
+    } else {
+        fail "TEST-051c: an elision marker appeared even though the bundle already fit --max-bytes"
+    }
+} else {
+    fail "TEST-051b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-052/053: a bundle over --max-bytes elides the LARGEST elidable file
+# first and stops as soon as it fits -- the marker is present on that file
+# with the exact byte count independently computed from its own bytes, the
+# elided bundle still carries that file's own first and last lines while
+# genuinely dropping a middle-only line, and a SMALLER elidable file in the
+# same bundle that was never the reason for the overage is left completely
+# untouched (no marker, every one of its own lines present).
+# ============================================================================
+
+Write-Host "=== TEST-052/053: over-cap bundle elides the largest file only, leaves a smaller one whole ==="
+
+$d = Join-Path $Work "pp052"
+$specDir052 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir052 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir052 "tasks.md") -TaskId "T-004"
+$big052 = Join-Path $specDir052 "verification/T-004/big.log"
+$small052 = Join-Path $specDir052 "verification/T-004/small.log"
+Write-FillerLines -Path $big052 -Count 500 -Prefix "BIG052"
+Write-FillerLines -Path $small052 -Count 20 -Prefix "SMALL052"
+
+$total052 = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $big052))
+$lines052 = Get-Content -Encoding Utf8 -LiteralPath $big052
+$headText052 = ($lines052[0..39] -join "`n")
+$tailText052 = ($lines052[($lines052.Count - 40)..($lines052.Count - 1)] -join "`n")
+$headBytes052 = [System.Text.Encoding]::UTF8.GetByteCount($headText052)
+$tailBytes052 = [System.Text.Encoding]::UTF8.GetByteCount($tailText052)
+$expectedElided052 = $total052 - $headBytes052 - $tailBytes052
+# --max-bytes 15000 sits strictly between (a) the whole bundle's real size
+# (big.log 22,500B + small.log 940B + overhead, ~23,900B -- confirmed over
+# cap) and (b) that same bundle with ONLY big.log elided (~5,150B -- under
+# cap) -- so eliding big.log alone must be enough; small.log should never
+# be touched.
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir052 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "15000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-052a: exit 0 (eliding the largest file alone let the bundle fit)"
+} else {
+    fail "TEST-052a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$expectedMarker052 = "$expectedElided052 bytes elided from the middle of specs/cross-model-verification/verification/T-004/big.log (original size $total052 bytes"
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText052 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText052.Contains($expectedMarker052)) {
+        ok "TEST-052b: elision marker present on the largest file with the exact independently-computed byte count"
+    } else {
+        fail "TEST-052b: expected marker containing '$expectedMarker052' not found in bundle"
+    }
+    $markerCount052 = ([regex]::Matches($bundleText052, "elided from the middle")).Count
+    if ($markerCount052 -eq 1) {
+        ok "TEST-052c: exactly one elision marker -- the smaller file was never a candidate that needed cutting"
+    } else {
+        fail "TEST-052c: expected exactly one elision marker (largest file only), found $markerCount052"
+    }
+    if ($bundleText052.Contains("BIG052 line 0001 filler filler filler filler")) {
+        ok "TEST-053a: elided bundle still contains the largest file's first line"
+    } else {
+        fail "TEST-053a: largest file's first line missing from the elided bundle"
+    }
+    if ($bundleText052.Contains("BIG052 line 0500 filler filler filler filler")) {
+        ok "TEST-053b: elided bundle still contains the largest file's last line"
+    } else {
+        fail "TEST-053b: largest file's last line missing from the elided bundle"
+    }
+    if (-not $bundleText052.Contains("BIG052 line 0250 filler filler filler filler")) {
+        ok "TEST-053c: a middle-only line of the largest file is genuinely dropped"
+    } else {
+        fail "TEST-053c: a middle line of the largest file survived -- elision did not actually remove the middle"
+    }
+    $missingSmall052 = @()
+    foreach ($line052 in @("0001", "0010", "0020")) {
+        if (-not $bundleText052.Contains("SMALL052 line $line052 filler filler filler filler")) { $missingSmall052 += $line052 }
+    }
+    if ($missingSmall052.Count -eq 0) {
+        ok "TEST-053d: the smaller file is left completely whole (it was never the file that needed cutting)"
+    } else {
+        fail "TEST-053d: the smaller file lost line(s): $($missingSmall052 -join ', ') -- it should never have been elided"
+    }
+} else {
+    fail "TEST-052b/TEST-053: bundle file not written"
+}
+
+# ============================================================================
+# TEST-054: elision is scoped to the task's own verification/<task_id>/
+# evidence directory only -- a spec document (step 1) and an Outputs-
+# declared source file living outside specs/ (step 5) are never elided,
+# however large, because truncating either would gut the bundle's own
+# claims or their supporting source rather than trim incidental log noise.
+# ============================================================================
+
+Write-Host "=== TEST-054: spec documents and Outputs-declared source files are never elided ==="
+
+$d = Join-Path $Work "pp054"
+$specDir054 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir054 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "plugins/some-plugin/scripts") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir054 "tasks.md") -TaskId "T-004"
+# Both fixture files (~63,000 bytes each) are deliberately sized ABOVE the
+# 50,000-byte per-file elision threshold (--max-bytes 200000 / 4) -- proving
+# these call sites stay whole because they are scoped out, not merely
+# because they never crossed the threshold in the first place.
+Write-FillerLines -Path (Join-Path $specDir054 "requirements.md") -Count 1400 -Prefix "REQ054"
+Write-FillerLines -Path (Join-Path $d "plugins/some-plugin/scripts/big-thing.sh") -Count 1400 -Prefix "SRC054"
+$hash054 = Get-Sha256OfFile (Join-Path $d "plugins/some-plugin/scripts/big-thing.sh")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("plugins/some-plugin/scripts/big-thing.sh") -Hashes @($hash054)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir054 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "200000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-054a: exit 0"
+} else {
+    fail "TEST-054a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText054 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText054.Contains("REQ054 line 0001 filler filler filler filler") -and
+        $bundleText054.Contains("REQ054 line 1400 filler filler filler filler") -and
+        $bundleText054.Contains("REQ054 line 0700 filler filler filler filler")) {
+        ok "TEST-054b: spec document (requirements.md) present whole, including a middle line"
+    } else {
+        fail "TEST-054b: requirements.md was elided even though it exceeds the per-file threshold"
+    }
+    if ($bundleText054.Contains("SRC054 line 0001 filler filler filler filler") -and
+        $bundleText054.Contains("SRC054 line 1400 filler filler filler filler") -and
+        $bundleText054.Contains("SRC054 line 0700 filler filler filler filler")) {
+        ok "TEST-054c: Outputs-declared source file present whole, including a middle line"
+    } else {
+        fail "TEST-054c: the declared-output source file was elided even though it exceeds the per-file threshold"
+    }
+    if (-not ($bundleText054 -match "(?i)elided from the middle")) {
+        ok "TEST-054d: no elision marker anywhere in a bundle whose only oversized files are scoped out"
+    } else {
+        fail "TEST-054d: an elision marker leaked into a bundle whose oversized files should never be elided"
+    }
+} else {
+    fail "TEST-054b/c/d: bundle file not written"
+}
+
+# ============================================================================
+# TEST-055: eliding every elidable candidate to its own head/tail/marker
+# floor does not guarantee the whole bundle now fits (the degenerate case
+# named in the task brief) -- when it still does not, the --max-bytes
+# guard still fails closed exactly as TEST-049, never silently shipping a
+# bundle that even full elision could not bring under the cap.
+# ============================================================================
+
+Write-Host "=== TEST-055: still over --max-bytes after exhausting every elidable candidate -> fail closed ==="
+
+$d = Join-Path $Work "pp055"
+$specDir055 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir055 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir055 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $specDir055 "verification/T-004/run-all-sh.log") -Count 500 -Prefix "LOG055"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir055 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "2000"
+)
+
+if ($script:PP_Exit -ne 0) {
+    ok "TEST-055a: over --max-bytes even after exhausting the elidable set -> nonzero exit"
+} else {
+    fail "TEST-055a: expected nonzero exit, got 0. Output: $($script:PP_Output)"
+}
+if ($script:PP_Output -match "(?i)max-bytes") {
+    ok "TEST-055b: overage announced on stderr (mentions --max-bytes)"
+} else {
+    fail "TEST-055b: expected an announcement mentioning --max-bytes, got: $($script:PP_Output)"
+}
+if (-not (Test-Path (Join-Path $d "out.txt"))) {
+    ok "TEST-055c: bundle file NOT written (fail closed, elision is not a truncation loophole)"
+} else {
+    fail "TEST-055c: bundle file must not be written when still over --max-bytes after elision"
+}
+if ($script:PP_Output -notmatch "^[0-9a-f]{64}$") {
+    ok "TEST-055d: no digest line printed on a size-guard failure"
+} else {
+    fail "TEST-055d: digest must not print when the size guard fails. Output: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-056: the SAME over-cap bundle (TEST-052/053's own fixture) comes
+# back byte-for-byte whole under a larger --max-bytes -- elision is a
+# property of whether the bundle needs it under the cap actually supplied,
+# never a property baked into a file for being "big enough" in isolation.
+# ============================================================================
+
+Write-Host "=== TEST-056: same bundle, larger --max-bytes -> comes back whole ==="
+
+$d = Join-Path $Work "pp056"
+$specDir056 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir056 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir056 "tasks.md") -TaskId "T-004"
+Write-FillerLines -Path (Join-Path $specDir056 "verification/T-004/big.log") -Count 500 -Prefix "BIG056"
+Write-FillerLines -Path (Join-Path $specDir056 "verification/T-004/small.log") -Count 20 -Prefix "SMALL056"
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir056 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "1000000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-056a: exit 0 under a generous --max-bytes"
+} else {
+    fail "TEST-056a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText056 = Get-Content -Raw (Join-Path $d "out.txt")
+    if (-not ($bundleText056 -match "(?i)elided from the middle")) {
+        ok "TEST-056b: no elision marker anywhere once the bundle fits without cutting anything"
+    } else {
+        fail "TEST-056b: an elision marker survived into a bundle that fits --max-bytes whole"
+    }
+    if ($bundleText056.Contains("BIG056 line 0250 filler filler filler filler")) {
+        ok "TEST-056c: the larger file's middle line is present -- the same file TEST-052/053 elides at a tighter cap comes back whole here"
+    } else {
+        fail "TEST-056c: the larger file's middle line is missing even though this bundle fits whole"
+    }
+} else {
+    fail "TEST-056b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-057: a check's "evidence" field naming a path OUTSIDE the reviewed
+# task's own verification/<task_id>/ directory (e.g. a shared
+# verification/qg/shared/ log, the epic-194 T-001 real-world shape) has its
+# CURRENT content included in the bundle -- not just verified to exist, its
+# bytes actually appear, closing the gap where a panelist was handed a
+# check's passes:false claim with no way to read what it pointed at.
+# ============================================================================
+
+Write-Host "=== TEST-057: contract-declared evidence outside verification/<task_id>/ appears in bundle ==="
+
+$d = Join-Path $Work "pp057"
+$specDir057 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir057 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $specDir057 "verification/qg/shared") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir057 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir057 "verification/qg/shared/regression-057.log") -Value "REGRESSIONMARKER057"
+Write-PpiContract -SpecDir $specDir057 -TaskId "T-004" -Checks @(
+    @{Id = "regression"; Evidence = "specs/cross-model-verification/verification/qg/shared/regression-057.log"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir057 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-057a: exit 0"
+} else {
+    fail "TEST-057a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText057 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText057.Contains("REGRESSIONMARKER057")) {
+        ok "TEST-057b: contract-declared evidence content is in the bundle"
+    } else {
+        fail "TEST-057b: shared verification/qg/ evidence named by the contract never made it into the bundle"
+    }
+    if ($bundleText057.Contains("# ---- specs/cross-model-verification/verification/qg/shared/regression-057.log ----")) {
+        ok "TEST-057c: the path header names the file, so a reviewer can tell which evidence it is"
+    } else {
+        fail "TEST-057c: expected path header missing"
+    }
+} else {
+    fail "TEST-057b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-058: red_evidence and green_evidence are picked up, not just evidence
+# -- a TDD check's contract routinely leaves "evidence" pointing at the same
+# thing as "green_evidence" but a check could, in principle, carry only a
+# red/green pair; both fields must independently contribute their own path.
+# ============================================================================
+
+Write-Host "=== TEST-058: red_evidence and green_evidence are also picked up ==="
+
+$d = Join-Path $Work "pp058"
+$specDir058 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir058 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $specDir058 "verification/qg/shared") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir058 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir058 "verification/qg/shared/red-058.log") -Value "REDMARKER058"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir058 "verification/qg/shared/green-058.log") -Value "GREENMARKER058"
+Write-PpiContract -SpecDir $specDir058 -TaskId "T-004" -Checks @(
+    @{Id = "unit-tests"; Evidence = ""; RedEvidence = "specs/cross-model-verification/verification/qg/shared/red-058.log"; GreenEvidence = "specs/cross-model-verification/verification/qg/shared/green-058.log" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir058 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-058a: exit 0"
+} else {
+    fail "TEST-058a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText058 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText058.Contains("REDMARKER058")) {
+        ok "TEST-058b: red_evidence content is in the bundle"
+    } else {
+        fail "TEST-058b: red_evidence-declared file never made it into the bundle"
+    }
+    if ($bundleText058.Contains("GREENMARKER058")) {
+        ok "TEST-058c: green_evidence content is in the bundle"
+    } else {
+        fail "TEST-058c: green_evidence-declared file never made it into the bundle"
+    }
+} else {
+    fail "TEST-058b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-059: dedup -- a contract-declared path already pulled in by the
+# reviewed task's own verification/<task_id>/ directory walk (059b), or
+# already pulled in by an Outputs-table row (059c), is included exactly
+# ONCE, never a second time for being separately named by the contract.
+# ============================================================================
+
+Write-Host "=== TEST-059: contract-declared evidence already included elsewhere is not duplicated ==="
+
+$d = Join-Path $Work "pp059"
+$specDir059 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir059 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "plugins/some-plugin/scripts") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir059 "tasks.md") -TaskId "T-004"
+Set-Content -Encoding Utf8 -Path (Join-Path $specDir059 "verification/T-004/inband-059.log") -Value "INBANDMARKER059"
+Set-Content -Encoding Utf8 -Path (Join-Path $d "plugins/some-plugin/scripts/thing-059.sh") -Value "SRCMARKER059"
+$hash059 = Get-Sha256OfFile (Join-Path $d "plugins/some-plugin/scripts/thing-059.sh")
+Write-ImplReport -ProjectRoot $d -Feature "cross-model-verification" -TaskId "T-004" `
+    -Paths @("plugins/some-plugin/scripts/thing-059.sh") -Hashes @($hash059)
+Write-PpiContract -SpecDir $specDir059 -TaskId "T-004" -Checks @(
+    @{Id = "already-in-dir"; Evidence = "specs/cross-model-verification/verification/T-004/inband-059.log"; RedEvidence = ""; GreenEvidence = "" },
+    @{Id = "already-in-outputs"; Evidence = "plugins/some-plugin/scripts/thing-059.sh"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir059 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-059a: exit 0"
+} else {
+    fail "TEST-059a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText059 = Get-Content -Raw (Join-Path $d "out.txt")
+    $inbandCount059 = ([regex]::Matches($bundleText059, "INBANDMARKER059")).Count
+    if ($inbandCount059 -eq 1) {
+        ok "TEST-059b: directory-walk file re-declared by the contract appears exactly once"
+    } else {
+        fail "TEST-059b: expected exactly one occurrence of INBANDMARKER059, found $inbandCount059"
+    }
+    $srcCount059 = ([regex]::Matches($bundleText059, "SRCMARKER059")).Count
+    if ($srcCount059 -eq 1) {
+        ok "TEST-059c: Outputs-declared file re-declared by the contract appears exactly once"
+    } else {
+        fail "TEST-059c: expected exactly one occurrence of SRCMARKER059, found $srcCount059"
+    }
+} else {
+    fail "TEST-059b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-060: empty evidence/red_evidence/green_evidence fields (the norm --
+# most checks in a real contract, e.g. a waived lint/typecheck/build check,
+# carry "") produce no bundle output and no error. This is the common case
+# every other TEST-057..062 fixture deliberately does NOT exercise on its
+# own unrequired checks, so it earns a dedicated assertion.
+# ============================================================================
+
+Write-Host "=== TEST-060: empty contract evidence fields produce no output and no error ==="
+
+$d = Join-Path $Work "pp060"
+$specDir060 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir060 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir060 "tasks.md") -TaskId "T-004"
+Write-PpiContract -SpecDir $specDir060 -TaskId "T-004" -Checks @(
+    @{Id = "lint"; Evidence = ""; RedEvidence = ""; GreenEvidence = "" },
+    @{Id = "typecheck"; Evidence = ""; RedEvidence = ""; GreenEvidence = "" },
+    @{Id = "build"; Evidence = ""; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir060 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-060a: exit 0"
+} else {
+    fail "TEST-060a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText060 = Get-Content -Raw (Join-Path $d "out.txt")
+    if (-not ($bundleText060 -match "(?i)contract-declared evidence")) {
+        ok "TEST-060b: no contract-declared-evidence section appears when every field is empty"
+    } else {
+        fail "TEST-060b: a contract-declared-evidence section leaked in for an all-empty-fields contract"
+    }
+} else {
+    fail "TEST-060b: bundle file not written"
+}
+if ($script:PP_Output -match "^[0-9a-f]{64}$") {
+    ok "TEST-060c: normal digest line still printed -- empty fields are not an error"
+} else {
+    fail "TEST-060c: expected a digest line, got: $($script:PP_Output)"
+}
+
+# ============================================================================
+# TEST-061: a declared-but-missing contract evidence path is a finding, not
+# a crash or a silent omission -- the bundle carries a one-line note naming
+# the path and stating no file exists there, and the run still exits 0
+# (telling the reviewer a contract points at nothing is true and useful;
+# refusing to write the whole bundle over it would throw away every OTHER
+# check's real evidence over one dangling reference).
+# ============================================================================
+
+Write-Host "=== TEST-061: declared-but-missing contract evidence path -> noted, not silently dropped ==="
+
+$d = Join-Path $Work "pp061"
+$specDir061 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir061 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir061 "tasks.md") -TaskId "T-004"
+Write-PpiContract -SpecDir $specDir061 -TaskId "T-004" -Checks @(
+    @{Id = "regression"; Evidence = "specs/cross-model-verification/verification/qg/shared/nope-061.log"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir061 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt")
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-061a: exit 0 (a dangling contract reference does not fail the whole run)"
+} else {
+    fail "TEST-061a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText061 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText061.Contains("specs/cross-model-verification/verification/qg/shared/nope-061.log (contract-declared evidence, not found)")) {
+        ok "TEST-061b: the bundle names the missing path"
+    } else {
+        fail "TEST-061b: expected a not-found note naming the missing path"
+    }
+    if ($bundleText061.Contains("[contract names this evidence path but no file exists there]")) {
+        ok "TEST-061c: the note states plainly that no file exists there"
+    } else {
+        fail "TEST-061c: expected a plain-language explanation of the gap"
+    }
+} else {
+    fail "TEST-061b/c: bundle file not written"
+}
+
+# ============================================================================
+# TEST-062: a large contract-declared evidence file (living OUTSIDE
+# verification/<task_id>/, so only reachable via step 3b, not the directory
+# walk) is elided under a tight --max-bytes exactly like a directory-walk
+# file would be -- proving it joined the SAME elidable candidate set, not a
+# separate always-whole one.
+# ============================================================================
+
+Write-Host "=== TEST-062: large contract-declared evidence file is elided under a tight --max-bytes ==="
+
+$d = Join-Path $Work "pp062"
+$specDir062 = Join-Path $d "specs/cross-model-verification"
+New-Item -ItemType Directory -Path (Join-Path $specDir062 "verification/T-004") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $specDir062 "verification/qg/shared") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $d "empty-input") -Force | Out-Null
+Write-TasksWithConsent -Path (Join-Path $specDir062 "tasks.md") -TaskId "T-004"
+$big062 = Join-Path $specDir062 "verification/qg/shared/big-062.log"
+Write-FillerLines -Path $big062 -Count 500 -Prefix "BIG062"
+Write-PpiContract -SpecDir $specDir062 -TaskId "T-004" -Checks @(
+    @{Id = "regression"; Evidence = "specs/cross-model-verification/verification/qg/shared/big-062.log"; RedEvidence = ""; GreenEvidence = "" }
+)
+
+$total062 = [System.Text.Encoding]::UTF8.GetByteCount((Get-Content -Raw -Encoding Utf8 -LiteralPath $big062))
+$lines062 = Get-Content -Encoding Utf8 -LiteralPath $big062
+$headText062 = ($lines062[0..39] -join "`n")
+$tailText062 = ($lines062[($lines062.Count - 40)..($lines062.Count - 1)] -join "`n")
+$headBytes062 = [System.Text.Encoding]::UTF8.GetByteCount($headText062)
+$tailBytes062 = [System.Text.Encoding]::UTF8.GetByteCount($tailText062)
+$expectedElided062 = $total062 - $headBytes062 - $tailBytes062
+
+Invoke-Prepare @(
+    "--task", "T-004", "--feature", "cross-model-verification",
+    "--input", (Join-Path $d "empty-input"),
+    "--tasks-file", (Join-Path $specDir062 "tasks.md"),
+    "--project-root", $d,
+    "--out", (Join-Path $d "out.txt"),
+    "--max-bytes", "15000"
+)
+
+if ($script:PP_Exit -eq 0) {
+    ok "TEST-062a: exit 0 (eliding the contract-declared file alone let the bundle fit)"
+} else {
+    fail "TEST-062a: expected exit 0, got $($script:PP_Exit). Output: $($script:PP_Output)"
+}
+$expectedMarker062 = "$expectedElided062 bytes elided from the middle of specs/cross-model-verification/verification/qg/shared/big-062.log (original size $total062 bytes"
+if (Test-Path (Join-Path $d "out.txt")) {
+    $bundleText062 = Get-Content -Raw (Join-Path $d "out.txt")
+    if ($bundleText062.Contains($expectedMarker062)) {
+        ok "TEST-062b: elision marker present on the contract-declared file with the exact independently-computed byte count"
+    } else {
+        fail "TEST-062b: expected marker containing '$expectedMarker062' not found in bundle"
+    }
+    if ($bundleText062.Contains("BIG062 line 0001 filler filler filler filler") -and
+        $bundleText062.Contains("BIG062 line 0500 filler filler filler filler") -and
+        (-not $bundleText062.Contains("BIG062 line 0250 filler filler filler filler"))) {
+        ok "TEST-062c: elided bundle keeps first/last lines and genuinely drops a middle line"
+    } else {
+        fail "TEST-062c: elided bundle's head/tail/middle content does not match expectations"
+    }
+} else {
+    fail "TEST-062b/c: bundle file not written"
 }
 
 } finally {

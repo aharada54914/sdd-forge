@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-impl-impl-reviewer-a-a1r1-seq0776",
+  "host_session_id": "SESS-impl-impl-reviewer-a-sdd-domain-concept-contract-a1r1-0776",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/design.md",
+      "sha256": "28bb9247458d339d86f3f79b9f872dad365732b9dfe4311140ae60db4c7b474f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/ux-spec.md",
+      "sha256": "4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/frontend-spec.md",
+      "sha256": "3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/infra-spec.md",
+      "sha256": "39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/security-spec.md",
+      "sha256": "53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-domain-concept-contract/attempt-1/round-1/precheck-result.json",
+      "sha256": "3899c0367c75843a3c026ea9b3a58efc6ceb0c9b3f8d4450f9e84b1d50fd6b68"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": true,
+  "feature_type": "additive contract + deterministic validator + test corpus",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:80-96 '## Architecture' gives a multi-step pipeline diagram (契約 JSON → validate-domain-contract.sh/.ps1 [1. JSON parse 2. schema dispatch 3. structural check 4. cross-reference checks (d)-(i)] → exit 0 → downstream Phase 1/3 consumers, explicitly 'まだ接続しない'), which names component boundaries and describes their interaction order, not a bare one-sentence list. Integration with existing components is stated in Technical Summary:14-15 ('v1 consumer（domain-sync / reviewer A / interviewer / check-domain-conformance — INV-004）には触れない') and Constraint Compliance:142 ('v1 無変更（REQ-007） | 成果物3点はすべて新規ファイル。TEST-002/TEST-015が拘束'). Technology choices for the applicable layers are in Design Decisions DD-4:27 (bash+python3 stdlib json; ps1 ConvertFrom-Json; no jq/ajv/Test-Json) and the '## v2 Schema Shape' section (draft-07 JSON Schema, matching v1 style). frontend-spec.md and infra-spec.md both state 'N/A — no change', so no frontend/infra technology narrative is owed. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:80-96 describes a strictly linear, one-directional pipeline (contract JSON → validator → not-yet-connected downstream consumers) with no back-reference or mutual dependency between named components."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## Data Plan' (with Data Entities: / Existing Data Affected: / Migration Strategy: sub-fields) absent; legacy design.md predates this template requirement (precheck-result.json legacy_design=true). Equivalent substance is present elsewhere: '## v2 Schema Shape' (design.md:32-78) fully enumerates the new data entities (concepts[], contexts[], terms[], relations[], meta), Constraint Compliance:142 states existing v1 data is unaffected and drift-locked by TEST-002/TEST-015, and Open Items:150-151 (OQ-001) records that final v1 disposition/migration is explicitly deferred to Phase 3 rather than performed here. No substantive gap identified beyond the absent heading."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "[LEGACY COMPAT] Field '## API / Contract Plan' absent; legacy design.md predates this template requirement. The feature introduces no HTTP/RPC endpoint (ux-spec.md: 'no GUI, view, dialog, menu item, or interactive shell surface'); its 'contract' is the CLI validator, whose input/output contract is fully specified in '## Error Handling' (design.md:98-113: single path arg, 'RULE-ID: message' stderr lines, exit 0/1, enumerated RULE-IDs) and requirements.md Main Workflows:206-209. No user-facing interaction requiring a distinct API section is claimed by requirements.md or acceptance-tests.md (UI Integration Checklist: 'N/A — no change')."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md has no '## Security Boundaries' heading (legacy template gap), triggering the TYPE-H fallback: scanning requirements.md '## User Stories' (US-001..US-003, lines 82-90) found no PII keywords (email/phone/password/address/SSN/payment/card/token/auth/login) — per check instructions this yields a Minor advisory only, not a Major finding. Substantively, the responsible layer specification (security-spec.md, a normative refinement of design.md per this role's scope) covers all four required elements: trust boundary — 'Contract content is untrusted data... hand-written or generated from interview/seed material that included external text' (security-spec.md:13-14); auth/authz rationale — 'No privilege or approval surface. The validator neither reads nor writes Domain-Model-Status; approval protection remains with the existing hook guard and human-only approval' (security-spec.md:28-30); data classification — 'No secrets in fixtures... No credential values, tokens, personal data, or real customer information may appear in fixtures, script sources, test output, or persisted evidence' (security-spec.md:23-27); OWASP-relevant injection control — 'never command construction, never path dereference from contract values, never eval/Invoke-Expression' plus 'Fail-closed parsing... No partial verdicts' (security-spec.md:17-19, 20-22). Consider adding a brief '## Security Boundaries' pointer in design.md itself for template-freshness, but no gate-blocking gap exists."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'additive contract + deterministic validator + test corpus' (design.md:4), which does not correspond to a fullstack profile. No '## Frontend Plan' section exists in design.md, and the scoped frontend surface does not exist: ux-spec.md states 'There is no GUI, view, dialog, menu item, or interactive shell surface' and frontend-spec.md states 'There is no browser or frontend application... N/A — no change: no component tree, browser state, route, or API client exists or is added.'"
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:115-136 '## Test Strategy' covers unit-level scope (73 negative fixtures, 1-check-1-fixture, discriminated by RULE-ID — lines 123-127), integration-level scope (drift-lock structural assertions cross-checking the v2 schema declaration against actual validator behavior via TEST-001/TEST-002 — lines 119-122; twin parity TEST-013 cross-checking sh/ps1 verdicts — lines 134-135), and acceptance-level scope (explicit binding to 'acceptance-tests.md の TEST-001..026' — line 117). Concrete planned evidence is named: exact suite file `tests/sdd-domain/contract-v2-schema.Tests.ps1` (also confirmed in infra-spec.md:13-15), exact RULE-IDs (design.md:105-113), exact fixture counts, and the Positive-capability/Negative-path matrices in acceptance-tests.md as the completeness criterion (design.md:126-127). No fullstack critical-user-journey E2E path is required since ux-spec.md confirms no UI surface exists for this feature."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All components named in '## Architecture' are defined: '契約 JSON' is fully specified in '## v2 Schema Shape' (design.md:32-78); 'validate-domain-contract.sh / .ps1' is specified in Technical Summary:11, Design Decisions DD-4:27, and '## Error Handling'; the downstream 'Phase 1: concept-test ゲート' / 'Phase 3: reviewer 記録照合' consumers are named explicitly as not-yet-connected and are identifiable as established/planned components from requirements.md's own context — Overview:19-22 ('後続 Phase（concept-test の決定論ゲート、reviewer の記録照合チェック）が前提にする') and Target Users:32-34 ('後続 Phase の実装者（Phase 1 concept-test / Phase 2 authoring / Phase 3 review v2）'), consistent with the stated parent Epic 'Concept Design Layer — Phase 0: Concept Contract Foundation' (requirements.md:5-6). No component reference is left undefined."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md contains no '## Architecture Decision Records' section, so no referenced-ADR existence check applies. The feature's technology/design decisions (Design Decisions DD-1..DD-7, design.md:22-30) are framed by design.md itself as following pre-established house patterns rather than a new architectural departure — DD-4:27 cites 'INV-005 の house pattern（外部 schema エンジン不使用）' and DD-5:28 cites 'INV-006 の既存規約'. The umbrella architectural decision for this phased effort is already recorded at `docs/adr/0032-concept-design-layer-phased-introduction.md` (confirmed present on disk via read-only existence check), whose title matches the parent Epic named in requirements.md:5-6 ('Concept Design Layer — Phase 0: Concept Contract Foundation'). No unrecorded architectural departure identified."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIPPED: no `design-system/` directory exists in the repository (confirmed via read-only filesystem check). Per check instructions this is recorded as skipped and emitted as PASS. ux-spec.md independently confirms 'ds_profile: none — no design-system integration; no UI application is involved', consistent with the absence of the directory."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIPPED: no `domain/` directory exists in the repository (confirmed via read-only filesystem check: no `domain/context-map.md`, no `domain/domain-contract.json`). Per check instructions this is recorded as skipped and emitted as PASS."
+    }
+  ]
+}

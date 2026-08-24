@@ -320,7 +320,7 @@ and `sdd-evaluator.toml` (cost-aware: cheap for investigate, stronger for evalua
 
 ### Done When
 - [ ] THREAT-MODEL.md + capability matrix enumerate all controls/agents
-- [ ] Codex agents declare model without breaking developer_instructions guard
+- [ ] Cost-aware model routing for Codex agents is documented as a runtime control (capability-matrix M-04, `--model`/`--effort` at invocation) without breaking the developer_instructions guard; role toml intentionally carries no `model` key
 - [ ] Presence/format tests; report + quality gate + traceability updated
 
 ### Blockers
@@ -332,7 +332,7 @@ None
 
 Source Issue: investigation.md INV-001..007 (integration)
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: changes operator-facing workflow; wrong wiring could skip a gate. Behavioral but not cryptographic.
 Required Workflow: acceptance-first

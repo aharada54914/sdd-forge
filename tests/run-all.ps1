@@ -20,6 +20,7 @@ $tests = @(
     'tests/phase2-sudo-signature.tests.ps1',
     'tests/scenario.tests.ps1',
     'tests/install.tests.ps1',
+    'tests/installer-idempotency.tests.ps1',
     'tests/uninstall.tests.ps1',
     'tests/claude-registration.tests.ps1',
     'tests/workflow-state-registry.tests.ps1',
@@ -73,7 +74,9 @@ $tests = @(
     'tests/component-path-diff-basis.tests.ps1',
     'tests/ownership-digest.tests.ps1',
     'tests/check-component-coverage.tests.ps1',
-    'tests/component-path-ownership-parity.tests.ps1'
+    'tests/human-copy-mirror-freshness.tests.ps1',
+    'tests/component-path-ownership-parity.tests.ps1',
+    'tests/boundary-reference-authorization-parity.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

@@ -5,6 +5,9 @@ set -euo pipefail
 SCRIPT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 REGISTRY="$SCRIPT_ROOT/specs/workflow-state-registry.json"
 FEATURE_FILTER=""
+OPENING_STAGE=""
+OPENING_ATTEMPT=""
+OPENING_ROUND=""
 
 diagnostic_line() {
   printf 'workflow-state: %s: %s: %s\n' "$1" "$2" "$3" >&2
@@ -13,13 +16,21 @@ diagnostic() {
   diagnostic_line "$@"
   exit 1
 }
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 || {
+  diagnostic_line "neither sha256sum nor shasum is available"
+  exit 1
+}
 sha256_file() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}'
+  else diagnostic "neither sha256sum nor shasum is available"; fi
 }
 sha256_stream() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'
-  else shasum -a 256 | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}'
+  else diagnostic "neither sha256sum nor shasum is available"; fi
 }
 # plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
 # evolve normally over time, but historical review evidence under reports/
@@ -93,11 +104,24 @@ while (($#)); do
     --registry)
       (($# >= 2)) || diagnostic repository cli-usage "--registry requires a value"
       REGISTRY="$2"; shift 2 ;;
+    --opening)
+      (($# >= 2)) || diagnostic repository cli-usage "--opening requires a value"
+      [[ "$2" =~ ^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$ ]] ||
+        diagnostic repository cli-usage "--opening must be stage:attempt:round"
+      OPENING_STAGE="${BASH_REMATCH[1]}"
+      OPENING_ATTEMPT="${BASH_REMATCH[2]}"
+      OPENING_ROUND="${BASH_REMATCH[3]}"
+      shift 2 ;;
     *) diagnostic repository cli-usage "unknown argument: $1" ;;
   esac
 done
 [[ -z "$FEATURE_FILTER" || "$FEATURE_FILTER" =~ ^[a-z0-9][a-z0-9-]*$ ]] ||
   diagnostic "$FEATURE_FILTER" cli-usage "invalid feature slug"
+# --opening names the single round a review-loop precheck is about to open; it
+# only ever makes sense pinned to the one feature it belongs to, never as a
+# blanket exemption swept across the whole registry.
+[[ -z "$OPENING_STAGE" || -n "$FEATURE_FILTER" ]] ||
+  diagnostic repository cli-usage "--opening requires --feature"
 [[ -f "$REGISTRY" && ! -L "$REGISTRY" && -r "$REGISTRY" ]] ||
   diagnostic repository registry-unreadable "registry is missing, linked, or unreadable"
 jq -e . "$REGISTRY" >/dev/null 2>&1 ||
@@ -252,6 +276,32 @@ manifest_has_reviewed_hash() {
   fi
   return 1
 }
+# The traceability matrix is the only task-stage input besides the task plan
+# that carries a field the workflow is designed to advance: each requirement
+# row's final cell records that requirement's delivery status. Binding the
+# whole file froze that column too -- no full-profile feature has ever moved a
+# row off the authoring-time default. This rewrites ONLY that one cell, and
+# only when it already holds a value from the closed lifecycle vocabulary the
+# state registry pins, so every other byte of every row -- code targets, test
+# IDs, evidence paths -- still participates in the digest, and a body edit
+# matches neither form. An out-of-vocabulary value is a body edit, not a
+# lifecycle transition, and stays bound.
+# The recorded digest is taken at authoring time, when every cell already holds
+# the default, so the recorded raw digest and this normalized digest coincide
+# there; that is why no producing-side field is needed.
+# The trailing [[:space:]]* absorbs a CR, so CRLF input round-trips without a
+# literal \r escape (BSD sed has none).
+traceability_normalized_hash() {
+  local file="$1"
+  LC_ALL=C sed -E \
+    -e 's/^(\|[[:space:]]*REQ-.*\|)([[:space:]]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([[:space:]]*\|[[:space:]]*)$/\1\2Planned\4/' \
+    "$file" | sha256_stream
+}
+traceability_hash_accepted() {
+  local candidate="$1" raw="$2" normalized="$3"
+  [[ -n "$candidate" ]] || return 1
+  [[ "$candidate" == "$raw" || "$candidate" == "$normalized" ]]
+}
 manifest_has_hash() {
   local contract="$1" suffix="$2" expected="$3" recorded_root="$4"
   jq -e --arg suffix "$suffix" --arg expected "$expected" \
@@ -326,6 +376,54 @@ recorded_repo_root() {
     end
   ' "$contract"
 }
+# A BLOCKED or NEEDS_WORK verdict is the terminal state of one review pass,
+# not necessarily of the stage: a caller can re-open review after it (a
+# fresh attempt, or another round of the same attempt), and it is that later
+# pass -- not the one it superseded -- whose outcome the stage should be
+# judged on while it is still running.
+#
+# A tree-only signal cannot express this: the gate that must pass before a
+# new round is created runs BEFORE that round's own directory exists (this
+# is precisely what impl-review-precheck.sh's own replay guard requires --
+# "round destination already exists" is fatal), so nothing on disk can ever
+# prove a round is "open" at the one moment this check needs to know it. An
+# earlier version of this fix looked for a precheck-result.json in a later
+# round directory; that file cannot exist yet either, for the same reason,
+# so the exemption could never fire for the caller it exists for.
+#
+# The distinction that actually matters is who is asking, not what the tree
+# looks like right now (same conflation as before, resolved one level up).
+# A review-loop precheck opening round (attempt, round) knows those numbers
+# as its own CLI arguments -- ATTEMPT and ROUND -- before it ever reaches
+# this gate, and it is asking "may I start?", not "did this conclude?". It
+# says so explicitly via --opening stage:attempt:round. A standalone
+# invocation (CI, task-state-check, anything auditing the feature's health)
+# never passes --opening and gets none of this exemption: the latest
+# verdict governs for it exactly as before, unconditionally.
+#
+# --opening is not "a flag anyone can pass to wave away a BLOCKED verdict",
+# because it does not assert "trust me, this stage is fine" -- it names one
+# specific (attempt, round) pair, and this function independently checks
+# that pair against the tree's own recorded history before granting
+# anything. The ONLY value it will ever accept is the single true next slot
+# after the latest recorded verdict: either the next round of the SAME
+# attempt (best_round + 1) or round 1 of a BRAND NEW attempt
+# (best_attempt + 1). A caller cannot use it to skip past an intervening
+# verdict, resurrect an arbitrarily old BLOCKED attempt, or manufacture a
+# history that was never reviewed -- it can only ever confirm that trying
+# again, right here, right now, is the structurally legitimate next step,
+# which is true for any BLOCKED or NEEDS_WORK stage by the review loop's
+# own design. It grants no power beyond what the tree already permits; it
+# only lets the one caller who is about to exercise that permission prove
+# which pair of numbers it refers to before the evidence for it exists.
+stage_is_being_opened() {
+  local stage="$1" feature="$2" best_attempt="$3" best_round="$4"
+  [[ -n "$OPENING_STAGE" && "$OPENING_STAGE" == "$stage" && "$FEATURE_FILTER" == "$feature" ]] ||
+    return 1
+  ((OPENING_ATTEMPT == best_attempt && OPENING_ROUND == best_round + 1)) && return 0
+  ((OPENING_ATTEMPT == best_attempt + 1 && OPENING_ROUND == 1)) && return 0
+  return 1
+}
 validate_passed_stage() {
   local feature="$1" stage="$2" feature_dir="$3"
   local root="$REPO_ROOT/reports/${stage}-review/$feature"
@@ -357,7 +455,7 @@ validate_passed_stage() {
     jq -e . "$candidate" >/dev/null 2>&1 ||
       diagnostic "$feature" stage-provenance "$stage reviewer evidence is malformed"
   done
-  jq -e --arg feature "$feature" --arg stage "$stage" \
+  if ! jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .feature == $feature and .stage == $stage and .attempt == $attempt and
     .round == $round and
@@ -376,8 +474,10 @@ validate_passed_stage() {
       .findings_critical == 0 and .findings_major == 0 and
       (.findings_minor | type == "number" and . >= 0)
      end)
-  ' "$best" >/dev/null 2>&1 ||
+  ' "$best" >/dev/null 2>&1; then
+    stage_is_being_opened "$stage" "$feature" "$best_attempt" "$best_round" && return 0
     diagnostic "$feature" stage-provenance "$stage integrated verdict is not a valid PASS"
+  fi
   jq -e --arg feature "$feature" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     .schema == ($stage + "-review-contract/v1") and .feature == $feature and
@@ -491,8 +591,17 @@ validate_passed_stage() {
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage contract and verdict contradict each other"
 
+  # WFI-030 item 7: the round's precheck carries frozen_artifact_done_when, and
+  # reviewer-a must adjudicate every entry by name. A round recorded before the
+  # detector existed has no such file field; pointing --slurpfile at /dev/null
+  # yields an empty array, so $precheck[0] is null and `// []` below treats it
+  # as nothing to adjudicate rather than as a violation.
+  local round_precheck="$round_dir/precheck-result.json"
+  [[ -f "$round_precheck" ]] || round_precheck=/dev/null
+
   jq -e --slurpfile contract "$contract" --slurpfile verdict "$best" \
     --slurpfile reviewer_b "$reviewer_b" --slurpfile summary "$summary" --arg stage "$stage" \
+    --slurpfile precheck "$round_precheck" \
     --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
     --arg recorded "${recorded_root:+$recorded_root/}" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
@@ -571,7 +680,17 @@ validate_passed_stage() {
       all(.severity == "Critical" or .severity == "Major" or .severity == "Minor")) and
     (if $stage == "task" then
        ([$a.checks[] | select(.status == "FAIL")] | length) == ($a.findings | length) and
-       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length)
+       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length) and
+       # WFI-030 item 7: every Done When item the precheck flagged as naming a
+       # review-frozen artifact must be adjudicated by task ID in the
+       # OBSERVABLE-DONE finding of reviewer-a. This does not judge the
+       # adjudication -- the detector is deliberately permissive and the reviewer
+       # decides -- it only requires that the decision was recorded against each
+       # flagged task. (No apostrophes here: the jq program is single-quoted.)
+       (([$a.checks[]? | select(.id == "OBSERVABLE-DONE") | (.finding // "")]
+          | join(" ")) as $observed |
+        all(($precheck[0].frozen_artifact_done_when // [])[];
+            . as $flagged | $observed | contains($flagged.task)))
      else true end) and
     ($summary[0].schema == "integrated-summary/v1" and
      $summary[0].attempt == $attempt and $summary[0].round == $round) and
@@ -675,11 +794,15 @@ validate_passed_stage() {
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       [[ -f "$traceability" && ! -L "$traceability" ]] ||
         diagnostic "$feature" stage-provenance "task traceability input is missing or linked"
-      local traceability_hash
+      local traceability_hash traceability_normalized
       traceability_hash="$(sha256_file "$traceability")"
-      [[ "$(jq -r '.traceability_sha256 // empty' "$precheck")" == "$traceability_hash" &&
-         "$(jq -r '.traceability_sha256 // empty' "$contract")" == "$traceability_hash" ]] ||
+      traceability_normalized="$(traceability_normalized_hash "$traceability")"
+      if ! traceability_hash_accepted "$(jq -r '.traceability_sha256 // empty' "$precheck")" \
+             "$traceability_hash" "$traceability_normalized" ||
+         ! traceability_hash_accepted "$(jq -r '.traceability_sha256 // empty' "$contract")" \
+             "$traceability_hash" "$traceability_normalized"; then
         diagnostic "$feature" stage-provenance "task traceability hash is stale"
+      fi
       local task_design_hash
       task_design_hash="$(sha256_file "$feature_dir/design.md")"
       [[ "$(jq -r '.design_sha256 // empty' "$precheck")" == "$task_design_hash" &&
@@ -688,6 +811,7 @@ validate_passed_stage() {
       manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" ||
         diagnostic "$feature" stage-provenance "task reviewer manifests omit design"
       manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
+      manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_normalized" "$recorded_root" ||
         diagnostic "$feature" stage-provenance "task reviewer manifests omit traceability"
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
         diagnostic "$feature" stage-provenance "task layer precheck manifest is incomplete"

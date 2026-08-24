@@ -206,6 +206,18 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    artifact is undeclared, declare it and relaunch rather than instructing
    around it (WFI-036).
    No same-session fallback is permitted for the evaluator.
+   Allocate the evaluator a scratch directory of its own and name it in the
+   launch brief: a path used by no implementation context for this feature and
+   by no earlier evaluator run. Tell the evaluator to write nothing outside it.
+   This is not housekeeping (WFI-034). Sharing one scratch root across roles
+   puts the implementing agent's intermediates -- a `.bak` of the suite under
+   review, per-task append scripts, raw red/green logs -- inside reach of the
+   agent grading that work, through a channel the manifest does not describe
+   and the hash checks never see. Observed in `sdd-domain-concept-contract`:
+   the evaluator found exactly those files and disclosed that it had declined
+   to read them. What held there was the reviewer's judgement, not a mechanism,
+   and a boundary that depends on the reviewed party declining an available
+   capability is not a boundary.
    For `high`/`critical` tasks, record
    the evaluator's verdict as `review_verdict` in the evidence bundle;
    `check-evidence-bundle` requires `review_verdict.verdict == PASS`.
@@ -226,13 +238,22 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
     run described in `deterministic-check-policy.md`.
 13. Create review-ticket YAML for unresolved or non-auto-fixable findings.
 14. Update traceability and detect drift using `integrity-policy.md`.
-15. Create `reports/quality-gate/<timestamp>.md` naming the task id. Record
-    the same `- Model:` / `- Effort:` two-line requirement the
-    implementation report carries (`implementation-report.template.md`,
+15. Create `reports/quality-gate/<timestamp>.md` from
+    `plugins/sdd-quality-loop/templates/quality-report.template.md` — the
+    template exists and is parity-tested
+    (`tests/template-validator-parity.tests.{sh,ps1}`); do not author the
+    report freeform. Its identity header block (`Task ID:` / `Feature:` /
+    `Run ID:` / `VERDICT:` / `Critical:` / `Major:` / `Minor:`) is parsed
+    by deterministic consumers (check-evidence-bundle, emit-run-record,
+    generate-evidence-bundle, the retrospective's artifact rules): keep
+    each as a bare line before any prose, and never start a later body
+    line with `Feature: ` or `Task ID: ` — two consumers require exactly
+    one match each. Record the same `- Model:` / `- Effort:` two-line
+    requirement the implementation report carries
+    (`implementation-report.template.md`,
     `validate-implementation-report.sh` present-and-format-only check):
     name the model and effort the gate's own critical-review pass ran
-    under, freely-authored (no separate template file exists for this
-    report).
+    under. (WFI-020)
 
 ### Sudo Mode
 

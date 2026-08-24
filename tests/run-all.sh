@@ -7,6 +7,7 @@ cd "$ROOT"
 
 tests=(
   tests/install.tests.sh
+  tests/installer-idempotency.tests.sh
   tests/uninstall.tests.sh
   tests/guards.tests.sh
   tests/approval-boundary.tests.sh
@@ -32,6 +33,7 @@ tests=(
   tests/retrospective-loop.tests.sh
   tests/emit-run-record-feature-scope.tests.sh
   tests/rollback-1.5.0.tests.sh
+  tests/release-config-lock.tests.sh
   tests/cross-model.tests.sh
   tests/eval.tests.sh
   tests/crlf-parity.tests.sh
@@ -54,6 +56,7 @@ tests=(
   tests/guard-parity.tests.sh
   tests/claude-bash-matcher.tests.sh
   tests/phase2-guard-invariants.tests.sh
+  tests/human-copy-mirror-freshness.tests.sh
   tests/phase2-guard-tokenizer.tests.sh
   tests/phase2-risk-upgrade.tests.sh
   tests/phase2-sudo-signature-static.tests.sh
@@ -63,11 +66,16 @@ tests=(
   tests/guard-ps1-ascii.tests.sh
   tests/repository-release-validation.tests.sh
   tests/template-validator-parity.tests.sh
+  tests/task-lifecycle-enum-parity.tests.sh
+  tests/task-state-grammar-parity.tests.sh
+  tests/task-plan-binding-durability.tests.sh
+  tests/schema-engine-identity.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh
   tests/review-prompt-calibration.tests.sh
   tests/review-context-boundary.tests.sh
+  tests/boundary-reference-authorization-parity.tests.sh
   tests/design-system-contract.tests.sh
   tests/design-system-compliance.tests.sh
   tests/loop-escalation.tests.sh

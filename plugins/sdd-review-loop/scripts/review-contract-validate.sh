@@ -36,7 +36,7 @@ canonical_root="${canonical_parent}/$(basename "$report_root")"
 command -v jq >/dev/null 2>&1 || fail "jq is required"
 jq -e \
   --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" --arg stage "$stage" \
-  'type == "object" and (keys == ["attempt", "feature", "input_sha256", "round", "run_id", "schema", "stage", "verdict"]) and .schema == "review-contract/v1" and .feature == $feature and .attempt == $attempt and .round == $round and .stage == $stage and (.input_sha256|type == "string" and test("^[0-9a-fA-F]{64}$")) and (.run_id|type == "string" and test("\\S")) and .verdict == "PASS"' \
+  'type == "object" and (keys == ["attempt", "feature", "input_sha256", "round", "run_id", "schema", "stage", "verdict"]) and .schema == "review-contract/v1" and .feature == $feature and .attempt == $attempt and .round == $round and .stage == $stage and (.input_sha256|type == "string" and test("^[0-9a-f]{64}$")) and (.run_id|type == "string" and test("\\S")) and .verdict == "PASS"' \
   "$contract" >/dev/null || fail "contract identity or PASS verdict is invalid"
 
 jq -cn --arg feature "$feature" --argjson attempt "$attempt" --argjson round "$round" --arg stage "$stage" \

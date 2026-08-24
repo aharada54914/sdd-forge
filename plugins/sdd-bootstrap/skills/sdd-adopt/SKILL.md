@@ -19,10 +19,11 @@ Codex:
 Use the sdd-adopt skill.
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-bootstrap:sdd-adopt [project-root]
+```
+/sdd-bootstrap:bootstrap
 ```
 
 `project-root` defaults to the repository root when omitted.

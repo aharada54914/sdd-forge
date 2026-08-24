@@ -223,18 +223,24 @@ function Test-FailConditions {
                 $warnings.Add("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
                 continue
             }
+            # Hoisted: validate each declared pattern once per binding. A
+            # malformed pattern is surfaced as a warning instead of being
+            # silently re-swallowed per (component, path) pair.
+            $usablePatterns = [System.Collections.Generic.List[object]]::new()
+            foreach ($pattern in $binding.AdapterPaths) {
+                try {
+                    $usablePatterns.Add(@($pattern, (Confirm-AndNormalizePattern $pattern)))
+                } catch {
+                    $warnings.Add("Fail-6: a provider binding declares an unusable adapter path pattern; it cannot match anything: " + [string]$pattern)
+                }
+            }
             foreach ($comp in $binding.ProviderBindingIds) {
                 if (-not $exclusiveByComponent.ContainsKey($comp)) { continue }
                 foreach ($path in $exclusiveByComponent[$comp]) {
                     $nfcPath = ConvertTo-Nfc $path
-                    foreach ($pattern in $binding.AdapterPaths) {
-                        try {
-                            $normalized = Confirm-AndNormalizePattern $pattern
-                        } catch {
-                            continue
-                        }
-                        if (Test-PatternMatches -PatternNormalized $normalized -PathNfc $nfcPath) {
-                            $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pattern })
+                    foreach ($pair in $usablePatterns) {
+                        if (Test-PatternMatches -PatternNormalized $pair[1] -PathNfc $nfcPath) {
+                            $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pair[0] })
                         }
                     }
                 }

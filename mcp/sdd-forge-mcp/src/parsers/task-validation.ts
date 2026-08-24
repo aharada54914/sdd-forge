@@ -17,7 +17,11 @@ import {
   type TaskFailure,
 } from "./task-types.js";
 
-const APPROVED_ANNOTATION_PATTERN = /^Approved \((.+)\)$/;
+// WFI-042: annotated approvals are valid only in the strict
+// `Approved (<id> <ISO8601, seconds, Z>)` form — the same grammar approverId()
+// extracts from and check-task-state.sh enforces, so validity and approver
+// extraction can no longer disagree about one line.
+const APPROVED_ANNOTATION_PATTERN = /^Approved \(([^ )]+ \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\)$/;
 const APPROVER_ID_PATTERN = /^Approved \(([^ )]+) \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\)$/;
 
 /** Extracts the `Approved (<id> <ISO-8601>)` approver id, or "" if the shape does not match. */

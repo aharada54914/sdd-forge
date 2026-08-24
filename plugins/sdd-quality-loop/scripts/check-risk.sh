@@ -45,6 +45,12 @@ BEGIN {
 /^## T-[0-9]+/ {
   if (task != "") finish()
   newid = $2
+  # RT-20260821-006: duplicate task headings are a structural error on both
+  # runtimes (the ps1 twin previously merged them; both now fail closed).
+  if (newid in seen_heading) {
+    print " - duplicate task heading: " newid; failures++
+  }
+  seen_heading[newid] = 1
   task = newid; risk = ""; risk_rationale = ""; required_workflow = ""; count++
   risk_impact = ""; risk_reversibility = ""; risk_surface = ""
 }

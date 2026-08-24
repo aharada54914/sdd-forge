@@ -62,6 +62,23 @@ function Get-Sha256Text {
     }
 }
 
+# WFI-025: the STATUS-NORMALIZED task-plan digest -- byte-for-byte the same
+# recipe as check-workflow-state.ps1 Get-NormalizedHash for the task stage
+# (canonical form 1). The one scoped exception to the raw hash-equality rule
+# in the manifest-entry loop is defined over exactly the fields this
+# normalization rewrites.
+function Get-TasksNormalizedHash([string]$Path) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace($text, "(?m)^Task-Review-Status:[^\r\n]*(\r?)$", 'Task-Review-Status: Pending$1')
+    $text = [regex]::Replace($text, "(?m)^Approval:[^\r\n]*(\r?)$", 'Approval: Draft$1')
+    $text = [regex]::Replace($text, "(?m)^Status:[^\r\n]*(\r?)$", 'Status: Planned$1')
+    $text = [regex]::Replace($text, "(?m)^Second Approval:[^\r\n]*\r?\n?", '')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+
 function Test-AuthorizedPath {
     param(
         [string]$Stage,
@@ -242,10 +259,11 @@ try {
         $null -ne (Get-Item -LiteralPath $ledger -Force).LinkType) {
         Fail-ReviewContext 'IDENTITY' 'canonical identity ledger is missing or is not a regular file'
     }
+    # NOTE: identity_ledger_sha256 is only meaningful for a reservation (the
+    # ledger state a reservation is validated against, before it appends). It
+    # is NOT checked here unconditionally -- see the reservation/verification
+    # branch below, which is the only place this comparison is enforced.
     $actualLedgerHash = (Get-FileHash -LiteralPath $ledger -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
-        Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
-    }
     try {
         $ledgerDocument = Get-Content -LiteralPath $ledger -Raw -Encoding UTF8 | ConvertFrom-Json -AsHashtable
     }
@@ -291,12 +309,75 @@ try {
         $expectedPrevious = $record.record_sha256
         $expectedSequence++
     }
-    if ([decimal]$document.sequence -ne $expectedSequence -or
-        $document.previous_record_sha256 -cne $expectedPrevious) {
-        Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
+    # A manifest describes either an identity not yet in the ledger (a
+    # reservation) or an identity whose record is already persisted (a
+    # verification of a prior reservation -- possibly with later records now
+    # chained on top of it, e.g. a branch merge/re-chain). The ledger itself
+    # disambiguates which case this is: an identity is "reserved" once some
+    # record's run_id AND host_session_id both match the manifest's. That,
+    # not the -Reserve switch, decides which checks below apply.
+    $persistedMatch = $records | Where-Object {
+        $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
+    } | Select-Object -First 1
+
+    if ($null -ne $persistedMatch) {
+        # Verification of an already-reserved identity. The persisted record
+        # is authoritative and must match the manifest exactly on every
+        # identity field; its own record_sha256 was already proven to
+        # recompute correctly by the whole-ledger chain walk above, which
+        # runs unconditionally. The tip position and identity_ledger_sha256
+        # are NOT re-checked here: both are meaningless once later records
+        # may have landed on top of this one.
+        if ($Reserve) {
+            Fail-ReviewContext 'IDENTITY' 'run and host-session identity are already persisted in the canonical identity ledger; an identity cannot be reserved twice'
+        }
+        if ([decimal]$persistedMatch.sequence -ne [decimal]$document.sequence) {
+            Fail-ReviewContext 'IDENTITY' 'invocation sequence does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.stage -cne $document.stage) {
+            Fail-ReviewContext 'IDENTITY' 'invocation stage does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.role -cne $document.role) {
+            Fail-ReviewContext 'IDENTITY' 'invocation role does not match the persisted identity-ledger record'
+        }
+        if ($persistedMatch.previous_record_sha256 -cne $document.previous_record_sha256) {
+            Fail-ReviewContext 'IDENTITY' 'invocation previous-record hash does not match the persisted identity-ledger record'
+        }
+        # WFI-037: the uniqueness the REVIEW_CONTEXT_OK line asserts must be
+        # proven in this branch too, not inherited from the reserve path.
+        $persistedCount = @($records | Where-Object {
+            $_.run_id -ceq $document.run_id -and $_.host_session_id -ceq $document.host_session_id
+        }).Count
+        if ($persistedCount -ne 1) {
+            Fail-ReviewContext 'IDENTITY' 'run and host-session identity appears more than once in the canonical identity ledger'
+        }
+        # Tip position is meaningless for a persisted verification (see
+        # above), so the emitted chain fact says so explicitly.
+        $preAppendTipSequence = '-'
     }
-    if ($runs.Contains($document.run_id) -or $sessions.Contains($document.host_session_id)) {
-        Fail-ReviewContext 'IDENTITY' 'run or host-session identity was already persisted'
+    else {
+        # A partial match -- one of the two identity fields already persisted
+        # under a DIFFERENT value for the other -- means two different
+        # launches are colliding on one identity. That is never valid, in
+        # either mode, so it fails loudly here rather than silently falling
+        # into reservation mode.
+        if ($records | Where-Object { $_.run_id -ceq $document.run_id -and $_.host_session_id -cne $document.host_session_id }) {
+            Fail-ReviewContext 'IDENTITY' 'run ID matches a persisted identity-ledger record but host-session ID does not: two launches are colliding on one identity'
+        }
+        if ($records | Where-Object { $_.host_session_id -ceq $document.host_session_id -and $_.run_id -cne $document.run_id }) {
+            Fail-ReviewContext 'IDENTITY' 'host-session ID matches a persisted identity-ledger record but run ID does not: two launches are colliding on one identity'
+        }
+
+        # Reservation of a new identity: today's behaviour, unchanged.
+        if ($actualLedgerHash -cne $document.identity_ledger_sha256) {
+            Fail-ReviewContext 'IDENTITY' 'canonical identity ledger hash is stale or mismatched'
+        }
+        if ([decimal]$document.sequence -ne $expectedSequence -or
+            $document.previous_record_sha256 -cne $expectedPrevious) {
+            Fail-ReviewContext 'IDENTITY' 'invocation does not extend the canonical identity ledger'
+        }
+        # WFI-037: the record extends the pre-append tip, proven just above.
+        $preAppendTipSequence = [string]($expectedSequence - 1)
     }
 
     $inputs = @($document.allowed_input_manifest)
@@ -416,6 +497,14 @@ try {
             }
         }
     }
+    # Located before the manifest-entry loop: the WFI-025 task-plan exception
+    # inside the loop cross-checks the round's precheck record. The precheck
+    # entry's own raw-hash verification still runs in the loop, so a tampered
+    # precheck cannot buy a reservation -- any mismatch fails the whole run.
+    $wfi025PrecheckEntry = $inputs | Where-Object {
+        $_ -is [hashtable] -and $_.path -is [string] -and
+        $_.path -cmatch '^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$'
+    } | Select-Object -First 1
     $paths = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
     foreach ($input in $inputs) {
         if ($input -isnot [hashtable] -or -not (Test-ExactKeys $input @('path', 'sha256')) -or
@@ -448,7 +537,42 @@ try {
         }
         $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLowerInvariant()
         if ($actualHash -cne $input.sha256) {
-            Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+            # WFI-025: the ONE scoped exception to the raw-equality rule. A
+            # task-stage manifest may declare the task plan's normalized
+            # digest, but only when the same round's precheck declares
+            # tasks_sha256_form: normalized AND pinned exactly this digest
+            # AND the live file still normalizes to it -- the entry keeps
+            # binding every byte outside the lifecycle fields. Every other
+            # entry keeps the strict raw requirement.
+            $wfi025Applies = $false
+            if ($document.stage -ceq 'task' -and $input.path -ceq "specs/$($document.feature)/tasks.md" -and
+                $null -ne $wfi025PrecheckEntry) {
+                $wfi025PrecheckPath = Join-Path $repositoryRoot $wfi025PrecheckEntry.path
+                if (Test-Path -LiteralPath $wfi025PrecheckPath -PathType Leaf) {
+                    $wfi025Precheck = Get-Content -LiteralPath $wfi025PrecheckPath -Raw | ConvertFrom-Json
+                    $wfi025Form = 'raw'
+                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256_form']) {
+                        $wfi025Form = [string]$wfi025Precheck.tasks_sha256_form
+                    }
+                    if ($wfi025Form -cne 'normalized') {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+                    }
+                    $wfi025Pinned = ''
+                    if ($null -ne $wfi025Precheck.PSObject.Properties['tasks_sha256']) {
+                        $wfi025Pinned = [string]$wfi025Precheck.tasks_sha256
+                    }
+                    if ($input.sha256 -cne $wfi025Pinned) {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path) (a normalized task-plan digest must be the one this round's precheck recorded)"
+                    }
+                    if ((Get-TasksNormalizedHash $candidate) -cne $input.sha256) {
+                        Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path) (the live task plan does not normalize to the declared digest)"
+                    }
+                    $wfi025Applies = $true
+                }
+            }
+            if (-not $wfi025Applies) {
+                Fail-ReviewContext 'HASH' "$($document.role) hash mismatch: $($input.path)"
+            }
         }
     }
 
@@ -546,7 +670,16 @@ try {
             }
         }
     }
-    [Console]::Out.WriteLine("REVIEW_CONTEXT_OK $recordHash")
+    # WFI-037: the OK line carries the chain facts a launched role needs to
+    # verify its own identity WITHOUT reading the ledger (which no role's
+    # manifest may authorize): the reserved record's sequence, the
+    # previous-record hash the record chains from, the pre-append tip
+    # sequence ('-' when verifying an already-persisted identity, where tip
+    # position is meaningless), and the uniqueness assertion for the
+    # run/session ids -- every one proven by a fail-closed check above
+    # before this line prints.
+    $previousForLine = if ([string]::IsNullOrEmpty([string]$document.previous_record_sha256)) { '-' } else { [string]$document.previous_record_sha256 }
+    [Console]::Out.WriteLine("REVIEW_CONTEXT_OK $recordHash sequence=$($document.sequence) previous_record_sha256=$previousForLine pre_append_tip_sequence=$preAppendTipSequence identity_unique=yes")
     exit 0
 }
 catch {

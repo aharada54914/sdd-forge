@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 4,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0",
+  "acceptance_sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "820c74bee270d319e6a3fe1a634e5c43480004ffc7236de6955eb6c10927ad2f",
+  "edit_summary": "Attempt 4 round 1 の Major（reviewer A: AC-OBSERVABLE / reviewer B: AMBIGUITY、同一根本原因 — pattern 境界正例 APIOrder / order-taking-2 に正例 AC の所有者が無く、正例マトリクス G3 行が負例 AC-018 を正例根拠に引用し、AC-018 本文と Notes で帰属が矛盾していた）に対応。acceptance-tests.md のみ変更、requirements.md は無変更。(1) AC-003 の本文に境界正例の義務を追加 — fixture 系に name APIOrder（連続大文字）の concept と order-taking-2（数字セグメント）の context を含め、いずれも受理されることを名指しで規定。(2) AC-018 から正例節を除去し『境界の正例は本 AC の対象外であり AC-003 が名指しで義務づける』というポインタに置換（負例 3 件は不変）。(3) G3 マトリクス行の引用を正例 5 AC（AC-003/004/005/025/026）に修正し、境界値の所有者として AC-003 を明記。(4) Notes の帰属を TEST-018 から TEST-003 に訂正。確定前の機械検証に極性検査を追加し、正例マトリクス全行の引用 AC が正例系であること・名指し要素の実在・REQ-005 上流整合・境界値所有の一本化・負例マトリクス 55 セルを全件確認した。",
+  "reset": false,
+  "generated_at": "2026-08-17T00:13:07Z"
+}

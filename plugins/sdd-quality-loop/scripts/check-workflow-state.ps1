@@ -134,6 +134,26 @@ function Get-RereviewNormalizedHash([string]$Path, [string]$Status) {
     try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
+# Twin of traceability_normalized_hash() in check-workflow-state.sh. Rewrites
+# only each REQ row's final delivery-status cell, and only over the closed
+# lifecycle vocabulary; every other byte still participates in the digest.
+# [^\S\r\n] is horizontal whitespace only, so the explicit (\r?)$ keeps CRLF
+# input byte-identical -- matching the convention of the functions above.
+function Get-TraceabilityNormalizedHash([string]$Path) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace(
+        $text,
+        '(?m)^(\|[^\S\r\n]*REQ-.*\|)([^\S\r\n]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([^\S\r\n]*\|[^\S\r\n]*)(\r?)$',
+        '${1}${2}Planned${4}${5}')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
+function Test-TraceabilityHash([string]$Candidate, [string]$Raw, [string]$Normalized) {
+    if ([string]::IsNullOrEmpty($Candidate)) { return $false }
+    return ($Candidate -eq $Raw -or $Candidate -eq $Normalized)
+}
 function Get-Header([string]$Path, [string]$Header) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return "" }
     $match = [regex]::Match([IO.File]::ReadAllText($Path), "(?m)^$([regex]::Escape($Header)):\s*(\S+)")
@@ -167,6 +187,28 @@ function Get-RepositoryRelativePath(
         }
     }
     return $null
+}
+function Get-CandidateRootsForPath([string]$NormalizedPath) {
+    # One recorded manifest path's candidate repository roots: split on the
+    # repository's structural top-level directories, counting a split only
+    # when the suffix it produces matches a canonical manifest shape (the
+    # rationale is documented in Get-RecordedRepositoryRoot, whose per-path
+    # inner derivation this extracts). Returned with the comma operator so
+    # PowerShell hands back the HashSet itself instead of unrolling it.
+    $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
+        $index = $NormalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
+        while ($index -ge 0) {
+            $suffix = $NormalizedPath.Substring($index + 1)
+            if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
+                $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
+                $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+                [void]$candidateRoots.Add($NormalizedPath.Substring(0, $index))
+            }
+            $index = $NormalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
+        }
+    }
+    return ,$candidateRoots
 }
 function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
     $normalizedRoot = $RepositoryRoot.Replace("\", "/").TrimEnd("/")
@@ -204,19 +246,7 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
                 }
             }
             if ($isCurrent) { continue }
-            $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
-            foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
-                $index = $normalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
-                while ($index -ge 0) {
-                    $suffix = $normalizedPath.Substring($index + 1)
-                    if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
-                        $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
-                        $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
-                        [void]$candidateRoots.Add($normalizedPath.Substring(0, $index))
-                    }
-                    $index = $normalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
-                }
-            }
+            $candidateRoots = Get-CandidateRootsForPath $normalizedPath
             if ($candidateRoots.Count -ne 1) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
@@ -407,6 +437,9 @@ function Test-ManifestPaths(
 $ScriptRoot = (Resolve-Path (Join-Path $PSScriptRoot "../../..")).Path
 $Registry = Join-Path $ScriptRoot "specs/workflow-state-registry.json"
 $FeatureFilter = ""
+$script:OpeningStage = ""
+$script:OpeningAttempt = 0
+$script:OpeningRound = 0
 for ($i = 0; $i -lt $args.Count; $i++) {
     switch ([string]$args[$i]) {
         "--feature" {
@@ -417,11 +450,27 @@ for ($i = 0; $i -lt $args.Count; $i++) {
             if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--registry requires a value" }
             $Registry = [string]$args[$i]
         }
+        "--opening" {
+            if (++$i -ge $args.Count) { Stop-WorkflowState "repository" "cli-usage" "--opening requires a value" }
+            $openingValue = [string]$args[$i]
+            if ($openingValue -notmatch "^(spec|impl|task):([1-9][0-9]*):([1-9][0-9]*)$") {
+                Stop-WorkflowState "repository" "cli-usage" "--opening must be stage:attempt:round"
+            }
+            $script:OpeningStage = $Matches[1]
+            $script:OpeningAttempt = [int]$Matches[2]
+            $script:OpeningRound = [int]$Matches[3]
+        }
         default { Stop-WorkflowState "repository" "cli-usage" "unknown argument: $($args[$i])" }
     }
 }
 if ($FeatureFilter -and $FeatureFilter -notmatch "^[a-z0-9][a-z0-9-]*$") {
     Stop-WorkflowState $FeatureFilter "cli-usage" "invalid feature slug"
+}
+# --opening names the single round a review-loop precheck is about to open;
+# it only ever makes sense pinned to the one feature it belongs to, never as
+# a blanket exemption swept across the whole registry.
+if ($script:OpeningStage -and -not $FeatureFilter) {
+    Stop-WorkflowState "repository" "cli-usage" "--opening requires --feature"
 }
 if (-not (Test-Path -LiteralPath $Registry -PathType Leaf) -or
     (Get-Item -LiteralPath $Registry -Force).LinkType) {
@@ -558,6 +607,54 @@ if ($FeatureFilter -and -not $declared.ContainsKey($FeatureFilter)) {
     Stop-WorkflowState $FeatureFilter "registry-unknown-feature" "feature is not registered"
 }
 
+# A BLOCKED or NEEDS_WORK verdict is the terminal state of one review pass,
+# not necessarily of the stage: a caller can re-open review after it (a
+# fresh attempt, or another round of the same attempt), and it is that later
+# pass -- not the one it superseded -- whose outcome the stage should be
+# judged on while it is still running.
+#
+# A tree-only signal cannot express this: the gate that must pass before a
+# new round is created runs BEFORE that round's own directory exists (this
+# is precisely what impl-review-precheck.sh's own replay guard requires --
+# "round destination already exists" is fatal), so nothing on disk can ever
+# prove a round is "open" at the one moment this check needs to know it. An
+# earlier version of this fix looked for a precheck-result.json in a later
+# round directory; that file cannot exist yet either, for the same reason,
+# so the exemption could never fire for the caller it exists for.
+#
+# The distinction that actually matters is who is asking, not what the tree
+# looks like right now (same conflation as before, resolved one level up).
+# A review-loop precheck opening round (attempt, round) knows those numbers
+# as its own CLI arguments -- ATTEMPT and ROUND -- before it ever reaches
+# this gate, and it is asking "may I start?", not "did this conclude?". It
+# says so explicitly via -Opening stage:attempt:round. A standalone
+# invocation (CI, task-state-check, anything auditing the feature's health)
+# never passes -Opening and gets none of this exemption: the latest verdict
+# governs for it exactly as before, unconditionally.
+#
+# -Opening is not "a flag anyone can pass to wave away a BLOCKED verdict",
+# because it does not assert "trust me, this stage is fine" -- it names one
+# specific (attempt, round) pair, and this function independently checks
+# that pair against the tree's own recorded history before granting
+# anything. The ONLY value it will ever accept is the single true next slot
+# after the latest recorded verdict: either the next round of the SAME
+# attempt (BestRound + 1) or round 1 of a BRAND NEW attempt
+# (BestAttempt + 1). A caller cannot use it to skip past an intervening
+# verdict, resurrect an arbitrarily old BLOCKED attempt, or manufacture a
+# history that was never reviewed -- it can only ever confirm that trying
+# again, right here, right now, is the structurally legitimate next step,
+# which is true for any BLOCKED or NEEDS_WORK stage by the review loop's
+# own design. It grants no power beyond what the tree already permits; it
+# only lets the one caller who is about to exercise that permission prove
+# which pair of numbers it refers to before the evidence for it exists.
+function Test-StageIsBeingOpened([string]$Stage, [string]$Feature, [int]$BestAttempt, [int]$BestRound) {
+    if (-not $script:OpeningStage -or $script:OpeningStage -ne $Stage -or $FeatureFilter -ne $Feature) {
+        return $false
+    }
+    if ($script:OpeningAttempt -eq $BestAttempt -and $script:OpeningRound -eq ($BestRound + 1)) { return $true }
+    if ($script:OpeningAttempt -eq ($BestAttempt + 1) -and $script:OpeningRound -eq 1) { return $true }
+    return $false
+}
 function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir) {
     $root = Join-Path $RepoRoot "reports/$Stage-review/$Feature"
     if (-not (Test-Path -LiteralPath $root -PathType Container) -or (Get-Item $root -Force).LinkType) {
@@ -623,7 +720,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             [string]$verdict.reviewer_b_verdict -in @("PASS", "NEEDS_WORK") -and
             [int]$verdict.findings_critical -eq 0 -and [int]$verdict.findings_major -eq 0
     }
-    if (-not $identityOk) { Stop-WorkflowState $Feature "stage-provenance" "$Stage integrated verdict is not a valid PASS" }
+    if (-not $identityOk) {
+        if (Test-StageIsBeingOpened $Stage $Feature $latest.Attempt $latest.Round) { return }
+        Stop-WorkflowState $Feature "stage-provenance" "$Stage integrated verdict is not a valid PASS"
+    }
     $roles = @($contract.reviewers | ForEach-Object { [string]$_.role } | Sort-Object)
     $runs = @($contract.reviewers | ForEach-Object { [string]$_.run_id } | Sort-Object -Unique)
     $hosts = @($contract.reviewers | ForEach-Object { [string]$_.host_session_id } | Sort-Object -Unique)
@@ -733,6 +833,28 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         $findingsB = @($reviewerB.findings)
         $reviewerIdentityOk = $reviewerIdentityOk -and
             $failedA.Count -eq $findingsA.Count -and $failedB.Count -eq $findingsB.Count
+        # WFI-030 item 7, twin of the jq clause in check-workflow-state.sh.
+        # The precheck for this round is read here rather than reused from the
+        # stage-provenance block, which parses it in a later scope.
+        $frozenFlagged = @()
+        $roundPrecheck = Join-Path $latest.File.DirectoryName "precheck-result.json"
+        if (Test-Path -LiteralPath $roundPrecheck -PathType Leaf) {
+            $precheckRound = Get-Content -LiteralPath $roundPrecheck -Raw | ConvertFrom-Json
+            $frozenProperty = $precheckRound.psobject.Properties['frozen_artifact_done_when']
+            if ($null -ne $frozenProperty -and $null -ne $frozenProperty.Value) {
+                $frozenFlagged = @($frozenProperty.Value)
+            }
+        }
+        if ($frozenFlagged.Count -gt 0) {
+            $observedDoneWhen = @($reviewerA.checks |
+                Where-Object { [string]$_.id -eq "OBSERVABLE-DONE" } |
+                ForEach-Object { [string]$_.finding }) -join " "
+            foreach ($flaggedItem in $frozenFlagged) {
+                if (-not $observedDoneWhen.Contains([string]$flaggedItem.task)) {
+                    $reviewerIdentityOk = $false
+                }
+            }
+        }
     } else {
         $findingsA = $failedA
         $findingsB = $failedB
@@ -880,7 +1002,9 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 Stop-WorkflowState $Feature "stage-provenance" "task traceability input is missing or linked"
             }
             $traceabilityHash = Get-Sha256 $traceability
-            if ([string]$precheckData.traceability_sha256 -ne $traceabilityHash -or [string]$contract.traceability_sha256 -ne $traceabilityHash) {
+            $traceabilityNormalized = Get-TraceabilityNormalizedHash $traceability
+            if (-not (Test-TraceabilityHash ([string]$precheckData.traceability_sha256) $traceabilityHash $traceabilityNormalized) -or
+                -not (Test-TraceabilityHash ([string]$contract.traceability_sha256) $traceabilityHash $traceabilityNormalized)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task traceability hash is stale"
             }
             $taskDesign = Join-Path $FeatureDir "design.md"
@@ -891,7 +1015,8 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
             if (-not (Test-ManifestHash $contract "/specs/$Feature/design.md" $taskDesignHash $RepoRoot)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit design"
             }
-            if (-not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityHash $RepoRoot)) {
+            if (-not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityHash $RepoRoot) -and
+                -not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityNormalized $RepoRoot)) {
                 Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit traceability"
             }
             $expectedLayers = @("ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")

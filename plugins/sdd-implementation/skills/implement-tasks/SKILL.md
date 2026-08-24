@@ -16,10 +16,11 @@ invoke `quality-gate` for the feature.
 
 ## Invocation
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-implementation:implement-tasks specs/<feature>/tasks.md
+```
+/sdd-ship:ship
 ```
 
 Codex:

@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": true,
+  "design_req_drift": false,
+  "design_sha256": "28bb9247458d339d86f3f79b9f872dad365732b9dfe4311140ae60db4c7b474f",
+  "requirements_sha256": "b35b94e4f5750a88ae0f3b913ff0ecf7ea5cbdbf8babc47891a8a0d3a4ed9e5d",
+  "acceptance_sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d",
+  "layer_sha256": {"ux-spec.md":"4b8002989014ab6583c14df8318c1b6862d03614bb198a5a6180ab37f426bb11","frontend-spec.md":"3bec792dcdc9bf49d5d40f0bd31419c15e65f6e88814aea765cbb8c06734d5ed","infra-spec.md":"39e77b2b0ebad7ffb118a38121aa044b9a93c5aba8131ca8e12cd095f0004999","security-spec.md":"53122921680de8519a3be952d0f27b62a424152ee6f309d02e28382942eb1a1c"},
+  "input_sha256": "a3a373c5862e288b5d20c2b4cdcc95ff99f97eeaec69f509cf8df02ef462b126",
+  "generated_at": "2026-08-17T04:04:06Z"
+}

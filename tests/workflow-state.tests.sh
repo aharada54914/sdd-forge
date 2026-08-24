@@ -697,4 +697,305 @@ done
 [[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
   fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
 
+# ── WFI-030: traceability delivery-status normalization ──────────────────────
+# The task-stage binding hashes traceability.md whole-file. Its per-requirement
+# delivery-status cell is the one field the workflow is designed to advance as
+# tasks complete, so a change confined to that cell -- and only over the closed
+# lifecycle vocabulary the state registry pins -- must be absorbed the way
+# tasks.md's Status: header already is. Every other byte stays bound.
+#
+# The fixture source carries no layer_sha256, so the task-stage traceability
+# block at check-workflow-state.sh:675 would be skipped entirely. These cases
+# build the full-profile task state the block requires, which is why they do
+# more setup than the fixtures above.
+wfi030_sha() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'; else shasum -a 256 "$1" | awk '{print $1}'; fi; }
+
+# Rewrite every REQ row's delivery-status cell to $2, over the closed vocabulary
+# only. Mirrors the normalization under test, so the fixture can be put into the
+# authoring-time state the precheck really records.
+wfi030_set_status() {
+  LC_ALL=C sed -E -i.bak \
+    "s/^(\| REQ-.*\|)([[:space:]]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([[:space:]]*\|[[:space:]]*)\$/\\1\\2$2\\4/" "$1"
+  rm -f "$1.bak"
+}
+
+# wfi030_fixture <name> [flagged-task-id] [adjudicate: yes|no]
+# With a flagged task id, the round's precheck gains a frozen_artifact_done_when
+# entry for it (WFI-030 item 7). "yes" rewrites reviewer-a's OBSERVABLE-DONE
+# finding to name that task; "no" rewrites it to a finding that does not.
+wfi030_fixture() {
+  local root round specs trace layer extra layers pairs
+  local flagged="${2:-}" adjudicate="${3:-yes}" frozen='[]'
+  if [[ -n "$flagged" ]]; then
+    frozen="$(jq -nc --arg t "$flagged" \
+      '[{task: $t, line: 10, item: "- [ ] traceability.md rows record this evidence path."}]')"
+  fi
+  root="$(make_full_fixture "$1")"
+  round="$(latest_task_round_dir "$root")"
+  specs="$root/specs/workflow-state-integrity"
+  trace="$specs/traceability.md"
+  # Authoring-time state: every delivery-status cell at the default. This is the
+  # state a real precheck captures, and the property the tolerance relies on --
+  # a matrix recorded with live statuses does not gain it.
+  wfi030_set_status "$trace" Planned
+  for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+    printf '# %s\n\nWFI-030 fixture layer spec.\n' "${layer%.md}" > "$specs/$layer"
+  done
+  layers="$({ for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+      printf '%s\t%s\n' "$layer" "$(wfi030_sha "$specs/$layer")"
+    done; } | jq -R -s -c 'split("\n")|map(select(length>0)|split("\t")|{(.[0]):.[1]})|add')"
+  # The precheck must be rewritten before the manifest is, because the manifest
+  # also binds the precheck file's own hash.
+  jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" --argjson l "$layers" \
+    --argjson frozen "$frozen" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l
+     | .frozen_artifact_done_when=$frozen' \
+    "$round/precheck-result.json" > "$round/precheck-result.json.new"
+  mv "$round/precheck-result.json.new" "$round/precheck-result.json"
+  if [[ -n "$flagged" ]]; then
+    # Rewriting a finding's text changes neither the check ids nor the pass/fail
+    # counts, so the integrated-summary cross-checks are unaffected and only the
+    # adjudication clause can react.
+    local adjudication="Every Done When item is inspectable."
+    [[ "$adjudicate" == yes ]] &&
+      adjudication="${adjudication} ${flagged}: satisfiable without editing the frozen matrix; the row already names the evidence path."
+    jq --arg text "$adjudication" \
+      '.checks |= map(if .id == "OBSERVABLE-DONE" then .finding = $text else . end)' \
+      "$round/reviewer-a.json" > "$round/reviewer-a.json.new"
+    mv "$round/reviewer-a.json.new" "$round/reviewer-a.json"
+  fi
+  pairs="$({
+    printf 'specs/workflow-state-integrity/traceability.md\t%s\n' "$(wfi030_sha "$trace")"
+    printf 'specs/workflow-state-integrity/design.md\t%s\n' "$(wfi030_sha "$specs/design.md")"
+    for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+      printf 'specs/workflow-state-integrity/%s\t%s\n' "$layer" "$(wfi030_sha "$specs/$layer")"
+    done
+    printf '%s/precheck-result.json\t%s\n' "${round#"$root"/}" "$(wfi030_sha "$round/precheck-result.json")"
+  })"
+  extra="$(printf '%s' "$pairs" | jq -R -s -c 'split("\n")|map(select(length>0)|split("\t")|{path:.[0],sha256:.[1]})')"
+  # Upsert, not append: check-workflow-state.sh:473 rejects a manifest with any
+  # duplicate path, and the source contract already lists traceability.md.
+  jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" \
+    --argjson l "$layers" --argjson extra "$extra" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l
+     | ($extra | map({key: .path, value: .sha256}) | from_entries) as $ov
+     | .reviewers |= map(
+         (.allowed_input_manifest // []) as $m
+         | .allowed_input_manifest = (
+             ($m | map(if $ov[.path] then .sha256 = $ov[.path] else . end))
+             + ($extra | map(. as $e | select(([$m[].path] | index($e.path)) == null)))))' \
+    "$round/task-review-contract.json" > "$round/task-review-contract.json.new"
+  mv "$round/task-review-contract.json.new" "$round/task-review-contract.json"
+  # Each reviewer's own recorded manifest must cover everything the contract
+  # claims it reviewed, so the same entries are upserted there.
+  local reviewer
+  for reviewer in reviewer-a reviewer-b; do
+    [[ -f "$round/$reviewer.json" ]] || continue
+    # reviewer-a records .manifest as a bare array; reviewer-b records
+    # .manifest.allowed_inputs inside an object. Handle both shapes.
+    jq --argjson extra "$extra" \
+      'def upsert($ov; $m):
+         (($m // []) | map(if $ov[.path] then .sha256 = $ov[.path] else . end))
+         + ($extra | map(. as $e | select(([($m // [])[].path] | index($e.path)) == null)));
+       ($extra | map({key: .path, value: .sha256}) | from_entries) as $ov
+       | if (.manifest | type) == "object"
+         then .manifest.allowed_inputs = upsert($ov; .manifest.allowed_inputs)
+         else .manifest = upsert($ov; .manifest) end' \
+      "$round/$reviewer.json" > "$round/$reviewer.json.new"
+    mv "$round/$reviewer.json.new" "$round/$reviewer.json"
+  done
+  printf '%s\n' "$root"
+}
+
+# Baseline: the task-stage traceability block is now reached (layer_sha256 is
+# populated) and the untouched matrix validates on both twins. Without this the
+# three cases below could pass vacuously by never entering the block.
+wfi030_base="$(wfi030_fixture wfi030-base)"
+expect_valid "$wfi030_base"
+
+# A delivery-status transition inside the closed vocabulary is absorbed. This is
+# the case the WFI exists to create; before the change it failed with
+# stage-provenance on both twins.
+wfi030_flip="$(wfi030_fixture wfi030-flip)"
+wfi030_set_status "$wfi030_flip/specs/workflow-state-integrity/traceability.md" Done
+expect_valid "$wfi030_flip"
+
+# A value outside the closed vocabulary is a body edit, not a lifecycle
+# transition, and stays bound. Without this case the tolerance would read as
+# "the last cell is unbound", which is not what was implemented.
+wfi030_outside="$(wfi030_fixture wfi030-outside)"
+LC_ALL=C sed -E -i.bak 's/^(\| REQ-.*\|)([[:space:]]*)Planned([[:space:]]*\|[[:space:]]*)$/\1\2Delivered\3/' \
+  "$wfi030_outside/specs/workflow-state-integrity/traceability.md"
+rm -f "$wfi030_outside/specs/workflow-state-integrity/traceability.md.bak"
+expect_rule "$wfi030_outside" stage-provenance
+
+# Every non-status byte stays bound: an edit to any other cell still fails. This
+# is the anti-Goodhart control -- coverage of the status column must not have
+# been bought by unbinding the row.
+# WFI-030 item 7: a Done When item the precheck flagged must be adjudicated by
+# task ID in reviewer-a's OBSERVABLE-DONE finding. The detector is deliberately
+# permissive -- three of the six items it fires on across this repository are
+# false positives -- so this does not judge the adjudication, only that one was
+# recorded. The review that started this WFI did reason about the frozen-artifact
+# rule; the reasoning was simply unverifiable.
+wfi030_adjudicated="$(wfi030_fixture wfi030-adjudicated T-001 yes)"
+expect_valid "$wfi030_adjudicated"
+
+wfi030_ignored="$(wfi030_fixture wfi030-ignored T-001 no)"
+expect_rule "$wfi030_ignored" stage-provenance
+
+wfi030_body="$(wfi030_fixture wfi030-body)"
+printf '\n<!-- WFI-030 body edit outside every delivery-status cell -->\n' \
+  >> "$wfi030_body/specs/workflow-state-integrity/traceability.md"
+expect_rule "$wfi030_body" stage-provenance
+# check-workflow-state's own gate runs BEFORE a review-loop precheck creates
+# the round it is trying to open (impl-review-precheck.sh calls this gate at
+# its STEP "canonical validation", and only writes precheck-result.json at
+# its later STEP 6) -- so nothing on disk can ever prove a round is "open"
+# at the one moment this check needs to know it. A tree-only signal (an
+# artifact in a later round directory) therefore cannot express the
+# distinction that matters. What distinguishes a review-loop precheck
+# opening round (attempt, round) from a standalone auditor is not tree
+# state but who is asking: the precheck already knows attempt/round as its
+# own CLI arguments and says so explicitly via --opening stage:attempt:round.
+# A standalone invocation (no --opening) always sees the latest verdict
+# govern, exactly as before.
+
+# Standalone (no --opening): BLOCKED latest verdict, nothing beyond it in
+# the tree -> must still fail, with the identical diagnostic a non-BLOCKED
+# non-PASS verdict gets. This is the check earning its keep: a feature whose
+# review genuinely ended BLOCKED must not read as healthy just because
+# --opening now exists for a different caller to use.
+blocked_no_successor="$(make_full_fixture blocked-no-successor)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_no_successor/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_no_successor/verdict.tmp"
+mv "$blocked_no_successor/verdict.tmp" \
+  "$blocked_no_successor/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+expect_rule "$blocked_no_successor" stage-provenance
+
+run_opening() {
+  # $1=root $2=feature $3=opening-value $4=expect-exit(0|nonzero) $5=label
+  local root="$1" feature="$2" opening="$3" expect_ok="$4" label="$5"
+  local output status ps_output ps_status
+  set +e
+  output="$(bash "$CHECKER" --registry "$root/specs/workflow-state-registry.json" \
+    --feature "$feature" --opening "$opening" 2>&1)"
+  status=$?
+  ps_output="$(pwsh -NoProfile -File \
+    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    --registry "$root/specs/workflow-state-registry.json" \
+    --feature "$feature" --opening "$opening" 2>&1)"
+  ps_status=$?
+  set -e
+  if [[ "$expect_ok" == "0" ]]; then
+    [[ $status -eq 0 ]] || fail "$label: Shell unexpectedly failed: $output"
+    [[ $ps_status -eq 0 ]] || fail "$label: PowerShell unexpectedly failed: $ps_output"
+  else
+    [[ $status -ne 0 ]] || fail "$label: Shell unexpectedly passed"
+    [[ $ps_status -ne 0 ]] || fail "$label: PowerShell unexpectedly passed"
+    [[ "$output" == *": stage-provenance:"* ]] || fail "$label: Shell wrong rule: $output"
+    [[ "$(printf '%s\n' "$output" | rule_id)" == "$(printf '%s\n' "$ps_output" | rule_id)" ]] ||
+      fail "$label: twins diverged: Shell=$output PowerShell=$ps_output"
+  fi
+}
+
+# THE case that matters: the gate invoked exactly the way
+# impl-review-precheck.sh invokes it when opening a new attempt over a
+# BLOCKED predecessor -- with NOTHING yet written under the new attempt (no
+# directory, no precheck-result.json, nothing). Only the tree's own history
+# (attempt-1/round-2 BLOCKED) plus the caller's --opening claim exist. This
+# is the case the file-artifact-based version of this fix could never
+# satisfy, because the artifact it looked for cannot exist until after this
+# same gate has already passed.
+blocked_opening_next_attempt="$(make_full_fixture blocked-opening-next-attempt)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_opening_next_attempt/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_next_attempt/verdict.tmp"
+mv "$blocked_opening_next_attempt/verdict.tmp" \
+  "$blocked_opening_next_attempt/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+[[ ! -e "$blocked_opening_next_attempt/reports/impl-review/workflow-state-integrity/attempt-2" ]] ||
+  fail "blocked-opening-next-attempt fixture precondition not met: attempt-2 already exists"
+run_opening "$blocked_opening_next_attempt" workflow-state-integrity impl:2:1 0 \
+  "blocked-opening-next-attempt"
+
+# Same shape, but opening the next ROUND of the SAME attempt rather than a
+# new attempt -- the adjacency rule covers both continuation shapes.
+blocked_opening_next_round="$(make_full_fixture blocked-opening-next-round)"
+jq '.verdict = "NEEDS_WORK"' \
+  "$blocked_opening_next_round/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_next_round/verdict.tmp"
+mv "$blocked_opening_next_round/verdict.tmp" \
+  "$blocked_opening_next_round/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+[[ ! -e "$blocked_opening_next_round/reports/impl-review/workflow-state-integrity/attempt-1/round-3" ]] ||
+  fail "blocked-opening-next-round fixture precondition not met: round-3 already exists"
+run_opening "$blocked_opening_next_round" workflow-state-integrity impl:1:3 0 \
+  "blocked-opening-next-round"
+
+# Non-vacuity: --opening cannot be used to wave away a BLOCKED verdict "at a
+# distance". The ONLY value this function will ever accept is the true next
+# slot; skipping ahead to an arbitrary attempt, or an arbitrary round within
+# the same attempt, must still fail exactly like the no-successor case.
+blocked_opening_arbitrary="$(make_full_fixture blocked-opening-arbitrary)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_opening_arbitrary/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_arbitrary/verdict.tmp"
+mv "$blocked_opening_arbitrary/verdict.tmp" \
+  "$blocked_opening_arbitrary/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+run_opening "$blocked_opening_arbitrary" workflow-state-integrity impl:9:1 1 \
+  "blocked-opening-arbitrary-attempt-rejected"
+run_opening "$blocked_opening_arbitrary" workflow-state-integrity impl:1:5 1 \
+  "blocked-opening-arbitrary-round-rejected"
+
+# Non-vacuity: --opening is scoped to the single stage named in it. Claiming
+# to open the SPEC stage's next round must not exempt the IMPL stage's own
+# BLOCKED verdict -- the exemption cannot leak across stages.
+blocked_opening_wrong_stage="$(make_full_fixture blocked-opening-wrong-stage)"
+jq '.verdict = "BLOCKED"' \
+  "$blocked_opening_wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
+  > "$blocked_opening_wrong_stage/verdict.tmp"
+mv "$blocked_opening_wrong_stage/verdict.tmp" \
+  "$blocked_opening_wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json"
+run_opening "$blocked_opening_wrong_stage" workflow-state-integrity spec:2:1 1 \
+  "blocked-opening-wrong-stage"
+
+# A PASS latest verdict is unaffected by --opening being present: the
+# "valid" fixture's own genuinely-PASS impl verdict never even reaches the
+# branch that consults it.
+run_opening "$valid" workflow-state-integrity impl:2:1 0 "valid-with-opening-flag-present"
+
+# --opening is only meaningful pinned to one feature; without --feature it
+# must be rejected as a usage error on both runtimes (not silently ignored,
+# which would make it a blanket, registry-wide exemption).
+set +e
+no_feature_output="$(bash "$CHECKER" --registry "$valid/specs/workflow-state-registry.json" \
+  --opening impl:2:1 2>&1)"
+no_feature_status=$?
+no_feature_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$valid/specs/workflow-state-registry.json" --opening impl:2:1 2>&1)"
+no_feature_ps_status=$?
+set -e
+[[ $no_feature_status -ne 0 && $no_feature_ps_status -ne 0 ]] ||
+  fail "--opening without --feature unexpectedly succeeded"
+[[ "$no_feature_output" == *": cli-usage:"* ]] || fail "--opening without --feature: wrong rule: $no_feature_output"
+[[ "$(printf '%s\n' "$no_feature_output" | rule_id)" == "$(printf '%s\n' "$no_feature_ps_output" | rule_id)" ]] ||
+  fail "--opening without --feature twins diverged: Shell=$no_feature_output PowerShell=$no_feature_ps_output"
+
+# A malformed --opening value (unknown stage, non-numeric attempt/round) is
+# a usage error, not a silent no-op.
+set +e
+bad_opening_output="$(bash "$CHECKER" --registry "$valid/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening "bogus" 2>&1)"
+bad_opening_status=$?
+bad_opening_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$valid/specs/workflow-state-registry.json" \
+  --feature workflow-state-integrity --opening "bogus" 2>&1)"
+bad_opening_ps_status=$?
+set -e
+[[ $bad_opening_status -ne 0 && $bad_opening_ps_status -ne 0 ]] ||
+  fail "malformed --opening value unexpectedly succeeded"
+[[ "$bad_opening_output" == *": cli-usage:"* ]] || fail "malformed --opening: wrong rule: $bad_opening_output"
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'
