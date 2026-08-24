@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 3,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "5461fd7e50a4140cfcc71b07a08503906f698587d1dca377c9bef5c2b96ef618",
+  "acceptance_sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33",
+  "calibration_sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385",
+  "input_sha256": "34566d5569166b65a6b5ab20a1b32854f7e62b2aa41fcabaa2437203c99528bb",
+  "edit_summary": "f585cb0e mirrors the human-approved A1 jointly-caused-abort exception into both AC-056 restatement rows (requirements.md AC table row AC-056 and acceptance-tests.md AC-056/TEST-056) in the amended sentence's own words, anchors the term 'evaluation pass' to REQ-001's own steps (f)-(g) no-short-circuit sweep, and names the abort-exception fixture (block suite, evaluate-predicate-failure-after-warn) with the exact output shape it asserts.",
+  "reset": false,
+  "generated_at": "2026-08-23T23:55:14Z"
+}
