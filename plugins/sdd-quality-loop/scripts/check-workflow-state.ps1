@@ -473,6 +473,17 @@ function Test-ManifestHashForFile(
     if (Test-ManifestHash $Contract $Suffix $current $RepositoryRoot) { return $true }
     $trimmed = $Suffix.TrimStart("/")
     if ($trimmed -notlike "plugins/*") { return $false }
+    # Same "not evaluable, not failed" rule Test-PluginsHashMatches already
+    # applies: a fixture root with no git history at all (e.g. a release
+    # artifact, or WFI-024's reference-doc-forged-no-git fixture) has
+    # nothing to reconcile a stale plugins/ manifest hash against, so this
+    # must be accepted rather than rejected. Without this check, any live
+    # drift of a plugins/ reference doc this function guards
+    # (spec-review-calibration.md, reviewer-calibration.md) fails closed
+    # under no-git even though the identical drift on risk-gate-matrix.md is
+    # correctly tolerated by Test-PluginsHashMatches -- the two functions
+    # must agree on this class.
+    if (-not (Test-PluginsGitHistoryAvailable)) { return $true }
     $pin = Get-PluginsPinCommit $EvidenceFile
     if (-not $pin) { return $false }
     $historical = Get-PluginsHashAtPin $pin $trimmed
