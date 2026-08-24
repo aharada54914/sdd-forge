@@ -8,22 +8,27 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "plugins/sdd-lite/skills/lite-spec/SKILL.md: Capability-derived signal; tests/lite-spec-capability-block",
-      "note": "The central candidate-(a) integration is not functionally verified. The skill contains procedural prose, while the functional test starts from an already-assembled fragment and invokes check-risk-upgrade directly; it never exercises Registry enumeration, Project-Context component enumeration, evaluate-predicate invocation, union matching, fragment construction, or evaluator failure handling. Consequently the evidence cannot establish that the implemented intake gate actually produces the required Capability-derived signal."
+      "ref": "sanitized bundle / declared T-003 output human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
+      "note": "The central T-003 implementation artifact is not included in the bundle. Only substring-based tests and reports are provided, so the actual Risk-Upgrade Gate procedure cannot be reviewed for complete, correctly ordered, fail-closed behavior."
     },
     {
       "severity": "Major",
-      "ref": "plugins/sdd-lite/skills/lite-spec/SKILL.md: ship-time recheck; tests/lite-spec-capability-block TEST-019-defense-in-depth",
-      "note": "The claimed mandatory second Capability-aware enforcement stage is not implemented or demonstrated. The staged skill says the ship-time invocation is unmodified, and the defense-in-depth test only confirms that ship/SKILL.md still invokes check-risk-upgrade; it does not show that ship computes or supplies a Capability fragment. A later diff-only Capability match can therefore remain invisible to the unchanged keyword-only recheck, contrary to the resolved OQ-002 two-stage contract."
+      "ref": "tests/lite-spec-capability-block.tests.sh: functional fixture; tests/lite-spec-capability-block.tests.ps1: functional fixture",
+      "note": "The acceptance tests do not execute A2 evaluate-predicate or verify the required Capability \u00d7 Project-Context-component fan-out. They substitute component-name equality and manually assemble the fragment, while the bundle's CHANGELOG states evaluate-predicate is implemented. Consequently the core REQ-005 signal-source integration can be absent or incorrect while all 14 assertions pass."
     },
     {
       "severity": "Major",
-      "ref": "specs/epic-194-a6-lite-integration/human-copy/README.md; apply-protected-files.ps1:Get-PayloadFileSet/Test-ExactSet",
-      "note": "The committed human-copy staging tree is not directly applicable by the required four-target runner because README.md and .github/workflows/test.yml are recursively classified as undeclared payload. The documented procedure requires deleting those tracked files before invoking the runner, so the delivered staging state does not itself satisfy AC-031's exact-set application contract and T-003's human-apply path remains operationally incomplete."
+      "ref": "verification/T-003.contract.json regression check; verification/qg/shared/regression.log section 2026-08-21",
+      "note": "The verification contract records regression passes:true, but its cited evidence explicitly reports a real repository-release-validation failure and states that passes is therefore false. This makes the default-fail contract inconsistent with its own evidence."
+    },
+    {
+      "severity": "Major",
+      "ref": "acceptance-tests.md TEST-010 and TEST-031; design.md Protected-File Statement; tasks.md Protected Files item 3",
+      "note": "The protected publication contract remains internally inconsistent: TEST-010 widens the payload to five targets including .github/workflows/test.yml, while TEST-031 and design.md still require an exact four-target set. The runner therefore cannot both enforce the stated exact set and apply T-003's staged CI candidate as tasks.md requires."
     }
   ],
   "blind": true,
-  "input_digest": "201e34aec327f707528c54ddf5bd9340a35aea13536a923069ddb8dcbd0ebe33",
+  "input_digest": "7203043a53f8bca928d5a81d904f08b53315becb0264cf46a62d24da0706940d",
   "consent": {
     "kind": "sudo",
     "ref": "tasks.md T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"

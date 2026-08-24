@@ -1,1 +1,66 @@
-{"schema":"cross-model-verdict/v1","task_id":"T-002","feature":"epic-194-a6-lite-integration","vendor":"anthropic","model":"claude-opus-5","verdict":"NEEDS_WORK","findings":[{"severity":"Critical","ref":"staged check-risk-upgrade.ps1: if ($PSBoundParameters.ContainsKey('CapabilityReasons') -and -not [string]::IsNullOrEmpty($CapabilityReasons)) {","note":"Supplied-but-empty argument is treated as never-supplied, re-opening the exact fail-open Blocker [B3]/INV-014 closed. The script proves the caller DID supply the parameter (ContainsKey is true) and then discards that fact, skipping the whole fragment branch: -CapabilityReasons '' (or $null, which the [AllowNull()][string] param coerces to '') yields capabilityTriggers = @() and lite-eligible/exit 0 instead of 'risk-upgrade: capability-reasons fragment invalid'/exit 2. The sh twin does the opposite for identical input: it sets capability_reasons_supplied=1 with an empty path, and Path('').read_bytes() raises OSError into the handler, exiting 2. The two runtimes answer differently for identical input, and the PowerShell answer is the fail-open one. Contradicts design.md Security Boundaries ('the only remaining degrade path is the second argument's own total absence'), requirements.md Trust Boundary B2 ('a caller that attempts to supply a Capability-derived signal and fails must never be silently treated as one that never attempted to'), and AC-027. It is the precise harm the task's own Risk Rationale names: 'lets a Lite-ineligible Capability pass through silently.' No logged assertion covers an empty-string fragment path - the ps1 GREEN block enumerates only TEST-013a (missing file), 013b (bad JSON), 013c-f (missing keys), 013g (omitted argument)."},{"severity":"Critical","ref":"sh fragment shape check vs ps1 equivalent; AC-027; Field Definitions","note":"The fragment shape check validates key PRESENCE only, never types, so fragments that are shape-invalid against the Field Definitions ({id: <capability-id, non-empty string>, eligible: <boolean>, upgrade_reasons: [<token>,...]}) are accepted instead of exiting 2, and the twins then disagree about what they mean. (a) {\"id\":\"x\",\"eligible\":0,...} - sh's 'if entry[eligible] is False' is identity-strict so int 0 is NOT False and the entry is silently treated as eligible (trigger lost, exit 0 on a clean source), while ps1's '-eq $false' coerces and matches, emitting the trigger and exit 10. The sh side is the fail-open direction and also deviates from the designed algorithm, which specifies 'entry[eligible] == false'. Same split for \"eligible\":\"False\". (b) {\"capabilities\": {\"id\":\"x\",\"eligible\":false}} - sh's isinstance(capabilities, list) check exits 2, but the ps1 has no array check at all: @($fragment.capabilities) silently wraps the object into a one-element array, so ps1 emits 'full-required: ineligible:x' and exit 10. Design step 2b lists 'capabilities not an array' as a mandatory exit-2 condition and TEST-013d claims to lock it; the ps1 passes TEST-013d only because the fixture evidently uses a scalar, which fails for the unrelated reason that a scalar has no id property. (c) \"upgrade_reasons\":\"durable_workflow\" - sh raises and exits 2; ps1's @($entry.upgrade_reasons) wraps the bare string and emits it as a trigger. STRIDE B2 explicitly admits an adversarial corrupted fragment into the threat model, so well-typed input cannot be assumed. Separately, the policy doc's own enumeration of fragment-invalid conditions omits the upgrade_reasons-not-an-array rule the sh actually enforces, so the protected doc under-describes the shipped sh behaviour. No cross-runtime differential fixture exists for this task, which is why these splits are invisible in the GREEN logs."},{"severity":"Major","ref":"sh trigger assembly and output line; ps1 equivalents","note":"Capability-derived values reach the output grammar with no validation, so a delimiter inside a value forges a field the caller parses. The emitter formats 'full-required: {all_triggers[0]}; triggers={','.join(all_triggers)}' over tokens built from str(token) and 'ineligible:' + str(entry['id']). An id of 'x; triggers=NONE' produces 'full-required: ineligible:x; triggers=NONE; triggers=ineligible:x; triggers=NONE'; an id or token containing ',' splits into two triggers; a newline breaks the single-line contract that design.md step 5 and the two documented call sites depend on. Nothing in the bundle constrains id: the policy doc delegates only the upgrade_reasons TOKENS upstream ('already validated against the lite-upgrade-reason-catalog'), and id is never catalog-validated anywhere - its only stated rule is 'non-empty string', which neither implementation enforces either ({\"id\":\"\",...} emits the degenerate token 'ineligible:'). This repository already recognised exactly this class one requirement over: requirements.md Field Definitions NEW-01/INV-021 imposes ^[a-z0-9][a-z0-9-]*$ on check-ids because 'an unconstrained string could otherwise defeat' a bounded claim, enforced at three independent points. No equivalent grammar, and no test, exists for the REQ-002 tokens/ids that reach this gate's output line."},{"severity":"Minor","ref":"ps1 [Parameter(Position = 1)] [AllowNull()] [string]$CapabilityReasons vs sh arity dispatch","note":"The ps1 makes the fragment path bindable POSITIONALLY, so 'check-risk-upgrade.ps1 <src> <frag>' merges the fragment and exits 10, while the identical-arity 'check-risk-upgrade.sh <src> <frag>' falls into the *) arm and prints 'risk-upgrade: input unavailable', exit 2. design.md's API/Contract Plan specifies the ps1 surface as named (-Path <source-path> [-CapabilityReasons <fragment-path>]), and the suites only ever exercise the named form, so the positional superset is entirely untested."},{"severity":"Minor","ref":"tasks.md T-002 header 'Cross-Model: not enabled'","note":"Recorded for the reader, not as a defect in the code: the task block declares cross-model verification not enabled, while this panel run is authorised by the bundle header '# consent: sudo'. Cannot verify from the bundle alone whether the sudo consent was intended to supersede that line or whether the task block is stale."}],"blind":true,"input_digest":"201e34aec327f707528c54ddf5bd9340a35aea13536a923069ddb8dcbd0ebe33","consent":{"kind":"sudo","ref":"bundle header '# consent: sudo'"}}
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "ref": "verification/T-002.contract.json (checks[] id \"regression\") vs verification/qg/shared/regression.log (section \"=== 2026-08-21: full tests/run-all.sh, run to completion ===\")",
+      "note": "The contract records the required regression check as \"passes\": true, but the very file it names as evidence states verbatim \"passes is therefore recorded false. Full-repository regression does not pass on this branch.\" The contract's comment still narrates only the superseded, timed-out, scoped run and never mentions the 2026-08-21 completed run or its real failure. A required gate is recorded green against evidence that records it red."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/qg/shared/regression.log (\"3 failing suite(s)\" enumeration, line 5217 excerpt)",
+      "note": "repository-release-validation is an unwaived REAL FAILURE on this branch: check-workflow-state reports \"stage-provenance: spec top-level contract hashes are stale\" (acceptance-tests.md moved 685a415a -> 691db158 at commit 9997091c) and, masked behind it, the still-unresolved \"task plan hash is stale\". The log itself states neither stage contract was re-frozen and that re-freezing needs a human. T-002 is being certified against specification and task-plan documents whose provenance pins are broken."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json (\"spec_revision\": \"2740928c...\", \"created\": \"2026-08-19T04:53:00Z\")",
+      "note": "The contract pins a spec revision and was authored 2026-08-19, before the 2026-08-21 amendment (commit 9997091c) that rewrote AC-010 from a four-target to a five-target payload set in the acceptance-tests.md included in this bundle. The contract therefore certifies a spec revision that is not the one under review, and nothing in the bundle allows either hash to be recomputed."
+    },
+    {
+      "severity": "Major",
+      "ref": "acceptance-tests.md (AC-010 row vs AC-031 row)",
+      "note": "AC-010 now declares a five-target payload set (risk-upgrade-policy.md, check-risk-upgrade.sh, check-risk-upgrade.ps1, lite-spec/SKILL.md, and the staged CI workflow file), while AC-031 in the same table still specifies the runner contract over \"the declared four-target payload list\" and requires it to reject any staged directory whose payload file set does not exactly match \"the declared four-target list\". T-002's own Done-When names its HUMAN APPLY STEP as the step through which AC-010/AC-031 resolve, so the gate that finishes this task carries two mutually exclusive exact-set contracts."
+    },
+    {
+      "severity": "Major",
+      "ref": "bundle section list (no section for the staged human-copy check-risk-upgrade.sh/.ps1 or risk-upgrade-policy.md); reports/implementation/epic-194-a6-lite-integration/T-002.md (\"Outputs\" table; \"Security review: not yet independently recorded\")",
+      "note": "The task's three primary deliverables are absent from the bundle and carry no SHA-256 in the Outputs table, which lists only the eight test files, green.log, tasks.md and CHANGELOG.md. This is a risk:high, Security-Sensitive:true script that parses externally supplied JSON and decides full-required vs lite-eligible, and the implementation report itself records that its staged content has never had a dedicated security review. Its parsing, quoting and fail-closed logic cannot be read or hash-verified from this bundle, so no credit can be given for it beyond the behavioural assertions the four suites happen to make."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json (checks[] id \"placeholder-scan\") vs verification/qg/shared/placeholder-scan.log (CHANGELOG.md block, exit: 1)",
+      "note": "The required placeholder-scan check is recorded \"passes\": true while its own evidence records exit 1 with 5 findings on CHANGELOG.md, a file T-002 declares as one of its own Outputs and edited this session. The scanner's own message requires each finding to be fixed \"or explicitly accepted by a human in the quality-gate report\"; no such human acceptance appears anywhere in this bundle, so the pass rests on a scope narrowed to exclude a file the task changed."
+    },
+    {
+      "severity": "Major",
+      "ref": "design.md (API / Contract Plan, REQ-002 processing step 2b) and the fail-closed suite (TEST-013a..f)",
+      "note": "The fail-closed validation list covers only unreadable / not-valid-JSON / missing \"capabilities\" / \"capabilities\" not an array / entry missing \"id\" or \"eligible\". Neither the design nor TEST-013 covers a present-but-wrong-typed field: an entry whose \"eligible\" is the string \"false\" rather than the boolean, or whose \"upgrade_reasons\" is a string rather than an array. On an access-control-like gate whose purpose is to stop a Lite-ineligible Capability, a truthy string evaluated loosely in bash or PowerShell would make an ineligible entry contribute nothing and exit 0 -- the exact silent-degrade Blockers [B3]/[B4] were written to prevent. Untested in both runtimes."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/T-002.red.log",
+      "note": "The Done-When TDD bullet requires RED for each listed item, but the red log contains no capture for TEST-007 (item 4, byte-identical legacy path); only items 5, 13 and 14 appear. Under the \"point SUT at the live script\" mechanism this red log used, a TEST-007 red is structurally unobtainable (live vs live is trivially identical), but the log does not say so, leaving an unexplained hole in the RED evidence."
+    },
+    {
+      "severity": "Minor",
+      "ref": "merge-ordering suite, TEST-009c",
+      "note": "AC-009's no-DSL/no-Registry-call assertion is a grep for three literal name fragments. The red log shows TEST-009a/b/c passing identically against the live, unextended script, so the check has no discriminating power over the extension: any differently named helper call would satisfy it."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/qg/shared/task-state-check.log",
+      "note": "Unlike the other shared logs, this one carries no run timestamp, cwd or branch line, and it reports \"WARNING: evidence bundle for task T-004 was generated with a dirty working tree\". The contract's claim that this check was re-run rather than re-typed cannot be corroborated from the log's own content."
+    }
+  ],
+  "blind": true,
+  "input_digest": "eca045e3c681a1f2c31676c1864626f2f6f26667c1a4a16bafcec3051693e188",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-002.panelist-input.txt header line \"# consent: sudo\""
+  }
+}
