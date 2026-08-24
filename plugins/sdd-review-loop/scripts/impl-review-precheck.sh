@@ -485,17 +485,87 @@ fi
 # absent as well. Every one of them was an AC that spec review had added late as
 # a gap-closer, which the design -- written against the REQ-* headings -- dropped
 # silently. A design that does not name an AC cannot be audited for covering it.
+#
+# NARROW EXCEPTION (human ruling, 2026-08-24). Some acceptance criteria are
+# structurally not design content, and no design document can honestly name
+# them: epic-194's AC-023/AC-024 and epic-193's AC-035/AC-036/AC-037 are
+# criteria about the SPEC PACKAGE'S OWN REGISTRATION COMMIT -- AC-024 requires
+# both status headers to read `Pending` "at commit time", which is not a
+# property any design plans for and is now historically false since both read
+# `Passed`. Demanding a design citation for those is demanding a false
+# statement.
+#
+# The exception keys on a property the requirements document states about
+# ITSELF, never on a list of AC ids and never on "cited somewhere in the spec
+# package". requirements.md's acceptance table gives every criterion a
+# requirement-trace cell, and that cell is bimodal across this repository: it
+# either names the REQ-NNN the criterion refines, or it declares the criterion
+# process-and-registration scope rather than behaviour. Two spellings of the
+# latter are in use -- `| AC-023 | Global |` (epic-194) and
+# `| AC-035 (Global) | - |` (epic-193) -- and both are read here.
+#
+# This is narrow in the way that matters. The declaration is made in
+# requirements.md, in the row that defines the criterion, where spec review
+# reads and adjudicates it -- an author cannot quietly excuse a behaviour AC
+# without visibly restating its scope in the document the spec reviewers are
+# looking at. And it leaves the epic-136 class fully caught: those were
+# gap-closer criteria added late under a REQ-* heading, so their rows carry a
+# REQ trace and the gate still demands the design name them. Only the first
+# cell and the trace cell of a criterion's OWN defining row are consulted;
+# mentions of an AC id in prose or in another criterion's text are never a
+# declaration of scope.
+ac_scoped_global() {
+  LC_ALL=C awk -v id="$1" '
+    {
+      line = $0
+      sub(/\r$/, "", line)
+      if (substr(line, 1, 1) != "|") next
+      # Bracketed, not a bare "|": a one-character split separator is treated
+      # literally by some awks and as an ERE by others, and "|" as an ERE is
+      # empty alternation. [|] is unambiguous everywhere.
+      n = split(line, cell, "[|]")
+      if (n < 4) next
+      c1 = cell[2]; c2 = cell[3]
+      sub(/^[ \t]+/, "", c1); sub(/[ \t]+$/, "", c1)
+      sub(/^[ \t]+/, "", c2); sub(/[ \t]+$/, "", c2)
+      annotated = 0
+      if (c1 ~ /\(Global\)$/) {
+        annotated = 1
+        sub(/\(Global\)$/, "", c1)
+        sub(/[ \t]+$/, "", c1)
+      }
+      if (c1 != id) next
+      if (annotated || c2 == "Global") { global = 1 }
+      found = 1
+      exit
+    }
+    END { exit (found && global ? 0 : 1) }
+  ' "${REQS_MD}"
+}
 ac_missing=""
+ac_global=""
 if [[ -f "${REQS_MD}" && -f "${DESIGN_MD}" ]]; then
   while IFS= read -r ac_id; do
     [[ -n "${ac_id}" ]] || continue
+    if ac_scoped_global "${ac_id}"; then
+      ac_global+="${ac_id} "
+      continue
+    fi
     grep -Fq -- "${ac_id}" "${DESIGN_MD}" || ac_missing+="${ac_id} "
   done < <(grep -oE 'AC-[0-9]{3}' "${REQS_MD}" | sort -u)
 fi
+# Never silent: an exercised exception is reported whether or not the gate then
+# fails, so a reader can see which criteria were excused and go check the rows
+# that excused them.
+if [[ -n "${ac_global}" ]]; then
+  echo "NOTE: impl-review-precheck: not requiring design.md to name these criteria," \
+    "which requirements.md scopes Global (process and registration, not design): ${ac_global% }" >&2
+fi
 if [[ -n "${ac_missing}" ]]; then
   echo "ERROR: impl-review-precheck: design.md never names these acceptance criteria: ${ac_missing% }" >&2
-  echo "       Each one is testable and traceable in requirements.md but absent from the design plan," >&2
-  echo "       so an implementer could satisfy the plan and still not deliver them." >&2
+  echo "       Each appears in requirements.md without being scoped Global there -- so each states" >&2
+  echo "       behaviour this design must plan for -- yet none of these strings occurs anywhere in" >&2
+  echo "       design.md, so an implementer could satisfy the plan and still not deliver them." >&2
   exit 1
 fi
 
