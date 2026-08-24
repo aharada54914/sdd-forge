@@ -13,11 +13,14 @@ VALIDATOR="$ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
 # into the shared lib in the #325 require_persisted_pass consolidation; the
 # precheck still enforces it by sourcing the lib.
 PRECHECK="$ROOT/plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh"
+# The mode admission the document cites is still in the precheck itself, not in
+# the lib, so the anchor table needs both as subjects.
+IMPL_PRECHECK="$ROOT/plugins/sdd-review-loop/scripts/impl-review-precheck.sh"
 REVIEWER_A="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md"
 
 fail() { printf 'not ok: %s\n' "$1" >&2; exit 1; }
 
-for f in "$DOC" "$VALIDATOR" "$PRECHECK" "$REVIEWER_A"; do
+for f in "$DOC" "$VALIDATOR" "$PRECHECK" "$IMPL_PRECHECK" "$REVIEWER_A"; do
   [[ -f "$f" ]] || fail "missing input: ${f#$ROOT/}"
 done
 
@@ -56,20 +59,162 @@ grep -Fq 'Issue #143' "$REVIEWER_A" ||
 grep -Fq 'persisted impl reviewer-a manifest is missing previous-round summary' "$PRECHECK" ||
   fail "impl-review-precheck no longer requires reviewer-a's previous-round summary; update review-context-boundary.md"
 
-# --- every cited line number in the field table must still exist ---------------
-# The table cites the validator as (`:NNN`). A citation past end-of-file is a
-# certain drift signal and is cheap to catch.
-validator_lines=$(wc -l < "$VALIDATOR" | tr -d '[:space:]')
+# --- every citation must still land on the construct it names -----------------
+# A bounds check ("the number is <= EOF") cannot catch the drift that actually
+# happens: an insertion earlier in the subject file slides every later citation
+# onto a different -- still existing, so still in bounds -- line. The bounds
+# check this replaces passed throughout the WFI-037 work, which took the
+# validator from 374 to 589 lines and left every citation in this document
+# pointing at unrelated code.
+#
+# So pin each citation to text that must appear inside the line (or line range)
+# it names.
+#
+# Rows are "<citation> <subject> <fixed string that must appear in it>", one row
+# per required string; a citation may claim several, and all must hold.
+# <subject> is explicit because the document's bare `:NNN` form does not always
+# mean the validator.
+#
+# The citation text must match the document byte for byte. The loops below fail
+# in both directions: a citation the document adds with no row here, and a row
+# whose citation the document no longer makes.
+anchors() {
+  cat <<'ANCHORS'
+# The flat contract predicates in the manifest jq filter.
+:245 validator .schema == "review-context-invocation/v2"
+:246 validator .input_mode == "file-manifest"
+:247 validator .fallback_mode == "none"
+:248 validator .read_only == true
+:249 validator .feature | type == "string" and test(
+:250 validator .sequence | type == "number" and floor == . and . >= 2
+:251 validator .identity_ledger_path == "reports/review-context/identity-ledger.json"
+:252 validator .identity_ledger_sha256 | type == "string" and test("^[0-9a-f]{64}$")
+:235 validator .task_id | type == "string" and test("^T-[0-9]{3}$")
+
+# The optional quality-stage gate-report declaration: presence gate and shape.
+:236-241 validator if has("gate_report_declaration") then
+:236-241 validator (keys | sort) == ["path", "sha256"]
+
+# The declared gate report must be canonical, symlink-free, a regular file
+# under reports/quality-gate/, and hash to the pinned value before any row is
+# read from it.
+:448-463 validator fail PATH "sdd-evaluator gate-report declaration traverses a symbolic link
+:448-463 validator [[ "$(sha256_file "$gate_report_absolute")" == "$gate_report_declaration_sha256" ]]
+
+# Its `## Post-Fix Artifacts` rows are the second authorization source.
+:128-134 validator gate_report_output_is_declared() {
+:128-134 validator '## Post-Fix Artifacts'
+
+# stage/role must be an authorized pair. The identically-shaped `case` inside
+# path_is_authorized is NOT this one, which is why the fail arm is pinned too.
+:286-288 validator case "$stage:$role" in
+:286-288 validator fail CONTRACT 'stage and role are not an authorized invocation pair'
+
+# No rows for the ledger's global-uniqueness check or for the line that prints
+# REVIEW_CONTEXT_OK. The document describes both -- the WFI-037 rewrite states
+# the identity_unique=yes guarantee in prose -- but cites neither by line, and
+# this table mirrors the document's citations rather than the validator's
+# contents. Anchoring an uncited construct would make the reverse loop below
+# fail on a document that is not wrong. If those claims should be pinned, the
+# citation belongs in the document first.
+
+# identity_ledger_sha256 equality: before the reservation, and again under the
+# reservation lock.
+:419 validator [[ "$actual_ledger_sha256" == "$bound_ledger_sha256" ]]
+:555 validator [[ "$(sha256_file "$ledger")" == "$bound_ledger_sha256" ]]
+
+# The chain position this invocation must occupy.
+:421 validator [[ "$sequence" -eq "$expected_sequence"
+
+# The record-hash construction a reviewer is told to recompute: the chain-walk
+# copy the validator verifies existing records with, and the reservation copy it
+# builds the new record with. The document cites both as "the same construction".
+:344 validator "$record_sequence|$record_stage|$record_role|$record_run|$record_session|$record_previous"
+:549 validator "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256"
+
+# task_id shape, and the implementation report that must carry it.
+:428-441 validator if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
+:428-441 validator fail PATH 'sdd-evaluator implementation report task field does not match task ID'
+
+# Manifest path admission: canonical, not a raw reviewer report, role-authorized,
+# no symlink component. One row per clause the field table claims.
+:480-493 validator is_canonical_path "$path"
+:480-493 validator is_forbidden_review_output "$path"
+:480-493 validator path_is_authorized "$stage" "$role" "$feature" "$path" "$expected_hash"
+
+# Manifest hash equality against the file on disk.
+:497 validator actual_hash=$(sha256_file "$candidate")
+
+# The append.
+:564-574 validator '.records += [{
+
+# The two impl-review-precheck claims. The previous-round-summary requirement
+# lives in the shared lib since the #325 consolidation; the mode admission is
+# still in the precheck itself. Two subjects, so both are named.
+review-precheck-common.sh:231 precheck fail "persisted impl reviewer-a manifest is missing previous-round summary"
+impl-review-precheck.sh:69 impl-review-precheck [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]]
+ANCHORS
+}
+
+subject_path() {
+  case "$1" in
+    validator) printf '%s' "$VALIDATOR" ;;
+    precheck)  printf '%s' "$PRECHECK" ;;
+    impl-review-precheck) printf '%s' "$IMPL_PRECHECK" ;;
+    *) fail "anchor table names an unknown subject file: $1" ;;
+  esac
+}
+
+anchor_rows() { anchors | grep -v '^[[:space:]]*#' | grep -v '^[[:space:]]*$'; }
+
+# Citations as the document writes them: `:NNN`, `:NNN-MMM`, `file.sh:NNN`.
+doc_citations() {
+  {
+    grep -oE '`:[0-9]+(-[0-9]+)?`' "$DOC"
+    grep -oE '`[A-Za-z0-9._-]+\.(sh|ps1):[0-9]+(-[0-9]+)?`' "$DOC"
+  } | tr -d '`' | sort -u
+}
+
 while read -r cited; do
-  (( cited >= 1 && cited <= validator_lines )) ||
-    fail "review-context-boundary.md cites validate-review-context-set.sh:${cited}, past its ${validator_lines} lines"
-done < <(grep -o '(`:[0-9]\+' "$DOC" | grep -o '[0-9]\+' | sort -un)
+  anchor_rows | awk -v c="$cited" '$1 == c { found = 1 } END { exit(found ? 0 : 1) }' ||
+    fail "review-context-boundary.md cites ${cited} with no anchor in this suite; add a row stating what that line must contain, so the citation cannot silently slide"
+done < <(doc_citations)
+
+while read -r cited; do
+  grep -Fq "\`${cited}\`" "$DOC" ||
+    fail "this suite anchors ${cited}, which review-context-boundary.md no longer cites; drop the stale row"
+done < <(anchor_rows | awk '{ print $1 }' | sort -u)
+
+anchor_count=0
+while read -r cited subject pattern; do
+  subject_file=$(subject_path "$subject")
+  subject_name=${subject_file##*/}
+  span=${cited##*:}
+  start=${span%%-*}
+  end=${span##*-}
+  (( start >= 1 && end >= start )) ||
+    fail "anchor table has a malformed citation: ${cited}"
+  # An empty pattern would match every line, so a two-field row would assert
+  # nothing while still counting toward the total. Refuse it.
+  [[ -n "$pattern" ]] ||
+    fail "anchor table row for ${cited} has no pattern; a blank pattern asserts nothing"
+
+  # grep -c '' counts lines the way sed addresses them, including a final
+  # unterminated one, which wc -l would miss.
+  subject_lines=$(grep -c '' "$subject_file")
+  (( end <= subject_lines )) ||
+    fail "review-context-boundary.md cites ${subject_name}:${span}, past its ${subject_lines} lines"
+
+  sed -n "${start},${end}p" "$subject_file" | grep -Fq -- "$pattern" ||
+    fail "review-context-boundary.md cites ${subject_name}:${span} for \"${pattern}\", but those lines no longer contain it; the citation has slid off the construct it describes"
+  anchor_count=$((anchor_count + 1))
+done < <(anchor_rows)
 
 # --- the document must state the exemption it exists to state -----------------
 grep -Fq 'identity_ledger_sha256' "$DOC" || fail "document no longer mentions identity_ledger_sha256"
 grep -Fq 'do not re-verify' "$DOC" || fail "document no longer states the do-not-re-verify rule"
 
-printf 'ok: review-context-boundary citations match the validator\n'
+printf 'ok: review-context-boundary citations match the validator (%d anchors verified)\n' "$anchor_count"
 
 # ==============================================================================
 # Reservation/verification boundary (TEST-RCB-001..010)
