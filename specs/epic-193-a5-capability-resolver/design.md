@@ -478,8 +478,9 @@ Data Entities:
   exception is the zero-affected-component Edge Case, where `affected_
   components` itself is `[]` and every Capability's own `trigger_
   evaluations[]` is therefore also `[]`, still exact-set-correct for a
-  zero-length governing set, Edge Cases below, "M9 zero-component
-  correction"; both halves of this rule are AC-018 — an **unmatched**
+  zero-length governing set, requirements.md Edge Cases, "M9
+  zero-component correction"; both halves of this rule are AC-018 — an
+  **unmatched**
   Capability's own entry is present all the same, carrying `matched:
   false` and a full one-element-per-affected-component `trigger_
   evaluations[]`, and the zero-affected-component case's own `[]` is
@@ -511,7 +512,8 @@ Data Entities:
   paragraph states, since JSON Schema draft-07 cannot itself express
   "array length equals an externally-discovered Registry's own array
   length" — `validate-resolver-evidence` contract, below), `diagnostics[]`
-  (`{id: <REQ-002's own closed, 14-value enum, requirements.md REQ-002>,
+  (`{id: <REQ-002's own closed, sixteen-value enum, requirements.md
+  REQ-002>,
   detail: string, severity: "block"|"warn"}`). `additionalProperties:
   false` at every level, matching every other `contracts/*.schema.json` in
   this repository.
@@ -1055,9 +1057,11 @@ any individual combination's own result):
       resolvable source (today: any `advisory`-enforcement Lite resolve;
       any `required`-enforcement Lite resolve where every matched
       Capability's own key is present, including present-and-empty; or
-      the zero-matched-Capability case, Edge Cases, "zero affected
-      components" — Test Strategy item 4's own track-exclusive-output-set
-      fixture, B5 correction below), **stage** (do not yet write) `specs/<feature>/
+      the zero-matched-Capability case, requirements.md Edge Cases, "zero
+      affected components" — Test Strategy item 4's own
+      track-exclusive-output-set
+      fixture, B5 correction below), **stage** (do not yet write)
+      `specs/<feature>/
       capability-summary.yaml` only — no
       `facet-manifest.yaml` and no `project-context.resolved.json` are
       staged or written on this track (B4 — this corrects an earlier

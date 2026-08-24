@@ -946,20 +946,55 @@ below had amended them in `requirements.md` and `acceptance-tests.md`
 while `design.md` remained completely silent on both, so the amendment
 existed in three of four frozen documents. This commit closes that gap.
 
-**Amendment commit.** The commit that carries this entry is the
-`design.md` amendment itself — a single commit, as required, since
-`impl-review-precheck.sh:241-243` and `task-review-precheck.sh:210-213`
-each demand the predecessor contract pin `investigation.md` at its
-*current* hash, and splitting the design edit from this record would
-re-stale the predecessor between them. Its own hash is therefore not
-quotable from inside itself; the per-document SHA-256 pins immediately
-below are the verifiable evidence, and are exact.
+**Amendment commits.** This extension landed in two commits, and the
+invariant `impl-review-precheck.sh:241-243` and
+`task-review-precheck.sh:210-213` impose — that no commit may change
+`design.md` without updating this record in that *same* commit, since
+the predecessor contract pins `investigation.md` at its *current* hash —
+holds for each of them individually:
+
+1. `88c3187ac86f5b8dee8c83a40cb714af8f312361` — the citation and
+   substance work described below (rulings A①/B① imported, class-A
+   citations, class-B substance, class-C omissions), together with the
+   first version of this record. `design.md` as of that commit =
+   `32f51bb9704e9666eda65949d30945293ad3f5fa9909a66a9904312e72123bda`.
+2. The commit carrying *this* revision of the record — the two internal
+   inconsistencies documented under "corrections made beyond the
+   citation work", below, together with this record's own update for
+   them. Its own hash is not quotable from inside itself; the
+   per-document SHA-256 pins immediately below are the verifiable
+   evidence for its resulting tree, and are exact.
+
+(A single amending commit was the first choice and was attempted; this
+worktree's own pre-commit safety gate declines `git commit --amend`, so
+the follow-up form was used instead. It satisfies the same invariant:
+commit 2 changes `design.md` and updates this record in that one commit,
+exactly as commit 1 did.)
+
+**This self-reference was a deliberate decision, not an oversight.** The
+evidence bar in `reviewer-calibration.md:139-149` asks for full amendment
+commit hashes. A commit cannot contain its own hash, and the only way to
+record commit 2's literal hash would be a *third* commit touching
+`investigation.md` alone — which is precisely the non-convergence the
+per-commit invariant above exists to prevent, since such a commit would
+change this document's bytes while changing no `design.md` content,
+re-staling the `investigation.md` pin the predecessor contract just
+captured and buying nothing. The resolution taken here follows the
+precedent this
+entry's own parent section already set for `investigation.md`'s
+pre-entry fingerprint: state the self-reference openly and pin the
+exact, independently verifiable SHA-256 of every document instead. A
+reviewer can confirm the amendment bytes with `shasum -a 256` and
+`git show <this-commit>:<path>` without needing the hash quoted from
+inside the commit.
 
 **Per-document SHA-256, as of that commit:**
 
 - `specs/epic-193-a5-capability-resolver/design.md` =
-  `32f51bb9704e9666eda65949d30945293ad3f5fa9909a66a9904312e72123bda`
-  (the amended bytes; its immediate predecessor, as of
+  `9ff13a09750bf1ede99ac1c210b48728c3d7f744b08b33fd35174bdd69008015`
+  (the final amended bytes, as of commit 2; its state after commit 1 was
+  `32f51bb9704e9666eda65949d30945293ad3f5fa9909a66a9904312e72123bda`,
+  and its pre-amendment state, as of
   `233c48c1074a88d2b1272c578197af1d47ad2c32`, was
   `ac2ae7d86009fc2d3bafa80aa920ec5438a3eee2153a7ca1215cb499f2c857e2`)
 - `specs/epic-193-a5-capability-resolver/requirements.md` =
@@ -1049,6 +1084,65 @@ in the parent section.
   not have. They remain the only four ids `impl-review-precheck.sh`'s
   own substring loop still reports missing, by design.
 
+**Two corrections made beyond the citation work, both human-authorized
+on 2026-08-24 and both flagged here for the reviewer to judge rather
+than absorb.** Neither is a design decision; each is an internal
+inconsistency the same document already refuted, found during the
+citation sweep and repaired in this same commit.
+
+1. **Stale enum count corrected: `14-value` → `sixteen-value`
+   (`design.md:514`, Data Plan, `diagnostics[]` entity).** That entity
+   described `diagnostics[].id` as drawn from "REQ-002's own closed,
+   14-value enum". The count is stale — it predates the two NEW
+   diagnostic ids `publication-journal-recovery` and `post-publication-
+   generation-mismatch` (B1/B8). **Evidence:** the literal `enum` array
+   in this same document's own `contracts/resolver-evidence.schema.json`
+   block enumerates exactly **16** distinct members (counted
+   mechanically from the block, not from prose:
+   `disabled-legacy-invocation`, `publication-journal-recovery`,
+   `workflow-combination-invalid`, `project-context-validation-failed`,
+   `affected-component-resolution-failed`, `registry-validation-failed`,
+   `contract-discovery-failed`, `canonicalizer-invocation-failed`,
+   `dependency-subprocess-failed`, `dependency-output-malformed`,
+   `dsl-warn-on-matched-capability`, `lite-check-source-undefined`,
+   `output-schema-validation-failed`, `snapshot-generation-mismatch`,
+   `artifact-publication-failed`,
+   `post-publication-generation-mismatch`); and three other prose sites
+   in this same document already say sixteen (`design.md:1517`,
+   `:1767`, `:2564`), as does `requirements.md` REQ-002. `design.md:514`
+   was the sole outlier in the whole package. **Deliberately left
+   unchanged:** the phrase "fourteen carried forward" at `design.md:1523`
+   and `:2565` is correct arithmetic (14 carried forward + 2 NEW = 16)
+   and was not touched.
+2. **Three dangling cross-references repaired to name their real home
+   (`design.md:481`, `:1059`; plus `:1019`, written earlier in this same
+   commit).** Two pre-existing sites pointed at an "Edge Cases" section
+   *of this document* — `:481` said "Edge Cases **below**" and `:1059`
+   said "Edge Cases, \"zero affected components\"". **Evidence:**
+   `design.md` has no Edge Cases heading at any level (`grep -nE '^#{1,6}
+   .*[Ee]dge [Cc]ase' design.md` returns nothing across all 25 of its
+   headings); the section lives in `requirements.md:1035`. Both now read
+   "requirements.md Edge Cases", matching the form the AC-007 addition at
+   `:1019` already used. This is a pointer repair; no surrounding claim
+   changed. **Deliberately left unchanged:** `design.md:478` and `:1922`
+   also contain the string "Edge Case", but each uses it as a descriptive
+   noun naming the case ("the zero-affected-component Edge Case"), not as
+   a section pointer, and neither asserts a location.
+
+**A correction that was considered and rejected.** The identical stale
+"14-value enum" string also appears at line 1836 of each of
+`specs/epic-193-a5-capability-resolver/verification/T-003.panelist-
+input.txt`, `T-004.panelist-input.txt`, and `T-005.panelist-input.txt`.
+These were **not** corrected, and must not be: each is a frozen,
+sanitized panelist input bundle carrying its own `input_digest` header
+and paired with the panelists' returned verdict files. They are a record
+of what the cross-model panelists actually saw at review time. Editing
+them would falsify that record and invalidate the digest. The stale
+string is therefore *correct* in those three files and *incorrect* only
+in the live `design.md`.
+
 No requirement, acceptance criterion, or test row was changed by this
 commit; `requirements.md` and `acceptance-tests.md` are byte-unchanged,
-as their pins above show.
+as their pins above show, and no file outside
+`specs/epic-193-a5-capability-resolver/design.md` and this document was
+touched.
