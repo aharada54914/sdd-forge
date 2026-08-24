@@ -519,6 +519,16 @@ manifest_has_hash_for_file() {
     plugins/*) ;;
     *) return 1 ;;
   esac
+  # Same "not evaluable, not failed" rule plugins_hash_matches already
+  # applies: a fixture root with no git history at all (e.g. a release
+  # artifact, or WFI-024's reference-doc-forged-no-git fixture) has nothing
+  # to reconcile a stale plugins/ manifest hash against, so this must be
+  # accepted rather than rejected. Without this check, any live drift of a
+  # plugins/ reference doc this function guards (spec-review-calibration.md,
+  # reviewer-calibration.md) fails closed under no-git even though the
+  # identical drift on risk-gate-matrix.md is correctly tolerated by
+  # plugins_hash_matches -- the two functions must agree on this class.
+  plugins_git_history_available || return 0
   pin="$(plugins_pin_commit "$contract")" || return 1
   plugins_relative="${suffix#/}"
   historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
