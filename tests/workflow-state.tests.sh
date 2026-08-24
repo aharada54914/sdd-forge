@@ -697,6 +697,26 @@ done
 [[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
   fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
 
+# Prerequisite helper for the amendment-oscillation fixtures below. On the
+# branch 66a22b5a came from this was already present (added by an earlier
+# commit in that series); it is imported here verbatim because those fixtures
+# call it and it is otherwise undefined on this branch. Pure test scaffolding:
+# a fixture tree with both checker twins, the registry schema, and a git repo
+# so introducing-commit resolution has history to read.
+make_git_fixture() {
+  local name="$1" target
+  target="$(make_full_fixture "$name")"
+  mkdir -p "$target/plugins/sdd-quality-loop/scripts" "$target/contracts"
+  cp "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    "$target/plugins/sdd-quality-loop/scripts/"
+  cp "$ROOT/contracts/workflow-state-registry.schema.json" "$target/contracts/"
+  git -C "$target" init -q
+  git -C "$target" config user.email "workflow-state-tests@example.com"
+  git -C "$target" config user.name "workflow-state tests"
+  printf '%s\n' "$target"
+}
+
 # --- Amendment-oscillation reconciliation for specs/<feature>/investigation.md ---
 #
 # The amendment re-review lane's own `## Amendment Re-Review Context`
