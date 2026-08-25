@@ -327,3 +327,95 @@ exactly as it would be without this entry.
   cited from inside itself and is pinned externally by the spec, impl and
   task re-review reviewer manifests taken against it and by the
   identity-ledger records their reservations append.
+
+### Round-3 extension (2026-08-25): the propagation's scope named explicitly as eleven sites
+
+- Human ruling (verbatim, dated): 2026-08-25:
+  「① 11 箇所を名指して授権する（推奨）」 — authorizing the AC-009
+  propagation at its actual scope of eleven named sites: four in
+  `tasks.md` (T-005's Planned Files, Goal, Must Read, Done When), five in
+  `design.md` (the Components table, the Data Plan additive-field
+  paragraph, the `assert_capability_applicability` contract, the AC-009
+  restatement, the Constraint Compliance table), and two in
+  `security-spec.md` (the B2 boundary's Validation column, and the Test
+  Strategy row for items 5 and 7).
+- This ruling supersedes **in scope** the earlier approval quoted above in
+  the "Spec/impl/task re-bind extension (2026-08-25)" sub-entry,
+  「① 8 箇所に波及させる（推奨）」. That quotation said eight and meant
+  eight. The eight was a reviewer's estimate of how many sibling
+  statements existed; the true set was established afterwards by
+  exhaustive enumeration of every line in `tasks.md` and `design.md`
+  mentioning `assert_terminal`, `Test-LoopTerminal`,
+  `assert_artifacts_schema`, `Test-ArtifactsSchema` or `AC-009`, and by a
+  wider sweep across sibling documents. The two sites the estimate missed
+  are both in `security-spec.md`, where the falsified fact was stated not
+  as prose but as a security control.
+- The earlier sub-entry's gloss broadened that eight-site quotation to
+  cover eleven. That was not sufficient, and this entry does not repair it
+  by rewriting it. Spec-review attempt 6 round 1 reviewer B (ledger
+  sequence 786) recorded the discrepancy as a Critical `CONTRADICTION`
+  finding, holding that the calibration's evidence bar requires the
+  verbatim quotation itself to authorize the amendment's actual scope
+  rather than a paraphrase that expands it after the fact. That reading is
+  correct and is the reason this ruling exists.
+- Amendment commit already on record for the propagation itself:
+  `99c74ff78cc4ec0548028652d429aca66ebb2c32`, whose per-document
+  post-amendment SHA-256 values are recorded in the preceding sub-entry.
+  This ruling adds authorization for that commit's actual scope; it
+  changes no document byte of its own.
+
+### Round-3 extension (2026-08-25): AC-026's ordering defect tracked in requirements.md
+
+- Human ruling (verbatim, dated): 2026-08-25:
+  「① requirements.md に追跡を追加する（推奨）」 — directing that the
+  `done-transition` ordering defect be tracked in `requirements.md`
+  itself, rather than existing only in this investigation.md entry.
+- Substance recorded there: `AC-026`'s ordering rule ("always the last
+  event in the round's own event sub-sequence") is not satisfied by the
+  implementation `AC-009` pins, because `assert_terminal` /
+  `Test-LoopTerminal` emits the event before verifying the observed
+  terminal state and emits nothing on either early return; both
+  cross-model panelist slots found this independently; and it is
+  deliberately not fixed in code because the fix changes a function body
+  whose hash `AC-009` pins, so it resolves only together with a formal
+  amendment of that hash.
+- Recorded as `OQ-004 (open)` in `requirements.md`'s Open Questions and as
+  a `High` entry in its Risks register. Both placements are deliberate:
+  spec-review attempt 6 round 1 reviewer A (ledger sequence 785) named the
+  Risks register and reviewer B (ledger sequence 786) named
+  Assumptions/Open Questions, each independently, so the tracking was
+  added where each reviewer looked. The stated purpose in both places is
+  reviewer A's: a verifier reading `AC-026` in isolation must be able to
+  learn from `requirements.md` alone that a test asserting that ordering
+  rule is expected to fail for a known, deliberately unaddressed reason.
+- As of this amendment, `specs/epic-195-a7-compatibility/requirements.md` =
+  `bc596b776cc08b7a5479be198a18c942ea715f89e3bdd25af35f6d3460f2400f`. This
+  supersedes `f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2`,
+  recorded above as of commit
+  `47cb338ae8e748761ae793c38a02e1f77fb38df4`.
+- This extension and the `requirements.md` amendment it describes are made
+  in a single commit, so that commit's own hash cannot be cited from
+  inside itself; as stated above for this entry, it is pinned externally
+  by the spec-review attempt-6 round-2 reviewer manifests and by the
+  identity-ledger records their reservations append. The
+  `requirements.md` SHA-256 given immediately above is exact and is
+  independently checkable without that commit hash.
+
+### Operational note (2026-08-25): the prescribed fixed-point step is not executable through its own tool
+
+`reviewer-calibration.md`'s Amendment Re-Review Context section discloses a
+fixed-point procedure — validate the prior round's contract against the bytes
+it reviewed, then restore the amended bytes. The restore half works. The
+validate half does not: running
+`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh` against an
+already-reserved manifest fails with `REVIEW_CONTEXT_IDENTITY: canonical
+identity ledger hash is stale or mismatched`, because the ledger has grown
+since that manifest was reserved, and the check compares against the ledger's
+current hash. The substitute used here, and labelled as a substitute rather
+than presented as the prescribed step: each input in the prior manifest was
+compared individually against the restored bytes. For spec attempt 5
+(sequence 779) that gave four of five inputs matching exactly; the fifth,
+`requirements.md`, differed only by its `Spec-Review-Status:` header line,
+which `check-workflow-state.sh`'s own `normalized_hash()` neutralizes by
+design — confirmed by the attempt-6 precheck computing
+`f2343a1c0977...` while reading the field as `Pending`.

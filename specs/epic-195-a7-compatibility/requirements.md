@@ -903,6 +903,28 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   does so via an explicit revision to that Design Decisions paragraph, not
   a silent Phase-2 substitution.
 
+- OQ-004 (open): `AC-026`'s Done-transition ordering rule — "always the
+  last event in the round's own event sub-sequence" — is **not satisfied**
+  by the implementation `AC-009` currently pins. `assert_terminal`
+  (`Test-LoopTerminal`) emits `done-transition` *before* it compares the
+  observed terminal state against the expected one, so a failing terminal
+  assertion still records a `done-transition` event; and both of its early
+  returns (non-zero exit code, empty expected state) emit nothing at all.
+  "Exactly once per round" therefore holds in neither direction. Two
+  independent cross-model panelist slots established this from the bundle
+  alone. It is deliberately **not** fixed in code: the fix changes
+  `assert_terminal`'s function body, whose SHA-256 `AC-009` pins as its
+  binding truth condition, and re-baselining that hash to match the fix
+  would repeat the retrofit this package's own amendment history already
+  records once. This question resolves together with a formal amendment of
+  `AC-009`'s recorded hash, which is a human procedure rather than a
+  Phase-2/3 task decision. Until it does, a test asserting `AC-026`'s
+  ordering rule against the pinned implementation is expected to fail for
+  this known reason, and no check in this package detects the deviation —
+  `_loop_trace_normalize` enforces sequence monotonicity, known producers,
+  and capability-event ordering, but carries no rule making
+  `done-transition` terminal in its sub-sequence. Recorded 2026-08-25.
+
 ## Risks
 
 - Critical: specifying "Context present" orchestration-event assertions
@@ -933,3 +955,14 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   failing before that commit is the expected, self-documenting signal
   that Phase 2 has not yet started — never silence (Main Workflows step
   1).
+- High: `AC-026`'s Done-transition ordering rule is known to be unsatisfied
+  by the implementation `AC-009` pins, and is deliberately left that way
+  until `AC-009`'s hash is formally amended (OQ-004). The exposure is not
+  the ordering defect itself, which is bounded and now disclosed, but that
+  a verifier reading `AC-026` in isolation would treat "always the last
+  event in the round's own event sub-sequence" as an uncontested invariant
+  — and would then either record a genuine, expected failure as a spurious
+  one, or "fix" it by editing the frozen hash `AC-009` pins, which is the
+  one repair this package's history shows must not be made unilaterally.
+  Mitigated only by OQ-004's disclosure: no automated check detects the
+  deviation, so the register entry is the control.
