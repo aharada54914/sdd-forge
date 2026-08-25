@@ -386,6 +386,47 @@ VERDICT: PASS
         Fail "AC-033 matrix capability-only: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
     }
 
+    # -CapabilityBlockId without -CapabilityEnforcement reaches a SECOND,
+    # distinct usage-error branch, evaluated before the capability-only check
+    # above. It is a live rejection path on a Security Boundary B2 file and was
+    # previously unasserted in both twins, so nothing detected a change to its
+    # exit status or its diagnostic. Lock both, plus the absence of any record.
+    # Asserted twice: alone, and alongside an -Effort* parameter, so the
+    # rejection is attributable to the missing -CapabilityEnforcement rather
+    # than to the v2 gate the capability-only case above already covers.
+    RunEmit "feat-capability-blockid-only" @("-CapabilityBlockId", "resolver-no-match")
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityBlockId requires -CapabilityEnforcement") {
+        Ok "block-id-only: exact usage error, exit 1, and no output record"
+    } else {
+        Fail "block-id-only: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
+    }
+
+    RunEmit "feat-capability-blockid-effort" @("-EffortMain", "high", "-CapabilityBlockId", "resolver-no-match")
+    if ($runExit -eq 1 -and $null -eq $runRecord -and
+        $runOutputText.Trim() -ceq "emit-run-record: -CapabilityBlockId requires -CapabilityEnforcement") {
+        Ok "block-id-only with an effort parameter: still the block-id diagnostic, exit 1, no output record"
+    } else {
+        Fail "block-id-only with an effort parameter: expected exit=1/no output/exact diagnostic, got exit=$runExit output=$runOutputText"
+    }
+
+    # Twin-divergence guard for block_id serialization. The .sh emitter escapes
+    # block_id by shelling out to jq and, before this epic's fix, interpolated
+    # the result unchecked -- a missing or failing jq wrote an invalid record
+    # and exited 0. tests/emit-run-record-feature-scope.tests.sh drives that
+    # exact failure with a stub jq on PATH. This twin has no external
+    # serializer to break: ConvertTo-Json runs in-process, so the stub-jq
+    # fixture is not merely redundant here, it is unconstructible. The
+    # equivalent guarantee is asserted at its source instead -- the .ps1
+    # emitter must invoke no external JSON tool at all. Without this the twins
+    # could silently diverge in failure mode with only the .sh side under test.
+    $emitterPs1Text = Get-Content -Raw -Encoding Utf8 $script
+    if ($emitterPs1Text -match '(?m)(^|[^\w.\-])jq([^\w.\-]|$)') {
+        Fail "block_id serialization: the .ps1 emitter invokes external jq, inheriting the .sh twin's silent-corruption exposure without the stub-jq guard that covers it"
+    } else {
+        Ok "block_id serialization: the .ps1 emitter uses no external JSON tool, so the .sh stub-jq failure mode is unreachable here"
+    }
+
     # Both parameter families produce v2 with effort and capability siblings.
     RunEmit "feat-capability-both" @(
         "-EffortMain", "high", "-EffortControlMain", "flag", "-EffortAppliedMain", "high",

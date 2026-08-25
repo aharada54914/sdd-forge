@@ -388,6 +388,61 @@ else
   fail "AC-033 matrix capability-only: expected exit=1/no output/exact diagnostic, got exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR"
 fi
 
+# --capability-block-id without --capability-enforcement reaches a SECOND,
+# distinct usage-error branch, evaluated before the capability-only check
+# above. It is a live rejection path on a Security Boundary B2 file and was
+# previously unasserted in both twins, so nothing detected a change to its
+# exit status or its diagnostic. Lock both, plus the absence of any record.
+# Asserted twice: alone, and alongside an --effort-* flag, so the rejection is
+# attributable to the missing --capability-enforcement rather than to the v2
+# gate that the capability-only case above already covers.
+run_emit feat-capability-blockid-only --capability-block-id resolver-no-match
+if [ "$RUN_EXIT" -eq 1 ] && [ -z "$RUN_OUT" ] \
+  && [ "$RUN_STDERR" = "emit-run-record: --capability-block-id requires --capability-enforcement" ]; then
+  ok 'block-id-only: exact usage error, exit 1, and no output record'
+else
+  fail "block-id-only: expected exit=1/no output/exact diagnostic, got exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR"
+fi
+
+run_emit feat-capability-blockid-effort --effort-main high --capability-block-id resolver-no-match
+if [ "$RUN_EXIT" -eq 1 ] && [ -z "$RUN_OUT" ] \
+  && [ "$RUN_STDERR" = "emit-run-record: --capability-block-id requires --capability-enforcement" ]; then
+  ok 'block-id-only with an effort flag: still the block-id diagnostic, exit 1, no output record'
+else
+  fail "block-id-only with an effort flag: expected exit=1/no output/exact diagnostic, got exit=$RUN_EXIT output=$RUN_OUT stderr=$RUN_STDERR"
+fi
+
+# json_string() is this script's ONLY jq call site, and its result is
+# interpolated straight into the capability heredoc. The script has no
+# `set -e`, so before the guard this case drives, a missing or failing jq made
+# the command substitution yield the empty string: the emitter wrote
+# '  "block_id": ' -- a syntactically invalid run record -- printed
+# 'emit-run-record: wrote ...', and exited 0. That is silent corruption of the
+# cross-epic shared surface this task's high-risk rationale names. Drive the
+# exact condition with a stub jq that always fails, and require a loud,
+# non-zero abort that leaves no record behind.
+JQ_STUB_DIR="$WORK/jq-stub"
+mkdir -p "$JQ_STUB_DIR"
+cat > "$JQ_STUB_DIR/jq" <<'JQSTUBEOF'
+#!/bin/sh
+echo "stub jq: deliberately unavailable" >&2
+exit 127
+JQSTUBEOF
+chmod +x "$JQ_STUB_DIR/jq"
+emit_fixture feat-capability-jqfail
+set +e
+JQFAIL_STDERR="$(cd "$WORK" && PATH="$JQ_STUB_DIR:$PATH" sh "$SCRIPT" feat-capability-jqfail --track lite \
+  --effort-main high --effort-control-main flag --effort-applied-main high \
+  --capability-enforcement advisory --capability-block-id resolver-no-match 2>&1 1>/dev/null)"
+JQFAIL_EXIT=$?
+set -e
+JQFAIL_OUT="$(find "$WORK/reports/runs" -name 'RUN-*-feat-capability-jqfail.json' | head -n 1)"
+if [ "$JQFAIL_EXIT" -ne 0 ] && [ -z "$JQFAIL_OUT" ]; then
+  ok "block_id serialization: a failing jq aborts non-zero and writes no record (exit=$JQFAIL_EXIT)"
+else
+  fail "block_id serialization: a failing jq produced exit=$JQFAIL_EXIT and record=${JQFAIL_OUT:-<none>}, expected a non-zero exit and no record"
+fi
+
 # Both flag families produce v2 with the existing effort object and an exact,
 # additive capability sibling. A supplied block identifier is preserved.
 run_emit feat-capability-both \

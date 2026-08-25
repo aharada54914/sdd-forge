@@ -229,7 +229,22 @@ if [ "$emit_v2" = "1" ]; then
   json_string() {
     # block_id is caller-supplied rather than an enum, so let jq perform JSON
     # escaping instead of interpolating raw bytes into the output heredoc.
-    jq -cn --arg value "$1" '$value'
+    #
+    # jq is this script's only external dependency and it is reachable on this
+    # path alone. This script has no `set -e`, so an unchecked failure here
+    # (jq absent, or any non-zero exit) would yield an empty command
+    # substitution, interpolate '  "block_id": ' into the heredoc, and still
+    # write the record and exit 0 -- silent corruption of a cross-epic shared
+    # surface. Fail closed instead; the caller propagates the status.
+    json_string_out="$(jq -cn --arg value "$1" '$value')" || {
+      echo "emit-run-record: jq is required to serialize --capability-block-id and exited non-zero (is jq installed?)" >&2
+      return 1
+    }
+    if [ -z "$json_string_out" ]; then
+      echo "emit-run-record: jq produced no output while serializing --capability-block-id" >&2
+      return 1
+    fi
+    printf '%s' "$json_string_out"
   }
 
   resolve_effort_slot() {
@@ -281,7 +296,10 @@ if [ "$emit_v2" = "1" ]; then
 
   if [ "$emit_capability" = "1" ]; then
     if [ "$capability_block_id_set" = "1" ]; then
-      capability_block_id_json="$(json_string "$capability_block_id")"
+      # json_string runs in a command substitution, so its `return 1` sets this
+      # assignment's status rather than aborting the script; propagate it here,
+      # before the heredoc below can write a record built from an empty value.
+      capability_block_id_json="$(json_string "$capability_block_id")" || exit 1
     else
       capability_block_id_json="null"
     fi

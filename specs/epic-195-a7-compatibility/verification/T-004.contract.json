@@ -6,7 +6,7 @@
   "stack": "shell",
   "spec_revision": "350aa862f6bb8000a0f48b0b8b392c6bbb895f9207bd46bdfeb6daf3abf396c9",
   "created": "2026-08-14T00:00:00Z",
-  "comment": "Default-FAIL verification contract for the T-004 quality gate. Every check started at passes=false and was flipped only after the gate host RAN its command at the current HEAD and inspected the saved output; the implementation report was treated as a claim throughout. Every passing check points at output produced by specs/epic-195-a7-compatibility/verification/qg-cycle2/T-004/run-checks.sh, which is re-runnable and echoes each command into the log it produces -- never at an implementer-authored log. The tdd red/green pairs are the exception and are deliberately implementer-authored: a RED can only be captured before the fix exists, so it cannot be honestly re-created afterwards. The recorded red_evidence is malformed-corpus-red.log, the pre-fix capture of the coherent malformed-corpus case tasks.md#T-004 Done When requires -- NOT the earlier red-sh.log/red-ps1.log preflight bail-out, which quality-gate cycle 1 (ledger seq0674) rejected as the wrong RED. Its authenticity was audited rather than assumed; see qg-cycle2/T-004/malformed-red-audit.log. Risk high and Required Workflow tdd are transcribed from tasks.md#T-004 and independently re-checked by qg-cycle2/T-004/risk.log.",
+  "comment": "Default-FAIL verification contract for the T-004 quality gate. Every check started at passes=false and was flipped only after the gate host RAN its command at the current HEAD and inspected the saved output; the implementation report was treated as a claim throughout. Every passing check points at output produced by specs/epic-195-a7-compatibility/verification/qg-cycle2/T-004/run-checks.sh, which is re-runnable and echoes each command into the log it produces -- never at an implementer-authored log. The tdd red/green pairs are the exception and are deliberately implementer-authored: a RED can only be captured before the fix exists, so it cannot be honestly re-created afterwards. The recorded red_evidence is malformed-corpus-red.log, the pre-fix capture of the coherent malformed-corpus case tasks.md#T-004 Done When requires -- NOT the earlier red-sh.log/red-ps1.log preflight bail-out, which quality-gate cycle 1 (ledger seq0674) rejected as the wrong RED. Its authenticity was audited rather than assumed; see qg-cycle2/T-004/malformed-red-audit.log. Risk high and Required Workflow tdd are transcribed from tasks.md#T-004 and independently re-checked by qg-cycle2/T-004/risk.log. RECAPTURE (2026-08-25, cross-model panel remediation): unit-tests/acceptance-tests are repointed from qg-cycle2/T-004/acceptance.log to acceptance-rerun-20260825.log, because tests/structural-compatibility.tests.{sh,ps1} changed this session. Three sh/ps1 twin divergences the anthropic slot recorded as Minor were closed: the Bash named-SKIP renderer emitted a trailing space inside the dependency parentheses where PowerShell did not (a 'sed s/+$/ /' typo, now asserted in both twins so it cannot silently return); the Bash anchor-fingerprint extractor was greedy and took the LAST sha256 in the span where the PowerShell twin's lazy match took the FIRST; and 'sed | head -1' under pipefail coupled a variable assignment to SIGPIPE. On that last one the finding is directionally right but overstated -- measured, SIGPIPE needs sed's output to exceed the pipe buffer, so the second schema match the finding names would not in fact have tripped it. Removed regardless. Both twins report 44/0 and now emit byte-identical SKIP lines (cmp-verified); the suite's own 116-case mutation proof re-runs 116 killed / 0 survived against the modified suite. NOT CLOSED, reported for human decision: T-004 authored specs/epic-195-a7-compatibility/human-copy/.github/workflows/test.yml and its MANIFEST.sha256 entry and declares both in its Outputs, while tasks.md Global Constraints and T-011's own Planned Files make T-011 the sole task that edits that file and owns that staging route, and traceability.md lists both paths under T-011. Today's T-011/T-013 split did not move that ownership. Unwinding it would leave the suite unregistered in CI until T-011 runs and risks a collision when it does; reassigning it means editing frozen, hash-bound documents. Neither is a coder-session decision.",
   "checks": [
     {
       "id": "lint",
@@ -36,7 +36,7 @@
       "id": "unit-tests",
       "required": true,
       "passes": true,
-      "evidence": "specs/epic-195-a7-compatibility/verification/qg-cycle2/T-004/acceptance.log",
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-004/acceptance-rerun-20260825.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-002"
@@ -60,7 +60,7 @@
       "id": "acceptance-tests",
       "required": true,
       "passes": true,
-      "evidence": "specs/epic-195-a7-compatibility/verification/qg-cycle2/T-004/acceptance.log",
+      "evidence": "specs/epic-195-a7-compatibility/verification/T-004/acceptance-rerun-20260825.log",
       "waiver_reason": "",
       "requirement_ids": [
         "REQ-002"

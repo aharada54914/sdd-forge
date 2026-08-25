@@ -163,6 +163,18 @@ try {
     $HeadingB = Invoke-CanonText "## Second`n# First`n" 'heading-b.md'
     Assert-True 'heading level and document order remain comparison-significant' ($HeadingA.ExitCode -eq 0 -and $HeadingB.ExitCode -eq 0 -and $HeadingA.Text -cne $HeadingB.Text)
 
+    # The named-SKIP lines below are this suite's only non-assertion output, and
+    # the REQ-007 allowlist audit reads them, so their rendering is part of the
+    # contract and must be byte-identical across both runtimes. It was not: the
+    # Bash twin rewrote the joined dependency list's trailing "+" as a SPACE
+    # ("SKIP: F4/AC-007 (Epic A4 ): ...") while this -join produced
+    # "(Epic A4)". Nothing asserted the emitted shape, so the divergence was
+    # invisible to both suites. Lock it here; the .sh twin asserts the same.
+    function Assert-SkipLine([string]$Label, [string]$Line) {
+        $Shaped = $Line -cmatch '^SKIP: [^/\s]+/\S+ \([^()]+\): .+$'
+        Assert-True "$Label" ($Shaped -and -not $Line.Contains(' )', [StringComparison]::Ordinal))
+    }
+
     foreach ($Pair in @(@('F4', $F4), @('F3', $F3))) {
         $Fixture = $Pair[0]; $Entry = $Pair[1]
         $Row = Get-Content -LiteralPath $Acceptance | Where-Object { $_.Contains("($Fixture", [StringComparison]::Ordinal) }
@@ -171,7 +183,11 @@ try {
         $ActualDependencies = @($Entry.skip.dependencies | Sort-Object -CaseSensitive -Unique)
         $ValidSkip = $Entry.skip.name -ceq $Fixture -and $Entry.skip.acceptance_criterion -ceq $Ac -and
             -not [string]::IsNullOrEmpty($Entry.skip.reason) -and (($ExpectedDependencies -join "`n") -ceq ($ActualDependencies -join "`n"))
-        if ($ValidSkip) { Write-Output "SKIP: $Fixture/$Ac ($($ActualDependencies -join '+')): $($Entry.skip.reason)" } else { Fail "$Fixture named skip metadata matches its acceptance dependency" }
+        if ($ValidSkip) {
+            $SkipLine = "SKIP: $Fixture/$Ac ($($ActualDependencies -join '+')): $($Entry.skip.reason)"
+            Assert-SkipLine "$Fixture named skip line renders in the twin-identical shape" $SkipLine
+            Write-Output $SkipLine
+        } else { Fail "$Fixture named skip metadata matches its acceptance dependency" }
     }
     $TaskSkipSpan = [regex]::Match($TasksText, 'F5/F6 structural-identity assertions are named `SKIP`s[\s\S]*?until they merge', [Text.RegularExpressions.RegexOptions]::CultureInvariant).Value
     $CompoundRow = Get-Content -LiteralPath $Acceptance | Where-Object { $_.Contains('F5 advisory / F6 required', [StringComparison]::Ordinal) }
@@ -180,7 +196,9 @@ try {
     $TaskDependencies = @([regex]::Matches($TaskSkipSpan, 'A[0-9]+', [Text.RegularExpressions.RegexOptions]::CultureInvariant) | ForEach-Object Value | Sort-Object -CaseSensitive -Unique)
     foreach ($Fixture in @('F5', 'F6')) {
         if ($AcceptanceDependencies.Count -gt 1 -and (($AcceptanceDependencies -join "`n") -ceq ($TaskDependencies -join "`n"))) {
-            Write-Output "SKIP: $Fixture/$CompoundAc ($($AcceptanceDependencies -join '+')): compound dependency not merged"
+            $CompoundLine = "SKIP: $Fixture/$CompoundAc ($($AcceptanceDependencies -join '+')): compound dependency not merged"
+            Assert-SkipLine "$Fixture compound skip line renders in the twin-identical shape" $CompoundLine
+            Write-Output $CompoundLine
         } else { Fail "$Fixture compound named skip matches task and acceptance dependencies" }
     }
     $Runner = Get-Content -LiteralPath (Join-Path $RepoRoot 'tests/run-all.ps1')

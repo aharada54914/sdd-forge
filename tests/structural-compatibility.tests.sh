@@ -67,7 +67,13 @@ template_for() {
   fi
 }
 
-schema_from_design="$(sed -n 's/.*{schema: "\([^"]*\)".*/\1/p' "$DESIGN" | head -1)"
+# First match only, extracted without a pipe. `sed -n ...p | head -1` under
+# `set -o pipefail` couples this assignment's status to SIGPIPE: once sed's
+# output exceeds the pipe buffer, head exits first, sed dies on SIGPIPE, the
+# pipeline reports 141, and errexit kills the whole suite instead of failing an
+# assertion. awk with an explicit exit takes the same first match with no pipe
+# to break, and matches the PowerShell twin's first-match [regex]::Match.
+schema_from_design="$(awk 'match($0, /\{schema: "[^"]*"/) { s = substr($0, RSTART + 10, RLENGTH - 11); print s; exit }' "$DESIGN")"
 refresh_path="$(awk '/^## T-012 / { seen=1 } seen && /structural-compatibility-live-refresh\.tests\.sh/ { if (match($0, /`[^`]*structural-compatibility-live-refresh\.tests\.sh`/)) { line=substr($0, RSTART + 1, RLENGTH - 2); print line; exit } }' "$REPO_ROOT/specs/epic-195-a7-compatibility/tasks.md")"
 
 validate_envelope() {
@@ -103,7 +109,12 @@ else
   pass "language matching layer rejects a mis-cased shipped anchor"
 fi
 
-anchor_expected="$(sed -n '/recorded anchor-window fingerprint/,/this worktree/p' "$DESIGN" | tr '\n' ' ' | sed -n 's/.*sha256:[[:space:]]*\([0-9a-f]\{64\}\).*/\1/p')"
+# FIRST sha256 in the span, matching the PowerShell twin's lazy
+# `[\s\S]*?sha256:`. The previous `.*sha256:` here was greedy and took the
+# LAST one: the twins agreed only because the span currently holds exactly one
+# digest, and would have silently disagreed the moment a second was recorded.
+anchor_expected="$(sed -n '/recorded anchor-window fingerprint/,/this worktree/p' "$DESIGN" | tr '\n' ' ' \
+  | awk '{ i = index($0, "sha256:"); if (i > 0) { rest = substr($0, i + 7); sub(/^[ \t]+/, "", rest); print substr(rest, 1, 64); exit } }')"
 anchor_text="$(awk '/^## Required Outputs$/ { emit=1 } emit { print } emit && /create-only rule\./ { exit }' "$BOOTSTRAP_SKILL")"
 anchor_actual="$(printf '%s' "$anchor_text" | shasum -a 256 | awk '{print $1}')"
 assert_true "fingerprinted Required Outputs injection anchor is unchanged" test "$anchor_actual" = "$anchor_expected"
@@ -190,8 +201,24 @@ bash "$CANON" "$tmp/heading-a.md" > "$tmp/heading-a.ast"
 bash "$CANON" "$tmp/heading-b.md" > "$tmp/heading-b.ast"
 if cmp -s "$tmp/heading-a.ast" "$tmp/heading-b.ast"; then fail "heading level and document order remain comparison-significant"; else pass "heading level and document order remain comparison-significant"; fi
 
+# The named-SKIP lines below are this suite's only non-assertion output, and
+# the REQ-007 allowlist audit reads them, so their rendering is part of the
+# contract and must be byte-identical across both runtimes. It was not: the
+# Bash side rewrote the joined dependency list's trailing "+" as a SPACE
+# ("SKIP: F4/AC-007 (Epic A4 ): ...") while the PowerShell twin's -join
+# produced "(Epic A4)". Nothing asserted the emitted shape, so the divergence
+# was invisible to both suites. Lock it here; the .ps1 twin asserts the same.
+assert_skip_line() {
+  local label="$1" line="$2"
+  if [[ "$line" != *" )"* && "$line" =~ ^SKIP:\ [^/[:space:]]+/[^[:space:]]+\ \([^()]+\):\ .+$ ]]; then
+    pass "$label"
+  else
+    fail "$label (rendered: [$line])"
+  fi
+}
+
 emit_recorded_skip() {
-  local fixture="$1" json="$2" row ac expected_deps actual_deps
+  local fixture="$1" json="$2" row ac expected_deps actual_deps line
   row="$(grep -F "(${fixture}" "$ACCEPTANCE")"
   [[ -n "$row" ]] || { fail "$fixture acceptance row exists"; return; }
   ac="$(awk -F'|' '{gsub(/^ +| +$/, "", $2); print $2}' <<<"$row")"
@@ -199,20 +226,24 @@ emit_recorded_skip() {
   actual_deps="$(jq -r '.skip.dependencies[]' "$json" | LC_ALL=C sort -u)"
   if jq -e --arg fixture "$fixture" --arg ac "$ac" '.skip.name == $fixture and .skip.acceptance_criterion == $ac and (.skip.reason | type == "string" and length > 0)' "$json" >/dev/null &&
      [[ "$actual_deps" == "$expected_deps" ]]; then
-    printf 'SKIP: %s/%s (%s): %s\n' "$fixture" "$ac" "$(tr '\n' '+' <<<"$actual_deps" | sed 's/+$/ /')" "$(jq -r '.skip.reason' "$json")"
+    line="$(printf 'SKIP: %s/%s (%s): %s' "$fixture" "$ac" "$(tr '\n' '+' <<<"$actual_deps" | sed 's/+$//')" "$(jq -r '.skip.reason' "$json")")"
+    assert_skip_line "$fixture named skip line renders in the twin-identical shape" "$line"
+    printf '%s\n' "$line"
   else
     fail "$fixture named skip metadata matches its acceptance dependency"
   fi
 }
 emit_compound_skip() {
-  local fixture="$1" acceptance_row task_span acceptance_deps task_deps ac
+  local fixture="$1" acceptance_row task_span acceptance_deps task_deps ac line
   acceptance_row="$(grep -F "${fixture} " "$ACCEPTANCE" | grep -F 'F5 advisory / F6 required')"
   task_span="$(awk '/F5\/F6 structural-identity assertions are named `SKIP`s/ { emit=1 } emit { printf "%s ", $0 } emit && /until they merge/ { exit }' "$REPO_ROOT/specs/epic-195-a7-compatibility/tasks.md")"
   ac="$(awk -F'|' '{gsub(/^ +| +$/, "", $2); print $2}' <<<"$acceptance_row")"
   acceptance_deps="$(grep -Eo 'A[0-9]+' <<<"$acceptance_row" | LC_ALL=C sort -u)"
   task_deps="$(grep -Eo 'A[0-9]+' <<<"$task_span" | LC_ALL=C sort -u)"
   if [[ -n "$ac" && "$acceptance_deps" == "$task_deps" && "$(wc -l <<<"$acceptance_deps" | tr -d ' ')" -gt 1 ]]; then
-    printf 'SKIP: %s/%s (%s): compound dependency not merged\n' "$fixture" "$ac" "$(tr '\n' '+' <<<"$acceptance_deps" | sed 's/+$/ /')"
+    line="$(printf 'SKIP: %s/%s (%s): compound dependency not merged' "$fixture" "$ac" "$(tr '\n' '+' <<<"$acceptance_deps" | sed 's/+$//')")"
+    assert_skip_line "$fixture compound skip line renders in the twin-identical shape" "$line"
+    printf '%s\n' "$line"
   else
     fail "$fixture compound named skip matches task and acceptance dependencies"
   fi
