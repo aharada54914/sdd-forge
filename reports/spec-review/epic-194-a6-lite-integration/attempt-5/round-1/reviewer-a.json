@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a5-r1-reviewer-a-seq781",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a5-r1-reviewer-a-781",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "ac197966d3d9b66b23c18337873d7e5960d04d8c8af167e5fd0af20e0ec83e6e"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-5/round-1/precheck-result.json", "sha256": "fd844fbb809bf8b99f8b08eea6afc7c626c217b9f71cf0adf9e338099c3eeca7"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-006 states an observable/measurable contract (exact exit codes, schema shapes, VERDICT strings, fixture inventory) with matching AC-001..AC-031 rows; acceptance-tests.md ties each AC to a Test ID and concrete fixture description."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-022 explicitly requires the REQ-006 fixture inventory to map 1:1 to at least one AC and vice versa; every REQ-001..REQ-006 goal has AC rows in the Acceptance Criteria table (requirements.md:800-831), cross-checked against acceptance-tests.md's identical AC/REQ pairing."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable states (exit codes 0/2/10, VERDICT: FAIL/PASS strings, schema-validity of designed fragments, exact catalog contents) rather than intent statements."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md:681-769) explicitly excludes contracts/** authorship, plugins/scripts/tests/.github/docs edits, A2/A3/A5 mechanism reimplementation, catalog vocabulary expansion beyond the fixed seed, and sdd-delivery/Artifact/Promotion Gates."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries and Roles and Permissions sections state fail-closed posture, protected-file/human-copy constraints per path (now correctly including contracts/capability-registry.json), and the migration/compatibility rule for v1 Registry instances."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section names A5-not-yet-Passed, intake-time-Block-as-defense-in-depth, the ADR-0022 token-mapping interpretation, and the lite-check-catalog seed narrowness, each with a stated validation/mitigation surface (re-verification discipline, mandatory ship-time recheck, additive catalog_version growth)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (Glob domain/context-map.md returned no results), so this check does not apply, per its own skip condition."
+    }
+  ]
+}
