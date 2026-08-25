@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "task-orch-epic-193-a5-capability-resolver-a7r1",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 7,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb",
+  "acceptance_sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33",
+  "design_sha256": "1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a",
+  "tasks_sha256": "38770deaf590060af86a7043224e2c202bed13dfb6b84ee21d6e98885abd815c",
+  "traceability_sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d",
+  "layer_sha256": {
+    "ux-spec.md": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677",
+    "frontend-spec.md": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6",
+    "infra-spec.md": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d",
+    "security-spec.md": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-a-a7r1-seq0778",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-193-a5-capability-resolver-a7r1-0778",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/dependency-graph.json",
+          "sha256": "0ff723e17956de61ec9028866ae5553f0e5877afc23edd496313ee3091122614"
+        },
+        {
+          "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/precheck-result.json",
+          "sha256": "004ae83fc6420d2dac4ee39e37d8ddccba73722ebc1cbc083134ce13b4389f8e"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+          "sha256": "ea82d6f08a8c82de38f15cc76c4cc6d6702651232210bf20640ac3dd68cf7d25"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+          "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a7r1-seq0779",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a7r1-0779",
+      "allowed_input_manifest": [
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/integrated-summary.json",
+          "sha256": "8a4a5cde4260087e1f295e06f4fc632a62448c8a7a393ab6f9b3d5f07e3e7c82"
+        },
+        {
+          "path": "reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/precheck-result.json",
+          "sha256": "004ae83fc6420d2dac4ee39e37d8ddccba73722ebc1cbc083134ce13b4389f8e"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+          "sha256": "ea82d6f08a8c82de38f15cc76c4cc6d6702651232210bf20640ac3dd68cf7d25"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+          "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Post-implementation provenance re-review (no findings loop). tasks.md itself was NOT edited: normalized_hash(tasks.md, task) recomputes today to 38770deaf590060af86a7043224e2c202bed13dfb6b84ee21d6e98885abd815c, byte-for-byte the value attempt-6/round-1 pinned, which proves the only changes since that clean PASS are lifecycle Status flips (T-003/T-004/T-005 Implementation Complete -> Done). What went stale is the rest of the top-level contract: requirements.md, acceptance-tests.md and design.md were amended under three human rulings dated 2026-08-24 (commits 88c3187a, 2f35de22, 3e0e72cd), which cite 31 previously unnamed acceptance criteria, add the substance of AC-016 and AC-056, correct a stale '14-value enum' claim to sixteen, and repair two dangling 'Edge Cases below' pointers. AC-035/AC-036/AC-037 remain deliberately uncited as Global-scoped registration-commit meta-criteria. This attempt re-binds the attempt-6/round-1 clean PASS to the amended hashes. tasks_sha256 deliberately carries the flip-invariant normalized form rather than the precheck's raw bytes (ea82d6f08a8c82de38f15cc76c4cc6d6702651232210bf20640ac3dd68cf7d25), so that T-006..T-010's remaining Planned -> Implementation Complete -> Done transitions cannot re-stale this record; check-workflow-state.sh's reviewed_hash_accepted() admits either form. Both reviewer manifests carry the raw bytes, which is what each reviewer actually verified on disk.",
+  "timestamp": "2026-08-25T03:10:45Z"
+}
