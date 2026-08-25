@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-196-a8-integration",
+  "attempt": 7,
+  "round": 1,
+  "feature_type": "cli",
+  "legacy_design": false,
+  "requirements_sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+  "acceptance_sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1",
+  "design_sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c",
+  "layer_sha256": {
+    "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+    "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+    "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+    "security-spec.md": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Post-implementation provenance re-review: attempt 7 re-binds the impl stage after task-review attempt 3 round 1's remediation moved three of this stage's pinned inputs. design.md changed in 8d760af03cacc594afa464841222d7cb7a2201ec (the SKIP Allowlist Activation Gate gains a Status:-based detection bullet sibling to the existing Existence-based one, under the 2026-08-25 human ruling that AC-006 clause (a) is a read of T-005's lifecycle field), 4a2068c5... -> 14862a80.... security-spec.md changed in the same commit, 2918b235... -> 45adc9bd...; that is a layer-spec pin no workflow-state tolerance covers, and it is the diagnostic this attempt clears. investigation.md changed in e28e12d8 (chain predecessors T-002/T-005/T-006 omitted), 8d760af0 (the two rulings' lineage), and d9f1c42f (the amendment record restructured into a pure tail append, 272 insertions and 0 deletions, so the amendment-record growth tolerance fires), 2eea3d80... -> 117aa4ee.... requirements.md, acceptance-tests.md, ux-spec.md, frontend-spec.md and infra-spec.md are byte-unchanged from attempt 6 round 1. No design decision moved and no finding was waived: the remediation implements a human ruling that selects which reading of AC-006 clause (a) design.md already carried, and both reviewers ran the full check set against the current text and returned PASS with zero findings.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "clean",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-196-a8-integration-impl-reviewer-a-a7r1-seq795",
+      "host_session_id": "SESS-impl-a-epic-196-a8-integration-a7r1-seq795",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-7/round-1/precheck-result.json",
+          "sha256": "ed8a162154389d0c4d5935f4fb2523fcc6252db3d9576be34389cde585957c44"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-impl-reviewer-b-a7r1-seq796",
+      "host_session_id": "SESS-impl-b-epic-196-a8-integration-a7r1-seq796",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/investigation.md",
+          "sha256": "117aa4ee7a385fbc606e2b788dd6bdd169c0be32036e17be535d5301b65bc939"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-7/round-1/precheck-result.json",
+          "sha256": "ed8a162154389d0c4d5935f4fb2523fcc6252db3d9576be34389cde585957c44"
+        },
+        {
+          "path": "reports/impl-review/epic-196-a8-integration/attempt-7/round-1/integrated-summary.json",
+          "sha256": "7314fb8a34da2c73b70049c51b81c356761c3dee4d64270cc734f53cb3248fff"
+        }
+      ]
+    }
+  ],
+  "verdict": "PASS",
+  "run_id": "impl-orch-epic196a8integration-a7r1",
+  "timestamp": "2026-08-25T02:50:00Z"
+}
