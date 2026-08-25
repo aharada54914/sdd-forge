@@ -14,6 +14,29 @@ $SkillProposed = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-c
 $CheckRiskUpgrade = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
 $LiveShipSkill = Join-Path $RepoRoot 'plugins/sdd-ship/skills/ship/SKILL.md'
 $PowerShell = (Get-Process -Id $PID).Path
+# tasks.md T-003 Planned Files declares this fixture tree; it was declared but
+# never created, and both twins built fixtures inline instead (T-003 Anthropic
+# slot, Minor). Reading BOTH twins from one file is additionally what stops
+# them modelling the Registry differently -- the divergence a previous round
+# had to repair by hand.
+#
+# Loaded defensively: with $ErrorActionPreference = 'Stop' an unguarded
+# Get-Content on a missing catalog throws at LOAD time -- before a single
+# assertion runs and before any "Results:" line, so the tally vanishes
+# entirely. That is the same opaque-abort mode the sh twin's python3 guard
+# exists to prevent, and it is worse here because nothing at all is printed.
+# A missing catalog must be a visible FAIL plus visible skips, never silence.
+$FixtureCatalogPath = Join-Path $RepoRoot 'tests/fixtures/epic-194-lite-spec/scenarios.json'
+$HaveCatalog = $false
+$FixtureCatalog = $null
+if (Test-Path -LiteralPath $FixtureCatalogPath -PathType Leaf) {
+    try {
+        $FixtureCatalog = Get-Content -LiteralPath $FixtureCatalogPath -Raw | ConvertFrom-Json
+        $HaveCatalog = $true
+    } catch {
+        $HaveCatalog = $false
+    }
+}
 
 $Script:Pass = 0
 $Script:Fail = 0
@@ -86,6 +109,12 @@ Assert-Contains 'TEST-019-static-m: names a temp-fragment write failure as a pro
 Assert-Contains 'TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs' 'Block immediately, before'
 Assert-Contains 'TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted' 'never a silent degrade'
 
+if (Test-Path -LiteralPath $FixtureCatalogPath -PathType Leaf) {
+    Ok 'TEST-019-fixture-catalog: the tasks.md-declared fixture tree exists and is read by both twins'
+} else {
+    Bad "TEST-019-fixture-catalog: declared fixture tree is missing at $FixtureCatalogPath"
+}
+
 Write-Host '=== TEST-019-functional: assembled Capability-derived fragment Blocks ==='
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t003-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
@@ -104,14 +133,8 @@ try {
     # Anthropic-panelist review, Minor). Reading through `.lite_policy` also
     # means a regression back to the flat shape now throws under
     # Set-StrictMode instead of silently matching nothing.
-    $declaredComponents = @('payment-service')
-    $registryCapabilities = @(
-        [pscustomobject]@{
-            id          = 'payment-processing-svc'
-            component   = 'payment-service'
-            lite_policy = [pscustomobject]@{ eligible = $false; upgrade_reasons = @('financial_settlement') }
-        }
-    )
+    $declaredComponents = @($FixtureCatalog.project_context.components)
+    $registryCapabilities = @($FixtureCatalog.registry.capabilities)
     $matched = @()
     foreach ($capability in $registryCapabilities) {
         if ($declaredComponents -contains $capability.component -and $capability.lite_policy.eligible -eq $false) {
@@ -132,7 +155,7 @@ try {
     }
     $fragment = [pscustomobject]@{ capabilities = $matched } | ConvertTo-Json -Depth 5
     Set-Content -LiteralPath (Join-Path $Work 'fragment.json') -Value $fragment -NoNewline
-    Set-Content -LiteralPath (Join-Path $Work 'source.txt') -Value 'a clean internal requirement body with no keyword trigger at all.' -NoNewline
+    Set-Content -LiteralPath (Join-Path $Work 'source.txt') -Value $FixtureCatalog.sources.clean -NoNewline
 
     # AC-019 requires the Capability-derived Block to carry "the identical
     # exit code (10) [and] message shape (full-required: ...) ... as an
@@ -141,7 +164,7 @@ try {
     # performed (T-003 Anthropic-panelist review, Major). The keyword-match
     # fixture is now actually RUN and its observed values are the comparison
     # target.
-    Set-Content -LiteralPath (Join-Path $Work 'keyword-source.txt') -Value 'this task rotates an API secret used by the settlement worker.' -NoNewline
+    Set-Content -LiteralPath (Join-Path $Work 'keyword-source.txt') -Value $FixtureCatalog.sources.keyword_match -NoNewline
     $kwOutput = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $Work 'keyword-source.txt') 2>&1
     $kwExit = $LASTEXITCODE
     $kwJoined = ($kwOutput -join "`n")
@@ -191,13 +214,9 @@ try {
     # whose own lite_policy.eligible is false") it is excluded from the
     # fragment entirely -- the intake-time Capability-derived evaluation does
     # not flag it.
-    $diFragment = [pscustomobject]@{
-        capabilities = @(
-            [pscustomobject]@{ id = 'payment-processing-svc'; eligible = $true; upgrade_reasons = @() }
-        )
-    } | ConvertTo-Json -Depth 5
+    $diFragment = $FixtureCatalog.defense_in_depth.fragment | ConvertTo-Json -Depth 5
     Set-Content -LiteralPath (Join-Path $DiWork 'di-fragment.json') -Value $diFragment -NoNewline
-    Set-Content -LiteralPath (Join-Path $DiWork 'di-intake-source.txt') -Value 'a clean internal requirement body with no keyword trigger at all.' -NoNewline
+    Set-Content -LiteralPath (Join-Path $DiWork 'di-intake-source.txt') -Value $FixtureCatalog.sources.clean -NoNewline
 
     $intakeOutput = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $DiWork 'di-intake-source.txt') -CapabilityReasons (Join-Path $DiWork 'di-fragment.json') 2>&1
     $intakeExit = $LASTEXITCODE
@@ -213,7 +232,7 @@ try {
     # check-risk-upgrade with no -CapabilityReasons at all, per its own live
     # text) -- against a task-block+requirements body that DOES carry an
     # unrelated keyword trigger for the same component.
-    Set-Content -LiteralPath (Join-Path $DiWork 'di-ship-source.txt') -Value 'the payment-service task rotates a secret used by the settlement worker.' -NoNewline
+    Set-Content -LiteralPath (Join-Path $DiWork 'di-ship-source.txt') -Value $FixtureCatalog.sources.defense_in_depth_ship -NoNewline
     $shipOutput = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $DiWork 'di-ship-source.txt') 2>&1
     $shipExit = $LASTEXITCODE
     $shipJoined = ($shipOutput -join "`n")
@@ -231,6 +250,39 @@ if (Test-Path -LiteralPath $LiveShipSkill -PathType Leaf) {
     if ($shipContent.Contains('check-risk-upgrade')) { Ok 'TEST-019-defense-in-depth-d: ship/SKILL.md still independently invokes check-risk-upgrade at ship time' } else { Bad 'TEST-019-defense-in-depth-d: ship/SKILL.md no longer mentions check-risk-upgrade' }
 } else {
     Bad 'TEST-019-defense-in-depth-d: ship/SKILL.md not found at expected path'
+}
+
+# ---------------------------------------------------------------------------
+# TEST-021 (AC-021): single-file, human-copy-only lock. Twin of the sh
+# suite's -- see that file for the full rationale. AC-021 had no automated
+# assertion in this task's own suite at all (T-003 Anthropic slot, Major).
+# ---------------------------------------------------------------------------
+Write-Host '=== TEST-021 (AC-021): single-file, human-copy-only lock ==='
+$HcRoot = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy'
+$SoleTarget = $FixtureCatalog.ac_021.sole_staged_target
+$SoleTargetNative = $SoleTarget -replace '/', [IO.Path]::DirectorySeparatorChar
+
+$skillsStaged = @(Get-ChildItem -LiteralPath (Join-Path $HcRoot 'plugins/sdd-lite/skills') -Recurse -File -ErrorAction SilentlyContinue)
+if ($skillsStaged.Count -eq 1 -and (Test-Path -LiteralPath (Join-Path $HcRoot $SoleTargetNative) -PathType Leaf)) {
+    Ok "TEST-021a: REQ-005 stages exactly one file under sdd-lite/skills/, and it is $SoleTarget"
+} else {
+    Bad "TEST-021a: expected exactly 1 staged file under sdd-lite/skills/ ($SoleTarget), found $($skillsStaged.Count)"
+}
+
+$manifestLines = @(Get-Content -LiteralPath (Join-Path $HcRoot 'MANIFEST.sha256') | Where-Object { $_.EndsWith("  $SoleTarget", [StringComparison]::Ordinal) })
+$actualDigest = (Get-FileHash -LiteralPath (Join-Path $HcRoot $SoleTargetNative) -Algorithm SHA256).Hash.ToLowerInvariant()
+$manifestDigest = if ($manifestLines.Count -eq 1) { $manifestLines[0].Split('  ')[0] } else { '' }
+if ($manifestLines.Count -eq 1 -and $manifestDigest -eq $actualDigest) {
+    Ok "TEST-021b: exactly one MANIFEST.sha256 entry names $SoleTarget, and its digest matches the staged bytes"
+} else {
+    Bad "TEST-021b: expected exactly 1 manifest entry with a matching digest for $SoleTarget; entries=$($manifestLines.Count) manifest=$manifestDigest actual=$actualDigest"
+}
+
+$appliers = @(Get-ChildItem -LiteralPath $HcRoot -File | Where-Object { $_.Extension -in @('.ps1', '.sh') } | ForEach-Object { $_.Name } | Sort-Object)
+if ($appliers.Count -eq 1 -and $appliers[0] -eq $FixtureCatalog.ac_021.shared_application_runner) {
+    Ok "TEST-021c: the only application path staged is the shared $($appliers[0]) -- no REQ-005-specific applier was introduced"
+} else {
+    Bad "TEST-021c: expected the shared runner to be the only staged application script, found: [$($appliers -join ', ')]"
 }
 
 Write-Host ''

@@ -28,6 +28,17 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 SKILL_PROPOSED="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md"
 CHECK_RISK_UPGRADE="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
 LIVE_SHIP_SKILL="${REPO_ROOT}/plugins/sdd-ship/skills/ship/SKILL.md"
+# tasks.md T-003 Planned Files declares this fixture tree ("a Project Context
+# declaring components, a Registry with a matched ineligible Capability, the
+# assembled trigger-fragment fixture this signal source produces, and a
+# companion fixture confirming the existing ship-time recheck still
+# independently Blocks..."). It was declared but never created, and both twins
+# built their fixtures inline via heredoc instead, which is also why two
+# cross-model slots reported the inputs behind these assertions could not be
+# read (T-003 Anthropic slot, Minor). Reading BOTH twins from one file is
+# additionally what stops them modelling the Registry differently -- a
+# divergence a previous round had to repair by hand.
+FIXTURE_CATALOG="${REPO_ROOT}/tests/fixtures/epic-194-lite-spec/scenarios.json"
 PASS=0
 FAIL=0
 
@@ -130,18 +141,13 @@ assert_contains "TEST-019-static-o: an attempted-and-failed signal is never trea
 # ---------------------------------------------------------------------------
 echo "=== TEST-019-functional: assembled Capability-derived fragment Blocks ==="
 
-# Synthetic Project Context: one declared component.
-cat > "${WORK}/project-context.json" <<'JSON'
-{"components": ["payment-service"]}
-JSON
-
-# Synthetic Registry: one Capability matched to that component, ineligible.
-cat > "${WORK}/registry.json" <<'JSON'
-{"capabilities": [
-  {"id": "payment-processing-svc", "component": "payment-service",
-   "lite_policy": {"eligible": false, "upgrade_reasons": ["financial_settlement"]}}
-]}
-JSON
+HAVE_CATALOG=0
+if [ ! -f "${FIXTURE_CATALOG}" ]; then
+  fail "TEST-019-fixture-catalog: declared fixture tree is missing at ${FIXTURE_CATALOG}"
+else
+  HAVE_CATALOG=1
+  ok "TEST-019-fixture-catalog: the tasks.md-declared fixture tree exists and is read by both twins"
+fi
 
 # Union-match simulation (standing in for a real evaluate-predicate call,
 # which this feature does not reimplement, Non-goals): a component-name
@@ -156,16 +162,28 @@ JSON
 # visible `skip -` line and the suite still reaches its own summary.
 HAVE_PY3=0
 if command -v python3 >/dev/null 2>&1; then HAVE_PY3=1; fi
+# Fixture-dependent assertions need BOTH python3 and the catalog.
+HAVE_FIXTURES=0
+if [ "${HAVE_PY3}" -eq 1 ] && [ "${HAVE_CATALOG}" -eq 1 ]; then HAVE_FIXTURES=1; fi
 
-if [ "${HAVE_PY3}" -eq 1 ]; then
-python3 - "${WORK}/project-context.json" "${WORK}/registry.json" "${WORK}/fragment.json" <<'PY'
+if [ "${HAVE_FIXTURES}" -eq 1 ]; then
+python3 - "${FIXTURE_CATALOG}" "${WORK}" <<'PY'
 import json
 import sys
+from pathlib import Path
 
-with open(sys.argv[1], encoding="utf-8") as f:
-    project_context = json.load(f)
-with open(sys.argv[2], encoding="utf-8") as f:
-    registry = json.load(f)
+catalog = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+work = Path(sys.argv[2])
+
+project_context = catalog["project_context"]
+registry = catalog["registry"]
+
+# Materialize the catalog's own Project Context and Registry so the shape
+# assertions below read the same bytes the union match consumed.
+(work / "project-context.json").write_text(json.dumps(project_context), encoding="utf-8")
+(work / "registry.json").write_text(json.dumps(registry, indent=2), encoding="utf-8")
+# NOTE: the source bodies are written by the shell below, not here -- the
+# keyword-match baseline must still run on a host without python3.
 
 declared = set(project_context["components"])
 matched_ineligible = []
@@ -177,8 +195,25 @@ for capability in registry["capabilities"]:
             "upgrade_reasons": capability["lite_policy"].get("upgrade_reasons", []),
         })
 
-with open(sys.argv[3], "w", encoding="utf-8") as f:
-    json.dump({"capabilities": matched_ineligible}, f)
+(work / "fragment.json").write_text(
+    json.dumps({"capabilities": matched_ineligible}), encoding="utf-8"
+)
+
+# Shape verdict, computed structurally rather than by grepping serialized
+# JSON: the previous grep form was pinned to one exact serialization and
+# would silently stop matching the moment the fixture was reformatted.
+entry = registry["capabilities"][0]
+nested = int("lite_policy" in entry and "eligible" in entry.get("lite_policy", {}))
+flat = int("eligible" in entry or "upgrade_reasons" in entry)
+(work / "shape-verdict.txt").write_text(
+    f"{nested} {flat} {len(matched_ineligible)}\n", encoding="utf-8"
+)
+
+# Companion (defense-in-depth) fragment: the eligible:true entry the
+# documented assembly rule excludes, so intake does NOT flag the component.
+(work / "di-fragment.json").write_text(
+    json.dumps(catalog["defense_in_depth"]["fragment"]), encoding="utf-8"
+)
 PY
 fi
 
@@ -191,23 +226,24 @@ fi
 # Assert the SHAPE of the Registry fixture, not merely that the match found
 # something: a flattened fixture would still yield exactly one match, so a
 # count-only assertion would not detect the divergence it exists to catch.
-REG_NESTED=0
-REG_FLAT=0
-grep -qF '"lite_policy": {"eligible": false' "${WORK}/registry.json" && REG_NESTED=1
-grep -qE '^[[:space:]]*\{"id":[^}]*"eligible"' "${WORK}/registry.json" && REG_FLAT=1
-if [ "${HAVE_PY3}" -eq 1 ]; then
-  MATCHED_COUNT="$(tr -cd '{' < "${WORK}/fragment.json" | wc -c | tr -d ' ')"
-  # one brace for the fragment object + one per matched capability entry
-  if [ "${REG_NESTED}" -eq 1 ] && [ "${REG_FLAT}" -eq 0 ] && [ "${MATCHED_COUNT}" = "2" ]; then
+if [ "${HAVE_FIXTURES}" -eq 1 ]; then
+  read -r REG_NESTED REG_FLAT MATCHED_COUNT < "${WORK}/shape-verdict.txt"
+  if [ "${REG_NESTED}" = "1" ] && [ "${REG_FLAT}" = "0" ] && [ "${MATCHED_COUNT}" = "1" ]; then
     ok "TEST-019-functional-registry-shape: the Registry fixture nests eligibility under lite_policy and exposes no flattened eligible/upgrade_reasons (design.md Data Plan; parity with the .ps1 twin's fixture)"
   else
-    fail "TEST-019-functional-registry-shape: Registry fixture shape diverges from design.md's Data Plan and from the .ps1 twin. nested=${REG_NESTED} flat=${REG_FLAT} matched_braces=${MATCHED_COUNT}"
+    fail "TEST-019-functional-registry-shape: Registry fixture shape diverges from design.md's Data Plan and from the .ps1 twin. nested=${REG_NESTED} flat=${REG_FLAT} matched=${MATCHED_COUNT}"
   fi
 else
-  echo "skip - TEST-019-functional-registry-shape: no python3 available to run the union match"
+  echo "skip - TEST-019-functional-registry-shape: no python3 and/or no fixture catalog: cannot run the union match"
 fi
 
-printf 'a clean internal requirement body with no keyword trigger at all.\n' > "${WORK}/source.txt"
+# Source bodies come from the catalog too, via a python3-free extraction so
+# the keyword-match baseline still runs on a host without python3.
+extract_source() {
+  [ "${HAVE_CATALOG}" -eq 1 ] || { printf ''; return 0; }
+  sed -n "s/.*\"$1\": \"\\(.*\\)\",*$/\\1/p" "${FIXTURE_CATALOG}" | head -1
+}
+printf '%s\n' "$(extract_source clean)" > "${WORK}/source.txt"
 
 # AC-019 requires the Capability-derived Block to carry "the identical exit
 # code (10), message shape (full-required: ...) and non-overridability ... as
@@ -218,7 +254,7 @@ printf 'a clean internal requirement body with no keyword trigger at all.\n' > "
 # message prefix are what the Capability-derived run is compared against --
 # if the keyword arm's own contract ever moved, this comparison moves with it
 # instead of silently diverging from the constant it used to assert.
-printf 'this task rotates an API secret used by the settlement worker.\n' > "${WORK}/keyword-source.txt"
+printf '%s\n' "$(extract_source keyword_match)" > "${WORK}/keyword-source.txt"
 KW_OUT=""
 KW_EXIT=0
 KW_OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/keyword-source.txt" 2>&1)" || KW_EXIT=$?
@@ -229,7 +265,7 @@ else
   fail "TEST-019-functional-baseline: the keyword-match reference fixture did not Block; exit=${KW_EXIT} output=${KW_OUT}. Every parity assertion below is meaningless without it."
 fi
 
-if [ "${HAVE_PY3}" -eq 1 ]; then
+if [ "${HAVE_FIXTURES}" -eq 1 ]; then
 OUT=""
 EXIT=0
 OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/source.txt" --capability-reasons "${WORK}/fragment.json" 2>&1)" || EXIT=$?
@@ -250,9 +286,9 @@ else
   fail "TEST-019-functional-c: expected 'financial_settlement' in output: ${OUT}"
 fi
 else
-  echo "skip - TEST-019-functional-a: no python3 available to assemble the synthetic trigger fragment"
-  echo "skip - TEST-019-functional-b: no python3 available to assemble the synthetic trigger fragment"
-  echo "skip - TEST-019-functional-c: no python3 available to assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-a: no python3 and/or no fixture catalog: cannot assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-b: no python3 and/or no fixture catalog: cannot assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-c: no python3 and/or no fixture catalog: cannot assemble the synthetic trigger fragment"
 fi
 
 # ---------------------------------------------------------------------------
@@ -277,13 +313,10 @@ fi
 # per the documented assembly rule ("Assemble every matched Capability whose
 # own lite_policy.eligible is false") it is excluded from the fragment
 # entirely -- the intake-time Capability-derived evaluation does not flag it.
-cat > "${WORK}/di-fragment.json" <<'JSON'
-{"capabilities": [
-  {"id": "payment-processing-svc", "eligible": true, "upgrade_reasons": []}
-]}
-JSON
-printf 'a clean internal requirement body with no keyword trigger at all.\n' > "${WORK}/di-intake-source.txt"
 
+printf '%s\n' "$(extract_source clean)" > "${WORK}/di-intake-source.txt"
+
+if [ "${HAVE_FIXTURES}" -eq 1 ]; then
 DI_INTAKE_OUT=""
 DI_INTAKE_EXIT=0
 DI_INTAKE_OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/di-intake-source.txt" --capability-reasons "${WORK}/di-fragment.json" 2>&1)" || DI_INTAKE_EXIT=$?
@@ -292,13 +325,16 @@ if [ "${DI_INTAKE_EXIT}" -eq 0 ]; then
 else
   fail "TEST-019-defense-in-depth-b: expected intake to pass with exit 0, got ${DI_INTAKE_EXIT}. Output: ${DI_INTAKE_OUT}"
 fi
+else
+  echo "skip - TEST-019-defense-in-depth-b: no python3 and/or no fixture catalog: cannot materialize the companion fragment"
+fi
 
 # Ship-time recheck: independent invocation, single argument only -- exactly
 # ship/SKILL.md's own unmodified command (still just check-risk-upgrade with
 # no --capability-reasons at all, per its own live text) -- against a
 # task-block+requirements body that DOES carry an unrelated keyword trigger
 # for the same component.
-printf 'the payment-service task rotates a secret used by the settlement worker.\n' > "${WORK}/di-ship-source.txt"
+printf '%s\n' "$(extract_source defense_in_depth_ship)" > "${WORK}/di-ship-source.txt"
 DI_SHIP_OUT=""
 DI_SHIP_EXIT=0
 DI_SHIP_OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/di-ship-source.txt" 2>&1)" || DI_SHIP_EXIT=$?
@@ -316,6 +352,53 @@ if [ -f "${LIVE_SHIP_SKILL}" ]; then
   fi
 else
   fail "TEST-019-defense-in-depth-d: ship/SKILL.md not found at expected path"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-021 (AC-021): single-file, human-copy-only lock.
+#
+# AC-021 reads: "the designed REQ-005 edit touches only `lite-spec/SKILL.md`,
+# staged under the same `specs/epic-194-a6-lite-integration/human-copy/`
+# directory TEST-010 verifies, with no separate, REQ-005-specific application
+# path introduced". It had NO automated assertion in this task's own suite --
+# the only support was the implementation report's own self-assertion, which
+# is precisely the implementer claim a blind review cannot credit (T-003
+# Anthropic slot, Major). T-001's suite covers the RUNNER contract; these
+# three assertions cover T-003's own staged contribution to it.
+# ---------------------------------------------------------------------------
+echo "=== TEST-021 (AC-021): single-file, human-copy-only lock ==="
+HC_ROOT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy"
+SOLE_TARGET='plugins/sdd-lite/skills/lite-spec/SKILL.md'
+
+# (i) The REQ-005 edit touches exactly one staged file: lite-spec/SKILL.md.
+# Counted from the staged tree itself, not from a declaration -- a second
+# REQ-005 file appearing under skills/ is what this has to catch.
+SKILLS_STAGED="$(find "${HC_ROOT}/plugins/sdd-lite/skills" -type f 2>/dev/null | wc -l | tr -d ' ')"
+if [ "${SKILLS_STAGED}" = "1" ] && [ -f "${HC_ROOT}/${SOLE_TARGET}" ]; then
+  ok "TEST-021a: REQ-005 stages exactly one file under sdd-lite/skills/, and it is ${SOLE_TARGET}"
+else
+  fail "TEST-021a: expected exactly 1 staged file under sdd-lite/skills/ (${SOLE_TARGET}), found ${SKILLS_STAGED}"
+fi
+
+# (ii) It is staged under the same human-copy/ directory TEST-010 verifies,
+# with exactly one MANIFEST.sha256 entry, and that entry's digest is correct.
+MANIFEST_HITS="$(grep -c "  ${SOLE_TARGET}\$" "${HC_ROOT}/MANIFEST.sha256" 2>/dev/null || true)"
+MANIFEST_DIGEST="$(grep "  ${SOLE_TARGET}\$" "${HC_ROOT}/MANIFEST.sha256" 2>/dev/null | awk '{print $1}')"
+ACTUAL_DIGEST="$(shasum -a 256 "${HC_ROOT}/${SOLE_TARGET}" 2>/dev/null | awk '{print $1}')"
+if [ "${MANIFEST_HITS}" = "1" ] && [ -n "${ACTUAL_DIGEST}" ] && [ "${MANIFEST_DIGEST}" = "${ACTUAL_DIGEST}" ]; then
+  ok "TEST-021b: exactly one MANIFEST.sha256 entry names ${SOLE_TARGET}, and its digest matches the staged bytes"
+else
+  fail "TEST-021b: expected exactly 1 manifest entry with a matching digest for ${SOLE_TARGET}; entries=${MANIFEST_HITS} manifest=${MANIFEST_DIGEST} actual=${ACTUAL_DIGEST}"
+fi
+
+# (iii) No separate, REQ-005-specific application path was introduced: the
+# only application script staged in this batch is the shared runner T-001
+# owns. A REQ-005-specific applier appearing beside it is the failure.
+APPLIERS="$(find "${HC_ROOT}" -maxdepth 1 -type f \( -name '*.ps1' -o -name '*.sh' \) 2>/dev/null | sed "s|^${HC_ROOT}/||" | sort | tr '\n' ' ')"
+if [ "${APPLIERS}" = "apply-protected-files.ps1 " ]; then
+  ok "TEST-021c: the only application path staged is the shared apply-protected-files.ps1 -- no REQ-005-specific applier was introduced"
+else
+  fail "TEST-021c: expected the shared runner to be the only staged application script, found: [${APPLIERS}]"
 fi
 
 echo ""

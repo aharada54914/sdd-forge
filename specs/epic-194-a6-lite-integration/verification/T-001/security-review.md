@@ -46,3 +46,53 @@ This PASS applies to the non-protected candidate only. The unchanged protected
 runner remains the deliberately broken RED baseline and must not be used. The
 candidate also must not be promoted until a human resolves the four-target /
 fifth CI-target contradiction and applies the protected artifacts.
+
+---
+
+## Addendum 2026-08-25 — this PASS is stale against the shipped runner
+
+Appended, not edited. Everything above is the 2026-08-08 record and stands as
+what was reviewed then.
+
+Two cross-model slots reported that this review's scope cannot be reconciled
+with the artifact that shipped (T-001 Anthropic slot, Major). They are right,
+and this addendum states the gap rather than leaving it implicit.
+
+**The reviewed artifact no longer exists.** The header names
+`specs/epic-194-a6-lite-integration/drafts/apply-protected-files.ps1`. That
+path was deleted on promotion. No digest of the reviewed bytes was recorded,
+so "the bytes are unmodified from the reviewed candidate" is not verifiable
+from this document by any means, then or now.
+
+**The shipped runner today is
+`specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1`,
+sha256 `15417bd5ef2d5bad46e8b9800d9d27a17a8df6c3fc578bfa3de57b49ab3688a8`.** Recording it here so that any FUTURE review of this file
+has the comparison point this one lacked.
+
+**Three substantive changes landed after this review, all of which touch
+boundaries it assessed:**
+
+1. `9997091c` widened the declared payload set from four targets to five.
+   This review's own Scope boundary says the candidate "must not be promoted
+   until a human resolves the four-target / fifth CI-target contradiction" --
+   that precondition was resolved by widening, after this review was written.
+2. `75fe25a3` replaced `SourceMode`'s hand-derived struct-stat byte offset
+   with `File.GetUnixFileMode(SafeFileHandle)`. This review's own Nonblocking
+   limitations flagged the risk in advance -- "non-x64 Linux remains
+   unverified" -- and the cross-model panel later confirmed it concretely on
+   aarch64 glibc, where offset 24 is `st_uid`, not `st_mode`.
+3. `2499e813` replaced `Copy-Payload`'s single catch-all with three typed
+   catches, so a content-integrity failure is no longer reported to the
+   operator as a path-escape attempt.
+
+**What this addendum does NOT do.** It does not re-issue the verdict. A PASS
+over the current bytes requires a fresh independent security pass, which is
+human-invoked. Until then the 2026-08-08 PASS should be read as scoped to a
+predecessor artifact, not to what ships.
+
+**Still unexecuted, unchanged from the original Nonblocking limitations:** the
+Windows publisher path (NtCreateFile / SetFileInformationByHandle /
+RtlNtStatusToDosError P/Invoke, the Windows rename, and reparse-point
+validation) has been reviewed statically and never run. No log in this
+feature's evidence shows it executing. That is a coverage gap a macOS host
+cannot close.

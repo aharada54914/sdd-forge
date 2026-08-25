@@ -1,7 +1,7 @@
-Commands (cross-model remediation re-run against the current tree, 2026-08-25T05:30:24Z):
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T10:43:21Z):
   repository: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194
   branch:     feature/epic-194-a6-lite-integration
-  HEAD:       7635250c143c524e05dbf597698e1fd584df1ee8
+  HEAD:       7e282bb127fe15b231d6d251e80d39b4ca082a18
   bash tests/human-copy-runner-contract.tests.sh
   pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1
 ### human-copy-runner-contract.tests.sh ###

@@ -1,4 +1,4 @@
-### recaptured 2026-08-25T05:32:58Z against HEAD 7635250c143c524e05dbf597698e1fd584df1ee8 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### recaptured 2026-08-25T10:44:40Z against HEAD 7e282bb127fe15b231d6d251e80d39b4ca082a18 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
 ### human-copy-runner-contract.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 ==> pwsh /Users/jrmag/Projects/active/sdd-forge-wt-epic-194/tests/human-copy-runner-contract.tests.ps1
 ok: TEST-000a: fixture catalog schema is recognized
