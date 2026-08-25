@@ -522,9 +522,12 @@ guessing at an undocumented convention.
   condition. `assert_terminal` emits `done-transition` *before* it compares
   the observed terminal state against the expected one, so a failing
   comparison still records the event, and each of its two early returns
-  records none. `TEST-026` is therefore a named `SKIP` in
-  acceptance-tests.md until `AC-009`'s recorded hash is formally amended.
-  See `OQ-004` (open) in Open Questions and its paired `High` entry in
+  records none. This criterion carries no `SKIP` disposition and is not
+  governed by `AC-034`'s allowlist: its gating condition is not an
+  upstream-epic merge, so it is not expressible in that manifest's
+  `merged(...)` / `fingerprint_match(...)` grammar, and `TEST-018`'s half
+  of this assertion is Context-absent and depends on no upstream epic at
+  all. See `OQ-004` (open) in Open Questions and its paired `High` entry in
   Risks for the full statement, the reason it is deliberately unfixed, and
   the resolution path.
 - AC-027: The skip/stop-message event kind has its own **two** named

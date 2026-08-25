@@ -476,3 +476,66 @@ design — confirmed by the attempt-6 precheck computing
   `traceability.md` line 117 binds `AC-026` to `TEST-026` and is
   likewise untouched. Recorded here so the next sweep starts from a list
   rather than a pattern.
+
+### Round-5 extension (2026-08-25): the SKIP framing is withdrawn; the pointer stands
+
+- Authorization as received (2026-08-25): "option 4 — abandon the SKIP
+  framing, keep the pointer." **Provenance caveat, recorded rather than
+  glossed:** this authorization reached this session relayed in English by
+  the orchestrating caller, not as a verbatim source-language ruling
+  string like the approvals quoted earlier in this entry. A reviewer
+  judging this sub-entry against the calibration's "verbatim dated
+  quotation" element should weigh that difference itself rather than take
+  this line as equivalent to those. Saying so here is a direct consequence
+  of the 8-versus-11 finding recorded above: a paraphrase that reads as an
+  authorization is exactly what that finding was about.
+- What changed: `TEST-026`'s Test Type column returns to `integration`,
+  the value it held before the round-2 remedy. The disclosing half of the
+  Notes column stays, as does `AC-026`'s appended pointer. The one
+  sentence in that pointer which asserted "`TEST-026` is therefore a
+  named `SKIP`" is withdrawn and replaced by a statement of what is
+  actually true: the criterion carries no `SKIP` disposition and is not
+  governed by `AC-034`'s allowlist.
+- **How the defect happened, recorded as a sequence rather than as a
+  clean correction.** The instruction this session worked from was to copy
+  the package's existing annotation form exactly and not to design a new
+  marker. That instruction was sound in general and wrong for this case.
+  While applying it, this session observed that `AC-026`'s Requirement
+  column contains `REQ-003` alone and not `REQ-007`, and treated that
+  absence as a detail to trim from the copied wording — dropping the
+  `allowlist-governed` phrase while keeping the `named SKIP` phrase.
+  Both spec reviewers then found, independently and blind, that the
+  absence was not a detail. Reviewer B (ledger sequence 790) put it
+  exactly: that absence was "simultaneously the evidence that AC-026 falls
+  outside the very governance machinery the annotation's shared visual
+  form implies it participates in." A shared visual form is not a shared
+  contract. The absence of the governing `REQ` is the thing to stop on,
+  not the thing to trim.
+- **Why option 4 is correct rather than merely convenient.** Reviewer B
+  found a fact neither the instruction nor this session had: `TEST-026`
+  asserts the Done-transition event "within both `TEST-018` and
+  `TEST-019`", and `TEST-018` is the Context-absent case, which depends
+  on no upstream epic at all. So even a correctly formed
+  upstream-dependency annotation — one that named a real epic and passed
+  `AC-034`'s grammar — would still have been wrong for part of what
+  `TEST-026` asserts. No variant of the SKIP framing fits this criterion.
+- The two Criticals this withdraws were raised by reviewer A (sequence
+  789, `AC-OBSERVABLE`) and reviewer B (sequence 790, `CONTRADICTION`),
+  each reaching `AC-035(b)`'s unknown-SKIP hard-fail independently. The
+  disclosure half of the round-2 remedy is untouched: both reviewers
+  confirmed `AC-026`'s point-of-use pointer closes round 1's gap, and both
+  confirmed the appended `OQ-004`/Risks precision correction is accurate
+  and that appending rather than rewriting was the right treatment.
+- As of this amendment,
+  `specs/epic-195-a7-compatibility/requirements.md` = `fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734`, superseding
+  `2ee8681ec48f95e522187161a5b30467635a40468623f94faa6e5e2b01cbb3e4`; and
+  `specs/epic-195-a7-compatibility/acceptance-tests.md` = `f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815`,
+  superseding `8c2abdee404aa093feae6e0d636909fb5d8855e155d4503c70ed4329a1fb9ad5`.
+  Both values were recorded in the Round-4 sub-entry above. This
+  extension's own commit hash cannot be cited from inside itself; it is
+  pinned externally by the spec-review attempt-6 round-3 reviewer
+  manifests and the identity-ledger records their reservations append.
+- `acceptance-tests.md` does not return to its pre-round-2 bytes. The
+  Test Type cell does, exactly; the Notes cell retains the disclosing
+  clause and its `(OQ-004)` pointer, which is the half both reviewers
+  credited with closing round 1's finding.
