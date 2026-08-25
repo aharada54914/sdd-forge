@@ -7038,6 +7038,24 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0782",
       "previous_record_sha256": "a2862f2ca8a31bc63c10e7f07ecc9dfa65298c17d2725359a1166cbfb9dd91fc",
       "record_sha256": "09ddd8fc1a2db40aa24eebac26ac55d93b4ae3220fefaa42920c4b89cc64c07c"
+    },
+    {
+      "sequence": 783,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-a-attempt5r2-seq0783",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-195-a7-compatibility-0783",
+      "previous_record_sha256": "09ddd8fc1a2db40aa24eebac26ac55d93b4ae3220fefaa42920c4b89cc64c07c",
+      "record_sha256": "0e462b46d8a58ac1c472e03c52bf74e9f2cbd1c5b1a859f1e6b59e41968ebb2b"
+    },
+    {
+      "sequence": 784,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-task-task-reviewer-b-attempt5r2-seq0784",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-195-a7-compatibility-0784",
+      "previous_record_sha256": "0e462b46d8a58ac1c472e03c52bf74e9f2cbd1c5b1a859f1e6b59e41968ebb2b",
+      "record_sha256": "3c4fc34f636042590944f0950354f8555beb7feb08ec31b4eef9bfe41a946362"
     }
   ]
 }

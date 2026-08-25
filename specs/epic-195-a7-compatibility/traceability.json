@@ -106,16 +106,12 @@
       "acs": [
         "AC-014",
         "AC-015",
-        "AC-028",
-        "AC-040",
-        "AC-041"
+        "AC-028"
       ],
       "tests": [
         "TEST-014",
         "TEST-015",
-        "TEST-028",
-        "TEST-040",
-        "TEST-041"
+        "TEST-028"
       ],
       "evidence": [
         "specs/epic-195-a7-compatibility/verification/T-001/red-sh.log",
@@ -126,17 +122,13 @@
       "req": "REQ-006",
       "acs": [
         "AC-001",
-        "AC-015",
         "AC-018",
-        "AC-028",
         "AC-040",
         "AC-041"
       ],
       "tests": [
         "TEST-001",
-        "TEST-015",
         "TEST-018",
-        "TEST-028",
         "TEST-040",
         "TEST-041"
       ],
