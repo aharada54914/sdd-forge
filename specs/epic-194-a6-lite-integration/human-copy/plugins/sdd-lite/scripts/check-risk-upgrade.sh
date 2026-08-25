@@ -133,6 +133,42 @@ if capability_reasons_supplied:
         # because Python's `$` matches just before a trailing `\n`, which
         # would let an id ending in a newline slip through undetected.
         capability_id_pattern = re.compile(r"[a-z0-9][a-z0-9-]*")
+        # The SAME argument, applied to the field it was never applied to.
+        # upgrade_reasons tokens are emitted into the identical single-line
+        # output grammar as the id above -- "full-required: {first};
+        # triggers={','.join(all)}" -- but carried no validation at all: the
+        # container was type-checked and its elements were not, then coerced
+        # with str(). Measured before this fix, on BOTH runtimes:
+        #   ["evil,forged"]      -> full-required: evil,forged; triggers=evil,forged
+        #   ["x; triggers=NONE"] -> full-required: x; triggers=NONE; triggers=x; triggers=NONE
+        #   ["x\ntriggers=NONE"] -> a multi-line record, breaking the single-line contract
+        # -- i.e. exactly the forgery TEST-013m/n/p prove is blocked in the
+        # id field, wide open one field over. Non-string elements were
+        # coerced instead of rejected (5 -> "5", true -> "True"), and the two
+        # runtimes silently DISAGREED on three shapes: null (sh "None" / ps1
+        # ""), object (sh "{'k': 'v'}" / ps1 "@{k=v}") and a nested array
+        # (sh "['x']" / ps1 flattens to "x"). Cross-model panel, T-002
+        # OpenAI slot ("non-string reason elements"), plus the sibling sweep
+        # that finding prompted.
+        #
+        # Grammar, not a delimiter blacklist -- the same reasoning already
+        # audited for capability_id_pattern and NEW-01/INV-021's
+        # required_lite_checks: a bounded allowlist over an otherwise
+        # unconstrained string. It is the union of the check-id grammar
+        # (hyphen, requirements.md AC-001's required_lite_checks) and the
+        # snake_case catalog vocabulary (AC-004's twelve tokens are all
+        # [a-z0-9_]), so every token this repository actually uses --
+        # financial_settlement, durable_workflow, pii, should-not-appear --
+        # passes, and requirements.md AC-001's "array of non-empty strings"
+        # is enforced by the leading [a-z0-9].
+        #
+        # NOT the catalog enum: Field Definitions state each token is
+        # "already validated against lite-upgrade-reason-catalog.json by
+        # whichever upstream mechanism computed it", and AC-009 forbids this
+        # script reimplementing Registry-side logic. This checks shape, not
+        # vocabulary. fullmatch (not match + "$") for the same trailing-
+        # newline reason as the id pattern.
+        upgrade_reason_pattern = re.compile(r"[a-z0-9][a-z0-9_-]*")
         for entry in capabilities:
             if not isinstance(entry, dict) or "id" not in entry or "eligible" not in entry:
                 raise ValueError("entry missing id or eligible")
@@ -155,10 +191,19 @@ if capability_reasons_supplied:
                 reasons = entry.get("upgrade_reasons") or []
                 if not isinstance(reasons, list):
                     raise ValueError("upgrade_reasons is not an array")
+                for token in reasons:
+                    if not isinstance(token, str) or not upgrade_reason_pattern.fullmatch(token):
+                        raise ValueError("upgrade_reasons element is not a valid reason token")
+                # No str() anywhere below: every token is now a validated
+                # str and entry["id"] was validated as a str above, so the
+                # coercions those two lines used to carry were the mechanism
+                # of the defect, not a safeguard. Their absence is the
+                # property -- a future edit reintroducing str()/[string]
+                # here reintroduces the bug.
                 if reasons:
-                    capability_triggers.extend(str(token) for token in reasons)
+                    capability_triggers.extend(reasons)
                 else:
-                    capability_triggers.append("ineligible:" + str(entry["id"]))
+                    capability_triggers.append("ineligible:" + entry["id"])
     except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, TypeError, KeyError, IndexError):
         print(FRAGMENT_INVALID)
         raise SystemExit(2)

@@ -431,6 +431,65 @@ if ($result6d.Output.Contains('post-copy re-verification FAILED')) { Ok 'TEST-00
 if ($result6d.Output.Contains('plugins/sdd-lite/scripts/check-risk-upgrade.sh')) { Ok 'TEST-006f: real CLI diagnostic names the corrupted installed target' } else { Bad "TEST-006f: real CLI diagnostic omits corrupted target. Output: $($result6d.Output)" }
 
 # ===========================================================================
+# TEST-006g/h: a CONTENT-INTEGRITY failure inside CopyOne is diagnosed as
+# one, not as a path-escape attempt (T-001 Anthropic slot, Minor).
+#
+# Copy-Payload's catch used to relabel EVERY exception from CopyOne as
+# "secure handle-relative publish rejected <target> (symlink/reparse-point
+# ancestor or unsafe leaf)". A digest mismatch, an ENOSPC, or a missing libc
+# entry point all reached the operator as a claimed path-escape attempt. That
+# was reproduced directly while mutation-testing TEST-004a.
+#
+# The fixture drives the real TOCTOU window the InvalidDataException guards:
+# corrupt a staged payload file AFTER Test-ManifestHashes has verified it and
+# BEFORE Copy-Payload reads it, by substituting the main sequence's own
+# Test-ManifestHashes line in a disposable copy of the runner. CopyOne then
+# re-hashes the source and throws "staged payload changed after pre-copy
+# verification" -- an InvalidDataException, not an IOException.
+# ===========================================================================
+Write-Host '=== TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ==='
+$patchRoot6b = New-TempRoot
+Register-TempRoot $patchRoot6b
+$patchedRunner6b = Join-Path $patchRoot6b 'apply-protected-files.ps1'
+$runnerText6b = Get-Content -LiteralPath $RunnerPath -Raw
+$toctouSeam6b = '    Copy-Payload $repoRoot $humanCopyRoot $Script:DeclaredTargets $manifestDigests'
+$toctouTarget6b = 'plugins/sdd-lite/scripts/check-risk-upgrade.sh'
+$toctouInjection6b = @'
+    Set-Content -LiteralPath (Join-Path $humanCopyRoot ('plugins/sdd-lite/scripts/check-risk-upgrade.sh' -replace '/', [IO.Path]::DirectorySeparatorChar)) -Value 'fixture-toctou-corruption' -NoNewline
+    Copy-Payload $repoRoot $humanCopyRoot $Script:DeclaredTargets $manifestDigests
+'@
+if ($runnerText6b.Contains($toctouSeam6b)) {
+    $runnerText6b = $runnerText6b.Replace($toctouSeam6b, $toctouInjection6b)
+} else {
+    Bad 'TEST-006g: runner main sequence no longer has the Copy-Payload call this fixture substitutes'
+}
+Set-Content -LiteralPath $patchedRunner6b -Value $runnerText6b -NoNewline
+$root6g = New-TempRoot
+Register-TempRoot $root6g
+$savedRunnerPath6b = $RunnerPath
+try {
+    $RunnerPath = $patchedRunner6b
+    $hc6g = New-RepoFixture $root6g
+    $map6g = New-DefaultContentMap
+    Write-StagedPayload -HumanCopyRoot $hc6g -ContentMap $map6g
+    $result6g = Invoke-RunnerProcess $root6g
+} finally {
+    $RunnerPath = $savedRunnerPath6b
+}
+if ($result6g.ExitCode -ne 0 -and
+    $result6g.Output.Contains('staged payload integrity check failed for') -and
+    $result6g.Output.Contains($toctouTarget6b)) {
+    Ok 'TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target'
+} else {
+    Bad "TEST-006g: expected a 'staged payload integrity check failed for $toctouTarget6b' diagnosis, got exit $($result6g.ExitCode). Output: $($result6g.Output)"
+}
+if (-not $result6g.Output.Contains('symlink/reparse-point ancestor')) {
+    Ok 'TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt'
+} else {
+    Bad "TEST-006h: content-integrity failure still carries the path-escape headline. Output: $($result6g.Output)"
+}
+
+# ===========================================================================
 # TEST-007: feature-scoped resolution -- the runner reads targets/digests
 # from THIS feature's own human-copy prefix only, never the Epic-136
 # prefix.
@@ -646,6 +705,25 @@ $runnerSource11 = Get-Content -LiteralPath $RunnerPath -Raw
 $usesPortableModeApi11 = $runnerSource11.Contains('File.GetUnixFileMode(source)')
 $noRawOffsetParsing11 = -not [System.Text.RegularExpressions.Regex]::IsMatch($runnerSource11, 'Marshal\.ReadInt(32|16)\(buffer,\s*(24|4)\)')
 if ($usesPortableModeApi11 -and $noRawOffsetParsing11) { Ok 'TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset' } else { Bad 'TEST-011a: SourceMode has regressed to a hand-derived struct-stat offset (the aarch64-unsafe pattern this Major exists to forbid)' }
+
+# TEST-011c: the symlinkat P/Invoke stays declaration-only (T-001 Anthropic
+# slot, Minor: "a symlink-creation P/Invoke that is never called ... must be
+# re-derived as dead on every audit pass").
+#
+# It is NOT dead code to delete: TEST-009e's ancestor-substitution fixture
+# injects a symlinkat() call at the TEST_FIXTURE_BEFORE_POSIX_DIRECTORY_OPEN
+# marker, and that injected source must compile against this DllImport. What
+# the finding legitimately asks for is that its deadness on production paths
+# not require a fresh manual audit each pass. So assert it: the shipped runner
+# declares symlinkat exactly once (the DllImport) and calls it zero times. An
+# audit is now this assertion, not a re-derivation.
+$symlinkatDecl11 = ([regex]::Matches($runnerSource11, '(?m)^\s*\[DllImport[^\]]*\][^\n]*\bsymlinkat\s*\(')).Count
+$symlinkatCalls11 = ([regex]::Matches($runnerSource11, '(?<!extern int )\bsymlinkat\s*\(')).Count
+if ($symlinkatDecl11 -eq 1 -and $symlinkatCalls11 -eq 0) {
+    Ok 'TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable'
+} else {
+    Bad "TEST-011c: expected exactly 1 symlinkat declaration and 0 call sites in the shipped runner, found $symlinkatDecl11 declaration(s) and $symlinkatCalls11 call(s). A production call site would make the publisher able to CREATE symlinks, which nothing in its contract permits."
+}
 
 if (-not $IsWindows) {
     $root11 = New-TempRoot

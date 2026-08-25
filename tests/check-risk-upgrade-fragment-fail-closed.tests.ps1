@@ -162,6 +162,80 @@ try {
     Write-Host '=== TEST-013u: shape-invalid -- id is an array, not a non-empty string ==='
     Set-Content -LiteralPath (Join-Path $Work 'id-array.json') -Value '{"capabilities": [{"id": ["x"], "eligible": false}]}' -NoNewline
     Assert-FragmentInvalid 'TEST-013u' (Join-Path $Work 'id-array.json')
+
+    # ---------------------------------------------------------------
+    # TEST-013v-af: upgrade_reasons ELEMENT validation (cross-model
+    # panel, T-002 OpenAI slot: "non-string reason elements", plus the
+    # sibling sweep that finding prompted). See the sh twin's own block
+    # for the full reasoning; the short form is that the container was
+    # type-checked and its elements were not, then coerced with
+    # [string]/str(), which (a) let a reason token forge fields in the
+    # same single-line output record the id grammar exists to protect,
+    # and (b) left the two runtimes silently disagreeing on null,
+    # object and nested-array elements.
+    #
+    # TEST-013z is the divergence case specifically: @() flattens one
+    # level in PowerShell, so [["x"]] used to arrive as the bare string
+    # "x" here and pass, while sh emitted "['x']".
+    # ---------------------------------------------------------------
+    Write-Host '=== TEST-013v: upgrade_reasons element is a number, not a string ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-number.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [5]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013v' (Join-Path $Work 'reason-number.json')
+
+    Write-Host '=== TEST-013w: upgrade_reasons element is a boolean, not a string ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-bool.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [true]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013w' (Join-Path $Work 'reason-bool.json')
+
+    Write-Host '=== TEST-013x: upgrade_reasons element is null (runtimes previously disagreed) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-null.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [null]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013x' (Join-Path $Work 'reason-null.json')
+
+    Write-Host '=== TEST-013y: upgrade_reasons element is an object (runtimes previously disagreed) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-object.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [{"k": "v"}]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013y' (Join-Path $Work 'reason-object.json')
+
+    Write-Host '=== TEST-013z: upgrade_reasons element is a nested array (ps1 flattened it, sh did not) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-nested.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [["x"]]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013z' (Join-Path $Work 'reason-nested.json')
+
+    Write-Host '=== TEST-013aa: upgrade_reasons element is the empty string (AC-001: non-empty strings) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-empty.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [""]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013aa' (Join-Path $Work 'reason-empty.json')
+
+    Write-Host "=== TEST-013ab: upgrade_reasons element carries ',' (cannot forge a second trigger entry) ==="
+    Set-Content -LiteralPath (Join-Path $Work 'reason-comma.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["evil,forged"]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013ab' (Join-Path $Work 'reason-comma.json')
+
+    Write-Host "=== TEST-013ac: upgrade_reasons element carries ';' (cannot forge a second output field) ==="
+    Set-Content -LiteralPath (Join-Path $Work 'reason-semicolon.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["x; triggers=NONE"]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013ac' (Join-Path $Work 'reason-semicolon.json')
+
+    Write-Host '=== TEST-013ad: upgrade_reasons element carries an embedded newline (single-line contract) ==='
+    # PowerShell single-quoted strings are raw literals, so `\n` here is the
+    # two literal characters backslash-n -- a valid JSON \n escape decoding
+    # to a real newline inside the parsed token (see TEST-013p's own note).
+    Set-Content -LiteralPath (Join-Path $Work 'reason-newline.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["x\ntriggers=NONE"]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013ad' (Join-Path $Work 'reason-newline.json')
+
+    Write-Host '=== TEST-013ae: upgrade_reasons element is uppercase (lowercase grammar, like the id grammar) ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-upper.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["Financial_Settlement"]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013ae' (Join-Path $Work 'reason-upper.json')
+
+    # Positive control -- all ten negatives above would still pass if the
+    # grammar were tightened to reject everything, certifying a checker that
+    # never emits a Capability-derived trigger at all (AC-027's forbidden
+    # silent degrade). Also pins the tokens reaching the output VERBATIM,
+    # which is what proves the [string] cast is gone rather than bypassed.
+    Write-Host '=== TEST-013af: a legitimate snake_case + hyphenated reason pair still Blocks with its own tokens ==='
+    Set-Content -LiteralPath (Join-Path $Work 'reason-valid.json') -Value '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["financial_settlement", "should-not-appear"]}]}' -NoNewline
+    $afOutput = & $PowerShell -NoProfile -File $Sut -Path (Join-Path $Work 'clean.txt') -CapabilityReasons (Join-Path $Work 'reason-valid.json') 2>&1
+    $afExit = $LASTEXITCODE
+    $afJoined = ($afOutput -join "`n")
+    if ($afExit -eq 10 -and $afJoined -eq 'full-required: financial_settlement; triggers=financial_settlement,should-not-appear') {
+        Ok 'TEST-013af: valid snake_case and hyphenated tokens pass the grammar and reach the output verbatim, uncoerced'
+    } else {
+        Bad "TEST-013af: expected exit 10 and the exact two-token record, got exit $afExit. Output: $afJoined"
+    }
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }

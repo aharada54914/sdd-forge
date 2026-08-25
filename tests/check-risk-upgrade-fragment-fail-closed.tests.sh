@@ -181,6 +181,91 @@ echo "=== TEST-013u: shape-invalid -- id is an array, not a non-empty string ===
 printf '{"capabilities": [{"id": ["x"], "eligible": false}]}' > "${WORK}/id-array.json"
 assert_fragment_invalid "TEST-013u" "${WORK}/id-array.json"
 
+# ---------------------------------------------------------------------------
+# TEST-013v-af: upgrade_reasons ELEMENT validation (cross-model panel, T-002
+# OpenAI slot: "non-string reason elements", plus the sibling sweep that
+# finding prompted).
+#
+# The container was type-checked (TEST-013i) and its elements were not, then
+# coerced with str()/[string]. Two consequences, both measured on both
+# runtimes before the fix:
+#
+#  (a) Output-grammar forgery. Reason tokens are emitted into the identical
+#      single-line "full-required: {first}; triggers={joined}" record as the
+#      id field, whose grammar exists precisely to stop this -- TEST-013m/n/p
+#      already prove a ',', ';' or newline in an *id* is rejected. One field
+#      over, ["x; triggers=NONE"] produced
+#      `full-required: x; triggers=NONE; triggers=x; triggers=NONE`,
+#      and an embedded newline produced a multi-line record outright.
+#  (b) A silent sh/ps1 divergence no test caught: null (sh "None" / ps1 ""),
+#      object (sh "{'k': 'v'}" / ps1 "@{k=v}"), nested array (sh "['x']" /
+#      ps1 flattened to "x"). The twins disagreed on three shapes.
+#
+# Every case below is asserted in BOTH twins with identical labels, so the
+# divergence cannot silently return.
+# ---------------------------------------------------------------------------
+echo "=== TEST-013v: upgrade_reasons element is a number, not a string ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [5]}]}' > "${WORK}/reason-number.json"
+assert_fragment_invalid "TEST-013v" "${WORK}/reason-number.json"
+
+echo "=== TEST-013w: upgrade_reasons element is a boolean, not a string ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [true]}]}' > "${WORK}/reason-bool.json"
+assert_fragment_invalid "TEST-013w" "${WORK}/reason-bool.json"
+
+echo "=== TEST-013x: upgrade_reasons element is null (runtimes previously disagreed) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [null]}]}' > "${WORK}/reason-null.json"
+assert_fragment_invalid "TEST-013x" "${WORK}/reason-null.json"
+
+echo "=== TEST-013y: upgrade_reasons element is an object (runtimes previously disagreed) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [{"k": "v"}]}]}' > "${WORK}/reason-object.json"
+assert_fragment_invalid "TEST-013y" "${WORK}/reason-object.json"
+
+echo "=== TEST-013z: upgrade_reasons element is a nested array (ps1 flattened it, sh did not) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [["x"]]}]}' > "${WORK}/reason-nested.json"
+assert_fragment_invalid "TEST-013z" "${WORK}/reason-nested.json"
+
+echo "=== TEST-013aa: upgrade_reasons element is the empty string (AC-001: non-empty strings) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": [""]}]}' > "${WORK}/reason-empty.json"
+assert_fragment_invalid "TEST-013aa" "${WORK}/reason-empty.json"
+
+echo "=== TEST-013ab: upgrade_reasons element carries ',' (cannot forge a second trigger entry) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["evil,forged"]}]}' > "${WORK}/reason-comma.json"
+assert_fragment_invalid "TEST-013ab" "${WORK}/reason-comma.json"
+
+echo "=== TEST-013ac: upgrade_reasons element carries ';' (cannot forge a second output field) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["x; triggers=NONE"]}]}' > "${WORK}/reason-semicolon.json"
+assert_fragment_invalid "TEST-013ac" "${WORK}/reason-semicolon.json"
+
+echo "=== TEST-013ad: upgrade_reasons element carries an embedded newline (single-line contract) ==="
+# `\\n` (not `\n`) so printf writes the two literal characters backslash-n --
+# a valid JSON \n escape decoding to a real newline inside the parsed token.
+# See TEST-013p's own note on why a raw newline BYTE would instead be a JSON
+# syntax error, a different and less specific failure mode.
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["x\\ntriggers=NONE"]}]}' > "${WORK}/reason-newline.json"
+assert_fragment_invalid "TEST-013ad" "${WORK}/reason-newline.json"
+
+echo "=== TEST-013ae: upgrade_reasons element is uppercase (lowercase grammar, like the id grammar) ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["Financial_Settlement"]}]}' > "${WORK}/reason-upper.json"
+assert_fragment_invalid "TEST-013ae" "${WORK}/reason-upper.json"
+
+# Positive control. All ten negatives above would STILL PASS if the grammar
+# were tightened to reject everything -- the suite would then happily certify
+# a checker that never emits a Capability-derived trigger at all, which is the
+# exact silent degrade AC-027 forbids. This asserts the legitimate vocabulary
+# still gets through: snake_case (requirements.md AC-004's twelve catalog
+# tokens are all [a-z0-9_]) AND hyphenated (AC-001's check-id grammar), both
+# of which occur in this repository's own fixtures today. It also pins the
+# tokens reaching the output VERBATIM, which is what proves the str()/[string]
+# coercion is gone rather than merely bypassed.
+echo "=== TEST-013af: a legitimate snake_case + hyphenated reason pair still Blocks with its own tokens ==="
+printf '{"capabilities": [{"id": "a", "eligible": false, "upgrade_reasons": ["financial_settlement", "should-not-appear"]}]}' > "${WORK}/reason-valid.json"
+af_out="$(bash "$SUT" "${WORK}/clean.txt" --capability-reasons "${WORK}/reason-valid.json" 2>&1)" && af_exit=0 || af_exit=$?
+if [ "${af_exit}" -eq 10 ] && [ "${af_out}" = "full-required: financial_settlement; triggers=financial_settlement,should-not-appear" ]; then
+  ok "TEST-013af: valid snake_case and hyphenated tokens pass the grammar and reach the output verbatim, uncoerced"
+else
+  fail "TEST-013af: expected exit 10 and the exact two-token record, got exit ${af_exit}. Output: ${af_out}"
+fi
+
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if [ "${FAIL}" -gt 0 ]; then

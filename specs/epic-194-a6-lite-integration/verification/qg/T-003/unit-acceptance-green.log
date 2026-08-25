@@ -1,7 +1,7 @@
-Commands (cross-model remediation re-run against the current tree, 2026-08-25T04:28:59Z):
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T05:30:24Z):
   repository: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194
   branch:     feature/epic-194-a6-lite-integration
-  HEAD:       9bc1d3b8e2cf74e6008be0ae7c2b3e60057e8f5d
+  HEAD:       7635250c143c524e05dbf597698e1fd584df1ee8
   bash tests/lite-spec-capability-block.tests.sh
   pwsh -NoProfile -File tests/lite-spec-capability-block.tests.ps1
 ### lite-spec-capability-block.tests.sh ###

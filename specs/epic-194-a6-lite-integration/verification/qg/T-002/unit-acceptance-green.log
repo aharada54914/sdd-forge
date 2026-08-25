@@ -1,7 +1,7 @@
-Commands (cross-model remediation re-run against the current tree, 2026-08-25T04:28:59Z):
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T05:30:24Z):
   repository: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194
   branch:     feature/epic-194-a6-lite-integration
-  HEAD:       9bc1d3b8e2cf74e6008be0ae7c2b3e60057e8f5d
+  HEAD:       7635250c143c524e05dbf597698e1fd584df1ee8
   bash tests/check-risk-upgrade-byte-identical.tests.sh
   bash tests/check-risk-upgrade-capability-merge.tests.sh
   bash tests/check-risk-upgrade-fragment-fail-closed.tests.sh
@@ -109,8 +109,40 @@ ok: TEST-013t: prints the dedicated fragment-invalid diagnostic (not the input-u
 === TEST-013u: shape-invalid -- id is an array, not a non-empty string ===
 ok: TEST-013u: exits 2
 ok: TEST-013u: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013v: upgrade_reasons element is a number, not a string ===
+ok: TEST-013v: exits 2
+ok: TEST-013v: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013w: upgrade_reasons element is a boolean, not a string ===
+ok: TEST-013w: exits 2
+ok: TEST-013w: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013x: upgrade_reasons element is null (runtimes previously disagreed) ===
+ok: TEST-013x: exits 2
+ok: TEST-013x: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013y: upgrade_reasons element is an object (runtimes previously disagreed) ===
+ok: TEST-013y: exits 2
+ok: TEST-013y: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013z: upgrade_reasons element is a nested array (ps1 flattened it, sh did not) ===
+ok: TEST-013z: exits 2
+ok: TEST-013z: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013aa: upgrade_reasons element is the empty string (AC-001: non-empty strings) ===
+ok: TEST-013aa: exits 2
+ok: TEST-013aa: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013ab: upgrade_reasons element carries ',' (cannot forge a second trigger entry) ===
+ok: TEST-013ab: exits 2
+ok: TEST-013ab: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013ac: upgrade_reasons element carries ';' (cannot forge a second output field) ===
+ok: TEST-013ac: exits 2
+ok: TEST-013ac: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013ad: upgrade_reasons element carries an embedded newline (single-line contract) ===
+ok: TEST-013ad: exits 2
+ok: TEST-013ad: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013ae: upgrade_reasons element is uppercase (lowercase grammar, like the id grammar) ===
+ok: TEST-013ae: exits 2
+ok: TEST-013ae: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013af: a legitimate snake_case + hyphenated reason pair still Blocks with its own tokens ===
+ok: TEST-013af: valid snake_case and hyphenated tokens pass the grammar and reach the output verbatim, uncoerced
 
-Results: 40 passed, 0 failed
+Results: 61 passed, 0 failed
 EXIT:0
 ### check-risk-upgrade-ineligible-no-reasons.tests.sh ###
 === TEST-014a: eligible:false, upgrade_reasons key absent ===
@@ -224,8 +256,40 @@ ok: TEST-013t: prints the dedicated fragment-invalid diagnostic
 === TEST-013u: shape-invalid -- id is an array, not a non-empty string ===
 ok: TEST-013u: exits 2
 ok: TEST-013u: prints the dedicated fragment-invalid diagnostic
+=== TEST-013v: upgrade_reasons element is a number, not a string ===
+ok: TEST-013v: exits 2
+ok: TEST-013v: prints the dedicated fragment-invalid diagnostic
+=== TEST-013w: upgrade_reasons element is a boolean, not a string ===
+ok: TEST-013w: exits 2
+ok: TEST-013w: prints the dedicated fragment-invalid diagnostic
+=== TEST-013x: upgrade_reasons element is null (runtimes previously disagreed) ===
+ok: TEST-013x: exits 2
+ok: TEST-013x: prints the dedicated fragment-invalid diagnostic
+=== TEST-013y: upgrade_reasons element is an object (runtimes previously disagreed) ===
+ok: TEST-013y: exits 2
+ok: TEST-013y: prints the dedicated fragment-invalid diagnostic
+=== TEST-013z: upgrade_reasons element is a nested array (ps1 flattened it, sh did not) ===
+ok: TEST-013z: exits 2
+ok: TEST-013z: prints the dedicated fragment-invalid diagnostic
+=== TEST-013aa: upgrade_reasons element is the empty string (AC-001: non-empty strings) ===
+ok: TEST-013aa: exits 2
+ok: TEST-013aa: prints the dedicated fragment-invalid diagnostic
+=== TEST-013ab: upgrade_reasons element carries ',' (cannot forge a second trigger entry) ===
+ok: TEST-013ab: exits 2
+ok: TEST-013ab: prints the dedicated fragment-invalid diagnostic
+=== TEST-013ac: upgrade_reasons element carries ';' (cannot forge a second output field) ===
+ok: TEST-013ac: exits 2
+ok: TEST-013ac: prints the dedicated fragment-invalid diagnostic
+=== TEST-013ad: upgrade_reasons element carries an embedded newline (single-line contract) ===
+ok: TEST-013ad: exits 2
+ok: TEST-013ad: prints the dedicated fragment-invalid diagnostic
+=== TEST-013ae: upgrade_reasons element is uppercase (lowercase grammar, like the id grammar) ===
+ok: TEST-013ae: exits 2
+ok: TEST-013ae: prints the dedicated fragment-invalid diagnostic
+=== TEST-013af: a legitimate snake_case + hyphenated reason pair still Blocks with its own tokens ===
+ok: TEST-013af: valid snake_case and hyphenated tokens pass the grammar and reach the output verbatim, uncoerced
 
-Results: 40 passed, 0 failed
+Results: 61 passed, 0 failed
 EXIT:0
 ### check-risk-upgrade-ineligible-no-reasons.tests.ps1 ###
 === TEST-014a: eligible:false, upgrade_reasons key absent ===

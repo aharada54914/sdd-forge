@@ -591,8 +591,33 @@ function Copy-Payload {
         try {
             $expected = if ($null -eq $ManifestDigests) { Get-Sha256Hex (Join-Path $HumanCopyRoot ($target -replace '/', [IO.Path]::DirectorySeparatorChar)) } else { [string]$ManifestDigests[$target] }
             [A6AnchoredPublisher]::CopyOne($RepoRoot, "$($Script:HumanCopyPrefix)/$target", $target, $expected, [bool]$IsMacOS)
-        } catch {
+        } catch [System.IO.InvalidDataException] {
+            # Content-integrity and path-shape failures: a staged file that
+            # changed between pre-copy verification and the copy, a temporary
+            # or published digest mismatch, a malformed expected digest, or a
+            # non-normalized repository-relative path. NONE of these is a
+            # path-escape attempt, and every one of them used to be reported
+            # to the operator as one -- this catch relabelled EVERY exception
+            # from CopyOne as "symlink/reparse-point ancestor or unsafe leaf"
+            # (T-001 Anthropic slot, Minor: "the headline diagnosis is wrong
+            # for most failure modes"). Reproduced directly while
+            # mutation-testing TEST-004a: a digest mismatch surfaced under the
+            # symlink headline. InvalidDataException derives from
+            # SystemException, not IOException, so the two classes separate
+            # cleanly.
+            Fail "staged payload integrity check failed for $target (content changed or path is not a normalized repository-relative path): $($_.Exception.Message)"
+        } catch [System.IO.IOException] {
+            # The class this headline was actually written for: no-follow
+            # handle opens, reparse-point rejection, and errno-bearing libc
+            # failures from ThrowUnix (which includes ENOSPC and friends).
+            # TEST-009e matches on 'symlink/reparse-point ancestor', so this
+            # branch keeps that wording verbatim.
             Fail "secure handle-relative publish rejected $target (symlink/reparse-point ancestor or unsafe leaf): $($_.Exception.Message)"
+        } catch {
+            # Anything else -- e.g. EntryPointNotFoundException for a missing
+            # libc entry point on an unexpected platform. Diagnosed as what it
+            # is (unclassified) rather than as a path-escape attempt.
+            Fail "publish failed for $target (unclassified error; neither a content-integrity nor a path-safety rejection): $($_.Exception.Message)"
         }
     }
 }

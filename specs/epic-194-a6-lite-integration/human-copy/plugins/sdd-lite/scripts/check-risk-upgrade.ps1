@@ -186,12 +186,39 @@ if ($PSBoundParameters.ContainsKey('CapabilityReasons')) {
                         # remediation).
                         Write-FragmentInvalid
                     }
+                    # Validate the elements of the RAW array, before @()
+                    # touches it. @() flattens one level, so a nested array
+                    # ([["x"]]) would otherwise arrive here as the bare
+                    # string "x" and pass -- which is precisely how the two
+                    # runtimes came to disagree on that input before this
+                    # fix (measured: sh emitted "['x']", ps1 emitted "x").
+                    # Iterating the raw array keeps the nested element an
+                    # [object[]], which is -isnot [string], so both runtimes
+                    # now Block it identically.
+                    #
+                    # ps1 twin of sh's upgrade_reason_pattern -- see that
+                    # script for the full reasoning (same output grammar as
+                    # the id field, bounded allowlist rather than a
+                    # delimiter blacklist, shape not catalog vocabulary).
+                    # \A/\z (not ^/$) for the same trailing-newline reason
+                    # as the id pattern above.
+                    foreach ($token in $entry.upgrade_reasons) {
+                        if ($token -isnot [string] -or -not ($token -cmatch '\A[a-z0-9][a-z0-9_-]*\z')) {
+                            Write-FragmentInvalid
+                        }
+                    }
                     $reasons = @($entry.upgrade_reasons)
                 }
+                # No [string] cast anywhere below: every token is a validated
+                # [string] and $entry.id was validated as a [string] above, so
+                # the casts these two lines used to carry were the mechanism
+                # of the defect, not a safeguard. Their absence is the
+                # property -- a future edit reintroducing [string]/str() here
+                # reintroduces the bug.
                 if ($reasons.Count -gt 0) {
-                    foreach ($token in $reasons) { $capabilityTriggers += [string]$token }
+                    foreach ($token in $reasons) { $capabilityTriggers += $token }
                 } else {
-                    $capabilityTriggers += ('ineligible:' + [string]$entry.id)
+                    $capabilityTriggers += ('ineligible:' + $entry.id)
                 }
             }
         }

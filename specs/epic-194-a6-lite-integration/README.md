@@ -56,8 +56,8 @@ declared target, not a special-cased exception; see "Why
 
 | Staged path | Real destination | SHA-256 |
 |---|---|---|
-| `plugins/sdd-lite/scripts/check-risk-upgrade.sh` | `plugins/sdd-lite/scripts/check-risk-upgrade.sh` | `742e6316efdefab5584af8899af7d4a97c0b92d7175ee5ddb47305e06c5df8a5` |
-| `plugins/sdd-lite/scripts/check-risk-upgrade.ps1` | `plugins/sdd-lite/scripts/check-risk-upgrade.ps1` | `74a0e3bb6298bf66d9521036a92653c32a5feda0d6020f18bef436aa3553c42d` |
+| `plugins/sdd-lite/scripts/check-risk-upgrade.sh` | `plugins/sdd-lite/scripts/check-risk-upgrade.sh` | `ee35d426b1e92759685e492b8464ab05fb5ef1f0af87f719d834193794039015` |
+| `plugins/sdd-lite/scripts/check-risk-upgrade.ps1` | `plugins/sdd-lite/scripts/check-risk-upgrade.ps1` | `6be23a33d11614efc9aaaf5d661890b50a345979a0b9cc115271fd22023c5ec0` |
 | `plugins/sdd-lite/references/risk-upgrade-policy.md` | `plugins/sdd-lite/references/risk-upgrade-policy.md` | `dab10b8b7ed6e6e762db2b09fc73454700c47cc825fec3161b35bb16ad3be674` |
 | `plugins/sdd-lite/skills/lite-spec/SKILL.md` | `plugins/sdd-lite/skills/lite-spec/SKILL.md` | `798ed3fb2760a077ce0fef9e977e4e97934d9cf5daa430caa66273d76a4eca87` |
 | `.github/workflows/test.yml` | `.github/workflows/test.yml` | `dc0cc24c18c7edda87c7591f4cc1f0938ea10c5c6788eeb986426c168141d2b0` |

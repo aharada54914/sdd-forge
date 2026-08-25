@@ -1,4 +1,4 @@
-### recaptured 2026-08-25T04:31:42Z against HEAD 9bc1d3b8e2cf74e6008be0ae7c2b3e60057e8f5d (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### recaptured 2026-08-25T05:32:58Z against HEAD 7635250c143c524e05dbf597698e1fd584df1ee8 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
 ### human-copy-runner-contract.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 ==> pwsh /Users/jrmag/Projects/active/sdd-forge-wt-epic-194/tests/human-copy-runner-contract.tests.ps1
 ok: TEST-000a: fixture catalog schema is recognized
@@ -34,6 +34,9 @@ ok: TEST-006c: failure message names the corrupted target
 ok: TEST-006d: real CLI rejects corruption injected after Copy-Payload
 ok: TEST-006e: real CLI invokes and reports post-copy re-verification
 ok: TEST-006f: real CLI diagnostic names the corrupted installed target
+=== TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
+ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
+ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
 === TEST-007: feature-scoped, not fixed-prefix, resolution ===
 ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
 === TEST-008: case-sensitive control names and digest grammar ===
@@ -58,9 +61,10 @@ ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompati
 ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
 === TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
 ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
 ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
 
-Results: 47 passed, 0 failed
+Results: 50 passed, 0 failed
 ### human-copy-runner-contract.tests.ps1 (against canonical staged human-copy candidate, pending human-apply) ###
 ok: TEST-000a: fixture catalog schema is recognized
 ok: TEST-000b: fixture catalog covers every required runner scenario
@@ -95,6 +99,9 @@ ok: TEST-006c: failure message names the corrupted target
 ok: TEST-006d: real CLI rejects corruption injected after Copy-Payload
 ok: TEST-006e: real CLI invokes and reports post-copy re-verification
 ok: TEST-006f: real CLI diagnostic names the corrupted installed target
+=== TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
+ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
+ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
 === TEST-007: feature-scoped, not fixed-prefix, resolution ===
 ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
 === TEST-008: case-sensitive control names and digest grammar ===
@@ -119,6 +126,7 @@ ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompati
 ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
 === TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
 ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
 ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
 
-Results: 47 passed, 0 failed
+Results: 50 passed, 0 failed

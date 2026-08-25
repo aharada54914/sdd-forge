@@ -459,3 +459,69 @@ right, and the fix belonged in the contracts, not in this log.
    are the authority for any attribution, and the trailing
    "11 failing suite(s):" enumeration is the only part of it read as
    decisive here.
+
+=== 2026-08-25 (second pass): re-measurement after the staged-payload fix ===
+
+Appended, not edited. HEAD at measurement: 7635250c143c524e05dbf597698e1fd584df1ee8 plus the working-tree
+changes described in the T-001/T-002 implementation reports.
+
+WHAT CHANGED SINCE THE SECTION ABOVE. check-risk-upgrade.{sh,ps1} gained
+upgrade_reasons element validation, apply-protected-files.ps1 gained typed
+catch blocks, and two MANIFEST.sha256 entries were re-issued. Five suites
+were re-run serially (never inside a concurrent full sweep, per the
+cross-talk finding recorded above).
+
+THIS FEATURE'S OWN SUITES, both runtimes, with byte-identical assertion
+labels between twins:
+
+  human-copy-runner-contract               50 / 50   (was 47; +TEST-006g/h, TEST-011c)
+  check-risk-upgrade-byte-identical        16 / 16   (unchanged -- AC-007's
+                                                     byte-identical legacy
+                                                     path is unaffected)
+  check-risk-upgrade-capability-merge       9 /  9
+  check-risk-upgrade-fragment-fail-closed  61 / 61   (was 40; +TEST-013v..af)
+  check-risk-upgrade-ineligible-no-reasons  6 /  6
+  lite-spec-capability-block               27 / 27
+                                          ---------
+                                          169 assertions per runtime
+
+REPOSITORY-RELEASE-VALIDATION: A THIRD CAUSE, AND IT IS STILL NOT THIS
+FEATURE'S CODE. Re-run serially 2026-08-25 (second pass):
+
+  workflow-state: epic-194-a6-lite-integration: stage-provenance:
+    spec reviewer manifest input hash is stale
+
+That is neither the "spec top-level contract hashes are stale" cause of
+2026-08-21 nor the "stage-order: Impl Passed requires Spec Passed" cause
+recorded earlier today. The specification lane is running attempt 4 and its
+reviewer manifests are chasing a moving requirements.md/acceptance-tests.md.
+
+Checked rather than assumed: the newest spec-reviewer manifests pin exactly
+four inputs -- requirements.md, acceptance-tests.md, investigation.md and
+plugins/sdd-review-loop/references/spec-review-calibration.md. None of the
+four is in this session's change set (`git status` verified per file). No
+reviewer manifest pins specs/epic-194-a6-lite-integration/README.md, the one
+frozen-adjacent file this pass did edit. The failure is the other lane's
+in-flight state.
+
+THE OTHER FOUR, re-run serially:
+
+  workflow-state                 exit 1  real, unrelated: "plugins-pin-
+                                         amended-after-review precondition
+                                         not met: plugins/sdd-quality-loop/
+                                         references/risk-classification-
+                                         policy.md has not drifted from the
+                                         recorded hash". Touches no
+                                         epic-194 file.
+  check-component-coverage       exit 1  real, unrelated: TEST-036.4 against
+                                         specs/epic-191-a3-path-ownership/
+                                         human-copy/MANIFEST.sha256. A
+                                         different feature.
+  deterministic-lane-selfcheck   exit 1  DESIGNED-RED, self-declared (5
+                                         DESIGNED-RED lines in its output)
+  design-system-contract         exit 1  DESIGNED-RED, self-declared
+
+VERDICT: passes stays FALSE, unchanged in value and now on a third
+well-understood cause. Full-repository regression does not pass on this
+branch. That every failure lies outside this feature remains a scoping
+observation, not a pass.
