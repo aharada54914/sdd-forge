@@ -762,8 +762,10 @@ Planned Files:
   `_loop_trace_emit <kind> <producer> <value-json>` collector; new public
   `assert_capability_applicability <loop-id> <fixture-state> <observed>`;
   new public `assert_event_trace <golden-trace-path>` comparator;
-  `assert_terminal`/`assert_artifacts_schema` themselves unmodified,
-  AC-009)
+  `assert_artifacts_schema` itself unmodified, and `assert_terminal`
+  unmodified apart from the one sanctioned `_loop_trace_emit
+  done-transition:assert-terminal` call design.md's per-kind producer
+  table places inside `assert_terminal`, AC-009)
 - `tests/lib/loop-driver.ps1` (existing, agent-editable — twin)
 - `tests/loop-inventory.tests.sh` (existing, agent-editable — a
   schema-validation case: a pre-epic copy of the registry, with no new
@@ -790,7 +792,10 @@ stays 8), and add `_loop_trace_emit`/`assert_capability_applicability`/
 `assert_event_trace` to `tests/lib/loop-driver.sh`, implementing the
 single, trace-wide monotonic-`seq` collector and the pure comparator
 design.md's Data Plan and API / Contract Plan fix, without modifying
-`assert_terminal` or `assert_artifacts_schema`.
+`assert_artifacts_schema`, and modifying `assert_terminal` only by the
+one sanctioned `_loop_trace_emit done-transition:assert-terminal` call
+design.md's per-kind producer table places inside `assert_terminal`
+(AC-009).
 
 ### Must Read
 
@@ -804,8 +809,11 @@ design.md's Data Plan and API / Contract Plan fix, without modifying
   (B2)
 - `specs/epic-195-a7-compatibility/acceptance-tests.md`
 - `specs/epic-195-a7-compatibility/traceability.md`
-- `tests/lib/loop-driver.sh:1493-1518` (`assert_artifacts_schema`/
-  `assert_terminal`, the two functions this task must leave unmodified)
+- `tests/lib/loop-driver.sh` (`assert_artifacts_schema`, which this task
+  must leave unmodified, and `assert_terminal`, which this task must leave
+  unmodified apart from the one sanctioned `_loop_trace_emit
+  done-transition:assert-terminal` call design.md's per-kind producer
+  table places inside `assert_terminal`)
 - `tests/loop-inventory.tests.sh:129-133` (the 8-entry count assertion
   this task must not break)
 
@@ -833,9 +841,13 @@ design.md's Data Plan and API / Contract Plan fix, without modifying
   validates against the unbumped schema.
 - [ ] `capability_applicability` is present only on the `quality-gate`
   entry, in the documented three-key shape.
-- [ ] `assert_terminal` and `assert_artifacts_schema` are byte-identical
-  to their pre-task form; `assert_capability_applicability` is the only
-  reader of the new field (AC-009).
+- [ ] `assert_artifacts_schema` is byte-identical to its pre-task form;
+  `assert_terminal` is byte-identical to its pre-task form apart from the
+  one sanctioned `_loop_trace_emit done-transition:assert-terminal` call
+  design.md's per-kind producer table places inside `assert_terminal`, and
+  matches the `assert_terminal` function-body hash TEST-009 records;
+  `assert_capability_applicability` is the only reader of the new field
+  (AC-009).
 - [ ] `_loop_trace_emit`, `assert_capability_applicability`, and
   `assert_event_trace` exist with exactly the signatures API / Contract
   Plan fixes; `assert_event_trace` never calls `_loop_trace_emit`.

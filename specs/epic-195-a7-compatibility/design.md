@@ -74,7 +74,7 @@ the exhaustive, authoritative enumeration (AC-028).
 | Component | Responsibility | Change | New/Existing |
 |---|---|---|---|
 | `tests/loops/loop-inventory.json` | single loop registry (INV-001) | add one additive, optional field on the `quality-gate` entry only (`capability_applicability`, Data Plan) — no new `id`, entry count stays 8 (AC-008) | existing, extended (future task) |
-| `tests/lib/loop-driver.sh` | shared source-style driver (INV-003) | add one new public assertion function, `assert_capability_applicability` (API / Contract Plan), alongside the existing `assert_terminal` (AC-009 — neither `assert_terminal` nor `assert_artifacts_schema` itself changes); add one new private collector function, `_loop_trace_emit` (Data Plan, API / Contract Plan), called from each of the six event kinds' own named producer call sites; add one new public comparison function, `assert_event_trace` (API / Contract Plan), that only reads the collector's own finished trace and compares it against a recorded golden trace — collection and comparison are two distinct functions, never one function playing both roles | existing, extended (future task) |
+| `tests/lib/loop-driver.sh` | shared source-style driver (INV-003) | add one new public assertion function, `assert_capability_applicability` (API / Contract Plan), alongside the existing `assert_terminal` (AC-009 — `assert_artifacts_schema` does not change, and `assert_terminal` changes only by the one sanctioned `_loop_trace_emit done-transition:assert-terminal` call the per-kind producer table below places inside `assert_terminal`); add one new private collector function, `_loop_trace_emit` (Data Plan, API / Contract Plan), called from each of the six event kinds' own named producer call sites; add one new public comparison function, `assert_event_trace` (API / Contract Plan), that only reads the collector's own finished trace and compares it against a recorded golden trace — collection and comparison are two distinct functions, never one function playing both roles | existing, extended (future task) |
 | `tests/loop-escalation.tests.sh` | quality-gate escalation chain suite (INV-005) | add `TEST-019` (Design Decisions, below) driving a fixture-matrix state through the shared driver and asserting the quality-gate-outcome event kind (capability applicability) via `assert_event_trace` | existing, extended (future task) |
 | `tests/loop-consistency.tests.sh` | four-review-round consistency suite (INV-005) | add `TEST-018` (Design Decisions, below) asserting the skill-invocation-order, review-loop-presence, and approval-checkpoint event kinds via `assert_event_trace` for a Context-absent round drive | existing, extended (future task) |
 | `plugins/sdd-quality-loop/scripts/emit-run-record.sh` | deterministic run-record emitter (INV-006) | add `--capability-enforcement <disabled-legacy\|advisory\|required>` and `--capability-block-id <id>` (adopted now as an optional field, Data Plan — not deferred), gated by a new `emit_capability` flag independent of `emit_v2`; four flag-combination outcomes fixed in Data Plan/API Contract Plan (AC-033) | existing, extended (future task) |
@@ -209,8 +209,10 @@ inventing a second one. Only entries whose own gate reads
 provisionally `quality-gate` only (Design Decisions, below) — every other
 entry stays exactly as INV-001 records it. This field is read by the new
 `assert_capability_applicability` helper only (API / Contract Plan) —
-`assert_terminal`/`assert_artifacts_schema` are themselves unmodified
-(AC-009).
+`assert_artifacts_schema` is itself unmodified, and `assert_terminal` is
+unmodified apart from the one sanctioned `_loop_trace_emit
+done-transition:assert-terminal` call the per-kind producer table below
+places inside `assert_terminal` (AC-009).
 
 **Canonical orchestration-event-trace schema, `compatibility-event-trace/v1`**
 (REQ-003, closes INV-021): a single ordered JSON array, one element per
@@ -592,8 +594,11 @@ trusting a stale line-number citation.
 existing `assert_terminal` at `tests/lib/loop-driver.sh:1512-1518`,
 INV-004): reads `.loops[] | select(.id == $loop_id) | .capability_applicability[$fixture_state]`
 from `$LOOP_INVENTORY_PATH` (identical lookup pattern to `assert_terminal`,
-so neither `assert_terminal` nor `assert_artifacts_schema` needs to
-change, AC-009) and compares it to `$observed`. `fixture_state` is one of
+so reading the new field requires no change to `assert_artifacts_schema`
+and no change to `assert_terminal` beyond the one sanctioned
+`_loop_trace_emit done-transition:assert-terminal` call the per-kind
+producer table places inside `assert_terminal`, AC-009) and compares it
+to `$observed`. `fixture_state` is one of
 `disabled-legacy \| advisory \| required` (the Field Definitions
 vocabulary requirements.md fixes, matching ADR-0016's derived-state
 naming exactly).
@@ -855,9 +860,11 @@ review round's own approval-checkpoint sequence). That semantic fact —
 not the current numeric value of `loop-inventory.tests.sh:129-133`'s
 assertion — is why this package adds fields to existing entries instead
 of registering a ninth loop (INV-002's caveat, above). AC-009 states this
-precisely: the existing `assert_terminal`/`assert_artifacts_schema`
-helpers are themselves unmodified; a new, dedicated
-`assert_capability_applicability` helper reads the new field.
+precisely: the existing `assert_artifacts_schema` helper is itself
+unmodified, and the existing `assert_terminal` helper is unmodified apart
+from the one sanctioned `_loop_trace_emit done-transition:assert-terminal`
+call the per-kind producer table places inside `assert_terminal`; a new,
+dedicated `assert_capability_applicability` helper reads the new field.
 
 **Cross-epic fingerprint citations (replacing raw path:line locators —
 NEW-001).** Every normative citation of Epic A5's own spec text below is
@@ -1114,7 +1121,7 @@ above.
 |---|---|
 | No new loop-inventory entry (Non-goals) | `capability_applicability` is an additive field on the existing `quality-gate` entry only, justified by the independent-lifecycle argument, not the current `length == 8` value (Data Plan; Design Decisions) |
 | No new test-suite file (REQ-003) | `TEST-019` extends `tests/loop-escalation.tests.sh`; `TEST-018` extends `tests/loop-consistency.tests.sh` (Design Decisions) — both existing files |
-| `assert_terminal`/`assert_artifacts_schema` unmodified (AC-009) | the new `capability_applicability` field is read only by the new `assert_capability_applicability` helper (API / Contract Plan) |
+| `assert_artifacts_schema` unmodified, and `assert_terminal` unmodified apart from its own sanctioned producer call (AC-009) | the new `capability_applicability` field is read only by the new `assert_capability_applicability` helper (API / Contract Plan); `assert_terminal`'s one sanctioned change is the `_loop_trace_emit done-transition:assert-terminal` call the per-kind producer table places inside `assert_terminal` |
 | `emit-run-record.sh` no-flag output stays byte-identical (AC-011) | new `capability` object gated behind an independent `emit_capability` flag, mirroring `emit_v2`'s own proven isolation (INV-006); capability-only is a usage error, never a third schema version (Design Decisions) |
 | Every upstream-dependent assertion has a named, auditable degradation (REQ-007) | `SKIP` lines are read from the single allowlist manifest (Data Plan), which AC-035's three hard-fail checks keep honest in both directions |
 | `PROJECT_CONTEXT_INVALID` is distinguishable in the event trace (Edge Cases) | a dedicated `skip-stop-message`/`quality-gate-outcome`-kind event, asserted by AC-019–AC-021, never reused from the Context-absent fallback trace |
