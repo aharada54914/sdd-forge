@@ -626,3 +626,67 @@ design — confirmed by the attempt-6 precheck computing
   each correction introducing the next defect of the same class; a
   finite, enumerable check over one's own text is the answer to that, not
   more careful reading.
+
+### Round-8 extension (2026-08-25): three truncated document digests given in full
+
+- Corrected here, appended rather than rewritten in place. Three superseding
+  SHA-256 document fingerprints were recorded truncated to twelve characters
+  followed by an ellipsis. Their full values are:
+  - `design.md`, superseded value:
+    `04a124d6d56298cc1b2ff63f2eacd21c75c615a781e220d0ad37513636fe9dfc`
+  - `tasks.md`, superseded value:
+    `d3b3fdcd51449ad4ebb8a56010b6d8f5b33d718e9fdaa0286656e3051eca4f97`
+  - `requirements.md`, superseded value:
+    `f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2`
+  Each was already present in full elsewhere in this entry; what is corrected
+  is the form of the back-reference, not the value.
+- **Why this was corrected rather than adjudicated.** The two spec reviewers
+  split on whether these truncations are defects at all. Reviewer A (ledger
+  sequence 795) held that element 2 requires the digest to be *given*, which it
+  was, a few lines above each truncated back-reference, and did not treat them
+  as disqualifying. Reviewer B (ledger sequence 796) held that the calibration's
+  "abbreviated where a full hash is required" clause applies literally with no
+  benefit of the doubt, and noted that the adjacent bullets in the same list
+  give their superseding values in full, so the truncation reads as omission
+  rather than as the section's format. Both readings are defensible. The remedy
+  is citation form only, changes zero document bytes, and is lossless under
+  either reading — under A's it changes nothing that matters, under B's it
+  closes a Critical. It was taken for that reason, not because one reviewer was
+  judged right and the other wrong.
+- **Audit method, widened twice over after this class was missed.** The
+  pre-commit check adopted in the Round-7 extension had two structural holes.
+  It ran only over each commit's newly added lines, so a defect committed
+  earlier could never surface however many times it ran; and it tested hex
+  tokens against `git cat-file`, which resolves git objects and is therefore
+  blind to a content digest. It now runs over the entire
+  `## Amendment Re-Review Context` section on whitespace-flattened text, and
+  audits all four evidence-bar elements rather than whichever one the last
+  reviewer named: every commit cited in full and resolving as a commit; every
+  document digest in full; every approval a verbatim, dated, source-language
+  quotation attributed to the human; no bare artifact paths; plus append-only,
+  section start unmoved, and the pinned section still an exact prefix of the
+  live file. An abbreviated or truncated value counts as cured when its full
+  form appears somewhere in this section, which is the supersede-by-appending
+  convention stated mechanically; an approval counts as cured when a later
+  sub-entry supplies the verbatim quotation and names the earlier one as
+  superseded.
+- **A structural defect in the review workflow, recorded here because it has
+  now cost four rounds.** `plugins/sdd-review-loop/scripts/spec-review-precheck.sh`
+  advances a round only when `requirements.md` or `acceptance-tests.md` has
+  changed since the prior round:
+
+      [[ "$requirements_sha" != "$prior_requirements_sha" || "$acceptance_sha" != "$prior_acceptance_sha" ]] \
+        || fail "reviewed inputs are unchanged from the prior round"
+
+  The Amendment Re-Review Context evidence bar lives entirely in this file,
+  reviewers are instructed by the calibration to judge it, and it has produced
+  a Critical finding in four consecutive rounds — a non-verbatim relayed
+  approval, an abbreviated commit hash, and truncated document digests. But a
+  remedy for any of those touches only `investigation.md`, leaving both files
+  the round-advance test inspects byte-identical, so **the round cannot
+  advance**. Opening a fresh attempt is equally blocked whenever the stalled
+  round holds `NEEDS_WORK`, which is not terminal. The only remaining
+  transition is a reset, which replaces the artifacts documenting how the state
+  was reached. A defect whose sole remedy is in this file therefore cannot be
+  cleared inside its own attempt, and each correction costs a reset plus two
+  fresh reviewer runs.
