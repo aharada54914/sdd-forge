@@ -970,8 +970,12 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     rollback; live-state reporting on any failure after the copy phase has
     begun, enumerating which targets are installed, which one failed and
     which were not attempted, and stating that the installed files are live
-    and were not rolled back; and recovery by re-running the runner, an
-    already-correct target being a no-op. Without this extension, item 17
+    and were not rolled back; recovery by re-running the runner, an
+    already-correct target being a no-op; and the pre-copy branch, where a
+    failure *before* the copy phase begins reports instead that no live
+    file was modified. That last property is the one an operator needs
+    most and receives least often — it is the branch that tells them the
+    repository is untouched. Without this extension, item 17
     and requirements.md AC-031 between them named only points 1 through 4,
     so a future implementation task could satisfy every traceable criterion
     for this runner and never build a fixture for the property point 5

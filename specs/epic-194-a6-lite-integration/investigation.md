@@ -1858,6 +1858,149 @@ anchored to a commit, 2026-08-25):
   reconciles the difference only because this entry is pure growth at this
   section's tail.
 
+### Amendment record extension, sixth entry (appended 2026-08-25): the fifth property item 17 omitted, and security-spec.md's B5 rows
+
+Appended below the fifth entry, on the same terms: nothing above this
+heading is edited.
+
+#### The enumeration discipline failed inside the sentence that invoked it
+
+The fifth entry recorded that design.md Test Strategy item 17 had been
+extended to name contract point 5's properties "each named here rather
+than referred to collectively". It then named **four** of point 5's
+**five** properties. `impl-reviewer-b` found the omission in impl
+re-review attempt 3 round 2.
+
+That is worth recording as a lesson rather than as an incident. This
+package adopted the rule *never refer to a set except by enumerating it*
+after three consecutive spec rounds lost to referring expressions, and the
+rule was invoked by name in the very clause that then failed it. **Stating
+a discipline is not applying it.** The check that catches this is
+mechanical — enumerate the source set, enumerate the citing set, diff them
+— and it was not run against point 5's own text before item 17 was
+written.
+
+The omitted property is not a footnote: a failure *before* the copy phase
+begins reports instead that no live file was modified. That is the branch
+telling an operator the repository is untouched, which is the answer they
+most need and the one they receive least often. Item 17 now names it, and
+says so.
+
+#### `security-spec.md`'s B5 rows, extended
+
+`impl-reviewer-b`'s same finding also reported that `security-spec.md`'s
+B5 STRIDE row and its Security Tests row predated the commit that added
+point 5 and therefore did not reflect it. B5's threat text describes "a
+`cp` that silently fails partway, installs bytes that do not match the
+reviewed, hash-verified payload" — which is exactly point 5's scenario, so
+the security analysis of that boundary was being judged against a runner
+that no longer exists. Both rows are extended in this entry's own commit
+to name point 5's properties individually.
+
+**A correction to the finding's own evidence.** The reviewer attributed
+`security-spec.md`'s last amendment to commit
+`23fe659f57685c5e7dde304035ce8887658d86bc`. `git log` shows it was
+`ac7a2e649427aeb042fac872e03debbe5472cbe4`, which is what `git log -1` reports for that path. Either way both predate
+`cf631ea748b86fc94f7570907669dc71ae563bfd`, so the finding holds on its
+own terms and the misattribution changes nothing about it. It is corrected
+rather than adopted.
+
+#### The enumerated sweep, including the sites deliberately left alone
+
+Run before writing, by listing candidate sites rather than searching for a
+phrase — the third time in this feature that extending one document
+revealed a sibling, and each earlier one was found by a reviewer after the
+fact rather than by a sweep before.
+
+- `design.md` Protected-File Statement points 1, 2, 3 and 4 — **left**.
+  Points 1 through 3 describe exact-set, manifest and pre-copy hash
+  properties that point 5 does not disturb. Point 4's scope is corrected
+  by point 5's forward disclaimer rather than by editing point 4, which
+  `impl-reviewer-a` recorded in round 1 as a non-blocking readability
+  observation and which stands as recorded.
+- `design.md` Protected-File Statement point 5 — **left**. It is the
+  authority the other sites cite.
+- `design.md` Test Strategy item 17 — **amended**, adding the fifth
+  property.
+- `security-spec.md` B5 STRIDE row — **amended**.
+- `security-spec.md` Security Tests row for item 17 — **amended**.
+- `requirements.md` AC-031 — **left**. It names the exact-set contract and
+  cross-references design.md; the ruling's remedy was item 17. See the
+  fragility recorded below.
+- `acceptance-tests.md`'s AC-031 row — **left**, for the same reason.
+- `infra-spec.md` Rollback and Verification-after-rollback — **left**.
+  Its protected-path sentence cites B5's post-copy re-verification as the
+  check that a corrected, re-applied state is self-consistent. That is a
+  claim about the success path after a re-apply and is unaffected by point
+  5, and its citation of B5 stays accurate as B5 grows.
+- `tasks.md` T-001's Reference Files block — **reported, not amended**. It
+  cites design.md's "full four-point contract", a count that point 5 makes
+  stale. `tasks.md` is frozen and outside the authorization for this
+  entry, so it is recorded here rather than changed.
+- `specs/epic-194-a6-lite-integration/README.md` — **left**. It contains
+  no statement about runner failure behaviour, repository state after a
+  failure, or what the operator learns.
+
+#### A fragility recorded, not changed
+
+`impl-reviewer-b` observed that `requirements.md` AC-031 and the
+`acceptance-tests.md` AC-031 row both rely entirely on a cross-reference
+to design.md Test Strategy item 17, which makes item 17's completeness the
+sole guarantee that the runner's contract is covered. That is exactly how
+the omitted fifth property escaped: nothing else in the package would have
+caught it. The structure is recorded here as a fragility. Changing it
+would mean amending two more frozen documents and was not authorized.
+
+#### Known, unreachable citation debt in this section
+
+The mechanical checklist run over this whole section reports abbreviated
+commit-like tokens. Five are genuinely abbreviated commit references, all
+introduced by this lane's own third appended entry:
+`e48c9008`, `a3a993bc`, `de5220c6`, `21b1e087`, `b085ec76`. They cannot be
+corrected: they sit above this section's tail, and editing there would
+break the growth-only shape the spec stage's tolerance depends on. They
+are recorded here so a future reader finds them already identified rather
+than discovering them as new.
+
+Three further tokens the same run flags — `43d48635`, `537ad9b3` and
+`fe78fa61` — are **not** defects: they are SHA-256 prefixes used in prose,
+which the checker's hex-run pattern reads as commit references. Several
+unaccounted SHA-256 values are likewise checker gaps rather than document
+defects, because that run walked a fixed path list at cited commits and so
+could never resolve `specs/epic-194-a6-lite-integration/traceability.json`
+or the T-001 panelist verdict files.
+
+#### A derived artifact, disclosed
+
+impl re-review attempt 3 round 1 was halted after `impl-reviewer-a` and
+before `impl-reviewer-b`, so that round's `integrated-summary.json` was
+never produced. Round 2's reviewer-A manifest requires the previous
+round's summary, so it was derived afterwards from round 1's persisted
+`reviewer-a.json` — a deterministic function of an immutable report,
+carrying no narrative — and `impl-reviewer-a` was told so in its round-2
+launch prompt.
+
+#### Fingerprints and statements this sixth entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded in the fifth
+  entry above at
+  `7864267708592b65d4b05762e51564734dca213bcc8682e91c29f7d29bb6b105` as of
+  `cf631ea748b86fc94f7570907669dc71ae563bfd`, is superseded by this
+  entry's own commit. Every earlier design.md value recorded in this
+  section stays where it is and each remains true of the commit it names.
+- `specs/epic-194-a6-lite-integration/security-spec.md` is superseded by
+  this entry's own commit; the value it held before this commit remains
+  true of the commit that last set it.
+- This document's own bytes, as pinned by spec-review attempt 6 round 2
+  and by impl re-review attempt 3 round 2, are superseded by the revision
+  this entry's own commit produces. A document cannot embed its own
+  post-amendment hash; that revision is pinned by impl re-review attempt 3
+  round 3's invocation manifests. As with the first, second, third, fourth
+  and fifth appended entries before it, no prior contract is restaged or
+  re-validated against amended bytes, and the workflow-state gate
+  reconciles the difference only because this entry is pure growth at this
+  section's tail.
+
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
 Recorded 2026-08-23, in this document's amendment-context era (see
