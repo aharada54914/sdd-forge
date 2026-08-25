@@ -63,7 +63,23 @@ try {
     if ($ruleDefCount -eq 1) { Ok 'TEST-009a: exactly one $rules array definition' } else { Bad "TEST-009a: expected exactly one `$rules = @(` definition, found $ruleDefCount" }
     $ruleIds = [regex]::Matches($sutContent, "Id = '(AUTH_BOUNDARY|TOKEN_CREDENTIAL|MCP|EXTERNAL_API|SECRET|GITHUB_ACTIONS)'") | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
     if (@($ruleIds).Count -eq 6) { Ok 'TEST-009b: still exactly the original six keyword-rule IDs' } else { Bad "TEST-009b: expected exactly 6 distinct keyword-rule IDs, found $(@($ruleIds).Count)" }
-    if ($sutContent -match '(?i)evaluate-predicate|predicate-dsl|registry[_-]match') { Bad 'TEST-009c: staged script must not call Predicate-DSL/Registry-matching logic of its own' } else { Ok 'TEST-009c: no Predicate-DSL/Registry-matching call found' }
+    $dslPattern = '(?i)evaluate-predicate|predicate-dsl|registry[_-]match'
+    if ($sutContent -match $dslPattern) { Bad 'TEST-009c: staged script must not call Predicate-DSL/Registry-matching logic of its own' } else { Ok 'TEST-009c: no Predicate-DSL/Registry-matching call found' }
+
+    # TEST-009d: positive control for the TEST-009c detector (T-002
+    # Anthropic-panelist review, Minor: TEST-009a/b/c passed identically in
+    # RED against the unextended script, so the check had no demonstrated
+    # discriminating power). A negative assertion is supposed to hold before
+    # and after -- but only counts if the pattern would actually fire on a
+    # script that does make the call. Splice one into a copy of this same SUT
+    # text and require the identical pattern to detect it.
+    #
+    # Residual limitation, stated rather than papered over: this is name-based
+    # detection; a differently named helper would still evade it. AC-009's own
+    # framing is a static review by grep (design.md Test Strategy item 5).
+    # TEST-009d proves the grep is live, not that it is complete.
+    $controlContent = $sutContent + "`n# planted control line: evaluate-predicate --registry ./r.json`n"
+    if ($controlContent -match $dslPattern) { Ok 'TEST-009d: the TEST-009c detector fires on a copy of this same script with a Predicate-DSL call spliced in (the negative assertion is live, not vacuous)' } else { Bad 'TEST-009d: the TEST-009c pattern failed to detect a planted Predicate-DSL call -- TEST-009c proves nothing' }
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }

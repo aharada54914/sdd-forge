@@ -26,6 +26,15 @@ function Assert-Contains([string]$Label, [string]$Needle) {
     if ($SkillContent.Contains($Needle)) { Ok $Label } else { Bad "$Label`: expected to find [$Needle] in proposed SKILL.md" }
 }
 
+# Whitespace-flattened view of the same file, so a needle that spans a hard
+# line wrap in the Markdown source can still be asserted verbatim (twin of the
+# sh suite's own $SKILL_FLAT).
+$SkillFlat = [System.Text.RegularExpressions.Regex]::Replace($SkillContent, '\s+', ' ')
+
+function Assert-FlatContains([string]$Label, [string]$Needle) {
+    if ($SkillFlat.Contains($Needle)) { Ok $Label } else { Bad "$Label`: expected to find [$Needle] in the line-flattened proposed SKILL.md" }
+}
+
 Write-Host '=== TEST-019-static: proposed SKILL.md names every required element ==='
 Assert-Contains 'TEST-019-static-a: names evaluate-predicate as the signal source' 'evaluate-predicate'
 Assert-Contains 'TEST-019-static-b: names the Project-Context-declared component match' 'Project Context already declares'
@@ -33,10 +42,34 @@ Assert-Contains 'TEST-019-static-c: names the trigger-fragment eligible/upgrade_
 Assert-Contains 'TEST-019-static-d: the checker call site gains the new second argument' '--capability-reasons <fragment-path>'
 Assert-Contains 'TEST-019-static-e: the .ps1 call site gains its own new parameter' '-CapabilityReasons <fragment-path>'
 Assert-Contains 'TEST-019-static-f: disabled-legacy (no Project Context) skip clause present' 'skip this step entirely'
-Assert-Contains 'TEST-019-static-g: non-overridable by --lite, regardless of signal source' 'regardless of whether the'
+# AC-019 names non-overridability as "`--lite` never overrides". The needle
+# used here previously was 'regardless of whether the', which names neither
+# `--lite` nor any override (T-003 Anthropic-panelist review, Major). See the
+# sh twin for the full rationale.
+Assert-Contains 'TEST-019-static-g: non-overridable -- the "--lite never overrides" clause is present verbatim (AC-019)' '`--lite` never overrides this decision'
+Assert-FlatContains 'TEST-019-static-g2: that non-override applies to the Capability-derived signal too, not only the keyword scan' 'regardless of whether the match came from the keyword scan or from this Capability-derived signal'
 Assert-Contains 'TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented' 'capability-reasons fragment invalid'
 Assert-Contains 'TEST-019-static-i: ship-time recheck stays layered, not replaced' 'layered with, not a substitute for'
 Assert-Contains 'TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching' 'Predicate-DSL/Registry-matching'
+
+# AC-019's second named property: the Block happens "before any
+# specs/<feature>/ file exists". Structural, not a substring-presence check --
+# moving the gate after file generation would leave every substring intact
+# while destroying the property (twin of the sh suite's static-p/q).
+Assert-Contains 'TEST-019-static-p: the gate states it runs before any specs/<feature>/ file is created (AC-019)' 'Before beginning the Process or creating any file under `specs/<feature>/`'
+$SkillLines = Get-Content -LiteralPath $SkillProposed
+$GateLine = (1..$SkillLines.Count | Where-Object { $SkillLines[$_ - 1] -eq '## Risk-Upgrade Gate' } | Select-Object -First 1)
+# .Contains, not -like: PowerShell's wildcard engine treats a backtick in the
+# PATTERN as its own escape character, so the literal backticks around
+# `specs/<feature>/` in the Markdown would never match a -like needle that
+# spells them (verified: the -like form returns False against the very line
+# it quotes). The sh twin has no such quirk -- grep -F is literal.
+$GenerateLine = (1..$SkillLines.Count | Where-Object { $SkillLines[$_ - 1].Contains('次の3ファイルを `specs/<feature>/` に生成') } | Select-Object -First 1)
+if ($null -ne $GateLine -and $null -ne $GenerateLine -and $GateLine -lt $GenerateLine) {
+    Ok "TEST-019-static-q: the Risk-Upgrade Gate section (line $GateLine) precedes the specs/<feature>/ generation step (line $GenerateLine)"
+} else {
+    Bad "TEST-019-static-q: expected the Risk-Upgrade Gate to precede specs/<feature>/ generation; gate=[$GateLine] generate=[$GenerateLine]"
+}
 
 # ---------------------------------------------------------------------------
 # "Attempted and failed" producer-side rule (panelist Critical finding,
@@ -62,26 +95,69 @@ try {
     # Synthetic Project Context + Registry (union-match simulation standing
     # in for a real evaluate-predicate call, Non-goals -- not reimplemented
     # here).
+    # The Registry fixture must carry design.md's own Data Plan shape --
+    # eligibility nested under `lite_policy` -- exactly as the sh twin's
+    # registry.json does. This fixture previously FLATTENED eligible/
+    # upgrade_reasons straight onto the capability object, so the PowerShell
+    # half never exercised the designed Registry shape at all and the twin
+    # pair was not the runtime-equivalence check it is presented as (T-003
+    # Anthropic-panelist review, Minor). Reading through `.lite_policy` also
+    # means a regression back to the flat shape now throws under
+    # Set-StrictMode instead of silently matching nothing.
     $declaredComponents = @('payment-service')
     $registryCapabilities = @(
-        [pscustomobject]@{ id = 'payment-processing-svc'; component = 'payment-service'; eligible = $false; upgrade_reasons = @('financial_settlement') }
+        [pscustomobject]@{
+            id          = 'payment-processing-svc'
+            component   = 'payment-service'
+            lite_policy = [pscustomobject]@{ eligible = $false; upgrade_reasons = @('financial_settlement') }
+        }
     )
     $matched = @()
     foreach ($capability in $registryCapabilities) {
-        if ($declaredComponents -contains $capability.component -and $capability.eligible -eq $false) {
-            $matched += [pscustomobject]@{ id = $capability.id; eligible = $false; upgrade_reasons = $capability.upgrade_reasons }
+        if ($declaredComponents -contains $capability.component -and $capability.lite_policy.eligible -eq $false) {
+            $matched += [pscustomobject]@{ id = $capability.id; eligible = $false; upgrade_reasons = $capability.lite_policy.upgrade_reasons }
         }
+    }
+    # Assert the SHAPE of the Registry fixture, not just that the match found
+    # something: a flattened fixture would still yield exactly one match, so a
+    # count-only assertion would not detect the divergence it exists to catch.
+    $regEntry = $registryCapabilities[0]
+    $regNames = @($regEntry.PSObject.Properties.Name)
+    $hasNested = ($regNames -contains 'lite_policy') -and (@($regEntry.lite_policy.PSObject.Properties.Name) -contains 'eligible')
+    $hasFlat = ($regNames -contains 'eligible') -or ($regNames -contains 'upgrade_reasons')
+    if ($hasNested -and -not $hasFlat -and $matched.Count -eq 1) {
+        Ok 'TEST-019-functional-registry-shape: the Registry fixture nests eligibility under lite_policy and exposes no flattened eligible/upgrade_reasons (design.md Data Plan; parity with the sh twin''s registry.json)'
+    } else {
+        Bad "TEST-019-functional-registry-shape: Registry fixture shape diverges from design.md's Data Plan and from the sh twin. nested=$hasNested flat=$hasFlat matched=$($matched.Count) props=[$($regNames -join ',')]"
     }
     $fragment = [pscustomobject]@{ capabilities = $matched } | ConvertTo-Json -Depth 5
     Set-Content -LiteralPath (Join-Path $Work 'fragment.json') -Value $fragment -NoNewline
     Set-Content -LiteralPath (Join-Path $Work 'source.txt') -Value 'a clean internal requirement body with no keyword trigger at all.' -NoNewline
 
+    # AC-019 requires the Capability-derived Block to carry "the identical
+    # exit code (10) [and] message shape (full-required: ...) ... as an
+    # existing keyword-match fixture". These assertions used to hard-code 10
+    # and the prefix, so their labels claimed a comparison the suite never
+    # performed (T-003 Anthropic-panelist review, Major). The keyword-match
+    # fixture is now actually RUN and its observed values are the comparison
+    # target.
+    Set-Content -LiteralPath (Join-Path $Work 'keyword-source.txt') -Value 'this task rotates an API secret used by the settlement worker.' -NoNewline
+    $kwOutput = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $Work 'keyword-source.txt') 2>&1
+    $kwExit = $LASTEXITCODE
+    $kwJoined = ($kwOutput -join "`n")
+    $kwPrefix = $kwJoined.Split(':')[0]
+    if ($kwExit -ne 0 -and $kwPrefix -eq 'full-required') {
+        Ok "TEST-019-functional-baseline: the keyword-match reference fixture Blocks (exit $kwExit, '$kwPrefix`: ...') -- the comparison target AC-019 names actually exists"
+    } else {
+        Bad "TEST-019-functional-baseline: the keyword-match reference fixture did not Block; exit=$kwExit output=$kwJoined. Every parity assertion below is meaningless without it."
+    }
+
     $output = & $PowerShell -NoProfile -File $CheckRiskUpgrade -Path (Join-Path $Work 'source.txt') -CapabilityReasons (Join-Path $Work 'fragment.json') 2>&1
     $exitCode = $LASTEXITCODE
     $joined = ($output -join "`n")
 
-    if ($exitCode -eq 10) { Ok 'TEST-019-functional-a: Blocks (exit 10), same exit code as an existing keyword-match fixture' } else { Bad "TEST-019-functional-a: expected exit 10, got $exitCode. Output: $joined" }
-    if ($joined.StartsWith('full-required:')) { Ok 'TEST-019-functional-b: message shape is full-required: ..., same shape as a keyword-match Block' } else { Bad "TEST-019-functional-b: unexpected message shape: $joined" }
+    if ($exitCode -eq $kwExit -and $exitCode -eq 10) { Ok "TEST-019-functional-a: Blocks with the IDENTICAL exit code the keyword-match fixture just produced ($exitCode)" } else { Bad "TEST-019-functional-a: expected the keyword fixture's own exit $kwExit (and 10), got $exitCode. Output: $joined" }
+    if ($joined.Split(':')[0] -eq $kwPrefix) { Ok "TEST-019-functional-b: message shape is the IDENTICAL '$kwPrefix`: ...' shape the keyword-match fixture just produced" } else { Bad "TEST-019-functional-b: expected the keyword fixture's own '$kwPrefix`:' prefix, got: $joined" }
     if ($joined.Contains('financial_settlement')) { Ok 'TEST-019-functional-c: matched Capability upgrade_reasons token present in the Block message' } else { Bad "TEST-019-functional-c: expected financial_settlement in output: $joined" }
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }

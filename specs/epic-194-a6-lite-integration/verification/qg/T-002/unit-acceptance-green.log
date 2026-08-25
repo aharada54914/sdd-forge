@@ -1,8 +1,15 @@
-Commands (quality-gate independent re-run, sh, 2026-08-19T04:50:36Z):
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T04:28:59Z):
+  repository: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194
+  branch:     feature/epic-194-a6-lite-integration
+  HEAD:       9bc1d3b8e2cf74e6008be0ae7c2b3e60057e8f5d
   bash tests/check-risk-upgrade-byte-identical.tests.sh
   bash tests/check-risk-upgrade-capability-merge.tests.sh
   bash tests/check-risk-upgrade-fragment-fail-closed.tests.sh
   bash tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
+  pwsh -NoProfile -File tests/check-risk-upgrade-byte-identical.tests.ps1
+  pwsh -NoProfile -File tests/check-risk-upgrade-capability-merge.tests.ps1
+  pwsh -NoProfile -File tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
+  pwsh -NoProfile -File tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
 ### check-risk-upgrade-byte-identical.tests.sh ###
 ok: TEST-007-clean: exit code identical (0)
 ok: TEST-007-clean: stdout byte-identical
@@ -36,8 +43,9 @@ ok: TEST-008c: all-eligible fragment + clean source stays lite-eligible
 ok: TEST-009a: exactly one rules-tuple definition (no duplicated/added keyword table)
 ok: TEST-009b: still exactly the original six keyword-rule IDs (no new row added)
 ok: TEST-009c: no Predicate-DSL/Registry-matching call found in the staged script
+ok: TEST-009d: the TEST-009c detector fires on a copy of this same script with a Predicate-DSL call spliced in (the negative assertion is live, not vacuous)
 
-Results: 8 passed, 0 failed
+Results: 9 passed, 0 failed
 EXIT:0
 ### check-risk-upgrade-fragment-fail-closed.tests.sh ###
 === TEST-013a: unreadable (missing) fragment path ===
@@ -60,8 +68,49 @@ ok: TEST-013f: exits 2
 ok: TEST-013f: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
 === TEST-013g: distinct from the omitted-argument case ===
 ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible) -- fail-closed is scoped to SUPPLIED-invalid only
+=== TEST-013h: supplied-but-empty --capability-reasons '' (SUPPLIED, not omitted) ===
+ok: TEST-013h: exits 2 (empty value is SUPPLIED, matching bash's own argc-based detection)
+ok: TEST-013h: prints the dedicated fragment-invalid diagnostic, no silent degrade
+=== TEST-013i: shape-invalid -- 'upgrade_reasons' is a scalar, not an array ===
+ok: TEST-013i: exits 2
+ok: TEST-013i: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013j: shape-invalid -- 'eligible' is null (not a boolean) ===
+ok: TEST-013j: exits 2
+ok: TEST-013j: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013k: shape-invalid -- 'eligible' is 0 (numeric, not boolean) ===
+ok: TEST-013k: exits 2
+ok: TEST-013k: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013l: shape-invalid -- 'eligible' is the string "false" (not boolean) ===
+ok: TEST-013l: exits 2
+ok: TEST-013l: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013m: shape-invalid -- id carries a ',' delimiter (cannot forge a second trigger entry) ===
+ok: TEST-013m: exits 2
+ok: TEST-013m: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013n: shape-invalid -- id carries a ';' delimiter (cannot forge a second trigger entry) ===
+ok: TEST-013n: exits 2
+ok: TEST-013n: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013o: shape-invalid -- 'capabilities' is a bare object, not an array ===
+ok: TEST-013o: exits 2
+ok: TEST-013o: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013p: shape-invalid -- id carries an embedded newline (single-line contract) ===
+ok: TEST-013p: exits 2
+ok: TEST-013p: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013q: shape-invalid -- id is an explicit empty string (no degenerate 'ineligible:' token) ===
+ok: TEST-013q: exits 2
+ok: TEST-013q: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013r: a bare 2-positional-argument invocation (no --capability-reasons flag) is NOT treated as supplied ===
+ok: TEST-013r: 2-positional-arg call hits the primary-source-unavailable arm (exit 2), never silently merges the second path as a capability fragment
+=== TEST-013s: shape-invalid -- id is a NUMBER, not a non-empty string ===
+ok: TEST-013s: exits 2
+ok: TEST-013s: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013t: shape-invalid -- id is an object, not a non-empty string ===
+ok: TEST-013t: exits 2
+ok: TEST-013t: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013u: shape-invalid -- id is an array, not a non-empty string ===
+ok: TEST-013u: exits 2
+ok: TEST-013u: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
 
-Results: 13 passed, 0 failed
+Results: 40 passed, 0 failed
 EXIT:0
 ### check-risk-upgrade-ineligible-no-reasons.tests.sh ###
 === TEST-014a: eligible:false, upgrade_reasons key absent ===
@@ -76,12 +125,6 @@ ok: TEST-014c: no-reasons entry's synthetic token appears in its own array posit
 
 Results: 6 passed, 0 failed
 EXIT:0
-
-Commands (quality-gate independent re-run, ps1, 2026-08-19T04:50:36Z):
-  pwsh -NoProfile -File tests/check-risk-upgrade-byte-identical.tests.ps1
-  pwsh -NoProfile -File tests/check-risk-upgrade-capability-merge.tests.ps1
-  pwsh -NoProfile -File tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
-  pwsh -NoProfile -File tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
 ### check-risk-upgrade-byte-identical.tests.ps1 ###
 ok: TEST-007-clean: exit code identical (0)
 ok: TEST-007-clean: stdout byte-identical
@@ -115,8 +158,9 @@ ok: TEST-008c: all-eligible fragment + clean source stays lite-eligible
 ok: TEST-009a: exactly one $rules array definition
 ok: TEST-009b: still exactly the original six keyword-rule IDs
 ok: TEST-009c: no Predicate-DSL/Registry-matching call found
+ok: TEST-009d: the TEST-009c detector fires on a copy of this same script with a Predicate-DSL call spliced in (the negative assertion is live, not vacuous)
 
-Results: 8 passed, 0 failed
+Results: 9 passed, 0 failed
 EXIT:0
 ### check-risk-upgrade-fragment-fail-closed.tests.ps1 ###
 === TEST-013a: unreadable (missing) fragment path ===
@@ -139,8 +183,49 @@ ok: TEST-013f: exits 2
 ok: TEST-013f: prints the dedicated fragment-invalid diagnostic
 === TEST-013g: distinct from the omitted-argument case ===
 ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible)
+=== TEST-013h: supplied-but-empty -CapabilityReasons '' (SUPPLIED, not omitted) ===
+ok: TEST-013h: exits 2 (empty value is SUPPLIED, matching presence-based ContainsKey detection)
+ok: TEST-013h: prints the dedicated fragment-invalid diagnostic, no silent degrade
+=== TEST-013i: shape-invalid -- 'upgrade_reasons' is a scalar, not an array ===
+ok: TEST-013i: exits 2
+ok: TEST-013i: prints the dedicated fragment-invalid diagnostic
+=== TEST-013j: shape-invalid -- 'eligible' is null (not a boolean) ===
+ok: TEST-013j: exits 2
+ok: TEST-013j: prints the dedicated fragment-invalid diagnostic
+=== TEST-013k: shape-invalid -- 'eligible' is 0 (numeric, not boolean) ===
+ok: TEST-013k: exits 2
+ok: TEST-013k: prints the dedicated fragment-invalid diagnostic
+=== TEST-013l: shape-invalid -- eligible is the string "false" (not boolean) ===
+ok: TEST-013l: exits 2
+ok: TEST-013l: prints the dedicated fragment-invalid diagnostic
+=== TEST-013m: shape-invalid -- id carries a ',' delimiter (cannot forge a second trigger entry) ===
+ok: TEST-013m: exits 2
+ok: TEST-013m: prints the dedicated fragment-invalid diagnostic
+=== TEST-013n: shape-invalid -- id carries a ';' delimiter (cannot forge a second trigger entry) ===
+ok: TEST-013n: exits 2
+ok: TEST-013n: prints the dedicated fragment-invalid diagnostic
+=== TEST-013o: shape-invalid -- 'capabilities' is a bare object, not an array ===
+ok: TEST-013o: exits 2
+ok: TEST-013o: prints the dedicated fragment-invalid diagnostic
+=== TEST-013p: shape-invalid -- id carries an embedded newline (single-line contract) ===
+ok: TEST-013p: exits 2
+ok: TEST-013p: prints the dedicated fragment-invalid diagnostic
+=== TEST-013q: shape-invalid -- id is an explicit empty string (no degenerate 'ineligible:' token) ===
+ok: TEST-013q: exits 2
+ok: TEST-013q: prints the dedicated fragment-invalid diagnostic
+=== TEST-013r: a bare 2-positional-argument invocation (no -CapabilityReasons flag) is NOT treated as supplied ===
+ok: TEST-013r: 2-positional-arg call is rejected (exit 1), never silently merges the second path as a capability fragment (exit 10 would mean the fragment was accepted)
+=== TEST-013s: shape-invalid -- id is a NUMBER, not a non-empty string ===
+ok: TEST-013s: exits 2
+ok: TEST-013s: prints the dedicated fragment-invalid diagnostic
+=== TEST-013t: shape-invalid -- id is an object, not a non-empty string ===
+ok: TEST-013t: exits 2
+ok: TEST-013t: prints the dedicated fragment-invalid diagnostic
+=== TEST-013u: shape-invalid -- id is an array, not a non-empty string ===
+ok: TEST-013u: exits 2
+ok: TEST-013u: prints the dedicated fragment-invalid diagnostic
 
-Results: 13 passed, 0 failed
+Results: 40 passed, 0 failed
 EXIT:0
 ### check-risk-upgrade-ineligible-no-reasons.tests.ps1 ###
 === TEST-014a: eligible:false, upgrade_reasons key absent ===

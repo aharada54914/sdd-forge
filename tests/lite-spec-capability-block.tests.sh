@@ -52,16 +52,59 @@ assert_contains() {
   fi
 }
 
+# Whitespace-flattened view of the same file, so a needle that spans a hard
+# line wrap in the Markdown source can still be asserted verbatim. Built once;
+# `grep -qF` is line-oriented, which is why the raw file cannot serve here.
+SKILL_FLAT="$(tr '\n' ' ' < "$SKILL_PROPOSED" | tr -s ' ')"
+
+assert_flat_contains() {
+  local label="$1" needle="$2"
+  case "$SKILL_FLAT" in
+    *"$needle"*) ok "${label}" ;;
+    *) fail "${label}: expected to find [${needle}] in the line-flattened proposed SKILL.md" ;;
+  esac
+}
+
 assert_contains "TEST-019-static-a: names evaluate-predicate as the signal source" "evaluate-predicate"
 assert_contains "TEST-019-static-b: names the Project-Context-declared component match" "Project Context already declares"
 assert_contains "TEST-019-static-c: names the trigger-fragment eligible/upgrade_reasons shape" '"eligible": false'
 assert_contains "TEST-019-static-d: the checker call site gains the new second argument" "--capability-reasons <fragment-path>"
 assert_contains "TEST-019-static-e: the .ps1 call site gains its own new parameter" "-CapabilityReasons <fragment-path>"
 assert_contains "TEST-019-static-f: disabled-legacy (no Project Context) skip clause present" "skip this step entirely"
-assert_contains "TEST-019-static-g: non-overridable by --lite, regardless of signal source" "regardless of whether the"
+# AC-019 names non-overridability as "`--lite` never overrides". The needle
+# used here previously was the fragment "regardless of whether the", which
+# names neither `--lite` nor any override and would stay green if the whole
+# non-override sentence were deleted and that fragment survived anywhere else
+# in the file (T-003 Anthropic-panelist review, Major). The needle is now the
+# clause AC-019 itself quotes, and the "regardless of ..." half -- the part
+# that makes it apply to the Capability-derived signal as well as the keyword
+# scan -- is asserted separately as static-g2.
+assert_contains "TEST-019-static-g: non-overridable -- the '--lite never overrides' clause is present verbatim (AC-019)" '`--lite` never overrides this decision'
+assert_flat_contains "TEST-019-static-g2: that non-override applies to the Capability-derived signal too, not only the keyword scan" "regardless of whether the match came from the keyword scan or from this Capability-derived signal"
 assert_contains "TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented" "capability-reasons fragment invalid"
 assert_contains "TEST-019-static-i: ship-time recheck stays layered, not replaced" "layered with, not a substitute for"
 assert_contains "TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching" "Predicate-DSL/Registry-matching"
+
+# AC-019's second named property: the Block happens "before any
+# `specs/<feature>/` file exists". Nothing asserted this (T-003
+# Anthropic-panelist review, Major). SKILL.md is agent-facing prose, so the
+# property is structural: the Risk-Upgrade Gate section must (a) say so, and
+# (b) actually precede the Process step that generates the three
+# `specs/<feature>/` files. An ordering check, not a substring presence check
+# -- moving the gate after file generation would keep every substring intact
+# while destroying the property.
+assert_contains "TEST-019-static-p: the gate states it runs before any specs/<feature>/ file is created (AC-019)" 'Before beginning the Process or creating any file under `specs/<feature>/`'
+# -x (whole-line), not a prefix match: `grep -n '^## Risk-Upgrade Gate'` also
+# matches a renamed heading such as "## Risk-Upgrade Gate (moved)", which is
+# exactly the mutation this assertion has to catch. The .ps1 twin uses -eq for
+# the same reason.
+GATE_LINE="$(grep -nxF '## Risk-Upgrade Gate' "$SKILL_PROPOSED" | head -1 | cut -d: -f1)"
+GENERATE_LINE="$(grep -n '次の3ファイルを `specs/<feature>/` に生成' "$SKILL_PROPOSED" | head -1 | cut -d: -f1)"
+if [ -n "${GATE_LINE}" ] && [ -n "${GENERATE_LINE}" ] && [ "${GATE_LINE}" -lt "${GENERATE_LINE}" ]; then
+  ok "TEST-019-static-q: the Risk-Upgrade Gate section (line ${GATE_LINE}) precedes the specs/<feature>/ generation step (line ${GENERATE_LINE})"
+else
+  fail "TEST-019-static-q: expected the Risk-Upgrade Gate to precede specs/<feature>/ generation; gate=[${GATE_LINE}] generate=[${GENERATE_LINE}]"
+fi
 
 # ---------------------------------------------------------------------------
 # (a2) "Attempted and failed" producer-side rule (panelist Critical finding,
@@ -103,6 +146,18 @@ JSON
 # Union-match simulation (standing in for a real evaluate-predicate call,
 # which this feature does not reimplement, Non-goals): a component-name
 # equality match, assembled into REQ-002's own trigger-fragment shape.
+#
+# python3 is probed rather than assumed (T-003 Anthropic-panelist review,
+# Minor). Under `set -euo pipefail` an unguarded `python3` on a runner without
+# it aborted the whole suite mid-run -- no FAIL line, no trailing "Results:"
+# summary, so the tally silently vanished, at odds with the tasks.md
+# CI-resilience constraint. The assembler is now selected up front; if neither
+# python3 nor a fallback exists, the fragment-dependent assertions print a
+# visible `skip -` line and the suite still reaches its own summary.
+HAVE_PY3=0
+if command -v python3 >/dev/null 2>&1; then HAVE_PY3=1; fi
+
+if [ "${HAVE_PY3}" -eq 1 ]; then
 python3 - "${WORK}/project-context.json" "${WORK}/registry.json" "${WORK}/fragment.json" <<'PY'
 import json
 import sys
@@ -125,27 +180,79 @@ for capability in registry["capabilities"]:
 with open(sys.argv[3], "w", encoding="utf-8") as f:
     json.dump({"capabilities": matched_ineligible}, f)
 PY
+fi
+
+# The union match above must read eligibility through design.md's own Data
+# Plan shape (nested under `lite_policy`), and the .ps1 twin must do the same
+# -- its fixture used to flatten eligible/upgrade_reasons onto the capability
+# object, so the two halves were not exercising the same Registry shape (T-003
+# Anthropic-panelist review, Minor). Asserted on both sides so the pair stays
+# a real runtime-equivalence check.
+# Assert the SHAPE of the Registry fixture, not merely that the match found
+# something: a flattened fixture would still yield exactly one match, so a
+# count-only assertion would not detect the divergence it exists to catch.
+REG_NESTED=0
+REG_FLAT=0
+grep -qF '"lite_policy": {"eligible": false' "${WORK}/registry.json" && REG_NESTED=1
+grep -qE '^[[:space:]]*\{"id":[^}]*"eligible"' "${WORK}/registry.json" && REG_FLAT=1
+if [ "${HAVE_PY3}" -eq 1 ]; then
+  MATCHED_COUNT="$(tr -cd '{' < "${WORK}/fragment.json" | wc -c | tr -d ' ')"
+  # one brace for the fragment object + one per matched capability entry
+  if [ "${REG_NESTED}" -eq 1 ] && [ "${REG_FLAT}" -eq 0 ] && [ "${MATCHED_COUNT}" = "2" ]; then
+    ok "TEST-019-functional-registry-shape: the Registry fixture nests eligibility under lite_policy and exposes no flattened eligible/upgrade_reasons (design.md Data Plan; parity with the .ps1 twin's fixture)"
+  else
+    fail "TEST-019-functional-registry-shape: Registry fixture shape diverges from design.md's Data Plan and from the .ps1 twin. nested=${REG_NESTED} flat=${REG_FLAT} matched_braces=${MATCHED_COUNT}"
+  fi
+else
+  echo "skip - TEST-019-functional-registry-shape: no python3 available to run the union match"
+fi
 
 printf 'a clean internal requirement body with no keyword trigger at all.\n' > "${WORK}/source.txt"
 
+# AC-019 requires the Capability-derived Block to carry "the identical exit
+# code (10), message shape (full-required: ...) and non-overridability ... as
+# an existing keyword-match fixture". The previous assertions hard-coded 10
+# and the 'full-required:' prefix, so the labels claimed a comparison the
+# suite never performed (T-003 Anthropic-panelist review, Major). The
+# keyword-match fixture is now actually RUN, and its observed exit code and
+# message prefix are what the Capability-derived run is compared against --
+# if the keyword arm's own contract ever moved, this comparison moves with it
+# instead of silently diverging from the constant it used to assert.
+printf 'this task rotates an API secret used by the settlement worker.\n' > "${WORK}/keyword-source.txt"
+KW_OUT=""
+KW_EXIT=0
+KW_OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/keyword-source.txt" 2>&1)" || KW_EXIT=$?
+KW_PREFIX="${KW_OUT%%:*}"
+if [ "${KW_EXIT}" -ne 0 ] && [ "${KW_PREFIX}" = "full-required" ]; then
+  ok "TEST-019-functional-baseline: the keyword-match reference fixture Blocks (exit ${KW_EXIT}, '${KW_PREFIX}: ...') -- the comparison target AC-019 names actually exists"
+else
+  fail "TEST-019-functional-baseline: the keyword-match reference fixture did not Block; exit=${KW_EXIT} output=${KW_OUT}. Every parity assertion below is meaningless without it."
+fi
+
+if [ "${HAVE_PY3}" -eq 1 ]; then
 OUT=""
 EXIT=0
 OUT="$(bash "$CHECK_RISK_UPGRADE" "${WORK}/source.txt" --capability-reasons "${WORK}/fragment.json" 2>&1)" || EXIT=$?
 
-if [ "${EXIT}" -eq 10 ]; then
-  ok "TEST-019-functional-a: Blocks (exit 10), same exit code as an existing keyword-match fixture"
+if [ "${EXIT}" -eq "${KW_EXIT}" ] && [ "${EXIT}" -eq 10 ]; then
+  ok "TEST-019-functional-a: Blocks with the IDENTICAL exit code the keyword-match fixture just produced (${EXIT})"
 else
-  fail "TEST-019-functional-a: expected exit 10, got ${EXIT}. Output: ${OUT}"
+  fail "TEST-019-functional-a: expected the keyword fixture's own exit ${KW_EXIT} (and 10), got ${EXIT}. Output: ${OUT}"
 fi
-if [[ "${OUT}" == full-required:* ]]; then
-  ok "TEST-019-functional-b: message shape is 'full-required: ...', same shape as a keyword-match Block"
+if [ "${OUT%%:*}" = "${KW_PREFIX}" ]; then
+  ok "TEST-019-functional-b: message shape is the IDENTICAL '${KW_PREFIX}: ...' shape the keyword-match fixture just produced"
 else
-  fail "TEST-019-functional-b: unexpected message shape: ${OUT}"
+  fail "TEST-019-functional-b: expected the keyword fixture's own '${KW_PREFIX}:' prefix, got: ${OUT}"
 fi
 if [[ "${OUT}" == *"financial_settlement"* ]]; then
   ok "TEST-019-functional-c: the matched Capability's own upgrade_reasons token is present in the Block message"
 else
   fail "TEST-019-functional-c: expected 'financial_settlement' in output: ${OUT}"
+fi
+else
+  echo "skip - TEST-019-functional-a: no python3 available to assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-b: no python3 available to assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-c: no python3 available to assemble the synthetic trigger fragment"
 fi
 
 # ---------------------------------------------------------------------------

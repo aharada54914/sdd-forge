@@ -155,6 +155,32 @@ else
   fail "TEST-013r: expected exit 2 / 'risk-upgrade: input unavailable', got exit ${r_exit}. Output: ${r_out}"
 fi
 
+# ---------------------------------------------------------------------------
+# TEST-013s-u: cross-model panel, T-002 OpenAI slot -- "the supplied negative
+# tests cover only missing keys and a non-array top-level capabilities value.
+# They do not demonstrate fail-closed handling for empty/non-string ids,
+# non-boolean eligible values, non-array upgrade_reasons, or non-string
+# reason elements."
+#
+# Empty id (013q), non-boolean eligible (013j/k/l) and non-array
+# upgrade_reasons (013i) were closed in an earlier round -- the panel reviewed
+# a bundle that predates them. The one the slot names that genuinely had no
+# assertion is a NON-STRING id; requirements.md Field Definitions fixes the
+# field as `"id": <capability-id, non-empty string>`, so a JSON number,
+# object or array in that position is shape-invalid, not a value to coerce.
+# ---------------------------------------------------------------------------
+echo "=== TEST-013s: shape-invalid -- id is a NUMBER, not a non-empty string ==="
+printf '{"capabilities": [{"id": 7, "eligible": false, "upgrade_reasons": ["x"]}]}' > "${WORK}/id-number.json"
+assert_fragment_invalid "TEST-013s" "${WORK}/id-number.json"
+
+echo "=== TEST-013t: shape-invalid -- id is an object, not a non-empty string ==="
+printf '{"capabilities": [{"id": {"nested": "x"}, "eligible": false}]}' > "${WORK}/id-object.json"
+assert_fragment_invalid "TEST-013t" "${WORK}/id-object.json"
+
+echo "=== TEST-013u: shape-invalid -- id is an array, not a non-empty string ==="
+printf '{"capabilities": [{"id": ["x"], "eligible": false}]}' > "${WORK}/id-array.json"
+assert_fragment_invalid "TEST-013u" "${WORK}/id-array.json"
+
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed"
 if [ "${FAIL}" -gt 0 ]; then

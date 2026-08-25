@@ -137,6 +137,31 @@ try {
     } else {
         Bad "TEST-013r: expected a non-zero, non-10 rejection, got exit $rExit. Output: $rJoined"
     }
+
+    # ---------------------------------------------------------------
+    # TEST-013s-u: cross-model panel, T-002 OpenAI slot -- "the supplied
+    # negative tests cover only missing keys and a non-array top-level
+    # capabilities value. They do not demonstrate fail-closed handling for
+    # empty/non-string ids, non-boolean eligible values, non-array
+    # upgrade_reasons, or non-string reason elements."
+    #
+    # Empty id (013q), non-boolean eligible (013j/k/l) and non-array
+    # upgrade_reasons (013i) were closed in an earlier round -- the panel
+    # reviewed a bundle that predates them. The two the slot names that
+    # genuinely had no assertion are a NON-STRING id and a non-string
+    # element inside upgrade_reasons. Both are added here.
+    # ---------------------------------------------------------------
+    Write-Host '=== TEST-013s: shape-invalid -- id is a NUMBER, not a non-empty string ==='
+    Set-Content -LiteralPath (Join-Path $Work 'id-number.json') -Value '{"capabilities": [{"id": 7, "eligible": false, "upgrade_reasons": ["x"]}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013s' (Join-Path $Work 'id-number.json')
+
+    Write-Host '=== TEST-013t: shape-invalid -- id is an object, not a non-empty string ==='
+    Set-Content -LiteralPath (Join-Path $Work 'id-object.json') -Value '{"capabilities": [{"id": {"nested": "x"}, "eligible": false}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013t' (Join-Path $Work 'id-object.json')
+
+    Write-Host '=== TEST-013u: shape-invalid -- id is an array, not a non-empty string ==='
+    Set-Content -LiteralPath (Join-Path $Work 'id-array.json') -Value '{"capabilities": [{"id": ["x"], "eligible": false}]}' -NoNewline
+    Assert-FragmentInvalid 'TEST-013u' (Join-Path $Work 'id-array.json')
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }

@@ -346,3 +346,116 @@ Read against the enumeration at 5217: deterministic-lane-selfcheck
 self-declares DESIGNED-RED at 1561, design-system-contract at 1848.
 repository-release-validation at 1593 declares nothing of the kind,
 which is why it is treated as a real failure above.
+
+=== 2026-08-25: re-measurement after the cross-model panel, HEAD 3d3552b731081ff8304899f605c3c0e35e4dcfa1 ===
+
+Appended, not edited: everything above is the 2026-08-21 record and stands.
+
+WHY THIS SECTION EXISTS. Two independent vendor slots on T-002 and two on
+T-003 reported the same thing: T-002.contract.json and T-003.contract.json
+recorded the required `regression` check as passes:true while this file --
+the evidence those contracts name -- states verbatim "passes is therefore
+recorded false". T-001's contract was corrected to false on 2026-08-21; the
+correction never reached its two siblings. Both are now false. The panel was
+right, and the fix belonged in the contracts, not in this log.
+
+1. THE 2026-08-21 CAUSE IS CLOSED.
+   `bash tests/repository-release-validation.tests.sh`, re-run 2026-08-25
+   against the current tree, produces ZERO lines containing "stale". The
+   specification lane's stage re-binding closed both
+     epic-194-a6-lite-integration: stage-provenance:
+       spec top-level contract hashes are stale
+   and the "task plan hash is stale" failure the 2026-08-21 record noted it
+   was masking. Neither needed the re-freeze lane this repository does not
+   have; the stages were re-bound through the normal review flow.
+
+2. THE SUITE STILL FAILS, ON A DIFFERENT AND TRANSIENT CAUSE.
+     workflow-state: epic-194-a6-lite-integration:
+       stage-order: Impl Passed requires Spec Passed
+   requirements.md currently carries `Spec-Review-Status: Pending` while the
+   specification lane is mid-re-review (attempt 4); design.md carries
+   `Impl-Review-Status: Passed`. That ordering is invalid only while the
+   spec stage is open. It is the other lane's in-flight state, not a defect
+   in T-001/T-002/T-003, and it will clear when that re-review lands.
+
+3. FULL tests/run-all.sh DID COMPLETE THIS TIME -- and the result must be
+   read with a stated caveat.
+   The 2026-08-21 record could not complete a full run (10-minute timeout).
+   This one ran to completion and ended:
+
+     11 failing suite(s):
+       tests/downstream-review-precheck.tests.sh
+       tests/impl-layer-review-inputs.tests.sh
+       tests/downstream-review-precheck-parity.tests.sh
+       tests/task-review-precheck.tests.sh
+       tests/impl-review-round2-contract.tests.sh
+       tests/workflow-state.tests.sh
+       tests/deterministic-lane-selfcheck.tests.sh
+       tests/repository-release-validation.tests.sh
+       tests/loop-consistency.tests.sh
+       tests/design-system-contract.tests.sh
+       tests/check-component-coverage.tests.sh
+
+   CAVEAT, stated rather than hidden: this run executed while a second agent
+   was actively driving spec-review attempt 4 round 3 in this same worktree.
+   Several of those suites build fixtures under reports/spec-review/ and
+   specs/<fixture>/ -- the exact trees the other lane was writing. Each of
+   the 11 was therefore re-run individually, serially, afterwards:
+
+     tests/downstream-review-precheck.tests.sh          exit 0
+     tests/impl-layer-review-inputs.tests.sh            exit 0
+     tests/downstream-review-precheck-parity.tests.sh   exit 0
+     tests/task-review-precheck.tests.sh                exit 0
+     tests/impl-review-round2-contract.tests.sh         exit 0
+     tests/loop-consistency.tests.sh                    exit 0
+     tests/workflow-state.tests.sh                      exit 1
+     tests/check-component-coverage.tests.sh            exit 1
+
+   Six of the eleven pass in isolation: they are concurrency cross-talk from
+   the parallel lane, not regressions. The remaining five:
+
+     deterministic-lane-selfcheck   DESIGNED-RED (repository baseline)
+     design-system-contract         DESIGNED-RED (repository baseline)
+     repository-release-validation  real, cause (2) above -- other lane's
+                                    open spec stage
+     workflow-state                 real, unrelated: "plugins-pin-amended-
+                                    after-review precondition not met:
+                                    plugins/sdd-quality-loop/references/
+                                    risk-classification-policy.md has not
+                                    drifted from the recorded hash".
+                                    Touches no epic-194 file.
+     check-component-coverage       real, unrelated: "TEST-036.4: T-004
+                                    registration, staged-candidate
+                                    integrity, or T-004-owned live byte
+                                    identity failed against specs/
+                                    epic-191-a3-path-ownership/human-copy/
+                                    MANIFEST.sha256". A different feature.
+
+4. THIS FEATURE'S OWN SUITES ARE GREEN, RE-RUN AGAINST THE CURRENT TREE.
+   Not one of the 11 is an epic-194 suite. Per-suite, both runtimes:
+
+     human-copy-runner-contract               47 / 47   (T-001)
+     check-risk-upgrade-byte-identical        16 / 16   (T-002)
+     check-risk-upgrade-capability-merge       9 /  9   (T-002)
+     check-risk-upgrade-fragment-fail-closed  40 / 40   (T-002)
+     check-risk-upgrade-ineligible-no-reasons  6 /  6   (T-002)
+     lite-spec-capability-block               27 / 27   (T-003)
+
+   Recaptured in full at verification/qg/T-00{1,2,3}/
+   unit-acceptance-green.log and verification/T-00{1,2,3}.green.log.
+
+5. VERDICT, UNCHANGED IN VALUE AND FOR A BETTER-UNDERSTOOD REASON.
+   passes stays FALSE. Two real, unwaived, non-designed-red suites fail on
+   this branch (workflow-state, check-component-coverage), plus
+   repository-release-validation on the other lane's open spec stage. That
+   the failures are all outside this feature is a scoping observation, not a
+   pass -- recording true on that distinction is exactly the overstatement
+   the panel flagged, and it is not recorded here.
+
+   Full capture: verification/qg/shared/run-all-full-20260825.log
+   (3,338 lines / 447,226 bytes). run-all executes suites concurrently and
+   writes them to one stream, so that file is interleaved and individual
+   lines can be spliced mid-word; the per-suite serial re-runs in (3) above
+   are the authority for any attribution, and the trailing
+   "11 failing suite(s):" enumeration is the only part of it read as
+   decisive here.

@@ -1,5 +1,10 @@
-Command: bash tests/human-copy-runner-contract.tests.sh
-Run at: 2026-08-19T04:50:26Z (quality-gate independent re-run, sh)
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T04:28:59Z):
+  repository: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194
+  branch:     feature/epic-194-a6-lite-integration
+  HEAD:       9bc1d3b8e2cf74e6008be0ae7c2b3e60057e8f5d
+  bash tests/human-copy-runner-contract.tests.sh
+  pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1
+### human-copy-runner-contract.tests.sh ###
 ==> pwsh /Users/jrmag/Projects/active/sdd-forge-wt-epic-194/tests/human-copy-runner-contract.tests.ps1
 ok: TEST-000a: fixture catalog schema is recognized
 ok: TEST-000b: fixture catalog covers every required runner scenario
@@ -20,12 +25,12 @@ ok: TEST-003c: no copy occurred before rejection (all four live files unchanged)
 ok: TEST-003d: manifest missing one declared target is rejected by the declared/manifest exact-set check
 ok: TEST-003e: manifest-missing rejection occurs before every live copy
 === TEST-004: per-target hash mismatch rejected before copy ===
-ok: TEST-004a: staged hash mismatch rejected (exit 2)
+ok: TEST-004a: staged hash mismatch rejected by the per-target manifest hash check, naming the tampered target (exit 2)
 ok: TEST-004b: no copy occurred before rejection (all four live files unchanged)
 === TEST-005: control files excluded from payload-set comparison ===
 ok: TEST-005a: MANIFEST.sha256 correctly excluded from the payload set
 ok: TEST-005b: apply-protected-files.ps1 correctly excluded from the payload set
-ok: TEST-005c: payload set == exactly the four declared targets, control files excluded
+ok: TEST-005c: payload set == exactly the declared targets, control files excluded
 ok: TEST-005d: a fixture with both control files present still passes (not flagged extraneous)
 === TEST-006: post-copy corruption detected and reported ===
 ok: TEST-006a: post-copy corruption is detected (Test-PostCopyHashes threw)
@@ -56,12 +61,13 @@ ok: TEST-009g: repository live target remains byte-identical after the rejected 
 ok: TEST-010a: nested PROPOSED payload is rejected
 ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompatibility
 ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
+=== TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
+ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
 
-Results: 45 passed, 0 failed
+Results: 47 passed, 0 failed
 EXIT:0
-
-Command: pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1
-Run at: 2026-08-19T04:50:26Z (quality-gate independent re-run, ps1)
+### human-copy-runner-contract.tests.ps1 ###
 ok: TEST-000a: fixture catalog schema is recognized
 ok: TEST-000b: fixture catalog covers every required runner scenario
 ok: TEST-000c: twin suites self-register first in the Epic-194 serialized order
@@ -81,12 +87,12 @@ ok: TEST-003c: no copy occurred before rejection (all four live files unchanged)
 ok: TEST-003d: manifest missing one declared target is rejected by the declared/manifest exact-set check
 ok: TEST-003e: manifest-missing rejection occurs before every live copy
 === TEST-004: per-target hash mismatch rejected before copy ===
-ok: TEST-004a: staged hash mismatch rejected (exit 2)
+ok: TEST-004a: staged hash mismatch rejected by the per-target manifest hash check, naming the tampered target (exit 2)
 ok: TEST-004b: no copy occurred before rejection (all four live files unchanged)
 === TEST-005: control files excluded from payload-set comparison ===
 ok: TEST-005a: MANIFEST.sha256 correctly excluded from the payload set
 ok: TEST-005b: apply-protected-files.ps1 correctly excluded from the payload set
-ok: TEST-005c: payload set == exactly the four declared targets, control files excluded
+ok: TEST-005c: payload set == exactly the declared targets, control files excluded
 ok: TEST-005d: a fixture with both control files present still passes (not flagged extraneous)
 === TEST-006: post-copy corruption detected and reported ===
 ok: TEST-006a: post-copy corruption is detected (Test-PostCopyHashes threw)
@@ -117,6 +123,9 @@ ok: TEST-009g: repository live target remains byte-identical after the rejected 
 ok: TEST-010a: nested PROPOSED payload is rejected
 ok: TEST-010b: rejection explicitly identifies the recursive PROPOSED/ incompatibility
 ok: TEST-010c: all four live targets remain unchanged before nested PROPOSED rejection
+=== TEST-011: source file mode read via a portable API, not a hardcoded struct-stat offset ===
+ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not a hand-derived struct-stat offset
+ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
 
-Results: 45 passed, 0 failed
+Results: 47 passed, 0 failed
 EXIT:0

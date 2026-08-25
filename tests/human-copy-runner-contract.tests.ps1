@@ -326,7 +326,20 @@ $corruptTarget = [string]$FixtureCatalog.scenarios.hash_mismatch.tamper_after_ma
 $corruptPath = Join-Path $hc4 ($corruptTarget -replace '/', [IO.Path]::DirectorySeparatorChar)
 Set-Content -LiteralPath $corruptPath -Value 'tampered-after-manifest' -NoNewline
 $result4 = Invoke-RunnerProcess $root4
-if ($result4.ExitCode -ne 0) { Ok "TEST-004a: staged hash mismatch rejected (exit $($result4.ExitCode))" } else { Bad "TEST-004a: staged hash mismatch should be rejected, got exit 0" }
+# A bare `-ne 0` is satisfied by ANY non-zero exit, and Test-ExactSet runs
+# BEFORE Test-ManifestHashes -- so an exact-set regression would keep this
+# assertion green while the hash check it names never ran at all (T-001
+# Anthropic-panelist review, Minor: "the fixture is not proven to reject for
+# the hash reason it names"). Matched the same way TEST-002c/003b/003d/008c/
+# 008f/010b already match their diagnostics, and additionally required to
+# name the tampered target so the rejection is pinned to THIS file's hash.
+if ($result4.ExitCode -ne 0 -and
+    $result4.Output.Contains('staged payload hash mismatch for') -and
+    $result4.Output.Contains($corruptTarget)) {
+    Ok "TEST-004a: staged hash mismatch rejected by the per-target manifest hash check, naming the tampered target (exit $($result4.ExitCode))"
+} else {
+    Bad "TEST-004a: expected a 'staged payload hash mismatch for $corruptTarget' rejection, got exit $($result4.ExitCode). Output: $($result4.Output)"
+}
 if (Test-AllLiveFilesOriginal $root4) { Ok "TEST-004b: no copy occurred before rejection (all four live files unchanged)" } else { Bad "TEST-004b: at least one live file changed before hash-mismatch rejection" }
 
 # ===========================================================================

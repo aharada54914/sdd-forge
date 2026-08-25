@@ -115,11 +115,35 @@ if [ "${RULE_ID_COUNT}" -eq 6 ]; then
 else
   fail "TEST-009b: expected exactly 6 distinct keyword-rule IDs, found ${RULE_ID_COUNT}"
 fi
-if grep -qiE 'evaluate-predicate|predicate-dsl|registry[_-]match' "${SUT}"; then
+DSL_PATTERN='evaluate-predicate|predicate-dsl|registry[_-]match'
+if grep -qiE "${DSL_PATTERN}" "${SUT}"; then
   fail "TEST-009c: staged script must not call Predicate-DSL/Registry-matching logic of its own"
 else
   ok "TEST-009c: no Predicate-DSL/Registry-matching call found in the staged script"
 fi
+
+# TEST-009d: positive control for the TEST-009c detector (T-002
+# Anthropic-panelist review, Minor: "the red log shows TEST-009a/b/c passing
+# identically against the live, unextended script, so the check has no
+# discriminating power"). A *negative* assertion passes both before and after
+# the extension by design -- that is what "did not add a DSL call" means --
+# but it is only worth anything if the pattern would actually fire on a script
+# that does make the call. Splice one into a copy of the real SUT text and
+# require the same pattern, applied the same way, to detect it.
+#
+# Residual limitation, stated rather than papered over: this is name-based
+# detection, so a differently named helper would still evade it. AC-009's own
+# framing is a static review by grep (design.md Test Strategy item 5); what
+# TEST-009d buys is proof that the grep is live, not that it is complete.
+CONTROL_SUT="$(mktemp)"
+cat "${SUT}" > "${CONTROL_SUT}"
+printf '\n# planted control line: evaluate-predicate --registry ./r.json\n' >> "${CONTROL_SUT}"
+if grep -qiE "${DSL_PATTERN}" "${CONTROL_SUT}"; then
+  ok "TEST-009d: the TEST-009c detector fires on a copy of this same script with a Predicate-DSL call spliced in (the negative assertion is live, not vacuous)"
+else
+  fail "TEST-009d: the TEST-009c pattern failed to detect a planted Predicate-DSL call -- TEST-009c proves nothing"
+fi
+rm -f "${CONTROL_SUT}"
 
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed"
