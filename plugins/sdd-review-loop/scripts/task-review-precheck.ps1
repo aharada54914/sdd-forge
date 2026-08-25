@@ -203,8 +203,18 @@ function Require-Pass(
   # so -ProvenanceRereview granted no way past it). A sealed contract is evidence
   # about the past; validating it against the present is a category error. The
   # live-vs-pinned question belongs to check-workflow-state.ps1, which asks it
-  # deliberately and carries the amendment-record growth tolerance for exactly
-  # this file.
+  # deliberately.
+  #
+  # NOTE, true on this branch: check-workflow-state.{sh,ps1} here does NOT carry
+  # an amendment-record growth tolerance for this file -- it compares
+  # investigation.md reviewer-manifest pins by exact sha256, full stop. The
+  # tolerance is upstream commit 66a22b5a, which is deliberately NOT ported here
+  # (see 3bd9e5fd: it depends on the --opening machinery of 0732ec97 and on
+  # WFI-030's traceability helpers, neither of which is on this branch; grep
+  # finds zero occurrences of Test-StageIsBeingOpened in either twin). So an
+  # append-only growth of investigation.md still re-stales every stage that
+  # pinned it, and recovering costs that stage a full re-review. Do not read
+  # this block as a promise that growth is absorbed downstream.
   #
   # Same discipline as spec-review-precheck.ps1's Test-ValidateContract: every
   # reviewer that pinned the file must have pinned the SAME bytes (the unique set
