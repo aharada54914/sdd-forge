@@ -244,3 +244,86 @@ exactly as it would be without this entry.
   cited from inside itself and is pinned externally by the impl-review
   attempt-3 round-2 reviewer invocation manifests and the
   identity-ledger records their reservations append.
+
+### Spec/impl/task re-bind extension (2026-08-25): AC-009 propagated to its eleven sibling statements
+
+- Human rulings (verbatim, dated). Both were given in conversation, so this
+  committed entry is itself the durable record of them:
+  - 2026-08-25: 「① 8 箇所に波及させる（推奨）」 — authorizing propagation of
+    the AC-009 amendment to every sibling statement in the package that
+    still asserted the pre-amendment fact, and accepting the cost that
+    doing so re-stales the stages those documents are pinned by.
+  - 2026-08-25: 「② 記録し、コードは触らない（推奨）」 — directing that the
+    `done-transition` ordering defect confirmed by both cross-model
+    panelist slots be recorded rather than fixed, because the fix would
+    change `assert_terminal`'s body and re-baselining its hash to match
+    that edit is the retrofit this entry's own history already records.
+- Amendment commit (full hash):
+  `99c74ff78cc4ec0548028652d429aca66ebb2c32` — propagates the AC-009
+  amendment to the eleven statements that still described
+  `assert_terminal` as unmodified or byte-identical to its pre-task form:
+  four in tasks.md (T-005's Planned Files, Goal, Must Read, Done When),
+  five in design.md (the Components table, the Data Plan additive-field
+  paragraph, the `assert_capability_applicability` contract, the AC-009
+  restatement, the Constraint Compliance table), and two in
+  security-spec.md (the B2 boundary's own Validation column, and the Test
+  Strategy row for items 5 and 7). Each corrected statement now names
+  `assert_artifacts_schema` and `assert_terminal` separately and states
+  what is true of each, following the wording requirements.md's own
+  amended AC-009 already carried. As of this commit,
+  `specs/epic-195-a7-compatibility/design.md` =
+  `04a124d6d56298cc1b2ff63f2eacd21c75c615a781e220d0ad37513636fe9dfc`,
+  `specs/epic-195-a7-compatibility/security-spec.md` =
+  `4b31d724cd326ee89b87de867e0f857cf2b7ca69d794956ebb7ce4edc6ff8d31`, and
+  `specs/epic-195-a7-compatibility/tasks.md` =
+  `d3b3fdcd51449ad4ebb8a56010b6d8f5b33d718e9fdaa0286656e3051eca4f97`.
+- `specs/epic-195-a7-compatibility/security-spec.md` thereby joins the
+  amended-document set of this entry. It had not appeared in this entry
+  before this extension, which mattered: its two statements asserted the
+  falsified fact as a security control, and a document the amendment
+  changed being absent from this entry's tracked artifacts would by itself
+  have left the declaration incomplete.
+- Superseded fingerprints. Each is superseded by appending here and naming
+  what it replaces; no earlier block in this entry is rewritten, so this
+  extension deletes nothing:
+  - `design.md` = `3dacbe7afb64cd3f3420fd763ee6bf24ab5fff6bde8c44fd0e363f934cc40383`,
+    recorded above under "Impl-round-2 extension (2026-08-24)", is
+    superseded by `04a124d6d562...` as of `99c74ff78cc4ec0548028652d429aca66ebb2c32`.
+  - `tasks.md` = `80dba0cd7dea38fa6047a238acb6500048074a9cf5141fccff09cf0da444e3fd`,
+    recorded above under "Later-phase artifacts this package references",
+    is superseded by `d3b3fdcd5144...` as of the same commit.
+  - `traceability.md` = `d40e35c3a9c67c3b6a9ad604aebb89ecd172ca50d0141d4d9d0535c341708f5f`
+    is superseded by
+    `2bcd0a75250e235eca6fdf95f28a444d41e9e0898b1179b6dab9fdb2fee079e8`, and
+    `traceability.json` = `53293b9f82198dad9bba4c433e7d82af9f06d7fe8920526d1267063c8c21f9da`
+    is superseded by
+    `700abeeb7533e34652a43d3c5bc943292dfa403504d3f7702af2c915e7ad55bd`.
+    Both went stale in commit
+    `3bc2368ac037c598d760f8f704ac5edee315a62d` (the task-review attempt-5
+    round-2 PASS), before and independently of this session's amendment;
+    they are corrected here because this entry states them as present-tense
+    fingerprints, not because this amendment changed either file.
+- Still current, unchanged by this amendment and re-verified at this
+  commit: `tests/lib/loop-driver.sh` =
+  `8ae3cc282785a7f352c1d1a99ee2e98d67e0fdfb1577661a2a6de80007dc9789`,
+  `tests/lib/loop-driver.ps1` =
+  `b90c84bfffda9f31eae3cdb6ee146c1f9fd69782fe1a0c041de3bdddfee15fb9`,
+  `tests/loop-inventory.tests.sh` =
+  `ba8fca9efbb1854d30cac5766e0d0a1e2c981d40f70587aee5339a05347433b4`, and
+  `tests/loop-inventory.tests.ps1` =
+  `2b971e92e512c8c97dbb00e9c62a4a55093de42fc704274a22d26b2216e09a54`, together with the
+  `EXPECTED_TERMINAL_SHA` / `Test-LoopTerminal` function-body hashes those
+  two suites record.
+- Listed so it is visibly considered rather than silently missing from the
+  completion chain: commit
+  `6f1e093880ff3225827a55e1f5dc6f80188dcd73`, made in the same session
+  immediately before the propagation, amended no frozen Phase 1 document.
+  It changed implementation reports, verification contracts and recaptured
+  evidence logs, two test suites, and one plugin script. It is therefore
+  not an amendment commit of this entry's chain, and no document fingerprint
+  in this entry moved because of it.
+- This extension is itself a further amendment to investigation.md; as
+  stated above for this entry, its own post-amendment SHA-256 cannot be
+  cited from inside itself and is pinned externally by the spec, impl and
+  task re-review reviewer manifests taken against it and by the
+  identity-ledger records their reservations append.
