@@ -490,6 +490,87 @@ if (-not $result6g.Output.Contains('symlink/reparse-point ancestor')) {
 }
 
 # ===========================================================================
+# TEST-012: on a mid-batch failure the runner reports LIVE STATE -- which
+# targets are installed, which failed, and which were never attempted
+# (design.md Protected-File Statement point 5).
+#
+# Publishes are per-target and the batch is not transactional, so a failure
+# on the Nth target leaves 1..N-1 live. Before this, the runner named only
+# the FAILING target and `Fail` threw out of Copy-Payload, so
+# Test-PostCopyHashes never ran either: a partial application was left both
+# unenumerated and unverified -- the exact state the four-point contract
+# exists to prevent.
+#
+# The fixture reuses TEST-006g's TOCTOU seam, which corrupts declared target
+# #2 after Test-ManifestHashes. Target #1 therefore publishes and #2 fails,
+# which is a REAL partial install rather than a simulated one. The assertions
+# check the report against the filesystem, not against itself.
+# ===========================================================================
+Write-Host '=== TEST-012: mid-batch failure reports which targets are live ==='
+$installedTarget12 = $DeclaredTargets[0]
+$failedTarget12 = $toctouTarget6b
+$notAttempted12 = @($DeclaredTargets | Where-Object { $_ -ne $installedTarget12 -and $_ -ne $failedTarget12 })
+
+# (a) the already-published target is named as INSTALLED
+if ($result6g.Output -match "INSTALLED\s+$([regex]::Escape($installedTarget12))") {
+    Ok "TEST-012a: the target published before the failure is reported INSTALLED ($installedTarget12)"
+} else {
+    Bad "TEST-012a: expected 'INSTALLED $installedTarget12' in the failure output. Output: $($result6g.Output)"
+}
+
+# (b) the report matches the FILESYSTEM: the target it calls INSTALLED really
+# is live, and every target it calls NOT ATTEMPTED really is untouched. This
+# is what stops the report being a plausible-looking fiction.
+$installedNative12 = $installedTarget12 -replace '/', [IO.Path]::DirectorySeparatorChar
+$installedLive12 = Test-Path -LiteralPath (Join-Path $root6g $installedNative12) -PathType Leaf
+$installedContent12 = if ($installedLive12) { (Get-Content -LiteralPath (Join-Path $root6g $installedNative12) -Raw) } else { '' }
+$stagedContent12 = (Get-Content -LiteralPath (Join-Path $hc6g $installedNative12) -Raw)
+if ($installedLive12 -and $installedContent12 -eq $stagedContent12) {
+    Ok 'TEST-012b: the target reported INSTALLED genuinely holds the staged bytes on disk -- the report matches the filesystem'
+} else {
+    Bad 'TEST-012b: the target reported INSTALLED does not hold the staged bytes; the live-state report is not accurate'
+}
+
+# (c) every unattempted target is named as such, and none of them was touched
+$allNotAttemptedReported12 = $true
+foreach ($t in $notAttempted12) {
+    if ($result6g.Output -notmatch "NOT ATTEMPTED\s+$([regex]::Escape($t))") { $allNotAttemptedReported12 = $false }
+}
+if ($allNotAttemptedReported12 -and $notAttempted12.Count -gt 0) {
+    Ok "TEST-012c: all $($notAttempted12.Count) targets after the failure are reported NOT ATTEMPTED"
+} else {
+    Bad "TEST-012c: not every unattempted target was reported. Expected: $($notAttempted12 -join ', '). Output: $($result6g.Output)"
+}
+
+# (d) the failing target is distinguished from both other categories
+if ($result6g.Output -match "FAILED\s+$([regex]::Escape($failedTarget12))" -and
+    $result6g.Output -notmatch "INSTALLED\s+$([regex]::Escape($failedTarget12))") {
+    Ok 'TEST-012d: the failing target is reported FAILED and is not also claimed INSTALLED'
+} else {
+    Bad "TEST-012d: the failing target was not distinguished from the installed set. Output: $($result6g.Output)"
+}
+
+# (e) the operator is told the installed files are live and NOT rolled back --
+# the actionable half. Naming the files without saying they are still live
+# would leave the operator to infer the most important part.
+if ($result6g.Output.Contains('are LIVE and were not rolled back')) {
+    Ok 'TEST-012e: the report states the installed files are live and were not rolled back, and names re-running as the recovery'
+} else {
+    Bad "TEST-012e: the report does not tell the operator the installed files are still live. Output: $($result6g.Output)"
+}
+
+# (f) the contrary case: a failure BEFORE the copy phase must NOT print an
+# install report, and must say plainly that nothing was modified. Reuses
+# TEST-002's undeclared-fifth-path fixture, which fails in Test-ExactSet.
+$result12g = $result2
+if ($result12g.Output.Contains('no live file was modified') -and
+    $result12g.Output -notmatch 'INSTALLED\s+\S') {
+    Ok 'TEST-012f: a failure before the copy phase reports that no live file was modified, with no install enumeration'
+} else {
+    Bad "TEST-012f: pre-copy failure did not report a clean no-op live state. Output: $($result12g.Output)"
+}
+
+# ===========================================================================
 # TEST-007: feature-scoped resolution -- the runner reads targets/digests
 # from THIS feature's own human-copy prefix only, never the Epic-136
 # prefix.

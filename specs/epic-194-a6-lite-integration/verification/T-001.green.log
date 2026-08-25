@@ -1,4 +1,4 @@
-### recaptured 2026-08-25T11:12:46Z against HEAD dc621c839d315d276e9c455c8afa2b096b121e08 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### recaptured 2026-08-25T11:58:26Z against HEAD 4905c13143ca29e103d6b35130754f68cb83dc14 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
 ### human-copy-runner-contract.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 ==> pwsh /Users/jrmag/Projects/active/sdd-forge-wt-epic-194/tests/human-copy-runner-contract.tests.ps1
 ok: TEST-000a: fixture catalog schema is recognized
@@ -37,6 +37,13 @@ ok: TEST-006f: real CLI diagnostic names the corrupted installed target
 === TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
 ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
 ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
+=== TEST-012: mid-batch failure reports which targets are live ===
+ok: TEST-012a: the target published before the failure is reported INSTALLED (plugins/sdd-lite/references/risk-upgrade-policy.md)
+ok: TEST-012b: the target reported INSTALLED genuinely holds the staged bytes on disk -- the report matches the filesystem
+ok: TEST-012c: all 3 targets after the failure are reported NOT ATTEMPTED
+ok: TEST-012d: the failing target is reported FAILED and is not also claimed INSTALLED
+ok: TEST-012e: the report states the installed files are live and were not rolled back, and names re-running as the recovery
+ok: TEST-012f: a failure before the copy phase reports that no live file was modified, with no install enumeration
 === TEST-007: feature-scoped, not fixed-prefix, resolution ===
 ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
 === TEST-008: case-sensitive control names and digest grammar ===
@@ -64,7 +71,7 @@ ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not 
 ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
 ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
 
-Results: 50 passed, 0 failed
+Results: 56 passed, 0 failed
 ### human-copy-runner-contract.tests.ps1 (against canonical staged human-copy candidate, pending human-apply) ###
 ok: TEST-000a: fixture catalog schema is recognized
 ok: TEST-000b: fixture catalog covers every required runner scenario
@@ -102,6 +109,13 @@ ok: TEST-006f: real CLI diagnostic names the corrupted installed target
 === TEST-006g/h: content-integrity failure is not reported as a path-escape attempt ===
 ok: TEST-006g: a staged-content change between verification and copy is diagnosed as an integrity failure, naming the target
 ok: TEST-006h: that integrity failure is NOT reported to the operator as a symlink/reparse-point path-escape attempt
+=== TEST-012: mid-batch failure reports which targets are live ===
+ok: TEST-012a: the target published before the failure is reported INSTALLED (plugins/sdd-lite/references/risk-upgrade-policy.md)
+ok: TEST-012b: the target reported INSTALLED genuinely holds the staged bytes on disk -- the report matches the filesystem
+ok: TEST-012c: all 3 targets after the failure are reported NOT ATTEMPTED
+ok: TEST-012d: the failing target is reported FAILED and is not also claimed INSTALLED
+ok: TEST-012e: the report states the installed files are live and were not rolled back, and names re-running as the recovery
+ok: TEST-012f: a failure before the copy phase reports that no live file was modified, with no install enumeration
 === TEST-007: feature-scoped, not fixed-prefix, resolution ===
 ok: TEST-007: runner succeeds reading only its own feature-scoped prefix, ignoring an unrelated foreign prefix
 === TEST-008: case-sensitive control names and digest grammar ===
@@ -129,4 +143,4 @@ ok: TEST-011a: SourceMode reads the file mode through File.GetUnixFileMode, not 
 ok: TEST-011c: symlinkat is declared once and called zero times in the shipped runner -- inert on every production path, and mechanically re-checkable
 ok: TEST-011b: a non-default source mode (0741) is preserved byte-for-byte through the real CLI's own Unix publish path
 
-Results: 50 passed, 0 failed
+Results: 56 passed, 0 failed

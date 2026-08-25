@@ -1,4 +1,4 @@
-### recaptured 2026-08-25T11:12:46Z against HEAD dc621c839d315d276e9c455c8afa2b096b121e08 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### recaptured 2026-08-25T11:58:26Z against HEAD 4905c13143ca29e103d6b35130754f68cb83dc14 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
 ### lite-spec-capability-block.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 === TEST-019-static: proposed SKILL.md names every required element ===
 ok: TEST-019-static-a: names evaluate-predicate as the signal source

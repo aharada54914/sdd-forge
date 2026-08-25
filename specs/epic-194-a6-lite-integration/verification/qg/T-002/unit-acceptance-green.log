@@ -1,7 +1,7 @@
-Commands (cross-model remediation re-run against the current tree, 2026-08-25T11:10:33Z):
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T11:55:46Z):
   repository: /Users/jrmag/Projects/active/sdd-forge-wt-epic-194
   branch:     feature/epic-194-a6-lite-integration
-  HEAD:       dc621c839d315d276e9c455c8afa2b096b121e08
+  HEAD:       4905c13143ca29e103d6b35130754f68cb83dc14
   bash tests/check-risk-upgrade-byte-identical.tests.sh
   bash tests/check-risk-upgrade-capability-merge.tests.sh
   bash tests/check-risk-upgrade-fragment-fail-closed.tests.sh

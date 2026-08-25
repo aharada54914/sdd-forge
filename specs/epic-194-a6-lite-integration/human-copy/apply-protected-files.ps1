@@ -88,9 +88,63 @@ $Script:ControlFileRelativePaths = @(
     'apply-protected-files.ps1'
 )
 
+# Publish-state tracking for the failure path (design.md Protected-File
+# Statement point 5). Publishes are per-target and the batch is NOT
+# transactional, so a failure on the Nth target leaves 1..N-1 installed. Before
+# this, the runner exited naming ONLY the failing target: an operator had no
+# way to learn from the output which files were already live, and because
+# `Fail` throws out of Copy-Payload, Test-PostCopyHashes never ran either --
+# so a partial application was left both unenumerated and unverified. That is
+# the state the four-point contract exists to prevent.
+$Script:PublishedTargets = New-Object System.Collections.Generic.List[string]
+$Script:FailedTarget = $null
+$Script:CopyPhaseStarted = $false
+
 function Fail {
     param([Parameter(Mandatory)][string]$Message)
     throw "apply-protected-files(epic-194-a6): $Message"
+}
+
+# Emitted from the ENTRY-POINT catch rather than from Fail or from
+# Copy-Payload's own catch blocks. Why there:
+#   * NOT in `Fail` -- roughly twenty call sites reach Fail, and nearly all of
+#     them (Assert-AnchoredPath, Test-ExactSet, Test-ManifestHashes) fire
+#     BEFORE any copy is attempted. Reporting publish state from those would
+#     attach an install report to failures where nothing was installed.
+#   * NOT in Copy-Payload's three catch blocks -- it would have to be repeated
+#     in each, and it would still miss the case where Copy-Payload SUCCEEDS
+#     and Test-PostCopyHashes then fails, which is a fully-applied batch with
+#     a corrupt member: the operator needs the enumeration there too.
+#   * The entry-point catch sees every failure after the copy phase began, in
+#     one place, and `Fail` stays a pure thrower.
+function Write-PublishStateReport {
+    if (-not $Script:CopyPhaseStarted) {
+        [Console]::Error.WriteLine('apply-protected-files(epic-194-a6): live state: no live file was modified (failure occurred before the copy phase began).')
+        return
+    }
+    $published = @($Script:PublishedTargets)
+    $failed = $Script:FailedTarget
+    $notAttempted = @($Script:DeclaredTargets | Where-Object {
+        $_ -notin $published -and $_ -ne $failed
+    })
+
+    [Console]::Error.WriteLine('apply-protected-files(epic-194-a6): live state after this partial run --')
+    if ($published.Count -gt 0) {
+        foreach ($t in $published) {
+            [Console]::Error.WriteLine("  INSTALLED     $t")
+        }
+    } else {
+        [Console]::Error.WriteLine('  INSTALLED     (none)')
+    }
+    if ($null -ne $failed) {
+        [Console]::Error.WriteLine("  FAILED        $failed")
+    }
+    foreach ($t in $notAttempted) {
+        [Console]::Error.WriteLine("  NOT ATTEMPTED $t")
+    }
+    if ($published.Count -gt 0) {
+        [Console]::Error.WriteLine('apply-protected-files(epic-194-a6): the INSTALLED files above are LIVE and were not rolled back; each was published atomically and its published digest verified. Re-run this runner after fixing the cause -- re-applying an already-correct target is a no-op.')
+    }
 }
 
 function Get-PathStringComparison {
@@ -587,11 +641,19 @@ function Test-ManifestHashes {
 function Copy-Payload {
     param([string]$RepoRoot, [string]$HumanCopyRoot, [string[]]$Targets, $ManifestDigests = $null)
     Initialize-NativePublisher
+    # From here on a partial application is possible, so the entry-point catch
+    # must report live state (point 5).
+    $Script:CopyPhaseStarted = $true
     foreach ($target in $Targets) {
         try {
             $expected = if ($null -eq $ManifestDigests) { Get-Sha256Hex (Join-Path $HumanCopyRoot ($target -replace '/', [IO.Path]::DirectorySeparatorChar)) } else { [string]$ManifestDigests[$target] }
             [A6AnchoredPublisher]::CopyOne($RepoRoot, "$($Script:HumanCopyPrefix)/$target", $target, $expected, [bool]$IsMacOS)
+            # Recorded only after CopyOne returns. CopyOne verifies the
+            # published digest itself before returning, so membership of this
+            # list means "live and verified", not merely "rename issued".
+            $Script:PublishedTargets.Add($target)
         } catch [System.IO.InvalidDataException] {
+            $Script:FailedTarget = $target
             # Content-integrity and path-shape failures: a staged file that
             # changed between pre-copy verification and the copy, a temporary
             # or published digest mismatch, a malformed expected digest, or a
@@ -612,11 +674,13 @@ function Copy-Payload {
             # failures from ThrowUnix (which includes ENOSPC and friends).
             # TEST-009e matches on 'symlink/reparse-point ancestor', so this
             # branch keeps that wording verbatim.
+            $Script:FailedTarget = $target
             Fail "secure handle-relative publish rejected $target (symlink/reparse-point ancestor or unsafe leaf): $($_.Exception.Message)"
         } catch {
             # Anything else -- e.g. EntryPointNotFoundException for a missing
             # libc entry point on an unexpected platform. Diagnosed as what it
             # is (unclassified) rather than as a path-escape attempt.
+            $Script:FailedTarget = $target
             Fail "publish failed for $target (unclassified error; neither a content-integrity nor a path-safety rejection): $($_.Exception.Message)"
         }
     }
@@ -665,6 +729,10 @@ if ($MyInvocation.InvocationName -ne '.') {
         Invoke-ApplyProtectedFiles $RepositoryRoot
     } catch {
         [Console]::Error.WriteLine($_.Exception.Message)
+        # Live state BEFORE the stack trace: the operator's first question
+        # after a failed protected-file application is "what is live now?",
+        # and burying that under a PowerShell trace answers it last.
+        Write-PublishStateReport
         if ($_.ScriptStackTrace) { [Console]::Error.WriteLine($_.ScriptStackTrace) }
         exit 2
     }

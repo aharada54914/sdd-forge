@@ -121,6 +121,16 @@ registration commit, not by an automated test suite:
   Pending`, no `Approved`/`Passed` written anywhere): verified by direct
   inspection of `requirements.md`'s and `design.md`'s own header lines at
   commit time.
+  > Dated qualifier (2026-08-25): the parenthetical above records the header
+  > state **at this package's own authoring commit** and is retained as that
+  > historical record, not as a current claim. All three headers have since
+  > reached `Passed` through the review lane — `requirements.md`
+  > `Spec-Review-Status: Passed`, `design.md` `Impl-Review-Status: Passed`,
+  > `tasks.md` `Task-Review-Status: Passed` — which is the intended outcome
+  > of those gates, not a violation of AC-024. Added because a cross-model
+  > slot read the parenthetical as a live assertion and reported it as
+  > contradicted by the bundled headers (T-001 OpenAI slot, Minor). No
+  > acceptance criterion is changed by this note.
 - **AC-025** (`check-sdd-structure.sh .` and `check-workflow-state.sh`
   both exit `0` post-registration): verified by running both commands
   from the repository root after the registration commit lands — no

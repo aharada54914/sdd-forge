@@ -298,6 +298,35 @@ This runner's own required contract:
    `Invoke-PostInstallVerification`, `apply-protected-files.ps1:598-641`)
    — never a bare `cp` with no confirmation the bytes actually landed
    correctly.
+5. **Per-target publish, no cross-target transaction, and live-state
+   reporting on failure** (added 2026-08-25; human ruling on the T-001
+   cross-model panel's cross-target-atomicity finding) — targets are
+   published one at a time. Each individual publish is atomic (a temporary
+   file in the destination directory, `fsync`'d, digest-checked, then
+   `renameat`'d into place) and each has its own published digest verified
+   inside the publish step itself, before the next target is attempted. The
+   **batch**, however, is not transactional and there is no rollback: a
+   failure on the Nth target leaves targets 1..N-1 installed and N+1.. never
+   attempted. The runner must therefore, on any failure after the copy phase
+   has begun, **report live state before it exits** — enumerating which
+   targets are installed, which one failed, and which were not attempted,
+   and stating that the installed files are live and were not rolled back.
+   Recovery is re-running the runner after fixing the cause; re-applying an
+   already-correct target is a no-op. A failure *before* the copy phase
+   begins reports instead that no live file was modified.
+
+   This point also fixes the scope of point 4, which reads as though the
+   only post-copy verification is the batch-wide pass. There are two, and
+   the per-target one is the load-bearing one: `CopyOne` re-opens each
+   just-renamed file and re-compares its digest before returning, so a
+   target that appears in the INSTALLED enumeration is live *and verified*.
+   Point 4's pass is a second, batch-wide re-read that runs only after every
+   target has been published — it is defence-in-depth against corruption
+   occurring between targets, and it does not run at all on the failure
+   path. Requiring a third, separate per-target pass was considered and
+   rejected: it would duplicate `CopyOne`'s own published-digest check
+   without adding a property, and the real gap this point closes was the
+   absence of any *report*, not the absence of verification.
 
 A future implementation task authors and has this runner security-
 reviewed before this feature's own human-copy batch is ever applied —
