@@ -1246,6 +1246,117 @@ it names; each item below names what replaced it, and when.
   only" fixed-point handling in this document's closing paragraph; that
   handling is withdrawn as unnecessary and is not used.
 
+### Amendment record extension, second entry (appended 2026-08-25): design.md's Deployment / CI Plan
+
+Appended below the previous extension rather than woven into it, for the
+same reason that one was appended below the record above it: the bytes
+above this heading are pinned by rounds that have already run —
+spec-review attempt 3 round 1 pins this document at
+`fe78fa618a206fb9173a91aa0e874175407ebaba3424e8385bb267d020b46b85`
+(contract commit `e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9`), and impl
+re-review attempt 2 round 1 pins it at
+`929d112f3f33705c1458cfbd5f67bfa005878673c0807dd5a89c5c9f44830012`
+(contract commit `7a84303f521a9a7b1749b4a43bc9ce5aa2bf49ad`). Nothing
+above is edited. Fingerprints this entry supersedes are listed at the end
+of this subsection, with the earlier values left where they are.
+
+**What this entry records, and what it deliberately does not.** impl
+re-review attempt 2 round 1 returned NEEDS_WORK on two Major findings
+raised by `impl-reviewer-b` (run
+`RUN-epic-194-a6-impl-review-a2-r1-reviewer-b-seq774`, persisted at
+`reports/impl-review/epic-194-a6-lite-integration/attempt-2/round-1/reviewer-b.json`).
+This entry executes the disposition of the second finding only. The first
+(`ASSUMPTIONS-VALID` — INV-013's "no `contracts/*.schema.json` artifact
+exists anywhere yet, every epic is still Phase 1" premise) was
+independently re-verified as **true**: the premise is stale and has been
+for roughly a month. How far that correction reaches is a human decision
+still outstanding, and nothing in this entry touches INV-013 or any
+statement resting on it.
+
+**`DEPLOYMENT-CONCRETE`, closed 2026-08-25.** The 2026-08-25 ruling quoted
+above directed that the CI-workflow claim be scoped wherever it appears in
+this package. The first pass applied it to `security-spec.md` and
+`infra-spec.md` and missed design.md's own `## Deployment / CI Plan`,
+which carried the same unqualified "this design does not itself edit that
+file" wording and named no CI deliverable at all — a site inside a
+document the ruling had already named first. Completing that ruling rather
+than extending it, this entry's own commit adds a `**CI workflow, scoped
+(2026-08-25 ruling).**` paragraph to that section, in the same form the
+two layer specs already use: this feature's own commits leave the live
+`.github/workflows/test.yml` byte-unchanged, permanently, because the path
+is R-10 protected (`guard-invariants.json` `protected_gate_suffixes`) and
+only a human applies the staged batch; and, separately, the feature's
+declared deliverables include a staged append to that same workflow as the
+fifth member of the five-target declared payload set, installed by the
+feature-scoped anchored runner. The section's two existing bullets are
+untouched, and its "no new CI job" statement is explicitly preserved and
+reaffirmed — appending steps to the existing job creates no new job and no
+new matrix dimension.
+
+**The sweep was done before the write, and is recorded here.** This
+finding was itself a left-behind sibling of an amendment whose entire
+purpose was to close a left-behind sibling. So rather than patching the
+one site the reviewer named, every statement of the fact was first
+enumerated across the package:
+
+- `design.md:1095-1098` (`## Deployment / CI Plan`) — the one remaining
+  unqualified site anywhere in the package. Amended by this entry; the
+  scoping paragraph now stands at `design.md:1100-1116`.
+- `security-spec.md:83-85` (Authentication actor list), scoped by its own
+  `**CI workflow, scoped (2026-08-25 ruling).**` paragraph at `:87-101`.
+  Already correct; unchanged here.
+- `infra-spec.md:26` (flowchart CI node), `:46` (sequence-diagram
+  participant), `:53-59` (the no-new-CI-job paragraph), `:87`
+  (provisioning row) and `:152` (cost row), all scoped by its own
+  paragraph at `:61-80`. Already correct; unchanged here.
+- `requirements.md:690-695` (Non-goals, second bullet) — states the
+  `.github/**` boundary as "in this Phase 1 commit (this task's own
+  explicit boundary)" and says every script/skill edit REQ-002/REQ-004/
+  REQ-005 names is a design applied by a future implementation task. That
+  is already the scoped form, so it is deliberately **not** amended;
+  design.md's `(Non-goals)` citation at `:1098` therefore points at text
+  that never made the unqualified claim.
+- `traceability.md:25` (Infrastructure row) and `:144-147` (the T-001
+  through T-004 output cells) — these already state the staged `test.yml`
+  append positively, as a declared output of all four tasks. They are the
+  documents whose disagreement with the layer specs raised the blocker in
+  the first place. Unchanged.
+- `tasks.md` (Protected Files item 3, and every per-task Outputs cell) and
+  `README.md` (payload table and its "Why `.github/workflows/test.yml` is
+  a declared payload target" section) — every reference names the staged
+  candidate under `human-copy/`, never asserting the live file is
+  untouched. Unchanged.
+- Two design.md phrases that match the same keywords but state different
+  facts, checked and left alone: `:146` ("unmodified by this feature")
+  describes `contracts/capability-summary.schema.json`, and `:1092`
+  ("re-runs, unmodified in its own logic") describes
+  `generate-gate-capabilities.py`. Neither is a claim about `test.yml`.
+
+No other unqualified statement of the fact exists in the package.
+
+#### Fingerprints and statements this second entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded above as
+  `43d486353958d1b344774dfd0604461dc667c8eb5fd1ec84df313773a3090c3c` as of
+  commit `8e736b82aff9ca7f6fbf925355bc7ac263c41665`, is superseded by
+  `537ad9b37a8c037e3336cd341bc1d3cf92856546c1c3d8110a6b51e4be9b53d1` as of
+  this entry's own commit. The earlier value stays where it is and remains
+  true of the commit it names; it is additionally the exact value impl
+  re-review attempt 2 round 1's two reviewers read
+  (`reports/impl-review/epic-194-a6-lite-integration/attempt-2/round-1/impl-review-contract.json`,
+  `design_sha256`), so it is the pin that contract keeps and must keep.
+- This document's own bytes as pinned by impl re-review attempt 2 round 1
+  (`929d112f3f33705c1458cfbd5f67bfa005878673c0807dd5a89c5c9f44830012`) are
+  superseded by the revision this entry's own commit produces. As before,
+  a document cannot embed its own post-amendment hash; that revision is
+  pinned by the next impl re-review round's invocation manifests. No prior
+  contract is restaged or re-validated against the amended bytes — each
+  keeps pinning what it reviewed, and the workflow-state gate reconciles
+  the difference only because this entry, like the one above it, is pure
+  growth at this section's tail
+  (`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`,
+  `investigation_growth_only_change`).
+
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
 Recorded 2026-08-23, in this document's amendment-context era (see

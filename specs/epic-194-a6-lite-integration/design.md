@@ -1097,6 +1097,24 @@ this repository (Registry, Capability Summary, `sdd-lite` scripts/skills).
   same way every sibling epic's own new test pairs already are — this
   design does not itself edit that file (Non-goals).
 
+**CI workflow, scoped (2026-08-25 ruling).** "This design does not itself
+edit that file", above, means this feature's own commits leave the live
+`.github/workflows/test.yml` byte-unchanged — permanently, not
+incidentally, because that path is R-10 protected
+(`guard-invariants.json` `protected_gate_suffixes`), so no agent can
+write it. Separately, the feature's declared deliverables include a
+staged append to that same workflow: it is the fifth member of the
+five-target declared payload set (requirements.md AC-010/AC-031;
+Protected-File Statement and Components table, above), staged under
+`specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml`
+by T-001..T-004 and installed only by a human running the feature-scoped
+anchored runner (security-spec.md B5; infra-spec.md CI/CD Sequence). The
+two statements answer different questions — what this feature's commits
+write, versus what it declares for human application — and neither is a
+reversal of the other. The "no new CI job" statement above is unaffected:
+the staged append adds steps to the existing job, not a new job or matrix
+dimension.
+
 ## Constraint Compliance
 
 - **1ファイル500行以内**: not applicable in the sense that governs source
