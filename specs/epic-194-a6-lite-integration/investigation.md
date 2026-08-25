@@ -722,6 +722,115 @@ completion chain below).
   fifth-target requirement statement with the AC-010/AC-031 trace
   citations), remediating attempt 2 round 3's ASSUMPTIONS-RESOLVABLE /
   DOWNSTREAM-READINESS findings (2026-08-23).
+
+### Amended-document fingerprints (SHA-256, as of each amendment commit)
+
+As of `9997091c71244e8cf3f9e46732f7ba164aa49843`:
+
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `691db158e25045959809f32d67e1132974163cb72ef6729806427b3c193180f5`
+
+As of `fae561c9d323cf32914f6885cb6f3d24053bd9af`:
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `580cce4d0f10ccf11667f90fd9d0286ab9b735fc257379bbc051d5ea6e7a4be5`
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b`
+
+As of `c362d3f508792c6415fc6308c4143f6c5883808f`:
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `fbcca3c04b1f66374cb7e03483c64a47dd9a32749b80f61ba8231272405df5f6`
+- `specs/epic-194-a6-lite-integration/investigation.md`:
+  `e82a6cd6fa5aad1a4da058d67e84f06daaa38eea18c10d980d6008009e8db593`
+
+As of `f577a3615ce79db3bd04cacdba23ea51df0add20`:
+
+- `specs/epic-194-a6-lite-integration/requirements.md`:
+  `fafd348b2bdb0b58456a8016324bd363a690cbe36032a440fd0a3e66aa78b179`
+- `specs/epic-194-a6-lite-integration/investigation.md`:
+  `92e46294fbf98f13ff6be1195cd92f6d636c96a3a1b4429b4ee9e9d41688c077`
+
+This `investigation.md` is itself amended by the commits that introduce and
+extend this section; a document cannot embed its own post-amendment hash, so
+each such revision's fingerprint is pinned instead by the reviewer
+invocation manifests and evidence commits of the spec-review round that
+reviewed it (attempt 2 round 3 for the first revision; the current round's
+manifests for this one).
+
+### Human approval (verbatim, dated)
+
+- 2026-08-23: 「194/195/196の凍結文書について人間は承認する」
+- 2026-08-23: 「限定デプロイ + WFI 起票でやれ」 (authorizing limited
+  deployment of this amendment re-review lane for epic-194 and epic-195,
+  plus a workflow-improvement filing for the durable mechanism)
+
+These approvals were given in conversation; this entry, committed into the
+hash-pinned package under review and pinned by the round-3 reviewer
+invocation manifests, is itself the durable, citable approval record.
+
+### Later-phase artifacts referenced by this package (commit / SHA-256)
+
+Referenced by the amended AC-010 row and TEST-031 row
+(acceptance-tests.md), the AC-010/AC-031 rows and the Overview's dated note
+(requirements.md):
+
+- `specs/epic-194-a6-lite-integration/tasks.md` — SHA-256
+  `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+  last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`. Its
+  Protected Files item 3 is the text whose fifth staged target AC-010's
+  five-target widening admits into the declared payload set.
+- `specs/epic-194-a6-lite-integration/traceability.md` — SHA-256
+  `0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e`,
+  last amended in commit `522a1ccab0cdc08e4094e12a2a84b156caf0dc7f`.
+- `specs/epic-194-a6-lite-integration/traceability.json` — SHA-256
+  `9f292087e4e2466c8e8ee3530a91af96698be1a4408c1f703e6ccf4d37208b84`,
+  last amended in commit `859209955dcf1f99d4be0305f3dea317577b8006`.
+- The T-001 cross-model verdicts (2026-08-21), the panel evidence the
+  amended AC-010 row cites:
+  - `specs/epic-194-a6-lite-integration/verification/T-001.panelist-anthropic.verdict.json`
+    — SHA-256
+    `18471b6023754934a8f1b371c78f7fe222a3b27b4fee298ce122bdd2294f0da7`,
+    last amended in commit `89a0700d42e8badf348f8d9322417ff0044c8043`.
+  - `specs/epic-194-a6-lite-integration/verification/T-001.panelist-openai.verdict.json`
+    — SHA-256
+    `37d15b1811698a4f3639fac438fb9ab18beec2615d6b1265ddcbd92e29cfb9aa`,
+    last amended in commit `2461da5d08a6cb90d36e338dc5291d89ff217dda`.
+
+Every fingerprint above is of the committed state at authoring time
+(`git show <commit>:<path>` hashed with SHA-256), never of uncommitted
+working-tree bytes.
+
+### Amendment record extension (appended 2026-08-25): the 2026-08-24/25 design and layer-spec lane
+
+Everything above this heading is the Amendment Re-Review Context exactly as
+the spec-review attempt-3 round-1 reviewer manifests pinned it —
+`specs/epic-194-a6-lite-integration/investigation.md` = SHA-256
+`fe78fa618a206fb9173a91aa0e874175407ebaba3424e8385bb267d020b46b85`, the
+committed state at contract commit
+`e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9` — and is left byte-identical, as
+is INV-022 below this subsection. This lane records its own additions here,
+appended below that reviewed text, rather than woven into it: a reviewed
+record is extended, never rewritten. Where a fingerprint or a statement
+above is superseded, the earlier text stays exactly where the reviewed
+record put it — still true of the commit it names — and the superseding
+value is recorded under "Fingerprints and statements above that this lane
+supersedes" at the end of this subsection.
+
+That is a shape requirement, not only an editorial preference. The
+workflow-state gate reconciles an upstream stage's stale
+`investigation.md` pin only when the live file's sole difference from the
+pinned bytes is pure, contiguous growth confined to this section, with the
+pinned section an exact prefix of the live one and everything outside it
+byte-identical
+(`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`,
+`investigation_growth_only_change`). An entry spliced above pre-existing
+text in this section, or a fingerprint replaced in place, fails that test
+even at zero net deletions. The first form of this lane's record did both;
+this subsection is the same record in the additive form.
+
+#### Completion-chain entries added by this lane
+
 - `f8cfd7a1febd54ff805cd05f2a7490bac6c62a3a` — mechanically annotated
   design.md's existing passages with AC-ID labels for seven of the eleven
   IDs the impl-review AC-coverage precheck names (AC-001/003/009/012/014/
@@ -742,15 +851,24 @@ completion chain below).
   the second 2026-08-24 ruling quoted below (2026-08-24).
 - `c917556d0ebd29d4789ffb859f96cc432c567a49` — propagated the same count into
   tasks.md (six payload-set counts, plus the extraneous-path negative
-  check that had to move from "fifth" to "sixth"), updated tasks.md's
-  SHA-256 pin in both places this document carries it, and recorded the
+  check that had to move from "fifth" to "sixth"), and recorded the
   `security-spec.md`/`infra-spec.md` blocker rather than resolving it
-  (2026-08-24).
-- This entry's own commit — scoped the CI-workflow claim in
-  `security-spec.md` and `infra-spec.md` and propagated the payload count
-  into both, per the 2026-08-25 ruling quoted below; its own commit hash
-  cannot be embedded in itself and is pinned by the impl re-review round's
-  manifests (2026-08-25).
+  (2026-08-24). The superseding `tasks.md` fingerprint it produced is
+  recorded under "Fingerprints and statements above that this lane
+  supersedes" at the end of this subsection, not by editing the two
+  places above and below that pin the earlier value.
+- `23fe659f57685c5e7dde304035ce8887658d86bc` — scoped the CI-workflow
+  claim in `security-spec.md` and `infra-spec.md` and propagated the
+  payload count into both, per the 2026-08-25 ruling quoted below
+  (2026-08-25).
+- This entry's own commit — appended this subsection, and changed no
+  document other than this one. It restructures the 2026-08-24/25 record
+  from edits made in place inside the already-reviewed text above into
+  this strictly additive extension below it, carrying every statement
+  forward unchanged in substance; the pinned text above is restored
+  byte-identical to what spec-review attempt 3 round 1 reviewed. Its own
+  commit hash cannot be embedded in itself and is pinned by the impl
+  re-review round's manifests (2026-08-25).
   1. **AC-010 — annotated; the earlier "does not contain" reason
      retracted.** design.md's Protected-File Statement already carried
      that criterion's entire design-content clause before this commit: it
@@ -820,7 +938,8 @@ completion chain below).
      declared" rather than falsified. A cross-reference for (b)/(c) was
      added so the surviving fours cannot be misread as unpropagated
      siblings.
-     **`tasks.md`, propagated in this entry's own commit (2026-08-24
+     **`tasks.md`, propagated in commit
+     `c917556d0ebd29d4789ffb859f96cc432c567a49` (2026-08-24
      ruling).** Six payload-set counts moved to five: the T-001 fixture
      root's "correct five-target payload", the runner contract's declared
      payload list (now enumerating `.github/workflows/test.yml`), the
@@ -831,13 +950,16 @@ completion chain below).
      substitution: the extraneous-path negative check read "a payload file
      set with an undeclared **fifth** path is rejected", which the
      five-target set makes describe a legitimate member — it now reads
-     "undeclared **sixth** path". `tasks.md`'s SHA-256 pin is updated in
-     this same commit at both places this document pins it — the
-     later-phase artifact block and INV-022's inline citation — each
-     retaining the superseded fingerprint
-     `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`
-     alongside the new one, so no pin is left behind and the prior state
-     stays auditable. No `Status:` line was touched.
+     "undeclared **sixth** path". The two places this document pins
+     `tasks.md`'s SHA-256 — the later-phase artifact block above and
+     INV-022's inline citation below — are deliberately left carrying the
+     pre-propagation fingerprint
+     `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+     which remains true of the commit each names; the superseding value is
+     recorded under "Fingerprints and statements above that this lane
+     supersedes" at the end of this subsection, so no pin is left behind
+     and the prior state stays auditable without any already-reviewed line
+     being rewritten. No `Status:` line was touched.
      **Seven `tasks.md` sites deliberately left at four**, each checked
      against its own predicate: Protected Files item 1 ("Human-copy path
      (four files, R-10 protected today)") enumerates only the four
@@ -978,33 +1100,13 @@ completion chain below).
      predecessor contract for the next round-opening, which is exactly
      why every amendment in this lane is made in a single commit.
 
-### Amended-document fingerprints (SHA-256, as of each amendment commit)
+#### Amended-document fingerprints added by this lane
 
-As of `9997091c71244e8cf3f9e46732f7ba164aa49843`:
-
-- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
-  `691db158e25045959809f32d67e1132974163cb72ef6729806427b3c193180f5`
-
-As of `fae561c9d323cf32914f6885cb6f3d24053bd9af`:
-
-- `specs/epic-194-a6-lite-integration/requirements.md`:
-  `580cce4d0f10ccf11667f90fd9d0286ab9b735fc257379bbc051d5ea6e7a4be5`
-- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
-  `d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b`
-
-As of `c362d3f508792c6415fc6308c4143f6c5883808f`:
-
-- `specs/epic-194-a6-lite-integration/requirements.md`:
-  `fbcca3c04b1f66374cb7e03483c64a47dd9a32749b80f61ba8231272405df5f6`
-- `specs/epic-194-a6-lite-integration/investigation.md`:
-  `e82a6cd6fa5aad1a4da058d67e84f06daaa38eea18c10d980d6008009e8db593`
-
-As of `f577a3615ce79db3bd04cacdba23ea51df0add20`:
-
-- `specs/epic-194-a6-lite-integration/requirements.md`:
-  `fafd348b2bdb0b58456a8016324bd363a690cbe36032a440fd0a3e66aa78b179`
-- `specs/epic-194-a6-lite-integration/investigation.md`:
-  `92e46294fbf98f13ff6be1195cd92f6d636c96a3a1b4429b4ee9e9d41688c077`
+These extend the "Amended-document fingerprints" subsection above; they are
+recorded here rather than inserted into it. The same rule stated there
+applies: every fingerprint is of the committed state at authoring time
+(`git show <commit>:<path>` hashed with SHA-256), never of uncommitted
+working-tree bytes.
 
 As of `e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9` — the spec-review
 attempt-3 round-1 evidence commit that validated the completion chain
@@ -1042,34 +1144,22 @@ tasks.md, 2026-08-24):
 - `specs/epic-194-a6-lite-integration/tasks.md`:
   `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`
 
-As of this entry's own commit (the layer-spec CI-workflow scoping and
-payload-count propagation, 2026-08-25; its own commit hash cannot be
-embedded in itself and is pinned by the impl re-review round's manifests,
-the same self-pinning handling the closing paragraph of this subsection
-states):
+As of `23fe659f57685c5e7dde304035ce8887658d86bc` (the layer-spec
+CI-workflow scoping and payload-count propagation, 2026-08-25):
 
 - `specs/epic-194-a6-lite-integration/security-spec.md`:
   `7aee7ea715e9abe36a9bbc3ee8cd3368d3b38a12595830022a03775bf2d3f88d`
 - `specs/epic-194-a6-lite-integration/infra-spec.md`:
   `245e19aa940e95118502671eb4b6ce16799e72a02115e43f36161c83e763991e`
 
-This `investigation.md` is itself amended by the commits that introduce and
-extend this section; a document cannot embed its own post-amendment hash, so
-each such revision's fingerprint is pinned instead by the reviewer
-invocation manifests and evidence commits of the review round that
-reviewed it (attempt 2 round 3 for the first revision; spec-review
-attempt 3 round 1 for the `fe78fa61` revision; the impl re-review round's
-manifests for this one — with the disclosed fixed-point handling: prior
-contracts validate against the bytes they reviewed, restored temporarily
-for that validation only, and the new round's manifests pin the amended
-bytes).
+#### Human approval (verbatim, dated) — rulings added by this lane
 
-### Human approval (verbatim, dated)
+These extend the "Human approval (verbatim, dated)" list above, on the same
+terms stated there: the approvals were given in conversation, and this
+entry, committed into the hash-pinned package under review and pinned by the
+impl re-review round's invocation manifests, is itself the durable, citable
+approval record.
 
-- 2026-08-23: 「194/195/196の凍結文書について人間は承認する」
-- 2026-08-23: 「限定デプロイ + WFI 起票でやれ」 (authorizing limited
-  deployment of this amendment re-review lane for epic-194 and epic-195,
-  plus a workflow-improvement filing for the durable mechanism)
 - 2026-08-24: 「①でやれ」 (option ① as presented: mechanically annotate
   design.md's existing passages with the AC-ID labels the post-freeze
   impl-review AC-coverage gate requires, substance unchanged, honesty of
@@ -1107,44 +1197,54 @@ bytes).
   naming the staged append and its human-apply path. This is the ruling
   the final paragraphs of item 2 above execute.
 
-These approvals were given in conversation; this entry, committed into the
-hash-pinned package under review and pinned by the round-3 reviewer
-invocation manifests, is itself the durable, citable approval record.
+#### Fingerprints and statements above that this lane supersedes
 
-### Later-phase artifacts referenced by this package (commit / SHA-256)
+Recorded here rather than by editing the text they supersede. Each earlier
+value stays where the reviewed record put it and remains true of the commit
+it names; each item below names what replaced it, and when.
 
-Referenced by the amended AC-010 row and TEST-031 row
-(acceptance-tests.md), the AC-010/AC-031 rows and the Overview's dated note
-(requirements.md):
-
-- `specs/epic-194-a6-lite-integration/tasks.md` — SHA-256
-  `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`,
-  last amended in this entry's own commit (the payload-count propagation
-  described in item 2 above). Its Protected Files item 3 is the text whose
-  fifth staged target AC-010's five-target widening admits into the
-  declared payload set. Its previous fingerprint, pinned here until that
-  commit, was `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
-  last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`.
-- `specs/epic-194-a6-lite-integration/traceability.md` — SHA-256
-  `0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e`,
-  last amended in commit `522a1ccab0cdc08e4094e12a2a84b156caf0dc7f`.
-- `specs/epic-194-a6-lite-integration/traceability.json` — SHA-256
-  `9f292087e4e2466c8e8ee3530a91af96698be1a4408c1f703e6ccf4d37208b84`,
-  last amended in commit `859209955dcf1f99d4be0305f3dea317577b8006`.
-- The T-001 cross-model verdicts (2026-08-21), the panel evidence the
-  amended AC-010 row cites:
-  - `specs/epic-194-a6-lite-integration/verification/T-001.panelist-anthropic.verdict.json`
-    — SHA-256
-    `18471b6023754934a8f1b371c78f7fe222a3b27b4fee298ce122bdd2294f0da7`,
-    last amended in commit `89a0700d42e8badf348f8d9322417ff0044c8043`.
-  - `specs/epic-194-a6-lite-integration/verification/T-001.panelist-openai.verdict.json`
-    — SHA-256
-    `37d15b1811698a4f3639fac438fb9ab18beec2615d6b1265ddcbd92e29cfb9aa`,
-    last amended in commit `2461da5d08a6cb90d36e338dc5291d89ff217dda`.
-
-Every fingerprint above is of the committed state at authoring time
-(`git show <commit>:<path>` hashed with SHA-256), never of uncommitted
-working-tree bytes.
+- `specs/epic-194-a6-lite-integration/tasks.md`, pinned in "Later-phase
+  artifacts referenced by this package" above at
+  `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`
+  (last amended, as of that pin, in commit
+  `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`), is superseded by
+  `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`, last
+  amended in commit `c917556d0ebd29d4789ffb859f96cc432c567a49` — the
+  payload-count propagation described in item 2 above. The claim that
+  bullet attaches to the earlier fingerprint — that tasks.md's Protected
+  Files item 3 is the text whose fifth staged target AC-010's five-target
+  widening admits into the declared payload set — is unaffected by the
+  supersession and remains true of the superseding revision.
+- INV-022's inline `tasks.md` citation, in the section below this one,
+  pins the same earlier
+  `b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`
+  value and is superseded by the same
+  `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`
+  value and the same commit. INV-022's own finding is unaffected: the
+  Protected Files item 3 text it quotes (`tasks.md:68`,
+  "`.github/workflows/test.yml` (R-10 protected)") is present in both
+  revisions, and the finding is about the pre-widening four-target cap,
+  which the superseding revision is precisely what lifted.
+- The closing paragraph of "Amended-document fingerprints" above states
+  that this document's own post-amendment fingerprint is pinned by "the
+  reviewer invocation manifests and evidence commits of the spec-review
+  round that reviewed it (attempt 2 round 3 for the first revision; the
+  current round's manifests for this one)". That stands as written for the
+  two revisions it names — "the current round" there being spec-review
+  attempt 3 round 1, whose contract commit
+  `e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9` pins the `fe78fa61…`
+  revision. It is extended, not corrected, for the revisions this lane
+  adds: the revision this commit produces is pinned by the impl re-review
+  round's invocation manifests, and the task-review round's manifests pin
+  whatever revision they in turn read.
+- No earlier contract is restaged, re-validated against amended bytes, or
+  temporarily reverted to make it validate. Each prior contract keeps
+  pinning the bytes it actually reviewed; the workflow-state gate
+  reconciles the difference on its own, and only because the difference is
+  pure growth of this section over those bytes. The first form of this
+  lane's record contemplated a "restored temporarily for that validation
+  only" fixed-point handling in this document's closing paragraph; that
+  handling is withdrawn as unnecessary and is not used.
 
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
@@ -1168,10 +1268,8 @@ raised the same pair of Major findings (2026-08-21):
 The finding, seen from its two ends: `tasks.md`'s own Protected Files
 item 3 (tasks.md:68, "`.github/workflows/test.yml` (R-10 protected)";
 tasks.md — SHA-256
-`d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`,
-last amended in this document's own payload-count propagation commit;
-`b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1` at the time this INV was
-written)
+`b1ab0ddd49ab36badcfd0906a79158d24aaf8673612ea3e4b5b127c4611846d1`,
+last amended in commit `4fea3d64123a5ae14da2b5c3b4ce103b92aeb143`)
 directs every task registering a test pair to stage its CI steps under
 this feature's `human-copy/` directory and commits the runner to applying
 that staged candidate "the same way it applies the four payload files" —
