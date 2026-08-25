@@ -192,3 +192,17 @@ this log certifies. They are corrected here; nothing above is deleted.
 RE-CONFIRMED AT CORRECTION TIME:
   bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
   bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+
+RT-20260826-001 ROUTE (b) TRAILER (2026-08-26, human-approved):
+Step 6.5 (_recheck_registry_snapshot) and its registry-swapped-during-
+validation fixture were REMOVED to restore conformance with the frozen
+documents (design.md "two rechecks", requirements.md snapshot-generation-
+mismatch trigger, tasks.md fixture allocation). The Implemented bullet's
+FIFTEEN-fixture enumeration above therefore becomes FOURTEEN; every other
+REQ->AC->TEST mapping above is unaffected (the removed fixture served no
+REQ-002 row allocated to this task -- that was the drift).
+RE-CONFIRMED AFTER REMOVAL:
+  bash tests/resolve-project-context-block.tests.sh   -> 214 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 214 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V2: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 214 passed, 0 failed"

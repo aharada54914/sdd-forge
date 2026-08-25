@@ -1,7 +1,0 @@
-schema: sdd-project-context/v1
-workflow:
-  spec_profile: full
-  artifact_layout: legacy-seven-layer
-  capability_enforcement: advisory
-components: []
-shared_paths: []

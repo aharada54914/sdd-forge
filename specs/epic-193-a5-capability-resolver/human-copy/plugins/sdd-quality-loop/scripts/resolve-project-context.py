@@ -379,51 +379,7 @@ def _discover_registry_with_sibling_module():
         registry_document = json.loads(registry_raw.decode("utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ContractDiscoveryFailed(str(exc)) from exc
-    # T-004 confirmation-panel Critical (OpenAI) / T-003 Majors (both
-    # vendors agree): `registry_document` (this read), `validate-
-    # capability-registry` (below, an independent re-read of the SAME
-    # `registry_path`), and `generate-registry-digest --whole` (an
-    # independent re-DISCOVERY-and-read) are three separate reads of the
-    # Registry with no binding between them -- neither dependency CLI
-    # accepts a path/bytes argument, and adding one is outside every
-    # task's own Planned Files, so that route stays closed. The raw bytes
-    # digest retained here is this invocation's own single, authoritative
-    # snapshot identity for `registry_path`, compared by
-    # `_recheck_registry_snapshot` (below) immediately after those two
-    # dependency invocations complete.
-    registry_snapshot_digest = hashlib.sha256(registry_raw).hexdigest()
-    return registry_path, registry_document, registry_snapshot_digest
-
-
-def _recheck_registry_snapshot(registry_path, expected_digest):
-    """Detection-only recheck closing the Critical/Major cross-model
-    confirmation-panel finding above: this invocation re-reads the SAME
-    `registry_path` its own `_discover_registry` call already resolved,
-    right after `validate-capability-registry` and `generate-registry-
-    digest --whole` have each independently read the Registry on their
-    own, and compares the fresh bytes' own digest against the one
-    retained at `_discover_registry`'s own first read. Any difference --
-    including this re-read itself failing outright, which is at least as
-    suspicious as a genuine byte difference -- raises
-    SnapshotGenerationMismatch, this design's own existing vocabulary for
-    exactly this condition (step 13's own TOCTOU recheck below reuses the
-    identical `snapshot-generation-mismatch` diagnostic id).
-
-    Honesty limitation, disclosed in the T-004 implementation report:
-    this detects a Registry swap across THIS invocation's own read
-    window (`_discover_registry` through this call, spanning the
-    `validate-capability-registry`/`generate-registry-digest --whole`
-    subprocess invocations in between); it cannot observe, and makes no
-    claim about, what bytes those two subprocesses themselves actually
-    read inside their own separate processes -- only that the bytes at
-    `registry_path`, as seen from THIS process, are unchanged across the
-    window."""
-    try:
-        current_raw = registry_path.read_bytes()
-    except OSError as exc:
-        raise SnapshotGenerationMismatch(f"registry re-read failed: {exc}") from exc
-    if hashlib.sha256(current_raw).hexdigest() != expected_digest:
-        raise SnapshotGenerationMismatch("registry bytes changed since discovery")
+    return registry_path, registry_document
 
 
 def _validate_capability_registry(script_dir, registry_path):
@@ -1531,7 +1487,7 @@ def main(argv=None):
 
     # Step 5: Registry discovery (ADR-0025) + validate-capability-registry.
     try:
-        registry_path, registry_document, registry_snapshot_digest = _discover_registry(script_dir)
+        registry_path, registry_document = _discover_registry(script_dir)
     except ContractDiscoveryFailed:
         detail = "registry discovery failed to locate or verify capability-registry.json or capability-registry.schema.json"
         return _block(repo_root, args.feature, "contract-discovery-failed", detail, state)
@@ -1556,27 +1512,6 @@ def main(argv=None):
     except DependencyOutputMalformed:
         detail = "generate-registry-digest returned malformed output while computing registry_digest"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state)
-
-    # Step 6.5 (cross-model confirmation-panel Critical/Major remediation,
-    # both vendors): neither `validate-capability-registry` above nor
-    # `generate-registry-digest --whole` above accepts a path/bytes
-    # argument binding it to THIS invocation's own step-5 `registry_
-    # document` read -- each independently re-discovers/re-reads the
-    # Registry on its own. A Registry swap across that window would let
-    # an unvalidated document reach steps 7-9 while `registry_digest`
-    # describes different bytes entirely. Detection only (see
-    # `_recheck_registry_snapshot`'s own honesty-limitation docstring):
-    # this invocation re-reads the identical `registry_path` right now
-    # and compares against the raw-bytes digest retained at step 5's own
-    # first read.
-    try:
-        _recheck_registry_snapshot(registry_path, registry_snapshot_digest)
-    except SnapshotGenerationMismatch:
-        detail = (
-            "the Registry changed between this invocation's own discovery read (step 5) and its "
-            "post-validation/digest recheck (step 6)"
-        )
-        return _block(repo_root, args.feature, "snapshot-generation-mismatch", detail, state)
 
     # Steps 7-8: per-Capability/per-component trigger evaluation and
     # matched-Capability conditional-facet evaluation.

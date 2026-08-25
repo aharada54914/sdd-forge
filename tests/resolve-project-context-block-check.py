@@ -348,7 +348,6 @@ ALL_CASE_NAMES = (
         "contract-discovery-failed-governing-schema-invalid-utf8",
         "contract-discovery-failed-governing-schema-malformed-ref",
         "recheck-dependency-failed",
-        "registry-swapped-during-validation",
         "registry-discovery-syntax-error",
     ]
 )
@@ -505,8 +504,6 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "resolve-component-paths.py"
         elif case_name == "dependency-subprocess-failed":
             stub_name = "generate-registry-digest.py"
-        elif case_name == "registry-swapped-during-validation":
-            stub_name = "generate-registry-digest.py"
         elif case_name == "registry-discovery-unimportable":
             stub_name = "registry_discovery.py"
         elif case_name == "registry-discovery-syntax-error":
@@ -620,22 +617,6 @@ def run_t003_case(kind, case_name, counts):
         elif case_name == "dependency-subprocess-failed":
             expected_id = "dependency-subprocess-failed"
             expected_detail = "generate-registry-digest failed while computing registry_digest"
-
-        elif case_name == "registry-swapped-during-validation":
-            # T-004 confirmation-panel Critical (OpenAI)/Major (both
-            # vendors): closes the "three independent Registry reads, no
-            # binding" gap. This fixture's own `generate-registry-digest`
-            # stub overwrites the discovered Registry file in place as a
-            # side effect of step 6's own dependency invocation; step 6.5's
-            # `_recheck_registry_snapshot` must detect the swap and Block
-            # `snapshot-generation-mismatch` -- the identical id/vocabulary
-            # step 13's own TOCTOU recheck already uses, never a bespoke
-            # second id for the identical condition.
-            expected_id = "snapshot-generation-mismatch"
-            expected_detail = (
-                "the Registry changed between this invocation's own discovery read (step 5) and its "
-                "post-validation/digest recheck (step 6)"
-            )
 
         elif case_name == "evaluate-predicate-output-malformed":
             state = "advisory"
@@ -1991,7 +1972,6 @@ def main():
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
             "dsl-warn-unsorted-affected-components",
-            "registry-swapped-during-validation",
             "registry-discovery-syntax-error",
         ):
             run_t003_case(args.launcher, case_name, counts)
