@@ -140,6 +140,81 @@ try {
   & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 | Out-Null
   if (-not (Test-Path $taskReport)) { throw 'not ok: canonical risk policy rejected medium test-after' }
   Remove-Item $taskReport -Recurse -Force
+  # AC coverage: design.md must name every AC-NNN that requirements.md states,
+  # except criteria the requirements table itself scopes Global. Mirrors the
+  # shell coverage in tests/downstream-review-precheck.tests.sh: the epic-136
+  # history (reviewer rounds burned on deterministic work) and the narrow
+  # Global-scope exception (human ruling, 2026-08-24). The child-process runs
+  # below mirror the shell ac_run helper: they capture stdout, stderr, and the
+  # exit code together, because the assertions need the refusal text, the NOTE
+  # text, and the pass/fail outcome from the same invocation.
+  $psExe = (Get-Process -Id $PID).Path
+  $implPrecheckPath = Join-Path $root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1'
+  function Invoke-AcRun {
+    $command = "try { & '$implPrecheckPath' -Feature '$feature' -Attempt 1 -Round 1 } catch { [Console]::Error.WriteLine([string]`$_.Exception.Message); exit 1 }"
+    $lines = & $psExe -NoProfile -Command $command 2>&1 | ForEach-Object { $_.ToString() }
+    return ($lines -join "`n")
+  }
+  function Reset-AcFixture([string[]]$RequirementsExtra) {
+    Remove-Item -LiteralPath $spec, $specReport, $implReport -Recurse -Force -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Path $spec -Force | Out-Null
+    (@('Spec-Review-Status: Passed') + $RequirementsExtra) | Set-Content (Join-Path $spec requirements.md) -Encoding utf8NoBOM
+    'Impl-Review-Status: Pending' | Set-Content (Join-Path $spec design.md) -Encoding utf8NoBOM
+    '# Acceptance' | Set-Content (Join-Path $spec acceptance-tests.md) -Encoding utf8NoBOM
+    @('Task-Review-Status: Pending', '', '## T-001 First', 'Risk: low', 'Risk Rationale: fixture', 'Required Workflow: test-after', '### Blockers', 'None') | Set-Content (Join-Path $spec tasks.md) -Encoding utf8NoBOM
+    New-Item -ItemType Directory -Path "$specReport/attempt-1/round-1" -Force | Out-Null
+    Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  }
+
+  # absent -> refused, and refused before any evidence is written
+  Reset-AcFixture @('', '#### AC-001', '', 'fixture criterion')
+  $acOut = Invoke-AcRun
+  if ($LASTEXITCODE -eq 0 -or $acOut -notmatch 'never names these acceptance criteria: AC-001') { throw "not ok: impl precheck must refuse a design.md that never names AC-001 (got: $acOut)" }
+  if (Test-Path $implReport) { throw 'not ok: AC-coverage refusal must fail closed before creating round evidence' }
+
+  # named -> accepted, proving the refusal above was the AC check and not some
+  # unrelated fixture failure that would make this case vacuous
+  Add-Content (Join-Path $spec design.md) 'Covers AC-001 in the plan.'
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"   # re-pin: design.md changed
+  $acOut = Invoke-AcRun
+  if ($LASTEXITCODE -ne 0 -or $acOut -match 'never names these acceptance criteria') { throw "not ok: impl precheck must accept a design.md that names AC-001 (got: $acOut)" }
+  if (-not (Test-Path "$implReport/attempt-1/round-1/precheck-result.json")) { throw "not ok: impl precheck should have produced round evidence once AC-001 is named (got: $acOut)" }
+
+  # The narrow Global-scope exception (human ruling, 2026-08-24), and the half
+  # of it that matters just as much: the exception must not become a loophole.
+  # Both halves are asserted from ONE run, so neither can pass by accident: a
+  # one-sided test would let a blanket loosening through. The '-' trace cell in
+  # the AC-004 row stands in for the shell fixture's em-dash, which the ps1
+  # ASCII gate forbids in this file; the annotated '(Global)' spelling never
+  # reads the trace cell, so the substitution changes nothing the gate sees.
+  Reset-AcFixture @(
+    '',
+    '| AC-ID | Requirement | Criterion |',
+    '|---|---|---|',
+    '| AC-002 | REQ-001 | Behaviour this design must plan for. |',
+    '| AC-003 | Global | This package''s own registration commit creates no file outside its spec directory. |',
+    '| AC-004 (Global) | - | check-sdd-structure.sh exits 0 after this package''s registration commit. |'
+  )
+  $acOut = Invoke-AcRun
+  $acError = (($acOut -split "`n") | Where-Object { $_ -match 'never names these acceptance criteria' }) -join "`n"
+  if ($LASTEXITCODE -eq 0 -or -not $acError) { throw "not ok: a REQ-traced AC missing from design.md must still be refused (got: $acOut)" }
+  if ($acError -notmatch 'AC-002') { throw "not ok: the refusal must name the REQ-traced AC-002 (got: $acError)" }
+  if ($acError -match 'AC-003') { throw "not ok: a criterion the requirements table scopes Global must not be demanded of design.md (got: $acError)" }
+  if ($acError -match 'AC-004') { throw "not ok: the (Global) spelling must be read as Global scope too (got: $acError)" }
+  if ($acOut -notmatch 'scopes Global[\s\S]*AC-003 AC-004') { throw "not ok: an exercised exception must be reported, naming the excused criteria (got: $acOut)" }
+  if (Test-Path $implReport) { throw 'not ok: AC-coverage refusal must fail closed before creating round evidence' }
+  # The diagnostic must assert only what this script evaluates. It consults no
+  # testability or traceability attribute anywhere, and never did.
+  if ($acOut -match 'testable and traceable') { throw "not ok: the AC-coverage diagnostic claims a predicate this script never evaluates (got: $acOut)" }
+
+  # Naming only the REQ-traced criterion clears the gate: proof the two Global
+  # rows were genuinely excused and were not merely riding on some other failure.
+  Add-Content (Join-Path $spec design.md) 'Covers AC-002 in the plan.'
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"   # re-pin: design.md changed
+  $acOut = Invoke-AcRun
+  if ($LASTEXITCODE -ne 0 -or $acOut -match 'never names these acceptance criteria') { throw "not ok: Global-scoped criteria must not be demanded of design.md (got: $acOut)" }
+  if (-not (Test-Path "$implReport/attempt-1/round-1/precheck-result.json")) { throw "not ok: impl precheck should have produced round evidence once AC-002 is named (got: $acOut)" }
+  Remove-Item $implReport -Recurse -Force
   Write-Output 'ok: PowerShell downstream prechecks fail closed and preserve graph semantics'
 } finally {
   [IO.File]::WriteAllText($registry, $registryOriginal)
