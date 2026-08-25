@@ -6,31 +6,13 @@
   "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
-    {
-      "severity": "Major",
-      "ref": "specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1:SourceMode",
-      "note": "The declared runner still reads struct stat using hard-coded offsets (`24` for every non-macOS Unix), although the supplied stat-offset evidence proves aarch64 glibc stores `st_mode` at offset 16 and offset 24 is `st_uid`. The runner can therefore publish protected files with an incorrect mode on supported Linux architectures; the claimed GetUnixFileMode fix is absent from the declared implementation."
-    },
-    {
-      "severity": "Major",
-      "ref": "acceptance-tests.md TEST-010 / TEST-031; design.md Protected-File Statement; apply-protected-files.ps1 DeclaredTargets",
-      "note": "The governing artifacts remain inconsistent about the protected payload set. TEST-010 now requires five targets including `.github/workflows/test.yml`, while TEST-031, design.md, the runner, manifest, and contract suite still enforce exactly four. The README works around this by applying the workflow with an unhashed plain `cp` and deleting it before running the verifier, directly defeating TEST-010's requirement that it receive the same exact-set/hash/post-copy protection."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/T-001.contract.json:checks[regression]",
-      "note": "The task's required regression check is explicitly `passes:false`. The completed full run has a real `repository-release-validation.tests.sh` failure caused by stale spec/task provenance hashes, so the default-fail verification contract is not green and T-001 is not gate-ready."
-    },
-    {
-      "severity": "Minor",
-      "ref": "acceptance-tests.md Spec-Authoring-Time Manual Review Record AC-024",
-      "note": "The manual record claims `Impl-Review-Status: Pending` at commit time, but the bundled design header reads `Impl-Review-Status: Passed`; this stale assertion weakens the package's provenance and review-history accuracy."
-    }
+    {"severity":"Critical","ref":"verification/T-001.contract.json","note":"The contract pins stale spec_revision 2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437 while identifying the current digest as 466465e04248cb912635ed83435ff0c17e9805648e0caead7132ad6276a34d23 and admitting no fresh independent gate pass occurred. It also records required regression and placeholder-scan checks as false, so it cannot certify the implementation under the current specification."},
+    {"severity":"Major","ref":"verification/T-001/security-review.md","note":"The PASS covers a deleted drafts/apply-protected-files.ps1 artifact without a recorded digest. The document identifies three substantive later changes affecting reviewed boundaries and explicitly states that a fresh independent security review of the shipped runner remains required, leaving T-001's security-review Done When unsatisfied."},
+    {"severity":"Major","ref":"verification/T-001.contract.json#checks[regression]","note":"Regression is required but remains false because the full 116-suite tests/run-all.sh execution timed out. The narrower substitute does not establish the required repository regression result."},
+    {"severity":"Major","ref":"verification/T-001.contract.json#checks[placeholder-scan]","note":"The required placeholder scan remains false on CHANGELOG.md. The contract states that findings require implementation or explicit human acceptance in a quality-gate report and confirms that no such report or acceptance exists."},
+    {"severity":"Major","ref":"reports/implementation/epic-194-a6-lite-integration/T-001.md#C-cross-target-atomicity","note":"A measured mid-batch failure installs target 1 before target 2 fails, leaves targets 3-5 unchanged, and reports only the failing target. The operator cannot determine which protected targets already landed, leaving the partial-publication error path operationally ambiguous; the requested behavior documentation was stopped because its reporting claim was false."}
   ],
   "blind": true,
-  "input_digest": "45c9a06f6d1ee64b33911e824b32a13ca96cf38593d34b0f393baad5b39d8e14",
-  "consent": {
-    "kind": "sudo",
-    "ref": "tasks.md T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
-  }
+  "input_digest": "3b1c3940f01bc42c9b0dfee82b351e1c8a937d228406f21e1bf20797c9e8fbbd",
+  "consent": {"kind":"sudo","ref":"T-001.panelist-input.txt header"}
 }

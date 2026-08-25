@@ -1,36 +1,9 @@
 {
-  "schema": "cross-model-verdict/v1",
-  "task_id": "T-003",
-  "feature": "epic-194-a6-lite-integration",
-  "vendor": "openai",
-  "model": "gpt-5",
-  "verdict": "NEEDS_WORK",
-  "findings": [
-    {
-      "severity": "Major",
-      "ref": "sanitized bundle / declared T-003 output human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md",
-      "note": "The central T-003 implementation artifact is not included in the bundle. Only substring-based tests and reports are provided, so the actual Risk-Upgrade Gate procedure cannot be reviewed for complete, correctly ordered, fail-closed behavior."
-    },
-    {
-      "severity": "Major",
-      "ref": "tests/lite-spec-capability-block.tests.sh: functional fixture; tests/lite-spec-capability-block.tests.ps1: functional fixture",
-      "note": "The acceptance tests do not execute A2 evaluate-predicate or verify the required Capability \u00d7 Project-Context-component fan-out. They substitute component-name equality and manually assemble the fragment, while the bundle's CHANGELOG states evaluate-predicate is implemented. Consequently the core REQ-005 signal-source integration can be absent or incorrect while all 14 assertions pass."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/T-003.contract.json regression check; verification/qg/shared/regression.log section 2026-08-21",
-      "note": "The verification contract records regression passes:true, but its cited evidence explicitly reports a real repository-release-validation failure and states that passes is therefore false. This makes the default-fail contract inconsistent with its own evidence."
-    },
-    {
-      "severity": "Major",
-      "ref": "acceptance-tests.md TEST-010 and TEST-031; design.md Protected-File Statement; tasks.md Protected Files item 3",
-      "note": "The protected publication contract remains internally inconsistent: TEST-010 widens the payload to five targets including .github/workflows/test.yml, while TEST-031 and design.md still require an exact four-target set. The runner therefore cannot both enforce the stated exact set and apply T-003's staged CI candidate as tasks.md requires."
-    }
+  "schema":"cross-model-verdict/v1","task_id":"T-003","feature":"epic-194-a6-lite-integration","vendor":"openai","model":"gpt-5","verdict":"NEEDS_WORK",
+  "findings":[
+    {"severity":"Critical","ref":"verification/T-003.contract.json: spec_revision","note":"The contract pins stale specification digest 2740928c..., while its own comment identifies the current digest as 466465e0... and deliberately leaves the field unchanged. Consequently, the independent verification contract is not bound to the specification currently under review."},
+    {"severity":"Major","ref":"verification/T-003.contract.json: checks[regression]; verification/qg/shared/regression.log","note":"The required regression check is false. The supplied evidence reports multiple real, unwaived suite failures, so the implementation lacks passing regression verification even if the failures are believed to be outside T-003."},
+    {"severity":"Major","ref":"verification/T-003.contract.json: checks[placeholder-scan]; verification/qg/shared/placeholder-scan.log","note":"The required placeholder scan is false because CHANGELOG.md, a declared T-003 output, produces five findings. The scanner requires remediation or explicit human acceptance in a quality-gate report, and the bundle provides no such acceptance."}
   ],
-  "blind": true,
-  "input_digest": "7203043a53f8bca928d5a81d904f08b53315becb0264cf46a62d24da0706940d",
-  "consent": {
-    "kind": "sudo",
-    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
-  }
+  "blind":true,"input_digest":"cf51b33eee9461f8fcae91e7e300113169f348e5cee6b6683a27c6b40bd908d5","consent":{"kind":"sudo","ref":"specs/epic-194-a6-lite-integration/verification/T-003.panelist-input.txt:6"}
 }
