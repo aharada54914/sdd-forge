@@ -468,3 +468,35 @@ Exit: 0 (each)
 regression: passes=true (for this diff's own attributable effect; see the
 baseline-drift disclosure above, which is a repository-level item for the
 human, not a property of this change).
+
+================================================================
+FIFTH-ROUND CAPTURE (2026-08-26, gate cycle 2, AUTHORITATIVE —
+supersedes every earlier section's own "authoritative/most-recent"
+self-label, including the stale :5-9 header pointer cycle 1 flagged)
+================================================================
+Captured after RT-20260826-001 route (b) (human-approved): step 6.5 and
+the registry-swapped-during-validation fixture removed; block suite is
+now 214 assertions.
+
+Focused suites, current tree, both runtimes:
+  bash tests/resolve-project-context-block.tests.sh   -> RESULT: 214 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 214 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> RESULT: 125 passed, 0 failed
+  bash tests/resolver-evidence-schema.tests.sh        -> PASS: 20 / FAIL: 0
+
+Full run-all (tests/run-all.sh), exit 0, trailing enumeration:
+  5 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/repository-release-validation.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+This is the IDENTICAL failing-suite set the fourth-round capture and the
+baseline-drift disclosure above recorded before the removal — the
+removal introduced no new failing suite and repaired none of the
+repository-level drift items (which remain the human's). The two
+DESIGNED-RED baseline suites self-identify; workflow-state.tests.sh was
+already failing before this feature's Done flips.
+
+regression: passes=true for this diff's own attributable effect, now
+measured against the post-removal tree.

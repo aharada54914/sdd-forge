@@ -37,3 +37,9 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # dead stand-in schemas are not scanned -- they no longer exist.
 Placeholder scan passed.
 Exit: 0
+
+# gate-cycle-2 refresh (2026-08-26, after RT-20260826-001 route (b)
+# removal of step 6.5 and its fixture; same targets, current bytes:
+# staged resolver 220e2b01..., block driver 502495d1...):
+Placeholder scan passed.
+Exit: 0

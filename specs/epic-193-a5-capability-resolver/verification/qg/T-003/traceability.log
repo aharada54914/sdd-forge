@@ -206,3 +206,22 @@ RE-CONFIRMED AFTER REMOVAL:
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 214 passed, 0 failed
   bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V2: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 214 passed, 0 failed"
+
+GATE-CYCLE-2 LINE-CITATION CORRECTION (2026-08-26, quality-gate seq 0783):
+The route (b) removal above shifted the very line numbers the
+GATE-CYCLE-1 trailer cited, recreating the citation-staleness class that
+trailer was written to close. Current values, measured against the
+post-removal tree (the cycle-2 evaluator's independent measurement,
+re-confirmed by the gate):
+  - run_t003_case() is at tests/resolve-project-context-block-check.py:492
+    (ALL_CASE_NAMES:322 remains correct).
+  - The three steps-7/8 abort-path warn-forwarding sites are at
+    resolve-project-context.py:1540,1543,1546 (canonical ids
+    registry-validation-failed / dependency-subprocess-failed /
+    dependency-output-malformed), and the Amendment A(1) comment block
+    begins at :1526.
+The SUBSTANCE of the cycle-1 trailer's claims is unchanged and was
+re-verified by the cycle-2 evaluator: warn_diagnostics is FORWARDED on
+all three abort paths. Future readers should anchor on the function name
+and the canonical diagnostic ids above, not on line numbers, which rot
+with every upstream edit.
