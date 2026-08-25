@@ -517,6 +517,16 @@ guessing at an undocumented convention.
   value-normalization fixed, and is asserted against the golden trace by
   the same `TEST-018`/`TEST-019` cases AC-022/AC-025 name, split by which
   suite drives the round in question.
+  **Known-unsatisfied, do not read this criterion in isolation:** the
+  implementation `AC-009` pins does not meet this producer's own firing
+  condition. `assert_terminal` emits `done-transition` *before* it compares
+  the observed terminal state against the expected one, so a failing
+  comparison still records the event, and each of its two early returns
+  records none. `TEST-026` is therefore a named `SKIP` in
+  acceptance-tests.md until `AC-009`'s recorded hash is formally amended.
+  See `OQ-004` (open) in Open Questions and its paired `High` entry in
+  Risks for the full statement, the reason it is deliberately unfixed, and
+  the resolution path.
 - AC-027: The skip/stop-message event kind has its own **two** named
   producers — a `skip` producer (`loop_validator_skip`'s existing
   named-SKIP pattern, INV-005, `tests/lib/loop-driver.sh:460-519`,
@@ -924,6 +934,19 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   `_loop_trace_normalize` enforces sequence monotonicity, known producers,
   and capability-event ordering, but carries no rule making
   `done-transition` terminal in its sub-sequence. Recorded 2026-08-25.
+  **Precision correction (2026-08-25, same day, appended rather than
+  rewritten so the first wording stays visible):** the sentence above says
+  the *ordering* rule "always last" is not satisfied, and that is stricter
+  than the evidence supports. Where the emit happens it IS
+  `assert_terminal`'s final act before returning, so "always last" holds.
+  What the implementation violates is design.md's per-kind producer table's
+  own firing condition — "firing exactly once per round at the instant it
+  evaluates the freshly-read `.terminal.state`". The emit precedes the
+  evaluation rather than coinciding with it, so a failing comparison
+  records a transition that did not occur, and each early return records
+  nothing: "exactly once per round" fails in both directions. The defect,
+  its deliberate non-fix, and the resolution path are unchanged; only the
+  clause it violates is stated correctly here.
 
 ## Risks
 
@@ -966,3 +989,9 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   one repair this package's history shows must not be made unilaterally.
   Mitigated only by OQ-004's disclosure: no automated check detects the
   deviation, so the register entry is the control.
+- Note on the entry above, appended 2026-08-25: it names the "ordering
+  rule" as the unsatisfied clause. `OQ-004`'s precision correction records
+  the accurate statement — the violated clause is the producer's "exactly
+  once per round at the instant it evaluates" firing condition, not the
+  "always last" ordering. The exposure this entry describes, a verifier
+  treating the criterion as an uncontested invariant, is unchanged.

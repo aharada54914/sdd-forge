@@ -27,7 +27,7 @@
 | AC-023 | REQ-003 | TEST-023 | integration | same `TEST-018` case: review-loop-presence event kind vs. golden trace | Planned |
 | AC-024 | REQ-003 | TEST-024 | integration | same `TEST-018` case: approval-checkpoint event kind vs. golden trace | Planned |
 | AC-025 | REQ-003 | TEST-025 | integration | `TEST-019`'s own quality-gate-outcome event kind: producer/ordering/value-normalization fixed and asserted | Planned |
-| AC-026 | REQ-003 | TEST-026 | integration | Done-transition event kind asserted as the last event within both `TEST-018` and `TEST-019` | Planned |
+| AC-026 | REQ-003 | TEST-026 | integration (named SKIP until AC-009's pinned `assert_terminal` hash is formally amended) | Done-transition event kind asserted as the last event within both `TEST-018` and `TEST-019` — the producer's own firing condition is known-unsatisfied by the implementation AC-009 pins (OQ-004) | Planned |
 | AC-027 | REQ-003 | TEST-027 | integration | skip-stop-message event kind asserted against the allowlist manifest's own fixed template string | Planned |
 | AC-028 | REQ-005 | TEST-028 | static / doc-review | Compatibility Matrix (F1–F8 × REQ-001/002/003, plus the CLI submatrix): every AC cited in a cell carries its own single disposition — ASSERT / SKIP-with-activation / N-A | Planned |
 | AC-029 | REQ-004 | TEST-029 | static / doc-review | observable×fixture-state judgment table is exhaustive and mutually exclusive (byte vs. event vs. structural) | Planned |

@@ -419,3 +419,60 @@ compared individually against the restored bytes. For spec attempt 5
 which `check-workflow-state.sh`'s own `normalized_hash()` neutralizes by
 design — confirmed by the attempt-6 precheck computing
 `f2343a1c0977...` while reading the field as `Pending`.
+
+### Round-4 extension (2026-08-25): AC-026 and TEST-026 carry the disclosure at the point of use
+
+- Human ruling (verbatim, dated): 2026-08-25:
+  「承認するので進めてください」 — authorizing the package's own existing
+  Test Type annotation convention to be applied to `TEST-026`, and a
+  pointer to be added at `AC-026`, so a verifier reading either in
+  isolation learns the criterion is known-unsatisfied.
+- Closes spec-review attempt 6 round 1's three Majors: reviewer A's
+  `AC-OBSERVABLE` (ledger sequence 787) and reviewer B's
+  `DOWNSTREAM-READINESS` and `CONTRADICTION` (ledger sequence 788).
+- The annotation is copied, not invented. The closest precedent is the
+  pair of rows whose Requirement column is `REQ-003` alone — `AC-036`
+  and `AC-037` — which carry `integration (named SKIP until <condition>)`
+  in the Test Type column and an `(OQ-NNN)` pointer at the end of the
+  Notes column. `TEST-026` now carries exactly that two-part shape. The
+  longer `allowlist-governed` variant was deliberately not copied: it
+  appears on rows whose Requirement column includes `REQ-007`, and
+  `tests/fixtures/skip-allowlist-manifest.json` does not yet exist, so
+  claiming allowlist governance would assert a manifest entry that cannot
+  be checked.
+- **A correction to this session's own earlier remedy, appended rather
+  than rewritten.** The `OQ-004` and Risks entries committed in
+  `c50c8028` state that `AC-026`'s *ordering* rule, "always last in a
+  round's own event sub-sequence", is not satisfied. That is stricter
+  than the evidence supports, and both reviewers accepted it because both
+  were reasoning from the framing this session supplied. Where the emit
+  happens it is `assert_terminal`'s final act before returning, so
+  "always last" does hold. The clause actually violated is design.md's
+  per-kind producer table's firing condition — "firing exactly once per
+  round at the instant it evaluates the freshly-read `.terminal.state`" —
+  because the emit precedes the evaluation: a failing comparison records a
+  transition that did not occur, and each early return records none. The
+  defect, its deliberate non-fix, and its resolution path are unchanged.
+  The original wording is left in place with the correction appended
+  beneath it, the same treatment the eight-site quotation received.
+- As of this amendment,
+  `specs/epic-195-a7-compatibility/requirements.md` = `2ee8681ec48f95e522187161a5b30467635a40468623f94faa6e5e2b01cbb3e4`,
+  superseding `bc596b776cc08b7a5479be198a18c942ea715f89e3bdd25af35f6d3460f2400f`
+  recorded in the preceding sub-entry; and
+  `specs/epic-195-a7-compatibility/acceptance-tests.md` = `8c2abdee404aa093feae6e0d636909fb5d8855e155d4503c70ed4329a1fb9ad5`,
+  superseding `7f17001714aac9fcd78ca2093a340a7f1e6e557c7d80338b8db216a7aa4966e8`.
+  This extension and the two document amendments it describes are made in
+  a single commit, so that commit's own hash cannot be cited from inside
+  itself; it is pinned externally by the spec-review attempt-6 round-2
+  reviewer manifests and the identity-ledger records their reservations
+  append.
+- Dependent statements found by enumeration and deliberately NOT edited,
+  because they fall outside the authorization this ruling gives:
+  `tasks.md` line 968 (T-006's Done When, "round's own event
+  sub-sequence (AC-026)") and `tasks.md` line 1078 (T-007's equivalent,
+  "this round's own sub-sequence (AC-026, this suite's own share)") both
+  instruct a future implementer to assert the criterion, and neither now
+  carries the pointer that `AC-026` and `TEST-026` carry.
+  `traceability.md` line 117 binds `AC-026` to `TEST-026` and is
+  likewise untouched. Recorded here so the next sweep starts from a list
+  rather than a pattern.
