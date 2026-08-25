@@ -1195,17 +1195,52 @@ task's own explicit instruction.
   implementation — REQ-004's own "direct edit" scoping is re-verified at
   implementation-start time, not assumed permanently true (Roles and
   Permissions, above).
-- No Capability Pack exists yet anywhere in this repository — every
-  fixture this feature's REQ-006 names is synthetic, not drawn from a
-  real, shipped Capability Pack. This conclusion survives 2026-08-25's
-  INV-013 correction, but its former citation (investigation.md INV-013,
-  matching A2's own INV-002) no longer supports it and is withdrawn: a
-  Capability Pack is a distinct artifact from the Registry instance
-  (ADR-0018), and none ships — yet
-  `contracts/capability-registry.json` now ships one real Capability
-  (`durable-workflow`) carrying a live `lite_policy`, so "synthetic" is a
-  weaker claim than when this bullet was written. See investigation.md's
-  Amendment Re-Review Context, third entry.
+- **REQ-006 fixture grounding, split per fixture (2026-08-25 ruling).** No
+  Capability *Pack* ships anywhere in this repository — a Pack is a
+  distinct artifact from the Registry instance (ADR-0018). But
+  `contracts/capability-registry.json` does now ship one real Capability,
+  `durable-workflow`, whose `lite_policy` is `{eligible: false,
+  upgrade_reasons: ["durable_workflow"]}` — the live v1 two-key shape,
+  with that token present in the live five-token
+  `lite-upgrade-reason-catalog.json`. The blanket claim this bullet used
+  to make — that *every* REQ-006 fixture is synthetic — therefore does
+  not hold uniformly and is replaced by the split below. Its former
+  citation (investigation.md INV-013, matching A2's own INV-002) is
+  withdrawn; the grounding below is the live
+  `contracts/capability-registry.schema.json` and
+  `contracts/capability-registry.json` themselves.
+  - **Must be synthetic — fixtures (a), (d), (e), and the
+    `required_lite_checks` half of (f).** Each exercises
+    `required_lite_checks`, and the live schema's `lite_policy` is
+    `additionalProperties: false` over exactly `eligible` and
+    `upgrade_reasons`, so no shipped Capability can carry that key at all
+    until REQ-001's v1.1 revision lands. That schema fact is the reason,
+    and it does not rest on the withdrawn premise.
+  - **Need not be synthetic — fixtures (b) and (c).** The shipped
+    `durable-workflow` entry *is* fixture (b): matched, `eligible:
+    false`, non-empty `upgrade_reasons`, its token in-catalog. And it is
+    *literally* fixture (c): a v1 Registry entry carrying no
+    `required_lite_checks` key at all, which is precisely the
+    compatibility case (c) exercises.
+  - **Expressible in the live shape, but no shipped entry carries the
+    data — fixture (j), and the `upgrade_reasons` half of (f).** (j)
+    needs an entry with `eligible: false` and empty/absent
+    `upgrade_reasons`; the shipped entry's is non-empty. (f)'s
+    reason-token half needs a token absent from the catalog; the shipped
+    entry's token is present. Both are two-key-shaped, so a future
+    shipped Capability could carry them — none does today.
+  - **Not Registry-Capability-shaped, unaffected either way — fixtures
+    (g), (h), (i), (k).** (g) and (k) turn on `capability-summary.yaml`/
+    Project Context presence, (h) on the A4 Summary's own
+    `full_upgrade_required` field, and (i) on a `check-risk-upgrade`
+    fragment file. Fixture (l) is not an executed fixture at all — REQ-006
+    states it documents a contract for A5's Resolver rather than one this
+    feature's own suite runs.
+
+  Whether fixtures (b) and (c) are drawn from the live shipped Capability
+  or authored synthetically is a choice **owned by the task that
+  implements REQ-006**, and is deliberately not decided here. See
+  investigation.md's Amendment Re-Review Context, third entry.
 
 ## Open Questions
 
