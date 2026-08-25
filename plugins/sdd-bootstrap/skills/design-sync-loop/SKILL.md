@@ -1,7 +1,7 @@
 ---
 name: design-sync-loop
 description: Specification-phase design iteration loop for UI applications (ds_profile custom). Ensures the project-level design-system/ contract exists (seeding via ui-ux-pro-max, Figma DTCG import, or the D6 template interview), pulls design-system context from a claude.ai/design project via the DesignSync tool, generates token-driven disposable HTML mockups per view and state, and pushes them for browser review under a single per-feature egress consent covering this feature AND this session. Falls back to the manual Claude Design workflow when design tools are unavailable.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 

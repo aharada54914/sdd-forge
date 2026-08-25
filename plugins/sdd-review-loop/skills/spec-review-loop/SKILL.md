@@ -1,7 +1,7 @@
 ---
 name: spec-review-loop
 description: Independently review Phase 1 requirements and acceptance tests before implementation-policy review. Persists a validated specification review verdict.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
