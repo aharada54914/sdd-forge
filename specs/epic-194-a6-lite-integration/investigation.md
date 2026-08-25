@@ -1591,6 +1591,117 @@ covered below) is preserved verbatim in the replacement.
   because this entry, like both before it, is pure growth at this
   section's tail.
 
+### Amendment record extension, fourth entry (appended 2026-08-25): the glossed rulings, recorded verbatim; and the design.md and tasks.md sites a line-based sweep could not reach
+
+Appended below the third entry, on the same terms: nothing above this
+heading is edited.
+
+#### Human approval (verbatim, dated) — the rulings this lane recorded only in gloss
+
+`impl-reviewer-a` observed during impl re-review attempt 2 round 2 that
+this document records some 2026-08-25 rulings as "option ① as presented"
+plus an English gloss, while others carry a verbatim quotation
+(`「①でやれ」`, `「① 注記＋design 加筆＋狭いゲート例外」`), and that
+`plugins/sdd-review-loop/references/reviewer-calibration.md` requires a
+verbatim dated quotation for every element of a declared amendment
+re-review. That observation is correct, and the gap was in how the
+rulings reached this lane — they were conveyed in prose rather than
+passed through as text. The human's selections were made by choosing a
+labelled option; the labels are, verbatim, supplied 2026-08-25:
+
+- 2026-08-25, the CI-workflow scoping ruling (the one the second entry
+  above executes): 「① スコープを分けて両立させる（推奨）」
+- 2026-08-25, the ruling that the premise correction propagate beyond
+  the single site where it was found (the label's own count is
+  `3 文書`; this entry does not restate which documents that count
+  refers to, because the gloss it replaces did not record them):
+  「① 3 文書にも波及させる（推奨）」
+- 2026-08-25, the INV-013 premise ruling (the one the third entry above
+  executes): 「① 前提を直し、適用経路は将来タスクに帰属と明記（推奨）」
+
+The 2026-08-25 quotations recorded in this subsection stand alongside,
+and do not replace, the quotations already recorded in this section's own `### Human approval (verbatim, dated)`
+subsection and in the first appended entry. No ruling's substance changes
+by being quoted; what changes is that the chain of custody is now uniform
+across every ruling this lane acted on.
+
+#### Two further INV-013-dependent sites, corrected
+
+impl re-review attempt 2 round 2 returned NEEDS_WORK on one Major finding
+from `impl-reviewer-b`: `design.md`'s own `## Assumptions` section, first
+bullet, still grounded its sourcing of A2's schema fragments on there
+being "no live `contracts/capability-registry.schema.json`", contradicting
+the same document's own corrected Cross-Layer Dependencies section. A
+sweep run afterwards on whitespace-flattened text confirmed that site and
+surfaced one more: `tasks.md`'s Global Constraints quoted a
+`requirements.md` Assumptions sentence that no longer exists. The `design.md` site and
+the `tasks.md` site are each corrected in this entry's own commit, under the same 2026-08-25 ruling
+that governs every other site in the third entry above — a sweep that
+could not physically reach a site does not narrow the ruling.
+
+- `design.md` `## Assumptions`, first bullet — the "no live
+  `contracts/capability-registry.schema.json`" grounding is retracted and
+  replaced with the narrower assumption that actually survives: A2's prose
+  and the shipped file agree on every field this design cites, and neither
+  is expected to diverge before this feature's own spec review completes.
+- `tasks.md` Global Constraints — the bullet quoted "No Capability Pack
+  exists yet anywhere in this repository... every fixture this feature's
+  REQ-006 names is synthetic, not drawn from a real, shipped Capability",
+  which the per-fixture split replaced. The quotation is corrected to the
+  split rather than paraphrased into survival, and the bullet is restated
+  around the point it actually supported, which the split does not
+  disturb: no task is blocked on a real Epic A2, A4 or A5 artifact
+  existing. No `Status:` line and no task body was touched.
+
+#### Why twelve sweeps could not reach the design.md site
+
+Recorded because the mechanism, not the miss, is the reusable part. The
+phrase spans a line break inside a backticked path: the source reads
+`contracts/capability-registry.` then a newline and two spaces, then
+``schema.json` exists yet``. Every sweep this lane ran matched line by
+line, so no pattern — however well chosen — could ever have hit it. This
+is the third distinct sweep defect this package has produced, and each was
+a different shape:
+
+1. Sweeping by **phrase** rather than by **predicate**: matching the
+   wording the old fact happened to use, which silently misses every
+   statement that depended on the fact without repeating its words.
+2. Using a **blocklist** of banned referring expressions where an
+   **allowlist** over one's own sentences was needed: a blocklist can
+   always miss a word, because the space of referring expressions is open.
+3. Matching **line by line** against a wrapped document: the pattern space
+   was the wrong shape entirely.
+
+The working form combines all three: derive the facts the correction
+changes, sweep for statements depending on each fact regardless of
+wording, on whitespace-flattened text, then run the per-sentence
+enumeration check over whatever is written. Flattening is a property of
+the tool, not a fix for one instance — a wrapped document is the normal
+case in this repository.
+
+#### Fingerprints this fourth entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded in the third
+  entry above as
+  `7ea9df83f848a07f2b1b3a4ab58dd158dac39bc165525fb7e2ad0f3a3b974db6`, is
+  superseded by this entry's own commit. Every earlier design.md value
+  recorded above stays where it is; in particular `43d48635…` remains the
+  pin impl re-review attempt 2 round 1's reviewers read, and the value
+  impl re-review attempt 2 round 2's reviewers read remains that round's
+  own contract pin.
+- `specs/epic-194-a6-lite-integration/tasks.md`, recorded above at
+  `d3c7d7e3670f79d7aaee93febd68c4a3a044ce1706b641dec96348ea459376b4`, is
+  superseded by this entry's own commit. The earlier value stays where it
+  is and remains true of the commit it names.
+- This document's own bytes, as pinned by impl re-review attempt 2 round 2,
+  are superseded by the revision this entry's own commit produces. A
+  document cannot embed its own post-amendment hash; that revision is
+  pinned by impl re-review attempt 2 round 3's invocation manifests. As
+  before, no prior contract is restaged or re-validated against amended
+  bytes, and the workflow-state gate reconciles the difference only
+  because this entry, like the first, second and third appended entries
+  before it, is pure growth at this section's tail.
+
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
 Recorded 2026-08-23, in this document's amendment-context era (see

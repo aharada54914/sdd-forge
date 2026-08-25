@@ -115,11 +115,20 @@ the rest of REQ-001, belongs to whichever future task also applies the
 - **Version bumps only via `scripts/bump-version.sh`**; this feature
   introduces no version-mutation path. No task hand-edits a version string
   or executes that script.
-- **Every fixture this feature's own test suites use is synthetic**
-  (requirements.md Assumptions: "No Capability Pack exists yet anywhere in
-  this repository... every fixture this feature's REQ-006 names is
-  synthetic, not drawn from a real, shipped Capability") — no task below
-  is blocked on a real Epic A2/A4/A5 artifact existing; each task's own
+- **No task below is blocked on a real Epic A2, A4 or A5 artifact
+  existing.** Corrected 2026-08-25: this bullet previously quoted a
+  requirements.md Assumptions sentence that no longer exists ("No
+  Capability Pack exists yet anywhere in this repository... every fixture
+  this feature's REQ-006 names is synthetic, not drawn from a real,
+  shipped Capability"). That blanket claim was replaced by a per-fixture
+  split (requirements.md Assumptions, "REQ-006 fixture grounding, split
+  per fixture"): fixture (a), fixture (d), fixture (e) and the
+  `required_lite_checks` half of fixture (f) must be synthetic, while
+  fixture (b) and fixture (c) need not be, because the shipped
+  `durable-workflow` Capability can ground them — and whether they are
+  drawn from it or authored synthetically is a choice owned by the task
+  that implements REQ-006. This bullet's own point is unaffected by that
+  split and stands as restated above; each task's own
   `capability-summary.yaml`/Registry/catalog fixtures are self-contained
   JSON/YAML objects matching the frozen A4 schema (investigation.md
   INV-005) and this design's own field shapes, not live files.

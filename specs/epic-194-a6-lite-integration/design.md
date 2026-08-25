@@ -1166,9 +1166,19 @@ dimension.
 (Restated from requirements.md's own Assumptions, design-elaborated.)
 
 - A2's `design.md` text (the source for this feature's own `lite_policy`/
-  catalog schema fragments, since no live `contracts/capability-registry.
-  schema.json` exists yet) will not change in a way that breaks this
+  catalog schema fragments) will not change in a way that breaks this
   design's own citations before this feature's own spec review completes.
+  **Corrected 2026-08-25.** This bullet previously grounded that sourcing
+  on there being no live `contracts/capability-registry.schema.json`.
+  That file is live as of `e48c9008` (2026-07-23), and its `lite_policy`
+  sub-schema is exactly the two-key, `additionalProperties: false` shape
+  this design cites from A2's prose (Cross-Layer Dependencies, above;
+  investigation.md INV-003 re-verified against the live file 2026-08-25,
+  and INV-013's own evidence superseded by the Amendment Re-Review
+  Context's third entry). The assumption that survives is the narrower
+  one stated in the first sentence: A2's prose and the shipped file agree
+  on every field this design cites, and neither is expected to diverge
+  before this feature's own spec review completes.
 - A5's `required_lite_checks` naming and union-match aggregation reasoning
   (both cited from A5's current, `Pending` text) are treated as the best
   available grounding, not a guarantee — this design's own field-naming
