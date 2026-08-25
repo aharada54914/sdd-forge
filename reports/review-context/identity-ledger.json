@@ -7677,6 +7677,33 @@
       "host_session_id": "SESS-qg-agent-cost-context-isolation-T-006-0853",
       "previous_record_sha256": "76fbaba8b72522fab51974d550128416983641941035ce6c951f6f8f06618cff",
       "record_sha256": "9417909733b42c3bde31a4407cdf2e5ccbd48f68bb9a274562649fc5aaed8f6e"
+    },
+    {
+      "sequence": 854,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-risk-adaptive-layer-qg-T-006-seq0854",
+      "host_session_id": "SESS-qg-risk-adaptive-layer-T-006-0854",
+      "previous_record_sha256": "9417909733b42c3bde31a4407cdf2e5ccbd48f68bb9a274562649fc5aaed8f6e",
+      "record_sha256": "1e20e59b23852dece57dc78065718aec4ad6365d37bc41e3bf0fb284ac07cb03"
+    },
+    {
+      "sequence": 855,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-001-seq0855",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-001-0855",
+      "previous_record_sha256": "1e20e59b23852dece57dc78065718aec4ad6365d37bc41e3bf0fb284ac07cb03",
+      "record_sha256": "e7c6a9e956797f8bcd10279f8f77d16d3662887c8c48b192ea059ad421989b18"
+    },
+    {
+      "sequence": 856,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-agent-cost-context-isolation-qg-T-006-seq0856",
+      "host_session_id": "SESS-qg-agent-cost-context-isolation-T-006-0856",
+      "previous_record_sha256": "e7c6a9e956797f8bcd10279f8f77d16d3662887c8c48b192ea059ad421989b18",
+      "record_sha256": "04cb43aba5b38c2d6eed66bf2642041d674041eaa8500700e56144def99fe143"
     }
   ]
 }
