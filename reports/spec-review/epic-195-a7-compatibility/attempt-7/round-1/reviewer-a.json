@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0793",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0793",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
+      "sha256": "46c721e6c62ed58c42928203bf2ec8eabd034d60b6aa9711ad9a9625c8953b71"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "00358a64604c9764d92db780977ff13ae7fe9bb339e2c62cdb8514d2c9ad90e9"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    }
+  ],
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001-REQ-007 decompose into ACs with concrete, measurable oracles: byte-for-byte comparison under a fixed normalized environment (AC-003), pinned function-body SHA-256 values as binding truth conditions (AC-009), and three independently checkable hard-fail conditions for SKIP governance (AC-035). Even AC-026, disclosed as known-unsatisfied by the current pinned implementation, states an unambiguous, checkable firing-condition/ordering claim rather than a vague one; a disclosed current failure does not make a criterion untestable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of the seven Goals has multiple matching ACs: REQ-001->AC-002/003/004/038; REQ-002->AC-005/006/007/030/031/042/043; REQ-003->AC-008-012/022-027/032/033/036/037/039; REQ-004->AC-013/017/029; REQ-005->AC-014-016/019-021/028; REQ-006->AC-001/018/040/041; REQ-007->AC-016/034/035. No goal is left without a traced criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify externally observable comparisons (byte diffs, hash matches, exit codes, JSON field presence, event-trace ordering) rather than intent statements. Re-verified rather than assumed: AC-026 in requirements.md:511-532 and the TEST-026 row in acceptance-tests.md:30 are mutually consistent -- both now use Test Type 'integration' (SKIP framing withdrawn), both retain the disclosing clause and the (OQ-004) pointer, and both correctly state the criterion is ungoverned by AC-034's allowlist. No stale SKIP language remains in either document."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals explicitly excludes implementing Epics A1-A6, authoring Phase 2/3 test code/fixtures/registry edits, registering a ninth loop id, re-specifying Epic A5's deferred suite in full, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task. The boundary is concrete and enumerated, not left implicit."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "investigation.md's 'Round-6 extension' (lines 543-579), added specifically to supply the verbatim human-approval citation that attempt 6 round 3 found missing, itself fails the calibration's Amendment Re-Review Context evidence bar: it cites the commit that made the Round-5 document change only as `8bf1cda0` (investigation.md:549) -- an 8-character abbreviated hash, the sole citation of that commit anywhere in the package, never given in full elsewhere -- whereas every other amendment commit in this same section is cited in full 40-character form (e.g. 7652d01b3a152863afefd38bd11e1bac5767e3de, 47cb338ae8e748761ae793c38a02e1f77fb38df4, 99c74ff78cc4ec0548028652d429aca66ebb2c32). The calibration states element 1 of the evidence bar requires 'the amendment commit hashes, given in full (not abbreviated...)', and that an entry 'abbreviated where a full hash is required' means 'the declaration does not apply... with no benefit of the doubt'. Downstream failure mode: an implementer or task author relying on this package's Overview amendment note (requirements.md:37-49) and Non-goals bullet (requirements.md:250-256) -- both of which point to this same Amendment Re-Review Context entry as the authorization for citing tasks.md, traceability.md/.json, design.md, and security-spec.md while Spec-Review-Status remains Pending -- would be trusting an approval record that, under the calibration's own literal rule, does not certify the amendment chain it purports to authorize. This belongs to spec review because verifying the Amendment Re-Review Context evidence bar is this gate's own calibration section. Severity Critical per the calibration's instruction to classify a missing/failed approval boundary as Critical -- the same class of finding that terminated attempt 6 round 3."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Risks-register entry ties to a concrete validation surface: the Critical drift risk is mitigated by the REQ-007 named-SKIP/allowlist design and AC-034/AC-035's fingerprint-drift hard-fail; the High shared-surface-blast-radius risk by fixing field names/shapes in design.md before Phase 2/3; the High AC-026 ordering-defect risk by OQ-004's explicit disclosure, itself the stated control since no automated check detects the deviation."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md or domain/domain-contract.json is present in this review's allowed input manifest, and this reviewer is scoped to read only the manifest's canonical paths, so an approved domain model cannot be confirmed within scope. Recorded as skipped per the check's own skip condition."
+    }
+  ],
+  "verdict": "BLOCKED"
+}

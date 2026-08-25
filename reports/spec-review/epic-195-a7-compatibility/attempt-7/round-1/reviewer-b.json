@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0794",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0794",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/integrated-summary.json",
+      "sha256": "e8c527f4dc1c50d2c4a34f946e6c7b03941db98d44e2bc5bb1499a52fb863745"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
+      "sha256": "46c721e6c62ed58c42928203bf2ec8eabd034d60b6aa9711ad9a9625c8953b71"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "f77158ea4ad4263910439cd37ca0ed5296fc3f4e29e1d4e8c963d659ed799815"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "00358a64604c9764d92db780977ff13ae7fe9bb339e2c62cdb8514d2c9ad90e9"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "fb5be3067b95345f2e4a0dcd190e0800f61421e595479c5975ac050246e2e734"
+    }
+  ],
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Field Definitions section pins every fixture-state term to a concrete, closed definition, and AC-028/AC-029 fix an exhaustive, mutually-exclusive disposition/observable table so no cell is left to implementer discretion. No ambiguity found that would cause two implementers to diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No internal textual contradiction independent of the phase-sequencing issue captured under APPROVAL-BOUNDARY below. investigation.md's Round-6 extension explicitly and consistently supersedes Round-5's insufficient authorization rather than leaving two conflicting live authorizations standing -- read as intended, this is honest superseding record-keeping, not an unresolved contradiction."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material negative/boundary paths are covered: AC-002, AC-019-AC-021, AC-035's three independently hard-failing negative checks, AC-041's two independent negative fixtures, and AC-033's capability-only usage-error golden negative test."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions section is scoped and explicitly re-verification-gated before Phase 2/3. OQ-001-OQ-003 are resolved with citations; OQ-004 is explicitly left open with a stated human-procedure resolution path rather than being silently assumed away."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "investigation.md:549's Round-6 extension cites 'commit `8bf1cda0`' -- an 8-hex-character abbreviated commit reference -- as the commit that made the Round-5 document edit (TEST-026's SKIP-framing withdrawal) this same sub-entry authorizes. It is the only commit-hash citation anywhere in the Amendment Re-Review Context section (Round-2 through Round-6) that is not a full 40-character hash; every sibling citation is full. Calibration element 1 requires 'the amendment commit hashes, given in full (not abbreviated...)' and lists 'abbreviated where a full hash is required' as a trigger making the declaration inapplicable, with no benefit of the doubt. Because Round-5 itself deferred citing this commit's hash, Round-6 was the first opportunity to supply it in full, and supplied it abbreviated instead. Downstream failure mode: an implementation/task/design reviewer relying on this declaration to treat requirements.md's forward references to tasks.md/traceability.md/design.md/T-005-T-006 as pre-authorized would be relying on a suppression the calibration says does not hold. Severity Critical, the identical class as the finding that terminated attempt 6, with only the specific unmet evidence element differing (abbreviated hash here vs non-verbatim relay there)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Independent of the APPROVAL-BOUNDARY defect above, the AC/REQ decomposition itself leaves no missing product-behavior decision for a downstream design/task reviewer to invent."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No approved domain model, nor a schema-valid domain contract, is referenced by or in scope for this internal test-infrastructure feature; the check's explicit skip condition applies."
+    }
+  ],
+  "verdict": "BLOCKED"
+}
