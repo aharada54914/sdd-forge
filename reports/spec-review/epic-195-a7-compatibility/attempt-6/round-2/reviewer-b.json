@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0790",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0790",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-2/integrated-summary.json",
+      "sha256": "65528078b411c487c35db4d919fd47b25cba4fd0a354cdfffe04d34be0c2411d"
+    },
+    {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-2/precheck-result.json",
+      "sha256": "a8427572803fd63ed9d372da1730c6dd1a9317acae42eee5c228041c997d25a1"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
+      "sha256": "8c2abdee404aa093feae6e0d636909fb5d8855e155d4503c70ed4329a1fb9ad5"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/investigation.md",
+      "sha256": "fe2ffc3c28899e5e10e2d478216b81ed4d8fe4609ec482887cffacf8a006b96f"
+    },
+    {
+      "path": "specs/epic-195-a7-compatibility/requirements.md",
+      "sha256": "2ee8681ec48f95e522187161a5b30467635a40468623f94faa6e5e2b01cbb3e4"
+    }
+  ],
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No new material ambiguity beyond the CONTRADICTION/DOWNSTREAM-READINESS findings below. OQ-004's 'formally amended' hash-update procedure is imprecise but is disclosed as an open, unresolved human procedure rather than left implicit."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md AC-026 (lines 520-529) and acceptance-tests.md TEST-026 (row 30) state 'TEST-026 is therefore a named SKIP ... until AC-009's recorded hash is formally amended' and that this applies 'within both TEST-018 and TEST-019' (i.e. including the Context-absent case, gated on no upstream epic at all). AC-034 (requirements.md:609-624) restricts the REQ-007 allowlist manifest to 'every upstream-dependent assertion' -- enumerated as AC-004, AC-007, AC-019-AC-021, AC-036, AC-037, AC-042, AC-043, and 'any Context-present REQ-003 assertion' -- with activation_condition restricted to exactly merged(<epic-id>)/fingerprint_match(<dependency-index>). AC-026 is not in that list, its Requirement column is REQ-003 alone (not REQ-007, confirmed as a deliberate distinguishing signal in investigation.md:438-442), and its gating condition ('AC-009's hash formally amended,' OQ-004: 'a human procedure rather than a Phase-2/3 task decision') cannot be expressed in that grammar. AC-035(b) (requirements.md:627-629, tested by TEST-035) requires the suite to hard-fail when 'any SKIP-shaped line in suite output does not match an allowlist entry (unknown SKIP).' As specified, TEST-026's own permanent SKIP line cannot be placed in the AC-034 allowlist and would therefore trigger AC-035(b)'s own hard-fail rule the moment it is implemented -- directly contradicting AC-026/TEST-026's mandate that it 'is therefore a named SKIP.' A Phase 2/3 implementer has no way to satisfy both ACs as written without inventing an unspecified accommodation this package does not make. This is impossible-acceptance-criteria territory: Critical. (The round-1 AC-026-vs-AC-009 conflict itself is now correctly disclosed at point of use via the 'Known-unsatisfied, do not read this criterion in isolation' annotation -- that part of the remedy is correct.)"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section plus negative-self-check acceptance criteria (TEST-002, TEST-033, TEST-035's three independent negative self-checks, TEST-041's two independent negative fixtures) give material negative/boundary/failure-mode coverage."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-001/OQ-002/OQ-003 are resolved with cited decisions; OQ-004 remains open but is explicitly marked as a decision requiring a human procedure rather than silently assumed, satisfying the 'explicitly marked as decisions needed' bar independent of the CONTRADICTION defect."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Golden-baseline candidate-to-canonical promotion (REQ-006c, Security Boundary B1) is testable: AC-018 fixes the manifest fields, AC-040 statically scans CI's workflow file, and AC-041 directly exercises promote-golden-baseline.sh's runtime refusal as two independent negative fixtures."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Even setting aside the CONTRADICTION finding's severity, the TEST-026 annotation leaves a downstream implementer to independently discover and resolve how a permanent, non-allowlisted SKIP interacts with AC-035(b)'s unknown-SKIP hard-fail rule -- a product decision (extend the allowlist grammar? except TEST-026 from AC-035(b)? move it into REQ-007 scope?) this package does not make. Round 1 flagged that TEST-026 lacked the disclosure other SKIP rows carried; round 2's fix supplies a superficially matching annotation copied from AC-036/AC-037's convention, but investigation.md's own stated rationale for the copy (REQ-007 not in AC-026's Requirement column) is simultaneously the evidence that AC-026 falls outside the very governance machinery (AC-034/AC-035) the annotation's shared visual form implies it participates in."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md or domain-contract.json evidence is present in the allowed input manifest for this review; per calibration this check is recorded as skipped."
+    }
+  ],
+  "verdict": "NEEDS_WORK"
+}
