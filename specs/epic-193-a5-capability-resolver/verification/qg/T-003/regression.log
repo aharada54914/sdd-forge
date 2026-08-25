@@ -500,3 +500,18 @@ already failing before this feature's Done flips.
 
 regression: passes=true for this diff's own attributable effect, now
 measured against the post-removal tree.
+
+FIFTH-ROUND CORRECTION (2026-08-26, gate cycle 3, evaluator seq 0784):
+The section above wrote "Full run-all (tests/run-all.sh), exit 0". The
+actual exit code is 1 — with three beyond-baseline suites failing, the
+designed-red gate (documented at :126-129 above) correctly returns
+non-zero; "exit 0" applies only when the documented baseline suites
+alone fail, as the older 2-suite-era sections recorded. The gate's own
+capture reported 0 because it ran the sweep through a pipe
+(`run-all.sh 2>&1 | tail`), which masks the sweep's exit status with
+tail's. The cycle-3 evaluator's unpiped independent sweep measured
+EXIT:1 with a trailing enumeration byte-identical to the section above
+(same 5 suites, no sixth). The red-determination signal in this
+repository is the enumeration, not the exit code, and the enumeration
+stands: identical to the pre-removal set, none this feature's suite.
+regression: passes=true, unchanged.
