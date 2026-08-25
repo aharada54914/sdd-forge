@@ -577,3 +577,52 @@ design — confirmed by the attempt-6 precheck computing
   cannot be cited from inside itself and is pinned externally by the
   spec-review attempt-7 round-1 reviewer manifests and the identity-ledger
   records their reservations append.
+
+### Round-7 extension (2026-08-25): two abbreviated commit citations superseded by their full hashes
+
+- Defect corrected: two commits in this entry were cited in abbreviated
+  eight-character form, where the calibration's evidence bar element 1
+  requires "the amendment commit hashes, given in full (not abbreviated,
+  and not described only as 'recent changes')", and lists "abbreviated
+  where a full hash is required" among the conditions under which the
+  declaration does not apply, with no benefit of the doubt.
+- Superseded by appending, never rewritten in place. Each is identified
+  here by its full hash rather than by reproducing the abbreviated string,
+  because emitting the eight-character form again would recreate the very
+  condition being corrected:
+  - The commit that withdrew the `SKIP` framing from `TEST-026` is
+    `8bf1cda07d295aa44e12cb8d62565f2a3ac4a7c4`. The Round-6 extension
+    above cites it by its first eight characters only; that citation is
+    superseded by this full value.
+  - The commit that added the `OQ-004` and Risks entries is
+    `c50c8028cd7978368cc95c5cc495ffb7213b05d6`. The Round-4 extension
+    above cites it by its first eight characters only; that citation is
+    superseded by this full value.
+  Both full values were resolved with `git rev-parse` at the time of
+  writing rather than assumed from the abbreviations.
+- Authorization: none newly required. The changes these two commits made
+  were authorized by the rulings already quoted verbatim in this entry —
+  2026-08-25 「④ SKIP 枠組みを捨て、ポインタのみ残す（推奨）」 for the
+  first, and 2026-08-25 「① requirements.md に追跡を追加する（推奨）」 for
+  the second. This extension corrects the form in which their commits are
+  cited; it authorizes nothing further and changes no document bytes.
+- Provenance of the defect, recorded because the sequence is the useful
+  part. Spec-review attempt 7 round 1 reviewer A (ledger sequence 793) and
+  reviewer B (ledger sequence 794) both found the first of the two
+  independently and blind, each rating it Critical. Neither found the
+  second. That one was found
+  by enumerating every seven-to-thirty-nine character hexadecimal token in
+  this section and testing each against `git cat-file`, which is a
+  deterministic check that does not depend on a reader noticing. Two
+  careful blind reviewers found one instance; enumeration found both.
+- Standing consequence, adopted this session: before any commit that
+  appends to this entry, a mechanical checklist is run over the appended
+  text — every hex token that resolves as a commit must be given in full,
+  every SHA-256 must match a live measurement or a value already recorded
+  here, any authorization must be a verbatim dated source-language
+  quotation attributed to the human, no bare paths, zero deletions, and
+  this section's own start line unmoved. Three consecutive review rounds
+  failed on this record rather than on the specification it documents,
+  each correction introducing the next defect of the same class; a
+  finite, enumerable check over one's own text is the answer to that, not
+  more careful reading.
