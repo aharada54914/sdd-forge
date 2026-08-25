@@ -684,10 +684,18 @@ task's own explicit instruction.
   schema.json`, `contracts/capability-registry.json`,
   `contracts/capability-summary.schema.json`, `contracts/facet-manifest.
   schema.json`, or any other file under `contracts/**` — all four exist
-  today and belong to Epic A2/A4 (already `Passed`, content-frozen), and
-  the first three of those named are R-10 protected in the live
-  `guard-invariants.json` (`protected_gate_suffixes` and
-  `phase2_human_copy_targets`); investigation.md INV-013's "do not yet
+  today and belong to Epic A2/A4 (already `Passed`, content-frozen). The
+  live `guard-invariants.json` lists exactly three `contracts/` paths in
+  both `protected_gate_suffixes` and `phase2_human_copy_targets`, named
+  explicitly here rather than by position:
+  `contracts/capability-registry.schema.json`,
+  `contracts/capability-registry.json` and
+  `contracts/lite-upgrade-reason-catalog.json` — the third of which is
+  **not** among the four enumerated at the head of this bullet.
+  `contracts/capability-summary.schema.json` and
+  `contracts/facet-manifest.schema.json` are **not** R-10 protected; they
+  are content-frozen by their owning epic, which is a different
+  mechanism. investigation.md INV-013's "do not yet
   exist anywhere" evidence is superseded by the Amendment Re-Review
   Context's third entry, 2026-08-25. REQ-001 is a design for a
   future revision Epic A2's own Phase 2 (or a follow-up A2-owned
@@ -967,9 +975,15 @@ task's own explicit instruction.
   check-catalog.json`/`lite-upgrade-reason-catalog.json` catalog-version
   bumps this feature's REQ-001 designs — this feature defines the target
   shape, it does not apply it (Dependencies, above; Non-goals).
-  Registers the two new/changed catalog files and the schema edit as
-  protected (`guard-invariants.json`), the same registration A2's own
-  REQ-005 already plans for its own new artifacts.
+  Of the three paths that edit touches, two are **already** R-10
+  protected in the live `guard-invariants.json` today —
+  `contracts/capability-registry.schema.json` and
+  `contracts/lite-upgrade-reason-catalog.json` — so no fresh registration
+  is needed for either; what they need instead is a staged human-copy
+  application path, owned by that same task (Non-goals). Only
+  `contracts/lite-check-catalog.json`, which does not exist yet, still
+  requires a new protection registration, matching the registration A2's
+  own REQ-005 already plans for its own new artifacts.
 - **A future implementation task (Epic A6 Phase 2)**: the sole intended
   author of the live `check-risk-upgrade.{sh,ps1}`/`risk-upgrade-policy.
   md`/`lite-spec/SKILL.md` human-copy edits (REQ-002/REQ-005) and the live

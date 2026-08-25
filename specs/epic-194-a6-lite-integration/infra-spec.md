@@ -161,11 +161,20 @@ developer/maintainer machines; no new infrastructure spend is introduced
   implementation task's own test suites, or a defect found in the staged
   human-copy payload before or after application.
 - **Unprotected/data-file changes** (`contracts/lite-check-catalog.json`,
-  the `lite-upgrade-reason-catalog.json` `catalog_version` bump, and — once
+  which does not exist yet and carries no guard entry, and — once
   a future implementation task lands it — `lite-gate/SKILL.md`'s direct
   edit) revert via a standard `git revert` of the offending commit — no
   special procedure beyond that, mirroring every sibling epic's own
   identical convention for its own unprotected-file changes.
+  **Corrected 2026-08-25:** the `lite-upgrade-reason-catalog.json`
+  `catalog_version` bump was previously listed here as an
+  unprotected/data-file change. It is not one.
+  `contracts/lite-upgrade-reason-catalog.json` is R-10 protected in the
+  live `guard-invariants.json` (`protected_gate_suffixes` and
+  `phase2_human_copy_targets`), so its edit is applied by a human from a
+  staged candidate and reverts the same way every other protected path
+  below does — a human re-running the anchored runner against the prior
+  staged bytes, never a bare `git revert` by an agent.
 - **Protected-path changes** — the four `sdd-lite`-owned paths
   (`check-risk-upgrade.{sh,ps1}`, `risk-upgrade-policy.md`, `lite-spec/
   SKILL.md`) can only be reverted the same way they were applied: a
