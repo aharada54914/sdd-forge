@@ -972,7 +972,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
 Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -1239,7 +1239,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
 Approval: Approved (sudo 2026-08-08T16:04:17Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 

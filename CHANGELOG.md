@@ -31,7 +31,9 @@
   既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
   （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
   が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
-  自身が所有する fixture として **11 fixture directory・55 assertion**
+  自身が所有する fixture として **15 fixture directory・109 assertion**
+（2026-08-26 gate cycle-1 実測更新: red-baseline-recaptured-v2 で全 15
+fixture・109 assertion が fail することを確認）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
   `registry-discovery-unimportable` / `registry-validation-failed` /
@@ -46,7 +48,7 @@
   再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
   同一ファイルに同居するため、
   スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
-  すぐ陳腐化する — T-003 自身の寄与分（上記 11 fixture・55 assertion）
+  すぐ陳腐化する — T-003 自身の寄与分（上記 15 fixture・109 assertion）
   のみをここでは確定的に記載し、スイート全体の現在合計は
   `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
   「Cross-Model Panel Remediation」節、および
@@ -131,7 +133,8 @@
   実サブプロセス経由で end-to-end に検証する新規スイート
   `tests/resolve-project-context-match.tests.{sh,ps1}`（共有ドライバ
   `tests/resolve-project-context-match-check.py`）を追加し、`tests/run-all.
-  {sh,ps1}` に登録。sh/ps1 とも **59 passed / 0 failed**。union-match
+  {sh,ps1}` に登録。sh/ps1 とも **125 passed / 0 failed**（2026-08-26
+gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-match
   (AC-006)、cross-Capability / 同一 Capability 内の同名 facet 二重宣言の
   facet-name 集約 (AC-043/AC-052)、Context Projection のバイト一致
   (AC-003)、`resolve-component-paths`/`generate-registry-digest --whole`

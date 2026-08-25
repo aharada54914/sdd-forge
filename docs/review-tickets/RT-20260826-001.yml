@@ -1,0 +1,74 @@
+ticket_id: RT-20260826-001
+status: open
+type: spec-drift
+severity: major
+requires_human_decision: true
+target:
+  feature: epic-193-a5-capability-resolver
+  task: T-003
+  files:
+    - specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py
+    - specs/epic-193-a5-capability-resolver/design.md
+    - specs/epic-193-a5-capability-resolver/requirements.md
+    - specs/epic-193-a5-capability-resolver/tasks.md
+summary: >-
+  The staged resolver's step 6.5 (_recheck_registry_snapshot, added by the
+  2026-08-25 confirmation-panel remediation b4eef664) is a mid-pipeline
+  Registry re-read and Block that three frozen approved documents exclude.
+  The seq-0780 quality-gate evaluator confirmed it as spec drift; closing
+  it requires a human ruling because both closure routes touch frozen
+  content.
+problem: |
+  Found by the isolated evaluator in quality-gate cycle 1 (seq 0780,
+  2026-08-26) and re-verified by the gate against the frozen documents:
+
+  1. design.md ("snapshot" paragraph, ~:636-645) states the invocation
+     retains the Registry bytes in memory, "never re-reading any of the
+     three paths from disk again except for the two rechecks below" —
+     the step-13 pre-publication recheck and the post-publication
+     recheck. Step 6.5 (resolve-project-context.py:398
+     `_recheck_registry_snapshot`, invoked at :1573 between steps 6 and
+     7) is a third re-read.
+  2. requirements.md (~:368, `snapshot-generation-mismatch` row) fixes
+     that diagnostic's trigger as "Immediately before this invocation's
+     own publication", with a fresh re-derivation of
+     `affected_components`. Step 6.5 fires the same closed-enum id
+     mid-pipeline, on Registry bytes only, with
+     `capability_evaluations: []` — an observable semantic divergence
+     for any consumer reading the id per its frozen definition.
+     design.md:2308 independently enumerates this id as "(step 13)".
+  3. tasks.md:951-954 places the `snapshot-generation-mismatch` fixture
+     in T-003's Out of Scope ("T-004's own"); the
+     `registry-swapped-during-validation` fixture T-003 now carries is a
+     third fixture for a row the spec allocates two.
+
+  The change itself is a genuine TOCTOU hardening (panel remediation) and
+  should probably survive — but this feature has twice established the
+  correct route for exactly this situation: human rulings A(1)/B(1)
+  amended the frozen documents FIRST (d5701194 / b572fcd6, both
+  human-approved 2026-08-24), and code followed. Step 6.5 shipped without
+  that step. auto-fix-policy.md forbids requirement changes as auto-fix,
+  so the gate cannot close this.
+decision_needed: |
+  Choose one:
+  (a) Amend the frozen documents (ruling route, as A(1)/B(1)): extend
+      design.md's "two rechecks" to include the step-6.5 defensive
+      recheck, define its diagnostic semantics (same id vs a
+      distinct one) in requirements.md's REQ-002 row, and reconcile
+      tasks.md's fixture allocation. Then re-run
+      spec→impl→task re-reviews per the amendment procedure, then
+      quality-gate cycle 2 for T-003.
+  (b) Relocate/remove step 6.5 from the staged resolver (restore literal
+      spec conformance; the step-13 pre-publication recheck already
+      covers the TOCTOU at the frozen-spec-sanctioned point), retire the
+      registry-swapped-during-validation fixture or reassign it to
+      T-007's step-13 coverage, recapture affected evidence, then
+      quality-gate cycle 2 for T-003.
+notes: |
+  Related, same gate cycle: the second Major (qg/T-003/traceability.log
+  contradicting the reviewed code) was already closed in-gate by a
+  correction trailer (auto-fix-policy "traceability updates"); see the
+  cycle-1 gate report's Post-Fix Artifacts. T-003 additionally requires a
+  post-remediation cross-model pass (or a valid human waiver) before Done
+  under sdd-ship's Security-Sensitive rule — schedule it together with
+  cycle 2.

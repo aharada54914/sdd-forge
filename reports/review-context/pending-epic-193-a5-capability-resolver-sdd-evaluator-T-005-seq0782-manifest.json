@@ -1,0 +1,270 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-193-a5-capability-resolver",
+  "task_id": "T-005",
+  "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-005-seq0782",
+  "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-005-0782",
+  "sequence": 782,
+  "previous_record_sha256": "61ad9bde99b256c46d8c3e07c4551868b618d47368ecb75db73d0c2940b6a796",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "f2b1c65183ac5c55d1debdd95279f75db930efb5da17fc2016bb29084374d7d6",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "CHANGELOG.md",
+      "sha256": "b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-005.md",
+      "sha256": "aa4534a556a14de585c54ae1f5c9462878a8833e16dc843632e6644239c04c04"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml",
+      "sha256": "29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+      "sha256": "51deb17eb0d822ca2aa081e32c2ece77319e14c045157ff0c0d950fded41c5a2"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+      "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "ea82d6f08a8c82de38f15cc76c4cc6d6702651232210bf20640ac3dd68cf7d25"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005.contract.json",
+      "sha256": "ddda355834daff5e1c30d4aa0217b5acab86a93e5468174a934972f6349f9c84"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/green-ac056-ps1.log",
+      "sha256": "c6bd2071b7cf42a18929f5ac30a686f28a682b7486e67ac9002e157600209329"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/green-ac056-sh.log",
+      "sha256": "c6bd2071b7cf42a18929f5ac30a686f28a682b7486e67ac9002e157600209329"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/green-ps1.log",
+      "sha256": "653bca168b04725f04c8ae0ef5516cab9dcbbd8edd57f5de24ad57bcd153b73d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/green-sh.log",
+      "sha256": "653bca168b04725f04c8ae0ef5516cab9dcbbd8edd57f5de24ad57bcd153b73d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-ac056-ps1.log",
+      "sha256": "1a200d6804f0f5148f19f33fa61ea66ecb718edd027bc595dae9622fad7891ce"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-ac056-sh.log",
+      "sha256": "1a200d6804f0f5148f19f33fa61ea66ecb718edd027bc595dae9622fad7891ce"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-ps1.log",
+      "sha256": "a4a8e781f8aa59c5798fca5e76dd92bf91c4c05e221f7956a5225e8f4534fa3f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-misaggregated-facet-sh.log",
+      "sha256": "a4a8e781f8aa59c5798fca5e76dd92bf91c4c05e221f7956a5225e8f4534fa3f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-noncanonical-provenance-ps1.log",
+      "sha256": "d9a234e151b0bc765a70adfdab0c04f2a193908d716496527e6ad670f6b1914f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-noncanonical-provenance-sh.log",
+      "sha256": "459901f2a8032592ab1603bc671c42f68bf2f2b3eb165497d2e130d2832b2283"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-ps1.log",
+      "sha256": "9219ad2f5df0872309a2f0ed775ef00c5431de62024caa48a5a164af92725d11"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-sh.log",
+      "sha256": "6b8379bae5ddff61e1fdcd9b963cb54af7c62903fee8f2d7f61807876d3dfa87"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-ps1.log",
+      "sha256": "0984161b36fa388e2672ffa3af97f210adef445ef114da0b922180cc63108719"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-v2-ps1.log",
+      "sha256": "a4c0861a9c442a83896c6570fa8c189c576c14cc942a3fe7b78d4e9ee2136c78"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-recaptured-v2-sh.log",
+      "sha256": "48c3c6dc4b6ab8069699cda32e898b2e41aad0bbf10016f7f7f627c40eddcbfb"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-005/red-undermatched-capability-sh.log",
+      "sha256": "427ae330668d951b970923c398bf69d3825e5ff4155fbf68474e1ed4e726f61b"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-ps1.log",
+      "sha256": "2925903fdbdc1742ac06d0263afa18818e417b8a1e236dc6437ebb92e69d01a4"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/focused-tests-sh.log",
+      "sha256": "97cb8b55464e605b8ba19dff886315765900c3ff884890b32528658b7f298291"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/mutation-kill-minimum-enforcement-omitted.log",
+      "sha256": "95306d4c210914b09d8122a411b5e5d18e4ef264e42fd28b539f6703f3348fae"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/mutation-kill-minimum-enforcement-whole-registry.log",
+      "sha256": "37be9fb797585980d627adacf51e16fda59c2e76666eeeb322b8146c70566fd6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/mutation-kill-mut7-required-facets.log",
+      "sha256": "b2597505d57ba16cebad8010728a0caf7b438a1b05a6d1c6c045ed3876885e08"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/mutation-kill-mut9-warn-cardinality-nested-node.log",
+      "sha256": "9ab797605dd8378ab763b57f2c17f27b75333e27b57eb3b880591995ba398171"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/mutation-kill-zero-affected-component.log",
+      "sha256": "af4ac0f8c1cce7203fa628b5b8d06a53f74494b30f06af54a48d00a64b9a9dfd"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/placeholder-scan.log",
+      "sha256": "1256aecdd9e5eb8cdf70793de695595eb262cfbd6da28f263d9e23df147f967d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/regression.log",
+      "sha256": "5a579ad711e58fd11da8f7cbb1f5a85c25b56189d34f4188eff0370592502992"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/task-state.log",
+      "sha256": "7dd25def4f74510383ecb66dca460e20d963a3d800b4b5372c8dcb131bc75f7a"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-005/traceability.log",
+      "sha256": "fe94a2f022bbd0596ff86895e242acde0809453e5b22fe2803e6f363923f7fe3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/capability-registry.json",
+      "sha256": "2583c9a8c3f538a18d1fbc1678be17045b01e1c27aedb90b2cfca69a4985088b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/generate-registry-digest.py",
+      "sha256": "6bb714aed3b1e01676e91a73a219cfbbb28b78e62974a28d445ed263a6de62b1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-advisory.yaml",
+      "sha256": "78b1398bc6f7a46a705cc22a65fe76e67600a1d0a5e941f35b3643f773508f60"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/enforcement-byte-identity/project-context-required.yaml",
+      "sha256": "c2649a531d6a0762523530bdd12a4d51b7719d6eede105cb84594ed9122407ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/capability-registry.json",
+      "sha256": "5b0a8ec97e25ac7e754e19acc3e08d33e63e6b1205f06aa814db31643556e017"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/generate-registry-digest.py",
+      "sha256": "0e8c03ffdbf743bfe2bb66eba895008c0d1fdeaf22afa66de6f7a9f606d202c1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/project-context.yaml",
+      "sha256": "46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/full-pipeline-match/resolve-component-paths.py",
+      "sha256": "e88b3da3c38ccda7a3cf5d57985a4504fc0d0bacd1204851337b6b91a52d1d23"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/capability-registry.json",
+      "sha256": "1642c9c5325820b5f924db872ac437b68b64cce3d2ba59e819030cde75f2c1c2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-facet-node/project-context.yaml",
+      "sha256": "dd94fc0799ff3135941e140792c74eb7fbf638dd0a0ba8e0cb79f8af98f1cb11"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/capability-registry.json",
+      "sha256": "ae0d763d1767e29fcf8695f37f580d2cd306cf173bb5d83ff0936692af23ff7a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-multi-node/project-context.yaml",
+      "sha256": "290c85f8891a90a7644595064ecdbc8b62ae14e8fe727b09609192da5b48f448"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/capability-registry.json",
+      "sha256": "b5d9b5e2439da9e843cfd36de445f2df54e06455dbd7e694d954411311c84bc4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/warn-cardinality-nested-node/project-context.yaml",
+      "sha256": "8a789a9432ba0e9d4293c99d2d41497f704ae415545f71871892b680169429ae"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/__pycache__/generate-registry-digest.cpython-314.pyc",
+      "sha256": "30f549660868840336787ba415cd50203109a783c2026e20d6340f0437c5809b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/capability-registry.json",
+      "sha256": "5b0a8ec97e25ac7e754e19acc3e08d33e63e6b1205f06aa814db31643556e017"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/generate-registry-digest.py",
+      "sha256": "b285c8028982eed870e529375d185c30966a60b30bb49d0a36646267b5fff554"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/project-context.yaml",
+      "sha256": "46014a91f5d52ef6d29903491477e53b47477faafe1f0d7ff4418a7b603c1f41"
+    },
+    {
+      "path": "tests/resolve-project-context-block-check.py",
+      "sha256": "26ac720fb5cb75a94590dfa8c77d3d727c9f2523f28b5d4462d15379ce94d022"
+    },
+    {
+      "path": "tests/resolve-project-context-match-check.py",
+      "sha256": "89f46e03750a7b4199cd95330ecd186dee94f30cf772ac883801d50c191baebd"
+    },
+    {
+      "path": "tests/resolve-project-context-match.tests.ps1",
+      "sha256": "f843a1994de123e3444efe8322fbbacad197bf5873f42f18358d47678efc1482"
+    },
+    {
+      "path": "tests/resolve-project-context-match.tests.sh",
+      "sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "5c62b3421bb2319538792429cf4791eb47a212847d21aa14550a50b0e26b9563"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "a5750732627f3de66f5d3af88f0849959ea4c01214562600dfbecfc576c3e767"
+    }
+  ]
+}

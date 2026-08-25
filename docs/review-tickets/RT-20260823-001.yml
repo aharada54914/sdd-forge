@@ -1,5 +1,21 @@
 ticket_id: RT-20260823-001
-status: open
+status: resolved
+resolution: |
+  2026-08-26 (quality-gate seq 0782, cycle 1): resolved by the gate-cycle-3/4
+  remediation already present in tests/resolve-project-context-match-check.py
+  — the "RT-20260823-001 Route 1" published-value assertions read
+  context_binding's four scalar fields (full_context_revision,
+  projection_sha256, registry_digest, ownership_digest) back off the
+  PUBLISHED resolver-evidence.yaml and diff each against an independently
+  derived expectation (driver-side hashlib recomputation, fixture-stub
+  FIRST_DIGEST constant, and a second real resolve-component-paths-real.py
+  subprocess) — the exact discrimination this ticket found missing. The
+  seq-0782 isolated evaluator line-level-verified that every load-bearing
+  expectation is independent of the code under test and re-ran the suite:
+  125 passed / 0 failed on both runtimes, byte-identical to the committed
+  logs. The ticket's measured survival (wrong projection_sha256 at 65/0)
+  is no longer reproducible against the current driver's published-value
+  reads.
 type: verification-gap
 severity: major
 target:

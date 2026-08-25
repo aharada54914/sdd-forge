@@ -170,3 +170,25 @@ d5701194; ruling B(1) on AC-016, b572fcd6) are human-approved and predate
 it.
 
 TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 219 passed, 0 failed"
+
+GATE-CYCLE-1 CORRECTION TRAILER (2026-08-26, quality-gate seq 0780):
+The independent evaluator found, and the gate confirmed by direct
+re-measurement, three statements above that are wrong against the tree
+this log certifies. They are corrected here; nothing above is deleted.
+  (1) Live line numbers: ALL_CASE_NAMES is at
+      tests/resolve-project-context-block-check.py:322 (not 308) and
+      run_t003_case() at :493 (not 479) -- the 2026-08-25 pass shifted
+      both by 14 and the bullet above was not refreshed.
+  (2) The "abort-path warn forwarding is now REVERSED -- collected warns
+      are dropped, not forwarded" sentence above describes the
+      intermediate 1811ed0e state, which was itself later reversed under
+      human ruling A(1) (d5701194). The current staged resolver FORWARDS
+      warn_diagnostics on all three steps-7/8 abort paths
+      (resolve-project-context.py:1605,1608,1611; the code comment at
+      :1600-1603 records the A(1) restoration explicitly).
+  (3) The claim "(b) No figure in this log was found wrong on
+      re-measurement other than (a) -- checked, not assumed" is
+      retracted: items (1) and (2) above falsify it.
+RE-CONFIRMED AT CORRECTION TIME:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
