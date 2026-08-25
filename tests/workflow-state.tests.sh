@@ -697,12 +697,20 @@ done
 [[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
   fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
 
-# Prerequisite helper for the amendment-oscillation fixtures below. On the
-# branch 66a22b5a came from this was already present (added by an earlier
-# commit in that series); it is imported here verbatim because those fixtures
-# call it and it is otherwise undefined on this branch. Pure test scaffolding:
-# a fixture tree with both checker twins, the registry schema, and a git repo
-# so introducing-commit resolution has history to read.
+# plugins_pin_commit/Get-PluginsPinCommit resolve a plugins/ reference doc's
+# manifest-recorded hash against the commit that INTRODUCED the evidence
+# file (the review contract), not the one that last touched it. The fixtures
+# above run the checker binary at its real repo location, so
+# SCRIPT_ROOT/REPO_ROOT resolve to $ROOT and the pin is checked against
+# $ROOT's own git history. Proving the introducing-vs-last-touch distinction
+# needs a *self-contained* commit history the test controls byte-for-byte,
+# so these fixtures embed their own copy of both checker twins (mirroring
+# the reference-doc-forged-no-git technique above) inside a scratch git
+# repository the checker's own SCRIPT_ROOT/REPO_ROOT resolve to instead.
+#
+# Defined here rather than immediately above those fixtures because the
+# amendment-oscillation fixtures earlier in this file call it too, and a
+# shell function must be defined before the line that calls it.
 make_git_fixture() {
   local name="$1" target
   target="$(make_full_fixture "$name")"
@@ -950,30 +958,6 @@ run_investigation_twin "$inv_task" task-stage-grows
 [[ "$INV_LAST_PS_OUTPUT" == *"stage-provenance-tolerated: specs/workflow-state-integrity/investigation.md (task stage)"* ]] ||
   fail "investigation-amendment-task-stage-grows: expected a task-stage tolerance notice (PowerShell), got: $INV_LAST_PS_OUTPUT"
 
-
-# plugins_pin_commit/Get-PluginsPinCommit resolve a plugins/ reference doc's
-# manifest-recorded hash against the commit that INTRODUCED the evidence
-# file (the review contract), not the one that last touched it. The fixtures
-# above run the checker binary at its real repo location, so
-# SCRIPT_ROOT/REPO_ROOT resolve to $ROOT and the pin is checked against
-# $ROOT's own git history. Proving the introducing-vs-last-touch distinction
-# needs a *self-contained* commit history the test controls byte-for-byte,
-# so these fixtures embed their own copy of both checker twins (mirroring
-# the reference-doc-forged-no-git technique above) inside a scratch git
-# repository the checker's own SCRIPT_ROOT/REPO_ROOT resolve to instead.
-make_git_fixture() {
-  local name="$1" target
-  target="$(make_full_fixture "$name")"
-  mkdir -p "$target/plugins/sdd-quality-loop/scripts" "$target/contracts"
-  cp "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
-    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
-    "$target/plugins/sdd-quality-loop/scripts/"
-  cp "$ROOT/contracts/workflow-state-registry.schema.json" "$target/contracts/"
-  git -C "$target" init -q
-  git -C "$target" config user.email "workflow-state-tests@example.com"
-  git -C "$target" config user.name "workflow-state tests"
-  printf '%s\n' "$target"
-}
 
 PIN_CONTRACT_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
 PIN_MATRIX_REL="plugins/sdd-quality-loop/references/risk-gate-matrix.md"
