@@ -2,16 +2,20 @@
   "schema": "spec-reviewer-b/v1",
   "stage": "spec",
   "role": "spec-reviewer-b",
-  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0786",
-  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0786",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0788",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0788",
   "allowed_input_manifest": [
     {
       "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
       "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
     },
     {
+      "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-1/integrated-summary.json",
+      "sha256": "e7207c83e3fd16fc244f33f1e141c051081b14db8fe521762b85ed64b1085416"
+    },
+    {
       "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-1/precheck-result.json",
-      "sha256": "9a39ce7494f2ee6e045644253f5ec6f0c818b7c543906c8b84c62ec523a92ff8"
+      "sha256": "ac2767eae22a1a1b45e80181e967d3b04d47f2de1cb1aecbff9a2d50b90edbf6"
     },
     {
       "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
@@ -19,11 +23,11 @@
     },
     {
       "path": "specs/epic-195-a7-compatibility/investigation.md",
-      "sha256": "db5cb700866f58c6961726cd22010a64499cb4be0c80984e0599117a1fe5914e"
+      "sha256": "123330c7d9556569f09eeae18f5a50c8e6f4cc90d641562aa856d68a20956da4"
     },
     {
       "path": "specs/epic-195-a7-compatibility/requirements.md",
-      "sha256": "f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2"
+      "sha256": "bc596b776cc08b7a5479be198a18c942ea715f89e3bdd25af35f6d3460f2400f"
     }
   ],
   "checks": [
@@ -31,43 +35,43 @@
       "id": "AMBIGUITY",
       "result": "PASS",
       "severity": "Major",
-      "finding": "requirements.md and acceptance-tests.md fix concrete schema names, exact field lists, exact hash-locked function signatures, and per-event-kind producer/ordering/normalization tables for essentially every stated term; no term, state, or output surfaced during this review admits two reasonably different implementer readings."
+      "finding": "Both reviewed remedies use concrete, unambiguous language. investigation.md:331-365 names the exact eleven propagation sites (four tasks.md, five design.md, two security-spec.md) with a verbatim, dated matching human ruling. requirements.md:906-926 (OQ-004) names the exact function, the exact call, and the exact ordering/early-return mechanism at issue. No term, actor, state, input, or output in either remedy is left for two implementers to read differently."
     },
     {
       "id": "CONTRADICTION",
       "result": "FAIL",
-      "severity": "Critical",
-      "finding": "investigation.md:252-255 quotes the human's verbatim, dated approval as authorizing propagation to '8 kasho' (8 locations). The same entry's own amendment-commit description at investigation.md:261-270 states that commit 99c74ff78cc4ec0548028652d429aca66ebb2c32 'propagates the AC-009 amendment to the eleven statements' -- four in tasks.md, five in design.md, two in security-spec.md (4+5+2=11), not 8. The entry's own gloss ('authorizing propagation ... to every sibling statement in the package that still asserted the pre-amendment fact') silently broadens the literal quoted scope to cover the discrepancy, but the calibration's evidence bar (Amendment Re-Review Context, element 3) requires the verbatim quotation itself to authorize the amendment's actual scope, not a paraphrase that expands it after the fact. Downstream failure mode: a design/task reviewer relying on this entry's suppression of phase-sequencing findings for the eleven propagated edits to frozen documents cannot verify that three of those eleven edits were actually within the human's authorized scope, since the cited approval names a smaller number. Severity Critical because an amendment to already-approved, hash-pinned frozen documents whose disclosed scope exceeds its own cited human authorization is exactly the 'unauthorized workflow boundary' class, and it undermines confidence in the suppression mechanism this and future amendment entries rely on."
+      "severity": "Major",
+      "finding": "requirements.md:511-519 (AC-026) states the Done-transition ordering rule ('always last in a round's own event sub-sequence') as a fixed, testable property to be asserted by TEST-018/TEST-019, with no qualification. requirements.md:375-391 (AC-009) locks assert_terminal's/Test-LoopTerminal's function-body hash as the binding truth condition for that exact producer. requirements.md:906-926 (OQ-004, open) and :958-968 (Risk, High) state directly that AC-026's rule 'is not satisfied by the implementation AC-009 currently pins,' is 'deliberately not fixed in code,' and that 'no check in this package detects the deviation' -- unlike every comparable upstream-dependency gap in this same package, which gets a machine-enforced, allowlist-governed named SKIP with a fail-closed drift check (REQ-007/AC-035). Two acceptance criteria in the same requirements.md are therefore in direct, currently unresolved conflict: one states a normative invariant, the other pins an implementation the document itself proves violates it, with no automated detection to distinguish a genuine future regression from this known, accepted gap. Severity Major rather than Critical: the conflict is scoped to one AC pair, is fully and honestly disclosed with a stated resolution path (a human hash-amendment procedure), and does not render the rest of the package unreviewable."
     },
     {
       "id": "EDGE-CASE-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "acceptance-tests.md enumerates negative self-checks, boundary/invalid states, and exhaustive fixture-matrix/observable coverage crossing every named row and observable, including explicitly rationalized N/A cells rather than silent omission."
+      "finding": "Neither remedy narrows existing negative-path coverage: AC-002's mutated-fixture check, AC-035's three-fold SKIP/drift negative self-check, AC-041's two independent runtime-refusal fixtures, and the PROJECT_CONTEXT_INVALID F3/F4-invalid variants (AC-019-AC-021) are untouched. The one edge case this round's disclosure implies -- a test asserting AC-026's rule that is known to fail -- is scored under DOWNSTREAM-READINESS."
     },
     {
       "id": "ASSUMPTIONS-RESOLVABLE",
-      "result": "FAIL",
+      "result": "PASS",
       "severity": "Major",
-      "finding": "investigation.md:256-260 discloses a human ruling that a 'done-transition ordering defect confirmed by both cross-model panelist slots' is to be recorded rather than fixed. requirements.md's AC-026 states the Done-transition event kind's ordering rule as 'always last in a round's own event sub-sequence' with no caveat. This known, human-confirmed deviation is not reflected in requirements.md's Assumptions section or Open Questions section, unlike this package's otherwise consistent practice of tracking every other open item there. A design/task reviewer reading only the canonical Phase 1 artifacts would treat AC-026's ordering claim as an uncontested, currently-true invariant."
+      "finding": "requirements.md:906-926 (OQ-004) is explicitly marked 'open' and states precisely what remains undecided -- a formal amendment of AC-009's pinned hash, described as 'a human procedure rather than a Phase-2/3 task decision' -- and why it cannot be resolved inside this package. This matches the calibration's accepted pattern of an open question explicitly flagged as a decision needed before design/task decomposition."
     },
     {
       "id": "APPROVAL-BOUNDARY",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "The golden-baseline candidate/canonical promotion boundary (REQ-006c, AC-018) is testable through concrete, independent mechanisms: AC-040's static CI-workflow-text scan and AC-041's two direct negative fixtures."
+      "finding": "REQ-006/AC-018/AC-040/AC-041 fix a testable governance boundary for this package's one irreversible-change surface -- golden-baseline promotion -- with two independent negative fixtures plus a static CI-workflow-text scan. Neither of this round's two remedies touches or weakens this boundary."
     },
     {
       "id": "DOWNSTREAM-READINESS",
-      "result": "PASS",
+      "result": "FAIL",
       "severity": "Major",
-      "finding": "Requirements and acceptance criteria decompose every named observable into an exact producer, ordering rule, and value-normalization, an exhaustive matrix-by-observable disposition table, and an explicit SKIP/allowlist governance model with hard-fail conditions."
+      "finding": "requirements.md:906-926 (OQ-004) and :958-968 (Risk, High) are detailed and honest, but neither AC-026 itself (requirements.md:511-519) nor its acceptance-tests.md row (TEST-026, line 30) carries any pointer to them. Every other acceptance-tests.md row gated by a known, disclosed limitation in this same package (AC-004/TEST-004, AC-007/TEST-007, AC-010/TEST-010, AC-019-AC-021, AC-036/AC-037, AC-042/AC-043) carries an explicit '(named SKIP, allowlist-governed, until Epic X merges)'-style annotation directly in the Test Type column; AC-026/TEST-026 has no analogous marker and reads as an ordinary unqualified test. A design/task reviewer scoping work from AC-026 or the acceptance-tests.md table -- the normal citation path this package's own Main Workflows step 2 describes -- has no textual signal at the point of use that this is a known, currently-unsatisfiable assertion pending a human hash-amendment procedure. The cross-referencing convention this same table applies everywhere else was not applied to the one AC where it is most needed."
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "Skipped: requirements.md carries no `Bounded-Context:` field, and domain/context-map.md / domain/domain-contract.json are not part of the allowed input manifest for this review."
+      "finding": "No domain/ directory, domain/context-map.md, Domain-Model-Status, or Bounded-Context: field is referenced anywhere in the reviewed documents, and no such artifact is in the allowed-input manifest. Per calibration this check is recorded skipped."
     }
   ],
   "verdict": "NEEDS_WORK"

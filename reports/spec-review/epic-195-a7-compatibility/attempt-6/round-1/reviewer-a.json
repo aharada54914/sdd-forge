@@ -2,8 +2,8 @@
   "schema": "spec-reviewer-a/v1",
   "stage": "spec",
   "role": "spec-reviewer-a",
-  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0785",
-  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0785",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0787",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0787",
   "allowed_input_manifest": [
     {
       "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
@@ -11,7 +11,7 @@
     },
     {
       "path": "reports/spec-review/epic-195-a7-compatibility/attempt-6/round-1/precheck-result.json",
-      "sha256": "9a39ce7494f2ee6e045644253f5ec6f0c818b7c543906c8b84c62ec523a92ff8"
+      "sha256": "ac2767eae22a1a1b45e80181e967d3b04d47f2de1cb1aecbff9a2d50b90edbf6"
     },
     {
       "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
@@ -19,55 +19,55 @@
     },
     {
       "path": "specs/epic-195-a7-compatibility/investigation.md",
-      "sha256": "db5cb700866f58c6961726cd22010a64499cb4be0c80984e0599117a1fe5914e"
+      "sha256": "123330c7d9556569f09eeae18f5a50c8e6f4cc90d641562aa856d68a20956da4"
     },
     {
       "path": "specs/epic-195-a7-compatibility/requirements.md",
-      "sha256": "f2343a1c0977aecc6970c2cb42d8fa9c9cb677cf11ff5ef35fb6fa38df9364d2"
+      "sha256": "bc596b776cc08b7a5479be198a18c942ea715f89e3bdd25af35f6d3460f2400f"
     }
   ],
   "checks": [
     {
       "id": "REQ-TESTABILITY",
-      "result": "FAIL",
+      "result": "PASS",
       "severity": "Critical",
-      "finding": "requirements.md AC-026 states the Done-transition event's ordering rule is 'always last in a round's own event sub-sequence,' and AC-009 (mirrored verbatim in acceptance-tests.md TEST-009's row) states assert_terminal's 'one sanctioned change' -- the `_loop_trace_emit done-transition:assert-terminal` call design.md's per-kind producer table places inside it -- is now 'locked byte-identical' at the re-baselined hashes, with no caveat. investigation.md's own '## Amendment Re-Review Context' > 'Spec/impl/task re-bind extension (2026-08-25)' section quotes a verbatim, dated human ruling directing that the done-transition ordering defect confirmed by both cross-model panelist slots be recorded rather than fixed. This is a direct contradiction between the package's own normative AC text (which a Phase-2/3 task author or quality-gate verifier consults as the settled oracle for TEST-018/TEST-019, AC-022-AC-027) and the package's own disclosed evidence that the ordering guarantee is confirmed-broken and deliberately left unfixed. A verifier following AC-026 literally cannot know, from requirements.md/acceptance-tests.md alone, that a test asserting 'always last' ordering is expected to fail for a known, unaddressed reason. It survives the Amendment Re-Review Context suppression because the calibration explicitly preserves 'the cited implementation artifact does not actually contain what the amendment claims it contains' as a non-suppressed defect class. Severity Critical per the calibration's 'contradictory goals, impossible acceptance criteria.'"
+      "finding": "Every in-scope requirement (REQ-001 through REQ-007) is decomposed into named, evidence-anchored acceptance criteria with a fixed producer, comparison target, and TEST case (e.g. AC-009 requirements.md:375-391, AC-026 requirements.md:511-519). Neither remedy landed in c50c8028 removes or degrades this pattern: the AC-009 propagation keeps every corrected statement hash-anchored and citable, and the new OQ-004/Risks entries are themselves concretely falsifiable claims ('assert_terminal ... emits done-transition before it compares the observed terminal state ... both early returns ... emit nothing at all'), not vague assertions."
     },
     {
       "id": "GOAL-AC-TRACE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Every goal REQ-001 through REQ-007 has multiple explicitly mapped acceptance criteria in requirements.md and corresponding rows in acceptance-tests.md. No goal is left without a traced AC."
+      "finding": "AC-026 (requirements.md:511-519) traces to REQ-003's Done-transition event kind and is exercised by TEST-026 (acceptance-tests.md:30); the new OQ-004 (requirements.md:906-926) and the Risks 'High' entry (requirements.md:958-968) both explicitly name AC-026 and AC-009 as their subject rather than introducing an orphaned goal or an untraceable disclosure."
     },
     {
       "id": "AC-OBSERVABLE",
-      "result": "PASS",
+      "result": "FAIL",
       "severity": "Major",
-      "finding": "Acceptance criteria specify concrete, externally checkable artifacts throughout: exact function-body sha256 hashes (AC-009), a named registration-forcing count assertion (AC-008), exact file-set enumerations per track (AC-005), exact CI-workflow string scans (AC-040), exact negative-fixture exit-code/no-file-write conditions (AC-041). The one truthfulness defect found is reported under REQ-TESTABILITY."
+      "finding": "requirements.md:511-519 (AC-026) states, with no qualifier, that the Done-transition event kind's ordering rule is 'always last in a round's own event sub-sequence ... fixed, and is asserted against the golden trace'; acceptance-tests.md:30 (TEST-026) states the same as a plain test target, 'Done-transition event kind asserted as the last event within both TEST-018 and TEST-019.' Neither location carries any pointer to OQ-004 or the Risks register. requirements.md's own OQ-004 (906-926) and its Risks 'High' entry (958-968) state this ordering rule 'is not satisfied by the implementation AC-009 currently pins' and name the exact downstream failure this produces: 'a verifier reading AC-026 in isolation would treat \"always the last event ...\" as an uncontested invariant -- and would then either record a genuine, expected failure as a spurious one, or \"fix\" it by editing the frozen hash AC-009 pins'. This is a specification-review concern, not an implementation concern -- the code defect itself is explicitly and legitimately deferred to a human hash-amendment procedure (919-921) -- but AC-026/TEST-026 are the two Phase-1 artifacts a task author or verifier actually works from, and the package's own risk analysis predicts exactly the failure a reader of those two artifacts in isolation will have, without curing it there. Major, not Critical: the defect is disclosed elsewhere in the same requirements.md and the package remains otherwise reviewable, but a live (not merely theoretical) downstream-mismatch risk the package itself names and does not close at the point of use."
     },
     {
       "id": "SCOPE-BOUNDARY",
       "result": "PASS",
       "severity": "Major",
-      "finding": "The Non-goals section explicitly excludes implementing Epics A1-A6, authoring test code/fixtures/registry edits, registering a ninth loop-inventory entry, re-specifying Epic A5's full deferred suite, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task."
+      "finding": "Neither remedy expands scope: the AC-009 propagation only corrects sibling statements to match already-approved AC-009 wording, and the OQ-004/Risks entries only track an existing, previously-undisclosed fact about the pinned implementation. Non-goals and Phase-1-only framing are unchanged by either remedy."
     },
     {
       "id": "CONSTRAINTS-EXPLICIT",
-      "result": "FAIL",
+      "result": "PASS",
       "severity": "Major",
-      "finding": "requirements.md's Risks section (Critical: upstream epic drift; High: shared-surface blast radius; Medium: 4-file Phase-1 scope deviation) does not mention the confirmed done-transition ordering defect in assert_terminal that investigation.md's newest amendment entry discloses. A reader of requirements.md's own Risks section -- the primary document governing the locked AC-009/AC-026 contract -- has no way to learn this known defect exists; the disclosure lives only in investigation.md's amendment-history addendum. Major per the calibration's 'missing specification detail that will cause downstream mismatch.'"
+      "finding": "The AC-009 hash-pin constraint and the governance rule that its correction requires a formal, human-approved hash amendment rather than a Phase-2/3 task decision are stated explicitly (requirements.md:915-921); the amendment provenance chain (commits, per-document SHA-256, dated verbatim approvals) is fully itemized in investigation.md's Amendment Re-Review Context section for both remedies reviewed this round."
     },
     {
       "id": "RISK-VALIDATION-SURFACE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "The high-risk claims requirements.md does name have explicit validation surfaces: upstream-epic-drift is mitigated by AC-034/AC-035's fingerprint-drift hard-fail machinery, and shared-surface blast-radius by design.md's field-naming finalization gate before any Phase 2/3 task starts."
+      "finding": "The AC-026/AC-009 ordering conflict is recorded as a named 'High' risk (requirements.md:958-968) with a stated validation/mitigation surface: OQ-004's disclosure itself, plus a named resolution path ('This question resolves together with a formal amendment of AC-009's recorded hash,' 919-920). A planned validation surface exists even though it is not cross-referenced at AC-026/TEST-026 itself."
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "requirements.md carries no `Bounded-Context:` field, and nothing in the allowed inputs indicates an Approved domain-model context-map or domain-contract.json applies to this feature."
+      "finding": "No `domain/` directory exists in this worktree, so the Approved-domain-model precondition is absent and this check is skipped per calibration."
     }
   ],
   "verdict": "NEEDS_WORK"

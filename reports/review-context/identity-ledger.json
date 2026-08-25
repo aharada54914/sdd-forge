@@ -7074,6 +7074,24 @@
       "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0786",
       "previous_record_sha256": "035095df6eef952748e18d2c0f223cc42b1574f8733155ca9db7bb1e6453378b",
       "record_sha256": "179078334b2e371ff1161154ee87340d782c74be2df74d354562a5e7dffd5ac3"
+    },
+    {
+      "sequence": 787,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0787",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0787",
+      "previous_record_sha256": "179078334b2e371ff1161154ee87340d782c74be2df74d354562a5e7dffd5ac3",
+      "record_sha256": "f8236b466f87b87c54208df2a464ec1cfa612de14a00cc165d7193d15c164a50"
+    },
+    {
+      "sequence": 788,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0788",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0788",
+      "previous_record_sha256": "f8236b466f87b87c54208df2a464ec1cfa612de14a00cc165d7193d15c164a50",
+      "record_sha256": "9571b64cf7c407818f91f709b57b38f1f092f8321c313de8d3f8fe7fcef299b6"
     }
   ]
 }
