@@ -246,6 +246,49 @@ foreach ($check in $contract.checks) {
     $evidence = ([string]($check.evidence)).Trim()
     $waiverReason = ([string]($check.waiver_reason)).Trim()
 
+    # Per-check execution record (design.md section 2, WFI-046). Optional --
+    # absent or null is valid -- but format-checked when present, with wording
+    # byte-identical to the python twin. This twin is an independent
+    # implementation, not a delegate, so the rule has to be written here too;
+    # shipping it on one runtime only is what gate seq 849 charged.
+    $checkProps = $check.PSObject.Properties.Name
+    $commandValue = $null
+    if ($checkProps -contains 'command') { $commandValue = $check.command }
+    if ($null -ne $commandValue) {
+        if ($commandValue -isnot [string] -or [string]::IsNullOrWhiteSpace($commandValue)) {
+            $failures += "check '$id' has invalid command: expected a non-empty string"
+        }
+    }
+    $exitCodeValue = $null
+    if ($checkProps -contains 'exit_code') { $exitCodeValue = $check.exit_code }
+    if ($null -ne $exitCodeValue) {
+        if ($exitCodeValue -is [bool] -or
+            -not ($exitCodeValue -is [int] -or $exitCodeValue -is [long])) {
+            $failures += "check '$id' has invalid exit_code: expected an integer"
+        }
+    }
+    foreach ($tsField in @('started_at', 'finished_at')) {
+        $tsValue = $null
+        if ($checkProps -contains $tsField) { $tsValue = $check.$tsField }
+        if ($null -eq $tsValue) { continue }
+        # ConvertFrom-Json coerces an ISO-8601 string to [datetime] and its
+        # string form is locale-rendered, so the original Z cannot be recovered
+        # from the text. DateTimeKind does distinguish the four shapes exactly:
+        # a trailing Z yields Utc, a bare timestamp Unspecified, and a numeric
+        # offset Local -- so the UTC requirement is checked on Kind, and only a
+        # value that stayed a string is pattern-checked.
+        if ($tsValue -is [datetime]) {
+            if ($tsValue.Kind -ne [System.DateTimeKind]::Utc) {
+                $failures += "check '$id' has invalid ${tsField}: expected ISO-8601 UTC " +
+                    "(YYYY-MM-DDTHH:MM:SSZ)"
+            }
+        } elseif ($tsValue -isnot [string] -or
+            "$tsValue" -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z$') {
+            $failures += "check '$id' has invalid ${tsField}: expected ISO-8601 UTC " +
+                "(YYYY-MM-DDTHH:MM:SSZ)"
+        }
+    }
+
     # Waiver enforcement: required:false + passes:false needs waiver_reason
     if (-not $required -and -not $passes) {
         if ([string]::IsNullOrWhiteSpace($waiverReason)) {
