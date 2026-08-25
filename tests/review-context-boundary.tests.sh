@@ -151,7 +151,7 @@ anchors() {
 # The two impl-review-precheck claims. The previous-round-summary requirement
 # lives in the shared lib since the #325 consolidation; the mode admission is
 # still in the precheck itself. Two subjects, so both are named.
-review-precheck-common.sh:231 precheck fail "persisted impl reviewer-a manifest is missing previous-round summary"
+review-precheck-common.sh:274 precheck fail "persisted impl reviewer-a manifest is missing previous-round summary"
 impl-review-precheck.sh:69 impl-review-precheck [[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]]
 ANCHORS
 }
