@@ -204,11 +204,52 @@ function Require-Pass(
     $previousSummaryHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $previousSummaryPath) -Algorithm SHA256).Hash.ToLower()
     if (-not (Test-ManifestEntry $reviewerA $previousSummaryPath @($previousSummaryHash))) { Fail "persisted impl contract does not bind reviewer A to the previous integrated summary" }
   }
+  # investigation.md's expected pin is derived from the contract under
+  # validation -- never from the live working tree. Every other entry checked
+  # above comes from an immutable or deliberately-current source:
+  # requirements/acceptance/design carry BOTH the contract's recorded hash and
+  # the current one, so an untouched file and a sealed file are both accepted;
+  # precheck-result.json and integrated-summary.json are frozen round artifacts
+  # that nothing may append to. investigation.md was the lone outlier, pinned to
+  # live bytes with no recorded-hash alternative, and it is the single worst file
+  # to read live: by design it is the document that accumulates the amendment
+  # record ACROSS stages, so it grows after a round is sealed as a matter of
+  # course. Reading it live compared today's bytes against the correctly-pinned
+  # ones and refused the downstream stage outright -- permanently, since nothing
+  # can un-grow the file (epic-196: 'persisted spec contract reviewer manifest is
+  # missing investigation evidence', with this validation running unconditionally
+  # so -ProvenanceRereview granted no way past it). A sealed contract is evidence
+  # about the past; validating it against the present is a category error. The
+  # live-vs-pinned question belongs to check-workflow-state.ps1, which asks it
+  # deliberately and carries the amendment-record growth tolerance for exactly
+  # this file.
+  #
+  # Same discipline as spec-review-precheck.ps1's Test-ValidateContract: every
+  # reviewer that pinned the file must have pinned the SAME bytes (the unique set
+  # must collapse to one value), and that value must be a well-formed digest, so
+  # a contract whose reviewer A and reviewer B disagree about what they read is
+  # still refused. The per-reviewer binding below is unchanged: once any reviewer
+  # pinned the file, BOTH must have. Absent from the manifest entirely means the
+  # reviewers declared they did not read it, which is legal -- the allowed-path
+  # table permits investigation.md for the spec and impl stages but never
+  # requires it -- so nothing is expected and the file merely existing today
+  # cannot invalidate a contract sealed before it was written.
   $investigationPath = "specs/$FeatureName/investigation.md"
-  if (Test-Path -LiteralPath (Join-Path $repoRoot $investigationPath) -PathType Leaf) {
-    $investigationHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $investigationPath) -Algorithm SHA256).Hash.ToLower()
+  $investigationPins = @()
+  foreach ($reviewer in $reviewers) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      if (Test-OrdinalEqual (Get-ManifestRelativePath $entry.path $repoRoot) $investigationPath) {
+        $investigationPins += [string]$entry.sha256
+      }
+    }
+  }
+  $uniqueInvestigationPins = @($investigationPins | Select-Object -Unique)
+  if ($uniqueInvestigationPins.Count -gt 1) { Fail "persisted $Stage contract reviewer manifest records an ambiguous or malformed investigation evidence pin" }
+  if ($uniqueInvestigationPins.Count -eq 1) {
+    $investigationPin = [string]$uniqueInvestigationPins[0]
+    if ($investigationPin -cnotmatch '^[0-9a-f]{64}$') { Fail "persisted $Stage contract reviewer manifest records an ambiguous or malformed investigation evidence pin" }
     foreach ($reviewer in $reviewers) {
-      if (-not (Test-ManifestEntry $reviewer $investigationPath @($investigationHash))) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
+      if (-not (Test-ManifestEntry $reviewer $investigationPath @($investigationPin))) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
     }
   }
   Assert-ContractReviewerAgreement $contract $Stage $FeatureName $repoRoot
