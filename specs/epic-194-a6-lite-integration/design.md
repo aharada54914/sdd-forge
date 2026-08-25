@@ -961,7 +961,21 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     payload list (the four `sdd-lite` targets plus
     `.github/workflows/test.yml`), the manifest's own target set, and the
     enumerated payload set — distinct from the Epic-136 fixed-prefix
-    runner it cannot reuse unmodified (requirements.md AC-031).
+    runner it cannot reuse unmodified (requirements.md AC-031). **Extended
+    2026-08-25** to also confirm design.md states contract point 5's own
+    properties, each named here rather than referred to collectively: the
+    per-target atomic publish, with that target's published digest verified
+    inside the publish step before the next target is attempted; the
+    explicit acknowledgment that the batch is not transactional and has no
+    rollback; live-state reporting on any failure after the copy phase has
+    begun, enumerating which targets are installed, which one failed and
+    which were not attempted, and stating that the installed files are live
+    and were not rolled back; and recovery by re-running the runner, an
+    already-correct target being a no-op. Without this extension, item 17
+    and requirements.md AC-031 between them named only points 1 through 4,
+    so a future implementation task could satisfy every traceable criterion
+    for this runner and never build a fixture for the property point 5
+    exists to guarantee.
 
 ## Design Decisions (resolving open questions)
 

@@ -1702,6 +1702,162 @@ case in this repository.
   because this entry, like the first, second and third appended entries
   before it, is pure growth at this section's tail.
 
+### Amendment record extension, fifth entry (appended 2026-08-25): the A/B/C landing, and the runner change behind design.md's fifth contract point
+
+Appended below the fourth entry, on the same terms: nothing above this
+heading is edited.
+
+This entry exists because it was missing. `impl-reviewer-a` found, during
+impl re-review attempt 3 round 1, that design.md's Protected-File
+Statement point 5 cited its authority only as an unelaborated human ruling,
+and that this section — the mechanism this package uses to record every
+other ruling with full commit hashes, per-document SHA-256 fingerprints and
+verbatim dated quotations — carried no entry for the commit that added it.
+That was correct: a grep of this document for
+`cf631ea748b86fc94f7570907669dc71ae563bfd` returned nothing. Point 5
+changes the protected-file human-copy boundary that `security-spec.md`
+names B5, so an unverifiable authority there is a real gap, not a
+formatting one.
+
+#### Human approval (verbatim, dated) — the rulings behind the fifth point
+
+Both are the human's own words, given 2026-08-25, in the order they were
+given:
+
+- 「現在の挙動を文書化するでよい」
+- 「君の推奨案で進めよ」
+
+The first authorized documenting the runner's current behaviour. The
+second authorized the recommendation put to the human after measurement:
+that the runner be **changed** rather than have the gap documented into the
+contract as sanctioned design. **The second ruling supersedes the first
+ruling's scope**, and that distinction is load-bearing — design.md's point
+5 describes a runner that was changed, not one that was merely described.
+Recording only the first ruling would misstate what point 5 rests on.
+
+#### What was measured before the second ruling was sought
+
+The T-001 cross-model panel found that
+`specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1`
+published protected targets one at a time with no rollback, and that on a
+mid-batch failure it named only the failing target before throwing. Because
+the failure helper throws out of the copy routine, the batch-wide post-copy
+pass never ran either. A partial application of protected files was
+therefore left both unenumerated and unverified — the state the runner's
+own four-point contract exists to prevent.
+
+Documenting that as designed behaviour would have sanctioned it. The
+recommendation was to change the runner instead, and the second ruling
+authorized that.
+
+#### What the commit landed
+
+`cf631ea748b86fc94f7570907669dc71ae563bfd` (2026-08-25) landed three
+frozen-document edits together, because all three needed the same stage
+re-pin:
+
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md` — AC-024's
+  parenthetical gained a dated qualifier. No criterion changed.
+- `specs/epic-194-a6-lite-integration/traceability.md` — the T-003 row
+  named two evidence paths that do not exist and never did; replaced with
+  the paths that do. `specs/epic-194-a6-lite-integration/traceability.json`
+  already carried the correct paths, so the two now agree.
+- `specs/epic-194-a6-lite-integration/design.md` — the Protected-File
+  Statement gained a fifth point.
+
+The same commit changed the runner itself. Its copy routine now records
+publish state, and the entry-point catch reports, before the stack trace,
+which targets are installed, which one failed, which were not attempted,
+that the installed files are live and were not rolled back, and that
+re-running is the recovery. A failure before the copy phase reports instead
+that no live file was modified.
+
+The reporting sits in the entry-point catch rather than in the failure
+helper or in the copy routine's own catch arms. The failure helper has
+roughly twenty call sites and nearly all fire before any copy, so reporting
+from there would attach an install report to failures that installed
+nothing. The copy routine's catch arms would each need a copy and would
+still miss a batch-wide post-copy failure, which is a fully-applied batch
+with a corrupt member. The entry-point catch sees every post-copy-phase
+failure in one place.
+
+#### Point 4 was documented, not changed
+
+Point 5's second paragraph fixes the scope of point 4 rather than editing
+point 4's text. The per-target verification point 4 reads as promising
+already exists: the copy routine re-opens each just-renamed file and
+re-compares its digest before returning, on both the Unix and the Windows
+path. The batch-wide pass is a second check. A third, separate per-target
+pass was considered and rejected because it would duplicate the copy
+routine's own published-digest check without adding a property. Cost was
+not the deciding factor and is not claimed as one.
+
+`impl-reviewer-a` recorded, as a non-blocking readability observation, that
+correcting point 4's scope by a forward disclaimer in point 5 rather than
+by editing point 4 leaves a reader to hold both passages at once. That
+observation stands as recorded; it was judged a readability concern rather
+than a contradiction, because point 5 reconciles the two explicitly.
+
+#### Test Strategy item 17, extended
+
+`impl-reviewer-a`'s second finding was that design.md Test Strategy item 17
+is the only item mapped to AC-031, and that item 17, AC-031 and the
+`specs/epic-194-a6-lite-integration/acceptance-tests.md` row all named only
+the exact-set, hash and post-copy properties of contract points 1 through
+4. None named point 5's properties, so a future implementation task could
+satisfy every traceable criterion for this runner and never build a fixture
+for the property the second ruling exists to guarantee. Item 17 is extended
+in this entry's own commit to name point 5's properties individually: the
+per-target atomic publish with its published digest verified inside the
+publish step; the explicit acknowledgment that the batch is not
+transactional and has no rollback; live-state reporting on any failure
+after the copy phase begins; and recovery by re-running the runner.
+
+#### Amended-document fingerprints added by this entry
+
+As of `cf631ea748b86fc94f7570907669dc71ae563bfd` (the A/B/C landing and the
+runner change, 2026-08-25):
+
+- `specs/epic-194-a6-lite-integration/design.md`:
+  `7864267708592b65d4b05762e51564734dca213bcc8682e91c29f7d29bb6b105`
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `77f60bf2d21f085ca656575a0795dbc8877fb5daf838068d5365202ed0d82c2e`
+- `specs/epic-194-a6-lite-integration/traceability.md`:
+  `8bc33c5363598b181dc6d565703df58500e8149c747be4dbc1fe92de99933003`
+- `specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1`:
+  `8fc01f58b04618cbcffb2f17cf6e29719e8fd9e6c28e6c141c254a3ee3cd2c5d`
+
+As of `a4800cfad16af2d333883abacb0d07774c7c0bc7` (the AC-024 qualifier
+anchored to a commit, 2026-08-25):
+
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b`
+
+#### Fingerprints and statements this fifth entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded in the fourth
+  entry above at
+  `7ea9df83f848a07f2b1b3a4ab58dd158dac39bc165525fb7e2ad0f3a3b974db6` and
+  again in this entry at
+  `7864267708592b65d4b05762e51564734dca213bcc8682e91c29f7d29bb6b105` as of
+  `cf631ea748b86fc94f7570907669dc71ae563bfd`, is superseded by this entry's
+  own commit, which extends Test Strategy item 17. Both earlier values stay
+  where they are and each remains true of the commit it names.
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md` at
+  `77f60bf2d21f085ca656575a0795dbc8877fb5daf838068d5365202ed0d82c2e` is
+  superseded by
+  `8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b`, both
+  recorded above against their own commits.
+- This document's own bytes, as pinned by spec-review attempt 6 round 2 and
+  by impl re-review attempt 3 round 1, are superseded by the revision this
+  entry's own commit produces. A document cannot embed its own
+  post-amendment hash; that revision is pinned by impl re-review attempt 3
+  round 2's invocation manifests. As with the first, second, third and
+  fourth appended entries before it, no prior contract is restaged or
+  re-validated against amended bytes, and the workflow-state gate
+  reconciles the difference only because this entry is pure growth at this
+  section's tail.
+
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
 Recorded 2026-08-23, in this document's amendment-context era (see
