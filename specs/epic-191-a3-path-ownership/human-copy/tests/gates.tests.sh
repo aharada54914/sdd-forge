@@ -1795,6 +1795,71 @@ else
     fail "T-004V.7: v2 medium should not require spec_revision: $(run_check_contract "${WORK}/t004v_medium/T-004V.medium.contract.json" "${WORK}/t004v_medium")"
 fi
 
+# T-006.8 (WFI-046, gate seq 849): the per-check execution record shipped with
+# NO fixture in either suite, so the format-check code path was never entered
+# and its total absence from the ps1 twin went unnoticed. Both polarities
+# pinned here; the ps1 twin carries T-006.ps.7a-7e.
+wfi046_root="${WORK}/wfi046"
+mkdir -p "$wfi046_root/specs/test-feature"
+printf 'PASS\n' > "$wfi046_root/ev.log"
+write_wfi046_contract() {
+    # $1 = output path, $2 = JSON fragment merged into the first check
+    python3 - "$1" "$2" <<'PY'
+import json, sys
+out, fragment = sys.argv[1], sys.argv[2]
+contract = {
+    "task_id": "T-046", "feature": "test-feature", "risk": "low",
+    # risk: low requires every baseline id at required:true, so the fixture
+    # marks them all required and passing -- otherwise the tier-minimum rule
+    # rejects it before the WFI-046 checks are ever reached.
+    "checks": [
+        {"id": cid, "required": True, "passes": True, "evidence": "ev.log",
+         "waiver_reason": "", "requirement_ids": []}
+        for cid in ("lint", "typecheck", "unit-tests", "build",
+                    "placeholder-scan", "task-state-check")
+    ],
+}
+if fragment:
+    contract["checks"][0].update(json.loads(fragment))
+open(out, "w").write(json.dumps(contract, indent=2) + "\n")
+PY
+}
+
+write_wfi046_contract "$wfi046_root/absent.json" ""
+if check_contract_passes "$wfi046_root/absent.json" "$wfi046_root"; then
+    ok "T-006.8a: WFI-046 fields absent still passes (grandfathering)"
+else
+    fail "T-006.8a: contract without the execution record should pass: $(run_check_contract "$wfi046_root/absent.json" "$wfi046_root")"
+fi
+
+write_wfi046_contract "$wfi046_root/valid.json" '{"command": "bash tests/unit.tests.sh", "exit_code": 0, "started_at": "2026-08-24T10:00:00Z", "finished_at": "2026-08-24T10:05:00Z"}'
+if check_contract_passes "$wfi046_root/valid.json" "$wfi046_root"; then
+    ok "T-006.8b: WFI-046 valid execution record passes"
+else
+    fail "T-006.8b: valid execution record should pass: $(run_check_contract "$wfi046_root/valid.json" "$wfi046_root")"
+fi
+
+write_wfi046_contract "$wfi046_root/blank-command.json" '{"command": "   "}'
+if check_contract_passes "$wfi046_root/blank-command.json" "$wfi046_root"; then
+    fail "T-006.8c: blank command should be rejected"
+else
+    ok "T-006.8c: WFI-046 blank command is rejected"
+fi
+
+write_wfi046_contract "$wfi046_root/bad-rc.json" '{"exit_code": "zero"}'
+if check_contract_passes "$wfi046_root/bad-rc.json" "$wfi046_root"; then
+    fail "T-006.8d: non-integer exit_code should be rejected"
+else
+    ok "T-006.8d: WFI-046 non-integer exit_code is rejected"
+fi
+
+write_wfi046_contract "$wfi046_root/bad-ts.json" '{"started_at": "2026-08-24T10:00:00"}'
+if check_contract_passes "$wfi046_root/bad-ts.json" "$wfi046_root"; then
+    fail "T-006.8e: timestamp without the UTC Z should be rejected"
+else
+    ok "T-006.8e: WFI-046 timestamp without the UTC Z is rejected"
+fi
+
 # ============================================================================
 # T-004: Red→Green evidence enforcement
 # ============================================================================
