@@ -649,13 +649,28 @@ expect_report_rejection 'IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' \
 # different section, and the LEGACY heading was still matched by prefix at
 # the boundary. The whole whitespace-and-control class is enumerated here,
 # on BOTH headings, so the mutation that reopened it cannot survive.
-for pad_label in space tab cr ff vt nbsp nul; do
+# Gate seq 856 charged that the heading grammar had been tightened one
+# character-class at a time for three consecutive cycles. Both components now
+# ban the CLASS, so this loop enumerates every invisible form that was ever
+# demonstrated -- ASCII whitespace, the C0 controls, the Unicode separators,
+# the format characters and the combining marks -- and asserts which of the two
+# fail-closed paths each one takes. Adding a form here costs one word.
+for pad_label in space tab cr ff vt nul nbsp ideographic en-space zwsp \
+    word-joiner bom mongolian-vs soft-hyphen lrm rlm lri pdi zwnj zwj \
+    comb-acute vs16 mixed; do
   pad_report="$REPORT_WORK/pad-heading-$pad_label.md"
   python3 - "$REPORT_WORK/current.md" "$pad_report" "$pad_label" <<'PYEOF'
 import sys
 source, destination, pad_label = sys.argv[1:]
-pads = {"space": " ", "tab": "\t", "cr": "\r", "ff": "\x0c",
-        "vt": "\x0b", "nbsp": "\u00a0", "nul": "\x00"}
+pads = {
+    "space": " ", "tab": "\t", "cr": "\r", "ff": "\x0c", "vt": "\x0b",
+    "nul": "\x00", "nbsp": "\u00a0", "ideographic": "\u3000",
+    "en-space": "\u2002", "zwsp": "\u200b", "word-joiner": "\u2060",
+    "bom": "\ufeff", "mongolian-vs": "\u180e", "soft-hyphen": "\u00ad",
+    "lrm": "\u200e", "rlm": "\u200f", "lri": "\u2066", "pdi": "\u2069",
+    "zwnj": "\u200c", "zwj": "\u200d", "comb-acute": "\u0301",
+    "vs16": "\ufe0f", "mixed": " \u200b\t",
+}
 pad = pads[pad_label]
 text = open(source, encoding="utf-8").read()
 text += (
@@ -666,11 +681,22 @@ text += (
 )
 open(destination, "w", encoding="utf-8").write(text)
 PYEOF
-  # A control character is refused before section keying; ordinary whitespace
-  # is stripped so the padded heading collides with the clean one.
+  # Two fail-closed paths, and every form takes exactly one of them:
+  #   * a Unicode separator (Zs) is stripped, so the padded heading collides
+  #     with the clean one and the duplicate-section guard fires;
+  #   * everything else -- control (Cc), format (Cf) and combining (Mn) -- is
+  #     refused outright, because it can never be stripped away safely.
+  # `comb-acute` sits in the second group only because the class is checked on
+  # the RAW name as well as the NFC form: NFC folds a trailing U+0301 into the
+  # preceding letter, erasing the standalone mark.
+  # `cr` joins the collide group rather than the refuse group: Python reads the
+  # report with universal newlines, so a lone CR is already a line terminator by
+  # the time the heading is keyed and never reaches the class check.
   case "$pad_label" in
-    ff|vt|nul) pad_expect='IMPLEMENTATION_REPORT_FIELD: control character in section heading' ;;
-    *)         pad_expect='IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' ;;
+    space|cr|nbsp|ideographic|en-space)
+      pad_expect='IMPLEMENTATION_REPORT_FIELD: duplicate ## Outputs' ;;
+    *)
+      pad_expect='IMPLEMENTATION_REPORT_FIELD: control or format character in section heading' ;;
   esac
   expect_report_rejection "$pad_expect" \
     "$pad_report" \

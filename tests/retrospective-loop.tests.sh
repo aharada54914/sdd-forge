@@ -325,8 +325,54 @@ grep -Fq 'Rejected' "$SKILL" || fail "retrospective must support rejected result
 grep -Fq '## Verification Metric' "$WFI_TEMPLATE" || fail "WFI template must include verification metric"
 grep -Fq '## Verification Metric' "$SKILL" || fail "workflow-retrospective WFI draft must include verification metric"
 grep -Fq '{{review_contract_count}} review contracts' "$REPORT_TEMPLATE" || fail "retrospective template must report review contract sample size"
-grep -Fq 'Spec Review Rounds' "$REPORT_TEMPLATE" || fail "retrospective template must include spec review rounds"
-grep -Fq 'Spec Review Blocked Rate' "$REPORT_TEMPLATE" || fail "retrospective template must compare spec review blocked rate"
+# gate seq 856 (Major 1): these two rows were pinned with `grep -Fq` on the
+# bare phrase, and "Spec Review Rounds" also occurs in the per-feature table
+# header further down the same template. Deleting the `| Avg Spec Review Rounds
+# |` METRIC row therefore left both this suite and the Pester twin green --
+# measured, not inferred. A metric column is only pinned if deleting it reddens
+# something, so pin every row of the comparison table as a whole line: label,
+# both placeholders and the trend cell together.
+retrospective_metric_rows() {
+  cat <<'METRIC_ROWS'
+| Avg QG Cycles per Task | {{prev_avg_qg}} | {{curr_avg_qg}} | {{trend}} |
+| Avg Task Attempts | {{prev_task_attempts}} | {{curr_task_attempts}} | {{trend}} |
+| Avg Review Rounds | {{prev_review_rounds}} | {{curr_review_rounds}} | {{trend}} |
+| Avg Quality-Gate Runs | {{prev_quality_gate_runs}} | {{curr_quality_gate_runs}} | {{trend}} |
+| Total Model Escalations | {{prev_model_escalations}} | {{curr_model_escalations}} | {{trend}} |
+| Total Blocked Count | {{prev_blocked}} | {{curr_blocked}} | {{trend}} |
+| Total Review Tickets | {{prev_tickets}} | {{curr_tickets}} | {{trend}} |
+| Auto-fix Rate | {{prev_autofix_pct}} | {{curr_autofix_pct}} | {{trend}} |
+| Avg Spec Review Rounds | {{prev_spec_review_rounds}} | {{curr_spec_review_rounds}} | {{trend}} |
+| Spec Review Blocked Rate | {{prev_spec_review_blocked}} | {{curr_spec_review_blocked}} | {{trend}} |
+| Avg Task Review Rounds | {{prev_task_review_rounds}} | {{curr_task_review_rounds}} | {{trend}} |
+| Task Review Blocked Rate | {{prev_task_review_blocked}} | {{curr_task_review_blocked}} | {{trend}} |
+| Avg Impl Review Rounds | {{prev_impl_review_rounds}} | {{curr_impl_review_rounds}} | {{trend}} |
+| Impl Review Blocked Rate | {{prev_impl_review_blocked}} | {{curr_impl_review_blocked}} | {{trend}} |
+| Impl Legacy Design Rate | {{prev_legacy_design_rate}} | {{curr_legacy_design_rate}} | {{trend}} |
+| Repeat Finding Rate | {{prev_repeat_finding_rate}} | {{curr_repeat_finding_rate}} | {{trend}} |
+| WFI Verification Rate | {{prev_wfi_verification_rate}} | {{curr_wfi_verification_rate}} | {{trend}} |
+METRIC_ROWS
+}
+
+metric_row_total=0
+while IFS= read -r metric_row; do
+  [ -n "$metric_row" ] || continue
+  metric_row_total=$((metric_row_total + 1))
+  grep -Fxq "$metric_row" "$REPORT_TEMPLATE" ||
+    fail "retrospective template lost the comparison-table row: $metric_row"
+done <<EOF_METRIC_ROWS
+$(retrospective_metric_rows)
+EOF_METRIC_ROWS
+
+[ "$metric_row_total" -eq 17 ] ||
+  fail "retrospective metric-row pin covers $metric_row_total rows, expected 17"
+
+# The rows must stay ONE contiguous table, so a row cannot be "kept" by moving
+# it somewhere inert, and a new row cannot be added without updating the pin.
+metric_block_span=$(grep -n '^| .* | {{prev_.*}} | {{curr_.*}} | {{trend}} |$' "$REPORT_TEMPLATE" |
+  awk -F: 'NR == 1 { first = $1 } { last = $1; n++ } END { print last - first + 1, n }')
+[ "$metric_block_span" = "17 17" ] ||
+  fail "retrospective comparison table is no longer 17 contiguous rows (got: $metric_block_span)"
 grep -Fq 'VERIFICATION-METRIC-DEFINED' "$AUDITOR_A" || fail "auditor A must check verification metric"
 grep -Fq 'Current baseline and target' "$AUDITOR_B" || fail "auditor B must check baseline and target"
 grep -Fq 'proposed_revisions' "$AUDITOR_A" || fail "auditor A must return structured proposed revisions"

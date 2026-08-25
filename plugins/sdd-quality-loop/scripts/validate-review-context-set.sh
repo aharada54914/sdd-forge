@@ -65,8 +65,28 @@ is_forbidden_review_output() {
 # table, and -- only when the manifest explicitly names and hash-pins one --
 # the gate report's `## Post-Fix Artifacts` table. Both are matched by exact
 # row equality, so both are hash-checked identically.
+# Gate seq 856: awk DROPS a NUL byte as it reads a line, so `$0 == heading`
+# matched `## Outputs<NUL>` and this boundary honoured a section the report
+# validator had rejected outright. Report validity is not a precondition of
+# authorization (WFI-050), so that rejection carried no weight and the smuggled
+# path still reached the authorized set. No matcher written in awk can close
+# this, because awk cannot see the byte. Screen the bytes here instead, before
+# any matcher runs: an implementation or gate report is a markdown text
+# document, and no C0 control other than tab, newline and carriage return -- nor
+# DEL -- has any business anywhere in one. Fails closed on an unreadable file.
+report_bytes_are_clean() {
+  local report=$1 offenders
+  # An absent or unreadable report must fail CLOSED. Without this, tr writes
+  # nothing, wc -c reports 0, and "no offending bytes" reads as "clean".
+  [ -f "$report" ] && [ -r "$report" ] || return 1
+  offenders=$(LC_ALL=C tr -d '\11\12\15\40-\176\200-\377' < "$report" 2>/dev/null |
+    LC_ALL=C wc -c | tr -cd '0-9')
+  [ "$offenders" = "0" ]
+}
+
 evaluator_output_is_declared() {
   local path=$1 expected_hash=$2 report=$3 heading=$4
+  report_bytes_are_clean "$report" || return 1
   awk -v expected_path="$path" -v expected_hash="$expected_hash" -v heading="$heading" '
     # EXACT heading match. Accepting a padded heading here while
     # validate-implementation-report.sh keyed `## Outputs ` as a DIFFERENT
@@ -106,6 +126,7 @@ evaluator_output_is_declared() {
 # channel (WFI-036) defines its own table form and gains no legacy grammar.
 implementation_report_legacy_declares() {
   local path=$1 expected_hash=$2 report=$3
+  report_bytes_are_clean "$report" || return 1
   awk -v expected_path="$path" -v expected_hash="$expected_hash" '
     # EXACT match, for the same reason as evaluator_output_is_declared above.
     # Tightening only that one left THIS heading on a prefix test, so a padded

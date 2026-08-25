@@ -61,21 +61,49 @@ required_headings = (
 # arbitrary paths (including `../../etc/passwd`) into an evaluator's
 # authorized input set, past the very duplicate-section guard this file
 # delivers. Found at gate seq 851.
-# The first fix stripped only space and tab. Form feed, vertical tab, NBSP and
-# NUL all still keyed a padded heading to a DIFFERENT section, so it escaped
-# every outputs check while the authorization boundary still honoured it
-# (gate seq 853). Reject control characters outright -- they have no business
-# in a heading, and str.strip() does not remove NUL -- then strip whatever
-# whitespace remains, which str.strip() defines over the full Unicode set.
+# The first two fixes each banned the characters that cycle's evaluator had
+# demonstrated -- space and tab, then the C0 controls -- and each time the next
+# evaluator found more. str.strip() removes only characters where str.isspace()
+# is true, so U+200B, U+2060, U+FEFF, U+00AD, the bidi controls and 25 other
+# invisible forms all still keyed `## Outputs<pad>` to a section distinct from
+# `## Outputs` (gate seq 856). Ban the CLASS instead of enumerating members:
+#   * NFC-normalize, so decomposed and precomposed spellings key alike;
+#   * reject control, format, private-use, surrogate, unassigned and
+#     standalone-combining characters outright -- every one is invisible or
+#     near-invisible, and none belongs in a heading;
+#   * strip every Unicode separator, not only the ASCII subset.
+# Measured against all 228 shipped implementation reports before landing: zero
+# headings carry a banned character, so this rejects nothing already in the
+# corpus. The authorization boundary screens the same class at the byte level,
+# because awk silently DROPS a NUL and cannot be trusted to see it.
+import unicodedata
+
+HEADING_BANNED_CATEGORIES = {"Cc", "Cf", "Co", "Cs", "Cn", "Mn", "Me", "Zl", "Zp"}
+
+
+def canonical_heading_name(raw):
+    # Check the class on the RAW form AND on the normalized form. NFC COMBINES
+    # a trailing U+0301 into the preceding letter, erasing the standalone Mn, so
+    # a normalize-then-check order let `## Outputs` + combining acute key a
+    # section of its own -- the only pad form of 23 that survived the first
+    # draft of this rule.
+    normalized = unicodedata.normalize("NFC", raw)
+    for character in raw + normalized:
+        if unicodedata.category(character) in HEADING_BANNED_CATEGORIES:
+            print("IMPLEMENTATION_REPORT_FIELD: control or format character in "
+                  "section heading", file=sys.stderr)
+            raise SystemExit(1)
+    stripped = "".join(
+        character for character in normalized
+        if unicodedata.category(character) != "Zs" or character == " "
+    )
+    return stripped.strip()
+
+
 heading_matches = list(re.finditer(r"(?m)^## ([^\n]+)$", text))
 sections = {}
 for index, match in enumerate(heading_matches):
-    raw_name = match.group(1)
-    if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", raw_name):
-        print("IMPLEMENTATION_REPORT_FIELD: control character in section heading",
-              file=sys.stderr)
-        raise SystemExit(1)
-    name = raw_name.strip()
+    name = canonical_heading_name(match.group(1))
     end = heading_matches[index + 1].start() if index + 1 < len(heading_matches) else len(text)
     sections.setdefault(name, []).append(text[match.end():end])
 

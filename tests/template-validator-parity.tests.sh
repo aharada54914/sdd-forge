@@ -129,6 +129,91 @@ else
     fail "validator pin: a launch-boundary heading matcher returned to a prefix test"
 fi
 
+# gate seq 856: awk DROPS a NUL as it reads a line, so no matcher written in
+# awk can see one -- `$0 == heading` matched `## Outputs<NUL>` and this
+# boundary authorized a section the report validator had rejected. Because
+# report validity is not a precondition of authorization (WFI-050), that
+# rejection carried no weight.
+#
+# The property under test is therefore the BOUNDARY ALONE: given a report, does
+# it authorize a path it must not? The earlier suite tested the conjunction
+# (report valid AND boundary authorizes), which is satisfied whenever either
+# side refuses and so never measured this. Exercise the real functions, lifted
+# out of the live script, rather than grepping for a construct.
+boundary_harness="$WORK/boundary-alone.sh"
+# Lift the three functions out of the live script. Done in python3 rather than
+# `awk ... | awk` with an early exit: the downstream exit closes the pipe, the
+# upstream awk takes SIGPIPE, and under `set -o pipefail` the suite dies with
+# 141 -- nondeterministically, depending on which side finishes first.
+python3 - "$VALIDATOR" "$boundary_harness" <<'PYHARNESS'
+import sys
+
+source, destination = sys.argv[1:]
+text = open(source, encoding="utf-8").read()
+start = text.index("report_bytes_are_clean() {")
+end = start
+for _ in range(3):
+    end = text.index("\n}\n", end) + len("\n}\n")
+open(destination, "w", encoding="utf-8").write(
+    "#!/usr/bin/env bash\n"
+    + text[start:end]
+    + "if evaluator_output_is_declared \"$2\" \"$3\" \"$1\" '## Outputs'; then\n"
+    "  echo AUTHORIZED\n"
+    "elif implementation_report_legacy_declares \"$2\" \"$3\" \"$1\"; then\n"
+    "  echo AUTHORIZED\n"
+    "else\n"
+    "  echo REFUSED\n"
+    "fi\n"
+)
+PYHARNESS
+
+smuggled_path='plugins/SMUGGLED-SECRET.md'
+smuggled_hash="$(printf 'd%.0s' $(seq 64))"
+boundary_bypasses=0
+for boundary_pad in nul vt ff space tab nbsp zwsp; do
+    boundary_report="$WORK/boundary-$boundary_pad.md"
+    python3 - "$boundary_report" "$boundary_pad" "$smuggled_path" "$smuggled_hash" <<'PYBOUNDARY'
+import sys
+destination, pad_label, path, digest = sys.argv[1:]
+pads = {"nul": "\x00", "vt": "\x0b", "ff": "\x0c", "space": " ",
+        "tab": "\t", "nbsp": " ", "zwsp": "​"}
+body = (
+    "# Implementation Report\n\n## Outputs\n\n| Path | SHA-256 |\n| --- | --- |\n\n"
+    "## Outputs" + pads[pad_label] + "\n\n"
+    "| `" + path + "` | `" + digest + "` |\n"
+)
+open(destination, "wb").write(body.encode("utf-8"))
+PYBOUNDARY
+    if [ "$(bash "$boundary_harness" "$boundary_report" "$smuggled_path" "$smuggled_hash")" = AUTHORIZED ]; then
+        boundary_bypasses=$((boundary_bypasses + 1))
+        printf '    padded with %s: AUTHORIZED\n' "$boundary_pad" >&2
+    fi
+done
+
+if [ "$boundary_bypasses" -eq 0 ]; then
+    ok "boundary alone refuses every padded ## Outputs heading (7 pad forms)"
+else
+    fail "boundary alone authorized a smuggled path from $boundary_bypasses padded heading(s)"
+fi
+
+# Non-vacuity: the clean, unpadded declaration MUST still authorize, or the
+# assertion above would pass on a boundary that authorizes nothing at all.
+boundary_clean="$WORK/boundary-clean.md"
+printf '# Implementation Report\n\n## Outputs\n\n| Path | SHA-256 |\n| --- | --- |\n| `%s` | `%s` |\n' \
+    "$smuggled_path" "$smuggled_hash" > "$boundary_clean"
+if [ "$(bash "$boundary_harness" "$boundary_clean" "$smuggled_path" "$smuggled_hash")" = AUTHORIZED ]; then
+    ok "boundary alone still authorizes a clean, unpadded declaration"
+else
+    fail "boundary alone refuses a clean declaration -- the pad assertion is vacuous"
+fi
+
+# The byte screen is only load-bearing if BOTH declaration functions call it.
+if [ "$(grep -c 'report_bytes_are_clean "\$report" || return 1' "$VALIDATOR")" -eq 2 ]; then
+    ok "validator pin: both declaration functions screen report bytes before matching"
+else
+    fail "validator pin: a declaration function no longer screens report bytes"
+fi
+
 # ---------------------------------------------------------------------------
 # WFI-017 leg: implementation report template vs its OWN authoring-time
 # validator (validate-implementation-report.sh). `render` above only fills
