@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "reviewer_a_sequence": 785,
+  "reviewer_b_sequence": 786,
+  "findings_critical": 2,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "blocking": true,
+  "resolution_owner": "human",
+  "resolution_note": "Both Criticals and both Majors require edits to frozen, hash-bound Phase 1 documents (requirements.md, acceptance-tests.md) or a new human authorization statement. Neither is available to a coder session. No remediation was attempted."
+}

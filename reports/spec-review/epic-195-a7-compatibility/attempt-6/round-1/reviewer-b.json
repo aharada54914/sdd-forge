@@ -1,0 +1,31 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0786",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0786",
+  "sequence": 786,
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major",
+     "finding": "requirements.md and acceptance-tests.md fix concrete schema names, exact field lists, exact hash-locked function signatures, and per-event-kind producer/ordering/normalization tables for essentially every stated term; no term, state, or output surfaced during this review admits two reasonably different implementer readings."},
+    {"id": "CONTRADICTION", "result": "FAIL", "severity": "Critical",
+     "finding": "investigation.md:252-255 quotes the human's verbatim, dated approval as authorizing propagation to '8 kasho' (8 locations). The same entry's own amendment-commit description at investigation.md:261-270 states that commit 99c74ff78cc4ec0548028652d429aca66ebb2c32 'propagates the AC-009 amendment to the eleven statements' -- four in tasks.md, five in design.md, two in security-spec.md (4+5+2=11), not 8. The entry's own gloss ('authorizing propagation ... to every sibling statement in the package that still asserted the pre-amendment fact') silently broadens the literal quoted scope to cover the discrepancy, but the calibration's evidence bar (Amendment Re-Review Context, element 3) requires the verbatim quotation itself to authorize the amendment's actual scope, not a paraphrase that expands it after the fact. Downstream failure mode: a design/task reviewer relying on this entry's suppression of phase-sequencing findings for the eleven propagated edits to frozen documents cannot verify that three of those eleven edits were actually within the human's authorized scope, since the cited approval names a smaller number. Severity Critical because an amendment to already-approved, hash-pinned frozen documents whose disclosed scope exceeds its own cited human authorization is exactly the 'unauthorized workflow boundary' class, and it undermines confidence in the suppression mechanism this and future amendment entries rely on."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major",
+     "finding": "acceptance-tests.md enumerates negative self-checks, boundary/invalid states, and exhaustive fixture-matrix/observable coverage crossing every named row and observable, including explicitly rationalized N/A cells rather than silent omission."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "FAIL", "severity": "Major",
+     "finding": "investigation.md:256-260 discloses a human ruling that a 'done-transition ordering defect confirmed by both cross-model panelist slots' is to be recorded rather than fixed. requirements.md's AC-026 states the Done-transition event kind's ordering rule as 'always last in a round's own event sub-sequence' with no caveat. This known, human-confirmed deviation is not reflected in requirements.md's Assumptions section or Open Questions section, unlike this package's otherwise consistent practice of tracking every other open item there. A design/task reviewer reading only the canonical Phase 1 artifacts would treat AC-026's ordering claim as an uncontested, currently-true invariant."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical",
+     "finding": "The golden-baseline candidate/canonical promotion boundary (REQ-006c, AC-018) is testable through concrete, independent mechanisms: AC-040's static CI-workflow-text scan and AC-041's two direct negative fixtures."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major",
+     "finding": "Requirements and acceptance criteria decompose every named observable into an exact producer, ordering rule, and value-normalization, an exhaustive matrix-by-observable disposition table, and an explicit SKIP/allowlist governance model with hard-fail conditions."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major",
+     "finding": "Skipped: requirements.md carries no `Bounded-Context:` field, and domain/context-map.md / domain/domain-contract.json are not part of the allowed input manifest for this review."}
+  ],
+  "findings_critical": 1,
+  "findings_major": 1,
+  "findings_minor": 0
+}

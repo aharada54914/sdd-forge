@@ -1,6 +1,6 @@
 # Requirements: epic-195-a7-compatibility
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/195 (Epic A7,
 tracked under #187 / Epic A0 #188)
 

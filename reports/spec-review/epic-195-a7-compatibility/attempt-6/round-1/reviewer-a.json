@@ -1,0 +1,31 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0785",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0785",
+  "sequence": 785,
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "FAIL", "severity": "Critical",
+     "finding": "requirements.md AC-026 states the Done-transition event's ordering rule is 'always last in a round's own event sub-sequence,' and AC-009 (mirrored verbatim in acceptance-tests.md TEST-009's row) states assert_terminal's 'one sanctioned change' -- the `_loop_trace_emit done-transition:assert-terminal` call design.md's per-kind producer table places inside it -- is now 'locked byte-identical' at the re-baselined hashes, with no caveat. investigation.md's own '## Amendment Re-Review Context' > 'Spec/impl/task re-bind extension (2026-08-25)' section quotes a verbatim, dated human ruling directing that the done-transition ordering defect confirmed by both cross-model panelist slots be recorded rather than fixed. This is a direct contradiction between the package's own normative AC text (which a Phase-2/3 task author or quality-gate verifier consults as the settled oracle for TEST-018/TEST-019, AC-022-AC-027) and the package's own disclosed evidence that the ordering guarantee is confirmed-broken and deliberately left unfixed. A verifier following AC-026 literally cannot know, from requirements.md/acceptance-tests.md alone, that a test asserting 'always last' ordering is expected to fail for a known, unaddressed reason. It survives the Amendment Re-Review Context suppression because the calibration explicitly preserves 'the cited implementation artifact does not actually contain what the amendment claims it contains' as a non-suppressed defect class. Severity Critical per the calibration's 'contradictory goals, impossible acceptance criteria.'"},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major",
+     "finding": "Every goal REQ-001 through REQ-007 has multiple explicitly mapped acceptance criteria in requirements.md and corresponding rows in acceptance-tests.md. No goal is left without a traced AC."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major",
+     "finding": "Acceptance criteria specify concrete, externally checkable artifacts throughout: exact function-body sha256 hashes (AC-009), a named registration-forcing count assertion (AC-008), exact file-set enumerations per track (AC-005), exact CI-workflow string scans (AC-040), exact negative-fixture exit-code/no-file-write conditions (AC-041). The one truthfulness defect found is reported under REQ-TESTABILITY."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major",
+     "finding": "The Non-goals section explicitly excludes implementing Epics A1-A6, authoring test code/fixtures/registry edits, registering a ninth loop-inventory entry, re-specifying Epic A5's full deferred suite, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "FAIL", "severity": "Major",
+     "finding": "requirements.md's Risks section (Critical: upstream epic drift; High: shared-surface blast radius; Medium: 4-file Phase-1 scope deviation) does not mention the confirmed done-transition ordering defect in assert_terminal that investigation.md's newest amendment entry discloses. A reader of requirements.md's own Risks section -- the primary document governing the locked AC-009/AC-026 contract -- has no way to learn this known defect exists; the disclosure lives only in investigation.md's amendment-history addendum. Major per the calibration's 'missing specification detail that will cause downstream mismatch.'"},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major",
+     "finding": "The high-risk claims requirements.md does name have explicit validation surfaces: upstream-epic-drift is mitigated by AC-034/AC-035's fingerprint-drift hard-fail machinery, and shared-surface blast-radius by design.md's field-naming finalization gate before any Phase 2/3 task starts."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major",
+     "finding": "requirements.md carries no `Bounded-Context:` field, and nothing in the allowed inputs indicates an Approved domain-model context-map or domain-contract.json applies to this feature."}
+  ],
+  "findings_critical": 1,
+  "findings_major": 1,
+  "findings_minor": 0
+}

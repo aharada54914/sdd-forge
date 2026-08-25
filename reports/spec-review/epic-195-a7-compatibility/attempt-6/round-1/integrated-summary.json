@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-integrated-summary/v1",
+  "stage": "spec",
+  "feature": "epic-195-a7-compatibility",
+  "attempt": 6,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
+  "convergence": "Both reviewers ran blind and both returned NEEDS_WORK with 1 Critical and 1 Major each. Their Majors converge on the same substance from different check ids (A: CONSTRAINTS-EXPLICIT, B: ASSUMPTIONS-RESOLVABLE): the done-transition ordering defect disclosed in investigation.md is not tracked in requirements.md's Risks, Assumptions, or Open Questions. Their Criticals are independent and do not overlap.",
+  "criticals": [
+    {"reviewer": "a", "check": "REQ-TESTABILITY", "subject": "requirements.md AC-026 and acceptance-tests.md TEST-009 assert the done-transition ordering rule as settled fact while investigation.md discloses it as a confirmed, deliberately-unfixed defect"},
+    {"reviewer": "b", "check": "CONTRADICTION", "subject": "the entry's verbatim human approval authorizes 8 locations while the entry's own commit description states eleven"}
+  ],
+  "stop_reason": "Every finding's remedy lies in a frozen, hash-bound Phase 1 document or in a new human authorization statement. Per standing instruction, findings are reported verbatim and no remediation was attempted.",
+  "impl_and_task_stages": "Not run. The sequence is spec then impl then task; spec did not pass."
+}
