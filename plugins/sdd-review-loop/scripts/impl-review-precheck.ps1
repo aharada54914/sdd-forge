@@ -338,6 +338,61 @@ if ([int64]$Round -gt 1) {
     }
   }
 }
+# AC coverage. Every AC-NNN in requirements.md must be named in design.md;
+# behavioural twin of impl-review-precheck.sh's gate, which carries the full
+# epic-136-phase4-docs history: reviewer rounds were being burned finding, one
+# per round, criteria that spec review had added late as gap-closers and the
+# design had dropped silently. A design that does not name an AC cannot be
+# audited for covering it.
+#
+# NARROW EXCEPTION (human ruling, 2026-08-24). Criteria whose OWN defining row
+# in requirements.md's acceptance table declares Global scope are process-and-
+# registration content, not design content, and are excused. The exception keys
+# on a property the requirements document states about ITSELF, never on a list
+# of AC ids: the requirement-trace cell is bimodal across this repository --
+# either a REQ-NNN trace or a Global-scope declaration -- and both spellings in
+# use (`| AC-023 | Global |` and `| AC-035 (Global) | - |`) are read here. Only
+# the first cell and the trace cell of the criterion's own defining row are
+# consulted, and the first matching row decides; an AC id mentioned in prose or
+# in another criterion's text is never a declaration of scope.
+function Test-AcScopedGlobal([string]$Id, [string[]]$Lines) {
+  foreach ($rawLine in $Lines) {
+    $line = $rawLine -creplace '\r$', ''
+    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) { continue }
+    $cells = $line -split '\|'
+    if ($cells.Count -lt 4) { continue }
+    $c1 = $cells[1] -creplace '^[ \t]+', '' -creplace '[ \t]+$', ''
+    $c2 = $cells[2] -creplace '^[ \t]+', '' -creplace '[ \t]+$', ''
+    $annotated = $false
+    if ($c1 -cmatch '\(Global\)$') {
+      $annotated = $true
+      $c1 = ($c1 -creplace '\(Global\)$', '') -creplace '[ \t]+$', ''
+    }
+    if (-not (Test-OrdinalEqual $c1 $Id)) { continue }
+    return ($annotated -or (Test-OrdinalEqual $c2 'Global'))
+  }
+  return $false
+}
+$requirementsRaw = [IO.File]::ReadAllText($requirements)
+$requirementsLines = $requirementsRaw -split "`n"
+$designRaw = [IO.File]::ReadAllText($design)
+$acIds = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+foreach ($acMatch in [Text.RegularExpressions.Regex]::Matches($requirementsRaw, 'AC-[0-9]{3}')) { [void]$acIds.Add($acMatch.Value) }
+$acMissing = @()
+$acGlobal = @()
+foreach ($acId in $acIds) {
+  if (Test-AcScopedGlobal $acId $requirementsLines) { $acGlobal += $acId; continue }
+  if (-not $designRaw.Contains($acId)) { $acMissing += $acId }
+}
+# Never silent: an exercised exception is reported whether or not the gate then
+# fails, so a reader can see which criteria were excused and go check the rows
+# that excused them.
+if ($acGlobal.Count -gt 0) {
+  [Console]::Error.WriteLine("NOTE: impl-review-precheck: not requiring design.md to name these criteria, which requirements.md scopes Global (process and registration, not design): $($acGlobal -join ' ')")
+}
+if ($acMissing.Count -gt 0) {
+  Fail ("design.md never names these acceptance criteria: $($acMissing -join ' '). Each appears in requirements.md without being scoped Global there -- so each states behaviour this design must plan for -- yet none of these strings occurs anywhere in design.md, so an implementer could satisfy the plan and still not deliver them.")
+}
 $layerHashJson = $layerSha256 | ConvertTo-Json -Compress
 $inputMaterial = if ($fullProfile) { "$designHash`:$requirementsHash`:$acceptanceHash`:$layerHashJson" } else { "$designHash`:$requirementsHash`:$acceptanceHash" }
 $inputHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($inputMaterial))).ToLower()
