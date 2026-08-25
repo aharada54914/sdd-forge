@@ -975,15 +975,31 @@ task's own explicit instruction.
   check-catalog.json`/`lite-upgrade-reason-catalog.json` catalog-version
   bumps this feature's REQ-001 designs — this feature defines the target
   shape, it does not apply it (Dependencies, above; Non-goals).
-  Of the three paths that edit touches, two are **already** R-10
-  protected in the live `guard-invariants.json` today —
-  `contracts/capability-registry.schema.json` and
-  `contracts/lite-upgrade-reason-catalog.json` — so no fresh registration
-  is needed for either; what they need instead is a staged human-copy
-  application path, owned by that same task (Non-goals). Only
-  `contracts/lite-check-catalog.json`, which does not exist yet, still
-  requires a new protection registration, matching the registration A2's
-  own REQ-005 already plans for its own new artifacts.
+  Every path that edit touches is listed below with its own protection
+  status and its own application route, stated per path rather than
+  aggregated or counted, so this bullet's reader can decide per path
+  without consulting another section:
+  - `contracts/capability-registry.schema.json` — **R-10 protected
+    today**, in both `protected_gate_suffixes` and
+    `phase2_human_copy_targets` of the live `guard-invariants.json`.
+    Needs no new protection registration. Needs a staged human-copy
+    application path, owned by this same task (Non-goals).
+  - `contracts/capability-registry.json` — **R-10 protected today**, in
+    both `protected_gate_suffixes` and `phase2_human_copy_targets` of the
+    live `guard-invariants.json`. Needs no new protection registration.
+    Needs a staged human-copy application path, owned by this same task
+    (Non-goals).
+  - `contracts/lite-upgrade-reason-catalog.json` — **R-10 protected
+    today**, in both `protected_gate_suffixes` and
+    `phase2_human_copy_targets` of the live `guard-invariants.json`.
+    Needs no new protection registration. Needs a staged human-copy
+    application path, owned by this same task (Non-goals).
+  - `contracts/lite-check-catalog.json` — **not protected, and does not
+    exist yet**; it appears in neither `protected_gate_suffixes` nor
+    `phase2_human_copy_targets`. It is the one path among those listed
+    here that still requires a new protection registration, matching the
+    registration A2's own REQ-005 already plans for its own new
+    artifacts.
 - **A future implementation task (Epic A6 Phase 2)**: the sole intended
   author of the live `check-risk-upgrade.{sh,ps1}`/`risk-upgrade-policy.
   md`/`lite-spec/SKILL.md` human-copy edits (REQ-002/REQ-005) and the live
@@ -1209,33 +1225,61 @@ task's own explicit instruction.
   withdrawn; the grounding below is the live
   `contracts/capability-registry.schema.json` and
   `contracts/capability-registry.json` themselves.
-  - **Must be synthetic — fixtures (a), (d), (e), and the
-    `required_lite_checks` half of (f).** Each exercises
-    `required_lite_checks`, and the live schema's `lite_policy` is
+  - **Must be synthetic, because the live Registry `lite_policy` cannot
+    express them — fixture (a), and the `required_lite_checks` half of
+    fixture (f).** Both turn on a Registry Capability carrying
+    `required_lite_checks`, and the live
+    `contracts/capability-registry.schema.json`'s `lite_policy` is
     `additionalProperties: false` over exactly `eligible` and
     `upgrade_reasons`, so no shipped Capability can carry that key at all
     until REQ-001's v1.1 revision lands. That schema fact is the reason,
     and it does not rest on the withdrawn premise.
-  - **Need not be synthetic — fixtures (b) and (c).** The shipped
+  - **Must be synthetic, because no Capability Summary exists anywhere —
+    fixture (d), and fixture (e).** Corrected 2026-08-25: fixture (d) and
+    fixture (e) were previously grouped under the Registry `lite_policy`
+    boundary above, which is not what they exercise. Fixture (d) is a
+    `capability-summary.yaml` consumption fixture, and fixture (e) turns
+    on a check-id reaching `lite-gate` through that same Summary; the
+    `required_lite_checks` that fixture (d) and fixture (e) each read is
+    `contracts/capability-summary.schema.json`'s own field — A4-owned and
+    **already shipped as `required`** (investigation.md INV-005; the live
+    schema's own `required` array carries it) — not the Registry
+    `lite_policy` key the bucket above concerns. Their actual blocker is
+    different and still open: no `capability-summary.yaml` exists
+    anywhere in this repository, because the only mechanism that stages
+    one is A5's own Resolver step 10b (investigation.md INV-016), and
+    A5's `Spec-Review-Status` is `Pending` (Dependencies, above). Fixture
+    (d) and fixture (e) therefore stay synthetic even after REQ-001's
+    v1.1 revision lands — that revision is not their prerequisite.
+  - **Fragment fixtures, so the live-versus-synthetic question does not
+    arise — fixture (i), and fixture (j).** Corrected 2026-08-25: fixture (j) was previously binned as a
+    live-Registry-shape question. REQ-006 states fixture (j) as "a
+    fragment entry with `eligible: false` and an empty/absent
+    `upgrade_reasons`" — the same `check-risk-upgrade` fragment artifact
+    fixture (i) uses, not a Registry Capability. No fragment ships
+    anywhere, and a fragment fixture is authored by the test either way,
+    so the live-versus-synthetic question does not arise for fixture (i)
+    or for fixture (j).
+  - **Need not be synthetic — fixture (b), and fixture (c).** The shipped
     `durable-workflow` entry *is* fixture (b): matched, `eligible:
     false`, non-empty `upgrade_reasons`, its token in-catalog. And it is
     *literally* fixture (c): a v1 Registry entry carrying no
     `required_lite_checks` key at all, which is precisely the
     compatibility case (c) exercises.
-  - **Expressible in the live shape, but no shipped entry carries the
-    data — fixture (j), and the `upgrade_reasons` half of (f).** (j)
-    needs an entry with `eligible: false` and empty/absent
-    `upgrade_reasons`; the shipped entry's is non-empty. (f)'s
-    reason-token half needs a token absent from the catalog; the shipped
-    entry's token is present. Both are two-key-shaped, so a future
-    shipped Capability could carry them — none does today.
-  - **Not Registry-Capability-shaped, unaffected either way — fixtures
-    (g), (h), (i), (k).** (g) and (k) turn on `capability-summary.yaml`/
-    Project Context presence, (h) on the A4 Summary's own
-    `full_upgrade_required` field, and (i) on a `check-risk-upgrade`
-    fragment file. Fixture (l) is not an executed fixture at all — REQ-006
-    states it documents a contract for A5's Resolver rather than one this
-    feature's own suite runs.
+  - **Expressible in the live Registry shape, but no shipped entry
+    carries the data — the `upgrade_reasons` half of fixture (f).** It
+    needs a Registry entry whose `upgrade_reasons` carries a token absent
+    from `lite-upgrade-reason-catalog.json`; the shipped
+    `durable-workflow` entry's token is present in that catalog. The
+    shape is expressible under the live v1 schema, so a future shipped
+    Capability could carry it — none does today.
+  - **Not Registry-Capability-shaped, unaffected either way — fixture
+    (g), fixture (h), and fixture (k).** Fixture (g) and fixture (k) turn
+    on `capability-summary.yaml`/Project Context presence, and fixture
+    (h) on the A4 Summary's own `full_upgrade_required` field. Fixture
+    (l) is not an executed fixture at all — REQ-006 states it documents a
+    contract for A5's Resolver rather than one this feature's own suite
+    runs.
 
   Whether fixtures (b) and (c) are drawn from the live shipped Capability
   or authored synthetically is a choice **owned by the task that
