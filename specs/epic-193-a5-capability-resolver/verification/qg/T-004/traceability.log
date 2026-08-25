@@ -172,3 +172,55 @@ historical narrative for its own dated pass, not re-edited in place, per
 this log's own established discipline).
 
 TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 216 passed, 0 failed"
+
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Re-derived against the current tree. Every figure below was measured in
+this run, not carried forward.
+
+REQUIREMENT -> ASSERTION additions this pass:
+
+* No T-004-scope requirement gained or lost an assertion this pass.
+  T-004's share of this round's remediation is bookkeeping and
+  evidence: a genuine T-004-SCOPE RED capture at the pre-T-004
+  baseline 752723fa (143 passed / 71 failed, both runtimes,
+  verification/T-004/red-t004-baseline-recaptured-{sh,ps1}.log),
+  replacing red-cycle5 which had fallen four rounds stale; and the
+  deletion of two dead fixture schema stand-ins under
+  tests/fixtures/capability-resolver/resolve-project-context-
+  projection/, which no test reads (verified by grepping the whole
+  tests/ tree: every surviving reference resolves to
+  ROOT/contracts/). The block suite still totals 219 in both
+  runtimes after that deletion, which is the check that they were
+  genuinely unread.
+
+STALE FIGURES IN THIS LOG'S OWN PRIOR REVISION, corrected here rather
+than left to a later round to find:
+
+  (a) This log's own prior revision recorded the shared driver's live
+      total as 216; it is now 219 (+3 T-003-scope sys-path-hygiene
+      assertions -- no T-004-scope content changed). Corrected in the
+      trailer below.
+  (b) The AC-016 mapping bullet is re-stated against the AMENDED row:
+      byte-identity is now scoped to everything except `state` and the
+      two enforcement-derived context_binding digests
+      (full_context_revision / projection_sha256), per human ruling
+      B(1). `enforcement-byte-identity`'s assertions already carried
+      exactly that exclusion, verified rather than assumed at
+      18d90c67; no assertion changed.
+
+CONFIRMED EXECUTED AND PASSING IN THIS SAME VERIFICATION RUN:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> 125 passed, 0 failed
+
+requirements.md and acceptance-tests.md were NOT edited by this pass. The
+two 2026-08-24 amendments this pass depends on (ruling A(1) on AC-056,
+d5701194; ruling B(1) on AC-016, b572fcd6) are human-approved and predate
+it.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 219 passed, 0 failed"

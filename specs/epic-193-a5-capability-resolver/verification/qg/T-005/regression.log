@@ -385,3 +385,123 @@ transcript retained once, shared, at
 verification/qg/T-003/regression.log's own "Governing-schema delta"
 section.
 regression: passes=true.
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Scope of this pass's own diff: the staged resolve-project-context.py
+(`_discover_registry`'s sys.path try/finally restore), both shared test
+drivers, one new fixture directory
+(tests/fixtures/capability-resolver/resolve-project-context-match/
+zero-affected-component-match/), two DELETED dead fixture schema
+stand-ins, human-copy/MANIFEST.sha256, the three verification contracts,
+and this feature's own evidence/bookkeeping files. Nothing under
+plugins/** was touched.
+
+$ git diff --check
+Exit: 0
+
+$ python3 -m py_compile <staged resolver, both drivers, the new fixture stub>
+Exit: 0
+
+$ git status --short -- plugins/
+(empty -- no tracked change and no untracked file under plugins/**, AC-032)
+
+$ bash tests/resolve-project-context-block.tests.sh
+RESULT: 219 passed, 0 failed
+$ pwsh -File tests/resolve-project-context-block.tests.ps1
+RESULT: 219 passed, 0 failed
+$ bash tests/resolve-project-context-match.tests.sh
+RESULT: 125 passed, 0 failed
+$ pwsh -File tests/resolve-project-context-match.tests.ps1
+RESULT: 125 passed, 0 failed
+
+$ shasum -a 256 -c specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256
+4/4 OK. (Regenerated this pass: commit 18d90c67 changed
+resolve-project-context.py on 2026-08-24 without regenerating the
+manifest, leaving it declaring 437c861a... for a file that hashed
+d3360c51... -- `apply-human-copy.sh` verifies this manifest at
+human-apply time and dies MANIFEST_INVALID on a mismatch, so the staged
+candidate set was not appliable as it stood. Only the
+resolve-project-context.py entry changed; .github/workflows/test.yml and
+both dispatcher twins are byte-unchanged, confirmed by direct
+comparison.)
+
+$ bash tests/run-all.sh   (full sweep, entire repository, no timeout)
+5 failing suite(s):
+  tests/workflow-state.tests.sh
+  tests/deterministic-lane-selfcheck.tests.sh
+  tests/repository-release-validation.tests.sh
+  tests/design-system-contract.tests.sh
+  tests/check-component-coverage.tests.sh
+$ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-all.ps1   (full sweep, entire repository, no timeout)
+3 failing suite(s):
+  tests/cross-model.tests.ps1
+  tests/design-system-contract.tests.ps1
+  tests/check-component-coverage.tests.ps1
+
+BASELINE HAS DRIFTED, AND NOT BECAUSE OF THIS PASS -- stated plainly
+rather than reconciled away. This feature's own prior regression capture
+(the bookkeeping-lag pass, 2026-08-24) recorded the standing baseline as
+exactly TWO failing suites on sh (deterministic-lane-selfcheck,
+design-system-contract; both self-declare DESIGNED-RED) and ONE on ps1
+(design-system-contract, the sh-only suite having no PowerShell twin).
+The sweeps above show more than that. Every additional failure was
+independently reproduced OUTSIDE this worktree's own changes, and each
+is out of this feature's scope:
+
+  * tests/workflow-state.tests.sh -- "plugins-pin-amended-after-review
+    precondition not met: ... risk-classification-policy.md has not
+    drifted from the recorded hash". Reproduced on a clean `git clone
+    --no-hardlinks` of this branch at HEAD 6ef4e7d2 with NONE of this
+    pass's changes present. PASSES at 92f21702, so the drift arrived in
+    the commits between -- all of them workflow-state / review-loop /
+    plugins-pin machinery outside epic-193-a5.
+  * tests/repository-release-validation.tests.sh -- fails on
+    "workflow-state: ... spec reviewer manifest input hash is stale"
+    inside the release copy. Same pristine-clone reproduction, same
+    92f21702-passes result. The release copy excludes .git, so the pin
+    fallback is structurally unavailable there.
+  * tests/check-component-coverage.tests.sh -- 45 passed / 1 failed,
+    "TEST-036.4: T-004 registration, staged-candidate integrity, or
+    T-004-owned live byte identity failed against
+    specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256" -- a
+    DIFFERENT epic's staged manifest. Identical 45/1 on the pristine
+    clone and in this worktree; 46/0 at 92f21702.
+  * tests/cross-model.tests.ps1 (ps1 only) -- FLAKY, not deterministic:
+    two serial re-runs produced different failure sets (4 failures then
+    3), both including TEST-004(a)'s wall-clock bound, and it fails the
+    same way on the pristine clone. This is the known pwsh-only
+    cold-start timing class, pre-existing and unrelated to this diff.
+
+Method note: each of the four was re-run SERIALLY, on its own, outside
+the parallel sweep, and separately against a pristine clone of HEAD --
+this repository has measured cross-talk in parallel runs before, so a
+sweep failure is never reported here without a serial confirmation.
+
+Net for THIS pass: zero regressions attributable to this diff. The two
+suites this feature's own baseline documents as DESIGNED-RED still fail
+for their documented reasons; every other failure is pre-existing on
+this branch at HEAD without this pass's changes, and is owned by
+workflow-state / review-loop / plugins-pin work or by epic-191-a3, none
+of which this pass touches. This is NOT a claim that the repository is
+green -- it is a claim that this diff did not move it.
+
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-193-a5-capability-resolver/tasks.md
+Task state check passed for 10 task(s).
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-193-a5-capability-resolver
+workflow-state: ok
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-193-a5-capability-resolver/verification/T-00{3,4,5}.contract.json
+Verification contract passed for task T-003.
+Verification contract passed for task T-004.
+Verification contract passed for task T-005.
+Exit: 0 (each)
+
+regression: passes=true (for this diff's own attributable effect; see the
+baseline-drift disclosure above, which is a repository-level item for the
+human, not a property of this change).

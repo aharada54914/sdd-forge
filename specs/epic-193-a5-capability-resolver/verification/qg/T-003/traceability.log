@@ -128,3 +128,45 @@ but `run_t003_case`'s own line number shifted 477->479 (the two new
 above, confirmed by direct grep this pass.
 
 TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 216 passed, 0 failed"
+
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Re-derived against the current tree. Every figure below was measured in
+this run, not carried forward.
+
+REQUIREMENT -> ASSERTION additions this pass:
+
+* REQ-005 / security-spec.md B5 (import containment): three new
+  `sys-path-hygiene` assertions in
+  tests/resolve-project-context-block-check.py bind
+  `_discover_registry`'s own `sys.path` prepend to a `try`/`finally`
+  restore -- clean-return path, ContractDiscoveryFailed path, and
+  the first-occurrence-only removal discipline that preserves a
+  caller's own pre-existing entry. Mutation-killed 219/0 -> 216/3 ->
+  219/0, both runtimes, collateral-free
+  (verification/qg/T-003/mutation-kill-sys-path-restore.log).
+
+STALE FIGURES IN THIS LOG'S OWN PRIOR REVISION, corrected here rather
+than left to a later round to find:
+
+  (a) This log's own prior revision recorded the block suite's live
+      total as 216. The suite is now 219 (+3, the sys-path-hygiene
+      assertions). Corrected in the trailer below.
+  (b) No figure in this log was found wrong on re-measurement other
+      than (a) -- checked, not assumed.
+
+CONFIRMED EXECUTED AND PASSING IN THIS SAME VERIFICATION RUN:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> 125 passed, 0 failed
+
+requirements.md and acceptance-tests.md were NOT edited by this pass. The
+two 2026-08-24 amendments this pass depends on (ruling A(1) on AC-056,
+d5701194; ruling B(1) on AC-016, b572fcd6) are human-approved and predate
+it.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 219 passed, 0 failed"

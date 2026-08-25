@@ -34,3 +34,13 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # -malformed-ref.
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/resolve-project-context-match-check.py tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/capability-registry.json tests/fixtures/capability-resolver/resolve-project-context-match/zero-affected-component-match/generate-registry-digest.py
+# fourth-round cross-model panel remediation re-run (2026-08-25). Scope is
+# this pass's own complete edited/added set, derived from `git status
+# --porcelain` rather than recalled: the staged resolver (sys.path
+# try/finally restore), both shared test drivers, and all three files of
+# the new zero-affected-component-match fixture directory. The two deleted
+# dead stand-in schemas are not scanned -- they no longer exist.
+Placeholder scan passed.
+Exit: 0

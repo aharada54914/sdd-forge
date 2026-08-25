@@ -171,3 +171,68 @@ AC-052/AC-056 presence in acceptance-tests.md re-confirmed unchanged
 (neither document was edited by this pass).
 
 TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 113 passed, 0 failed"
+
+
+======================================================================
+FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25)
+======================================================================
+
+Re-derived against the current tree. Every figure below was measured in
+this run, not carried forward.
+
+REQUIREMENT -> ASSERTION additions this pass:
+
+* REQ-006 item (g) / AC-027 -- previously covered only in HALF, and
+  that half by T-001's hand-built TEST-018 schema instance rather
+  than by any Resolver run. The new `zero-affected-component-match`
+  fixture closes BOTH halves against the SAME real invocation:
+  every Registry Capability's own `trigger_evaluations[] == []`
+  asserted BLACK-BOX on the PUBLISHED Resolver Evidence, and the
+  Facet Manifest's `capabilities: []` through the oracle
+  reconstruction full-pipeline-match already establishes. Twelve
+  assertions. The zero-affected-component condition is produced by
+  the REAL, unstubbed resolve-component-paths against a commit
+  range whose only changed path is repository-root README.md, and
+  an independent second invocation of that same real script
+  asserts the empty result. Also re-confirms AC-018 (one entry per
+  Registry Capability even at zero components), AC-019 (no
+  conditional_facet_evaluations key on an unmatched Capability),
+  AC-007 (every matched-set-derived aggregate empty) and AC-008
+  (the zero-component manifest validates against the REAL
+  validate-facet-manifest). Two mutation kills, both runtimes:
+  125/0 -> 117/8 (whole-Registry aggregation) and 125/0 -> 121/4
+  (empty-in/empty-out shortcut, all four this fixture's own)
+  -- verification/qg/T-005/mutation-kill-zero-affected-component.log.
+
+STALE FIGURES IN THIS LOG'S OWN PRIOR REVISION, corrected here rather
+than left to a later round to find:
+
+  (a) This log's own prior revision states that
+      `resolve-project-context-match-check.py`'s own `case_labels`/
+      `main()` register SEVEN cases. That was true when written and is
+      now WRONG: `case_labels` has EIGHT entries, the eighth being
+      this pass's own `zero-affected-component-match`. Confirmed by
+      direct read of main(), not assumed. This is the third
+      consecutive revision in which this one figure has been wrong
+      (EIGHT when it was seven, SEVEN when it is now eight); the
+      figure is only safe to record in the same pass that changes the
+      list.
+  (b) The live total recorded here was 113; the suite is now 125
+      (+12, the new fixture's own assertions). Corrected in the
+      trailer below.
+  (c) REQ-006's own share line is re-stated: items a-d/f/g, with (g)
+      now covered IN FULL by this task's own suite rather than half-
+      delegated to T-001.
+
+CONFIRMED EXECUTED AND PASSING IN THIS SAME VERIFICATION RUN:
+  bash tests/resolve-project-context-block.tests.sh   -> 219 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 219 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> 125 passed, 0 failed
+
+requirements.md and acceptance-tests.md were NOT edited by this pass. The
+two 2026-08-24 amendments this pass depends on (ruling A(1) on AC-056,
+d5701194; ruling B(1) on AC-016, b572fcd6) are human-approved and predate
+it.
+
+TRACEABILITY-LOG-LIVE-TOTAL: driver=tests/resolve-project-context-match.tests.sh result="RESULT: 125 passed, 0 failed"

@@ -309,8 +309,43 @@ def _discover_registry(script_dir):
     fallback procedure (reused unmodified via Epic A2's own
     `registry_discovery` module, co-located with this script at its
     deployed, protected-suffix destination) for both `capability-
-    registry.json` and its own `capability-registry.schema.json`."""
-    sys.path.insert(0, str(script_dir))
+    registry.json` and its own `capability-registry.schema.json`.
+
+    Cross-model panel Minor (Anthropic, raised against BOTH T-003 and
+    T-004 and re-raised in every round since): the `sys.path` prepend
+    below was never restored -- no `try`/`finally`, no `importlib.util.
+    spec_from_file_location` -- so the deployed scripts directory stayed
+    permanently ahead of the stdlib on `sys.path` for the whole remaining
+    life of the process, and any later stdlib-shadowing module dropped
+    into that directory would win import resolution for every subsequent
+    import anywhere in the process. On a `Security-Sensitive: true` task
+    that is a real, if narrow, import-hijack surface. The prepend is now
+    scoped to exactly the window that needs it -- the sibling-module
+    import plus the discovery calls that use it -- and removed in a
+    `finally` so every exit path (clean return, `ContractDiscoveryFailed`,
+    or any unexpected exception) restores it. Removal is by VALUE via
+    `list.remove`, which drops only the FIRST occurrence: if `script_dir`
+    was already on `sys.path` before this call (the common case, since
+    Python puts the running script's own directory there), that
+    pre-existing entry is deliberately left intact and only this
+    function's own duplicate is taken back off."""
+    inserted_path_entry = str(script_dir)
+    sys.path.insert(0, inserted_path_entry)
+    try:
+        return _discover_registry_with_sibling_module()
+    finally:
+        try:
+            sys.path.remove(inserted_path_entry)
+        except ValueError:  # pragma: no cover -- only if a callee mutated sys.path
+            pass
+
+
+def _discover_registry_with_sibling_module():
+    """`_discover_registry`'s own body, split out so the `sys.path`
+    prepend above can own a single `try`/`finally` covering every exit
+    path rather than repeating the restore at each `raise` site. Runs
+    with `script_dir` on `sys.path`; never re-reads `script_dir` itself
+    (verified: no reference to it survives below this point)."""
     try:
         import registry_discovery  # noqa: E402  (deliberately deferred: co-located sibling module)
     except Exception as exc:  # noqa: BLE001 (deliberately broad -- see below)

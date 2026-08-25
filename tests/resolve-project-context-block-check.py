@@ -82,6 +82,20 @@ Four sections:
    Block, or to fail, before step 12 would ever reach a Capability Summary
    schema check -- see T-004's own implementation report for the exact
    reasoning).
+   DEAD STAND-INS DELETED (2026-08-25, cross-model panel Minor, Anthropic
+   slot on T-004). Switching `install_t003_dependencies` to seed the REAL
+   files from `ROOT/contracts/` left BOTH stand-in copies under
+   `tests/fixtures/capability-resolver/resolve-project-context-projection/`
+   read by nothing -- confirmed by grepping the whole `tests/` tree for
+   each filename: every surviving reference resolves to `ROOT/contracts/`,
+   and `PROJECTION_FIXTURES` is used only for `canonicalize-sdd-yaml.py`,
+   `capability-registry-empty.json`, `{source_name}.yaml` and
+   `resolve-component-paths-stub-empty.py`. The panel flagged the looser
+   one as "dead fixture content still carried as a declared output";
+   rather than re-declare a corrected copy of a file nothing reads, both
+   are deleted and their Outputs rows removed. Both suites re-run green
+   after the deletion, both runtimes -- which is the check that they were
+   genuinely unread rather than merely believed to be.
 6. Cross-model panelist remediation (T-003.panelist-anthropic.verdict.json,
    three Major findings), four fixtures added to sections 3-4's own
    pattern: `resolve-component-paths-launch-failed` (step 4's own OSError
@@ -1799,6 +1813,153 @@ def run_draft7_keyword_coverage_check(counts):
         )
 
 
+def _write_registry_discovery_stub(scripts_dir, registry_path, mode):
+    """Plant a co-located `registry_discovery.py` sibling for the
+    `sys.path` hygiene check below. `mode` selects which of
+    `_discover_registry`'s own two exit shapes the call will take:
+    `"ok"` resolves cleanly, `"raises-at-import"` blows up at module
+    top level (the `registry-discovery-syntax-error` class, which
+    `_discover_registry` converts to `ContractDiscoveryFailed`)."""
+    if mode == "raises-at-import":
+        (scripts_dir / "registry_discovery.py").write_text(
+            "raise RuntimeError('fixture: module-scope failure')\n", encoding="utf-8"
+        )
+        return
+    (scripts_dir / "registry_discovery.py").write_text(
+        "from pathlib import Path\n"
+        "\n"
+        "class DiscoveryError(Exception):\n"
+        "    pass\n"
+        "\n"
+        "def discover_artifact(name):\n"
+        f"    return Path({str(registry_path)!r})\n",
+        encoding="utf-8",
+    )
+
+
+def run_sys_path_hygiene_check(counts):
+    """Cross-model panel Minor, raised by the Anthropic slot against BOTH
+    T-003 and T-004 and re-raised unclosed in every round since:
+    `_discover_registry`'s own `sys.path.insert(0, script_dir)` was never
+    restored, so the deployed scripts directory stayed ahead of the
+    stdlib on `sys.path` for the remaining life of the process and any
+    stdlib-shadowing module later dropped into that directory would win
+    import resolution process-wide.
+
+    This property has no CLI-observable trigger -- the resolver exits
+    before any later import could be hijacked, so a black-box subprocess
+    fixture cannot see it -- so it is asserted white-box against the SAME
+    staged file every other check runs, via the identical `importlib.util.
+    spec_from_file_location` discipline `run_draft7_validator_keyword_
+    checks` already established for `_draft7_conforms`.
+
+    Three assertions, covering both exit paths plus the removal
+    discipline:
+      (1) clean return restores `sys.path` exactly;
+      (2) the `ContractDiscoveryFailed` path restores it too (the
+          `finally`, not a lucky fall-through on the success path);
+      (3) a pre-existing identical `sys.path` entry SURVIVES the call --
+          `list.remove` drops only the first occurrence, so a caller who
+          already had `script_dir` on the path (the common case: Python
+          puts the running script's own directory there) does not have it
+          silently taken away by this function.
+    """
+    staged_py = STAGED / "resolve-project-context.py"
+    if not staged_py.is_file():
+        counts.check(False, "sys-path-hygiene: staged implementation exists", "TDD RED: implementation absent")
+        return
+
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("resolve_project_context_syspath_oracle", staged_py)
+    resolver_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(resolver_module)
+
+    if not hasattr(resolver_module, "_discover_registry"):
+        # Step 5 is T-003's own addition -- absent from a T-002-or-earlier
+        # snapshot (this driver's own RED reconstruction rewinds exactly
+        # that far). A clean, reportable FAIL, never an AttributeError
+        # crashing the suite before it prints a RESULT line -- the same
+        # guard `run_draft7_validator_keyword_checks` applies for
+        # `_draft7_conforms`.
+        counts.check(False, "sys-path-hygiene: _discover_registry exists on the staged module",
+                     "TDD RED: T-003 step-5 registry discovery absent from this staged snapshot")
+        return
+
+    def call_in(tmp, mode, seed_path_entry=False):
+        """Run `_discover_registry(tmp)` with a freshly planted sibling
+        module, returning (outcome, path_before, path_after) where
+        `outcome` is `"returned"`, `"blocked"` (the canonical
+        `ContractDiscoveryFailed`), or the class name of anything else it
+        raised. `sys.modules` is scrubbed of the stub around every call so
+        a cached module object can never make a later mode a no-op
+        import.
+
+        The catch below is deliberately broad. A staged snapshot that
+        predates T-003's own `except Exception` widening (the
+        `registry-discovery-syntax-error` remediation) lets a module-scope
+        failure escape `_discover_registry` as a raw `RuntimeError`; if
+        this helper did not catch it, that exception would propagate out
+        of `main()` and kill the whole suite before it printed a RESULT
+        line -- which is exactly what the RED reconstruction at this
+        driver's own rewind commit does. Same discipline as
+        `run_draft7_validator_keyword_checks`'s own `hasattr` guard: a
+        reportable FAIL, never an unguarded crash."""
+        registry = tmp / "capability-registry.json"
+        registry.write_text('{"capabilities": []}\n', encoding="utf-8")
+        _write_registry_discovery_stub(tmp, registry, mode)
+        sys.modules.pop("registry_discovery", None)
+        if seed_path_entry:
+            sys.path.insert(0, str(tmp))
+        before = list(sys.path)
+        outcome = "returned"
+        try:
+            resolver_module._discover_registry(tmp)
+        except resolver_module.ContractDiscoveryFailed:
+            outcome = "blocked"
+        except BaseException as exc:  # noqa: BLE001 -- see docstring
+            outcome = type(exc).__name__
+        finally:
+            after = list(sys.path)
+            sys.modules.pop("registry_discovery", None)
+            if seed_path_entry:
+                try:
+                    sys.path.remove(str(tmp))
+                except ValueError:
+                    pass
+        return outcome, before, after
+
+    with tempfile.TemporaryDirectory() as tmp_name:
+        tmp = Path(tmp_name) / "ok"
+        tmp.mkdir()
+        outcome, before, after = call_in(tmp, "ok")
+        counts.check(
+            outcome == "returned" and after == before,
+            "sys-path-hygiene: _discover_registry restores sys.path on a clean return",
+            f"outcome={outcome} added={[e for e in after if e not in before]}",
+        )
+
+    with tempfile.TemporaryDirectory() as tmp_name:
+        tmp = Path(tmp_name) / "boom"
+        tmp.mkdir()
+        outcome, before, after = call_in(tmp, "raises-at-import")
+        counts.check(
+            outcome == "blocked" and after == before,
+            "sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path",
+            f"outcome={outcome} added={[e for e in after if e not in before]}",
+        )
+
+    with tempfile.TemporaryDirectory() as tmp_name:
+        tmp = Path(tmp_name) / "seeded"
+        tmp.mkdir()
+        outcome, before, after = call_in(tmp, "ok", seed_path_entry=True)
+        counts.check(
+            outcome == "returned" and after == before and after.count(str(tmp)) == 1,
+            "sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call",
+            f"outcome={outcome} occurrences={after.count(str(tmp))}",
+        )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
@@ -1850,6 +2011,7 @@ def main():
             run_t004_case(args.launcher, case_name, counts)
         run_draft7_validator_keyword_checks(counts)
         run_draft7_keyword_coverage_check(counts)
+        run_sys_path_hygiene_check(counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

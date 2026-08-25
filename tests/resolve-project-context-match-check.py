@@ -1020,6 +1020,189 @@ def run_facet_manifest_state_independence_check(resolver_module, counts):
     )
 
 
+def run_zero_affected_component_case(kind, resolver_module, counts):
+    """REQ-006 item (g) / AC-027, closing the one half of that item that
+    shipped uncovered and that BOTH panel vendors named (Anthropic Minor,
+    OpenAI Major): "a zero-affected-component fixture confirming every
+    Registry Capability's own `trigger_evaluations[]` is `[]` **and**
+    `capabilities: []` results".
+
+    The `trigger_evaluations[]` half was previously delegated to T-001's
+    own TEST-018 SCHEMA fixture -- a hand-built instance, never a real
+    Resolver run -- and the `capabilities: []` (Facet Manifest) half,
+    which is squarely inside T-005's own declared REQ-006 share, had no
+    coverage anywhere. This one real-pipeline fixture closes both halves
+    against the SAME invocation.
+
+    Two deliberate properties distinguish it from every other fixture in
+    this suite:
+
+    * The zero-affected-component condition is produced by the REAL,
+      unstubbed `resolve-component-paths`, against a commit range whose
+      only changed path (`README.md`, repository root) is matched by no
+      declared component's own `paths.include` glob. Nothing here
+      fabricates `affected_components: []` -- an independent second
+      invocation of that same real script is run below and its own empty
+      result asserted, so a fixture that silently stopped producing the
+      zero-component condition would fail rather than pass vacuously.
+    * `generate-registry-digest` is the ONLY stubbed dependency, forcing
+      the same step-13 `snapshot-generation-mismatch` Block every other
+      case in this suite uses to make `capability_evaluations[]`
+      observable. Reaching step 13 at all is itself load-bearing here: it
+      proves the staged Facet Manifest passed T-004's own step-12 schema
+      self-validation on this zero-component input, since a malformed
+      staged artifact would have Blocked at step 12 with a different
+      diagnostic id instead.
+    """
+    case_name = "zero-affected-component-match"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-match-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts = block_check.install_scripts(repo)
+        feature_dir, _sentinels = block_check.plant_sentinels(repo, scripts)
+        shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+        registry_path = fixture_dir / "capability-registry.json"
+        _install_full_pipeline_dependencies(repo, scripts, fixture_dir, registry_path)
+
+        # Every declared component's own `paths.include` glob
+        # (`comp-a/**`, `comp-b/**`, `shared/util/**`, `other-thing/**`)
+        # is deliberately left untouched between these two commits; the
+        # only path that changes is `README.md` at the repository root,
+        # which no glob matches.
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = block_check.git_commit_all(repo, "baseline")
+        (repo / "README.md").write_text("baseline\nsecond line, still root-only\n", encoding="utf-8")
+        target_oid = block_check.git_commit_all(repo, "touch README.md only -- no component path changes")
+
+        argv = block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
+        env = os.environ.copy()
+        env["SDD_T002_PROJECTION_MODE"] = "passthrough"
+        result = subprocess.run(argv, cwd=repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.check(
+            result.returncode == 1,
+            f"{case_name}: exit 1 (forced snapshot-generation-mismatch)",
+            f"got {result.returncode} stderr={stderr!r}",
+        )
+        counts.check(
+            stdout == "" and stderr == SNAPSHOT_MISMATCH_LINE,
+            f"{case_name}: canonical diagnostic only, reached step 13 -- so steps 0-12, INCLUDING step 12's own "
+            f"schema self-validation of the staged Facet Manifest, all passed on zero affected components",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        # Independent confirmation that the zero-affected-component
+        # condition is real and produced by the REAL dependency, not by
+        # anything this fixture supplies. `_install_full_pipeline_
+        # dependencies` leaves `resolve-component-paths.py` unstubbed for
+        # this fixture (no such file in its own directory), so the script
+        # invoked here is the same real one the Resolver itself just ran.
+        real_rcp = subprocess.run(
+            [sys.executable, str(scripts / "resolve-component-paths.py"),
+             "--config", "project-context.yaml", "--source-rev", base_oid, "--target-rev", target_oid],
+            cwd=repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+        )
+        real_rcp_parsed = json.loads(real_rcp.stdout.decode("utf-8"))
+        counts.check(
+            real_rcp_parsed.get("affected_components") == [],
+            f"{case_name}: the REAL resolve-component-paths independently returns affected_components: [] for this "
+            f"commit range (the zero-component condition is genuine, never fabricated by a stub)",
+            repr(real_rcp_parsed.get("affected_components")),
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = block_check.read_evidence(evidence_path)
+        if not isinstance(evidence, dict):
+            counts.check(False, f"{case_name}: Resolver Evidence readable", parse_error or repr(evidence))
+            return
+
+        registry_document = json.loads(registry_path.read_text(encoding="utf-8"))
+        registry_ids = [c["id"] for c in registry_document["capabilities"]]
+        published_evaluations = evidence.get("capability_evaluations")
+        if not isinstance(published_evaluations, list):
+            counts.check(False, f"{case_name}: capability_evaluations[] published", repr(published_evaluations))
+            return
+
+        # --- REQ-006(g) half 1, black-box on the PUBLISHED artifact ----
+        # AC-018's own exact-set binding still holds in the zero-component
+        # case: one entry per Registry Capability, no more and no fewer.
+        counts.check(
+            [entry.get("capability_id") for entry in published_evaluations] == registry_ids,
+            f"{case_name}: capability_evaluations[] carries exactly one entry per Registry Capability, in "
+            f"declaration order, even with zero affected components (AC-018)",
+            repr([entry.get("capability_id") for entry in published_evaluations]),
+        )
+        counts.check(
+            len(published_evaluations) == len(registry_ids)
+            and all(entry.get("matched") is False for entry in published_evaluations),
+            f"{case_name}: every Capability is matched: false with zero affected components (AC-018)",
+            repr([entry.get("matched") for entry in published_evaluations]),
+        )
+        counts.check(
+            len(published_evaluations) == len(registry_ids)
+            and all(entry.get("trigger_evaluations") == [] for entry in published_evaluations),
+            f"{case_name}: every Registry Capability's own trigger_evaluations[] is [] (REQ-006(g) first half, "
+            f"asserted here against a REAL published Resolver Evidence artifact rather than a hand-built instance)",
+            repr([entry.get("trigger_evaluations") for entry in published_evaluations]),
+        )
+        counts.check(
+            len(published_evaluations) == len(registry_ids)
+            and all("conditional_facet_evaluations" not in entry for entry in published_evaluations),
+            f"{case_name}: no unmatched Capability carries conditional_facet_evaluations (AC-019 key-omitted rule)",
+            repr([sorted(entry) for entry in published_evaluations]),
+        )
+
+        # --- REQ-006(g) half 2: the Facet Manifest result --------------
+        # Reconstructed through the SAME oracle technique this suite's own
+        # `full-pipeline-match` case already uses for AC-007 (the
+        # track-exclusive artifact is never written to a live path
+        # pre-T-007, module docstring, so it cannot be read off disk).
+        # `context_binding`/`resolver` are taken from the PUBLISHED
+        # Evidence rather than re-derived: neither participates in any
+        # field asserted below -- `capabilities`, `required_facets`,
+        # `resolved_gates` and `conditional_facets` are functions of
+        # `capability_evaluations` (published, real) and the Registry
+        # (this fixture's own bytes) alone -- so using them here cannot
+        # make any assertion below self-fulfilling.
+        published_context_binding = evidence.get("context_binding")
+        counts.check(
+            isinstance(published_context_binding, dict) and bool(published_context_binding),
+            f"{case_name}: Resolver Evidence publishes context_binding on this late Block",
+            repr(published_context_binding),
+        )
+        track_artifact = resolver_module._assemble_facet_manifest(
+            "example-feature", [], registry_document, published_evaluations,
+            published_context_binding or {}, evidence.get("resolver") or {},
+        )
+        counts.check(
+            track_artifact["capabilities"] == [],
+            f"{case_name}: Facet Manifest capabilities: [] with zero affected components (REQ-006(g) second half, "
+            f"AC-027 -- the half that previously had no fixture anywhere in this feature)",
+            repr(track_artifact.get("capabilities")),
+        )
+        counts.check(
+            track_artifact["required_facets"] == [] and track_artifact["conditional_facets"] == []
+            and track_artifact["resolved_gates"] == [],
+            f"{case_name}: every matched-set-derived aggregate is empty alongside capabilities: [] "
+            f"(required_facets/conditional_facets/resolved_gates, AC-007)",
+            repr({k: track_artifact.get(k) for k in ("required_facets", "conditional_facets", "resolved_gates")}),
+        )
+        counts.check(
+            "capability_minimum_enforcement" not in track_artifact,
+            f"{case_name}: capability_minimum_enforcement omitted when the matched set is empty (AC-007)",
+            repr(track_artifact.get("capability_minimum_enforcement")),
+        )
+        validation = _validate_facet_manifest(track_artifact)
+        counts.check(
+            validation.returncode == 0,
+            f"{case_name}: the zero-component Facet Manifest validates against the REAL validate-facet-manifest "
+            f"(AC-008 -- capabilities: [] is a conforming instance, not merely an empty one)",
+            f"rc={validation.returncode} stderr={validation.stderr.decode('utf-8', errors='replace')!r}",
+        )
+
+
 WARN_SUMMARY_DETAIL = "a predicate evaluation produced an outcome: warn evidence node"
 WARN_DIAGNOSTIC_ID = "dsl-warn-on-matched-capability"
 
@@ -1617,6 +1800,7 @@ def main():
         "full-pipeline-match", "include-untracked-pass-through", "enforcement-byte-identity",
         "warn-cardinality-single-node", "warn-cardinality-multi-node",
         "warn-cardinality-facet-node", "warn-cardinality-nested-node",
+        "zero-affected-component-match",
     ]
     if not all(path.is_file() for path in required_files):
         for label in case_labels:
@@ -1631,6 +1815,7 @@ def main():
         run_warn_cardinality_multi_node_case(args.launcher, counts)
         run_warn_cardinality_facet_node_case(args.launcher, counts)
         run_warn_cardinality_nested_node_case(args.launcher, counts)
+        run_zero_affected_component_case(args.launcher, resolver_module, counts)
         run_resolver_identity_cross_process_check(counts)
         run_dispatcher_delegation_check(counts)
 

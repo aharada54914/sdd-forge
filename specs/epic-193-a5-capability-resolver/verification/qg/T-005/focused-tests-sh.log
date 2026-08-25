@@ -106,10 +106,22 @@ PASS: warn-cardinality-nested-node: Resolver Evidence schema agreement
 PASS: warn-cardinality-nested-node: no partial live artifact
 PASS: warn-cardinality-nested-node: fixture sanity -- the independently-recomputed oracle itself finds exactly two warn nodes in this ONE evidence tree (never one per tree, T-005 confirmation-panel Major 2)
 PASS: warn-cardinality-nested-node: diagnostics[] carries exactly the two independently-recomputed warn-node details, both nodes of the SAME evidence tree, never truncated to the first (AC-056; T-005 confirmation-panel Major 2)
+PASS: zero-affected-component-match: exit 1 (forced snapshot-generation-mismatch)
+PASS: zero-affected-component-match: canonical diagnostic only, reached step 13 -- so steps 0-12, INCLUDING step 12's own schema self-validation of the staged Facet Manifest, all passed on zero affected components
+PASS: zero-affected-component-match: the REAL resolve-component-paths independently returns affected_components: [] for this commit range (the zero-component condition is genuine, never fabricated by a stub)
+PASS: zero-affected-component-match: capability_evaluations[] carries exactly one entry per Registry Capability, in declaration order, even with zero affected components (AC-018)
+PASS: zero-affected-component-match: every Capability is matched: false with zero affected components (AC-018)
+PASS: zero-affected-component-match: every Registry Capability's own trigger_evaluations[] is [] (REQ-006(g) first half, asserted here against a REAL published Resolver Evidence artifact rather than a hand-built instance)
+PASS: zero-affected-component-match: no unmatched Capability carries conditional_facet_evaluations (AC-019 key-omitted rule)
+PASS: zero-affected-component-match: Resolver Evidence publishes context_binding on this late Block
+PASS: zero-affected-component-match: Facet Manifest capabilities: [] with zero affected components (REQ-006(g) second half, AC-027 -- the half that previously had no fixture anywhere in this feature)
+PASS: zero-affected-component-match: every matched-set-derived aggregate is empty alongside capabilities: [] (required_facets/conditional_facets/resolved_gates, AC-007)
+PASS: zero-affected-component-match: capability_minimum_enforcement omitted when the matched set is empty (AC-007)
+PASS: zero-affected-component-match: the zero-component Facet Manifest validates against the REAL validate-facet-manifest (AC-008 -- capabilities: [] is a conforming instance, not merely an empty one)
 PASS: resolver-identity-cross-process: sanity -- the two invocations are genuinely separate OS processes (distinct pid), not one process's own module compared against itself
 PASS: resolver-identity-cross-process: resolver.version/rule_set_revision are identical across two genuinely separate process invocations of the identical staged .py (AC-044 remainder -- kills a per-process derivation, e.g. folding os.getpid() into RULE_SET_STRING, that an in-process self-comparison cannot see)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.sh is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: resolver-identity-dispatcher-delegation: every mention of resolve-project-context.py in resolve-project-context.ps1 is a real process-launch statement (never a bare textual mention, never a second implementation) and it carries no own copy of RESOLVER_VERSION/RULE_SET_REVISION/RULE_SET_STRING (AC-044 remainder)
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 113 passed, 0 failed
+RESULT: 125 passed, 0 failed

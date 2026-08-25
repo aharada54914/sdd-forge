@@ -213,6 +213,9 @@ PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords 
 PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
 PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
+PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
+PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 216 passed, 0 failed
+RESULT: 219 passed, 0 failed
