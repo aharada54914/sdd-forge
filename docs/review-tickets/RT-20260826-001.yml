@@ -1,5 +1,21 @@
 ticket_id: RT-20260826-001
-status: open
+status: resolved
+resolution: |
+  2026-08-26: Human approved route (b) in-session the same day. Executed
+  by the gate: step 6.5 (_recheck_registry_snapshot, its invocation, and
+  the orphaned snapshot-digest retention) removed from the staged
+  resolver; the registry-swapped-during-validation fixture removed
+  (directory + all four driver references); block suite 219 -> 214/0 in
+  both runtimes; RED recaptured against the T-002-only baseline as
+  red-baseline-recaptured-v3-{sh,ps1}.log (102/105, both runtimes);
+  human-copy MANIFEST re-pinned (shasum -c 4/4 OK); contract
+  red_evidence repointed; CHANGELOG and qg traceability.log updated to
+  measured values. No frozen document was touched. Verified across gate
+  cycles 2 and 3 (seq 783/784): cycle 2 confirmed zero residue and zero
+  collateral; cycle 3 (fresh context) returned PASS 0/0/2 confirming
+  every closure. Commits 3b06de98 (removal) and 07b33f9e (evidence
+  integrity). The related cross-model-before-Done precondition remains
+  with the human (see the gate report's Final Decision).
 type: spec-drift
 severity: major
 requires_human_decision: true
