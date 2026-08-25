@@ -2,8 +2,8 @@
   "schema": "spec-reviewer-b/v1",
   "stage": "spec",
   "role": "spec-reviewer-b",
-  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0796",
-  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0796",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0798",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0798",
   "allowed_input_manifest": [
     {
       "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
@@ -11,11 +11,11 @@
     },
     {
       "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/integrated-summary.json",
-      "sha256": "19d93d27800173adf00a0beb785cfdfc3527899ed3f393c297cc53879a028ee6"
+      "sha256": "12e6d6bb34af9ea12711eab139911e4bf1fef447691a41a7dd5dfd8079088b1e"
     },
     {
       "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
-      "sha256": "8d5d07bd30cd4d9e1c5dcecdfa880ee2b45b9759b40ad428dae68877fcc0e934"
+      "sha256": "fe37da8623c5545a6fb3fc84983e5d98f2f8021ba603b46f3d80f96d8587dfd7"
     },
     {
       "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
@@ -23,7 +23,7 @@
     },
     {
       "path": "specs/epic-195-a7-compatibility/investigation.md",
-      "sha256": "7db65532eb1b3f118f4ec85db332b3eb2e5e14ec2716f5f13df785d32059c7f8"
+      "sha256": "670aeb76586e8552d02cdbb2e5e5ad023334230dd1967dfcb53b701cddb9ae56"
     },
     {
       "path": "specs/epic-195-a7-compatibility/requirements.md",
@@ -35,43 +35,43 @@
       "id": "AMBIGUITY",
       "result": "PASS",
       "severity": "Major",
-      "finding": "requirements.md/acceptance-tests.md define terms, matrix cells, and dispositions exactly; no term, actor, or state left to two-implementer interpretation was found on independent read."
+      "finding": "No new ambiguous term, actor, state, input, or output surfaced in this round's material; requirements.md/acceptance-tests.md maintain the fingerprint/line-cited specificity established across prior rounds."
     },
     {
       "id": "CONTRADICTION",
-      "result": "PASS",
+      "result": "FAIL",
       "severity": "Critical",
-      "finding": "requirements.md's Overview explicitly discloses that its Phase-1-only text describes authoring time only, and points to investigation.md's `## Amendment Re-Review Context` as the authoritative framing, rather than leaving an unaddressed direct conflict. No other direct requirement/AC/constraint conflict was found. (The declaration this pointer relies on is separately evaluated, and found deficient, under APPROVAL-BOUNDARY below.)"
+      "finding": "1) investigation.md's '## Amendment Re-Review Context' still contains, verbatim and unedited, three truncated SHA-256 back-references at investigation.md:291, :294, and :421; the Round-8 extension supplies full values elsewhere but does not rewrite the truncated citations themselves, and the document's own claim that this 'cures' them (investigation.md:668-670) is the same 'full value exists elsewhere' argument this reviewer role already rejected last round when the full value sat above rather than below the abbreviation. A full value recorded ~340 lines below is not stronger evidence than one recorded a few lines above. 2) Independently, the Round-8 extension amends investigation.md with no accompanying human-ruling/authorization statement at all, unlike every prior sub-entry -- missing evidence-bar element 3. Per spec-review-calibration.md:102-106, either gap alone means 'the declaration does not apply: judge phase-sequencing exactly as the default Phase-1 calibration above requires, with no benefit of the doubt.' Since Spec-Review-Status is still Pending and requirements.md references Phase 2/3 deliverables solely through this non-conforming entry, those references revert to an unsuppressed phase-sequencing contradiction. Critical because the suppression this section grants is binary across the whole package."
     },
     {
       "id": "EDGE-CASE-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "requirements.md's Edge Cases section plus AC-019-AC-021, AC-018, AC-035's three independent negative self-checks, and AC-041's two independent negative fixtures cover the material negative/boundary paths the requirements imply."
+      "finding": "acceptance-tests.md's enumerated AC/TEST rows continue to cover Context-absent, Context-invalid, and Context-present/enforcement-varied fixture rows, named-SKIP boundary handling, and negative-path event-trace assertions; no material gap surfaced."
     },
     {
       "id": "ASSUMPTIONS-RESOLVABLE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Assumptions names unmerged-epic dependencies with a stated re-verification mechanism (AC-035 fingerprint-drift hard-fail); the sole open item, OQ-004, is explicitly marked '(open)' with a stated resolution path, not left silently unresolved."
+      "finding": "The AC-026 ordering-vs-firing-condition assumption is explicitly tracked as OQ-004 (open) with a stated resolution path and a paired High Risks entry, consistent across requirements.md and the AC-026 row's Notes pointer -- the 'explicitly marked as a decision needed' pattern the check requires, not a silent gap."
     },
     {
       "id": "APPROVAL-BOUNDARY",
       "result": "FAIL",
       "severity": "Critical",
-      "finding": "investigation.md's `## Amendment Re-Review Context`, in the 'Spec/impl/task re-bind extension (2026-08-25)' > 'Superseded fingerprints' bullets, cites design.md's and tasks.md's current SHA-256 values as `04a124d6d562...` and `d3b3fdcd5144...` respectively -- each truncated to 12 hex characters plus an ellipsis, not the full 64-character digest calibration element 2 requires ('The SHA-256 of each amended document ... as of the amendment commit'). The adjacent bullets in the same list, for traceability.md/traceability.json, give their superseding values in full, so this is an inconsistency, not the section's format. My own enumeration (grep -noE over the whole file for 6-63 char hex runs) surfaces both truncated tokens; the Round-7 extension's remediation method (testing hex tokens against `git cat-file`) only catches tokens that resolve as git commit objects and could not have caught this content-hash truncation, and Round-7's text does not name or correct either value. Downstream failure mode: a task/implementation reviewer cannot verify from this record alone that design.md's/tasks.md's current fingerprints are what the amendment commit produced, so the human-approved amendment exception -- the sole mechanism suppressing this gate's default phase-sequencing failure -- is not fully testable per the calibration's own evidence bar. The calibration ties any hash-abbreviation defect here directly to reinstating the default Critical 'unsafe or unauthorized workflow-boundary' treatment, with no benefit of the doubt."
+      "finding": "The Round-8 extension, which amends the hash-pinned investigation.md itself (adding three new superseding-fingerprint citations), carries no human-ruling or authorization statement of any kind -- contrast every other sub-entry in the same section, and Round-7's explicit 'Authorization: none newly required' at :603. Evidence-bar element 3 ('a verbatim, dated quotation of the human's approval statement authorizing the post-implementation amendment') is missing for this amendment, with no benefit of the doubt. A verifier cannot determine whose authorization covers this edit to a frozen Phase 1 artifact, so the approval boundary the whole declaration exists to prove is not established for this content. Matches this same document's own precedent of a prior, analogous authorization gap being rated Critical APPROVAL-BOUNDARY and terminating an earlier attempt BLOCKED."
     },
     {
       "id": "DOWNSTREAM-READINESS",
-      "result": "PASS",
+      "result": "FAIL",
       "severity": "Major",
-      "finding": "The specification's product content is dense and concrete enough that a design/implementation-policy reviewer does not need to invent missing product behavior; the APPROVAL-BOUNDARY defect above is a review-process/evidentiary-record integrity issue, not a gap in specified product behavior."
+      "finding": "Because the Amendment Re-Review Context declaration does not conform this round, an implementation-policy reviewer inheriting this package would have to independently re-litigate a spec-review-scoped evidence-bar question -- whether the package's numerous later-phase references are legitimately disclosed or an unauthorized phase-sequencing violation -- rather than receiving a settled answer."
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "No domain context map exists in this worktree (verified independently), so the domain-model precondition for this check is absent; skipped per the check's own skip condition."
+      "finding": "No domain directory and no domain context map exist in this worktree, and requirements.md contains no Bounded-Context field -- the check's skip condition is met."
     }
   ],
   "verdict": "NEEDS_WORK"

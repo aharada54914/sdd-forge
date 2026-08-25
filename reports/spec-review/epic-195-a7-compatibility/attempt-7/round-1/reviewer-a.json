@@ -2,8 +2,8 @@
   "schema": "spec-reviewer-a/v1",
   "stage": "spec",
   "role": "spec-reviewer-a",
-  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0795",
-  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0795",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0797",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0797",
   "allowed_input_manifest": [
     {
       "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
@@ -11,7 +11,7 @@
     },
     {
       "path": "reports/spec-review/epic-195-a7-compatibility/attempt-7/round-1/precheck-result.json",
-      "sha256": "8d5d07bd30cd4d9e1c5dcecdfa880ee2b45b9759b40ad428dae68877fcc0e934"
+      "sha256": "fe37da8623c5545a6fb3fc84983e5d98f2f8021ba603b46f3d80f96d8587dfd7"
     },
     {
       "path": "specs/epic-195-a7-compatibility/acceptance-tests.md",
@@ -19,7 +19,7 @@
     },
     {
       "path": "specs/epic-195-a7-compatibility/investigation.md",
-      "sha256": "7db65532eb1b3f118f4ec85db332b3eb2e5e14ec2716f5f13df785d32059c7f8"
+      "sha256": "670aeb76586e8552d02cdbb2e5e5ad023334230dd1967dfcb53b701cddb9ae56"
     },
     {
       "path": "specs/epic-195-a7-compatibility/requirements.md",
@@ -31,43 +31,43 @@
       "id": "REQ-TESTABILITY",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "REQ-001-REQ-007 each name concrete, measurable comparison oracles (byte comparison, AST-canonicalized structural comparison, versioned event-trace schema, allowlist manifest with machine-checkable activation_condition grammar). AC-026's known-unsatisfied disclosure does not reduce testability -- it precisely names the producer, the exact violated firing-condition clause, and the resolution path, which is more testable than an unqualified criterion, not less."
+      "finding": "AC-026 fixes producer, firing point, ordering rule, and test binding (TEST-018/TEST-019), and explicitly discloses the known-unsatisfied firing condition with the mechanism. A verifier can decide pass/fail and the documented exception without ambiguity. Independent enumeration of the Amendment Re-Review Context section's five previously-abbreviated tokens (2 commit hashes, 3 document digests) confirmed each now has a full, prefix-matching, cross-referenced value present in the section, so no phase-sequencing/workflow-boundary Critical arises from this round's amendment bookkeeping."
     },
     {
       "id": "GOAL-AC-TRACE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Every goal REQ-001 through REQ-007 has multiple explicit matching ACs, and acceptance-tests.md's Requirement column confirms the same mapping row by row."
+      "finding": "AC-026 traces to REQ-003 (acceptance-tests.md row 30, Requirement column); OQ-004 and the paired High Risk entry close the loop between the goal-level ordering/firing claim and its acceptance criterion. No goal in the reviewed surface found without a matching AC."
     },
     {
       "id": "AC-OBSERVABLE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "All 43 ACs describe externally observable artifacts (byte-identical diffs, static registration counts, event-trace comparisons, negative self-checks, CI-workflow text scans). AC-026 remains observable despite its known-unsatisfied status; the disclosure clause and OQ-004/Risks pointers make the expected-fail state itself an observable, checkable fact rather than vague intent."
+      "finding": "AC-026's producer/ordering/value-normalization language plus its disclosed known-failure state and TEST-026's Notes-column (OQ-004) pointer together give a concrete, externally checkable pass/fail condition and a documented, non-silent exception rather than vague intent."
     },
     {
       "id": "SCOPE-BOUNDARY",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Non-goals explicitly excludes implementing Epics A1-A6, authoring Phase 2/3 test code, registering a ninth loop-inventory entry, and re-specifying Epic A5's full deferred suite; each exclusion cites the specific mechanism that keeps it bounded."
+      "finding": "investigation.md's Safety constraints section and requirements.md's Medium Risk entry on the deliberate 4-file/no-Phase-2 scope deviation explicitly bound this package against otherwise-plausible scope creep."
     },
     {
       "id": "CONSTRAINTS-EXPLICIT",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Security Boundaries B1/B2 and Roles and Permissions fix the golden-baseline candidate/canonical approval boundary and the shared-registry review-rigor boundary. The phase-sequencing boundary around referencing later-phase artifacts pre-Spec-Review-Status is governed by investigation.md's ## Amendment Re-Review Context, which, read as a whole body, meets all four calibration evidence-bar elements: full commit hashes for every amendment commit (the two previously abbreviated citations are now superseded by full 40-character hashes, independently verified by character count), per-document SHA-256 as of each amendment commit, verbatim dated source-language human approvals (with the one insufficient English-relay instance explicitly disclosed and correctly superseded by Round-6's verbatim quotation), and commit/SHA references for every later-phase artifact cited. No bare, unqualified phase-sequencing assertion remains."
+      "finding": "The AC-009 hash-pin governance constraint is explicit and material: OQ-004 states the AC-026 firing-condition defect 'resolves together with a formal amendment of AC-009's recorded hash, which is a human procedure rather than a Phase-2/3 task decision', and the Risks register names the same approval boundary ('must not be made unilaterally')."
     },
     {
       "id": "RISK-VALIDATION-SURFACE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "The Critical cross-epic-drift risk is mitigated by AC-034/AC-035's fingerprint-drift hard-fail. The High AC-026-ordering risk has an explicit manual-inspection-target surface: the OQ-004/Risks register entry itself, cross-referenced from AC-026 and TEST-026, which the risk entry names as 'the control' since no automated check exists -- a stated, planned validation surface, not a silent gap."
+      "finding": "requirements.md's Risks register states a validation surface for each named risk: the Critical drift risk names AC-035c's fingerprint-drift hard-fail as the surface that turns silent drift loud; the High AC-026 risk names OQ-004's disclosure as the control since 'no automated check detects the deviation.'"
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "No domain context map or domain contract is within this review's allowed-input manifest or otherwise in evidence for this feature; this infra/test-specification package shows no Bounded-Context field. Skipped per calibration's explicit skip condition."
+      "finding": "No domain context map or domain contract is present in this review's allowed input manifest, and no approved domain model is evidenced within the reviewed package; the check's explicit skip condition applies."
     }
   ],
   "verdict": "PASS"
