@@ -11,7 +11,7 @@
     {
       "req": "REQ-002",
       "acs": ["AC-007", "AC-008", "AC-009", "AC-010", "AC-027", "AC-028"],
-      "tests": ["TEST-007", "TEST-008", "TEST-009", "TEST-010", "TEST-013", "TEST-014"],
+      "tests": ["TEST-007", "TEST-008", "TEST-009", "TEST-010", "TEST-027", "TEST-028"],
       "evidence": [
         "specs/epic-194-a6-lite-integration/verification/T-002.red.log",
         "specs/epic-194-a6-lite-integration/verification/T-002.green.log"
