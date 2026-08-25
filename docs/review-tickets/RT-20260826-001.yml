@@ -1,0 +1,79 @@
+ticket_id: RT-20260826-001
+status: open
+type: defect
+severity: minor
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-006"
+  files:
+    - "specs/risk-adaptive-layer/requirements.md"
+    - "specs/risk-adaptive-layer/design.md"
+    - "specs/risk-adaptive-layer/acceptance-tests.md"
+summary: >-
+  AC-006 says the evidence-bundle checker "validates" the high-risk
+  provenance fields, but design.md:178 enumerates its required set as only
+  spec_revision, build_env and review_verdict.verdict == PASS, so removing
+  checks, required_workflow or builder from a conforming bundle exits 0 on
+  both twins
+problem: |
+  Found by the cycle-5 QG evaluator for risk-adaptive-layer T-006 (seq 0854,
+  report reports/quality-gate/20260826T021500Z.md), classified Minor and
+  explicitly referred to a review ticket rather than fixed, because the code
+  matches the ratified design text and changing it is a specification
+  decision.
+
+  Measured (2026-08-26), 12-case tamper matrix against a conforming
+  high-risk bundle on a clean tree, run on BOTH runtimes. Pristine bundle
+  exits 0 on both. Correctly REJECTED: spec_revision empty, spec_revision
+  missing, build_env missing, review_verdict missing, verdict != PASS, risk
+  emptied, risk mismatched. Wrongly ACCEPTED (exit 0 on both twins):
+
+    - checks removed
+    - checks emptied
+    - required_workflow removed
+    - builder removed
+
+  Parity is intact, so this is not a twin-specific hole and not a
+  cross-runtime defect. It is a disagreement between two approved documents:
+
+    - requirements.md:41 names per-check command/exit_code/timestamps,
+      required_workflow, and builder identity as REQUIRED high-risk
+      provenance, and AC-006 says the checker "validates them";
+    - design.md:178 enumerates the checker's required set as exactly
+      spec_revision, build_env and review_verdict.verdict == PASS.
+
+  The implementation follows design.md. So the gate is weaker than the
+  requirement a reader of requirements.md would expect: a high-risk bundle
+  can ship with no per-check telemetry at all and pass.
+
+  Consequence if left: REQ-006's provenance guarantee is advisory for four
+  of its named fields, and the next reader of AC-006 will reasonably assume
+  coverage that does not exist. Note this is a coverage gap, not a live
+  bypass - nothing currently emits such a bundle, because both generators
+  populate all four fields.
+expected_fix: |
+  This needs a human decision on WHICH document is authoritative before any
+  code changes. Two coherent resolutions:
+
+  (a) Widen the checker to match requirements.md - add non-empty checks,
+      required_workflow present and non-blank, and builder present to the
+      required set for risk: high, on BOTH twins, with a tamper fixture per
+      field on each runtime. Amend design.md:178 in the same change so the
+      two documents agree. Cost: any historical high-risk bundle lacking
+      those fields stops validating; measure that population first.
+
+  (b) Narrow the wording - amend requirements.md:41 and AC-006 to say the
+      checker validates spec_revision, build_env and review_verdict, and
+      that the remaining provenance fields are emitted by the generator but
+      not gate-enforced. Cheaper and truthful, but it removes a guarantee
+      rather than delivering it.
+
+  Whichever is chosen, add the four tamper cases above as fixtures so the
+  decided boundary is pinned on both runtimes; today no fixture enters this
+  path at all, which is why the gap survived five gate cycles.
+references:
+  - "reports/quality-gate/20260826T021500Z.md"
+  - "docs/review-tickets/RT-20260821-STATUS.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 0
