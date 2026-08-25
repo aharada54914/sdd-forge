@@ -4,6 +4,139 @@
 
 ### Fixed
 
+- **タスク承認ゲートが PowerShell ホストで大小文字を無視していた問題
+  （WFI-012 クラスの実在欠陥、WFI-044 の Cycle-2 監査で発見）**:
+  `check-task-state.ps1` / `check-task-state-lite.ps1` の承認・ステータス判定が
+  `-eq` / `-in` / `-notin` を使っていた。PowerShell のこれらは**大小文字を
+  無視する**が、awk 双子の `==` / `!=` は**大小文字を区別する**。結果:
+  - `Approval: approved`（小文字）は awk 側で「invalid Approval」かつ
+    「In Progress without Approval」の2件失敗となるのに対し、ps1 側では
+    **有効な承認として扱われ承認ゲートを通過**していた。
+    つまり誤記した承認値が PowerShell ホストでのみゲートを抜けられた。
+  - `Status: planned` / `in progress` / `done` も同様に ps1 側だけ有効扱い。
+  - `-in $approvedOnlyStatuses` / `-notin $validStatuses` も同じ理由で
+    大小文字を無視していた。
+  該当箇所を `-ceq` / `-cin` / `-cnotin` に修正（両チェッカー計15箇所)。
+  `.ToLower()` を明示している箇所（`sudo` / `none` 判定、Risk は読み取り時に
+  awk の `tolower()` と同様に正規化済み）は awk 双子と一致するため変更なし。
+  MCP パーサは JS の `===`（大小文字区別）で既に一致しており影響なし。
+  **PR #336 の `-match`→`-cmatch` 修正は正規表現層のみを直しており、同じ行の
+  `-eq` は残っていた** — `tests/task-state-grammar-parity.tests.sh` の
+  mis-cased フィクスチャも注釈形式のみを覆っていたため検出できなかった。
+  同スイートに文字列等価層の負フィクスチャ5件を追加
+  (`mis-cased-bare-{lower,upper,mixed}`、`mis-cased-status-{planned,inprogress}`)。
+  17/17 緑、4件すべて sh 脚で reject を実測。
+
+  **追補（PR #339 の Codex レビュー指摘、いずれも同一クラスの取りこぼし）**:
+  - **フィールド名層**: awk 双子は `/^Approval:/` `/^Status:/` で行を選別する
+    （awk 正規表現は大小文字を区別）が、ps1 側は同じアンカーを `-match` で
+    見ていた。`approval: Approved` は ps1 で解析され awk では無視され、
+    awk 側だけが「フィールドが無い」と報告していた。見出し・Risk・
+    Second Approval・Blockers を含む12箇所を `-cmatch` に変更。
+  - **cmdlet 層**（AGENTS.md WFI-012 のリスト (b)）: lite チェッカーの Done
+    判定は品質ゲートレポートを検索するが、awk 双子の `grep -rlw` /
+    `grep -Eq` が大小文字を区別する一方、ps1 の `Select-String` は既定で
+    無視する。`verdict: pass` と書かれたレポートが PowerShell ホストでのみ
+    Done を満たしていた。4箇所に `-CaseSensitive` を追加。
+  - フィクスチャを追加: フィールド名層3件（`mis-cased-key-*`）、cmdlet 層5件
+    （`verdict-case-*`、canonical を control として保持）。25/25 緑。
+
+### Changed
+
+- **`installer-idempotency` 関連は main 側に一本化**: CI 登録・終端 `exit 0`・
+  Windows のバッチエスケープ修正はいずれも main が行った（`2b8e528a` /
+  `9a382c21` / `ce7eea97` の revert / `93cc6070` で再登録）。本ブランチが
+  一時的に持っていた同等実装は全て破棄し、`test.yml` を含むインストーラ・
+  CI 関連ファイルは `origin/main` と byte-identical。
+
+- **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
+  各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
+  Approved 在庫を全件 Applied へ。
+  - **WFI-039**（実装済み・2026-08-21 検証済み）: Status 追随のみ。
+  - **WFI-022 — WFI ガード誤検知3経路の修正**: フィールドマッチャを
+    「列0の完全なフィールド行」（multiline、CR 許容）と「コマンドテキスト用
+    非アンカー形」の2本に分離（リダイレクト追記はリテラルが行中の引用内に
+    来るため、アンカー化だけでは取りこぼす）。Edit 経路は `old_string` との
+    **純増比較**（edits 配列は要素ごと）、Bash 経路はガード自身の read-only
+    不変量（複合演算子なし+read-only 動詞開始+書込トークンなし）での免除+
+    書込可能コマンドは広域一致を維持。py/js/ps1 同一変更（sh は
+    dispatcher のため無差分）。parity スイートに `wfi-022:` 10ケース追加 —
+    再現3誤検知は変更前 exit 2 / 変更後 exit 0 を実測、承認除去 sed は
+    設計どおり拒否のまま+Edit 経路の同遷移は許可、実バイパス
+    （列0行を含む Write、リダイレクト追記、フィールド追加 Edit、複合
+    read-then-write）は拒否維持。67/67 緑、guard 系スイート・ミラー同期
+    （7件）済み。
+  - **WFI-042 — タスク承認注釈文法の統一**: check-task-state.{sh,ps1} の
+    妥当性/ゲート判定を approver_id() と同じ厳格文法
+    `Approved (<id> <ISO8601 秒 Z>)` に統一（#35.3 の緩和形式を廃止）。
+    **MCP パーサも追随**（golden シェル等価契約が check-task-state.sh に
+    束縛しているため — 実装時に発見した波及先として WFI Result に記録）。
+    新設 `task-state-grammar-parity.tests.sh`（full↔lite 7fixture parity +
+    抽出一致4ケース、判別性実証: 変更前6失敗/変更後11緑）。gates C-05.2
+    期待値反転（131 緑）、MCP 240 緑。committed 8行の移行は人間作業として
+    `reports/notes/wfi-042-approval-line-migration.patch` にステージ
+    （git apply 検証済み、CI 非依存）。追跡 Issue #330。
+  - **WFI-037 — REVIEW_CONTEXT_OK 行へのチェーン事実の搭載**: validator
+    双子が予約レコードの sequence / previous_record_sha256 /
+    pre-append tip sequence（persisted 検証時は `-`）/ identity_unique を
+    OK 行に出力（各事実は出力前に fail-closed 検査で証明。persisted 分岐に
+    一意性検査を新設）。境界リファレンスの4ステップ手順を「聴衆が実行可能」
+    な形に全面改訂（各ステップに証拠源タグ、台帳読取は無権限と明記、偽造
+    OK 行の反証可能性も記載）。9ロール文書に自己 manifest 検証禁止の
+    同一段落を挿入。新設
+    `boundary-reference-authorization-parity.tests.{sh,ps1}`（19 緑、
+    run-all+CI 登録）。あわせて #325 の lib 統合以来 main で失敗していた
+    `review-context-boundary.tests.sh` の引用ドリフト検査を lib に追随修正
+    （CI 非実行のため未検出だった）。
+  - **WFI-025 — 混在ステータス計画の恒久バインディング**:
+    task-review-precheck.{sh,ps1} が混在時に**正規化ダイジェスト**を記録し
+    `tasks_sha256_form` を宣言（一様計画は raw をバイト同一で維持、
+    --verify-inputs も form 対応）。validate-review-context-set.{sh,ps1} に
+    tasks.md 限定のスコープ付き例外（precheck 宣言+記録一致+live 再正規化
+    一致の3条件、他エントリは raw 厳格のまま。旧方式 manifest は既存
+    round-consistency で拒否）。task-review-loop SKILL STEP 2/4 に
+    verbatim コピー指示。新設
+    `task-plan-binding-durability.tests.sh`（16 緑、run-all+CI 登録）:
+    実 precheck→予約 validator→**無変更の check-workflow-state.sh** の
+    全経路で「正規化バインディングはステータス遷移を生き延び、raw
+    バインディング（変更前の唯一の形）は同じ遷移で壊れる」を実測。
+    完走済み（一様 Done）計画では raw が re-review 形と偶然一致して
+    生き残る — Root Cause の言う偶発的不変性そのもの — ため、fixture は
+    mid-flight 状態から束縛する（テストに記録済み）。
+
+### Fixed
+
+- **WFI-041 — インストーラが既導入マシンで再実行できない**: 外部 CLI が
+  「既に登録済み」を*エラー*として返すため、`install.sh` / `install.ps1` の
+  再実行が毎回 EXIT トラップで install root 全体を巻き戻し、無関係な
+  エラーを報告しながら旧バージョンへ戻していた（1.15.0→1.16.0 の実測で
+  4 回実行・3 回ロールバック）。3 点を修正: (1) marketplace-add と
+  `claude mcp add` を新設 `run_idempotent_plugin_command` /
+  `Invoke-IdempotentPluginCommand` 経由にし、CLI 自身の文言
+  （`already registered` / `already exists` 等）に一致した場合のみ成功扱い
+  — それ以外の非零終了は従来どおり致命。**WFI が列挙した 3 箇所に加え
+  `codex plugin add` / `copilot plugin install` も同経路へ**（実測時は
+  marketplace-add が先に落ちてこの 2 つは未到達＝挙動未測定だが、同じ CLI の
+  marketplace-add は「既登録」をエラーで返す。除外すると WFI の計測指標
+  「アップグレード 1 回」が 2 回目の実行で破れる）。(2) `claude plugin install` が
+  「導入済み」を*成功*として返し何も上げないため、該当プラグインを収集して
+  `claude plugin marketplace update` + `claude plugin update` を実行し、
+  バージョン遷移を報告（無変更の実行と区別可能）。(3) rollback を配置
+  フェーズまでに限定 — ツリー配置後の登録失敗は失敗した登録を報告して
+  install root を新バージョンのまま残す。
+  **既存契約の反転を伴う**: `install.tests.{sh,ps1}` のシナリオ (c)/(d) は
+  「登録フェーズの失敗 → 巻き戻し」を明示検証していたため、削除ではなく
+  反転し理由をインラインに記録。正当化は (1) に依存する（冪等化前は部分
+  登録された新ツリーが再実行で回復不能だった）。新設
+  `installer-idempotency.tests.{sh,ps1}`（各 7 緑、run-all 登録済み）:
+  冪等許容・アップグレード経路・フェーズ別 rollback を、それぞれ**負の
+  対照付き**で検証（常に更新するツールでも通る主張と、そもそも巻き戻さない
+  実装でも通る主張を潰すため）。3 通りの mutation で非空虚性を実測
+  （それぞれ sh 3/10/6 失敗、ps1 は case 7/1/3 で停止）。CI 登録は
+  `.github/workflows/test.yml` が保護対象のため
+  `docs/ci-staging/wfi-041-installer-idempotency-ci.patch` に staging
+  （`git apply --check` 通過、`--numstat` は `5 0`）。
+
 - **SHA-256 検証の fail-closed 化と lowercase-only 統一（監査 Cluster 6）**:
   (1) sh 側 8 ファイルの `sha256` 系ヘルパーのうち、ツール欠如時に**空
   ダイジェストを黙って返す** fail-open 形（裸の `else shasum`。空 == 空で
