@@ -284,6 +284,116 @@ try {
   if ((Invoke-SpecPrecheck @($feature, '2', '1', '--reset')) -eq 0) { throw 'not ok: reviewers disagreeing about investigation.md must not validate' }
   Remove-Item -LiteralPath $specReport -Recurse -Force -ErrorAction SilentlyContinue
 
+  # --- the same category error, in the two downstream twins ------------------
+  # require_persisted_pass rebuilds a SEALED predecessor contract's expected
+  # reviewer manifest. investigation.md was the one entry re-hashed from the LIVE
+  # working tree, and it is by design the document that accumulates the amendment
+  # record ACROSS stages -- so it grows after a round is sealed as a matter of
+  # course. Once it grew, every downstream stage refused with 'persisted spec
+  # contract reviewer manifest is missing investigation evidence', permanently.
+  # This validation runs unconditionally, so -ProvenanceRereview offered no way
+  # past it and the only remaining move was a spec reset and a six-reviewer
+  # cascade (epic-193..196). Both twins carried their own copy, so no platform
+  # substitution escaped it; the shell twin's single shared copy is covered by
+  # tests/downstream-review-precheck.tests.sh.
+  #
+  # Both directions are asserted, because a one-sided test would let a blanket
+  # loosening through: growth must open the gate, and a contract whose two
+  # reviewers disagree about the bytes they read must still be refused.
+  $implPrecheck = Join-Path $root 'plugins/sdd-review-loop/scripts/impl-review-precheck.ps1'
+  $taskPrecheck = Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1'
+  $specContractPath = "$specReport/attempt-1/round-1/spec-review-contract.json"
+  $implContractPath = "$implReport/attempt-1/round-1/impl-review-contract.json"
+  function Assert-Opens([scriptblock]$Action, [string]$Message) {
+    try { & $Action | Out-Null } catch { throw "not ok: $Message (got: $_)" }
+  }
+  # Seals the CURRENT bytes of investigation.md into every reviewer's manifest,
+  # exactly as a real round does when its reviewers read the file.
+  function Add-PinnedInvestigation([string]$ContractPath) {
+    $sha = Get-Sha256Lower $investigation
+    $data = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json
+    foreach ($reviewer in $data.reviewers) {
+      $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest) +
+        [pscustomobject]@{ path = "specs/$feature/investigation.md"; sha256 = $sha }
+    }
+    $data | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ContractPath -Encoding utf8NoBOM
+  }
+  function Set-ForgedInvestigationPin([string]$ContractPath, [int]$ReviewerIndex, [string]$Sha) {
+    $data = Get-Content -LiteralPath $ContractPath -Raw | ConvertFrom-Json
+    ($data.reviewers[$ReviewerIndex].allowed_input_manifest |
+      Where-Object { $_.path -ceq "specs/$feature/investigation.md" }).sha256 = $Sha
+    $data | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ContractPath -Encoding utf8NoBOM
+  }
+
+  Remove-Item -LiteralPath $specReport, $implReport, $taskReport -Recurse -Force -ErrorAction SilentlyContinue
+  'Spec-Review-Status: Passed' | Set-Content -LiteralPath $requirementsPath -Encoding utf8NoBOM
+  'Impl-Review-Status: Pending' | Set-Content (Join-Path $spec design.md) -Encoding utf8NoBOM
+  @('Task-Review-Status: Pending','',"## T-001 First",'Risk: low','Risk Rationale: fixture','Required Workflow: test-after','### Blockers','None','',"## T-002 Second",'Risk: low','Risk Rationale: fixture','Required Workflow: test-after','### Blockers','T-001') | Set-Content (Join-Path $spec tasks.md) -Encoding utf8NoBOM
+  @('# Investigation', '', '- INV-001 recorded before the round was sealed.') | Set-Content -LiteralPath $investigation -Encoding utf8NoBOM
+  New-Item -ItemType Directory -Path "$specReport/attempt-1/round-1" -Force | Out-Null
+
+  # Baseline: a contract that pinned the file, validated while the file is
+  # untouched. If this ever fails the cases below prove nothing.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Add-PinnedInvestigation $specContractPath
+  $sealedInvestigation = Get-Sha256Lower $investigation
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'impl must accept a spec contract pinning an untouched investigation.md'
+  Remove-Item -LiteralPath $implReport -Recurse -Force
+
+  # The real shape: the amendment record grows after the seal. The pin is still
+  # correct evidence about the round; only the present moved on.
+  Add-Content -LiteralPath $investigation -Value "`n## Amendment Re-Review Context`n`n- Recorded after the round was sealed."
+  if ((Get-Sha256Lower $investigation) -eq $sealedInvestigation) { throw 'not ok: growth fixture did not actually change investigation.md, so it proves nothing' }
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'investigation.md growing after the seal must not invalidate the sealed spec contract'
+  Remove-Item -LiteralPath $implReport -Recurse -Force
+
+  # The mirror image: a contract that never pinned investigation.md declares its
+  # reviewers did not read it, which the allowed-input table permits. The file
+  # merely appearing in the tree afterwards must not invalidate that contract.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'an investigation.md present in the tree must not invalidate a contract that never pinned it'
+  Remove-Item -LiteralPath $implReport -Recurse -Force
+
+  # Fail-closed direction: deriving the pin from the contract must not mean
+  # trusting whatever it says. Two reviewers who pinned different bytes did not
+  # read the same document, and no single pin can be derived from them.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Add-PinnedInvestigation $specContractPath
+  Set-ForgedInvestigationPin $specContractPath 1 ('c' * 64)
+  $ambiguousImplError = ''
+  try { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 | Out-Null } catch { $ambiguousImplError = "$_" }
+  if ($ambiguousImplError -notmatch 'ambiguous or malformed investigation evidence pin') {
+    throw "not ok: impl must refuse reviewers disagreeing about investigation.md by name (got: $ambiguousImplError)"
+  }
+  if (Test-Path $implReport) { throw 'not ok: an ambiguous investigation.md pin must be refused before any evidence is written' }
+
+  # The task gate validates BOTH the spec and the impl predecessor contract, and
+  # carries its own copy of the predicate, so it gets the same three assertions.
+  Write-PassArtifacts spec "$specReport/attempt-1/round-1"
+  Add-PinnedInvestigation $specContractPath
+  Assert-Opens { & $implPrecheck -Feature $feature -Attempt 1 -Round 1 } 'impl gate must open so the task fixture has a round to seal'
+  'Impl-Review-Status: Passed' | Set-Content (Join-Path $spec design.md) -Encoding utf8NoBOM
+  Write-PassArtifacts impl "$implReport/attempt-1/round-1"
+  Add-PinnedInvestigation $implContractPath
+  $sealedInvestigation = Get-Sha256Lower $investigation
+  Assert-Opens { & $taskPrecheck -Feature $feature -Attempt 1 -Round 1 } 'task must accept spec and impl contracts pinning an untouched investigation.md'
+  Remove-Item -LiteralPath $taskReport -Recurse -Force
+
+  Add-Content -LiteralPath $investigation -Value "`n## Amendment Re-Review Context (task stage)`n`n- Recorded after both rounds were sealed."
+  if ((Get-Sha256Lower $investigation) -eq $sealedInvestigation) { throw 'not ok: task-stage growth fixture did not actually change investigation.md' }
+  Assert-Opens { & $taskPrecheck -Feature $feature -Attempt 1 -Round 1 } 'investigation.md growing after the seal must not invalidate the sealed impl contract at the task gate'
+  Remove-Item -LiteralPath $taskReport -Recurse -Force
+
+  Set-ForgedInvestigationPin $implContractPath 1 ('c' * 64)
+  $ambiguousTaskError = ''
+  try { & $taskPrecheck -Feature $feature -Attempt 1 -Round 1 | Out-Null } catch { $ambiguousTaskError = "$_" }
+  if ($ambiguousTaskError -notmatch 'ambiguous or malformed investigation evidence pin') {
+    throw "not ok: task must refuse an impl contract whose reviewers disagree about investigation.md by name (got: $ambiguousTaskError)"
+  }
+  if (Test-Path $taskReport) { throw 'not ok: an ambiguous investigation.md pin must be refused before the task gate writes evidence' }
+  Remove-Item -LiteralPath $investigation -Force -ErrorAction SilentlyContinue
+  Remove-Item -LiteralPath $specReport, $implReport, $taskReport -Recurse -Force -ErrorAction SilentlyContinue
+  Write-Output 'ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one'
   Write-Output 'ok: PowerShell downstream prechecks fail closed and preserve graph semantics'
 } finally {
   [IO.File]::WriteAllText($registry, $registryOriginal)

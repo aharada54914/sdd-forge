@@ -664,5 +664,121 @@ jq --arg feature "$FEATURE" \
 mv "$REGISTRY.tmp" "$REGISTRY"
 rm -rf "$IMPL_REPORT/attempt-2"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# A sealed predecessor contract's investigation.md pin is evidence about the
+# past, so it must be read out of the contract, never re-hashed from the live
+# working tree.
+#
+# investigation.md is by design the one document that accumulates the amendment
+# record ACROSS stages: it grows after a round is sealed as a matter of course.
+# require_persisted_pass used to compare the sealed manifest against today's
+# bytes, so the moment the amendment record grew, every downstream stage refused
+# with "persisted spec contract reviewer manifest is missing investigation
+# evidence" -- permanently, since nothing can un-grow the file. It runs
+# unconditionally, so --provenance-rereview offered no way past it and the only
+# remaining move was a spec --reset and a six-reviewer cascade (epic-193..196).
+#
+# Both directions are asserted from the same fixture, because a one-sided test
+# would let a blanket loosening through: growth must open the gate, and a
+# contract whose two reviewers disagree about the bytes they read must still be
+# refused.
+# ─────────────────────────────────────────────────────────────────────────────
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT" "$TASK_REPORT"
+write_inputs
+printf '# Investigation\n\n- INV-001 recorded before the round was sealed.\n' > "$SPEC_DIR/investigation.md"
+
+# Seals whatever investigation.md says right now into every reviewer's manifest,
+# exactly as a real reviewer round does. $2 is the manifest path prefix, so the
+# foreign-checkout absolute form is exercised alongside the repo-relative one.
+pin_investigation() {
+  local contract="$1" prefix="${2:-}" hash
+  hash="$(shasum -a 256 "$SPEC_DIR/investigation.md" | awk '{print $1}')"
+  jq --arg path "${prefix}specs/${FEATURE}/investigation.md" --arg hash "$hash" \
+    '.reviewers |= map(.allowed_input_manifest += [{path:$path,sha256:$hash}])' \
+    "$contract" > "$contract.tmp" && mv "$contract.tmp" "$contract"
+}
+spec_contract="$SPEC_REPORT/attempt-1/round-1/spec-review-contract.json"
+
+# Baseline: a contract that pinned the file, validated while the file is
+# untouched. If this ever fails the cases below prove nothing.
+write_spec_pass
+pin_investigation "$spec_contract"
+sealed_investigation="$(shasum -a 256 "$SPEC_DIR/investigation.md" | awk '{print $1}')"
+rm -rf "$IMPL_REPORT"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "impl must accept a spec contract pinning an untouched investigation.md"
+
+# The real shape: the amendment record grows after the seal. The pin is still
+# correct evidence about the round; only the present moved on.
+rm -rf "$IMPL_REPORT"
+printf '\n## Amendment Re-Review Context\n\n- Recorded after the round was sealed.\n' >> "$SPEC_DIR/investigation.md"
+[[ "$(shasum -a 256 "$SPEC_DIR/investigation.md" | awk '{print $1}')" != "$sealed_investigation" ]] ||
+  fail "growth fixture did not actually change investigation.md, so it proves nothing"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "investigation.md growing after the seal must not invalidate the sealed spec contract"
+
+# The mirror image: a contract that never pinned investigation.md declares its
+# reviewers did not read it, which the allowed-input table permits. The file
+# merely appearing in the tree afterwards must not invalidate that contract.
+rm -rf "$IMPL_REPORT"
+write_spec_pass
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "an investigation.md present in the tree must not invalidate a contract that never pinned it"
+
+# Fail-closed direction (a): deriving the pin from the contract must not mean
+# trusting whatever it says. Two reviewers who pinned different bytes did not
+# review the same document, and no single pin can be derived from them.
+rm -rf "$IMPL_REPORT"
+write_spec_pass
+pin_investigation "$spec_contract"
+jq '(.reviewers[1].allowed_input_manifest[] | select(.path | endswith("/investigation.md")) | .sha256) = ("c"*64)' \
+  "$spec_contract" > "$spec_contract.tmp" && mv "$spec_contract.tmp" "$spec_contract"
+ambiguous_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 1 1) 2>&1 1>/dev/null || true )"
+grep -q 'ambiguous or malformed investigation evidence pin' <<<"$ambiguous_err" ||
+  fail "reviewers disagreeing about investigation.md must be refused by name (got: $ambiguous_err)"
+[[ ! -e "$IMPL_REPORT" ]] ||
+  fail "an ambiguous investigation.md pin must be refused before any evidence is written"
+
+# Fail-closed direction (b): a recorded pin that is not a well-formed digest is
+# refused too. The manifest schema check upstream catches this first, which is
+# the point -- the loosening must not have opened a hole beneath it.
+rm -rf "$IMPL_REPORT"
+write_spec_pass
+pin_investigation "$spec_contract"
+jq '(.reviewers[].allowed_input_manifest[] | select(.path | endswith("/investigation.md")) | .sha256) = "not-a-sha256"' \
+  "$spec_contract" > "$spec_contract.tmp" && mv "$spec_contract.tmp" "$spec_contract"
+expect_denied_without_evidence "impl malformed investigation pin" "$IMPL_REPORT" \
+  bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1
+
+# The task gate validates BOTH the spec and the impl predecessor contract
+# through the same shared require_persisted_pass, so it must behave identically
+# — including when the sealed manifests carry another checkout's absolute paths.
+rm -rf "$SPEC_REPORT" "$IMPL_REPORT" "$TASK_REPORT"
+printf '# Investigation\n\n- INV-001 recorded before the round was sealed.\n' > "$SPEC_DIR/investigation.md"
+write_issue61_spec_pass "/original-checkout/sdd-forge"
+write_issue61_impl_pass "/original-checkout/sdd-forge"
+pin_investigation "$spec_contract" "/original-checkout/sdd-forge/"
+pin_investigation "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json" "/original-checkout/sdd-forge/"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "task must accept spec and impl contracts pinning an untouched investigation.md"
+rm -rf "$TASK_REPORT"
+printf '\n## Amendment Re-Review Context\n\n- Recorded after both rounds were sealed.\n' >> "$SPEC_DIR/investigation.md"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "investigation.md growing after the seal must not invalidate the sealed impl contract at the task gate"
+rm -rf "$TASK_REPORT"
+jq '(.reviewers[1].allowed_input_manifest[] | select(.path | endswith("/investigation.md")) | .sha256) = ("c"*64)' \
+  "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json" > "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.tmp" &&
+  mv "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.tmp" "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json"
+task_ambiguous_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/task-review-precheck.sh \
+  "$FEATURE" 1 1) 2>&1 1>/dev/null || true )"
+grep -q 'ambiguous or malformed investigation evidence pin' <<<"$task_ambiguous_err" ||
+  fail "the task gate must refuse an impl contract whose reviewers disagree about investigation.md (got: $task_ambiguous_err)"
+[[ ! -e "$TASK_REPORT" ]] ||
+  fail "an ambiguous investigation.md pin must be refused before the task gate writes evidence"
+rm -rf "$SPEC_REPORT" "$IMPL_REPORT" "$TASK_REPORT"
+rm -f "$SPEC_DIR/investigation.md"
+
 printf 'ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges\n'
 printf 'ok: impl --provenance-rereview re-binds a prior PASS, refuses without one, and treats the canonical gate as advisory\n'
+printf 'ok: sealed predecessor contracts take their investigation.md pin from the contract, and refuse an ambiguous one\n'
