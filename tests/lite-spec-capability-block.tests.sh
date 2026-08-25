@@ -234,7 +234,7 @@ if [ "${HAVE_FIXTURES}" -eq 1 ]; then
     fail "TEST-019-functional-registry-shape: Registry fixture shape diverges from design.md's Data Plan and from the .ps1 twin. nested=${REG_NESTED} flat=${REG_FLAT} matched=${MATCHED_COUNT}"
   fi
 else
-  echo "skip - TEST-019-functional-registry-shape: no python3 and/or no fixture catalog: cannot run the union match"
+  echo "skip - TEST-019-functional-registry-shape: no fixture catalog: cannot assemble the synthetic trigger fragment"
 fi
 
 # Source bodies come from the catalog too, via a python3-free extraction so
@@ -254,6 +254,13 @@ printf '%s\n' "$(extract_source clean)" > "${WORK}/source.txt"
 # message prefix are what the Capability-derived run is compared against --
 # if the keyword arm's own contract ever moved, this comparison moves with it
 # instead of silently diverging from the constant it used to assert.
+# Guarded on the catalog, not just on python3: without it extract_source
+# yields an EMPTY body, and an empty body legitimately produces
+# `lite-eligible`. Running anyway would fail with "the keyword-match
+# reference fixture did not Block", blaming the checker for a missing
+# fixture -- a misleading failure, and a degraded-path divergence from the
+# .ps1 twin, which skips this correctly.
+if [ "${HAVE_CATALOG}" -eq 1 ]; then
 printf '%s\n' "$(extract_source keyword_match)" > "${WORK}/keyword-source.txt"
 KW_OUT=""
 KW_EXIT=0
@@ -263,6 +270,9 @@ if [ "${KW_EXIT}" -ne 0 ] && [ "${KW_PREFIX}" = "full-required" ]; then
   ok "TEST-019-functional-baseline: the keyword-match reference fixture Blocks (exit ${KW_EXIT}, '${KW_PREFIX}: ...') -- the comparison target AC-019 names actually exists"
 else
   fail "TEST-019-functional-baseline: the keyword-match reference fixture did not Block; exit=${KW_EXIT} output=${KW_OUT}. Every parity assertion below is meaningless without it."
+fi
+else
+  echo "skip - TEST-019-functional-baseline: no fixture catalog: cannot assemble the synthetic trigger fragment"
 fi
 
 if [ "${HAVE_FIXTURES}" -eq 1 ]; then
@@ -286,9 +296,9 @@ else
   fail "TEST-019-functional-c: expected 'financial_settlement' in output: ${OUT}"
 fi
 else
-  echo "skip - TEST-019-functional-a: no python3 and/or no fixture catalog: cannot assemble the synthetic trigger fragment"
-  echo "skip - TEST-019-functional-b: no python3 and/or no fixture catalog: cannot assemble the synthetic trigger fragment"
-  echo "skip - TEST-019-functional-c: no python3 and/or no fixture catalog: cannot assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-a: no fixture catalog: cannot assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-b: no fixture catalog: cannot assemble the synthetic trigger fragment"
+  echo "skip - TEST-019-functional-c: no fixture catalog: cannot assemble the synthetic trigger fragment"
 fi
 
 # ---------------------------------------------------------------------------
@@ -326,7 +336,7 @@ else
   fail "TEST-019-defense-in-depth-b: expected intake to pass with exit 0, got ${DI_INTAKE_EXIT}. Output: ${DI_INTAKE_OUT}"
 fi
 else
-  echo "skip - TEST-019-defense-in-depth-b: no python3 and/or no fixture catalog: cannot materialize the companion fragment"
+  echo "skip - TEST-019-defense-in-depth-b: no fixture catalog: cannot materialize the companion fragment"
 fi
 
 # Ship-time recheck: independent invocation, single argument only -- exactly
@@ -334,6 +344,10 @@ fi
 # no --capability-reasons at all, per its own live text) -- against a
 # task-block+requirements body that DOES carry an unrelated keyword trigger
 # for the same component.
+# Catalog-guarded for the same reason as the keyword baseline above: an empty
+# source body legitimately yields `lite-eligible`, so running it without the
+# catalog would blame the checker for a missing fixture.
+if [ "${HAVE_CATALOG}" -eq 1 ]; then
 printf '%s\n' "$(extract_source defense_in_depth_ship)" > "${WORK}/di-ship-source.txt"
 DI_SHIP_OUT=""
 DI_SHIP_EXIT=0
@@ -342,6 +356,9 @@ if [ "${DI_SHIP_EXIT}" -eq 10 ]; then
   ok "TEST-019-defense-in-depth-c: ship-time recheck independently Blocks (exit 10) even though intake's Capability-derived evaluation did not flag this component"
 else
   fail "TEST-019-defense-in-depth-c: expected ship-time recheck to Block with exit 10, got ${DI_SHIP_EXIT}. Output: ${DI_SHIP_OUT}"
+fi
+else
+  echo "skip - TEST-019-defense-in-depth-c: no fixture catalog: cannot materialize the companion fragment"
 fi
 
 if [ -f "${LIVE_SHIP_SKILL}" ]; then

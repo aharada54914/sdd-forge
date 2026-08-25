@@ -109,13 +109,32 @@ Assert-Contains 'TEST-019-static-m: names a temp-fragment write failure as a pro
 Assert-Contains 'TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs' 'Block immediately, before'
 Assert-Contains 'TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted' 'never a silent degrade'
 
-if (Test-Path -LiteralPath $FixtureCatalogPath -PathType Leaf) {
+if ($HaveCatalog) {
     Ok 'TEST-019-fixture-catalog: the tasks.md-declared fixture tree exists and is read by both twins'
 } else {
-    Bad "TEST-019-fixture-catalog: declared fixture tree is missing at $FixtureCatalogPath"
+    Bad "TEST-019-fixture-catalog: declared fixture tree is missing or unreadable at $FixtureCatalogPath"
 }
 
 Write-Host '=== TEST-019-functional: assembled Capability-derived fragment Blocks ==='
+# Twin of the sh suite's HAVE_FIXTURES guard. Without the catalog every
+# assertion below dereferences $null under Set-StrictMode and throws, taking
+# the whole run down before the "Results:" line -- strictly worse than the sh
+# twin's own abort, because $ErrorActionPreference = 'Stop' means nothing at
+# all is printed. A missing catalog must be a visible FAIL plus visible skips,
+# never silence.
+if (-not $HaveCatalog) {
+    foreach ($lbl in @(
+        'TEST-019-functional-registry-shape',
+        'TEST-019-functional-baseline',
+        'TEST-019-functional-a',
+        'TEST-019-functional-b',
+        'TEST-019-functional-c'
+    )) {
+        Write-Host "skip - ${lbl}: no fixture catalog: cannot assemble the synthetic trigger fragment"
+    }
+}
+
+if ($HaveCatalog) {
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t003-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
 $Work = (Resolve-Path -LiteralPath $Work).Path
@@ -185,6 +204,7 @@ try {
 } finally {
     if (Test-Path -LiteralPath $Work) { Remove-Item -LiteralPath $Work -Recurse -Force -ErrorAction SilentlyContinue }
 }
+}  # end if ($HaveCatalog) -- functional block
 
 # ---------------------------------------------------------------------------
 # Companion fixture (defense-in-depth, design.md Test Strategy item 6,
@@ -204,6 +224,13 @@ if ($SkillContent.Contains('--capability-reasons <fragment-path>')) {
     Bad 'TEST-019-defense-in-depth-a: proposed SKILL.md no longer documents --capability-reasons; the property below cannot be exercised'
 }
 
+if (-not $HaveCatalog) {
+    foreach ($lbl in @('TEST-019-defense-in-depth-b', 'TEST-019-defense-in-depth-c')) {
+        Write-Host "skip - ${lbl}: no fixture catalog: cannot materialize the companion fragment"
+    }
+}
+
+if ($HaveCatalog) {
 $DiWork = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t003-di-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $DiWork -Force | Out-Null
 $DiWork = (Resolve-Path -LiteralPath $DiWork).Path
@@ -244,6 +271,7 @@ try {
 } finally {
     if (Test-Path -LiteralPath $DiWork) { Remove-Item -LiteralPath $DiWork -Recurse -Force -ErrorAction SilentlyContinue }
 }
+}  # end if ($HaveCatalog) -- defense-in-depth block
 
 if (Test-Path -LiteralPath $LiveShipSkill -PathType Leaf) {
     $shipContent = Get-Content -LiteralPath $LiveShipSkill -Raw
@@ -259,7 +287,11 @@ if (Test-Path -LiteralPath $LiveShipSkill -PathType Leaf) {
 # ---------------------------------------------------------------------------
 Write-Host '=== TEST-021 (AC-021): single-file, human-copy-only lock ==='
 $HcRoot = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy'
-$SoleTarget = $FixtureCatalog.ac_021.sole_staged_target
+# Literal fallbacks: TEST-021 asserts a property of the STAGED TREE, not of
+# the catalog, so it must still run when the catalog is gone. The catalog is
+# the single source of truth when present.
+$SoleTarget = if ($HaveCatalog) { $FixtureCatalog.ac_021.sole_staged_target } else { 'plugins/sdd-lite/skills/lite-spec/SKILL.md' }
+$SharedRunner = if ($HaveCatalog) { $FixtureCatalog.ac_021.shared_application_runner } else { 'apply-protected-files.ps1' }
 $SoleTargetNative = $SoleTarget -replace '/', [IO.Path]::DirectorySeparatorChar
 
 $skillsStaged = @(Get-ChildItem -LiteralPath (Join-Path $HcRoot 'plugins/sdd-lite/skills') -Recurse -File -ErrorAction SilentlyContinue)
@@ -279,7 +311,7 @@ if ($manifestLines.Count -eq 1 -and $manifestDigest -eq $actualDigest) {
 }
 
 $appliers = @(Get-ChildItem -LiteralPath $HcRoot -File | Where-Object { $_.Extension -in @('.ps1', '.sh') } | ForEach-Object { $_.Name } | Sort-Object)
-if ($appliers.Count -eq 1 -and $appliers[0] -eq $FixtureCatalog.ac_021.shared_application_runner) {
+if ($appliers.Count -eq 1 -and $appliers[0] -eq $SharedRunner) {
     Ok "TEST-021c: the only application path staged is the shared $($appliers[0]) -- no REQ-005-specific applier was introduced"
 } else {
     Bad "TEST-021c: expected the shared runner to be the only staged application script, found: [$($appliers -join ', ')]"

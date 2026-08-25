@@ -1,4 +1,4 @@
-### recaptured 2026-08-25T10:44:40Z against HEAD 7e282bb127fe15b231d6d251e80d39b4ca082a18 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### recaptured 2026-08-25T11:12:46Z against HEAD dc621c839d315d276e9c455c8afa2b096b121e08 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
 ### check-risk-upgrade-byte-identical.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 ok: TEST-007-clean: exit code identical (0)
 ok: TEST-007-clean: stdout byte-identical
