@@ -123,14 +123,23 @@ registration commit, not by an automated test suite:
   commit time.
   > Dated qualifier (2026-08-25): the parenthetical above records the header
   > state **at this package's own authoring commit** and is retained as that
-  > historical record, not as a current claim. All three headers have since
-  > reached `Passed` through the review lane — `requirements.md`
-  > `Spec-Review-Status: Passed`, `design.md` `Impl-Review-Status: Passed`,
-  > `tasks.md` `Task-Review-Status: Passed` — which is the intended outcome
-  > of those gates, not a violation of AC-024. Added because a cross-model
-  > slot read the parenthetical as a live assertion and reported it as
-  > contradicted by the bundled headers (T-001 OpenAI slot, Minor). No
-  > acceptance criterion is changed by this note.
+  > historical record, not as a current claim. The headers move as the review
+  > lane runs, so this note anchors rather than asserts: as of commit
+  > `7e282bb1` — the task-review attempt 4 round 2 clean PASS, at which
+  > `check-workflow-state.sh` reported `ok` — `requirements.md` read
+  > `Spec-Review-Status: Passed`, `design.md` read `Impl-Review-Status:
+  > Passed`, and `tasks.md` read `Task-Review-Status: Passed`. Reaching
+  > `Passed` is the intended outcome of the spec, impl and task review
+  > gates, not a violation of AC-024. This note makes no claim about the
+  > header lines at any later commit: a `--reset` returns a header to
+  > `Pending` for the duration of a review round, so each live header line
+  > is always authoritative over this note. Added because a cross-model slot
+  > read the parenthetical as a live assertion and reported it as
+  > contradicted by the bundled headers (T-001 OpenAI slot, Minor); an
+  > earlier revision of this note then made the opposite error, asserting a
+  > present-tense header value that the next `--reset` falsified
+  > (spec-review attempt 6 round 1, reviewer B, Critical). No acceptance
+  > criterion is changed by this note.
 - **AC-025** (`check-sdd-structure.sh .` and `check-workflow-state.sh`
   both exit `0` post-registration): verified by running both commands
   from the repository root after the registration commit lands — no
