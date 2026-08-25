@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-194-a6-lite-integration",
+  "run_id": "RUN-epic-194-a6-lite-integration-task-orchestrator-a4r2",
+  "verdict": "PASS",
+  "round": 2,
+  "attempt": 4,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}
