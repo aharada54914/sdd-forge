@@ -22,7 +22,58 @@ if (-not (Test-Path -LiteralPath $ContractPath)) {
     Write-Error "Contract file not found: $ContractPath"
     exit 1
 }
-$contract = Get-Content -Raw -Encoding Utf8 $ContractPath | ConvertFrom-Json
+$contractRaw = Get-Content -Raw -Encoding Utf8 $ContractPath
+$contract = $contractRaw | ConvertFrom-Json
+
+# gate seq 854: DateTimeKind is not a sound proxy for the python master's
+# pattern. ConvertFrom-Json maps a LOWERCASE `z` to Kind=Utc, so
+# `2026-08-24T10:00:00z` was accepted on this runtime and rejected by
+# check-contract.py -- and any string the coercion cannot parse at all
+# (`2026-13-01T00:00:00Z`) never reached the Kind branch in the first place.
+# System.Text.Json does not coerce, so the RAW text is recoverable here and the
+# master's regex can be applied byte-for-byte on both runtimes. (TryGetProperty
+# cannot be called from PowerShell -- JsonElement is a struct and its `out`
+# parameter will not bind -- hence the enumeration.)
+function Get-RawCheckTimestamp {
+    param(
+        [Parameter(Mandatory = $true)][AllowEmptyString()][string]$Json,
+        [Parameter(Mandatory = $true)][int]$Index,
+        [Parameter(Mandatory = $true)][string]$Field
+    )
+    $absent = @{ Present = $false; IsString = $false; Text = '' }
+    try {
+        $document = [System.Text.Json.JsonDocument]::Parse($Json)
+    } catch {
+        return $absent
+    }
+    try {
+        $checks = $null
+        foreach ($property in $document.RootElement.EnumerateObject()) {
+            if ($property.Name -ceq 'checks') { $checks = $property.Value }
+        }
+        if ($null -eq $checks -or
+            $checks.ValueKind -ne [System.Text.Json.JsonValueKind]::Array -or
+            $Index -ge $checks.GetArrayLength()) {
+            return $absent
+        }
+        foreach ($property in $checks[$Index].EnumerateObject()) {
+            if ($property.Name -ceq $Field) {
+                # JSON null is ABSENT, not "present but wrong": the field is
+                # optional and the template ships it as null.
+                if ($property.Value.ValueKind -eq [System.Text.Json.JsonValueKind]::Null) {
+                    return $absent
+                }
+                if ($property.Value.ValueKind -ne [System.Text.Json.JsonValueKind]::String) {
+                    return @{ Present = $true; IsString = $false; Text = '' }
+                }
+                return @{ Present = $true; IsString = $true; Text = $property.Value.GetString() }
+            }
+        }
+        return $absent
+    } finally {
+        $document.Dispose()
+    }
+}
 $failures = @()
 
 $BASELINE_IDS = @("lint", "typecheck", "unit-tests", "build", "placeholder-scan", "task-state-check")
@@ -227,7 +278,11 @@ foreach ($check in $contract.checks) {
 }
 
 # Pass 2: per-check rules
+$checkIndex = -1
 foreach ($check in $contract.checks) {
+    # Incremented FIRST: the body has `continue` paths, and the index must stay
+    # aligned with the raw JSON array however the body exits.
+    $checkIndex++
     $id = $check.id
 
     # Type strictness: required and passes must be JSON boolean (not string, number, null)
@@ -268,22 +323,13 @@ foreach ($check in $contract.checks) {
         }
     }
     foreach ($tsField in @('started_at', 'finished_at')) {
-        $tsValue = $null
-        if ($checkProps -contains $tsField) { $tsValue = $check.$tsField }
-        if ($null -eq $tsValue) { continue }
-        # ConvertFrom-Json coerces an ISO-8601 string to [datetime] and its
-        # string form is locale-rendered, so the original Z cannot be recovered
-        # from the text. DateTimeKind does distinguish the four shapes exactly:
-        # a trailing Z yields Utc, a bare timestamp Unspecified, and a numeric
-        # offset Local -- so the UTC requirement is checked on Kind, and only a
-        # value that stayed a string is pattern-checked.
-        if ($tsValue -is [datetime]) {
-            if ($tsValue.Kind -ne [System.DateTimeKind]::Utc) {
-                $failures += "check '$id' has invalid ${tsField}: expected ISO-8601 UTC " +
-                    "(YYYY-MM-DDTHH:MM:SSZ)"
-            }
-        } elseif ($tsValue -isnot [string] -or
-            "$tsValue" -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z$') {
+        # Read the RAW text, not the coerced value: the master accepts exactly
+        # `YYYY-MM-DDTHH:MM:SS[.fff]Z` with an UPPERCASE Z, and no property of
+        # the [datetime] this field becomes can tell `Z` from `z`.
+        $tsRaw = Get-RawCheckTimestamp -Json $contractRaw -Index $checkIndex -Field $tsField
+        if (-not $tsRaw.Present) { continue }
+        if (-not $tsRaw.IsString -or
+            $tsRaw.Text -cnotmatch '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z$') {
             $failures += "check '$id' has invalid ${tsField}: expected ISO-8601 UTC " +
                 "(YYYY-MM-DDTHH:MM:SSZ)"
         }

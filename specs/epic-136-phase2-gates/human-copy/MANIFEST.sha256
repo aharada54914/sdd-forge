@@ -2,7 +2,7 @@
 2132f283103ef50176af6b19b387a78795e47bc9aae11357a1c81ab31dc0b7c4  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
 edc887fd053c7a2d63b7d5b53bab08db9a3853f02a3c832493e9a620ae605a50  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840  plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
-113275e4be9eea42493aca161de59a1dbe4d970eb72094f462235b645e651a4e  plugins/sdd-quality-loop/scripts/check-contract.ps1
+8bb33977a26ee9f17af7d5207dda42145a48bc50afc73d5b819a15c2d73bb428  plugins/sdd-quality-loop/scripts/check-contract.ps1
 afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03  plugins/sdd-lite/references/risk-upgrade-policy.md
 192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45  plugins/sdd-lite/scripts/check-risk-upgrade.sh
 d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38  plugins/sdd-lite/scripts/check-risk-upgrade.ps1

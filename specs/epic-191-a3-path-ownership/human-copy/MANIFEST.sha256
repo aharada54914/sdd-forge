@@ -5,7 +5,7 @@
 029b17b090bd99d53292279cc55d5efb8f2fb049738553463c2c4409f6d68b65  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 c2d345389d8b96961e294a3009672e6a588ba05762e84a7764c19938e2070533  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 c9f73fa5223cba5296ce072c792791b19bdf5519127157fcb3da907ec78cfeaa  plugins/sdd-quality-loop/scripts/check-contract.py
-113275e4be9eea42493aca161de59a1dbe4d970eb72094f462235b645e651a4e  plugins/sdd-quality-loop/scripts/check-contract.ps1
+8bb33977a26ee9f17af7d5207dda42145a48bc50afc73d5b819a15c2d73bb428  plugins/sdd-quality-loop/scripts/check-contract.ps1
 f8ea0ded7c6b9b794dba617ba0575500dc9491f502ebfb78f8ddb975ee6d0ae5  plugins/sdd-quality-loop/scripts/check-component-coverage.ps1
 0b47ffc6491bd85eaf0000a323cce18ca05c642784a82ec7ca2228fc28231396  tests/gates.tests.sh
 972f09ae3e8553e324e6affd1af3f3a2a9d736f9429c6daafd40e7ab8e87592e  plugins/sdd-review-loop/scripts/spec-review-precheck.sh

@@ -185,6 +185,23 @@ Status: Done
     Assert-ExitCode "T-006.ps.7e: WFI-046 timestamp without the UTC Z is rejected" `
         (Invoke-Gate "check-contract.ps1" @("contract-wfi046-ts.json", "-RepoRoot", ".")) 1
 
+    # gate seq 854 Major 1: ConvertFrom-Json maps a LOWERCASE `z` to
+    # DateTimeKind::Utc, so the Kind-based check accepted `...T10:00:00z` while
+    # the python master's regex rejected it -- a live parity break, and the
+    # narrow reason the Kind proxy had to be replaced by a raw-text read. 7f
+    # and 7g pin the two shapes the proxy could never see: a lowercase
+    # designator, and a string the coercion cannot parse at all (which used to
+    # skip the Kind branch entirely).
+    New-Wfi046Contract -Fields @{ started_at = "2026-08-24T10:00:00z" } `
+        -OutFile "contract-wfi046-tslower.json"
+    Assert-ExitCode "T-006.ps.7f: WFI-046 lowercase z designator is rejected (python-master parity)" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-tslower.json", "-RepoRoot", ".")) 1
+
+    New-Wfi046Contract -Fields @{ finished_at = "not-a-timestamp" } `
+        -OutFile "contract-wfi046-tsjunk.json"
+    Assert-ExitCode "T-006.ps.7g: WFI-046 unparseable finished_at is rejected" `
+        (Invoke-Gate "check-contract.ps1" @("contract-wfi046-tsjunk.json", "-RepoRoot", ".")) 1
+
     $contract.checks[0].evidence = "missing.log"
     $contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-badev.json"
     Assert-ExitCode "check-contract missing evidence" (Invoke-Gate "check-contract.ps1" @("contract-badev.json", "-RepoRoot", ".")) 1
