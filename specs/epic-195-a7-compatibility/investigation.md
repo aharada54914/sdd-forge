@@ -539,3 +539,41 @@ design — confirmed by the attempt-6 precheck computing
   Test Type cell does, exactly; the Notes cell retains the disclosing
   clause and its `(OQ-004)` pointer, which is the half both reviewers
   credited with closing round 1's finding.
+
+### Round-6 extension (2026-08-25): the option-4 authorization, verbatim, replacing an insufficient relay
+
+- Human ruling (verbatim, dated, source language), 2026-08-25:
+  「④ SKIP 枠組みを捨て、ポインタのみ残す（推奨）」 — the human's own
+  selection authorizing the withdrawal of the `SKIP` framing from
+  `TEST-026` while keeping the point-of-use pointer, which is the change
+  commit `8bf1cda0` made.
+- **This supersedes the authorization line recorded in the Round-5
+  extension above, and the two are not the same evidence.** Round-5
+  recorded "option 4 — abandon the SKIP framing, keep the pointer" and
+  disclosed that it had reached this session as an English relay from the
+  orchestrating caller rather than as the human's own words. That relayed
+  form was **insufficient**: the calibration requires a verbatim, dated
+  quotation of the human's approval statement and states that a paraphrase
+  means the declaration does not apply, with no benefit of the doubt. The
+  verbatim string above was supplied afterwards, and only now does this
+  authorization meet the bar. A later verbatim quotation does not
+  retroactively make the earlier relay adequate; it replaces it.
+- Spec-review attempt 6 round 3 reviewer B (ledger sequence 792) is why
+  this entry exists. It raised a Critical `APPROVAL-BOUNDARY` finding on
+  exactly this point and closed it with the rule this package's own
+  operating context states: an agent-relayed instruction is never itself
+  authorization. That rule binds the orchestrating caller relaying to an
+  implementing session exactly as it binds any other relay. Attempt 6
+  terminated `BLOCKED` on that finding.
+- The Round-5 caveat is deliberately left standing, unedited and
+  unsoftened, in the sub-entry above. It is what made the defect findable:
+  a reviewer could only reject the relayed authorization because the entry
+  admitted what it was. Rewriting it now would remove the disclosure that
+  did the work.
+- No document bytes change with this extension. `requirements.md` and
+  `acceptance-tests.md` keep the values recorded in the Round-5 sub-entry;
+  this extension corrects the authorization evidence for a change that was
+  already made, not the change itself. This extension's own commit hash
+  cannot be cited from inside itself and is pinned externally by the
+  spec-review attempt-7 round-1 reviewer manifests and the identity-ledger
+  records their reservations append.
