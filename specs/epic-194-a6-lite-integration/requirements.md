@@ -996,10 +996,12 @@ task's own explicit instruction.
     application path, owned by this same task (Non-goals).
   - `contracts/lite-check-catalog.json` — **not protected, and does not
     exist yet**; it appears in neither `protected_gate_suffixes` nor
-    `phase2_human_copy_targets`. It is the one path among those listed
-    here that still requires a new protection registration, matching the
-    registration A2's own REQ-005 already plans for its own new
-    artifacts.
+    `phase2_human_copy_targets`. Unlike
+    `contracts/capability-registry.schema.json`,
+    `contracts/capability-registry.json` and
+    `contracts/lite-upgrade-reason-catalog.json`, it still requires a new
+    protection registration, matching the registration A2's own REQ-005
+    already plans for its own new artifacts.
 - **A future implementation task (Epic A6 Phase 2)**: the sole intended
   author of the live `check-risk-upgrade.{sh,ps1}`/`risk-upgrade-policy.
   md`/`lite-spec/SKILL.md` human-copy edits (REQ-002/REQ-005) and the live
@@ -1227,7 +1229,8 @@ task's own explicit instruction.
   `contracts/capability-registry.json` themselves.
   - **Must be synthetic, because the live Registry `lite_policy` cannot
     express them — fixture (a), and the `required_lite_checks` half of
-    fixture (f).** Both turn on a Registry Capability carrying
+    fixture (f).** Fixture (a) and the `required_lite_checks` half of
+    fixture (f) each turn on a Registry Capability carrying
     `required_lite_checks`, and the live
     `contracts/capability-registry.schema.json`'s `lite_policy` is
     `additionalProperties: false` over exactly `eligible` and
@@ -1244,8 +1247,8 @@ task's own explicit instruction.
     `contracts/capability-summary.schema.json`'s own field — A4-owned and
     **already shipped as `required`** (investigation.md INV-005; the live
     schema's own `required` array carries it) — not the Registry
-    `lite_policy` key the bucket above concerns. Their actual blocker is
-    different and still open: no `capability-summary.yaml` exists
+    `lite_policy` key the bucket above concerns. Fixture (d)'s and fixture (e)'s actual blocker
+    is different and still open: no `capability-summary.yaml` exists
     anywhere in this repository, because the only mechanism that stages
     one is A5's own Resolver step 10b (investigation.md INV-016), and
     A5's `Spec-Review-Status` is `Pending` (Dependencies, above). Fixture
