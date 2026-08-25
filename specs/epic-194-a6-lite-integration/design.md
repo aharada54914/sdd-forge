@@ -12,8 +12,13 @@ already-protected skill (`lite-spec/SKILL.md`), and a documented
 extension to one currently-unprotected skill (`lite-gate/SKILL.md`). No
 live schema file, no live script edit, and no live `tests/*.tests.sh`
 suite is authored by this package (requirements.md Non-goals) — this is a
-Phase 1, contract-fixing design, exactly like every sibling Foundation
-epic's own Phase 1 package.
+Phase 1, contract-fixing design. The sibling comparison this sentence
+carried until 2026-08-25 ("exactly like every sibling Foundation epic's
+own Phase 1 package") no longer holds of the epic set: A2 and A4 have
+shipped Phase 2 artifacts under `contracts/` (2026-07-23 and 2026-08-17).
+The claim about *this* package's own scope is unchanged and still true
+(investigation.md INV-013, as superseded by the Amendment Re-Review
+Context's third entry, 2026-08-25).
 
 ## Technical Summary
 
@@ -134,7 +139,7 @@ reasoning).
 
 | Component | Responsibility | Technology | New/Existing | Protected? |
 |---|---|---|---|---|
-| `contracts/capability-registry.schema.json`'s `lite_policy` sub-schema | this feature's target for the new `required_lite_checks` key | JSON Schema | v1.1 extension of an A2-owned, not-yet-authored file (investigation.md INV-013) | not yet applicable — file does not exist; once authored, it is A2's own registered protected file, per A2's own REQ-005 plan |
+| `contracts/capability-registry.schema.json`'s `lite_policy` sub-schema | this feature's target for the new `required_lite_checks` key | JSON Schema | existing (A2-owned, shipped `e48c9008` 2026-07-23); this feature designs its v1.1 extension only (investigation.md INV-013, as superseded 2026-08-25) | **YES** — live `guard-invariants.json` lists it in both `protected_gate_suffixes` and `phase2_human_copy_targets`; the v1.1 edit is therefore a staged human-copy application, owned by the future task that performs it and not designed here (Non-goals) |
 | `contracts/lite-check-catalog.json` | new versioned catalog `required_lite_checks` tokens validate against | JSON | new, A6-owned | to be registered as protected at the same time the extended `capability-registry.schema.json` is (Roles and Permissions, requirements.md) |
 | `contracts/lite-upgrade-reason-catalog.json` | `catalog_version`-2 vocabulary growth (data only, no schema change) | JSON | existing (A2-owned), this feature designs its `catalog_version`-2 content | already registered protected by A2's own REQ-005 plan; this feature's edit reuses that same registration, no new one |
 | `plugins/sdd-quality-loop/scripts/validate-capability-registry.{py,sh,ps1}` | gains one new check, "(j) lite-check-catalog conformance" | Python + sh/ps1 wrappers | existing (A2-owned), this feature designs one additional check only | not protected (matches A2's own REQ-003 script, agent-editable) |
@@ -306,16 +311,31 @@ performed by whichever future task also applies the `capability-registry.
 schema.json` v1.1 edit (A2's own REQ-005 plan, or a follow-up A2-owned
 revision task), not by this feature's own Phase 2, since this feature's
 own build scope never touches `contracts/**` at all (requirements.md
-Non-goals).
+Non-goals). That future task's edit targets an **already-protected** file:
+live `guard-invariants.json` lists `contracts/capability-registry.schema.
+json`, `contracts/capability-registry.json` and `contracts/lite-upgrade-
+reason-catalog.json` in both `protected_gate_suffixes` and
+`phase2_human_copy_targets` (investigation.md INV-013, as superseded
+2026-08-25), so the v1.1 revision must be staged and human-applied rather
+than written directly. Designing that application path — which staged
+directory, which runner, which manifest — belongs to the task that
+performs the edit and is deliberately **not** specified here; the live
+edit remains outside this Phase 1 package's scope.
 
 ## Layer Specifications
 
-Not applicable — this feature has no `ux-spec.md`/`frontend-spec.md`/
-`infra-spec.md`/`security-spec.md` at this phase (requirements.md
-Non-goals; investigation.md, matching A2's/A4's/A5's own identical
-precedent of adding those later, at impl-review-prep time). This feature
-ships no UI and no new infrastructure; its security posture is covered
-directly below (Security Boundaries).
+All four exist — `ux-spec.md`, `frontend-spec.md`, `infra-spec.md` and
+`security-spec.md` — added at impl-review-prep time on A2's/A4's/A5's own
+identical precedent, and hash-bound into every impl-review contract since
+(`layer_sha256`). The sentence this section carried until 2026-08-25
+("Not applicable — this feature has no ... at this phase") was written
+before they were authored and was never refreshed; it is corrected rather
+than left standing, because it is false against the same round's own
+precheck manifest. What it was standing for is unchanged and still true:
+this feature ships no UI and no new infrastructure, so `ux-spec.md` and
+`frontend-spec.md` record N/A surfaces, and its security posture is
+covered both directly below (Security Boundaries) and in
+`security-spec.md`.
 
 ## Design System Compliance
 
@@ -325,11 +345,22 @@ Not applicable — no UI surface.
 
 - **REQ-001 → Epic A2's Registry schema, validator check-suite pattern,
   and `lite-upgrade-reason-catalog.json`'s additive-versioning
-  mechanism**: blocked until A2's own Phase 2 lands (`contracts/
-  capability-registry.schema.json` does not exist yet, investigation.md
-  INV-013); this feature's own design is authored against A2's `design.
-  md` text, not against a live file, exactly as A5's own REQ-001 already
-  is against the same not-yet-existing file.
+  mechanism**: A2's own Phase 2 has landed — `contracts/capability-
+  registry.schema.json`, `contracts/capability-registry.json` and
+  `contracts/lite-upgrade-reason-catalog.json` are live as of `e48c9008`
+  (2026-07-23), and the shipped `lite_policy` sub-schema is exactly the
+  two-key, `additionalProperties: false` shape this design assumes it
+  extends (investigation.md INV-003, re-verified against the live file
+  2026-08-25; INV-013's "does not exist yet" evidence is superseded by the
+  Amendment Re-Review Context's third entry). What remains for REQ-001 is
+  therefore not the schema's authorship but its **v1.1 revision**, owned
+  by a follow-up A2-owned task and outside this package's build scope
+  (Non-goals) — the revision now being an edit to an already-R-10-
+  protected file (Protected-File Statement, above). This design was
+  originally authored against A2's `design.md` text rather than a live
+  file, exactly as A5's own REQ-001 was; that text and the shipped file
+  agree on every field this feature depends on, so no statement of
+  REQ-001 changes.
 - **REQ-001 → A5's own `required_lite_checks` naming expectation**: this
   feature's field-naming choice is grounded in A5's current (`Pending`)
   text (investigation.md INV-004); if A5 renames the field before reaching

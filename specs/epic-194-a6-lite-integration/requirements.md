@@ -136,9 +136,11 @@ task's own explicit instruction.
   catalog-validated at the validator level, not schema-level enum,
   additive `catalog_version` growth) rather than inventing a second
   validation mechanism (Field Definitions, below). This feature does not
-  itself author `contracts/capability-registry.schema.json` (that file
-  does not exist yet anywhere, INV-013 — Epic A2's own Phase 2 does, and
-  this feature's own schema-revision design is handed to that same Phase
+  itself author `contracts/capability-registry.schema.json` (Epic A2's own
+  Phase 2 authored it on 2026-07-23; INV-013's "does not exist yet"
+  evidence is superseded by investigation.md's Amendment Re-Review
+  Context, third entry, 2026-08-25 — what this feature hands onward is the
+  v1.1 **revision** of that now-live file, to that same Phase
   2 implementation, or to a follow-up Epic-A2-owned revision task, per
   A5's own Dependencies section's identical framing of this same gap,
   "owner: Epic A2's own maintainers" reused verbatim from A5's own text —
@@ -681,12 +683,18 @@ task's own explicit instruction.
 - This feature does not author or edit `contracts/capability-registry.
   schema.json`, `contracts/capability-registry.json`,
   `contracts/capability-summary.schema.json`, `contracts/facet-manifest.
-  schema.json`, or any other file under `contracts/**` — those either
-  belong to Epic A2/A4 (already `Passed`, content-frozen) or do not yet
-  exist anywhere (investigation.md INV-013). REQ-001 is a design for a
+  schema.json`, or any other file under `contracts/**` — all four exist
+  today and belong to Epic A2/A4 (already `Passed`, content-frozen), and
+  the first three of those named are R-10 protected in the live
+  `guard-invariants.json` (`protected_gate_suffixes` and
+  `phase2_human_copy_targets`); investigation.md INV-013's "do not yet
+  exist anywhere" evidence is superseded by the Amendment Re-Review
+  Context's third entry, 2026-08-25. REQ-001 is a design for a
   future revision Epic A2's own Phase 2 (or a follow-up A2-owned
   revision task) applies, matching A5's own identical framing of the same
-  gap (Dependencies, above).
+  gap (Dependencies, above); designing that revision's staged human-copy
+  application path is owned by the task that performs it, not by this
+  package.
 - This feature does not author or edit any file under `plugins/**`,
   `scripts/**`, `tests/**`, `.github/**`, or `docs/**` in this Phase 1
   commit (this task's own explicit boundary) — every script/skill edit
@@ -1173,9 +1181,17 @@ task's own explicit instruction.
   implementation — REQ-004's own "direct edit" scoping is re-verified at
   implementation-start time, not assumed permanently true (Roles and
   Permissions, above).
-- No Capability Pack exists yet anywhere in this repository (investigation.
-  md INV-013, matching A2's own INV-002) — every fixture this feature's
-  REQ-006 names is synthetic, not drawn from a real, shipped Capability.
+- No Capability Pack exists yet anywhere in this repository — every
+  fixture this feature's REQ-006 names is synthetic, not drawn from a
+  real, shipped Capability Pack. This conclusion survives 2026-08-25's
+  INV-013 correction, but its former citation (investigation.md INV-013,
+  matching A2's own INV-002) no longer supports it and is withdrawn: a
+  Capability Pack is a distinct artifact from the Registry instance
+  (ADR-0018), and none ships — yet
+  `contracts/capability-registry.json` now ships one real Capability
+  (`durable-workflow`) carrying a live `lite_policy`, so "synthetic" is a
+  weaker claim than when this bullet was written. See investigation.md's
+  Amendment Re-Review Context, third entry.
 
 ## Open Questions
 

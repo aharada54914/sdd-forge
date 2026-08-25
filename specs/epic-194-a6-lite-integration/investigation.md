@@ -1357,6 +1357,240 @@ No other unqualified statement of the fact exists in the package.
   (`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`,
   `investigation_growth_only_change`).
 
+### Amendment record extension, third entry (appended 2026-08-25): INV-013's premise corrected
+
+Appended below the second entry, on the same terms: nothing above this
+heading is edited. That includes **INV-013 itself**, which sits at
+`investigation.md:297-308`, before this section — the growth tolerance
+requires every line preceding the section to stay byte-identical, so the
+finding is superseded here rather than rewritten there, exactly as
+fingerprints are superseded rather than replaced.
+
+**The finding, and the ruling.** impl re-review attempt 2 round 1's other
+Major finding (`ASSUMPTIONS-VALID`, `impl-reviewer-b`, run
+`RUN-epic-194-a6-impl-review-a2-r1-reviewer-b-seq774`) reported INV-013's
+premise as false. It was independently re-verified and **is** false, and
+has been for about a month. A human ruled on 2026-08-25, option ① as
+presented: **correct the premise-dependent statements to say what is true
+now, and state explicitly that designing the eventual live edit's
+application path is owned by the task that performs it, not by this
+package.** The reasoning put to the human, and confirmed by direct check
+before the ruling was sought, is that this is documentation staleness and
+not design invalidity — see the shape verification below.
+
+#### INV-013's recorded evidence, superseded
+
+INV-013 (`## INV-013: No `contracts/*` artifact any Foundation epic
+(A1-A6) would define exists anywhere in any readable worktree yet — every
+epic, including this one, is still Phase 1`) records this evidence
+verbatim, and it remains in place above:
+
+> `find . -iname "*capability-registry*" -o -iname "*facet-manifest*" -o
+> -iname "*capability-summary*" -o -iname "*resolver-evidence*" -o -iname
+> "*context-projection*" -o -iname "*lite-upgrade-reason-catalog*" -o -iname
+> "*lite-check-catalog*"` under `contracts/` returns nothing in this worktree
+> or in the A2/A4/A5 sibling worktrees (investigation time). This confirms
+> the entire Foundation epic set (A0-A6) is presently in the Phase 1
+> (requirements/design/investigation/acceptance-tests only) stage across
+> every parallel worktree — this feature's own REQ-001's "Registry schema
+> v1.1 additive extension" is therefore, like A2's own REQ-001, a documented
+> *design* for a schema revision, never an edit to a file that exists today.
+
+That was true at investigation time (snapshot commit `b085ec76`,
+2026-07-19). Re-running INV-013's own command under `contracts/` on
+2026-08-25 returns **six of its seven globs**, not nothing:
+
+```
+contracts/capability-registry.json
+contracts/capability-registry.schema.json
+contracts/capability-summary.schema.json
+contracts/context-projection.schema.json
+contracts/facet-manifest.schema.json
+contracts/lite-upgrade-reason-catalog.json
+```
+
+Only `*resolver-evidence*` and `*lite-check-catalog*` still return
+nothing. When and why it changed, from `git log` on each path:
+
+- `capability-registry.schema.json`, `capability-registry.json` and
+  `lite-upgrade-reason-catalog.json` — commit
+  `e48c9008` (2026-07-23), "feat(epic-190-a2): author Capability Registry
+  schema, instance, and lite-upgrade-reason catalog (T-001)". Epic A2's
+  Phase 2.
+- `facet-manifest.schema.json` — commit `a3a993bc` (2026-07-23),
+  "feat(facet-manifest): T-001 schema, validator, and regression suite".
+- `capability-summary.schema.json` — commit `de5220c6` (2026-08-17),
+  "impl(epic-192-a4-facet-manifest): T-002 Capability Summary schema".
+  Epic A4's Phase 2.
+- `context-projection.schema.json` — commit `21b1e087` (2026-08-17).
+
+So INV-013's three claims fare differently, and are superseded
+individually rather than as a block:
+
+1. **"returns nothing" — false**, six ways, as above.
+2. **"the entire Foundation epic set (A0-A6) is presently in the Phase 1
+   stage" — false.** A2 and A4 have both shipped Phase 2 artifacts.
+3. **"this feature's own REQ-001 is a documented *design* for a schema
+   revision, never an edit to a file that exists today" — still true**,
+   and untouched by this correction. The file now exists; what REQ-001
+   designs is its **v1.1 revision**, which no task in this package
+   applies.
+
+**What changed is access, not shape.** Three of the six —
+`contracts/capability-registry.schema.json`,
+`contracts/capability-registry.json` and
+`contracts/lite-upgrade-reason-catalog.json` — are listed today in the
+live `plugins/sdd-quality-loop/references/guard-invariants.json` under
+**both** `protected_gate_suffixes` and `phase2_human_copy_targets`. The
+eventual v1.1 edit is therefore a staged, human-applied change to an
+already-R-10-protected file. Per the ruling, that application path is
+named as the performing task's responsibility and is deliberately not
+designed here.
+
+#### Shape verification: REQ-001's technical content stands
+
+Checked against the live files on 2026-08-25 before the ruling was
+sought, so the ruling rests on measurement rather than on the reviewer's
+summary:
+
+- `definitions/litePolicy` in the live
+  `contracts/capability-registry.schema.json` is `{type: object,
+  additionalProperties: false, required: ["eligible"], properties:
+  {eligible: boolean, upgrade_reasons: array of string(minLength 1),
+  default []}}` — exactly what INV-003 asserts, so the two-key
+  `additionalProperties: false` boundary INV-003 says a third key must
+  widen is real and is the only one that must widen.
+- `definitions/capability` has precisely the nine properties INV-003
+  lists (`id`, `trigger`, `required_facets`, `conditional_facets`,
+  `review_check_ids`, `gate_ids`, `lite_policy`, `minimum_enforcement`,
+  `delivery_strategy`), precisely the seven `required` entries it lists,
+  and `additionalProperties: false` — so `lite_policy` and
+  `minimum_enforcement` really are the only optional fields, as INV-003
+  states.
+- `contracts/lite-upgrade-reason-catalog.json` is live at
+  `catalog_version: 1` with exactly the five-token seed INV-007
+  describes.
+- Every `schema` const across `contracts/*.schema.json` is an integer
+  `vN` form, so AC-006's design.md citation still holds.
+
+No shape drift. REQ-001, REQ-002, REQ-003, REQ-004, REQ-005 and REQ-006
+are unchanged by this entry; only the statements describing the files'
+*existence and protection status* are.
+
+#### Sites amended by this entry
+
+Enumerated in full before any of them was written, on the same discipline
+the second entry records, and each re-read at its current line before
+editing:
+
+- `design.md` header (`:12-16` before this entry) — the self-claim ("no
+  live schema file … is authored by this package") kept; the sibling
+  claim ("exactly like every sibling Foundation epic's own Phase 1
+  package") corrected, not deleted.
+- `design.md` Components table row 1 (`:137`) — "not-yet-authored file" /
+  "not yet applicable — file does not exist" replaced with "existing
+  (A2-owned, shipped `e48c9008` 2026-07-23)" and a `**YES**` Protected?
+  cell, making row 1 consistent with row 6, which already read "existing
+  (A4-owned, content-frozen)" correctly.
+- `design.md` Protected-File Statement (`:302-309`) — the scope statement
+  ("this feature's own build scope never touches `contracts/**` at all")
+  is unchanged and still true; the sentence it grounds now says that the
+  future task's edit targets an already-protected file, and that
+  designing its application path belongs to that task.
+- `design.md` Cross-Layer Dependencies, REQ-001 (`:328-332`) — "blocked
+  until A2's own Phase 2 lands" replaced: A2's Phase 2 landed 2026-07-23,
+  and what remains is the v1.1 revision. This was the most load-bearing
+  of the stale statements, because it misstated REQ-001's actual
+  prerequisite state.
+- `design.md` `## Layer Specifications` — see the decision recorded
+  below.
+- `requirements.md` Dependencies, Epic A2 bullet (`:138-146`) — "that
+  file does not exist yet anywhere" replaced with the authorship date and
+  the revision framing.
+- `requirements.md` Non-goals, first bullet (`:681-689`) — "or do not yet
+  exist anywhere" replaced; the four named files exist, three are R-10
+  protected, and the application path is named as the performing task's.
+- `requirements.md` Assumptions (`:1176-1178`) — the conclusion survives
+  and the citation does not. A Capability *Pack* is a distinct artifact
+  from the Registry instance (ADR-0018) and none ships, so "every REQ-006
+  fixture is synthetic" stands; but `contracts/capability-registry.json`
+  now ships one real Capability (`durable-workflow`) with a live
+  `lite_policy`, so the claim is weaker than when written. The INV-013
+  citation is withdrawn and replaced by that reasoning.
+- `traceability.md` REQ-001 row (`:12`) — wording only. Authorship
+  happened; the revision is still deferred. The Status column is **not**
+  touched and still reads `Deferred`.
+- `frontend-spec.md` Epic A2 dependency row (`:39`) — "not yet shipped …
+  does not exist yet" replaced. This site is outside the four documents
+  `impl-reviewer-b` examined; including it is what stops this correction
+  from manufacturing its own left-behind sibling.
+
+#### Decision on design.md's `## Layer Specifications` (adjacent, not INV-013-dependent)
+
+That section read "Not applicable — this feature has no `ux-spec.md`/
+`frontend-spec.md`/`infra-spec.md`/`security-spec.md` at this phase". All
+four exist and are hash-bound into every impl-review contract's
+`layer_sha256`, including the contract of the very round that read the
+sentence. `impl-reviewer-a` saw this in attempt 2 round 1 and chose not
+to raise it, on the ground that adding layer specs later at
+impl-review-prep time is established A2/A4/A5 precedent and that every
+layer spec cross-references design.md without contradiction.
+
+**Decided: corrected, not left.** The precedent reviewer A cited is real
+and is recorded in the replacement text, but it explains why the specs
+were added late, not why a sentence denying their existence should
+survive after they were added. The statement is false against the same
+round's own precheck manifest, so leaving it would guarantee the next
+reviewer re-raises it — the exact failure mode this lane keeps hitting.
+It is decided in this pass rather than deferred, and the substance the
+sentence stood for (no UI, no new infrastructure, security posture
+covered below) is preserved verbatim in the replacement.
+
+#### Fingerprints and statements this third entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded in the second
+  entry above as
+  `537ad9b37a8c037e3336cd341bc1d3cf92856546c1c3d8110a6b51e4be9b53d1`, is
+  superseded by
+  `7ea9df83f848a07f2b1b3a4ab58dd158dac39bc165525fb7e2ad0f3a3b974db6` as of
+  this entry's own commit. Both earlier design.md values stay where they
+  are: `43d48635…` is the pin impl re-review attempt 2 round 1's two
+  reviewers actually read and the pin that contract keeps, and `537ad9b3…`
+  is the state after the `DEPLOYMENT-CONCRETE` amendment alone.
+- `specs/epic-194-a6-lite-integration/requirements.md` — as of this
+  entry's own commit,
+  `04d298716ac869b43e85110502e365e86c5acdad3c6ff1e8eabb08a773c79303`. The
+  spec-review attempt-3 round-1 pin
+  (`c2a0be281775fdd94ce67b09f3e043416f4748ba5f982436cac256ea5080ae41`,
+  recorded above as of `e6bfe05800ebcb53be5a6e0333bf28dbaa0814d9`) stays
+  as recorded; that contract keeps pinning the bytes it reviewed.
+- `specs/epic-194-a6-lite-integration/traceability.md`, pinned in
+  "Later-phase artifacts referenced by this package" above at
+  `0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e` (last
+  amended, as of that pin, in commit
+  `522a1ccab0cdc08e4094e12a2a84b156caf0dc7f`), is superseded by
+  `1ef3e001c9eec54b9eca87663d77badb97897c430c1ca514b766d60a9b8fb6c1` as of
+  this entry's own commit. The earlier value stays where it is. Only the
+  REQ-001 row's two prose cells changed; no `Status` cell was touched, so
+  the row still reads `Deferred` and this is a body edit, not a lifecycle
+  transition.
+- `specs/epic-194-a6-lite-integration/frontend-spec.md` — as of this
+  entry's own commit,
+  `f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee`
+  (previously `72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499`,
+  the value impl re-review attempt 2 round 1's contract pins in its
+  `layer_sha256` and keeps).
+- This document's own bytes, as pinned by impl re-review attempt 2 round 1
+  at `929d112f3f33705c1458cfbd5f67bfa005878673c0807dd5a89c5c9f44830012`
+  and grown by the second entry, are superseded again by the revision this
+  entry's own commit produces. A document cannot embed its own
+  post-amendment hash; that revision is pinned by impl re-review attempt 2
+  round 2's invocation manifests. As before, no prior contract is
+  restaged or re-validated against amended bytes — each keeps pinning what
+  it reviewed, and the workflow-state gate reconciles the difference only
+  because this entry, like both before it, is pure growth at this
+  section's tail.
+
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
 Recorded 2026-08-23, in this document's amendment-context era (see
