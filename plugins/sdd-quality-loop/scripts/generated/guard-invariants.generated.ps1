@@ -1,4 +1,4 @@
-# Generated from guard-invariants.json; schema_version=1; sha256=ae4613a5bc0dcb4f78badff8b9063aaff8071467b3c9e7ae084f4d97ee2cd170
+# Generated from guard-invariants.json; schema_version=1; sha256=e37af15bfa44cc04029e65f25602fe9bc617594e847b9af3bceeb450e31367f5
 # This file is generated. Do not edit.
 $GuardInvariants = [ordered]@{
     SCHEMA_VERSION = 1
@@ -18,7 +18,7 @@ $GuardInvariants = [ordered]@{
     SHELL_PATCH_APPLY_CMDS = @('patch')
     SHELL_PATCH_APPLY_GIT_SUBCMDS = @('apply', 'am')
     SHELL_PATCH_INSPECT_FLAGS = @('--check', '--stat', '--numstat', '--summary', '--dry-run')
-    SHELL_PATH_BOUNDARY_CHARS = @('"', '''', '`', '(', ')', '{', '}', '[', ']', ',', ';', ':', '=', '|', '&', '<', '>')
+    SHELL_PATH_BOUNDARY_CHARS = @('"', '''', '(', ')', '{', '}', '[', ']', ',', ';', ':', '=', '|', '&', '<', '>')
     SUDO_SIGNATURE_HEX_LENGTH = 64
     PHASE2_HUMAN_COPY_TARGETS = @('plugins/sdd-quality-loop/scripts/sdd-hook-guard.py', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1', 'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh', 'plugins/sdd-quality-loop/scripts/check-contract.ps1', 'plugins/sdd-lite/references/risk-upgrade-policy.md', 'plugins/sdd-lite/scripts/check-risk-upgrade.sh', 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1', 'plugins/sdd-lite/skills/lite-spec/SKILL.md', 'plugins/sdd-ship/skills/ship/SKILL.md', 'plugins/sdd-quality-loop/references/guard-invariants.json', 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1', 'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh', 'tests/guard-parity.tests.sh', '.github/workflows/test.yml', 'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1', 'contracts/capability-registry.schema.json', 'contracts/capability-registry.json', 'contracts/lite-upgrade-reason-catalog.json', 'plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py', 'plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json', 'plugins/sdd-quality-loop/contracts/capability-registry.json', 'plugins/sdd-quality-loop/contracts/capability-registry.schema.json', 'plugins/sdd-quality-loop/scripts/check-component-coverage.py', 'plugins/sdd-quality-loop/scripts/check-component-coverage.ps1', 'plugins/sdd-quality-loop/scripts/check-component-coverage.sh')
 }
