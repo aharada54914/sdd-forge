@@ -1332,7 +1332,11 @@ extension's own authoring; investigation.md itself is excluded — it is
 the self-referential record, exactly as the A①/B① lineage's own
 extension excluded itself):
 
-- `requirements.md`: `956f52d32d492b2ea38ce8ce84c00b6f180854cf3fcff48d14798d3407944cf6`
+- `requirements.md`: `1028bf2c256f337971c7bb669133209fe96550bbcdc7d8460710d9d9a2bda0af`
+  (one further one-line edit after the follow-up: commit
+  `0d6283ed` added an explicit approval-evidence pointer to this very
+  record from both amended REQ-002 rows — reviewer-visibility only, no
+  semantic change)
 - `acceptance-tests.md`: `a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99`
 - `tasks.md`: `65877d63b4a385b9e2ed6aaee2f5034cc98e1674fca346e51338d0bfa77cfadd`
 - `traceability.md`: `dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193`
