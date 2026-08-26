@@ -611,13 +611,21 @@ def _evidence_tree_well_formed(nodes):
             return False
         if not set(node) <= _EVIDENCE_NODE_KEYS:
             return False
-        if node.get("operator") not in _EVIDENCE_NODE_OPERATORS:
+        # Enum membership MUST be hash-safe: `x in <frozenset>` hashes x,
+        # so a JSON array/object arriving in an enum-checked field of the
+        # untrusted dependency payload would raise TypeError instead of
+        # returning False (gate cycle-7 Critical; fixture
+        # `evaluate-predicate-output-malformed-unhashable`). Both enums
+        # contain only strings, so the isinstance guard loses nothing.
+        operator = node.get("operator")
+        if not isinstance(operator, str) or operator not in _EVIDENCE_NODE_OPERATORS:
             return False
         if "path" not in node or not (
             node["path"] is None or isinstance(node["path"], str)
         ):
             return False
-        if node.get("outcome") not in _EVIDENCE_NODE_OUTCOMES:
+        outcome = node.get("outcome")
+        if not isinstance(outcome, str) or outcome not in _EVIDENCE_NODE_OUTCOMES:
             return False
         if "reason" in node and not isinstance(node["reason"], str):
             return False

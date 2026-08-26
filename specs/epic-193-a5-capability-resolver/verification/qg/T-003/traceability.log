@@ -264,6 +264,17 @@ payload now exercises the missing-required-field class):
   bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V5: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE GATE CYCLE-7 CRITICAL CLOSURE (2026-08-26,
+hash-safe enum membership; new fixture
+evaluate-predicate-output-malformed-unhashable -- T-003's own fixture
+census is now EIGHTEEN directories, the seventeen the CENSUS
+CORRECTION above enumerates via the driver's case tuple plus this
+pass's unhashable fixture; the driver's case tuple, now eighteen
+entries, remains the authoritative list):
+  bash tests/resolve-project-context-block.tests.sh   -> 234 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 234 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V6: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 234 passed, 0 failed"
 CENSUS CORRECTION (2026-08-26, gate cycle 6): T-003's own fixture
 enumeration is now SEVENTEEN. The authoritative list is
 run_t003_case's own case tuple in

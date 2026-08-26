@@ -1,3 +1,15 @@
+# mutation-kill: hash-safe enum membership (gate cycle-7 Critical)
+# Captured 2026-08-26 BEFORE the isinstance-str guards, against the
+# then-current staged resolver (61e19194..., contract-mirror validation with
+# bare `x in <frozenset>` enum tests): the new
+# evaluate-predicate-output-malformed-unhashable payload (contract-valid
+# parent; nested child with "operator": [] -- an unhashable JSON array in an
+# enum-checked field) crashes _evidence_tree_well_formed with an uncaught
+# TypeError (raw traceback, no Block, no Resolver Evidence) -- the round-2
+# failure shape reintroduced under a new exception type. Suite 231 passed /
+# 3 failed. After the isinstance-str guards the identical suite is 234
+# passed / 0 failed (green-{sh,ps1}.log) -- the mutation is killed.
+# Full pre-fix capture (bash runtime):
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -117,9 +129,9 @@ PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
 PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
 PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
 PASS: evaluate-predicate-output-malformed-unhashable: exit 1
-PASS: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5)
-PASS: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence
-PASS: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement
+FAIL: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1819, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1644, in main\n    any_warn = _evaluate_capabilities(\n        script_dir, registry_document, affected_components, projection_components,\n        capability_evaluations, warn_diagnostics,\n    )\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 720, in _evaluate_capabilities\n    result, evidence = _evaluate_predicate(script_dir, capability["trigger"], properties)\n                       ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 515, in _evaluate_predicate\n    return _invoke_evaluate_predicate(script_dir, predicate_name, properties_name)\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 575, in _invoke_evaluate_predicate\n    or not _evidence_tree_well_formed(parsed.get("evidence"))\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 626, in _evidence_tree_well_formed\n    if "children" in node and not _evidence_tree_well_formed(node["children"]):\n                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 614, in _evidence_tree_well_formed\n    if node.get("operator") not in _EVIDENCE_NODE_OPERATORS:\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: cannot use \'list\' as a set element (unhashable type: \'list\')\n'
+FAIL: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-97bv9nff/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement: evidence absent
 PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
 PASS: evaluate-predicate-schema-error: exit 1
 PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
@@ -233,4 +245,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 234 passed, 0 failed
+RESULT: 231 passed, 3 failed

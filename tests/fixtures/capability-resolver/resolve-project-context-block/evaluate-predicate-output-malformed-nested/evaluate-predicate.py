@@ -3,13 +3,10 @@
 deterministically returns a zero-exit {result, evidence} payload whose
 TOP-LEVEL node is fully evidenceNode-contract-valid (operator/path/
 outcome present, enum-valid -- so no top-level or field-blind check can
-reject it) but whose nested `children` array violates the contract
-twice over: the first child is an OBJECT missing the required
-`outcome` field (round 3's field-validation Major -- the old
-object-ness-only check accepted it and the malformed node flowed on to
-be misattributed downstream), and the second child is a bare string
-(round 2's recursion Major -- the old top-level-only check let it
-crash `_iter_warn_nodes`'s `.get()` with an uncaught AttributeError).
+reject it) but whose single nested child is an OBJECT missing the
+required `outcome` field (round 3's field-validation Major -- the
+structural-only check accepted it and the malformed node flowed on to
+be misattributed downstream as output-schema-validation-failed).
 Asserts step 7's shape validation mirrors the bundled evidenceNode
 contract (contracts/resolver-evidence.schema.json
 #/definitions/evidenceNode) recursively at every depth, Blocking

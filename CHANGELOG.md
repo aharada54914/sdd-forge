@@ -31,7 +31,7 @@
   既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
   （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
   が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
-  自身が所有する fixture として **17 fixture directory**
+  自身が所有する fixture として **18 fixture directory**
 （2026-08-26 ruling C(1)/C(2) 実測: 凍結文書 amendment により step 6.5
 recheck を正式化して `registry-swapped-during-validation` を復帰、
 absent-component fail-closed の `affected-component-absent-from-context`
@@ -40,9 +40,11 @@ absent-component fail-closed の `affected-component-absent-from-context`
 evidence 形状検証を再帰化（`_evidence_tree_well_formed`）。round 3 の
 openai Major 是正で同検証を evidenceNode contract の鏡像へ強化
 （キー集合・enum・必須 path・warn→reason・children 配列限定）し、同
-fixture の payload を必須フィールド欠落の子へ更新。block suite
-は両ランタイム 229/0、red-baseline-recaptured-v7 は 105 passed /
-117 failed）
+fixture の payload を必須フィールド欠落の子へ更新。gate cycle 7 の
+Critical 是正で enum 判定を hash-safe 化（isinstance-str ガード）し
+`evaluate-predicate-output-malformed-unhashable` を追加。block suite
+は両ランタイム 234/0、red-baseline-recaptured-v8 は 106 passed /
+121 failed）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
   `registry-discovery-unimportable` / `registry-validation-failed` /

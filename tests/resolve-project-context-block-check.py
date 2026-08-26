@@ -333,6 +333,7 @@ ALL_CASE_NAMES = (
         "dependency-subprocess-failed",
         "evaluate-predicate-output-malformed",
         "evaluate-predicate-output-malformed-nested",
+        "evaluate-predicate-output-malformed-unhashable",
         "evaluate-predicate-schema-error",
         "evaluate-predicate-failure-after-warn",
         "dsl-warn-unmatched-trigger",
@@ -519,6 +520,8 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "evaluate-predicate.py"
         elif case_name == "evaluate-predicate-output-malformed-nested":
             stub_name = "evaluate-predicate.py"
+        elif case_name == "evaluate-predicate-output-malformed-unhashable":
+            stub_name = "evaluate-predicate.py"
         elif case_name == "evaluate-predicate-failure-after-warn":
             stub_name = "evaluate-predicate.py"
         elif case_name == "dsl-warn-unsorted-affected-components":
@@ -679,6 +682,23 @@ def run_t003_case(kind, case_name, counts):
             # fixture's stub returns exactly that payload (top-level node
             # well-formed, `children: ["x"]`); the shape check must be
             # recursive over the whole Evidence tree.
+            state = "advisory"
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+            expected_id = "dependency-output-malformed"
+            expected_detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
+
+        elif case_name == "evaluate-predicate-output-malformed-unhashable":
+            # Gate cycle-7 Critical: the round-3 contract-mirror validation
+            # tested enum membership with a bare `x in <frozenset>`, which
+            # hashes x -- a JSON array/object in an enum-checked field
+            # (`"operator": []`) raised an uncaught TypeError instead of
+            # returning False: no canonical Block, no Resolver Evidence,
+            # raw traceback -- the round-2 failure shape reintroduced under
+            # a new exception type. This fixture's stub returns exactly
+            # that payload; the enum tests must be hash-safe
+            # (isinstance-str guarded before membership).
             state = "advisory"
             (repo / "comp-a").mkdir()
             (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
@@ -2037,6 +2057,7 @@ def main():
             "dependency-subprocess-failed",
             "evaluate-predicate-output-malformed",
             "evaluate-predicate-output-malformed-nested",
+            "evaluate-predicate-output-malformed-unhashable",
             "evaluate-predicate-schema-error",
             "evaluate-predicate-failure-after-warn",
             "dsl-warn-unmatched-trigger",

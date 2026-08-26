@@ -591,3 +591,24 @@ none this feature's own.
 regression: passes=true for this diff's own attributable effect,
 measured against the post-strengthening tree (staged resolver
 61e19194..., v7 red baseline 105/117 both runtimes).
+
+NINTH-ROUND CAPTURE (2026-08-26, gate cycle-7 Critical closure):
+hash-safe enum membership (isinstance-str guards before both frozenset
+tests; new fixture evaluate-predicate-output-malformed-unhashable).
+Focused suites, current tree, post-fix:
+  bash tests/resolve-project-context-block.tests.sh        -> RESULT: 234 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 234 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh        -> RESULT: 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> RESULT: 125 passed, 0 failed
+Full run-all (tests/run-all.sh), unpiped, fresh post-fix sweep,
+EXIT:1, trailing enumeration:
+  4 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+Byte-identical to the SIXTH- and EIGHTH-round enumerations: no new
+failing suite, none this feature's own.
+regression: passes=true for this diff's own attributable effect,
+measured against the post-cycle-7 tree (staged resolver 5d192853...,
+v8 red baseline 106/121 both runtimes).
