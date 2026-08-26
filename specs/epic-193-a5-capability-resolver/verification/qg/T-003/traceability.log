@@ -1,6 +1,12 @@
 Requirement-traceability check (manual -- no traceability.json exists for
 this feature, only traceability.md; check-traceability.sh requires JSON
 input and was not run) passed for T-003:
+[HEADER SUPERSEDED 2026-08-26, gate cycle 6: the premise above is stale
+-- specs/epic-193-a5-capability-resolver/traceability.json exists
+(machine-derived from traceability.md, REQ-002 carrying
+AC-057/AC-058/TEST-057/TEST-058) and the deterministic
+check-traceability.sh gate now runs and passes: exit 0, 8 link(s). The
+manual mapping below is retained as history and corroboration.]
 
  - tasks.md T-003 Requirements line -> REQ-001 (steps 4-9 share), REQ-002
    (share -- five more of sixteen rows), REQ-004 (share), REQ-005 (share),
@@ -251,3 +257,13 @@ fixture):
   bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V4: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"
+CENSUS CORRECTION (2026-08-26, gate cycle 6): T-003's own fixture
+enumeration is now SEVENTEEN. The authoritative list is
+run_t003_case's own case tuple in
+tests/resolve-project-context-block-check.py -- seventeen case names,
+all seventeen fixture directories confirmed on disk, ending with the
+two rulings-C fixtures and this pass's
+evaluate-predicate-output-malformed-nested. The FIFTEEN-name
+enumeration near the top of this log and the SIXTEEN count in the
+rulings-C trailer above are historical snapshots of earlier
+generations, not the current census.

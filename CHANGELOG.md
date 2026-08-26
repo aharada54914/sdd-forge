@@ -54,7 +54,7 @@ evidence 形状検証を再帰化（`_evidence_tree_well_formed`）。block suit
   再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
   同一ファイルに同居するため、
   スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
-  すぐ陳腐化する — T-003 自身の寄与分（上記 16 fixture）
+  すぐ陳腐化する — T-003 自身の寄与分（上記 17 fixture）
   のみをここでは確定的に記載し、スイート全体の現在合計は
   `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
   「Cross-Model Panel Remediation」節、および
