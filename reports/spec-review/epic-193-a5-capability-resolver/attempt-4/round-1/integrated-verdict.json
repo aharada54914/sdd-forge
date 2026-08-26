@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "spec-orch-epic-193-a5-capability-resolver-a4r1",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 4,
+  "findings_critical": 1,
+  "findings_major": 4,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

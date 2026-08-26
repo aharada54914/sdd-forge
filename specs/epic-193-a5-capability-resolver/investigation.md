@@ -1210,3 +1210,92 @@ commit; `requirements.md` and `acceptance-tests.md` are byte-unchanged,
 as their pins above show, and no file outside
 `specs/epic-193-a5-capability-resolver/design.md` and this document was
 touched.
+
+### Rulings C(1)/C(2) (route (a), human-approved 2026-08-26)
+
+**Disambiguation first**: the 2026-08-24 combined ruling quoted above
+(「A①B①C①でやれ」) named a "C①" whose content that day's record never
+defined and which was never applied. The rulings recorded HERE — C(1)
+and C(2), dated 2026-08-26 — are a separate, later decision and are the
+sole "ruling C" this feature's documents cite.
+
+**What was decided.** Review ticket RT-20260826-002
+(`docs/review-tickets/RT-20260826-002.yml`) recorded a cross-model
+consensus FAIL on T-003: a fresh, blind two-vendor panel (anthropic
+PASS; openai/gpt-5.6 NEEDS_WORK with two Majors) against input digest
+`ab3589c71578a4b14816575ef00881bcbaf7a53c3e9438b61bd869ee705a9e9d`. The
+openai Majors: (1) the Registry document retained at REQ-001 step (e)'s
+own first read is not bound to the Registry independently re-discovered
+and re-read by `validate-capability-registry` and
+`generate-registry-digest --whole` — the same unbound-reads window the
+2026-08-24 confirmation panel had flagged and whose unsanctioned
+code-only fix (a "step 6.5" recheck) ruling RT-20260826-001 route (b)
+had removed to restore frozen-document conformance; (2) an affected
+component absent from the Context Projection was silently evaluated
+against a defaulted-empty properties document
+(`projection_components.get(component_id, {})`) — a fail-open the
+quality gate's cycle-1 evaluator had also recorded. The ticket offered
+three routes: (a) amend the frozen documents and let code follow;
+(b) record a Cross-Model-Waiver; (c) hold.
+
+**The verbatim, dated human approval.** In-session, 2026-08-26, the
+human ruled, choosing route (a) and ordering completion through Done:
+
+> aで修正しDoneになるまでやり直して
+
+(Contextual precursors the same day, same session: the route-(b)
+execution approval 「他のタスクは君ができるでしょう。承認する。」 and the
+fresh-panel order 「resh cross-modelでやりたい」 — the latter is why the
+panel evidence above exists.)
+
+**What the amendment did (ruling C(1))**: REQ-002's
+`snapshot-generation-mismatch` row gains a second, detection-only,
+mid-pipeline trigger site — immediately after REQ-001 step (e)'s own two
+dependency invocations complete, a re-read of the Registry bytes alone
+no longer matching the raw-bytes digest retained at the first read (or
+that re-read failing) Blocks with the same id. design.md's snapshot
+paragraph goes two→three rechecks; security-spec.md's B3 boundary row
+records the mechanism; tasks.md allocates the site's fixture to T-003.
+
+**(Ruling C(2))**: REQ-002's `dependency-output-malformed` row gains an
+absent-component sub-trigger — an `affected_components[]` entry naming a
+component id absent from the Context Projection Blocks before any
+predicate evaluation; steps (f)-(g) never evaluate such an entry against
+an empty or defaulted properties document.
+
+### Amendment commits (full hashes) — rulings C(1)/C(2)
+
+1. `5dcacc8ec06657800793b330847661f70719b747` — the documents-only
+   amendment commit (requirements.md, design.md, tasks.md,
+   security-spec.md), applied BEFORE any implementation, per the
+   amendment-first procedure rulings A(1)/B(1) established.
+   (Follow-ups in the same attempt-4 spec re-review round: AC-057/AC-058
+   added to acceptance-tests.md, the step-reference wording anchored to
+   REQ-001's own lettered steps, TEST-057/TEST-058 added to
+   traceability.md's REQ-002 row, and this record itself — per the
+   round-1 reviewer findings.)
+2. `2ae0b9fd` (implementation follow-up, code and fixtures only — no
+   frozen document touched): step-(e) recheck reinstated with
+   C(1)-citing comments; absent-component fail-closed with a new
+   canonical detail sentence; fixtures
+   `registry-swapped-during-validation` (reinstated) and
+   `affected-component-absent-from-context` (new); block suite 224/0 in
+   both runtimes.
+
+### Per-document SHA-256 at amendment commit 5dcacc8e
+
+- `requirements.md`: `7a27cafab8cf333c83476ed981b9e70175c2d83d653753f76401d8bffa160448`
+- `design.md`: `3deccc793d3795e658927607b52cbe8de6a145622d8aec748c4c6975c8b3cdde`
+- `tasks.md`: `3b69d7e157b552439a86fd58101a3ced218d03fc274b0960d8b75078016419a1`
+- `security-spec.md`: `533c916439b08e0985acaa5142ba393b4e741de9fd48e1ae085918459d07bad7`
+
+### Later-phase artifacts referenced (rulings C(1)/C(2))
+
+- `docs/review-tickets/RT-20260826-002.yml` (the decision record) and
+  `docs/review-tickets/RT-20260826-001.yml` (the route-(b) predecessor).
+- `specs/epic-193-a5-capability-resolver/verification/T-003.panelist-openai.verdict.json`
+  (vendor openai, model gpt-5.6, verdict NEEDS_WORK, blind, input_digest
+  `ab3589c7…`) and `…/T-003.panelist-anthropic.verdict.json` (PASS, same
+  digest) — the two-vendor evidence the ruling responds to.
+- `specs/epic-193-a5-capability-resolver/verification/T-003.cross-model.json`
+  (aggregate, result FAIL) — the consensus record that raised the ticket.

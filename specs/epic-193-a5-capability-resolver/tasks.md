@@ -774,8 +774,9 @@ own, exercised against this task's own already-authored code), REQ-002
 `contract-discovery-failed`, `dependency-subprocess-failed`,
 `dsl-warn-on-matched-capability`; plus, rulings C(1)/C(2) human-approved
 2026-08-26: the step-6.5 mid-pipeline site of
-`snapshot-generation-mismatch` — the step-13 site remains T-004's own —
-and the absent-component sub-trigger of `dependency-output-malformed`),
+`snapshot-generation-mismatch` (AC-057) — the step-13 site remains
+T-004's own — and the absent-component sub-trigger of
+`dependency-output-malformed` (AC-058)),
 REQ-004 (share — the per-Capability/
 per-component evaluation records this task assembles are Resolver
 Evidence's own `capability_evaluations[].trigger_evaluations[]`/

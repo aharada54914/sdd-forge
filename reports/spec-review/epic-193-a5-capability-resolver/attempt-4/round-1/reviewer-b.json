@@ -1,0 +1,79 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a4r1-seq0788",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a4r1-0788",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "ed15248373a3cd6e8ee5af15eb0a87bd0eb3209a6924171d03918957ea2a1a41"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "e2016b2da7101f6f0e3fd2b010db93cc1d0f821b5f9651318c4ffdb3177b6bb8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-1/precheck-result.json",
+      "sha256": "9f253ca6c9fbbdb55cc570ebc25fcce9073abdf84513f482b32f6b45ad6b545e"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-1/integrated-summary.json",
+      "sha256": "54dca186fa8deda4a779143cee5ff9e2fb23deaabddf0a7c0f12e0b900328b04"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-002's amended snapshot-generation-mismatch row (ruling C(1), 2026-08-26) places its new mid-pipeline detection site 'immediately after step 5's validate-capability-registry and step 6's generate-registry-digest --whole dependency invocations complete.' REQ-001's own processing procedure is enumerated only as lettered steps (0),(a)-(m), never with an explicit numeric index anywhere in requirements.md itself; under the one numbering a reader can construct by counting that lettered sequence in order (0=1,a=2,...), step 5 corresponds to letter (d) (resolve-component-paths, which never touches the Registry), and letter (e) (discover and validate the Registry and compute registry_digest --whole) is a single combined step, landing at step 6, not split across two numbered steps 5 and 6. Downstream: a future author resolving where exactly to bind this new fail-closed TOCTOU-closing recheck has no single, self-consistent numbered-step index in the reviewed documents to anchor to, and the most literal reading of REQ-001's own lettered list produces an incorrect placement. Must be resolved before a design reviewer can safely fix the check's exact insertion point."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict was found between requirements.md's goals, acceptance criteria, constraints, or non-goals (including the two 2026-08-26 amendment rows) beyond the step-reference imprecision captured under AMBIGUITY, which does not rise to a direct contradiction."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Both 2026-08-26 amendment sub-triggers (the C(1) mid-pipeline Registry recheck on snapshot-generation-mismatch, and the C(2) absent-component sub-trigger on dependency-output-malformed) have no corresponding acceptance-test obligation in the byte-unchanged acceptance-tests.md: AC-010/TEST-010 is satisfiable per-diagnostic-id without exercising either new condition (the enum stays sixteen, so existing per-id fixtures suffice literally), and the existing snapshot-generation-mismatch fixtures (AC-040/TEST-040, AC-048/TEST-048) cover only the pre-existing pre-publication recheck window (steps (l)/(m)), not the new mid-pipeline site; no AC/TEST row names the absent-component dependency-output-malformed sub-case. A future test author can satisfy every stated acceptance criterion while never exercising either newly-approved fail-closed behavior. Per the calibration's Amendment Re-Review Context, this defect stands on its own and is not suppressed by the amendment declaration."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (three items) each states its own resolution path or explicit fallback; none is disturbed by the 2026-08-26 amendment."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The package's irreversible-change boundary (journaled Prepare/Journal/Commit/Post-publication-verification/Complete publication transaction with journal-based rollback) is concretely testable via AC-038/AC-039/AC-047/AC-048/AC-049; the human-copy application boundary for the protected Resolver script path and any SKILL.md edit is explicit and testable (AC-026, AC-032); the A(1)/B(1) amendment records in investigation.md meet the calibration's evidence bar (full commit hashes, per-document SHA-256s, verbatim dated approval quotation)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Apart from the scoped step-reference ambiguity (AMBIGUITY) and the missing acceptance-test coverage for the two new sub-triggers (EDGE-CASE-COVERAGE), the package's Dependencies/Field Definitions/Design-Decision citations and its Acceptance Criteria table leave no other observed gap that would force a downstream design reviewer to invent product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped: no domain/ directory exists at the repository root, so the check's applicability precondition is not met."
+    }
+  ],
+  "boundary_disclosure": "The reviewer disclosed inadvertently reading reports/review-context/identity-ledger.json (outside the allowed-input manifest) and affirmed no finding drew on its contents. Recorded by the orchestrator for transparency."
+}
