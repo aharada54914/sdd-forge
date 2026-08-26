@@ -405,6 +405,29 @@ try {
             $implementationReportLines -cnotcontains "- Task ID: $($document.task_id)") {
             Fail-ReviewContext 'PATH' 'sdd-evaluator implementation report identity does not match task ID'
         }
+
+        # WFI-050 (Option A, scoped by the corpus ratchet) -- the twin of the
+        # rule in the sh boundary. Shipping it on one runtime only is the
+        # half-width defect this repository has been failed on repeatedly:
+        # validity must gate authorization on BOTH runtimes, or the weaker one
+        # simply IS the bypass. The report validator is a single python-backed
+        # script with no PowerShell twin, so both runtimes invoke the same
+        # implementation and cannot disagree about the verdict itself.
+        $reportValidator = Join-Path $root 'plugins/sdd-implementation/scripts/validate-implementation-report.sh'
+        $reportBaseline = Join-Path $root 'tests/fixtures/implementation-report-corpus-baseline.txt'
+        if (Test-Path -LiteralPath $reportValidator -PathType Leaf) {
+            & bash $reportValidator $implementationReport *> $null
+            if ($LASTEXITCODE -ne 0) {
+                $grandfathered = $false
+                if (Test-Path -LiteralPath $reportBaseline -PathType Leaf) {
+                    $baselineEntries = @(Get-Content -LiteralPath $reportBaseline -Encoding UTF8)
+                    $grandfathered = $baselineEntries -ccontains $implementationReportPath
+                }
+                if (-not $grandfathered) {
+                    Fail-ReviewContext 'REPORT' 'implementation report is rejected by the report validator and is not grandfathered on the corpus ratchet baseline'
+                }
+            }
+        }
         $inOutputs = $false
         foreach ($line in $implementationReportLines) {
             if ($line -cmatch '^## Outputs\s*$') {

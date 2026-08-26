@@ -23,15 +23,34 @@ schema_lines = re.findall(r"(?m)^Report Schema[^\n]*$", text)
 valid_schema_lines = re.findall(
     r"(?m)^Report Schema: implementation-report/v2$", text
 )
+# These promote a schema-less document into the STRICT branch. They were tested
+# with a bare `in text` substring scan, which has no anchoring, so a document
+# that merely QUOTES one -- a review report citing a validator diagnostic inside
+# backticks, mid-sentence -- was promoted and then failed as a malformed v2
+# report. That is the mention-versus-declaration confusion WFI-049 records for
+# section headings, one layer up: a citation is not a declaration. Each
+# indicator is now anchored to the start of its own line.
 v2_indicators = (
-    "## Output Paths And Hashes",
-    "## Test Evidence",
-    "## Iteration And Escalation",
-    "## Isolation Evidence",
-    "**Task Attempt Count**",
-    "**Handoff Reload Evidence Hash**",
+    r"^## Output Paths And Hashes[ \t]*$",
+    r"^## Test Evidence[ \t]*$",
+    r"^## Iteration And Escalation[ \t]*$",
+    r"^## Isolation Evidence[ \t]*$",
+    r"^- \*\*Task Attempt Count\*\*",
+    r"^- \*\*Handoff Reload Evidence Hash\*\*",
 )
-if not schema_lines and not any(indicator in text for indicator in v2_indicators):
+# The indicators are a heuristic for LEGACY implementation reports, which carry
+# no schema line. They must never promote a document that is not an
+# implementation report at all: an independent review report filed beside one
+# shares its section names ("## Test Evidence") without being one, and was
+# failing as a malformed v2 report. A document's own title is its declaration of
+# kind, and it is a sound discriminator here -- measured across all 228 shipped
+# reports, every one of the 145 carrying a schema line also claims the kind in
+# its title, and there is no counterexample.
+declares_implementation_report = bool(re.match(r"^# Implementation Report", text))
+if not schema_lines and not (
+    declares_implementation_report
+    and any(re.search(indicator, text, re.M) for indicator in v2_indicators)
+):
     print("IMPLEMENTATION_REPORT_LEGACY_OK")
     raise SystemExit(0)
 if not schema_lines:

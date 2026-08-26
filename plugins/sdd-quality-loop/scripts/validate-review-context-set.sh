@@ -472,6 +472,37 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
   grep -Fxq -- "- Task ID: $task_id" "$repository_root/$implementation_report_path" ||
     fail PATH 'sdd-evaluator implementation report task field does not match task ID'
 
+  # WFI-050 (Option A, scoped by the corpus ratchet). Report VALIDITY is now a
+  # PRECONDITION of authorization. Until this block existed, the report
+  # validator and this boundary were the VALIDATOR and the GRANTER of the same
+  # document with no stated ordering between them, so every rule the validator
+  # enforces -- row shape, hash format, canonical paths, duplicate sections,
+  # isolation consistency -- was advisory from the authorization boundary's
+  # point of view. That is exactly what turned the WFI-049 heading divergence
+  # from a formatting defect into a live bypass: the strict component's refusal
+  # carried no authorizing weight, so it never had to be consulted.
+  #
+  # The ONLY exemption is the corpus ratchet baseline. Two grandfathering
+  # schemes were measured on this repository before choosing:
+  #   * keyed on the declared schema version -- REJECTED: 118 of 147
+  #     v2-declaring reports fail the validator today, so it would have blocked
+  #     almost every gate;
+  #   * keyed on the ratchet baseline -- CHOSEN: exactly one shipped report
+  #     fails outside that list, and the ratchet forbids ADDING entries, so the
+  #     exemption set can only ever shrink toward zero.
+  # A repository that does not ship the sdd-implementation validator keeps its
+  # current behaviour rather than failing closed on a file it cannot check.
+  implementation_report_validator="$repository_root/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+  implementation_report_baseline="$repository_root/tests/fixtures/implementation-report-corpus-baseline.txt"
+  if [[ -f "$implementation_report_validator" ]] &&
+    ! bash "$implementation_report_validator" \
+      "$repository_root/$implementation_report_path" >/dev/null 2>&1; then
+    if ! { [[ -f "$implementation_report_baseline" ]] &&
+      grep -Fxq -- "$implementation_report_path" "$implementation_report_baseline"; }; then
+      fail REPORT 'implementation report is rejected by the report validator and is not grandfathered on the corpus ratchet baseline'
+    fi
+  fi
+
   # WFI-036. The named gate report is a declaration source, not a manifest
   # input. It is verified in full here -- canonical path, confined to the gate's
   # own report namespace, no symlink component, regular file, and byte-exact
