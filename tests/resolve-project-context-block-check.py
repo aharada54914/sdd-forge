@@ -332,6 +332,7 @@ ALL_CASE_NAMES = (
         "validate-capability-registry-launch-failed",
         "dependency-subprocess-failed",
         "evaluate-predicate-output-malformed",
+        "evaluate-predicate-output-malformed-nested",
         "evaluate-predicate-schema-error",
         "evaluate-predicate-failure-after-warn",
         "dsl-warn-unmatched-trigger",
@@ -516,6 +517,8 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "registry_discovery.py"
         elif case_name == "evaluate-predicate-output-malformed":
             stub_name = "evaluate-predicate.py"
+        elif case_name == "evaluate-predicate-output-malformed-nested":
+            stub_name = "evaluate-predicate.py"
         elif case_name == "evaluate-predicate-failure-after-warn":
             stub_name = "evaluate-predicate.py"
         elif case_name == "dsl-warn-unsorted-affected-components":
@@ -658,6 +661,24 @@ def run_t003_case(kind, case_name, counts):
             )
 
         elif case_name == "evaluate-predicate-output-malformed":
+            state = "advisory"
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+            expected_id = "dependency-output-malformed"
+            expected_detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
+
+        elif case_name == "evaluate-predicate-output-malformed-nested":
+            # Cross-model panel finding (route (a) round 2, openai Major):
+            # the step-7 evidence-shape check validated only the TOP-LEVEL
+            # `evidence[]` elements while `_iter_warn_nodes` recurses into
+            # `children` at any depth assuming objects -- so a zero-exit
+            # payload whose nested child is a bare string sailed past the
+            # shape check and crashed `_iter_warn_nodes` with an uncaught
+            # AttributeError instead of the required canonical Block. This
+            # fixture's stub returns exactly that payload (top-level node
+            # well-formed, `children: ["x"]`); the shape check must be
+            # recursive over the whole Evidence tree.
             state = "advisory"
             (repo / "comp-a").mkdir()
             (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
@@ -2015,6 +2036,7 @@ def main():
             "validate-capability-registry-launch-failed",
             "dependency-subprocess-failed",
             "evaluate-predicate-output-malformed",
+            "evaluate-predicate-output-malformed-nested",
             "evaluate-predicate-schema-error",
             "evaluate-predicate-failure-after-warn",
             "dsl-warn-unmatched-trigger",

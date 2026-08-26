@@ -1,4 +1,12 @@
-# runner: pwsh
+# mutation-kill: nested evidence-shape validation (route-(a) panel round-2 openai Major)
+# Captured 2026-08-26 BEFORE the _evidence_tree_well_formed fix, against the
+# then-current staged resolver (e2b6249b...): the new
+# evaluate-predicate-output-malformed-nested case crashes _iter_warn_nodes with
+# an uncaught AttributeError (raw traceback on stderr, wrong diagnostic), suite
+# 226 passed / 3 failed. After the recursive-shape fix the identical suite is
+# 229 passed / 0 failed (green-{sh,ps1}.log) -- the mutation is killed.
+# Full pre-fix capture (bash runtime):
+# runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
 PASS: disabled-legacy-invocation: exact Resolver Evidence
@@ -112,9 +120,9 @@ PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
 PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
 PASS: evaluate-predicate-output-malformed: no partial live artifact
 PASS: evaluate-predicate-output-malformed-nested: exit 1
-PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
-PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
-PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+FAIL: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_pi5zcl0/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1770, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_pi5zcl0/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1595, in main\n    any_warn = _evaluate_capabilities(\n        script_dir, registry_document, affected_components, projection_components,\n        capability_evaluations, warn_diagnostics,\n    )\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_pi5zcl0/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 672, in _evaluate_capabilities\n    for node, node_path in _iter_warn_nodes(evidence):\n                           ~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_pi5zcl0/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 593, in _iter_warn_nodes\n    yield from _iter_warn_nodes(node.get("children") or [], this_path)\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_pi5zcl0/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 591, in _iter_warn_nodes\n    if node.get("outcome") == "warn":\n       ^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+FAIL: evaluate-predicate-output-malformed-nested: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_pi5zcl0/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement: evidence absent
 PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
 PASS: evaluate-predicate-schema-error: exit 1
 PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
@@ -228,4 +236,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 229 passed, 0 failed
+RESULT: 226 passed, 3 failed

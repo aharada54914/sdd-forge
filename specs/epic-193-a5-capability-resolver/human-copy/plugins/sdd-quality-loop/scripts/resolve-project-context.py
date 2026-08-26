@@ -572,11 +572,32 @@ def _invoke_evaluate_predicate(script_dir, predicate_name, properties_name):
     if (
         not isinstance(parsed, dict)
         or not isinstance(parsed.get("result"), bool)
-        or not isinstance(parsed.get("evidence"), list)
-        or not all(isinstance(node, dict) for node in parsed.get("evidence", []))
+        or not _evidence_tree_well_formed(parsed.get("evidence"))
     ):
         raise DependencyOutputMalformed("evaluate-predicate stdout is not the {result, evidence} shape")
     return parsed["result"], parsed["evidence"]
+
+
+def _evidence_tree_well_formed(nodes):
+    """Recursive shape validation of an evaluate-predicate Evidence tree:
+    `nodes` must be a list whose every element, at EVERY depth, is an
+    object, and every present non-null `children` value must itself be a
+    well-formed subtree. The step-7 shape check previously validated only
+    the top-level elements while `_iter_warn_nodes` recurses assuming
+    objects throughout -- a zero-exit payload with a malformed NESTED
+    child passed the check and crashed the warn scan with an uncaught
+    AttributeError instead of Blocking `dependency-output-malformed`
+    (route-(a) cross-model panel round-2 Major; fixture
+    `evaluate-predicate-output-malformed-nested`)."""
+    if not isinstance(nodes, list):
+        return False
+    for node in nodes:
+        if not isinstance(node, dict):
+            return False
+        children = node.get("children")
+        if children is not None and not _evidence_tree_well_formed(children):
+            return False
+    return True
 
 
 def _iter_warn_nodes(evidence_nodes, node_path=()):

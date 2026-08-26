@@ -31,12 +31,15 @@
   既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
   （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
   が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
-  自身が所有する fixture として **16 fixture directory**
+  自身が所有する fixture として **17 fixture directory**
 （2026-08-26 ruling C(1)/C(2) 実測: 凍結文書 amendment により step 6.5
 recheck を正式化して `registry-swapped-during-validation` を復帰、
 absent-component fail-closed の `affected-component-absent-from-context`
-を新設。block suite は両ランタイム 224/0、red-baseline-recaptured-v5 は
-104 passed / 113 failed）
+を新設。同日 route-(a) cross-model panel round 2 の openai Major 是正で
+`evaluate-predicate-output-malformed-nested` を追加し、step-7 の
+evidence 形状検証を再帰化（`_evidence_tree_well_formed`）。block suite
+は両ランタイム 229/0、red-baseline-recaptured-v6 は 105 passed /
+117 failed）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
   `registry-discovery-unimportable` / `registry-validation-failed` /

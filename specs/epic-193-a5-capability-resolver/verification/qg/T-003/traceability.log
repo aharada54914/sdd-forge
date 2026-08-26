@@ -244,3 +244,10 @@ RE-CONFIRMED AFTER RULINGS C(1)/C(2):
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 224 passed, 0 failed
   bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V3: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 224 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-2 CLOSURE (2026-08-26,
+nested evidence-shape fix + evaluate-predicate-output-malformed-nested
+fixture):
+  bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V4: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"

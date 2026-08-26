@@ -554,3 +554,16 @@ feature's own.
 regression: passes=true for this diff's own attributable effect,
 measured against the route-(a) tree (staged resolver e2b6249b..., block
 driver a06cb73c...).
+
+SEVENTH-ROUND ADDENDUM (2026-08-26, route-(a) panel round-2 closure):
+the nested evidence-shape fix (_evidence_tree_well_formed, new fixture
+evaluate-predicate-output-malformed-nested) grew the block suite by
+design 224 -> 229; both runtimes 229 passed / 0 failed. Focused
+re-checks after the fix: match suite 125/0; resolver-evidence-schema
+FAIL: 0; run-panelist-effort 28/0. The change touches only the staged
+resolver's step-7 shape validation and the shared block driver/fixture
+set -- no run-all-registered suite outside this feature's own reads
+either file, and the SIXTH-ROUND run-all enumeration (4 failing suites,
+none this feature's) remains the current repository-drift disclosure.
+regression: passes=true, measured against the post-fix tree (staged
+resolver f0fd20cf..., v6 red baseline 105/117 both runtimes).

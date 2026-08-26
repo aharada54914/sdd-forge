@@ -111,6 +111,11 @@ PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and
 PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
 PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
 PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-output-malformed-nested: exit 1
+PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
 PASS: evaluate-predicate-schema-error: exit 1
 PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
 PASS: evaluate-predicate-schema-error: exact Resolver Evidence
@@ -223,4 +228,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 224 passed, 0 failed
+RESULT: 229 passed, 0 failed
