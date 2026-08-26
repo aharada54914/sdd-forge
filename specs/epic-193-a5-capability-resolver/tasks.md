@@ -200,22 +200,35 @@ the deferred suite's own criteria) are correspondingly out of this
   latter two are generic, multi-site rows design.md treats identically
   regardless of which step triggers them, so one fixture each, authored
   at their own first reachable site, is this row's own complete
-  coverage; no later task re-tests an already-covered row); **T-003
-  appends** five more fixtures for the rows steps 4-9 make newly
-  reachable: `affected-component-resolution-failed`, `registry-
+  coverage; no later task re-tests an already-covered row, with one
+  human-approved exception — ruling C(2) (2026-08-26) adds a second,
+  behaviorally distinct `dependency-output-malformed` fixture for the
+  absent-component sub-trigger, T-003's own, AC-058/TEST-058); **T-003
+  appends** seven more fixtures: five for the rows steps 4-9 make newly
+  reachable — `affected-component-resolution-failed`, `registry-
   validation-failed`, `contract-discovery-failed`, `dependency-
-  subprocess-failed`, `dsl-warn-on-matched-capability`; **T-004 appends**
+  subprocess-failed`, `dsl-warn-on-matched-capability` — plus the two
+  rulings-C fixtures (human-approved 2026-08-26):
+  `registry-swapped-during-validation` (the step-6.5 mid-pipeline
+  `snapshot-generation-mismatch` site, ruling C(1), AC-057/TEST-057)
+  and `affected-component-absent-from-context` (the absent-component
+  `dependency-output-malformed` sub-trigger, ruling C(2),
+  AC-058/TEST-058); **T-004 appends**
   three more — `lite-check-source-undefined`, `output-schema-
-  validation-failed`, and the first (digest-mismatch) `snapshot-
-  generation-mismatch` fixture, the rows steps 10-13 make newly
+  validation-failed`, and the digest-mismatch `snapshot-
+  generation-mismatch` fixture at its step-13 site (the step-6.5 site's
+  own fixture is T-003's, ruling C(1)), the rows steps 10-13 make newly
   reachable — completing all twelve non-transactional rows AC-010 fixes
-  for this feature's own engine (5+5+2 unique rows plus the one shared
-  row, `snapshot-generation-mismatch`, whose second fixture is T-007's
-  own, below); **T-007 appends** the four transactional-diagnostic
+  for this feature's own engine (5+5+2 unique rows plus the shared
+  row, `snapshot-generation-mismatch`, carried at three sites: T-003's
+  step-6.5 fixture, T-004's digest-mismatch step-13 fixture, and
+  T-007's `affected_components`-only fixture, below); **T-007 appends**
+  the four transactional-diagnostic
   fixtures (`publication-journal-recovery`, `artifact-publication-
-  failed`, `post-publication-generation-mismatch`, and the second,
+  failed`, `post-publication-generation-mismatch`, and the
   `affected_components`-only `snapshot-generation-mismatch` fixture
-  pairing with T-004's digest-only one), completing AC-010's full
+  pairing with T-004's digest-only one — TEST-040's own two-fixture
+  companion pair), completing AC-010's full
   sixteen-row matrix and AC-011/012/013/014's own全-Block-fixture
   completeness (Task Mapping, traceability.md). Each contributing task
   only appends its own new fixtures, never touching an earlier
@@ -699,9 +712,10 @@ Commit B (documentation):
   conditional-facet evaluation, the WARN check, the track branch,
   Resolver Evidence assembly, output schema self-validation, the
   pre-publication recheck — T-003's and T-004's own scope).
-- The eleven remaining non-transactional Block-diagnostic fixtures
-  (`affected-component-resolution-failed` through the second
-  `snapshot-generation-mismatch` fixture — T-003's and T-004's own
+- The remaining non-transactional Block-diagnostic fixtures
+  (`affected-component-resolution-failed` through the step-13
+  `snapshot-generation-mismatch` fixture, the two rulings-C fixtures
+  included — T-003's and T-004's own
   contributions to this same shared suite file) and the four
   transactional-diagnostic fixtures (T-007's own).
 - The `resolve-project-context-match` suite (T-005's own), the CLI
@@ -822,9 +836,10 @@ Planned Files:
   (edited — updated SHA-256 entries for the three updated staged
   candidates)
 - `tests/resolve-project-context-block.tests.sh` / `.ps1` (edited —
-  appends five fixtures to T-002's own file; no new suite registration)
-- `tests/fixtures/capability-resolver/` (extended — the five Block
-  fixtures this task's own step range makes reachable)
+  appends seven fixtures to T-002's own file; no new suite registration)
+- `tests/fixtures/capability-resolver/` (extended — the seven Block
+  fixtures this task's own step range makes reachable, the two
+  rulings-C fixtures included)
 - `CHANGELOG.md` (existing, agent-editable — CREATE the `## Unreleased`
   entry citing #193)
 
@@ -848,12 +863,15 @@ failed` on non-zero exit, its own canonical `<detail>` sentence never the
 upstream's raw stderr, M8) with its own snapshot (B8); Registry discovery
 via ADR-0025 (`contract-discovery-failed`, `registry-validation-failed`,
 implemented here — its own dedicated discovery-contract-reuse test suite
-is T-006's own) and `registry_digest --whole`; per-Capability,
+is T-006's own) and `registry_digest --whole`, plus the step-6.5
+detection-only Registry recheck (`snapshot-generation-mismatch`'s
+mid-pipeline site, ruling C(1), AC-057); per-Capability,
 per-affected-component trigger evaluation and matched-Capability
 conditional-facet evaluation, both with no short-circuit
 (`dependency-subprocess-failed`/`dependency-output-malformed` — the
-latter already covered by T-002's own fixture, one fixture per row, no
-duplication — on any dependency subprocess failure); the any-branch WARN
+latter's generic unparseable-stdout fixture is T-002's own; this task
+adds only the absent-component sub-trigger fixture, ruling C(2),
+AC-058 — on any dependency subprocess failure); the any-branch WARN
 check (`dsl-warn-on-matched-capability`, B2's widened scope, across
 every evaluation from both this task's own steps). This task stages
 every evaluation result in this invocation's own in-memory evaluation
@@ -874,7 +892,9 @@ live commit (T-007's own scope).
   2 (rows this task covers) and 3; `## Global Constraints`; `## Security
   Boundaries`)
 - `specs/epic-193-a5-capability-resolver/acceptance-tests.md` (AC-010
-  through AC-015 [this task's own five rows' share], AC-038 [share] —
+  through AC-015 [this task's own five rows' share], AC-057/AC-058
+  [rulings C(1)/C(2), this task's own two site fixtures], AC-038
+  [share] —
   this task's own dedicated Block-fixture coverage; AC-004 through
   AC-006 are cited for the trigger/conditional-facet-evaluation
   *behavior* this task's own code must implement correctly, even though
@@ -892,8 +912,8 @@ live commit (T-007's own scope).
 
 ### Scope
 
-Commit A (implementation — stage-2 engine + five block-suite fixtures):
-- Write the acceptance checks first (TDD Red→Green): five block-suite
+Commit A (implementation — stage-2 engine + seven block-suite fixtures):
+- Write the acceptance checks first (TDD Red→Green): seven block-suite
   fixtures — `affected-component-resolution-failed` (a `resolve-
   component-paths` non-zero-exit fixture, asserting the canonical
   `<detail>` sentence, never raw upstream stderr, M8), `registry-
@@ -903,7 +923,17 @@ Commit A (implementation — stage-2 engine + five block-suite fixtures):
   digest` non-zero-exit fixture), `dsl-warn-on-matched-capability` (one
   fixture per B2's widened quantifier: a WARN on an unmatched
   Capability's own trigger, and a WARN on a matched Capability's own
-  non-determining branch) — each asserting the correct exit code
+  non-determining branch), `registry-swapped-during-validation` (ruling
+  C(1): the step-6.5 detection-only Registry recheck observes a
+  Registry directory content change between step 3's own snapshot and
+  this mid-pipeline recheck and Blocks with
+  `snapshot-generation-mismatch`'s canonical `<detail>` sentence,
+  AC-057/TEST-057), and `affected-component-absent-from-context`
+  (ruling C(2): `resolve-component-paths` returns an affected component
+  absent from the Project Context and the evaluation loop Blocks up
+  front with `dependency-output-malformed`'s canonical `<detail>`
+  sentence, before any per-Capability evaluation, AC-058/TEST-058) —
+  each asserting the correct exit code
   (AC-013), the correct diagnostic line (AC-014, M8), no partial
   artifact (AC-011 — trivially satisfied, since T-002/T-003's own
   combined scope never stages a live-path artifact), and correct
@@ -911,11 +941,13 @@ Commit A (implementation — stage-2 engine + five block-suite fixtures):
   invocation already performed through step 8 for the `dsl-warn-on-
   matched-capability` fixtures specifically (the record is maximally
   informative for the caller diagnosing it, per design.md step 9).
-- Extend `resolve-project-context.py`'s own steps 4-9 per the Protected
-  Files branch T-002's own start-time check already selected.
+- Extend `resolve-project-context.py`'s own steps 4-9 — the step-6.5
+  detection-only Registry recheck (ruling C(1)) and the
+  absent-component upfront check (ruling C(2)) included — per the
+  Protected Files branch T-002's own start-time check already selected.
 - CI resilience and diagnostic determinism per Global Constraints,
   applied to this task's own new code paths.
-- Append this task's own five fixtures to `tests/resolve-project-
+- Append this task's own seven fixtures to `tests/resolve-project-
   context-block.tests.sh`/`.ps1` (already registered by T-002) — no new
   suite registration, no edit to `tests/run-all.*` or the staged
   `test.yml` candidate.
@@ -925,17 +957,24 @@ Commit B (documentation):
 
 ### Done When
 
-- [ ] **Registry-discovery and Capability-evaluation Block matrix (five
-  more of sixteen rows, ten of sixteen complete)** —
+- [ ] **Registry-discovery and Capability-evaluation Block matrix
+  (seven more fixtures: five new rows plus the two rulings-C site
+  fixtures; eleven of sixteen rows touched)** —
   `affected-component-resolution-failed`, `registry-validation-failed`,
   `contract-discovery-failed`, `dependency-subprocess-failed`,
-  `dsl-warn-on-matched-capability` (both B2-widened fixtures): correct
+  `dsl-warn-on-matched-capability` (both B2-widened fixtures),
+  `registry-swapped-during-validation` (ruling C(1), the step-6.5
+  `snapshot-generation-mismatch` site, AC-057/TEST-057), and
+  `affected-component-absent-from-context` (ruling C(2), the
+  absent-component `dependency-output-malformed` sub-trigger,
+  AC-058/TEST-058): correct
   exit code, correct diagnostic line (never raw dependency stderr, M8),
   no partial artifact, correct Resolver Evidence content (AC-010 [five
-  more of sixteen rows, ten complete], AC-011 [share], AC-012 [share],
-  AC-013 [share], AC-014 [share]).
+  new rows, ten non-transactional rows complete], AC-011 [share],
+  AC-012 [share], AC-013 [share], AC-014 [share], AC-057, AC-058).
 - [ ] **Fixture registration (append-only)** — `tests/resolve-project-
-  context-block.tests.sh`/`.ps1` gains this task's own five new fixtures
+  context-block.tests.sh`/`.ps1` gains this task's own seven new
+  fixtures
   without modifying any of T-002's own five; `tests/run-all.*` and the
   staged `test.yml` candidate are byte-unchanged by this task (no new
   suite registered).
@@ -943,9 +982,10 @@ Commit B (documentation):
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
   path under `plugins/**` in either of this task's own commits (AC-032).
-- [ ] **TDD evidence** — RED (each of the five fixtures against a
+- [ ] **TDD evidence** — RED (each of the seven fixtures against a
   deliberately broken or absent steps-4-9 implementation) and GREEN (all
-  ten block-suite fixtures — T-002's own five plus this task's own five —
+  twelve block-suite fixtures — T-002's own five plus this task's own
+  seven —
   together). An independent quality-gate verdict records PASS.
 
 ### Out of Scope
@@ -955,7 +995,8 @@ Commit B (documentation):
   self-validation, the pre-publication recheck — T-004's own scope).
 - The remaining three non-transactional Block-diagnostic fixtures
   (`lite-check-source-undefined`, `output-schema-validation-failed`, the
-  first `snapshot-generation-mismatch` fixture (its step-13 site; the
+  digest-mismatch `snapshot-generation-mismatch` fixture (its step-13
+  site; the
   step-6.5 site's own fixture is T-003's, ruling C(1)) — T-004's own)
   and the
   four transactional-diagnostic fixtures (T-007's own).
@@ -1024,9 +1065,10 @@ AC-043, AC-044, AC-052, AC-056 — is T-005's own, split out of this task
 by task-review attempt-2 round-1's own second remedy, closing a
 TASK-SIZE finding), REQ-002 (share — three more of sixteen non-
 transactional diagnostic-id rows: `lite-check-source-undefined`,
-`output-schema-validation-failed`, and the first, digest-mismatch
-`snapshot-generation-mismatch` fixture — its own second, `affected_
-components`-only companion fixture is T-007's own), REQ-004 (share —
+`output-schema-validation-failed`, and the digest-mismatch
+`snapshot-generation-mismatch` fixture at its step-13 site — the
+step-6.5 site's own fixture is T-003's (ruling C(1)) and the
+`affected_components`-only companion fixture is T-007's own), REQ-004 (share —
 Resolver Evidence assembly logic in full; schema is T-001's own), REQ-005
 (share — determinism baseline: stable sort of every semantic-output
 array, no clock/network/provider-API reads in this task's own code),
@@ -1154,8 +1196,9 @@ Commit A (implementation — stage-3 engine + three block-suite fixtures):
   block-suite fixtures — `lite-check-source-undefined` (the
   B5-narrowed required-missing state), `output-schema-validation-failed`
   (both sub-cases, AC-055: Resolver Evidence itself fails, and a
-  non-Evidence staged artifact fails), the first, digest-mismatch
-  `snapshot-generation-mismatch` fixture (AC-040 share).
+  non-Evidence staged artifact fails), the digest-mismatch
+  `snapshot-generation-mismatch` fixture at its step-13 site (AC-040
+  share; the step-6.5 site's own fixture is T-003's, ruling C(1)).
 - Author `resolve-project-context.py`'s own steps 10-13 per the
   Protected Files branch T-002's own start-time check already selected —
   including the full production logic (union-match consumption, track
@@ -1178,7 +1221,8 @@ Commit B (documentation):
 - [ ] **Track-branch and Evidence-assembly Block matrix (three more of
   sixteen rows, thirteen of sixteen complete)** — `lite-check-source-
   undefined`, `output-schema-validation-failed` (both sub-cases,
-  AC-055), first `snapshot-generation-mismatch` fixture (AC-040 share):
+  AC-055), digest-mismatch `snapshot-generation-mismatch` fixture (its
+  step-13 site, AC-040 share):
   correct exit code, correct diagnostic line, no partial artifact (AC-038
   — the staged-generation lock specifically proven for these three, each
   reached only after Context Projection and/or Facet Manifest/Capability
@@ -1186,7 +1230,8 @@ Commit B (documentation):
   content (AC-010 [three more of sixteen rows, thirteen complete],
   AC-011 [share], AC-012 [share], AC-013 [share], AC-014 [share]).
 - [ ] **Fixture registration (append-only)** — the block-suite's own
-  three new fixtures append cleanly onto T-002/T-003's own ten without
+  three new fixtures append cleanly onto T-002/T-003's own twelve
+  without
   modifying them; `tests/run-all.*` and the staged `test.yml` candidate
   are byte-unchanged by this task (no new suite registered — this task
   never touches the CI-registration file).
@@ -1196,16 +1241,17 @@ Commit B (documentation):
   path under `plugins/**` in either of this task's own commits (AC-032).
 - [ ] **TDD evidence** — RED (each of the three block-suite fixtures
   against a deliberately broken or absent steps-10-13 implementation)
-  and GREEN (all thirteen block-suite fixtures — T-002's own five,
-  T-003's own five, and this task's own three — together). An
+  and GREEN (all fifteen block-suite fixtures — T-002's own five,
+  T-003's own seven, and this task's own three — together). An
   independent quality-gate verdict records PASS.
 
 ### Out of Scope
 
 - Steps 0-9 (T-002's and T-003's own scope, already authored).
-- The thirteen non-transactional Block-diagnostic fixtures T-002/T-003
+- The non-transactional Block-diagnostic fixtures T-002/T-003
   already own (`disabled-legacy-invocation` through `dsl-warn-on-
-  matched-capability`) and the four transactional-diagnostic fixtures
+  matched-capability`, the two rulings-C fixtures included) and the
+  four transactional-diagnostic fixtures
   (T-007's own).
 - The `resolve-project-context-match` suite (TEST-003 through TEST-008,
   TEST-016, TEST-043, TEST-044, TEST-052, TEST-056 — T-005's own scope,
@@ -1224,7 +1270,7 @@ Commit B (documentation):
   filesystem rename of any of them.
 - `publication-journal-recovery`, `artifact-publication-failed`, and
   `post-publication-generation-mismatch` (T-007's own three diagnostic
-  rows), and the second, `affected_components`-only `snapshot-
+  rows), and the `affected_components`-only `snapshot-
   generation-mismatch` fixture (T-007's own).
 - `validate-resolver-evidence` (T-008), the dual-runtime parity suite
   (T-009), and the metamorphic completeness suite (T-010).
@@ -1803,7 +1849,8 @@ Commit B (documentation):
   renames is rolled back to its own PRE-transaction state via the
   journal before this invocation exits; the rollback is journal-based,
   never a bare `unlink` (AC-049).
-- [ ] **Second `snapshot-generation-mismatch` fixture** — TEST-040's own
+- [ ] **`affected_components`-only `snapshot-generation-mismatch`
+  fixture** — TEST-040's own
   companion fixture passes: every digest, including `ownership_digest`,
   stays byte-identical between snapshot and recheck, but a re-derived
   `affected_components` set differs (worktree/index/untracked mutation
@@ -1811,7 +1858,7 @@ Commit B (documentation):
   share).
 - [ ] **Full sixteen-row Block matrix complete** — TEST-010 now covers
   all sixteen REQ-002 diagnostic-id rows across T-002's five, T-003's
-  five, T-004's three, and this task's four, plus one fully-clean
+  seven, T-004's three, and this task's four, plus one fully-clean
   fixture proving a negative (AC-010); TEST-011/TEST-012/TEST-014 are
   now complete across all sixteen rows (AC-011, AC-012, AC-014); TEST-038
   now covers every named staged-generation example (AC-038).
