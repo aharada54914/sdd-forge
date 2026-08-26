@@ -225,3 +225,22 @@ re-verified by the cycle-2 evaluator: warn_diagnostics is FORWARDED on
 all three abort paths. Future readers should anchor on the function name
 and the canonical diagnostic ids above, not on line numbers, which rot
 with every upstream edit.
+
+RULINGS C(1)/C(2) TRAILER (2026-08-26, human-approved route (a)):
+The frozen-document amendment (commit 5dcacc8e) sanctioned the step-6.5
+Registry recheck as design.md's third recheck / REQ-002's second
+snapshot-generation-mismatch trigger site, and defined the
+absent-component fail-closed sub-trigger on dependency-output-malformed.
+Implementation and fixtures followed: registry-swapped-during-validation
+reinstated, affected-component-absent-from-context added, so the
+Implemented bullet's fixture enumeration is now SIXTEEN (the route-(b)
+trailer's FOURTEEN is superseded). The removed-fixture rationale in the
+route-(b) trailer no longer applies: the step-6.5 site is now allocated
+to this task by the amended tasks.md REQ-002 share. Every other
+REQ->AC->TEST mapping above is unaffected (both rulings reuse existing
+diagnostic ids; the enum stays sixteen).
+RE-CONFIRMED AFTER RULINGS C(1)/C(2):
+  bash tests/resolve-project-context-block.tests.sh   -> 224 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 224 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh   -> 125 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V3: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 224 passed, 0 failed"

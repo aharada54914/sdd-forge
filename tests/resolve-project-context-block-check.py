@@ -348,6 +348,8 @@ ALL_CASE_NAMES = (
         "contract-discovery-failed-governing-schema-invalid-utf8",
         "contract-discovery-failed-governing-schema-malformed-ref",
         "recheck-dependency-failed",
+        "registry-swapped-during-validation",
+        "affected-component-absent-from-context",
         "registry-discovery-syntax-error",
     ]
 )
@@ -504,6 +506,10 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "resolve-component-paths.py"
         elif case_name == "dependency-subprocess-failed":
             stub_name = "generate-registry-digest.py"
+        elif case_name == "registry-swapped-during-validation":
+            stub_name = "generate-registry-digest.py"
+        elif case_name == "affected-component-absent-from-context":
+            stub_name = "resolve-component-paths.py"
         elif case_name == "registry-discovery-unimportable":
             stub_name = "registry_discovery.py"
         elif case_name == "registry-discovery-syntax-error":
@@ -617,6 +623,39 @@ def run_t003_case(kind, case_name, counts):
         elif case_name == "dependency-subprocess-failed":
             expected_id = "dependency-subprocess-failed"
             expected_detail = "generate-registry-digest failed while computing registry_digest"
+
+        elif case_name == "registry-swapped-during-validation":
+            # Ruling C(1) (human-approved 2026-08-26): closes the "three
+            # independent Registry reads, no binding" gap two independent
+            # cross-model panels converged on -- now spec-sanctioned as
+            # design.md's third recheck. This fixture's own
+            # `generate-registry-digest` stub overwrites the discovered
+            # Registry file in place as a side effect of step 6's own
+            # dependency invocation; step 6.5's `_recheck_registry_snapshot`
+            # must detect the swap and Block `snapshot-generation-mismatch`
+            # -- the identical id/vocabulary step 13's own TOCTOU recheck
+            # already uses (REQ-002's amended second trigger site), never a
+            # bespoke second id for the identical condition.
+            expected_id = "snapshot-generation-mismatch"
+            expected_detail = (
+                "the Registry changed between this invocation's own discovery read (step 5) and its "
+                "post-validation/digest recheck (step 6)"
+            )
+
+        elif case_name == "affected-component-absent-from-context":
+            # Ruling C(2) (human-approved 2026-08-26): this fixture's own
+            # `resolve-component-paths` stub returns an `affected_components`
+            # entry (`comp-ghost`) absent from the fixture's own Project
+            # Context -- a dependency result inconsistent with the canonical
+            # Context it was derived against. Steps 7-8 must Block
+            # `dependency-output-malformed` (REQ-002's amended row) BEFORE
+            # any predicate evaluation of that entry, never evaluate it
+            # against a defaulted-empty properties document (the fail-open
+            # both the quality gate and the openai panelist flagged).
+            expected_id = "dependency-output-malformed"
+            expected_detail = (
+                "resolve-component-paths returned an affected component absent from the Project Context"
+            )
 
         elif case_name == "evaluate-predicate-output-malformed":
             state = "advisory"
@@ -1181,6 +1220,15 @@ def run_t004_case(kind, case_name, counts):
                     "spec_profile": "full", "artifact_layout": "facet-native", "capability_enforcement": "advisory",
                 }
                 projection_components = {}
+                if case_name == "recheck-dependency-failed":
+                    # Ruling C(2) (2026-08-26): the fixture's own Context now
+                    # declares the stub's three affected components as
+                    # bare-id entries (projection properties {} -- byte-
+                    # identical evaluation inputs to the pre-C(2) defaulted
+                    # empty document), because a component absent from the
+                    # Context now Blocks at steps 7-8 and this fixture must
+                    # still reach its own step-13 target.
+                    projection_components = {"comp-a": {}, "other~thing": {}, "shared/util": {}}
                 if case_name == "snapshot-generation-mismatch":
                     # This fixture's own `generate-registry-digest.py` stub
                     # (installed above) returns a FIXED digest on its first
@@ -1972,6 +2020,8 @@ def main():
             "dsl-warn-unmatched-trigger",
             "dsl-warn-matched-nondetermining",
             "dsl-warn-unsorted-affected-components",
+            "registry-swapped-during-validation",
+            "affected-component-absent-from-context",
             "registry-discovery-syntax-error",
         ):
             run_t003_case(args.launcher, case_name, counts)

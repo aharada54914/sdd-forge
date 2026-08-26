@@ -96,6 +96,16 @@ class DependencySubprocessFailed(Exception):
     canonicalizer failure or a `PREDICATE_SCHEMA_ERROR`."""
 
 
+class AffectedComponentAbsentFromContext(Exception):
+    """Ruling C(2) (human-approved 2026-08-26): `resolve-component-paths`
+    returned an `affected_components[]` entry naming a component id absent
+    from this invocation's own Context Projection -- a dependency result
+    inconsistent with the canonical Context it was derived against. Maps to
+    `dependency-output-malformed` (REQ-002's amended row); steps 7-8 MUST
+    NOT evaluate such an entry against an empty or defaulted properties
+    document."""
+
+
 class DependencyOutputMalformed(Exception):
     """A dependency subprocess exited zero but its own stdout does not
     parse as the JSON/digest shape that dependency's own contract promises
@@ -379,7 +389,42 @@ def _discover_registry_with_sibling_module():
         registry_document = json.loads(registry_raw.decode("utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ContractDiscoveryFailed(str(exc)) from exc
-    return registry_path, registry_document
+    # Ruling C(1) (human-approved 2026-08-26, design.md's sanctioned third
+    # recheck): `validate-capability-registry` and `generate-registry-digest
+    # --whole` each independently re-discover and re-read the SAME
+    # `registry_path` with no binding to THIS read. The raw-bytes digest
+    # retained here is this invocation's own single snapshot identity for
+    # `registry_path`, compared by `_recheck_registry_snapshot` (below)
+    # immediately after those two dependency invocations complete
+    # (step 6.5, REQ-002's amended second trigger site).
+    registry_snapshot_digest = hashlib.sha256(registry_raw).hexdigest()
+    return registry_path, registry_document, registry_snapshot_digest
+
+
+def _recheck_registry_snapshot(registry_path, expected_digest):
+    """Step 6.5 (ruling C(1), human-approved 2026-08-26): detection-only
+    Registry recheck, now spec-sanctioned as design.md's third recheck and
+    REQ-002's amended second `snapshot-generation-mismatch` trigger site.
+    This invocation re-reads the SAME `registry_path` its own
+    `_discover_registry` call already resolved, right after
+    `validate-capability-registry` and `generate-registry-digest --whole`
+    have each independently read the Registry on their own, and compares
+    the fresh bytes' own digest against the one retained at
+    `_discover_registry`'s own first read. Any difference -- including this
+    re-read itself failing outright, which is at least as suspicious as a
+    genuine byte difference -- raises SnapshotGenerationMismatch (the
+    step-13 recheck reuses the identical diagnostic id).
+
+    Honesty limitation (unchanged from the recheck's first, pre-ruling
+    incarnation): this detects a Registry swap across THIS invocation's own
+    read window; it cannot observe what bytes those two subprocesses
+    themselves actually read inside their own separate processes."""
+    try:
+        current_raw = registry_path.read_bytes()
+    except OSError as exc:
+        raise SnapshotGenerationMismatch(f"registry re-read failed: {exc}") from exc
+    if hashlib.sha256(current_raw).hexdigest() != expected_digest:
+        raise SnapshotGenerationMismatch("registry bytes changed since discovery")
 
 
 def _validate_capability_registry(script_dir, registry_path):
@@ -608,13 +653,21 @@ def _evaluate_capabilities(
     Returns whether any evaluation's own Evidence tree contained an
     `outcome: "warn"` node anywhere (step 9's own condition)."""
     sorted_affected_components = sorted(affected_components)
+    # Ruling C(2) (human-approved 2026-08-26): fail closed BEFORE any
+    # predicate evaluation when a dependency-returned affected component is
+    # absent from the Context Projection -- never a defaulted-empty-
+    # properties evaluation (the fail-open both the quality gate and the
+    # cross-model panel flagged).
+    for component_id in sorted_affected_components:
+        if component_id not in projection_components:
+            raise AffectedComponentAbsentFromContext(component_id)
     any_warn = False
     for capability in registry_document.get("capabilities", []):
         capability_id = capability["id"]
         trigger_evaluations = []
         matched = False
         for component_id in sorted_affected_components:
-            properties = projection_components.get(component_id, {})
+            properties = projection_components[component_id]
             result, evidence = _evaluate_predicate(script_dir, capability["trigger"], properties)
             for node, node_path in _iter_warn_nodes(evidence):
                 any_warn = True
@@ -633,7 +686,7 @@ def _evaluate_capabilities(
                 evaluations = []
                 applied = False
                 for component_id in sorted_affected_components:
-                    properties = projection_components.get(component_id, {})
+                    properties = projection_components[component_id]
                     result, evidence = _evaluate_predicate(script_dir, facet_declaration["when"], properties)
                     for node, node_path in _iter_warn_nodes(evidence):
                         any_warn = True
@@ -1487,7 +1540,7 @@ def main(argv=None):
 
     # Step 5: Registry discovery (ADR-0025) + validate-capability-registry.
     try:
-        registry_path, registry_document = _discover_registry(script_dir)
+        registry_path, registry_document, registry_snapshot_digest = _discover_registry(script_dir)
     except ContractDiscoveryFailed:
         detail = "registry discovery failed to locate or verify capability-registry.json or capability-registry.schema.json"
         return _block(repo_root, args.feature, "contract-discovery-failed", detail, state)
@@ -1512,6 +1565,27 @@ def main(argv=None):
     except DependencyOutputMalformed:
         detail = "generate-registry-digest returned malformed output while computing registry_digest"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state)
+
+    # Step 6.5 (ruling C(1), human-approved 2026-08-26 -- design.md's third
+    # recheck, REQ-002's amended second trigger site): neither
+    # `validate-capability-registry` above nor `generate-registry-digest
+    # --whole` above accepts a path/bytes argument binding it to THIS
+    # invocation's own step-5 `registry_document` read -- each independently
+    # re-discovers/re-reads the Registry on its own. A Registry swap across
+    # that window would let an unvalidated document reach steps 7-9 while
+    # `registry_digest` describes different bytes entirely. Detection only
+    # (see `_recheck_registry_snapshot`'s own honesty-limitation docstring):
+    # this invocation re-reads the identical `registry_path` right now and
+    # compares against the raw-bytes digest retained at step 5's own first
+    # read.
+    try:
+        _recheck_registry_snapshot(registry_path, registry_snapshot_digest)
+    except SnapshotGenerationMismatch:
+        detail = (
+            "the Registry changed between this invocation's own discovery read (step 5) and its "
+            "post-validation/digest recheck (step 6)"
+        )
+        return _block(repo_root, args.feature, "snapshot-generation-mismatch", detail, state)
 
     # Steps 7-8: per-Capability/per-component trigger evaluation and
     # matched-Capability conditional-facet evaluation.
@@ -1541,6 +1615,13 @@ def main(argv=None):
     except DependencySubprocessFailed:
         detail = "evaluate-predicate failed while evaluating a predicate"
         return _block(repo_root, args.feature, "dependency-subprocess-failed", detail, state, capability_evaluations, warn_diagnostics)
+    except AffectedComponentAbsentFromContext:
+        # Ruling C(2): same steps-7/8 abort discipline as the three handlers
+        # around it -- already-collected warns are FORWARDED (ruling A(1)'s
+        # own "or jointly caused" rule applies to this evaluation-pass abort
+        # identically), and the detail is a fixed canonical sentence (B5).
+        detail = "resolve-component-paths returned an affected component absent from the Project Context"
+        return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
     except DependencyOutputMalformed:
         detail = "evaluate-predicate returned malformed JSON while evaluating a predicate"
         return _block(repo_root, args.feature, "dependency-output-malformed", detail, state, capability_evaluations, warn_diagnostics)
