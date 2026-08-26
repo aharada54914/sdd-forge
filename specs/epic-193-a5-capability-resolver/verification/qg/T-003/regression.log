@@ -678,3 +678,15 @@ this feature's own.
 regression: passes=true for this diff's own attributable effect,
 measured against the post-cycle-10 tree (staged resolver ea3adf29...,
 v11 red baseline 112/137 both runtimes).
+
+THIRTEENTH-ROUND ADDENDUM (2026-08-26, comment-only resolver diffs):
+two prose-only edits followed the TWELFTH capture -- gate cycle 11's
+components-wrong-type description rewording (resolver dbf60e42...) and
+panel round 6's in-situ adjudication docstring in
+_evaluate_capabilities (resolver 24dde152..., CURRENT). Both diffs are
+comment-only (zero executable-line change, confirmed by direct diff);
+the block suite was re-run after each: 256 passed / 0 failed. The
+TWELFTH capture's suite/gate results therefore remain the current
+behavioral evidence; only the resolver hash lines above are superseded
+by the values in MANIFEST.sha256 and the contract comment.
+regression: passes=true, unchanged in behavior.

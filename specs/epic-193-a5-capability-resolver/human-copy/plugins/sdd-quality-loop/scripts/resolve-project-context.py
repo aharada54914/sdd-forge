@@ -727,6 +727,26 @@ def _evaluate_capabilities(
     Capability only after that Capability's own evaluation set is fully
     built) so a caller can still read every already-completed entry if a
     dependency subprocess failure aborts this function partway through.
+    ADJUDICATED (recorded in T-003.contract.json 'FINDINGS REJECTED WITH
+    EVIDENCE'; re-raised blind and re-adjudicated at panel round 6): the
+    complete-entry-only append is DELIBERATE, not an omission bug.
+    REQ-004 binds every published `capability_evaluations[]` entry to
+    carry EXACTLY one `trigger_evaluations[]` element per affected
+    component (AC-018 repeats it as an exact-set rule), so a
+    partially-evaluated Capability's entry CANNOT be published without
+    itself violating the frozen per-entry cardinality -- on an abort the
+    array is necessarily incomplete either way (later Capabilities never
+    ran at all), and omitting the partial entry keeps every entry that
+    IS present well-formed. The WARN half is governed separately:
+    already-collected warn diagnostics are FORWARDED on every abort path
+    under human-amended AC-056 (ruling A(1)), which explicitly sanctions
+    a forwarded warn whose Capability entry is absent (locked by the
+    `evaluate-predicate-failure-after-warn` fixture's exact-Evidence
+    assertion). tasks.md's 'every evaluation already performed through
+    step 8' sentence is scoped to the `dsl-warn-on-matched-capability`
+    fixtures, where every per-Capability set completes before the step-9
+    Block -- it does not mandate publishing contract-violating partial
+    entries on a mid-Capability abort.
     `warn_diagnostics` is likewise mutated in place, gaining one
     `severity: "warn"` diagnostics[] entry per individual `outcome: "warn"`
     DSL-evaluation node found anywhere in any evaluation's own Evidence
