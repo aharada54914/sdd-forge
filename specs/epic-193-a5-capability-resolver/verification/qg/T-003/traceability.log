@@ -293,3 +293,11 @@ evaluate-predicate-output-malformed-nested. The FIFTEEN-name
 enumeration near the top of this log and the SIXTEEN count in the
 rulings-C trailer above are historical snapshots of earlier
 generations, not the current census.
+
+READING-ORDER NOTE (2026-08-26, gate cycle 9): the CENSUS CORRECTION
+block immediately above was written at gate cycle 6 and predates the
+V6/V7 trailers that appear EARLIER in this file (they were appended by
+Edit-anchoring at the then-latest trailer line, landing physically
+before this tail block). The current census is NINETEEN, per the
+LIVE-TOTAL-V7 trailer and the driver's nineteen-entry case tuple; the
+SEVENTEEN in the block above is itself now a historical snapshot.

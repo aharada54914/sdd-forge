@@ -52,7 +52,10 @@ openai Major 是正で step 4 に重複 component id 拒否を追加し
   `registry-discovery-unimportable` / `registry-validation-failed` /
   `validate-capability-registry-launch-failed` /
   `dependency-subprocess-failed` / `evaluate-predicate-output-malformed` /
-  `dsl-warn-on-matched-capability` ×3 fixture）を追加。
+  `dsl-warn-on-matched-capability` ×3 fixture ほか — この列挙は初期世代の
+  抜粋であり、確定的な全列挙は
+  `tests/resolve-project-context-block-check.py` の `run_t003_case`
+  case tuple（19 エントリ）が権威）を追加。
   **訂正 (2026-08-23, cross-model panel remediation)**: この項目が
   以前記載していた「5 診断行・6 invocation・sh/ps1 とも 102 passed /
   0 failed」は、この共有ドライバが後続タスク（T-004 の steps 10-13、
@@ -61,7 +64,7 @@ openai Major 是正で step 4 に重複 component id 拒否を追加し
   再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
   同一ファイルに同居するため、
   スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
-  すぐ陳腐化する — T-003 自身の寄与分（上記 17 fixture）
+  すぐ陳腐化する — T-003 自身の寄与分（上記 19 fixture）
   のみをここでは確定的に記載し、スイート全体の現在合計は
   `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
   「Cross-Model Panel Remediation」節、および
