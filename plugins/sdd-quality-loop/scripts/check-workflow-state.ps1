@@ -260,6 +260,11 @@ function Test-InvestigationAmendmentReconciles([string]$ManifestFile, [string]$E
     $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
     if (-not $ManifestFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
     $relative = $ManifestFile.Substring($prefix.Length).Replace("\", "/")
+    # WFI-024's no-history rule, extended to this reconciliation: without
+    # git history the pinned generation's bytes are unreconstructable, so
+    # the growth-only property is not evaluable -- accepted, not evaluated,
+    # matching Test-PluginsHashMatches in a history-less tree.
+    if (-not (Test-PluginsGitHistoryAvailable)) { return $true }
     $tempFile = [IO.Path]::GetTempFileName()
     try {
         if (-not (Resolve-VerifiedInvestigationPin $Contract $Expected $relative $tempFile)) { return $false }
