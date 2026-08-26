@@ -1,4 +1,4 @@
-// Generated from guard-invariants.json; schema_version=1; sha256=8722f649e4745ad56df5de2d04ddc93617c39a46252cae5ab24f1321bc9e08d1
+// Generated from guard-invariants.json; schema_version=1; sha256=ae4613a5bc0dcb4f78badff8b9063aaff8071467b3c9e7ae084f4d97ee2cd170
 'use strict';
 module.exports = Object.freeze({
   SCHEMA_VERSION: 1,
@@ -15,6 +15,10 @@ module.exports = Object.freeze({
   SHELL_INDIRECT_CMDS: Object.freeze(["eval","xargs","source","sh","bash","zsh","dash","ksh","sed","patch","install","ln","truncate","dd","python","python3","perl","ruby","node","git"]),
   SHELL_UNSAFE_TOKEN_CHARS: Object.freeze(["$","`","(",")","{","}","*","?","[","]"]),
   SHELL_CD_CMDS: Object.freeze(["cd","pushd"]),
+  SHELL_PATCH_APPLY_CMDS: Object.freeze(["patch"]),
+  SHELL_PATCH_APPLY_GIT_SUBCMDS: Object.freeze(["apply","am"]),
+  SHELL_PATCH_INSPECT_FLAGS: Object.freeze(["--check","--stat","--numstat","--summary","--dry-run"]),
+  SHELL_PATH_BOUNDARY_CHARS: Object.freeze(["\"","'","`","(",")","{","}","[","]",",",";",":","=","|","&","<",">"]),
   SUDO_SIGNATURE_HEX_LENGTH: 64,
   PHASE2_HUMAN_COPY_TARGETS: Object.freeze(["plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","plugins/sdd-quality-loop/scripts/sdd-hook-guard.js","plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1","plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh","plugins/sdd-quality-loop/scripts/check-contract.ps1","plugins/sdd-lite/references/risk-upgrade-policy.md","plugins/sdd-lite/scripts/check-risk-upgrade.sh","plugins/sdd-lite/scripts/check-risk-upgrade.ps1","plugins/sdd-lite/skills/lite-spec/SKILL.md","plugins/sdd-ship/skills/ship/SKILL.md","plugins/sdd-quality-loop/references/guard-invariants.json","plugins/sdd-quality-loop/scripts/generate-guard-invariants.py","plugins/sdd-quality-loop/scripts/generated/guard_invariants.py","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1","plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh","tests/guard-parity.tests.sh",".github/workflows/test.yml","specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1","contracts/capability-registry.schema.json","contracts/capability-registry.json","contracts/lite-upgrade-reason-catalog.json","plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py","plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json","plugins/sdd-quality-loop/contracts/capability-registry.json","plugins/sdd-quality-loop/contracts/capability-registry.schema.json","plugins/sdd-quality-loop/scripts/check-component-coverage.py","plugins/sdd-quality-loop/scripts/check-component-coverage.ps1","plugins/sdd-quality-loop/scripts/check-component-coverage.sh"]),
 });
