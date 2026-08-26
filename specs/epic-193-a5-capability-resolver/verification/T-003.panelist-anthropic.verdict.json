@@ -3,54 +3,21 @@
   "task_id": "T-003",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
-  "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "model": "claude-fable-5",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Critical",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-{sh,ps1}.log; T-003.contract.json checks[unit-tests|acceptance-tests].red_evidence; tests/resolve-project-context-block-check.py",
-      "note": "The declared red_evidence for both required checks of this `required_workflow: tdd` task was produced by a test driver that is not the one under review. Proof from the bundle alone: (1) red-baseline-{sh,ps1}.log emit the assertion label `canonical diagnostic only, no upstream stderr embedded (M8)` for six fixtures (output-schema-validation-failed-facet-manifest, snapshot-generation-mismatch, contract-discovery-failed-governing-schema{,-wrong-version,-malformed}, recheck-dependency-failed); that string occurs nowhere in the reviewed tests/resolve-project-context-block-check.py, whose current label is `canonical diagnostic line present and last on stderr (B5)` (0 occurrences of the M8 label in green-{sh,ps1}.log / focused-tests-{sh,ps1}.log). (2) red-baseline lacks the four `dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)` assertions the current driver emits unconditionally for affected-component-resolution-failed / dependency-subprocess-failed / evaluate-predicate-failure-after-warn / recheck-dependency-failed. (3) Arithmetic corroborates: red-baseline totals 101+95=196 = 201 (the pre-round-2 baseline the report itself names) minus the 5 draft7-validator-keywords assertions the RED hasattr guard skips; the current driver totals 205, and 205-5=200 != 196. Consequence: the three assertion-affecting changes this round made -- Reversal 1's changed `evaluate-predicate-failure-after-warn` expected Evidence, the rewritten B5 canonical-line assertion, and the four new exact-equality pass-through assertions that are the SOLE discriminators for the `_reemit_dependency_stderr` fix -- have no RED capture anywhere in the bundle. Both T-003.contract.json's comment ('current driver/fixtures overlaid') and T-003.md's round-2 account present red-baseline as a capture of the current driver; the bundle falsifies that. The round-2 Outputs table also does not list red-baseline-{sh,ps1}.log as re-captured, confirming they predate this round."
-    },
-    {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json (comment field, CYCLE-3 + CONFIRMATION-PANEL addenda) vs verification/T-003/green-{sh,ps1}.log and verification/qg/T-003/focused-tests-{sh,ps1}.log",
-      "note": "The contract's most recent un-superseded GREEN claim is '184 passed / 0 failed, both runtimes'; the cited evidence artifacts hold 205 passed / 0 failed. The 2026-08-24 CONFIRMATION-PANEL addendum re-points only red_evidence and leaves the 184 figure standing as current, and round 2 explicitly declined to touch the contract on the reasoning that its cited paths 'were not content-pinned' -- which sidesteps that the comment itself is a content claim about the GREEN check. The contract is the machine-readable verification record for the gate; its narrative about the required unit-tests/acceptance-tests checks is off by 21 assertions with no supersession note (the report and traceability.log both carry the corrected 205/0, so the contract is the sole stale surface)."
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-003.md '### GREEN (fourth-round cross-model panel remediation, 2026-08-25)'",
+      "note": "The last '### GREEN' sub-section still self-labels as 'The current, authoritative capture for this task' at 219/0, and the '## Test Evidence' paragraph tells readers every count outside the LAST '### GREEN' sub-section is historical -- but the actually-current state (214/0 after RT-20260826-001 route (b)) lives in the later '## Route (b) Remediation' section, which is not a '### GREEN' sub-section. The supersession is explicit in prose ('supersedes every earlier section's current, authoritative 219/0 claims'), and every machine-consumed pointer (contract red/green evidence, focused-tests logs, traceability trailer, Outputs table) is consistent at 214/0 / 102-105, so no evidence is wrong -- but the stale 'authoritative' self-label recreates the exact navigation-staleness class this task has been cited for in prior rounds. Amend the 2026-08-25 GREEN block's label or add a '### GREEN' sub-heading inside the route (b) section."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-003.md 'Mutation Kills' sections; verification/qg/T-003/mutation-kill-evaluate-predicate-schema-error.log, mutation-kill-dsl-warn-unsorted-affected-components.log, mutation-kill-reversal1-evaluate-predicate-failure-after-warn.log",
-      "note": "All three retained mutation-kill artifacts the report cites as proof of discrimination are absent from the bundle; the 205->204/1, 201->199/2 and 201->200/1 kill counts are unverifiable here. Discrimination for these particular assertions is independently confirmable by reading the driver (exact-equality on the full Evidence document and on stderr), so this is evidential rather than substantive."
-    },
-    {
-      "severity": "Minor",
-      "ref": "verification/T-003/green-sh.log vs green-ps1.log; verification/qg/T-003/focused-tests-sh.log vs focused-tests-ps1.log (all four sha256 f312ed07..., 15280 bytes)",
-      "note": "The required `acceptance-tests` check's sole evidence (focused-tests-ps1.log) is byte-identical to the sh capture and carries no runtime marker, so the artifact cannot be attributed to the PowerShell runtime at all. For a task whose REQ-005 dual-runtime parity is a named obligation, the ps1 half of the evidence is indistinguishable from a duplicated sh run."
-    },
-    {
-      "severity": "Minor",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py, `_evaluate_capabilities`: `properties = projection_components.get(component_id, {})`",
-      "note": "An affected component returned by resolve-component-paths but absent from the Context Projection is silently evaluated against an empty properties document rather than Blocked, against decision v2 s19's governing 'ambiguous => Block' rule and design.md step 7's 'this affected component's Context-Projection entry'. Disclosed by the report as recorded-not-fixed; kept Minor because REQ-002's diagnostic enum is closed at sixteen values and no row covers this condition, so adding a Block would itself be spec drift."
-    },
-    {
-      "severity": "Minor",
-      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py, `_discover_registry`: `sys.path.insert(0, str(script_dir))`",
-      "note": "The script_dir prepend to sys.path is never restored (no try/finally, no importlib.util.spec_from_file_location), so any later stdlib-shadowing module in the deployed scripts directory would win import resolution for the rest of the process. Disclosed, unfixed across three rounds on a Security-Sensitive task."
-    },
-    {
-      "severity": "Minor",
-      "ref": "tests/resolve-project-context-block-check.py, `t003_resolver_argv(..., include_untracked=False)`",
-      "note": "The `include_untracked` parameter was added with a docstring stating it exists 'so a caller can exercise the SUPPLIED half of AC-004's own pass-through claim', but no call site in this driver ever passes True (only the definition and its own `if include_untracked` body reference it). The supplied-flag half of the AC-004 pass-through the report claims to have fixed is unexercised in this suite; the coverage it is deferred to (T-005's match suite) is not in this bundle."
-    },
-    {
-      "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log (header)",
-      "note": "The log's header still describes itself as 're-run at current HEAD (217710a2 + this pass's own uncommitted cycle-3 cross-model panel remediation diff)' while its body now carries the round-2 full run-all sweep. Same header-vs-body staleness class the round-2 pass closed in traceability.log, left open here."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json spec_revision vs T-003.evidence.json spec_revision",
+      "note": "The contract pins spec_revision 9ff491157cbd... (created 2026-08-19) while the evidence bundle records spec_revision c567550a0997.... The frozen documents were human-amended twice since contract creation (AC-056 exception d5701194; AC-016 scope b572fcd6), and the contract comment was re-recorded across at least six remediation passes without the spec_revision field ever being refreshed. If the framework convention is that the contract's spec_revision pins creation time, this is expected bookkeeping and task-state-check's PASS for 10 tasks corroborates it; the bundle alone cannot distinguish that convention from a stale pin, so this is recorded for the coordinator rather than asserted as a defect."
     }
   ],
   "blind": true,
-  "input_digest": "b1a2186afb38ccc3bc186f14ccacc110c65a757d25cedd78c9476fd2bc7ebf03",
-  "consent": {
-    "kind": "sudo",
-    "ref": "bundle header `# consent: sudo` in specs/epic-193-a5-capability-resolver/verification/T-003.panelist-input.txt; corroborated by tasks.md T-003 `Approval: Approved (sudo 2026-08-08T16:04:17Z)`"
-  }
+  "input_digest": "ab3589c71578a4b14816575ef00881bcbaf7a53c3e9438b61bd869ee705a9e9d",
+  "consent": { "kind": "human-flag", "ref": "tasks.md T-003 Cross-Model: enabled" }
 }
