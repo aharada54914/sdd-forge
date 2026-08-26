@@ -1,0 +1,71 @@
+HEADER: COMPENSATING GREEN CAPTURE for risk-adaptive-layer T-007, taken
+2026-08-26 against the CURRENT suites. This is NOT the original green: T-007
+was implemented and merged before the per-task SDD cycle was run for it (PR
+#16, merge 4a215ed, 2026-06-14), and the implementation report records that
+plainly. It is the pristine half of the compensating differential authorized
+by `docs/review-tickets/RT-20260826-002-waiver-t007-red-log.md`.
+
+Both runtimes are captured, because T-007's two controls each ship as a twin
+pair and a single-runtime differential would prove only half of the delivery.
+
+COMMAND (sh) : bash tests/gates.tests.sh                     (scratch clone)
+COMMAND (ps1): pwsh -NoProfile -File tests/scripts.tests.ps1 (same clone)
+EXIT (sh)  : 0
+EXIT (ps1) : 0
+DISTINCT T-007 ASSERTION IDS: 21 (sh) / 20 (ps1)
+
+--- sh: tests/gates.tests.sh ---
+=== T-007a: evidence bundle signing (critical risk) ===
+ok: T-007a.1a: generate-evidence-bundle succeeds for critical with key
+ok: T-007a.1b: critical bundle file created
+ok: T-007a.1c: critical bundle contains signature field
+ok: T-007a.1d: check-evidence-bundle passes on critical with matching key
+ok: T-007a.2: critical bundle without signature fails check
+ok: T-007a.3: tampered git_commit fails HMAC check
+ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails
+ok: T-007a.5: sigstore with SIGSTORE_VERIFIED env passes
+ok: T-007a.6: verify without key fails
+ok: T-007a.7: critical with dirty tree fails
+ok: T-007a.8: generate critical without key fails
+ok: T-007a.9: high-risk bundle without signature still passes
+ok: T-007a.10: legacy bundle without risk field still passes
+=== T-007b: Two-Person Approval (Critical Risk) ===
+ok: T-007b.1: critical Done without Second Approval fails with correct message
+ok: T-007b.2: critical Done with bare primary Approval fails (needs named)
+ok: T-007b.3: critical Done with same approver fails
+ok: T-007b.4: critical Done with sudo primary approver fails
+ok: T-007b.5: critical Done with alice + bob passes two-person rule
+ok: T-007b.6: non-critical Done without Second Approval passes (no enforcement)
+ok: T-007b.7: named Approval format accepted (not invalid)
+ok: T-007b.8: sudo Approval format still accepted (backward compat)
+
+====== Test Summary ======
+PASS: 161
+FAIL: 0
+==========================
+
+--- ps1: tests/scripts.tests.ps1 ---
+ok: T-007a.1a: generate-evidence-bundle succeeds for critical with key
+ok: T-007a.1b: critical bundle file created
+ok: T-007a.1c: critical bundle contains signature field
+ok: T-007a.1d: check-evidence-bundle passes on critical with matching key
+ok: T-007a.2: critical bundle without signature fails check
+ok: T-007a.3: tampered git_commit fails HMAC check
+ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails
+ok: T-007a.5: sigstore with SIGSTORE_VERIFIED env passes
+ok: T-007a.6: verify without key fails
+ok: T-007a.7: critical with dirty tree fails
+ok: T-007a.8: generate critical without key fails
+ok: T-007a.9: high-risk bundle without signature still passes
+ok: T-007a.10: legacy bundle without risk field still passes
+ok: T-007b.1: critical Done without Second Approval fails with correct message
+ok: T-007b.2: critical Done with bare primary Approval fails (needs named)
+ok: T-007b.2b/2c: full copyable diagnostic intact on both twins
+ok: T-007b.3: critical Done with same approver fails
+ok: T-007b.4: critical Done with sudo primary approver fails
+ok: T-007b.5: named Approval format accepted
+ok: T-007b.6: sudo Approval format still accepted (backward compat)
+
+(the ps1 harness reports a single aggregate line rather than a PASS/FAIL
+summary block; its exit code is the verdict, and it aborts on the first failed
+assertion rather than tallying.)
