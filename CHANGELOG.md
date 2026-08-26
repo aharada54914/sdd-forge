@@ -46,9 +46,12 @@ Critical 是正で enum 判定を hash-safe 化（isinstance-str ガード）し
 openai Major 是正で step 4 に重複 component id 拒否を追加し
 `affected-component-duplicate-ids` を新設。round 5 の openai Major
 是正で context_binding の型検査を field access 前に追加し
-`resolve-component-paths-binding-not-object` を新設。block suite
-は両ランタイム 244/0、red-baseline-recaptured-v10 は 108 passed /
-129 failed）
+`resolve-component-paths-binding-not-object` を新設。gate cycle 10 の
+Major 是正で pass-2 projection の型検証を追加（projection stub の
+json-wrong-type / json-components-wrong-type サブケース、新規 dir
+なし）。block suite
+は両ランタイム 256/0、red-baseline-recaptured-v11 は 112 passed /
+137 failed）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
   `registry-discovery-unimportable` / `registry-validation-failed` /
@@ -57,7 +60,7 @@ openai Major 是正で step 4 に重複 component id 拒否を追加し
   `dsl-warn-on-matched-capability` ×3 fixture ほか — この列挙は初期世代の
   抜粋であり、確定的な全列挙は
   `tests/resolve-project-context-block-check.py` の `run_t003_case`
-  case tuple（19 エントリ）が権威）を追加。
+  case tuple（20 エントリ）が権威）を追加。
   **訂正 (2026-08-23, cross-model panel remediation)**: この項目が
   以前記載していた「5 診断行・6 invocation・sh/ps1 とも 102 passed /
   0 failed」は、この共有ドライバが後続タスク（T-004 の steps 10-13、
@@ -66,7 +69,7 @@ openai Major 是正で step 4 に重複 component id 拒否を追加し
   再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
   同一ファイルに同居するため、
   スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
-  すぐ陳腐化する — T-003 自身の寄与分（上記 19 fixture）
+  すぐ陳腐化する — T-003 自身の寄与分（上記 20 fixture）
   のみをここでは確定的に記載し、スイート全体の現在合計は
   `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
   「Cross-Model Panel Remediation」節、および

@@ -1,3 +1,19 @@
+# mutation-kill: pass-2 projection type validation (gate cycle-10 Major)
+# Captured 2026-08-26 BEFORE the wrong-type Block, against the then-current
+# staged resolver (499efaf0...): the two new projection stub modes show
+# (a) json-wrong-type (a zero-exit, parseable bare-string projection)
+# crashing parsed_projection.get with an uncaught AttributeError -- raw
+# traceback, no Block, no Resolver Evidence -- and (b)
+# json-components-wrong-type (an object whose components is an ARRAY)
+# sailing past step 3 entirely and surfacing later as a misattributed
+# affected-component-resolution-failed with a step-4 subprocess having run.
+# Suite 250 passed / 6 failed. After the type validation the identical
+# suite is 256 passed / 0 failed (green-{sh,ps1}.log), with both cases
+# Blocking at step 3 under the canonical projection sentence and no
+# step-4-or-later subprocess -- the mutation is killed. This closes the
+# cycle-10 refutation of the round-5 "last unguarded access" sweep claim;
+# the corrected claim lives in the contract comment.
+# Full pre-fix capture (bash runtime):
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
@@ -70,17 +86,17 @@ PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
 PASS: projection-dependency-output-malformed: no partial live artifact
 PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
 PASS: projection-output-not-object: exit 1
-PASS: projection-output-not-object: canonical diagnostic only
-PASS: projection-output-not-object: exact Resolver Evidence
-PASS: projection-output-not-object: Resolver Evidence schema agreement
+FAIL: projection-output-not-object: canonical diagnostic only: stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-ywu0iz9s/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1851, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-ywu0iz9s/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1604, in main\n    projection_components = parsed_projection.get("components", {})\n                            ^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+FAIL: projection-output-not-object: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-projection-ywu0iz9s/specs/example-feature/resolver-evidence.yaml'
+FAIL: projection-output-not-object: Resolver Evidence schema agreement: evidence absent
 PASS: projection-output-not-object: no partial live artifact
 PASS: projection-output-not-object: no step-4-or-later subprocess
 PASS: projection-components-not-object: exit 1
-PASS: projection-components-not-object: canonical diagnostic only
-PASS: projection-components-not-object: exact Resolver Evidence
+FAIL: projection-components-not-object: canonical diagnostic only: stdout='' stderr='capability-resolver: affected-component-resolution-failed: resolve-component-paths exited 91 resolving sdd/project-context.yaml; see resolve-component-paths diagnostics\n'
+FAIL: projection-components-not-object: exact Resolver Evidence: {'capability_evaluations': [], 'diagnostics': [{'detail': 'resolve-component-paths exited 91 resolving sdd/project-context.yaml; see resolve-component-paths diagnostics', 'id': 'affected-component-resolution-failed', 'severity': 'block'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 PASS: projection-components-not-object: Resolver Evidence schema agreement
 PASS: projection-components-not-object: no partial live artifact
-PASS: projection-components-not-object: no step-4-or-later subprocess
+FAIL: projection-components-not-object: no step-4-or-later subprocess
 PASS: affected-component-resolution-failed: exit 1
 PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
 PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
@@ -255,4 +271,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 256 passed, 0 failed
+RESULT: 250 passed, 6 failed

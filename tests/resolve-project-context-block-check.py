@@ -317,6 +317,29 @@ PROJECTION_BLOCK_CASES = (
         "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection",
         "advisory",
     ),
+    # Gate cycle-10 Major: a zero-exit, PARSEABLE canonicalizer payload of
+    # the wrong TYPE (non-object projection; object with a non-object
+    # `components`) escaped the parse-level checks and crashed the later
+    # field accesses (`parsed_projection.get`, `projection_components[...]`)
+    # with uncaught AttributeError/TypeError instead of the canonical
+    # Block. Wrong-typed output IS malformed canonicalizer output -- same
+    # Block row, same canonical sentence as the unparseable case.
+    (
+        "projection-output-not-object",
+        "omits-components",
+        "json-wrong-type",
+        "dependency-output-malformed",
+        "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection",
+        "advisory",
+    ),
+    (
+        "projection-components-not-object",
+        "omits-components",
+        "json-components-wrong-type",
+        "dependency-output-malformed",
+        "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection",
+        "advisory",
+    ),
 )
 
 ALL_CASE_NAMES = (

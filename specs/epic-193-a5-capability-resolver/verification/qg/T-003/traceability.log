@@ -309,3 +309,12 @@ driver's case tuple remains the authoritative list at twenty entries):
   bash tests/resolve-project-context-block.tests.sh   -> 244 passed, 0 failed
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 244 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V8: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 244 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE GATE CYCLE-10 MAJOR CLOSURE (2026-08-26,
+pass-2 projection type validation; two new projection stub sub-cases
+projection-output-not-object / projection-components-not-object --
+sub-cases of the existing projection fixture family, no new fixture
+directory: T-003's own directory census stays TWENTY):
+  bash tests/resolve-project-context-block.tests.sh   -> 256 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 256 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V9: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 256 passed, 0 failed"

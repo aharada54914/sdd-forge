@@ -656,3 +656,25 @@ no new failing suite, none this feature's own.
 regression: passes=true for this diff's own attributable effect,
 measured against the post-round-5 tree (staged resolver 499efaf0...,
 v10 red baseline 108/129 both runtimes).
+
+TWELFTH-ROUND CAPTURE (2026-08-26, gate cycle-10 Major closure):
+pass-2 projection type validation (two new projection stub sub-cases;
+the cycle-10 evaluator's sweep refuted the round-5 last-unguarded
+claim and this closes the refutation). Focused suites, current tree,
+post-fix:
+  bash tests/resolve-project-context-block.tests.sh        -> RESULT: 256 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 256 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh        -> RESULT: 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> RESULT: 125 passed, 0 failed
+Full run-all (tests/run-all.sh), unpiped, fresh post-fix sweep,
+EXIT:1, trailing enumeration:
+  4 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+Byte-identical to every route-(a) capture: no new failing suite, none
+this feature's own.
+regression: passes=true for this diff's own attributable effect,
+measured against the post-cycle-10 tree (staged resolver ea3adf29...,
+v11 red baseline 112/137 both runtimes).

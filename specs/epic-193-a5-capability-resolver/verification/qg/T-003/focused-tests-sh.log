@@ -69,6 +69,18 @@ PASS: projection-dependency-output-malformed: exact Resolver Evidence
 PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
 PASS: projection-dependency-output-malformed: no partial live artifact
 PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-output-not-object: exit 1
+PASS: projection-output-not-object: canonical diagnostic only
+PASS: projection-output-not-object: exact Resolver Evidence
+PASS: projection-output-not-object: Resolver Evidence schema agreement
+PASS: projection-output-not-object: no partial live artifact
+PASS: projection-output-not-object: no step-4-or-later subprocess
+PASS: projection-components-not-object: exit 1
+PASS: projection-components-not-object: canonical diagnostic only
+PASS: projection-components-not-object: exact Resolver Evidence
+PASS: projection-components-not-object: Resolver Evidence schema agreement
+PASS: projection-components-not-object: no partial live artifact
+PASS: projection-components-not-object: no step-4-or-later subprocess
 PASS: affected-component-resolution-failed: exit 1
 PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
 PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
@@ -243,4 +255,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 244 passed, 0 failed
+RESULT: 256 passed, 0 failed

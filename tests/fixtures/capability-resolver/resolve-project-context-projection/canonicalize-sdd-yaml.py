@@ -16,6 +16,17 @@ behaves per SDD_T002_PROJECTION_MODE:
   passthrough   delegate to the real canonicalizer (success path)
   json-fail     exit non-zero  -> canonicalizer-invocation-failed
   json-garbage  exit 0, unparseable stdout -> dependency-output-malformed
+  json-wrong-type
+                exit 0, VALID JSON of the wrong type (a bare string) ->
+                dependency-output-malformed (gate cycle-10 Major: the
+                wrong-typed zero-exit payload previously escaped the
+                parse checks and crashed the later `.get` with an
+                uncaught AttributeError)
+  json-components-wrong-type
+                exit 0, valid JSON object whose `components` is an
+                ARRAY -> dependency-output-malformed (same Major, the
+                sibling container class: crashed later subscripting
+                with uncaught TypeError)
 
 The two failure modes emit an `UPSTREAM_SECRET` marker so the caller can
 assert M8 (upstream stderr is never copied into the Resolver's own
@@ -74,6 +85,12 @@ def main():
         return 27
     if mode == "json-garbage":
         sys.stdout.write("UPSTREAM_SECRET:not-json")
+        return 0
+    if mode == "json-wrong-type":
+        sys.stdout.write('"UPSTREAM_SECRET-wrong-type"')
+        return 0
+    if mode == "json-components-wrong-type":
+        sys.stdout.write('{"schema": "sdd-context-projection/v1", "components": ["UPSTREAM_SECRET"]}')
         return 0
     sys.stderr.write("stub: SDD_T002_PROJECTION_MODE unset or unknown\n")
     return 90

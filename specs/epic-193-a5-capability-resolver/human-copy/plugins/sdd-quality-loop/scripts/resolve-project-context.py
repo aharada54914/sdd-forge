@@ -1601,7 +1601,27 @@ def main(argv=None):
 
     script_dir = Path(__file__).resolve().parent
     repo_relative_config = _repo_relative(absolute_config, repo_root)
-    projection_components = parsed_projection.get("components", {})
+    # The pass-2 canonicalizer's stdout is untrusted dependency output
+    # exactly like pass 1's (security-spec B1 names both passes): a
+    # zero-exit, PARSEABLE payload of the wrong TYPE (non-object
+    # projection, or an object whose `components` is not an object)
+    # previously escaped the parse-level checks and crashed the later
+    # field accesses (`.get` here; subscripting inside
+    # `_evaluate_capabilities`) with an uncaught AttributeError/TypeError
+    # instead of the canonical Block (gate cycle-10 Major; projection
+    # stub modes json-wrong-type / json-components-wrong-type).
+    # Wrong-typed output IS malformed canonicalizer output -- same Block
+    # row, same canonical sentence as the unparseable case.
+    projection_components = (
+        parsed_projection.get("components", {})
+        if isinstance(parsed_projection, dict)
+        else None
+    )
+    if not isinstance(projection_components, dict):
+        return _block(
+            repo_root, args.feature, "dependency-output-malformed",
+            "canonicalize-sdd-yaml returned malformed JSON while canonicalizing context projection", state,
+        )
 
     # Step 4: affected-component resolution (Epic A3).
     try:
