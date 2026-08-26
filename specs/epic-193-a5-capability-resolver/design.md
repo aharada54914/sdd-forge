@@ -96,6 +96,13 @@ facet-name-uniqueness rule requires.
                     │  → registry_digest --whole       │    digest (B8 TOCTOU)
                     └──────────────┬───────────────┘
                                    │
+                    ┌──────────────┴───────────────┐
+                    │ step 6.5: Registry re-read    │ ── ruling C(1):
+                    │  vs step-5 snapshot digest    │    detection-only;
+                    │  mismatch → snapshot-          │    closes the
+                    │  generation-mismatch Block    │    unbound-reads
+                    └──────────────┬───────────────┘    window (AC-057)
+                                   │
       for each Registry capability (declaration order) ×
       each affected_component (ascending lexicographic order),
       no short-circuit — every evaluation is performed and recorded,
@@ -921,6 +928,23 @@ any individual combination's own result):
    predicate`'s own equivalent case). A zero exit whose stdout is not a
    well-formed `sha256:<64-hex>` digest string → `dependency-output-
    malformed` Block (B3).
+6.5. **Detection-only Registry recheck (ruling C(1), human-approved
+   2026-08-26 — the Data Plan's sanctioned third recheck; AC-057).**
+   Immediately after steps 5-6's two dependency invocations
+   (`validate-capability-registry`, `generate-registry-digest --whole`)
+   complete — each of which independently re-discovers and re-reads the
+   Registry with no binding to this invocation's own step-5 read — this
+   invocation re-reads the identical `registry_path` and compares the
+   fresh bytes' digest against the raw-bytes digest retained at step 5's
+   own first read. Any difference, including the re-read itself failing
+   (at least as suspicious as a byte difference), → Block,
+   `snapshot-generation-mismatch` (REQ-002's amended second trigger
+   site) — before any step-7 evaluation result can come to depend on
+   unverified Registry bytes. Detection-only: this recheck cannot
+   observe what bytes the two subprocesses themselves read inside their
+   own processes (the Data Plan's honesty limitation), only that
+   `registry_path`'s bytes are unchanged across the window.
+
 7. **Per-component, per-Capability trigger evaluation — every Registry
    Capability, matched or not, evaluated in full (B2/B6).** For each
    Registry `capabilities[]` entry, **in Registry-declaration order**
@@ -1203,8 +1227,8 @@ any individual combination's own result):
 
 **Exit codes**: `0` = success (step 14's own transaction, including its
 own post-publication verification, completed with no earlier Block); `1`
-= any REQ-002 Block (the crash-recovery scan, steps 1, 2/3/6/7/8, 4, 5, 9,
-10, 12, 13, 14); `2` = CLI usage error (step 0) — fixed, three-way, matching
+= any REQ-002 Block (the crash-recovery scan, steps 1, 2/3/6/7/8, 4, 5,
+6.5, 9, 10, 12, 13, 14); `2` = CLI usage error (step 0) — fixed, three-way, matching
 this Epic set's own established "a fixed, small exit-code enum a caller
 can branch on without parsing stdout" convention (AC-013; Epic A4's `compare-
 facet-manifest-staleness`, investigation.md INV-004, uses the identical
@@ -1857,7 +1881,19 @@ independently invocable (AC-027):
    "warn"` entry appears alongside that different-id `severity: "block"`
    summary entry, with **no** same-id summary entry and no repeated
    `(id, detail)` pair (AC-056; Design Decisions, "`diagnostics[]`
-   warn/block cardinality", below, fixes the rule this fixture locks).
+   warn/block cardinality", below, fixes the rule this fixture locks);
+   plus the two ruling-C fixtures (human-approved 2026-08-26):
+   `registry-swapped-during-validation` (AC-057/TEST-057) — its
+   `generate-registry-digest` stub overwrites the discovered Registry in
+   place as a side effect of step 6's own dependency invocation, and the
+   step-6.5 recheck must Block `snapshot-generation-mismatch` with an
+   empty `capability_evaluations` array and no live artifact — and
+   `affected-component-absent-from-context` (AC-058/TEST-058) — its
+   `resolve-component-paths` stub returns a component id absent from the
+   fixture's own Context Projection alongside one present-and-valid id,
+   and step 7's entry check must Block `dependency-output-malformed`
+   BEFORE any predicate evaluation, never a defaulted-empty-properties
+   evaluation.
 3. `resolve-project-context-match` — the full match/no-match/conditional/
    WARN fixture matrix (REQ-006 items a-d, expanded per M10 "metamorphic
    completeness" below): a two-affected-component fixture where only one
@@ -2619,6 +2655,19 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   of scope** for this check: its purity is ADR-0020 item 6's own
   already-fixed guarantee, owned by Epic A2, and this feature neither
   re-verifies nor re-states it (requirements.md AC-025's own carve-out).
+- **Ruling C(2)'s absent-component fail-closed rule is itself a security
+  boundary (AC-058).** A dependency-returned `affected_components[]`
+  entry naming a component id absent from this invocation's own Context
+  Projection is a dependency result inconsistent with the canonical
+  Context it was derived against; steps (f)-(g) never evaluate such an
+  entry against an empty or defaulted properties document — the
+  inconsistency Blocks `dependency-output-malformed` before any
+  predicate evaluation of that entry. This closes the fail-open the
+  cross-model panel identified (a predicate silently evaluated against
+  `{}` can mask a broken affected-component-to-Context binding and
+  misclassify a Capability), and is the caller-facing counterpart of the
+  step-6.5 Registry recheck's generation-consistency posture (ruling
+  C(1), AC-057).
 - This feature's Resolver never writes to any `*.approval.json` sidecar,
   any `sdd/.approved-context/` anchor, or `guard-invariants.json` itself —
   it only *reads* `project-context.yaml`'s already-approved content via
