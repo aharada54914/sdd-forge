@@ -43,3 +43,17 @@ Exit: 0
 # staged resolver 220e2b01..., block driver 502495d1...):
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/capability-registry.json tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/project-context.yaml
+# route-(a) refresh (2026-08-26, rulings C(1)/C(2) human-approved, after
+# the RT-20260826-002 route (a) reimplementation; cross-model panel
+# finding closure — the prior entry's bytes were route (b)'s). Scope is
+# the route-(a) edited/added set derived from `git diff --name-status
+# 5dcacc8e~1..HEAD`: the staged resolver (now e2b6249b..., step 6.5
+# reinstated + AffectedComponentAbsentFromContext), the block driver
+# (a06cb73c...), all three registry-swapped-during-validation files, all
+# three affected-component-absent-from-context files, both
+# recheck-dependency-failed files, and the modified
+# dsl-warn-unsorted-affected-components context:
+Placeholder scan passed.
+Exit: 0
