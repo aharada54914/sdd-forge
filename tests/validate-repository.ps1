@@ -457,26 +457,46 @@ if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
     throw "ci-github.template.yml does not contain the required project-command replacement marker."
 }
 
-# Side-effecting skills must not be auto-invocable by the model.
-# Only the two entry commands and human-only utilities may appear in the
-# user-facing slash menu; every other skill must also set user-invocable: false.
+# Skill reachability contract (WFI-054). Every skill must have exactly one
+# reachable caller class:
+#   - the six user-facing entries: model-uninvocable (a human types them) and
+#     visible in the slash menu (no user-invocable: false);
+#   - every other skill: a ship/bootstrap-delegated stage, so it MUST be
+#     model-invocable (the delegating skill is the model executing its
+#     instructions) and MUST stay out of the menu (user-invocable: false).
+# The forbidden state is both flags together -- disable-model-invocation: true
+# with user-invocable: false refuses the model AND the human, which left
+# sixteen skills unreachable by anyone until 2026-08-25.
 $userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "domain-model")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
-    if ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
-        throw "Skill must set disable-model-invocation: true: $($skillFile.FullName)"
-    }
     if ($content -notmatch "(?m)^name:\s*(.+)$") {
         throw "Skill has no name: $($skillFile.FullName)"
     }
     $skillName = $Matches[1].Trim()
+    $hasDisableModelTrue = $content -match "(?m)^disable-model-invocation:\s*true$"
+    $hasDisableModelFalse = $content -match "(?m)^disable-model-invocation:\s*false$"
+    if (-not ($hasDisableModelTrue -or $hasDisableModelFalse)) {
+        throw "Skill must declare disable-model-invocation explicitly: $($skillFile.FullName)"
+    }
     $hasUserInvocableFalse = $content -match "(?m)^user-invocable:\s*false$"
+    if ($hasDisableModelTrue -and $hasUserInvocableFalse) {
+        throw "Unreachable skill (disable-model-invocation: true AND user-invocable: false refuses every caller, WFI-054): $($skillFile.FullName)"
+    }
     if ($skillName -in $userVisibleSkills) {
+        if (-not $hasDisableModelTrue) {
+            throw "User-facing entry skill must set disable-model-invocation: true: $($skillFile.FullName)"
+        }
         if ($hasUserInvocableFalse) {
             throw "User-facing skill must not set user-invocable: false: $($skillFile.FullName)"
         }
-    } elseif (-not $hasUserInvocableFalse) {
-        throw "Internal skill must set user-invocable: false: $($skillFile.FullName)"
+    } else {
+        if (-not $hasUserInvocableFalse) {
+            throw "Internal skill must set user-invocable: false: $($skillFile.FullName)"
+        }
+        if (-not $hasDisableModelFalse) {
+            throw "Internal skill must set disable-model-invocation: false (its only caller is the delegating skill the model executes, WFI-054): $($skillFile.FullName)"
+        }
     }
 }
 

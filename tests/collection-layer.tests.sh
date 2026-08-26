@@ -292,10 +292,19 @@ if [ -f "$SKILL" ]; then
     else
         fail "CL-012b: SKILL.md missing name frontmatter"
     fi
-    if grep -q "disable-model-invocation: true" "$SKILL"; then
-        ok "CL-012c: SKILL.md has disable-model-invocation: true"
+    # WFI-054: cross-model-verify is a ship-delegated stage; its caller is the
+    # model executing ship, so it must be model-invocable while staying out of
+    # the user-facing menu (user-invocable: false). Both flags true+false made
+    # it unreachable by anyone.
+    if grep -q "disable-model-invocation: false" "$SKILL"; then
+        ok "CL-012c: SKILL.md has disable-model-invocation: false (ship-delegated, WFI-054)"
     else
-        fail "CL-012c: SKILL.md missing disable-model-invocation: true"
+        fail "CL-012c: SKILL.md missing disable-model-invocation: false"
+    fi
+    if grep -q "user-invocable: false" "$SKILL"; then
+        ok "CL-012c2: SKILL.md keeps user-invocable: false (not a menu entry)"
+    else
+        fail "CL-012c2: SKILL.md missing user-invocable: false"
     fi
     if grep -q "blind" "$SKILL" && grep -q "parallel" "$SKILL"; then
         ok "CL-012d: SKILL.md mentions blind and parallel"
