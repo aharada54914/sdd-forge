@@ -772,7 +772,11 @@ own, exercised against this task's own already-authored code), REQ-002
 (share — five more of sixteen non-transactional diagnostic-id rows:
 `affected-component-resolution-failed`, `registry-validation-failed`,
 `contract-discovery-failed`, `dependency-subprocess-failed`,
-`dsl-warn-on-matched-capability`), REQ-004 (share — the per-Capability/
+`dsl-warn-on-matched-capability`; plus, rulings C(1)/C(2) human-approved
+2026-08-26: the step-6.5 mid-pipeline site of
+`snapshot-generation-mismatch` — the step-13 site remains T-004's own —
+and the absent-component sub-trigger of `dependency-output-malformed`),
+REQ-004 (share — the per-Capability/
 per-component evaluation records this task assembles are Resolver
 Evidence's own `capability_evaluations[].trigger_evaluations[]`/
 `conditional_facet_evaluations[]` content; final assembly into a written
@@ -950,7 +954,9 @@ Commit B (documentation):
   self-validation, the pre-publication recheck — T-004's own scope).
 - The remaining three non-transactional Block-diagnostic fixtures
   (`lite-check-source-undefined`, `output-schema-validation-failed`, the
-  first `snapshot-generation-mismatch` fixture — T-004's own) and the
+  first `snapshot-generation-mismatch` fixture (its step-13 site; the
+  step-6.5 site's own fixture is T-003's, ruling C(1)) — T-004's own)
+  and the
   four transactional-diagnostic fixtures (T-007's own).
 - The `resolve-project-context-match` suite (T-005's own), the CLI
   required-flag-matrix suite, the discovery-contract-reuse suite, and

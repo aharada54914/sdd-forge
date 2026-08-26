@@ -639,8 +639,20 @@ Data Entities:
   digest`, that exact already-computed digest value), **and** the
   `affected_components` set `resolve-component-paths` returned (NEW, B8
   correction, below), in memory as its own fixed snapshot, never
-  re-reading any of the three paths from disk again except for the two
-  rechecks below. Immediately before publication (step 13), this
+  re-reading any of the three paths from disk again except for the three
+  rechecks below. **First (step 6.5 — ruling C(1), human-approved
+  2026-08-26, sanctioning the detection recheck two independent
+  cross-model panels converged on): a detection-only Registry recheck
+  immediately after `validate-capability-registry` and
+  `generate-registry-digest --whole` complete. Neither dependency
+  accepts a path/bytes argument binding it to this invocation's own
+  step-5 read — each independently re-discovers and re-reads the
+  Registry — so this invocation re-reads the identical `registry_path`
+  and compares the fresh bytes' digest against the raw-bytes digest
+  retained at step 5's own first read; any difference, including the
+  re-read itself failing, Blocks `snapshot-generation-mismatch`
+  (REQ-002's amended second trigger site).** Immediately before
+  publication (step 13), this
   invocation re-reads the same three paths and re-invokes `resolve-
   component-paths` with the identical flags a second time — **now for
   both a fresh `ownership_digest` and a fresh `affected_components` set**
@@ -917,7 +929,11 @@ any individual combination's own result):
    (or, when `affected_components` is the empty array, the zero-iteration
    case — M9 correction, below), invoke `evaluate-predicate --predicate
    <this capability's trigger> --component-properties <this affected
-   component's Context-Projection entry>`. A `PREDICATE_SCHEMA_ERROR`
+   component's Context-Projection entry>`. **An `affected_components[]`
+   entry naming a component id absent from the Context Projection Blocks
+   `dependency-output-malformed` before any predicate evaluation of that
+   entry — never a defaulted-empty-properties evaluation (ruling C(2),
+   human-approved 2026-08-26; REQ-002's amended row).** A `PREDICATE_SCHEMA_ERROR`
    exit here (a malformed predicate — should never occur against an
    already-`validate-capability-registry`-passed Registry, but checked
    defensively) → `registry-validation-failed` Block (a malformed
@@ -1537,7 +1553,8 @@ widened), `lite-check-source-undefined`, `output-schema-validation-failed`
 contract" step-12 cross-reference, above, for the self-referential
 no-write exception), `snapshot-generation-mismatch` (B8, revised — now
 also fires on an `affected_components` set mismatch, not only a digest
-mismatch), `artifact-publication-failed` (B1/B3, revised — journal-based
+mismatch; and at the step-6.5 mid-pipeline Registry recheck, ruling
+C(1)), `artifact-publication-failed` (B1/B3, revised — journal-based
 rollback, never a bare `unlink`), `post-publication-generation-mismatch`
 (B8, NEW). This schema's own `capability_evaluations[]`/`trigger_
 evaluations[]`/`conditional_facet_evaluations[]`/`evaluations[]` arrays
@@ -2305,7 +2322,8 @@ behind, violating AC-011's own "never a partial artifact" rule. A Block
 reached only **after** this invocation has already staged the Context
 Projection and/or the Facet Manifest/Capability Summary in memory —
 `lite-check-source-undefined` (step 10b), `output-schema-validation-
-failed` (step 12), `snapshot-generation-mismatch` (step 13) — therefore
+failed` (step 12), `snapshot-generation-mismatch` (steps 6.5 and 13,
+ruling C(1)) — therefore
 still leaves no earlier-staged artifact at any live path at all; this
 staged-generation/journaled-publication lock is additive to, and
 structurally subsumes, AC-011's own narrower per-path statement
