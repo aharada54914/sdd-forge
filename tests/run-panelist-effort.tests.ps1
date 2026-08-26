@@ -145,7 +145,7 @@ $specRoot = Join-Path $work "specroot"
 Reset-StubState
 Invoke-RunGpt @("--task", "T-035", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.2-codex", "--effort", "high", "--digest", $zeroDigest)
-if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "--model openai/gpt-5.2-codex --effort high --no-project-doc")) {
+if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "exec --model openai/gpt-5.2-codex --effort high -c project_doc_max_bytes=0")) {
     Ok "TEST-035: -Effort is forwarded into the assembled codex argv, positioned after -Model"
 } else {
     Fail "TEST-035: -Effort was not forwarded correctly into the codex argv -- $(Get-ArgvFlat)"
@@ -154,7 +154,7 @@ if ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "--model open
 Reset-StubState
 Invoke-RunGpt @("--task", "T-035b", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
     "--model", "openai/gpt-5.2-codex", "--digest", $zeroDigest)
-if ((Get-ArgvFlat) -ceq "--model openai/gpt-5.2-codex --no-project-doc") {
+if ((Get-ArgvFlat) -ceq "exec --model openai/gpt-5.2-codex -c project_doc_max_bytes=0") {
     Ok "TEST-035: omitting -Effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)"
 } else {
     Fail "TEST-035: omitting -Effort changed the codex argv shape -- got: $(Get-ArgvFlat)"
@@ -241,7 +241,7 @@ foreach ($pair in @(@{ Role = "sdd-evaluator"; Toml = $evaluatorToml }, @{ Role 
     Reset-StubState
     Invoke-RunGpt @("--task", "T-037-$($pair.Role)", "--feature", "stub-feat", "--input", $inputFile, "--spec-root", $specRoot,
         "--model", $selModel, "--effort", $selEffort, "--digest", $zeroDigest)
-    if (-not ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "--model $selModel --effort $selEffort --no-project-doc"))) {
+    if (-not ((Test-Path -LiteralPath $markerFile) -and ((Get-ArgvFlat) -ceq "exec --model $selModel --effort $selEffort -c project_doc_max_bytes=0"))) {
         $test037Ok = $false
     }
 }

@@ -124,7 +124,7 @@ SPEC_ROOT="$TMP/specroot"
 reset_stub_state
 run_gpt --task T-035 --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
   --model openai/gpt-5.2-codex --effort high --digest "$ZERO_DIGEST" >/dev/null
-if [[ -f "$MARKER_FILE" ]] && [[ "$(argv_flat)" == "--model openai/gpt-5.2-codex --effort high --no-project-doc" ]]; then
+if [[ -f "$MARKER_FILE" ]] && [[ "$(argv_flat)" == "exec --model openai/gpt-5.2-codex --effort high -c project_doc_max_bytes=0" ]]; then
   ok "TEST-035: --effort <e> is forwarded into the assembled codex argv, positioned after --model"
 else
   bad "TEST-035: --effort was not forwarded correctly into the codex argv -- $(argv_flat)"
@@ -133,7 +133,7 @@ fi
 reset_stub_state
 run_gpt --task T-035b --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
   --model openai/gpt-5.2-codex --digest "$ZERO_DIGEST" >/dev/null
-GOLDEN_ARGV="$(printf -- '--model\nopenai/gpt-5.2-codex\n--no-project-doc\n')"
+GOLDEN_ARGV="$(printf -- 'exec\n--model\nopenai/gpt-5.2-codex\n-c\nproject_doc_max_bytes=0\n')"
 ACTUAL_ARGV="$(cat "$ARGV_FILE")"
 if [[ "$ACTUAL_ARGV" == "$GOLDEN_ARGV" ]]; then
   ok "TEST-035: omitting --effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)"
@@ -233,7 +233,7 @@ for pair in "sdd-evaluator:$EVALUATOR_TOML" "sdd-investigator:$INVESTIGATOR_TOML
   run_gpt --task "T-037-$role" --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
     --model "$sel_model" --effort "$sel_effort" --digest "$ZERO_DIGEST" >/dev/null
   if ! ([[ -f "$MARKER_FILE" ]] \
-    && [[ "$(argv_flat)" == "--model $sel_model --effort $sel_effort --no-project-doc" ]]); then
+    && [[ "$(argv_flat)" == "exec --model $sel_model --effort $sel_effort -c project_doc_max_bytes=0" ]]); then
     test037_ok=0
   fi
 done
