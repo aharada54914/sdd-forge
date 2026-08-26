@@ -257,6 +257,13 @@ fixture):
   bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V4: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-3 CLOSURE (2026-08-26,
+evidenceNode field-validation strengthening; the nested fixture's
+payload now exercises the missing-required-field class):
+  bash tests/resolve-project-context-block.tests.sh   -> 229 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 229 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V5: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 229 passed, 0 failed"
 CENSUS CORRECTION (2026-08-26, gate cycle 6): T-003's own fixture
 enumeration is now SEVENTEEN. The authoritative list is
 run_t003_case's own case tuple in

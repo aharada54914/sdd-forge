@@ -578,24 +578,52 @@ def _invoke_evaluate_predicate(script_dir, predicate_name, properties_name):
     return parsed["result"], parsed["evidence"]
 
 
+_EVIDENCE_NODE_KEYS = frozenset(("operator", "path", "outcome", "reason", "children"))
+_EVIDENCE_NODE_OPERATORS = frozenset(
+    ("all", "any", "not", "equals", "not_equals", "contains", "in", "exists")
+)
+_EVIDENCE_NODE_OUTCOMES = frozenset(("match", "no-match", "warn"))
+
+
 def _evidence_tree_well_formed(nodes):
-    """Recursive shape validation of an evaluate-predicate Evidence tree:
-    `nodes` must be a list whose every element, at EVERY depth, is an
-    object, and every present non-null `children` value must itself be a
-    well-formed subtree. The step-7 shape check previously validated only
-    the top-level elements while `_iter_warn_nodes` recurses assuming
-    objects throughout -- a zero-exit payload with a malformed NESTED
-    child passed the check and crashed the warn scan with an uncaught
-    AttributeError instead of Blocking `dependency-output-malformed`
-    (route-(a) cross-model panel round-2 Major; fixture
-    `evaluate-predicate-output-malformed-nested`)."""
+    """Recursive validation of an evaluate-predicate Evidence tree against
+    the SAME node contract the published Resolver Evidence embeds it under
+    (contracts/resolver-evidence.schema.json #/definitions/evidenceNode):
+    `nodes` must be a list; every element at EVERY depth must be an object
+    with no keys beyond the contract's five, a required enum-valid
+    `operator`, a required string-or-null `path`, a required enum-valid
+    `outcome` (with `reason` a string, mandatory when `outcome` is
+    "warn"), and a `children` value that -- when present -- is itself a
+    well-formed subtree (null children are rejected: the contract types
+    children as an array). History: the original step-7 check validated
+    only top-level object-ness (round-2 panel Major: a nested bare string
+    crashed `_iter_warn_nodes` with an uncaught AttributeError); the
+    structural-only recursion that fixed it still accepted field-invalid
+    nodes, which then flowed into the published Evidence and were
+    MISATTRIBUTED downstream as `output-schema-validation-failed` at the
+    step-12 self-validation instead of Blocking
+    `dependency-output-malformed` at their upstream source (round-3 panel
+    Major; fixture `evaluate-predicate-output-malformed-nested`)."""
     if not isinstance(nodes, list):
         return False
     for node in nodes:
         if not isinstance(node, dict):
             return False
-        children = node.get("children")
-        if children is not None and not _evidence_tree_well_formed(children):
+        if not set(node) <= _EVIDENCE_NODE_KEYS:
+            return False
+        if node.get("operator") not in _EVIDENCE_NODE_OPERATORS:
+            return False
+        if "path" not in node or not (
+            node["path"] is None or isinstance(node["path"], str)
+        ):
+            return False
+        if node.get("outcome") not in _EVIDENCE_NODE_OUTCOMES:
+            return False
+        if "reason" in node and not isinstance(node["reason"], str):
+            return False
+        if node["outcome"] == "warn" and not isinstance(node.get("reason"), str):
+            return False
+        if "children" in node and not _evidence_tree_well_formed(node["children"]):
             return False
     return True
 

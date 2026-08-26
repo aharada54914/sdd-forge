@@ -66,3 +66,12 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # fixture directory:
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/fixtures/capability-resolver/resolve-project-context-block/evaluate-predicate-output-malformed-nested/evaluate-predicate.py
+# route-(a) panel round-3 closure (2026-08-26): re-scanned after the
+# evidenceNode field-validation strengthening -- the staged resolver
+# (now 61e19194..., _evidence_tree_well_formed mirrors the full
+# contract) and the nested fixture's updated stub (missing-required-
+# field payload):
+Placeholder scan passed.
+Exit: 0

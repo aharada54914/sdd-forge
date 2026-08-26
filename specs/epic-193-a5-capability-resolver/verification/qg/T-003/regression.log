@@ -567,3 +567,27 @@ either file, and the SIXTH-ROUND run-all enumeration (4 failing suites,
 none this feature's) remains the current repository-drift disclosure.
 regression: passes=true, measured against the post-fix tree (staged
 resolver f0fd20cf..., v6 red baseline 105/117 both runtimes).
+
+EIGHTH-ROUND CAPTURE (2026-08-26, route-(a) panel round-3 closure):
+the evidenceNode field-validation strengthening
+(_evidence_tree_well_formed mirrors the full contract; the nested
+fixture's payload now exercises the missing-required-field class).
+Focused suites, current tree, post-strengthening:
+  bash tests/resolve-project-context-block.tests.sh        -> RESULT: 229 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 229 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh        -> RESULT: 125 passed, 0 failed
+    (the REAL evaluate-predicate's output is contract-conformant --
+    zero collateral from the strengthened validation)
+Full run-all (tests/run-all.sh), unpiped, FRESH POST-FIX SWEEP (closing
+the round-3 anthropic Minor that the prior enumeration predated the
+fix), EXIT:1, trailing enumeration:
+  4 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+Byte-identical to the SIXTH-ROUND enumeration: no new failing suite,
+none this feature's own.
+regression: passes=true for this diff's own attributable effect,
+measured against the post-strengthening tree (staged resolver
+61e19194..., v7 red baseline 105/117 both runtimes).

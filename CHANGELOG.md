@@ -37,8 +37,11 @@ recheck を正式化して `registry-swapped-during-validation` を復帰、
 absent-component fail-closed の `affected-component-absent-from-context`
 を新設。同日 route-(a) cross-model panel round 2 の openai Major 是正で
 `evaluate-predicate-output-malformed-nested` を追加し、step-7 の
-evidence 形状検証を再帰化（`_evidence_tree_well_formed`）。block suite
-は両ランタイム 229/0、red-baseline-recaptured-v6 は 105 passed /
+evidence 形状検証を再帰化（`_evidence_tree_well_formed`）。round 3 の
+openai Major 是正で同検証を evidenceNode contract の鏡像へ強化
+（キー集合・enum・必須 path・warn→reason・children 配列限定）し、同
+fixture の payload を必須フィールド欠落の子へ更新。block suite
+は両ランタイム 229/0、red-baseline-recaptured-v7 は 105 passed /
 117 failed）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
