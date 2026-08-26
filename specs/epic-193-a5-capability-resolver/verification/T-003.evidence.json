@@ -3,10 +3,10 @@
   "feature": "epic-193-a5-capability-resolver",
   "risk": "high",
   "required_workflow": "tdd",
-  "spec_revision": "c567550a09972d1eac428455223f84139e33a99971be0f20c9228715738596c8",
+  "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-  "git_commit": "19047d99ab71923543cc7debfef88bc4d8fd8ca2",
+  "git_commit": "00dd27a4d3603fcf7c525a43cd4004b902c9ae01",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -23,25 +23,25 @@
     "verdict": "PASS",
     "critical": 0,
     "major": 0,
-    "minor": 3,
+    "minor": 1,
     "reviewer": "sdd-evaluator"
   },
   "artifacts": [
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-      "sha256": "77259cf0b6db26a2c47cc56efd77b7536678c2b97356269f15ff08fc090aaa3e"
+      "sha256": "aa4759890c2fda40e87c52d26dabcc6a608bbf3dc662b3e5eb5c4fbc8eb37a26"
     },
     {
       "path": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
-      "sha256": "372043754fc0234c2bfa6ce0cbfd02ac82b9c179d4a49df5b68d94345bd8250b"
+      "sha256": "d6c3336ee7539eea7cb0187af8207ffe8601a30192f3ce94f1b68a8e7b1bc7c6"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log",
-      "sha256": "c07f95f0dcc23f257b508ab434cc8de453c6cb9b4295e2bff6bd5f42b64f060a"
+      "sha256": "e3fc334ab38e9d1fbf01021d90dead3bc014aa2cadb6c9c6db8da323e8dc561f"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log",
-      "sha256": "24c25c40a720b61e5033e9500ef9256038075910e2a5ed386b560f8df2b457cb"
+      "sha256": "7f4edd50ec3bd8e7534e538687f831131ffa81a81d9bd22ce47b78c9f905aa39"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log",
@@ -57,7 +57,7 @@
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log",
-      "sha256": "051d4ed7634972f574b72353a925adcf83ea9932991c49812678fb77451338af"
+      "sha256": "2af5588b9304d3c22c3d49bf52735b3eef16b1440d773b9ae7e8b37300afe509"
     }
   ]
 }
