@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "impl-orch-epic-193-a5-capability-resolver-a4r2",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 4,
+  "legacy_design": false,
+  "feature_type": "cli",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "1de3fcd4f40a6eb80836a04599f540cb05b076e2588db6cb1fb601be300e86da",
+  "requirements_sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab",
+  "acceptance_sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99",
+  "design_sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69",
+  "layer_sha256": {
+    "ux-spec.md": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677",
+    "frontend-spec.md": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6",
+    "infra-spec.md": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d",
+    "security-spec.md": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a4r2-seq0797",
+      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a4r2-0797",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/precheck-result.json",
+          "sha256": "aaac2d0eaa557785cd13b0d401ffdfbcfc6dc91865e4cd7e4016747e4543098e"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a4r2-seq0798",
+      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a4r2-0798",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/design.md",
+          "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
+          "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
+          "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
+          "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+          "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/precheck-result.json",
+          "sha256": "aaac2d0eaa557785cd13b0d401ffdfbcfc6dc91865e4cd7e4016747e4543098e"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/integrated-summary.json",
+          "sha256": "9335ffe662367ca582eec1ed346833a275b471f6b00ca25896692904c750372a"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Round-1 DECISION-JUSTIFIED propagation fixes under standing human approval for rulings C(1)/C(2): design.md gained a numbered step-6.5 Processing-order paragraph, 6.5 in the exit-code enumeration, a step-6.5 Architecture diagram box, ruling-C fixture names (AC-057/AC-058) in Test Strategy item 2, and a Security Boundaries bullet for ruling C(2); security-spec.md B3 row now cites AC-057/AC-058 and dedicated TEST-057/TEST-058 rows were added (commit bb8b2371).",
+  "timestamp": "2026-08-26T15:16:30Z"
+}
