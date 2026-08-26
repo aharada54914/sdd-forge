@@ -6,7 +6,7 @@
   "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-  "git_commit": "d374d1053564821916f3d7ff68026f1c50072737",
+  "git_commit": "55e3c2c35f333e2f92677654be3a4bb6a12c3a0a",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -23,7 +23,7 @@
     "verdict": "PASS",
     "critical": 0,
     "major": 0,
-    "minor": 1,
+    "minor": 3,
     "reviewer": "sdd-evaluator"
   },
   "artifacts": [
@@ -33,7 +33,7 @@
     },
     {
       "path": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
-      "sha256": "d0c6f1cc005d48c433edf317e36c4815b3e22513a8fe0c9c45e150c4c60f998c"
+      "sha256": "eac32e3bb46dd231def999b1267c910e7e044e10db0007b1a144f8fb1a0584c4"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log",
