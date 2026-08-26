@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-003
 # feature: epic-193-a5-capability-resolver
-# input_digest: 564191e166a666dd5dad401b37b47ce3b82a3313e60a58208bf34c445460bdb2
+# input_digest: 6598d40c89fba145d756498bcc4444d917a932f5ca4bc5464a4aa352bb52b8c4
 # consent: human-flag
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -9136,7 +9136,7 @@ REQ-004.
   "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-  "git_commit": "00dd27a4d3603fcf7c525a43cd4004b902c9ae01",
+  "git_commit": "7ac1d235de8454cd51d15a17eb4bed7fbd272fb1",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -9175,11 +9175,11 @@ REQ-004.
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log",
-      "sha256": "a8ae4a11145459238056f7b0a69ceb1a7988efb92551bbf11bdb94c6c415ea2c"
+      "sha256": "f87d00f2937c2bcb9da4bbfbf411ce795bc816cdda0fb5ff75ddc911b0bd0891"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log",
-      "sha256": "fd863208c2dbffd0ebb2e718f69d646549368fe54acca05e769e7bd5f82063f5"
+      "sha256": "efe1629af3738660944d50799a3dae82532d72f06db4011695877a44c37b41ba"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log",
@@ -13388,6 +13388,45 @@ EXIT:1 with a trailing enumeration byte-identical to the section above
 repository is the enumeration, not the exit code, and the enumeration
 stands: identical to the pre-removal set, none this feature's suite.
 regression: passes=true, unchanged.
+
+================================================================
+SIXTH-ROUND CAPTURE (2026-08-26, route (a) re-gate, AUTHORITATIVE —
+supersedes the FIFTH-ROUND capture's own "authoritative" self-label)
+================================================================
+Captured after the RT-20260826-002 route (a) reimplementation (rulings
+C(1)/C(2), human-approved 2026-08-26): step 6.5 reinstated with spec
+sanction (AC-057), the absent-component fail-closed rule added (AC-058),
+the registry-swapped-during-validation and
+affected-component-absent-from-context fixtures present; block suite is
+now 224 assertions. This capture closes the cross-model panel finding
+that the FIFTH-ROUND capture (route (b), 214 assertions) was still
+being cited as the regression check's current evidence for route-(a)
+bytes.
+
+Focused suites, current tree:
+  bash tests/resolve-project-context-block.tests.sh        -> RESULT: 224 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 224 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh        -> RESULT: 125 passed, 0 failed
+  bash tests/resolver-evidence-schema.tests.sh             -> FAIL: 0
+  bash tests/run-panelist-effort.tests.sh                  -> ok: run-panelist-effort suite passed (28 checks)
+
+Full run-all (tests/run-all.sh), unpiped, EXIT:1, trailing enumeration:
+  4 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+This is a STRICT SUBSET of the fifth-round set: no new failing suite,
+and tests/repository-release-validation.tests.sh has left the set (a
+repository-level drift item resolved outside this feature). Exit 1 is
+the designed-red gate's correct beyond-baseline behavior, unchanged in
+kind from the fifth-round correction's analysis; the determination
+signal remains the enumeration, and none of the failing suites is this
+feature's own.
+
+regression: passes=true for this diff's own attributable effect,
+measured against the route-(a) tree (staged resolver e2b6249b..., block
+driver a06cb73c...).
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log ----
 $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
 Placeholder scan passed.
@@ -13432,6 +13471,20 @@ Exit: 0
 # gate-cycle-2 refresh (2026-08-26, after RT-20260826-001 route (b)
 # removal of step 6.5 and its fixture; same targets, current bytes:
 # staged resolver 220e2b01..., block driver 502495d1...):
+Placeholder scan passed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/capability-registry.json tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/project-context.yaml tests/fixtures/capability-resolver/resolve-project-context-block/recheck-dependency-failed/resolve-component-paths.py tests/fixtures/capability-resolver/resolve-project-context-block/dsl-warn-unsorted-affected-components/project-context.yaml
+# route-(a) refresh (2026-08-26, rulings C(1)/C(2) human-approved, after
+# the RT-20260826-002 route (a) reimplementation; cross-model panel
+# finding closure — the prior entry's bytes were route (b)'s). Scope is
+# the route-(a) edited/added set derived from `git diff --name-status
+# 5dcacc8e~1..HEAD`: the staged resolver (now e2b6249b..., step 6.5
+# reinstated + AffectedComponentAbsentFromContext), the block driver
+# (a06cb73c...), all three registry-swapped-during-validation files, all
+# three affected-component-absent-from-context files, both
+# recheck-dependency-failed files, and the modified
+# dsl-warn-unsorted-affected-components context:
 Placeholder scan passed.
 Exit: 0
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log ----
@@ -13821,7 +13874,7 @@ touched — this task only appends fixtures to the already-registered
 
 **Re-derived again 2026-08-26 (RT-20260826-001 route (b), human-approved)**: step 6.5 and the `registry-swapped-during-validation` fixture were removed; this table was re-derived in place against the current worktree — three deleted-fixture rows removed, every drifted row re-hashed, and the contract's current red evidence (`red-baseline-recaptured-v3-{sh,ps1}.log`, 102/105 both runtimes; suite green was then 214/0) added. The 2026-08-25 paragraph above and the historical sub-tables below describe earlier generations and are superseded by this derivation for current bytes.
 
-**Re-derived again 2026-08-26 (rulings C(1)/C(2), route (a), human-approved)**: derived from `git diff --name-status 5dcacc8e~1..HEAD` limited to this task's own trees (`CHANGELOG.md`, `tests/`, the staged human-copy scripts, and `verification/`), never by re-measuring existing rows alone. The route-(a) reimplementation reinstated step 6.5 with spec sanction (AC-057) and added the absent-component fail-closed rule (AC-058): the `registry-swapped-during-validation` and `affected-component-absent-from-context` fixture directories and the `recheck-dependency-failed` fixture files are added as rows, the v5 red baseline (104/113 both runtimes) replaces v3 as the contract's red evidence (v3 rows remain as history), the `run-panelist-effort` twin suites (repaired runner argv expectations) are added, and every drifted row (staged resolver, MANIFEST, contract, green/focused/traceability logs, block driver, two fixture contexts, CHANGELOG) is re-hashed from the current worktree. Suite green is now 224/0 both runtimes. The paragraphs above describe earlier generations; this derivation is authoritative for current bytes. Correction within this derivation (cycle-4 Minor): the `tests/run-all.{sh,ps1}` rows earlier generations carried are removed — `git diff --name-status 5dcacc8e~1..HEAD` shows both files byte-unchanged by this task, exactly as tasks.md's Done When requires, so declaring them as this task's outputs over-claimed.
+**Re-derived again 2026-08-26 (rulings C(1)/C(2), route (a), human-approved)**: derived from `git diff --name-status 5dcacc8e~1..HEAD` limited to this task's own trees (`CHANGELOG.md`, `tests/`, the staged human-copy scripts, and `verification/`), never by re-measuring existing rows alone. The route-(a) reimplementation reinstated step 6.5 with spec sanction (AC-057) and added the absent-component fail-closed rule (AC-058): the `registry-swapped-during-validation` and `affected-component-absent-from-context` fixture directories and the `recheck-dependency-failed` fixture files are added as rows, the v5 red baseline (104/113 both runtimes) replaces v3 as the contract's red evidence (v3 rows remain as history), the `run-panelist-effort` twin suites are added — a different feature's suite (epic-159-pillar-c T-006) sitting in this task's commit range because RT-20260826-002's panel execution exposed two defects in the panel-runner scripts themselves (codex `--no-project-doc` argv drift; async stdin loss; tracked as issue #359): the human applied the runner patches and commit 30ef72ca aligned the suite's own argv expectations with the repaired invocation so its CI registration stays green (28/0 both runtimes); declared here for commit-range honesty, not claimed as tasks.md Planned Files — and every drifted row (staged resolver, MANIFEST, contract, green/focused/traceability logs, block driver, two fixture contexts, CHANGELOG) is re-hashed from the current worktree. Suite green is now 224/0 both runtimes. The paragraphs above describe earlier generations; this derivation is authoritative for current bytes. Correction within this derivation (cycle-4 Minor): the `tests/run-all.{sh,ps1}` rows earlier generations carried are removed — `git diff --name-status 5dcacc8e~1..HEAD` shows both files byte-unchanged by this task, exactly as tasks.md's Done When requires, so declaring them as this task's outputs over-claimed.
 
 | Path | SHA-256 (current worktree, 2026-08-26) |
 |---|---|
@@ -15422,6 +15475,49 @@ approval (verbatim order and full evidence recorded in investigation.md
   of the attempt-9 rebind); `## Done When Self-Check` and `## Test
   Evidence` carry re-stated 2026-08-26 markers with the seven-fixture /
   224-of-224 counts.
+
+## Fifth-Round Cross-Model Panel Remediation (2026-08-26, route (a) panel)
+
+The fresh post-route-(a) blind panel's first round (bundle digest
+`564191e1…`) returned: **anthropic NEEDS_WORK** (2 Major, 1 Minor);
+**openai not collected** — the codex CLI rejected the runner-shaped
+stdin delivery outright (`input_too_large`: the combined prompt+bundle
+is 1,691,436 chars against codex's 1,048,576-char per-turn cap; the
+bundle roughly doubled since the route-(b) round, mostly CHANGELOG
+growth and the added route-(a) evidence). Closures, all executed this
+pass:
+
+1. `Major | Fixed` — `qg/T-003/placeholder-scan.log`'s latest capture
+   was route (b)'s (staged resolver `220e2b01…`). Re-scanned the
+   route-(a) edited/added set (staged resolver `e2b6249b…`, block
+   driver, both rulings-C fixture directories, both
+   recheck-dependency-failed files, the modified
+   dsl-warn-unsorted context): `Placeholder scan passed.`, exit 0,
+   appended as the log's route-(a) entry.
+2. `Major | Fixed` — `qg/T-003/regression.log`'s AUTHORITATIVE capture
+   was route (b)'s (214 assertions). A SIXTH-ROUND capture records the
+   route-(a) sweep: block 224/0 both runtimes, match 125/0,
+   resolver-evidence-schema FAIL:0, run-panelist-effort 28/0, and an
+   unpiped full run-all at EXIT:1 whose 4-suite trailing enumeration is
+   a STRICT SUBSET of the fifth-round set (no new failing suite;
+   repository-release-validation left the set independently of this
+   feature).
+3. `Minor | Fixed` — the Outputs derivation paragraph now states why
+   the `run-panelist-effort` twin suites (another feature's suite) sit
+   in this task's commit range (RT-20260826-002 exposed panel-runner
+   defects, issue #359; human-applied runner patches; commit 30ef72ca
+   aligned the suite's argv expectations; 28/0).
+
+**Collection-method deviation for the openai slot (recorded, not
+hidden)**: the runner's stdin delivery is structurally impossible at
+this bundle size (hard `input_too_large` rejection before any model
+turn), so the re-run panelist receives the runner's own verbatim prompt
+plus an instruction to READ the bundle file from disk itself —
+blindness and the digest binding are unchanged (the verdict still pins
+`input_digest` from the bundle header it reads); only the transport of
+the bundle bytes differs. The evidence bundle and panel bundle are
+regenerated after the closures above, so the re-run panel reviews a new
+digest that includes these very fixes.
 # ---- CHANGELOG.md (declared output) ----
 # Changelog
 
