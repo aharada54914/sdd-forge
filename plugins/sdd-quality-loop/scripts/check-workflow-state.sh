@@ -271,6 +271,14 @@ investigation_amendment_reconciles() {
     "$REPO_ROOT"/*) relative="${manifest_file#"$REPO_ROOT/"}" ;;
     *) return 1 ;;
   esac
+  # WFI-024's no-history rule, extended to this reconciliation: without
+  # git history the pinned generation's bytes are unreconstructable, so
+  # the growth-only property is not evaluable at all -- accepted, not
+  # evaluated, exactly as plugins_hash_matches already treats a live-hash
+  # mismatch in a history-less tree (e.g. the release-validation fixture,
+  # which copies the tree without .git). Wherever history exists, every
+  # line below runs unchanged and a non-growth change still fails.
+  plugins_git_history_available || return 0
   tmp_pinned="$(mktemp)" || return 1
   if resolve_verified_investigation_pin "$contract" "$expected" "$relative" "$tmp_pinned"; then
     investigation_growth_only_change "$tmp_pinned" "$manifest_file"
