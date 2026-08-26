@@ -10,16 +10,16 @@
     },
     {
       "vendor": "openai",
-      "model": "gpt-5.6",
-      "verdict": "NEEDS_WORK"
+      "model": "gpt-5.6-sol",
+      "verdict": "PASS"
     }
   ],
   "vendors_distinct": 2,
   "non_anthropic_count": 1,
-  "all_pass": false,
+  "all_pass": true,
   "any_critical": false,
   "evaluator_verdict": "PASS",
   "divergence": false,
   "requires_human_decision": false,
-  "result": "FAIL"
+  "result": "PASS"
 }
