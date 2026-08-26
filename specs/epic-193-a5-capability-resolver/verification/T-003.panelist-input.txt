@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-003
 # feature: epic-193-a5-capability-resolver
-# input_digest: 88bdfa60770d18b6f555d0a50ce4d4edebb1c7f7502609937d0104b456f085b9
+# input_digest: 4d285d806e5b407c8a14351ba859f4b8274f5e9125aeb3fe830afccbd49302b6
 # consent: human-flag
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -8948,7 +8948,7 @@ REQ-004.
   "stack": "shell",
   "spec_revision": "9ff491157cbdb28e0f5cbdcb9d0c29b70aca0f29d8bbde7ff2df20c1fdd62b8b",
   "created": "2026-08-19T04:40:38Z",
-  "comment": "Re-recorded 2026-08-23 (cross-model panel remediation, T-003 NEEDS_WORK cycle 2, both Critical findings): the PRIOR version of this comment argued the un-recaptured RED/GREEN pair was safe to trust because the live staged resolve-project-context.py was byte-identical to a stale hash -- that premise was independently falsified (the panel's own bundle already flagged the declared hash STALE against MANIFEST.sha256), so the pair has now been genuinely re-captured against the current tree rather than argued around. Current staged resolve-project-context.py sha256: cb9f050be3b7110b177fef061cb4af5a9b39724c37cd2f6c618a601c07728aa7 (specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256, regenerated via `shasum -a 256` from the human-copy root, 4/4 OK). GREEN: `bash tests/resolve-project-context-block.tests.sh` and `pwsh -File tests/resolve-project-context-block.tests.ps1` both reproduce 155 passed / 0 failed, exit 0 (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, byte-identical content). This 155 is the WHOLE shared driver's own total (tests/resolve-project-context-block-check.py now spans T-002's steps 0-3, T-003's steps 4-9 (11 fixtures / 55 assertions, run_t003_case -- ten from the prior cross-model round plus this round's own new validate-capability-registry-launch-failed), T-004's steps 10-13 (5 fixtures, run_t004_case -- four from the prior round plus this round's own new contract-discovery-failed-governing-schema), and a T-004-owned unit-style keyword check (draft7-validator-keywords, 4 assertions) -- never a T-003-only subset, since T-004 shares this identical driver file and steps 4-9 are T-004's own precondition. RED: reconstructed in a scratch `git clone --no-hardlinks` (never the live worktree) at commit 99b8ba76 (T-002-only, the direct parent of T-003's own e8ffc4c9 implementation commit), with the CURRENT test driver/fixtures overlaid on top (the same 'rewind only the production script' technique T-003's own original RED capture used, restated in e8ffc4c9's own commit message) -- 89 passed / 63 failed, exit 1. Every one of the 63 failures is confined to: this task's own 11 fixtures (55 assertions) failing because steps 4-9 do not exist yet at that commit (each fails on 'got 0' -- a clean exit instead of the expected Block -- never a Python traceback); T-004's own 5 fixtures (24 assertions) failing for the identical, structurally-necessary reason (steps 10-13 cannot run without steps 4-9); and the draft7-validator-keywords check (1 assertion; a defensive `hasattr` guard added this same pass reports this cleanly as 'T-004 step-12 self-validation absent from this staged snapshot' rather than crashing on an AttributeError, since `_draft7_conforms` is itself a T-004 addition). Every T-002-era assertion (the six steps-0-3 CASES, both PROJECTION_SOURCES, both PROJECTION_BLOCK_CASES, plus the two suite-registration checks) stays green at this commit, isolating the regression to exactly the code this task and its T-004 dependent add. No exception/traceback string appears anywhere in either RED log (grepped directly). requirement-traceability is a manual check (verification/qg/T-003/traceability.log) because this feature has no traceability.json, only traceability.md -- check-traceability.sh could not be invoked; REQ-001/002/004/005/006/008 confirmed present in requirements.md, AC-010..015/038 and TEST-010..015/038 confirmed present in acceptance-tests.md, and this task's own eleven fixtures confirmed implemented in tests/resolve-project-context-block-check.py's run_t003_case(). regression (verification/qg/T-003/regression.log) WAS re-run this pass: git diff --stat/status --short against plugins/ (empty, AC-032), git diff --check (clean), py_compile on the staged .py plus both extended test drivers (clean), the T-001 sibling resolver-evidence-schema suite as an incidental-breakage check (20/20 PASS, including its own independent 'not'-keyword fixture matched-false-with-conditional-facets.json, unaffected since T-003 does not edit contracts/resolver-evidence.schema.json), and human-copy/MANIFEST.sha256 self-verification from within the human-copy root (4/4 OK, all four entries, including the regenerated resolve-project-context.py hash above). Stack: shell waives lint/typecheck/build -- this task ships stdlib-only Python plus sh/ps1 dispatchers and no compile toolchain is configured for any of the three (tasks.md Global Constraints 'Stdlib-only Python'). check-component-coverage is correctly ABSENT from this contract's checks: RISK_TIERS['high'] names it, but check-contract.py's CAPABILITY_STATE_GATED_IDS drops it from the tier minimum whenever sdd/project-context.yaml does not exist in this repo -- confirmed absent here. task-state-check/check-workflow-state history (T-002's own prior evidence-bundle gap, the stage-provenance staleness) was resolved in an earlier pass (see this file's own prior comment, preserved in git history) and re-confirmed green in this pass's own final verification sweep. CYCLE-3 REMEDIATION ADDENDUM (2026-08-23, same day, a refreshed two-vendor panel on T-003/T-004): this comment's own '155 passed / 0 failed' / 'eleven fixtures' text above describes an earlier point-in-time capture, retained for historical continuity, not current evidence. This pass closed T-003's own Critical (this check's own evidence, verification/qg/T-003/traceability.log, regenerated -- it previously enumerated six fixtures, cited a nonexistent `CASE_NAMES` symbol, and claimed 102/0 against the adjacent 155/0 logs; now reads the current driver directly: ALL_CASE_NAMES line 276, run_t003_case line 437, thirteen fixtures, 184/0) plus two Majors: (1) `_evaluate_predicate`'s PREDICATE_SCHEMA_ERROR classification no longer keys on the hardcoded `returncode == 2` magic number (investigation.md fixes only the stderr token, never a specific exit code) -- reclassified via the identical stable-stderr-token technique step 6 already uses for `canonicalizer-failed`; new fixture `evaluate-predicate-schema-error` (a real, unmodified `evaluate-predicate` genuinely rejecting a Registry-declared trigger predicate whose field is outside its own ALLOWED_FIELDS -- no stub). (2) steps 7-8's own three abort handlers now forward `warn_diagnostics` already collected before the abort (checked directly against the frozen requirements.md:528 sentence, 'no other id ever carries severity: warn at all' -- forwarding does not collide, since every forwarded entry still carries the `dsl-warn-on-matched-capability` id, and only one id ever carries `severity: block`); new fixture `evaluate-predicate-failure-after-warn` (two Registry capabilities in declaration order, the first producing a genuine WARN, the second failing via a call-counting stub). Both new fixtures' own mutation kills confirmed in an isolated rsync scratch copy (never the live worktree): reverting the stderr-token check fails `evaluate-predicate-schema-error`'s own diagnostic/Evidence assertions (182/2); reverting the warn_diagnostics-forwarding kwargs fails `evaluate-predicate-failure-after-warn`'s own exact-Evidence assertion (183/1). Current staged resolve-project-context.py sha256: f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9 (human-copy/MANIFEST.sha256, 4/4 OK). GREEN re-confirmed: 184 passed / 0 failed, both runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, overwritten in place). RED re-confirmed in an isolated `git clone`-equivalent rsync scratch copy at the current committed HEAD (pre-this-pass resolve-project-context.py, current fixture set overlaid): 177 passed / 7 failed -- the 7 failures are exactly this pass's own new/changed assertions (evaluate-predicate-failure-after-warn's own exact-Evidence; the four contract-discovery-failed-governing-schema-wrong-version assertions and two -malformed assertions, both T-004-scope, see T-004.contract.json's own addendum), overwritten in place at verification/T-003/red-{sh,ps1}.log. Four T-003-scope fixtures the prior panel round flagged as present-on-disk-but-absent-from-the-bundle (resolve-component-paths-launch-failed, registry-discovery-unimportable, evaluate-predicate-output-malformed, dsl-warn-unsorted-affected-components -- all four confirmed real, committed content at 82f6dbf2) are now re-derived into T-003.md's own Outputs table from the full `git show --name-only` commit range rather than `git status --short`, which structurally cannot list a file a prior commit already staged.\n\nCONFIRMATION-PANEL REMEDIATION (2026-08-24, T-003/T-004 Major #1, both vendors agree): the red_evidence pointers above previously cited verification/T-003/red-{sh,ps1}.log, which the panel found holds a 177/7 DELTA run (only this pass's own steps-4-9 revert applied on top of otherwise-current HEAD; 12 of 13 T-003 fixtures PASS inside the artifact that exists to prove they can fail) -- the prior remediation wave overwrote the genuine full-scope rewind captures IN PLACE, against the explicit new-filenames instruction it was given. The two prior full-scope generations this comment used to describe (89 passed / 63 failed against parent 99b8ba76; 78 passed / 24 failed before that) were each likewise overwritten in place and are LOST -- no artifact for either survives anywhere in this bundle or this worktree's own git history. That loss is recorded here as a fact, not reconstructed. A genuine full-scope RED has been re-captured (identical technique: scratch clone, resolve-project-context.py alone reverted to commit 99b8ba76's own content, current driver/fixtures overlaid) and retained under the NEW, permanent filenames verification/T-003/red-baseline-{sh,ps1}.log (101 passed / 95 failed, every T-003/T-004-scope fixture genuinely failing, zero unexpected tracebacks, every T-002-scope fixture still passing) -- red_evidence now cites those files. The prior delta captures remain on disk unchanged at their original red-{sh,ps1}.log filenames (no longer cited as this check's own red_evidence) for anyone comparing this pass's own smaller steps-4-9-revert delta against the full-scope baseline. BOOKKEEPING-LAG REMEDIATION (2026-08-24, second confirmation-panel round, Anthropic v3 Critical + Major): closes the finding that the red_evidence pair above (red-baseline-{sh,ps1}.log) was captured by a test driver that predates this round -- it emits the old M8 assertion label ('canonical diagnostic only, no upstream stderr embedded (M8)') instead of the current B5 label ('canonical diagnostic line present and last on stderr (B5)'), and lacks the four 'dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)' assertions the current driver emits unconditionally; arithmetic corroborated the mismatch (red-baseline totals 101+95=196, not reconcilable against either the 205- or 206-assertion current driver). A genuine full-scope RED has been RE-recaptured this pass (identical technique: git clone --no-hardlinks scratch copy, resolve-project-context.py alone reverted via 'git checkout 99b8ba76 --' to commit 99b8ba76's own content -- T-002-only, the direct parent of T-003's own e8ffc4c9 implementation commit -- current test driver AND current fixtures overlaid) under NEW, permanent filenames verification/T-003/red-baseline-recaptured-{sh,ps1}.log (101 passed / 100 failed against the current 206-assertion driver, both runtimes agree exactly except tempdir-name substrings; the 5-assertion gap to 206 is the SAME hasattr guard the prior red-baseline already exhibited -- draft7-validator-keywords's own first check fails cleanly and the function returns early, never an AttributeError; zero occurrences of 'traceback', case-insensitive) -- red_evidence below now cites those files. This pass ALSO closed the '184 passed / 0 failed' stale GREEN claim above (off by 22 assertions with no supersession note): GREEN re-confirmed 206 passed / 0 failed, both runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, byte-identical content, overwritten in place; net +1 assertion over 205 -- the AC-004 SUPPLIED-half include_untracked=True pass-through assertion wired into the dsl-warn-unsorted-affected-components fixture, Anthropic v3 Minor). tests/resolve-project-context-block.tests.sh/.ps1 now also emit a leading '# runner: bash' / '# runner: pwsh' marker line (recurring Minor every round), so sh/ps1 captures of this suite's own output stop being byte-identical. The prior red-baseline-{sh,ps1}.log pair remains on disk unchanged, no longer cited as this check's own red_evidence. Mutation-kill logs retained this pass: verification/qg/T-003/mutation-kill-include-untracked-pass-through.log. GOVERNING-SCHEMA DELTA (2026-08-24, unfroze-for-exactly-this, T-004 OpenAI v3 Major 3): the coordinator authorized re-opening code/fixtures for exactly one real gap the confirmation panel found and the bookkeeping-lag pass above deliberately deferred -- `_load_governing_schema`/`_draft7_resolve_ref` did not fully preserve the closed Block taxonomy (a UTF-8 decode failure or a malformed `$ref` could escape as a raw, uncaught traceback instead of the canonical `contract-discovery-failed` Block REQ-002 requires). Fixed: `_load_governing_schema`'s own `except` tuple gained `UnicodeDecodeError`; a new `_draft7_conforms_or_raise` wrapper catches `KeyError`/`TypeError`/`AttributeError`/`IndexError`/`ValueError` from `_draft7_resolve_ref` and reclassifies as `ContractDiscoveryFailed`, class-name-only detail (identical no-raw-text discipline `_load_governing_schema` already established). Two new T-004 fixtures, one per failure shape: `contract-discovery-failed-governing-schema-invalid-utf8` (a schema file with one deliberately invalid UTF-8 byte sequence inserted into its own `title` string) and `contract-discovery-failed-governing-schema-malformed-ref` (a schema whose own `context_binding.full_context_revision` `$ref` names a definition `definitions` never declares). Both mutation-killed in an isolated scratch copy, collateral-free: dropping the `UnicodeDecodeError` catch -> 213 passed / 3 failed (exactly the invalid-utf8 fixture's own three B5/Evidence-shape assertions, raw `UnicodeDecodeError` traceback confirmed in the captured stderr); dropping `_draft7_conforms_or_raise`'s own try/except -> 213 passed / 3 failed (exactly the malformed-ref fixture's own three, raw `KeyError: 'sha256DigestMissingDefinition'` traceback confirmed). Retained: verification/qg/T-004/mutation-kill-governing-schema-{invalid-utf8,malformed-ref}.log. Suite grown 206->216 (both runtimes, T-004-scope only -- T-003's own fifteen fixtures unchanged). GREEN re-confirmed: 216 passed / 0 failed, both runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, overwritten in place). RED re-captured (identical scratch-clone-plus-git-checkout-99b8ba76 technique) and OVERWRITTEN IN PLACE at verification/T-003/red-baseline-recaptured-{sh,ps1}.log (103 passed / 108 failed against the current 216-assertion driver, both runtimes agree exactly except tempdir-name substrings; both new fixtures fail cleanly on 'got 0', zero tracebacks) -- overwritten rather than re-split into a further new filename, since this delta is same-session, pre-review content, never previously cited as reviewed evidence. Current staged resolve-project-context.py sha256: 437c861a5c0acd60429c64eb0b88954c964397ecf95227852cb75ac0a1b7cb84 (human-copy/MANIFEST.sha256, regenerated via `shasum -a 256` from the human-copy root this delta, 4/4 OK -- the ONLY MANIFEST entry that changed; .github/workflows/test.yml and the .sh/.ps1 dispatcher twins are byte-unchanged, confirmed by direct shasum comparison). FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25). This pass opened with a triage against the CURRENT tree rather than with remediation, and that triage found the bookkeeping lag had recurred once more AFTER the panel read its bundles: commit 18d90c67 ('restore warn forwarding on the steps-7/8 abort paths under amended AC-056', 2026-08-24 07:30) changed resolve-project-context.py, resolve-project-context-block-check.py and resolve-project-context-match-check.py without regenerating human-copy/MANIFEST.sha256, without re-deriving any Outputs table, and without re-capturing any evidence. Consequences found and closed here, each verified by direct measurement rather than assumed: (1) human-copy/MANIFEST.sha256 declared 437c861a... for resolve-project-context.py while the file on disk hashed d3360c51... -- a stale manifest that `apply-human-copy.sh` verifies at human-apply time, so the staged candidate set was not appliable as it stood. MANIFEST.sha256 regenerated by procedure (`shasum -a 256` from the human-copy root, then `shasum -a 256 -c`, 4/4 OK); .github/workflows/test.yml and both dispatcher twins are byte-unchanged, confirmed by direct comparison. (2) five Outputs rows across the three reports declared pre-18d90c67 hashes (resolve-project-context.py, resolve-project-context-block-check.py, resolve-project-context-match-check.py, MANIFEST.sha256); every table is re-derived below against `git diff` from the merge-base, never by re-measuring the rows already present. (3) the sentence in this comment naming the 'current staged resolve-project-context.py sha256' was itself one of the stale surfaces -- this is the same class the panel raised as a Major against this very field, recurring on a later commit rather than persisting from the old one. The current staged resolve-project-context.py sha256 is 220e2b013d1596369833e9898e2b0fc82cf26cd4181aab66849830df8acb59d4 (refreshed 2026-08-26 after RT-20260826-001 route (b); the value this sentence carried before the refresh, 7acd15a4..., was the pre-removal byte identity). PRODUCTION CODE, this pass, T-003 scope: `_discover_registry`'s own `sys.path.insert(0, script_dir)` is finally restored. The body is split into `_discover_registry_with_sibling_module()` and the caller owns a single `try`/`finally` around every exit path; removal is by VALUE via `list.remove` so a caller's own pre-existing identical entry survives. Three new white-box assertions (`sys-path-hygiene`, clean-return path, ContractDiscoveryFailed path, pre-existing-entry survival) mutation-killed collateral-free in an isolated scratch copy: 219/0 -> 216/3 -> 219/0, BOTH RUNTIMES, exactly the three new assertions and nothing else (verification/qg/T-003/mutation-kill-sys-path-restore.log). This Minor had been disclosed-not-fixed for four consecutive rounds on a Security-Sensitive task. TESTS, this pass, T-005 scope: REQ-006 item (g) is closed in full by a new `zero-affected-component-match` fixture (twelve assertions). Its zero-affected-component condition is produced by the REAL, unstubbed `resolve-component-paths` against a commit range whose only changed path is repository-root `README.md`, which no declared component's own `paths.include` glob matches -- nothing fabricates the condition, and an independent second invocation of that same real script asserts the empty result. Both halves of REQ-006(g) now hold against the SAME real invocation: `trigger_evaluations[] == []` black-box on the PUBLISHED Resolver Evidence (previously delegated to T-001's hand-built TEST-018 schema instance), and `capabilities: []` through the oracle reconstruction full-pipeline-match already established. Two mutation kills, both runtimes, recorded in verification/qg/T-005/mutation-kill-zero-affected-component.log: whole-Registry aggregation 125/0 -> 117/8 (three of them this fixture's own), and the empty-input-empty-output shortcut 125/0 -> 121/4 (all four this fixture's own, zero collateral). That second kill first exposed a VACUITY in this pass's own new assertions -- three of them are `all(...)` quantifiers, vacuously true over an empty list -- so each now additionally requires the published entry count to equal the Registry capability count; the vacuity was found by the mutation and fixed, not argued away. DEAD FIXTURE CONTENT DELETED (Anthropic T-004 Minor): tests/fixtures/capability-resolver/resolve-project-context-projection/context-projection.schema.json (the loose `additionalProperties: true` stand-in the panel named) and its sibling capability-summary.schema.json are read by nothing -- every surviving reference resolves to ROOT/contracts/ -- so both are deleted rather than re-declared, their Outputs rows removed, and both suites re-run green after the deletion in both runtimes, which is the check that they were genuinely unread. EVIDENCE RE-CAPTURED against the frozen tree, in that order, never edited: GREEN 219/0 (block suite, T-003/T-004) and 125/0 (match suite, T-005), both runtimes, into verification/qg/T-00{3,4,5}/focused-tests-{sh,ps1}.log and their green-* twins. RED re-captured under NEW filenames for all three tasks -- the prior captures were already panel-reviewed, so none is overwritten: verification/T-003/red-baseline-recaptured-v2-{sh,ps1}.log (103/109, resolver rewound to 99b8ba76, T-002-only), verification/T-004/red-t004-baseline-recaptured-{sh,ps1}.log (143/71, resolver rewound to 752723fa -- the direct parent of T-004's own implementation commit 56155686, so T-003's steps 4-9 are PRESENT and only T-004's steps 10-13 are absent, making it a genuine T-004-SCOPE RED rather than a whole-feature one), and verification/T-005/red-undermatched-capability-recaptured-v2-{sh,ps1}.log (108/17, the evaluator's own M3 union-match -> intersection-match mutant). Each rewind was verified by direct grep of the rewound source for the helpers that must be absent, never assumed. FINDINGS REJECTED WITH EVIDENCE (recorded here so a later blind panel can see the reasoning rather than re-raise them): (a) OpenAI T-003 Major, '`_evaluate_capabilities` appends a capability entry only after all its evaluations finish, so evaluations already performed for a capability that fails midway disappear from the Resolver Evidence, contrary to REQ-004'. REJECTED. REQ-004 binds each `capability_evaluations[]` entry to carry EXACTLY one `trigger_evaluations[]` element per affected component, and AC-018 repeats that binding as an exact-set rule. A partially-evaluated capability cannot satisfy it -- in the `evaluate-predicate-failure-after-warn` fixture the aborting capability has zero trigger evaluations against one affected component. On an abort the array is necessarily incomplete either way (later capabilities are never evaluated at all); appending the partial entry would ADD a second, per-entry cardinality violation without curing the first, whereas omitting it keeps every entry that IS present well-formed. The warn half of the same reviewer's concern -- diagnostics collected before the abort being lost -- was real and is closed, by human ruling A(1) amending AC-056 (d5701194) and commit 18d90c67 restoring the forwarding in production. (b) OpenAI T-004 Major, 'T-004 promises a staged-only steps-10-13 implementation with no live-path writes, but every Block calls `_write_evidence`'. REJECTED as stated. AC-012 requires Resolver Evidence to be written on EVERY Block except two named cases, and AC-020 repeats it for the success path; the write the reviewer calls a scope breach is mandated by the frozen requirements. tasks.md's own 'staging only ... writes nothing to a live path' sentence scopes to the TRACK-EXCLUSIVE publication set (facet-manifest.yaml / capability-summary.yaml / project-context.resolved.json), which step 14 publishes and which this task's Out of Scope section assigns to T-007. PARTIALLY ACCEPTED, and deferred rather than dismissed: the reviewer's second clause is correct that requirements.md line 333-334 says the Block-path Evidence write uses 'this same transactional mechanism' -- the journaled bundle -- while the implementation uses temp-file + fsync + os.replace. The journal is step 14, explicitly T-007's own scope, so routing this write through it inside T-004 would import another task's declared scope. Recorded in T-004's Unresolved Items for T-007 rather than silently accommodated. (c) OpenAI T-004/T-005 Majors on AC-016 byte-identity: superseded by human ruling B(1) (b572fcd6), which amended AC-016 to scope byte-identity to everything except `state` and the two enforcement-derived `context_binding` digests. The reviewer's own reasoning -- that the digests' identity across the pair is internally impossible -- is exactly the reasoning the amendment adopted. | RT-20260826-001 route (b) (human-approved 2026-08-26): step 6.5 _recheck_registry_snapshot and the registry-swapped-during-validation fixture removed to restore frozen-document conformance; suite 219->214, red recaptured as red-baseline-recaptured-v3-{sh,ps1}.log (102 passed / 105 failed, resolver rewound to 99b8ba76, T-002-only baseline, both runtimes); green focused-tests/green logs recaptured at 214/0. | Rulings C(1)/C(2) (human-approved 2026-08-26, route (a) after cross-model consensus FAIL): frozen-document amendment sanctioned the step-6.5 Registry recheck (registry-swapped-during-validation fixture reinstated) and the absent-component fail-closed rule (new affected-component-absent-from-context fixture; two pre-existing fixtures gained bare-id Context components preserving byte-identical evaluation inputs). Suite 214->224/0 both runtimes; red recaptured as red-baseline-recaptured-v5-{sh,ps1}.log (104 passed / 113 failed, resolver rewound to the T-002-only baseline blob, restored byte-exact). | Route-(a) panel round 2 (2026-08-26): the openai panelist's Major was CONFIRMED against the live code and fixed -- the step-7 evidence-shape check validated only the TOP-LEVEL evidence[] elements while _iter_warn_nodes recurses into children at any depth assuming objects, so a zero-exit evaluate-predicate payload whose nested child is a bare string sailed past the shape check and crashed the warn scan with an uncaught AttributeError (raw traceback, wrong exit surface) instead of the required dependency-output-malformed Block. Fixed by the recursive _evidence_tree_well_formed check (every node at every depth must be an object; every present non-null children value must itself be a well-formed subtree); new fixture evaluate-predicate-output-malformed-nested (same fixture family, same canonical detail sentence, stub returns {\"result\": true, \"evidence\": [{\"outcome\": \"pass\", \"children\": [\"x\"]}]}). Pre-fix red retained at verification/qg/T-003/mutation-kill-nested-evidence-shape.log: 226 passed / 3 failed with the raw AttributeError traceback captured verbatim; post-fix GREEN 229 passed / 0 failed, both runtimes (focused-tests/green logs overwritten in place). RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v6-{sh,ps1}.log (105 passed / 117 failed, identical rewind technique -- resolver alone reverted to the T-002-only 99b8ba76 content, current driver/fixtures overlaid, restored byte-exact afterward; both runtimes agree; +1 pass / +4 fail over v5 = exactly the new case's five assertions, arithmetic reconciled) -- red_evidence below now cites v6. Naming-continuity note (anthropic round-2 Minor): no red-baseline-recaptured-v4 pair has ever existed on disk or anywhere in git history (verified by --diff-filter=A sweep) -- the number was simply skipped when the route-(a) recapture went from v3 to v5 in one same-session sequence; recorded here so the gap is explained rather than silent. | Route-(a) panel round 3 (2026-08-26): the openai panelist's second Major was likewise CONFIRMED and fixed -- the structural-only recursion still accepted FIELD-invalid nodes (missing required operator/path/outcome, out-of-enum values, extra keys, null children) despite the bundled evidenceNode contract (contracts/resolver-evidence.schema.json #/definitions/evidenceNode) requiring them, so such malformed dependency output flowed into the published Evidence and was MISATTRIBUTED at the step-12 self-validation as output-schema-validation-failed instead of Blocking dependency-output-malformed at its upstream source. Fixed by mirroring the full evidenceNode contract inside _evidence_tree_well_formed (key set, operator/outcome enums, required string-or-null path, warn-requires-reason, children array-only -- null rejected); the nested fixture's payload updated to a fully contract-valid parent with a child OBJECT missing its required outcome field (a bare-string child would be masked by the round-2 structural check and is deliberately excluded -- that class stays locked by the round-2 mutation log and the same function's isinstance check). Pre-strengthening red retained at verification/qg/T-003/mutation-kill-field-evidence-shape.log (226/3, the misattributed output-schema-validation-failed diagnostic captured verbatim); post-fix GREEN 229/0 both runtimes; match suite 125/0 (the REAL evaluate-predicate's output is contract-conformant, zero collateral). RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v7-{sh,ps1}.log (105 passed / 117 failed, identical rewind technique, both runtimes, same tallies as v6 -- the payload change does not alter pre-implementation failure shapes) -- red_evidence below now cites v7. | Gate cycle 7 Critical (2026-08-26): the round-3 contract-mirror fix itself introduced a regression -- the enum membership tests used a bare `x in <frozenset>`, which HASHES x, so a JSON array/object arriving in an enum-checked field of the untrusted dependency payload raised an uncaught TypeError (raw traceback, no canonical Block, no Resolver Evidence -- the round-2 failure shape under a new exception type; the cycle-7 evaluator proved it end-to-end with 152 differential adversarial trees, 8 divergences all in this class). Fixed with isinstance-str guards before both enum tests (the same shape the path/reason checks already used -- the enums contain only strings so nothing is lost); new fixture evaluate-predicate-output-malformed-unhashable (contract-valid parent, nested child with \"operator\": []). Pre-fix red retained at verification/qg/T-003/mutation-kill-unhashable-enum.log (231/3, the raw TypeError traceback verbatim); post-fix GREEN 234/0 both runtimes; match 125/0 both runtimes (zero collateral). RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v8-{sh,ps1}.log (106 passed / 121 failed, identical rewind technique, both runtimes; +1 pass / +4 fail over v7 = exactly the new case's five assertions) -- red_evidence below now cites v8. The nested fixture's stub docstring also dropped its stale round-2 bare-string sentence (cycle-7 Minor). The current staged resolver sha256 is 5d1928532607eabe35d86fa5e3483f231e90debabc6a1b00bdd9a5f445109719 (human-copy/MANIFEST.sha256 regenerated this pass, 4/4 OK; the .sh/.ps1 dispatcher twins and staged test.yml are byte-unchanged).",
+  "comment": "Re-recorded 2026-08-23 (cross-model panel remediation, T-003 NEEDS_WORK cycle 2, both Critical findings): the PRIOR version of this comment argued the un-recaptured RED/GREEN pair was safe to trust because the live staged resolve-project-context.py was byte-identical to a stale hash -- that premise was independently falsified (the panel's own bundle already flagged the declared hash STALE against MANIFEST.sha256), so the pair has now been genuinely re-captured against the current tree rather than argued around. Current staged resolve-project-context.py sha256: cb9f050be3b7110b177fef061cb4af5a9b39724c37cd2f6c618a601c07728aa7 (specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256, regenerated via `shasum -a 256` from the human-copy root, 4/4 OK). GREEN: `bash tests/resolve-project-context-block.tests.sh` and `pwsh -File tests/resolve-project-context-block.tests.ps1` both reproduce 155 passed / 0 failed, exit 0 (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, byte-identical content). This 155 is the WHOLE shared driver's own total (tests/resolve-project-context-block-check.py now spans T-002's steps 0-3, T-003's steps 4-9 (11 fixtures / 55 assertions, run_t003_case -- ten from the prior cross-model round plus this round's own new validate-capability-registry-launch-failed), T-004's steps 10-13 (5 fixtures, run_t004_case -- four from the prior round plus this round's own new contract-discovery-failed-governing-schema), and a T-004-owned unit-style keyword check (draft7-validator-keywords, 4 assertions) -- never a T-003-only subset, since T-004 shares this identical driver file and steps 4-9 are T-004's own precondition. RED: reconstructed in a scratch `git clone --no-hardlinks` (never the live worktree) at commit 99b8ba76 (T-002-only, the direct parent of T-003's own e8ffc4c9 implementation commit), with the CURRENT test driver/fixtures overlaid on top (the same 'rewind only the production script' technique T-003's own original RED capture used, restated in e8ffc4c9's own commit message) -- 89 passed / 63 failed, exit 1. Every one of the 63 failures is confined to: this task's own 11 fixtures (55 assertions) failing because steps 4-9 do not exist yet at that commit (each fails on 'got 0' -- a clean exit instead of the expected Block -- never a Python traceback); T-004's own 5 fixtures (24 assertions) failing for the identical, structurally-necessary reason (steps 10-13 cannot run without steps 4-9); and the draft7-validator-keywords check (1 assertion; a defensive `hasattr` guard added this same pass reports this cleanly as 'T-004 step-12 self-validation absent from this staged snapshot' rather than crashing on an AttributeError, since `_draft7_conforms` is itself a T-004 addition). Every T-002-era assertion (the six steps-0-3 CASES, both PROJECTION_SOURCES, both PROJECTION_BLOCK_CASES, plus the two suite-registration checks) stays green at this commit, isolating the regression to exactly the code this task and its T-004 dependent add. No exception/traceback string appears anywhere in either RED log (grepped directly). requirement-traceability is a manual check (verification/qg/T-003/traceability.log) because this feature has no traceability.json, only traceability.md -- check-traceability.sh could not be invoked; REQ-001/002/004/005/006/008 confirmed present in requirements.md, AC-010..015/038 and TEST-010..015/038 confirmed present in acceptance-tests.md, and this task's own eleven fixtures confirmed implemented in tests/resolve-project-context-block-check.py's run_t003_case(). regression (verification/qg/T-003/regression.log) WAS re-run this pass: git diff --stat/status --short against plugins/ (empty, AC-032), git diff --check (clean), py_compile on the staged .py plus both extended test drivers (clean), the T-001 sibling resolver-evidence-schema suite as an incidental-breakage check (20/20 PASS, including its own independent 'not'-keyword fixture matched-false-with-conditional-facets.json, unaffected since T-003 does not edit contracts/resolver-evidence.schema.json), and human-copy/MANIFEST.sha256 self-verification from within the human-copy root (4/4 OK, all four entries, including the regenerated resolve-project-context.py hash above). Stack: shell waives lint/typecheck/build -- this task ships stdlib-only Python plus sh/ps1 dispatchers and no compile toolchain is configured for any of the three (tasks.md Global Constraints 'Stdlib-only Python'). check-component-coverage is correctly ABSENT from this contract's checks: RISK_TIERS['high'] names it, but check-contract.py's CAPABILITY_STATE_GATED_IDS drops it from the tier minimum whenever sdd/project-context.yaml does not exist in this repo -- confirmed absent here. task-state-check/check-workflow-state history (T-002's own prior evidence-bundle gap, the stage-provenance staleness) was resolved in an earlier pass (see this file's own prior comment, preserved in git history) and re-confirmed green in this pass's own final verification sweep. CYCLE-3 REMEDIATION ADDENDUM (2026-08-23, same day, a refreshed two-vendor panel on T-003/T-004): this comment's own '155 passed / 0 failed' / 'eleven fixtures' text above describes an earlier point-in-time capture, retained for historical continuity, not current evidence. This pass closed T-003's own Critical (this check's own evidence, verification/qg/T-003/traceability.log, regenerated -- it previously enumerated six fixtures, cited a nonexistent `CASE_NAMES` symbol, and claimed 102/0 against the adjacent 155/0 logs; now reads the current driver directly: ALL_CASE_NAMES line 276, run_t003_case line 437, thirteen fixtures, 184/0) plus two Majors: (1) `_evaluate_predicate`'s PREDICATE_SCHEMA_ERROR classification no longer keys on the hardcoded `returncode == 2` magic number (investigation.md fixes only the stderr token, never a specific exit code) -- reclassified via the identical stable-stderr-token technique step 6 already uses for `canonicalizer-failed`; new fixture `evaluate-predicate-schema-error` (a real, unmodified `evaluate-predicate` genuinely rejecting a Registry-declared trigger predicate whose field is outside its own ALLOWED_FIELDS -- no stub). (2) steps 7-8's own three abort handlers now forward `warn_diagnostics` already collected before the abort (checked directly against the frozen requirements.md:528 sentence, 'no other id ever carries severity: warn at all' -- forwarding does not collide, since every forwarded entry still carries the `dsl-warn-on-matched-capability` id, and only one id ever carries `severity: block`); new fixture `evaluate-predicate-failure-after-warn` (two Registry capabilities in declaration order, the first producing a genuine WARN, the second failing via a call-counting stub). Both new fixtures' own mutation kills confirmed in an isolated rsync scratch copy (never the live worktree): reverting the stderr-token check fails `evaluate-predicate-schema-error`'s own diagnostic/Evidence assertions (182/2); reverting the warn_diagnostics-forwarding kwargs fails `evaluate-predicate-failure-after-warn`'s own exact-Evidence assertion (183/1). Current staged resolve-project-context.py sha256: f6bc679612fff4b0d35f1770fe1f135339090392ba042ef31ad229426316fbd9 (human-copy/MANIFEST.sha256, 4/4 OK). GREEN re-confirmed: 184 passed / 0 failed, both runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, overwritten in place). RED re-confirmed in an isolated `git clone`-equivalent rsync scratch copy at the current committed HEAD (pre-this-pass resolve-project-context.py, current fixture set overlaid): 177 passed / 7 failed -- the 7 failures are exactly this pass's own new/changed assertions (evaluate-predicate-failure-after-warn's own exact-Evidence; the four contract-discovery-failed-governing-schema-wrong-version assertions and two -malformed assertions, both T-004-scope, see T-004.contract.json's own addendum), overwritten in place at verification/T-003/red-{sh,ps1}.log. Four T-003-scope fixtures the prior panel round flagged as present-on-disk-but-absent-from-the-bundle (resolve-component-paths-launch-failed, registry-discovery-unimportable, evaluate-predicate-output-malformed, dsl-warn-unsorted-affected-components -- all four confirmed real, committed content at 82f6dbf2) are now re-derived into T-003.md's own Outputs table from the full `git show --name-only` commit range rather than `git status --short`, which structurally cannot list a file a prior commit already staged.\n\nCONFIRMATION-PANEL REMEDIATION (2026-08-24, T-003/T-004 Major #1, both vendors agree): the red_evidence pointers above previously cited verification/T-003/red-{sh,ps1}.log, which the panel found holds a 177/7 DELTA run (only this pass's own steps-4-9 revert applied on top of otherwise-current HEAD; 12 of 13 T-003 fixtures PASS inside the artifact that exists to prove they can fail) -- the prior remediation wave overwrote the genuine full-scope rewind captures IN PLACE, against the explicit new-filenames instruction it was given. The two prior full-scope generations this comment used to describe (89 passed / 63 failed against parent 99b8ba76; 78 passed / 24 failed before that) were each likewise overwritten in place and are LOST -- no artifact for either survives anywhere in this bundle or this worktree's own git history. That loss is recorded here as a fact, not reconstructed. A genuine full-scope RED has been re-captured (identical technique: scratch clone, resolve-project-context.py alone reverted to commit 99b8ba76's own content, current driver/fixtures overlaid) and retained under the NEW, permanent filenames verification/T-003/red-baseline-{sh,ps1}.log (101 passed / 95 failed, every T-003/T-004-scope fixture genuinely failing, zero unexpected tracebacks, every T-002-scope fixture still passing) -- red_evidence now cites those files. The prior delta captures remain on disk unchanged at their original red-{sh,ps1}.log filenames (no longer cited as this check's own red_evidence) for anyone comparing this pass's own smaller steps-4-9-revert delta against the full-scope baseline. BOOKKEEPING-LAG REMEDIATION (2026-08-24, second confirmation-panel round, Anthropic v3 Critical + Major): closes the finding that the red_evidence pair above (red-baseline-{sh,ps1}.log) was captured by a test driver that predates this round -- it emits the old M8 assertion label ('canonical diagnostic only, no upstream stderr embedded (M8)') instead of the current B5 label ('canonical diagnostic line present and last on stderr (B5)'), and lacks the four 'dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)' assertions the current driver emits unconditionally; arithmetic corroborated the mismatch (red-baseline totals 101+95=196, not reconcilable against either the 205- or 206-assertion current driver). A genuine full-scope RED has been RE-recaptured this pass (identical technique: git clone --no-hardlinks scratch copy, resolve-project-context.py alone reverted via 'git checkout 99b8ba76 --' to commit 99b8ba76's own content -- T-002-only, the direct parent of T-003's own e8ffc4c9 implementation commit -- current test driver AND current fixtures overlaid) under NEW, permanent filenames verification/T-003/red-baseline-recaptured-{sh,ps1}.log (101 passed / 100 failed against the current 206-assertion driver, both runtimes agree exactly except tempdir-name substrings; the 5-assertion gap to 206 is the SAME hasattr guard the prior red-baseline already exhibited -- draft7-validator-keywords's own first check fails cleanly and the function returns early, never an AttributeError; zero occurrences of 'traceback', case-insensitive) -- red_evidence below now cites those files. This pass ALSO closed the '184 passed / 0 failed' stale GREEN claim above (off by 22 assertions with no supersession note): GREEN re-confirmed 206 passed / 0 failed, both runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, byte-identical content, overwritten in place; net +1 assertion over 205 -- the AC-004 SUPPLIED-half include_untracked=True pass-through assertion wired into the dsl-warn-unsorted-affected-components fixture, Anthropic v3 Minor). tests/resolve-project-context-block.tests.sh/.ps1 now also emit a leading '# runner: bash' / '# runner: pwsh' marker line (recurring Minor every round), so sh/ps1 captures of this suite's own output stop being byte-identical. The prior red-baseline-{sh,ps1}.log pair remains on disk unchanged, no longer cited as this check's own red_evidence. Mutation-kill logs retained this pass: verification/qg/T-003/mutation-kill-include-untracked-pass-through.log. GOVERNING-SCHEMA DELTA (2026-08-24, unfroze-for-exactly-this, T-004 OpenAI v3 Major 3): the coordinator authorized re-opening code/fixtures for exactly one real gap the confirmation panel found and the bookkeeping-lag pass above deliberately deferred -- `_load_governing_schema`/`_draft7_resolve_ref` did not fully preserve the closed Block taxonomy (a UTF-8 decode failure or a malformed `$ref` could escape as a raw, uncaught traceback instead of the canonical `contract-discovery-failed` Block REQ-002 requires). Fixed: `_load_governing_schema`'s own `except` tuple gained `UnicodeDecodeError`; a new `_draft7_conforms_or_raise` wrapper catches `KeyError`/`TypeError`/`AttributeError`/`IndexError`/`ValueError` from `_draft7_resolve_ref` and reclassifies as `ContractDiscoveryFailed`, class-name-only detail (identical no-raw-text discipline `_load_governing_schema` already established). Two new T-004 fixtures, one per failure shape: `contract-discovery-failed-governing-schema-invalid-utf8` (a schema file with one deliberately invalid UTF-8 byte sequence inserted into its own `title` string) and `contract-discovery-failed-governing-schema-malformed-ref` (a schema whose own `context_binding.full_context_revision` `$ref` names a definition `definitions` never declares). Both mutation-killed in an isolated scratch copy, collateral-free: dropping the `UnicodeDecodeError` catch -> 213 passed / 3 failed (exactly the invalid-utf8 fixture's own three B5/Evidence-shape assertions, raw `UnicodeDecodeError` traceback confirmed in the captured stderr); dropping `_draft7_conforms_or_raise`'s own try/except -> 213 passed / 3 failed (exactly the malformed-ref fixture's own three, raw `KeyError: 'sha256DigestMissingDefinition'` traceback confirmed). Retained: verification/qg/T-004/mutation-kill-governing-schema-{invalid-utf8,malformed-ref}.log. Suite grown 206->216 (both runtimes, T-004-scope only -- T-003's own fifteen fixtures unchanged). GREEN re-confirmed: 216 passed / 0 failed, both runtimes (verification/qg/T-003/focused-tests-{sh,ps1}.log = verification/T-003/green-{sh,ps1}.log, overwritten in place). RED re-captured (identical scratch-clone-plus-git-checkout-99b8ba76 technique) and OVERWRITTEN IN PLACE at verification/T-003/red-baseline-recaptured-{sh,ps1}.log (103 passed / 108 failed against the current 216-assertion driver, both runtimes agree exactly except tempdir-name substrings; both new fixtures fail cleanly on 'got 0', zero tracebacks) -- overwritten rather than re-split into a further new filename, since this delta is same-session, pre-review content, never previously cited as reviewed evidence. Current staged resolve-project-context.py sha256: 437c861a5c0acd60429c64eb0b88954c964397ecf95227852cb75ac0a1b7cb84 (human-copy/MANIFEST.sha256, regenerated via `shasum -a 256` from the human-copy root this delta, 4/4 OK -- the ONLY MANIFEST entry that changed; .github/workflows/test.yml and the .sh/.ps1 dispatcher twins are byte-unchanged, confirmed by direct shasum comparison). FOURTH-ROUND CROSS-MODEL PANEL REMEDIATION (2026-08-25). This pass opened with a triage against the CURRENT tree rather than with remediation, and that triage found the bookkeeping lag had recurred once more AFTER the panel read its bundles: commit 18d90c67 ('restore warn forwarding on the steps-7/8 abort paths under amended AC-056', 2026-08-24 07:30) changed resolve-project-context.py, resolve-project-context-block-check.py and resolve-project-context-match-check.py without regenerating human-copy/MANIFEST.sha256, without re-deriving any Outputs table, and without re-capturing any evidence. Consequences found and closed here, each verified by direct measurement rather than assumed: (1) human-copy/MANIFEST.sha256 declared 437c861a... for resolve-project-context.py while the file on disk hashed d3360c51... -- a stale manifest that `apply-human-copy.sh` verifies at human-apply time, so the staged candidate set was not appliable as it stood. MANIFEST.sha256 regenerated by procedure (`shasum -a 256` from the human-copy root, then `shasum -a 256 -c`, 4/4 OK); .github/workflows/test.yml and both dispatcher twins are byte-unchanged, confirmed by direct comparison. (2) five Outputs rows across the three reports declared pre-18d90c67 hashes (resolve-project-context.py, resolve-project-context-block-check.py, resolve-project-context-match-check.py, MANIFEST.sha256); every table is re-derived below against `git diff` from the merge-base, never by re-measuring the rows already present. (3) the sentence in this comment naming the 'current staged resolve-project-context.py sha256' was itself one of the stale surfaces -- this is the same class the panel raised as a Major against this very field, recurring on a later commit rather than persisting from the old one. The current staged resolve-project-context.py sha256 is 220e2b013d1596369833e9898e2b0fc82cf26cd4181aab66849830df8acb59d4 (refreshed 2026-08-26 after RT-20260826-001 route (b); the value this sentence carried before the refresh, 7acd15a4..., was the pre-removal byte identity). PRODUCTION CODE, this pass, T-003 scope: `_discover_registry`'s own `sys.path.insert(0, script_dir)` is finally restored. The body is split into `_discover_registry_with_sibling_module()` and the caller owns a single `try`/`finally` around every exit path; removal is by VALUE via `list.remove` so a caller's own pre-existing identical entry survives. Three new white-box assertions (`sys-path-hygiene`, clean-return path, ContractDiscoveryFailed path, pre-existing-entry survival) mutation-killed collateral-free in an isolated scratch copy: 219/0 -> 216/3 -> 219/0, BOTH RUNTIMES, exactly the three new assertions and nothing else (verification/qg/T-003/mutation-kill-sys-path-restore.log). This Minor had been disclosed-not-fixed for four consecutive rounds on a Security-Sensitive task. TESTS, this pass, T-005 scope: REQ-006 item (g) is closed in full by a new `zero-affected-component-match` fixture (twelve assertions). Its zero-affected-component condition is produced by the REAL, unstubbed `resolve-component-paths` against a commit range whose only changed path is repository-root `README.md`, which no declared component's own `paths.include` glob matches -- nothing fabricates the condition, and an independent second invocation of that same real script asserts the empty result. Both halves of REQ-006(g) now hold against the SAME real invocation: `trigger_evaluations[] == []` black-box on the PUBLISHED Resolver Evidence (previously delegated to T-001's hand-built TEST-018 schema instance), and `capabilities: []` through the oracle reconstruction full-pipeline-match already established. Two mutation kills, both runtimes, recorded in verification/qg/T-005/mutation-kill-zero-affected-component.log: whole-Registry aggregation 125/0 -> 117/8 (three of them this fixture's own), and the empty-input-empty-output shortcut 125/0 -> 121/4 (all four this fixture's own, zero collateral). That second kill first exposed a VACUITY in this pass's own new assertions -- three of them are `all(...)` quantifiers, vacuously true over an empty list -- so each now additionally requires the published entry count to equal the Registry capability count; the vacuity was found by the mutation and fixed, not argued away. DEAD FIXTURE CONTENT DELETED (Anthropic T-004 Minor): tests/fixtures/capability-resolver/resolve-project-context-projection/context-projection.schema.json (the loose `additionalProperties: true` stand-in the panel named) and its sibling capability-summary.schema.json are read by nothing -- every surviving reference resolves to ROOT/contracts/ -- so both are deleted rather than re-declared, their Outputs rows removed, and both suites re-run green after the deletion in both runtimes, which is the check that they were genuinely unread. EVIDENCE RE-CAPTURED against the frozen tree, in that order, never edited: GREEN 219/0 (block suite, T-003/T-004) and 125/0 (match suite, T-005), both runtimes, into verification/qg/T-00{3,4,5}/focused-tests-{sh,ps1}.log and their green-* twins. RED re-captured under NEW filenames for all three tasks -- the prior captures were already panel-reviewed, so none is overwritten: verification/T-003/red-baseline-recaptured-v2-{sh,ps1}.log (103/109, resolver rewound to 99b8ba76, T-002-only), verification/T-004/red-t004-baseline-recaptured-{sh,ps1}.log (143/71, resolver rewound to 752723fa -- the direct parent of T-004's own implementation commit 56155686, so T-003's steps 4-9 are PRESENT and only T-004's steps 10-13 are absent, making it a genuine T-004-SCOPE RED rather than a whole-feature one), and verification/T-005/red-undermatched-capability-recaptured-v2-{sh,ps1}.log (108/17, the evaluator's own M3 union-match -> intersection-match mutant). Each rewind was verified by direct grep of the rewound source for the helpers that must be absent, never assumed. FINDINGS REJECTED WITH EVIDENCE (recorded here so a later blind panel can see the reasoning rather than re-raise them): (a) OpenAI T-003 Major, '`_evaluate_capabilities` appends a capability entry only after all its evaluations finish, so evaluations already performed for a capability that fails midway disappear from the Resolver Evidence, contrary to REQ-004'. REJECTED. REQ-004 binds each `capability_evaluations[]` entry to carry EXACTLY one `trigger_evaluations[]` element per affected component, and AC-018 repeats that binding as an exact-set rule. A partially-evaluated capability cannot satisfy it -- in the `evaluate-predicate-failure-after-warn` fixture the aborting capability has zero trigger evaluations against one affected component. On an abort the array is necessarily incomplete either way (later capabilities are never evaluated at all); appending the partial entry would ADD a second, per-entry cardinality violation without curing the first, whereas omitting it keeps every entry that IS present well-formed. The warn half of the same reviewer's concern -- diagnostics collected before the abort being lost -- was real and is closed, by human ruling A(1) amending AC-056 (d5701194) and commit 18d90c67 restoring the forwarding in production. (b) OpenAI T-004 Major, 'T-004 promises a staged-only steps-10-13 implementation with no live-path writes, but every Block calls `_write_evidence`'. REJECTED as stated. AC-012 requires Resolver Evidence to be written on EVERY Block except two named cases, and AC-020 repeats it for the success path; the write the reviewer calls a scope breach is mandated by the frozen requirements. tasks.md's own 'staging only ... writes nothing to a live path' sentence scopes to the TRACK-EXCLUSIVE publication set (facet-manifest.yaml / capability-summary.yaml / project-context.resolved.json), which step 14 publishes and which this task's Out of Scope section assigns to T-007. PARTIALLY ACCEPTED, and deferred rather than dismissed: the reviewer's second clause is correct that requirements.md line 333-334 says the Block-path Evidence write uses 'this same transactional mechanism' -- the journaled bundle -- while the implementation uses temp-file + fsync + os.replace. The journal is step 14, explicitly T-007's own scope, so routing this write through it inside T-004 would import another task's declared scope. Recorded in T-004's Unresolved Items for T-007 rather than silently accommodated. (c) OpenAI T-004/T-005 Majors on AC-016 byte-identity: superseded by human ruling B(1) (b572fcd6), which amended AC-016 to scope byte-identity to everything except `state` and the two enforcement-derived `context_binding` digests. The reviewer's own reasoning -- that the digests' identity across the pair is internally impossible -- is exactly the reasoning the amendment adopted. | RT-20260826-001 route (b) (human-approved 2026-08-26): step 6.5 _recheck_registry_snapshot and the registry-swapped-during-validation fixture removed to restore frozen-document conformance; suite 219->214, red recaptured as red-baseline-recaptured-v3-{sh,ps1}.log (102 passed / 105 failed, resolver rewound to 99b8ba76, T-002-only baseline, both runtimes); green focused-tests/green logs recaptured at 214/0. | Rulings C(1)/C(2) (human-approved 2026-08-26, route (a) after cross-model consensus FAIL): frozen-document amendment sanctioned the step-6.5 Registry recheck (registry-swapped-during-validation fixture reinstated) and the absent-component fail-closed rule (new affected-component-absent-from-context fixture; two pre-existing fixtures gained bare-id Context components preserving byte-identical evaluation inputs). Suite 214->224/0 both runtimes; red recaptured as red-baseline-recaptured-v5-{sh,ps1}.log (104 passed / 113 failed, resolver rewound to the T-002-only baseline blob, restored byte-exact). | Route-(a) panel round 2 (2026-08-26): the openai panelist's Major was CONFIRMED against the live code and fixed -- the step-7 evidence-shape check validated only the TOP-LEVEL evidence[] elements while _iter_warn_nodes recurses into children at any depth assuming objects, so a zero-exit evaluate-predicate payload whose nested child is a bare string sailed past the shape check and crashed the warn scan with an uncaught AttributeError (raw traceback, wrong exit surface) instead of the required dependency-output-malformed Block. Fixed by the recursive _evidence_tree_well_formed check (every node at every depth must be an object; every present non-null children value must itself be a well-formed subtree); new fixture evaluate-predicate-output-malformed-nested (same fixture family, same canonical detail sentence, stub returns {\"result\": true, \"evidence\": [{\"outcome\": \"pass\", \"children\": [\"x\"]}]}). Pre-fix red retained at verification/qg/T-003/mutation-kill-nested-evidence-shape.log: 226 passed / 3 failed with the raw AttributeError traceback captured verbatim; post-fix GREEN 229 passed / 0 failed, both runtimes (focused-tests/green logs overwritten in place). RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v6-{sh,ps1}.log (105 passed / 117 failed, identical rewind technique -- resolver alone reverted to the T-002-only 99b8ba76 content, current driver/fixtures overlaid, restored byte-exact afterward; both runtimes agree; +1 pass / +4 fail over v5 = exactly the new case's five assertions, arithmetic reconciled) -- red_evidence below now cites v6. Naming-continuity note (anthropic round-2 Minor): no red-baseline-recaptured-v4 pair has ever existed on disk or anywhere in git history (verified by --diff-filter=A sweep) -- the number was simply skipped when the route-(a) recapture went from v3 to v5 in one same-session sequence; recorded here so the gap is explained rather than silent. | Route-(a) panel round 3 (2026-08-26): the openai panelist's second Major was likewise CONFIRMED and fixed -- the structural-only recursion still accepted FIELD-invalid nodes (missing required operator/path/outcome, out-of-enum values, extra keys, null children) despite the bundled evidenceNode contract (contracts/resolver-evidence.schema.json #/definitions/evidenceNode) requiring them, so such malformed dependency output flowed into the published Evidence and was MISATTRIBUTED at the step-12 self-validation as output-schema-validation-failed instead of Blocking dependency-output-malformed at its upstream source. Fixed by mirroring the full evidenceNode contract inside _evidence_tree_well_formed (key set, operator/outcome enums, required string-or-null path, warn-requires-reason, children array-only -- null rejected); the nested fixture's payload updated to a fully contract-valid parent with a child OBJECT missing its required outcome field (a bare-string child would be masked by the round-2 structural check and is deliberately excluded -- that class stays locked by the round-2 mutation log and the same function's isinstance check). Pre-strengthening red retained at verification/qg/T-003/mutation-kill-field-evidence-shape.log (226/3, the misattributed output-schema-validation-failed diagnostic captured verbatim); post-fix GREEN 229/0 both runtimes; match suite 125/0 (the REAL evaluate-predicate's output is contract-conformant, zero collateral). RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v7-{sh,ps1}.log (105 passed / 117 failed, identical rewind technique, both runtimes, same tallies as v6 -- the payload change does not alter pre-implementation failure shapes) -- red_evidence below now cites v7. | Gate cycle 7 Critical (2026-08-26): the round-3 contract-mirror fix itself introduced a regression -- the enum membership tests used a bare `x in <frozenset>`, which HASHES x, so a JSON array/object arriving in an enum-checked field of the untrusted dependency payload raised an uncaught TypeError (raw traceback, no canonical Block, no Resolver Evidence -- the round-2 failure shape under a new exception type; the cycle-7 evaluator proved it end-to-end with 152 differential adversarial trees, 8 divergences all in this class). Fixed with isinstance-str guards before both enum tests (the same shape the path/reason checks already used -- the enums contain only strings so nothing is lost); new fixture evaluate-predicate-output-malformed-unhashable (contract-valid parent, nested child with \"operator\": []). Pre-fix red retained at verification/qg/T-003/mutation-kill-unhashable-enum.log (231/3, the raw TypeError traceback verbatim); post-fix GREEN 234/0 both runtimes; match 125/0 both runtimes (zero collateral). RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v8-{sh,ps1}.log (106 passed / 121 failed, identical rewind technique, both runtimes; +1 pass / +4 fail over v7 = exactly the new case's five assertions) -- red_evidence below now cites v8. The nested fixture's stub docstring also dropped its stale round-2 bare-string sentence (cycle-7 Minor). | Route-(a) panel round 4 (2026-08-26): the openai panelist found one more REAL Major -- a duplicate component id in resolve-component-paths' affected_components[] survived the step-4 shape validation (list-of-strings only) and fanned out into TWO trigger/conditional-facet evaluations and TWO warn diagnostics for the same component, publishing Resolver Evidence that violates REQ-004's exactly-one-per-affected-component binding while PASSING the step-12 schema self-validation (shipped silently -- reproduced verbatim in verification/qg/T-003/mutation-kill-duplicate-component-ids.log, 237/2). Fixed by rejecting duplicates in _run_resolve_component_paths under the step-4 site's existing dependency-output-malformed canonical sentence (Epic A3's contract guarantees unique ids, so a duplicate IS malformed dependency output -- no frozen-document change needed); new fixture affected-component-duplicate-ids. Post-fix GREEN 239/0 both runtimes; match 125/0 both. RED recaptured under the NEW filenames verification/T-003/red-baseline-recaptured-v9-{sh,ps1}.log (107 passed / 125 failed, identical rewind technique, both runtimes; +1 pass / +4 fail over v8 = exactly the new case's five assertions) -- red_evidence below now cites v9. Note on spec_revision (anthropic round-4 Minor): this contract's spec_revision field (9ff49115..., recorded at creation 2026-08-19) deliberately pins the document set the contract was CREATED against; the human-approved amendments since (A(1) d5701194, B(1) b572fcd6, C(1)/C(2) 5dcacc8e) changed the frozen documents under their own recorded approvals, and the evidence bundle's spec_revision tracks the CURRENT set -- the divergence is the amendment history, not drift. The current staged resolver sha256 is 0b83645b900eadc0d26d09bc833bff76b5bcd0231f5a5efe27ca26400c2f5bd4 (human-copy/MANIFEST.sha256 regenerated this pass, 4/4 OK; the .sh/.ps1 dispatcher twins and staged test.yml are byte-unchanged).",
   "checks": [
     {
       "id": "lint",
@@ -8989,7 +8989,7 @@ REQ-004.
         "REQ-005",
         "REQ-006"
       ],
-      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v8-sh.log",
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v9-sh.log",
       "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log"
     },
     {
@@ -9017,7 +9017,7 @@ REQ-004.
         "REQ-005",
         "REQ-006"
       ],
-      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v8-ps1.log",
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v9-ps1.log",
       "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log"
     },
     {
@@ -9136,7 +9136,7 @@ REQ-004.
   "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-  "git_commit": "55e3c2c35f333e2f92677654be3a4bb6a12c3a0a",
+  "git_commit": "dd4909027cbeafbaf3286ea65d5c136e5b728181",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -9153,33 +9153,33 @@ REQ-004.
     "verdict": "PASS",
     "critical": 0,
     "major": 0,
-    "minor": 3,
+    "minor": 5,
     "reviewer": "sdd-evaluator"
   },
   "artifacts": [
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-      "sha256": "069a892cecd2756d24bf916858268aa50175ad44ce697ea9b4e0b938e27ef997"
+      "sha256": "2dfcbed4805c95c2e37ca442f8f6bca7205834eca8e49b4d1f4ce0af760e0c81"
     },
     {
       "path": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
-      "sha256": "eac32e3bb46dd231def999b1267c910e7e044e10db0007b1a144f8fb1a0584c4"
+      "sha256": "24f313fffa1cead063ef8d6781b90732b7f979980bd35eac8b4e341a971de27e"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log",
-      "sha256": "4af2c327489036c436d59be0f49b950753ad1bbe42ed5477df651f9641124a97"
+      "sha256": "2f783368b185e34681c1fdf43fbfd9d8c15d2a81324711752823572d0cc88649"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log",
-      "sha256": "d737fa369a38c3d616b64789fc369cdb2bede73a39abfe17e156697e8f22fa2b"
+      "sha256": "976e31cbc6904a3e38d1ad6eb96d85f3f2c4bce69054124288a1da5dded551d6"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log",
-      "sha256": "f0915756f478e7a65bd408e97eb5966cbacfba749b1cbefb9b9332e52ccfd027"
+      "sha256": "d479a16098f7b1a83cf206cc6ce50868f10cb8f891d069ce7122e530142b2f8e"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log",
-      "sha256": "cd4b72324395402a4f199546ff0cf5d36246a6c2e244f2347cd66804624aea8c"
+      "sha256": "fd9ad3371c9dcf0cc4ab164056d1dadce1078bfae9de25becd7809d0624e34c4"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log",
@@ -9187,7 +9187,7 @@ REQ-004.
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log",
-      "sha256": "a0465b66be2ca3b193d43a4824ab4fa065b52b893713769fc5cde6619d209adb"
+      "sha256": "8f7df4cc1725f9a223d5baa6121bcbaaf44efaf16ecaea81aa49e328f0d878f9"
     }
   ]
 }
@@ -9300,6 +9300,11 @@ PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before
 PASS: dependency-subprocess-failed: exact Resolver Evidence
 PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
 PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
 PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
@@ -9427,7 +9432,7 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 234 passed, 0 failed
+RESULT: 239 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log ----
 # runner: bash
 PASS: disabled-legacy-invocation: exit 1
@@ -9537,6 +9542,11 @@ PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before
 PASS: dependency-subprocess-failed: exact Resolver Evidence
 PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
 PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
 PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
@@ -9664,7 +9674,7 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 234 passed, 0 failed
+RESULT: 239 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-ps1.log ----
 Genuine full-scope RED for T-003's own scope (steps 4-9), re-captured
 2026-08-24 to close the T-003 confirmation-panel Major #1 finding (both
@@ -13175,6 +13185,476 @@ FAIL: sys-path-hygiene: _discover_registry exists on the staged module: TDD RED:
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 106 passed, 121 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v9-ps1.log ----
+# runner: pwsh
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: no Resolver Evidence on the success path
+PASS: projection-two-components: no partial live artifact
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+FAIL: affected-component-resolution-failed: exit 1: got 0
+FAIL: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: affected-component-resolution-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-cnfc990o/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-resolution-failed: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-resolution-failed: no partial live artifact
+FAIL: resolve-component-paths-launch-failed: exit 1: got 0
+FAIL: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: resolve-component-paths-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-s1ljlh03/specs/example-feature/resolver-evidence.yaml'
+FAIL: resolve-component-paths-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+FAIL: contract-discovery-failed: exit 1: got 0
+FAIL: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-2ec9bib8/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed: no partial live artifact
+FAIL: registry-discovery-unimportable: exit 1: got 0
+FAIL: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-discovery-unimportable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-c4e4e8t1/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-unimportable: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-unimportable: no partial live artifact
+FAIL: registry-validation-failed: exit 1: got 0
+FAIL: registry-validation-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-validation-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-bnkfnuu0/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-validation-failed: Resolver Evidence schema agreement: evidence absent
+PASS: registry-validation-failed: no partial live artifact
+FAIL: validate-capability-registry-launch-failed: exit 1: got 0
+FAIL: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: validate-capability-registry-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-5638nms0/specs/example-feature/resolver-evidence.yaml'
+FAIL: validate-capability-registry-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+FAIL: dependency-subprocess-failed: exit 1: got 0
+FAIL: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: dependency-subprocess-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0hsmd8h5/specs/example-feature/resolver-evidence.yaml'
+FAIL: dependency-subprocess-failed: Resolver Evidence schema agreement: evidence absent
+PASS: dependency-subprocess-failed: no partial live artifact
+FAIL: affected-component-duplicate-ids: exit 1: got 0
+FAIL: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: affected-component-duplicate-ids: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-o0h5j6hj/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-duplicate-ids: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-duplicate-ids: no partial live artifact
+FAIL: evaluate-predicate-output-malformed: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-7z_ww6f_/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+FAIL: evaluate-predicate-output-malformed-nested: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed-nested: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-muaj7dd9/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+FAIL: evaluate-predicate-output-malformed-unhashable: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-4cpbj31e/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+FAIL: evaluate-predicate-schema-error: exit 1: got 0
+FAIL: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-schema-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-uy3pt0dl/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-schema-error: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-schema-error: no partial live artifact
+FAIL: evaluate-predicate-failure-after-warn: exit 1: got 0
+FAIL: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: evaluate-predicate-failure-after-warn: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-hcrh5f0s/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+FAIL: dsl-warn-unmatched-trigger: exit 1: got 0
+FAIL: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dsl-warn-unmatched-trigger: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-yt_kx1up/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+FAIL: dsl-warn-matched-nondetermining: exit 1: got 0
+FAIL: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dsl-warn-matched-nondetermining: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-gxzs5eek/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+FAIL: dsl-warn-unsorted-affected-components: exit 1: got 0
+FAIL: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dsl-warn-unsorted-affected-components: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-ie9xt1xp/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+FAIL: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py): [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-ie9xt1xp/plugins/sdd-quality-loop/scripts/rcp-argv-capture.json'
+FAIL: registry-swapped-during-validation: exit 1: got 0
+FAIL: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-swapped-during-validation: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-yc03fhj6/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-swapped-during-validation: Resolver Evidence schema agreement: evidence absent
+PASS: registry-swapped-during-validation: no partial live artifact
+FAIL: affected-component-absent-from-context: exit 1: got 0
+FAIL: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: affected-component-absent-from-context: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1f3uh8_0/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-absent-from-context: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-absent-from-context: no partial live artifact
+FAIL: registry-discovery-syntax-error: exit 1: got 0
+FAIL: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-discovery-syntax-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-y3au28wh/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-syntax-error: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-syntax-error: no partial live artifact
+FAIL: lite-check-source-undefined: exit 1: got 0 stderr=''
+FAIL: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: lite-check-source-undefined: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-zsovgbbh/specs/example-feature/resolver-evidence.yaml'
+FAIL: lite-check-source-undefined: Resolver Evidence schema agreement: evidence absent
+PASS: lite-check-source-undefined: no partial live artifact
+FAIL: output-schema-validation-failed-evidence: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+FAIL: output-schema-validation-failed-artifact: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: output-schema-validation-failed-artifact: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-h2l_6kok/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-artifact: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+FAIL: output-schema-validation-failed-facet-manifest: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-_ukgqz4y/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+FAIL: snapshot-generation-mismatch: exit 1: got 0 stderr=''
+FAIL: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: snapshot-generation-mismatch: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-swr1apv2/specs/example-feature/resolver-evidence.yaml'
+FAIL: snapshot-generation-mismatch: Resolver Evidence schema agreement: evidence absent
+PASS: snapshot-generation-mismatch: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-5liabdrj/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-shsiuht2/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-xbback2l/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-g8av05v6/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-x2_ffugx/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+FAIL: recheck-dependency-failed: exit 1: got 0 stderr=''
+FAIL: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: recheck-dependency-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-vpatlk79/specs/example-feature/resolver-evidence.yaml'
+FAIL: recheck-dependency-failed: Resolver Evidence schema agreement: evidence absent
+PASS: recheck-dependency-failed: no partial live artifact
+FAIL: draft7-validator-keywords: _draft7_conforms exists on the staged module: TDD RED: T-004 step-12 self-validation absent from this staged snapshot
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+FAIL: sys-path-hygiene: _discover_registry exists on the staged module: TDD RED: T-003 step-5 registry discovery absent from this staged snapshot
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 107 passed, 125 failed
+# ---- specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v9-sh.log ----
+# runner: bash
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: no Resolver Evidence on the success path
+PASS: projection-two-components: no partial live artifact
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+FAIL: affected-component-resolution-failed: exit 1: got 0
+FAIL: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: affected-component-resolution-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-_tgeykwt/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-resolution-failed: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-resolution-failed: no partial live artifact
+FAIL: resolve-component-paths-launch-failed: exit 1: got 0
+FAIL: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: resolve-component-paths-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-63idr95_/specs/example-feature/resolver-evidence.yaml'
+FAIL: resolve-component-paths-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+FAIL: contract-discovery-failed: exit 1: got 0
+FAIL: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-1s2f6xhg/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed: no partial live artifact
+FAIL: registry-discovery-unimportable: exit 1: got 0
+FAIL: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-discovery-unimportable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-3yw7nlsw/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-unimportable: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-unimportable: no partial live artifact
+FAIL: registry-validation-failed: exit 1: got 0
+FAIL: registry-validation-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-validation-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-jr_je6f8/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-validation-failed: Resolver Evidence schema agreement: evidence absent
+PASS: registry-validation-failed: no partial live artifact
+FAIL: validate-capability-registry-launch-failed: exit 1: got 0
+FAIL: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: validate-capability-registry-launch-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-p5iacng8/specs/example-feature/resolver-evidence.yaml'
+FAIL: validate-capability-registry-launch-failed: Resolver Evidence schema agreement: evidence absent
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+FAIL: dependency-subprocess-failed: exit 1: got 0
+FAIL: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: dependency-subprocess-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0ukjiof2/specs/example-feature/resolver-evidence.yaml'
+FAIL: dependency-subprocess-failed: Resolver Evidence schema agreement: evidence absent
+PASS: dependency-subprocess-failed: no partial live artifact
+FAIL: affected-component-duplicate-ids: exit 1: got 0
+FAIL: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: affected-component-duplicate-ids: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-bjuodocn/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-duplicate-ids: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-duplicate-ids: no partial live artifact
+FAIL: evaluate-predicate-output-malformed: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-brjduqzk/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+FAIL: evaluate-predicate-output-malformed-nested: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed-nested: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-quvmygfl/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+FAIL: evaluate-predicate-output-malformed-unhashable: exit 1: got 0
+FAIL: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-d6vr1crc/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+FAIL: evaluate-predicate-schema-error: exit 1: got 0
+FAIL: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-schema-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-pdv38hgk/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-schema-error: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-schema-error: no partial live artifact
+FAIL: evaluate-predicate-failure-after-warn: exit 1: got 0
+FAIL: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: evaluate-predicate-failure-after-warn: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-jaqqid75/specs/example-feature/resolver-evidence.yaml'
+FAIL: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement: evidence absent
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+FAIL: dsl-warn-unmatched-trigger: exit 1: got 0
+FAIL: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dsl-warn-unmatched-trigger: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0va6k35q/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+FAIL: dsl-warn-matched-nondetermining: exit 1: got 0
+FAIL: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dsl-warn-matched-nondetermining: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-974s17f3/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+FAIL: dsl-warn-unsorted-affected-components: exit 1: got 0
+FAIL: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: dsl-warn-unsorted-affected-components: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-f5_h_mqb/specs/example-feature/resolver-evidence.yaml'
+FAIL: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement: evidence absent
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+FAIL: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py): [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-f5_h_mqb/plugins/sdd-quality-loop/scripts/rcp-argv-capture.json'
+FAIL: registry-swapped-during-validation: exit 1: got 0
+FAIL: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-swapped-during-validation: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-e8gli_40/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-swapped-during-validation: Resolver Evidence schema agreement: evidence absent
+PASS: registry-swapped-during-validation: no partial live artifact
+FAIL: affected-component-absent-from-context: exit 1: got 0
+FAIL: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: affected-component-absent-from-context: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-oloi46og/specs/example-feature/resolver-evidence.yaml'
+FAIL: affected-component-absent-from-context: Resolver Evidence schema agreement: evidence absent
+PASS: affected-component-absent-from-context: no partial live artifact
+FAIL: registry-discovery-syntax-error: exit 1: got 0
+FAIL: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: registry-discovery-syntax-error: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-s4atq76o/specs/example-feature/resolver-evidence.yaml'
+FAIL: registry-discovery-syntax-error: Resolver Evidence schema agreement: evidence absent
+PASS: registry-discovery-syntax-error: no partial live artifact
+FAIL: lite-check-source-undefined: exit 1: got 0 stderr=''
+FAIL: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: lite-check-source-undefined: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-18h983d9/specs/example-feature/resolver-evidence.yaml'
+FAIL: lite-check-source-undefined: Resolver Evidence schema agreement: evidence absent
+PASS: lite-check-source-undefined: no partial live artifact
+FAIL: output-schema-validation-failed-evidence: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+FAIL: output-schema-validation-failed-artifact: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: output-schema-validation-failed-artifact: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-mfct7e4z/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-artifact: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+FAIL: output-schema-validation-failed-facet-manifest: exit 1: got 0 stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: output-schema-validation-failed-facet-manifest: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-jbfvmk13/specs/example-feature/resolver-evidence.yaml'
+FAIL: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement: evidence absent
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+FAIL: snapshot-generation-mismatch: exit 1: got 0 stderr=''
+FAIL: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: snapshot-generation-mismatch: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-zy68yzgh/specs/example-feature/resolver-evidence.yaml'
+FAIL: snapshot-generation-mismatch: Resolver Evidence schema agreement: evidence absent
+PASS: snapshot-generation-mismatch: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-m41km76t/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-vowuwhez/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-0k_v6v1y/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-z6y75pnp/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: exit 1: got 0 stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-g2o54ul_/specs/example-feature/resolver-evidence.yaml'
+FAIL: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement: evidence absent
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+FAIL: recheck-dependency-failed: exit 1: got 0 stderr=''
+FAIL: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5): stdout='' stderr=''
+FAIL: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005): stderr=''
+FAIL: recheck-dependency-failed: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t004-eiz95tx7/specs/example-feature/resolver-evidence.yaml'
+FAIL: recheck-dependency-failed: Resolver Evidence schema agreement: evidence absent
+PASS: recheck-dependency-failed: no partial live artifact
+FAIL: draft7-validator-keywords: _draft7_conforms exists on the staged module: TDD RED: T-004 step-12 self-validation absent from this staged snapshot
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+FAIL: sys-path-hygiene: _discover_registry exists on the staged module: TDD RED: T-003 step-5 registry discovery absent from this staged snapshot
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 107 passed, 125 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-sh.log ----
 Genuine full-scope RED for T-003's own scope (steps 4-9), re-captured
 2026-08-24 to close the T-003 confirmation-panel Major #1 finding (both
@@ -13905,6 +14385,11 @@ PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before
 PASS: dependency-subprocess-failed: exact Resolver Evidence
 PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
 PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
 PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
@@ -14032,7 +14517,7 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 234 passed, 0 failed
+RESULT: 239 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log ----
 # runner: pwsh
 PASS: disabled-legacy-invocation: exit 1
@@ -14142,6 +14627,11 @@ PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before
 PASS: dependency-subprocess-failed: exact Resolver Evidence
 PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
 PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
 PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
@@ -14269,7 +14759,7 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 234 passed, 0 failed
+RESULT: 239 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log ----
 Scoped regression evidence for T-003 (epic-193-a5-capability-resolver).
 This header previously self-dated to "current HEAD (217710a2 + ... cycle-3
@@ -14885,6 +15375,27 @@ failing suite, none this feature's own.
 regression: passes=true for this diff's own attributable effect,
 measured against the post-cycle-7 tree (staged resolver 5d192853...,
 v8 red baseline 106/121 both runtimes).
+
+TENTH-ROUND CAPTURE (2026-08-26, route-(a) panel round-4 closure):
+duplicate-component-id rejection at step 4 (new fixture
+affected-component-duplicate-ids). Focused suites, current tree,
+post-fix:
+  bash tests/resolve-project-context-block.tests.sh        -> RESULT: 239 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 239 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh        -> RESULT: 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> RESULT: 125 passed, 0 failed
+Full run-all (tests/run-all.sh), unpiped, fresh post-fix sweep,
+EXIT:1, trailing enumeration:
+  4 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+Byte-identical to the SIXTH-, EIGHTH- and NINTH-round enumerations: no
+new failing suite, none this feature's own.
+regression: passes=true for this diff's own attributable effect,
+measured against the post-round-4 tree (staged resolver 0b83645b...,
+v9 red baseline 107/125 both runtimes).
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log ----
 $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py
 Placeholder scan passed.
@@ -14969,6 +15480,14 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # hash-safe enum-membership fix -- the staged resolver (now
 # 5d192853..., isinstance-str guards), the extended block driver, and
 # the new unhashable fixture stub:
+Placeholder scan passed.
+Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py
+# route-(a) panel round-4 closure (2026-08-26): re-scanned after the
+# duplicate-component-id rejection -- the staged resolver (now
+# 0b83645b...), the extended block driver, and the new duplicate-ids
+# fixture stub:
 Placeholder scan passed.
 Exit: 0
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log ----
@@ -15258,6 +15777,14 @@ entries, remains the authoritative list):
   bash tests/resolve-project-context-block.tests.sh   -> 234 passed, 0 failed
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 234 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V6: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 234 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-4 CLOSURE (2026-08-26,
+duplicate-component-id rejection at step 4; new fixture
+affected-component-duplicate-ids -- census now NINETEEN, the driver's
+case tuple remains the authoritative list at nineteen entries):
+  bash tests/resolve-project-context-block.tests.sh   -> 239 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 239 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V7: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 239 passed, 0 failed"
 CENSUS CORRECTION (2026-08-26, gate cycle 6): T-003's own fixture
 enumeration is now SEVENTEEN. The authoritative list is
 run_t003_case's own case tuple in
@@ -15268,6 +15795,14 @@ evaluate-predicate-output-malformed-nested. The FIFTEEN-name
 enumeration near the top of this log and the SIXTEEN count in the
 rulings-C trailer above are historical snapshots of earlier
 generations, not the current census.
+
+READING-ORDER NOTE (2026-08-26, gate cycle 9): the CENSUS CORRECTION
+block immediately above was written at gate cycle 6 and predates the
+V6/V7 trailers that appear EARLIER in this file (they were appended by
+Edit-anchoring at the then-latest trailer line, landing physically
+before this tail block). The current census is NINETEEN, per the
+LIVE-TOTAL-V7 trailer and the driver's nineteen-entry case tuple; the
+SEVENTEEN in the block above is itself now a historical snapshot.
 # ---- reports/implementation/epic-193-a5-capability-resolver/T-003.md ----
 # Implementation Report: T-003
 
@@ -15403,18 +15938,18 @@ touched — this task only appends fixtures to the already-registered
 
 **Re-derived again 2026-08-26 (route-(a) panel round-2 closure)**: the nested evidence-shape fix added `_evidence_tree_well_formed` to the staged resolver (now `f0fd20cf…`), the `evaluate-predicate-output-malformed-nested` fixture directory (three files), the `mutation-kill-nested-evidence-shape.log` pre-fix capture, and the v6 red baseline pair (105/117 both runtimes; suite green 229/0); every row — including the two round-1-refreshed logs the anthropic panelist found stale-hashed — is re-hashed from the current worktree. The paragraph below records the previous generation. **Re-derived 2026-08-26 (rulings C(1)/C(2), route (a), human-approved)**: derived from `git diff --name-status 5dcacc8e~1..HEAD` limited to this task's own trees (`CHANGELOG.md`, `tests/`, the staged human-copy scripts, and `verification/`), never by re-measuring existing rows alone. The route-(a) reimplementation reinstated step 6.5 with spec sanction (AC-057) and added the absent-component fail-closed rule (AC-058): the `registry-swapped-during-validation` and `affected-component-absent-from-context` fixture directories and the `recheck-dependency-failed` fixture files are added as rows, the v5 red baseline (104/113 both runtimes) replaces v3 as the contract's red evidence (v3 rows remain as history), the `run-panelist-effort` twin suites (repaired runner argv expectations) are added, and every drifted row (staged resolver, MANIFEST, contract, green/focused/traceability logs, block driver, two fixture contexts, CHANGELOG) is re-hashed from the current worktree. Suite green is now 224/0 both runtimes. The paragraphs above describe earlier generations; this derivation is authoritative for current bytes.
 
-**Re-derived again 2026-08-26 (route-(a) panel round-2 closure)**: the nested evidence-shape fix added `_evidence_tree_well_formed` to the staged resolver (now `f0fd20cf…`), the `evaluate-predicate-output-malformed-nested` fixture directory (three files), the `mutation-kill-nested-evidence-shape.log` pre-fix capture, and the v6 red baseline pair (105/117 both runtimes; suite green 229/0); every row — including the two round-1-refreshed logs the anthropic panelist found stale-hashed — is re-hashed from the current worktree. The paragraph below records the previous generation. **Re-derived 2026-08-26 (rulings C(1)/C(2), route (a), human-approved)**: derived from `git diff --name-status 5dcacc8e~1..HEAD` limited to this task's own trees (`CHANGELOG.md`, `tests/`, the staged human-copy scripts, and `verification/`), never by re-measuring existing rows alone. The route-(a) reimplementation reinstated step 6.5 with spec sanction (AC-057) and added the absent-component fail-closed rule (AC-058): the `registry-swapped-during-validation` and `affected-component-absent-from-context` fixture directories and the `recheck-dependency-failed` fixture files are added as rows, the v5 red baseline (104/113 both runtimes) replaces v3 as the contract's red evidence (v3 rows remain as history), the `run-panelist-effort` twin suites (repaired runner argv expectations) are added, and every drifted row (staged resolver, MANIFEST, contract, green/focused/traceability logs, block driver, two fixture contexts, CHANGELOG) is re-hashed from the current worktree. Suite green is now 224/0 both runtimes. The paragraphs above describe earlier generations; this derivation is authoritative for current bytes.
 
-**Re-derived again 2026-08-26 (route-(a) panel round-2 closure)**: the nested evidence-shape fix added `_evidence_tree_well_formed` to the staged resolver (now `f0fd20cf…`), the `evaluate-predicate-output-malformed-nested` fixture directory (three files), the `mutation-kill-nested-evidence-shape.log` pre-fix capture, and the v6 red baseline pair (105/117 both runtimes; suite green 229/0); every row — including the two round-1-refreshed logs the anthropic panelist found stale-hashed — is re-hashed from the current worktree. The paragraph below records the previous generation. **Re-derived 2026-08-26 (rulings C(1)/C(2), route (a), human-approved)**: derived from `git diff --name-status 5dcacc8e~1..HEAD` limited to this task's own trees (`CHANGELOG.md`, `tests/`, the staged human-copy scripts, and `verification/`), never by re-measuring existing rows alone. The route-(a) reimplementation reinstated step 6.5 with spec sanction (AC-057) and added the absent-component fail-closed rule (AC-058): the `registry-swapped-during-validation` and `affected-component-absent-from-context` fixture directories and the `recheck-dependency-failed` fixture files are added as rows, the v5 red baseline (104/113 both runtimes) replaces v3 as the contract's red evidence (v3 rows remain as history), the `run-panelist-effort` twin suites (repaired runner argv expectations) are added, and every drifted row (staged resolver, MANIFEST, contract, green/focused/traceability logs, block driver, two fixture contexts, CHANGELOG) is re-hashed from the current worktree. Suite green is now 224/0 both runtimes. The paragraphs above describe earlier generations; this derivation is authoritative for current bytes.
+
+**Re-derived again 2026-08-26 (route-(a) panel round-4 closure — authoritative for current bytes)**: the duplicate-component-id rejection changed the staged resolver (now `0b83645b…`); the `affected-component-duplicate-ids` fixture directory (three files), the `mutation-kill-duplicate-component-ids.log` pre-fix capture, and the v9 red baseline pair (107/125 both runtimes; suite green 239/0, census NINETEEN) are added as rows; every row is re-hashed from the current worktree AFTER all log appends. Housekeeping (anthropic round-4 Minor): earlier regenerations re-appended their own unchanged derivation paragraph on each run, stacking three identical copies — the duplicates are removed and the generator now skips an already-present paragraph.
 
 | Path | SHA-256 (current worktree, 2026-08-26) |
 |---|---|
-| `CHANGELOG.md` | `f8950cbdd4a9d5cd9bc0245dd5062caf9983ec92b37171ef3ba0bd73cd6f2153` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `305f822d082f7728edcaba81e7acd83ce43c32c092ad962f9e326eafb1e0b8ff` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `5d1928532607eabe35d86fa5e3483f231e90debabc6a1b00bdd9a5f445109719` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `069a892cecd2756d24bf916858268aa50175ad44ce697ea9b4e0b938e27ef997` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `4af2c327489036c436d59be0f49b950753ad1bbe42ed5477df651f9641124a97` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `d737fa369a38c3d616b64789fc369cdb2bede73a39abfe17e156697e8f22fa2b` |
+| `CHANGELOG.md` | `5c1c1ba7033bb7604d11c561aa872ee9dcc17aabdff4394aa71ce890bb3710c7` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `632baa8cae82cd0edc335debf32ac81d285868cc7a1d9f36607e85036fa20c5f` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `0b83645b900eadc0d26d09bc833bff76b5bcd0231f5a5efe27ca26400c2f5bd4` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `2dfcbed4805c95c2e37ca442f8f6bca7205834eca8e49b4d1f4ce0af760e0c81` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `2f783368b185e34681c1fdf43fbfd9d8c15d2a81324711752823572d0cc88649` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `976e31cbc6904a3e38d1ad6eb96d85f3f2c4bce69054124288a1da5dded551d6` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-ps1.log` | `4bfcde451aa4aa0881d199871748727b3262e07d45e3e520ccf9de367bac604d` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-ps1.log` | `e7cd49ffa27664cdb4f5d9f62a84bed4e91e5ba974d9802e1d0ffdead120d0f7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-sh.log` | `f542a21675163a20bc3ad020d9e2610d1e45082cb7fe02485d0ffd7b5d054a60` |
@@ -15430,12 +15965,15 @@ touched — this task only appends fixtures to the already-registered
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v7-sh.log` | `64722432c457a98ced72292bb1261d46059a123eb6072b92c364ae04cee8dc9e` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v8-ps1.log` | `4804567c13b1e1f2409a1803f7c2d8f297f9e45a7ae5be090c4c3dd8cf87caf2` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v8-sh.log` | `cbea18558a30bc8bb3f75299eee1840c3c2499f01e638d2f692176c5da10246e` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v9-ps1.log` | `7d8d7b5a6bd32d47104fa05bd270c07b618c539a2ce50227bf899eb5210e94b3` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v9-sh.log` | `b31c45a814e13625d9bf137d9cde45e50c039ee3958b607a7c84d1dd2afffac0` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-sh.log` | `5859cbc6481f536cc14bc7ee7125d134ab0e70e560e8c6c71ac202fdd1c99c39` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-ps1.log` | `31194e8a53ee0c508a53d6ca127a6f991c72d81d4b39cf184ef8f6d46658f0a3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-sh.log` | `9b6ec6cf758249b30857e8030e5d7ab59728cf479a8c43127bf70701abc24a2f` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `4af2c327489036c436d59be0f49b950753ad1bbe42ed5477df651f9641124a97` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `d737fa369a38c3d616b64789fc369cdb2bede73a39abfe17e156697e8f22fa2b` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `2f783368b185e34681c1fdf43fbfd9d8c15d2a81324711752823572d0cc88649` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `976e31cbc6904a3e38d1ad6eb96d85f3f2c4bce69054124288a1da5dded551d6` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-dsl-warn-unsorted-affected-components.log` | `2c9b6708934e5f714b6bacd691f51ff3a40bf140d9bd3ab5c1aa4006ddf5e688` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-duplicate-component-ids.log` | `1bc3e2f519fcafe0c92a4c3138ee5e25be110c23f163066639a20a02771a8b64` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-evaluate-predicate-schema-error.log` | `b86a06b1f0ac6af619ec030b714312ca964891ad5794e2705639bf357229586a` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-field-evidence-shape.log` | `aab659f889ef5cb936c3d6cb8af573214e3f3384a6b95308b90f2739ed6a4646` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-include-untracked-pass-through.log` | `34f8761ebfc00b2228d818e2b5e464e6f81f9a97b725667b55cd26760e161a21` |
@@ -15443,15 +15981,18 @@ touched — this task only appends fixtures to the already-registered
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-reversal1-evaluate-predicate-failure-after-warn.log` | `e4afdf02f08bb8e80a7cbd0b5ed3f1ef8ead4d5d0c849fb2600122c6588cef4b` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-sys-path-restore.log` | `65eec9ba7591b14d83d2b58993b3613855465cf530604442b821a4ba6c3a0393` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-unhashable-enum.log` | `fc703d867b815035c55d54448dcdc3aa1c4454a88f1ee3036601b0c3cd85133e` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log` | `f0915756f478e7a65bd408e97eb5966cbacfba749b1cbefb9b9332e52ccfd027` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `cd4b72324395402a4f199546ff0cf5d36246a6c2e244f2347cd66804624aea8c` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log` | `d479a16098f7b1a83cf206cc6ce50868f10cb8f891d069ce7122e530142b2f8e` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `fd9ad3371c9dcf0cc4ab164056d1dadce1078bfae9de25becd7809d0624e34c4` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log` | `7dd25def4f74510383ecb66dca460e20d963a3d800b4b5372c8dcb131bc75f7a` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `a0465b66be2ca3b193d43a4824ab4fa065b52b893713769fc5cde6619d209adb` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `8f7df4cc1725f9a223d5baa6121bcbaaf44efaf16ecaea81aa49e328f0d878f9` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-004/mutation-kill-governing-schema-invalid-utf8.log` | `ee6fc6c6dc260562f05271a984aed1f8002c7b26281bcefa46129c02505d5d72` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-004/mutation-kill-governing-schema-malformed-ref.log` | `cb5b3a657b1f925844a677b68a08e7386e0b42b9aa7aa5b4c1a3009e14be12d2` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/capability-registry.json` | `0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/project-context.yaml` | `98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-absent-from-context/resolve-component-paths.py` | `aba58c21d5a47bfb780103514ad14da1bec16810541b287c065ae1d3f5be425a` |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/capability-registry.json` | `0b3b29d8b1d75fd460eec967cc0cc93e57a5a7c783c15d0b65154d7f0b308d2b` |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/project-context.yaml` | `98db777d7b88df93c3d6596959a857731890d7dcd2bf9cac5c8cb3a27d146ba8` |
+| `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py` | `215f395703319b5e2b9360e617fca33563b870a62b02fb9a7455bdeb64e8751e` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/resolve-component-paths.py` | `8ef4761e79ca0fcab181f3736c9df930f34b38b9c98896b3caac6f4bf4a9a4e2` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/contract-discovery-failed-governing-schema-invalid-utf8/project-context.yaml` | `9d09a419e8d3d458f40c0cc18d1ebb27219ece8123f8fd93432371d0455906fb` |
@@ -15500,7 +16041,7 @@ touched — this task only appends fixtures to the already-registered
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py` | `2c4e509c2a96daac329c6b2c7ce61629c80ba7b3902a9e6af77472626cb3d452` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/capability-registry-empty.json` | `87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py` | `8e11f63b463781e3be475124aad322db8ad573e277d79f1ea4a950edc17a594b` |
-| `tests/resolve-project-context-block-check.py` | `621a96290b9a90db4cb67e8cd2b6755351e318165865f9d50de7df5fd6ad2bb1` |
+| `tests/resolve-project-context-block-check.py` | `d33f673aaa32cef6f9d0a70a71ab1fddd3f930ba0a2a2199f9012758ff15ca5f` |
 | `tests/resolve-project-context-block.tests.ps1` | `f09f9c97d53364def990865cef0d242785028781e3f462c71849b0734874a257` |
 | `tests/resolve-project-context-block.tests.sh` | `a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890` |
 | `tests/run-panelist-effort.tests.ps1` | `80c01effc90594256eb03fc0d355f805dd3d5b35823c6d38241428835d6d701e` |
@@ -17174,6 +17715,47 @@ type, and proved it end-to-end with 152 differential adversarial trees:
 - `Minor | Fixed` — the nested fixture's stub docstring still carried
   the round-2 "second child is a bare string" sentence its own payload
   no longer contained; the stale sentence is removed.
+
+### Round 4 (bundle digest `88bdfa60…`) and its closure
+
+Round 4 returned **anthropic PASS** (5 Minor) and **openai NEEDS_WORK**
+(1 Major). The openai Major was reproduced against the live harness and
+is REAL — and worse than either panelist assumed:
+
+- `Major | CONFIRMED and fixed` — a duplicate component id in
+  `resolve-component-paths`' `affected_components[]` survived the
+  step-4 shape validation (list-of-strings only) and fanned out into
+  TWO `trigger_evaluations[]` entries and TWO warn diagnostics for the
+  same component — violating REQ-004's
+  exactly-one-per-affected-component binding — and the published
+  Resolver Evidence **PASSED the step-12 schema self-validation**
+  (anthropic's Minor assumed uniqueItems would catch it; the live
+  reproduction shows it shipping silently: 237/2 pre-fix, captured
+  verbatim in `qg/T-003/mutation-kill-duplicate-component-ids.log`).
+  Fixed by rejecting duplicates in `_run_resolve_component_paths`
+  under the step-4 site's existing `dependency-output-malformed`
+  canonical sentence — Epic A3's contract guarantees unique ids, so a
+  duplicate IS malformed dependency output; no frozen-document change
+  needed. New fixture `affected-component-duplicate-ids` (census
+  NINETEEN). GREEN **239/0 both runtimes**; match 125/0 both; RED v9
+  107/125 both runtimes (+1 pass / +4 fail over v8 = the new case's
+  five assertions); contract `red_evidence` cites v9; MANIFEST
+  resolver `0b83645b…` (4/4 OK); traceability LIVE-TOTAL-V7;
+  regression TENTH with a fresh post-fix run-all.
+- `Minor | Fixed` (anthropic) — the Outputs derivation paragraph had
+  been re-appended verbatim on each regeneration, stacking three
+  identical copies; deduplicated, and the generator now skips an
+  already-present paragraph.
+- `Minor | Fixed` (anthropic) — the contract comment now carries the
+  spec_revision note: its creation-time pin (9ff49115…) deliberately
+  records the pre-amendment set, and the divergence from the evidence
+  bundle's current-set value is the recorded amendment history
+  (A(1)/B(1)/C(1)/C(2)), not drift.
+- `Minor | Recorded` (anthropic ×3) — the disabled-legacy-invocation
+  detail embedding the caller-supplied `--config` string is T-002's
+  step-0 scope, recorded for that task; the two oldest mutation-kill
+  logs retain their original 201-assertion-era tallies (probative,
+  historical); both recorded rather than churned.
 # ---- CHANGELOG.md (declared output) ----
 # Changelog
 
@@ -17208,7 +17790,7 @@ type, and proved it end-to-end with 152 differential adversarial trees:
   既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
   （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
   が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
-  自身が所有する fixture として **18 fixture directory**
+  自身が所有する fixture として **19 fixture directory**
 （2026-08-26 ruling C(1)/C(2) 実測: 凍結文書 amendment により step 6.5
 recheck を正式化して `registry-swapped-during-validation` を復帰、
 absent-component fail-closed の `affected-component-absent-from-context`
@@ -17219,15 +17801,20 @@ openai Major 是正で同検証を evidenceNode contract の鏡像へ強化
 （キー集合・enum・必須 path・warn→reason・children 配列限定）し、同
 fixture の payload を必須フィールド欠落の子へ更新。gate cycle 7 の
 Critical 是正で enum 判定を hash-safe 化（isinstance-str ガード）し
-`evaluate-predicate-output-malformed-unhashable` を追加。block suite
-は両ランタイム 234/0、red-baseline-recaptured-v8 は 106 passed /
-121 failed）
+`evaluate-predicate-output-malformed-unhashable` を追加。round 4 の
+openai Major 是正で step 4 に重複 component id 拒否を追加し
+`affected-component-duplicate-ids` を新設。block suite
+は両ランタイム 239/0、red-baseline-recaptured-v9 は 107 passed /
+125 failed）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
   `registry-discovery-unimportable` / `registry-validation-failed` /
   `validate-capability-registry-launch-failed` /
   `dependency-subprocess-failed` / `evaluate-predicate-output-malformed` /
-  `dsl-warn-on-matched-capability` ×3 fixture）を追加。
+  `dsl-warn-on-matched-capability` ×3 fixture ほか — この列挙は初期世代の
+  抜粋であり、確定的な全列挙は
+  `tests/resolve-project-context-block-check.py` の `run_t003_case`
+  case tuple（19 エントリ）が権威）を追加。
   **訂正 (2026-08-23, cross-model panel remediation)**: この項目が
   以前記載していた「5 診断行・6 invocation・sh/ps1 とも 102 passed /
   0 failed」は、この共有ドライバが後続タスク（T-004 の steps 10-13、
@@ -17236,7 +17823,7 @@ Critical 是正で enum 判定を hash-safe 化（isinstance-str ガード）し
   再指摘）。この共有ドライバは T-002/T-003/T-004 と本パスの是正が
   同一ファイルに同居するため、
   スイート全体の合計値をこの箇条書きに固定値として記載するのは本質的に
-  すぐ陳腐化する — T-003 自身の寄与分（上記 17 fixture）
+  すぐ陳腐化する — T-003 自身の寄与分（上記 19 fixture）
   のみをここでは確定的に記載し、スイート全体の現在合計は
   `reports/implementation/epic-193-a5-capability-resolver/T-003.md`
   「Cross-Model Panel Remediation」節、および
@@ -20417,7 +21004,7 @@ Codexエージェントロールファイルの検証・ガード・診断を追
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 # ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851  .github/workflows/test.yml
-5d1928532607eabe35d86fa5e3483f231e90debabc6a1b00bdd9a5f445109719  plugins/sdd-quality-loop/scripts/resolve-project-context.py
+0b83645b900eadc0d26d09bc833bff76b5bcd0231f5a5efe27ca26400c2f5bd4  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
 # ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
@@ -20732,6 +21319,17 @@ def _run_resolve_component_paths(script_dir, args):
     ownership_digest = (parsed.get("context_binding") or {}).get("ownership_digest")
     if not isinstance(affected_components, list) or not all(isinstance(c, str) for c in affected_components):
         raise DependencyOutputMalformed("resolve-component-paths stdout has no valid affected_components array")
+    # A duplicate component id is malformed dependency output (Epic A3's
+    # own contract guarantees unique ids; REQ-004 binds every
+    # capability_evaluations[] entry to EXACTLY one trigger_evaluations[]
+    # element per affected component). Without this rejection the
+    # duplicate fans out into two evaluations per capability and two warn
+    # diagnostics for the same node, publishing Evidence that violates
+    # REQ-004's exact-set rule while still passing the step-12 schema
+    # self-validation (route-(a) cross-model panel round-4 Major; fixture
+    # `affected-component-duplicate-ids`).
+    if len(set(affected_components)) != len(affected_components):
+        raise DependencyOutputMalformed("resolve-component-paths returned duplicate affected component ids")
     if not isinstance(ownership_digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", ownership_digest):
         raise DependencyOutputMalformed("resolve-component-paths stdout has no valid context_binding.ownership_digest")
     return affected_components, ownership_digest
@@ -22312,6 +22910,259 @@ power for the explicit fan-out sort is confirmed non-vacuous.
 Scratch clone discarded after capture (destructive-cleanup permission
 gate declined the `rm -rf`; the clone was left in the isolated,
 session-scoped scratchpad directory, never the repository).
+# ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-duplicate-component-ids.log (declared output) ----
+# mutation-kill: duplicate affected-component ids rejected at step 4 (route-(a) panel round-4 openai Major)
+# Captured 2026-08-26 BEFORE the uniqueness rejection, against the
+# then-current staged resolver (5d192853...): the new
+# affected-component-duplicate-ids payload (["comp-a", "comp-a"]) fans out
+# into TWO trigger_evaluations entries and TWO warn diagnostics for the
+# same component, and the published Resolver Evidence PASSES the step-12
+# schema self-validation while violating REQ-004 exact-set -- shipped
+# silently, worse than a misattribution. Suite 237 passed / 2 failed.
+# After the step-4 uniqueness rejection the identical suite is 239 passed /
+# 0 failed (green-{sh,ps1}.log) -- the mutation is killed.
+# Full pre-fix capture (bash runtime):
+# runner: bash
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+PASS: projection-two-components: no Resolver Evidence on the success path
+PASS: projection-two-components: no partial live artifact
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: affected-component-resolution-failed: exit 1
+PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: affected-component-resolution-failed: exact Resolver Evidence
+PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
+PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+PASS: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-launch-failed: exact Resolver Evidence
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+PASS: contract-discovery-failed: exit 1
+PASS: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed: exact Resolver Evidence
+PASS: contract-discovery-failed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+PASS: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-unimportable: exact Resolver Evidence
+PASS: registry-discovery-unimportable: Resolver Evidence schema agreement
+PASS: registry-discovery-unimportable: no partial live artifact
+PASS: registry-validation-failed: exit 1
+PASS: registry-validation-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-validation-failed: exact Resolver Evidence
+PASS: registry-validation-failed: Resolver Evidence schema agreement
+PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+PASS: dependency-subprocess-failed: exit 1
+PASS: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: dependency-subprocess-failed: exact Resolver Evidence
+PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
+PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+FAIL: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='capability-resolver: dsl-warn-on-matched-capability: a predicate evaluation produced an outcome: warn evidence node\n'
+FAIL: affected-component-duplicate-ids: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-ghost-probe', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}, {'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-ghost-probe' component_id='comp-a' (node_path='0', operator='equals', field='characteristics.auto_update', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-ghost-probe' component_id='comp-a' (node_path='0', operator='equals', field='characteristics.auto_update', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-output-malformed-nested: exit 1
+PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+PASS: evaluate-predicate-output-malformed-unhashable: exit 1
+PASS: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+PASS: evaluate-predicate-schema-error: exit 1
+PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-schema-error: exact Resolver Evidence
+PASS: evaluate-predicate-schema-error: Resolver Evidence schema agreement
+PASS: evaluate-predicate-schema-error: no partial live artifact
+PASS: evaluate-predicate-failure-after-warn: exit 1
+PASS: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: evaluate-predicate-failure-after-warn: exact Resolver Evidence
+PASS: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+PASS: dsl-warn-unmatched-trigger: exit 1
+PASS: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unmatched-trigger: exact Resolver Evidence
+PASS: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+PASS: dsl-warn-matched-nondetermining: exit 1
+PASS: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-matched-nondetermining: exact Resolver Evidence
+PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: registry-swapped-during-validation: exit 1
+PASS: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-swapped-during-validation: exact Resolver Evidence
+PASS: registry-swapped-during-validation: Resolver Evidence schema agreement
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: affected-component-absent-from-context: exit 1
+PASS: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-absent-from-context: exact Resolver Evidence
+PASS: affected-component-absent-from-context: Resolver Evidence schema agreement
+PASS: affected-component-absent-from-context: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+PASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-syntax-error: exact Resolver Evidence
+PASS: registry-discovery-syntax-error: Resolver Evidence schema agreement
+PASS: registry-discovery-syntax-error: no partial live artifact
+PASS: lite-check-source-undefined: exit 1
+PASS: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5)
+PASS: lite-check-source-undefined: exact Resolver Evidence
+PASS: lite-check-source-undefined: Resolver Evidence schema agreement
+PASS: lite-check-source-undefined: no partial live artifact
+PASS: output-schema-validation-failed-evidence: exit 1
+PASS: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+PASS: output-schema-validation-failed-artifact: exit 1
+PASS: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: output-schema-validation-failed-facet-manifest: exit 1
+PASS: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-facet-manifest: exact Resolver Evidence
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exit 1
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
+PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
+PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 237 passed, 2 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-evaluate-predicate-schema-error.log (declared output) ----
 Retained mutation-kill evidence for TEST-003's own `evaluate-predicate-schema-error`
 fixture (tests/fixtures/capability-resolver/resolve-project-context-block/
@@ -23459,6 +24310,61 @@ import sys
 digest = hashlib.sha256(b"affected-component-absent-from-context").hexdigest()
 sys.stdout.write(
     '{"affected_components": ["comp-a", "comp-ghost"], '
+    '"context_binding": {"ownership_digest": "sha256:' + digest + '"}}'
+)
+sys.exit(0)
+# ---- tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/capability-registry.json (declared output) ----
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "cap-ghost-probe",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.auto_update",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "delivery_strategy": {"kind": "cap-ghost-probe"}
+    }
+  ]
+}
+# ---- tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/project-context.yaml (declared output) ----
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: advisory
+components:
+  - id: comp-a
+shared_paths: []
+# ---- tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py (declared output) ----
+#!/usr/bin/env python3
+"""T-003 fixture stub (route-(a) cross-model panel round-4 closure):
+returns an `affected_components` array carrying the SAME component id
+twice (`["comp-a", "comp-a"]`) with an otherwise well-formed payload.
+Epic A3's own contract guarantees unique affected-component ids, and
+REQ-004 binds every `capability_evaluations[]` entry to carry EXACTLY
+one `trigger_evaluations[]` element per affected component -- a
+duplicate id in the dependency result is therefore malformed dependency
+output, and step 4's own shape validation must Block
+`dependency-output-malformed` up front (its existing canonical
+sentence), never fan the duplicate out into two evaluations per
+capability (the REQ-004 violation the openai round-4 panelist named,
+which step 12's uniqueItems would then misattribute as
+output-schema-validation-failed -- the round-3 misattribution class
+again)."""
+import hashlib
+import sys
+
+digest = hashlib.sha256(b"affected-component-duplicate-ids").hexdigest()
+sys.stdout.write(
+    '{"affected_components": ["comp-a", "comp-a"], '
     '"context_binding": {"ownership_digest": "sha256:' + digest + '"}}'
 )
 sys.exit(0)
@@ -25050,6 +25956,7 @@ ALL_CASE_NAMES = (
         "registry-validation-failed",
         "validate-capability-registry-launch-failed",
         "dependency-subprocess-failed",
+        "affected-component-duplicate-ids",
         "evaluate-predicate-output-malformed",
         "evaluate-predicate-output-malformed-nested",
         "evaluate-predicate-output-malformed-unhashable",
@@ -25231,6 +26138,8 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "generate-registry-digest.py"
         elif case_name == "affected-component-absent-from-context":
             stub_name = "resolve-component-paths.py"
+        elif case_name == "affected-component-duplicate-ids":
+            stub_name = "resolve-component-paths.py"
         elif case_name == "registry-discovery-unimportable":
             stub_name = "registry_discovery.py"
         elif case_name == "registry-discovery-syntax-error":
@@ -25380,6 +26289,21 @@ def run_t003_case(kind, case_name, counts):
             expected_id = "dependency-output-malformed"
             expected_detail = (
                 "resolve-component-paths returned an affected component absent from the Project Context"
+            )
+
+        elif case_name == "affected-component-duplicate-ids":
+            # Cross-model panel round 4 (openai Major): a duplicate id in
+            # affected_components survived the step-4 shape validation and
+            # fanned out into TWO trigger/conditional-facet evaluations per
+            # capability for the same component -- violating REQ-004's
+            # exactly-one-per-affected-component binding (and Epic A3's own
+            # uniqueness guarantee), then relying on step 12's uniqueItems
+            # to catch it as a misattributed output-schema-validation-failed.
+            # Step 4 must reject the duplicate up front under its existing
+            # dependency-output-malformed canonical sentence.
+            expected_id = "dependency-output-malformed"
+            expected_detail = (
+                "resolve-component-paths returned malformed JSON while resolving affected components"
             )
 
         elif case_name == "evaluate-predicate-output-malformed":
@@ -26774,6 +27698,7 @@ def main():
             "registry-validation-failed",
             "validate-capability-registry-launch-failed",
             "dependency-subprocess-failed",
+            "affected-component-duplicate-ids",
             "evaluate-predicate-output-malformed",
             "evaluate-predicate-output-malformed-nested",
             "evaluate-predicate-output-malformed-unhashable",
