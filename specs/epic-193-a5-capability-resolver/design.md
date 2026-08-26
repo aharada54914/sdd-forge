@@ -651,7 +651,9 @@ Data Entities:
   and compares the fresh bytes' digest against the raw-bytes digest
   retained at step 5's own first read; any difference, including the
   re-read itself failing, Blocks `snapshot-generation-mismatch`
-  (REQ-002's amended second trigger site).** Immediately before
+  (REQ-002's amended second trigger site; AC-057's own dedicated
+  `registry-swapped-during-validation` fixture locks exactly this
+  site).** Immediately before
   publication (step 13), this
   invocation re-reads the same three paths and re-invokes `resolve-
   component-paths` with the identical flags a second time — **now for
@@ -933,7 +935,9 @@ any individual combination's own result):
    entry naming a component id absent from the Context Projection Blocks
    `dependency-output-malformed` before any predicate evaluation of that
    entry — never a defaulted-empty-properties evaluation (ruling C(2),
-   human-approved 2026-08-26; REQ-002's amended row).** A `PREDICATE_SCHEMA_ERROR`
+   human-approved 2026-08-26; REQ-002's amended row; AC-058's own
+   dedicated `affected-component-absent-from-context` fixture locks
+   exactly this path).** A `PREDICATE_SCHEMA_ERROR`
    exit here (a malformed predicate — should never occur against an
    already-`validate-capability-registry`-passed Registry, but checked
    defensively) → `registry-validation-failed` Block (a malformed
