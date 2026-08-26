@@ -227,6 +227,11 @@ git_init_scratch_repo() {
     git -C "$root" config user.email "test@example.invalid"
     git -C "$root" config user.name "Prepare Panelist Test"
     git -C "$root" config commit.gpgsign false
+    # Parity with the ps1 twin: pin autocrlf off so scratch-repo blobs are
+    # byte-identical to the working tree even under Git for Windows, where
+    # the default (true) rewrites line endings at checkin and breaks the
+    # declared-hash stale classification.
+    git -C "$root" config core.autocrlf false
 }
 
 # ============================================================================
@@ -2344,6 +2349,653 @@ if [ -f "${D062}/out.txt" ] && grep -q "BIG062 line 0001 filler filler filler fi
     ok "TEST-062c: elided bundle keeps first/last lines and genuinely drops a middle line"
 else
     fail "TEST-062c: elided bundle's head/tail/middle content does not match expectations"
+fi
+
+# ============================================================================
+# TEST-063/064: a project-root-relative row whose worktree content has
+# DRIFTED (same shape as TEST-039) must put the CURRENT worktree bytes into
+# the bundle, not the declaration-commit bytes — and must say so, IN the
+# bundle, where a reviewer will actually see it. TEST-039 only proved the
+# gate stays open (exit 0 + a stderr-only notice); it never inspected what
+# landed in the bundle file itself. This is the defect this change fixes:
+# a panelist judging "the code as it stands" was quietly handed weeks-old
+# bytes instead.
+# ============================================================================
+
+echo "=== TEST-063/064: drifted row serves CURRENT bytes + in-bundle stale notice ==="
+
+D063="${WORK}/pp063"
+mkdir -p "${D063}/input"
+git_init_scratch_repo "${D063}"
+write_tasks_with_consent "${D063}/tasks.md" "T-004"
+printf 'MARKER_V1_ONLY shared content\n' > "${D063}/shared.txt"
+HASH063_V1="$(sha256_of "${D063}/shared.txt")"
+write_impl_report "${D063}" "cross-model-verification" "T-004" \
+    "$(printf 'shared.txt\t%s' "$HASH063_V1")"
+git -C "${D063}" add -A
+git -C "${D063}" commit -q -m "declare shared.txt v1"
+
+# A later sibling task drifts the shared file; the report's declared hash
+# (v1) is now stale relative to the worktree (v2).
+printf 'MARKER_V2_ONLY shared content (drifted)\n' > "${D063}/shared.txt"
+git -C "${D063}" add -A
+git -C "${D063}" commit -q -m "sibling task drifts shared.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D063}/input" \
+    --tasks-file "${D063}/tasks.md" \
+    --project-root "${D063}" \
+    --out "${D063}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-063a: drifted row still exits 0"
+else
+    fail "TEST-063a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D063}/out.txt" ] && grep -qF "MARKER_V2_ONLY" "${D063}/out.txt"; then
+    ok "TEST-063b: bundle carries the CURRENT worktree bytes (v2 marker present)"
+else
+    fail "TEST-063b: expected v2 (current worktree) content in the bundle, not found"
+fi
+if [ -f "${D063}/out.txt" ] && ! grep -qF "MARKER_V1_ONLY" "${D063}/out.txt"; then
+    ok "TEST-063c: bundle does NOT carry the declaration-commit (historical) bytes"
+else
+    fail "TEST-063c: found declaration-commit (v1) content in the bundle — historical bytes leaked into review material"
+fi
+if [ -f "${D063}/out.txt" ] && \
+   grep -qF "shared.txt (declared output" "${D063}/out.txt" && \
+   grep -qF "implementation report's declared hash for this path is STALE" "${D063}/out.txt"; then
+    ok "TEST-064a: in-bundle notice names shared.txt and states the report's declared hash is stale (found in the bundle FILE, not only stderr)"
+else
+    fail "TEST-064a: expected an in-bundle stale-declaration notice naming shared.txt"
+fi
+
+# ============================================================================
+# TEST-065: a project-root-relative row whose worktree content still
+# matches the declared hash produces NO stale-declaration notice anywhere
+# in the bundle — proves the notice is conditioned on an actual mismatch,
+# not printed unconditionally on every declared-outputs row.
+# ============================================================================
+
+echo "=== TEST-065: undrifted row → bundle carries content, NO stale notice ==="
+
+D065="${WORK}/pp065"
+mkdir -p "${D065}/input"
+git_init_scratch_repo "${D065}"
+write_tasks_with_consent "${D065}/tasks.md" "T-004"
+printf 'MARKER_STABLE_065 stable content\n' > "${D065}/stable.txt"
+HASH065="$(sha256_of "${D065}/stable.txt")"
+write_impl_report "${D065}" "cross-model-verification" "T-004" \
+    "$(printf 'stable.txt\t%s' "$HASH065")"
+git -C "${D065}" add -A
+git -C "${D065}" commit -q -m "declare stable.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D065}/input" \
+    --tasks-file "${D065}/tasks.md" \
+    --project-root "${D065}" \
+    --out "${D065}/out.txt"
+
+if [ -f "${D065}/out.txt" ] && grep -qF "MARKER_STABLE_065" "${D065}/out.txt"; then
+    ok "TEST-065a: matching-hash row still carries its content"
+else
+    fail "TEST-065a: expected stable.txt content in the bundle"
+fi
+if [ -f "${D065}/out.txt" ] && ! grep -q "is STALE" "${D065}/out.txt"; then
+    ok "TEST-065b: no stale-declaration notice for a row whose hash already matched"
+else
+    fail "TEST-065b: a stale notice must not appear when the worktree hash matched directly. Output: $(cat "${D065}/out.txt" 2>/dev/null)"
+fi
+
+# ============================================================================
+# TEST-066: a declared row that no longer exists anywhere in the worktree
+# (deleted by a later commit) but DID exist with a matching hash at the
+# report's own declaration commit. There is no current content to serve —
+# silently falling back to the declaration-commit blob here would be the
+# exact defect this change fixes, one case further: a reviewer handed a
+# file that has been REMOVED, presented as if it still existed. The chosen
+# behavior is to serve no content and say so plainly in the bundle, while
+# leaving the completeness gate itself unchanged (still exit 0 — the
+# declaration was true when written).
+# ============================================================================
+
+echo "=== TEST-066: declared row deleted from worktree → notice only, no historical content ==="
+
+D066="${WORK}/pp066"
+mkdir -p "${D066}/input"
+git_init_scratch_repo "${D066}"
+write_tasks_with_consent "${D066}/tasks.md" "T-004"
+printf 'MARKER_DELETED_066 content that will vanish\n' > "${D066}/deleted.txt"
+HASH066="$(sha256_of "${D066}/deleted.txt")"
+write_impl_report "${D066}" "cross-model-verification" "T-004" \
+    "$(printf 'deleted.txt\t%s' "$HASH066")"
+git -C "${D066}" add -A
+git -C "${D066}" commit -q -m "declare deleted.txt"
+
+git -C "${D066}" rm -q deleted.txt
+git -C "${D066}" commit -q -m "sibling task deletes deleted.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D066}/input" \
+    --tasks-file "${D066}/tasks.md" \
+    --project-root "${D066}" \
+    --out "${D066}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-066a: row deleted from the worktree but true at declaration commit → gate unchanged, exit 0"
+else
+    fail "TEST-066a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D066}/out.txt" ] && ! grep -qF "MARKER_DELETED_066" "${D066}/out.txt"; then
+    ok "TEST-066b: bundle does NOT carry the deleted file's historical bytes"
+else
+    fail "TEST-066b: deleted file's historical content leaked into the bundle"
+fi
+if [ -f "${D066}/out.txt" ] && \
+   grep -qF "deleted.txt (declared output" "${D066}/out.txt" && \
+   grep -qF "MISSING from the worktree" "${D066}/out.txt" && \
+   grep -qF "STALE" "${D066}/out.txt"; then
+    ok "TEST-066c: bundle names deleted.txt and states its declaration is stale/missing"
+else
+    fail "TEST-066c: expected an in-bundle missing/stale notice naming deleted.txt"
+fi
+
+# ============================================================================
+# TEST-067/068/069/070: "## Outputs" row parsing. A panelist reviewing
+# epic-193 T-004 found that a declared row carrying a trailing human
+# annotation after its hash cell vanished from the bundle with no notice —
+# and when that annotation itself named a commit in its own backtick pair
+# (a real, unremarkable shape: "extended by `82f6dbf2` after this task's
+# own commit"), the row's total backtick count changed too, so the old
+# line-oriented parser's exact-count check rejected it outright. Both
+# variants are exercised here, plus the "never silent" requirement this
+# repository already applies to every other declared-outputs gap: a line
+# that begins like a data row but fails to parse must fail the build
+# naming the exact line, not vanish, and a table of ordinary plain rows
+# must behave exactly as it always has.
+# ============================================================================
+
+echo "=== TEST-067: annotated row (no embedded backticks) is parsed and its content included ==="
+
+D067="${WORK}/pp067"
+mkdir -p "${D067}/input" "${D067}/reports/implementation/cross-model-verification" "${D067}/specs/cross-model-verification"
+write_tasks_with_consent "${D067}/specs/cross-model-verification/tasks.md" "T-004"
+printf 'MARKER_067 plain annotation content\n' > "${D067}/bar.txt"
+HASH067="$(sha256_of "${D067}/bar.txt")"
+cat > "${D067}/reports/implementation/cross-model-verification/T-004.md" <<EOF
+# Implementation Report: T-004
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| \`bar.txt\` | \`${HASH067}\` (drifted — shared file, see note above) |
+
+## Test Evidence
+
+N/A (fixture).
+EOF
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D067}/input" \
+    --tasks-file "${D067}/specs/cross-model-verification/tasks.md" \
+    --project-root "${D067}" \
+    --out "${D067}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-067a: exit 0"
+else
+    fail "TEST-067a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D067}/out.txt" ] && grep -qF "MARKER_067" "${D067}/out.txt"; then
+    ok "TEST-067b: annotated row's content made it into the bundle"
+else
+    fail "TEST-067b: expected bar.txt's content in the bundle, not found. Output: ${PP_OUTPUT}"
+fi
+
+echo "=== TEST-068: annotated row whose annotation embeds its own backtick-quoted commit hash is parsed and its content included ==="
+
+D068="${WORK}/pp068"
+mkdir -p "${D068}/input" "${D068}/reports/implementation/cross-model-verification" "${D068}/specs/cross-model-verification"
+write_tasks_with_consent "${D068}/specs/cross-model-verification/tasks.md" "T-004"
+printf 'MARKER_068 content behind an embedded-backtick annotation\n' > "${D068}/foo.py"
+HASH068="$(sha256_of "${D068}/foo.py")"
+cat > "${D068}/reports/implementation/cross-model-verification/T-004.md" <<EOF
+# Implementation Report: T-004
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| \`foo.py\` | \`${HASH068}\` (drifted — extended by \`82f6dbf2\` after this task's own commit, see note above) |
+
+## Test Evidence
+
+N/A (fixture).
+EOF
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D068}/input" \
+    --tasks-file "${D068}/specs/cross-model-verification/tasks.md" \
+    --project-root "${D068}" \
+    --out "${D068}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-068a: exit 0 (real epic-193 T-004 row shape: an embedded backtick pair inside the annotation)"
+else
+    fail "TEST-068a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D068}/out.txt" ] && grep -qF "MARKER_068" "${D068}/out.txt"; then
+    ok "TEST-068b: the row's content made it into the bundle despite the embedded backtick pair"
+else
+    fail "TEST-068b: expected foo.py's content in the bundle, not found — this is the exact defect a panelist caught on epic-193 T-004. Output: ${PP_OUTPUT}"
+fi
+
+echo "=== TEST-069: a candidate row that fails to parse fails the build, naming the exact line ==="
+
+D069="${WORK}/pp069"
+mkdir -p "${D069}/input" "${D069}/reports/implementation/cross-model-verification" "${D069}/specs/cross-model-verification"
+write_tasks_with_consent "${D069}/specs/cross-model-verification/tasks.md" "T-004"
+cat > "${D069}/reports/implementation/cross-model-verification/T-004.md" <<'EOF'
+# Implementation Report: T-004
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `broken-row-no-closing-backtick-for-hash
+
+## Test Evidence
+
+N/A (fixture).
+EOF
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D069}/input" \
+    --tasks-file "${D069}/specs/cross-model-verification/tasks.md" \
+    --project-root "${D069}" \
+    --out "${D069}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-069a: unparseable candidate row → nonzero exit"
+else
+    fail "TEST-069a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D069}/out.txt" ]; then
+    ok "TEST-069b: bundle file NOT written — the row is never silently skipped into an incomplete bundle"
+else
+    fail "TEST-069b: bundle file must not be written when a declared row could not be parsed"
+fi
+if echo "${PP_OUTPUT}" | grep -qi "could not be parsed" && \
+   echo "${PP_OUTPUT}" | grep -qF "broken-row-no-closing-backtick-for-hash"; then
+    ok "TEST-069c: the failure names the exact offending line, not a generic message"
+else
+    fail "TEST-069c: expected the offending line quoted in the failure. Output: ${PP_OUTPUT}"
+fi
+
+echo "=== TEST-070: a table of ordinary plain rows (no annotation) behaves exactly as before ==="
+
+D070="${WORK}/pp070"
+mkdir -p "${D070}/input"
+printf 'MARKER_070_A first plain file\n' > "${D070}/a.txt"
+printf 'MARKER_070_B second plain file\n' > "${D070}/b.txt"
+HASH070A="$(sha256_of "${D070}/a.txt")"
+HASH070B="$(sha256_of "${D070}/b.txt")"
+write_tasks_with_consent "${D070}/tasks.md" "T-004"
+write_impl_report "${D070}" "cross-model-verification" "T-004" \
+    "$(printf 'a.txt\t%s' "$HASH070A")" \
+    "$(printf 'b.txt\t%s' "$HASH070B")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D070}/input" \
+    --tasks-file "${D070}/tasks.md" \
+    --project-root "${D070}" \
+    --out "${D070}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ] && [ -f "${D070}/out.txt" ] && \
+   grep -qF "MARKER_070_A" "${D070}/out.txt" && grep -qF "MARKER_070_B" "${D070}/out.txt"; then
+    ok "TEST-070a: a table of plain (unannotated) rows still resolves both rows into the bundle, unchanged"
+else
+    fail "TEST-070a: plain-row table regressed. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-071..076: declared-outputs content as a SECOND elision tier, used
+# only once the task's own verification/<task_id>/ evidence and
+# contract-declared evidence (tier one, unchanged) are already through
+# their own budget loop and the bundle is STILL over --max-bytes. Tier two
+# exists because a real epic-193 T-003 bundle was 1,063,236 bytes against
+# codex's 1,048,576 cap with every tier-one candidate already fully
+# elided, and a 263,703-byte whole-repo CHANGELOG.md — a declared output —
+# was a quarter of it. The ordering (tier one exhausted FIRST, tier two
+# only as a last resort) is the substance of this change; TEST-074 below
+# is the one that actually asserts the order, not merely the outcome.
+# ============================================================================
+
+echo "=== TEST-071: a bundle that fits without tier two carries every declared output whole, no marker anywhere ==="
+
+D071="${WORK}/pp071"
+SPECDIR071="${D071}/specs/cross-model-verification"
+mkdir -p "${SPECDIR071}/verification/T-004" "${D071}/empty-input"
+write_tasks_with_consent "${SPECDIR071}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR071}/verification/T-004/small-evidence.log" 20 "EVID071"
+write_filler_lines "${D071}/declared-071.txt" 20 "DECL071"
+HASH071="$(sha256_of "${D071}/declared-071.txt")"
+write_impl_report "${D071}" "cross-model-verification" "T-004" \
+    "$(printf 'declared-071.txt\t%s' "$HASH071")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D071}/empty-input" \
+    --tasks-file "${SPECDIR071}/tasks.md" \
+    --project-root "${D071}" \
+    --out "${D071}/out.txt" \
+    --max-bytes 1000000
+
+if [ "${PP_EXIT}" -eq 0 ] && [ -f "${D071}/out.txt" ] && \
+   grep -q "EVID071 line 0001" "${D071}/out.txt" && grep -q "EVID071 line 0020" "${D071}/out.txt" && \
+   grep -q "DECL071 line 0001" "${D071}/out.txt" && grep -q "DECL071 line 0020" "${D071}/out.txt"; then
+    ok "TEST-071a: both the tier-one evidence file and the declared output are present whole"
+else
+    fail "TEST-071a: expected both files present whole. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D071}/out.txt" ] && ! grep -qi "elided from the middle" "${D071}/out.txt"; then
+    ok "TEST-071b: no elision marker anywhere — this bundle is byte-for-byte what it would be with no elision logic at all"
+else
+    fail "TEST-071b: an elision marker appeared even though the bundle already fit --max-bytes"
+fi
+
+echo "=== TEST-072: over-cap bundle where tier-one elision alone suffices → tier two is never touched ==="
+
+D072="${WORK}/pp072"
+SPECDIR072="${D072}/specs/cross-model-verification"
+mkdir -p "${SPECDIR072}/verification/T-004" "${D072}/empty-input"
+write_tasks_with_consent "${SPECDIR072}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR072}/verification/T-004/big.log" 500 "BIGT072"
+write_filler_lines "${D072}/small-declared.txt" 20 "SMALLT072"
+HASH072="$(sha256_of "${D072}/small-declared.txt")"
+write_impl_report "${D072}" "cross-model-verification" "T-004" \
+    "$(printf 'small-declared.txt\t%s' "$HASH072")"
+# Whole bundle ~24,700B; eliding big.log alone brings it to ~5,600B — the
+# declared output (~920B) was never the reason for the overage and must
+# stay untouched.
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D072}/empty-input" \
+    --tasks-file "${SPECDIR072}/tasks.md" \
+    --project-root "${D072}" \
+    --out "${D072}/out.txt" \
+    --max-bytes 15000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-072a: exit 0 (eliding the tier-one file alone let the bundle fit)"
+else
+    fail "TEST-072a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D072}/out.txt" ] && [ "$(grep -c 'elided from the middle' "${D072}/out.txt")" -eq 1 ] && \
+   grep -qF "big.log" "${D072}/out.txt"; then
+    ok "TEST-072b: exactly one elision marker, on the tier-one file"
+else
+    fail "TEST-072b: expected exactly one elision marker naming big.log. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D072}/out.txt" ] && grep -q "SMALLT072 line 0001" "${D072}/out.txt" && grep -q "SMALLT072 line 0020" "${D072}/out.txt"; then
+    ok "TEST-072c: the declared output is left completely whole — tier two was never touched"
+else
+    fail "TEST-072c: the declared output was cut, or is missing, even though tier one alone was enough"
+fi
+
+echo "=== TEST-073: over-cap bundle where tier one is exhausted → tier two elides the largest declared output only ==="
+
+D073="${WORK}/pp073"
+SPECDIR073="${D073}/specs/cross-model-verification"
+mkdir -p "${SPECDIR073}/verification/T-004" "${D073}/empty-input"
+write_tasks_with_consent "${SPECDIR073}/tasks.md" "T-004"
+# No tier-one candidates at all: verification/T-004/ is empty, no
+# contract.json. Tier one's own loop is trivially exhausted (nothing to
+# elide), so tier two is reached immediately.
+write_filler_lines "${D073}/big-declared.txt" 500 "BIGT073"
+write_filler_lines "${D073}/small-declared.txt" 20 "SMALLT073"
+HASH073B="$(sha256_of "${D073}/big-declared.txt")"
+HASH073S="$(sha256_of "${D073}/small-declared.txt")"
+write_impl_report "${D073}" "cross-model-verification" "T-004" \
+    "$(printf 'big-declared.txt\t%s' "$HASH073B")" \
+    "$(printf 'small-declared.txt\t%s' "$HASH073S")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D073}/empty-input" \
+    --tasks-file "${SPECDIR073}/tasks.md" \
+    --project-root "${D073}" \
+    --out "${D073}/out.txt" \
+    --max-bytes 15000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-073a: exit 0 (eliding the largest declared output alone let the bundle fit)"
+else
+    fail "TEST-073a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D073}/out.txt" ] && [ "$(grep -c 'elided from the middle' "${D073}/out.txt")" -eq 1 ] && \
+   grep -qF "big-declared.txt" "${D073}/out.txt"; then
+    ok "TEST-073b: exactly one elision marker, on the largest declared output"
+else
+    fail "TEST-073b: expected exactly one elision marker naming big-declared.txt. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D073}/out.txt" ] && grep -q "SMALLT073 line 0001" "${D073}/out.txt" && grep -q "SMALLT073 line 0020" "${D073}/out.txt"; then
+    ok "TEST-073c: the smaller declared output is left completely whole"
+else
+    fail "TEST-073c: the smaller declared output was cut, or is missing, even though it was never the cause of the overage"
+fi
+
+echo "=== TEST-074 (order-sensitive): tier one is attempted to exhaustion BEFORE tier two, even when tier two's own single candidate is far larger ==="
+
+D074="${WORK}/pp074"
+SPECDIR074="${D074}/specs/cross-model-verification"
+mkdir -p "${SPECDIR074}/verification/T-004" "${D074}/empty-input"
+write_tasks_with_consent "${SPECDIR074}/tasks.md" "T-004"
+write_filler_lines "${SPECDIR074}/verification/T-004/tiny.log" 100 "TINYT074"
+write_filler_lines "${D074}/big-declared.txt" 500 "BIGT074"
+HASH074="$(sha256_of "${D074}/big-declared.txt")"
+write_impl_report "${D074}" "cross-model-verification" "T-004" \
+    "$(printf 'big-declared.txt\t%s' "$HASH074")"
+# tiny.log (~4,700B) is tier one's ONLY candidate; big-declared.txt
+# (~23,000B) dominates the overage and, cut alone, would already bring the
+# bundle under --max-bytes 15000. A "declared outputs promoted into tier
+# one" bug would sort the combined pool by size, cut big-declared.txt
+# first (it is larger), see the bundle already fits, and stop — leaving
+# tiny.log untouched. Correct behavior always finishes tier one's own loop
+# (its one candidate) before tier two is ever consulted, regardless of
+# whether cutting it alone would have been enough, so BOTH files must
+# carry a marker here.
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D074}/empty-input" \
+    --tasks-file "${SPECDIR074}/tasks.md" \
+    --project-root "${D074}" \
+    --out "${D074}/out.txt" \
+    --max-bytes 15000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-074a: exit 0"
+else
+    fail "TEST-074a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D074}/out.txt" ] && [ "$(grep -c 'elided from the middle' "${D074}/out.txt")" -eq 2 ]; then
+    ok "TEST-074b: exactly two elision markers — tier one's own candidate was cut even though tier two alone would have sufficed"
+else
+    fail "TEST-074b: expected exactly two elision markers (tiny.log AND big-declared.txt). Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D074}/out.txt" ] && grep -qF "tiny.log" "${D074}/out.txt" && grep -qF "big-declared.txt" "${D074}/out.txt"; then
+    ok "TEST-074c: both markers name the expected files"
+else
+    fail "TEST-074c: the elision markers did not name both tiny.log and big-declared.txt"
+fi
+if [ -f "${D074}/out.txt" ] && ! grep -q "TINYT074 line 0050" "${D074}/out.txt"; then
+    ok "TEST-074d: tier one's own (small) candidate genuinely lost a middle line — it was not skipped just because tier two alone would fit"
+else
+    fail "TEST-074d: tiny.log's middle line survived — tier one was skipped in favor of cutting only the larger tier-two file"
+fi
+
+echo "=== TEST-075: both tiers exhausted and still over --max-bytes → fail closed, unchanged ==="
+
+D075="${WORK}/pp075"
+SPECDIR075="${D075}/specs/cross-model-verification"
+mkdir -p "${SPECDIR075}/verification/T-004" "${D075}/empty-input"
+write_tasks_with_consent "${SPECDIR075}/tasks.md" "T-004"
+write_filler_lines "${D075}/big-declared.txt" 500 "BIGT075"
+write_filler_lines "${D075}/small-declared.txt" 20 "SMALLT075"
+HASH075B="$(sha256_of "${D075}/big-declared.txt")"
+HASH075S="$(sha256_of "${D075}/small-declared.txt")"
+write_impl_report "${D075}" "cross-model-verification" "T-004" \
+    "$(printf 'big-declared.txt\t%s' "$HASH075B")" \
+    "$(printf 'small-declared.txt\t%s' "$HASH075S")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D075}/empty-input" \
+    --tasks-file "${SPECDIR075}/tasks.md" \
+    --project-root "${D075}" \
+    --out "${D075}/out.txt" \
+    --max-bytes 2000
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-075a: over --max-bytes even after exhausting BOTH tiers → nonzero exit"
+else
+    fail "TEST-075a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D075}/out.txt" ]; then
+    ok "TEST-075b: bundle file NOT written — exhausting both tiers is never a truncation loophole"
+else
+    fail "TEST-075b: bundle file must not be written when still over --max-bytes after both tiers"
+fi
+if echo "${PP_OUTPUT}" | grep -qi "max-bytes" && \
+   echo "${PP_OUTPUT}" | grep -qE "eliding [0-9]+ task-evidence file\(s\) and [0-9]+ declared-output file\(s\)"; then
+    ok "TEST-075c: the failure names how many candidates each tier contributed, not just an aggregate count"
+else
+    fail "TEST-075c: expected a per-tier elision count in the failure message. Output: ${PP_OUTPUT}"
+fi
+
+echo "=== TEST-076: a declared output that is BOTH stale and elided carries both notices, without either clobbering the other ==="
+
+D076="${WORK}/pp076"
+mkdir -p "${D076}/input"
+git_init_scratch_repo "${D076}"
+write_tasks_with_consent "${D076}/tasks.md" "T-004"
+write_filler_lines "${D076}/shared-big.txt" 500 "V1T076"
+HASH076_V1="$(sha256_of "${D076}/shared-big.txt")"
+write_impl_report "${D076}" "cross-model-verification" "T-004" \
+    "$(printf 'shared-big.txt\t%s' "$HASH076_V1")"
+git -C "${D076}" add -A
+git -C "${D076}" commit -q -m "declare shared-big.txt v1"
+
+# A later sibling task drifts the shared file to a different, still-large
+# (same line count, different prefix) body, so the report's declared hash
+# is stale AND the current worktree content is still big enough to need
+# eliding at a tight --max-bytes.
+write_filler_lines "${D076}/shared-big.txt" 500 "V2T076"
+git -C "${D076}" add -A
+git -C "${D076}" commit -q -m "sibling task drifts shared-big.txt"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D076}/input" \
+    --tasks-file "${D076}/tasks.md" \
+    --project-root "${D076}" \
+    --out "${D076}/out.txt" \
+    --max-bytes 5000
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-076a: exit 0"
+else
+    fail "TEST-076a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D076}/out.txt" ] && \
+   grep -qF "shared-big.txt (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE" "${D076}/out.txt"; then
+    ok "TEST-076b: the stale-hash header notice is present"
+else
+    fail "TEST-076b: expected the stale-hash header notice. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D076}/out.txt" ] && grep -q "elided from the middle of shared-big.txt" "${D076}/out.txt"; then
+    ok "TEST-076c: the elision marker is ALSO present — the stale notice did not suppress eliding an oversized row"
+else
+    fail "TEST-076c: expected an elision marker on shared-big.txt alongside the stale notice"
+fi
+if [ -f "${D076}/out.txt" ] && grep -q "V2T076 line 0001" "${D076}/out.txt" && grep -q "V2T076 line 0500" "${D076}/out.txt" && \
+   ! grep -q "V1T076" "${D076}/out.txt"; then
+    ok "TEST-076d: the head/tail shown is the CURRENT (v2) content — never the historical declaration-commit bytes"
+else
+    fail "TEST-076d: expected only v2 content in the elided head/tail, and no v1 (historical) bytes anywhere. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-077: a third real annotation shape, found by running this exact fix
+# against all seven real epic-193/194/195 corpus bundles rather than
+# reasoning from the two shapes a panelist had already reported — epic-195
+# T-005 declares rows like "| `path` (added) | `hash` |", where the
+# annotation sits BETWEEN the path cell and the column separator instead
+# of after the hash. Row-parsing is only genuinely fixed if both positions
+# are tolerated, not just the one a panelist happened to see first.
+# ============================================================================
+
+echo "=== TEST-077: annotation sitting between the path cell and the column separator is parsed and its content included ==="
+
+D077="${WORK}/pp077"
+mkdir -p "${D077}/input" "${D077}/reports/implementation/cross-model-verification" "${D077}/specs/cross-model-verification"
+write_tasks_with_consent "${D077}/specs/cross-model-verification/tasks.md" "T-004"
+printf 'MARKER_077 content behind a path-cell annotation\n' > "${D077}/baz.tests.sh"
+HASH077="$(sha256_of "${D077}/baz.tests.sh")"
+cat > "${D077}/reports/implementation/cross-model-verification/T-004.md" <<EOF
+# Implementation Report: T-004
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| \`baz.tests.sh\` (added) | \`${HASH077}\` |
+
+## Test Evidence
+
+N/A (fixture).
+EOF
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D077}/input" \
+    --tasks-file "${D077}/specs/cross-model-verification/tasks.md" \
+    --project-root "${D077}" \
+    --out "${D077}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-077a: exit 0 (real epic-195 T-005 row shape: annotation between the path cell and the column separator)"
+else
+    fail "TEST-077a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D077}/out.txt" ] && grep -qF "MARKER_077" "${D077}/out.txt"; then
+    ok "TEST-077b: the row's content made it into the bundle despite the path-cell annotation"
+else
+    fail "TEST-077b: expected baz.tests.sh's content in the bundle, not found. Output: ${PP_OUTPUT}"
 fi
 
 # ============================================================================

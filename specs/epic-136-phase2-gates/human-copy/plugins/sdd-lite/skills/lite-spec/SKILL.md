@@ -1,7 +1,7 @@
 ---
 name: lite-spec
 description: Lightweight SDD specification for internal/departmental apps. Creates requirements, design, and tasks (single-approval, no traceability/ADR/evidence-bundle). Use for low-stakes internal app work; graduate to sdd-bootstrap-interviewer for higher rigor.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 

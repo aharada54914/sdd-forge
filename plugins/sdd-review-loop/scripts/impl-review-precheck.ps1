@@ -204,11 +204,52 @@ function Require-Pass(
     $previousSummaryHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $previousSummaryPath) -Algorithm SHA256).Hash.ToLower()
     if (-not (Test-ManifestEntry $reviewerA $previousSummaryPath @($previousSummaryHash))) { Fail "persisted impl contract does not bind reviewer A to the previous integrated summary" }
   }
+  # investigation.md's expected pin is derived from the contract under
+  # validation -- never from the live working tree. Every other entry checked
+  # above comes from an immutable or deliberately-current source:
+  # requirements/acceptance/design carry BOTH the contract's recorded hash and
+  # the current one, so an untouched file and a sealed file are both accepted;
+  # precheck-result.json and integrated-summary.json are frozen round artifacts
+  # that nothing may append to. investigation.md was the lone outlier, pinned to
+  # live bytes with no recorded-hash alternative, and it is the single worst file
+  # to read live: by design it is the document that accumulates the amendment
+  # record ACROSS stages, so it grows after a round is sealed as a matter of
+  # course. Reading it live compared today's bytes against the correctly-pinned
+  # ones and refused the downstream stage outright -- permanently, since nothing
+  # can un-grow the file (epic-196: 'persisted spec contract reviewer manifest is
+  # missing investigation evidence', with this validation running unconditionally
+  # so -ProvenanceRereview granted no way past it). A sealed contract is evidence
+  # about the past; validating it against the present is a category error. The
+  # live-vs-pinned question belongs to check-workflow-state.ps1, which asks it
+  # deliberately and carries the amendment-record growth tolerance for exactly
+  # this file.
+  #
+  # Same discipline as spec-review-precheck.ps1's Test-ValidateContract: every
+  # reviewer that pinned the file must have pinned the SAME bytes (the unique set
+  # must collapse to one value), and that value must be a well-formed digest, so
+  # a contract whose reviewer A and reviewer B disagree about what they read is
+  # still refused. The per-reviewer binding below is unchanged: once any reviewer
+  # pinned the file, BOTH must have. Absent from the manifest entirely means the
+  # reviewers declared they did not read it, which is legal -- the allowed-path
+  # table permits investigation.md for the spec and impl stages but never
+  # requires it -- so nothing is expected and the file merely existing today
+  # cannot invalidate a contract sealed before it was written.
   $investigationPath = "specs/$FeatureName/investigation.md"
-  if (Test-Path -LiteralPath (Join-Path $repoRoot $investigationPath) -PathType Leaf) {
-    $investigationHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $investigationPath) -Algorithm SHA256).Hash.ToLower()
+  $investigationPins = @()
+  foreach ($reviewer in $reviewers) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      if (Test-OrdinalEqual (Get-ManifestRelativePath $entry.path $repoRoot) $investigationPath) {
+        $investigationPins += [string]$entry.sha256
+      }
+    }
+  }
+  $uniqueInvestigationPins = @($investigationPins | Select-Object -Unique)
+  if ($uniqueInvestigationPins.Count -gt 1) { Fail "persisted $Stage contract reviewer manifest records an ambiguous or malformed investigation evidence pin" }
+  if ($uniqueInvestigationPins.Count -eq 1) {
+    $investigationPin = [string]$uniqueInvestigationPins[0]
+    if ($investigationPin -cnotmatch '^[0-9a-f]{64}$') { Fail "persisted $Stage contract reviewer manifest records an ambiguous or malformed investigation evidence pin" }
     foreach ($reviewer in $reviewers) {
-      if (-not (Test-ManifestEntry $reviewer $investigationPath @($investigationHash))) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
+      if (-not (Test-ManifestEntry $reviewer $investigationPath @($investigationPin))) { Fail "persisted $Stage contract does not bind every reviewer to investigation.md" }
     }
   }
   Assert-ContractReviewerAgreement $contract $Stage $FeatureName $repoRoot
@@ -337,6 +378,61 @@ if ([int64]$Round -gt 1) {
       if ($roundOne.requirements_sha256 -and $roundOne.requirements_sha256 -ne $requirementsHash) { $designReqDrift = $true }
     }
   }
+}
+# AC coverage. Every AC-NNN in requirements.md must be named in design.md;
+# behavioural twin of impl-review-precheck.sh's gate, which carries the full
+# epic-136-phase4-docs history: reviewer rounds were being burned finding, one
+# per round, criteria that spec review had added late as gap-closers and the
+# design had dropped silently. A design that does not name an AC cannot be
+# audited for covering it.
+#
+# NARROW EXCEPTION (human ruling, 2026-08-24). Criteria whose OWN defining row
+# in requirements.md's acceptance table declares Global scope are process-and-
+# registration content, not design content, and are excused. The exception keys
+# on a property the requirements document states about ITSELF, never on a list
+# of AC ids: the requirement-trace cell is bimodal across this repository --
+# either a REQ-NNN trace or a Global-scope declaration -- and both spellings in
+# use (`| AC-023 | Global |` and `| AC-035 (Global) | - |`) are read here. Only
+# the first cell and the trace cell of the criterion's own defining row are
+# consulted, and the first matching row decides; an AC id mentioned in prose or
+# in another criterion's text is never a declaration of scope.
+function Test-AcScopedGlobal([string]$Id, [string[]]$Lines) {
+  foreach ($rawLine in $Lines) {
+    $line = $rawLine -creplace '\r$', ''
+    if (-not $line.StartsWith('|', [StringComparison]::Ordinal)) { continue }
+    $cells = $line -split '\|'
+    if ($cells.Count -lt 4) { continue }
+    $c1 = $cells[1] -creplace '^[ \t]+', '' -creplace '[ \t]+$', ''
+    $c2 = $cells[2] -creplace '^[ \t]+', '' -creplace '[ \t]+$', ''
+    $annotated = $false
+    if ($c1 -cmatch '\(Global\)$') {
+      $annotated = $true
+      $c1 = ($c1 -creplace '\(Global\)$', '') -creplace '[ \t]+$', ''
+    }
+    if (-not (Test-OrdinalEqual $c1 $Id)) { continue }
+    return ($annotated -or (Test-OrdinalEqual $c2 'Global'))
+  }
+  return $false
+}
+$requirementsRaw = [IO.File]::ReadAllText($requirements)
+$requirementsLines = $requirementsRaw -split "`n"
+$designRaw = [IO.File]::ReadAllText($design)
+$acIds = [Collections.Generic.SortedSet[string]]::new([StringComparer]::Ordinal)
+foreach ($acMatch in [Text.RegularExpressions.Regex]::Matches($requirementsRaw, 'AC-[0-9]{3}')) { [void]$acIds.Add($acMatch.Value) }
+$acMissing = @()
+$acGlobal = @()
+foreach ($acId in $acIds) {
+  if (Test-AcScopedGlobal $acId $requirementsLines) { $acGlobal += $acId; continue }
+  if (-not $designRaw.Contains($acId)) { $acMissing += $acId }
+}
+# Never silent: an exercised exception is reported whether or not the gate then
+# fails, so a reader can see which criteria were excused and go check the rows
+# that excused them.
+if ($acGlobal.Count -gt 0) {
+  [Console]::Error.WriteLine("NOTE: impl-review-precheck: not requiring design.md to name these criteria, which requirements.md scopes Global (process and registration, not design): $($acGlobal -join ' ')")
+}
+if ($acMissing.Count -gt 0) {
+  Fail ("design.md never names these acceptance criteria: $($acMissing -join ' '). Each appears in requirements.md without being scoped Global there -- so each states behaviour this design must plan for -- yet none of these strings occurs anywhere in design.md, so an implementer could satisfy the plan and still not deliver them.")
 }
 $layerHashJson = $layerSha256 | ConvertTo-Json -Compress
 $inputMaterial = if ($fullProfile) { "$designHash`:$requirementsHash`:$acceptanceHash`:$layerHashJson" } else { "$designHash`:$requirementsHash`:$acceptanceHash" }
