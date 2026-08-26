@@ -106,6 +106,23 @@ argv_flat() {
   [[ -f "$ARGV_FILE" ]] && tr '\n' ' ' < "$ARGV_FILE" | sed 's/[[:space:]]*$//'
 }
 
+# codex-cli 0.147.0 contract (invocation-fix hardening): the assembled argv
+# is `exec --model <m> [-c model_reasoning_effort=<e>] --sandbox read-only
+# --skip-git-repo-check -C <scratch-dir> -`. The scratch dir is a fresh
+# mktemp path per invocation, so this asserts the fixed tokens/order via
+# regex rather than a byte-exact golden string (mirrors this suite's own
+# established DRIFT-detection style, TEST-038).
+codex_argv_regex() {
+  # $1=model $2=effort (optional, empty = omitted)
+  local model="$1" effort="${2:-}"
+  if [[ -n "$effort" ]]; then
+    printf '^exec --model %s -c model_reasoning_effort=%s --sandbox read-only --skip-git-repo-check -C [^ ]+ -$' \
+      "$model" "$effort"
+  else
+    printf '^exec --model %s --sandbox read-only --skip-git-repo-check -C [^ ]+ -$' "$model"
+  fi
+}
+
 run_gpt() {
   # $@ forwarded to run-panelist-gpt.sh. PATH is fully overridden to
   # $STUB_BIN:$SAFE_PATH -- never the ambient/inherited $PATH -- so the
@@ -119,13 +136,15 @@ SPEC_ROOT="$TMP/specroot"
 
 # ===========================================================================
 # TEST-035 (AC-035): --effort forwarded into the assembled codex argv
-# alongside --model; omitted entirely preserves the exact pre-T-006 argv.
+# alongside --model, as a `-c model_reasoning_effort=<e>` config override
+# (codex-cli 0.147.0's `exec` subcommand has no `--effort` flag); omitting
+# --effort omits the `-c` override entirely.
 # ===========================================================================
 reset_stub_state
 run_gpt --task T-035 --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
   --model openai/gpt-5.2-codex --effort high --digest "$ZERO_DIGEST" >/dev/null
-if [[ -f "$MARKER_FILE" ]] && [[ "$(argv_flat)" == "--model openai/gpt-5.2-codex --effort high --no-project-doc" ]]; then
-  ok "TEST-035: --effort <e> is forwarded into the assembled codex argv, positioned after --model"
+if [[ -f "$MARKER_FILE" ]] && [[ "$(argv_flat)" =~ $(codex_argv_regex "openai/gpt-5.2-codex" "high") ]]; then
+  ok "TEST-035: --effort <e> is forwarded into the assembled codex argv as -c model_reasoning_effort=<e>, positioned after --model"
 else
   bad "TEST-035: --effort was not forwarded correctly into the codex argv -- $(argv_flat)"
 fi
@@ -133,12 +152,10 @@ fi
 reset_stub_state
 run_gpt --task T-035b --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
   --model openai/gpt-5.2-codex --digest "$ZERO_DIGEST" >/dev/null
-GOLDEN_ARGV="$(printf -- '--model\nopenai/gpt-5.2-codex\n--no-project-doc\n')"
-ACTUAL_ARGV="$(cat "$ARGV_FILE")"
-if [[ "$ACTUAL_ARGV" == "$GOLDEN_ARGV" ]]; then
-  ok "TEST-035: omitting --effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)"
+if [[ "$(argv_flat)" =~ $(codex_argv_regex "openai/gpt-5.2-codex") ]]; then
+  ok "TEST-035: omitting --effort omits the -c model_reasoning_effort override from the codex argv"
 else
-  bad "TEST-035: omitting --effort changed the codex argv shape -- got: $(printf '%s' "$ACTUAL_ARGV" | tr '\n' ' ')"
+  bad "TEST-035: omitting --effort changed the codex argv shape -- got: $(argv_flat)"
 fi
 
 # ===========================================================================
@@ -176,7 +193,7 @@ FWD_EFFORT="${EFFORT_LINE#effort=}"
 reset_stub_state
 run_gpt --task T-036 --feature stub-feat --input "$BUNDLE_OUT" --spec-root "$SPEC_ROOT" \
   --model openai/gpt-5.1-codex --effort "$FWD_EFFORT" --digest "$ZERO_DIGEST" >/dev/null
-if [[ "$(argv_flat)" == *"--effort medium"* ]]; then
+if [[ "$(argv_flat)" == *"-c model_reasoning_effort=medium"* ]]; then
   ok "TEST-036: the value threaded by prepare-panelist-input.sh reaches run-panelist-gpt's assembled codex argv unchanged"
 else
   bad "TEST-036: threaded effort value did not reach the assembled codex argv -- $(argv_flat)"
@@ -233,7 +250,7 @@ for pair in "sdd-evaluator:$EVALUATOR_TOML" "sdd-investigator:$INVESTIGATOR_TOML
   run_gpt --task "T-037-$role" --feature stub-feat --input "$INPUT_FILE" --spec-root "$SPEC_ROOT" \
     --model "$sel_model" --effort "$sel_effort" --digest "$ZERO_DIGEST" >/dev/null
   if ! ([[ -f "$MARKER_FILE" ]] \
-    && [[ "$(argv_flat)" == "--model $sel_model --effort $sel_effort --no-project-doc" ]]); then
+    && [[ "$(argv_flat)" =~ $(codex_argv_regex "$sel_model" "$sel_effort") ]]); then
     test037_ok=0
   fi
 done

@@ -1,7 +1,7 @@
 ---
 name: lite-gate
 description: Lightweight deterministic quality gate for the sdd-lite flow. Runs placeholder-scan and the project's lint/typecheck/build/test commands, writes a lite quality report, moves the task to Done, then validates the final Done state with check-task-state-lite. Use after implement-task in the lite flow.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -17,10 +17,11 @@ Codex:
 Use the lite-gate skill for specs/<feature>/tasks.md#T-001
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-lite:lite-gate specs/<feature>/tasks.md#T-001
+```
+/sdd-ship:ship --lite specs/<feature>/tasks.md
 ```
 
 ## Preconditions

@@ -486,11 +486,14 @@ write_035_contract() {
   local dir="$1" task_id="$2"
   mkdir -p "${dir}/reports"
   echo "fixture evidence" > "${dir}/reports/test.log"
+  echo "fixture evidence" > "${dir}/reports/test.red.log"
+  echo "fixture evidence" > "${dir}/reports/test.green.log"
   cat > "${dir}/${task_id}.contract.json" <<EOF
 {
   "task_id": "${task_id}",
   "feature": "test-feature",
   "risk": "high",
+  "required_workflow": "tdd",
   "created": "2026-08-11T00:00:00Z",
   "checks": [
     { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
@@ -498,8 +501,8 @@ write_035_contract() {
     { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
-    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" , "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
     { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
     { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
   ]

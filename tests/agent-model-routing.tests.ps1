@@ -976,6 +976,29 @@ Status: Planned
     }
     Move-Item -LiteralPath $outsideDiagnosticsDir -Destination $diagnosticsDir
 
+    # RT-20260821-010: an IN-repo directory symlink (target inside the
+    # repository, so containment alone would pass) must be denied. The Bash
+    # twin previously authorized this shape; both twins now walk every
+    # component. Flag-then-Fail so the assertion cannot be swallowed by the
+    # empty catch (the framing-regression hazard).
+    $inRepoRealDir = Join-Path $resumeRepoRoot 'real-diagnostics'
+    Move-Item -LiteralPath $diagnosticsDir -Destination $inRepoRealDir
+    if (Try-NewFixtureSymbolicLink $diagnosticsDir $inRepoRealDir) {
+        $inRepoAccepted = $true
+        try {
+            & $ResumePs -Evidence $resumePath -BlockedState $blockedStatePath -Tasks $tasksPath `
+                -RepoRoot $resumeRepoRoot -ExpectedTask T-900 | Out-Null
+        } catch { $inRepoAccepted = $false }
+        Remove-Item -LiteralPath $diagnosticsDir -Force
+        Move-Item -LiteralPath $inRepoRealDir -Destination $diagnosticsDir
+        if ($inRepoAccepted) {
+            Fail 'PowerShell terminal-resume validator accepted an in-repo directory symlink'
+        }
+    } else {
+        Move-Item -LiteralPath $inRepoRealDir -Destination $diagnosticsDir
+        Write-Output 'SKIP: in-repo directory symlink leg (unprivileged symlink creation denied on this host)'
+    }
+
     Add-Content -LiteralPath $diagnosisPath -Value "`nTampered diagnosis.`n"
     try {
         & $ResumePs -Evidence $resumePath -BlockedState $blockedStatePath -Tasks $tasksPath `

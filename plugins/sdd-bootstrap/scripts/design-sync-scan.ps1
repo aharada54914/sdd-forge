@@ -196,63 +196,51 @@ function Add-Finding {
     }) | Out-Null
 }
 
-foreach ($f in $files) {
-    $path = $f.FullName
-
-    # -- Placeholder (case-sensitive stub markers) -- operator+cmdlet
-    # sweep site: Select-String -CaseSensitive is the cmdlet-level layer.
-    $csHits = Select-String -LiteralPath $path -Pattern $placeholderPatternCs -CaseSensitive -AllMatches -ErrorAction SilentlyContinue
-    foreach ($m in $csHits) {
-        foreach ($mm in $m.Matches) {
-            Add-Finding 'placeholder' $path $m.LineNumber $mm.Value
-        }
+# One rule of the detection table: category, pattern, cmdlet-level
+# case-sensitivity, display mode. Display modes mirror the .sh twin:
+#   match         emit the matched text
+#   redact        emit [REDACTED]
+#   email-filter  drop RFC 2606/6761 reserved domains/TLDs per matched
+#                 address, redact what is emitted
+# Select-String -CaseSensitive remains the cmdlet-level case-sensitivity
+# sweep site for the case-sensitive rows.
+function Invoke-ScanRule {
+    param([string]$Category, [string]$Path, [string]$Pattern,
+          [bool]$CaseSensitive, [string]$Display)
+    $hits = if ($CaseSensitive) {
+        Select-String -LiteralPath $Path -Pattern $Pattern -CaseSensitive -AllMatches -ErrorAction SilentlyContinue
+    } else {
+        Select-String -LiteralPath $Path -Pattern $Pattern -AllMatches -ErrorAction SilentlyContinue
     }
-
-    # -- Placeholder (case-insensitive phrases) --
-    $ciHits = Select-String -LiteralPath $path -Pattern $placeholderPatternCi -AllMatches -ErrorAction SilentlyContinue
-    foreach ($m in $ciHits) {
+    foreach ($m in $hits) {
         foreach ($mm in $m.Matches) {
-            Add-Finding 'placeholder' $path $m.LineNumber $mm.Value
-        }
-    }
-
-    # -- Secret S1-S6 (case-sensitive vendor-format prefixes) -- cmdlet-
-    # level case-sensitivity sweep site (Select-String -CaseSensitive).
-    $secretCsHits = Select-String -LiteralPath $path -Pattern $secretPatternCs -CaseSensitive -AllMatches -ErrorAction SilentlyContinue
-    foreach ($m in $secretCsHits) {
-        foreach ($mm in $m.Matches) {
-            Add-Finding 'secret' $path $m.LineNumber '[REDACTED]'
-        }
-    }
-
-    # -- Secret S7 (case-insensitive keyword+assignment, .NET dual-form) --
-    $s7Hits = Select-String -LiteralPath $path -Pattern $secretPatternS7 -AllMatches -ErrorAction SilentlyContinue
-    foreach ($m in $s7Hits) {
-        foreach ($mm in $m.Matches) {
-            Add-Finding 'secret' $path $m.LineNumber '[REDACTED]'
-        }
-    }
-
-    # -- PII P1 (email, excluding RFC 2606/6761 reserved domains/TLDs) --
-    $p1Hits = Select-String -LiteralPath $path -Pattern $piiPatternP1 -AllMatches -ErrorAction SilentlyContinue
-    foreach ($m in $p1Hits) {
-        foreach ($mm in $m.Matches) {
-            $matchValue = $mm.Value
-            $atIndex = $matchValue.IndexOf('@')
-            $domain = $matchValue.Substring($atIndex + 1)
-            if (-not (Test-ReservedDomain $domain)) {
-                Add-Finding 'PII' $path $m.LineNumber '[REDACTED]'
+            switch ($Display) {
+                'match'  { Add-Finding $Category $Path $m.LineNumber $mm.Value }
+                'redact' { Add-Finding $Category $Path $m.LineNumber '[REDACTED]' }
+                'email-filter' {
+                    $matchValue = $mm.Value
+                    $atIndex = $matchValue.IndexOf('@')
+                    $domain = $matchValue.Substring($atIndex + 1)
+                    if (-not (Test-ReservedDomain $domain)) {
+                        Add-Finding $Category $Path $m.LineNumber '[REDACTED]'
+                    }
+                }
             }
         }
     }
+}
 
-    # -- PII P2 (E.164-shaped phone, .NET dual-form: lookbehind/lookahead) --
-    $p2Hits = Select-String -LiteralPath $path -Pattern $piiPatternP2 -AllMatches -ErrorAction SilentlyContinue
-    foreach ($m in $p2Hits) {
-        foreach ($mm in $m.Matches) {
-            Add-Finding 'PII' $path $m.LineNumber '[REDACTED]'
-        }
-    }
+# The detection table: the six rules were previously six copy-pasted scan
+# blocks; each row's semantics (pattern, case-sensitivity, display) are
+# unchanged, and row order preserves the emitted finding order.
+foreach ($f in $files) {
+    $path = $f.FullName
+    Invoke-ScanRule 'placeholder' $path $placeholderPatternCs $true  'match'
+    Invoke-ScanRule 'placeholder' $path $placeholderPatternCi $false 'match'
+    Invoke-ScanRule 'secret'      $path $secretPatternCs      $true  'redact'
+    Invoke-ScanRule 'secret'      $path $secretPatternS7      $false 'redact'
+    Invoke-ScanRule 'PII'         $path $piiPatternP1         $false 'email-filter'
+    Invoke-ScanRule 'PII'         $path $piiPatternP2         $false 'redact'
 }
 
 # ---------------------------------------------------------------------------

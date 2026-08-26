@@ -12,10 +12,18 @@ usage() {
 fail() { echo "ERROR: spec-review-precheck: $*" >&2; exit 1; }
 sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
+}
+sha256_stream() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
 }
 canonical_dir() { (cd "$1" && pwd -P); }
-is_sha256() { [[ "$1" =~ ^[0-9a-fA-F]{64}$ ]]; }
+# Lowercase only: every producer in this tree emits lowercase hex, and a
+# case-insensitive class here would admit a digest its strict consumers reject.
+is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 
 [[ $# -ge 3 ]] || usage
 feature="$1"; attempt="$2"; round="$3"; shift 3
@@ -128,6 +136,10 @@ if [[ -e "$reports_base" ]]; then
   [[ "$(canonical_dir "$reports_base")" == "$reports_base" ]] || fail "spec-review report base escapes reports root"
 fi
 command -v jq >/dev/null 2>&1 || fail "jq is required"
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
+  fail "neither sha256sum nor shasum is available"
 status="$(sed -n 's/^Spec-Review-Status:[[:space:]]*//p' "$requirements" | head -n 1 | tr -d '[:space:]')"
 if [[ "$reset" == true ]]; then
   [[ "$status" == "Pending" || "$status" == "Passed" ]] || fail "requirements.md must declare a resettable Spec-Review-Status"
@@ -140,7 +152,7 @@ fi
 requirements_sha="$(sha256 "$requirements")"
 acceptance_sha="$(sha256 "$acceptance")"
 calibration_sha="$(sha256 "$calibration")"
-input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
 
 validate_reviewer_output() {
   local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5" recorded_prefix="${6:-}"
@@ -149,7 +161,7 @@ validate_reviewer_output() {
   jq -e --arg schema "${role}/v1" --arg role "$role" --arg run_id "$run_id" --arg host_session_id "$host_session_id" '
     type == "object" and keys == ["allowed_input_manifest", "checks", "host_session_id", "role", "run_id", "schema", "stage", "verdict"] and
     .schema == $schema and .stage == "spec" and .role == $role and .run_id == $run_id and .host_session_id == $host_session_id and
-    (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["path", "sha256"] and (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")))) and
+    (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["path", "sha256"] and (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) and
     (.checks | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["finding", "id", "result", "severity"] and
       (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
       (.severity == "Critical" or .severity == "Major" or .severity == "Minor") and (.finding | type == "string"))) and
@@ -214,14 +226,14 @@ validate_contract() {
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
     type == "object" and keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and
     .schema == "spec-review-contract/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and
-    (.requirements_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")) and
+    (.requirements_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
     (.run_id | type == "string" and test("\\S")) and (.warningCount | type == "number" and . >= 0) and
     (.reviewers | type == "array" and length == 2 and ([.[].role] | sort) == ["spec-reviewer-a", "spec-reviewer-b"] and
       (([.[] | .host_session_id] | all(type == "string" and test("\\S"))) and ([.[] | .host_session_id] | unique | length == 2)) and
-      all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-fA-F]{64}$"))))))' "$contract" >/dev/null || return 1
+      all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))))))' "$contract" >/dev/null || return 1
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg requirements_sha "$(jq -r .requirements_sha256 "$contract")" --arg acceptance_sha "$(jq -r .acceptance_sha256 "$contract")" '
     .schema == "spec-review-precheck/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .requirements_sha256 == $requirements_sha and .acceptance_sha256 == $acceptance_sha and
-    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")))' "$precheck" >/dev/null || return 1
+    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-f]{64}$")))' "$precheck" >/dev/null || return 1
 
   round_dir="$(dirname "$contract")"
   summary="${round_dir}/integrated-summary.json"
@@ -382,7 +394,7 @@ if [[ "$reset" == true && "$status" == "Passed" ]]; then
   # and later validate_contract calls will actually see, never the pre-mutation
   # (Passed) bytes this same invocation just rewrote.
   requirements_sha="$(sha256 "$requirements")"
-  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
 fi
 
 generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"

@@ -116,6 +116,10 @@ STAGED_SCRIPTS = [
     "registry_discovery.py", "canonicalize-sdd-yaml.py",
     "check-contract.py", "check-hook-activation-handshake.py",
     "check-component-coverage.py",
+    # The shared python-master dispatcher every .sh/.ps1 wrapper above
+    # sources; an installed plugin ships it beside the wrappers, and
+    # without it every wrapper denies RUNTIME_UNAVAILABLE (exit 3).
+    "lib/py-dispatch.sh", "lib/py-dispatch.ps1",
 ]
 
 
@@ -158,8 +162,10 @@ entry_root = root_for("entry_root_segments")
 install_scripts = install_root / "plugins" / "sdd-quality-loop" / "scripts"
 install_scripts.mkdir(parents=True, exist_ok=True)
 for name in STAGED_SCRIPTS:
-    shutil.copyfile(source_dir / name, install_scripts / name)
-    os.chmod(install_scripts / name, 0o755)
+    destination = install_scripts / name
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source_dir / name, destination)
+    os.chmod(destination, 0o755)
 populate_shared(install_root)
 
 if descriptor["entry_via_symlink"]:
@@ -167,6 +173,7 @@ if descriptor["entry_via_symlink"]:
     entry_scripts.mkdir(parents=True, exist_ok=True)
     for name in STAGED_SCRIPTS:
         link = entry_scripts / name
+        link.parent.mkdir(parents=True, exist_ok=True)
         if link.exists() or link.is_symlink():
             link.unlink()
         link.symlink_to(install_scripts / name)

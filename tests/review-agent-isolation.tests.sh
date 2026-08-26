@@ -703,4 +703,176 @@ find "$rollback_target" -depth -type d -empty -delete
 diff -qr "$rollback_baseline" "$rollback_target" >/dev/null ||
   fail 'restored reviewer/evaluator boundary is not equal to baseline 7df7318'
 
+# WFI-017 ratified the legacy `## Output Paths And Hashes` bullet section on the
+# implementation-report contract ("retained solely so previously committed
+# bullet-only and dual-form v2 reports remain valid") but never taught this
+# authorization boundary to read it. A report the repository considers valid
+# could therefore declare artifacts the evaluator could not be given, and the
+# task became ungateable through no fault of its own. These cases pin the
+# boundary to the SAME grammar validate-implementation-report.sh enforces --
+# no looser, and no artifact the table form would not have admitted.
+legacy_repository="$tmp/legacy-declaration-repository"
+make_repository "$legacy_repository"
+legacy_output_hash="$(sha256 "$legacy_repository/plugins/task/authorized-output.txt")"
+legacy_unlisted_hash="$(sha256 "$legacy_repository/plugins/internal/arbitrary-existing.txt")"
+legacy_wrong_hash="$(printf '%064d' 0 | tr '0' 'b')"
+
+# Rewrite the fixture's report so the artifact is declared ONLY in the legacy
+# section -- no `## Outputs` table at all, which is the shape of the historical
+# reports WFI-017 exists to keep valid.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' \
+    "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+
+legacy_manifest_for() {
+  # legacy_manifest_for <out> <extra-path> <extra-sha>
+  local output=$1 extra_path=$2 extra_hash=$3
+  local base="$tmp/legacy-base.json"
+  make_manifest "$legacy_repository" sdd-evaluator "$base"
+  jq --arg p "$extra_path" --arg h "$extra_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' "$base" > "$output"
+}
+
+# Positive: an artifact declared only in the ratified legacy section IS
+# authorized. Before this change the identical manifest was role-unlisted.
+legacy_manifest_for "$tmp/legacy-happy.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+run_bash "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+  fail 'WFI-017 boundary: Bash rejected an artifact declared in the ratified legacy section'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/legacy-happy.json" "$legacy_repository" >/dev/null ||
+    fail 'WFI-017 boundary: PowerShell rejected an artifact declared in the ratified legacy section'
+fi
+
+# Negative control: a real file the legacy section does not name is still
+# role-unlisted. If this ever passes, the change removed the boundary.
+legacy_manifest_for "$tmp/legacy-negative.json" \
+  'plugins/internal/arbitrary-existing.txt' "$legacy_unlisted_hash"
+assert_rejected_both wfi017-legacy-path-not-declared \
+  "$tmp/legacy-negative.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The legacy row is hash-checked exactly as a table row is: a manifest naming
+# the declared path under a different hash matches no row.
+legacy_manifest_for "$tmp/legacy-wrong-hash.json" \
+  'plugins/task/authorized-output.txt' "$legacy_wrong_hash"
+assert_rejected_both wfi017-legacy-row-hash-mismatch \
+  "$tmp/legacy-wrong-hash.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# The grammar is the ratified one, not "any bullet mentioning a path and a
+# hash". A report using a near-miss serialization authorizes nothing, so this
+# change cannot be mistaken for a licence to invent further formats.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Output Paths And Hashes\n\n'
+  printf -- '- `plugins/task/authorized-output.txt`: `%s`\n' "$legacy_output_hash"
+} > "$legacy_repository/reports/implementation/f/T-001.md"
+legacy_manifest_for "$tmp/legacy-nearmiss.json" \
+  'plugins/task/authorized-output.txt' "$legacy_output_hash"
+assert_rejected_both wfi017-legacy-unratified-serialization \
+  "$tmp/legacy-nearmiss.json" "$legacy_repository" REVIEW_CONTEXT_PATH
+
+# WFI-038 third target: the control whose absence let the drift happen.
+#
+# WFI-017 taught validate-implementation-report.sh a second declaration grammar
+# and nothing taught this boundary. The result was a report the repository
+# formally accepts whose declared artifacts the evaluator could not be given --
+# reported as `role-unlisted` on a path that was, in fact, listed. Neither
+# validator was wrong on its own; what was missing was anything asserting that
+# the two agree.
+#
+# This block is driven BY the report validator's own declaration, not by a list
+# maintained here. It extracts the section names that script consults for the
+# outputs contract and requires the boundary to read every one. Add a third
+# grammar there without teaching the boundary and this goes red, naming the
+# grammar -- which is the failure mode WFI-038 documents.
+report_validator="$ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
+[[ -f "$report_validator" ]] || fail 'declaration-grammar parity: report validator is missing'
+ratified_grammars="$(grep -oE '^[a-z_]+_sections = sections\.get\("[^"]+"' "$report_validator" |
+  sed -E 's/.*sections\.get\("([^"]+)".*/\1/' | sort -u)"
+[[ -n "$ratified_grammars" ]] ||
+  fail 'declaration-grammar parity: extracted no ratified grammar -- the report validator changed shape, so this control is no longer measuring anything'
+
+parity_repository="$tmp/grammar-parity-repository"
+make_repository "$parity_repository"
+parity_hash="$(sha256 "$parity_repository/plugins/task/authorized-output.txt")"
+
+# Emit the declaration row shape for one ratified section name. A section this
+# does not know how to write is an unteachable grammar -- fail rather than
+# silently skip, because skipping is exactly how the boundary fell behind.
+write_declaration() {
+  local section=$1
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## %s\n\n' "$section"
+  case "$section" in
+    'Outputs')
+      printf '| Path | SHA-256 |\n'
+      printf '|---|---|\n'
+      printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+      ;;
+    'Output Paths And Hashes')
+      printf -- '- **Path**: `plugins/task/authorized-output.txt`; **SHA-256**: `%s`\n' "$parity_hash"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+# Collect into an array BEFORE iterating. A `while read ... done <<HEREDOC`
+# loop hands its stdin to every command in the body, and pwsh binds inherited
+# stdin as pipeline input -- it then fails with "the input object cannot be
+# bound to any parameters" while the suite still exits 0, so the PowerShell leg
+# would silently not be exercised. Observed here before this was fixed.
+parity_grammars=()
+while IFS= read -r grammar; do
+  [[ -n "$grammar" ]] && parity_grammars+=("$grammar")
+done <<PARITY_GRAMMARS
+$ratified_grammars
+PARITY_GRAMMARS
+[[ ${#parity_grammars[@]} -gt 0 ]] ||
+  fail 'declaration-grammar parity: no grammar collected'
+
+for grammar in "${parity_grammars[@]}"; do
+  write_declaration "$grammar" > "$parity_repository/reports/implementation/f/T-001.md" ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but this suite cannot write it -- teach both the boundary and this control, do not delete the case"
+  make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+  jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+    '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+    "$tmp/parity-base.json" > "$tmp/parity-manifest.json"
+  run_bash "$tmp/parity-manifest.json" "$parity_repository" >/dev/null ||
+    fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the Bash boundary cannot read it"
+  if command -v pwsh >/dev/null 2>&1; then
+    run_pwsh "$tmp/parity-manifest.json" "$parity_repository" >/dev/null </dev/null ||
+      fail "declaration-grammar parity: the report validator ratifies '## $grammar' but the PowerShell boundary cannot read it"
+  fi
+done
+
+# Non-vacuity: the loop above only proves acceptance. A section name the report
+# validator does NOT ratify must not be readable by the boundary either, or the
+# parity claim is satisfied by a boundary that reads everything.
+{
+  printf '# Implementation Report: T-001\n\n'
+  printf '## Task\n\n'
+  printf '%s\n\n' '- Task ID: T-001'
+  printf '## Declared Artifacts\n\n'
+  printf '| Path | SHA-256 |\n'
+  printf '|---|---|\n'
+  printf '| `plugins/task/authorized-output.txt` | `%s` |\n' "$parity_hash"
+} > "$parity_repository/reports/implementation/f/T-001.md"
+make_manifest "$parity_repository" sdd-evaluator "$tmp/parity-base.json"
+jq --arg p 'plugins/task/authorized-output.txt' --arg h "$parity_hash" \
+  '.allowed_input_manifest += [{path:$p, sha256:$h}]' \
+  "$tmp/parity-base.json" > "$tmp/parity-unratified.json"
+assert_rejected_both wfi038-unratified-section-name \
+  "$tmp/parity-unratified.json" "$parity_repository" REVIEW_CONTEXT_PATH
+
 printf 'ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained\n'

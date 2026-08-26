@@ -1,7 +1,7 @@
 ---
 name: implement-tasks
 description: Batch-implement all approved tasks in dependency order, then auto-transition to quality-gate when every task reaches Implementation Complete. Use after sdd-bootstrap-interviewer and before quality-gate.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -16,10 +16,11 @@ invoke `quality-gate` for the feature.
 
 ## Invocation
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-implementation:implement-tasks specs/<feature>/tasks.md
+```
+/sdd-ship:ship
 ```
 
 Codex:

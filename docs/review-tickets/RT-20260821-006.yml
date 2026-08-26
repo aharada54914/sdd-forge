@@ -1,0 +1,48 @@
+ticket_id: RT-20260821-006
+status: open
+type: defect
+severity: critical
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-002"
+  files:
+    - "plugins/sdd-quality-loop/scripts/check-risk.ps1"
+    - "tests/gates.tests.sh"
+summary: >-
+  check-risk.ps1 fails open on five input classes the sh twin rejects
+  (case-insensitive operators + duplicate-section merge); no sh-side test
+  asserts the gate's exit code
+problem: |
+  QG evaluator (seq 0811, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T055500Z.md) accepted one Critical and two
+  Majors.
+
+  Critical: measured sh/ps1 exit pairs on identical fixtures - "Risk: LOW"
+  1/0, lowercased "risk:" key 1/0, "Required Workflow: TDD" 1/0, duplicate
+  heading dropping Risk 1/0, duplicate heading bogus-then-valid 1/0.
+  PowerShell -notin/-ne/-match are case-insensitive by default
+  (check-risk.ps1:96,142,62-73) where the awk twin compares case-sensitively,
+  and ps1 merges duplicate sections into hashtables (:38-44,56-61) where sh
+  finishes per section. The gate's verdict depends on which runtime runs it.
+  Third occurrence of this defect class (RT-20260819-002 precedent).
+
+  Major 1: run_check_risk in tests/gates.tests.sh swallows exit status with
+  "|| true" and all 11 negative tests grep stdout only. Mutation-proven: a
+  mutant forced to exit 0 prints the failure text and returns 0 while all 20
+  sh assertions stay green; the ps1 suite catches the identical mutation at
+  once because Assert-ExitCode exists there.
+
+  Major 2 (launcher defect, fixed separately): the reconstruction's
+  Verification Note falsely denies the preserved red/green logs.
+expected_fix:
+  - "Make every string comparison in check-risk.ps1 case-sensitive (-cnotin, -cne, -cmatch) and fail closed on duplicate task headings, matching the sh twin's per-section semantics"
+  - "Add both-polarity fixtures for the five divergent input classes, asserted against BOTH runtimes for identical exit code"
+  - "Assert exit codes in the sh suite (drop the || true swallow or capture and assert rc), so the exit-0 mutation is caught on both sides"
+  - "Re-run the quality gate for T-002 once fixed"
+references:
+  - "reports/quality-gate/20260821T055500Z.md"
+  - "specs/risk-adaptive-layer/design.md"
+  - "docs/review-tickets/RT-20260819-002.yml"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

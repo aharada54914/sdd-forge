@@ -731,7 +731,10 @@ def _schema_type_ok(expected, instance) -> bool:
         return isinstance(instance, (int, float)) and not isinstance(instance, bool)
     if expected == "null":
         return instance is None
-    return True
+    # Unknown type names fail CLOSED: a typo'd "type" keyword must reject
+    # every instance, never silently validate all of them (the same hole
+    # validate-approval-sidecar's engine closed).
+    return False
 
 
 def _schema_validate(schema, instance, path="/", root=None) -> List[str]:
@@ -1168,14 +1171,19 @@ def diagnose(classify_result: dict, provider_bindings_path: Optional[str]) -> di
                 if adapter_paths is None:
                     warnings.append("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
                     continue
+                # Hoisted: validate each declared pattern once per binding.
+                # A malformed pattern is surfaced as a warning instead of
+                # being silently re-swallowed on every (component, path) pair.
+                usable_patterns = []
+                for pattern in adapter_paths:
+                    try:
+                        usable_patterns.append((pattern, validate_and_normalize_pattern(pattern)))
+                    except ConfigError:
+                        warnings.append("Fail-6: a provider binding declares an unusable adapter path pattern; it cannot match anything: " + str(pattern))
                 for comp in joined:
                     for path in exclusive_by_component.get(comp, []):
                         nfc_path = normalize_nfc(path)
-                        for pattern in adapter_paths:
-                            try:
-                                normalized = validate_and_normalize_pattern(pattern)
-                            except ConfigError:
-                                continue
+                        for pattern, normalized in usable_patterns:
                             if pattern_matches(normalized, nfc_path):
                                 matches.append({"component": comp, "path": path, "pattern": pattern})
         findings.append({"id": "Fail-6", "triggered": len(matches) > 0, "detail": {"matches": matches}})

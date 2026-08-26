@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 4,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0",
+  "acceptance_sha256": "985899644b99be188e53489b35dd17034f9eb4a9cc646da30cc3ae70e54a49da",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "47067c07d23e432624e0bebc9ff39178b9a999fa3857b706b58f6824d75b8510",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-08-16T15:45:08Z"
+}

@@ -128,6 +128,41 @@ try {
   $reuse | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/batch-3-reuse.json') -Encoding utf8
   Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/batch-2.json'), (Join-Path $work 'manifests/batch-3-reuse.json')) }
 
+  # RT-20260821-012: adjacent + nonadjacent reuse for all three uniqueness
+  # fields, trailing-newline identity forgery, the CLI batch forms, and the
+  # -Batch/-Manifest ambiguity guard.
+  foreach ($reuseField in @('run_id', 'session_id', 'agent_instance_id')) {
+    $a1 = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-1.json') | ConvertFrom-Json
+    $a1.$reuseField = "reused-$reuseField"
+    $a1 | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/reuse-a1.json') -Encoding utf8
+    $a2 = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-2.json') | ConvertFrom-Json
+    $a2.$reuseField = "reused-$reuseField"
+    $a2 | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/reuse-a2.json') -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/reuse-a1.json'), (Join-Path $work 'manifests/reuse-a2.json')) }
+    $n3 = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-3.json') | ConvertFrom-Json
+    $n3.$reuseField = "reused-$reuseField"
+    $n3 | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/reuse-n3.json') -Encoding utf8
+    Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/reuse-a1.json'), (Join-Path $work 'manifests/batch-2.json'), (Join-Path $work 'manifests/reuse-n3.json')) }
+  }
+
+  $newline = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/batch-2.json') | ConvertFrom-Json
+  $newline.run_id = $newline.run_id + "`n"
+  $newline.session_id = $newline.session_id + "`n"
+  $newline | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/newline.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Manifest (Join-Path $work 'manifests/newline.json') }
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/newline.json')) }
+
+  # -Batch with positional leakage (the pwsh -File `-Batch a b c` shape binds
+  # b/c to -Manifest/-SnapshotRoot) must fail closed, never silently drop
+  # entries from dedupe
+  Expect-Diagnostic TASK_INPUT_JSON { & $validator -Batch @(,(Join-Path $work 'manifests/batch-1.json')) -Manifest (Join-Path $work 'manifests/batch-2.json') }
+
+  # the comma-separated single-element CLI form is the working -File batch
+  # shape and must still enforce dedupe
+  $commaOk = (& $validator -Batch ((@('batch-1.json','batch-2.json','batch-3.json') | ForEach-Object { Join-Path $work "manifests/$_" }) -join ','))
+  if (-not "$commaOk".StartsWith('TASK_INPUT_OK', [StringComparison]::Ordinal)) { Fail "comma batch form rejected a valid batch: $commaOk" }
+  Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch ((@('batch-1.json','batch-2.json','batch-3-reuse.json') | ForEach-Object { Join-Path $work "manifests/$_" }) -join ',') }
+
   Write-Manifest (Join-Path $work 'manifests/fallback-a.json') T-010 run-010 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents $reloadHash
   Write-Manifest (Join-Path $work 'manifests/fallback-b.json') T-011 run-011 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents $reloadHash
   foreach ($fallbackPath in @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json'))) {

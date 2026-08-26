@@ -1,29 +1,17 @@
-#!/usr/bin/env pwsh
-# Thin wrapper: dispatch to the single Python implementation
-# (compare-facet-manifest-staleness.py). No runtime-specific logic lives
-# here.
-# Diagnostic determinism contract: the underlying python3 process writes
-# LF-only bytes directly on BOTH channels (compare-facet-manifest-
-# staleness.py reconfigures both sys.stdout and sys.stderr to
-# newline="\n"); this wrapper streams that subprocess's stdout/stderr
-# through unmodified -- it never re-emits either channel via
-# Write-Output/Write-Host, which would risk PowerShell's default CRLF
-# `NewLine` leaking in, and it never merges the two channels together (the
-# verdict channel, stdout exit 0/1/2, and the diagnostic channel, stderr
-# exit 3, stay fully separated end to end).
+# Thin PowerShell dispatcher for compare-facet-manifest-staleness (Python
+# master; its exit vocabulary reserves 3 for no-verdict diagnostic failure,
+# which a missing interpreter is).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
 $ErrorActionPreference = "Stop"
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Target = Join-Path $ScriptDir "compare-facet-manifest-staleness.py"
-
-$python = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $python) {
-    $python = Get-Command python -ErrorAction SilentlyContinue
-}
-if (-not $python) {
-    [Console]::Error.Write("facet-manifest-staleness: python-not-found: no python3 or python on PATH`n")
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("compare-facet-manifest-staleness: COMPARE_FACET_MANIFEST_STALENESS_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
     exit 3
 }
+. $lib
 
-& $python.Path $Target @args
-exit $LASTEXITCODE
+Invoke-SddPyDispatch -Master (Join-Path $dir "compare-facet-manifest-staleness.py") -DiagnosticPrefix "compare-facet-manifest-staleness: COMPARE_FACET_MANIFEST_STALENESS_RUNTIME_UNAVAILABLE" -Arguments $args

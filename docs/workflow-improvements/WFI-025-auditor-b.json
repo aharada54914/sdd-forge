@@ -1,0 +1,69 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-025",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "PASS",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 1,
+    "auditor_a_pass_count": 8,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four elements present. (1) Metric row: Verification Plan item 5 names the row to be compared — 'a task-stage rebinds attributable to a status transition row' added 'to its Improvement Verification Plan table', with the WFI honestly stating 'no retrospective column tracks rebind counts today' and creating it. (2) Baseline and target: 'Baseline: 3 rebinds across 3 features in one session — an average of 1.0 per feature' and 'Target: 0'. (3) Cycle count: 'measured over the next 3 features that complete the task decomposition review gate'. (4) Threshold: zero rebinds attributable solely to a status transition over that window, compared against baseline average 1.0 per feature."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Proportional. Evidence scale: recurring structural friction observed on 3 separate features in one session (commits 340f0149, b836a11e, 726a5a0c — all three verified in git history with matching rebind subjects, and all three cited precheck-result.json artifacts verified, the epic-194-a6 one inside commit b836a11e as the WFI states), plus a demonstration that no validator-legal durable binding exists. Change scope: two scripts plus their .ps1 peers and one authoring instruction, with a fourth file explicitly 'No change' and listed only for blast-radius visibility. The change targets exactly the production/acceptance asymmetry the evidence isolates; neither over- nor under-scoped."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Four Verified WFIs exist: WFI-002 (AGENTS.md), WFI-007 (five sdd-implementation skill/reference files, deterministic-check-policy.md, bootstrap AGENTS template), WFI-008 (specs/ EVIDENCE-LOSS records, mcp golden tests), WFI-011 (AGENTS.md Rules). None touches task-review-precheck.sh/.ps1, validate-review-context-set.sh/.ps1, the task-stage review SKILL.md, or check-workflow-state.sh, so no Verified WFI's applied change can be overwritten or contradicted. Factual note: WFI-036 (Applied, not Verified) targets validate-review-context-set sh/ps1 twins, but its change concerns evaluator-output declaration (evaluator_output_is_declared), orthogonal to the task-plan digest-form exception proposed here; no contradiction between the two changes."
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Feasible as scoped. Category is plugin-improvement and this repository is the plugins' source of truth, so the plugin-side Target Files are directly committable here — the same delivery lane the Verified WFI-007 used. Every load-bearing technical claim verified in code: task-review-precheck.sh:356 computes the raw digest; validate-review-context-set.sh fails HASH unless every manifest sha256 equals the live file's raw sha256 and fails ROUND unless the manifest agrees with the round precheck's tasks_sha256; check-workflow-state.sh reviewed_hash_accepted already admits normalized_hash plus two rereview-normalized forms for the task stage, so the accepting side needs no change; SKILL.md lines 89 and 139 carry the 'with current hashes' instruction. Both .ps1 peers exist. The three listed changes plausibly close the production/acceptance asymmetry and reduce the measured friction."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Mechanical scan of every Section 2 forbidden term over the revised WFI produced hits only in (a) the Proposed Change Target File column, which must name the real deliverable paths in the source-of-truth repository and is outside the Change Description scope the rule binds, and (b) an HTML comment in the Audit-Status section, which is not a scanned section. Root Cause Hypothesis, the Why/Because columns, every Change Description cell, and Expected Effect use only generic terms. Raw script names and SKILL.md line numbers appear only in the Why-Why Evidence column and Problem Evidence, which the rule permits."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "The primary target (rebinds attributable solely to a status transition: 1.0 per feature to 0) is well grounded — the invariance mechanism is deterministic and was replayed against the real acceptance code. But Expected Effect also claims 'with a durable binding each would have stayed at attempt 1. Average task-stage attempts per feature falls from 4.3 to 1.0.' The cited artifacts document one status-transition rebind per feature (the rebinds producing attempts 5, 3 and 5); they do not show that every earlier attempt of each feature was rebind-caused rather than a genuine review outcome, so the counterfactual attempt-1 claim and the 4.3-to-1.0 figure exceed the evidence. Advisory: restate the secondary figure in terms of the evidenced primary metric or add a rationale showing the prior attempts were also rebind-caused."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Sufficient for a meaningful issue. Problem summary: the Problem Evidence opening already is the 2-3 sentence generic summary, with concrete metric values (3 rebinds across 3 features, attempts 5/3/5, each rebind costing two reviewer launches, two ledger reservations and a full contract artifact set). Proposed Change table: four complete rows with target files and generic descriptions, including one explicit no-change row. Expected Effect: quantitative target. Verification section content is directly derivable from the Verification Metric and Plan."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change is true; all three questions answered with evidence. (1) Easier to satisfy without improving the outcome? NO: the accepting side's four-form check is untouched and reviewed_hash_accepted already admits the normalized digest for the task stage today, so the gate's acceptance set does not widen by one digest; the reservation validator's single scoped relaxation applies only to the task plan entry, only when the same round's precheck declares tasks_sha256_form normalized (a new cross-check), and the normalized digest still binds every byte except the lifecycle fields the workflow is designed to change. (2) Check counts: before-to-after strictly increases — the change removes no gate, check or test, and adds one producing-side conditional, one validator cross-check that does not exist today, and the five tests in Verification Plan items 1-4. No decrease, so no justification is required. (3) Target-Metric independence: the rebind count per feature is read from task-review attempt artifacts, rebind commits, and a retrospective table row; it is not computed by the precheck, validator, or authoring instruction the WFI modifies, and no retrospective, grader, or run-record logic appears in the Proposed Change table."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Expected Effect",
+      "change": "Replace the attempts-counterfactual sentences with: each observed feature consumed at least one additional task decomposition review gate attempt solely to re-bind after a status flip (the rebinds that produced attempts 5, 3 and 5); a durable binding removes that class of attempt entirely — rebinds attributable solely to a status transition fall from an average of 1.0 per feature to 0.",
+      "rationale": "Resolves the EFFECT-CONSISTENT-WITH-EVIDENCE Minor: the cited artifacts evidence one status-transition rebind per feature, not that every attempt beyond the first was rebind-caused, so the quantitative effect should claim only what the evidence supports."
+    }
+  ]
+}

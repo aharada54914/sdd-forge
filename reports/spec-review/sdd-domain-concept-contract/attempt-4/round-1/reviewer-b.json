@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a4r1-seq0773",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a4r1-0773",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "985899644b99be188e53489b35dd17034f9eb4a9cc646da30cc3ae70e54a49da"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-1/precheck-result.json",
+      "sha256": "ca0c015bdbea79b55384ac314990b918b729d5e3c5a846437220f98212bae5d0"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-1/integrated-summary.json",
+      "sha256": "523ccb307ff868292a71a64cb55ab5cb1a90998195d162768b75506166b735e2"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Positive-capability matrix row 'G3: validator が正当な契約を誤検知しない' (acceptance-tests.md) cites 'AC-018 の境界正例' as proof that boundary pattern values `APIOrder`/`order-taking-2` are accepted, but AC-018's own AC-table Test Type is 'negative fixture (pattern 違反)' and its Test Target text defers the actual acceptance proof elsewhere: 'あわせて境界の正例として `APIOrder`（連続大文字）と `order-taking-2`（数字セグメント）が AC-003 の正例 fixture 系で受理されることを示し'. AC-003 — the only AC in this family typed 'positive fixture' — never names `APIOrder` or `order-taking-2` anywhere in its own Test Target text (which enumerates only Order/Fulfillment with purchase/delivery responsibilities and the 7 required + 3 optional fields). No AC whose Test Type is 'positive fixture' literally states these two boundary values pass. Downstream failure: a test author implementing TEST-003 from AC-003's text alone would not know to add these two fixtures, while a test author implementing TEST-018 would be adding a positive-acceptance assertion under a nominally negative-fixture test ID whose own text disclaims ownership of the proof. This violates the matrix's own accuracy rule ('AC の本文にフィールド名が現れないセルにこの記法を使ってはならない') and leaves no AC that a downstream verifier can point to as literally proving this declared capability. This is exactly the AC/TEST traceability the Positive-capability matrix exists to guarantee, so it belongs to spec review, not to design/task review. Major: missing observable acceptance criterion for a declared capability, not a workflow-safety contradiction."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found between requirements.md and acceptance-tests.md for the current round. Verified in both directions that all six REQ-005(a)-(f) fixture mandates are faithfully realized: AC-003 realizes (a) (Order=purchase only / Fulfillment=delivery only / mutual distinguished_from / Fulfillment.must_not_own=purchase price), AC-004 realizes (b) verbatim per this round's amendment ('REQ-005(b) の fixture 内容指定…をそのまま実現する'), AC-005 realizes (c), AC-006..AC-011 realize (d)'s six sub-items (d)-(i) one-for-one, AC-025 realizes (e), and AC-026 realizes (f) verbatim per this round's amendment, explicitly paired with AC-003 as REQ-005(f) itself requires ('(a) の全 populate 正例と対をなす'). Edge Cases, Non-goals, Roles and Permissions, and REQ-001..REQ-007 state no incompatible facts."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Edge Cases entry in requirements.md has a corresponding acceptance test: empty concepts[] -> AC-016; cross-context same-name concept (valid) vs. same-context same-name (invalid) -> AC-005 / AC-011; must_not_own absent -> AC-026; distinguished_from self-reference -> AC-008 ('自分自身への参照ケースを含む'); >10MB fail-closed input -> AC-017(2); v1 schema fed to v2 validator -> AC-012. Additional failure modes implied by REQ-002/003/004 (malformed JSON, type mismatch, minLength, minItems, pattern violation, dangling reference) are each covered by dedicated ACs (AC-014, AC-017(1), AC-018, AC-019, AC-020, AC-021, AC-022, AC-023, AC-024)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's OQ-001..OQ-004 are each either resolved directly in requirements.md (OQ-003's essence-required proposal is adopted in REQ-002/Field Definitions, citing 'OQ-003 提案: required'; OQ-004's v1-rejection wording is adopted in REQ-004(b)/Edge Cases) or explicitly and narrowly deferred without blocking this feature's deliverables (OQ-001 v1-schema fate deferred to Phase 3 with Phase 0 staying 'no change'; OQ-002 CI/run-all registration deferred to a future WFI, with Phase 0 tests running via the existing unregistered-Pester convention per INV-007). requirements.md's own Assumptions section records the hook-fallback deviation and the v1-non-existence decision (INV-009) as settled facts, not open items requiring a design/task-time decision."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "requirements.md explicitly scopes mechanical approval enforcement out of this feature: Non-goals states '`meta.status` の `Approved` 書込に対する機械的強制機構…の新設' is out of scope, and Roles and Permissions states 'v2 スキーマは `meta.status` を単なる列挙値フィールドとして定義するに留める' with '承認強制機構の新設は本 feature の非目標であり、必要と判断された場合は別 feature として起票する'. No AC tests approval-workflow semantics for meta.status — AC-021 only tests key presence, not value governance. No human-approval or irreversible-change boundary is in testable scope for Phase 0, so the explicit skip condition is met."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the traceability gap already recorded under AMBIGUITY, the specification hands off cleanly to implementation-policy review: Field Definitions enumerates every concept/term field with type, pattern, required-ness, and semantics; Roles and Permissions states editor/executor roles and the non-enforcement of the approval boundary explicitly; Main Workflows gives the 3-step usage loop; Edge Cases and Risks are populated with concrete mitigations tied to REQ-006's twin-parity and drift-lock tests. REQ-005(a)-(f) plus the Positive-/Negative-path matrices give an implementer a near-exhaustive fixture inventory without requiring invention of new product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 records 'sdd-forge 自身に `domain/` ディレクトリは存在せず（ルート直下確認）'. The scoped skip precondition (no `domain/` directory with an Approved context-map and schema-valid domain-contract.json) is met per this in-scope investigation evidence, so the check is recorded as skipped."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 2,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "823e8fad6b62d65dda47ed114640c48a9d94ac65dee987940cb7db80023370f0",
+  "acceptance_sha256": "6ee9192ace100ebace7041c35e448b668d07053726a764ac290c84ca6f2cc86d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "bf33ad49352d79dcca1f082ff6ebd929ac14b36cc33b5d6bba4d6543135b1590",
+  "edit_summary": "Attempt 2 round 2 の Major 1 件（reviewer B: EDGE-CASE-COVERAGE — 型不一致という違反様態が requirements・AC・coverage matrix のいずれにも存在しない）に対応。(1) requirements.md REQ-004(c) に JSON 型適合を検査義務として明記し、型検査が pattern / minLength / minItems に先行すること・不一致は 1 行 1 件の違反として非 0 終了で報告することを規定した。(2) acceptance-tests.md に AC-024 / TEST-024 を追加し、型を宣言する全フィールドに 1 fixture ずつ割り当てた 29 fixture を規定。生例外・スタックトレースを出力しないことを各 fixture で assert し、型検査の先行順序も (9)(10)(11) と (17)(18)(19) で証明する。(3) coverage matrix に『型不一致』列を追加して全行を充足し、optional 行についてもキー存在時の型不一致は違反であることを凡例に明記した。負例 fixture 総数を 73 に更新（内訳: 1 fixture の AC が 8、複数 fixture の AC が 65）。",
+  "reset": false,
+  "generated_at": "2026-08-16T11:13:41Z"
+}
