@@ -319,10 +319,11 @@ PROJECTION_BLOCK_CASES = (
     ),
     # Gate cycle-10 Major: a zero-exit, PARSEABLE canonicalizer payload of
     # the wrong TYPE (non-object projection; object with a non-object
-    # `components`) escaped the parse-level checks and crashed the later
-    # field accesses (`parsed_projection.get`, `projection_components[...]`)
-    # with uncaught AttributeError/TypeError instead of the canonical
-    # Block. Wrong-typed output IS malformed canonicalizer output -- same
+    # `components`) escaped the parse-level checks: a non-object
+    # projection crashed `parsed_projection.get` with an uncaught
+    # AttributeError, and a non-object `components` (array/string)
+    # sailed past step 3 to surface as a misattributed downstream Block
+    # instead of the canonical step-3 Block. Wrong-typed output IS malformed canonicalizer output -- same
     # Block row, same canonical sentence as the unparseable case.
     (
         "projection-output-not-object",

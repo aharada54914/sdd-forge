@@ -1605,10 +1605,11 @@ def main(argv=None):
     # exactly like pass 1's (security-spec B1 names both passes): a
     # zero-exit, PARSEABLE payload of the wrong TYPE (non-object
     # projection, or an object whose `components` is not an object)
-    # previously escaped the parse-level checks and crashed the later
-    # field accesses (`.get` here; subscripting inside
-    # `_evaluate_capabilities`) with an uncaught AttributeError/TypeError
-    # instead of the canonical Block (gate cycle-10 Major; projection
+    # previously escaped the parse-level checks: a non-object projection
+    # crashed `.get` here with an uncaught AttributeError, and a
+    # non-object `components` either sailed past step 3 to be
+    # misattributed downstream (array/string) or crashed later
+    # subscripting (numeric) (gate cycle-10 Major; projection
     # stub modes json-wrong-type / json-components-wrong-type).
     # Wrong-typed output IS malformed canonicalizer output -- same Block
     # row, same canonical sentence as the unparseable case.

@@ -25,8 +25,12 @@ behaves per SDD_T002_PROJECTION_MODE:
   json-components-wrong-type
                 exit 0, valid JSON object whose `components` is an
                 ARRAY -> dependency-output-malformed (same Major, the
-                sibling container class: crashed later subscripting
-                with uncaught TypeError)
+                sibling container class: previously sailed past step 3
+                entirely and surfaced later as a misattributed
+                downstream Block with a step-4 subprocess having run;
+                an uncaught TypeError is reachable only for shapes
+                such as a numeric `components`, which the type check
+                also rejects)
 
 The two failure modes emit an `UPSTREAM_SECRET` marker so the caller can
 assert M8 (upstream stderr is never copied into the Resolver's own
