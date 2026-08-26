@@ -6,7 +6,7 @@
   "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-  "git_commit": "6ea35a4935c8c315d6cf90b13986e6619d2ef4cd",
+  "git_commit": "0c55eded8dc8169a96a16533b6dda269653a58fa",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -29,7 +29,7 @@
   "artifacts": [
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-      "sha256": "5a29de9f16d632730c75e69f2b1d25914c23187b3e45472aae26ca708599a258"
+      "sha256": "ce50065546d40faeecb67425ff12935e76c64ae00476ebba0ca44b172ee896d3"
     },
     {
       "path": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
@@ -49,7 +49,7 @@
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log",
-      "sha256": "9cdbcab3f1cd297beb5c2ee6114222fe1ab3b77bde15d38d89b21674909059a2"
+      "sha256": "b19299197f44ac75cdaae71d8065809fca47603b5e177d8813446de6a4209d5d"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log",
