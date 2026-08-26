@@ -94,7 +94,10 @@ Describe "workflow-retrospective SKILL.md documents domain-drift metric aggregat
 
     It "SKILL.md exists and is unchanged as an internal, non-model-invocable skill" {
         Test-Path -LiteralPath $skillPath | Should Be $true
-        $script:skillText | Should Match "disable-model-invocation: true"
+        # Delegated skill: user-invocable: false already keeps humans out of
+        # order. Carrying disable-model-invocation too would leave it
+        # reachable by nobody, so its ABSENCE is the invariant.
+        $script:skillText | Should Not Match "(?m)^disable-model-invocation:"
         $script:skillText | Should Match "user-invocable: false"
     }
 

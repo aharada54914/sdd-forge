@@ -1,7 +1,6 @@
 ---
 name: domain-sync
 description: Detects an Approved domain/ model and injects its canonical Bounded-Context and terms into sdd-bootstrap Phase 1 output (requirements.md, design.md). Skips gracefully, recording exactly one skip line, when domain/ is absent or the model is not Approved. Never blocks spec generation.
-disable-model-invocation: true
 user-invocable: false
 ---
 

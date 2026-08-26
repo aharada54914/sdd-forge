@@ -1,7 +1,6 @@
 ---
 name: workflow-retrospective
 description: Measure how the SDD workflow itself performed (rework cycles, blocked tasks, review tickets, quality-gate failures) and propose human-approved improvements to project workflow files.
-disable-model-invocation: true
 user-invocable: false
 ---
 

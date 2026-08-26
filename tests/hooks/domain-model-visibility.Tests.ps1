@@ -9,8 +9,11 @@ Set-StrictMode -Version Latest
 #      public-entry convention) but still carries
 #      `disable-model-invocation: true`.
 #   2. Every other sdd-domain skill built so far (domain-interviewer,
-#      domain-reverse) carries BOTH `user-invocable: false` AND
-#      `disable-model-invocation: true` -- scanned from their actual
+#      domain-reverse) carries `user-invocable: false` and NO
+#      `disable-model-invocation` key: carrying both would leave the skill
+#      reachable by nobody, so bootstrap could never delegate to it. This is
+#      the Codex plugin's shape for its own internal skills -- scanned from
+#      their actual
 #      frontmatter, not asserted by assumption.
 #
 # Pester 3.4.0 / Windows PowerShell 5.1 only on this host: uses
@@ -144,8 +147,12 @@ Describe "Every other sdd-domain skill built so far is internal (contrast with d
                 Test-FrontmatterHasKeyValue -FrontmatterLines $fm -Key "user-invocable" -Value "false" | Should Be $true
             }
 
-            It "carries disable-model-invocation: true" {
-                Test-FrontmatterHasKeyValue -FrontmatterLines $fm -Key "disable-model-invocation" -Value "true" | Should Be $true
+            It "omits disable-model-invocation so the model can invoke it" {
+                # These are DELEGATED skills. user-invocable: false already
+                # keeps a human from starting them out of order; adding
+                # disable-model-invocation would leave them reachable by
+                # nobody. Codex's internal skills have the same shape.
+                (@($fm) -match "^disable-model-invocation:").Count | Should Be 0
             }
         }
     }

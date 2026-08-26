@@ -463,14 +463,25 @@ if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
 $userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "domain-model")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
-    if ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
-        throw "Skill must set disable-model-invocation: true: $($skillFile.FullName)"
-    }
     if ($content -notmatch "(?m)^name:\s*(.+)$") {
         throw "Skill has no name: $($skillFile.FullName)"
     }
     $skillName = $Matches[1].Trim()
     $hasUserInvocableFalse = $content -match "(?m)^user-invocable:\s*false$"
+    # A delegated skill already declares user-invocable: false, so a human
+    # cannot start it out of order. Adding disable-model-invocation on top
+    # leaves it reachable by NOBODY -- which is what silently killed
+    # ship/bootstrap's delegation to the lower stages. This mirrors the Codex
+    # plugin's shape for its own internal skills: user-invocable: false and no
+    # disable-model-invocation key at all. Entry skills keep the flag, so the
+    # model still cannot start a workflow on its own.
+    if ($hasUserInvocableFalse) {
+        if ($content -match "(?m)^disable-model-invocation:") {
+            throw "Delegated skill must not set disable-model-invocation (it would be reachable by nobody): $($skillFile.FullName)"
+        }
+    } elseif ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
+        throw "Entry skill must set disable-model-invocation: true: $($skillFile.FullName)"
+    }
     if ($skillName -in $userVisibleSkills) {
         if ($hasUserInvocableFalse) {
             throw "User-facing skill must not set user-invocable: false: $($skillFile.FullName)"

@@ -1,7 +1,6 @@
 ---
 name: sdd-bootstrap-interviewer
 description: Interview-driven SDD bootstrap for project, feature, bugfix, or refactor work. Creates approved implementation-ready specifications and tasks from GitHub/GitLab issues or supplied requirements.
-disable-model-invocation: true
 user-invocable: false
 ---
 

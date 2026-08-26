@@ -1,7 +1,6 @@
 ---
 name: investigate-codebase
 description: Read-only investigation of an existing codebase or problem domain. Produces investigation.md with INV-xxx findings and baseline-behavior.md with BL-xxx observable behaviors before any specification work.
-disable-model-invocation: true
 user-invocable: false
 context: fork
 agent: sdd-investigator

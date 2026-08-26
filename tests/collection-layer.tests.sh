@@ -292,10 +292,13 @@ if [ -f "$SKILL" ]; then
     else
         fail "CL-012b: SKILL.md missing name frontmatter"
     fi
-    if grep -q "disable-model-invocation: true" "$SKILL"; then
-        ok "CL-012c: SKILL.md has disable-model-invocation: true"
+    # cross-model-verify is a DELEGATED skill: it already carries
+    # user-invocable: false, so carrying disable-model-invocation as well would
+    # leave it reachable by nobody and quality-gate could never call it.
+    if grep -q "disable-model-invocation" "$SKILL"; then
+        fail "CL-012c: delegated SKILL.md must not carry disable-model-invocation (reachable by nobody)"
     else
-        fail "CL-012c: SKILL.md missing disable-model-invocation: true"
+        ok "CL-012c: delegated SKILL.md omits disable-model-invocation (the model may invoke it)"
     fi
     if grep -q "blind" "$SKILL" && grep -q "parallel" "$SKILL"; then
         ok "CL-012d: SKILL.md mentions blind and parallel"

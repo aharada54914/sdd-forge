@@ -260,8 +260,11 @@ if (Test-Path $skill) {
     $sc = Get-Content $skill -Raw
     if ($sc -match "name: cross-model-verify") { ok "CL-012b: SKILL.md has name frontmatter" }
     else { fail "CL-012b: SKILL.md missing name frontmatter" }
-    if ($sc -match "disable-model-invocation: true") { ok "CL-012c: SKILL.md has disable-model-invocation: true" }
-    else { fail "CL-012c: SKILL.md missing disable-model-invocation: true" }
+    # cross-model-verify is a DELEGATED skill: it already carries
+    # user-invocable: false, so carrying disable-model-invocation as well would
+    # leave it reachable by nobody and quality-gate could never call it.
+    if ($sc -match "disable-model-invocation") { fail "CL-012c: delegated SKILL.md must not carry disable-model-invocation (reachable by nobody)" }
+    else { ok "CL-012c: delegated SKILL.md omits disable-model-invocation (the model may invoke it)" }
     if ($sc -imatch "blind" -and $sc -imatch "parallel") { ok "CL-012d: SKILL.md mentions blind and parallel" }
     else { fail "CL-012d: SKILL.md should document blind/parallel isolation" }
 } else {

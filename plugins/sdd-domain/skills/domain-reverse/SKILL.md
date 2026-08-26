@@ -1,7 +1,6 @@
 ---
 name: domain-reverse
 description: Reverse-generation seed for the DDD upstream lane. Runs investigate-codebase against the target project and converts its investigation.md output into a candidate domain-model seed (candidate bounded contexts, ubiquitous-language terms, and event/aggregate hints) for domain-interviewer to use as a starting point.
-disable-model-invocation: true
 user-invocable: false
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: domain-interviewer
 description: Seven-stage DDD interview for the sdd-domain upstream lane. Interviews through Domain Story, Event Storming, Ubiquitous Language, Context Map, Domain Model (aggregates), Domain Message Flow, and C4 Container, checkpointing each stage to disk before the next begins, and regenerating domain/domain-contract.json after every stage. Resumable on interruption.
-disable-model-invocation: true
 user-invocable: false
 ---
 
