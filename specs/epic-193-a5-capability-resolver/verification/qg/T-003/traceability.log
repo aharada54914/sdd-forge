@@ -301,3 +301,11 @@ Edit-anchoring at the then-latest trailer line, landing physically
 before this tail block). The current census is NINETEEN, per the
 LIVE-TOTAL-V7 trailer and the driver's nineteen-entry case tuple; the
 SEVENTEEN in the block above is itself now a historical snapshot.
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-5 CLOSURE (2026-08-26,
+context_binding type check at step 4; new fixture
+resolve-component-paths-binding-not-object -- census now TWENTY, the
+driver's case tuple remains the authoritative list at twenty entries):
+  bash tests/resolve-project-context-block.tests.sh   -> 244 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 244 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V8: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 244 passed, 0 failed"

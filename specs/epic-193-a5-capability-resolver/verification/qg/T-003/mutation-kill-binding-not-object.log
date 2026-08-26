@@ -1,4 +1,15 @@
-# runner: pwsh
+# mutation-kill: context_binding type check before field access (route-(a) panel round-5 openai Major)
+# Captured 2026-08-26 BEFORE the isinstance-dict guard, against the
+# then-current staged resolver (0b83645b...): the new
+# resolve-component-paths-binding-not-object payload (truthy bare-string
+# context_binding) escapes the `or {}` fallback and crashes .get with an
+# uncaught AttributeError (raw traceback, no Block, no Resolver Evidence)
+# -- the same uncaught-crash class rounds 2/3 and cycle 7 closed at the
+# evaluate-predicate site, here at the step-4 resolve-component-paths
+# site. Suite 241 passed / 3 failed. After the guard the identical suite
+# is 244 passed / 0 failed (green-{sh,ps1}.log) -- the mutation is killed.
+# Full pre-fix capture (bash runtime):
+# runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
 PASS: disabled-legacy-invocation: exact Resolver Evidence
@@ -112,9 +123,9 @@ PASS: affected-component-duplicate-ids: exact Resolver Evidence
 PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
 PASS: affected-component-duplicate-ids: no partial live artifact
 PASS: resolve-component-paths-binding-not-object: exit 1
-PASS: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5)
-PASS: resolve-component-paths-binding-not-object: exact Resolver Evidence
-PASS: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement
+FAIL: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='Traceback (most recent call last):\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0wz6puo_/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1838, in <module>\n    sys.exit(main())\n             ~~~~^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0wz6puo_/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 1595, in main\n    affected_components, ownership_digest = _run_resolve_component_paths(script_dir, args)\n                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File "/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0wz6puo_/plugins/sdd-quality-loop/scripts/resolve-project-context.py", line 309, in _run_resolve_component_paths\n    ownership_digest = (parsed.get("context_binding") or {}).get("ownership_digest")\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAttributeError: \'str\' object has no attribute \'get\'\n'
+FAIL: resolve-component-paths-binding-not-object: exact Resolver Evidence: [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t003-0wz6puo_/specs/example-feature/resolver-evidence.yaml'
+FAIL: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement: evidence absent
 PASS: resolve-component-paths-binding-not-object: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
 PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
@@ -243,4 +254,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 244 passed, 0 failed
+RESULT: 241 passed, 3 failed

@@ -306,7 +306,20 @@ def _run_resolve_component_paths(script_dir, args):
     if not isinstance(parsed, dict):
         raise DependencyOutputMalformed("resolve-component-paths stdout is not a JSON object")
     affected_components = parsed.get("affected_components")
-    ownership_digest = (parsed.get("context_binding") or {}).get("ownership_digest")
+    # `context_binding` is untrusted dependency output: a truthy
+    # NON-OBJECT value (bare string/array/number) escaped the `or {}`
+    # fallback and crashed `.get` with an uncaught AttributeError instead
+    # of the canonical Block (route-(a) cross-model panel round-5 Major;
+    # fixture `resolve-component-paths-binding-not-object`). Type-check
+    # before field access; a non-dict binding leaves ownership_digest
+    # None, which the validation below rejects under this site's existing
+    # canonical sentence.
+    context_binding = parsed.get("context_binding")
+    ownership_digest = (
+        context_binding.get("ownership_digest")
+        if isinstance(context_binding, dict)
+        else None
+    )
     if not isinstance(affected_components, list) or not all(isinstance(c, str) for c in affected_components):
         raise DependencyOutputMalformed("resolve-component-paths stdout has no valid affected_components array")
     # A duplicate component id is malformed dependency output (Epic A3's

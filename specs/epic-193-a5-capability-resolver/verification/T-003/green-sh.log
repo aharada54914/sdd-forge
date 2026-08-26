@@ -111,6 +111,11 @@ PASS: affected-component-duplicate-ids: canonical diagnostic line present and la
 PASS: affected-component-duplicate-ids: exact Resolver Evidence
 PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
 PASS: affected-component-duplicate-ids: no partial live artifact
+PASS: resolve-component-paths-binding-not-object: exit 1
+PASS: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-binding-not-object: exact Resolver Evidence
+PASS: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement
+PASS: resolve-component-paths-binding-not-object: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
 PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
 PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
@@ -238,4 +243,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 239 passed, 0 failed
+RESULT: 244 passed, 0 failed

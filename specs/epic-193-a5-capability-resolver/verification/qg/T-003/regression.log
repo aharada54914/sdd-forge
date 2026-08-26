@@ -633,3 +633,26 @@ new failing suite, none this feature's own.
 regression: passes=true for this diff's own attributable effect,
 measured against the post-round-4 tree (staged resolver 0b83645b...,
 v9 red baseline 107/125 both runtimes).
+
+ELEVENTH-ROUND CAPTURE (2026-08-26, route-(a) panel round-5 closure):
+context_binding type check before field access at step 4 (new fixture
+resolve-component-paths-binding-not-object; the last unguarded field
+access on untrusted parsed dependency output per the caller-side sweep
+recorded in the contract comment). Focused suites, current tree,
+post-fix:
+  bash tests/resolve-project-context-block.tests.sh        -> RESULT: 244 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> RESULT: 244 passed, 0 failed
+  bash tests/resolve-project-context-match.tests.sh        -> RESULT: 125 passed, 0 failed
+  pwsh -File tests/resolve-project-context-match.tests.ps1 -> RESULT: 125 passed, 0 failed
+Full run-all (tests/run-all.sh), unpiped, fresh post-fix sweep,
+EXIT:1, trailing enumeration:
+  4 failing suite(s):
+    tests/workflow-state.tests.sh
+    tests/deterministic-lane-selfcheck.tests.sh
+    tests/design-system-contract.tests.sh
+    tests/check-component-coverage.tests.sh
+Byte-identical to every route-(a) capture (sixth through tenth rounds):
+no new failing suite, none this feature's own.
+regression: passes=true for this diff's own attributable effect,
+measured against the post-round-5 tree (staged resolver 499efaf0...,
+v10 red baseline 108/129 both runtimes).

@@ -332,6 +332,7 @@ ALL_CASE_NAMES = (
         "validate-capability-registry-launch-failed",
         "dependency-subprocess-failed",
         "affected-component-duplicate-ids",
+        "resolve-component-paths-binding-not-object",
         "evaluate-predicate-output-malformed",
         "evaluate-predicate-output-malformed-nested",
         "evaluate-predicate-output-malformed-unhashable",
@@ -515,6 +516,8 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "resolve-component-paths.py"
         elif case_name == "affected-component-duplicate-ids":
             stub_name = "resolve-component-paths.py"
+        elif case_name == "resolve-component-paths-binding-not-object":
+            stub_name = "resolve-component-paths.py"
         elif case_name == "registry-discovery-unimportable":
             stub_name = "registry_discovery.py"
         elif case_name == "registry-discovery-syntax-error":
@@ -676,6 +679,20 @@ def run_t003_case(kind, case_name, counts):
             # to catch it as a misattributed output-schema-validation-failed.
             # Step 4 must reject the duplicate up front under its existing
             # dependency-output-malformed canonical sentence.
+            expected_id = "dependency-output-malformed"
+            expected_detail = (
+                "resolve-component-paths returned malformed JSON while resolving affected components"
+            )
+
+        elif case_name == "resolve-component-paths-binding-not-object":
+            # Cross-model panel round 5 (openai Major): the step-4 parse
+            # read `(parsed.get("context_binding") or {}).get(...)` -- a
+            # truthy non-object context_binding (bare string/array) escaped
+            # the `or {}` fallback and crashed `.get` with an uncaught
+            # AttributeError instead of the canonical Block. The binding
+            # must be type-checked before field access; the existing
+            # ownership_digest validation then rejects it under the step-4
+            # site's existing canonical sentence.
             expected_id = "dependency-output-malformed"
             expected_detail = (
                 "resolve-component-paths returned malformed JSON while resolving affected components"
@@ -2074,6 +2091,7 @@ def main():
             "validate-capability-registry-launch-failed",
             "dependency-subprocess-failed",
             "affected-component-duplicate-ids",
+            "resolve-component-paths-binding-not-object",
             "evaluate-predicate-output-malformed",
             "evaluate-predicate-output-malformed-nested",
             "evaluate-predicate-output-malformed-unhashable",

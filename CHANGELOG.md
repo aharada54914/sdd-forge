@@ -31,7 +31,7 @@
   既存の共有スイート `tests/resolve-project-context-block.tests.{sh,ps1}`
   （共有ドライバは `tests/resolve-project-context-block-check.py`、T-002
   が新規作成・登録済みのため T-003 は新規スイート登録なし）に、この段
-  自身が所有する fixture として **19 fixture directory**
+  自身が所有する fixture として **20 fixture directory**
 （2026-08-26 ruling C(1)/C(2) 実測: 凍結文書 amendment により step 6.5
 recheck を正式化して `registry-swapped-during-validation` を復帰、
 absent-component fail-closed の `affected-component-absent-from-context`
@@ -44,9 +44,11 @@ fixture の payload を必須フィールド欠落の子へ更新。gate cycle 7
 Critical 是正で enum 判定を hash-safe 化（isinstance-str ガード）し
 `evaluate-predicate-output-malformed-unhashable` を追加。round 4 の
 openai Major 是正で step 4 に重複 component id 拒否を追加し
-`affected-component-duplicate-ids` を新設。block suite
-は両ランタイム 239/0、red-baseline-recaptured-v9 は 107 passed /
-125 failed）
+`affected-component-duplicate-ids` を新設。round 5 の openai Major
+是正で context_binding の型検査を field access 前に追加し
+`resolve-component-paths-binding-not-object` を新設。block suite
+は両ランタイム 244/0、red-baseline-recaptured-v10 は 108 passed /
+129 failed）
   （`run_t003_case`: `affected-component-resolution-failed` /
   `resolve-component-paths-launch-failed` / `contract-discovery-failed` /
   `registry-discovery-unimportable` / `registry-validation-failed` /
