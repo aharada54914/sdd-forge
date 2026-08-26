@@ -52,25 +52,52 @@ problem: |
   bypass - nothing currently emits such a bundle, because both generators
   populate all four fields.
 expected_fix: |
-  This needs a human decision on WHICH document is authoritative before any
-  code changes. Two coherent resolutions:
+  REWRITTEN 2026-08-26 after measuring where the named fields actually live.
+  The original (a)/(b) framing was wrong: it assumed the per-check provenance
+  belongs in the bundle. It does not, and the measurement changes the answer.
 
-  (a) Widen the checker to match requirements.md - add non-empty checks,
-      required_workflow present and non-blank, and builder present to the
-      required set for risk: high, on BOTH twins, with a tamper fixture per
-      field on each runtime. Amend design.md:178 in the same change so the
-      two documents agree. Cost: any historical high-risk bundle lacking
-      those fields stops validating; measure that population first.
+  Measured on this repository:
+    - 197 evidence bundles, 107 of them risk: high.
+    - required_workflow and builder are present in ALL of them (0 missing), so
+      two of AC-006's three named elements are already satisfied.
+    - checks is absent from 103 of the 107. It is absent because a bundle does
+      not carry checks at all - the per-check record lives in the verification
+      CONTRACT, which the bundle names in its verification_contract field.
+    - That field is a BARE PATH with no hash. Example shape:
+        "verification_contract": "specs/<feature>/verification/T-000.contract.json"
 
-  (b) Narrow the wording - amend requirements.md:41 and AC-006 to say the
-      checker validates spec_revision, build_env and review_verdict, and
-      that the remaining provenance fields are emitted by the generator but
-      not gate-enforced. Cheaper and truthful, but it removes a guarantee
-      rather than delivering it.
+  So a straight widening of the bundle checker would not deliver the guarantee
+  even if it passed: the contract it points at is not pinned, and can be
+  replaced after the bundle is generated with nothing detecting it. Fix the
+  unhashed link first, then the content, then the wording. In that order.
 
-  Whichever is chosen, add the four tamper cases above as fixtures so the
-  decided boundary is pinned on both runtimes; today no fixture enters this
-  path at all, which is why the gap survived five gate cycles.
+  Stage 1 - pin the link (highest value, zero corpus cost).
+    Make verification_contract carry a path AND a sha256, and have the bundle
+    checker verify the referenced contract's live bytes against it, on both
+    twins. New bundles only; existing bundles keep the bare-path form under the
+    grandfathering rule below. Without this stage the other two are decorative.
+
+  Stage 2 - require the per-check record where it lives (the contract).
+    WFI-046 made command / exit_code / started_at / finished_at format-checked
+    WHEN PRESENT and explicitly grandfathers absence - T-006.ps.7a pins that
+    behaviour. Promote them to REQUIRED for contracts under a declared schema
+    version, leaving schema-less contracts on today's rule, so the requirement
+    is fail-closed forward and costs no migration backward. Add a tamper
+    fixture per field on each runtime; today no fixture enters this path.
+
+  Stage 3 - make AC-006 say what is actually enforced.
+    Amend requirements.md:41 and AC-006 to state that the checker validates
+    spec_revision, build_env and review_verdict directly, and validates the
+    per-check provenance BY REFERENCE to a hash-pinned verification contract.
+    Amend design.md:178 to match. This closes the document disagreement by
+    making both documents describe the delivered chain, rather than by
+    deleting a guarantee (the original option (b)) or by promising one the
+    unhashed link cannot support (the original option (a)).
+
+  Human decision still required before stage 1: confirm this ordering, and
+  confirm that grandfathering bare-path bundles is acceptable rather than
+  requiring a corpus re-generation.
+
 references:
   - "reports/quality-gate/20260826T021500Z.md"
   - "docs/review-tickets/RT-20260821-STATUS.md"
