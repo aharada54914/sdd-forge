@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-003
 # feature: epic-193-a5-capability-resolver
-# input_digest: bb0dbdc15e0866e448f12f11a69de76edf9a3fcf77c0ad4949f22576302422c2
+# input_digest: ab3589c71578a4b14816575ef00881bcbaf7a53c3e9438b61bd869ee705a9e9d
 # consent: human-flag
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -10471,14 +10471,16 @@ touched — this task only appends fixtures to the already-registered
 
 **Re-derived 2026-08-25 (fourth-round cross-model panel remediation)**: derived from `git diff --name-only 5d63a74b` unioned with this worktree's own uncommitted adds, never by re-measuring the rows already present -- a re-measurement cannot discover a file that was never declared, which is the defect class this repository names `outputs-table-derive-from-git-diff`. Five rows were stale against commit 18d90c67 (the staged resolver, both test drivers and `MANIFEST.sha256`), and two rows named files this pass deleted as dead fixture content; every surviving row is re-hashed from the current worktree and the new rows this pass produced are added. The historical `### Outputs (round N)` sub-tables further down remain for their own narrative and are NOT the source for current bytes -- this table is.
 
+**Re-derived again 2026-08-26 (RT-20260826-001 route (b), human-approved)**: step 6.5 and the `registry-swapped-during-validation` fixture were removed; this table was re-derived in place against the current worktree — three deleted-fixture rows removed, every drifted row re-hashed, and the contract's current red evidence (`red-baseline-recaptured-v3-{sh,ps1}.log`, 102/105 both runtimes; suite green is now 214/0) added. The 2026-08-25 paragraph above and the historical sub-tables below describe earlier generations and are superseded by this derivation for current bytes.
+
 | Path | SHA-256 (current worktree, 2026-08-25) |
 |---|---|
-| `CHANGELOG.md` | `b769f61196f7dc7fc9e2a281c83693a0a09d4035308c9c6af6fbbfe33dcf8407` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `51deb17eb0d822ca2aa081e32c2ece77319e14c045157ff0c0d950fded41c5a2` |
-| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `7acd15a476d8bafa9f72d891a4f788692827048cc05f84302e6e0a6abbbefe4a` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `6843489937c685a2428801eb7d299ce01e7c4ff3f06308e4a26d3647dca8f611` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `b8b31b50a62aa919fe7e3fa796e34eb923b6cf64b43ca2422e5b0bc28d9455bf` |
-| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `64b4fa96352e52b00e23b5308f6a78ab07de5d01ea1354672b89a35a4e7aa680` |
+| `CHANGELOG.md` | `aa3c7d1671a80d6b4468f873706dfd9b3436188e3b39d7ae2e6e42e2b8d61d82` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `b8e3bdc8bb4bd2e855ef5b966d0338b53315100dbcb5f58321adad31f96de292` |
+| `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `220e2b013d1596369833e9898e2b0fc82cf26cd4181aab66849830df8acb59d4` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003.contract.json` | `77259cf0b6db26a2c47cc56efd77b7536678c2b97356269f15ff08fc090aaa3e` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-ps1.log` | `c07f95f0dcc23f257b508ab434cc8de453c6cb9b4295e2bff6bd5f42b64f060a` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/green-sh.log` | `24c25c40a720b61e5033e9500ef9256038075910e2a5ed386b560f8df2b457cb` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-ps1.log` | `4bfcde451aa4aa0881d199871748727b3262e07d45e3e520ccf9de367bac604d` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-ps1.log` | `e7cd49ffa27664cdb4f5d9f62a84bed4e91e5ba974d9802e1d0ffdead120d0f7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-sh.log` | `f542a21675163a20bc3ad020d9e2610d1e45082cb7fe02485d0ffd7b5d054a60` |
@@ -10487,17 +10489,17 @@ touched — this task only appends fixtures to the already-registered
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-sh.log` | `5859cbc6481f536cc14bc7ee7125d134ab0e70e560e8c6c71ac202fdd1c99c39` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-ps1.log` | `31194e8a53ee0c508a53d6ca127a6f991c72d81d4b39cf184ef8f6d46658f0a3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-003/red-sh.log` | `9b6ec6cf758249b30857e8030e5d7ab59728cf479a8c43127bf70701abc24a2f` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `b8b31b50a62aa919fe7e3fa796e34eb923b6cf64b43ca2422e5b0bc28d9455bf` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `64b4fa96352e52b00e23b5308f6a78ab07de5d01ea1354672b89a35a4e7aa680` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log` | `c07f95f0dcc23f257b508ab434cc8de453c6cb9b4295e2bff6bd5f42b64f060a` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log` | `24c25c40a720b61e5033e9500ef9256038075910e2a5ed386b560f8df2b457cb` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-dsl-warn-unsorted-affected-components.log` | `2c9b6708934e5f714b6bacd691f51ff3a40bf140d9bd3ab5c1aa4006ddf5e688` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-evaluate-predicate-schema-error.log` | `b86a06b1f0ac6af619ec030b714312ca964891ad5794e2705639bf357229586a` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-include-untracked-pass-through.log` | `34f8761ebfc00b2228d818e2b5e464e6f81f9a97b725667b55cd26760e161a21` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-reversal1-evaluate-predicate-failure-after-warn.log` | `e4afdf02f08bb8e80a7cbd0b5ed3f1ef8ead4d5d0c849fb2600122c6588cef4b` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/mutation-kill-sys-path-restore.log` | `65eec9ba7591b14d83d2b58993b3613855465cf530604442b821a4ba6c3a0393` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log` | `cb689208ba2eaee91c705abc3f95c00830845deed099559df95925f54ee76b47` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `e2a483a2a22b9801f6ee967eafbbf00073f76d2bbee8038b851cd26ca9803377` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log` | `a8ae4a11145459238056f7b0a69ceb1a7988efb92551bbf11bdb94c6c415ea2c` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log` | `fd863208c2dbffd0ebb2e718f69d646549368fe54acca05e769e7bd5f82063f5` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log` | `7dd25def4f74510383ecb66dca460e20d963a3d800b4b5372c8dcb131bc75f7a` |
-| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `815bbae2800d3649e2e2356ad83634fda4353fd7f755f563499922e6baa9e349` |
+| `specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log` | `051d4ed7634972f574b72353a925adcf83ea9932991c49812678fb77451338af` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-004/mutation-kill-governing-schema-invalid-utf8.log` | `ee6fc6c6dc260562f05271a984aed1f8002c7b26281bcefa46129c02505d5d72` |
 | `specs/epic-193-a5-capability-resolver/verification/qg/T-004/mutation-kill-governing-schema-malformed-ref.log` | `cb5b3a657b1f925844a677b68a08e7386e0b42b9aa7aa5b4c1a3009e14be12d2` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-resolution-failed/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
@@ -10529,9 +10531,6 @@ touched — this task only appends fixtures to the already-registered
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-syntax-error/registry_discovery.py` | `142b48deefaa69ddb1adbabbe4c1a200bf4c8bf334953265a1b8a0472dec54f2` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-discovery-unimportable/registry_discovery.py` | `b16af38d839bdcc28bdb1000a784a79a69eb2e00c78abe8b37d464bce2f7a34c` |
-| `tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json` | `87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae` |
-| `tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py` | `21b2faf08f66b9f95f82c86036cd30dce82014936efe8b83ea00fa5e2f5e7758` |
-| `tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/capability-registry.json` | `b5871a40114579d08f0b1f61ccbf8c3156c6c858b9637dfa6b051af1ba354513` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
 | `tests/fixtures/capability-resolver/resolve-project-context-block/resolve-component-paths-launch-failed/project-context.yaml` | `a6b763fdf3551181b6c50424cdce2729bcd9e10c5b3922b66d3b33ae65c6ca87` |
@@ -10540,11 +10539,13 @@ touched — this task only appends fixtures to the already-registered
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/canonicalize-sdd-yaml.py` | `2c4e509c2a96daac329c6b2c7ce61629c80ba7b3902a9e6af77472626cb3d452` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/capability-registry-empty.json` | `87516d042f5108d07f122f889dc942a21be060b16bd413898464220de3ede1ae` |
 | `tests/fixtures/capability-resolver/resolve-project-context-projection/resolve-component-paths-stub-empty.py` | `8e11f63b463781e3be475124aad322db8ad573e277d79f1ea4a950edc17a594b` |
-| `tests/resolve-project-context-block-check.py` | `26ac720fb5cb75a94590dfa8c77d3d727c9f2523f28b5d4462d15379ce94d022` |
+| `tests/resolve-project-context-block-check.py` | `502495d1ce46f6057cf395ab291a893ba343b54949ffc61ba69ffe3f5b6b3272` |
 | `tests/resolve-project-context-block.tests.ps1` | `f09f9c97d53364def990865cef0d242785028781e3f462c71849b0734874a257` |
 | `tests/resolve-project-context-block.tests.sh` | `a06cb73c36ba6d94d53b18638dd4a470388aaf72505372324c2cfa7d9a555890` |
 | `tests/run-all.ps1` | `5c62b3421bb2319538792429cf4791eb47a212847d21aa14550a50b0e26b9563` |
 | `tests/run-all.sh` | `a5750732627f3de66f5d3af88f0849959ea4c01214562600dfbecfc576c3e767` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v3-sh.log` | `d10aacdb0bdda7b3e02844a619f68082118eb36ce94368878318ed1c4a3308f6` |
+| `specs/epic-193-a5-capability-resolver/verification/T-003/red-baseline-recaptured-v3-ps1.log` | `346064bb3d605823b4f2f2e2dbbc82dc1e9e0a0d35cb5d0ff1aa7faa6d06ddb5` |
 
 ## Test Evidence
 
@@ -11931,7 +11932,47 @@ Independently of both layers, `ship` and `quality-gate` each carry
 `disable-model-invocation: true` (and `quality-gate` additionally
 `user-invocable: false`, "invoked by sdd-ship. Do not invoke directly"), so
 the gate is human-invoked for every task regardless of tier.
-# ---- CHANGELOG.md (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
+
+## Route (b) Remediation (RT-20260826-001, human-approved 2026-08-26)
+
+The quality gate's cycle-1 evaluator found, and the gate re-verified against
+the frozen documents, that step 6.5 (`_recheck_registry_snapshot`, added by
+the 2026-08-25 confirmation-panel remediation) was spec drift: design.md
+permits exactly two Registry re-reads (the step-13 pre-publication recheck
+and the post-publication recheck), requirements.md defines
+`snapshot-generation-mismatch`'s trigger as publication-time with a fresh
+`affected_components` re-derivation, and tasks.md allocates that
+diagnostic's fixture elsewhere. A human review-ticket ruling
+(RT-20260826-001) chose **route (b): remove the drift** rather than amend
+the frozen documents. Executed the same day:
+
+- Removed `_recheck_registry_snapshot`, its step-6.5 invocation block, and
+  the orphaned snapshot-digest retention from the staged resolver
+  (`_discover_registry` returns a 2-tuple again;
+  `SnapshotGenerationMismatch` survives solely for the step-13 recheck,
+  the spec-sanctioned site). No frozen document was touched.
+- Removed the `registry-swapped-during-validation` fixture directory and
+  all four driver references. The block suite is now **214 passed / 0
+  failed in BOTH runtimes** — this supersedes every earlier section's
+  "current, authoritative" 219/0 (and older 216/0, 205/0, 201/0) claims.
+- Recaptured RED against the T-002-only baseline (staged resolver rewound
+  to `99b8ba76`'s blob, restored byte-exact, sha256-verified):
+  `verification/T-003/red-baseline-recaptured-v3-{sh,ps1}.log`, **102
+  passed / 105 failed**, exit 1, both runtimes, all 14 remaining T-003
+  fixtures failing `exit 1: got 0`. The contract's `red_evidence` now
+  points at v3; the v2 pair remains on disk as a historical capture.
+- Re-pinned `human-copy/MANIFEST.sha256` (`shasum -a 256 -c` → 4/4 OK) and
+  re-derived the `## Outputs` table above in place against the current
+  worktree (three deleted-fixture rows removed, twelve drifted rows
+  re-hashed, two red-v3 rows added).
+
+Verified across quality-gate cycles 2 and 3 (fresh isolated evaluators):
+cycle 2 confirmed zero step-6.5 residue and zero collateral; cycle 3
+returned PASS with the closures independently reproduced (green
+byte-identical in both runtimes, RED v3 assertion-arithmetic reconciled,
+no acceptance criterion lost its test — the removed fixture served no
+REQ-002 row allocated to this task).
+# ---- CHANGELOG.md (declared output) ----
 # Changelog
 
 ## Unreleased
@@ -12013,12 +12054,12 @@ red-baseline-recaptured-v3 で全 14 fixture・105 assertion が fail する
 | 独立レビューは任意 | `sdd-evaluator` サブエージェント (または新規セッション) が必須 |
 | フックなし | `hooks/hooks.json` が承認ガード / AGENT_STOP を強制 |
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
-# ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
+# ---- specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256 (declared output) ----
 29a8e5cce151ce5628db3eb779696816e9d33cc5dce560cc7906eaf7c332e851  .github/workflows/test.yml
 220e2b013d1596369833e9898e2b0fc82cf26cd4181aab66849830df8acb59d4  plugins/sdd-quality-loop/scripts/resolve-project-context.py
 03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429  plugins/sdd-quality-loop/scripts/resolve-project-context.sh
 d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656  plugins/sdd-quality-loop/scripts/resolve-project-context.ps1
-# ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
+# ---- specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py (declared output) ----
 #![PATH_REDACTED] python3
 """Capability Resolver, implementation stages T-002+T-003+T-004 (steps 0-13).
 
@@ -13383,12 +13424,6 @@ caught and mapped to `contract-discovery-failed`, exit 1, with Resolver
 Evidence still written -- never an uncaught ImportError traceback with no
 diagnostic line and no Evidence at all."""
 raise ImportError("FIXTURE_INJECTED_FAILURE: registry_discovery deliberately unimportable")
-# ---- tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/capability-registry.json (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit 04433dbe52e1b0cd03357adc1443be42afcd60c0, the path no longer exists in the current tree) ----
-[no current content: this declared output does not exist in the worktree]
-# ---- tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/generate-registry-digest.py (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit 04433dbe52e1b0cd03357adc1443be42afcd60c0, the path no longer exists in the current tree) ----
-[no current content: this declared output does not exist in the worktree]
-# ---- tests/fixtures/capability-resolver/resolve-project-context-block/registry-swapped-during-validation/project-context.yaml (declared output — MISSING from the worktree; implementation report's declaration for this path is STALE, it matched only at declaration commit 04433dbe52e1b0cd03357adc1443be42afcd60c0, the path no longer exists in the current tree) ----
-[no current content: this declared output does not exist in the worktree]
 # ---- tests/fixtures/capability-resolver/resolve-project-context-block/registry-validation-failed/capability-registry.json (declared output) ----
 {
   "schema": "capability-registry/v1",
@@ -13554,7 +13589,7 @@ sys.stdout.write(
     '"sha256:0000000000000000000000000000000000000000000000000000000000000000"}}'
 )
 sys.exit(0)
-# ---- tests/resolve-project-context-block-check.py (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
+# ---- tests/resolve-project-context-block-check.py (declared output) ----
 #![PATH_REDACTED] python3
 """T-002+T-003 driver shared by the POSIX and PowerShell twins.
 
