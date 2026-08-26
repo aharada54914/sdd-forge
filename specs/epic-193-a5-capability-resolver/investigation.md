@@ -1274,7 +1274,8 @@ an empty or defaulted properties document.
    REQ-001's own lettered steps, TEST-057/TEST-058 added to
    traceability.md's REQ-002 row, and this record itself — per the
    round-1 reviewer findings.)
-2. `2ae0b9fd` (implementation follow-up, code and fixtures only — no
+2. `2ae0b9fdf8236ee95282d6330caabaf64e10671e` (implementation
+   follow-up, code and fixtures only — no
    frozen document touched): step-(e) recheck reinstated with
    C(1)-citing comments; absent-component fail-closed with a new
    canonical detail sentence; fixtures
@@ -1291,11 +1292,47 @@ an empty or defaulted properties document.
 
 ### Later-phase artifacts referenced (rulings C(1)/C(2))
 
-- `docs/review-tickets/RT-20260826-002.yml` (the decision record) and
-  `docs/review-tickets/RT-20260826-001.yml` (the route-(b) predecessor).
+- `docs/review-tickets/RT-20260826-002.yml` (the decision record; file
+  sha256
+  `373c0b5397df926bbdd69978e89c0eb3b1350b0e8dece16e9b0d5fab696193d2`)
+  and `docs/review-tickets/RT-20260826-001.yml` (the route-(b)
+  predecessor; file sha256
+  `33c49afb2ddb186ae564124a67d27f5b55597d3ca916cdd9b9b185c82cbad591`).
 - `specs/epic-193-a5-capability-resolver/verification/T-003.panelist-openai.verdict.json`
   (vendor openai, model gpt-5.6, verdict NEEDS_WORK, blind, input_digest
-  `ab3589c7…`) and `…/T-003.panelist-anthropic.verdict.json` (PASS, same
-  digest) — the two-vendor evidence the ruling responds to.
+  `ab3589c71578a4b14816575ef00881bcbaf7a53c3e9438b61bd869ee705a9e9d`;
+  file sha256
+  `5533a3173ad68a671a64d2c4e51a8ffc7be90d644b22b4044627861cb56b6ab8`)
+  and
+  `specs/epic-193-a5-capability-resolver/verification/T-003.panelist-anthropic.verdict.json`
+  (PASS, same input_digest; file sha256
+  `1af5bddc5060646dd1f6e55d09ed772cc94adcda9446276a8b4b4a4bf8146ae2`) —
+  the two-vendor evidence the ruling responds to.
 - `specs/epic-193-a5-capability-resolver/verification/T-003.cross-model.json`
-  (aggregate, result FAIL) — the consensus record that raised the ticket.
+  (aggregate, result FAIL; file sha256
+  `8437c9b6ee70d9750f82638a7e140fe5dcb0a0b9d89c75dd5b263fb781d63946`) —
+  the consensus record that raised the ticket.
+
+### Round-1/round-2 remediation extension (attempt 4, spec re-review, rulings C(1)/C(2))
+
+The attempt-4 round-1 reviewers found this record's initial slice
+incomplete (no dedicated ACs for the two new sub-triggers; a
+numeric-step trigger-site reference REQ-001 itself never defines; and —
+round 2 — no commit/sha pins for the follow-up slice, plus an
+abbreviated commit hash and bare-path later-phase citations above, both
+corrected in place). The follow-up commit that closed the round-1
+findings is `2a6cb6ee9d909191e23c05c9a1d3f407999ddbdb` (2026-08-26): it
+added AC-057/AC-058 (with TEST-057/TEST-058) to `acceptance-tests.md`,
+re-anchored the C(1)/C(2) rows to REQ-001's lettered steps
+((e), (f)-(g)) in `requirements.md`, propagated TEST-057/TEST-058 into
+`traceability.md`'s REQ-002 row, cited AC-057/AC-058 from `tasks.md`'s
+T-003 REQ-002 share, and appended the initial form of this very record.
+Per-document SHA-256 after that follow-up (stable through this
+extension's own authoring; investigation.md itself is excluded — it is
+the self-referential record, exactly as the A①/B① lineage's own
+extension excluded itself):
+
+- `requirements.md`: `956f52d32d492b2ea38ce8ce84c00b6f180854cf3fcff48d14798d3407944cf6`
+- `acceptance-tests.md`: `a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99`
+- `tasks.md`: `65877d63b4a385b9e2ed6aaee2f5034cc98e1674fca346e51338d0bfa77cfadd`
+- `traceability.md`: `dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193`

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a4r2-seq0789",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a4r2-0789",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "956f52d32d492b2ea38ce8ce84c00b6f180854cf3fcff48d14798d3407944cf6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "0904734a7b80a980fa98c10d5c27175cb1205811fcf827fd6b88fe4bf5e7a29b"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+    },
+    {
+      "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-4/round-2/precheck-result.json",
+      "sha256": "0ebb96a52ff72118ccaedc5a4be0556f446a822efb79fade83c5d2bb927dd578"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001..REQ-008) is fixture-level observable: e.g. REQ-002's sixteen-row diagnostic table each names an independently-triggerable trigger condition (requirements.md lines 353-370), REQ-005 fixes byte-identical-output determinism with an explicit track-exclusive-output-set scope, and REQ-004's Resolver Evidence schema fixes exact array cardinalities and bidirectional consistency rules. No in-scope requirement is stated only as an unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eight Goals (REQ-001..REQ-008) map to Acceptance Criteria in requirements.md's own AC table (AC-001..AC-056) and acceptance-tests.md's TEST rows. The round-1 gap is closed: REQ-002's two amended diagnostic rows (dependency-output-malformed at requirements.md:364, snapshot-generation-mismatch at requirements.md:368) now each cite a dedicated AC (AC-058, AC-057 respectively), and acceptance-tests.md:97-98 carries the corresponding AC-057/TEST-057 and AC-058/TEST-058 rows with dedicated fixtures (registry-swapped-during-validation, affected-component-absent-from-context)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete, externally observable outcomes throughout: exit codes (AC-013), file existence/non-existence (AC-011), schema-conformance (AC-008/AC-009/AC-017), byte-identity comparisons (AC-016/AC-022/AC-023), and exact array cardinality/ordering assertions (AC-018/AC-019/AC-024). AC-057/AC-058 (acceptance-tests.md:97-98) likewise assert exit code, canonical detail sentence, empty capability_evaluations, and no live artifact -- all externally observable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section (lines 732-784) explicitly excludes implementing the Resolver scripts themselves, editing any Epic A1-A4 contract, adding a Registry field, re-specifying check-component-coverage's Fail conditions, implementing compare-facet-manifest-staleness's caller, computing the full effective-enforcement formula, editing SKILL.md, authoring a new ADR, and running spec-review/impl-review or authoring tasks.md/traceability.md against this package itself."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "investigation.md's Amendment Re-Review Context / Rulings C(1)/C(2) section (lines 1214-1302) is the mechanism that closed round 1's Critical finding on this same check, but its own evidence bar is incomplete for the content actually under review this round. Its 'Per-document SHA-256 at amendment commit 5dcacc8e' block pins requirements.md/design.md/tasks.md/security-spec.md only as of the documents-only commit 5dcacc8ec06657800793b330847661f70719b747, which the section's own parenthetical says did NOT include the AC-057/AC-058 addition to acceptance-tests.md, the REQ-001-lettered-step wording anchor in requirements.md, or the TEST-057/TEST-058 addition to traceability.md -- those are attributed only to unnamed 'follow-ups in the same attempt-4 spec re-review round' with no commit hash and no resulting document SHA-256 given anywhere in investigation.md. Independently confirmed: the requirements.md hash pinned at 5dcacc8e (7a27cafab8cf333c83476ed981b9e70175c2d83d653753f76401d8bffa160448) does not match the currently-reviewed requirements.md hash (956f52d32d492b2ea38ce8ce84c00b6f180854cf3fcff48d14798d3407944cf6, per the manifest and precheck-result.json), and a grep of investigation.md for both the current requirements.md and acceptance-tests.md hashes returns no matches. Downstream: a future task author or implementer relying on investigation.md as the self-contained, durable evidence record for this amendment cannot verify, from investigation.md alone, that the AC-057/AC-058 text and the wording anchor currently under review are part of the same 2026-08-26 human-approved chain rather than an unreviewed later edit. Severity Major, not Critical: the human-approval quote, the frozen-document-touching commit hash, and the bulk of the C(1)/C(2) evidence chain are intact -- only the newest incremental round-2 remediation slice lacks its own commit-hash/SHA-256 pin, unlike the A(1)/B(1) ruling lineage in the same file, which records an analogous 'Round-1 remediation extension' for its own follow-up commits (lines 889-919)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk in requirements.md's Risks section (lines 1252-1346) names a concrete validation surface: the Lite-track required-enforcement gap risk cites REQ-002's fail-closed Block plus AC-009/AC-010's fixture coverage; the multi-component matching/facet-aggregation risk cites design.md Design Decisions plus AC-006/AC-043; the transactional-publication complexity risk cites the journal/crash-recovery test fixtures (AC-047/AC-048/AC-049); and the anchor-fingerprint risk cites AC-053's own drift-check fixture. The round-1 gap (the C(1)/C(2) unbound-reads and fail-open findings lacking a validation surface) is closed by AC-057/AC-058's dedicated fixtures."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in the target project (glob for domain/context-map.md and domain/** returned no files), so the domain-model-approved precondition for this check is absent. Skipped per the check's own explicit skip condition."
+    }
+  ]
+}
