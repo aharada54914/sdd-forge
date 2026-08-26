@@ -227,6 +227,11 @@ git_init_scratch_repo() {
     git -C "$root" config user.email "test@example.invalid"
     git -C "$root" config user.name "Prepare Panelist Test"
     git -C "$root" config commit.gpgsign false
+    # Parity with the ps1 twin: pin autocrlf off so scratch-repo blobs are
+    # byte-identical to the working tree even under Git for Windows, where
+    # the default (true) rewrites line endings at checkin and breaks the
+    # declared-hash stale classification.
+    git -C "$root" config core.autocrlf false
 }
 
 # ============================================================================

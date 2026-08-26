@@ -233,6 +233,13 @@ function New-PpiGitScratchRepo {
     & git -C $Root config user.email "test@example.invalid"
     & git -C $Root config user.name "Prepare Panelist Test"
     & git -C $Root config commit.gpgsign false
+    # Windows Git defaults core.autocrlf=true, which rewrites CRLF to LF at
+    # checkin. Declared-output hashes are taken from working-tree bytes, so a
+    # normalized blob can never match them and the stale-vs-fatal
+    # classification (Test-DeclaredOutputAtDeclarationCommit) degrades every
+    # stale declaration into a fatal mismatch. Pin it off so blobs are
+    # byte-identical to the working tree on every platform.
+    & git -C $Root config core.autocrlf false
 }
 
 function Invoke-PpiGitCommit {
