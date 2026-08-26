@@ -236,9 +236,9 @@ T-003
 ## T-007 Evidence signing + two-person approval (Critical controls)
 
 Source Issue: investigation.md INV-006, INV-007
-Approval: Approved
-Second Approval: (required — Risk: critical; see design.md §7. For bootstrap, the
-sole maintainer records both with rationale until a second approver exists.)
+Cross-Model: enabled
+Approval: Approved (aharada54914 2026-08-26T12:42:13Z)
+Second Approval: Approved (akiharada 2026-08-26T12:45:16Z)
 Status: Implementation Complete
 Risk: critical
 Risk Rationale: introduces cryptographic signing of evidence AND a new approval control; the highest-trust surface in the feature. Demonstrates the Critical workflow on itself.
