@@ -137,7 +137,7 @@ re-derives it wrongly.** Until 2026-08-01, `impl-reviewer-a.md` said:
 
 > Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
 
-while `review-precheck-common.sh:231` **fails the round** unless impl-reviewer-a's
+while `review-precheck-common.sh:274` **fails the round** unless impl-reviewer-a's
 manifest carries the *previous* round's `integrated-summary.json`, and
 `validate-review-context-set.sh` authorizes it for `impl-reviewer-a` with an
 explicit comment:
