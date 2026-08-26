@@ -2,49 +2,20 @@
   "schema": "impl-reviewer-a/v1",
   "stage": "impl",
   "role": "impl-reviewer-a",
-  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a4r2-seq0797",
-  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a4r2-0797",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a4r2-seq0799",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a4r2-0799",
   "allowed_input_manifest": [
-    {
-      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
-      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
-      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/design.md",
-      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
-      "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/ux-spec.md",
-      "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/frontend-spec.md",
-      "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/infra-spec.md",
-      "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"
-    },
-    {
-      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
-      "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"
-    },
-    {
-      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
-      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
-    },
-    {
-      "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/precheck-result.json",
-      "sha256": "aaac2d0eaa557785cd13b0d401ffdfbcfc6dc91865e4cd7e4016747e4543098e"
-    }
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/precheck-result.json", "sha256": "aaac2d0eaa557785cd13b0d401ffdfbcfc6dc91865e4cd7e4016747e4543098e"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-1/integrated-summary.json", "sha256": "1c40ca66718aa52e3bb9441a5eff2013a0466440ef36b97570cfb37a6b50aa21"}
   ],
   "verdict": "PASS",
   "legacy_design": false,
@@ -54,67 +25,67 @@
       "id": "ARCH-COVERAGE",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "design.md Architecture (61-188) gives a full pipeline diagram naming every component boundary (including the new step-6.5 recheck box) and integration with the four already-Passed sibling-epic contracts; technology choices in Components and Layer Specifications (no UI, no runtime deployment/database, both explicitly N/A with reasoning)."
+      "finding": "design.md ## Architecture (lines 61-187) gives a full ASCII pipeline diagram naming every component boundary (state derivation, canonicalizer, Context Projection assembly, resolve-component-paths, Registry discovery, step-6.5 recheck, evaluate-predicate fan-out, track branch, Evidence assembly, pre-publication recheck, atomic commit), describes integration with existing A1-A4 components at each stage, and names technology choices (Python stdlib master + sh/ps1 dispatchers; JSON Schema for contracts; YAML for per-Feature outputs; no runtime infra). No issues found."
     },
     {
       "id": "NO-CIRCULAR-DEPS",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Cross-Layer Dependencies and the diagram declare a one-directional graph (A5 depends on A1/A2/A3/A4; anticipated upstream for a future A6/A8 consumer). No back-edge, no cycle."
+      "finding": "Cross-Layer Dependencies (design.md:328-402) states an explicit, strictly one-directional dependency graph: this feature's REQ-001/REQ-005 depend on Epic A1 (canonicalizer), A2 (evaluate-predicate/registry-digest/ADR-0025), A3 (resolve-component-paths), and A4 (three schemas); no sibling epic is stated to depend back on this feature (only two future/anticipated *downstream* consumers, A6 and a future Gate/CI caller, neither of which this feature depends on). No cycle exists in the stated graph."
     },
     {
       "id": "DATA-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Data Plan (464-729): Data Entities fully enumerated, Existing Data Affected (none written; two artifacts read only), Migration Strategy none. All three sub-fields present and explicit."
+      "finding": "design.md ## Data Plan carries all three required sub-fields verbatim: 'Data Entities:' (line 466, new resolver-evidence.schema.json plus every read/derived field), 'Existing Data Affected:' (line 701, explicitly 'none written; two existing artifacts read only'), and 'Migration Strategy:' (line 719, explicitly 'none... no database, no runtime storage, no schema migration'). No issues found."
     },
     {
       "id": "API-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "API / Contract Plan (from 731) gives the full CLI contract (now including the numbered 6.5 Processing-order paragraph), the full resolver-evidence JSON Schema, the validator CLI contract; all net-new with no deprecated endpoint."
+      "finding": "design.md ## API / Contract Plan (lines 731-1801) fully specifies the resolve-project-context CLI contract (flags, request/response shapes via the 14-step processing order and exit-code table), the resolver-evidence.schema.json contract, and the validate-resolver-evidence CLI/check-id contract. No existing endpoint is deprecated or changed (Cross-Layer Dependencies states this feature reads, never redefines or modifies, any Epic A1/A2/A3/A4 artifact or script)."
     },
     {
       "id": "SECURITY-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "design.md Security Boundaries (2636-2719) names every trust boundary and the guard at each, now including a distinct bullet for ruling C(2)'s absent-component fail-closed rule (AC-058); security-spec.md's B3 Trust-Boundary/STRIDE rows cite AC-057/AC-058 and its Security Tests table carries dedicated TEST-057/TEST-058 rows. Round-2 edits verified directly."
+      "finding": "design.md ## Security Boundaries (lines 2636-2719) names every trust boundary this feature crosses (canonicalizer subprocess parse boundary, publication-transaction boundary, TOCTOU snapshot/recheck boundary including the new ruling-C(2) absent-component fail-closed bullet at 2658-2670, protected-path/approval-sidecar boundary, no-upstream-stderr-embedding boundary) and states the mechanism at each. security-spec.md (normative refinement, per this gate's instructions) supplies the Authentication/Authorization table, Data Classification table (explicit 'no PII, no credential, no secret' with rationale), and a full OWASP Mapping table (Injection/Software-and-Data-Integrity-Failures/Security-Misconfiguration/Broken-Access-Control/Cryptographic-Failures/Identification-and-Authentication-Failures). No item is missing."
     },
     {
       "id": "FRONTEND-BACKEND-CONSISTENCY",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "SKIP: narrative Phase-1 CLI/script-family package; UX and Frontend layer specs record N/A; no Frontend/Backend Plan sections exist. No fullstack surface to check."
+      "finding": "SKIP: Feature Type is cli."
     },
     {
       "id": "TEST-STRATEGY-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Test Strategy (1802-2117) covers unit/integration/acceptance verification with named suites and fixtures; item 2 (1885-1896) now names both ruling-C fixtures - registry-swapped-during-validation (AC-057/TEST-057) and affected-component-absent-from-context (AC-058/TEST-058) - closing the round-1 gap."
+      "finding": "design.md ## Test Strategy (lines 1802-2117) names ten suites covering unit-level fixture matrices (item 1 CLI argument validation, item 2 the 16-diagnostic Block matrix including the new registry-swapped-during-validation/AC-057/TEST-057 and affected-component-absent-from-context/AC-058/TEST-058 fixtures at lines 1885-1896), integration-level boundary tests (item 6 discovery, item 5 dual-runtime parity, item 10 live-SKILL.md caller-contract), and explicit AC-NNN mapping throughout every item. Concrete planned evidence is named as exact tests/*.tests.sh/.ps1 file paths and fixtures/capability-resolver/ directories, plus CI registration in tests/run-all.sh/.ps1 (AC-026) -- this satisfies the 'concrete planned verification evidence' bar given the project tooling design.md already identifies. Item 10's live-SKILL.md contract test functions as this CLI feature's own critical-integration-path verification."
     },
     {
       "id": "NO-UNDEFINED-COMPONENT",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "Components (189-201) defines every new component; every referenced sibling-epic script is an established, already-Passed upstream artifact identifiable from investigation.md INV entries, read/invoked and never redefined."
+      "finding": "## Components (design.md:189-201) defines every component this feature's own Architecture/API-Contract-Plan sections name (resolve-project-context.py/.sh/.ps1, generated/project-context.resolved.json, validate-resolver-evidence.{py,sh,ps1}, facet-manifest.yaml, capability-summary.yaml, resolver-evidence.yaml, SKILL.md). Referenced sibling-epic components (canonicalize-sdd-yaml, resolve-component-paths, evaluate-predicate, generate-registry-digest) are established system components cited with investigation.md INV-IDs, not undefined references."
     },
     {
       "id": "ADR-PRESENT",
       "result": "PASS",
       "severity": "Major",
-      "finding": "ADR Change Log (404-462) cites ADR-0016/0017/0019/0020/0021/0023/0025, all present on disk; no new ADR proposed, with explicit reasoning and a low-cost promotion fallback."
+      "finding": "## ADR Change Log (design.md:404-462) references ADR-0016, ADR-0017, ADR-0019, ADR-0020, ADR-0021, ADR-0023, and ADR-0025 (registry-discovery-contract) -- all seven exist as files under docs/adr/ (verified via ls). Six new orchestration decisions are explicitly named and justified as narrow, non-independently-ADR-worthy extensions of already-fixed upstream CLI shapes/ADR principles, with an explicit offer to promote any of them to a dedicated ADR if impl-review disagrees."
     },
     {
       "id": "DESIGN-SYSTEM-CONFORMANCE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "SKIP condition met and recorded: no design-system/ directory; design.md's Design System Compliance states Not applicable (no UI surface)."
+      "finding": "No design-system/ directory exists in this worktree (verified via ls). Check skipped per rule; design.md's own Design System Compliance section states 'Not applicable -- no UI surface', consistent with a CLI-only feature."
     },
     {
       "id": "DOMAIN-CONFORMANCE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "SKIP condition met and recorded: no domain/ directory, so no Domain-Model-Status gate applies."
+      "finding": "No domain/ directory exists in this worktree (verified via ls). Check skipped per rule."
     }
   ]
 }

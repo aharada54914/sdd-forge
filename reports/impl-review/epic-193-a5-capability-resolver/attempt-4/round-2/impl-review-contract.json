@@ -28,8 +28,8 @@
   "reviewers": [
     {
       "role": "impl-reviewer-a",
-      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a4r2-seq0797",
-      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a4r2-0797",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-a-a4r2-seq0799",
+      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-a-a4r2-0799",
       "allowed_input_manifest": [
         {
           "path": "specs/epic-193-a5-capability-resolver/requirements.md",
@@ -70,13 +70,17 @@
         {
           "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/precheck-result.json",
           "sha256": "aaac2d0eaa557785cd13b0d401ffdfbcfc6dc91865e4cd7e4016747e4543098e"
+        },
+        {
+          "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-1/integrated-summary.json",
+          "sha256": "1c40ca66718aa52e3bb9441a5eff2013a0466440ef36b97570cfb37a6b50aa21"
         }
       ]
     },
     {
       "role": "impl-reviewer-b",
-      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a4r2-seq0798",
-      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a4r2-0798",
+      "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a4r2-seq0800",
+      "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a4r2-0800",
       "allowed_input_manifest": [
         {
           "path": "specs/epic-193-a5-capability-resolver/requirements.md",
@@ -120,11 +124,11 @@
         },
         {
           "path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-4/round-2/integrated-summary.json",
-          "sha256": "9335ffe662367ca582eec1ed346833a275b471f6b00ca25896692904c750372a"
+          "sha256": "47fa35fa2433d8e2cd43bd73e8d7c7f1839ac68b84f1cecbbecc7801a8b5d539"
         }
       ]
     }
   ],
   "human_edit_summary": "Round-1 DECISION-JUSTIFIED propagation fixes under standing human approval for rulings C(1)/C(2): design.md gained a numbered step-6.5 Processing-order paragraph, 6.5 in the exit-code enumeration, a step-6.5 Architecture diagram box, ruling-C fixture names (AC-057/AC-058) in Test Strategy item 2, and a Security Boundaries bullet for ruling C(2); security-spec.md B3 row now cites AC-057/AC-058 and dedicated TEST-057/TEST-058 rows were added (commit bb8b2371).",
-  "timestamp": "2026-08-26T15:16:30Z"
+  "timestamp": "2026-08-26T15:24:34Z"
 }
