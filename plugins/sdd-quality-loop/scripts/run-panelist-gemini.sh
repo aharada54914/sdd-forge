@@ -115,7 +115,7 @@ with open(tmp_path, "w", encoding="ascii") as status_file:
     status_file.write(str(return_code))
 os.rename(tmp_path, status_path)
 sys.exit(return_code if 0 <= return_code <= 255 else 1)
-' "$_bw_status" "$@" &
+' "$_bw_status" "$@" <&0 &
     _bw_pid=$!
     # date +%s truncates the current second; include that fractional interval
     # so the configured whole-second budget is never shortened.

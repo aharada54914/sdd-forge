@@ -3,29 +3,24 @@
   "task_id": "T-003",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5.6",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:_evaluate_capabilities",
-      "note": "A capability entry is appended only after all of its trigger and conditional-facet evaluations finish. If a dependency fails midway through that capability, evaluations already performed for it disappear from the Resolver Evidence, contrary to REQ-004's requirement to record every evaluation actually performed. The failure-after-WARN fixture only fails in a later capability and does not cover this partial-current-capability case."
+      "ref": "resolve-project-context.py:_discover_registry/_validate_capability_registry/_generate_registry_digest_whole",
+      "note": "The Registry document retained as step 5's snapshot is not bound to the Registry independently rediscovered and read by validate-capability-registry and generate-registry-digest --whole. The implementation report explicitly confirms that neither dependency receives the located Registry path. Different discovery results can therefore validate/hash different bytes from those used for capability evaluation, violating REQ-001's single fixed Registry snapshot and context_binding.registry_digest provenance contract."
     },
     {
       "severity": "Major",
-      "ref": "resolve-project-context.py:main steps 7-8 exception handlers",
-      "note": "The three evaluation-abort handlers deliberately discard warn_diagnostics already encountered. This conflicts with REQ-004's requirement that diagnostics record every diagnostic-worthy condition encountered, not only the fatal condition; the implementation avoids a warn-only diagnostic ID by omitting known WARNs entirely."
-    },
-    {
-      "severity": "Minor",
-      "ref": "verification/T-003.contract.json comment",
-      "note": "The verification contract retains a stale claim that the current staged resolver hash is f6bc6796..., while the bundled MANIFEST and declared output identify aaf23df2.... Later report text supersedes other historical values, but the contract's own current-hash statement remains internally inconsistent."
+      "ref": "resolve-project-context.py:_evaluate_capabilities",
+      "note": "An affected component absent from the Context Projection is silently evaluated using an empty properties object via projection_components.get(component_id, {}). This converts an inconsistent dependency result into ordinary DSL WARN/false behavior instead of treating the dependency output as malformed and failing closed, so the Resolver may emit the wrong diagnostic and conceal a broken affected-component-to-Context binding."
     }
   ],
   "blind": true,
-  "input_digest": "b1a2186afb38ccc3bc186f14ccacc110c65a757d25cedd78c9476fd2bc7ebf03",
+  "input_digest": "ab3589c71578a4b14816575ef00881bcbaf7a53c3e9438b61bd869ee705a9e9d",
   "consent": {
-    "kind": "sudo",
-    "ref": "T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
+    "kind": "human-flag",
+    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-08-08T16:04:17Z)"
   }
 }

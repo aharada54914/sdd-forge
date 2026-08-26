@@ -18,7 +18,7 @@
 # Security (design.md §6):
 #   - SDD_EVIDENCE_KEY / SDD_SUDO_KEY are never passed to the panelist
 #   - Input bundle must be pre-sanitized by prepare-panelist-input
-#   - Panelist runs with --no-project-doc to prevent extra context bleed
+#   - Panelist runs with -c project_doc_max_bytes=0 to prevent extra context bleed
 #   - --effort (epic-159-pillar-c T-006, REQ-006/AC-035): optional, forwarded
 #     verbatim to the `codex` invocation alongside --model. Omitted entirely
 #     preserves today's exact invocation (design.md API/Contract Plan;
@@ -194,7 +194,7 @@ with open(tmp_path, "w", encoding="ascii") as status_file:
     status_file.write(str(return_code))
 os.rename(tmp_path, status_path)
 sys.exit(return_code if 0 <= return_code <= 255 else 1)
-' "$_bw_status" "$@" &
+' "$_bw_status" "$@" <&0 &
     _bw_pid=$!
     # date +%s truncates the current second. Include the open fractional second
     # so a whole-second budget can never expire before its requested duration.
@@ -288,7 +288,7 @@ PROMPT_EOF
 
 # ── Invoke codex CLI in isolated scratch ─────────────────────────────────────
 # Pass the prompt and input bundle to codex via stdin concatenation.
-# Use --no-project-doc to prevent leaking additional project context.
+# Use -c project_doc_max_bytes=0 to prevent leaking additional project context.
 
 _combined="${_scratch}/combined.txt"
 {
@@ -317,14 +317,14 @@ _raw_output="${_scratch}/raw-output.txt"
 if [ -n "$effort" ]; then
     # --effort supplied: forwarded to codex alongside --model (AC-035).
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" $_model_args --effort "$effort" --no-project-doc \
+        "$_codex_cmd" exec $_model_args --effort "$effort" -c project_doc_max_bytes=0 \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 else
     # --effort omitted: byte-identical to the pre-T-006 invocation
     # (Breaking API: no -- design.md API/Contract Plan).
     _sdd_run_bounded "$_panelist_timeout" \
-        "$_codex_cmd" $_model_args --no-project-doc \
+        "$_codex_cmd" exec $_model_args -c project_doc_max_bytes=0 \
         < "$_combined" > "$_raw_output" 2>&1
     _rc=$?
 fi
