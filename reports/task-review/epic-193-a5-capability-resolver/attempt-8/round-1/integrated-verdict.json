@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "epic-193-a5-capability-resolver",
+  "run_id": "task-orch-epic-193-a5-capability-resolver-a8r1",
+  "verdict": "PASS",
+  "round": 1,
+  "attempt": 8,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

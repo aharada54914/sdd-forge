@@ -1,0 +1,84 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 8,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a8r1-seq0786",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a8r1-0786",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "56511557d4028c1c043b1aa885a9d7c1c58e6e230cfc29f0c64a69b4b44d68cb"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "531d47d526f8a51a473869d18e5a3b5e0f8a3f65d9dd6f9d33bdc4b810f6fc33"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "1d96c0affd804540447631d0f5e57a85e2efdfecadd2a7667b9d9a3a31f4838a"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "d7b74bc03caf2163ae6be3bead6d544548e8f4a0fb431bafe453f8f50e8369a3"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "406cea5cdc5bbe8965c37f906a431a3a8ef5fa32d00946f1c31398cef41aa65d"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "3e3a06a7faa970cc361981548e799a6521286c787a9591469d7a9e9936d3fca6"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "2878740f831f174e2fe3422a77a1a88b6d0a5acc0918091a1b94c1581a1ab72d"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "0a9c53a11d3e6e01c5855896549ae97d5b9beef5d582b77b91d9c5b34b063509"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/precheck-result.json", "sha256": "3697fdb2242605344e639afe90fd989be9a6888e8e97afefac6092f5d9e76cd0"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-8/round-1/integrated-summary.json", "sha256": "416f24704afa399d533fe7ecbddff457dbba5b2f25d06d8bc69524ceb172ca9f"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every task's Risk: tier carries an explicit Risk Rationale evaluated against risk-classification-policy.md (T-001 medium, T-002/T-003/T-004/T-007/T-008 high, T-005/T-006/T-009/T-010 medium). None of the sentinel surfaces (auth, authz, payment, PII storage, data migration, externally-visible API contracts) are under-classified, and no task's scope is limited to UI copy/CSS/docs/test-only work while carrying high/critical risk. TYPE-H convergence advisory: tasks.md content is unchanged, modulo the human-authorized T-004/T-005 Status->Done and T-003 Cross-Model->enabled lines, from the content bound by the prior task-review PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/; none of those deltas affects risk classification."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found (evaluated directly against current tasks.md content; TYPE-D, not subject to the convergence rule). Every Risk: high task (T-002 Done When line 690-693, T-003 941-944, T-004 1190-1194, T-007 1820-1822, T-008 2015-2017) states 'TDD evidence -- RED ... and GREEN ... An independent quality-gate verdict records PASS' -- both a Red->Green cycle and a named independent reviewer (quality-gate, distinct from the implementing agent). No task in this feature is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Current decomposition (T-001 schema+suite, T-002/T-003/T-004 three-way engine split by step range, T-005 match-suite-only, T-006 three test suites, T-007 transactional layer, T-008 validator+suite, T-009 parity suite, T-010 metamorphic suite) is the documented outcome of four remedy passes across attempt-1/attempt-2 (tasks.md Global Constraints, 'Task-decomposition note'), each independently re-verified TASK-SIZE-clean by a prior reviewer-b. No task's Done When exceeds eight distinct items with unrelated concerns, and no group of 3+ tasks is a bare single-function/file-rename fragment. TYPE-H convergence advisory: unchanged from the content bound by the prior PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/, modulo the declared lifecycle/pointer deltas (T-004/T-005 Status, T-003 Cross-Model), none of which touch task scope or sizing."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. REQ-002's sixteen-row Block diagnostic-id taxonomy (requirements.md, acceptance-tests.md AC-010..AC-015/AC-038..AC-041/AC-047..AC-049/AC-055) gives every functional task (T-002/T-003/T-004/T-007) a dedicated error-path fixture set in the shared resolve-project-context-block suite, and T-005/T-006/T-008/T-009/T-010 each carry their own negative/edge fixtures (e.g. AC-016's lite-check-source-undefined exclusion, AC-040's TOCTOU pair, AC-050/051's provenance-mismatch pair). TYPE-H convergence advisory: unchanged from reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/'s bound content."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every acceptance-tests.md row cites a specific AC-NNN by table construction; every named suite's own Test Target column and this feature's own Security Tests table (security-spec.md) describe genuine multi-component integration behavior (real subprocess invocation of resolve-project-context plus its Epic A1/A2/A3 dependencies), consistent with each row's own declared Test Type label (e.g. 'discovery-contract reuse lock', 'Block diagnostic-id table lock'). No test task mislabels a single-module check as end-to-end or a multi-component check as unit. TYPE-H convergence advisory: unchanged from reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/'s bound content."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every task, including every Risk: high task (T-002, T-003, T-004, T-007, T-008), carries an explicit Rollback: field addressing commit revert plus, where a protected human-copy path is involved, the human re-cp procedure; T-007 additionally documents journal-based runtime rollback (infra-spec.md Journal Recovery/Rollback) for the one task with an irreversible-filesystem surface. TYPE-H convergence advisory: unchanged from reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/'s bound content."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The two genuinely shared files (resolve-project-context.{py,sh,ps1} across T-002/T-003/T-004/T-007, and tests/resolve-project-context-block.tests.sh/.ps1 across the same four tasks) are each governed by an explicit, documented strict-sequence Blockers chain (tasks.md Global Constraints, 'is one Python-master-plus-wrapper component edited by exactly four tasks, in strict sequence' / 'is a single, shared suite file spanning four tasks in strict sequence'), with each contributing task appending only its own new fixtures/steps, never touching an earlier contributor's own content. TYPE-H convergence advisory: unchanged from reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/'s bound content."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Verified the literal Blockers section of every task against both its functional need and the fixed CI-registration order (tasks.md Global Constraints, 'Test-suite/CI-registration serialization'): T-002<-T-001; T-003<-T-002; T-004<-T-001,T-003; T-005<-T-002,T-004; T-006<-T-004,T-005; T-007<-T-004; T-008<-T-001,T-006,T-007; T-009<-T-002..T-008; T-010<-T-004,T-007,T-008,T-009. Each edge maps to a genuine artifact dependency (a predecessor's staged code, schema, or shared-file registration slot) with no spurious or missing edge. This is the settled outcome of round-3's DEPENDENCY-OVERLAP finding and its attempt-2 remedy. TYPE-H convergence advisory: unchanged from reports/task-review/epic-193-a5-capability-resolver/attempt-7/round-1/'s bound content."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All ten tasks (T-001..T-010) are new-feature authoring tasks (schema, engine stages, test suites, transactional layer, validator) per their own Goal/Scope sections; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}
