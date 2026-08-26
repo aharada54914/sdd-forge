@@ -761,7 +761,7 @@ Required Workflow: tdd
 
 Security-Sensitive: true
 
-Cross-Model: not enabled
+Cross-Model: enabled
 
 Requirements: REQ-001 (steps 4-9 only — `resolve-component-paths`
 invocation, Registry discovery via ADR-0025, `registry_digest --whole`,
