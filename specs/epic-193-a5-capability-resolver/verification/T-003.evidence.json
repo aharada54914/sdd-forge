@@ -6,7 +6,7 @@
   "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
   "quality_report": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
   "verification_contract": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-  "git_commit": "7ac1d235de8454cd51d15a17eb4bed7fbd272fb1",
+  "git_commit": "2830c80c99449f61839de88e9afeff562109be5d",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -23,33 +23,33 @@
     "verdict": "PASS",
     "critical": 0,
     "major": 0,
-    "minor": 1,
+    "minor": 3,
     "reviewer": "sdd-evaluator"
   },
   "artifacts": [
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/T-003.contract.json",
-      "sha256": "aa4759890c2fda40e87c52d26dabcc6a608bbf3dc662b3e5eb5c4fbc8eb37a26"
+      "sha256": "2a9d0edd5530f82c86448e253ddc08386d47706b94204bd08eafab13134eb7af"
     },
     {
       "path": "reports/quality-gate/epic-193-a5-capability-resolver/T-003.md",
-      "sha256": "d6c3336ee7539eea7cb0187af8207ffe8601a30192f3ce94f1b68a8e7b1bc7c6"
+      "sha256": "680f19264053db86ac5121857e7868aa612898ada56645571a7727839a7fcf44"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-ps1.log",
-      "sha256": "e3fc334ab38e9d1fbf01021d90dead3bc014aa2cadb6c9c6db8da323e8dc561f"
+      "sha256": "749e6ff07a7a593c68b8176fc1aa77e5a5704557b15b432cafa8c2d343f10dbc"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/focused-tests-sh.log",
-      "sha256": "7f4edd50ec3bd8e7534e538687f831131ffa81a81d9bd22ce47b78c9f905aa39"
+      "sha256": "984f1158620cce0cbd2e73931f9e9a76ca192a387dd7a75d42f9ec3fb72a9bed"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/placeholder-scan.log",
-      "sha256": "f87d00f2937c2bcb9da4bbfbf411ce795bc816cdda0fb5ff75ddc911b0bd0891"
+      "sha256": "c8710a83f5fec6cc88339f20670869adef8699758c7fafac1e92e3ba662aff51"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/regression.log",
-      "sha256": "efe1629af3738660944d50799a3dae82532d72f06db4011695877a44c37b41ba"
+      "sha256": "73657508ae230441dfb1c13f74f157239a6a107dd4e7c197eda407cfe9309fcf"
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/task-state.log",
@@ -57,7 +57,7 @@
     },
     {
       "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-003/traceability.log",
-      "sha256": "2af5588b9304d3c22c3d49bf52735b3eef16b1440d773b9ae7e8b37300afe509"
+      "sha256": "497251a92d3da0c8963b258322b07d0259b3e592c4aaf3e6d882460ec385c03d"
     }
   ]
 }
