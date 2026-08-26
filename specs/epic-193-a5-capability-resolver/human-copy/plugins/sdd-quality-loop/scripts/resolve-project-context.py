@@ -309,6 +309,17 @@ def _run_resolve_component_paths(script_dir, args):
     ownership_digest = (parsed.get("context_binding") or {}).get("ownership_digest")
     if not isinstance(affected_components, list) or not all(isinstance(c, str) for c in affected_components):
         raise DependencyOutputMalformed("resolve-component-paths stdout has no valid affected_components array")
+    # A duplicate component id is malformed dependency output (Epic A3's
+    # own contract guarantees unique ids; REQ-004 binds every
+    # capability_evaluations[] entry to EXACTLY one trigger_evaluations[]
+    # element per affected component). Without this rejection the
+    # duplicate fans out into two evaluations per capability and two warn
+    # diagnostics for the same node, publishing Evidence that violates
+    # REQ-004's exact-set rule while still passing the step-12 schema
+    # self-validation (route-(a) cross-model panel round-4 Major; fixture
+    # `affected-component-duplicate-ids`).
+    if len(set(affected_components)) != len(affected_components):
+        raise DependencyOutputMalformed("resolve-component-paths returned duplicate affected component ids")
     if not isinstance(ownership_digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", ownership_digest):
         raise DependencyOutputMalformed("resolve-component-paths stdout has no valid context_binding.ownership_digest")
     return affected_components, ownership_digest

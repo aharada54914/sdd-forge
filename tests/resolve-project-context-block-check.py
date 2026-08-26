@@ -331,6 +331,7 @@ ALL_CASE_NAMES = (
         "registry-validation-failed",
         "validate-capability-registry-launch-failed",
         "dependency-subprocess-failed",
+        "affected-component-duplicate-ids",
         "evaluate-predicate-output-malformed",
         "evaluate-predicate-output-malformed-nested",
         "evaluate-predicate-output-malformed-unhashable",
@@ -512,6 +513,8 @@ def run_t003_case(kind, case_name, counts):
             stub_name = "generate-registry-digest.py"
         elif case_name == "affected-component-absent-from-context":
             stub_name = "resolve-component-paths.py"
+        elif case_name == "affected-component-duplicate-ids":
+            stub_name = "resolve-component-paths.py"
         elif case_name == "registry-discovery-unimportable":
             stub_name = "registry_discovery.py"
         elif case_name == "registry-discovery-syntax-error":
@@ -661,6 +664,21 @@ def run_t003_case(kind, case_name, counts):
             expected_id = "dependency-output-malformed"
             expected_detail = (
                 "resolve-component-paths returned an affected component absent from the Project Context"
+            )
+
+        elif case_name == "affected-component-duplicate-ids":
+            # Cross-model panel round 4 (openai Major): a duplicate id in
+            # affected_components survived the step-4 shape validation and
+            # fanned out into TWO trigger/conditional-facet evaluations per
+            # capability for the same component -- violating REQ-004's
+            # exactly-one-per-affected-component binding (and Epic A3's own
+            # uniqueness guarantee), then relying on step 12's uniqueItems
+            # to catch it as a misattributed output-schema-validation-failed.
+            # Step 4 must reject the duplicate up front under its existing
+            # dependency-output-malformed canonical sentence.
+            expected_id = "dependency-output-malformed"
+            expected_detail = (
+                "resolve-component-paths returned malformed JSON while resolving affected components"
             )
 
         elif case_name == "evaluate-predicate-output-malformed":
@@ -2055,6 +2073,7 @@ def main():
             "registry-validation-failed",
             "validate-capability-registry-launch-failed",
             "dependency-subprocess-failed",
+            "affected-component-duplicate-ids",
             "evaluate-predicate-output-malformed",
             "evaluate-predicate-output-malformed-nested",
             "evaluate-predicate-output-malformed-unhashable",

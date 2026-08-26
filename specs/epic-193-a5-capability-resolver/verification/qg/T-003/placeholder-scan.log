@@ -83,3 +83,11 @@ $ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-
 # the new unhashable fixture stub:
 Placeholder scan passed.
 Exit: 0
+
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py tests/resolve-project-context-block-check.py tests/fixtures/capability-resolver/resolve-project-context-block/affected-component-duplicate-ids/resolve-component-paths.py
+# route-(a) panel round-4 closure (2026-08-26): re-scanned after the
+# duplicate-component-id rejection -- the staged resolver (now
+# 0b83645b...), the extended block driver, and the new duplicate-ids
+# fixture stub:
+Placeholder scan passed.
+Exit: 0

@@ -275,6 +275,14 @@ entries, remains the authoritative list):
   bash tests/resolve-project-context-block.tests.sh   -> 234 passed, 0 failed
   pwsh -File tests/resolve-project-context-block.tests.ps1 -> 234 passed, 0 failed
 TRACEABILITY-LOG-LIVE-TOTAL-V6: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 234 passed, 0 failed"
+
+RE-CONFIRMED AFTER THE ROUTE-(A) PANEL ROUND-4 CLOSURE (2026-08-26,
+duplicate-component-id rejection at step 4; new fixture
+affected-component-duplicate-ids -- census now NINETEEN, the driver's
+case tuple remains the authoritative list at nineteen entries):
+  bash tests/resolve-project-context-block.tests.sh   -> 239 passed, 0 failed
+  pwsh -File tests/resolve-project-context-block.tests.ps1 -> 239 passed, 0 failed
+TRACEABILITY-LOG-LIVE-TOTAL-V7: driver=tests/resolve-project-context-block.tests.sh result="RESULT: 239 passed, 0 failed"
 CENSUS CORRECTION (2026-08-26, gate cycle 6): T-003's own fixture
 enumeration is now SEVENTEEN. The authoritative list is
 run_t003_case's own case tuple in

@@ -1,4 +1,15 @@
-# runner: pwsh
+# mutation-kill: duplicate affected-component ids rejected at step 4 (route-(a) panel round-4 openai Major)
+# Captured 2026-08-26 BEFORE the uniqueness rejection, against the
+# then-current staged resolver (5d192853...): the new
+# affected-component-duplicate-ids payload (["comp-a", "comp-a"]) fans out
+# into TWO trigger_evaluations entries and TWO warn diagnostics for the
+# same component, and the published Resolver Evidence PASSES the step-12
+# schema self-validation while violating REQ-004 exact-set -- shipped
+# silently, worse than a misattribution. Suite 237 passed / 2 failed.
+# After the step-4 uniqueness rejection the identical suite is 239 passed /
+# 0 failed (green-{sh,ps1}.log) -- the mutation is killed.
+# Full pre-fix capture (bash runtime):
+# runner: bash
 PASS: disabled-legacy-invocation: exit 1
 PASS: disabled-legacy-invocation: canonical diagnostic only
 PASS: disabled-legacy-invocation: exact Resolver Evidence
@@ -107,8 +118,8 @@ PASS: dependency-subprocess-failed: exact Resolver Evidence
 PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
 PASS: dependency-subprocess-failed: no partial live artifact
 PASS: affected-component-duplicate-ids: exit 1
-PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
-PASS: affected-component-duplicate-ids: exact Resolver Evidence
+FAIL: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5): stdout='' stderr='capability-resolver: dsl-warn-on-matched-capability: a predicate evaluation produced an outcome: warn evidence node\n'
+FAIL: affected-component-duplicate-ids: exact Resolver Evidence: {'capability_evaluations': [{'capability_id': 'cap-ghost-probe', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}, {'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'warn', 'path': 'characteristics.auto_update', 'reason': 'missing-path'}], 'result': False}]}], 'diagnostics': [{'detail': 'a predicate evaluation produced an outcome: warn evidence node', 'id': 'dsl-warn-on-matched-capability', 'severity': 'block'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-ghost-probe' component_id='comp-a' (node_path='0', operator='equals', field='characteristics.auto_update', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}, {'detail': "a predicate evaluation produced an outcome: warn evidence node at capability_id='cap-ghost-probe' component_id='comp-a' (node_path='0', operator='equals', field='characteristics.auto_update', reason='missing-path')", 'id': 'dsl-warn-on-matched-capability', 'severity': 'warn'}], 'feature': 'example-feature', 'schema': 'sdd-resolver-evidence/v1', 'state': 'advisory'}
 PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
 PASS: affected-component-duplicate-ids: no partial live artifact
 PASS: evaluate-predicate-output-malformed: exit 1
@@ -238,4 +249,4 @@ PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDisc
 PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 239 passed, 0 failed
+RESULT: 237 passed, 2 failed
