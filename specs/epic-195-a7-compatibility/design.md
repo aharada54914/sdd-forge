@@ -1161,10 +1161,26 @@ OQ-001 (Epic A5 caller-contract suite's home), OQ-002
 (`PROJECT_CONTEXT_INVALID` as a fifth fixture-matrix state), and OQ-003
 (golden baseline's exact physical path) are all three resolved by this
 design (Design Decisions, above) and by requirements.md's own
-corresponding Open Questions entries — none carries forward as an open
-recommendation; a future maintainer proposing a different golden-baseline
-path does so via an explicit revision to the Design Decisions paragraph
-that fixes it, not a silent Phase-2 substitution.
+corresponding Open Questions entries — none of those three carries
+forward as an open recommendation; a future maintainer proposing a
+different golden-baseline path does so via an explicit revision to the
+Design Decisions paragraph that fixes it, not a silent Phase-2
+substitution.
+
+**OQ-004 (open, carried forward).** requirements.md's OQ-004 remains
+open and this design defers to it: the AC-026 Done-transition producer's
+firing condition is known-unsatisfied by the implementation AC-009 pins
+(Data Plan; Constraint Compliance; Test Strategy). Concrete resolution
+vehicle, so the deferral has a verifiable end: the future change that
+fixes `assert_terminal`'s firing semantics and amends the AC-009 hash
+MUST, in the same change, extend `TEST-026` from its ordering-only
+assertion to assert the firing semantics themselves — exactly one
+emission per round, at terminal-state evaluation, none on a failing
+comparison or an early return — on the existing `TEST-018`/`TEST-019`
+harness, and that extension passing is the acceptance condition for
+closing OQ-004. No new suite, harness, or scope is introduced; until
+that change lands, the Known-unsatisfied dispositions above are the
+governing statements.
 
 ## Risks
 

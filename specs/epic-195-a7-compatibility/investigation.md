@@ -800,3 +800,38 @@ design — confirmed by the attempt-6 precheck computing
   byte moved. Post-amendment digests are pinned externally by the
   attempt-4 re-run reviewer invocation manifests, per this section's
   convention.
+
+### Round-12 extension (2026-08-27): design.md's Open Questions carries OQ-004 forward with a concrete resolution vehicle; and a factual correction to Round-11
+
+- **Factual correction, superseding one statement in Round-11 above.**
+  Round-11 states that the attempt-4 round-2 first run was interrupted
+  "before reviewer B launched" and that "sequence 940 was never
+  consumed". That was wrong: reviewer B DID complete before the
+  caller-side termination — its verdict artifact exists with run id
+  ending `impl-reviewer-b-seq0940`, verdict NEEDS_WORK, two Major
+  findings. The orchestrating session wrote Round-11 from an incomplete
+  process log rather than from the artifacts on disk; the artifacts are
+  the truth. Per this section's convention the earlier sentence stands
+  unedited and this correction supersedes it.
+- **What reviewer B (seq 940) found, both one root.** The Round-10
+  corrections introduced references to OQ-004 into design.md's Data
+  Plan, Constraint Compliance, and Test Strategy while design.md's own
+  Open Questions section still read "none carries forward" over
+  OQ-001..OQ-003 only (OPEN-QUESTIONS-RESOLVABLE, Major) — a
+  left-behind sibling created by the correcting amendment itself, this
+  class's twelfth measured instance; and the OQ-004 deferral named no
+  concrete verification vehicle (VERIFICATION-PATH-CONCRETE, Major).
+- Human approval (verbatim, dated): 2026-08-27, in answer to the
+  question presenting exactly these two design.md corrections:
+  「① 両方承認、適用して round 3 へ（推奨）」.
+- **What changed, in design.md's Open Questions section only.** The
+  three-question sentence now scopes itself to OQ-001..OQ-003, and a
+  new "OQ-004 (open, carried forward)" entry defers to requirements.md's
+  open OQ-004 and fixes the concrete resolution vehicle: the change
+  that fixes the firing semantics and amends the AC-009 hash must, in
+  the same change, extend TEST-026 from ordering-only to
+  firing-semantics assertions on the existing TEST-018/TEST-019
+  harness, and that extension passing is the acceptance condition for
+  closing OQ-004. Post-amendment digests are pinned externally by the
+  attempt-4 round-3 reviewer invocation manifests, per this section's
+  convention.
