@@ -101,12 +101,39 @@ problem: |
   `"risk"` は文字単位で ['r','i','s','k']、`{"a":1}` はキー単位で ['a'] を
   トリガ列へ**無言で注入**する。削除は「仕様外の検証」を「無言の破損経路」に
   交換することになる。
+
+  【精度訂正・本チケットの過大記述を撤回】上の injection 実測値と (1) の
+  eligible:true ギャップを並置した書き方は「eligible:true 経由で今も
+  injection が通る」と読めてしまうが、**それは誤りである**。実測で確認
+  （sh、human-copy 版）:
+
+  - トークンを記録へ出す箇所は 2 つだけで、両方とも
+    `if entry["eligible"] == False:` の内側（:204 `capability_triggers.extend(reasons)`、
+    :206 `capability_triggers.append("ineligible:" + entry["id"])`）。
+    ps1 双子も :219 / :221 で同じ構造。
+  - :211 `all_triggers = keyword_triggers + capability_triggers` が唯一の消費者。
+
+  したがって eligible:true のエントリは**トークンを一切出力しない**。
+  `2499e813` の修復は、出力する経路については injection を完全に閉じている。
+  未検証のまま残っているのは**何も出力しない経路**だけである。
+
+  ギャップの正確な性質: shape-invalid な upgrade_reasons を持つ eligible:true
+  エントリが **無言で受理され exit 0 / lite-eligible になる**。AC-027 の
+  「shape-invalid は exit 2」を満たしていない。これは**露出ではなく
+  検証の fail-open（適合性ギャップ）**である。
+
+  重大度への含意（オーナー判断事項として記録）: オーナーの Major 裁定は
+  「eligible:true が形状検査を受けない」という正確な事実の上で下されており、
+  live injection があるとは報告していない。裁定はその意味で有効だが、
+  「露出ではなく適合性ギャップ」という精度を得た上で Major を維持するか
+  下げるかは、オーナーが改めて判断してよい。
 expected_fix:
   - "【段階 0・オーナー承認・他の全段階の前提】design.md 2b/2c を amendment レーンで現状に追随させることを承認する。**選択肢は実質これ一つ** — 文面どおりに検証を削除すると `2499e813` が実測付きで塞いだインジェクション（',' / ';' / 改行によるトリガ列偽造）と sh/ps1 の stringifier 非対称を再導入するため。承認が要るのは判断が割れるからではなく、凍結文書への変更だから"
   - "段階 1: design.md 2b の不正条件列挙に upgrade_reasons の形状を追加し、2c の \"not re-validated here\" と Design Decisions \"no re-validation inside check-risk-upgrade\" を、`2499e813` が既に実装した検証を追認する文言へ改める。amendment は investigation.md の Amendment Re-Review Context へ追記し、spec→impl→task を無編集で連続再レビューする"
   - "段階 2: 形状検証を eligible 分岐の外へ出し eligible:true にも適用（sh :190 / ps1 :177 の両双子を同一コミットで。片方だけ human-copy に載せない）"
   - "段階 2: falsy-present 値（false / 0 / 空文字列）を absent 扱いにするか exit 2 にするかを段階 0 の裁定に沿って確定し、双子で一致させ、policy 文書に明記する"
   - "段階 2: 回帰テストを追加 — (a) eligible:true かつ不正な upgrade_reasons、(b) eligible:false かつ falsy-present 値の各型。**現行フィクスチャは eligible:true の経路に一つも入らない**。これが人間 apply まで生き延びた理由"
+  - "段階 2・(a) の断言内容に注意: 断言は **exit 2** でなければならない。「偽造トークンがレコードに現れないこと」を断言してはいけない — eligible:true はそもそもトークンを出力しないので、その断言は**欠陥がある現状でも PASS する空虚なテスト**になる。なお段階 0 が万一「false 分岐に限定するのが正」に転ぶ場合は同じフィクスチャが exit 0 断言へ反転するため、**このテストは裁定後に書くこと**"
   - "段階 3: human-copy を修正して MANIFEST.sha256 を再発行し、HUMAN APPLY STEP を再実行する（live は既に適用済みのため、修正は再 apply でしか live に届かない）"
   - "段階 3: 3 タスクの panelist-input バンドルを再生成しパネルを再実行する（現行 verdict は修正前バンドルに束縛されている）"
 references:
