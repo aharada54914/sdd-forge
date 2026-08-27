@@ -322,17 +322,17 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   `generate-registry-digest.py` 自身の `canonical_digest()` を呼ぶ
   単一経路で、self-discovery と override が分岐しない。
   `tests/validate-resolver-evidence.tests.{sh,ps1}`（共有ドライバは
-  `tests/validate-resolver-evidence-check.py`）に **21 fixture /
-  117 アサーション**を追加 — 12 check-id それぞれの独立発火 fixture、
+  `tests/validate-resolver-evidence-check.py`）に **25 fixture /
+  138 アサーション**を追加 — 12 check-id それぞれの独立発火 fixture、
   clean fixture、TEST-050 の Registry binding ペア＋一致 control、
   TEST-051 の Manifest 不一致と override 矛盾のペア＋2 control、
   TEST-054 の live journal fixture＋journal 無し control。
-  sh/ps1 とも 117 passed / 0 failed（TDD RED は同一ドライバで
-  82 passed / 35 failed、両ランタイム一致）。binding-before-exact-set の
+  sh/ps1 とも 138 passed / 0 failed（TDD RED は同一ドライバで
+  133 passed / 5 failed、両ランタイム一致）。binding-before-exact-set の
   順序を外す・`conditional-facet-set-mismatch` を facet 名キーにする・
   reader-side journal 検査を落とす、の 3 mutation で非空虚性を実証済み
   （scratch tree で実施、無変異 control は green）。既存の
-  `resolve-project-context-block`（306/0）・`-match`（125/0）・`-cli`
+  `resolve-project-context-block`（327/0）・`-match`（125/0）・`-cli`
   （13/0）・`-discovery`（12/0）・`-lite`（18/0）・
   `resolver-evidence-schema`（20/0）は sh/ps1 とも無編集で回帰なし。
   `tests/run-all.{sh,ps1}` に登録済み。CI ステップ候補は

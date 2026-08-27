@@ -1,0 +1,526 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-193-a5-capability-resolver",
+  "task_id": "T-008",
+  "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-008-c1-seq0819",
+  "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-008-c1-0819",
+  "sequence": 819,
+  "previous_record_sha256": "6fb31f246e01be5fd357b01084064baadbe3ea8d431739699a12521d7c4f69bc",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "701eddf02e3e104c168606e7fb5314b15cc130e75bfa210989b4782bb7fd063c",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "891b748b04fbcc69640a0122fb9b57b6717fc84ed9dbc9c1c8a5ae9a5b676fba"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008.contract.json",
+      "sha256": "4b66d0c79af0321c566a5079ebefd80c19936cf307357811449aae9e4301c4b4"
+    },
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-008.md",
+      "sha256": "54b9bdad95d90b36295c81722ca3c635bbe9ba4286738bee622b6abd03dd8a74"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/focused-tests-ps1.log",
+      "sha256": "81957a0d882e361bd0d58c100fc1f47a320cb1377572ed9fae18265bb5872027"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/focused-tests-sh.log",
+      "sha256": "dc45a3a9716781bb2b65fa8d06eac618f3924490f20c0e9426dcb79a04447bf5"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/placeholder-scan.log",
+      "sha256": "1c4b9890b31d2a87b34c84012cb89052988d832f3d55d71a0b1e990be661c39f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/regression.log",
+      "sha256": "d2155484ccf699400c456393bc63e14b09b6709e6f6552ac8b364370342f4555"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/task-state.log",
+      "sha256": "8fcdf4fbc36b90c8e67fdfa663e68d502ea91a48090d1fdd7806fdfd88a846e6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/traceability.log",
+      "sha256": "4a160072e2893adeba39509a197dedd4dfc2151c656b6c5525e80d927cf398a2"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/green-ps1.log",
+      "sha256": "501ae0dd850f814655d05e06d5a74a30a3f290fc73d77dc7110c4e50e7edc8db"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-ps1.log",
+      "sha256": "03397ce63b92ae9c81e2d356f0cf9011f7bf017143f9c55784c46fb40a34ab0b"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-sh.log",
+      "sha256": "8188e258615f3a9e1038f3bb507bc5db449ef7483d6f4e8a411db07ec7c560b3"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/green-sh.log",
+      "sha256": "34425e45a727916a4efb6bb31bd05914900c60e3d4670b35770c35f95d783a4b"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/mutation-proofs-round2.log",
+      "sha256": "640a536a44110378d45fa3a7ec61edcd87dc407c86db848ab61988e63392c8f8"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/mutation-proofs.log",
+      "sha256": "45a841cb05b9c5f8a95b1e0e3e6b1c88689e33f26c272535b8f9ca1bbebf018d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/red-ps1.log",
+      "sha256": "8d3dd9a87e5778bd0477a8cfbeba468825a25a94c6038d42219c49cbc5d27286"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-ps1.log",
+      "sha256": "3b866313e2f18223e78c3577bb34f79a1b1f348123ef54e7342d24600514f3d3"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-sh.log",
+      "sha256": "e4f73585e7098ba23e52eaa5c337c1864bd13bf940f05c4821ed01dab4c5e748"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-008/red-sh.log",
+      "sha256": "5baf2af2371788d6c2ed4ba1ec1511ff7b21662886d526ca392bf980ff669e62"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+      "sha256": "11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh",
+      "sha256": "acc9b90b7ac3e6b72438bcbb154098fdcf7a2dc07ff730550625125b6198a289"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1",
+      "sha256": "146abd05148d331ea7dfc922a5e6474a806b037fb67572fe311a1d603ff01cb2"
+    },
+    {
+      "path": "tests/validate-resolver-evidence-check.py",
+      "sha256": "93534485d094c8664fa7dc73e9ca0b8b931645f6ca7aa88981aca207235a7eab"
+    },
+    {
+      "path": "tests/validate-resolver-evidence.tests.sh",
+      "sha256": "2d0f934d17b07c12c36a5253b16874af6d18d77c49c881c8a242f3fe55df2be8"
+    },
+    {
+      "path": "tests/validate-resolver-evidence.tests.ps1",
+      "sha256": "499b0131b73721ed64920a39d42094fbb56edf73b54776720b66220c3d91975e"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "4fbc78fb00d32cc67cb274c777e7a6a63ab9cd0c8a630fbd61a013486086bc3d"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "34b12af376a1d4b76cbacc9a9aacb749f9f31223dbc216a1c7a38a25f98724dc"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml",
+      "sha256": "eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/INDEX.json",
+      "sha256": "860bea006547348fad2c12688f69bf84d9e7b26305ce4299e94751c99d5fa490"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/case.json",
+      "sha256": "c1ca91513047f8af0dc64127749ab382153635b63c8d226d56b3e4edf7a646c0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/manifest.json",
+      "sha256": "80915b2c53c065b94a10be263d9fcae539250f33cf9ede21e46a7015d8832565"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/case.json",
+      "sha256": "5eeb86a5748c3bb5aab0a729aa599a155946810343b53aae56d1af936e870038"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/evidence.json",
+      "sha256": "329d25bb7688e0cd05f9c8ab7190279624a7faefe3e54ff34a5755b74459c5d6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/case.json",
+      "sha256": "e694e5e897b2d7fd7b567838c04f261670ebe28fdba124bf4b7530e2eba44026"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/evidence.json",
+      "sha256": "99e5e6334c2ac50a085cefd5977281d25643c4835e087306eaf55661d8c402b3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/canonicalizer.py",
+      "sha256": "94f1a0d9a320e5754ee3c0c65a8502eb40d125fd9c9230a580d71369c0f9d6fd"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/case.json",
+      "sha256": "c6457d709eada3f40bbbc56d373a1289c498ec992bc265e8adfb456ed10f8da1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/case.json",
+      "sha256": "e0251aabc06704e59a93fa816ab15e846276f5fb3615180d7e88df3632c7caa4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/evidence.json",
+      "sha256": "7cdf9e9e27cbe654d61e045539b50f276a947bfb636ab67166dff398d64363f4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/case.json",
+      "sha256": "936fd6181a839023a943efe75fd2599cecaf99367f7642012c3a7254eb22be2e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/evidence.json",
+      "sha256": "721089989d902f4179de3e03022f04476bcb88efeb7af4822b9a2adc38787d59"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/case.json",
+      "sha256": "76bced9d0e2596070d039934204bfd09103d7bb612135c4d0ced3345e4576e9b"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/clean/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/case.json",
+      "sha256": "d5125bbd9b99e9dcf008abf828873d8a56e1ebb3146e3680a1a94f3163b94de1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/evidence.json",
+      "sha256": "3fad659b2fa8ab9b64653e06157ffd5a6107bb6549d5526601d7784bb0e975a6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/case.json",
+      "sha256": "db461865b4cddfca69226a58b0cf0234ab2c3d6826a9fc91de7f4db819494741"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/evidence.json",
+      "sha256": "dee3abd2cf760956acf886fba8e0f0371eb32edffd5224fab4e894268d2c18ad"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/case.json",
+      "sha256": "63eb6ff5388188b25cb4fe39a1b1dc4f68e61b3960d5e9e47fd1979d54bc9bfe"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/evidence.json",
+      "sha256": "ff80772e36f15bd9023f8d24a7ea4fb6278a09d4dbcef6cc05256a067e113f4a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/case.json",
+      "sha256": "4a1c5f84e24a36aa8830b9f0f6d8c079bdae5db243ad0313d2aa7b47e9ddcb1e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/evidence.json",
+      "sha256": "e35c53da014ce21b0a4b6ece374ca58873bbec96593c138269d1f842d5848edb"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/case.json",
+      "sha256": "32d715a64dc1222bba9b514b29a832e7525580803ac2ab232be614419d5ad906"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/case.json",
+      "sha256": "6ed5a42934b47a12f4d2a7e631e22dc1bdd8a2f035815506f4df1ad25ce971d6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/case.json",
+      "sha256": "d75e7aae14f354ebab2babcc0efa7c4699a5b526ed412ca4d95fd57e01c2aa81"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/projection.json",
+      "sha256": "999fd71d693b8edaeb82f6b8e7956b331fa621a257466c15a945531f5770d7f3"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/case.json",
+      "sha256": "1b7ff81d0515c0848bff3cc0b8bd86a9ade7d8ae4ff6d5b1d1752d14de1b3b01"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/override-registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/case.json",
+      "sha256": "d8315e1307ea30922d0086f5aa52921719a7f57e3b432f83e988cdd62800dd67"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/override-registry.json",
+      "sha256": "0b885764007e226207f677f0e4df04839102a90bb89a8b34f3dc5f6701db2b07"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/case.json",
+      "sha256": "97a7fd1ab6ba8fb38cc3f78fe0b267635a49f35f14bdac2fba211b3559043bd8"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/digest-registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/registry.json",
+      "sha256": "0b885764007e226207f677f0e4df04839102a90bb89a8b34f3dc5f6701db2b07"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/case.json",
+      "sha256": "5ac02e4654e9c4a4514959b16dede50f2ac8f7da800684a6074b60b01ad2f978"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/case.json",
+      "sha256": "47aa94cd86c987a6878ad244be18f6c36841dd72bd0e5ad965a42c918d767bea"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/journal.json",
+      "sha256": "15db526aef805f24c1dd62552693dcd465da424674c6005a41b88ce87667dc93"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/case.json",
+      "sha256": "87d4b2d24bd9f6d3e2c65a7c274c996c17e575bb398537e028ad9cae477a73d7"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/journal.json",
+      "sha256": "7cbc11aabae8820ccbbf7d541f8115172949c2d3e3199f3c62d7cff17adc0aa0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/case.json",
+      "sha256": "d2bf563e13e3a69dd2f1ee8c1dd733b335d4cb052c20f905fb154f7ad53a4f0d"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/evidence.json",
+      "sha256": "3a12192a9a3b39fb241cf08331ee66244de5c93ff8cb41f4770c1620cd3565a4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/case.json",
+      "sha256": "f2a2918a78f5673e2bd8909ed16c032f509c36589a79bbb4628e15abf37b2872"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/evidence.json",
+      "sha256": "95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/override-registry.json",
+      "sha256": "6f6bb3ad3cdac7d5f138423030873b3a16889933c2f0e9c5f88c55aeebee46e0"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/case.json",
+      "sha256": "158e5de5cd6a143a2a86ec30168e70a6c6ba87d6872397fe6a3db0ce7fd38d3c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/evidence.json",
+      "sha256": "88d23ab737dd005ce756f471e1acb40ed80a1697f6476cad17b98b32ae3db986"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/manifest.json",
+      "sha256": "f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/case.json",
+      "sha256": "12b006663723c3259c939893ac5d17ca0334102797091de8df49874470240d6c"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/evidence.json",
+      "sha256": "21c086de1b4a07693855a9dfbff2e42572bd164c6c34605ebab59ceb775aa2f5"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/case.json",
+      "sha256": "2a9c41603d5631562f5b77789197a4282145f6b879509e2186d3330b4e26ec54"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/evidence.json",
+      "sha256": "f2d5ba46657ec2f158a7e2406dab7e47a3daccf40a9b6c93d33673d34d8e32c2"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/registry.json",
+      "sha256": "264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2"
+    }
+  ]
+}

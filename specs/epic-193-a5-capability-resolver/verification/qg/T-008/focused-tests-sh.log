@@ -1,0 +1,142 @@
+$ bash tests/validate-resolver-evidence.tests.sh
+# runner: bash
+PASS: clean: exit 0
+PASS: clean: emits exactly [] and nothing else
+PASS: clean: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: clean: nothing on stderr
+PASS: clean: LF-only diagnostic bytes (no CR)
+PASS: schema-invalid: exit 1
+PASS: schema-invalid: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid: nothing on stderr
+PASS: schema-invalid: LF-only diagnostic bytes (no CR)
+PASS: registry-digest-unbound: exit 1
+PASS: registry-digest-unbound: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: registry-digest-unbound: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-digest-unbound: nothing on stderr
+PASS: registry-digest-unbound: LF-only diagnostic bytes (no CR)
+PASS: capability-set-mismatch: exit 1
+PASS: capability-set-mismatch: emits exactly ['capability-set-mismatch'] and nothing else
+PASS: capability-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-set-mismatch: nothing on stderr
+PASS: capability-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: capability-evaluation-id-duplicate: exit 1
+PASS: capability-evaluation-id-duplicate: emits exactly ['capability-evaluation-id-duplicate'] and nothing else
+PASS: capability-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-evaluation-id-duplicate: nothing on stderr
+PASS: capability-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: affected-component-provenance-mismatch: exit 1
+PASS: affected-component-provenance-mismatch: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: affected-component-provenance-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: affected-component-provenance-mismatch: nothing on stderr
+PASS: affected-component-provenance-mismatch: LF-only diagnostic bytes (no CR)
+PASS: trigger-evaluation-set-mismatch: exit 1
+PASS: trigger-evaluation-set-mismatch: emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: trigger-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: trigger-evaluation-set-mismatch: nothing on stderr
+PASS: trigger-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: component-evaluation-id-duplicate: exit 1
+PASS: component-evaluation-id-duplicate: emits exactly ['component-evaluation-id-duplicate'] and nothing else
+PASS: component-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: component-evaluation-id-duplicate: nothing on stderr
+PASS: component-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: matched-result-contradiction: exit 1
+PASS: matched-result-contradiction: emits exactly ['matched-result-contradiction', 'matched-result-contradiction'] and nothing else
+PASS: matched-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: matched-result-contradiction: nothing on stderr
+PASS: matched-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-set-mismatch: exit 1
+PASS: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: conditional-facet-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-set-mismatch: nothing on stderr
+PASS: conditional-facet-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-evaluation-set-mismatch: exit 1
+PASS: conditional-facet-evaluation-set-mismatch: emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: conditional-facet-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-evaluation-set-mismatch: nothing on stderr
+PASS: conditional-facet-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: applied-result-contradiction: exit 1
+PASS: applied-result-contradiction: emits exactly ['applied-result-contradiction', 'applied-result-contradiction'] and nothing else
+PASS: applied-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: applied-result-contradiction: nothing on stderr
+PASS: applied-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: array-not-stable-sorted: exit 1
+PASS: array-not-stable-sorted: emits exactly ['array-not-stable-sorted', 'array-not-stable-sorted'] and nothing else
+PASS: array-not-stable-sorted: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: array-not-stable-sorted: nothing on stderr
+PASS: array-not-stable-sorted: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-mismatch: exit 1
+PASS: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-override-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-mismatch: nothing on stderr
+PASS: provenance-registry-override-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-self-discovery-mismatch: exit 1
+PASS: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-self-discovery-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-self-discovery-mismatch: nothing on stderr
+PASS: provenance-registry-self-discovery-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-match: exit 0
+PASS: provenance-registry-override-match: emits exactly [] and nothing else
+PASS: provenance-registry-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-match: nothing on stderr
+PASS: provenance-registry-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-contradiction: exit 1
+PASS: provenance-affected-components-override-contradiction: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: provenance-affected-components-override-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-contradiction: nothing on stderr
+PASS: provenance-affected-components-override-contradiction: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-match: exit 0
+PASS: provenance-affected-components-override-match: emits exactly [] and nothing else
+PASS: provenance-affected-components-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-match: nothing on stderr
+PASS: provenance-affected-components-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-context-override-match: exit 0
+PASS: provenance-context-override-match: emits exactly [] and nothing else
+PASS: provenance-context-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-context-override-match: nothing on stderr
+PASS: provenance-context-override-match: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-live: exit 1
+PASS: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-live: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-live: nothing on stderr
+PASS: reader-journal-live: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-absent: exit 0
+PASS: reader-journal-absent: emits exactly [] and nothing else
+PASS: reader-journal-absent: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-absent: nothing on stderr
+PASS: reader-journal-absent: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: exit 1
+PASS: canonicalizer-stderr-containment: emits exactly ['canonicalizer-invocation-failed'] and nothing else
+PASS: canonicalizer-stderr-containment: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: canonicalizer-stderr-containment: nothing on stderr
+PASS: canonicalizer-stderr-containment: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: no dependency raw-stderr text reaches this validator's own diagnostic (B5 containment)
+PASS: schema-invalid-negative-declaration-index: exit 1
+PASS: schema-invalid-negative-declaration-index: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid-negative-declaration-index: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid-negative-declaration-index: nothing on stderr
+PASS: schema-invalid-negative-declaration-index: LF-only diagnostic bytes (no CR)
+PASS: registry-override-version-mismatch: exit 1
+PASS: registry-override-version-mismatch: emits exactly ['registry-version-mismatch'] and nothing else
+PASS: registry-override-version-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-override-version-mismatch: nothing on stderr
+PASS: registry-override-version-mismatch: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-malformed: exit 1
+PASS: reader-journal-malformed: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-malformed: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-malformed: nothing on stderr
+PASS: reader-journal-malformed: LF-only diagnostic bytes (no CR)
+PASS: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture
+PASS: TEST-021 namespace closure: no check-id outside the closed twelve-value enum (plus the reader-side refusal) was emitted
+PASS: TEST-021 enum cardinality: design.md's own enum is twelve-valued
+PASS: provenance-registry-override-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: provenance-registry-self-discovery-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: conditional-facet-set-mismatch: the fixture is name-blind by construction -- the Registry declares one facet name twice, the Evidence instance records that same name-set at a different cardinality, so only declaration_index keying can detect it (B7)
+PASS: TEST-054 pair: the live-journal fixture and its control are identical in Registry/Evidence/Manifest and differ only by the planted journal
+PASS: TEST-054 journal shape: the planted journal matches T-007's own TRANSACTION.json format and names the resolver-evidence.yaml path this validator is about to read
+PASS: validate-resolver-evidence.sh: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 138 passed, 0 failed
+Exit: 0

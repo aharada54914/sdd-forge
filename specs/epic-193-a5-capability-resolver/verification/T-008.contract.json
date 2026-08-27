@@ -1,0 +1,186 @@
+{
+  "task_id": "T-008",
+  "feature": "epic-193-a5-capability-resolver",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "created": "2026-08-27T09:55:02Z",
+  "spec_revision": "f4056d423c2ac83dcee457d47361e5d69a076e113111944b03010005604dc4f2",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- T-008's deliverable is a stdlib-only Python validator plus sh/ps1 dispatcher twins; this repository configures no Python/shell/PowerShell linter.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no static type-check command is configured for this repository's stdlib-only Python / shell / PowerShell files.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/focused-tests-sh.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-sh.log",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/focused-tests-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No separate network/service integration is in T-008's scope; the validator invokes the real generate-registry-digest and canonicalize-sdd-yaml dependencies as subprocesses, covered by the unit/acceptance evidence.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/focused-tests-ps1.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "red_evidence": "specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-ps1.log",
+      "green_evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/focused-tests-ps1.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005",
+        "REQ-008"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no compile/bundle toolchain for a stdlib-Python validator and its shell/PowerShell wrappers.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-193-a5-capability-resolver/verification/qg/T-008/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "REQ-005",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application; the validator CLI is exercised as a real subprocess in the unit/acceptance evidence.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature and T-008 authors a wholly new validator (no prior behavior to diff against).",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none -- no design-system surface in this task.",
+      "requirement_ids": [
+        "REQ-004"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ],
+  "comment": "Verification contract for T-008 (high, tdd per the risk-gate-matrix high-tier row). stack: shell waives lint/typecheck/build. unit-tests / acceptance-tests carry TDD red_evidence (the round-2 RED captures, 133/5 both runtimes against the pre-fix validator, i.e. the panel-round-1 remediation's own red) and green_evidence (138/0 both runtimes); the sh capture is the unit check, the pwsh capture the acceptance check, together proving both runtimes. requirement-traceability runs check-traceability against the feature's traceability.json (8 links, exit 0). regression covers the eight sibling suites (block 327/0, match 125/0, cli 13/0, discovery 24/0, lite 18/0, parity 70/0, metamorphic 150/0, resolver-evidence-schema 20/0) at the post-panel-round-2 state. This is a Security-Sensitive task: a fresh cross-model panel ran BEFORE this gate and reached consensus PASS on bundle digest adfde612 (2 distinct vendors, anthropic + openai, all PASS, no Critical; aggregate at verification/T-008.cross-model.json), under the human-issued sudo consent token. The original RED (round 1) and the round-2 RED both exist under verification/T-008/; the contract cites the round-2 pair because it is the red that matches the shipped (post-remediation) validator. spec_revision is the current requirements+design+acceptance-tests concatenation hash. Gate cycle 1 correction (evaluator seq 0819): the first placeholder-scan capture over-scoped the scan to include the suite driver, whose five hits are its own template-token constants; the scan's usage note takes changed production files, so the evidence log was re-captured over T-008's three production validator files (exit 0). The regression tally cited here is the post-panel-round-2 block figure (327/0)."
+}
