@@ -197,9 +197,14 @@ shape isomorphically):
     **SAFE abandonment**: delete the stale journal, proceed to step 1.
   - A **MIX** (at least one target already at POST, at least one other
     still at PRE or absent) → the exact partial-publish state this design
-    must never leave standing. Roll every already-committed target BACK
+    must never leave standing. Roll every already-committed **publication
+    artifact** target BACK
     to its PRE-transaction state, using the journal's own `pre/
-    <target-basename>` backup via the identical atomic-rename primitive
+    <target-basename>` backup via the identical atomic-rename primitive —
+    never `resolver-evidence.yaml`, which is not rolled back and instead
+    receives the Block's own record written directly afterwards (REQ-001
+    step (m)'s rollback-and-no-write scope rule, AC-012/AC-039/AC-049;
+    scoped 2026-08-27, human-approved, ruling D(2))
     (or deleting the live file, if its own PRE state was `"ABSENT"`),
     until every target is confirmed back at PRE — only then delete the
     journal, then proceed to step 1.

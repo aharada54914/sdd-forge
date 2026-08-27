@@ -1312,8 +1312,13 @@ A1's own already-fixed protocol shape rather than inventing a second one:
    reflect a generation the source has already moved past since step
    13's own recheck; Block, `post-publication-generation-mismatch`, exit
    1 — and, before returning that exit code, this invocation itself rolls
-   every just-completed rename BACK to its own PRE-transaction state via
-   the journal's own `pre/<target-basename>` backups (the identical
+   every just-completed rename **of a publication artifact** BACK to its
+   own PRE-transaction state via
+   the journal's own `pre/<target-basename>` backups, never
+   `resolver-evidence.yaml`, which instead receives this Block's own
+   record written directly after that rollback completes (REQ-001 step
+   (m)'s rollback-and-no-write scope rule, AC-012/AC-049; scoped
+   2026-08-27, human-approved, ruling D(2)) (the identical
    mechanism the crash-recovery scan, below, uses — run in-process here
    since this invocation is still alive to do it itself, rather than
    deferring to the next invocation's own recovery scan) until every
@@ -1342,7 +1347,9 @@ has yet occurred either, so nothing needs rolling back, and this
 invocation's own diagnostic simply records that no target reached a live
 path. If the journal HAD already been written, this invocation attempts
 the identical journal-based rollback step 4 uses (rolling every
-already-committed target back to PRE), and — whether or not that
+already-committed **publication artifact** target back to PRE, never
+`resolver-evidence.yaml` — REQ-001 step (m)'s rollback-and-no-write scope
+rule, AC-012), and — whether or not that
 in-process rollback fully succeeds — the next invocation's own
 crash-recovery scan is the durable backstop that guarantees convergence
 to a terminal state regardless (the rollback attempt, and any failure
@@ -1376,8 +1383,13 @@ journal-listed target's CURRENT live bytes (or note `"ABSENT"`):
   abandonment: delete the stale journal, then proceed to step 1.
 - A MIX (at least one target already at its POST hash, at least one other
   still at its PRE hash or absent) ⇒ the exact partial-publish state this
-  design must never leave standing. Roll every already-committed target
-  BACK to its PRE-transaction state, using the journal's own
+  design must never leave standing. Roll every already-committed
+  **publication artifact** target
+  BACK to its PRE-transaction state — never `resolver-evidence.yaml`,
+  which is not rolled back and instead receives the Block's own record
+  written directly afterwards (REQ-001 step (m)'s rollback-and-no-write
+  scope rule, AC-012; scoped 2026-08-27, human-approved, ruling D(2)) —
+  using the journal's own
   `pre/<target-basename>` backup via the same atomic-rename primitive (or
   deleting the live file, if its own PRE state was `"ABSENT"`) — until
   every target is confirmed back at PRE. Only then is the journal
@@ -1861,17 +1873,26 @@ independently invocable (AC-027):
    post-publication verification (Resolver publication transactional
    bundle contract, step 4) runs, asserting (i) the Block fires only
    after every rename in step 14's own commit sub-step has already
-   succeeded, (ii) every one of those just-completed renames is rolled
+   succeeded, (ii) every one of those just-completed renames **of a
+   publication artifact** is rolled
    back to its own PRE-transaction state via the journal before this
-   invocation exits, (iii) a fixture-only hook confirms the rollback
+   invocation exits, **and** `resolver-evidence.yaml` is not rolled back
+   but carries this Block's own record at exit — both halves required of
+   the one fixture, per REQ-001 step (m)'s rollback-and-no-write scope
+   rule and AC-012 (scoped 2026-08-27, human-approved, ruling D(2)),
+   (iii) a fixture-only hook confirms the rollback
    used the journal's own `pre/<target-basename>` backups, never a bare
    `unlink`; plus one `artifact-publication-failed` fixture (B1/B3,
    revised) that denies write/rename permission on one of this
    invocation's own staged output paths after every earlier step already
    succeeded, asserting (i) the Block fires, (ii) if the journal had
    already been written before the injected failure, any already-
-   completed rename in that same commit sub-sequence is rolled back to
-   its own PRE-transaction state via the journal (**never** a bare
+   completed rename **of a publication artifact** in that same commit
+   sub-sequence is rolled back to
+   its own PRE-transaction state via the journal — never
+   `resolver-evidence.yaml`, which carries this Block's own record
+   instead (REQ-001 step (m)'s rollback-and-no-write scope rule,
+   AC-012/AC-039) — (**never** a bare
    `unlink` with no restore — B1's own "existing bytes destroyed with no
    restore" gap, closed), (iii) no live artifact this invocation was not
    already committed to writing survives partially written; plus one
@@ -2393,10 +2414,15 @@ Projection and/or the Facet Manifest/Capability Summary in memory —
 `lite-check-source-undefined` (step 10b), `output-schema-validation-
 failed` (step 12), `snapshot-generation-mismatch` (steps 6.5 and 13,
 ruling C(1)) — therefore
-still leaves no earlier-staged artifact at any live path at all; this
-staged-generation/journaled-publication lock is additive to, and
-structurally subsumes, AC-011's own narrower per-path statement
-(AC-038).
+still leaves no earlier-staged **publication artifact** at any live path
+at all — never `resolver-evidence.yaml`, which is itself staged earlier
+and IS written on each of those Blocks per AC-012 (REQ-001 step (m)'s
+rollback-and-no-write scope rule; scoped 2026-08-27, human-approved,
+ruling D(2), matching AC-038/TEST-038's own amended wording); this
+staged-generation/journaled-publication lock is additive to AC-011's own
+per-path statement over the same three artifacts, differing in that it
+holds for Blocks reached only after staging rather than for Blocks
+generally (AC-038).
 
 **Track-exclusive publication set (B4, Epic A4's own already-fixed
 contract, this feature's own processing-order consequence of it).** The
@@ -2722,10 +2748,18 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   `.resolver-staging/<batch-nonce>/` sense, not the separate in-memory
   assembly and schema validation at API / Contract Plan steps 3/10/11/12
   ("Staged generation, journaled transactional commit", Design Decisions
-  below), and a Block whose whole
-  write set is Resolver Evidence never creates that on-disk area at all:
-  that one-member write is a direct
-  `temp file + fsync + rename` with no staging area and no journal
+  below), and when Resolver Evidence is a Block's whole
+  write set **that write never passes through the on-disk area**:
+  it is a direct
+  `temp file + fsync + rename` with no staging area and no journal — note
+  that whether the area EXISTS at such a Block is a separate question this
+  sentence does not answer, since the two step-14 Blocks
+  `artifact-publication-failed` and `post-publication-generation-mismatch`
+  reach an Evidence-only write set only after the journaled transaction
+  had already created it and rolled the publication artifacts back through
+  it (AC-039, AC-049; corrected 2026-08-27 from a wider "never creates
+  that on-disk area at all" claim that was false for exactly those two
+  ids)
   (REQ-001 step (m), REQ-004; clarified 2026-08-27, human-approved,
   ruling D(2), with the two senses of "stage" distinguished because the
   first wording of this clarification read as false against those

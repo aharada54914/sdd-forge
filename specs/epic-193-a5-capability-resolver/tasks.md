@@ -1769,7 +1769,10 @@ backup for any target with existing live content), Journal (write
 Commit (rename each target atomically, in journal order), Post-
 publication verification (a third `resolve-component-paths` invocation
 plus fresh digest/`affected_components` recompute; a mismatch rolls every
-just-completed rename back via the journal and Blocks
+just-completed rename of a publication artifact back via the journal —
+never `resolver-evidence.yaml`, which instead receives that Block's own
+record (REQ-001 step (m)'s rollback-and-no-write scope rule, AC-012;
+scoped 2026-08-27, human-approved, ruling D(2)) — and Blocks
 `post-publication-generation-mismatch`), Complete (delete the journal,
 exit 0). An in-process write/fsync/rename failure during Prepare/Journal/
 Commit Blocks `artifact-publication-failed`, with journal-based rollback
@@ -1837,17 +1840,25 @@ Commit B (documentation):
 - [ ] **In-process publication failure** — TEST-039 passes: an injected
   write/rename failure on a staged output path after every earlier step
   succeeded Blocks `artifact-publication-failed`; a second,
-  already-completed rename in the same commit sub-sequence is rolled
+  already-completed rename of a publication artifact in the same commit
+  sub-sequence is rolled
   back to its own PRE-transaction live bytes via the journal — never a
-  bare `unlink` — and the rollback attempt is itself recorded in this
+  bare `unlink`, and never `resolver-evidence.yaml`, which is not rolled
+  back and carries this Block's own record instead (AC-012; scoped
+  2026-08-27, human-approved, ruling D(2)) — and the rollback attempt is
+  itself recorded in this
   diagnostic's own `detail` (AC-039).
 - [ ] **Post-publication verification / race** — TEST-049 passes: an
   injected source mutation after the pre-publication recheck (T-004's
   own step 13) has already passed but before step 14's own last rename
   completes confirms `post-publication-generation-mismatch` fires only
   after every rename has already, briefly, succeeded; every one of those
-  renames is rolled back to its own PRE-transaction state via the
-  journal before this invocation exits; the rollback is journal-based,
+  renames of a publication artifact is rolled back to its own
+  PRE-transaction state via the
+  journal before this invocation exits, while `resolver-evidence.yaml` is
+  not rolled back and carries this Block's own record at exit — both
+  halves required of the one fixture (AC-012; scoped 2026-08-27,
+  human-approved, ruling D(2)); the rollback is journal-based,
   never a bare `unlink` (AC-049).
 - [ ] **`affected_components`-only `snapshot-generation-mismatch`
   fixture** — TEST-040's own
@@ -1863,9 +1874,12 @@ Commit B (documentation):
   now complete across all sixteen rows (AC-011, AC-012, AC-014); TEST-038
   now covers every named staged-generation example (AC-038).
 - [ ] **Staged-generation/journaled-transactional-publication lock** —
-  TEST-038 confirms no earlier-staged artifact from ANY Block fixture
+  TEST-038 confirms no earlier-staged publication artifact from ANY Block
+  fixture
   (T-002's, T-003's, T-004's, or this task's own) ever reached a live
-  path (AC-038, complete).
+  path — never `resolver-evidence.yaml`, which is itself staged earlier
+  and IS written on those fixtures per AC-012 (scoped 2026-08-27,
+  human-approved, ruling D(2)) (AC-038, complete).
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
