@@ -758,6 +758,46 @@ jobs:
         shell: pwsh
         run: ./tests/resolve-project-context-parity.tests.ps1
 
+      # epic-193-a5-capability-resolver T-010 (REQ-005/REQ-006, TEST-045,
+      # FINAL): the completeness/invariance suite design.md Test Strategy
+      # item 9 (M10) fixes in full -- (a) all four TT/TF/FT/FF combinations
+      # of a 2-affected-component trigger result, union-match asserted
+      # exactly in every cell; (b) the identical fixture's own
+      # affected_components[] fed in each of its 2 possible orderings,
+      # byte-identical output; (c) a 3-affected-component, >1-true-
+      # component fixture, the Capability recorded exactly once; (d) an
+      # applied: false conditional_facets[] fixture, its reason asserted
+      # verbatim; (e) one fixture per WARN branch (matched-capability-
+      # trigger, unmatched-capability-trigger, matched-capability-
+      # conditional-facet), each independently Blocking (B2); (f) a
+      # nested-array-completeness fixture, asserted via
+      # validate-resolver-evidence's own exact-set checks (reused from
+      # T-008's own already-established fixtures, one per governing array:
+      # capability_evaluations[]/trigger_evaluations[]/conditional_facet_
+      # evaluations[]/evaluations[]); (g) a dependency-invocation-order spy
+      # fixture, the exact seven-subprocess call order plus a per-position
+      # forced-failure sub-fixture at each. Plus the feature-wide
+      # completeness lock this task's own Done When bullet requires: every
+      # REQ-006 fixture-matrix item (a)-(h) and every one of the nine
+      # suites T-001..T-010 build is present and independently invocable
+      # under tests/fixtures/capability-resolver/ (AC-026 "nine of ten"
+      # per Global Constraints' own "Deferred, Not Scheduled" note --
+      # item 10's own live-caller-contract suite is a future, not-yet-
+      # scheduled task -- AC-027). Ordered directly after T-009's own
+      # suite, the immediately preceding suite-registering task in the
+      # fixed CI-registration order (this task's own Depends On text) --
+      # the final entry of this feature's own staged CI candidate.
+      - name: Test resolve-project-context metamorphic (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/resolve-project-context-metamorphic.tests.sh
+
+      - name: Test resolve-project-context metamorphic (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-metamorphic.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

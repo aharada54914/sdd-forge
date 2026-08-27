@@ -1,0 +1,21 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "cap-w1",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.pii",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "lite_policy": {"eligible": true},
+      "delivery_strategy": {"kind": "cap-w1"}
+    }
+  ]
+}

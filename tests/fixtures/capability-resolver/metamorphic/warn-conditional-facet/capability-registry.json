@@ -1,0 +1,31 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [],
+  "capabilities": [
+    {
+      "id": "cap-w3",
+      "trigger": {
+        "scope": "affected_component",
+        "field": "characteristics.pii",
+        "operator": "equals",
+        "value": true
+      },
+      "required_facets": [],
+      "conditional_facets": [
+        {
+          "facet": "facet-w3",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.local_persistence",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [],
+      "gate_ids": [],
+      "lite_policy": {"eligible": true},
+      "delivery_strategy": {"kind": "cap-w3"}
+    }
+  ]
+}

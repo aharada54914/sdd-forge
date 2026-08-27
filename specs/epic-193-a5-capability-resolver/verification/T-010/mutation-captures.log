@@ -1,0 +1,90 @@
+=== T-010 mutation-proof captures (scratch tree only; real/staged files never modified) ===
+
+--- Mutation (a): union-match rule flipped to AND-match ---
+Target: scripts-mutant-a/resolve-project-context.py (_evaluate_capabilities trigger loop)
+Command: python3 run_mutation.py a run_combination_matrix_case sh
+PASS: combination-matrix-tt: clean run (exit 0)
+PASS: combination-matrix-tt: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-tt: matched == True exactly per the union-match rule (comp-a pii=True, comp-b pii=True) (AC-045(a))
+PASS: combination-matrix-tt: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-tt: Resolver Evidence schema agreement
+PASS: combination-matrix-tf: clean run (exit 0)
+PASS: combination-matrix-tf: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+FAIL: combination-matrix-tf: matched == True exactly per the union-match rule (comp-a pii=True, comp-b pii=False) (AC-045(a)): {'capability_id': 'cap-union', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}]}
+PASS: combination-matrix-tf: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-tf: Resolver Evidence schema agreement
+PASS: combination-matrix-ft: clean run (exit 0)
+PASS: combination-matrix-ft: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+FAIL: combination-matrix-ft: matched == True exactly per the union-match rule (comp-a pii=False, comp-b pii=True) (AC-045(a)): {'capability_id': 'cap-union', 'matched': False, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}]}
+PASS: combination-matrix-ft: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-ft: Resolver Evidence schema agreement
+PASS: combination-matrix-ff: clean run (exit 0)
+PASS: combination-matrix-ff: fixture sanity -- comp-a/comp-b trigger results equal this cell's own pii values
+PASS: combination-matrix-ff: matched == False exactly per the union-match rule (comp-a pii=False, comp-b pii=False) (AC-045(a))
+PASS: combination-matrix-ff: trigger_evaluations exact, per-component results independently recomputed via the real evaluate-predicate
+PASS: combination-matrix-ff: Resolver Evidence schema agreement
+RESULT: 18 passed, 2 failed
+
+--- Mutation (c): dedup dropped -- matched multi-true Capability duplicated ---
+Target: scripts-mutant-c/resolve-project-context.py (_evaluate_capabilities append site)
+Command: python3 run_mutation.py c run_multi_true_dedup_case sh
+FAIL: multi-true-dedup: clean run (exit 0): exit=1 stdout=b'' stderr=b'capability-resolver: output-schema-validation-failed: the staged facet-manifest artifact failed its own defensive output schema self-validation\n'
+FAIL: multi-true-dedup: cap-union recorded exactly once in capability_evaluations[] despite more than one component's own evaluation being true (comp-a, comp-b), never duplicated (AC-045(c)): [{'capability_id': 'cap-union', 'conditional_facet_evaluations': [], 'matched': True, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-c', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}]}, {'capability_id': 'cap-union', 'conditional_facet_evaluations': [], 'matched': True, 'trigger_evaluations': [{'component_id': 'comp-a', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-b', 'evidence': [{'operator': 'equals', 'outcome': 'match', 'path': 'characteristics.pii'}], 'result': True}, {'component_id': 'comp-c', 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.pii'}], 'result': False}]}]
+PASS: multi-true-dedup: fixture sanity -- more than one component's own evaluation is genuinely true (2)
+FAIL: multi-true-dedup: Facet Manifest capabilities[] names cap-union exactly once too: Expecting value: line 1 column 1 (char 0)
+PASS: multi-true-dedup: Resolver Evidence schema agreement
+RESULT: 2 passed, 3 failed
+
+--- Mutation (d): applied:false reason template altered ---
+Target: scripts-mutant-d/resolve-project-context.py (_aggregate_conditional_facets)
+Command: python3 run_mutation.py d run_reason_template_case sh
+PASS: reason-template: clean run (exit 0)
+PASS: reason-template: Resolver Evidence's own per-Capability conditional_facet_evaluations[] entry is applied: false with no reason key at this level (reason is the aggregated Facet Manifest's own field, asserted verbatim below, AC-045(d))
+FAIL: reason-template: Facet Manifest's own conditional_facets[] applied: false entry carries `reason` VERBATIM against the exact template this feature's design fixes (AC-045(d)): {'applied': False, 'evidence': [{'operator': 'equals', 'outcome': 'no-match', 'path': 'characteristics.local_persistence'}], 'facet': 'solo-facet', 'reason': 'MUTANT (d): no matching predicate instance found (contributing: cap-d[0])'}
+PASS: reason-template: Resolver Evidence schema agreement
+RESULT: 3 passed, 1 failed
+
+--- Mutation (g): dependency-invocation order corrupted (steps 5/6 swapped) ---
+Target: scripts-mutant-g/resolve-project-context.py (main(), validate-capability-registry / generate-registry-digest swapped)
+Command: python3 run_mutation.py g run_dependency_order_spy_case sh
+PASS: dependency-order-spy: clean run reaches exit 0 (no Block anywhere on the happy path)
+FAIL: dependency-order-spy: this invocation's own first seven subprocess launches are exactly canonicalize-sdd-yaml (Project Context pass) -> canonicalize-sdd-yaml (Context Projection pass) -> resolve-component-paths -> validate-capability-registry (this invocation's own step-5 subprocess-observable event -- step 5's own discovery half is an in-process sibling-module import, never a subprocess; design.md item 9(g)'s own "Registry discovery" label names this position, see this driver's own module docstring) -> generate-registry-digest -> evaluate-predicate (trigger fan-out) -> evaluate-predicate (conditional-facet fan-out) (design.md Test Strategy item 9(g)): ['canonicalize-sdd-yaml', 'canonicalize-sdd-yaml', 'resolve-component-paths', 'generate-registry-digest', 'validate-capability-registry', 'evaluate-predicate', 'evaluate-predicate']
+PASS: dependency-order-spy-position-1: forced failure at position 1 Blocks (exit 1)
+PASS: dependency-order-spy-position-1: Blocks with position 1's own correct diagnostic id 'canonicalizer-invocation-failed'
+PASS: dependency-order-spy-position-1: detail names the correct sub-phase ('project context')
+PASS: dependency-order-spy-position-1: exactly 1 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-1: no partial live artifact
+PASS: dependency-order-spy-position-2: forced failure at position 2 Blocks (exit 1)
+PASS: dependency-order-spy-position-2: Blocks with position 2's own correct diagnostic id 'canonicalizer-invocation-failed'
+PASS: dependency-order-spy-position-2: detail names the correct sub-phase ('context projection')
+PASS: dependency-order-spy-position-2: exactly 2 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-2: no partial live artifact
+PASS: dependency-order-spy-position-3: forced failure at position 3 Blocks (exit 1)
+PASS: dependency-order-spy-position-3: Blocks with position 3's own correct diagnostic id 'affected-component-resolution-failed'
+PASS: dependency-order-spy-position-3: exactly 3 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-3: no partial live artifact
+PASS: dependency-order-spy-position-4: forced failure at position 4 Blocks (exit 1)
+FAIL: dependency-order-spy-position-4: Blocks with position 4's own correct diagnostic id 'registry-validation-failed': 'SPY: forced non-zero exit at position 4 (generate-registry-digest)\ncapability-resolver: dependency-subprocess-failed: generate-registry-digest failed while computing registry_digest\n'
+PASS: dependency-order-spy-position-4: exactly 4 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-4: no partial live artifact
+PASS: dependency-order-spy-position-5: forced failure at position 5 Blocks (exit 1)
+FAIL: dependency-order-spy-position-5: Blocks with position 5's own correct diagnostic id 'dependency-subprocess-failed': 'SPY: forced non-zero exit at position 5 (validate-capability-registry)\ncapability-resolver: registry-validation-failed: capability-registry.json failed validate-capability-registry checks\n'
+PASS: dependency-order-spy-position-5: exactly 5 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-5: no partial live artifact
+PASS: dependency-order-spy-position-6: forced failure at position 6 Blocks (exit 1)
+PASS: dependency-order-spy-position-6: Blocks with position 6's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-6: exactly 6 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-6: no partial live artifact
+PASS: dependency-order-spy-position-7: forced failure at position 7 Blocks (exit 1)
+PASS: dependency-order-spy-position-7: Blocks with position 7's own correct diagnostic id 'dependency-subprocess-failed'
+PASS: dependency-order-spy-position-7: exactly 7 subprocess launch(es) occurred -- no later-ordered subprocess was ever invoked after the forced failure
+PASS: dependency-order-spy-position-7: no partial live artifact
+RESULT: 29 passed, 3 failed
+
+=== Restore verification: real staged resolve-project-context.py byte-unchanged (git diff --stat empty) ===
+(empty diff above confirms no real file was ever touched)
+
+=== Real suite re-confirmed green after all four mutation runs ===
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 150 passed, 0 failed
