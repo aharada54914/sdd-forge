@@ -469,16 +469,35 @@ document v2 §7/§18.4).
   co-existed in one invocation — adversarial review "M5 byte-identical
   scope"/"B4 Lite publication" correction to an earlier revision that
   named all four as if a single invocation ever produced all of them);
-  within that set, only Resolver Evidence's own `state` field and its
-  two enforcement-derived `context_binding` digest fields —
-  `full_context_revision` and `projection_sha256` (amended 2026-08-24,
-  human-approved: each is a hash of canonical bytes that themselves
+  within that set, only the following **enforcement-derived fields** —
+  everywhere they occur, in whichever artifact of the set carries them —
+  differ:
+  Resolver Evidence's own `state` field; and, in **every** artifact whose
+  schema carries them, the two enforcement-derived `context_binding`
+  digest fields `full_context_revision` and `projection_sha256`; and, in
+  `generated/project-context.resolved.json`, its `workflow` block and its
+  `source_sha256`. (Amended 2026-08-24, human-approved: each digest is a
+  hash of canonical bytes that themselves
   encode `workflow.capability_enforcement` — the canonical Project
   Context text and the canonical Context Projection text, which copies
   `workflow` verbatim — so their identity across the pair is internally
-  impossible for any correct implementation; byte-identity is therefore
-  scoped to everything except `state` and these two named
-  enforcement-derived digest fields) — differ
+  impossible for any correct implementation. **Widened 2026-08-27,
+  human-approved, ruling D(2)**: the 2026-08-24 wording scoped the
+  exception to "Resolver Evidence's own" copies of those two digests,
+  which left the same impossibility asserted of two sibling Full-track
+  artifacts, so attempt 8's reviewers both independently found AC-016
+  unsatisfiable on that track. The correct scope is derivable from
+  investigation.md INV-004's own schema field lists and introduces no new
+  behaviour: `facet-manifest.yaml`'s `context_binding` carries the
+  identical two digests, and the Context Projection **is** the canonical
+  text this very sentence says copies `workflow` verbatim, so it carries
+  `workflow.capability_enforcement` itself plus `source_sha256`, the hash
+  of the differing canonical Project Context. The **Lite track is
+  untouched** by this widening: `capability-summary.yaml`'s schema carries
+  no `context_binding` at all, so on that track the exception still
+  reduces to Resolver Evidence's three fields exactly as before.
+  Byte-identity is therefore scoped to everything except the
+  enforcement-derived fields enumerated above.) — differ
   between the `advisory` and `required` fixture of an otherwise-identical
   pair (`capability_minimum_enforcement`'s downstream interpretation at
   Gate-execution time differs, and that computation is explicitly out of
@@ -894,7 +913,7 @@ document v2 §7/§18.4).
 | AC-013 | REQ-002 | Exit code contract: `0` on success, `1` on any REQ-002 Block, `2` on a CLI usage error (AC-001) — fixed, tested per value |
 | AC-014 | REQ-002 | Every diagnostic line `resolve-project-context.{py,sh,ps1}` itself emits follows the `capability-resolver: <check-id>: <detail>` format, `<check-id>` drawn only from REQ-002's own sixteen-value enum, and `<detail>` is a canonical, Resolver-owned sentence never quoting a dependency subprocess's own raw stderr verbatim (M8) — this criterion is scoped to `resolve-project-context`'s own diagnostic lines only; `validate-resolver-evidence`'s own, independent check-id enum is AC-021's own concern (Minor "diagnostic namespace" correction) |
 | AC-015 | REQ-003 | `disabled-legacy` (absent `--config` target, or the AGENTS.md-marker/default fallback deriving it) produces `disabled-legacy-invocation` before any Registry/ownership/Context-Projection work is attempted (a fixture confirms no `resolve-component-paths`/Registry-discovery subprocess is ever invoked in this branch) |
-| AC-016 | REQ-003 | A fixture pair identical except for `workflow.capability_enforcement` (`advisory` vs. `required`) produces byte-identical output across this invocation's own track-exclusive output set (whichever of `{facet-manifest.yaml, project-context.resolved.json}` or `{capability-summary.yaml}` applies, plus Resolver Evidence); only Resolver Evidence's own `state` field and its two enforcement-derived `context_binding` digest fields `full_context_revision`/`projection_sha256` differ (M5/B4 correction — an earlier revision of this row named all four artifacts as if a single invocation ever produced all of them; amended 2026-08-24, human-approved — those two digests hash canonical bytes that structurally encode `workflow.capability_enforcement`, the canonical Project Context text and the canonical Context Projection text which copies `workflow` verbatim, so their identity across the pair is internally impossible for any correct implementation: byte-identity is scoped to everything except `state` and these two named enforcement-derived digest fields). **This criterion explicitly excludes the one diagnostic branch REQ-002's `lite-check-source-undefined` (as narrowed by the cross-epic addendum, Epic A6 adversarial verification finding B5) does not treat identically across the two states** — a Lite-track fixture pair with a matched Capability's `lite_policy.required_lite_checks` key absent diverges by design (`required` Blocks, `advisory` resolves), and is covered instead by AC-009/AC-010's own three-non-Blocking-plus-one-Blocking matrix |
+| AC-016 | REQ-003 | A fixture pair identical except for `workflow.capability_enforcement` (`advisory` vs. `required`) produces byte-identical output across this invocation's own track-exclusive output set (whichever of `{facet-manifest.yaml, project-context.resolved.json}` or `{capability-summary.yaml}` applies, plus Resolver Evidence); only the enforcement-derived fields REQ-003 enumerates differ, wherever they occur in that set — Resolver Evidence's own `state`; the `context_binding` digests `full_context_revision`/`projection_sha256` in **every** artifact whose schema carries them, which on the Full track means `facet-manifest.yaml` as well as Resolver Evidence; and, in `generated/project-context.resolved.json`, its `workflow` block and `source_sha256` (M5/B4 correction — an earlier revision of this row named all four artifacts as if a single invocation ever produced all of them; amended 2026-08-24, human-approved — those two digests hash canonical bytes that structurally encode `workflow.capability_enforcement`, the canonical Project Context text and the canonical Context Projection text which copies `workflow` verbatim, so their identity across the pair is internally impossible for any correct implementation; **widened 2026-08-27, human-approved, ruling D(2)** — the 2026-08-24 scoping said "Resolver Evidence's own" copies and thereby left this row asserting the identical impossibility of the Projection, which IS that canonical text, and of the Manifest, which carries the identical two digests, making the Full-track half of this criterion unsatisfiable; the widened set is derivable from investigation.md INV-004's own schema field lists and adds no behaviour, and the **Lite track is untouched**, `capability-summary.yaml` carrying no `context_binding`). **This criterion explicitly excludes the one diagnostic branch REQ-002's `lite-check-source-undefined` (as narrowed by the cross-epic addendum, Epic A6 adversarial verification finding B5) does not treat identically across the two states** — a Lite-track fixture pair with a matched Capability's `lite_policy.required_lite_checks` key absent diverges by design (`required` Blocks, `advisory` resolves), and is covered instead by AC-009/AC-010's own three-non-Blocking-plus-one-Blocking matrix |
 | AC-017 | REQ-004 | `contracts/resolver-evidence.schema.json` exists, is valid draft-07, and its `$id` matches every other `contracts/*.schema.json`'s convention |
 | AC-018 | REQ-004 | `capability_evaluations[]` includes **exactly** one entry for **every** Registry Capability, not only matched ones (exact-set, not merely non-duplicated, B6) — a fixture with an unmatched Capability confirms its own entry is present with `matched: false` and a `trigger_evaluations[]` entry for every affected component; a **separate** zero-affected-component fixture (M9 correction) confirms every Capability's own `trigger_evaluations[]` is legitimately `[]` in that one case, without contradicting this row's own general "one entry per affected component" rule |
 | AC-019 | REQ-004 | A matched Capability's `capability_evaluations[]` entry carries **exactly** one `conditional_facet_evaluations[]` entry per `conditional_facets[]` array *entry* the Registry declares for it — keyed by `declaration_index` (0-based position), **never** collapsed by distinct `facet` name (B7 predicate-instance keying; a Capability declaring the identical `facet` twice produces two entries, exact-set/cardinality bound to declaration count), each with exactly one `evaluations[]` element per affected component; an unmatched Capability's entry carries the key omitted entirely; `matched`/`applied` are each bidirectionally consistent with their own governing array (B6) |

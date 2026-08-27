@@ -1988,9 +1988,15 @@ independently invocable (AC-027):
    and an **enforcement-byte-identity** fixture pair (AC-016) —
    two inputs identical except `workflow.capability_enforcement`
    (`advisory` vs. `required`) — asserting byte-identity across this
-   invocation's own track-exclusive output set with exactly three fields
-   excluded (Resolver Evidence's own `state`, `context_binding.full_
-   context_revision`, and `context_binding.projection_sha256`), plus a
+   invocation's own track-exclusive output set with the enforcement-
+   derived fields excluded wherever they occur (Resolver Evidence's own
+   `state`; `context_binding.full_context_revision` and
+   `context_binding.projection_sha256` in every artifact whose schema
+   carries them, which on the Full track means `facet-manifest.yaml` too;
+   and, in `generated/project-context.resolved.json`, its `workflow`
+   block and `source_sha256` — widened 2026-08-27, human-approved, ruling
+   D(2), from a three-field list that made this fixture pair impossible
+   to construct on the Full track), plus a
    non-vacuity assertion that those two digests genuinely **do** differ
    (Design Decisions, "`advisory` and `required` produce byte-identical
    output", below, fixes why they must). Every fixture pair in this suite
@@ -2446,26 +2452,33 @@ both outputs on a Lite resolve, contradicting Epic A4's own track-
 exclusive Capability Summary contract (`specs/epic-192-a4-facet-manifest/
 requirements.md:1214-1217`, investigation.md INV-004).
 
-**`advisory` and `required` produce byte-identical output, with exactly
-three named exceptions (REQ-003/AC-016 — amended 2026-08-24,
-human-approved).** This decision states, at design level, an amendment
+**`advisory` and `required` produce byte-identical output, with a named,
+closed set of enforcement-derived exceptions (REQ-003/AC-016 — amended
+2026-08-24, widened 2026-08-27, both human-approved).** This decision
+states, at design level, an amendment
 that until this revision of `design.md` existed only in
 `requirements.md`'s REQ-003/AC-016 and `acceptance-tests.md`'s own
-AC-016/TEST-016 row. That row, verbatim:
+AC-016/TEST-016 row. That row, in substance:
 
 > a fixture pair identical except `workflow.capability_enforcement`
 > (`advisory` vs. `required`) produces byte-identical output across this
-> invocation's own track-exclusive output set; only Resolver Evidence's
-> own `state` field and its two enforcement-derived `context_binding`
-> digest fields `full_context_revision`/`projection_sha256` differ
-> (M5/B4 correction — an earlier revision named all four artifacts as if
-> co-produced; amended 2026-08-24, human-approved — those two digests
-> hash canonical bytes that structurally encode
-> `workflow.capability_enforcement`, the canonical Project Context text
-> and the canonical Context Projection text which copies `workflow`
-> verbatim, so their identity across the pair is internally impossible
-> for any correct implementation: byte-identity is scoped to everything
-> except `state` and these two named enforcement-derived digest fields).
+> invocation's own track-exclusive output set; only the
+> enforcement-derived fields REQ-003/AC-016 enumerate differ, wherever
+> they occur in that set — Resolver Evidence's own `state`; the
+> `context_binding` digests `full_context_revision`/`projection_sha256`
+> in **every** artifact whose schema carries them, which on the Full
+> track means `facet-manifest.yaml` as well as Resolver Evidence; and,
+> in `generated/project-context.resolved.json`, its `workflow` block and
+> `source_sha256`.
+
+The 2026-08-24 amendment scoped those digest exceptions to "Resolver
+Evidence's own" copies, which left the identical impossibility asserted
+of the two sibling Full-track artifacts and made the Full-track half of
+AC-016 unsatisfiable; attempt 8's two spec reviewers found that
+independently. Ruling D(2) widened the set on 2026-08-27. The widened
+scope is derivable from investigation.md INV-004's own schema field lists
+and adds no behaviour, and the **Lite track is untouched**, since
+`capability-summary.yaml` carries no `context_binding` at all.
 
 Three consequences for this design, none of them previously stated in
 this document:
@@ -2491,11 +2504,23 @@ this document:
    `workflow.capability_enforcement` is inside both preimages, so both
    digests **structurally encode** it: an implementation in which they
    did not differ across such a pair would be incorrect, not more
-   deterministic. `state` plus these two fields is the **complete and
+   deterministic. The same argument reaches every artifact carrying those
+   digests, not only Resolver Evidence: on the Full track
+   `facet-manifest.yaml`'s own `context_binding` carries both (Data Plan
+   "B9"; investigation.md INV-004), and
+   `generated/project-context.resolved.json` **is** the canonical
+   Projection text whose `workflow` block is copied verbatim, so it
+   differs in that block and in its own `source_sha256`. `state`, those
+   two digests **wherever they occur**, and the Projection's `workflow`
+   and `source_sha256` together form the **complete and
    closed** exception set — every other byte of every artifact in the
    set, `registry_digest`/`ownership_digest`/`dependency_pointers[]`/
    `resolver.version`/`resolver.rule_set_revision`/`capability_
    evaluations[]`/`diagnostics[]` included, is identical across the pair.
+   On the Lite track the set reduces to `state` plus Resolver Evidence's
+   two digests exactly as before, since `capability-summary.yaml` carries
+   no `context_binding` (widened 2026-08-27, human-approved, ruling
+   D(2)).
 3. **One behavioural divergence is excluded from this criterion's own
    scope.** REQ-002's `lite-check-source-undefined`, as narrowed by the
    cross-epic addendum (Epic A6 adversarial verification finding B5, API
