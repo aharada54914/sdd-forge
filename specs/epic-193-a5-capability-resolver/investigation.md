@@ -1564,3 +1564,102 @@ exception is added to REQ-002.
 - `acceptance-tests.md`: `de57e5d1ec91229a1fbffe1807e7953a3600bac37a80914cdb2744ee13d50c22`
 - `design.md`: `a2d4068777a2928b5e13ba8ede43ca153f3d62d6249cde931985b9f9f09dac3d`
 - `infra-spec.md`: `db1ea71d68a10ad8400004d2acc689c90c8463d5dd7a8cbba3cf4b8fe727ab5a`
+
+### Round-3 remediation extension (attempt 6 BLOCKED, ruling D(2))
+
+Attempt 6 round 3 — the terminal round — returned reviewer A NEEDS_WORK
+(5/1/1, one Major) and reviewer B NEEDS_WORK (5/1/1, one Critical).
+Merged: Critical 1, Major 1, so the attempt closed **BLOCKED** and
+attempt 7 starts with `--reset`. Both findings were, again, the
+propagation-drift class: a fact stated in several places and updated in
+some of them.
+
+**A, Major, CONSTRAINTS-EXPLICIT** — `requirements.md`'s Roles and
+Permissions still routed Resolver Evidence through "the guarded journaled
+publication transaction … journaled transactional commit"
+unconditionally, contradicting the newly narrowed REQ-001 step (m) and
+REQ-004. Seventh sibling site of the write-set-size fact.
+
+**B, Critical, CONTRADICTION** — `requirements.md`'s Edge Cases crash
+bullet and the **second sentence of the very Security Boundaries bullet**
+the round-2 remediation had edited both still asserted absolutely that no
+crash, Block or publication failure ever leaves "a mixed generation across
+a multi-target batch" standing. TEST-047's newly explicit no-repair
+obligation instantiates exactly that state and requires it to survive, so
+the remediation had landed in one sentence of a bullet and left the next
+sentence contradicting it. B also observed that the following bullet
+already carried the correct exception wording, which is what identifies
+the two absolutes as unmaintained siblings rather than a considered
+position.
+
+**Why the round-2 sweep missed them, recorded so the lane can be fixed
+rather than merely re-run.** Two independent causes, both mechanical:
+
+1. **Line wrapping defeats literal-phrase search.** These documents wrap
+   at roughly 70 columns, so a two-word phrase is routinely split across a
+   newline. `design.md` carried "leaving the live state exactly as\n
+   found"; `grep 'exactly as found'` cannot match that and never could.
+   That is how the ninth site survived two remediation rounds. The
+   corrected method, used for this round, is to normalise whitespace
+   across the whole file and search the normalised text while keeping an
+   index back to original line numbers.
+2. **A surfaced hit was not acted on.** `journaled publication
+   transaction` did match `requirements.md:945` in the round-2 sweep and
+   the line was in the output that was read. Reviewer A found it as the
+   seventh site. The search was correct; the reading of it was not.
+
+**The substantive resolution, stated once and used identically
+everywhere.** The guarantee was never "a mixed generation never stands" —
+the unconvergeable journal is precisely a case where one does,
+deliberately, because AC-047 forbids repair there. The guarantee is that
+**no invocation ever proceeds past one**: it is either converged away by
+the mandatory crash-recovery scan, or it fails that invocation closed with
+`publication-journal-recovery` and waits for a human. `tasks.md` had
+carried the correct shape from the start ("converging … **or** Blocking
+`publication-journal-recovery` if recovery cannot safely complete") and is
+frozen under a passed task review, so it needed no edit — a useful check
+that the formulation adopted here is the package's own, not a new
+invention.
+
+**What the remediation did.** Commit
+`d74ae0da51c9983585e4b28fdda69088e7281bcc`, documents only:
+
+1. `requirements.md` Edge Cases and `design.md`'s AC-047 acceptance
+   mirror — the absolute replaced by the proceeds-past formulation, with
+   the unconvergeable branch's no-repair obligation stated in place.
+2. `requirements.md` and `design.md` Security Boundaries — the same for
+   the multi-target-batch absolute, and the parenthetical permitting a
+   fully-written Evidence path widened from "on a Block reached before
+   publication" to any Block except REQ-002's two named exceptions, since
+   the earlier clause did not cover the step-(m)/step-14 Blocks
+   `artifact-publication-failed` and
+   `post-publication-generation-mismatch`, for which REQ-001 step (m),
+   REQ-004 and AC-012 all require Evidence.
+3. `requirements.md` Roles and Permissions — scoped by write-set size,
+   matching REQ-001 step (m) and REQ-004.
+4. Both "stages nothing" clarifications — now distinguishing the on-disk
+   `.resolver-staging/` sense from the separate in-memory assembly, which
+   is what made the round-2 version of that clarification read as false;
+   `design.md` cites steps 3/10/11/12, the numbers its own Design
+   Decisions section uses, and `requirements.md` is reworded to not depend
+   on step letters at all.
+5. `requirements.md` REQ-002 — the stale "nineteenth" ordinal inside a
+   sixteen-row enum, re-recorded by both reviewers in all three rounds,
+   corrected to "seventeenth" with the correction stated in place.
+
+One process note against the orchestrator: the verification sweep run
+immediately after these edits initially read the **wrong checkout**,
+because the shell's working directory had reset to the primary worktree
+between calls. The edits themselves used absolute paths and landed
+correctly; the sweep was re-run in this worktree before the commit, and
+every claim above is verified against these bytes.
+
+### Per-document SHA-256 at remediation commit d74ae0da
+
+- `requirements.md`: `2870d38f6cd7560f74e8310a16c0f5a00c5dce03d57f4c2eeee3e88813a7745a`
+  (at `Spec-Review-Status: Pending`)
+- `design.md`: `c8fcfcbb1b3275472f15c676eb2344f72569ac4f3de8840ab6f93d2976bc789a`
+- `acceptance-tests.md`: `de57e5d1ec91229a1fbffe1807e7953a3600bac37a80914cdb2744ee13d50c22`
+  (unchanged by this commit)
+- `infra-spec.md`: `db1ea71d68a10ad8400004d2acc689c90c8463d5dd7a8cbba3cf4b8fe727ab5a`
+  (unchanged by this commit)
