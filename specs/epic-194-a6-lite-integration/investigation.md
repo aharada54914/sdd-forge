@@ -2056,3 +2056,80 @@ invoked out-of-process, exit `0`, and every one of the five installed
 files verified byte-identical to its staged source afterwards, including
 the CI workflow, "which now gets the same integrity envelope as the
 rest."
+
+### Amendment record extension, seventh entry (appended 2026-08-28): design.md 2b/2c ratify the upgrade_reasons validation that 2499e813 already implemented
+
+Appended below the sixth entry, on the same terms: nothing above this
+heading is edited.
+
+Owner approval, verbatim (2026-08-28): 「design.md 2b/2c を amendment
+レーンで追認する」. Adjudication trail: docs/review-tickets/
+RT-20260828-001.yml (severity Major, owner-ruled 2026-08-28).
+
+#### What was stale, and how it was found
+
+The 2026-08-25 remediation commit `2499e813` added, to both
+`check-risk-upgrade` twins, validation of `upgrade_reasons` — a
+present-and-truthy value must be an array, and every element must be a
+non-empty string matching `[a-z0-9][a-z0-9_-]*` — closing a measured
+trigger-forgery (`["evil,forged"]` → a forged second trigger entry;
+`["x; triggers=NONE"]` / `["x\ntriggers=NONE"]` → a broken single-line
+record; the exact attack the id grammar already blocks, TEST-013m/n/p)
+and a silent sh/ps1 stringifier divergence on null/object/nested-array
+shapes. design.md's Processing step 2b enumerated its invalid conditions
+exhaustively WITHOUT these two, and step 2c said upgrade_reasons tokens
+are "not re-validated here" flatly. The design text predated the
+remediation and never caught up.
+
+The staleness surfaced through the 2026-08-27/28 cross-model panel: all
+three vendors flagged the `eligible: true` validation gap (OpenAI and
+Google as Critical, Anthropic as Minor); the owner adjudicated it Major;
+a peer session (sdd-forge-42) then observed that the implementation's
+branch comment quotes design.md's own `entry['eligible'] == false`
+verbatim, which reframed a "code defect" as a specification-staleness
+defect, and the `git log` pull over `2499e813` settled the direction:
+deleting the checks to match the design text would reintroduce a proven
+injection.
+
+#### What the amendment changes (five sites: design.md four, requirements.md one)
+
+1. Step 2b's invalid-condition enumeration gains the two ratified
+   conditions, applying to EVERY entry regardless of `eligible`, because
+   2b runs before eligibility is consulted. A present-but-falsy
+   `upgrade_reasons` (false, 0, "", [], null) is treated as absent —
+   ratifying the live twins' measured behavior — and only a present,
+   truthy non-array value, or a malformed element inside a real array,
+   is shape-invalid.
+2. Step 2c's parenthetical rescopes "not re-validated here" to catalog
+   membership alone.
+3. The Data Plan paragraph (the `eligible: true` / `eligible: false`
+   contribution rules) rescopes its own copy of the same sentence
+   identically — the sibling that a 2b/2c-only sweep would have missed
+   (the propagation-defect class this package has hit nine times).
+4. The Design Decisions bullet "No re-validation inside
+   check-risk-upgrade" now states the scoping and corrects the script's
+   self-description from "a keyword scanner plus a trivial merge step"
+   to include the eager shape/grammar gate.
+5. requirements.md's REQ-002 input-state 2 parenthetical — the same
+   invalid-condition enumeration, found by the pre-edit sibling sweep —
+   gains the identical two conditions. This is an alignment, not a new
+   claim: the Field Definitions shape that parenthetical cites has
+   always declared `upgrade_reasons` as an array of tokens; only the
+   summary enumeration was narrower than its referent.
+
+#### What the amendment deliberately does NOT do
+
+It does not ratify the validation's current PLACEMENT. Both twins today
+run the ratified checks inside the `eligible == false` branch, so a
+shape-invalid `upgrade_reasons` on an `eligible: true` entry is silently
+accepted (exit 0, lite-eligible) where amended 2b requires exit 2. That
+is a conformance fail-open, not an exposure — both token-emitting sites
+sit inside the false branch, so nothing malformed can reach the output
+record — but it is a spec-vs-implementation delta this amendment
+KNOWINGLY creates, recorded in RT-20260828-001 stage 2: move the checks
+ahead of the eligibility test in both twins, through human-copy staging,
+a reissued MANIFEST.sha256, and a second HUMAN APPLY STEP (the payload
+was applied live on 2026-08-28, so a fix reaches the live tree no other
+way). The regression fixture for that change must assert exit 2 — never
+"no forged tokens appear in the record", which passes today against the
+live defect.

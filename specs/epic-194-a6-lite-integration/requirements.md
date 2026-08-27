@@ -380,8 +380,15 @@ task's own explicit instruction.
   2. **Second argument supplied**: the file at that path is now read and
      validated eagerly. If it is unreadable, not valid UTF-8 JSON, or does
      not conform to the fragment shape (Field Definitions below — a
-     missing `capabilities` key, a non-array value, or any array entry
-     missing `id`/`eligible`) — the script exits `2`
+     missing `capabilities` key, a non-array value, any array entry
+     missing `id`/`eligible`, an entry's `upgrade_reasons` that is
+     present, truthy and not an array, or an `upgrade_reasons` element
+     that is not a non-empty string matching the reason-token grammar
+     `[a-z0-9][a-z0-9_-]*` — the two `upgrade_reasons` conditions align
+     this summary with the Field Definitions shape it cites, which has
+     always declared `upgrade_reasons` as an array of tokens; ratified by
+     the 2026-08-28 amendment, investigation.md Amendment Re-Review
+     Context, seventh entry) — the script exits `2`
      ("`risk-upgrade: capability-reasons fragment invalid`"), the same
      usage-error exit code `check-risk-upgrade` already uses for a
      missing/unreadable primary source file (investigation.md INV-009),
