@@ -1,0 +1,194 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-193-a5-capability-resolver",
+  "task_id": "T-010",
+  "run_id": "RUN-epic-193-a5-capability-resolver-qg-T-010-c1-seq0818",
+  "host_session_id": "SESS-qg-epic-193-a5-capability-resolver-T-010-c1-0818",
+  "sequence": 818,
+  "previous_record_sha256": "9c1f3d9d99d58c7aef2ffa5c163569ce9005663bdb1b7bb5a63ada5cdb1ca62c",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "8fa9828d8e547c56548939c00da20cb71e8e3da3f6270ede702485cba668c597",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "36b914d400f4b68cda437a8a45da20843bd5ccc76e2c3d56b70adcbbb11d3e7c"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/traceability.md",
+      "sha256": "dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-010.contract.json",
+      "sha256": "86eb05286eef2c5a30906faa9ba6c2fdc005c5a4d7aa91f30bc0be768e28931d"
+    },
+    {
+      "path": "reports/implementation/epic-193-a5-capability-resolver/T-010.md",
+      "sha256": "58662c59914e10a560b5767b389e3333d8b47e1ae24e1e6a4473125189c20840"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-010/focused-tests-ps1.log",
+      "sha256": "2cee728f9bc71b05d8de3f952f224c7015fe84dcdae708d29cdc50b5117c093f"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-010/focused-tests-sh.log",
+      "sha256": "54a81a0adf66f2037695bc539de1088a51a5dfa593b67b86963cd18dd7feeadd"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-010/placeholder-scan.log",
+      "sha256": "66ffe39897aff400ece6f1b8b54e559f434b3e99578ac67bfbc03475fbcde444"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-010/regression.log",
+      "sha256": "6dcd023ea014263dd4269549984f73afeb57916439c07146f3990a9ba7f91c28"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/qg/T-010/task-state.log",
+      "sha256": "bd00565c59cf6c7972f6540341b768112672935b73a6315d68abebeee138d7a2"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-010/green-ps1.log",
+      "sha256": "26d8b4a175f84fc70e18c18296fa0c6df2e5c14b0c3feae1ff0272a1f8539c31"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-010/green-sh.log",
+      "sha256": "8c4f5d882bae9d4cdbe37bb3cbe8d1ad4c452dd392736d2fdbe43c300d692153"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/verification/T-010/mutation-captures.log",
+      "sha256": "307cafeadd45af57b6647800f39c7f8630b8d52489ffedcee4b793f0b055b332"
+    },
+    {
+      "path": "tests/resolve-project-context-metamorphic-check.py",
+      "sha256": "77ddbacc6437f586b95cd3973f611da83199e4efb4e9c38204099419816d1b5c"
+    },
+    {
+      "path": "tests/resolve-project-context-metamorphic.tests.sh",
+      "sha256": "80108d816ec30c94dae0391d71133444ff1807ea4545e45e302041db973785da"
+    },
+    {
+      "path": "tests/resolve-project-context-metamorphic.tests.ps1",
+      "sha256": "9e4731ab01fc50291aec96f745f7ebc139c94d6fc8a31ec751f33779a6e47e56"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/capability-registry.json",
+      "sha256": "61cc575e7e82b384695ce85b4da41c10d621970af5193e6a3b587e483cf07c2e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-tt.yaml",
+      "sha256": "41416c1a88c73bb5686af6d54427f14375b483216bdf60de7720f48bd4fd75b4"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-tf.yaml",
+      "sha256": "e326ecd3bb30795d6ef5a8ca4cb981a8ee29b1b429710527191286d7e316f459"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-ft.yaml",
+      "sha256": "f2e237c4f3eb60007ed266c72e95024810b9a67eb86b0dbfd5ed917af484821f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/combination-matrix/project-context-ff.yaml",
+      "sha256": "6ff77fc1a9ba9e2a839f8826c03ab50e9ab8afc58c8a4b6aaae9889815e2edf1"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/capability-registry.json",
+      "sha256": "d7039d94c22c793d5212de34649d543000156c6b41082b1c07a209fdbea8e025"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/project-context.yaml",
+      "sha256": "510929d942f7623f996f0c55d497833e07f380f307492031811da7836e582493"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/resolve-component-paths-order-a.py",
+      "sha256": "5b3b6b50fccbe8961d4ee649296cd80d63bd91fe31ad6580ceaf2d69066045be"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/order-invariance/resolve-component-paths-order-b.py",
+      "sha256": "0cbd60e6c4cb74b89c90527676c6fb1b4a3081baec9726b50f523185b2952837"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/multi-true-dedup/capability-registry.json",
+      "sha256": "61cc575e7e82b384695ce85b4da41c10d621970af5193e6a3b587e483cf07c2e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/multi-true-dedup/project-context.yaml",
+      "sha256": "201f314cf1f6488282ac85f631704bdcc51a09a79357761fe63094f6f72403ab"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/reason-template/capability-registry.json",
+      "sha256": "5d2a614e42f065724e2b4adf0f737fa8b50a3c6023800ee2a49899a72533f6ca"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/reason-template/project-context.yaml",
+      "sha256": "78b1398bc6f7a46a705cc22a65fe76e67600a1d0a5e941f35b3643f773508f60"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-matched-trigger/capability-registry.json",
+      "sha256": "0da89b5aa3eef5332acf6f06b103b71e79841ce32a6d9e96edc4ecfa65afb2a7"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-matched-trigger/project-context.yaml",
+      "sha256": "e0f6cc07f2f672b9836dd0027f07e8eabc6ced9a6102ed1e34467c014c11d0a6"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-unmatched-trigger/capability-registry.json",
+      "sha256": "45f2a1b7496399b3d5b8b65671810e734b0264d6895fab7d539181330f3f7968"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-unmatched-trigger/project-context.yaml",
+      "sha256": "def20368d2bddedffa29cfbe9ab4e2e540d4fe89138df18db0a68fe4971e351a"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet/capability-registry.json",
+      "sha256": "437ee4ce34794ecde798035366318d8b2762be52bd525d5e2ffbfe0b28e92f8e"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/warn-conditional-facet/project-context.yaml",
+      "sha256": "5646248d85cf088015068ed77c564129da5b8365bdf98d2c6295797bd33d68ed"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/dependency-order-spy/capability-registry.json",
+      "sha256": "49325e4935a5c162eac6a7f39f037df0553a91a76d1e57148647ba548c86855f"
+    },
+    {
+      "path": "tests/fixtures/capability-resolver/metamorphic/dependency-order-spy/project-context.yaml",
+      "sha256": "6e996660065c822d7272a66fc22d67b404328d1836805296c5fc2f312ad48b62"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "4fbc78fb00d32cc67cb274c777e7a6a63ab9cd0c8a630fbd61a013486086bc3d"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "34b12af376a1d4b76cbacc9a9aacb749f9f31223dbc216a1c7a38a25f98724dc"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml",
+      "sha256": "eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+      "sha256": "9be3051db887c5672bb721f8d55225895a418c909706aac85337e1df1c993c8b"
+    }
+  ]
+}
