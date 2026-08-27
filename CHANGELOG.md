@@ -319,6 +319,52 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   test.yml` に T-006 の 3 スイート直後へ append し、`MANIFEST.sha256` を
   実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
   `.github/workflows/test.yml` は byte-unchanged。
+- **`resolve-project-context-parity` 双方向ランタイム parity + 決定論スイート
+  (Issue #193, epic-193-a5 T-009)**: `.py`/`.sh`/`.ps1` の 3 ランタイム
+  横断で REQ-005 の byte-identity 保証を検査する新規スイートを追加した
+  （既存の block/match/cli/discovery/lite/validate-resolver-evidence の
+  各スイートは `.sh`/`.ps1` の thin dispatcher しか実行しておらず、`.py`
+  master を直接起動する検査はこのスイートが初めて）。
+  **TEST-022**（AC-022）: 同一入力の `.py` 単独 2 回実行が
+  track-exclusive 出力集合（stdout/stderr/exit code + 生成物バイト列）で
+  byte-identical。**TEST-023**（AC-023）: `.py`/`.sh`/`.ps1` 3 ランタイム
+  横断で同じく byte-identical、かつ stderr がこの機能自身の
+  `capability-resolver: <id>: <detail>` 正規行のみである（M8 -- 依存
+  subprocess 自身の生 stderr を比較対象にしない）ことを直接確認。
+  Windows 風 `\` 区切りパス引数の fixture を含む。`validate-resolver-
+  evidence`（T-008 の 3 ランタイム triad）も同じ parity 保証の対象として
+  reuse。**TEST-024**（AC-024）: Registry `capabilities[]` の宣言順を
+  意図的に非昇順にした新規 fixture（`resolve-project-context-match`
+  の `full-pipeline-match` 入力を再利用し、Registry のみ差し替え）で
+  `capability_evaluations[]` が `capability_id` で stable-sort されて
+  いることを 3 ランタイムで確認。加えて `resolve-project-context.py` の
+  `_assemble_facet_manifest` を直接呼ぶ no-subprocess white-box 検査で
+  `required_facets`/`resolved_gates`/`capabilities` の stable-sort を
+  独立に実証し、`diagnostics[]` の `(id, detail)` sort は
+  `resolve-project-context-block` 自身の既存 `dsl-warn-unsorted-
+  affected-components` fixture を再利用（reuse、reinvent しない）。
+  **TEST-025**（AC-025）: staged `resolve-project-context.{py,sh,ps1}`
+  と live `validate-resolver-evidence.{py,sh,ps1}` の計 6 ファイルに対する
+  repository-wide grep self-check で `datetime.now()`/`time.time()`/
+  network primitive/provider-API client の不在を確認（provider term scan
+  は Epic A2 の `provider-terms.json` allowlist と
+  `facet-manifest-parity.tests.sh` 自身の `key=lambda` idiom マスク技法を
+  そのまま再利用）。dirty/clean fixture ペアで非空虚性・偽陽性排除を証明。
+  `tests/resolve-project-context-parity.tests.{sh,ps1}`（共有ドライバは
+  `tests/resolve-project-context-parity-check.py`）で **70 assertion**を
+  固定 -- sh/ps1 とも 70 passed / 0 failed。acceptance-first: 4 mutation
+  （scratch tree のみ、実ファイル無改変）で非空虚性を実証 -- 繰り返し
+  invocation に per-process 値を混入・ps1 側に余分な 1 byte を出力・
+  `capability_evaluations[]` の sort を除去・`time.time()` 呼び出しを
+  混入、いずれも対応する assertion が FAIL することを確認済み。既存の
+  `resolve-project-context-block`（306/0）・`-match`（125/0）・`-cli`
+  （13/0）・`-discovery`（12/0）・`-lite`（18/0）・`validate-resolver-
+  evidence`（117/0）は sh/ps1 とも無編集で回帰なし。`tests/run-all.
+  {sh,ps1}` に登録済み。CI ステップ候補は
+  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` に T-008 の 2 ステップ直後へ append し、`MANIFEST.sha256` を
+  実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
+  `.github/workflows/test.yml` は byte-unchanged。
 ### Added
 
 - **Facet Manifest schema と validator (Issue #192,
