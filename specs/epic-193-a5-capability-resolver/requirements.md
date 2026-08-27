@@ -382,7 +382,7 @@ document v2 §7/§18.4).
   | `lite-check-source-undefined` | **Narrowed by cross-epic addendum (Epic A6 adversarial verification, finding B5 — requirements.md Dependencies, below).** `workflow.spec_profile == lite` **and** `workflow.capability_enforcement == required` (REQ-003's derived `state`) **and** at least one matched Capability's own Registry entry has its `lite_policy.required_lite_checks` key **absent** (investigation.md INV-019). This trigger is a conjunction of all three conditions, not merely "Lite track with an unsourceable matched Capability": under `advisory` enforcement, an absent `required_lite_checks` key contributes an empty `[]` to that Capability's own share instead of Blocking; a `required`-enforcement Capability whose key is **present** but whose own array is empty is a valid, explicit "no Lite checks required" declaration and does not Block; and zero matched Capabilities is non-Blocking under either enforcement state (Edge Cases, "zero affected components") — this diagnostic's own quantifier is deliberately narrower than REQ-002's other "any"-scoped rows |
   | `output-schema-validation-failed` | This invocation's own staged Facet Manifest/Capability Summary/Context Projection/Resolver Evidence fails a defensive re-validation against its own governing schema before publication (adversarial review "B3 taxonomy"). **If Resolver Evidence itself is the artifact that fails this check, this invocation writes NOTHING to any live path, not even a best-effort, fields-omitted Evidence instance** (B3, revised — an earlier revision wrote such a best-effort instance; adversarial review "B3 best-effort Evidence removed" found it carries no guarantee of re-conforming to its own schema, making it exactly the schema-invalid live artifact this check exists to prevent) |
   | `snapshot-generation-mismatch` | Immediately before this invocation's own publication, a re-read of the Project Context/ownership-source/Registry bytes this invocation snapshotted at steps (b)/(d)/(e) (REQ-001, above), **and a fresh re-derivation of `affected_components`**, no longer matches that snapshot — a generation-mixed input set. **Now fires on an `affected_components` set difference alone, even when every digest including `ownership_digest` still matches** (B8, revised — `ownership_digest` is a blunt, project-wide "the ownership *config* changed" signal, Epic A3 `requirements.md:530-569`, and does not itself change when only the underlying diff shifts which components are affected between this invocation's own two `resolve-component-paths` calls; adversarial review "B8 TOCTOU"). **Second trigger site (ruling C(1), human-approved 2026-08-26, sanctioning the detection recheck two independent cross-model panels converged on): detection-only and mid-pipeline — immediately after REQ-001 step (e)'s own two dependency invocations (`validate-capability-registry` and `generate-registry-digest --whole`) complete, before any step-(f) evaluation begins, a re-read of the Registry bytes alone no longer matching the raw-bytes digest retained at step 5's own first read (or that re-read itself failing, which is at least as suspicious as a byte difference) Blocks with this same id, closing the unbound-reads window in which each of those dependencies independently re-discovers and re-reads the Registry with no binding to this invocation's own snapshot (AC-057; approval evidence: investigation.md `## Amendment Re-Review Context` › `### Rulings C(1)/C(2)`)** |
-  | `artifact-publication-failed` | A `write`/`fsync`/`rename` failure caught **in-process** during this invocation's own publication transaction's Prepare/Journal/Commit phases (design.md "Resolver publication transactional bundle contract"). **Rollback of any already-completed rename in the same commit sub-sequence is now journal-based, restoring that target's own PRE-transaction live bytes — never a bare `unlink`, which an earlier revision used and which destroyed pre-existing live bytes with no restore path** (B1, revised, closing that gap; a rollback failure, if the in-process attempt cannot itself fully complete, is recorded in this same diagnostic's own `detail` and safely completed by the next invocation's own crash-recovery scan instead — never a nineteenth diagnostic-id value of its own) |
+  | `artifact-publication-failed` | A `write`/`fsync`/`rename` failure caught **in-process** during this invocation's own publication transaction's Prepare/Journal/Commit phases (design.md "Resolver publication transactional bundle contract"). **Rollback of any already-completed rename in the same commit sub-sequence is now journal-based, restoring that target's own PRE-transaction live bytes — never a bare `unlink`, which an earlier revision used and which destroyed pre-existing live bytes with no restore path** (B1, revised, closing that gap; a rollback failure, if the in-process attempt cannot itself fully complete, is recorded in this same diagnostic's own `detail` and safely completed by the next invocation's own crash-recovery scan instead — never a **seventeenth** diagnostic-id value of its own; the ordinal is corrected 2026-08-27 from a stale "nineteenth" that predated this enum's closure at sixteen rows, and names no new id either way) |
   | `post-publication-generation-mismatch` | **NEW (B8).** Immediately after every rename in this invocation's own publication transaction has succeeded — closing the "post-recheck race," the window between the pre-publication recheck (`snapshot-generation-mismatch`, above) and the last rename actually completing — a **final** re-read of the same three sources plus a fresh `affected_components` re-derivation no longer matches the pre-publication recheck's own snapshot. This invocation itself rolls every just-completed rename back to its own PRE-transaction state via the transaction's own journal before returning this Block (design.md "Resolver publication transactional bundle contract," Post-publication verification) — the sole diagnostic-id row whose own trigger condition is detected only *after* every live rename in the batch has already, if briefly, succeeded |
 
   Every Block exits non-zero (REQ-002's own exit-code contract, design.md)
@@ -976,8 +976,14 @@ document v2 §7/§18.4).
 - **A running Resolver process (any caller)**: the sole intended writer of
   live `facet-manifest.yaml`/`capability-summary.yaml`/`project-context.
   resolved.json`/Resolver Evidence instances for a real Feature, via the
-  guarded journaled publication transaction REQ-001 fixes (staged
-  generation, journaled transactional commit, cwd-independent path
+  guarded publication mechanism REQ-001 fixes for the write set in hand —
+  the journaled transaction (staged generation, journaled transactional
+  commit) whenever this invocation publishes a track's output set, and the
+  direct `temp file + fsync + rename` REQ-001 step (m) and REQ-004 fix
+  whenever Resolver Evidence is the invocation's **whole** write set
+  (scoped 2026-08-27, human-approved, ruling D(2); this sentence had
+  named the journaled commit unconditionally, which the narrowing left
+  behind) — in both cases with cwd-independent path
   resolution per ADR-0025 —
   never a human-copy content-population step, M7 correction to an earlier
   revision that treated `project-context.resolved.json`'s own "initial
@@ -1172,8 +1178,19 @@ document v2 §7/§18.4).
   detects it via the mandatory crash-recovery scan (REQ-001's own step 0)
   and converges every target back to one of the transaction's own two
   terminal states — fully-applied or fully-reverted — before proceeding
-  with its own, separate work, never leaving a mixed generation standing
-  (design.md "Resolver publication transactional bundle contract").
+  with its own, separate work, **or, if that journal is itself
+  unconvergeable** (a referenced pre-image backup missing or unreadable,
+  or a target matching neither its recorded PRE nor POST value), attempts
+  no repair at all and Blocks `publication-journal-recovery`, leaving the
+  interrupted targets exactly as found for manual operator intervention
+  (REQ-002 above; AC-047). The guarantee is therefore not that a mixed
+  generation never stands — the unconvergeable case is precisely one that
+  does — but that **no invocation ever proceeds past one**: it is either
+  converged away or it fails this invocation closed, never silently
+  carried forward (scoped 2026-08-27, human-approved, ruling D(2); the
+  earlier absolute wording predated the unconvergeable branch's own
+  no-repair obligation and contradicted it) (design.md "Resolver
+  publication transactional bundle contract").
 
 ## Security Boundaries
 
@@ -1202,20 +1219,39 @@ document v2 §7/§18.4).
   never invoke this Resolver's process at all in this state.
 - **No artifact this invocation stages ever reaches a live path except via
   the journaled publication transaction** (REQ-001, above, adversarial
-  review "B1 atomicity"/"B8 TOCTOU"). This is a rule about **staged**
-  artifacts, and a Block whose whole write set is Resolver Evidence
-  stages nothing: REQ-001 step (m) and REQ-004 fix that one-member write
-  as a direct `temp file + fsync + rename`, so it is outside this
-  sentence's subject rather than an exception to it (clarified
-  2026-08-27, human-approved, ruling D(2)). A crash at any point, including
+  review "B1 atomicity"/"B8 TOCTOU"). "Stages" here means the on-disk
+  `.resolver-staging/<batch-nonce>/` area, not REQ-001's separate
+  in-memory assembly of the artifacts that precedes any publication — a
+  Block reached after that in-memory work has begun is still governed by
+  this rule for anything it assembled, and by AC-011/AC-038 for the three
+  publication artifacts. A Block whose whole write set
+  is Resolver Evidence never creates that on-disk area at all, because
+  REQ-001 step (m) and REQ-004 fix that one-member write as a direct
+  `temp file + fsync + rename`, so it is outside this sentence's subject
+  rather than an exception to it (clarified 2026-08-27, human-approved,
+  ruling D(2); the two senses of "stage" are distinguished here because
+  the earlier wording read as false against steps (c)/(i)/(j)). A crash at
+  any point, including
   between two renames, a Block, an in-process publication failure, or a
   post-publication-verification mismatch each leave every live path this
   feature's Resolver could write either fully absent, fully unchanged
   (converged there by the crash-recovery scan or an in-process rollback,
-  both journal-based, never a bare `unlink` with no restore), or (Resolver
-  Evidence only, on a Block reached before publication) fully written;
-  never a torn or partially-written artifact, and never a mixed
-  generation across a multi-target batch.
+  both journal-based, never a bare `unlink` with no restore), or —
+  Resolver Evidence only, on any Block except the two REQ-002 names —
+  fully written, at whichever step that Block is reached, the step-(m)
+  Blocks `artifact-publication-failed` and
+  `post-publication-generation-mismatch` included (widened 2026-08-27 from
+  a "before publication" clause that did not cover those two, although
+  REQ-001 step (m), REQ-004 and AC-012 all require Evidence there);
+  never a torn or partially-written artifact. A mixed generation across a
+  multi-target batch likewise never stands **unattended**: the mandatory
+  crash-recovery scan either converges it away before this invocation's
+  own work begins, or — when the journal is unconvergeable — leaves it
+  exactly as found and fails this invocation closed with
+  `publication-journal-recovery` for manual operator intervention, which
+  is the one state no automatic repair may touch (AC-047; scoped
+  2026-08-27, human-approved, ruling D(2), replacing an absolute that
+  contradicted that branch's own no-repair obligation).
 - **Every invocation runs a mandatory crash-recovery scan, scoped to its
   own `--feature` value, before any other work begins** (B1, above) — a
   stale transaction journal from a prior, interrupted invocation is

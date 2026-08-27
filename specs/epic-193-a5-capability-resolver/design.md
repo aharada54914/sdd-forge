@@ -1880,14 +1880,24 @@ independently invocable (AC-027):
    commit (test-harness-only hook: kill the process after the first
    rename, before the second) and asserts the **next** invocation's own
    crash-recovery scan, run before that next invocation's own step 1,
-   converges every target back to its own PRE-transaction bytes (never a
-   mixed generation left standing), then proceeds to complete its own,
+   converges every target back to its own PRE-transaction bytes (no mixed
+   generation carried forward on this branch), then proceeds to complete
+   its own,
    separate resolve normally; a companion fixture corrupts the journal's
    own recorded `pre/<target-basename>` backup (simulating an
    unrecoverable third state) and asserts the next invocation Blocks,
    `publication-journal-recovery`, before any Registry/ownership/
-   Context-Projection work begins, leaving the live state exactly as
-   found; plus the **abort-exception** fixture AC-056 names by name,
+   Context-Projection work begins, with the live-state obligation stated
+   per target rather than globally (amended 2026-08-27, human-approved,
+   ruling D(2), matching AC-047/TEST-047's own amended wording): every
+   interrupted target other than `resolver-evidence.yaml` byte-identical
+   to its pre-invocation state — no partial rollback and no repair is
+   attempted once the journal is declared unconvergeable, which is why
+   this branch's mixed generation deliberately stands, unattended by any
+   automatic repair, behind a fail-closed Block — and
+   `resolver-evidence.yaml` itself carrying this invocation's own Block
+   record for that diagnostic, written directly per REQ-001 step (m);
+   plus the **abort-exception** fixture AC-056 names by name,
    `evaluate-predicate-failure-after-warn` — one `outcome: "warn"` node
    collected during the step-7 sweep, then the *next* `evaluate-
    predicate` call's own dependency failure aborting that same sweep with
@@ -2703,11 +2713,18 @@ once `artifact`/`promotion` Gates gain real execution behavior.
 - **No artifact this invocation stages ever reaches a live path except via
   the journaled publication transaction (B1, API / Contract Plan step 14,
   "Resolver publication transactional bundle contract")** — this is a
-  rule about **staged** artifacts, and a Block whose whole write set is
-  Resolver Evidence stages nothing: that one-member write is a direct
+  rule about **staged** artifacts in the on-disk
+  `.resolver-staging/<batch-nonce>/` sense, not the separate in-memory
+  assembly and schema validation at API / Contract Plan steps 3/10/11/12
+  ("Staged generation, journaled transactional commit", Design Decisions
+  below), and a Block whose whole
+  write set is Resolver Evidence never creates that on-disk area at all:
+  that one-member write is a direct
   `temp file + fsync + rename` with no staging area and no journal
   (REQ-001 step (m), REQ-004; clarified 2026-08-27, human-approved,
-  ruling D(2)), so it sits outside this sentence's subject rather than
+  ruling D(2), with the two senses of "stage" distinguished because the
+  first wording of this clarification read as false against those
+  in-memory steps), so it sits outside this sentence's subject rather than
   being an exception to it. A process
   crash at any point (including mid-transaction, between two renames), a
   Block at the crash-recovery scan or any step 1-13, an in-process write/
@@ -2716,10 +2733,22 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   live path this invocation might have written either fully absent, fully
   unchanged from its pre-invocation state (converged there by the
   crash-recovery scan or the in-process rollback, never by a bare
-  `unlink` with no restore), or (Resolver Evidence only, on a Block at
-  any step before publication) fully written — never a torn or
-  partially-written file, and never a mixed generation across the batch,
-  at any of the four paths this feature's Resolver ever writes.
+  `unlink` with no restore), or — Resolver Evidence only, on any Block
+  except the two REQ-002 names — fully written, at whichever step that
+  Block is reached, the step-14 Blocks `artifact-publication-failed` and
+  `post-publication-generation-mismatch` included (widened 2026-08-27 from
+  an "any step before publication" clause that did not cover those two,
+  although REQ-001 step (m), REQ-004 and AC-012 all require Evidence
+  there) — never a torn or
+  partially-written file, at any of the four paths this feature's Resolver
+  ever writes. A mixed generation across the batch likewise never stands
+  **unattended**: the mandatory crash-recovery scan either converges it
+  away before this invocation's own work begins, or — when the journal is
+  unconvergeable — leaves it exactly as found and fails this invocation
+  closed with `publication-journal-recovery` for manual operator
+  intervention, which is the one state no automatic repair may touch
+  (AC-047; scoped 2026-08-27, human-approved, ruling D(2), replacing an
+  absolute that contradicted that branch's own no-repair obligation).
 - **This feature's Resolver never embeds an upstream dependency script's
   own raw stderr text in any diagnostic line or Resolver Evidence
   `detail` field it emits (M8 correction, API / Contract Plan step 4,
