@@ -7488,6 +7488,15 @@
       "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a7r3-0832",
       "previous_record_sha256": "29bed13166c14d31372ac117c96d7e7e34e51ade157b857e008deb8c70378149",
       "record_sha256": "1ed987489a15d18242225298d99e1bdc1b4362cfa7f30aa5e1b8c59391204fa0"
+    },
+    {
+      "sequence": 833,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a8r1-seq0833",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a8r1-0833",
+      "previous_record_sha256": "1ed987489a15d18242225298d99e1bdc1b4362cfa7f30aa5e1b8c59391204fa0",
+      "record_sha256": "2d5b12736de41c4eb190fa47c0117d80f4447e9a018e00b0c42bab3abbe7eb9f"
     }
   ]
 }
