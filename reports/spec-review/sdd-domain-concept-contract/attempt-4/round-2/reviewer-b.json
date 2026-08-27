@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a4r2-seq0775",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a4r2-0775",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "71463046b4058126cd33449eba371d1a6c2ce91386652b3737e2393715ddd4c0"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "251c63879bf4c53d09b6a68c2ba2e362c3a2b40e77735308c5d14d492e932b3d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-2/precheck-result.json",
+      "sha256": "f28af1e2d430fd7e875bc5a3e690c0da92848d4b67c6c05a82aaf78a903599c1"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-4/round-2/integrated-summary.json",
+      "sha256": "1d253ed8e7089e825becb1d79d841b0491f6800ccd5c8cf263be847e0473c75e"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms/patterns are pinned concretely with worked examples throughout (REQ-002 name pattern explicitly permits 'APIOrder' consecutive-caps and excludes separators; context pattern explicitly permits the digit segment 'order-taking-2'). The round-1 ambiguity (boundary-positive examples APIOrder/order-taking-2 had no positive-AC owner; positive matrix G3 row cited negative AC-018 as positive evidence) is now resolved: acceptance-tests.md AC-003 body explicitly owns both boundary examples ('あわせて pattern 境界の正例として、fixture 系に name が APIOrder... context が order-taking-2... いずれも受理されることを確認する'), AC-018 now explicitly disclaims them ('境界の正例... は本 AC の対象外であり、AC-003 が名指しで義務づける'), the Positive-capability matrix G3 row cites AC-003/004/005/025/026 (all positive-family), and Notes attribute the boundary case to TEST-003. I checked the candidate remaining ambiguity of whether the boundary values belong in the same JSON fixture as Purchase/Fulfillment or a separate one ('fixture系に...含め'); the Notes convention '正例（TEST-003/004/005/025/026）...は1検査1fixtureで対をなし' resolves this to a single fixture per AC-003, so no residual two-implementer divergence remains."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked Goals/Non-goals/REQ table/Edge Cases/AC table for conflicts and found none. REQ-007's 'tests/sdd-domain/*.Tests.ps1 11 スイート は... 1バイトも変更しない' is consistent with investigation.md INV-007's own count of 11 existing Pester suites and with AC-002 (v1 schema SHA-256 drift lock) and AC-015 (existing v1 suite unchanged, green). REQ-002's single-context concept ('概念は単一コンテキスト所属とする') is consistent with the schema's single-string `context` field and with the AC-005 (cross-context same-name allowed)/AC-011 (same-context duplicate rejected) positive/negative pair — no rule requires or forbids multi-context assignment inconsistently. Non-goals' explicit exclusion of v1->v2 migration tooling does not conflict with any REQ or AC (none require migration behavior)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Edge Cases section enumerates 6 boundary/failure scenarios and each has a dedicated AC: empty concepts array -> AC-016 (concepts=[] rejected, minItems distinct from key-absence); cross-context vs same-context duplicate name -> AC-005 (positive) / AC-011 (negative); must_not_own absent -> AC-026 (optional-all-missing positive fixture); distinguished_from self-reference -> AC-008 ('自分自身への参照ケースを含む'); oversized (>10MB) input -> AC-017 fixture (2) with fail-closed, no stack trace; validator given a v1 contract -> AC-012 (explicit 'domain-contract/v1' rejection). No edge case in requirements.md is left without a matching acceptance criterion."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's OQ-003 (should `essence` be required) and OQ-004 (should the validator accept v1 contracts) are resolved directly in requirements.md's operative text, not left as investigation-only proposals: REQ-002 lists `essence` among the 7 required concept fields, and REQ-004(b)/Edge Cases specify the exact v1-rejection error text. OQ-001 (v1 schema's eventual disposal) and OQ-002 (CI/run-all registration of the new suite) are explicitly scoped out of Phase 0 by Non-goals ('v1->v2 の移行ツール... 恒久的にスコープ外') and REQ-007 (v1 and its 11 consumer/test artifacts stay untouched), consistent with investigation.md INV-007's documented precedent that the existing 11 suites are likewise unregistered — leaving no undecided product behavior that blocks design/task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No human-approval/governance/irreversible-change workflow is in scope for this feature. Requirements.md's Roles and Permissions section states explicitly: '`meta.status` の `Approved` 書込に対する機械的強制は存在しない... Phase 0 において承認境界は人間のレビュー運用のみが担保し、v2 スキーマは `meta.status` を単なる列挙値フィールドとして定義するに留める。承認強制機構の新設は本 feature の非目標であり、必要と判断された場合は別 feature として起票する。' This mirrors an unchanged pre-existing state (INV-008: hook-guard does not protect `contracts/domain-contract.*`). Since the spec deliberately declines to introduce any testable approval boundary and gives the rationale, the skip condition ('no such boundary is in scope') applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "I independently re-derived the AC table's own fixture tally and it matches the Negative-path matrix Notes exactly: 8 single-fixture ACs (AC-006..012 = 7, plus AC-016) + multi-fixture ACs AC-014(7)+AC-017(2)+AC-018(3)+AC-019(3)+AC-020(4)+AC-021(7)+AC-022(2)+AC-023(8)+AC-024(29) = 65, totaling 73 — arithmetic and per-AC counts both confirmed against the AC table's own fixture-count text. I traced every REQ-005(a)-(f) fixture mandate upstream to its AC (a->AC-003, b->AC-004, c->AC-005, d->AC-006..011 individually for REQ-004(d)-(i), e->AC-025, f->AC-026) and confirmed each AC's Test Target literally reproduces the REQ-005 item's content. Downstream, I walked every row of the Positive-capability matrix and every populated cell of the Negative-path coverage matrix and confirmed (1) every field/element a row names appears literally in the cited AC's Test Target in the claimed state, (2) every AC cited in the Positive-capability matrix is positive-family (structural AC-001, non-regression AC-002/015, positive fixture AC-003/004/005/025/026, twin-parity AC-013) with no negative fixture cited as positive evidence, and (3) exemption labels in the Negative-path matrix ('optional', 'pattern が排除', '制約なし', '型は上段 root 行') are each individually justified by the corresponding Field Definitions/REQ-002 declaration (e.g., every 'pattern が排除' cell's pattern structurally excludes the empty string). This gives a design/task reviewer field-by-field required/optional/type/pattern rules and a verified fixture inventory without needing to invent product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition applies: investigation.md INV-009 records 'sdd-forge 自身に `domain/` ディレクトリは存在せず（ルート直下確認）'. No `domain/context-map.md` with `Domain-Model-Status: Approved` and no `domain/domain-contract.json` exist in this repository, so this feature's target project has no approved domain model to check against."
+    }
+  ]
+}

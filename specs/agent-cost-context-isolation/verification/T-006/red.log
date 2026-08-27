@@ -1,0 +1,14 @@
+# T-006 verification differential, captured 2026-08-21 (RT-20260821-017)
+# NOT the original acceptance-first pair (that red state is unrecoverable
+# 7 weeks post-implementation). This is a live stash/restore differential
+# of the CURRENT suite against the CURRENT artifact: the red leg mutates
+# one pinned deterministic-rule sentence in the real SKILL.md and the
+# suite must fail; the green leg restores the byte-exact original and the
+# suite must pass. Raw subprocess output with exit codes.
+
+LEG: red (one rule sentence mutated in SKILL.md)
+EXIT: 1
+Traceback (most recent call last):
+  File "<stdin>", line 21, in <module>
+  File "<stdin>", line 18, in rule_direction
+AssertionError: SKILL.md lost the pinned rule: De-duplicate candidates with the same `\(task ID, Run ID\)` by\s+retaining the lexicographically (smallest|greatest) canonical path\.\s+Select

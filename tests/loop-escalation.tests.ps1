@@ -362,7 +362,7 @@ mktemp repo-root.
     # TEST-018 (AC-018): T-001 vs T-0010 prefix collision + substring-grep
     # mutation negative self-check
     # -------------------------------------------------------------------
-    Write-Host "=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ==="
+    Write-Host "=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + unanchored-identity mutation ==="
 
     $collisionDir = Join-Path $work "collision-reports"
     New-Item -ItemType Directory -Path $collisionDir | Out-Null
@@ -373,29 +373,35 @@ mktemp repo-root.
     $out = & $cycleLimitPs1 -TaskId "T-001" -Feature $script:EscCycleLimitFeature -ReportsDir $collisionDir
     $rc = $LASTEXITCODE
     if ($rc -eq 0 -and $out -eq "continue") {
-        Test-Ok "TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)"
+        Test-Ok "TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (anchored identity match)"
     } else {
         Test-Fail "TEST-018.1: T-0010 reports incorrectly inflated the T-001 count (rc=$rc, out=$out)"
     }
 
     $mutatedCycleLimit = Join-Path $work "check-quality-gate-cycle-limit.mutated.ps1"
     $originalContent = Get-Content -Raw -LiteralPath $cycleLimitPs1
-    $wordBoundarySnippet = '"\b" + [regex]::Escape($TaskId) + "\b"'
-    $substringSnippet = '[regex]::Escape($TaskId)'
+    # WFI-035 moved the prefix-collision protection: the counter no longer
+    # word-boundary-matches the bare id, it matches the report's own identity
+    # header, and the trailing `[ \t]*$` end anchor is what now rejects
+    # `Task ID: T-0010` when counting T-001. Strip that anchor instead of the
+    # `\b` flags. Same property, same fixture, same expected red; only the
+    # mechanism the mutation disables has moved. Mirrors the .sh twin's sed.
+    $wordBoundarySnippet = '[ \t]*$escapedTask[ \t]*$"'
+    $substringSnippet = '[ \t]*$escapedTask"'
     $mutatedContent = $originalContent.Replace($wordBoundarySnippet, $substringSnippet)
     Set-Content -LiteralPath $mutatedCycleLimit -Value $mutatedContent -NoNewline -Encoding utf8
     if ($mutatedContent.Contains($substringSnippet) -and -not $mutatedContent.Contains($wordBoundarySnippet)) {
-        Test-Ok "TEST-018.2: temp copy mutation replaced the word-boundary pattern with a plain substring match"
+        Test-Ok "TEST-018.2: temp copy mutation removed the end anchor from the identity pattern"
     } else {
-        Test-Fail "TEST-018.2: could not construct the substring-match mutated temp copy"
+        Test-Fail "TEST-018.2: could not construct the unanchored-identity mutated temp copy"
     }
 
     $out = & $mutatedCycleLimit -TaskId "T-001" -Feature $script:EscCycleLimitFeature -ReportsDir $collisionDir
     $rc = $LASTEXITCODE
     if ($rc -eq 1 -and $out -eq "Escalate-Human") {
-        Test-Ok "TEST-018.3 (negative self-check): the substring-match mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)"
+        Test-Ok "TEST-018.3 (negative self-check): the unanchored-identity mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)"
     } else {
-        Test-Fail "TEST-018.3 (negative self-check): the substring-match mutation did NOT turn the fixture red (rc=$rc, out=$out)"
+        Test-Fail "TEST-018.3 (negative self-check): the unanchored-identity mutation did NOT turn the fixture red (rc=$rc, out=$out)"
     }
 
     # -------------------------------------------------------------------

@@ -1,0 +1,111 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-epic-196-a8-integration-task-reviewer-b-a3r1-seq794",
+  "host_session_id": "SESS-task-b-epic-196-a8-integration-a3r1-seq794",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+      {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+      {"path": "specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+      {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "0bd5df1d6a0f8c73c24d07d028d773d4eaf24d9552270159919efb7476bce92d"},
+      {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"},
+      {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+      {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-3/round-1/precheck-result.json", "sha256": "55f25fc4773e834f53f46ecd139e9a0ab017a9833a705ab3474604b9ba7ffc9d"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-3/round-1/integrated-summary.json", "sha256": "272aa8d144adb05abd638af6bad0f1223787c5490ac4f47098ccb1271a63a8f9"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All 8 tasks' Risk tiers are consistent with their scope under risk-classification-policy.md's sentinel-surface test: T-005 (tasks.md:774-797) and T-008 (tasks.md:1330-1357) are Risk: high for authentication-adjacent Ed25519 signing/verification and trusted-signer registration (Security Boundaries B1/B4, security-spec.md:62,65); T-002 (tasks.md:312-331) and T-004 (tasks.md:636-653) are Risk: high for the access-control/drift-detection surfaces (Security Boundaries B2, security-spec.md:63) each rationale names by file:line, not merely asserted; T-001/T-003/T-006/T-007 are Risk: medium with no authentication/authorization/payment/PII/migration/API-contract surface of their own. No high/critical task's scope is limited to UI copy, CSS, docs, or test-only changes."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Every Risk: high task (T-002 tasks.md:443-449, T-004 tasks.md:744-749, T-005 tasks.md:972-978, T-008 tasks.md:1522-1529) carries a Done When TDD Red->Green evidence item and an independent quality-gate verdict item (this repository's established review-loop shorthand for a named, non-implementing second reviewer, matching risk-gate-matrix.md's 'independent-review verdict'/'review_verdict' controls). No task in this package is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-005 (tasks.md:766-1007, 'Author the REQ-003/REQ-006 live-host-proof validator engine') bundles at least six distinct, individually complex implementation areas into one task's Scope/Goal: (1) fortified live-host-verification-record/v1 schema validation, (2) the matrix_cell/runtime/plugin_hooks_flag discriminator, (3) Nonce Issuance Ledger checks (unknown/reused/cell-mismatch/issued-after-session/expired/duplicate-entry), (4) Expected-Digest Manifest comparison, (5) the Signing Contract's RFC 8785 JCS canonicalization + domain-separated Ed25519 verification, (6) the three-state SKIP Representation plus the AC-027 classification-mismatch/replay guard, and (7) the aggregate discharged/pending/hard-failure gate with a lock-guarded atomic write (Goal section, tasks.md:880-897; 19 named error codes enumerated at tasks.md:851-859). Each of these is independently non-trivial security-relevant logic (cryptographic signature verification, ledger/nonce state machine, schema validation, aggregate gating) exceeding 'one coherent unit of implementable work completable in a single focused session.' T-008 (tasks.md:1322-1558) shows the same pattern to a lesser degree, combining semantic classification, five draft-record authoring, allowlist edits, and a distinct real-world Ed25519 key-generation/countersigning/handshake-execution ceremony (the task's own final Done When item, tasks.md:1507-1521) inside one task."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-006's own error-path behavior has no implementing task. requirements.md:320-337 and design.md's SKIP Allowlist Activation Gate (design.md:1276-1297) define a two-clause Activation Gate for AC-006 -- clause (b) (Epic A1's handshake script existing on main) has a stated machine-detection mechanism ('a plain file-existence check', design.md:1320-1332), but clause (a) ('T-005... has started') has no detection mechanism defined anywhere in design.md, security-spec.md (B3 row, which repeats the same two clauses without naming a mechanism for clause (a)), or tasks.md. Test Strategy item 1 (design.md:1078-1086) requires tests/cross-runtime-handoff.tests.sh to check the canary 'against the SKIP Allowlist Activation Gate... until that gate's own two-clause predicate activates it' at every run -- a dynamic, ongoing check -- yet T-001's own Planned Files/Scope/Done When (tasks.md:162-282) only implement a one-time static registration (canary present, SKIPped, allowlisted) with no logic that re-evaluates clause (a) on subsequent runs. No later task supplies this either: T-005's Planned Files/Scope/Done When (tasks.md:815-978) implement the validator's schema/nonce/signing/aggregate-gate logic but never read or expose T-005's own task-start state, and T-008's Planned Files (tasks.md:1379-1403) touch only the AC-015/AC-016 allowlist entries and tests/hook-activation-live-proof/, never T-001's own fixture chain or the AC-006 allowlist entry. T-005's task-header status (tasks.md:770) already carries the human-confirmed sign-off that puts it on the critical serialized chain (Global Constraints, tasks.md:72-93), so it will start, at which point AC-006 activates per design.md's own text -- but no task in this package ever implements the clause-(a) check needed to detect that activation, so tests/cross-runtime-handoff.tests.sh cannot mechanically enforce the hard-failure behavior AC-006 and the SKIP Allowlist Activation Gate require. design.md:1685-1707 and security-spec.md's B3 row candidly acknowledge a related but distinct gap (no staleness alarm for an owning task that never starts); neither document acknowledges that clause (a)'s detection mechanism itself is unspecified and unimplemented, which is a separate, unacknowledged gap."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. acceptance-tests.md's Test Type column uses this package's own taxonomy (static/doc-review, integration, regression, live-host proof, automated aggregate validator) rather than the generic unit/integration/e2e/acceptance labels, but each declared type's target matches its actual scope: TEST-002/003/004/007/008/009/012/013/014/016/022/023 span multiple system components (fixture + CLI runtime, installer + drift checker, etc.) and are correctly 'integration'; TEST-001/005/011/018/021/024/025/029/030 assert fixed, deterministic table/schema values with no live session and are correctly 'static / doc-review'; TEST-017 correctly labeled 'regression' (existing-suite non-regression, a first-class category in this repository's own risk-gate-matrix.md check taxonomy); TEST-015 ('live-host proof') traverses a complete real-session workflow and is closer to end-to-end than to a unit/integration label, consistent with its scope. Every AC row in acceptance-tests.md references its own AC-NNN by construction (the table is the AC-to-test mapping)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All four Risk: high tasks carry an explicit Rollback field: T-002 (tasks.md:379-381), T-004 (tasks.md:682-683), T-005 (tasks.md:875-878), and T-008 (tasks.md:1413-1419) each state that reverting the task's commit(s) is safe, with T-005/T-008 additionally addressing the narrower case of a revert after a signed/applied artifact exists."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-002, T-005, and T-006 each claim to append to the same shared files (tests/run-all.sh, tests/run-all.ps1, and the staged specs/epic-196-a8-integration/human-copy/.github/workflows/test.yml candidate + MANIFEST.sha256) that T-001 and earlier chain tasks already modify, with their own Planned Files text explicitly requiring the append to land 'after' a named predecessor's staged content (T-002 tasks.md:369-371 'appended after T-001's'; T-005 tasks.md:865-867 'appended after T-003's'; T-006 tasks.md:1055-1057 'appended after T-005's') -- yet each of these three tasks' own ### Blockers field reads 'None' (T-002 tasks.md:461-463; T-005 tasks.md:1003-1005; T-006 tasks.md:1139-1141). The Global Constraints prose (tasks.md:72-93) asserts a serialized order is 'followed even where two adjacent tasks in the chain have no functional dependency on each other,' but names no enforcement mechanism other than the per-task Blockers field this package's own DEPENDENCY-COMPLETE/DEPENDENCY-CYCLE convention uses; with Blockers: None on all three, nothing in tasks.md itself prevents these tasks from being picked up out of order, at which point their own Scope text ('appended after <predecessor>'s staged file') cannot be satisfied because that predecessor's staged content does not yet exist. This is uncoordinated parallel scope overlap on a shared file with no blocking relationship recorded."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Same evidence as SCOPE-DISJOINT, viewed as a missing-blocker gap: T-002's, T-005's, and T-006's own Scope/Planned Files sections describe a genuine sequencing need on a predecessor's already-staged artifact (T-002 depends on T-001's staged test.yml candidate existing, tasks.md:369-371; T-005 depends on T-003's, tasks.md:865-867; T-006 depends on T-005's, tasks.md:1055-1057), but each task's own ### Blockers field is 'None' (tasks.md:461-463, 1003-1005, 1139-1141) rather than naming the predecessor. By contrast, T-003 (Blockers: T-002, tasks.md:622-624), T-007 (Blockers: T-001,T-002,T-003,T-005,T-006, tasks.md:1316-1318), and T-008 (Blockers: T-001,T-005, tasks.md:1555-1557) correctly encode their own equivalent chain positions. The omission on T-002/T-005/T-006 means a task-execution process that honors only the Blockers field (as this package's own dependency-graph convention implies) could dispatch these tasks before their required predecessor's staged file exists, causing the exact integration failure their own Scope text anticipates."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001 through T-008) author net-new test infrastructure, fixtures, validators, or classification records; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-005",
+      "finding": "T-005 bundles schema validation, nonce-ledger checks, Ed25519 signing verification, SKIP Representation state handling, the classification-mismatch/replay guard, and the aggregate discharge gate into one task (tasks.md:766-1007; Goal at tasks.md:880-897; 19 named error codes at tasks.md:851-859), exceeding a single coherent, single-session unit of work. T-008 (tasks.md:1322-1558) shows a related, lesser pattern combining classification, draft-record authoring, and a distinct human signing ceremony in one task."
+    },
+    {
+      "check_id": "EDGE-CASE-COVERAGE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "AC-006's Activation Gate clause (a) ('T-005... has started', design.md:1276-1297) has no defined or implemented machine-detection mechanism anywhere in design.md, security-spec.md, or tasks.md, unlike clause (b) which design.md:1320-1332 defines as a file-existence check. Test Strategy item 1 (design.md:1078-1086) requires tests/cross-runtime-handoff.tests.sh to dynamically re-check the canary against this gate on every run, but T-001's Done When (tasks.md:259-282) only implements a one-time static SKIP registration, and neither T-005 (tasks.md:815-978) nor T-008 (tasks.md:1379-1403, which never touches T-001's fixture chain or the AC-006 allowlist entry) supplies the missing mechanism. T-005 sits on the critical serialized chain and its task-header status (tasks.md:770) already carries the human sign-off needed to start it, so AC-006 will activate with no task in this package able to mechanically detect or discharge it."
+    },
+    {
+      "check_id": "SCOPE-DISJOINT",
+      "severity": "Major",
+      "task_id": "T-002",
+      "finding": "T-002, T-005, and T-006 each append to the same shared files T-001 (and each other) already modify (tests/run-all.sh/.ps1, the staged human-copy/.github/workflows/test.yml candidate, MANIFEST.sha256) and each require a named predecessor's staged content to already exist (tasks.md:369-371, 865-867, 1055-1057), yet each declares its own Blockers field as empty (tasks.md:461-463, 1003-1005, 1139-1141) instead of naming that predecessor -- uncoordinated parallel scope overlap on a shared file with no blocking relationship recorded."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-005",
+      "finding": "T-002, T-005, and T-006 leave their own Blockers field empty (tasks.md:461-463, 1003-1005, 1139-1141) despite each one's own Scope/Planned Files text depending on a named predecessor's already-staged shared-file content (T-001's staged test.yml for T-002; T-003's for T-005; T-005's for T-006) -- a missing-blocker omission that would cause the exact integration failure (appending to a candidate file that does not yet exist) each task's own text anticipates, unlike T-003/T-007/T-008 which correctly encode the equivalent dependency in their own Blockers fields."
+    }
+  ]
+}

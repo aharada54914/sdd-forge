@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 3,
+  "nodes": ["T-001","T-002","T-003","T-004","T-005","T-006","T-007","T-008"],
+  "edges": [{"from":"T-003","to":"T-002"},{"from":"T-007","to":"T-001"},{"from":"T-007","to":"T-002"},{"from":"T-007","to":"T-003"},{"from":"T-007","to":"T-005"},{"from":"T-007","to":"T-006"},{"from":"T-008","to":"T-001"},{"from":"T-008","to":"T-005"}],
+  "generated_at": "2026-08-08T15:27:14Z"
+}

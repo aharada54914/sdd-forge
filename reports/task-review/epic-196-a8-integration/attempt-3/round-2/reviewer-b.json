@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 3,
+  "round": 2,
+  "run_id": "RUN-epic-196-a8-integration-task-reviewer-b-a3r2-seq798",
+  "host_session_id": "SESS-task-b-epic-196-a8-integration-a3r2-seq798",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"},
+      {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"},
+      {"path": "specs/epic-196-a8-integration/design.md", "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"},
+      {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "219a7a23735ca1667dd13bd42e1781365968442986f3392741f2683b79cc74e3"},
+      {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"},
+      {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+      {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+      {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+      {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-3/round-2/precheck-result.json", "sha256": "985f6a7f24a8816fa81fe0f84a68f3580da42814c6569850dc6d482009adce21"},
+      {"path": "reports/task-review/epic-196-a8-integration/attempt-3/round-2/integrated-summary.json", "sha256": "851a18b300d7b04f21d30aab6617af968626e550a2c777d2d676c4cb3a97ca76"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks' declared Risk tiers are consistent with scope under the proximity rule. High tier (T-002, T-004, T-005, T-008) each touch a genuine sentinel-adjacent surface with a task-specific rationale citing risk-classification-policy.md: T-002 implements Security Boundary B2 (read-only drift comparison, the sole detector of the AGENTS.md WFI-004/issue #86 divergence class); T-004 modifies an existing, already-green, security-relevant CI regression asset (tests/cli-hook-enforcement.ps1) with the regression risk explicitly named in requirements.md's own Risks section; T-005 implements the mechanical core of Security Boundary B1 (Ed25519 signature verification, nonce-ledger replay guard, classification-mismatch guard); T-008 performs the trust-establishing half of B1 (semantic-cell classification plus the HUMAN APPLY STEP generating and registering real signing keys). None of the four high-risk tasks is over-classified (each authors substantive new validator/script logic, not copy/doc/test-only changes). Medium tier (T-001, T-003, T-006, T-007) do not touch authentication, authorization, payment, PII storage, migration, or externally-visible API-contract surfaces per their own stated scope, and each carries an explicit rationale distinguishing itself from the high-risk siblings it borders (e.g. T-001's canary case is presence-only, T-003 drives existing installer scripts unmodified). No task is critical; none of the scope descriptions name a financial-settlement, physical-safety, or irreversible-destructive surface, consistent with that omission."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks (T-002, T-004, T-005, T-008) declare Required Workflow: tdd and their Done When sections each include a 'TDD evidence' item requiring RED (failing-test evidence against a deliberately permissive implementation) and GREEN (passing evidence against the correct implementation), satisfying the Red-to-Green requirement. Each of the same four tasks' Done When also includes the item 'An independent quality-gate verdict records PASS', satisfying the independent-review-verdict requirement (quality-gate's own required check set for high/critical tiers includes 'independent-review verdict' per risk-gate-matrix.md); this exact phrasing was already evaluated and passed for this same check on T-005 in a prior round of this same review stage per T-005's own Size Rationale text ('the same reviewer that passed RISK-APPROPRIATE and HIGH-CRITICAL-EVIDENCE on this same task'), and the identical pattern is present verbatim on T-002/T-004/T-008. No task in this package is Risk: critical, so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-005 is large by Done-When/Scope volume, but its Size Rationale section (tasks.md T-005) explicitly accepts this as a human-recorded package decision (per this round's Ruling 2): it names the only legal 3-way AC-based split (AC-026/AC-027/AC-028), shows that split would not even separate the two heaviest sub-areas (Nonce Ledger checks and Signing Contract verification both sit under AC-026/AC-028), and states the concrete re-review/re-approval costs of splitting. This is a proper implementation of Ruling 2, not a bare assertion, so no finding is raised against T-005's size. T-005's own Done-When list carries 7 items, within the '>8' oversizing threshold. No other task shows oversizing (Done-When counts: T-001 6, T-002 5, T-003 6, T-004 4, T-006 5, T-007 6, T-008 8 — all at or under the 8-item threshold; no task title implies multiple sequential phases). No fragmentation indicator is present: no 3+ tasks describe only a single function/file edit, and no task's entire scope is a bare rename."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This package is entirely test/verification-infrastructure work, so its 'functional' deliverables are the verification scripts themselves; each task's underlying ACs nonetheless carry explicit negative/error-path coverage, not only happy-path assertions: T-002/REQ-005 has AC-022 (independent negative-lifecycle case, distinct from the always-freshly-installed happy path) and AC-023 (not_installed vs. installed_drifted vs. installed_synced, with mode-dependent FAIL semantics); T-003/REQ-002 has AC-008 (idempotency negative self-check, non-empty diff is the failure evidence) and AC-009 (zero-residue negative check); T-004/T-005/T-008/REQ-003 has AC-013/AC-014 (correctly-detected non-firing/unavailable states as a distinct, non-'FAIL' but non-happy-path oracle) and AC-027 (classification-mismatch/replay guard, an explicit negative self-check); T-006/REQ-004 has the collision-policy zero-residue check and N/A-cell handling built into the 48-cell fixture matrix; T-007/REQ-006-REQ-007 has TEST-025/029/030 each requiring a mutated-copy fixture that is correctly rejected. requirements.md's own Edge Cases section (five named edge cases) maps onto these same ACs."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Declared test types in acceptance-tests.md match their evaluated scope: static/doc-review types (TEST-001, TEST-005, TEST-010, TEST-011, TEST-021, TEST-024, TEST-025, TEST-026, TEST-027, TEST-029, TEST-030) each target a single document/table/schema parse with no live multi-component interaction; integration types (TEST-002/003/004, TEST-007/008/009, TEST-012/013/014, TEST-016/017, TEST-018/019/020, TEST-022/023) each span at least two real components (e.g. TEST-007 spans install.sh/uninstall.sh and the matrix driver; TEST-022 spans the installed cache and the repository source); TEST-015/TEST-028 ('live-host proof' / 'automated aggregate validator') traverse a complete real-session workflow or validate across all five committed record files respectively, functioning as this package's own domain-specific end-to-end/aggregate category rather than a mislabeled unit test. No test type is a single-function/module claim mislabeled as integration, and no acceptance-type row omits an AC-NNN reference."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries a `Rollback:` field: T-002 ('revert this task's commit(s); nothing protected is written directly; the script never writes to the install root or the repository'), T-004 ('revert this task's commit(s); the file's pre-existing 101 lines are restored exactly'), T-005 ('revert this task's commit(s); nothing protected is written directly; a8-trusted-signers.json stays seeded empty by this task alone... so a revert of this task's commit(s) changes no signed security claim'), T-008 ('revert this task's commit(s); the five draft SKIP records remain unsigned... a revert after the human apply step must also state whether the now-signed records... should be hand-reverted'). No task is Risk: critical."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every shared-file overlap in this package is explicitly enumerated in tasks.md's Global Constraints/Protected Files sections and coupled to a matching Blockers entry: plugins/sdd-review-loop/references/a8-skip-allowlist.json is touched only by T-001 (creates, AC-006 entry) then T-008 (appends AC-015/AC-016), and T-008's Blockers lists T-001; a8-trusted-signers.json is touched only by T-005 (seeds empty) then T-008 (human-apply appends), and T-008's Blockers lists T-005; tests/validate-live-host-proof.tests.{sh,ps1} is authored by T-005 and extended in place by T-008, again with T-008's Blockers listing T-005; tests/run-all.{sh,ps1} and the staged human-copy/.github/workflows/test.yml candidate are appended in the fixed chain T-001->T-002->T-003->T-005->T-006->T-007 with each task's Blockers field naming exactly its own functional predecessor(s) in that chain. No two tasks claim the same primary file without a corresponding Blockers entry enforcing the order."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Blockers entry corresponds to a genuine artifact dependency, not a spurious convention-only ordering: T-002->T-001 (T-002's own Planned Files append the staged test.yml candidate after T-001's and require human-copy/MANIFEST.sha256 to already exist); T-003->T-002 (T-003 functionally invokes check-installed-plugin-drift, built by T-002, as its own verify-mode sub-step, in addition to file-staging order); T-005->T-003 (staged-file ordering); T-006->T-005 (staged-file ordering); T-007-> T-001,T-002,T-003,T-005,T-006 (T-007's own 'Test-registration procedure proof' Done-When item requires every one of those tasks' suite registrations to already exist); T-008->T-001,T-005 (appends to the allowlist T-001 created and extends the test suite/validator T-005 authored). Tasks.md itself explicitly distinguishes, predecessor by predecessor, which Depends-On entries are ordering-only (recorded in Depends On's parenthetical but omitted from Blockers) versus functional (recorded in both), so no Blockers entry is left unexplained. T-004 and T-008 correctly carry no chain-ordering Blockers relative to the shared-registration-file chain because neither touches tests/run-all.* or the staged test.yml candidate. No task's scope depends on another task's output without a corresponding Blockers entry."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks author new verification infrastructure (fixtures, drivers, validators, static checks); none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": []
+}

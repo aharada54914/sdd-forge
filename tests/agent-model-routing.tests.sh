@@ -1083,6 +1083,27 @@ fi
 rm "$TMP/resume-repo/diagnostics"
 mv "$TMP/outside-diagnostics" "$TMP/resume-repo/diagnostics"
 
+# RT-20260821-010: an IN-repo directory symlink (target stays inside the
+# repository, so realpath containment holds) must also be denied on both
+# runtimes. Bash previously symlink-checked only the final component and
+# authorized this; PowerShell walked every component and denied it.
+mv "$TMP/resume-repo/diagnostics" "$TMP/resume-repo/real-diagnostics"
+ln -s real-diagnostics "$TMP/resume-repo/diagnostics"
+if bash "$RESUME_SH" --evidence "$TMP/resume.json" \
+  --blocked-state "$TMP/resume-repo/blocked-state.json" \
+  --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
+  --expected-task T-900 >/dev/null 2>&1; then
+  fail "shell terminal-resume validator accepted an in-repo directory symlink (twin divergence)"
+fi
+if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
+  -BlockedState "$TMP/resume-repo/blocked-state.json" \
+  -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
+  -ExpectedTask T-900 >/dev/null 2>&1; then
+  fail "PowerShell terminal-resume validator accepted an in-repo directory symlink"
+fi
+rm "$TMP/resume-repo/diagnostics"
+mv "$TMP/resume-repo/real-diagnostics" "$TMP/resume-repo/diagnostics"
+
 printf '\nTampered diagnosis.\n' >> "$TMP/resume-repo/diagnostics/T-900.md"
 if bash "$RESUME_SH" --evidence "$TMP/resume.json" \
   --blocked-state "$TMP/resume-repo/blocked-state.json" \
@@ -1129,5 +1150,31 @@ fi
 LIVE_TEST_YML_SHA_AFTER="$(sha256_of "$LIVE_TEST_YML")"
 [[ "$LIVE_TEST_YML_SHA_AFTER" == "$LIVE_TEST_YML_SHA_BEFORE" ]] ||
   fail "TEST-027(b) live .github/workflows/test.yml SHA-256 CHANGED during this suite's own run (before=$LIVE_TEST_YML_SHA_BEFORE after=$LIVE_TEST_YML_SHA_AFTER)"
+
+# RT-20260821-009: the registry-designated same-tier fallback
+# (openai/gpt-5.1-codex-max, fallback_for openai/gpt-5.2-codex) must never
+# win an equal-cost tie against its primary. Before the fix the ADR lexical
+# tie-break actively selected the fallback (5.1 sorts before 5.2).
+fb_sel="$(bash "$SELECTOR_SH" --risk high \
+  --candidate openai/gpt-5.1-codex-max:strong:0.090 \
+  --candidate openai/gpt-5.2-codex:strong:0.090)"
+[[ "$fb_sel" == "openai/gpt-5.2-codex strong" ]] ||
+  fail "fallback model won an equal-cost tie against its primary: $fb_sel"
+fb_only="$(bash "$SELECTOR_SH" --risk high \
+  --candidate openai/gpt-5.1-codex-max:strong:0.090)"
+[[ "$fb_only" == "openai/gpt-5.1-codex-max strong" ]] ||
+  fail "designated fallback must stay selectable when the primary is absent: $fb_only"
+fb_lex="$(bash "$SELECTOR_SH" --risk high \
+  --candidate openai/gpt-5.2-codex:strong:0.090 \
+  --candidate anthropic/opus:strong:0.090)"
+[[ "$fb_lex" == "anthropic/opus strong" ]] ||
+  fail "lexical tie-break among non-fallback peers changed: $fb_lex"
+if command -v pwsh >/dev/null 2>&1; then
+  fb_ps="$(pwsh -NoProfile -Command "& '$SELECTOR_PS' -Risk high -Candidate @('openai/gpt-5.1-codex-max:strong:0.090','openai/gpt-5.2-codex:strong:0.090')")"
+  [[ "$fb_ps" == "openai/gpt-5.2-codex strong" ]] ||
+    fail "PowerShell selector let the fallback win the equal-cost tie: $fb_ps"
+fi
+grep -q '"fallback_for": "openai/gpt-5.2-codex"' "$REGISTRY" ||
+  fail "registry lost the fallback_for designation (design.md:44)"
 
 printf 'ok: turn-first model routing structure is defined\n'

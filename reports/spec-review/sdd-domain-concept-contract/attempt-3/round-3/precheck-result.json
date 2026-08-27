@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain-concept-contract",
+  "attempt": 3,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397",
+  "acceptance_sha256": "7c7d401b7837af103a08b89657669e18996deadca6ee468d875a57ce2ffbec63",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "3dd7634e1f80cadca56b881a06ab946a8f4f40d141f007d58e5945f8f75daac9",
+  "edit_summary": "Attempt 3 round 2 の Major 2 件（reviewer A: GOAL-AC-TRACE / reviewer B: AMBIGUITY — Positive-capability matrix の 2 行が引用 AC の本文が示す内容を超えて主張していた）に対応。acceptance-tests.md のみ変更、requirements.md は無変更。(1) AC-004 を『optional フィールドを 1 つも持たない正例』に定義し直し、must_not_own / stakeholder_perspectives / distinguished_from の 3 キーをいずれも欠落させた fixture が exit 0 で受理されることを規定した（従来 AC-004 は Book.must_not_own を populate しており、optional 不在の証拠になっていなかった。requirements.md Edge Cases の『must_not_own が空/欠落: 有効』に対応する正例がこれで初めて存在する）。(2) AC-003 の本文に required 7 フィールド id / name / context / definition / essence / responsibilities / evidence を名指しで列挙した。(3) 正例マトリクスの 3 行を、引用 AC の本文が名指しする範囲に一致するよう書き直し、optional の populate 状態を AC-003、不在状態を AC-004 が担う対として明示した。(4) AC-020 末尾の canary を削除し、optional 配列自体の不在は AC-004 が担うことを明記した（AC-020 は配列が存在する場合の nested required のみを扱う）。確定前に、正例マトリクス 10 行と負例マトリクス 55 セル引用のすべてについて、行が名指しするフィールド名が引用 AC の本文に文字列として実在するかを機械的に照合し、全件整合を確認した。",
+  "reset": false,
+  "generated_at": "2026-08-16T13:19:47Z"
+}

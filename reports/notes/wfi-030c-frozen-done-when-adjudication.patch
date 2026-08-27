@@ -1,0 +1,100 @@
+From: WFI-030 item 7 — bind the adjudication requirement
+Subject: [PATCH] fix(quality-loop): require reviewer-a to adjudicate every flagged Done When item
+
+Human-applied patch. Both files are protected gate scripts.
+See docs/workflow-improvements/WFI-030.md, Verification Plan item 7.
+
+Apply with:
+    git apply reports/notes/wfi-030c-frozen-done-when-adjudication.patch
+
+Depends on wfi-030b (the detector that emits frozen_artifact_done_when).
+Applied alone the clause is inert, because the array is absent and `// []`
+treats a round with no detector output as having nothing to adjudicate.
+
+WHAT THIS CLOSES. wfi-030b records the Done When items that name a
+review-frozen artifact, and task-reviewer-a.md requires the OBSERVABLE-DONE
+check to address each one. Nothing enforced that, so the requirement was prose
+evaluated by a reviewer -- which is the exact failure mode this WFI documents:
+the review that passed sdd-domain-concept-contract DID reason about the
+frozen-artifact rule, and the reasoning was simply unverifiable and wrong.
+
+WHAT THIS DOES NOT DO. It does not judge whether the adjudication is correct,
+and it must not: the detector is deliberately permissive (three of six items
+measured over this repository are false positives), so the reviewer decides.
+This only requires that the decision was recorded against each flagged task ID.
+A reviewer who writes "T-002: satisfiable, the row already names the path"
+passes; one who ignores T-002 does not.
+
+Both twins gain the condition inside the same task-stage boolean chain, so they
+share the existing diagnostic ("reviewer outputs or integrated summary
+contradict the final PASS") and no new message is introduced. Rounds recorded
+before the detector existed carry no array and are unaffected.
+
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+@@ -517,8 +517,17 @@
+   ' "$contract" >/dev/null 2>&1 ||
+     diagnostic "$feature" stage-provenance "$stage contract and verdict contradict each other"
+ 
++  # WFI-030 item 7: the round's precheck carries frozen_artifact_done_when, and
++  # reviewer-a must adjudicate every entry by name. A round recorded before the
++  # detector existed has no such file field; pointing --slurpfile at /dev/null
++  # yields an empty array, so $precheck[0] is null and `// []` below treats it
++  # as nothing to adjudicate rather than as a violation.
++  local round_precheck="$round_dir/precheck-result.json"
++  [[ -f "$round_precheck" ]] || round_precheck=/dev/null
++
+   jq -e --slurpfile contract "$contract" --slurpfile verdict "$best" \
+     --slurpfile reviewer_b "$reviewer_b" --slurpfile summary "$summary" --arg stage "$stage" \
++    --slurpfile precheck "$round_precheck" \
+     --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+     --arg recorded "${recorded_root:+$recorded_root/}" \
+     --argjson attempt "$best_attempt" --argjson round "$best_round" '
+@@ -598,5 +606,15 @@
+     (if $stage == "task" then
+        ([$a.checks[] | select(.status == "FAIL")] | length) == ($a.findings | length) and
+-       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length)
++       ([$b.checks[] | select(.result == "FAIL")] | length) == ($b.findings | length) and
++       # WFI-030 item 7: every Done When item the precheck flagged as naming a
++       # review-frozen artifact must be adjudicated by task ID in the
++       # OBSERVABLE-DONE finding of reviewer-a. This does not judge the
++       # adjudication -- the detector is deliberately permissive and the reviewer
++       # decides -- it only requires that the decision was recorded against each
++       # flagged task. (No apostrophes here: the jq program is single-quoted.)
++       (([$a.checks[]? | select(.id == "OBSERVABLE-DONE") | (.finding // "")]
++          | join(" ")) as $observed |
++        all(($precheck[0].frozen_artifact_done_when // [])[];
++            . as $flagged | $observed | contains($flagged.task)))
+      else true end) and
+     ($summary[0].schema == "integrated-summary/v1" and
+--- a/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
++++ b/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+@@ -751,6 +751,28 @@
+     if ($Stage -eq "task") {
+         $findingsA = @($reviewerA.findings)
+         $findingsB = @($reviewerB.findings)
+         $reviewerIdentityOk = $reviewerIdentityOk -and
+             $failedA.Count -eq $findingsA.Count -and $failedB.Count -eq $findingsB.Count
++        # WFI-030 item 7, twin of the jq clause in check-workflow-state.sh.
++        # The precheck for this round is read here rather than reused from the
++        # stage-provenance block, which parses it in a later scope.
++        $frozenFlagged = @()
++        $roundPrecheck = Join-Path $latest.File.DirectoryName "precheck-result.json"
++        if (Test-Path -LiteralPath $roundPrecheck -PathType Leaf) {
++            $precheckRound = Get-Content -LiteralPath $roundPrecheck -Raw | ConvertFrom-Json
++            $frozenProperty = $precheckRound.psobject.Properties['frozen_artifact_done_when']
++            if ($null -ne $frozenProperty -and $null -ne $frozenProperty.Value) {
++                $frozenFlagged = @($frozenProperty.Value)
++            }
++        }
++        if ($frozenFlagged.Count -gt 0) {
++            $observedDoneWhen = @($reviewerA.checks |
++                Where-Object { [string]$_.id -eq "OBSERVABLE-DONE" } |
++                ForEach-Object { [string]$_.finding }) -join " "
++            foreach ($flaggedItem in $frozenFlagged) {
++                if (-not $observedDoneWhen.Contains([string]$flaggedItem.task)) {
++                    $reviewerIdentityOk = $false
++                }
++            }
++        }
+     } else {

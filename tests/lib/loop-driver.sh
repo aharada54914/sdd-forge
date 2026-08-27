@@ -268,6 +268,7 @@ _loop_fixture_link_scripts() {
     plugins/sdd-review-loop/scripts/review-contract-validate.sh \
     plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
     plugins/sdd-review-loop/scripts/task-review-precheck.sh \
+    plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh \
     plugins/sdd-domain/scripts/domain-review-precheck.sh \
     plugins/sdd-quality-loop/scripts/check-workflow-state.sh \
     plugins/sdd-review-loop/scripts/validate-layer-traceability.py

@@ -246,17 +246,31 @@ function Invoke-InstallerScenario {
             }
         }
 
+        # WFI-041 flipped this contract. $FailPattern targets a plugin id, so
+        # the stub fails inside `codex plugin add` — a *registration*-phase
+        # failure, after the tree is already in the install root. This suite
+        # used to assert that such a failure reverted the install root; it now
+        # asserts the opposite, because reverting discarded a correct install
+        # for a failure that was not the install's. The old contract was only
+        # defensible while registration was non-idempotent: a partially
+        # registered new tree could not be recovered by re-running.
+        # Invoke-IdempotentPluginCommand removed that constraint, so the tree
+        # now stays and the re-run converges. Placement-phase rollback is
+        # unchanged and is asserted by installer-idempotency.tests.ps1.
         if ($FailPattern) {
             if (-not $failed) {
                 throw "Installer was expected to fail for pattern: $FailPattern"
             }
-            if ($SeedExistingInstall) {
-                if (-not (Test-Path (Join-Path $installRoot "existing.marker"))) {
-                    throw "Installer did not restore the previous installation."
-                }
+            if (-not (Test-Path (Join-Path $installRoot "plugins/sdd-bootstrap/.codex-plugin/plugin.json"))) {
+                throw "Registration failure did not leave the newly placed tree in the install root."
             }
-            elseif (Test-Path $installRoot) {
-                throw "Installer left an incomplete initial installation."
+            if ($SeedExistingInstall -and (Test-Path (Join-Path $installRoot "existing.marker"))) {
+                throw "Registration failure reverted to the previous installation."
+            }
+            # The backup is superseded once the new tree is declared
+            # authoritative; leaving it behind would litter the install parent.
+            if (Get-ChildItem -Path $testRoot -Filter "sdd-plugins-backup-*" -ErrorAction SilentlyContinue) {
+                throw "Registration failure left a backup directory behind."
             }
             return
         }

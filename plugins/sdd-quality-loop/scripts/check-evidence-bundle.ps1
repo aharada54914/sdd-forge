@@ -333,7 +333,7 @@ foreach ($requiredPath in $requiredArtifacts.Keys) {
 # --- git_commit binding ---
 if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhiteSpace($gitCommit))) {
     Add-Failure "git_commit is required but missing"
-} elseif (([string]$gitCommit) -notmatch '^[0-9a-f]{40}$') {
+} elseif (([string]$gitCommit) -cnotmatch '^[0-9a-f]{40}$') {
     Add-Failure "git_commit is invalid (must be 40 lowercase hex): $gitCommit"
 } else {
     $gitCommitStr = ([string]$gitCommit).Trim()

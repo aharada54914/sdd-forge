@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-194-a6-lite-integration",
+  "run_id": "RUN-epic-194-a6-lite-integration-impl-orchestrator-a2r1",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 2,
+  "findings_critical": 0,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

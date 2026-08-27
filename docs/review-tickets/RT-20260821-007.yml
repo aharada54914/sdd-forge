@@ -1,0 +1,42 @@
+ticket_id: RT-20260821-007
+status: open
+type: defect
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-003"
+  files:
+    - "plugins/sdd-quality-loop/scripts/check-contract.ps1"
+    - "tests/gates.tests.sh"
+    - "tests/scripts.tests.ps1"
+summary: >-
+  check-contract.ps1 accepts risk values the python twin rejects (case
+  variants and JSON arrays); the matrix/code drift-guard test tasks.md
+  requires does not exist
+problem: |
+  QG evaluator (seq 0812, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T060000Z.md) accepted two Majors.
+
+  1. check-contract.ps1:295,305,312 (git-blamed to T-003's own commit
+     c5c818ac) compare the risk value with case-insensitive semantics after
+     a blind string coercion. Measured sh/ps1 exits: "HIGH" 1/0, "High" 1/0,
+     "LOW"-with-low-set 1/0, and ["low"] 1/0 where ps1 coerces the array and
+     enforces only the low minimum instead of failing closed. Same defect
+     class as RT-20260821-006 and RT-20260819-002.
+  2. tasks.md:125 requires "A test asserts the encoded tier-minimums equal
+     the matrix doc" as the mitigation design.md:240 names for two-place
+     drift. Zero hits for the matrix in either declared suite, and the
+     encoded sets have in fact drifted from the design matrix (a
+     check-component-coverage row from epic-191) with nothing noticing.
+expected_fix:
+  - "Make the risk comparisons in check-contract.ps1 case-sensitive and reject non-string risk values, matching the python twin, with both-polarity fixtures on both runtimes"
+  - "Add the matrix/code drift-guard test that parses references/risk-gate-matrix.md and asserts the encoded tier sets equal it, so two-place drift goes red"
+  - "While there, give the python twin a proper diagnostic for non-string risk instead of an uncaught traceback (exit code already correct)"
+  - "Re-run the quality gate for T-003 once fixed"
+references:
+  - "reports/quality-gate/20260821T060000Z.md"
+  - "specs/risk-adaptive-layer/design.md"
+  - "docs/review-tickets/RT-20260821-006.yml"
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

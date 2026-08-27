@@ -1,0 +1,45 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-196-a8-integration",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-a-seq0781",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-196-a8-integration-0781",
+  "manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/dependency-graph.json", "sha256": "10fde0f3b8a718c7b3d1bd05ace69bef841a17f36c777eda3e5fce526d908fd0"},
+    {"path": "reports/task-review/epic-196-a8-integration/attempt-2/round-2/precheck-result.json", "sha256": "2c81d96583c3af4f8c337d837d61a732dcab9f2111074ca6b08a85fa8bfbd89c"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+    {"path": "specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "f31c2518eaab309704db74162ba34f33dba317f4b536c1d81fcf3581c2ebe6be"},
+    {"path": "specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "specs/epic-196-a8-integration/tasks.md", "sha256": "e5b6e991a2905fda0ea5e9fb1a6839e9737a9dee4917986865c3cf760359d0aa"},
+    {"path": "specs/epic-196-a8-integration/traceability.md", "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"},
+    {"path": "specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184-through-conforming-amendment-entry"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Critical", "finding": "Every AC-NNN referenced in tasks.md Requirements fields (T-001: AC-001–006; T-002: AC-022,023; T-003: AC-007–011,024; T-004: AC-012,017; T-005: AC-026,027,028; T-006: AC-018–021; T-007: AC-025,029,030; T-008: AC-013–016) resolves to a real row in acceptance-tests.md's AC-001–AC-030 table. No dangling IDs."},
+    {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Major", "finding": "All eight Blockers fields use 'None' or comma-separated T-NNN IDs (T-003: T-002; T-007: T-001, T-002, T-003, T-005, T-006; T-008: T-001, T-005). Matches precheck's blockers_format_valid: true."},
+    {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "REQ-001 through REQ-007 each appear in at least one task's Requirements field (T-001 REQ-001; T-002/T-003 REQ-005; T-003 REQ-002; T-004/T-005/T-008 REQ-003; T-005/T-007 REQ-006; T-006 REQ-004; T-007 REQ-007)."},
+    {"id": "AC-COVERAGE", "status": "PASS", "severity": "Critical", "finding": "traceability.md's Acceptance Mapping table (lines 71-102) assigns all 30 ACs to exactly one task each, matching each task's own Requirements field; 'Deferred / Non-Task Acceptance Criteria' section confirms none is deferred."},
+    {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Major", "finding": "All eight tasks (T-001–T-008) carry a Requirements: field naming at least one REQ-NNN. No orphans."},
+    {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Major", "finding": "T-001 ('...fixture and test driver') and T-004 (path contains 'tests/') are the only titles matching the test-word heuristic; both carry explicit AC references (T-001: AC-001–006; T-004: AC-012, AC-017)."},
+    {"id": "INITIAL-STATE", "status": "PASS", "severity": "Major", "finding": "Orchestrator declared this a post-implementation provenance re-review; all eight tasks carry Approval: Approved (sudo 2026-08-08T16:33:11Z) — a valid Approved (<audit-mark>) form — and Status: Planned, both permitted under the lifecycle-validity rule."},
+    {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Critical", "finding": "All eight Risk/Required Workflow pairs match the risk-gate-matrix (medium→acceptance-first: T-001,T-003,T-006,T-007; high→tdd: T-002,T-004,T-005,T-008). Matches precheck's workflow_match_precheck: PASS."},
+    {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Major", "finding": "No AC-NNN is claimed as primary test target by more than one task; traceability.md's Acceptance Mapping table shows a strict 1:1 AC-to-task assignment across all 30 rows."},
+    {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Major", "finding": "Every task ID referenced in a Blockers field (T-002 by T-003; T-001/T-002/T-003/T-005/T-006 by T-007; T-001/T-005 by T-008) exists in tasks.md and in dependency-graph.json's nodes array."},
+    {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Critical", "finding": "BLOCKERS-FORMAT is PASS, so this check ran. dependency-graph.json edges (T-003→T-002; T-007→{T-001,T-002,T-003,T-005,T-006}; T-008→{T-001,T-005}) form a DAG with no revisited node."},
+    {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Major", "finding": "Titles/scopes using 'and' (T-001 'fixture and test driver'; T-008 'Classify... and author its draft SKIP records') each connect tightly-coupled sub-work on the same REQ/AC concern, not two distinct feature concerns."},
+    {"id": "OBSERVABLE-DONE", "status": "PASS", "severity": "Major", "finding": "Every Done When item across all eight tasks names a concrete test ID, command-observable state, or artifact (e.g. T-008's amended HUMAN APPLY STEP item names 're-running validate-live-host-proof and observing discharged'). No forbidden vague verb found. No item targets editing a frozen artifact (design.md/tasks.md-body/traceability.md); edits target ordinary shared files (a8-trusted-signers.json, a8-skip-allowlist.json) or new artifacts."},
+    {"id": "TRACEABILITY-SYNC", "status": "FAIL", "severity": "Major", "finding": "traceability.md's Final Status section (lines ~124-129) states a Done status for T-004/T-005/T-008 must record validate-live-host-proof reporting 'pending', 'never discharged', framing this as 'the correct pre-Epic-A1-merge state' pending a separate future 'follow-up task'. This directly contradicts tasks.md's amended T-008 HUMAN APPLY STEP Done-When (which makes T-008 itself that follow-up task and requires observing 'discharged' before Done) and design.md:208-213 (which states Epic A1 already merged 2026-08-08 and a surviving SKIP is now a hard failure 'until T-008 produces the five real semantic-cell records that discharge it'). traceability.md was not amended alongside T-008/T-005 this round and now gives implementers/quality-gate contradictory guidance on what evidence proves T-008 Done."}
+  ],
+  "findings": [
+    {"check_id": "TRACEABILITY-SYNC", "severity": "Major", "task_id": "T-008", "finding": "traceability.md Final Status (lines ~124-129) says Done for T-008 must show validate-live-host-proof 'pending', never 'discharged'; tasks.md's amended T-008 Done-When (HUMAN APPLY STEP) requires observing 'discharged'; design.md:208-213 confirms discharged is now the correct post-Epic-A1-merge target. traceability.md is stale relative to the amendment and must be reconciled."}
+  ]
+}

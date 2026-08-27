@@ -256,8 +256,10 @@ must never rely on a bare legacy number.
 | 0025 | Registry Discovery Contract — renumbered to ADR-0029 | (tombstone) |
 | 0025 | Risk-Adaptive Adversarial Review Lane — renumbered to ADR-0027 | (tombstone) |
 | 0026 | High/Critical-Only Cross-Critique Phase for the Review Loops | Proposed |
+| 0028 | Ed25519 signing and a maintainer-committed trusted-signer registry for live-host verification records | Proposed |
 | 0027 | Risk-Adaptive Adversarial Review Lane | Proposed |
 | 0027 | component-path-ownership-resolver-semantics — renumbered to ADR-0030 | (tombstone) |
 | 0029 | Registry Discovery Contract | Accepted |
 | 0030 | Component Path Ownership Resolver Semantics | Accepted |
 | 0031 | Node Runtime Baseline 22.19.0 | Accepted |
+| 0032 | Concept Design Layer — Phased Introduction | Accepted |

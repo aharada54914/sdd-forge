@@ -202,14 +202,52 @@ expect_usage_error "QGCL-008d (non-task)"       "foo"    "this-feature"
 expect_usage_error "QGCL-008e (empty)"          ""       "this-feature"
 
 # ============================================================================
-# QGCL-009: word-boundary robustness - id adjacent to punctuation counts,
-#           id embedded in a longer word does NOT. (feature-scoped)
+# QGCL-009: identity robustness - an identity header still matches when the
+#           same id also appears in surrounding prose; an id embedded in a
+#           longer word does NOT match. (feature-scoped)
+#
+# WFI-035 changed what this block asserts. It used to require that a report
+# whose ONLY reference was punctuation-adjacent prose (`gate for [T-001]:`)
+# counted as a cycle. That is the defect: it measures "reports that MENTION
+# this task" instead of "gate cycles this task has had", and the report
+# template guarantees mentions -- `## Out-Of-Scope Waivers` and
+# `## Traceability And Drift` name sibling tasks by design. The
+# punctuation-robustness intent is preserved below by keeping the prose line
+# and adding the identity header the counter now requires.
 # ============================================================================
-echo "=== QGCL-009: punctuation-adjacent counts, embedded does not ==="
-make_reports "${WORK}/rp" 3 "T-001" "this-feature" 'gate for [%s]: NEEDS_WORK\nFeature: %s\n'
-expect_escalate "QGCL-009a (bracket/colon adjacent)" "T-001" "this-feature" "${WORK}/rp"
+echo "=== QGCL-009: identity matches beside prose, embedded does not ==="
+make_reports "${WORK}/rp" 3 "T-001" "this-feature" 'Task ID: %s\nFeature: %s\ngate for [T-001]: NEEDS_WORK\n'
+expect_escalate "QGCL-009a (identity header, punctuation-adjacent prose)" "T-001" "this-feature" "${WORK}/rp"
 make_reports "${WORK}/re" 3 "xT-001x" "this-feature" 'token x%sx appears\nFeature: %s\n'
 expect_continue "QGCL-009b (embedded in word)" "T-001" "this-feature" "${WORK}/re"
+# WFI-035 positive control: prose alone, with no identity header, is NOT a
+# cycle. This is the exact shape that barred T-005 from its first gate.
+make_reports "${WORK}/rprose" 3 "T-001" "this-feature" 'gate for [%s]: NEEDS_WORK\nFeature: %s\n'
+expect_continue "QGCL-009c (prose mention only, no identity header)" "T-001" "this-feature" "${WORK}/rprose"
+# The two other identity forms present in the committed corpus must count too;
+# dropping either would UNDER-count and silently weaken the limit.
+make_reports "${WORK}/rtask" 3 "T-001" "this-feature" 'Task: %s\nFeature: %s\n'
+expect_escalate "QGCL-009d (bare 'Task:' identity form)" "T-001" "this-feature" "${WORK}/rtask"
+make_reports "${WORK}/rh1" 3 "T-001" "this-feature" '# Quality Gate Report: %s\nFeature: %s\n'
+expect_escalate "QGCL-009e (H1 heading identity form)" "T-001" "this-feature" "${WORK}/rh1"
+
+# ============================================================================
+# QGCL-009f/g: the two controls WFI-035 requires, because this change REDUCES
+# a count and an unverified reduction is indistinguishable from a disabled
+# limit.
+# ============================================================================
+echo "=== QGCL-009f/g: WFI-035 controls ==="
+# Negative control: a task with three real gate reports must STILL escalate.
+# If this ever returns continue, the fix disabled the limit rather than
+# correcting it.
+make_reports "${WORK}/rneg" 3 "T-001" "this-feature"
+expect_escalate "QGCL-009f (negative control: three real reports still escalate)" "T-001" "this-feature" "${WORK}/rneg"
+# Positive control: three reports whose own identity is T-002, each naming
+# T-001 in prose the way an honest Out-Of-Scope Waivers section does. T-001's
+# count must be unaffected; T-002's must not be.
+make_reports "${WORK}/rsib" 3 "T-002" "this-feature" 'Task ID: %s\nFeature: %s\n## Out-Of-Scope Waivers\nOwned by T-001, T-003 and T-005 respectively.\n'
+expect_continue "QGCL-009g (positive control: sibling prose does not count for T-001)" "T-001" "this-feature" "${WORK}/rsib"
+expect_escalate "QGCL-009g (positive control: the sibling's own count is intact)" "T-002" "this-feature" "${WORK}/rsib"
 
 # ============================================================================
 # QGCL-010: default reports-dir argument (reports/quality-gate, cwd-relative)

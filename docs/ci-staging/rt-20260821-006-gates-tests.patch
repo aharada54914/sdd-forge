@@ -1,0 +1,75 @@
+--- a/tests/gates.tests.sh
++++ b/tests/gates.tests.sh
+@@ -1049,6 +1049,72 @@
+ else
+     fail "T-002.20: medium risk must NOT require tdd workflow"
+ fi
++
++# Test: T-002.21 - every negative fixture above must also EXIT nonzero
++# (RT-20260821-006 Major 1: run_check_risk swallows exit status with
++# `|| true` and the negative tests grep stdout only, so a mutant that
++# prints the failure text but exits 0 passed all 20 assertions. This
++# block asserts the exit code directly via check_risk_passes.)
++t00221_ok=1
++for neg in t002_test2 t002_test3 t002_test4 t002_test5 t002_test6 t002_test8 t002_test15 t002_test16 t002_test17; do
++    if check_risk_passes "${WORK}/${neg}/tasks.md"; then
++        fail "T-002.21: ${neg} printed a failure but exited 0"
++        t00221_ok=0
++    fi
++done
++[ "$t00221_ok" = "1" ] && ok "T-002.21: all negative fixtures exit nonzero (no || true swallow)"
++
++# Test: T-002.22 - sh/ps1 exit parity on the five RT-20260821-006 divergence
++# classes (uppercase Risk value, lowercase key, uppercase workflow, duplicate
++# heading dropping Risk, duplicate heading bogus-then-valid). The ps1 twin
++# previously failed OPEN on all five via case-insensitive operators and
++# duplicate-section merging; both twins now fail closed on duplicate headings.
++mkdir -p "${WORK}/t002_test22"
++cat > "${WORK}/t002_test22/upper-risk.md" <<'FIX'
++## T-001 demo
++Risk: LOW
++Risk Rationale: r
++FIX
++cat > "${WORK}/t002_test22/lower-key.md" <<'FIX'
++## T-001 demo
++risk: low
++Risk Rationale: r
++FIX
++cat > "${WORK}/t002_test22/upper-workflow.md" <<'FIX'
++## T-001 demo
++Risk: high
++Risk Rationale: r
++Required Workflow: TDD
++FIX
++cat > "${WORK}/t002_test22/dup-drop.md" <<'FIX'
++## T-001 demo
++Risk: low
++Risk Rationale: r
++## T-001 demo again
++Risk Rationale: r
++FIX
++cat > "${WORK}/t002_test22/dup-bogus.md" <<'FIX'
++## T-001 demo
++Risk: bogus
++Risk Rationale: r
++## T-001 demo again
++Risk: low
++Risk Rationale: r
++FIX
++t00222_ok=1
++for cls in upper-risk lower-key upper-workflow dup-drop dup-bogus; do
++    if check_risk_passes "${WORK}/t002_test22/${cls}.md"; then
++        fail "T-002.22: sh accepted divergence-class fixture ${cls}"
++        t00222_ok=0
++    fi
++    if command -v pwsh >/dev/null 2>&1; then
++        if pwsh -NoProfile -File "${SCRIPTS_DIR}/check-risk.ps1" "${WORK}/t002_test22/${cls}.md" >/dev/null 2>&1; then
++            fail "T-002.22: ps1 accepted divergence-class fixture ${cls} (fail-open)"
++            t00222_ok=0
++        fi
++    fi
++done
++[ "$t00222_ok" = "1" ] && ok "T-002.22: five divergence classes rejected on both runtimes"
+ 
+ # ============================================================================
+ # T-003: risk-aware check-contract Tests

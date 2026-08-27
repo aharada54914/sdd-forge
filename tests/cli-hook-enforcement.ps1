@@ -90,6 +90,40 @@ try {
         ok 'drift: copilot-hooks.json invokes sdd-hook-guard.sh --emit copilot'
     } else { bad 'drift: copilot-hooks.json no longer invokes sdd-hook-guard.sh --emit copilot' }
 
+    # --- TEST-017 (AC-017): existing regression block remains independent ---
+    $preExistingPass = $pass
+    $preExistingFail = $fail
+    if ($preExistingFail -eq 0) {
+        ok "TEST-017 regression continuity: all $preExistingPass pre-existing checks passed before synthetic additions; no live-host proof state consumed"
+    } else {
+        bad "TEST-017 regression continuity: $preExistingFail pre-existing check(s) failed before synthetic additions"
+    }
+
+    # --- TEST-012 (AC-012): synthetic config/guard-contract cases only ---
+    $codexEnabledConfig = Join-Path $work 'codex-plugin-hooks-enabled.toml'
+    $codexDisabledConfig = Join-Path $work 'codex-plugin-hooks-disabled.toml'
+    Set-Content -LiteralPath $codexEnabledConfig -Encoding Utf8NoBOM -Value "[features]`nplugin_hooks = true"
+    Set-Content -LiteralPath $codexDisabledConfig -Encoding Utf8NoBOM -Value "[features]`nplugin_hooks = false"
+
+    foreach ($codexCase in @(
+        [pscustomobject]@{ Label = 'enabled'; Config = $codexEnabledConfig; Expected = 'true' },
+        [pscustomobject]@{ Label = 'disabled'; Config = $codexDisabledConfig; Expected = 'false' }
+    )) {
+        $configText = Get-Content -LiteralPath $codexCase.Config -Raw
+        $stateMatches = $configText -cmatch "(?m)^plugin_hooks\s*=\s*$($codexCase.Expected)\s*$"
+        $selfApprove | & pwsh -NoProfile -File $ps1 -Emit exit *> $null; $directExit = $LASTEXITCODE
+        $label = "TEST-012 synthetic config/guard-contract regression (not a live-host observation): Codex plugin_hooks=$($codexCase.Label) config plus direct guard self-approval denial"
+        if ($stateMatches -and $directExit -eq 2) { ok $label }
+        else { bad "$label expected matching config state and exit 2, got state=$stateMatches exit=$directExit" }
+    }
+
+    $copilotSubagentSelfApprove = '{"tool_name":"Edit","tool_input":{"file_path":"' + $tasksFwd + '","old_string":"Approval: Draft","new_string":"Approval: Approved"},"synthetic_context_indicator":"subagent"}'
+    $subagentIndicatorMatches = (($copilotSubagentSelfApprove | ConvertFrom-Json).synthetic_context_indicator -ceq 'subagent')
+    $subagentJson = ($copilotSubagentSelfApprove | & pwsh -NoProfile -File $ps1 -Emit copilot | Out-String)
+    $subagentLabel = 'TEST-012 synthetic config/guard-contract regression (not a live-host observation): Copilot subagent indicator plus direct guard self-approval denial'
+    if ($subagentIndicatorMatches -and $subagentJson -match '"permissionDecision"\s*:\s*"deny"') { ok $subagentLabel }
+    else { bad "$subagentLabel expected indicator=subagent and deny, got indicator=$subagentIndicatorMatches response=$subagentJson" }
+
 } finally {
     if (Test-Path $work) { Remove-Item $work -Recurse -Force }
 }

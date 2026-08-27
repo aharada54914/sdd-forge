@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "77352510dec4797412931912c15ba37863b04b3f65c3ac52b2f9905b0a1b4aa4",
+  "requirements_sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16",
+  "acceptance_sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0",
+  "layer_sha256": {"ux-spec.md":"37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7","frontend-spec.md":"72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499","infra-spec.md":"04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061","security-spec.md":"98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"},
+  "input_sha256": "cf1a23b0b158bd848fd850c1efba0ff2d78f36bf93de8b9c3177600b04287dd0",
+  "generated_at": "2026-07-22T06:07:58Z"
+}

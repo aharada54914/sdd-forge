@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a2r2-seq0762",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a2r2-0762",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "80b41de351ed186fff2491f262073ba3d4950c6fb3ec8e152d28fce42dc6808a"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "d3d71347e171a691842c3227228a760676663b18b855198d63f6bee4eb16f2a5"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-2/round-2/precheck-result.json",
+      "sha256": "14ac64411e2241dc44be707bfd15f87e6defbc4195c2aaac27e744453861fd64"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each carry concrete, checkable predicates (exact required-key lists, regex patterns for id/name/context, enumerated validator checks (a)-(i), fixture minimums, twin-parity comparison, byte-identity of v1 schema). Every requirement has a matching AC/TEST in acceptance-tests.md that names an exit code, stderr content, or file-diff assertion, so downstream implementers and verifiers have an unambiguous pass/fail surface."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "G1 (concepts[] required top-level array) traces to AC-001/014/016/021; G2 (term-to-concept concept_id) traces to AC-009 (dangling) and AC-022(2) (pattern); G3 (validator checks) traces one-to-one to AC-006..012 for validator items (d)-(i) and AC-012/017 for (a)/(b); G4 (fixture corpus) traces to AC-003/004/005 positive and the REQ-005(d) negative fixtures across AC-006..023; G5 (v1/consumers untouched) traces to AC-002 (hash lock) and AC-015 (existing suite green + diff check). No goal is left without a corresponding AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC in the table specifies an externally observable outcome: exit code (0 or non-zero), a named field/violation string in stderr, or a byte/hash comparison. The round-2 amendment to AC-023 replaced the round-1 gap (4 of 8 minLength-1 targets untested, per edit_summary) with 8 independently named fixtures -- (1) definition, (2) essence, (3) responsibilities[] element, (4) evidence[] element, (5) must_not_own[] element, (6) stakeholder_perspectives[].actor, (7) .concern, (8) distinguished_from[].reasons[] element -- which is the complete and exact set of minLength-1 targets enumerated in REQ-002's own sentence ('definition、essence、responsibilities[] / evidence[] / must_not_own[] / reasons[] の各要素、stakeholder_perspectives[].actor / .concern'). No target is left uncovered."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Non-goals section explicitly excludes concept-test/bootstrap integration (Phase 1), interviewer/template changes (Phase 2), reviewer A/B checks (Phase 3), reverse mode/C4 (Phase 4), v1-to-v2 migration tooling (permanently out of scope per owner decision, INV-009), domain/ artifact generation, and mechanical enforcement of meta.status approval. The feature boundary (Phase 0: schema + validator + fixtures only) is unambiguous."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries states content-as-data handling, read-only/no-network/no-external-dependency validator constraints, and a no-secrets fixture rule. Roles and Permissions explicitly states the approval boundary has no mechanical enforcement (hook-guard does not protect contracts/domain-contract.*, per INV-008) and that this is a deliberate non-goal, not an oversight. REQ-007 states the additive-only constraint with a byte-identity guarantee for v1 and the 11 existing suites."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "R1 (concepts[] type insufficiency) is tied to the fixture corpus pre-validating the 4 Phase-1 verdict types; R2 (hand-rolled validator vs schema drift) is tied to REQ-006's requirement that the same fixtures be checked against both the schema and the validator; R3 (sh/ps1 verdict mismatch) is tied to REQ-006's twin-parity test (AC-013). All three declared risks have a concrete planned validation surface already named in the spec."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "investigation.md INV-009 records that sdd-forge itself has no domain/ directory ('sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'). Since domain/context-map.md with Domain-Model-Status: Approved is absent, the check's explicit skip condition applies and is recorded as skipped."
+    }
+  ]
+}

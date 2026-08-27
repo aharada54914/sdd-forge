@@ -12,10 +12,18 @@ usage() {
 fail() { echo "ERROR: spec-review-precheck: $*" >&2; exit 1; }
 sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
-  else shasum -a 256 "$1" | awk '{print $1}'; fi
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 "$1" | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
+}
+sha256_stream() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}';
+  elif command -v shasum >/dev/null 2>&1; then shasum -a 256 | awk '{print $1}';
+  else fail "neither sha256sum nor shasum is available"; fi
 }
 canonical_dir() { (cd "$1" && pwd -P); }
-is_sha256() { [[ "$1" =~ ^[0-9a-fA-F]{64}$ ]]; }
+# Lowercase only: every producer in this tree emits lowercase hex, and a
+# case-insensitive class here would admit a digest its strict consumers reject.
+is_sha256() { [[ "$1" =~ ^[0-9a-f]{64}$ ]]; }
 
 [[ $# -ge 3 ]] || usage
 feature="$1"; attempt="$2"; round="$3"; shift 3
@@ -128,6 +136,10 @@ if [[ -e "$reports_base" ]]; then
   [[ "$(canonical_dir "$reports_base")" == "$reports_base" ]] || fail "spec-review report base escapes reports root"
 fi
 command -v jq >/dev/null 2>&1 || fail "jq is required"
+# Fail closed when no SHA-256 tool exists: with the bare else-shasum shape a
+# host with neither tool captures an empty digest and empty == empty passes.
+command -v sha256sum >/dev/null 2>&1 || command -v shasum >/dev/null 2>&1 ||
+  fail "neither sha256sum nor shasum is available"
 status="$(sed -n 's/^Spec-Review-Status:[[:space:]]*//p' "$requirements" | head -n 1 | tr -d '[:space:]')"
 if [[ "$reset" == true ]]; then
   [[ "$status" == "Pending" || "$status" == "Passed" ]] || fail "requirements.md must declare a resettable Spec-Review-Status"
@@ -140,7 +152,7 @@ fi
 requirements_sha="$(sha256 "$requirements")"
 acceptance_sha="$(sha256 "$acceptance")"
 calibration_sha="$(sha256 "$calibration")"
-input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
 
 validate_reviewer_output() {
   local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5" recorded_prefix="${6:-}"
@@ -149,7 +161,7 @@ validate_reviewer_output() {
   jq -e --arg schema "${role}/v1" --arg role "$role" --arg run_id "$run_id" --arg host_session_id "$host_session_id" '
     type == "object" and keys == ["allowed_input_manifest", "checks", "host_session_id", "role", "run_id", "schema", "stage", "verdict"] and
     .schema == $schema and .stage == "spec" and .role == $role and .run_id == $run_id and .host_session_id == $host_session_id and
-    (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["path", "sha256"] and (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")))) and
+    (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["path", "sha256"] and (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$")))) and
     (.checks | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["finding", "id", "result", "severity"] and
       (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
       (.severity == "Critical" or .severity == "Major" or .severity == "Minor") and (.finding | type == "string"))) and
@@ -204,7 +216,7 @@ validate_reviewer_output() {
 
 validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
-  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash
+  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash investigation_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
   local recorded_root recorded_prefix
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
@@ -214,14 +226,14 @@ validate_contract() {
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
     type == "object" and keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and
     .schema == "spec-review-contract/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and
-    (.requirements_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")) and
+    (.requirements_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and (.acceptance_sha256 | type == "string" and test("^[0-9a-f]{64}$")) and
     (.run_id | type == "string" and test("\\S")) and (.warningCount | type == "number" and . >= 0) and
     (.reviewers | type == "array" and length == 2 and ([.[].role] | sort) == ["spec-reviewer-a", "spec-reviewer-b"] and
       (([.[] | .host_session_id] | all(type == "string" and test("\\S"))) and ([.[] | .host_session_id] | unique | length == 2)) and
-      all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-fA-F]{64}$"))))))' "$contract" >/dev/null || return 1
+      all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))))))' "$contract" >/dev/null || return 1
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg requirements_sha "$(jq -r .requirements_sha256 "$contract")" --arg acceptance_sha "$(jq -r .acceptance_sha256 "$contract")" '
     .schema == "spec-review-precheck/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .requirements_sha256 == $requirements_sha and .acceptance_sha256 == $acceptance_sha and
-    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")))' "$precheck" >/dev/null || return 1
+    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-f]{64}$")))' "$precheck" >/dev/null || return 1
 
   round_dir="$(dirname "$contract")"
   summary="${round_dir}/integrated-summary.json"
@@ -245,8 +257,39 @@ validate_contract() {
     [[ "$(jq -r .calibration_sha256 "$precheck")" == "$calibration_hash" ]] || return 1
   fi
   expected_a="$(jq -cn --arg requirements "$(relative_to_repo "$requirements")" --arg requirements_hash "$requirements_hash" --arg acceptance "$(relative_to_repo "$acceptance")" --arg acceptance_hash "$acceptance_hash" --arg precheck "$(relative_to_repo "$precheck")" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$(relative_to_repo "$calibration")" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
-  if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
-    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$(sha256 "${spec_dir}/investigation.md")" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
+  # investigation.md is derived from the contract, exactly like calibration_hash
+  # above -- never from the live working tree. Every other entry in this expected
+  # manifest already comes from an immutable source: requirements/acceptance from
+  # the contract's own top-level fields, precheck-result.json from a frozen round
+  # artifact, calibration from the manifest itself. investigation.md was the lone
+  # outlier, and it is the single worst file to read live: by design it is the
+  # document that accumulates the amendment record ACROSS stages, so it grows
+  # after a round is sealed as a matter of course. Reading it live compared
+  # today's bytes against the correctly-pinned ones, mismatched, and refused
+  # `--reset` with "previous terminal contract is invalid" -- permanently, since
+  # nothing can un-grow the file (reproduced on epic-195). A sealed contract is
+  # evidence about the past; validating it against the present is a category
+  # error. The live-vs-pinned question belongs to check-workflow-state.sh, which
+  # asks it deliberately and carries the amendment-record growth tolerance for
+  # exactly this file.
+  #
+  # Same discipline as calibration: every reviewer that pinned the file must have
+  # pinned the SAME bytes (`unique` must collapse to one value), and that value
+  # must be a well-formed digest. A contract in which reviewer A and reviewer B
+  # disagree about what they read is not a valid contract. Absent from the
+  # manifest entirely means the reviewers declared they did not read it, which is
+  # legal (check-workflow-state.sh's allowed() list permits investigation.md but
+  # never requires it), so nothing is expected. There is no cross-check against
+  # precheck-result.json here because the precheck schema records no
+  # investigation_sha256 field -- unlike calibration_sha256 -- so the "if the
+  # precheck records it" clause has nothing to compare against.
+  investigation_hash="$(jq -r --arg investigation "${spec_dir}/investigation.md" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($investigation | relative_path) as $target |
+    [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $target) | .sha256] | unique |
+    if length == 0 then "" elif length == 1 then .[0] else "__AMBIGUOUS__" end' "$contract")"
+  if [[ -n "$investigation_hash" ]]; then
+    is_sha256 "$investigation_hash" || return 1
+    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$investigation_hash" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
   expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
   actual_a="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
@@ -351,7 +394,7 @@ if [[ "$reset" == true && "$status" == "Passed" ]]; then
   # and later validate_contract calls will actually see, never the pre-mutation
   # (Passed) bytes this same invocation just rewrote.
   requirements_sha="$(sha256 "$requirements")"
-  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | sha256_stream)"
 fi
 
 generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"

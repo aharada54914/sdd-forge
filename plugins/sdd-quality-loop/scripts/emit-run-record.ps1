@@ -163,8 +163,17 @@ if (Test-Path "reports/quality-gate") {
         (Get-Content -Raw -Encoding Utf8 $_.FullName) -match "(?m)^Feature:\s*$([regex]::Escape($Feature))\s*$"
     })
     foreach ($tid in $taskIds) {
+        # Canonical task identity is the template's `Task ID:` line (WFI-020).
+        # Anchored + escaped, mirroring check-quality-gate-cycle-limit.ps1's
+        # corpus-measured predicate (219/220 committed reports carry
+        # `Task ID:`; the legacy `Task:` line and the H1 heading cover the
+        # remainder). The previous unanchored "Task: $tid\b" match saw only
+        # the legacy minority and under-counted gate runs.
+        $escapedTid = [regex]::Escape($tid)
+        $identityRe = "(?m)^(Task ID|Task):[ \t]*$escapedTid[ \t]*$" +
+            "|(?m)^#[ \t]+Quality Gate Report:?[ \t]*$escapedTid([^0-9]|$)"
         $n = @($featureGateFiles | Where-Object {
-            (Get-Content -Raw -Encoding Utf8 $_.FullName) -match "Task: $tid\b"
+            (Get-Content -Raw -Encoding Utf8 $_.FullName) -match $identityRe
         }).Count
         $gateTotal += $n
         if ($n -gt $maxGateRuns) { $maxGateRuns = $n }

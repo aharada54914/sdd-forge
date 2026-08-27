@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a1r1-seq0755",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a1r1-0755",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "007fb0d261ecebbb6eed0f03bcf97358ffa1efd0ea1b5278e43f11a3bcf276bd"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "47eb6d847d53355f1210619809db75900b14e45c18d5b7e959a8a6777759fb0c"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-1/precheck-result.json",
+      "sha256": "c799a6cbee68c13b1febd94b7d0b09c4c497c8963ae1a4b27411c91976d4cb98"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-1/integrated-summary.json",
+      "sha256": "c56a70be0fd2c0d091161803458df5a09094bba6b3bede75ab0d9581ed2d8126"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Core terms are concrete: concept id pattern is an exact regex (REQ-002: `^CONCEPT-[A-Z][A-Z0-9-]*$`), validator inputs/outputs are pinned (REQ-004: single JSON path, exit 0/non-0, one violation per stderr line), and the self-contradiction check is scoped to exact string equality (REQ-004(h): '同一文字列'), removing case for divergent implementer interpretation. Style-only descriptors ('PascalCase'/'kebab-case' for name/context, REQ-002) lack an explicit regex the way id does, but REQ-006 and Risk R2 already mandate a fixture-driven drift-lock between the schema file and the hand-rolled validator, which forces convergence rather than leaving it to independent implementer judgment, so this does not rise to a blocking two-implementer divergence."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found between goals, ACs, constraints, and non-goals. REQ-007's 'zero-byte-change to v1/consumers/11 suites' is consistent with REQ-001-006's additive-only v2 file and AC-015's non-regression check; the single-context-ownership rule in REQ-002 does not conflict with distinguished_from's cross-context reference use (INV-003, AC-005); the Assumptions section's hook-unavailable/v1-nonexistence claims are corroborated by INV-009/INV-010 rather than contradicted elsewhere in the document."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's Edge Cases section explicitly asserts two validator-observable behaviors that have no corresponding entry in acceptance-tests.md's AC-001..AC-015 / TEST-001..TEST-015 table: (1) 'concepts が空配列: v2 では invalid（minItems 1）' has no AC/TEST exercising an empty concepts[] fixture (AC-014 only covers essence/evidence/responsibilities field-level omissions, not the top-level array itself), and (2) '契約ファイルが10MBを超える等の異常入力: validator は fail-closed で非0終了（best-effort パースをしない）', which corresponds to validator duty (a) 'JSONとして可読' in REQ-004, also has no AC/TEST. Downstream failure mode: a task author implementing acceptance tests from this document has no acceptance criterion to encode either behavior, so a validator that accepts an empty concepts[] array or that hangs/crashes instead of exiting non-zero on oversized or malformed input would ship without any test catching the regression. This is a gap in acceptance-criteria observability, which is this gate's own artifact (acceptance-tests.md), not a later-stage concern. Severity Major per calibration's 'missing observable acceptance criterion.'"
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three Assumptions (hook-inactive session per INV-010, v1-instance-nonexistence per owner decision/INV-009, and no-schema-change-by-later-phases) are each backed by investigation evidence. Open Questions OQ-001..OQ-004 each carry a concrete proposal; OQ-003 (essence required) and OQ-004 (v2-only validator with explicit v1 rejection) are already adopted verbatim into the operative requirement text (REQ-002 lists essence as required; REQ-004(b) and AC-012 fix the v1-rejection behavior), so a downstream implementer has an unambiguous target regardless of the tracking table's 'Open' label. OQ-001 (v1 file fate) and OQ-002 (CI/run-all registration) are explicitly deferred to a later phase / kept at existing-convention default (INV-007), which does not block Phase 0 design or task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "Skip condition met: this Phase 0 feature adds only a schema file, a read-only validator, and tests. Roles and Permissions explicitly states meta.status Approved write-control is 'existing, unchanged, common to v1/v2, hook guard and human responsibility' and Non-goals excludes any reviewer/workflow changes (Phase 3 scope). No new human-approval, governance, or irreversible-change boundary is introduced or implied in requirements.md or acceptance-tests.md, so no such boundary is in scope for this check."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The spec gives a design/implementation-policy reviewer concrete, non-inventable content to evaluate: an explicit field table with types/required/patterns, a fully enumerated validator check list (a)-(i) in REQ-004, a CLI contract (single JSON path in, exit 0/non-0, one-violation-per-stderr-line out), and named fixture requirements per REQ-005/REQ-006 tied 1:1 to REQ-004's checks. The Edge Cases prose itself already states the intended empty-concepts and oversized-input behaviors (the gap identified under EDGE-CASE-COVERAGE is specifically a missing acceptance-test entry, not missing product behavior a design reviewer would have to invent), so downstream readiness of the requirement content is intact."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met per check definition: this repository (sdd-forge) has no `domain/` directory (confirmed by investigation.md INV-009: 'sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）'), so there is no `domain/context-map.md` with Domain-Model-Status: Approved and no schema-valid domain-contract.json to check against. Recorded as skipped per the check's own precondition."
+    }
+  ]
+}

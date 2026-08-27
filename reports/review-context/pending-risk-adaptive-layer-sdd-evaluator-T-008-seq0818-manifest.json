@@ -1,0 +1,74 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "risk-adaptive-layer",
+  "task_id": "T-008",
+  "run_id": "RUN-risk-adaptive-layer-qg-T-008-seq0818",
+  "host_session_id": "SESS-qg-risk-adaptive-layer-T-008-0818",
+  "sequence": 818,
+  "previous_record_sha256": "d95428078090f26a519cfce1c3c7b0592e09d941a81800ca78f51857b5ecf406",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "bfedbcee179f9c442dc06f7c18acc1372a84856163116444d2f286c092d3c824",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/risk-adaptive-layer/requirements.md",
+      "sha256": "50cf26530ab5ae15a09392a5cac1c6cf8b2dd5fe2410a83dc5e25815c4a26631"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/design.md",
+      "sha256": "c1887fddcaeac082865401a64806fad92f1a84abd5dd6bdd311c0372db1967cb"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/acceptance-tests.md",
+      "sha256": "2493628bb15c78d43b9edcd4e4e0430bd6051e5946531a0f7cab108e3de50d01"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/tasks.md",
+      "sha256": "c4d135250dc1ec2f6943bbbe4a7a331460800f28f63722867e93d8376f12d03e"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.md",
+      "sha256": "54e5e4d476e4db78c4c7cdbbfef065da5749ef436f84ce0242d13ba0bc5fa7f4"
+    },
+    {
+      "path": "specs/risk-adaptive-layer/traceability.json",
+      "sha256": "47f8e1d527006d665f356682b7994487a4bdb87c5f22c6be25596343a665264f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/risk-adaptive-layer/T-008.md",
+      "sha256": "728fd2a9d4de0b8b162e252e1c43e5b5ebfc7556ae96662a1ce6c9a17913abf0"
+    },
+    {
+      "path": ".github/rulesets/main.json",
+      "sha256": "42c42bd63e6cbcc47f9d3168e95f18dc31e60e91059368259f8366dcf54b6e65"
+    },
+    {
+      "path": ".github/workflows/self-improvement.yml",
+      "sha256": "e8a52829935e6b05bcf6c1e6a0320ec87bbe7a6eddb6e584ad1a821b3f6b239b"
+    },
+    {
+      "path": ".github/workflows/test.yml",
+      "sha256": "ad315caa76bd8b0d7176249d8cad4d45c1b7cc1338ade0a1ea601b2bbdd2a14b"
+    },
+    {
+      "path": "CODEOWNERS",
+      "sha256": "939cd93d7106084189cb3dfb2c327011601dd74031fba44f1da47cf257ba2a33"
+    },
+    {
+      "path": "docs/workflow-guide.md",
+      "sha256": "fa3c4ad2c28c68832abb3ddefe52094bab872d909f53e4bb72eb75b39d8187d0"
+    },
+    {
+      "path": "scripts/apply-branch-protection.sh",
+      "sha256": "83ac459aa0b645758a80eded165d5d9626d0ef289600d810484872c830f64a22"
+    }
+  ]
+}

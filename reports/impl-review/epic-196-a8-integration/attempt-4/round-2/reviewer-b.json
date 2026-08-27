@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic196a8integration-impl-a4r2-b-seq0772",
+  "host_session_id": "SESS-impl-a4r2-b-epic196a8integration-0772",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-2/integrated-summary.json", "sha256": "152d92e144b76384789be142ef8afa78f361af006c96257ef1d302e76f47a33d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/impl-review/epic-196-a8-integration/attempt-4/round-2/precheck-result.json", "sha256": "004f8f2fee3b0fa26820de305cd9c9edb37b0e19b98d13ec8bd6277130789f23"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md", "sha256": "4a2068c5961329faa01572a0b4ae441ce272d3bab2033e1a68c727a4fe5d614e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md", "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md", "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/investigation.md", "sha256": "6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md", "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md", "sha256": "2918b235e3e80d6245664094027a8992398172fd31d1cc9f5af7e07b6b361975"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md", "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every architecture/technology decision carries an explicit rationale (design.md ## Design Decisions, lines 1449-1514, and the Ed25519/JCS Signing Contract, lines 677-709), each with a 'because'/'resolves'/'so that' justification. No unjustified inline decision found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Open Questions (lines 1647-1660) does not use the literal 'Owner:/Blocks Implementation:/Resolution Path:' labels, but the substance is present and unambiguous for both entries: OQ-001's owner is the Phase 2/3 implementer, it does not block implementation (Design Decisions, lines 1451-1462: the classification table 'fixes the record schema and lifecycle either way'), and its resolution path is empirical confirmation before an automated E2E path is built (requirements.md OQ-001, line 751). OQ-002 is stated resolved with its own Coverage Scope table as the resolution artifact. No blocking, ownerless, or resolution-path-less open question exists."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Assumptions (lines 1621-1645), the section this round remediated, now correctly marks the Epic A1 assumption superseded (Epic A1 merged 2026-08-08, handshake script and five consumer entry points exist on main), grounded in investigation.md INV-004-INV-007/INV-021. The Epic A5/A7 assumption cites INV-008/INV-009. The 'Unchanged' assumption (decision doc, ADR-0019, .gitattributes/installer/hook-config stability) is a reasonable technical default grounded in INV-010/INV-011/INV-013/INV-022. investigation.md is present and each cited assumption traces to a specific INV-xxx entry."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a ## Constraint Compliance section (lines 1599-1619) addressing both requirements.md-defined constraints (B1 live-host session authenticity, B2 read-only drift check) plus CI resilience conventions. A grep of requirements.md for 'must not/shall not/within N ms/maximum N/compliant with/compatible with/SLA/latency/throughput' found no additional constraint left unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Deployment / CI Plan (lines 1566-1597) names the deployment target (existing 3-OS CI matrix, INV-014, no new topology), the CI pipeline changes (new steps registering into test.yml/run-all), and the live-host proof's designed-red gate timing. No schema/database changes exist (Data Plan Migration Strategy: 'No migration required'), so migrate-vs-deploy ordering is not applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Data Plan (lines 275-280) states: 'Migration Strategy: No migration required. Every data entity named above is a net-new file with no prior version to migrate from.' Existing Data Affected is read-only except one additive metadata write (nonce ledger consumed_by_record field)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## External Integrations (lines 1556-1564) names Claude Code CLI/Codex CLI/Copilot CLI, each consumed read-only with no config modification beyond install.sh/install.ps1's existing behavior. Contract detail (cli_name/cli_version fields) is fixed in the live-host-verification-record/v1 schema (lines 468-469), and failure behavior is exhaustively specified per cell in the Live-Host Semantic Matrix (lines 1190-1216, e.g. Codex-disabled-expected-unavailable, Copilot-subagent-expected-unavailable)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Components-table entry maps directly to REQ-001 through REQ-007 (Overview, design.md lines 6-27); requirements.md's Non-goals are respected (no per-Epic 3-environment work re-absorbed, no new CI topology). No design-system/ directory exists in this repository, consistent with design.md's Design System Compliance stating N/A."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces (B1 live-host session authenticity, B4 nonce/signing forgery-resistance, B5 classification-mismatch/synthetic-substitution) each name a concrete validation path: security-spec.md's Security Tests table (lines 199-209) cites specific Test Strategy items (5, 8, 10) and expected error codes (ERR_STALE_SKIP, ERR_NONCE_REUSED, ERR_SYNTHETIC_SUBSTITUTION); design.md Test Strategy items 8/10 name the concrete validate-live-host-proof aggregate check as the Done/release gate."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists in this repository (confirmed via `ls domain/` -> No such file or directory), so no Approved domain-contract.json/context-map.md exists to check requirements.md/design.md against."
+    }
+  ]
+}

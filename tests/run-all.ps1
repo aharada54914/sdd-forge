@@ -21,6 +21,7 @@ $tests = @(
     'tests/phase2-sudo-signature.tests.ps1',
     'tests/scenario.tests.ps1',
     'tests/install.tests.ps1',
+    'tests/installer-idempotency.tests.ps1',
     'tests/uninstall.tests.ps1',
     'tests/claude-registration.tests.ps1',
     'tests/workflow-state-registry.tests.ps1',
@@ -63,9 +64,23 @@ $tests = @(
     'tests/ship-track-selection-migration.tests.ps1',
     'tests/design-sync-standing-consent.tests.ps1',
     'tests/design-sync-scan.tests.ps1',
-    'tests/golden-baseline-contract.tests.ps1',
     'tests/compatibility-byte-identical.tests.ps1',
-    "tests/structural-compatibility.tests.ps1"
+    'tests/golden-baseline-contract.tests.ps1',
+    'tests/structural-compatibility.tests.ps1',
+    'tests/path-lineending-regression.tests.ps1',
+    'tests/validate-live-host-proof.tests.ps1',
+    'tests/human-copy-runner-contract.tests.ps1',
+    'tests/check-risk-upgrade-byte-identical.tests.ps1',
+    'tests/check-risk-upgrade-capability-merge.tests.ps1',
+    'tests/check-risk-upgrade-fragment-fail-closed.tests.ps1',
+    'tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1',
+    'tests/lite-spec-capability-block.tests.ps1',
+    'tests/lite-gate-summary-consumption.tests.ps1',
+    'tests/lite-gate-summary-absent.tests.ps1',
+    'tests/lite-gate-summary-invalid.tests.ps1',
+    'tests/lite-gate-full-upgrade-backstop.tests.ps1',
+    'tests/lite-gate-summary-absent-active-enforcement.tests.ps1',
+    'tests/lite-gate-direct-edit-contract.tests.ps1'
     'tests/capability-registry-schema.tests.ps1',
     'tests/evaluate-predicate.tests.ps1',
     'tests/registry-discovery.tests.ps1',
@@ -77,7 +92,9 @@ $tests = @(
     'tests/component-path-diff-basis.tests.ps1',
     'tests/ownership-digest.tests.ps1',
     'tests/check-component-coverage.tests.ps1',
-    'tests/component-path-ownership-parity.tests.ps1'
+    'tests/human-copy-mirror-freshness.tests.ps1',
+    'tests/component-path-ownership-parity.tests.ps1',
+    'tests/boundary-reference-authorization-parity.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,

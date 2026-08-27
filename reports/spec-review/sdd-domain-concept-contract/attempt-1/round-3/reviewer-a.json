@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-a-a1r3-seq0758",
+  "host_session_id": "SESS-spec-spec-reviewer-a-sdd-domain-concept-contract-a1r3-0758",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "7358082e0477468d77973eb096f963917a410bbfcc7138c7fb8392b2338b5243"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "be3a0757a281de6d1f37d63584593174e1cf8b7e768e26a808d7df329538006d"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-1/round-3/precheck-result.json",
+      "sha256": "72fbb055f9752bbd921f599ce310013597d7b51066fdce5df42a3ef87b6ea339"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-007 each resolve to concrete, machine-checkable evidence: exact schema file path/const/required keys (REQ-001), explicit regex patterns for id/name/context now stated both in prose and pattern form (REQ-002, fixing round-2 ambiguity), an enumerated validator check list (a)-(i) with exit-code and stderr-format contract (REQ-004), a concretely described fixture corpus (REQ-005), a named test file plus twin-parity assertion (REQ-006), and a byte-identity drift lock for v1 (REQ-007). No in-scope requirement is left as an unmeasurable intent statement."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "G1->AC-001/AC-002/AC-016, G2->REQ-003 traced via AC-009 (and the schema-shape assertion in AC-001), G3->REQ-004 traced across AC-006..AC-014/AC-016..AC-018, G4->REQ-005/REQ-006 traced via AC-003/AC-004/AC-005/AC-013, G5->REQ-007 traced via AC-002/AC-015. Every stated goal resolves to at least one acceptance criterion; no goal is left untraced."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every AC row names a concrete observable: exit code, presence/absence of specific field names in stderr, byte-identical SHA-256 comparison, or structural presence of a required key. AC-018 (new this round) specifies exact non-conforming example values (`concept-order`, `order_item`, `Order-Taking`) and exact conforming boundary values (`APIOrder`, `order-taking-2`), removing the round-2 ambiguity about what a pattern violation looks like."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals enumerate concept-test/interviewer/reviewer/reverse-mode phases, v1->v2 migration tooling, domain/ Markdown artifact changes, and (newly added this round) the non-goal of introducing a mechanical enforcement mechanism for `meta.status` Approved. Edge Cases and Assumptions further bound behavior (empty concepts array, cross-context same-name concepts, oversized/malformed input). No open-ended expansion surface remains unstated."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Compatibility is pinned by REQ-007 plus the AC-002 SHA-256 drift lock; the approval boundary is now explicit and non-contradictory in Roles and Permissions ('meta.status の Approved 書込に対する機械的強制は存在しない...承認境界は人間のレビュー運用のみ'), resolving the round-2 CONTRADICTION/APPROVAL-BOUNDARY finding; Security Boundaries states content-as-data, no network/external-dependency, and no-secrets-in-fixtures constraints; migration is explicitly out of scope per Non-goals and Assumptions (INV-009)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "R1 (schema insufficiency for later phases) is tied to the fixture corpus and Phase 1 judgment-type coverage; R2 (hand-rolled validator/schema drift) is tied to REQ-006's twin-and-structure cross-check described as a drift lock; R3 (sh/ps1 verdict divergence) is tied to the AC-013 twin-parity test. Each identified risk has a named, already-scoped validation surface within this feature's own test plan."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in the repository (confirmed via glob for `domain/context-map.md` and `domain/domain-contract.json`, both absent), consistent with investigation.md INV-009's finding that no domain artifact instance exists. The Approved-context-map precondition for this check is not met, so it is recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

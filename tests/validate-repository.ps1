@@ -28,13 +28,13 @@ if ($LASTEXITCODE -ne 0) {
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.15.0"
-    "sdd-implementation" = "1.15.0"
-    "sdd-quality-loop"   = "1.15.0"
-    "sdd-lite"           = "1.15.0"
-    "sdd-review-loop"    = "1.15.0"
-    "sdd-ship"           = "1.15.0"
-    "sdd-domain"         = "1.15.0"
+    "sdd-bootstrap"      = "1.16.0"
+    "sdd-implementation" = "1.16.0"
+    "sdd-quality-loop"   = "1.16.0"
+    "sdd-lite"           = "1.16.0"
+    "sdd-review-loop"    = "1.16.0"
+    "sdd-ship"           = "1.16.0"
+    "sdd-domain"         = "1.16.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -52,14 +52,14 @@ $readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md"
 $readmeCurrentRelease = $readmeLines |
     Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
     Select-Object -First 1
-if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.15\.0(?:\s|$)") {
-    throw "README.md current release must be v1.15.0."
+if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.16\.0(?:\s|$)") {
+    throw "README.md current release must be v1.16.0."
 }
 
 $changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
-$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.15\.0(?:\s|$)")
+$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.16\.0(?:\s|$)")
 if ($currentReleaseHeadings.Count -ne 1) {
-    throw "CHANGELOG.md must contain exactly one v1.15.0 release heading."
+    throw "CHANGELOG.md must contain exactly one v1.16.0 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"
@@ -457,26 +457,46 @@ if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
     throw "ci-github.template.yml does not contain the required project-command replacement marker."
 }
 
-# Side-effecting skills must not be auto-invocable by the model.
-# Only the two entry commands and human-only utilities may appear in the
-# user-facing slash menu; every other skill must also set user-invocable: false.
+# Skill reachability contract (WFI-054). Every skill must have exactly one
+# reachable caller class:
+#   - the six user-facing entries: model-uninvocable (a human types them) and
+#     visible in the slash menu (no user-invocable: false);
+#   - every other skill: a ship/bootstrap-delegated stage, so it MUST be
+#     model-invocable (the delegating skill is the model executing its
+#     instructions) and MUST stay out of the menu (user-invocable: false).
+# The forbidden state is both flags together -- disable-model-invocation: true
+# with user-invocable: false refuses the model AND the human, which left
+# sixteen skills unreachable by anyone until 2026-08-25.
 $userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose", "domain-model")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
-    if ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
-        throw "Skill must set disable-model-invocation: true: $($skillFile.FullName)"
-    }
     if ($content -notmatch "(?m)^name:\s*(.+)$") {
         throw "Skill has no name: $($skillFile.FullName)"
     }
     $skillName = $Matches[1].Trim()
+    $hasDisableModelTrue = $content -match "(?m)^disable-model-invocation:\s*true$"
+    $hasDisableModelFalse = $content -match "(?m)^disable-model-invocation:\s*false$"
+    if (-not ($hasDisableModelTrue -or $hasDisableModelFalse)) {
+        throw "Skill must declare disable-model-invocation explicitly: $($skillFile.FullName)"
+    }
     $hasUserInvocableFalse = $content -match "(?m)^user-invocable:\s*false$"
+    if ($hasDisableModelTrue -and $hasUserInvocableFalse) {
+        throw "Unreachable skill (disable-model-invocation: true AND user-invocable: false refuses every caller, WFI-054): $($skillFile.FullName)"
+    }
     if ($skillName -in $userVisibleSkills) {
+        if (-not $hasDisableModelTrue) {
+            throw "User-facing entry skill must set disable-model-invocation: true: $($skillFile.FullName)"
+        }
         if ($hasUserInvocableFalse) {
             throw "User-facing skill must not set user-invocable: false: $($skillFile.FullName)"
         }
-    } elseif (-not $hasUserInvocableFalse) {
-        throw "Internal skill must set user-invocable: false: $($skillFile.FullName)"
+    } else {
+        if (-not $hasUserInvocableFalse) {
+            throw "Internal skill must set user-invocable: false: $($skillFile.FullName)"
+        }
+        if (-not $hasDisableModelFalse) {
+            throw "Internal skill must set disable-model-invocation: false (its only caller is the delegating skill the model executes, WFI-054): $($skillFile.FullName)"
+        }
     }
 }
 

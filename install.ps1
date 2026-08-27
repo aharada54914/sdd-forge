@@ -63,6 +63,93 @@ function Invoke-PluginCommand {
     }
 }
 
+# External CLIs report an already-present marketplace, MCP server, or plugin as
+# an error, not as success. WFI-041: propagating that as fatal made every
+# re-run of the installer on an installed machine roll the install root back to
+# the previous version while reporting an error about something unrelated.
+# "Already there" is the desired end state, so match the CLIs' own wording and
+# treat it as success. Every other non-zero exit stays fatal.
+$script:IdempotentRegistrationPattern = 'already (registered|exists|added|installed|configured)'
+
+# claude reports an existing plugin installation as *success*, so a plain
+# re-run leaves the cache a version behind. These two patterns drive the
+# upgrade path in Install-ClaudePlugins.
+$script:ClaudeAlreadyInstalledPattern = 'already installed'
+$script:ClaudeUpgradePattern = 'updated from \S+ to \S+'
+
+function Invoke-CapturedCommand {
+    # Runs a native command, capturing stdout and stderr to files so both can
+    # be scanned (the CLIs disagree about which stream carries the message),
+    # then re-emitting each on its original stream so the caller still sees
+    # exactly what the CLI said. Returns @{ ExitCode; Output }.
+    param(
+        [Parameter(Mandatory)][string]$Command,
+        [Parameter(Mandatory)][string[]]$Arguments
+    )
+
+    $outFile = [System.IO.Path]::GetTempFileName()
+    $errFile = [System.IO.Path]::GetTempFileName()
+    try {
+        & $Command @Arguments > $outFile 2> $errFile
+        $exitCode = $LASTEXITCODE
+        $stdout = (Get-Content -Path $outFile -Raw -ErrorAction SilentlyContinue)
+        $stderr = (Get-Content -Path $errFile -Raw -ErrorAction SilentlyContinue)
+        if ($stdout) { Write-Host $stdout.TrimEnd() }
+        if ($stderr) { [Console]::Error.WriteLine($stderr.TrimEnd()) }
+        return @{ ExitCode = $exitCode; Output = "$stdout`n$stderr" }
+    }
+    finally {
+        Remove-Item -Path $outFile, $errFile -Force -ErrorAction SilentlyContinue
+    }
+}
+
+function Invoke-IdempotentPluginCommand {
+    # Like Invoke-PluginCommand, but tolerates the "already there" outcome.
+    param(
+        [Parameter(Mandatory)][string]$Label,
+        [Parameter(Mandatory)][string]$Command,
+        [Parameter(Mandatory)][string[]]$Arguments
+    )
+
+    $result = Invoke-CapturedCommand -Command $Command -Arguments $Arguments
+    if ($result.ExitCode -eq 0) { return }
+    if ($result.Output -imatch $script:IdempotentRegistrationPattern) {
+        Write-Host "Note: $Label is already registered; keeping the existing registration."
+        return
+    }
+    throw "'$Command $($Arguments -join ' ')' failed with exit code $($result.ExitCode)."
+}
+
+function Update-ClaudePlugins {
+    # Converge already-installed Claude plugins on the marketplace's current
+    # version. Reports each plugin's transition so that a run which changed
+    # nothing is distinguishable from one that upgraded.
+    param([Parameter(Mandatory)][string[]]$PluginNames)
+
+    Invoke-PluginCommand "claude" @("plugin", "marketplace", "update", "sdd-plugins")
+    $upgraded = 0
+    foreach ($plugin in $PluginNames) {
+        $result = Invoke-CapturedCommand -Command "claude" -Arguments @("plugin", "update", "$plugin@sdd-plugins")
+        if ($result.ExitCode -ne 0) {
+            throw "'claude plugin update $plugin@sdd-plugins' failed with exit code $($result.ExitCode)."
+        }
+        $match = [regex]::Match($result.Output, $script:ClaudeUpgradePattern, 'IgnoreCase')
+        if ($match.Success) {
+            Write-Host "sdd-forge: upgraded $plugin ($($match.Value))"
+            $upgraded++
+        }
+        else {
+            Write-Host "sdd-forge: $plugin was already up to date"
+        }
+    }
+    if ($upgraded -eq 0) {
+        Write-Host "sdd-forge: no Claude plugin needed an upgrade."
+    }
+    else {
+        Write-Host "sdd-forge: upgraded $upgraded Claude plugin(s)."
+    }
+}
+
 function Install-CodexPlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
@@ -76,13 +163,13 @@ function Install-CodexPlugins {
         return
     }
 
-    Invoke-PluginCommand "codex" @("plugin", "marketplace", "add", $MarketplaceRoot)
+    Invoke-IdempotentPluginCommand "the Codex sdd-plugins marketplace" "codex" @("plugin", "marketplace", "add", $MarketplaceRoot)
     if ($SkipPluginInstall) {
         $script:CodexRegistrationStatus = "marketplace registered; plugin install skipped"
         return
     }
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "codex" @("plugin", "add", "$plugin@sdd-plugins")
+        Invoke-IdempotentPluginCommand "Codex plugin '$plugin'" "codex" @("plugin", "add", "$plugin@sdd-plugins")
     }
     $script:CodexRegistrationStatus = "registered"
 }
@@ -100,13 +187,13 @@ function Install-CopilotPlugins {
         return
     }
 
-    Invoke-PluginCommand "copilot" @("plugin", "marketplace", "add", $MarketplaceRoot)
+    Invoke-IdempotentPluginCommand "the Copilot sdd-plugins marketplace" "copilot" @("plugin", "marketplace", "add", $MarketplaceRoot)
     if ($SkipPluginInstall) {
         $script:CopilotRegistrationStatus = "marketplace registered; plugin install skipped"
         return
     }
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "copilot" @("plugin", "install", "$plugin@sdd-plugins")
+        Invoke-IdempotentPluginCommand "Copilot plugin '$plugin'" "copilot" @("plugin", "install", "$plugin@sdd-plugins")
     }
     $script:CopilotRegistrationStatus = "registered"
 }
@@ -129,13 +216,27 @@ function Install-ClaudePlugins {
     foreach ($plugin in $Plugins) {
         Invoke-PluginCommand "claude" @("plugin", "validate", (Join-Path $MarketplaceRoot "plugins/$plugin"))
     }
-    Invoke-PluginCommand "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
+    Invoke-IdempotentPluginCommand "the Claude sdd-plugins marketplace" "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
     if ($SkipPluginInstall) {
         $script:ClaudeRegistrationStatus = "marketplace registered; plugin install skipped"
         return
     }
+    # `claude plugin install` reports an existing installation as success and
+    # returns without upgrading, so a re-run would silently leave the cache a
+    # version behind (WFI-041). Collect those plugins and put them through the
+    # update path below.
+    $alreadyInstalled = [System.Collections.Generic.List[string]]::new()
     foreach ($plugin in $Plugins) {
-        Invoke-PluginCommand "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
+        $result = Invoke-CapturedCommand -Command "claude" -Arguments @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
+        if ($result.ExitCode -ne 0) {
+            throw "'claude plugin install $plugin@sdd-plugins --scope user' failed with exit code $($result.ExitCode)."
+        }
+        if ($result.Output -imatch $script:ClaudeAlreadyInstalledPattern) {
+            $alreadyInstalled.Add($plugin)
+        }
+    }
+    if ($alreadyInstalled.Count -gt 0) {
+        Update-ClaudePlugins -PluginNames $alreadyInstalled.ToArray()
     }
     $script:ClaudeRegistrationStatus = "registered"
 }
@@ -241,7 +342,7 @@ function Register-ClaudeMcp {
     foreach ($name in $Mcp) {
         $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
         if (-not (Test-Path $entryPoint)) { continue }
-        Invoke-PluginCommand "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
+        Invoke-IdempotentPluginCommand "MCP server '$name'" "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
     }
 }
 
@@ -523,6 +624,9 @@ $temporaryRoot = $null
 $backupRoot = $null
 $stagingRoot = $null
 $newInstallPlaced = $false
+# Set once the install root holds the new tree and only external-CLI
+# registration remains. See the catch block (WFI-041).
+$registrationStarted = $false
 $mutex = $null
 $mutexAcquired = $false
 try {
@@ -696,6 +800,11 @@ try {
     # -Target and is controlled only by -SkipMcp / -Mcp.
     Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $resolvedInstallRoot
 
+    # Everything below registers the placed tree with external CLIs. A failure
+    # from here on must not revert the install root — see the catch block
+    # (WFI-041).
+    $registrationStarted = $true
+
     if ($Target -in @("All", "Codex")) {
         Install-CodexPlugins $resolvedInstallRoot
         if (-not $SkipAgentInstall -and (Get-Command "codex" -ErrorAction SilentlyContinue)) {
@@ -718,6 +827,26 @@ try {
     }
 }
 catch {
+    # WFI-041: roll back only for failures up to and including placement. Once
+    # the tree is in the install root and the run has moved on to registering
+    # it with external CLIs, reverting would discard a correct install for a
+    # failure that is not the install's — one CLI's complaint used to undo the
+    # whole upgrade. The failing registration is reported by its own call site;
+    # the tree stays at the new version and a re-run retries registration,
+    # which is now idempotent (Invoke-IdempotentPluginCommand).
+    if ($registrationStarted) {
+        if ($backupRoot -and (Test-Path $backupRoot)) {
+            try {
+                Remove-Item -Path $backupRoot -Recurse -Force
+                $backupRoot = $null
+            }
+            catch {
+                Write-Warning "Could not remove superseded backup at '$backupRoot': $_"
+            }
+        }
+        Write-Warning "Registration failed, but the install root at '$InstallRoot' was left at the newly installed version. Re-run the installer to retry registration."
+        throw
+    }
     # Rollback is best-effort: wrap each destructive step so that a locked file
     # or other Windows error does not prevent the restore from being attempted.
     if ($backupRoot -and (Test-Path $backupRoot)) {

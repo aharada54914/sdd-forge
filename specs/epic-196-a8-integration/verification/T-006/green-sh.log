@@ -1,0 +1,10 @@
+Command: bash tests/path-lineending-regression.tests.sh
+Exit: 0
+Workflow state: GREEN
+
+Prerequisite and contract checks: 10 passed
+Row/case fixed-oracle checks: 48 passed
+path-lineending-fixture-result/v1 schema/count check: 1 passed
+Layer-disposition checks: 4 passed
+
+path-lineending-regression: 63 passed, 0 failed
