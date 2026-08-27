@@ -1,0 +1,96 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "RUN-epic-193-a5-T-006-impl-1",
+  "session_id": "SESS-epic-193-a5-T-006-impl-1",
+  "agent_instance_id": "AGENT-epic-193-a5-T-006-impl-1",
+  "model_tier": "standard",
+  "provider": "anthropic",
+  "model": "sonnet",
+  "estimated_cost_per_attempt_usd": "0.50",
+  "cost_estimate_source": "select-agent-model.sh --risk medium (orchestrator-supplied candidate table)",
+  "cost_estimate_timestamp": "2026-08-27T02:09:35Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "f3c4b50ad9190178be26b3bab47bc36744d3080c5d88990527cd3d8d3f06d031"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "24dde15292593e18b3272cbc34d38f67f0cac73408eec7eabfbb791c82a83f94"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.sh",
+      "sha256": "03986de0a2cbc1e1fd69b93444accfe4215b5ab5ea17c3a3449f9cef37fe9429"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.ps1",
+      "sha256": "d8eb942924296d36a9df5222dc0ecf2e446c462e1f66493b9ed0fbfde3e20656"
+    },
+    {
+      "path": "tests/resolve-project-context-block-check.py",
+      "sha256": "e384d61a9660325b2eb902c1acb416cf6425f6dcb3df3c60d87120af6198bcb4"
+    },
+    {
+      "path": "tests/resolve-project-context-match-check.py",
+      "sha256": "89f46e03750a7b4199cd95330ecd186dee94f30cf772ac883801d50c191baebd"
+    },
+    {
+      "path": "tests/resolve-project-context-match.tests.sh",
+      "sha256": "c84b4ecbf6f06cb24203dc6492b740a5504de60631ea284fea7a239ad70f4527"
+    },
+    {
+      "path": "tests/resolve-project-context-match.tests.ps1",
+      "sha256": "f843a1994de123e3444efe8322fbbacad197bf5873f42f18358d47678efc1482"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "51f3f742caf3d4b4e5fc44934d802047750ba5de0a7a7ce538af6631b8f91e68"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/resolve-project-context-cli.tests.sh",
+    "tests/resolve-project-context-cli.tests.ps1",
+    "tests/resolve-project-context-cli-check.py",
+    "tests/resolve-project-context-lite.tests.sh",
+    "tests/resolve-project-context-lite.tests.ps1",
+    "tests/resolve-project-context-lite-check.py",
+    "tests/resolve-project-context-discovery.tests.sh",
+    "tests/resolve-project-context-discovery.tests.ps1",
+    "tests/resolve-project-context-discovery-check.py",
+    "tests/fixtures/capability-resolver",
+    "tests/run-all.sh",
+    "tests/run-all.ps1",
+    "specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml",
+    "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+    "CHANGELOG.md",
+    "reports/implementation/epic-193-a5-capability-resolver/T-006.md"
+  ]
+}

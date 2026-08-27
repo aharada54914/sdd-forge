@@ -106,6 +106,9 @@ tests=(
   tests/resolver-evidence-schema.tests.sh
   tests/resolve-project-context-block.tests.sh
   tests/resolve-project-context-match.tests.sh
+  tests/resolve-project-context-cli.tests.sh
+  tests/resolve-project-context-discovery.tests.sh
+  tests/resolve-project-context-lite.tests.sh
   tests/capability-registry-schema.tests.sh
   tests/evaluate-predicate.tests.sh
   tests/registry-discovery.tests.sh

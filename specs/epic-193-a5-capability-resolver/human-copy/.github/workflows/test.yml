@@ -665,6 +665,51 @@ jobs:
         shell: pwsh
         run: ./tests/resolve-project-context-match.tests.ps1
 
+      # epic-193-a5-capability-resolver T-006 (REQ-001/REQ-006, TEST-001/
+      # 002/009/028): three suites exercising T-002/T-003/T-004's own
+      # already-built core engine from three additional angles this task's
+      # own Blockers (T-004, T-005) let it add without editing the engine
+      # itself -- the CLI required-flag argument-validation matrix
+      # (resolve-project-context-cli), the ADR-0025 discovery-contract
+      # reuse lock plus the three installed-standalone-plugin-layout
+      # fixtures (resolve-project-context-discovery), and the B5-narrowed
+      # Lite-track track-exclusive publication-set guarantee
+      # (resolve-project-context-lite). Ordered directly after T-005's own
+      # match suite, the immediately preceding suite-registering task in
+      # the fixed CI-registration order (T-006's own Depends On text).
+      - name: Test project-context CLI resolver (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/resolve-project-context-cli.tests.sh
+
+      - name: Test project-context CLI resolver (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-cli.tests.ps1
+
+      - name: Test project-context discovery resolver (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/resolve-project-context-discovery.tests.sh
+
+      - name: Test project-context discovery resolver (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-discovery.tests.ps1
+
+      - name: Test project-context lite resolver (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/resolve-project-context-lite.tests.sh
+
+      - name: Test project-context lite resolver (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-lite.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with
