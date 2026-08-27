@@ -407,6 +407,7 @@ ALL_CASE_NAMES = (
         "post-publication-generation-mismatch",
         "snapshot-generation-mismatch-affected-components",
         "publication-journal-target-escape",
+        "publication-target-parent-symlink",
     ]
 )
 
@@ -3111,6 +3112,103 @@ def run_t007_journal_target_escape_case(kind, counts):
             check_evidence_schema(counts, evidence_path, label)
 
 
+def run_t007_parent_symlink_case(kind, counts):
+    """Panel round 2, MAJOR 2 (parent-directory symlink escape). Round 1's
+    containment normalizes paths LEXICALLY (`os.path.normpath`), which
+    collapses `..`/`.` but does NOT resolve symlinks -- and round 1's own
+    `_normalized` docstring justified that by claiming the symlink case is
+    "closed separately by the write primitives themselves" (`os.replace`
+    replaces a symlink at the target). That reasoning covers only a symlink
+    at the FINAL target component. It does NOT cover a symlinked PARENT
+    directory: if `generated/` (or `specs/<feature>/`, or the staging dir) is
+    itself a symlink, an apparently-allowlisted target passes the lexical
+    check while `mkdir`/`mkstemp`/`os.replace` follow the parent symlink and
+    write OUTSIDE the fixed publication set -- the exact `never ... writes
+    outside` invariant round 1 committed to (requirements.md:1144-1151),
+    reached through a mechanism round 1 left open.
+
+    This is the CLEAN publication path (step 14), not a planted journal, so
+    it needs no attacker-supplied journal at all: it fires the very first
+    time a Full-track resolve runs in a tree where `generated/` happens to be
+    a symlink (a symlinked worktree, a developer's relocated build dir, or a
+    deliberately-planted one). The fixture symlinks `generated/` to a
+    sibling directory holding a sentinel and asserts the projection write is
+    REFUSED (fail-closed `artifact-publication-failed`, before any live
+    write) and the outside sentinel is byte-untouched."""
+    case_name = "publication-target-parent-symlink"
+    fixture_dir = FIXTURES / case_name
+    outside_sentinel = b"OUTSIDE-THE-PUBLICATION-SET\n"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        # Replace scripts/generated (a real dir seeded by plant_sentinels)
+        # with a SYMLINK to an outside directory that already holds a
+        # project-context.resolved.json. A lexical allowlist check cannot
+        # tell this apart from a real generated/ directory.
+        generated = scripts / "generated"
+        shutil.rmtree(generated)
+        outside_dir = repo / "outside-generated"
+        outside_dir.mkdir()
+        outside_file = outside_dir / "project-context.resolved.json"
+        outside_file.write_bytes(outside_sentinel)
+        generated.symlink_to(outside_dir)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+        target_oid = git_commit_all(repo, "add comp-a")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, target_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_detail = f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {NO_ROLLBACK_CLAUSE}"
+        expected_line = f"capability-resolver: artifact-publication-failed: {expected_detail}\n"
+        counts.check(
+            result.returncode == 1 and stdout == "" and stderr == expected_line,
+            f"{case_name}: a symlinked `generated/` parent Blocks artifact-publication-failed before any "
+            f"live write, rather than following the symlink (MAJOR 2)",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(outside_file) == outside_sentinel,
+            f"{case_name}: the file OUTSIDE the publication set (reached only through the symlinked "
+            f"parent) is byte-untouched -- the projection never escaped the fixed set "
+            f"(requirements.md:1144-1151)",
+            repr(read_or_missing(outside_file)),
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{case_name}: the Full-track track artifact never reached its live path -- the refusal "
+            f"precedes the whole publication transaction (TEST-038)",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")),
+        )
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = read_evidence(evidence_path)
+        counts.check(
+            isinstance(evidence, dict)
+            and evidence.get("diagnostics") == [{
+                "id": "artifact-publication-failed", "detail": expected_detail, "severity": "block",
+            }],
+            f"{case_name}: the Block's own Resolver Evidence is still written (AC-012) -- and its own "
+            f"single-target transaction, which only ever touches resolver-evidence.yaml, is unaffected "
+            f"by the symlinked generated/ parent",
+            parse_error or repr(evidence),
+        )
+        check_evidence_schema(counts, evidence_path, case_name)
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: no journal or staging litter survives -- the refused publish left none, and the "
+            f"Block Evidence's own transaction cleaned up after itself",
+            repr(staging_litter(feature_dir)),
+        )
+
+
 def run_block_matrix_completeness_check(counts):
     """TEST-010/AC-010 + AC-014, completed by T-007: the sixteen-row REQ-002
     Block matrix is now covered end to end.
@@ -3205,6 +3303,7 @@ def main():
         run_t007_post_publication_mismatch_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
+        run_t007_parent_symlink_case(args.launcher, counts)
         run_draft7_validator_keyword_checks(counts)
         run_draft7_keyword_coverage_check(counts)
         run_sys_path_hygiene_check(counts)

@@ -1022,6 +1022,53 @@ def _allowed_publication_targets(repo_root, feature):
     )
 
 
+def _allowed_publication_targets_real(repo_root, feature):
+    """The same fixed target set as `_allowed_publication_targets`, but each
+    entry's OWN symlinks fully resolved -- the trusted bases (`repo_root`,
+    the script directory) resolved once, then the fixed lexical subpath
+    joined on WITHOUT following any further symlink.
+
+    This is the reference `os.path.realpath(target)` is compared against by
+    `_target_escapes_via_symlink` below. Because the base is resolved but the
+    subpath (`specs/<feature>/...`, `generated/...`) is not, a symlink placed
+    anywhere from the base down to the target -- `specs/<feature>` itself,
+    `generated`, or the leaf -- makes `realpath(target)` diverge from this
+    reference and is caught. Resolving the base first is deliberate: on macOS
+    `/var` is a symlink to `/private/var`, and every fixture temp repo lives
+    under it, so a check that forbade *any* symlink from the filesystem root
+    down would reject every legitimate run. The threat is a symlink INSIDE
+    the controlled subtree, not one above the repository."""
+    repo_real = os.path.realpath(str(repo_root))
+    script_real = os.path.realpath(str(Path(__file__).resolve().parent))
+    feature_dir = os.path.join(repo_real, "specs", feature)
+    return frozenset((
+        os.path.join(feature_dir, "facet-manifest.yaml"),
+        os.path.join(feature_dir, "capability-summary.yaml"),
+        os.path.join(feature_dir, "resolver-evidence.yaml"),
+        os.path.join(script_real, "generated", "project-context.resolved.json"),
+    ))
+
+
+def _target_escapes_via_symlink(repo_root, feature, target):
+    """True iff `target`, after FULL symlink resolution of its ancestry,
+    would land outside this feature's own fixed publication target set
+    (panel round 2, MAJOR 2).
+
+    `_normalized` (the lexical check) deliberately does not resolve symlinks,
+    so it cannot see a symlinked PARENT directory -- `os.path.normpath`
+    collapses `..` but leaves a symlink component intact, and the later
+    `mkdir`/`mkstemp`/`os.replace` then follow that component and write
+    outside the set. This closes that gap the only way a check without a
+    stored real-path oracle can: resolve the candidate the same way the
+    kernel will at write time (`os.path.realpath`, which follows every
+    symlink in the ancestry and, with the default `strict=False`, resolves
+    the existing prefix while leaving a not-yet-created leaf lexical) and
+    require the result to be one of the fixed, base-resolved target
+    locations. It also subsumes the lexical `..`-traversal case, so the two
+    checks are belt-and-suspenders, not redundant coverage of one bug."""
+    return os.path.realpath(str(target)) not in _allowed_publication_targets_real(repo_root, feature)
+
+
 def _staging_root(repo_root, feature):
     """`specs/<feature>/.resolver-staging` -- an unprotected staging area,
     this feature's own equivalent of Epic A1's own `sdd/.staging/`
@@ -1332,6 +1379,24 @@ def _publish_bundle(repo_root, feature, targets):
             # drift apart into a journal recovery is structurally unable to
             # converge.
             raise OSError("a publication target lies outside this feature's own fixed target set")
+        # Panel round 2, MAJOR 2: the lexical check above cannot see a
+        # symlinked PARENT (`generated/`, `specs/<feature>/`). Resolve each
+        # target's ancestry the way the kernel will at write time and re-
+        # assert containment, so a symlinked parent cannot launder a write
+        # outside the fixed set on the ordinary publication path -- this
+        # fires the first time a Full-track resolve runs in a tree where one
+        # of those directories is a symlink, no planted journal required.
+        if any(_target_escapes_via_symlink(repo_root, feature, target) for target, _payload in targets):
+            raise OSError("a publication target's parent resolves outside this feature's own fixed target set")
+        # The staging area itself (`.resolver-staging/<nonce>/`) is where the
+        # journal and PRE-image backups are written; a symlinked staging root
+        # would put that bookkeeping outside the tree too. Contain it the
+        # same way, so the WHOLE write surface -- targets and bookkeeping --
+        # stays within `specs/<feature>/` even under a symlinked parent.
+        feature_root_real = os.path.realpath(str(repo_root / "specs" / feature))
+        staging_real = os.path.realpath(str(batch_dir))
+        if os.path.commonpath([feature_root_real, staging_real]) != feature_root_real:
+            raise OSError("the publication staging area resolves outside this feature's own directory")
         basenames = [target.name for target, _payload in targets]
         if len(set(basenames)) != len(basenames):
             # A batch whose targets share a basename would collapse two
@@ -1408,11 +1473,15 @@ def _recover_journal(repo_root, feature, journal_path):
     allowed = _allowed_publication_targets(repo_root, feature)
     seen_paths = set()
     for entry in entries:
-        normalized = _normalized(_journal_target_path(repo_root, entry["live_path"]))
-        if normalized not in allowed:
+        target_path = _journal_target_path(repo_root, entry["live_path"])
+        normalized = _normalized(target_path)
+        if normalized not in allowed or _target_escapes_via_symlink(repo_root, feature, target_path):
             # No journal content is interpolated into the diagnostic (B5):
             # the recorded path is attacker-controlled text and would carry
-            # an absolute local path into committed Resolver Evidence.
+            # an absolute local path into committed Resolver Evidence. The
+            # symlink-resolved half (panel round 2, MAJOR 2) closes the same
+            # symlinked-parent escape on the recovery path that the lexical
+            # half alone would miss.
             raise PublicationJournalUnrecoverable(
                 "a journal-listed target lies outside this feature's own fixed publication target set"
             )
