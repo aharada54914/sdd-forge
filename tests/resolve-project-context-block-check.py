@@ -3247,7 +3247,7 @@ def run_t007_staging_symlink_case(kind, counts):
     which was about attacker CONTENT written INTO an in-set target."""
     case_name = "publication-staging-parent-symlink"
     fixture_dir = FIXTURES / case_name
-    for scenario in ("staging-root-symlinked", "nonce-dir-symlinked"):
+    for scenario in ("staging-root-symlinked", "nonce-dir-symlinked", "feature-dir-symlinked"):
       label = f"{case_name}[{scenario}]"
       with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
         repo = Path(tmp).resolve()
@@ -3277,7 +3277,51 @@ def run_t007_staging_symlink_case(kind, counts):
             json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
             encoding="utf-8",
         )
-        if scenario == "staging-root-symlinked":
+        if scenario == "feature-dir-symlinked":
+            # Panel round 4: `specs/<feature>` ITSELF is the symlink. The
+            # journal deliberately names `generated/project-context.resolved
+            # .json` -- a target that lives under the SCRIPT directory, not
+            # under the symlinked feature dir -- so the round-1 allowlist and
+            # round-2 `_target_escapes_via_symlink` both legitimately APPROVE
+            # (that target really is where it should be), the round-3 staging
+            # and batch-dir guards both approve (their reference resolved the
+            # same symlink and cancelled), and the scan proceeds to
+            # `_discard_batch`. A journal naming a target under the symlinked
+            # feature dir would be caught by the round-2 target check and
+            # would NOT reach the deletion, which is exactly why this
+            # scenario needs its own journal shape.
+            external_feature = repo / "external-feature"
+            external_feature.mkdir()
+            (external_feature / "CANARY-FEATURE.txt").write_bytes(b"external feature canary\n")
+            for name, payload in (
+                ("facet-manifest.yaml", PRE_FACET_MANIFEST),
+                ("capability-summary.yaml", PRE_CAPABILITY_SUMMARY),
+            ):
+                (external_feature / name).write_bytes(payload)
+            external_staging = external_feature / STAGING_DIRNAME
+            external_nonce = external_staging / ("f" * 32)
+            (external_nonce / "pre").mkdir(parents=True)
+            (external_nonce / "CANARY.txt").write_bytes(b"external nonce canary\n")
+            journal_doc = {
+                "schema": "sdd-resolver-transaction/v1",
+                "nonce": external_nonce.name,
+                "status": "in-progress",
+                "targets": [{
+                    "live_path": "plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json",
+                    "pre_hash": hashlib.sha256(PRE_CONTEXT_PROJECTION).hexdigest(),
+                    "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+                }],
+            }
+            (external_nonce / JOURNAL_FILENAME).write_text(
+                json.dumps(journal_doc, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
+                encoding="utf-8",
+            )
+            shutil.rmtree(feature_dir)
+            feature_dir.symlink_to(external_feature)
+            # Re-point the canaries this scenario asserts on.
+            nonce_dir = external_nonce
+            external = external_staging
+        elif scenario == "staging-root-symlinked":
             # The whole staging root is a symlink: the scan discovers the
             # journal THROUGH it and would rmtree the external nonce dir.
             (feature_dir / STAGING_DIRNAME).symlink_to(external)
@@ -3308,18 +3352,27 @@ def run_t007_staging_symlink_case(kind, counts):
             f"scan globs it -- never a misattributed publication failure",
             f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
         )
+        root_canary_intact = (
+            read_or_missing(external / "ROOT-CANARY.txt") == b"external root canary\n"
+            if scenario != "feature-dir-symlinked"
+            else read_or_missing(repo / "external-feature" / "CANARY-FEATURE.txt")
+            == b"external feature canary\n"
+        )
         counts.check(
             read_or_missing(nonce_dir / "CANARY.txt") == b"external nonce canary\n"
-            and read_or_missing(external / "ROOT-CANARY.txt") == b"external root canary\n"
+            and root_canary_intact
             and (nonce_dir / JOURNAL_FILENAME).is_file(),
             f"{label}: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no "
             f"unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)",
             f"nonce_canary={read_or_missing(nonce_dir / 'CANARY.txt')!r} "
-            f"root_canary={read_or_missing(external / 'ROOT-CANARY.txt')!r} "
+            f"root_canary_intact={root_canary_intact} "
             f"journal_exists={(nonce_dir / JOURNAL_FILENAME).is_file()}",
         )
+        expected_manifest = (
+            PRE_FACET_MANIFEST if scenario == "feature-dir-symlinked" else MISSING
+        )
         counts.check(
-            read_or_missing(feature_dir / "facet-manifest.yaml") == MISSING
+            read_or_missing(feature_dir / "facet-manifest.yaml") == expected_manifest
             and read_or_missing(scripts / "generated/project-context.resolved.json")
             == PRE_CONTEXT_PROJECTION,
             f"{label}: no live artifact was published either -- the refusal precedes step 1 entirely "

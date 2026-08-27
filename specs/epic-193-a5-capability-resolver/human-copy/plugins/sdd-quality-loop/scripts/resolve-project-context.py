@@ -997,10 +997,18 @@ def _normalized(path):
     replaced an in-set path with a symlink pointing outside the set would see
     the allowed-set entry resolve to the same outside location and the check
     would pass. Lexical normalization is what actually defeats `..`
-    traversal and absolute-path escape, and the symlink case is closed
-    separately by the write primitives themselves: `os.replace` REPLACES a
-    symlink at the target rather than writing through it, and `unlink`
-    removes the link rather than its referent."""
+    traversal and absolute-path escape.
+
+    SYMLINKS ARE NOT THIS FUNCTION'S JOB. The round-1 justification that used
+    to sit here -- "`os.replace` REPLACES a symlink at the target rather than
+    writing through it, and `unlink` removes the link rather than its
+    referent" -- is true but covers ONLY a symlink at the FINAL path
+    component (panel round 2 established that; rounds 2-4 then found three
+    separate escapes above it). A symlinked PARENT is caught by
+    `_target_escapes_via_symlink`; a symlinked staging area or
+    `specs/<feature>` by `_staging_area_contained` /
+    `_expected_staging_root_real`. Use this function for lexical set
+    membership only, and always pair it with one of those realpath checks."""
     return os.path.normpath(os.path.abspath(str(path)))
 
 
@@ -1100,12 +1108,33 @@ def _path_contained_in(container_real, candidate_real):
 
 
 def _expected_staging_root_real(repo_root, feature):
-    """Where this feature's staging area MUST really live: the trusted base
-    (`specs/<feature>`, itself resolved) joined with the fixed
-    `.resolver-staging` component, WITHOUT following any further symlink.
-    Same trusted-base-then-fixed-subpath construction
-    `_allowed_publication_targets_real` uses, for the same reason."""
-    return os.path.join(os.path.realpath(str(repo_root / "specs" / feature)), STAGING_DIRNAME)
+    """Where this feature's staging area MUST really live: THE ANCHOR
+    (`repo_root`, resolved) joined with the whole fixed lexical subpath
+    `specs/<feature>/.resolver-staging`, resolving nothing in between.
+
+    Panel round 4 (Major) fixed a drift here. An earlier revision resolved
+    `specs/<feature>` first and appended only `.resolver-staging` -- it
+    treated an intermediate, branch-committable path component as trusted. A
+    symlinked `specs/` or `specs/<feature>` then moved the reference itself,
+    so `_staging_area_contained` compared a realpath against a reference that
+    had resolved THE SAME symlink: both sides cancelled, the check passed
+    vacuously, and an external staging tree was accepted. That is precisely
+    the both-sides-resolve failure mode `_normalized`'s own docstring warns
+    about, reintroduced one layer up.
+
+    `repo_root` is THE ANCHOR because it is the one path here not derived
+    from repo-local, branch-committable metadata: `_find_repo_root` locates
+    it by walking up to a `.git`, and a `.git` component cannot be
+    represented inside a git tree, so no committed branch can plant or
+    redirect it. Every containment reference in this file is therefore built
+    as anchor + fixed lexical subpath -- the construction
+    `_allowed_publication_targets_real` already used, which is exactly why
+    the PUBLICATION path was never affected by this defect (verified
+    directly: with `specs/<feature>` symlinked out,
+    `_target_escapes_via_symlink` still refuses, because its reference stays
+    lexical under the anchored root while `realpath(target)` is external, so
+    the two do not cancel)."""
+    return os.path.join(os.path.realpath(str(repo_root)), "specs", feature, STAGING_DIRNAME)
 
 
 def _staging_area_contained(repo_root, feature):
@@ -1209,13 +1238,17 @@ def _discard_batch(batch_dir):
     journal, trivially resolved by the crash-recovery scan -- then take the
     batch's own `pre/` backups and the (now empty) staging root with it, so a
     completed transaction leaves no litter for the next scan to walk."""
-    # Defence in depth (panel round 3): every caller has already validated
-    # the STAGING ROOT, but a nonce directory INSIDE a legitimate staging
-    # root could itself be a symlink. `shutil.rmtree` refuses a symlink
-    # argument, yet `journal.unlink()` below would still follow it and delete
-    # a file outside the tree, so the guard has to precede the unlink too.
-    # Self-contained deliberately -- it needs no repo/feature context, which
-    # keeps it correct at every call site including the cleanup paths.
+    # Defence in depth (panel round 3; scope corrected panel round 4). This
+    # guard compares `realpath(batch_dir)` against `realpath(batch_dir.
+    # parent)` ONLY, so what it actually covers is a NONCE directory that is
+    # itself a symlink inside an otherwise-legitimate staging root. It does
+    # NOT cover an escaping staging root or an escaping `specs/<feature>`:
+    # there the batch dir still sits inside its own parent and this check
+    # passes -- those are `_staging_area_contained`'s job, one layer up. It
+    # needs no repo/feature context, which keeps it correct at every call
+    # site including the cleanup paths, and it precedes the `unlink`
+    # deliberately: `shutil.rmtree` refuses a symlink argument, but
+    # `journal.unlink()` below would still follow one.
     parent_real = os.path.realpath(str(batch_dir.parent))
     batch_real = os.path.realpath(str(batch_dir))
     if batch_real == parent_real or not _path_contained_in(parent_real, batch_real):
@@ -1428,6 +1461,52 @@ def _rollback_transaction(transaction):
     return count, True
 
 
+def _validate_publication_preconditions(repo_root, feature, batch_dir, targets):
+    """Every check that must pass BEFORE this transaction creates anything.
+
+    Raises `ArtifactPublicationFailed` directly (never `OSError`), so a
+    caller's refusal cannot be mistaken for a mid-transaction failure and
+    routed into the rollback/discard path -- see `_publish_bundle`'s own
+    PRE-TRANSACTION VALIDATION note. The rollback clause is the
+    nothing-was-committed variant by construction: no rename, no journal, no
+    staging directory exists yet."""
+    def refuse():
+        raise ArtifactPublicationFailed(_rollback_clause(0, True))
+
+    # A fail-closed assertion about THIS file's own target lists, not a trust
+    # boundary (these paths are constructed here, never read from anywhere):
+    # it keeps step 14 and the crash-recovery scan provably governed by one
+    # allowed set, so the two can never drift apart into a state journal
+    # recovery is structurally unable to converge.
+    allowed = _allowed_publication_targets(repo_root, feature)
+    if any(_normalized(target) not in allowed for target, _payload in targets):
+        refuse()
+    # Panel round 2: the lexical check above cannot see a symlinked PARENT
+    # (`generated/`, `specs/<feature>/`). Resolve each target's ancestry the
+    # way the kernel will at write time and re-assert containment, so a
+    # symlinked parent cannot launder a write outside the fixed set. This
+    # fires the first time a Full-track resolve runs in a tree where one of
+    # those directories is a symlink -- no planted journal required.
+    if any(_target_escapes_via_symlink(repo_root, feature, target) for target, _payload in targets):
+        refuse()
+    # The staging area itself is where the journal and PRE-image backups are
+    # written; a symlinked staging root (or `specs/<feature>`, panel round 4)
+    # would put that bookkeeping outside the tree too. Contain it against the
+    # anchored reference so the WHOLE write surface -- targets AND
+    # bookkeeping -- stays within `specs/<feature>/`.
+    if not _staging_area_contained(repo_root, feature) or not _path_contained_in(
+        _expected_staging_root_real(repo_root, feature), os.path.realpath(str(batch_dir))
+    ):
+        refuse()
+    # A batch whose targets share a basename would collapse two distinct
+    # `pre/<target-basename>` backups into one slot, permanently defeating
+    # recovery for one of them (Epic A1's own already-fixed defect on the
+    # isomorphic mechanism). No track's own output set can produce this.
+    basenames = [target.name for target, _payload in targets]
+    if len(set(basenames)) != len(basenames):
+        refuse()
+
+
 def _publish_bundle(repo_root, feature, targets):
     """Prepare + Journal + Commit (design.md steps 1-3). `targets` is a
     sequence of `(live_path, payload)` pairs IN COMMIT ORDER. Returns the
@@ -1447,43 +1526,20 @@ def _publish_bundle(repo_root, feature, targets):
     up."""
     batch_dir = _staging_root(repo_root, feature) / os.urandom(16).hex()
     transaction = _PublicationTransaction(repo_root, batch_dir)
+    # PRE-TRANSACTION VALIDATION, deliberately OUTSIDE the `try` below (panel
+    # round 4, Minor 4). Nothing exists on disk yet at this point, so a
+    # refusal must NOT fall into the `except OSError` handler: that handler
+    # calls `_rollback_transaction` -> `_discard_batch` -> `batch_dir.parent.
+    # rmdir()`, an rmdir against the very staging root the validation just
+    # REJECTED. Today that is survivable only by accident (on POSIX the sole
+    # way the staging check fails is `.resolver-staging` itself being a
+    # symlink, and rmdir on a trailing symlink fails ENOTDIR, swallowed by
+    # `except OSError: pass`); the round-4 anchor fix makes a REAL-directory
+    # staging root able to fail the check, which would turn that into a live
+    # attempt to delete the rejected path. Validating before the `try` makes
+    # "refused" and "cleaned up" structurally disjoint.
+    _validate_publication_preconditions(repo_root, feature, batch_dir, targets)
     try:
-        allowed = _allowed_publication_targets(repo_root, feature)
-        if any(_normalized(target) not in allowed for target, _payload in targets):
-            # A fail-closed assertion about THIS file's own target lists, not
-            # a trust boundary (these paths are constructed here, never read
-            # from anywhere): it keeps step 14 and the crash-recovery scan
-            # provably governed by one allowed set, so the two can never
-            # drift apart into a journal recovery is structurally unable to
-            # converge.
-            raise OSError("a publication target lies outside this feature's own fixed target set")
-        # Panel round 2, MAJOR 2: the lexical check above cannot see a
-        # symlinked PARENT (`generated/`, `specs/<feature>/`). Resolve each
-        # target's ancestry the way the kernel will at write time and re-
-        # assert containment, so a symlinked parent cannot launder a write
-        # outside the fixed set on the ordinary publication path -- this
-        # fires the first time a Full-track resolve runs in a tree where one
-        # of those directories is a symlink, no planted journal required.
-        if any(_target_escapes_via_symlink(repo_root, feature, target) for target, _payload in targets):
-            raise OSError("a publication target's parent resolves outside this feature's own fixed target set")
-        # The staging area itself (`.resolver-staging/<nonce>/`) is where the
-        # journal and PRE-image backups are written; a symlinked staging root
-        # would put that bookkeeping outside the tree too. Contain it the
-        # same way, so the WHOLE write surface -- targets and bookkeeping --
-        # stays within `specs/<feature>/` even under a symlinked parent.
-        if not _staging_area_contained(repo_root, feature) or not _path_contained_in(
-            _expected_staging_root_real(repo_root, feature), os.path.realpath(str(batch_dir))
-        ):
-            raise OSError("the publication staging area resolves outside this feature's own directory")
-        basenames = [target.name for target, _payload in targets]
-        if len(set(basenames)) != len(basenames):
-            # A batch whose targets share a basename would collapse two
-            # distinct `pre/<target-basename>` backups into one slot,
-            # permanently defeating recovery for one of them (Epic A1's own
-            # already-fixed defect on the isomorphic mechanism). No track's
-            # own output set can produce this, so it is a fail-closed
-            # assertion about this file's own target lists, not a live path.
-            raise OSError("two targets in one publication batch share a basename")
         (batch_dir / PRE_IMAGE_DIRNAME).mkdir(parents=True, exist_ok=True)
         for target, payload in targets:
             pre_bytes = _live_bytes(target)

@@ -1,0 +1,21 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-007",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1102",
+      "note": "_expected_staging_root_real resolves specs/<feature> itself before appending .resolver-staging, so a symlinked feature directory becomes the trusted base and _staging_area_contained returns true for an external staging tree. The recovery scan can consequently traverse an external TRANSACTION.json and _discard_batch can recursively delete its external batch directory, violating the fixed write-set boundary and leaving the parent-symlink variant of the recovery-path deletion vulnerability open."
+    }
+  ],
+  "blind": true,
+  "input_digest": "35e4df22aeb356cab44d6e62d42d2a9cc48716fb43c6feff75d643ad820ee1b3",
+  "consent": {
+    "kind": "sudo",
+    "ref": "SDD_SUDO token at the primary repo root, human-issued 2026-08-27, expires epoch 1787896044"
+  }
+}
