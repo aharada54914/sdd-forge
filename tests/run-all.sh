@@ -111,6 +111,8 @@ tests=(
   tests/guard-staging-exemption.tests.sh
   tests/design-sync-standing-consent.tests.sh
   tests/design-sync-scan.tests.sh
+  tests/path-lineending-regression.tests.sh
+  tests/validate-live-host-proof.tests.sh
   tests/human-copy-runner-contract.tests.sh
   tests/check-risk-upgrade-byte-identical.tests.sh
   tests/check-risk-upgrade-capability-merge.tests.sh

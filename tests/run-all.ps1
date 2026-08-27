@@ -63,6 +63,8 @@ $tests = @(
     'tests/ship-track-selection-migration.tests.ps1',
     'tests/design-sync-standing-consent.tests.ps1',
     'tests/design-sync-scan.tests.ps1',
+    'tests/path-lineending-regression.tests.ps1',
+    'tests/validate-live-host-proof.tests.ps1',
     'tests/human-copy-runner-contract.tests.ps1',
     'tests/check-risk-upgrade-byte-identical.tests.ps1',
     'tests/check-risk-upgrade-capability-merge.tests.ps1',
