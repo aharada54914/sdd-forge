@@ -58,7 +58,7 @@ sequenceDiagram
   CI->>CI: resolver-evidence-schema.tests.sh/.ps1 (AC-017 contract existence + $id convention)
   CI->>CI: validate-resolver-evidence.tests.sh/.ps1 (AC-021, AC-050, AC-051, AC-054: 12-value check-id matrix + provenance binding)
   CI->>CI: resolve-project-context-metamorphic.tests.sh/.ps1 (AC-045 completeness/invariance suite)
-  CI->>CI: resolve-project-context-caller-contract.tests.sh/.ps1 (AC-042, AC-046, AC-053: caller-contract + anchor-fingerprint drift)
+  CI->>CI: resolve-project-context-caller-contract.tests.sh/.ps1 (AC-042, AC-046, AC-053: caller-contract + anchor-fingerprint drift) [DEFERRED - not scheduled by this package, tasks.md; not part of AC-026's nine]
   CI->>CI: vendored-copy --check (reused Epic A2/A4 mode, +1 filename: resolver-evidence.schema.json)
   CI-->>D: PASS / FAIL
 ```
@@ -131,8 +131,15 @@ invocation determinism for the identical `.py` invocation (design.md
 API / Contract Plan; REQ-005; AC-022, AC-023); (2) publication atomicity
 — every live path this feature's Resolver could write is, after any
 crash or failure, either fully absent, fully unchanged from its
-pre-invocation state, or (Resolver Evidence only, on an early Block)
-fully written — never observably torn or mixed-generation (security-spec.md
+pre-invocation state, or (Resolver Evidence only, on a Block at
+whichever step it is reached) fully written — never observably torn, and
+never mixed-generation **except** in the one unrecoverable-journal state
+the recovery contract deliberately preserves for a human operator, which
+no invocation proceeds past because `publication-journal-recovery` Blocks
+fail-closed (scoped 2026-08-27, human-approved, ruling D(2); the earlier
+unqualified wording contradicted that branch's own no-repair obligation,
+and its "early Block" qualifier excluded the two transaction-phase Blocks
+that also write Evidence) (security-spec.md
 B2/B3).
 
 ## Data Residency and Retention
@@ -197,14 +204,18 @@ shape isomorphically):
     **SAFE abandonment**: delete the stale journal, proceed to step 1.
   - A **MIX** (at least one target already at POST, at least one other
     still at PRE or absent) → the exact partial-publish state this design
-    must never leave standing. Roll every already-committed **publication
-    artifact** target BACK
+    must never leave standing. Roll **every** journal member,
+    `resolver-evidence.yaml` included, BACK
     to its PRE-transaction state, using the journal's own `pre/
     <target-basename>` backup via the identical atomic-rename primitive —
-    never `resolver-evidence.yaml`, which is not rolled back and instead
-    receives the Block's own record written directly afterwards (REQ-001
-    step (m)'s rollback-and-no-write scope rule, AC-012/AC-039/AC-049;
-    scoped 2026-08-27, human-approved, ruling D(2))
+    this branch is a **recoverable** MIX that converges and then proceeds
+    into its own fresh resolve, so no Block is raised here and no Block
+    record is written; the rollback-and-no-write scope rule governs
+    Blocks and this branch is not one (corrected 2026-08-27: the
+    ruling-D(2) sweep applied that rule here mechanically, inserting a
+    Block-record clause into a branch that raises no Block, against
+    AC-047's own every-target-back-to-PRE requirement; the direct
+    Evidence Block record belongs only to the Unrecoverable branch below)
     (or deleting the live file, if its own PRE state was `"ABSENT"`),
     until every target is confirmed back at PRE — only then delete the
     journal, then proceed to step 1.
@@ -263,7 +274,11 @@ shape isomorphically):
   introduces — Journal Recovery, above)**: every publication is a single
   journaled transaction; an in-process failure or a hard crash converges,
   via the journal's own PRE-image backups, to a fully-restored-PRE or
-  fully-applied-POST terminal state — never a bare `unlink`-based
+  fully-applied-POST terminal state **whenever the journal is
+  convergeable**, and when it is not the state is left exactly as found
+  for a human operator behind a fail-closed
+  `publication-journal-recovery` Block (scoped 2026-08-27,
+  human-approved, ruling D(2)) — never a bare `unlink`-based
   best-effort with no restore path (design.md "Resolver publication
   transactional bundle contract"; security-spec.md B2).
 - **No data-compatibility concern.** design.md Data Plan states this

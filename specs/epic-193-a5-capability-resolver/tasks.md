@@ -76,8 +76,17 @@ guard-invariants surface is filling in content at a reservation an
 upstream epic already made.
 
 **Hard boundary carried into Phase 2 (requirements.md Non-goals,
-design.md Constraint Compliance): no task below edits any file under
-`plugins/**`.** REQ-007 documents `sdd-bootstrap-interviewer/SKILL.md`'s
+design.md Constraint Compliance): no task below edits any EXISTING file
+under `plugins/**` — and in particular none edits the protected
+`resolve-project-context.{py,sh,ps1}` family or
+`sdd-bootstrap-interviewer/SKILL.md`.** (Scoped 2026-08-27,
+human-approved, ruling D(2): the unqualified form forbade exactly the
+files T-008 is planned to create — the new, unprotected
+`plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,ps1}`
+family, which T-008's own Scope, traceability.md's T-008 row and
+security-spec.md's authorization table all name as a direct agent write,
+per-PR reviewed — so an implementer had to violate either this boundary
+or the task's own planned-file contract.) REQ-007 documents `sdd-bootstrap-interviewer/SKILL.md`'s
 target capability-interview insertion point (design.md Design Decisions,
 "caller insertion point"/"anchor fingerprint") as a citation only; the
 actual edit — and the `tests/resolve-project-context-caller-contract.
@@ -1806,9 +1815,13 @@ bare `unlink`.
 
 Commit A (implementation — transactional commit + four fixtures):
 - Write the acceptance checks first (TDD Red→Green): TEST-010 (the
-  remaining four diagnostic-id rows: `publication-journal-recovery`,
-  `artifact-publication-failed`, `post-publication-generation-mismatch`,
-  and the second `snapshot-generation-mismatch` fixture — actually the
+  remaining **three** diagnostic-id rows: `publication-journal-recovery`,
+  `artifact-publication-failed`, `post-publication-generation-mismatch`
+  — **plus one additional fixture that introduces no new id**, the second
+  `snapshot-generation-mismatch` fixture, whose row is T-004's
+  (corrected 2026-08-27, human-approved, ruling D(2): this bullet said
+  "four … rows" while listing three ids and one extra fixture, which is
+  what made the package's own partitions sum past sixteen); the
   `affected_components`-only variant is TEST-040's own second fixture,
   authored here since it exercises step-14-adjacent timing; see
   Global Constraints), TEST-011/TEST-012/TEST-014 (extended to cover
@@ -1869,8 +1882,15 @@ Commit B (documentation):
   share).
 - [ ] **Full sixteen-row Block matrix complete** — TEST-010 now covers
   all sixteen REQ-002 diagnostic-id rows across T-002's five, T-003's
-  seven, T-004's three, and this task's four, plus one fully-clean
-  fixture proving a negative (AC-010); TEST-011/TEST-012/TEST-014 are
+  five, T-004's three, and this task's three — 5 + 5 + 3 + 3 = 16 unique
+  rows — plus the additional fixtures that introduce no new id (T-003's
+  step-6.5 `snapshot-generation-mismatch` site and this task's
+  `affected_components`-only variant, both belonging to T-004's row), plus
+  one fully-clean
+  fixture proving a negative (AC-010) (corrected 2026-08-27,
+  human-approved, ruling D(2): this sentence read "T-003's seven … this
+  task's four", which sums to nineteen against a sixteen-row enum, by
+  counting extra fixtures as if they were rows); TEST-011/TEST-012/TEST-014 are
   now complete across all sixteen rows (AC-011, AC-012, AC-014); TEST-038
   now covers every named staged-generation example (AC-038).
 - [ ] **Staged-generation/journaled-transactional-publication lock** —

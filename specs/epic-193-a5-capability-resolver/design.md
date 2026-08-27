@@ -1383,12 +1383,18 @@ journal-listed target's CURRENT live bytes (or note `"ABSENT"`):
   abandonment: delete the stale journal, then proceed to step 1.
 - A MIX (at least one target already at its POST hash, at least one other
   still at its PRE hash or absent) ⇒ the exact partial-publish state this
-  design must never leave standing. Roll every already-committed
-  **publication artifact** target
-  BACK to its PRE-transaction state — never `resolver-evidence.yaml`,
-  which is not rolled back and instead receives the Block's own record
-  written directly afterwards (REQ-001 step (m)'s rollback-and-no-write
-  scope rule, AC-012; scoped 2026-08-27, human-approved, ruling D(2)) —
+  design must never leave standing. Roll **every** journal member,
+  `resolver-evidence.yaml` included,
+  BACK to its PRE-transaction state — this branch is a **recoverable**
+  MIX that converges and then proceeds into its own fresh resolve, so no
+  Block is raised here and no Block record is written; REQ-001 step (m)'s
+  rollback-and-no-write scope rule governs Blocks, and this branch is not
+  one (corrected 2026-08-27: the ruling-D(2) sweep applied that rule here
+  mechanically, inserting a "receives the Block's own record" clause into
+  a branch that raises no Block, which contradicted AC-047's own
+  every-target-back-to-PRE requirement; the direct Evidence Block record
+  belongs only to the unrecoverable branch immediately below, which does
+  Block) —
   using the journal's own
   `pre/<target-basename>` backup via the same atomic-rename primitive (or
   deleting the live file, if its own PRE state was `"ABSENT"`) — until
@@ -2483,7 +2489,16 @@ and adds no behaviour, and the **Lite track is untouched**, since
 Three consequences for this design, none of them previously stated in
 this document:
 
-1. **No assembly step branches on `capability_enforcement`.**
+1. **No assembly step branches on `capability_enforcement`, with step 10b
+   the one named exception.** (Scoped 2026-08-27, human-approved, ruling
+   D(2): step 10b is itself an assembly step and does branch on
+   `capability_enforcement` — under `required` an absent matched-Capability
+   `lite_policy.required_lite_checks` key raises the
+   `lite-check-source-undefined` Block, under `advisory` it contributes
+   `[]` — so the unqualified claim, read literally, would erase a required
+   fail-closed rule. AC-016's fixture-domain exclusion limits what the
+   byte-identity test covers but does not repair this global
+   implementation statement, which is why it is scoped here instead.)
    `workflow.capability_enforcement` is read exactly once (API / Contract
    Plan step 1) and recorded in Resolver Evidence's own `state` field for
    downstream auditability. Steps 3 and 7-11 are the identical code path

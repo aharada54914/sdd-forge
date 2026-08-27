@@ -78,7 +78,7 @@ tasks-round-1-proposed-changes.md`.
 | AC-007 | TEST-007 | T-005 |
 | AC-008 | TEST-008 | T-005 |
 | AC-009 | TEST-009 | T-006 |
-| AC-010 | TEST-010 | T-002 (five of sixteen rows), T-003 (five more, ten complete), T-004 (three more, thirteen complete), T-007 (remaining four rows, completes the matrix) |
+| AC-010 | TEST-010 | T-002 (five of sixteen rows), T-003 (five more, ten complete), T-004 (three more, thirteen complete), T-007 (remaining three rows, sixteen complete) — 5 + 5 + 3 + 3 = 16 unique rows; the extra `snapshot-generation-mismatch` fixtures T-003 and T-007 also author introduce no new row, that row being T-004's (corrected 2026-08-27, human-approved, ruling D(2): this cell read "remaining four rows" after "thirteen complete", which sums to seventeen) |
 | AC-011 | TEST-011 | T-002 (share), T-003 (share), T-004 (share), T-007 (share, completes) |
 | AC-012 | TEST-012 | T-002 (share), T-003 (share), T-004 (share), T-007 (share, completes) |
 | AC-013 | TEST-013 | T-002 (share), T-003 (share), T-004 (share), T-007 (share, completes) |

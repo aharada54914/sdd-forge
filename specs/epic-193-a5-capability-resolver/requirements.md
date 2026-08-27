@@ -250,9 +250,17 @@ document v2 §7/§18.4).
   Processing (design.md's API / Contract Plan gives the full normative
   procedure — revised by adversarial-review findings B1/B2/B3/B4/B6/B7/B8/
   M3/M9; the central change from an earlier revision of this package:
-  **every evaluation and every Block determination completes before any
+  **every evaluation and every Block determination reachable before the
+  publication transaction begins completes before any
   artifact reaches a live path** — nothing is written incrementally
-  mid-procedure): (0) a mandatory crash-recovery scan runs first, on every
+  mid-procedure (scoped 2026-08-27: the two transaction-phase Blocks
+  `artifact-publication-failed` and `post-publication-generation-mismatch`
+  are determined *during* and *after* the commit sub-sequence
+  respectively, so the earlier unqualified wording was impossible for any
+  conforming implementation and contradicted those rows' own fixtures,
+  which require a live rename before the Block is raised; their required
+  outcome is journal-based rollback of the publication artifacts, not the
+  absence of an earlier rename)): (0) a mandatory crash-recovery scan runs first, on every
   invocation, converging any journal a prior interrupted invocation
   against the identical `--feature` left behind to one of two terminal
   states before any of the following steps begin (`publication-journal-
@@ -710,8 +718,12 @@ document v2 §7/§18.4).
   — since this feature's own evaluation order is fixed at ascending
   lexicographic `component_id`, feeding the identical affected-component
   set in a different order produces byte-identical output). This
-  feature's Resolver reads the clock, the network, and no provider API
-  anywhere in its own orchestration logic — the identical "no code path
+  feature's Resolver reads **neither the clock nor the network**, and no
+  provider API,
+  anywhere in its own orchestration logic (corrected 2026-08-27: the
+  sentence read "reads the clock, the network, and no provider API",
+  which asserts the exact opposite of the guarantee its own next clause
+  quotes and every downstream layer restates) — the identical "no code path
   can read the clock, the network, or invoke a provider API" guarantee
   ADR-0020 already establishes for the DSL evaluator itself extends to
   this feature's own orchestration layer wrapping it (no
@@ -987,9 +999,16 @@ document v2 §7/§18.4).
   (REQ-001) never *completes* leaving new content live: for every Block
   reached before publication begins, the transaction never runs at all,
   so this invocation produced no Facet Manifest/Capability Summary/
-  Context Projection at all; for the one exception —
+  Context Projection at all; for the **two transaction-phase exceptions**
+  — `artifact-publication-failed`, caught *during* the
+  Prepare/Journal/Commit sub-sequence and so possibly after one or more
+  renames have already succeeded, and
   `post-publication-generation-mismatch`, whose own detection point is
-  necessarily *after* every rename has already, briefly, succeeded — this
+  necessarily *after* every rename has already, briefly, succeeded
+  (corrected 2026-08-27 from "the one exception", which named only the
+  second and so left a downstream author free to treat
+  `artifact-publication-failed` as necessarily pre-publication and omit
+  its journal rollback, against its own REQ-002 row and AC-039) — this
   invocation itself rolls the transaction's own **publication artifacts**
   back to their PRE-transaction state before returning the Block — never
   `resolver-evidence.yaml`, which instead carries that Block's own record
