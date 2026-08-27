@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-002
 # feature: epic-194-a6-lite-integration
-# input_digest: ceabf6c8a213183842a8dd0036f450df39eb53d65cf04e61df91f88a5c63abf3
+# input_digest: ae9270542559dbf1d82538ebaccd37fb4dbba589ced28461234002d63f81405a
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -1673,6 +1673,35 @@ This runner's own required contract:
    `Invoke-PostInstallVerification`, `apply-protected-files.ps1:598-641`)
    — never a bare `cp` with no confirmation the bytes actually landed
    correctly.
+5. **Per-target publish, no cross-target transaction, and live-state
+   reporting on failure** (added 2026-08-25; human ruling on the T-001
+   cross-model panel's cross-target-atomicity finding) — targets are
+   published one at a time. Each individual publish is atomic (a temporary
+   file in the destination directory, `fsync`'d, digest-checked, then
+   `renameat`'d into place) and each has its own published digest verified
+   inside the publish step itself, before the next target is attempted. The
+   **batch**, however, is not transactional and there is no rollback: a
+   failure on the Nth target leaves targets 1..N-1 installed and N+1.. never
+   attempted. The runner must therefore, on any failure after the copy phase
+   has begun, **report live state before it exits** — enumerating which
+   targets are installed, which one failed, and which were not attempted,
+   and stating that the installed files are live and were not rolled back.
+   Recovery is re-running the runner after fixing the cause; re-applying an
+   already-correct target is a no-op. A failure *before* the copy phase
+   begins reports instead that no live file was modified.
+
+   This point also fixes the scope of point 4, which reads as though the
+   only post-copy verification is the batch-wide pass. There are two, and
+   the per-target one is the load-bearing one: `CopyOne` re-opens each
+   just-renamed file and re-compares its digest before returning, so a
+   target that appears in the INSTALLED enumeration is live *and verified*.
+   Point 4's pass is a second, batch-wide re-read that runs only after every
+   target has been published — it is defence-in-depth against corruption
+   occurring between targets, and it does not run at all on the failure
+   path. Requiring a third, separate per-target pass was considered and
+   rejected: it would duplicate `CopyOne`'s own published-digest check
+   without adding a property, and the real gap this point closes was the
+   absence of any *report*, not the absence of verification.
 
 A future implementation task authors and has this runner security-
 reviewed before this feature's own human-copy batch is ever applied —
@@ -2307,7 +2336,25 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     payload list (the four `sdd-lite` targets plus
     `.github/workflows/test.yml`), the manifest's own target set, and the
     enumerated payload set — distinct from the Epic-136 fixed-prefix
-    runner it cannot reuse unmodified (requirements.md AC-031).
+    runner it cannot reuse unmodified (requirements.md AC-031). **Extended
+    2026-08-25** to also confirm design.md states contract point 5's own
+    properties, each named here rather than referred to collectively: the
+    per-target atomic publish, with that target's published digest verified
+    inside the publish step before the next target is attempted; the
+    explicit acknowledgment that the batch is not transactional and has no
+    rollback; live-state reporting on any failure after the copy phase has
+    begun, enumerating which targets are installed, which one failed and
+    which were not attempted, and stating that the installed files are live
+    and were not rolled back; recovery by re-running the runner, an
+    already-correct target being a no-op; and the pre-copy branch, where a
+    failure *before* the copy phase begins reports instead that no live
+    file was modified. That last property is the one an operator needs
+    most and receives least often — it is the branch that tells them the
+    repository is untouched. Without this extension, item 17
+    and requirements.md AC-031 between them named only points 1 through 4,
+    so a future implementation task could satisfy every traceable criterion
+    for this runner and never build a fixture for the property point 5
+    exists to guarantee.
 
 ## Design Decisions (resolving open questions)
 
@@ -2720,6 +2767,25 @@ registration commit, not by an automated test suite:
   Pending`, no `Approved`/`Passed` written anywhere): verified by direct
   inspection of `requirements.md`'s and `design.md`'s own header lines at
   commit time.
+  > Dated qualifier (2026-08-25): the parenthetical above records the header
+  > state **at this package's own authoring commit** and is retained as that
+  > historical record, not as a current claim. The headers move as the review
+  > lane runs, so this note anchors rather than asserts: as of commit
+  > `7e282bb1` — the task-review attempt 4 round 2 clean PASS, at which
+  > `check-workflow-state.sh` reported `ok` — `requirements.md` read
+  > `Spec-Review-Status: Passed`, `design.md` read `Impl-Review-Status:
+  > Passed`, and `tasks.md` read `Task-Review-Status: Passed`. Reaching
+  > `Passed` is the intended outcome of the spec, impl and task review
+  > gates, not a violation of AC-024. This note makes no claim about the
+  > header lines at any later commit: a `--reset` returns a header to
+  > `Pending` for the duration of a review round, so each live header line
+  > is always authoritative over this note. Added because a cross-model slot
+  > read the parenthetical as a live assertion and reported it as
+  > contradicted by the bundled headers (T-001 OpenAI slot, Minor); an
+  > earlier revision of this note then made the opposite error, asserting a
+  > present-tense header value that the next `--reset` falsified
+  > (spec-review attempt 6 round 1, reviewer B, Critical). No acceptance
+  > criterion is changed by this note.
 - **AC-025** (`check-sdd-structure.sh .` and `check-workflow-state.sh`
   both exit `0` post-registration): verified by running both commands
   from the repository root after the registration commit lands — no
@@ -3868,10 +3934,10 @@ cited by section anchor per row.
 | Requirement | Investigation | Layer Spec | Design | API/Schema | Code Target | Test ID | Test Target | Evidence | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | REQ-001 | investigation.md INV-007, INV-013, INV-017, INV-018, INV-021 | N/A — cross-layer only: `contracts/**` authorship happened in Epic A2's own Phase 2 (2026-07-23); the v1.1 revision this REQ designs, and its own layer-spec surface, remain outside this feature's build scope (Non-goals; Deferred Requirements, below; investigation.md INV-013 as superseded 2026-08-25) | design.md#data-plan (`lite_policy` v1.1 fragment; `lite-check-catalog.json`); design.md#design-decisions-resolving-open-questions (eleven-category-to-token mapping; `lite-check-catalog.json` seed) | `lite_policy.required_lite_checks` schema fragment; `contracts/lite-check-catalog.json` shape; `lite-upgrade-reason-catalog.json` `catalog_version` 2 growth; validator check (j) | **Deferred — the v1.1 revision is applied by a follow-up A2-owned revision task (A2's own Phase 2 authored the base file 2026-07-23), not by this feature's own build scope** (requirements.md Non-goals; Roles and Permissions; see "Deferred Requirements", below) | TEST-001, TEST-002, TEST-003, TEST-004, TEST-005, TEST-006, TEST-029 | N/A — this feature's own test suite does not execute these fixtures (Deferred Requirements, below) | N/A — no `reports/quality-gate/` entry from this feature's own tasks | Deferred |
-| REQ-002 | investigation.md INV-008, INV-009, INV-014 | security-spec.md#trust-boundaries | design.md#api--contract-plan ("REQ-002 — `check-risk-upgrade` extended CLI"); design.md#data-plan (Capability-derived trigger fragment) | `check-risk-upgrade.sh <source-path> [--capability-reasons <fragment-path>]` / PowerShell equivalent; fragment JSON shape `{"capabilities":[{"id","eligible","upgrade_reasons"}]}` | `specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.{sh,ps1}` (staged); `.../references/risk-upgrade-policy.md` (staged); real `plugins/sdd-lite/scripts/check-risk-upgrade.{sh,ps1}` + `.../references/risk-upgrade-policy.md` (human-applied via T-001's runner) | TEST-007, TEST-008, TEST-009, TEST-010, TEST-027, TEST-028 | tests/check-ri[REDACTED].{sh,ps1}; tests/check-ri[REDACTED].{sh,ps1}; tests/check-ri[REDACTED].{sh,ps1}; tests/check-ri[REDACTED].{sh,ps1} | reports/quality-gate/ for T-002; specs/epic-194-a6-lite-integration/verification/T-002/ | Planned |
-| REQ-003 | investigation.md INV-005, INV-006, INV-016 | security-spec.md#trust-boundaries; infra-spec.md#cicd-sequence | design.md#api--contract-plan ("REQ-003/REQ-004 — `lite-gate` Process extension"); design.md#architecture | `capability-summary.yaml` read-only consumption contract (fields: `required_lite_checks`, `full_upgrade_required`); validation against `contracts/capability-summary.schema.json` (A4-owned, not reimplemented) | `plugins/sdd-lite/skills/lite-gate/SKILL.md` (direct edit, T-004) | TEST-011, TEST-012, TEST-013, TEST-030 | tests/lite-gate-summary-absent.{sh,ps1}; tests/lite-gate-summary-invalid.{sh,ps1}; tests/lite-gate-summary-absent-active-enforcement.{sh,ps1} | reports/quality-gate/ for T-004; specs/epic-194-a6-lite-integration/verification/T-004/ | Planned |
-| REQ-004 | investigation.md INV-008, INV-010, INV-021 | security-spec.md#trust-boundaries; security-spec.md#stride-analysis; infra-spec.md#cicd-sequence | design.md#api--contract-plan ("Lite-check command-discovery contract"; "REQ-003/REQ-004 — `lite-gate` Process extension") | `lite-gate` Process Step 2a (`full_upgrade_required` backstop) + Step 2b (Registry-sourced check execution); command-discovery contract (`package.json` scripts / `scripts/<id>.{sh,ps1}` pair, grammar `^[a-z0-9][a-z0-9-]*$`) | `plugins/sdd-lite/skills/lite-gate/SKILL.md` (direct edit, T-004; re-verified unprotected at implementation-start time) | TEST-014, TEST-015, TEST-016, TEST-017, TEST-018, TEST-026 | tests/lite-gate-summary-consumption.{sh,ps1}; tests/lite-gate-full-upgrade-backstop.{sh,ps1} | reports/quality-gate/ for T-004; specs/epic-194-a6-lite-integration/verification/T-004/ | Planned |
-| REQ-005 | investigation.md INV-002, INV-004, INV-006, INV-010 | security-spec.md#trust-boundaries | design.md#api--contract-plan ("REQ-005 — `lite-spec` Risk-Upgrade Gate extension"); design.md#design-decisions-resolving-open-questions ("OQ-002 resolution") | `lite-spec` Risk-Upgrade Gate: `evaluate-predicate` per Capability × declared component; assembled trigger fragment passed as `check-risk-upgrade`'s second argument | `specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md` (staged); real `plugins/sdd-lite/skills/lite-spec/SKILL.md` (human-applied via T-001's runner) | TEST-019, TEST-020, TEST-021, TEST-031 | tests/lite-spec-capability-block.{sh,ps1} | reports/quality-gate/ for T-003; specs/epic-194-a6-lite-integration/verification/T-003/ | Planned |
+| REQ-002 | investigation.md INV-008, INV-009, INV-014 | security-spec.md#trust-boundaries | design.md#api--contract-plan ("REQ-002 — `check-risk-upgrade` extended CLI"); design.md#data-plan (Capability-derived trigger fragment) | `check-risk-upgrade.sh <source-path> [--capability-reasons <fragment-path>]` / PowerShell equivalent; fragment JSON shape `{"capabilities":[{"id","eligible","upgrade_reasons"}]}` | `specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.{sh,ps1}` (staged); `.../references/risk-upgrade-policy.md` (staged); real `plugins/sdd-lite/scripts/check-risk-upgrade.{sh,ps1}` + `.../references/risk-upgrade-policy.md` (human-applied via T-001's runner) | TEST-007, TEST-008, TEST-009, TEST-010, TEST-027, TEST-028 | tests/check-ri[REDACTED].{sh,ps1}; tests/check-ri[REDACTED].{sh,ps1}; tests/check-ri[REDACTED].{sh,ps1}; tests/check-ri[REDACTED].{sh,ps1} | reports/quality-gate/ for T-002; specs/epic-194-a6-lite-integration/verification/T-002.green.log; specs/epic-194-a6-lite-integration/verification/T-002.red.log | Planned |
+| REQ-003 | investigation.md INV-005, INV-006, INV-016 | security-spec.md#trust-boundaries; infra-spec.md#cicd-sequence | design.md#api--contract-plan ("REQ-003/REQ-004 — `lite-gate` Process extension"); design.md#architecture | `capability-summary.yaml` read-only consumption contract (fields: `required_lite_checks`, `full_upgrade_required`); validation against `contracts/capability-summary.schema.json` (A4-owned, not reimplemented) | `plugins/sdd-lite/skills/lite-gate/SKILL.md` (direct edit, T-004) | TEST-011, TEST-012, TEST-013, TEST-030 | tests/lite-gate-summary-absent.{sh,ps1}; tests/lite-gate-summary-invalid.{sh,ps1}; tests/lite-gate-summary-absent-active-enforcement.{sh,ps1} | reports/quality-gate/ for T-004; specs/epic-194-a6-lite-integration/verification/T-004.green.log; specs/epic-194-a6-lite-integration/verification/T-004.red.log | Planned |
+| REQ-004 | investigation.md INV-008, INV-010, INV-021 | security-spec.md#trust-boundaries; security-spec.md#stride-analysis; infra-spec.md#cicd-sequence | design.md#api--contract-plan ("Lite-check command-discovery contract"; "REQ-003/REQ-004 — `lite-gate` Process extension") | `lite-gate` Process Step 2a (`full_upgrade_required` backstop) + Step 2b (Registry-sourced check execution); command-discovery contract (`package.json` scripts / `scripts/<id>.{sh,ps1}` pair, grammar `^[a-z0-9][a-z0-9-]*$`) | `plugins/sdd-lite/skills/lite-gate/SKILL.md` (direct edit, T-004; re-verified unprotected at implementation-start time) | TEST-014, TEST-015, TEST-016, TEST-017, TEST-018, TEST-026 | tests/lite-gate-summary-consumption.{sh,ps1}; tests/lite-gate-full-upgrade-backstop.{sh,ps1} | reports/quality-gate/ for T-004; specs/epic-194-a6-lite-integration/verification/T-004.green.log; specs/epic-194-a6-lite-integration/verification/T-004.red.log | Planned |
+| REQ-005 | investigation.md INV-002, INV-004, INV-006, INV-010 | security-spec.md#trust-boundaries | design.md#api--contract-plan ("REQ-005 — `lite-spec` Risk-Upgrade Gate extension"); design.md#design-decisions-resolving-open-questions ("OQ-002 resolution") | `lite-spec` Risk-Upgrade Gate: `evaluate-predicate` per Capability × declared component; assembled trigger fragment passed as `check-risk-upgrade`'s second argument | `specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md` (staged); real `plugins/sdd-lite/skills/lite-spec/SKILL.md` (human-applied via T-001's runner) | TEST-019, TEST-020, TEST-021, TEST-031 | tests/lite-spec-capability-block.{sh,ps1} | reports/quality-gate/ for T-003; specs/epic-194-a6-lite-integration/verification/T-003.green.log; specs/epic-194-a6-lite-integration/verification/T-003.red.log | Planned |
 | REQ-006 | investigation.md (design-phase target itself, no dedicated INV) | infra-spec.md#cicd-sequence | design.md#test-strategy (seventeen numbered fixture items, mapped to requirements.md's own lettered (a)-(l) inventory) | N/A — this REQ fixes a fixture inventory, not an interface | shared — each of T-001..T-004's own `tests/*.tests.{sh,ps1}` suite pair (see Task Mapping, below); T-001's own `apply-protected-files.ps1` and `tests/human-copy-runner-contract.tests.{sh,ps1}` cover item 17 | TEST-022 | acceptance-tests.md "Spec-Authoring-Time Manual Review Record" (AC-022, design-content review — confirms every Test Strategy item names at least one AC/Global concern and every listed testable AC has a covering item); concrete fixtures listed per task in Task Mapping | design.md#test-strategy confirmed present at spec-authoring time (AC-022); concrete fixture pairs Planned across T-001..T-004 |
 
 ## Layer Coverage
@@ -3955,9 +4021,9 @@ them; they are listed here only to close AC-COVERAGE cleanly:
 | Task | Requirements | Acceptance Tests | Planned Verification Evidence |
 |---|---|---|---|
 | T-001 | REQ-002 (share — application mechanism), REQ-005 (share — application mechanism), REQ-006 (share — item 17) | TEST-031 (share); item-17 fixture | implementation report with TDD red/green evidence, independent quality-gate report (incl. security-review confirmation), specs/epic-194-a6-lite-integration/verification/T-001/green-sh.log, .../T-001/red-sh.log |
-| T-002 | REQ-002, REQ-006 (share — items 4/5/13/14) | TEST-007, TEST-008, TEST-009, TEST-010, TEST-027, TEST-028 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-194-a6-lite-integration/verification/T-002/green-sh.log, .../T-002/red-sh.log, specs/epic-194-a6-lite-integration/human-copy/MANIFEST.sha256 (3 new entries) |
-| T-003 | REQ-005, REQ-006 (share — item 6) | TEST-019, TEST-020, TEST-021, TEST-031 (share) | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-194-a6-lite-integration/verification/T-003/green-sh.log, .../T-003/red-sh.log, specs/epic-194-a6-lite-integration/human-copy/MANIFEST.sha256 (1 new entry) |
-| T-004 | REQ-003, REQ-004, REQ-006 (share — items 7/8/9/12/15) | TEST-011, TEST-012, TEST-013, TEST-014, TEST-015, TEST-016, TEST-017, TEST-018, TEST-026, TEST-030 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-194-a6-lite-integration/verification/T-004/green-sh.log, .../T-004/red-sh.log |
+| T-002 | REQ-002, REQ-006 (share — items 4/5/13/14) | TEST-007, TEST-008, TEST-009, TEST-010, TEST-027, TEST-028 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-194-a6-lite-integration/verification/T-002.green.log, .../T-002.red.log, .../verification/qg/T-002/unit-acceptance-green.log, specs/epic-194-a6-lite-integration/human-copy/MANIFEST.sha256 (3 new entries) |
+| T-003 | REQ-005, REQ-006 (share — item 6) | TEST-019, TEST-020, TEST-021, TEST-031 (share) | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-194-a6-lite-integration/verification/T-003.green.log, .../T-003.red.log, .../verification/qg/T-003/unit-acceptance-green.log, specs/epic-194-a6-lite-integration/human-copy/MANIFEST.sha256 (1 new entry) |
+| T-004 | REQ-003, REQ-004, REQ-006 (share — items 7/8/9/12/15) | TEST-011, TEST-012, TEST-013, TEST-014, TEST-015, TEST-016, TEST-017, TEST-018, TEST-026, TEST-030 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-194-a6-lite-integration/verification/T-004.green.log, .../T-004.red.log |
 
 ## Acceptance Mapping
 
@@ -5718,6 +5784,305 @@ case in this repository.
   because this entry, like the first, second and third appended entries
   before it, is pure growth at this section's tail.
 
+### Amendment record extension, fifth entry (appended 2026-08-25): the A/B/C landing, and the runner change behind design.md's fifth contract point
+
+Appended below the fourth entry, on the same terms: nothing above this
+heading is edited.
+
+This entry exists because it was missing. `impl-reviewer-a` found, during
+impl re-review attempt 3 round 1, that design.md's Protected-File
+Statement point 5 cited its authority only as an unelaborated human ruling,
+and that this section — the mechanism this package uses to record every
+other ruling with full commit hashes, per-document SHA-256 fingerprints and
+verbatim dated quotations — carried no entry for the commit that added it.
+That was correct: a grep of this document for
+`cf631ea748b86fc94f7570907669dc71ae563bfd` returned nothing. Point 5
+changes the protected-file human-copy boundary that `security-spec.md`
+names B5, so an unverifiable authority there is a real gap, not a
+formatting one.
+
+#### Human approval (verbatim, dated) — the rulings behind the fifth point
+
+Both are the human's own words, given 2026-08-25, in the order they were
+given:
+
+- 「現在の挙動を文書化するでよい」
+- 「君の推奨案で進めよ」
+
+The first authorized documenting the runner's current behaviour. The
+second authorized the recommendation put to the human after measurement:
+that the runner be **changed** rather than have the gap documented into the
+contract as sanctioned design. **The second ruling supersedes the first
+ruling's scope**, and that distinction is load-bearing — design.md's point
+5 describes a runner that was changed, not one that was merely described.
+Recording only the first ruling would misstate what point 5 rests on.
+
+#### What was measured before the second ruling was sought
+
+The T-001 cross-model panel found that
+`specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1`
+published protected targets one at a time with no rollback, and that on a
+mid-batch failure it named only the failing target before throwing. Because
+the failure helper throws out of the copy routine, the batch-wide post-copy
+pass never ran either. A partial application of protected files was
+therefore left both unenumerated and unverified — the state the runner's
+own four-point contract exists to prevent.
+
+Documenting that as designed behaviour would have sanctioned it. The
+recommendation was to change the runner instead, and the second ruling
+authorized that.
+
+#### What the commit landed
+
+`cf631ea748b86fc94f7570907669dc71ae563bfd` (2026-08-25) landed three
+frozen-document edits together, because all three needed the same stage
+re-pin:
+
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md` — AC-024's
+  parenthetical gained a dated qualifier. No criterion changed.
+- `specs/epic-194-a6-lite-integration/traceability.md` — the T-003 row
+  named two evidence paths that do not exist and never did; replaced with
+  the paths that do. `specs/epic-194-a6-lite-integration/traceability.json`
+  already carried the correct paths, so the two now agree.
+- `specs/epic-194-a6-lite-integration/design.md` — the Protected-File
+  Statement gained a fifth point.
+
+The same commit changed the runner itself. Its copy routine now records
+publish state, and the entry-point catch reports, before the stack trace,
+which targets are installed, which one failed, which were not attempted,
+that the installed files are live and were not rolled back, and that
+re-running is the recovery. A failure before the copy phase reports instead
+that no live file was modified.
+
+The reporting sits in the entry-point catch rather than in the failure
+helper or in the copy routine's own catch arms. The failure helper has
+roughly twenty call sites and nearly all fire before any copy, so reporting
+from there would attach an install report to failures that installed
+nothing. The copy routine's catch arms would each need a copy and would
+still miss a batch-wide post-copy failure, which is a fully-applied batch
+with a corrupt member. The entry-point catch sees every post-copy-phase
+failure in one place.
+
+#### Point 4 was documented, not changed
+
+Point 5's second paragraph fixes the scope of point 4 rather than editing
+point 4's text. The per-target verification point 4 reads as promising
+already exists: the copy routine re-opens each just-renamed file and
+re-compares its digest before returning, on both the Unix and the Windows
+path. The batch-wide pass is a second check. A third, separate per-target
+pass was considered and rejected because it would duplicate the copy
+routine's own published-digest check without adding a property. Cost was
+not the deciding factor and is not claimed as one.
+
+`impl-reviewer-a` recorded, as a non-blocking readability observation, that
+correcting point 4's scope by a forward disclaimer in point 5 rather than
+by editing point 4 leaves a reader to hold both passages at once. That
+observation stands as recorded; it was judged a readability concern rather
+than a contradiction, because point 5 reconciles the two explicitly.
+
+#### Test Strategy item 17, extended
+
+`impl-reviewer-a`'s second finding was that design.md Test Strategy item 17
+is the only item mapped to AC-031, and that item 17, AC-031 and the
+`specs/epic-194-a6-lite-integration/acceptance-tests.md` row all named only
+the exact-set, hash and post-copy properties of contract points 1 through
+4. None named point 5's properties, so a future implementation task could
+satisfy every traceable criterion for this runner and never build a fixture
+for the property the second ruling exists to guarantee. Item 17 is extended
+in this entry's own commit to name point 5's properties individually: the
+per-target atomic publish with its published digest verified inside the
+publish step; the explicit acknowledgment that the batch is not
+transactional and has no rollback; live-state reporting on any failure
+after the copy phase begins; and recovery by re-running the runner.
+
+#### Amended-document fingerprints added by this entry
+
+As of `cf631ea748b86fc94f7570907669dc71ae563bfd` (the A/B/C landing and the
+runner change, 2026-08-25):
+
+- `specs/epic-194-a6-lite-integration/design.md`:
+  `7864267708592b65d4b05762e51564734dca213bcc8682e91c29f7d29bb6b105`
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `77f60bf2d21f085ca656575a0795dbc8877fb5daf838068d5365202ed0d82c2e`
+- `specs/epic-194-a6-lite-integration/traceability.md`:
+  `8bc33c5363598b181dc6d565703df58500e8149c747be4dbc1fe92de99933003`
+- `specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1`:
+  `8fc01f58b04618cbcffb2f17cf6e29719e8fd9e6c28e6c141c254a3ee3cd2c5d`
+
+As of `a4800cfad16af2d333883abacb0d07774c7c0bc7` (the AC-024 qualifier
+anchored to a commit, 2026-08-25):
+
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md`:
+  `8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b`
+
+#### Fingerprints and statements this fifth entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded in the fourth
+  entry above at
+  `7ea9df83f848a07f2b1b3a4ab58dd158dac39bc165525fb7e2ad0f3a3b974db6` and
+  again in this entry at
+  `7864267708592b65d4b05762e51564734dca213bcc8682e91c29f7d29bb6b105` as of
+  `cf631ea748b86fc94f7570907669dc71ae563bfd`, is superseded by this entry's
+  own commit, which extends Test Strategy item 17. Both earlier values stay
+  where they are and each remains true of the commit it names.
+- `specs/epic-194-a6-lite-integration/acceptance-tests.md` at
+  `77f60bf2d21f085ca656575a0795dbc8877fb5daf838068d5365202ed0d82c2e` is
+  superseded by
+  `8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b`, both
+  recorded above against their own commits.
+- This document's own bytes, as pinned by spec-review attempt 6 round 2 and
+  by impl re-review attempt 3 round 1, are superseded by the revision this
+  entry's own commit produces. A document cannot embed its own
+  post-amendment hash; that revision is pinned by impl re-review attempt 3
+  round 2's invocation manifests. As with the first, second, third and
+  fourth appended entries before it, no prior contract is restaged or
+  re-validated against amended bytes, and the workflow-state gate
+  reconciles the difference only because this entry is pure growth at this
+  section's tail.
+
+### Amendment record extension, sixth entry (appended 2026-08-25): the fifth property item 17 omitted, and security-spec.md's B5 rows
+
+Appended below the fifth entry, on the same terms: nothing above this
+heading is edited.
+
+#### The enumeration discipline failed inside the sentence that invoked it
+
+The fifth entry recorded that design.md Test Strategy item 17 had been
+extended to name contract point 5's properties "each named here rather
+than referred to collectively". It then named **four** of point 5's
+**five** properties. `impl-reviewer-b` found the omission in impl
+re-review attempt 3 round 2.
+
+That is worth recording as a lesson rather than as an incident. This
+package adopted the rule *never refer to a set except by enumerating it*
+after three consecutive spec rounds lost to referring expressions, and the
+rule was invoked by name in the very clause that then failed it. **Stating
+a discipline is not applying it.** The check that catches this is
+mechanical — enumerate the source set, enumerate the citing set, diff them
+— and it was not run against point 5's own text before item 17 was
+written.
+
+The omitted property is not a footnote: a failure *before* the copy phase
+begins reports instead that no live file was modified. That is the branch
+telling an operator the repository is untouched, which is the answer they
+most need and the one they receive least often. Item 17 now names it, and
+says so.
+
+#### `security-spec.md`'s B5 rows, extended
+
+`impl-reviewer-b`'s same finding also reported that `security-spec.md`'s
+B5 STRIDE row and its Security Tests row predated the commit that added
+point 5 and therefore did not reflect it. B5's threat text describes "a
+`cp` that silently fails partway, installs bytes that do not match the
+reviewed, hash-verified payload" — which is exactly point 5's scenario, so
+the security analysis of that boundary was being judged against a runner
+that no longer exists. Both rows are extended in this entry's own commit
+to name point 5's properties individually.
+
+**A correction to the finding's own evidence.** The reviewer attributed
+`security-spec.md`'s last amendment to commit
+`23fe659f57685c5e7dde304035ce8887658d86bc`. `git log` shows it was
+`ac7a2e649427aeb042fac872e03debbe5472cbe4`, which is what `git log -1` reports for that path. Either way both predate
+`cf631ea748b86fc94f7570907669dc71ae563bfd`, so the finding holds on its
+own terms and the misattribution changes nothing about it. It is corrected
+rather than adopted.
+
+#### The enumerated sweep, including the sites deliberately left alone
+
+Run before writing, by listing candidate sites rather than searching for a
+phrase — the third time in this feature that extending one document
+revealed a sibling, and each earlier one was found by a reviewer after the
+fact rather than by a sweep before.
+
+- `design.md` Protected-File Statement points 1, 2, 3 and 4 — **left**.
+  Points 1 through 3 describe exact-set, manifest and pre-copy hash
+  properties that point 5 does not disturb. Point 4's scope is corrected
+  by point 5's forward disclaimer rather than by editing point 4, which
+  `impl-reviewer-a` recorded in round 1 as a non-blocking readability
+  observation and which stands as recorded.
+- `design.md` Protected-File Statement point 5 — **left**. It is the
+  authority the other sites cite.
+- `design.md` Test Strategy item 17 — **amended**, adding the fifth
+  property.
+- `security-spec.md` B5 STRIDE row — **amended**.
+- `security-spec.md` Security Tests row for item 17 — **amended**.
+- `requirements.md` AC-031 — **left**. It names the exact-set contract and
+  cross-references design.md; the ruling's remedy was item 17. See the
+  fragility recorded below.
+- `acceptance-tests.md`'s AC-031 row — **left**, for the same reason.
+- `infra-spec.md` Rollback and Verification-after-rollback — **left**.
+  Its protected-path sentence cites B5's post-copy re-verification as the
+  check that a corrected, re-applied state is self-consistent. That is a
+  claim about the success path after a re-apply and is unaffected by point
+  5, and its citation of B5 stays accurate as B5 grows.
+- `tasks.md` T-001's Reference Files block — **reported, not amended**. It
+  cites design.md's "full four-point contract", a count that point 5 makes
+  stale. `tasks.md` is frozen and outside the authorization for this
+  entry, so it is recorded here rather than changed.
+- `specs/epic-194-a6-lite-integration/README.md` — **left**. It contains
+  no statement about runner failure behaviour, repository state after a
+  failure, or what the operator learns.
+
+#### A fragility recorded, not changed
+
+`impl-reviewer-b` observed that `requirements.md` AC-031 and the
+`acceptance-tests.md` AC-031 row both rely entirely on a cross-reference
+to design.md Test Strategy item 17, which makes item 17's completeness the
+sole guarantee that the runner's contract is covered. That is exactly how
+the omitted fifth property escaped: nothing else in the package would have
+caught it. The structure is recorded here as a fragility. Changing it
+would mean amending two more frozen documents and was not authorized.
+
+#### Known, unreachable citation debt in this section
+
+The mechanical checklist run over this whole section reports abbreviated
+commit-like tokens. Five are genuinely abbreviated commit references, all
+introduced by this lane's own third appended entry:
+`e48c9008`, `a3a993bc`, `de5220c6`, `21b1e087`, `b085ec76`. They cannot be
+corrected: they sit above this section's tail, and editing there would
+break the growth-only shape the spec stage's tolerance depends on. They
+are recorded here so a future reader finds them already identified rather
+than discovering them as new.
+
+Three further tokens the same run flags — `43d48635`, `537ad9b3` and
+`fe78fa61` — are **not** defects: they are SHA-256 prefixes used in prose,
+which the checker's hex-run pattern reads as commit references. Several
+unaccounted SHA-256 values are likewise checker gaps rather than document
+defects, because that run walked a fixed path list at cited commits and so
+could never resolve `specs/epic-194-a6-lite-integration/traceability.json`
+or the T-001 panelist verdict files.
+
+#### A derived artifact, disclosed
+
+impl re-review attempt 3 round 1 was halted after `impl-reviewer-a` and
+before `impl-reviewer-b`, so that round's `integrated-summary.json` was
+never produced. Round 2's reviewer-A manifest requires the previous
+round's summary, so it was derived afterwards from round 1's persisted
+`reviewer-a.json` — a deterministic function of an immutable report,
+carrying no narrative — and `impl-reviewer-a` was told so in its round-2
+launch prompt.
+
+#### Fingerprints and statements this sixth entry supersedes
+
+- `specs/epic-194-a6-lite-integration/design.md`, recorded in the fifth
+  entry above at
+  `7864267708592b65d4b05762e51564734dca213bcc8682e91c29f7d29bb6b105` as of
+  `cf631ea748b86fc94f7570907669dc71ae563bfd`, is superseded by this
+  entry's own commit. Every earlier design.md value recorded in this
+  section stays where it is and each remains true of the commit it names.
+- `specs/epic-194-a6-lite-integration/security-spec.md` is superseded by
+  this entry's own commit; the value it held before this commit remains
+  true of the commit that last set it.
+- This document's own bytes, as pinned by spec-review attempt 6 round 2
+  and by impl re-review attempt 3 round 2, are superseded by the revision
+  this entry's own commit produces. A document cannot embed its own
+  post-amendment hash; that revision is pinned by impl re-review attempt 3
+  round 3's invocation manifests. As with the first, second, third, fourth
+  and fifth appended entries before it, no prior contract is restaged or
+  re-validated against amended bytes, and the workflow-state gate
+  reconciles the difference only because this entry is pure growth at this
+  section's tail.
+
 ## INV-022: The pre-widening four-target payload cap forced the batch's own CI-workflow candidate onto a bare-`cp` route the design's own runner contract exists to forbid — the requirement-level reason `.github/workflows/test.yml` is a declared payload target
 
 Recorded 2026-08-23, in this document's amendment-context era (see
@@ -6159,7 +6524,7 @@ flowchart LR
 | B2 | A caller supplies `--capability-reasons` pointing at a fragment that is unreadable, malformed, or shape-invalid, and the failure is silently degraded to "no Capability-derived trigger" instead of surfaced, letting an ineligible Capability go unflagged | Tampering / Elevation of Privilege | A corrupted or truncated fragment file (accidental or adversarial) causes `check-risk-upgrade` to silently behave as if no Capability-derived signal existed at all, masking a real ineligible-Capability trigger | a supplied-but-invalid fragment is a hard error, exit `2`, no trigger reporting — the *only* legitimate degrade is total argument omission (Blocker [B3], correcting the earlier revision's mislabeled silent degrade, investigation.md INV-014); an `eligible: false` entry with no named reason still contributes a synthetic `ineligible:<id>` token rather than silently nothing (Blocker [B4]) | AC-007 (byte-identical omitted-argument baseline), AC-027 (fragment fail-closed), AC-028 (ineligible-no-reasons synthetic token); Test Strategy items 4, 13, 14 | REQ-002 | AC-027 |
 | B3 | An active-`capability_enforcement` Feature reaches `lite-gate` with no `capability-summary.yaml` at all, or one flagged `full_upgrade_required: true`, and the gate proceeds to `VERDICT: PASS` anyway, letting a Feature that should have been forced to the full workflow ship via Lite | Tampering / Elevation of Privilege | A Feature whose Resolver run failed to stage a Summary (or whose Summary correctly names `full_upgrade_required: true`) is nonetheless treated by `lite-gate` as an ordinary, unflagged Lite Feature | Step 2a fail-closes independently on three conditions — absent Summary under active enforcement (Blocker [B6]), schema-invalid Summary, and `full_upgrade_required: true` (Blocker [B2], resolves OQ-003) — each is `VERDICT: FAIL`, checked before Step 2b ever runs, never a silent pass-through (design.md API / Contract Plan) | AC-011, AC-026, AC-030; Test Strategy items 8, 9, 12, 15 | REQ-003, REQ-004 | AC-026 |
 | B4 | A Registry-sourced check-id is crafted (or accidentally malformed) to contain `../`, a path separator, or option-like syntax, aiming to make the command-discovery lookup escape `scripts/`, follow a symlink outside it, or otherwise resolve to an unintended executable | Tampering / Elevation of Privilege | A `required_lite_checks` entry such as `"../../malicious"` or a `scripts/<id>` symlink pointing outside `scripts/` is used to make `lite-gate` execute an attacker-influenced binary instead of a legitimate project check | the step-0 grammar (`^[a-z0-9][a-z0-9-]*$`) rejects any such id fail-closed, at three independent enforcement points, *before* discovery is ever attempted; the `scripts/<id>` candidate is additionally canonicalized and its prefix re-proven to still be `scripts/` before the file is touched, and must be a regular file, never a symlink/reparse-point, even one that itself resolves inside `scripts/`; every invocation is argv-direct (`sh scripts/<id>.sh` / `pwsh -File scripts/<id>.ps1`), never an interpolated shell command string, so no character the grammar already excludes could reach a shell parser regardless (design.md API / Contract Plan, "Lite-check command-discovery contract," NEW-01) | AC-015, AC-016; Test Strategy item 7 (paired `bash`+`ps1` negative fixtures for `../`, path-separator, option-like ids, symlink/reparse-point rejection, and single-runtime-only partial pairs) | REQ-004 | AC-016 |
-| B5 | An implementation-phase agent edits one of the four protected `sdd-lite` paths directly, bypassing human-copy review; or the feature-scoped runner applies a payload whose staged bytes do not match its own manifest, or whose copy silently fails to land correctly | Tampering / Elevation of Privilege | A direct edit to `check-risk-upgrade.sh` bypasses PR-level human-copy review; or a corrupted staged file, or a `cp` that silently fails partway, installs bytes that do not match the reviewed, hash-verified payload | `guard-invariants.json`'s suffix match denies a direct write to any of the four reserved paths regardless of whether a file currently exists there; the feature-scoped anchored runner this design's Protected-File Statement fixes performs three-way exact-set verification, per-target hash verification before copy, and post-copy re-verification of each installed file's own hash — never a bare `cp` with no confirmation (design.md Protected-File Statement, Major [M3]) | AC-031; Test Strategy item 17 (`human-copy-runner-contract`, design-content review) | REQ-002, REQ-005 | AC-031 |
+| B5 | An implementation-phase agent edits one of the four protected `sdd-lite` paths directly, bypassing human-copy review; or the feature-scoped runner applies a payload whose staged bytes do not match its own manifest, or whose copy silently fails to land correctly | Tampering / Elevation of Privilege | A direct edit to `check-risk-upgrade.sh` bypasses PR-level human-copy review; or a corrupted staged file, or a `cp` that silently fails partway, installs bytes that do not match the reviewed, hash-verified payload | `guard-invariants.json`'s suffix match denies a direct write to any of the four reserved paths regardless of whether a file currently exists there; the feature-scoped anchored runner this design's Protected-File Statement fixes performs three-way exact-set verification, per-target hash verification before copy, and post-copy re-verification of each installed file's own hash — never a bare `cp` with no confirmation (design.md Protected-File Statement, Major [M3]). **Extended 2026-08-25 for contract point 5**, which is the control built for this row's own partial-failure scenario: each target is published atomically (temporary file in the destination directory, `fsync`'d, digest-checked, `renameat`'d) with that target's published digest verified inside the publish step before the next is attempted, so a target reported installed is live and verified; the batch is explicitly not transactional and has no rollback; on any failure after the copy phase begins the runner reports live state before exiting, enumerating which targets are installed, which one failed and which were not attempted, and stating that the installed files are live and were not rolled back; recovery is re-running the runner, an already-correct target being a no-op; and a failure *before* the copy phase begins reports instead that no live file was modified | AC-031; Test Strategy item 17 (`human-copy-runner-contract`, design-content review) | REQ-002, REQ-005 | AC-031 |
 | B6 | `guard-invariants.json` is independently updated (by an unrelated change) to add `lite-gate/SKILL.md` to the protected inventory between this design's authoring time and a future implementation task's start time, and the implementation task edits it directly anyway, unaware of the change | Tampering | A future maintainer's own, unrelated hardening pass protects `lite-gate/SKILL.md`; an implementation task that still assumes this design's own investigation-time snapshot bypasses that new protection with a direct edit | the Protected-File Statement requires re-confirming, at implementation-start time, that `guard-invariants.json` still does not name this path — the same "live-repository-snapshot, re-verified at implementation-start time" discipline every sibling epic's own Protected-File Statement already applies to its own citations; if found newly protected, the human-copy path (B5) applies instead (design.md Protected-File Statement, item 2, OQ-001 CLOSED) | design-content review only; no dedicated fixture (this is a design-time citation-currency discipline, not a runtime check) | REQ-004 | — |
 
 ## Authentication Flow
@@ -6273,7 +6638,7 @@ REQ-001, REQ-002, REQ-003, REQ-004, REQ-005.
 | Test Strategy item 9 | B3 | A `capability-summary.yaml` that fails A4's schema | `VERDICT: FAIL`, `Status` unchanged, reason names the validation failure | `lite-gate-summary-invalid` | — |
 | Test Strategy item 12 | B3 | A schema-valid Summary with `full_upgrade_required: true` | `VERDICT: FAIL` at Step 2a, before Step 2b ever runs; `false` continues normally | `lite-gate-full-upgrade-backstop` | AC-026 |
 | Test Strategy item 7 | B4 | Paired `bash`+`ps1` negative fixtures: a check-id containing `../` or a path separator, an option-like id (e.g. `--help`), a `scripts/<id>` symlink/reparse point resolving inside `scripts/`, and a fixture staging only one runtime member of a pair | grammar-failing/traversal ids rejected before discovery (`VERDICT: FAIL`, grammar reason, not a discovery attempt); symlink/reparse-point rejected distinctly; a partial pair is unmapped, never "resolved for the running runtime only" | `lite-gate-summary-consumption` | AC-015, AC-016 |
-| Test Strategy item 17 | B5 | Design-content review: the feature-scoped anchored runner's own payload-file-set-defined exact-set/hash/post-copy-verification contract, distinct from the Epic-136 fixed-prefix runner it cannot reuse unmodified | design.md states the three-way equality among the declared five-target payload list, the manifest's own target set, and the enumerated payload set (control files excluded) | `human-copy-runner-contract` | AC-031 |
+| Test Strategy item 17 | B5 | Design-content review: the feature-scoped anchored runner's own payload-file-set-defined exact-set/hash/post-copy-verification contract, distinct from the Epic-136 fixed-prefix runner it cannot reuse unmodified; extended 2026-08-25 to also review contract point 5 — per-target atomic publish with in-step digest verification, the explicit no-transaction/no-rollback acknowledgment, live-state reporting on any failure after the copy phase begins enumerating installed, failed and not-attempted targets, recovery by re-running, and the pre-copy branch reporting that no live file was modified | design.md states the three-way equality among the declared five-target payload list, the manifest's own target set, and the enumerated payload set (control files excluded) | `human-copy-runner-contract` | AC-031 |
 | Test Strategy item 10 | B6 (registration hygiene, Global) | `bash scripts/check-sdd-structure.sh .` and `bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh` both exit `0` after this package's registration commit, re-run as a fixture | both exit `0` | `registration-drift` | AC-025 |
 
 ## Open Questions
@@ -6460,10 +6825,10 @@ REQ-001, REQ-002, REQ-003, REQ-004, REQ-005.
   ]
 }
 # ---- specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log ----
-Commands (cross-model remediation re-run against the current tree, 2026-08-25T11:10:33Z):
+Commands (cross-model remediation re-run against the current tree, 2026-08-25T11:55:46Z):
   repository: [PATH_REDACTED]
   branch:     feature/epic-194-a6-lite-integration
-  HEAD:       dc621c839d315d276e9c455c8afa2b096b121e08
+  HEAD:       4905c13143ca29e103d6b35130754f68cb83dc14
   bash tests/check-ri[REDACTED].tests.sh
   bash tests/check-ri[REDACTED].tests.sh
   bash tests/check-ri[REDACTED].tests.sh
@@ -7746,8 +8111,8 @@ table was the other**, and it is the one inside this task's own scope.
 | `tests/check-ri[REDACTED].tests.ps1` | `cdaa5de8b4989cc38a2dbb9d46a8feb74402a89c5572d1ca830cca365cc466e2` |
 | `tests/check-ri[REDACTED].tests.sh` | `14a08c8b63adf8d009938b89390e5ed887a48e1b0d7ff9c254b813917745cc98` |
 | `tests/check-ri[REDACTED].tests.ps1` | `6deffbdd41a5a752cbcbc0625bdf16a8d71644bc81a1aed5515ceb1e53c31dd9` |
-| `specs/epic-194-a6-lite-integration/verification/T-002.green.log` | `2d0dfc00b4cb5bbbc47720d8b0626ca4d305371f852c08a52550a6e4774a2722` |
-| `specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log` | `d251b7f9d04c83f9009ce3071110bd6b133510f71261a07f9bb453ffcdd46d03` |
+| `specs/epic-194-a6-lite-integration/verification/T-002.green.log` | `08ae681604d7680fc647d119c84b8c46a9be0935ad36a09268275e2ef81aa5a5` |
+| `specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log` | `3d642a05d7253bcbf4c84c8679bb66f401f5dd3e7cebe497c5a9410a77029137` |
 | `specs/epic-194-a6-lite-integration/tasks.md` | `a867bad8ab99efd0f3731b2acd740ddab37e5eaf118dc5454ff803561faa60a8` |
 | `CHANGELOG.md` | `75eb30d7cda782d4cc54e159895b42665abf3ac6d334ed00dfb37a7f1747a907` |
 
@@ -9563,7 +9928,7 @@ Write-Host "Results: $Script:Pass passed, $Script:Fail failed"
 if ($Script:Fail -gt 0) { exit 1 }
 exit 0
 # ---- specs/epic-194-a6-lite-integration/verification/T-002.green.log (declared output) ----
-### recaptured 2026-08-25T11:12:46Z against HEAD dc621c839d315d276e9c455c8afa2b096b121e08 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### recaptured 2026-08-25T11:58:26Z against HEAD 4905c13143ca29e103d6b35130754f68cb83dc14 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
 ### check-ri[REDACTED].tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
 ok: TEST-007-clean: exit code identical (0)
 ok: TEST-007-clean: stdout byte-identical
@@ -9850,10 +10215,365 @@ ok: TEST-014c: exits 10
 ok: TEST-014c: no-reasons entry's synthetic token appears in its own array position
 
 Results: 6 passed, 0 failed
-# ---- CHANGELOG.md (declared output) ----
+# ---- CHANGELOG.md (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
 # Changelog
 
 ## Unreleased
+
+### Fixed
+
+- **タスク承認ゲートが PowerShell ホストで大小文字を無視していた問題
+  （WFI-012 クラスの実在欠陥、WFI-044 の Cycle-2 監査で発見）**:
+  `check-task-state.ps1` / `check-task-state-lite.ps1` の承認・ステータス判定が
+  `-eq` / `-in` / `-notin` を使っていた。PowerShell のこれらは**大小文字を
+  無視する**が、awk 双子の `==` / `!=` は**大小文字を区別する**。結果:
+  - `Approval: approved`（小文字）は awk 側で「invalid Approval」かつ
+    「In Progress without Approval」の2件失敗となるのに対し、ps1 側では
+    **有効な承認として扱われ承認ゲートを通過**していた。
+    つまり誤記した承認値が PowerShell ホストでのみゲートを抜けられた。
+  - `Status: planned` / `in progress` / `done` も同様に ps1 側だけ有効扱い。
+  - `-in $approvedOnlyStatuses` / `-notin $validStatuses` も同じ理由で
+    大小文字を無視していた。
+  該当箇所を `-ceq` / `-cin` / `-cnotin` に修正（両チェッカー計15箇所)。
+  `.ToLower()` を明示している箇所（`sudo` / `none` 判定、Risk は読み取り時に
+  awk の `tolower()` と同様に正規化済み）は awk 双子と一致するため変更なし。
+  MCP パーサは JS の `===`（大小文字区別）で既に一致しており影響なし。
+  **PR #336 の `-match`→`-cmatch` 修正は正規表現層のみを直しており、同じ行の
+  `-eq` は残っていた** — `tests/ta[REDACTED].tests.sh` の
+  mis-cased フィクスチャも注釈形式のみを覆っていたため検出できなかった。
+  同スイートに文字列等価層の負フィクスチャ5件を追加
+  (`mis-cased-bare-{lower,upper,mixed}`、`mis-cased-status-{planned,inprogress}`)。
+  17/17 緑、4件すべて sh 脚で reject を実測。
+
+  **追補（PR #339 の Codex レビュー指摘、いずれも同一クラスの取りこぼし）**:
+  - **フィールド名層**: awk 双子は `/^Approval:/` `/^Status:/` で行を選別する
+    （awk 正規表現は大小文字を区別）が、ps1 側は同じアンカーを `-match` で
+    見ていた。`approval: Approved` は ps1 で解析され awk では無視され、
+    awk 側だけが「フィールドが無い」と報告していた。見出し・Risk・
+    Second Approval・Blockers を含む12箇所を `-cmatch` に変更。
+  - **cmdlet 層**（AGENTS.md WFI-012 のリスト (b)）: lite チェッカーの Done
+    判定は品質ゲートレポートを検索するが、awk 双子の `grep -rlw` /
+    `grep -Eq` が大小文字を区別する一方、ps1 の `Select-String` は既定で
+    無視する。`verdict: pass` と書かれたレポートが PowerShell ホストでのみ
+    Done を満たしていた。4箇所に `-CaseSensitive` を追加。
+  - フィクスチャを追加: フィールド名層3件（`mis-cased-key-*`）、cmdlet 層5件
+    （`verdict-case-*`、canonical を control として保持）。25/25 緑。
+
+### Changed
+
+- **`installer-idempotency` 関連は main 側に一本化**: CI 登録・終端 `exit 0`・
+  Windows のバッチエスケープ修正はいずれも main が行った（`2b8e528a` /
+  `9a382c21` / `ce7eea97` の revert / `93cc6070` で再登録）。本ブランチが
+  一時的に持っていた同等実装は全て破棄し、`test.yml` を含むインストーラ・
+  CI 関連ファイルは `origin/main` と byte-identical。
+
+- **承認済み WFI 一括適用（WFI-022 / WFI-025 / WFI-037 / WFI-039 / WFI-042、
+  各1コミットのラベル付きバッチ）**: 人間承認（d8a54aac 系5コミット）を受け、
+  Approved 在庫を全件 Applied へ。
+  - **WFI-039**（実装済み・2026-08-21 検証済み）: Status 追随のみ。
+  - **WFI-022 — WFI ガード誤検知3経路の修正**: フィールドマッチャを
+    「列0の完全なフィールド行」（multiline、CR 許容）と「コマンドテキスト用
+    非アンカー形」の2本に分離（リダイレクト追記はリテラルが行中の引用内に
+    来るため、アンカー化だけでは取りこぼす）。Edit 経路は `old_string` との
+    **純増比較**（edits 配列は要素ごと）、Bash 経路はガード自身の read-only
+    不変量（複合演算子なし+read-only 動詞開始+書込トークンなし）での免除+
+    書込可能コマンドは広域一致を維持。py/js/ps1 同一変更（sh は
+    dispatcher のため無差分）。parity スイートに `wfi-022:` 10ケース追加 —
+    再現3誤検知は変更前 exit 2 / 変更後 exit 0 を実測、承認除去 sed は
+    設計どおり拒否のまま+Edit 経路の同遷移は許可、実バイパス
+    （列0行を含む Write、リダイレクト追記、フィールド追加 Edit、複合
+    read-then-write）は拒否維持。67/67 緑、guard 系スイート・ミラー同期
+    （7件）済み。
+  - **WFI-042 — タスク承認注釈文法の統一**: check-task-state.{sh,ps1} の
+    妥当性/ゲート判定を approver_id() と同じ厳格文法
+    `Approved (<id> <ISO8601 秒 Z>)` に統一（#35.3 の緩和形式を廃止）。
+    **MCP パーサも追随**（golden シェル等価契約が check-task-state.sh に
+    束縛しているため — 実装時に発見した波及先として WFI Result に記録）。
+    新設 `ta[REDACTED].tests.sh`（full↔lite 7fixture parity +
+    抽出一致4ケース、判別性実証: 変更前6失敗/変更後11緑）。gates C-05.2
+    期待値反転（131 緑）、MCP 240 緑。committed 8行の移行は人間作業として
+    `reports/notes/wfi-042-approval-line-migration.patch` にステージ
+    （git apply 検証済み、CI 非依存）。追跡 Issue #330。
+  - **WFI-037 — REVIEW_CONTEXT_OK 行へのチェーン事実の搭載**: validator
+    双子が予約レコードの sequence / previous_record_sha256 /
+    pre-append tip sequence（persisted 検証時は `-`）/ identity_unique を
+    OK 行に出力（各事実は出力前に fail-closed 検査で証明。persisted 分岐に
+    一意性検査を新設）。境界リファレンスの4ステップ手順を「聴衆が実行可能」
+    な形に全面改訂（各ステップに証拠源タグ、台帳読取は無権限と明記、偽造
+    OK 行の反証可能性も記載）。9ロール文書に自己 manifest 検証禁止の
+    同一段落を挿入。新設
+    `boundary-reference-authorization-parity.tests.{sh,ps1}`（19 緑、
+    run-all+CI 登録）。あわせて #325 の lib 統合以来 main で失敗していた
+    `review-context-boundary.tests.sh` の引用ドリフト検査を lib に追随修正
+    （CI 非実行のため未検出だった）。
+  - **WFI-025 — 混在ステータス計画の恒久バインディング**:
+    task-review-precheck.{sh,ps1} が混在時に**正規化ダイジェスト**を記録し
+    `tasks_sha256_form` を宣言（一様計画は raw をバイト同一で維持、
+    --verify-inputs も form 対応）。validate-review-context-set.{sh,ps1} に
+    tasks.md 限定のスコープ付き例外（precheck 宣言+記録一致+live 再正規化
+    一致の3条件、他エントリは raw 厳格のまま。旧方式 manifest は既存
+    round-consistency で拒否）。task-review-loop SKILL STEP 2/4 に
+    verbatim コピー指示。新設
+    `ta[REDACTED].tests.sh`（16 緑、run-all+CI 登録）:
+    実 precheck→予約 validator→**無変更の check-workflow-state.sh** の
+    全経路で「正規化バインディングはステータス遷移を生き延び、raw
+    バインディング（変更前の唯一の形）は同じ遷移で壊れる」を実測。
+    完走済み（一様 Done）計画では raw が re-review 形と偶然一致して
+    生き残る — Root Cause の言う偶発的不変性そのもの — ため、fixture は
+    mid-flight 状態から束縛する（テストに記録済み）。
+
+### Fixed
+
+- **WFI-041 — インストーラが既導入マシンで再実行できない**: 外部 CLI が
+  「既に登録済み」を*エラー*として返すため、`install.sh` / `install.ps1` の
+  再実行が毎回 EXIT トラップで install root 全体を巻き戻し、無関係な
+  エラーを報告しながら旧バージョンへ戻していた（1.15.0→1.16.0 の実測で
+  4 回実行・3 回ロールバック）。3 点を修正: (1) marketplace-add と
+  `claude mcp add` を新設 `run_idempotent_plugin_command` /
+  `Invoke-IdempotentPluginCommand` 経由にし、CLI 自身の文言
+  （`already registered` / `already exists` 等）に一致した場合のみ成功扱い
+  — それ以外の非零終了は従来どおり致命。**WFI が列挙した 3 箇所に加え
+  `codex plugin add` / `copilot plugin install` も同経路へ**（実測時は
+  marketplace-add が先に落ちてこの 2 つは未到達＝挙動未測定だが、同じ CLI の
+  marketplace-add は「既登録」をエラーで返す。除外すると WFI の計測指標
+  「アップグレード 1 回」が 2 回目の実行で破れる）。(2) `claude plugin install` が
+  「導入済み」を*成功*として返し何も上げないため、該当プラグインを収集して
+  `claude plugin marketplace update` + `claude plugin update` を実行し、
+  バージョン遷移を報告（無変更の実行と区別可能）。(3) rollback を配置
+  フェーズまでに限定 — ツリー配置後の登録失敗は失敗した登録を報告して
+  install root を新バージョンのまま残す。
+  **既存契約の反転を伴う**: `install.tests.{sh,ps1}` のシナリオ (c)/(d) は
+  「登録フェーズの失敗 → 巻き戻し」を明示検証していたため、削除ではなく
+  反転し理由をインラインに記録。正当化は (1) に依存する（冪等化前は部分
+  登録された新ツリーが再実行で回復不能だった）。新設
+  `installer-idempotency.tests.{sh,ps1}`（各 7 緑、run-all 登録済み）:
+  冪等許容・アップグレード経路・フェーズ別 rollback を、それぞれ**負の
+  対照付き**で検証（常に更新するツールでも通る主張と、そもそも巻き戻さない
+  実装でも通る主張を潰すため）。3 通りの mutation で非空虚性を実測
+  （それぞれ sh 3/10/6 失敗、ps1 は case 7/1/3 で停止）。CI 登録は
+  `.github/workflows/test.yml` が保護対象のため
+  `docs/ci-staging/wfi-041-installer-idempotency-ci.patch` に staging
+  （`git apply --check` 通過、`--numstat` は `5 0`）。
+
+- **SHA-256 検証の fail-closed 化と lowercase-only 統一（監査 Cluster 6）**:
+  (1) sh 側 8 ファイルの `sha256` 系ヘルパーのうち、ツール欠如時に**空
+  ダイジェストを黙って返す** fail-open 形（裸の `else shasum`。空 == 空で
+  検証が通る）だった 6 ファイル — impl/task/spec/domain の各 precheck、
+  check-workflow-state、apply-human-copy の stdin 系 — を
+  validate-review-context-set.sh の fail-closed 前例に統一（elif ガード+
+  else fail、および両ツール欠如を起動時に検出する早期プローブ。プローブは
+  既存の `jq is required` メッセージ契約を壊さないよう jq チェックの後段に
+  配置）。インライン重複していた stdin ハッシュのパイプ4箇所は新設
+  `sha256_stream` ヘルパーへ集約。(2) 16進シェイプ検証の3方言 —
+  大文字許容 `[0-9a-fA-F]`、実質大小無視の ps1 `-match/-notmatch`
+  （PowerShell は既定で大小無視）、厳格 `-cmatch` — を **lowercase-only /
+  case-sensitive に統一**（産生側は全twinが `ToLower(Invariant)` 済みで
+  挙動安全）: spec/domain の `is_sha256`、spec の jq `test()` 5箇所、
+  review-contract-validate 双子、check-cross-model 双子、impl/task
+  precheck ps1、run-panelist 双子、apply-human-copy ps1、evidence-bundle
+  双子（40hex git）。sudo 署名・nonce の16進はガード parity 意味論のため
+  対象外。検証: downstream-review-precheck / task-review-precheck /
+  loop-consistency / spec-review-loop / cross-model 70/70 / gates 131 /
+  review-contract-foundation / eval / 各layer-inputs / review-agent-isolation
+  緑（ps1 レグは CI）。
+
+- **PR #328 レビュー対応2件（Codex P1/P2）**: (1) `design-sync-scan.ps1` の
+  テーブル駆動化がパターン定義・`Test-ReservedDomain`・`Add-Finding`・
+  可読性プリチェックまで誤削除していた（`foreach ($f in $files)` が
+  プリチェックと走査の2箇所にあり、置換アンカーが先頭に誤ヒット）—
+  変更前版から走査ループのみを正しく置換して再構築。(2) 新設 sh
+  ラッパー14本+run-panelist 双子の `if ! . lib; then` ガードは dash 等の
+  POSIX シェルで `.` 失敗が致命的なため else が到達不能で、lib 欠損時に
+  文書化済み exit 3 ではなく素の exit 2 で落ちていた — source 前の
+  `[ -r ]` プローブに変更（lib 欠如 = exit 3+トークン、lib あり = 正常
+  ディスパッチを dash 実挙動で確認）。あわせて version-gates 赤の原因
+  だった `generate-registry-digest.tests.ps1` のフィクスチャ
+  ステージングにも lib 2件を追加（sh 側テストと同型の欠落 — ps1 レグは
+  ローカル pwsh 不在で検出できず CI が捕捉）。さらに CI が第3・第4の
+  同型を検出: `capability-registry-parity` 双子（3つのインストール済み
+  プラグイン文脈への STAGED_SCRIPTS ステージング — 全6文脈が exit 3 に）
+  と `facet-manifest-parity` 双子の installed フィクスチャにも lib 2件を
+  追加（コピー/シンボリックリンク両ループをサブディレクトリ対応化）。
+  staged 文脈の手動再現で generate-gate-capabilities / 
+  validate-facet-manifest とも lib ありで正常動作を確認。第5の同型も CI が
+  検出: `ownership-digest.tests.ps1` の matcher フィクスチャ(ps1 リゾルバが
+  隣の canonicalize ラッパー経由で digest 計算 — sh 側は .py 直呼びで無関係)
+  にも lib を追加。fixture ステージング一覧が lib 依存を知らないという
+  再発クラス(計8サイト)は WFI 候補として次回レトロスペクティブの対象。
+
+- **apply-human-copy のクラッシュ回復経路を分解（ループ監査 items 2-3、
+  残り最後の2件）**: (1) `recover_all` の約85%同一な3パスを
+  `classify_batch` / `revert_mixed_batch` / `confirm_all_at_pre` +
+  `probe_or_die`（PROBE_CUR グローバル、文脈別 verbatim メッセージ）+
+  `target_at_pre` + `finalize_recovered_batch` に分解 — die() 意味論の
+  ため全ヘルパー直接呼び出し（`$(...)` 禁止を各ヘッダに明記）、
+  `< file` リダイレクト維持、`rm -f targets_tmp` 13箇所を集約。ps1 双子
+  `Invoke-RecoverAll` も同構造で分解（revert パスが classify のプローブを
+  キャッシュ再利用する既存の意図的乖離は両側のコメントに記録して温存）。
+  (2) awk JSON パーサの END ブロック（4深・6項判定）を `skip_seps` /
+  `parse_quoted` / `parse_target_object` に分解（POSIX awk のみ、
+  確立済みの RES_*/PARSE_ERR グローバルチャネル慣用に追随。回復経路に
+  python3 依存は導入しない — sed→手書きパーサ3世代の失敗クラス記録は
+  維持）。検証: apply-human-copy 247/251（差分は既知の chmod000-as-root
+  4件のみ、ベースライン同一）、human-copy-mirror-freshness 6/6、
+  guard-invariants-epic-a1 82/82（ps1 レグは CI）。ブランチ分岐中は
+  同期ツールが適用済みミラーを pending と誤分類するため epic-189-a1 の
+  apply-human-copy ミラー2件+MANIFEST は手動同期。
+
+- **ループ監査の構造リファクタ3件（Fail-6 ホイスト / ルート導出抽出 /
+  design-sync-scan テーブル駆動化）**: (1) Fail-6 の4深デカルト積ループ
+  4複製（resolve-component-paths.{py,ps1}・check-component-coverage.{py,ps1}）
+  で、不正な adapter path パターンを `catch { continue }` が (component,
+  path) ペアごとに黙殺し毎回再検証していたのを、バインディング単位で1回
+  検証にホイストし、使用不能パターンを警告として表面化（py↔ps1 の警告
+  文言は parity 維持で同一。component-path 系5スイート緑）。
+  (2) `check-workflow-state.ps1` の4深ルート導出から
+  `Get-CandidateRootsForPath` を抽出（`,$set` で unroll 回避）。
+  (3) `design-sync-scan.{sh,ps1}` の6コピペ走査ブロックを検出テーブル+
+  1関数（表示モード match / redact / email-filter）に集約 — sh 側は
+  `grep | while` サブシェル制約どおり一時ファイル経由の emit を維持
+  （スイートの差分はベースライン同一の chmod/root 既知3件のみ）。
+  残る apply-human-copy の awk パーサ分解と recover_all 3パス分解は、
+  クラッシュ回復経路かつ ps1 レグのローカル検証不能のため意図的に未着手
+  — 分解計画は監査報告書 Loop audit 項 2-3 に記録済みで、専用の検証
+  サイクルを持つ変更として実施すべきもの。
+
+- **draft-07 スキーマエンジン3複製のバイト同一性テストを追加、
+  resolve-component-paths の unknown-type fail-open を両 twin で閉鎖
+  （監査「設計制約でブロック」項目）**: design.md は「4つの独立バリデータ、
+  兄弟 import なし」を記録しており複製自体は設計通り — 欠けていたのは
+  「複製が同一であり続ける」ことの実行可能な検証。AST 抽出（行番号非依存）
+  で7エンジン関数を3ファイルから取り出しバイト同一を要求する
+  `tests/schema-engine-identity.tests.sh` を追加（8/8 緑、変異による
+  non-vacuity 付き。validate-approval-sidecar は独立性根拠の記録により、
+  resolve-component-paths は ps1 twin が INV-008 parity で拘束されるため
+  対象外と明記）。第5の弱い変種 `resolve-component-paths.{py,ps1}` の
+  `_schema_type_ok` / `Test-JsonSchemaInstanceType` は未知の type 名で
+  **全インスタンスを黙って通す** fail-open だったため両 twin で fail-closed
+  化（リポジトリ内スキーマは既知7型のみ使用 — 正常系無変更。
+  component-path 系5スイート緑）。engine の `schema_engine.py` への統合は
+  design.md の記録済み判断の変更を要するため人間判断待ちのまま。
+
+- **python ディスパッチャ・ラッパー28本(sh 14+ps1 14)を共有 lib へ統合し、
+  欠如時挙動を文書化済みの exit 3 規約に統一（監査 Cluster 7）**: 4方言
+  （exit 3+フォールバック / exit 1+フォールバック / ガードなし bash
+  =素の127 / ps1 は `&` 演算子とバイト厳密 Process 起動が根拠矛盾のまま
+  混在）を `lib/py-dispatch.{sh,ps1}` に集約。sh は python3→python→
+  fail-closed exit 3、ps1 は canonicalize が計測済みの
+  [System.Diagnostics.Process] バイト厳密パススルー方式を全ラッパーに採用。
+  テスト固定の診断トークン（CANONICALIZER_RUNTIME_UNAVAILABLE 等）は
+  呼び出し側が所有し不変。INV-008 族（check-contract /
+  check-component-coverage / resolve-component-paths — PowerShell 双子への
+  フォールバックと引数変換表を持つ別設計）は対象外。両 lib を
+  `protected_gate_suffixes` に追加し生成物再生成・ミラー同期。
+  generate-registry-digest スイートのフィクスチャステージングに lib を追加
+  （loop-driver と同型の欠落）。さらに epic-190-a2 candidate 側
+  `generate-guard-invariants.py.candidate` の BASELINE に lib 4件を追加 —
+  **PR #325 が live に足した2件が candidate に未反映のため main の
+  version-gates（generate-gate-capabilities の純上位集合検査）は現在赤**で、
+  この修正が回復させる。検証: canonicalize / validate・generate-approval-
+  sidecar / check-hook-activation-handshake / evaluate-predicate /
+  detect-policy-weakening / registry-discovery / facet-manifest 3種 /
+  capability 系 5種 / plugin-contracts・ship-track-selection /
+  generate-gate-capabilities / guard-parity 57 / constant-parity /
+  guard-invariants-epic-a1 82 / phase2-guard-invariants 42 緑、
+  両 lib への Write はガードが deny。
+
+- **タスクライフサイクル語彙の6サイト一致テストを追加、Approval 文法統一は
+  WFI-042 として起票（監査 Cluster 2）**: 語彙 {Planned / In Progress /
+  Blocked / Implementation Complete / Done} は full/lite チェッカー
+  (sh awk 条件・ps1 配列) と workflow-state 双子の REQ 行正規化に計6箇所
+  独立に埋め込まれ、何も一致を検証していなかった（WFI-038 型）。各サイト
+  固有表現から抽出して正準集合と照合する
+  `tests/ta[REDACTED].tests.sh` を追加し run-all に登録
+  （7/7 緑）。Approval 注釈文法の分裂（full は任意注釈許容、lite と
+  full 自身の approver 抽出は `<id> <ISO8601>` 厳格 — 同一行が同一
+  スクリプト内で有効かつ無効になる）は、コーパス実測で**厳格形に一致
+  しない人間の承認記録8件**（秒欠落4・ミリ秒付き4）が既存エピックに
+  コミット済みと判明したため、機械判断せず WFI-042（Meta-Change: true、
+  厳格化+人間による8行移行+パリティフィクスチャ提案）として起票。
+
+- **repo パス検証の末尾スラッシュ意味論を4実装で統一（監査 Cluster 5）**:
+  validate-task-input-manifest.sh の `path_ok` は `output` 引数を**無視**して
+  無条件 rstrip しており（ps1 双子の `AllowDirectory` 分岐に相当する分岐が
+  死んでいた）、snapshot 側 ps1 は `-match '^…$'`（大小無視+末尾改行許容）
+  で validator の `\A…\z` と乖離。単一意味論に統一: 末尾スラッシュ
+  （ディレクトリ形）は output/AllowDirectory の場合のみ合法、アンカーは
+  4実装とも `\A…\Z(z)`。検証: turn-first-workflow 緑、task-context-isolation
+  は既知の root コンテナ要因1件のみ（ベースラインでも同一失敗を確認済み）。
+
+- **抽出した共有ライブラリ2件をガードの保護インベントリへ追加 —
+  保護対象スクリプトが source する lib がガード R-10 の対象外だった**:
+  `lib/review-precheck-common.sh`（impl/task-review-precheck が source、
+  `require_persisted_pass` の実体）と `lib/panelist-common.sh`
+  （run-panelist-gpt/gemini が source）は、ラッパーが保護されているのに
+  ライブラリ側が `protected_gate_suffixes` に無く、ラッパーに触れずに
+  ゲートロジックを弱体化できた（PR #325 の Codex レビュー指摘。
+  panelist-common は main 上の既存同型穴）。wfi037 ドリフト検査が
+  `plugins/*/scripts/*` 直下のみ・呼び出し元 blob 基準のため source される
+  lib を検出できないのが見逃しの機構。`generate-guard-invariants.py` の
+  BASELINE と `guard-invariants.json` に2件追加し全生成物を再生成。
+  検証: guard-parity 57/57・constant-parity 2/2・gates 131/131 緑、
+  両 lib への Write がガードで deny（exit 2）・非登録 control パスは
+  allow を実挙動で確認。適用済み human-copy ミラー（epic-189-a1 /
+  190-a2 / 191-a3 の各バンドルと 190-a2 candidate、計23ファイル＋
+  MANIFEST 3件）は `scripts/sync-human-copy-mirrors.py` で live に追随
+  （guard-invariants-epic-a1 82/82・phase2-guard-invariants 42/42・
+  human-copy-mirror-freshness 6/6 緑）。
+
+- **prepare-panelist-input の鍵解決を fail-closed 化 — 存在しない
+  `SDD_SUDO_KEY_FILE` が黙って `~/.sdd/sudo-key` に差し替わる穴を両
+  実装から除去**: sh/ps1 双子とも、`SDD_SUDO_KEY_FILE` が指すファイルが
+  存在しない・読めない場合に home の鍵へフォールバックしていた
+  （監査報告書は ps1 のみ指摘していたが sh にも同一の穴を確認）。
+  明示的に指名された鍵ファイルの欠落は「鍵なし」として検証失敗させる
+  sdd-hook-guard の `Resolve-SudoKey` 意味論に両者を揃えた
+  （優先順: `SDD_SUDO_KEY` → `SDD_SUDO_KEY_FILE`（欠落＝null、
+  フォールバックなし）→ `~/.sdd/sudo-key`）。ps1 は読み取りを
+  `-LiteralPath`/`-Encoding Utf8` 化しトリムをガードと同一の
+  `" `t`r`n"` に統一。回帰テスト PP-014a（home 鍵フォールバックの
+  対照系）/ PP-014b（指名ファイル欠落＝拒否）を追加。
+  検証: prepare-panelist 148/148・phase2-sudo-signature-static 緑
+  （ps1 レグは CI）。
+
+- **レビューprecheckの重複176行関数を共有ライブラリへ統合し、レビュア一致
+  検証の片側欠落を解消**: `require_persisted_pass` は
+  `impl-review-precheck.sh` と `task-review-precheck.sh` に約176行ずつ
+  コピーされ3点で乖離していた（監査報告書 Cluster 1）。統合先
+  `plugins/sdd-review-loop/scripts/lib/review-precheck-common.sh`
+  （sdd-hook-guard.sh と同じ source 方式）は上位集合版で、
+  `assert_contract_reviewer_agreement`（「どちらのレビュアも読んでいない
+  ハッシュを契約が記録する」インシデント級の穴を塞ぐ検証。従来はimpl側
+  のみ）を**全呼び出し元で実行**するようになった。PowerShell 双子2ファイル
+  にも同等の `Assert-ContractReviewerAgreement` を追加（従来は**どちらの
+  ps1 にも存在しなかった**）。loop-driver のfixtureリンク一覧と
+  task-layer テストのテキストピンをライブラリへ追随。
+  検証: downstream-review-precheck / task-review-precheck /
+  impl-review-round2-contract / loop-consistency / task-layer-review-inputs /
+  impl-layer-review-inputs / review-agent-isolation / spec-review-loop の
+  8スイート緑（ps1 レグは CI）。
+
+- **WFI-020 プラグイン側の適用（Issue #322）— 品質ゲートレポートの
+  テンプレート再接続とタスク識別フィールドの統一**:
+  (1) quality-gate SKILL のステップ 15 から「テンプレートは存在しない」
+  という誤記述を削除し、実在しパリティテスト済みの
+  `templates/quality-report.template.md` を参照するように修正（評価者が
+  執筆時に実際に読むファイルに規約を配置 — 可視性ギャップの解消）;
+  (2) テンプレートのヘッダーブロックを `Run ID:` と
+  `Critical:`/`Major:`/`Minor:` を含む全識別ブロックへ拡張（重複していた
+  レガシー `Task:` 行は廃止 — 正準は `Task ID:`）;
+  (3) `emit-run-record.{sh,ps1}` のタスク同定述語を、
+  `check-quality-gate-cycle-limit` がコーパス実測（220件中219件が
+  `Task ID:`）済みのアンカー付き3形式ユニオンに統一 — 従来の非アンカー
+  `Task: <tid>\b` はレガシー少数派しか数えられず gate_reports.total を
+  過少計上していた（epic-136-phase4-mcp で 1 vs 実数 5）;
+  (4) workflow-retrospective のアーティファクトルール 3 を正準
+  `Task ID:`（レガシー `Task:` はテンプレート規約以前のレポートのみ許容）
+  に更新; (5) `tests/template-validator-parity.tests.{sh,ps1}` に新
+  ヘッダー行と消費側ピンの検証を追加（sh 18/18, ps1 は CI で検証）。
+  これで WFI-020 の検証ホライズン（2機能連続）が開く。
+
+## v1.16.0 (2026-08-22)
 
 ### Added
 
@@ -9895,6 +10615,17 @@ Results: 6 passed, 0 failed
   recheck remains an unmodified, independent second stage. Staged at its
   canonical `specs/epic-194-a6-lite-integration/human-copy/` path pending
   the human apply step; not yet applied to the live path.
+- **WFI 起草へのなぜなぜ分析（5 Whys）の組込み**: WFI テンプレートと
+  workflow-retrospective の起草手順に `## Why-Why Analysis` セクション
+  （friction → 根本原因の因果チェーン、各段の証拠引用、症状の言い換え・
+  「人/エージェントのミス」での打ち切り禁止）を追加し、Root Cause
+  Hypothesis はチェーンの終端メカニズムであることを必須化。wfi-auditor-a
+  に新チェック `WHY-CHAIN-VALID`（Major）を追加（チェック数 8→9、
+  wfi-audit-cycle の integrated-summary と wfi-auditor-b の例示も同期）。
+  plugin-improvement WFI の言語規則（wfi-category-guide §2）と
+  CATEGORY-LANGUAGE-MATCH / CATEGORY-LANGUAGE-SECOND-PASS の走査対象に
+  Why/Because 列を追加。整合は `tests/retrospective-loop.tests.sh` で検証。
+
 - **Facet Manifest schema と validator (Issue #192,
   epic-192-a4-facet-manifest T-001)**: `contracts/facet-manifest.schema.json`
   (draft-07、vendored copy を `plugins/sdd-quality-loop/contracts/` に同梱)
@@ -9991,8 +10722,186 @@ Results: 6 passed, 0 failed
   `lambda` 語まるごと除外が実際の汚染を見逃す欠陥（Major）を発見し、
   `key=lambda` イディオムのみをマスクする方式へ修正。fixture 件数の
   非空虚性ガード・RED 証跡 3 分岐化も追加し、329/329 へ拡大した。
+- **Domain contract v2 schema (Issue #290, sdd-domain-concept-contract T-001)**:
+  added `contracts/domain-contract.v2.schema.json`, a standalone draft-07
+  schema declaring `concepts[]` as a first-class, required top-level array
+  alongside the existing `contexts[]` / `relations[]` shape, so a bounded
+  context's concepts (their responsibilities, non-responsibilities, and the
+  evidence that distinguishes them from neighboring concepts) can be
+  expressed in the machine-readable contract. The v1
+  `boundedContext` / `term` / `aggregate` / `contextRelation` definitions are
+  duplicated in-file rather than referenced from
+  `contracts/domain-contract.v1.schema.json`, so v1 stays byte-identical and
+  has no new consumer; `tests/sdd-domain/contract-v2-schema.Tests.ps1` pins
+  the new schema's shape and locks v1's SHA-256 against drift. This is Phase
+  0's first task; the cross-reference validator and the rest of the fixture
+  corpus land in T-002 through T-005.
+
+- **Domain contract v2 validator twins (Issue #290, sdd-domain-concept-contract
+  T-002)**: added `plugins/sdd-domain/scripts/validate-domain-contract.sh` and
+  `.ps1`, the deterministic sh/ps1 twin pair that checks a
+  `domain-contract/v2` file. This task lands the untrusted-input boundary:
+  fail-closed acquisition and JSON parse (a missing argument, a non-existent
+  path, a directory, an unreadable file, a syntactically broken body, and any
+  input above the 10 MiB ceiling each exit non-zero with a single
+  `RULE-ID: message` line on stderr, nothing on stdout, and no stack trace or
+  raw interpreter exception), and `schema`-value dispatch that rejects a
+  `domain-contract/v1` contract by name with `V2-WRONG-SCHEMA`. It also
+  establishes the shared skeleton the rest of the validator is built on: one
+  violation accumulator, one stderr emitter, and exit 0 or 1 only -- never a
+  partial verdict. No external dependency is introduced (the `.sh` side is a
+  single `python3` stdlib invocation, the `.ps1` side uses `ConvertFrom-Json`
+  and stays Windows PowerShell 5.1-safe). The structural checks and the
+  cross-reference integrity checks append to that same accumulator in T-003
+  and T-004.
+
+- **Domain contract v2 structural checks (Issue #290,
+  sdd-domain-concept-contract T-003)**: `validate-domain-contract.sh` and
+  `.ps1` now enforce the v2 declaration itself -- REQ-004 step (c) -- in the
+  order REQ-004(c) fixes: JSON type conformance first, then required-key
+  presence, then pattern, minLength and minItems. A value whose JSON type does
+  not match the type `requirements.md` `## Field Definitions` declares is
+  recorded as `V2-TYPE-MISMATCH` (carrying the field path and the expected
+  type) and is then excluded from the later checks, so a mistyped field can
+  never reach a regex or a length test and surface as a raw interpreter
+  exception -- the fail-closed rule `security-spec.md` names. Absent required
+  keys report `V2-MISSING-KEY`, pattern failures `V2-PATTERN`, `minItems`
+  failures `V2-EMPTY-ARRAY`, and `minLength` failures `V2-EMPTY-STRING`, each
+  naming the offending field path so adjacent failure paths stay textually
+  distinguishable. Every violation in a contract is enumerated rather than
+  stopping at the first. Sixty-two negative fixtures in
+  `tests/sdd-domain/contract-v2-schema.Tests.ps1` exercise one check apiece on
+  both twins, alongside a base-acceptance fixture proving each negative differs
+  from an accepted contract at exactly one point. The cross-reference integrity
+  checks and the reference-field patterns land in T-004.
+
+- **Domain contract v2 cross-reference integrity checks (Issue #290,
+  sdd-domain-concept-contract T-004)**: `validate-domain-contract.sh` and
+  `.ps1` now enforce REQ-004 steps (d) through (i) -- the referential
+  integrity a draft-07 schema cannot express, and the reason this validator
+  exists rather than a plain JSON Schema run. A contract is rejected when two
+  concepts declare the same `id` (`V2-DUP-CONCEPT-ID`, naming the duplicated
+  id), when `concepts[].context` names a context no `contexts[]` entry
+  declares (`V2-DANGLING-CONTEXT`), when `distinguished_from[].concept_id`
+  points at an undeclared concept or at the concept's own id
+  (`V2-DANGLING-DISTINCTION`, with distinct wording for the two cases), when
+  `contexts[].terms[].concept_id` points at an undeclared concept
+  (`V2-DANGLING-TERM`), when one concept lists the identical string in both
+  `responsibilities` and `must_not_own` (`V2-SELF-CONTRADICTION`, compared by
+  exact string equality -- not case-folded, not trimmed), and when two
+  concepts share a `name` inside one context (`V2-DUP-NAME-IN-CONTEXT`). The
+  same `name` in two different contexts stays valid, which is what lets the
+  order-taking `Order` and the shipping `Order` be modelled as the distinct
+  concepts they are. The two reference fields that share the concept-id
+  pattern are now pattern-checked as well, and a malformed reference is
+  reported as `V2-PATTERN` rather than as a dangling one -- a value that is
+  the wrong shape and a value that resolves to nothing are different defects,
+  and the validator keeps them textually apart. Eight negative fixtures and
+  two accepted control contracts in
+  `tests/sdd-domain/contract-v2-schema.Tests.ps1` exercise these paths on both
+  twins. The positive corpus, the twin-parity check, and the non-regression
+  closure land in T-005.
+
+- **Domain contract v2 positive corpus, twin parity, and non-regression
+  closure (Issue #290, sdd-domain-concept-contract T-005)**: completes Phase
+  0 of the Concept Design Layer. `tests/sdd-domain/contract-v2-schema.Tests.ps1`
+  gains the five positive fixture families REQ-005 requires -- a
+  Purchase/Fulfillment contract with all seven required concept fields and
+  all three optional fields (`must_not_own`, `stakeholder_perspectives`,
+  `distinguished_from`) populated, including the two pattern boundary values
+  `APIOrder` (consecutive uppercase) and `order-taking-2` (a digit segment);
+  a Book/Bookshelf contract where `Book.must_not_own` carries display
+  position and a `Placement` concept holds the ordering responsibility; two
+  contexts carrying the same concept name under distinct ids; a
+  `contexts[].terms[].concept_id` link that resolves to a declared concept;
+  and a concept carrying none of the three optional fields -- each accepted
+  with exit 0 by both validator twins, with the populated fields' values
+  reasserted from the fixture's own source text (the validator emits only an
+  exit code and stderr, never a parse result). Together the populated and
+  all-absent fixtures prove neither optional field was accidentally made
+  required. A twin-parity harness runs the complete 78-fixture corpus (the
+  5 positive families plus all 73 negative fixtures T-002/T-003/T-004
+  authored) through both `validate-domain-contract.sh` and `.ps1`, asserting
+  an identical exit code and violation count on every one; the check is a
+  named Pester skip, not a silent pass, on a host without `bash` on PATH. The
+  unmodified v1 suite (`tests/sdd-domain/contract-schema.Tests.ps1`) is run
+  in a fresh process and asserted green, and this feature's diff against
+  `main` is asserted to touch none of the four INV-004 v1 consumers or the
+  eleven pre-existing `tests/sdd-domain/` suites, closing REQ-007's
+  additive-only guarantee. The suite's negative fixture count is asserted to
+  total exactly 73, matching the Negative Fixture Allocation table (T-002 3
+  + T-003 62 + T-004 8). No change to either validator twin or to the v2
+  schema file was needed or made -- every positive fixture was accepted on
+  first execution.
+
+- **human-copy 鏡像の一括列挙と同期ツール (WFI-039)**: 追加した
+  `scripts/human_copy_mirrors.py` が `specs/*/human-copy/MANIFEST.sha256` と
+  `specs/*/drafts/human-copy-candidate/**/*.candidate` を走査して全鏡像を列挙し、
+  各々を `fresh` / `stale` / `pending` / `MANIFEST-STALE` に分類する。
+  `tests/human-copy-mirror-freshness.tests.{sh,ps1}` が CI で全鏡像を一度に
+  報告し、`scripts/sync-human-copy-mirrors.py` が修復する（`--check` で報告のみ）。
+  両 twin は列挙をこのモジュールに委譲するため、パリティは維持ではなく構成上のもの。
+  分類の要は **`staged == origin/main` の live** で、これが「適用済み（同期してよい）」と
+  「人間のレビュー済み未適用作業（触ってはいけない）」を分ける。現に 15 鏡像が
+  `pending` で、一律同期はこれらを消しながら CI を緑にしてしまう。
+  `MANIFEST-STALE` は `stale` と独立した失敗で、どちらも他方を含意しない —
+  live と staged を同一に書き換える変更は両者を一致させたまま manifest だけを
+  腐らせる。手順は `docs/contributor/shared-file-mirrors.md`。
 
 ### Fixed
+
+- **guard の保護対象が宣言と実装で乖離していた問題 (WFI-040)**:
+  `sdd-hook-guard` は「ゲートスクリプト・フック設定・テストファイルは書き換え
+  不可」と宣言する一方、実体は手書きのパス接尾辞リストと 9 語のシェル動詞語彙で、
+  どちらも既定が許可側だった。実測で `plugins/*/scripts/` 121 本中 83 本が保護外、
+  うち **CI・`tests/run-all.*`・SKILL が実際に実行する 31 本**が無防備
+  （`check-workflow-state` 両 twin、`validate-review-context-set` 両 twin、
+  `*-review-precheck.sh` 3 種、retrospective が測る run record を書く
+  `emit-run-record` 両 twin を含む）。`protected_gate_suffixes` を 80→111 に拡張し
+  該当 31 本を 0 に。あわせて `shell.indirect_cmds` に `sed` `patch` `install`
+  `ln` `truncate` `dd` `python` `python3` `perl` `ruby` `node` `git` を追加し
+  `shell.sudo_write_re` を拡張して、保護パスを標的とする書き込み 13/13 素通りを
+  0/13 に。`sed` は `-i` 形、`git` は worktree 書き込み系サブコマンドのみ受理する
+  ので `sed -n` と `git log` は読み取りのまま（誤 DENY 0 を実測）。
+  guard 本体のロジックは不変で、変更はデータのみ — Python / JS / PowerShell の
+  3 twin は構成上挙動同一。ドリフト検出・派生成果物整合・語彙の 3 スイートを
+  `tests/guard-parity.tests.{sh,ps1}` に追加（39→57 checks）。
+  **未解決**: `git apply` `patch` `python3 -c` `node -e` は対象をコマンドライン上に
+  置かないため、コマンド文字列解析では原理的に到達できない。
+
+- **traceability.md の進捗ステータス列が凍結され動かせなかった問題 (WFI-030)**:
+  task ステージの provenance 束縛が `traceability.md` を正規化なしの全文
+  sha256 で比較していたため、`profile: full` の 17 feature / 107 要件行すべてが
+  作成時の `Planned` から一度も動けなかった（live な値を持つ 3 feature は
+  いずれも `profile: legacy` で当該検査を素通りする側）。`check-workflow-state`
+  両 twin に、閉じたライフサイクル語彙（`Planned` / `In Progress` /
+  `Implementation Complete` / `Done` / `Blocked`）に限りステータスセルのみを
+  正規化する受理形を追加。他の全バイトは従来どおり束縛されたまま。
+  あわせて `task-review-precheck` 両 twin が `frozen_artifact_done_when` を
+  出力し（検出のみ、終了コード不変）、`check-workflow-state` 両 twin が
+  reviewer-a の `OBSERVABLE-DONE` による全項目の裁定を要求する。検出器を
+  ゲートにしなかったのは、本リポジトリ実測で 6 件中 3 件が偽陽性であり、
+  ハード失敗にすると発火した計画の半分を止めるため。
+
+- **承認サイドカー検証器の fail-open 穴 3 件を閉鎖**
+  (`validate-approval-sidecar.py` の standalone draft-07 エンジン):
+  (1) 未知の `type` 名・配列形式 union type が全インスタンスを素通し →
+  union は再帰、未知名は fail-closed に; (2) `pattern` が素の `re.match`
+  だったため `"sha256:<64hex>\n"`（末尾改行）が `^...$` を満たしてしまう
+  Python `$` 寛容性の穴 → ECMA-262 準拠の `$`→`\Z` 書換え + draft-07
+  search セマンティクスに; (3) スキーマ形式の `additionalProperties` が
+  無視されていた → 検証するように。エンジンは設計上の独立性
+  （generator/validator 分離）を維持したまま強化。
+
+- **タスク依存グラフ循環検出の双子アルゴリズム乖離を解消**
+  (`task-review-precheck.{sh,ps1}`): `.sh` は再帰 DFS、`.ps1` は Kahn 法
+  という別アルゴリズムだったのを、両者とも同じ 3 色 DFS に統一
+  （`.sh` は再帰、`.ps1` は validate-domain-contract.ps1 の前例に合わせた
+  明示スタック反復 — PowerShell のコール深度保護で長鎖が落ちないように）。
+  `.sh` 側は並列配列の線形走査 + サブシェル `echo` 返しを、bash 3.2 互換の
+  導出変数名 (`printf -v` + `${!var}`) による O(1) 参照に置換し、
+  構築前に導出名前空間を掃除（環境から輸出された `graph_node_*` 等が
+  未知タスクを保証してしまわないように）。
 
 - **Release-state coupling in two CI gates**: the `version-gates` lane went
   red on `main` immediately after the v1.15.0 release because two suites
@@ -10005,6 +10914,16 @@ Results: 6 passed, 0 failed
   TEST-048 now locates the T-003 entry in whichever release-notes section
   holds it, still requiring both citations together in one section, the same
   later-release exemption TEST-049 already documents.
+
+### Changed
+
+- **パネリストランナーの重複集約**: `run-panelist-{gpt,gemini}.sh` に
+  逐語コピーされていた 66 行の `_sdd_run_bounded`（プロセスグループ
+  watchdog）とタイムアウト/必須引数検証を
+  `plugins/sdd-quality-loop/scripts/lib/panelist-common.sh` に抽出し、
+  両ランナーが fail-closed に source する形へ（約 130 行の重複を削減）。
+  プラグインコード全体の重複検証ロジック・深いネストループの監査結果は
+  `reports/notes/plugin-code-quality-audit-2026-08-21.md` に記録。
 
 ### Corrections
 
