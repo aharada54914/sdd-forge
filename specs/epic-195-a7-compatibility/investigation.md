@@ -737,3 +737,39 @@ design — confirmed by the attempt-6 precheck computing
   changes zero document bytes outside this section, supplies a missing
   statement about an already-authorized correction, and quotes a ruling the
   human already issued in the words the human selected.
+
+### Round-10 extension (2026-08-27): design.md brought to the AC-026/OQ-004 truth the 2026-08-25 amendment recorded on the requirements side
+
+- **What was found.** Impl-review attempt 4 round 1 (reviewer A ledger
+  sequence 937, NEEDS_WORK; reviewer B ledger sequence 938, BLOCKED)
+  found that design.md had been left behind by the 2026-08-25 amendment
+  wave: the Data Plan's `done-transition` row still stated the
+  exactly-once firing contract with no deviation disposition while
+  requirements.md AC-026/OQ-004 record the pinned implementation
+  violates it (B, Critical, NO-REQ-CONTRADICTION); no verification path
+  existed for the firing semantics (B, Major); the Constraint
+  Compliance table's `PROJECT_CONTEXT_INVALID` row contradicted the
+  Data Plan's unique producer assignment (A, Major, DATA-COVERAGE); and
+  the Test Strategy defined no unit-test scope and no honest AC-026
+  path (A, Major). This is the tenth measured instance of the
+  amendment-propagation defect class this epic family has recorded: an
+  approved amendment lands on one document and its sibling statements
+  are left behind.
+- Human approval (verbatim, dated): 2026-08-27, in answer to the
+  question presenting exactly these four design.md corrections:
+  「① 4点全て承認し適用せよ（推奨）」.
+- **What changed, all in design.md, nothing else.** (1) The Data Plan
+  `done-transition` row now carries the same Known-unsatisfied
+  disposition the requirements side records, citing AC-026/OQ-004.
+  (2) The Constraint Compliance `PROJECT_CONTEXT_INVALID` row now
+  states the `stop`-producer unique assignment, matching the Data Plan
+  and requirements.md's AC-027 statement, replacing the dual-kind
+  phrasing. (3) A new Constraint Compliance row records the
+  Done-transition firing constraint as Known-unsatisfied with its
+  resolution path. (4) The Test Strategy gains an explicit unit-scope
+  and mocking statement and an explicit AC-026 firing-semantics
+  disposition stating that no test in this package claims that
+  verification. Post-amendment document digests are pinned externally
+  by the attempt-4 round-2 reviewer invocation manifests, per this
+  section's convention that an extension cannot cite its own commit
+  from inside itself.
