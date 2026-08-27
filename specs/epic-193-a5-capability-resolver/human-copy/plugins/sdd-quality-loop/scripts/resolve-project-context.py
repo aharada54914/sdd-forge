@@ -928,6 +928,18 @@ class ArtifactPublicationFailed(Exception):
         self.rollback_clause = rollback_clause
 
 
+class PublicationStagingAreaUncontained(Exception):
+    """This feature's own `.resolver-staging` area does not really resolve
+    inside `specs/<feature>/` (panel round 3, CRITICAL) -- it is a symlink, or
+    sits behind one. Distinct from `PublicationJournalUnrecoverable` because
+    the response differs: the staging area a Block record's own single-target
+    transaction would itself have to use is the very thing that is
+    compromised, so this invocation can make NO live write at all, not even
+    Resolver Evidence. It still reports the CORRECT diagnostic id
+    (`publication-journal-recovery`) rather than being misattributed to a
+    publication failure, so the operator is pointed at the real cause."""
+
+
 class PublicationJournalUnrecoverable(Exception):
     """The step-0.5 crash-recovery scan found a stale journal it cannot
     safely converge to either terminal state (REQ-002's `publication-journal-
@@ -1069,6 +1081,61 @@ def _target_escapes_via_symlink(repo_root, feature, target):
     return os.path.realpath(str(target)) not in _allowed_publication_targets_real(repo_root, feature)
 
 
+def _path_contained_in(container_real, candidate_real):
+    """`candidate_real` is `container_real` itself or something strictly
+    beneath it. Both arguments must already be realpath-resolved.
+
+    `os.path.commonpath` raises **ValueError** (never `OSError`) for inputs it
+    cannot compare -- a mix of absolute and relative paths, or, on Windows,
+    two different drives, which is exactly what a `subst`ed drive or a
+    cross-drive junction produces. An escaping `ValueError` here would leave
+    `main()` as a raw traceback instead of the canonical `capability-resolver:
+    <id>: <detail>` line REQ-002/AC-014 require, so it is caught and treated
+    as "not contained" -- fail closed (panel round 3, Minor 2; unreachable on
+    POSIX, but this file's own `.ps1` twin runs on Windows CI)."""
+    try:
+        return os.path.commonpath([container_real, candidate_real]) == container_real
+    except ValueError:
+        return False
+
+
+def _expected_staging_root_real(repo_root, feature):
+    """Where this feature's staging area MUST really live: the trusted base
+    (`specs/<feature>`, itself resolved) joined with the fixed
+    `.resolver-staging` component, WITHOUT following any further symlink.
+    Same trusted-base-then-fixed-subpath construction
+    `_allowed_publication_targets_real` uses, for the same reason."""
+    return os.path.join(os.path.realpath(str(repo_root / "specs" / feature)), STAGING_DIRNAME)
+
+
+def _staging_area_contained(repo_root, feature):
+    """Whether this feature's staging area really resolves inside
+    `specs/<feature>/` (panel round 3, CRITICAL).
+
+    requirements.md:1144-1151 grants this feature exactly one writable
+    directory beyond its four named output files -- "its own transient
+    `specs/<feature>/.resolver-staging/` transaction-journal/pre-image area".
+    If that path is a SYMLINK, every write the transaction bookkeeping
+    performs there lands somewhere else, and the most destructive of them is
+    `_discard_batch`'s own `shutil.rmtree`. A `.resolver-staging` symlink and
+    a `TRANSACTION.json` are both ordinary committed files, so a malicious
+    branch can plant them together and have the next invocation recursively
+    delete an arbitrary external directory -- strictly worse than the
+    single-file writes rounds 1 and 2 closed, and reachable WITHOUT any
+    escaping target path: an entry naming an in-set, currently-ABSENT target
+    classifies all-PRE (SAFE abandonment) and goes straight to
+    `_discard_batch`, so the round-1 allowlist and the round-2 symlink check
+    are both consulted and both legitimately approve.
+
+    Checked BEFORE the scan globs the directory, not merely before it writes:
+    discovery through a symlinked staging root is itself the first step of
+    the exploit."""
+    return _path_contained_in(
+        _expected_staging_root_real(repo_root, feature),
+        os.path.realpath(str(_staging_root(repo_root, feature))),
+    )
+
+
 def _staging_root(repo_root, feature):
     """`specs/<feature>/.resolver-staging` -- an unprotected staging area,
     this feature's own equivalent of Epic A1's own `sdd/.staging/`
@@ -1142,6 +1209,17 @@ def _discard_batch(batch_dir):
     journal, trivially resolved by the crash-recovery scan -- then take the
     batch's own `pre/` backups and the (now empty) staging root with it, so a
     completed transaction leaves no litter for the next scan to walk."""
+    # Defence in depth (panel round 3): every caller has already validated
+    # the STAGING ROOT, but a nonce directory INSIDE a legitimate staging
+    # root could itself be a symlink. `shutil.rmtree` refuses a symlink
+    # argument, yet `journal.unlink()` below would still follow it and delete
+    # a file outside the tree, so the guard has to precede the unlink too.
+    # Self-contained deliberately -- it needs no repo/feature context, which
+    # keeps it correct at every call site including the cleanup paths.
+    parent_real = os.path.realpath(str(batch_dir.parent))
+    batch_real = os.path.realpath(str(batch_dir))
+    if batch_real == parent_real or not _path_contained_in(parent_real, batch_real):
+        return
     journal = batch_dir / JOURNAL_FILENAME
     try:
         if journal.exists():
@@ -1393,9 +1471,9 @@ def _publish_bundle(repo_root, feature, targets):
         # would put that bookkeeping outside the tree too. Contain it the
         # same way, so the WHOLE write surface -- targets and bookkeeping --
         # stays within `specs/<feature>/` even under a symlinked parent.
-        feature_root_real = os.path.realpath(str(repo_root / "specs" / feature))
-        staging_real = os.path.realpath(str(batch_dir))
-        if os.path.commonpath([feature_root_real, staging_real]) != feature_root_real:
+        if not _staging_area_contained(repo_root, feature) or not _path_contained_in(
+            _expected_staging_root_real(repo_root, feature), os.path.realpath(str(batch_dir))
+        ):
             raise OSError("the publication staging area resolves outside this feature's own directory")
         basenames = [target.name for target, _payload in targets]
         if len(set(basenames)) != len(basenames):
@@ -1451,6 +1529,18 @@ def _recover_journal(repo_root, feature, journal_path):
     Idempotent and re-entrant: every comparison is current-vs-journaled and
     never assumes prior recovery progress, so a crash DURING recovery is
     itself safely resumed by the next invocation."""
+    # Panel round 3: re-validate the DISCOVERED batch directory and journal
+    # before reading or deleting anything through them. The scan validated
+    # the staging root; this covers a nonce directory (or the journal file
+    # itself) that is independently symlinked out of an otherwise-legitimate
+    # staging root.
+    staging_real = os.path.realpath(str(_staging_root(repo_root, feature)))
+    if not _path_contained_in(
+        staging_real, os.path.realpath(str(journal_path.parent))
+    ) or not _path_contained_in(staging_real, os.path.realpath(str(journal_path))):
+        raise PublicationStagingAreaUncontained(
+            "a discovered transaction journal does not resolve inside this feature's own staging area"
+        )
     entries = _read_journal(journal_path)
     batch_dir = journal_path.parent
 
@@ -1544,6 +1634,16 @@ def _crash_recovery_scan(repo_root, feature):
     `specs/<feature>/.resolver-staging/*/TRANSACTION.json`, scoped to THIS
     invocation's own `--feature` value, and converge every journal found.
     Absent -> return, no diagnostic, proceed directly to step 1."""
+    # Panel round 3 (CRITICAL): validate containment BEFORE the glob. A
+    # symlinked staging root is discovered THROUGH the symlink (`Path.glob`
+    # traverses it and returns the journal beneath), and every converged
+    # outcome -- SAFE completion, SAFE abandonment, and MIX alike -- ends in
+    # `_discard_batch`'s own `rmtree`. Refusing here is what keeps all three
+    # off that path, and it refuses without having touched a single file.
+    if not _staging_area_contained(repo_root, feature):
+        raise PublicationStagingAreaUncontained(
+            "this feature's own staging area does not resolve inside its own specs/<feature> directory"
+        )
     try:
         journals = sorted(_staging_root(repo_root, feature).glob(f"*/{JOURNAL_FILENAME}"))
     except OSError as exc:
@@ -2298,6 +2398,21 @@ def main(argv=None):
     # ownership/Context-Projection work has happened at all.
     try:
         _crash_recovery_scan(repo_root, args.feature)
+    except PublicationStagingAreaUncontained:
+        # Panel round 3 (CRITICAL). Ordinarily a Block writes Resolver
+        # Evidence (REQ-002/AC-012), and that write is itself a one-target
+        # journaled transaction -- which needs this feature's own staging
+        # area. Here the staging area is precisely what is compromised, so
+        # attempting it would either fail again or, worse, write through the
+        # same symlink. Writing NOTHING is the only fail-closed option, the
+        # identical posture step 12's own Evidence-itself-fails sub-case
+        # already takes (`_block_no_write`), and it is reported under the
+        # CORRECT id rather than being misattributed to a publication
+        # failure. Disclosed AC-012 interaction: the
+        # `publication-journal-recovery` row's Evidence-writing behaviour is
+        # still covered by its own corruption fixture, which reaches this
+        # diagnostic with an intact staging area.
+        return _block_no_write("publication-journal-recovery", JOURNAL_RECOVERY_DETAIL)
     except PublicationJournalUnrecoverable:
         # The live state is left exactly as found, pending manual operator
         # intervention -- the scan itself has already refused to half-revert

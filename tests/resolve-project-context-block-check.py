@@ -408,6 +408,7 @@ ALL_CASE_NAMES = (
         "snapshot-generation-mismatch-affected-components",
         "publication-journal-target-escape",
         "publication-target-parent-symlink",
+        "publication-staging-parent-symlink",
     ]
 )
 
@@ -3120,10 +3121,13 @@ def run_t007_parent_symlink_case(kind, counts):
     "closed separately by the write primitives themselves" (`os.replace`
     replaces a symlink at the target). That reasoning covers only a symlink
     at the FINAL target component. It does NOT cover a symlinked PARENT
-    directory: if `generated/` (or `specs/<feature>/`, or the staging dir) is
-    itself a symlink, an apparently-allowlisted target passes the lexical
-    check while `mkdir`/`mkstemp`/`os.replace` follow the parent symlink and
-    write OUTSIDE the fixed publication set -- the exact `never ... writes
+    directory: if `generated/` or `specs/<feature>/` is itself a symlink, an
+    apparently-allowlisted target passes the lexical check while
+    `mkdir`/`mkstemp`/`os.replace` follow the parent symlink and write
+    OUTSIDE the fixed publication set. (THIS fixture exercises `generated/`
+    on the PUBLISH path only; the staging directory's own containment, on the
+    RECOVERY path, is a separate defect covered by
+    `run_t007_staging_symlink_case` below -- panel round 3) -- the exact `never ... writes
     outside` invariant round 1 committed to (requirements.md:1144-1151),
     reached through a mechanism round 1 left open.
 
@@ -3206,6 +3210,129 @@ def run_t007_parent_symlink_case(kind, counts):
             f"{case_name}: no journal or staging litter survives -- the refused publish left none, and the "
             f"Block Evidence's own transaction cleaned up after itself",
             repr(staging_litter(feature_dir)),
+        )
+
+
+def run_t007_staging_symlink_case(kind, counts):
+    """Panel round 3, CRITICAL (recovery-path staging containment). The
+    mirror image of round 2's fix, on the sibling code path that fix did not
+    reach: `_publish_bundle` validates that its batch directory resolves
+    inside `specs/<feature>/`, but the step-0.5 crash-recovery scan validated
+    neither the staging root it globs nor the batch directory it later
+    deletes.
+
+    What makes this CRITICAL rather than Major is that the planted journal
+    needs NO escaping target at all. A single well-formed entry naming an
+    IN-SET, currently-ABSENT target (`pre_hash: "ABSENT"`) classifies as
+    all-PRE / SAFE abandonment and reaches `_discard_batch` directly, so
+    round 1's allowlist and round 2's `_target_escapes_via_symlink` both pass
+    -- they are consulted, and they approve, because the target genuinely is
+    in-set. The damage is done by the batch directory's own resolved
+    location, which nothing checked. All three converged outcomes (SAFE
+    completion, SAFE abandonment, MIX) funnel into `_discard_batch`, so all
+    three reach the `rmtree`.
+
+    Mechanics confirmed empirically before this fixture was written:
+    `Path.glob` traverses a symlinked staging dir and returns the journal
+    beneath it; `os.path.islink(batch_dir)` is False for the real directory
+    behind the symlink, so `shutil.rmtree` does not refuse; the external
+    directory and its contents are removed. Both ingredients -- a symlinked
+    `.resolver-staging` and a `TRANSACTION.json` -- are ordinary committed
+    files on a malicious branch, exactly the threat `_recover_journal`'s own
+    TRUST BOUNDARY comment already accepts.
+
+    This is a destructive write OUTSIDE the fixed named path set
+    (requirements.md:1144-1151), so it is in scope on the same footing as
+    round 2's MAJOR 2 -- and distinct from round 2's out-of-scope MAJOR 1,
+    which was about attacker CONTENT written INTO an in-set target."""
+    case_name = "publication-staging-parent-symlink"
+    fixture_dir = FIXTURES / case_name
+    for scenario in ("staging-root-symlinked", "nonce-dir-symlinked"):
+      label = f"{case_name}[{scenario}]"
+      with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        # The exploit's own target must be ABSENT so the journal classifies
+        # all-PRE without any escaping path.
+        (feature_dir / "facet-manifest.yaml").unlink()
+
+        external = repo / "external-victim"
+        nonce_dir = external / ("e" * 32)
+        (nonce_dir / "pre").mkdir(parents=True)
+        (external / "ROOT-CANARY.txt").write_bytes(b"external root canary\n")
+        (nonce_dir / "CANARY.txt").write_bytes(b"external nonce canary\n")
+        document = {
+            "schema": "sdd-resolver-transaction/v1",
+            "nonce": nonce_dir.name,
+            "status": "in-progress",
+            "targets": [{
+                "live_path": "specs/example-feature/facet-manifest.yaml",
+                "pre_hash": "ABSENT",
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            }],
+        }
+        (nonce_dir / JOURNAL_FILENAME).write_text(
+            json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+        if scenario == "staging-root-symlinked":
+            # The whole staging root is a symlink: the scan discovers the
+            # journal THROUGH it and would rmtree the external nonce dir.
+            (feature_dir / STAGING_DIRNAME).symlink_to(external)
+        else:
+            # A REAL staging root whose nonce directory is independently
+            # symlinked out. The pre-glob staging-root guard legitimately
+            # passes here, so this scenario is what proves the per-journal
+            # batch-directory guard inside `_recover_journal` -- a second,
+            # distinct layer.
+            real_staging = feature_dir / STAGING_DIRNAME
+            real_staging.mkdir()
+            (real_staging / nonce_dir.name).symlink_to(nonce_dir)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_line = f"capability-resolver: publication-journal-recovery: {JOURNAL_RECOVERY_DETAIL}\n"
+        counts.record_diagnostic_id("publication-journal-recovery")
+        counts.check(
+            result.returncode == 1 and stdout == "" and stderr == expected_line,
+            f"{label}: an uncontained staging root Blocks publication-journal-recovery before the "
+            f"scan globs it -- never a misattributed publication failure",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(nonce_dir / "CANARY.txt") == b"external nonce canary\n"
+            and read_or_missing(external / "ROOT-CANARY.txt") == b"external root canary\n"
+            and (nonce_dir / JOURNAL_FILENAME).is_file(),
+            f"{label}: the EXTERNAL directory the symlink points at survives intact -- no rmtree, no "
+            f"unlink, nothing outside the fixed named set touched (requirements.md:1144-1151)",
+            f"nonce_canary={read_or_missing(nonce_dir / 'CANARY.txt')!r} "
+            f"root_canary={read_or_missing(external / 'ROOT-CANARY.txt')!r} "
+            f"journal_exists={(nonce_dir / JOURNAL_FILENAME).is_file()}",
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == MISSING
+            and read_or_missing(scripts / "generated/project-context.resolved.json")
+            == PRE_CONTEXT_PROJECTION,
+            f"{label}: no live artifact was published either -- the refusal precedes step 1 entirely "
+            f"(TEST-038)",
+        )
+        counts.check(
+            not (feature_dir / "resolver-evidence.yaml").exists(),
+            f"{label}: NO live write of any kind, not even Resolver Evidence -- the staging area a "
+            f"Block record's own transaction would need is the very thing that is compromised, so this "
+            f"takes the same no-write posture step 12's Evidence-itself-fails case already does "
+            f"(disclosed AC-012 interaction; the row's Evidence-writing behaviour is covered by the "
+            f"`publication-journal-recovery` corruption fixture)",
+            repr(read_or_missing(feature_dir / "resolver-evidence.yaml")),
         )
 
 
@@ -3304,6 +3431,7 @@ def main():
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
+        run_t007_staging_symlink_case(args.launcher, counts)
         run_draft7_validator_keyword_checks(counts)
         run_draft7_keyword_coverage_check(counts)
         run_sys_path_hygiene_check(counts)
