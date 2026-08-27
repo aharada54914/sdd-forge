@@ -1590,7 +1590,15 @@ def _recover_journal(repo_root, feature, journal_path):
     # the staging root; this covers a nonce directory (or the journal file
     # itself) that is independently symlinked out of an otherwise-legitimate
     # staging root.
-    staging_real = os.path.realpath(str(_staging_root(repo_root, feature)))
+    # Panel round 5, Minor 1: this used to be
+    # `os.path.realpath(_staging_root(repo_root, feature))` -- a RESOLVED
+    # INTERMEDIATE, the exact construction the Standing Note forbids, which
+    # made this "independent second layer" cancel against itself for the
+    # symlinked-staging-root case and silently depend on layer 1 having run
+    # first. Using the anchored reference makes the layer genuinely
+    # independent at no cost, so "one containment rule governs both paths"
+    # holds by construction rather than by call ordering.
+    staging_real = _expected_staging_root_real(repo_root, feature)
     if not _path_contained_in(
         staging_real, os.path.realpath(str(journal_path.parent))
     ) or not _path_contained_in(staging_real, os.path.realpath(str(journal_path))):
@@ -2445,7 +2453,33 @@ def main(argv=None):
     args = _parse_args(argv)
     config_path = Path(args.config)
     absolute_config = config_path if config_path.is_absolute() else Path.cwd() / config_path
-    repo_root = _find_repo_root(absolute_config)
+    # THE ANCHOR, resolved exactly ONCE, here (panel round 5, Major).
+    #
+    # `_find_repo_root` returns the caller's own lexical path verbatim for an
+    # absolute `--config`, so `repo_root` could differ from its realpath
+    # whenever the repository is reached through a symlinked ancestor -- the
+    # ORDINARY case for any repo under macOS `/tmp` or `/var`, or any
+    # symlinked checkout. That left ONE live path compared against THREE
+    # anchors: `_allowed_publication_targets` mixed a raw-`repo_root` base
+    # for its `specs/<feature>` entries with a symlink-RESOLVED base for its
+    # `generated/` entry; `_repo_relative` wrote journal paths relative to
+    # `repo_root.resolve()`; `_journal_target_path` rebuilt them against the
+    # unresolved `repo_root`. The round trip was therefore not identity for
+    # the script-dir-anchored target, and step 0.5 rejected a Full-track
+    # journal THIS RESOLVER HAD WRITTEN as "outside the fixed publication
+    # target set" -- permanently, on every later invocation, misattributing
+    # its own artifact to the attack condition round 1's allowlist exists to
+    # catch (REQ-002's own row promises the opposite: a convergeable journal
+    # "is silently resolved by that same scan and never reaches this
+    # diagnostic at all").
+    #
+    # Resolving here makes all three anchors coincide BY CONSTRUCTION rather
+    # than by accident, which is the Standing Note's own rule applied to the
+    # anchor itself: derive everything from one resolved root plus fixed
+    # lexical subpaths. It weakens nothing -- the anchor is the `.git`-
+    # bearing directory, which committed content cannot redirect, and no
+    # INTERMEDIATE component is resolved anywhere.
+    repo_root = Path(os.path.realpath(str(_find_repo_root(absolute_config))))
 
     # Step 0.5 (mandatory crash-recovery scan, design.md/infra-spec.md
     # `#journal-recovery`): runs on EVERY invocation, immediately after step

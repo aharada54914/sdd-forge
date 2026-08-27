@@ -7,13 +7,18 @@
   "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Critical",
-      "ref": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1102",
-      "note": "_expected_staging_root_real resolves specs/<feature> itself before appending .resolver-staging, so a symlinked feature directory becomes the trusted base and _staging_area_contained returns true for an external staging tree. The recovery scan can consequently traverse an external TRANSACTION.json and _discard_batch can recursively delete its external batch directory, violating the fixed write-set boundary and leaving the parent-symlink variant of the recovery-path deletion vulnerability open."
+      "severity": "Major",
+      "ref": "requirements.md AC-047; resolve-project-context.py:_recover_journal and main PublicationJournalRecoveryError handler",
+      "note": "An unrecoverable journal is required to leave live state exactly as found, but the handler subsequently publishes Resolver Evidence through a new transaction. Resolver Evidence is itself one of the original transaction's live targets, so an absent or pre-existing evidence target is changed after recovery refuses the journal. The recovery test asserts exact preservation for other targets while explicitly expecting this mutation."
+    },
+    {
+      "severity": "Major",
+      "ref": "requirements.md AC-012; resolve-project-context.py:main PublicationStagingAreaUncontained handler; tests/resolve-project-context-block.tests.py:run_t007_staging_symlink_case",
+      "note": "PublicationStagingAreaUncontained Blocks through the no-write path and produces no Resolver Evidence. AC-012 requires evidence for every Block except its stated exceptions, and the bundle provides no approved exception or frozen amendment for compromised staging; the test only labels this a disclosed interaction. Consequently the implementation and its tests encode behavior outside the governing requirement."
     }
   ],
   "blind": true,
-  "input_digest": "35e4df22aeb356cab44d6e62d42d2a9cc48716fb43c6feff75d643ad820ee1b3",
+  "input_digest": "be5c0cbe25798bc3e42bbd96d914247cd2eb1fa7c56854e09e3c16190e24585b",
   "consent": {
     "kind": "sudo",
     "ref": "SDD_SUDO token at the primary repo root, human-issued 2026-08-27, expires epoch 1787896044"

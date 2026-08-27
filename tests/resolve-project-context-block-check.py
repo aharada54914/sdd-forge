@@ -409,6 +409,7 @@ ALL_CASE_NAMES = (
         "publication-journal-target-escape",
         "publication-target-parent-symlink",
         "publication-staging-parent-symlink",
+        "publication-journal-roundtrip-unresolved-repo",
     ]
 )
 
@@ -1448,11 +1449,16 @@ class Counts:
     def __init__(self):
         self.passed = 0
         self.failed = 0
-        # TEST-010/AC-010 (T-007): the set of REQ-002 diagnostic ids this
-        # run actually OBSERVED a fixture Block with. Recorded at each
-        # case's own canonical-line assertion site -- never hand-
-        # transcribed into a second, parallel roster that could silently
-        # drift from the branch that produces it -- and compared against
+        # TEST-010/AC-010 (T-007): the set of REQ-002 diagnostic ids the
+        # fixtures in this run EXPECTED. `record_diagnostic_id` is called
+        # with each case's own `expected_id`, unconditionally, beside (not
+        # after) that case's canonical-line assertion -- so this roster is
+        # built from the assertions that RAN, not from the resolver's actual
+        # output. Emitted-vs-expected agreement is enforced per case by the
+        # canonical-line assertion sitting next to each call; what this
+        # roster adds is COVERAGE. It is still never hand-transcribed into a
+        # second, parallel list that could drift from the branch that
+        # produces it, and it is compared against
         # `contracts/resolver-evidence.schema.json`'s own sixteen-value
         # enum by `run_block_matrix_completeness_check` at the end of the
         # run. A REQ-002 row whose fixture is deleted, renamed, or
@@ -3389,18 +3395,130 @@ def run_t007_staging_symlink_case(kind, counts):
         )
 
 
+def run_t007_unresolved_repo_roundtrip_case(kind, counts):
+    """Panel round 5, MAJOR -- the fifth instance of the containment class,
+    with INVERTED POLARITY: a FALSE REFUSAL (self-inflicted denial of
+    service), not an escape. Four rounds of escape-hunting could not find it
+    because every previous fixture asked "can an attacker get OUT?" and this
+    one asks "does the Resolver still accept its OWN journal?".
+
+    ONE live path was compared against THREE different anchors:
+
+      * `_allowed_publication_targets` mixed bases -- its three
+        `specs/<feature>/...` entries from the RAW `repo_root`, its fourth
+        from `Path(__file__).resolve().parent` (symlink-RESOLVED);
+      * `_publish_bundle` recorded each journal `live_path` via
+        `_repo_relative`, which is relative to `repo_root.resolve()`;
+      * `_recover_journal` rebuilt it with `_journal_target_path`, joining
+        against the UNRESOLVED `repo_root`.
+
+    Whenever `repo_root != realpath(repo_root)` the round trip is not
+    identity for the script-dir-anchored target, so the Resolver's own
+    step-0.5 scan rejects a journal IT WROTE as "outside this feature's own
+    fixed publication target set" -- permanently, on every later invocation.
+    That contradicts REQ-002's own `publication-journal-recovery` row ("a
+    journal that CAN be safely converged (the common case) is silently
+    resolved by that same scan and never reaches this diagnostic at all") and
+    misattributes a self-authored journal to the attack condition round 1's
+    allowlist exists to catch. Only the Full-track batch is affected; the
+    three `specs/<feature>` entries round-trip by accident because both sides
+    use the same raw base.
+
+    WHY THIS FIXTURE LOOKS DIFFERENT FROM EVERY OTHER ONE HERE. Every other
+    T-007 fixture builds its repo as `Path(tmp).resolve()` and drives a
+    RELATIVE `--config` through `t003_resolver_argv`, so `repo_root` is
+    already physical and all three anchors coincide -- including round 4's
+    `feature-dir-symlinked` scenario, whose journal names exactly this target
+    and RELIES on the allowlist approving it. Against a resolved repo this
+    defect is invisible. This case therefore drives an ABSOLUTE `--config`
+    through a symlinked ancestor (`<tmp>/link-repo -> <tmp>/real-repo`),
+    which is what `_find_repo_root` keeps verbatim -- and is the ordinary
+    case for any repository under macOS `/tmp` or `/var`, or any symlinked
+    checkout."""
+    case_name = "publication-journal-roundtrip-unresolved-repo"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        tmp_root = Path(tmp).resolve()
+        repo = tmp_root / "real-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+        target_oid = git_commit_all(repo, "add comp-a")
+
+        # The symlinked ancestor: every invocation below reaches the repo
+        # through it, so `_find_repo_root` yields an UNRESOLVED root.
+        link_repo = tmp_root / "link-repo"
+        link_repo.symlink_to(repo)
+        link_scripts = link_repo / "plugins/sdd-quality-loop/scripts"
+
+        def invoke():
+            argv = launcher_args(kind, link_scripts) + [
+                "--config", str(link_repo / "project-context.yaml"),
+                "--source-rev", base_oid,
+                "--target-rev", target_oid,
+                "--feature", "example-feature",
+            ]
+            return subprocess.run(
+                argv, cwd=link_repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+
+        # --- Invocation 1: the kill hook leaves a REAL, resolver-authored
+        # Full-track journal standing (not a planted one -- the point is that
+        # the Resolver must accept its own).
+        crashed = invoke()
+        counts.check(
+            crashed.returncode not in (0, 1) and len(journal_paths(feature_dir)) == 1,
+            f"{case_name}: the kill hook left exactly one genuine, resolver-authored journal standing",
+            f"exit={crashed.returncode} journals={[str(j) for j in journal_paths(feature_dir)]}",
+        )
+        shutil.copy2(
+            ROOT / "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+            scripts / "registry_discovery.py",
+        )
+
+        # --- Invocation 2: the scan must converge that journal SILENTLY.
+        result = invoke()
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.check(
+            "publication-journal-recovery" not in stderr,
+            f"{case_name}: the Resolver ACCEPTS its own journal under an unresolved repo_root -- a "
+            f"journal that can be safely converged is silently resolved and never reaches this "
+            f"diagnostic at all (REQ-002's own publication-journal-recovery row)",
+            f"exit={result.returncode} stderr={stderr!r}",
+        )
+        counts.check(
+            result.returncode == 0 and stdout == "" and stderr == "",
+            f"{case_name}: having converged the stale journal, the invocation completes its own separate "
+            f"resolve normally (exit 0, no diagnostic)",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: the converged journal is deleted, leaving no staging litter",
+            repr(staging_litter(feature_dir)),
+        )
+
+
 def run_block_matrix_completeness_check(counts):
     """TEST-010/AC-010 + AC-014, completed by T-007: the sixteen-row REQ-002
     Block matrix is now covered end to end.
 
     The roster this compares against is not a hand-maintained list -- it is
-    the set of ids the fixtures above ACTUALLY produced a canonical
-    diagnostic line for during this same run (`Counts.record_diagnostic_id`,
-    called at each case's own assertion site). The authority on the other
-    side is `contracts/resolver-evidence.schema.json`'s own
-    `diagnostics[].id` enum, read from disk. A REQ-002 row with no fixture,
-    a fixture wired into no run list, and an id that is not a member of the
-    closed enum are each caught here."""
+    the set of ids the fixtures above EXPECTED during this same run
+    (`Counts.record_diagnostic_id`, called at each case's own assertion site
+    with that case's `expected_id`). It is a COVERAGE check, not an
+    emitted-output check: whether the resolver actually emitted that id is
+    asserted per case, by the canonical-line assertion beside each call. The
+    authority on the other side is `contracts/resolver-evidence.schema.json`'s
+    own `diagnostics[].id` enum, read from disk. A REQ-002 row with no
+    fixture, a fixture wired into no run list, and an id that is not a member
+    of the closed enum are each caught here."""
     with SCHEMA.open("r", encoding="utf-8") as handle:
         schema = json.load(handle)
     enum_ids = schema["definitions"]["diagnostic"]["properties"]["id"]["enum"]
@@ -3485,6 +3603,7 @@ def main():
         run_t007_journal_target_escape_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
         run_t007_staging_symlink_case(args.launcher, counts)
+        run_t007_unresolved_repo_roundtrip_case(args.launcher, counts)
         run_draft7_validator_keyword_checks(counts)
         run_draft7_keyword_coverage_check(counts)
         run_sys_path_hygiene_check(counts)
