@@ -330,14 +330,24 @@ document v2 §7/§18.4).
   unrecoverable and rolled back an in-process failure via a bare `unlink`
   that destroyed pre-existing live bytes with no restore), matching Epic
   A4's own REQ-007 storage location for every per-Feature path; on any
-  Block at which no publication artifact is left standing — every Block in
-  REQ-002's taxonomy other than those whose own rollback restores
-  previously-published bytes, and including but not limited to those
-  reached at (0)/(a)/(h)/(i)/(k)/(l)/(m) (stated as a predicate rather than
+  Block at which **this invocation's own publication transaction leaves no
+  publication artifact standing** — that is, none of the three was newly
+  published by THIS invocation and left in place, whether because none was
+  ever renamed or because every rename it did complete was rolled back;
+  bytes a PRIOR successful resolve published and this invocation never
+  touched do not count as left standing, and neither restricts the class.
+  Every Block in REQ-002's sixteen-row taxonomy satisfies this predicate
+  except the two REQ-002 names AC-012 excepts, the step-(m) Blocks
+  `artifact-publication-failed` and `post-publication-generation-mismatch`
+  included, since their own rollback is what leaves nothing standing
+  (stated as a predicate rather than
   a step list 2026-08-27, human-approved, ruling D(2): the earlier list
   omitted every Evidence-only Block raised at steps (b)/(d)/(e) and inside
   the (f)–(g) sweep, including the ruling-C(1) and C(2) sites AC-057 and
-  AC-058 govern) — the invocation writes
+  AC-058 govern; the rollback carve-out that first accompanied it is
+  deleted, because it excluded exactly the two ids the same sentence's own
+  step list included, and because REQ-004 states this predicate without
+  it) — the invocation writes
   **only** Resolver Evidence's own record of that Block
   (except the self-referential schema-failure case at (k), B3, which
   writes nothing at all). **That one-member write set is published
@@ -906,7 +916,7 @@ document v2 §7/§18.4).
 | AC-035 (Global) | — | `check-workflow-state.sh --feature epic-193-a5-capability-resolver` exits 0 after this package's registration commit lands, with no `tasks.md`/`traceability.md` present and `requirements.md`'s `Spec-Review-Status: Pending`/`design.md`'s `Impl-Review-Status: Pending` headers intact |
 | AC-036 (Global) | — | `check-sdd-structure.sh` (no feature argument) exits 0 after this package's registration commit, run as `sh scripts/check-sdd-structure.sh .` |
 | AC-037 (Global) | — | `specs/workflow-state-registry.json`'s new entry is exactly `{"feature": "epic-193-a5-capability-resolver", "profile": "full"}`, no additional keys, appended to this worktree's own `entries` array |
-| AC-038 | REQ-001/REQ-002 | Staged-generation/journaled-transactional-publication lock (B1): a fixture that reaches a Block only after this invocation has already staged the Context Projection and/or Facet Manifest/Capability Summary in memory (e.g. `lite-check-source-undefined`, `output-schema-validation-failed`, `snapshot-generation-mismatch`) confirms no earlier-staged **publication artifact** ever reached a live path (REQ-001 step (m)'s rollback-and-no-write scope rule: the subject is the three publication artifacts, never `resolver-evidence.yaml`, which is itself staged at step (j) and **is** written on each of these three fixtures per AC-012 — scoped 2026-08-27, human-approved, ruling D(2), replacing an unscoped "artifact" that read against AC-012/AC-040/AC-055) — this criterion is additive to AC-011's own "no partial artifact" statement, over the same three artifacts, differing in that it holds for Blocks reached only after staging rather than for Blocks generally |
+| AC-038 | REQ-001/REQ-002 | Staged-generation/journaled-transactional-publication lock (B1): a fixture that reaches a Block only after this invocation has already staged the Context Projection and/or Facet Manifest/Capability Summary in memory (e.g. `lite-check-source-undefined`, `output-schema-validation-failed`, `snapshot-generation-mismatch`) confirms no earlier-staged **publication artifact** ever reached a live path (REQ-001 step (m)'s rollback-and-no-write scope rule: the subject is the three publication artifacts, never `resolver-evidence.yaml`, which is itself staged at step (j) and **is** written on the `lite-check-source-undefined` and `snapshot-generation-mismatch` fixtures and on `output-schema-validation-failed`'s **non-Evidence sub-case (AC-055(b)) only** — its Evidence-itself-fails sub-case, AC-055(a), is one of AC-012's two exceptions and writes nothing at all, so this row's fixture for that id is AC-055(b)'s — scoped 2026-08-27, human-approved, ruling D(2), replacing an unscoped "artifact" that read against AC-012/AC-040/AC-055, with the sub-case split named because the first replacement wording over-generalised across it) — this criterion is additive to AC-011's own "no partial artifact" statement, over the same three artifacts, differing in that it holds for Blocks reached only after staging rather than for Blocks generally |
 | AC-039 | REQ-002 | `artifact-publication-failed` lock (B1/B3, revised): an injected write/rename failure on one of this invocation's own staged output paths, after every earlier step already succeeded, Blocks with this diagnostic id; a fixture with a second, already-completed rename **of a publication artifact** in the same commit sub-sequence confirms that target is rolled back to its own PRE-transaction live bytes via the transaction's own journal — **never** a bare `unlink` with no restore path (B1, closing the "existing bytes destroyed" gap) — while `resolver-evidence.yaml` is not rolled back and instead carries this Block's own record (REQ-001 step (m)'s rollback-and-no-write scope rule, AC-012; scoped 2026-08-27, human-approved, ruling D(2)) — and the rollback attempt is itself recorded in this diagnostic's own `detail` |
 | AC-040 | REQ-002 | `snapshot-generation-mismatch` lock (B8 TOCTOU, revised): a fixture that mutates the Project Context, ownership-source declarations, or Registry between this invocation's own invocation-start snapshot and its pre-publication recheck Blocks with this diagnostic id, and no **publication artifact** — `facet-manifest.yaml`, `capability-summary.yaml`, or `generated/project-context.resolved.json` — reaches a live path, while `resolver-evidence.yaml` itself **is** written recording this diagnostic (scoped 2026-08-27, human-approved, ruling D(2): the earlier unscoped "no artifact" wording contradicted AC-012's own always-emitted rule, which excepts two ids and not this one; AC-011 already used this scoped form); a **second** fixture leaves every digest (including `ownership_digest`) byte-identical but mutates only the worktree/index/untracked state so the re-derived `affected_components` set itself differs, confirming the Block fires on the set difference alone (B8 correction — `ownership_digest` parity is not by itself sufficient) |
 | AC-041 | REQ-002 | `workflow-combination-invalid` lock (M3): one independently-triggerable fixture per decision document v2 §6's own two explicitly-invalid combination rows (`lite` × non-`lite-three-file`, `full` × `lite-three-file`), each Blocking before any Registry/ownership/projection work begins |

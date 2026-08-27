@@ -1878,7 +1878,10 @@ Commit B (documentation):
   fixture
   (T-002's, T-003's, T-004's, or this task's own) ever reached a live
   path — never `resolver-evidence.yaml`, which is itself staged earlier
-  and IS written on those fixtures per AC-012 (scoped 2026-08-27,
+  and IS written on those fixtures per AC-012, except
+  `output-schema-validation-failed`'s Evidence-itself-fails sub-case
+  (AC-055(a)), one of AC-012's two exceptions, which writes nothing at all
+  (scoped 2026-08-27,
   human-approved, ruling D(2)) (AC-038, complete).
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside

@@ -2416,7 +2416,10 @@ failed` (step 12), `snapshot-generation-mismatch` (steps 6.5 and 13,
 ruling C(1)) — therefore
 still leaves no earlier-staged **publication artifact** at any live path
 at all — never `resolver-evidence.yaml`, which is itself staged earlier
-and IS written on each of those Blocks per AC-012 (REQ-001 step (m)'s
+and IS written on each of those Blocks per AC-012 — except
+`output-schema-validation-failed`'s Evidence-itself-fails sub-case
+(AC-055(a)), one of AC-012's two exceptions, which writes nothing at all,
+so the fixture for that id here is AC-055(b)'s — (REQ-001 step (m)'s
 rollback-and-no-write scope rule; scoped 2026-08-27, human-approved,
 ruling D(2), matching AC-038/TEST-038's own amended wording); this
 staged-generation/journaled-publication lock is additive to AC-011's own
