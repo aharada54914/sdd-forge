@@ -1387,8 +1387,22 @@ journal-listed target's CURRENT live bytes (or note `"ABSENT"`):
   unreadable, or a target's current live hash matches NEITHER its
   journal-recorded PRE nor POST value (an unrecoverable third state no
   automatic recovery can resolve) — this invocation does **not** proceed
-  to step 1; Block, `publication-journal-recovery`, exit 1, leaving the
-  live state exactly as found, pending manual operator intervention.
+  to step 1; Block, `publication-journal-recovery`, exit 1, pending
+  manual operator intervention. The live-state obligation here is per
+  target, not global (amended 2026-08-27, human-approved, ruling D(2),
+  aligning this clause with AC-012/TEST-012's own always-emitted rule
+  after attempt 6 round 2 found the earlier global "leaving the live
+  state exactly as found" wording contradicted it): **every interrupted
+  target other than `resolver-evidence.yaml` is left exactly as found** —
+  once recovery declares the journal unconvergeable it attempts no
+  partial rollback and no repair, in deliberate contrast to the
+  converging branch above, which does restore its targets — **and
+  `resolver-evidence.yaml` itself receives this invocation's own Block
+  record**, written directly (`temp file + fsync + rename`, no staging
+  area, no journal — REQ-001 step (m); opening a second journal against
+  the very Feature whose existing journal this invocation has just
+  declared unconvergeable would be incoherent), exactly as on the
+  step-1 Block branches above.
 
 Recovery is itself idempotent and re-entrant — every comparison is
 current-vs-journaled, never assumes prior recovery progress — so a crash
@@ -2688,7 +2702,13 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   gracefully no-ops in it (investigation.md INV-013).
 - **No artifact this invocation stages ever reaches a live path except via
   the journaled publication transaction (B1, API / Contract Plan step 14,
-  "Resolver publication transactional bundle contract")** — a process
+  "Resolver publication transactional bundle contract")** — this is a
+  rule about **staged** artifacts, and a Block whose whole write set is
+  Resolver Evidence stages nothing: that one-member write is a direct
+  `temp file + fsync + rename` with no staging area and no journal
+  (REQ-001 step (m), REQ-004; clarified 2026-08-27, human-approved,
+  ruling D(2)), so it sits outside this sentence's subject rather than
+  being an exception to it. A process
   crash at any point (including mid-transaction, between two renames), a
   Block at the crash-recovery scan or any step 1-13, an in-process write/
   fsync/rename failure at step 14's own Commit phase, or a mismatch at

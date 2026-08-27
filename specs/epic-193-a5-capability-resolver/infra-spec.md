@@ -207,8 +207,16 @@ shape isomorphically):
     missing/unreadable, or a target's current live hash matches
     **neither** its journal-recorded PRE nor POST value → do **not**
     proceed to step 1; Block, `publication-journal-recovery`, exit 1,
-    leaving live state exactly as found, pending manual operator
-    intervention.
+    pending manual operator intervention. Per target, not globally
+    (amended 2026-08-27, human-approved, ruling D(2), propagated here
+    from `requirements.md`/`design.md`/`acceptance-tests.md` in the same
+    commit): **every interrupted target other than
+    `resolver-evidence.yaml` is left exactly as found** — no partial
+    rollback and no repair is attempted once the journal is declared
+    unconvergeable — **and `resolver-evidence.yaml` itself receives this
+    invocation's own Block record**, written directly (`temp file +
+    fsync + rename`, no staging area, no second journal) per REQ-001
+    step (m) and AC-012's always-emitted rule.
 - **Idempotent and re-entrant.** Every comparison is current-vs-journaled,
   never assumes prior recovery progress, so a crash *during* recovery is
   itself safely resumed by the next invocation (mirrors Epic A1's own

@@ -330,10 +330,26 @@ document v2 §7/§18.4).
   unrecoverable and rolled back an in-process failure via a bare `unlink`
   that destroyed pre-existing live bytes with no restore), matching Epic
   A4's own REQ-007 storage location for every per-Feature path; on any
-  Block reached at (0)/(a)/(h)/(i)/(k)/(l)/(m), this same transactional
-  mechanism writes **only** Resolver Evidence's own record of that Block
+  Block reached at (0)/(a)/(h)/(i)/(k)/(l)/(m), the invocation writes
+  **only** Resolver Evidence's own record of that Block
   (except the self-referential schema-failure case at (k), B3, which
-  writes nothing at all), never a partial Facet Manifest/Capability
+  writes nothing at all). **That one-member write set is published
+  directly, not through the journaled transaction** (amended 2026-08-27,
+  human-approved, ruling D(2)): a single `temp file + fsync + rename`
+  onto `resolver-evidence.yaml`'s own live path, with no staging area and
+  no journal. The journaled transaction exists to roll a **multi-target**
+  rename sequence back as a unit (B1); a one-file write has no second
+  target to be inconsistent with, so the bare rename that was unsafe for
+  the output set is exactly sufficient here. On the (0) Block this is not
+  merely sufficient but required: the journal that invocation found is
+  the very artifact it has just declared unconvergeable, so opening a
+  second journal against the same Feature is incoherent. This states
+  explicitly what design.md's step-1 Block branches and Main Workflows 4
+  below already specify in the same words ("written directly ... no
+  staging area exists yet"), closing the AMBIGUITY finding attempt 6
+  round 2 raised against the un-scoped earlier wording (approval
+  evidence: investigation.md `## Amendment Re-Review Context` ›
+  `### Rulings D(1)/D(2)`). Never a partial Facet Manifest/Capability
   Summary/Context Projection (REQ-002's own "never a partial artifact"
   rule, unchanged in substance from an earlier revision, now enforced
   structurally by this ordering rather than by a per-step promise).
@@ -558,11 +574,29 @@ document v2 §7/§18.4).
   revised — that one case writes nothing at all, never a best-effort,
   fields-omitted instance, REQ-002's `output-schema-validation-failed`
   row above), mirroring `check-component-coverage`'s own always-emit
-  discipline (investigation.md INV-006), via the identical staged-
+  discipline (investigation.md INV-006). (This "sole exception" and
+  REQ-002's "two named exceptions" above are not in conflict and never
+  were: this sentence enumerates the exceptions to writing an Evidence
+  record **at all**, of which B3 is the only one, while REQ-002 enumerates
+  the exceptions to writing the **full** form, of which
+  `disabled-legacy-invocation` — which writes a minimal record rather than
+  none — is the second. AC-012 states both scopes in one row.)
+  **How Evidence reaches its live path depends on how many artifacts this
+  invocation is publishing** (amended 2026-08-27, human-approved, ruling
+  D(2), closing the AMBIGUITY finding attempt 6 round 2 raised; approval
+  evidence: investigation.md `## Amendment Re-Review Context` ›
+  `### Rulings D(1)/D(2)`). When Evidence is published **alongside** the
+  rest of a track's output set, it travels through the identical staged-
   generation/journaled-transactional-publication mechanism REQ-001 fixes
-  for every other artifact (adversarial review "B1 atomicity" — Resolver
-  Evidence is not exempt from that mechanism merely because it is written
-  on most every path). Design three deterministic, stdlib-only-Python-
+  for every other artifact, and is not exempt from it merely because it is
+  written on most every path (adversarial review "B1 atomicity"): a crash
+  mid-sequence must not leave Evidence claiming a publication its
+  siblings never completed. When Evidence is the **only** thing this
+  invocation writes — every Block at REQ-001's (0)/(a)/(h)/(i)/(k)/(l)/(m)
+  except (k)'s self-referential case — REQ-001 step (m) fixes a single
+  `temp file + fsync + rename` directly onto its live path, with no
+  staging area and no journal, because a one-member write set has no
+  sibling to be inconsistent with. Design three deterministic, stdlib-only-Python-
   master-plus-`sh`/`ps1`-wrapper companion scripts (matching Epic A4's
   own `validate-facet-manifest`/etc. precedent, investigation.md
   INV-011): `validate-resolver-evidence.{py,sh,ps1}` (schema-conformance
@@ -1168,7 +1202,12 @@ document v2 §7/§18.4).
   never invoke this Resolver's process at all in this state.
 - **No artifact this invocation stages ever reaches a live path except via
   the journaled publication transaction** (REQ-001, above, adversarial
-  review "B1 atomicity"/"B8 TOCTOU") — a crash at any point, including
+  review "B1 atomicity"/"B8 TOCTOU"). This is a rule about **staged**
+  artifacts, and a Block whose whole write set is Resolver Evidence
+  stages nothing: REQ-001 step (m) and REQ-004 fix that one-member write
+  as a direct `temp file + fsync + rename`, so it is outside this
+  sentence's subject rather than an exception to it (clarified
+  2026-08-27, human-approved, ruling D(2)). A crash at any point, including
   between two renames, a Block, an in-process publication failure, or a
   post-publication-verification mismatch each leave every live path this
   feature's Resolver could write either fully absent, fully unchanged
