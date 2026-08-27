@@ -216,7 +216,7 @@ validate_reviewer_output() {
 
 validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
-  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash
+  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash investigation_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
   local recorded_root recorded_prefix
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
@@ -257,8 +257,39 @@ validate_contract() {
     [[ "$(jq -r .calibration_sha256 "$precheck")" == "$calibration_hash" ]] || return 1
   fi
   expected_a="$(jq -cn --arg requirements "$(relative_to_repo "$requirements")" --arg requirements_hash "$requirements_hash" --arg acceptance "$(relative_to_repo "$acceptance")" --arg acceptance_hash "$acceptance_hash" --arg precheck "$(relative_to_repo "$precheck")" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$(relative_to_repo "$calibration")" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
-  if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
-    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$(sha256 "${spec_dir}/investigation.md")" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
+  # investigation.md is derived from the contract, exactly like calibration_hash
+  # above -- never from the live working tree. Every other entry in this expected
+  # manifest already comes from an immutable source: requirements/acceptance from
+  # the contract's own top-level fields, precheck-result.json from a frozen round
+  # artifact, calibration from the manifest itself. investigation.md was the lone
+  # outlier, and it is the single worst file to read live: by design it is the
+  # document that accumulates the amendment record ACROSS stages, so it grows
+  # after a round is sealed as a matter of course. Reading it live compared
+  # today's bytes against the correctly-pinned ones, mismatched, and refused
+  # `--reset` with "previous terminal contract is invalid" -- permanently, since
+  # nothing can un-grow the file (reproduced on epic-195). A sealed contract is
+  # evidence about the past; validating it against the present is a category
+  # error. The live-vs-pinned question belongs to check-workflow-state.sh, which
+  # asks it deliberately and carries the amendment-record growth tolerance for
+  # exactly this file.
+  #
+  # Same discipline as calibration: every reviewer that pinned the file must have
+  # pinned the SAME bytes (`unique` must collapse to one value), and that value
+  # must be a well-formed digest. A contract in which reviewer A and reviewer B
+  # disagree about what they read is not a valid contract. Absent from the
+  # manifest entirely means the reviewers declared they did not read it, which is
+  # legal (check-workflow-state.sh's allowed() list permits investigation.md but
+  # never requires it), so nothing is expected. There is no cross-check against
+  # precheck-result.json here because the precheck schema records no
+  # investigation_sha256 field -- unlike calibration_sha256 -- so the "if the
+  # precheck records it" clause has nothing to compare against.
+  investigation_hash="$(jq -r --arg investigation "${spec_dir}/investigation.md" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($investigation | relative_path) as $target |
+    [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $target) | .sha256] | unique |
+    if length == 0 then "" elif length == 1 then .[0] else "__AMBIGUOUS__" end' "$contract")"
+  if [[ -n "$investigation_hash" ]]; then
+    is_sha256 "$investigation_hash" || return 1
+    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$investigation_hash" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
   expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
   actual_a="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'

@@ -1,0 +1,24 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a1-r2-reviewer-b-seq323",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a1-r2-reviewer-b-323",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-1/round-2/integrated-summary.json","sha256":"77805a51d4c39220c0ff2671941e3234fce3e9c80ec34b8eaac3c0c8f5539994"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-1/round-2/precheck-result.json","sha256":"adcc42b6f4c76481fd5bc459fbbea9d7ce7b8f0c32cfb461f59a66471fc28820"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md","sha256":"685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md","sha256":"45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"},
+    {"path":"/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md","sha256":"2e71e3bde791159a2ca5a9f9bbe4589c183789b994af4b6ebd551fd890d6080b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"AMBIGUITY","result":"PASS","severity":"Major","finding":"Terms/actors/states are concretely defined throughout (e.g. the three-state required_lite_checks key-presence contract in Edge Cases 'v1 Registry, field absent entirely'; the exact check-id grammar ^[a-z0-9][a-z0-9-]*$ in Field Definitions; the --capability-reasons fragment shape). No two-implementer-divergence surface met the evidence gate."},
+    {"id":"CONTRADICTION","result":"PASS","severity":"Critical","finding":"Checked prior contradiction classes explicitly resolved in this package (build/test catalog-token vs. no-op execution, disabled-legacy vs. active-enforcement absent-Summary, REQ-005 Project-Context evaluation vs. A3 Non-goals) and found each internally consistent on independent re-read; no new conflicting requirement/AC/non-goal pair found."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"REQ-006 fixtures (a)-(l) plus this round's TEST-030 companion fixture (present-empty-Summary pass-through, verified independently against AC-030 and REQ-003's Step 2a/2b logic) jointly cover eligible/ineligible Capabilities, v1 compatibility, unmapped/grammar-invalid/symlink/partial-pair check-ids, unknown catalog tokens, disabled-legacy and active-enforcement absent-Summary states, full_upgrade_required, and invalid-fragment/no-reasons fragment states."},
+    {"id":"ASSUMPTIONS-RESOLVABLE","result":"PASS","severity":"Major","finding":"Assumptions section explicitly flags A5's Pending status and the lite-gate/SKILL.md protection-status snapshot as re-verification obligations at implementation time (Risks section cross-references the same), rather than leaving them silently unresolved."},
+    {"id":"APPROVAL-BOUNDARY","result":"PASS","severity":"Critical","finding":"The protected-file human-copy boundary (REQ-002/REQ-005, four ADR-0022-protected targets) is testable via AC-010/AC-021/AC-031/TEST-010/TEST-031's three-way exact-set/hash/post-copy-verification contract; the Spec-Review-Status/Impl-Review-Status-stays-Pending boundary is testable via AC-024, checked directly per the Manual Review Record."},
+    {"id":"DOWNSTREAM-READINESS","result":"PASS","severity":"Major","finding":"Exact schema fragments, algorithms, exit codes, error-message text, and a fixture inventory mapped 1:1 to ACs are specified; no REQ leaves a product-behavior decision for a design reviewer to invent."}
+  ]
+}

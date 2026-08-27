@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0644",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0644",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-2/integrated-summary.json",
+        "sha256": "d8d3d9c11df48d97e1bf887f4516d73bdc8a1c158e10fa7c7db9b3e50d3dbe86"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-2/precheck-result.json",
+        "sha256": "e318cc942bc1c51f5898b09df0622a83d50c48418a1966f8aa0292b9ff0f8582"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+        "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+        "sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+        "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+        "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+        "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+        "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md",
+        "sha256": "f1b8ef6679c8a37b7438fae8dc07b082a3c5476a2404e87401505eb25b116403"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md",
+        "sha256": "fce97d001d727d44d08fd051daa016883dd2f5a717e0e1f05a43458163e6efc2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+        "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 8 tasks' declared Risk tiers match their described scope against the sentinel-surface list (auth/authz/access-control, payments, PII, data migration, external API contracts). T-002 (high) and T-005/T-008 (high) sit on Security Boundaries B1/B2 (design.md#security-boundaries; security-spec.md B1-B5) and correctly justify high via 'silent defect causes material harm' on an access-control-adjacent surface, never asserting a settlement/safety/irreversible-destructive surface that would warrant critical. T-004 (high) is not over-classified despite touching only tests/cli-hook-enforcement.ps1: that file is itself the repository's only automated hook-guard regression asset (Risk Rationale cites regression risk to 'this repository's only automated hook-guard regression coverage'), not a trivial test-only/UI-copy change the over-classification rule targets. T-001/T-003/T-006/T-007 (medium) and none touch a sentinel surface of their own. No task under-classifies a sentinel surface: T-005/T-008 (Ed25519 signing/trust-registry) and T-002 (installed-cache drift, Security Boundary B2) are already high, not left at medium/low."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Risk: high task (T-002, T-004, T-005, T-008; no task is Risk: critical) carries both a TDD Done-When item naming RED (failing-test-first) and GREEN evidence, and an explicit 'An independent quality-gate verdict records PASS' Done-When line: T-002 ('TDD evidence \u2014 RED ... and GREEN ... An independent quality-gate verdict records PASS'), T-004 (same pattern, extended-file/3-OS-matrix GREEN), T-005 (same pattern, full validator suite GREEN), T-008 (same pattern plus its own 'Non-regression' item preserving T-005's TEST-026/027/028). No critical-tier task exists in this package, so the second-approver/signed-evidence-bundle requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's T-005 over-sizing finding (12 Done-When items) is resolved: T-005 now carries 7 Done-When bullets (Schema+discriminator, Nonce ledger+signing, Classification-mismatch/replay guard, Aggregate gate, Suite/CI registration, TDD evidence, Requirement-traceability), and the newly split T-008 carries exactly 8 (Codex/Copilot classification, Five-cell SKIP handling, Consumer-inventory shape, Draft-records-committed, HUMAN APPLY STEP, Non-regression, TDD evidence, Requirement-traceability) \u2014 at, not over, the >8 threshold. All other tasks (T-001 6, T-002 5, T-003 6, T-004 4, T-006 6, T-007 6) are well within bounds. No task title implies a multi-phase 'design/implement/test the entire X' scope. No fragmentation signal: no 3+ tasks reduced to a single-function/file edit, and no 'rename X to Y'-only task exists; every task carries a multi-file Planned Files list, a Must Read list, and multiple TEST-NNN cases."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every task in this package builds test/verification infrastructure whose own Scope/Done When explicitly enumerates a negative or edge-case oracle alongside the happy path, and requirements.md's 5-item Edge Cases section is fully covered by tasks: T-002/TEST-023 asserts the not_installed/installed_synced/installed_drifted three-state split with mode-dependent FAIL semantics (AC-023, matching requirements.md Edge Cases item 5); T-008/TEST-013-014 assert the Codex-disabled and Copilot-subagent non-firing states as correctly-detected, non-failing outcomes (AC-013/AC-014, matching Edge Cases items 2-3); T-007/TEST-025/029/030 each pair a real-document clean pass with a mutated-copy negative fixture (missing/ambiguous classification row, out-of-scope artifact name, uncited claim); T-005 enumerates 19 distinct named ERR_* error-path fixtures plus 3 SKIP-Representation states; T-001/TEST-006 registers the canary as a mandatory, allowlisted SKIP case rather than a silently-dropped one. No task's acceptance criteria are happy-path only."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column labels are consistent with each row's actual scope: AC-002/003/004/007/012/013/014/018/019/020/022 are labeled integration and each spans \u22652 real components (two CLI runtimes, or installer + drift-checker, or OS + fixture layer); AC-015 uses a distinct 'live-host proof' label matching its genuine multi-actor session scope rather than being mislabeled unit/integration; AC-028 is labeled 'automated aggregate validator' matching its cross-cell aggregation scope; AC-001/005/010/011/021/024/025/026/029/030 are labeled static/doc-review, matching their single-document-parsing scope (never mislabeled unit against a single function, since they are not called unit); AC-017 is labeled regression, matching its non-regression-continuity scope. No AC row's Test Type contradicts its Test Target scope, and every acceptance-test row already cites its own AC-NNN by table construction."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Risk: high task carries an explicit Rollback: field: T-002 ('revert this task's commit(s); nothing protected is written directly; the script never writes to the install root or the repository'), T-004 ('revert this task's commit(s); the file's pre-existing 101 lines are restored exactly'), T-005 ('revert this task's commit(s); ... a8-trusted-signers.json stays seeded empty by this task alone ... so a revert ... changes no signed security claim'), T-008 ('revert this task's commit(s); the five draft SKIP records remain unsigned ... a revert after the human apply step must also state whether the now-signed records ... should be hand-reverted'). infra-spec.md's own Rollback section (additive-diff git-revert plus re-run validate-live-host-proof/check-sdd-structure.sh verification) corroborates each task-level statement. No high/critical task lacks rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tests/run-all.sh, tests/run-all.ps1, the staged human-copy/.github/workflows/test.yml candidate, and MANIFEST.sha256 are each appended-to by T-001/T-002/T-003/T-005/T-006/T-007 (six tasks touching the same four files). This is not uncoordinated overlap: tasks.md's own Global Constraints section fixes an explicit, single, total append order ('Serialized order T-001 \u2192 T-002 \u2192 T-003 \u2192 T-005 \u2192 T-006 \u2192 T-007 for every shared-resource append'), each task's own Planned Files entry states which prior task's staged candidate it appends after, and T-004/T-008 are explicitly and correctly carved out of the chain because they touch neither shared file. The two shared, ordinary JSON files (a8-skip-allowlist.json: T-001\u2192T-008; a8-trusted-signers.json: T-005\u2192T-008) additionally have that same ordering encoded directly in the Blockers field (T-008 Blockers: T-001, T-005), so the stricter form of coordination is present exactly where two tasks write disjoint entries into the same file with a genuine completion-order requirement. No two tasks claim to edit the same file 'for the same purpose' with zero documented ordering anywhere in the package."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-007's own Depends On text classifies T-001/T-002/T-003/T-005/T-006 as 'Global Constraints \u2014 serialized only' (no functional dependency), matching the label this package's round-1 fix used to mean 'do not add to Blockers.' But T-007's own Done When carries a distinct 'Test-registration procedure proof' item requiring that 'every one of the seven tests/*.tests.sh/.tests.ps1 pairs this feature's tasks author ... is registered in tests/run-all.sh/.ps1' and that 'the final staged .github/workflows/test.yml candidate ... carries every suite's CI steps with a correct, cumulative MANIFEST.sha256 entry set' \u2014 i.e. T-007 cannot truthfully satisfy its own Done-When unless T-001, T-002, T-003, T-005, and T-006 have already completed their own registration sub-steps. T-007's own Depends On prose even admits this in the same breath it labels the dependency 'serialized only': 'this task's Done When re-confirms the cumulative suite/CI registration state left by every task above.' This is the identical fact pattern the package itself uses elsewhere to mark a dependency functional (compare T-003's Depends On: T-002 is marked 'functional \u2014 this driver invokes check-installed-plugin-drift ... the script must exist first'); T-007's own scope likewise cannot be truthfully completed without T-001/T-002/T-003/T-005/T-006's own produced artifacts (their registration entries) already existing. Yet T-007's Blockers field reads 'None.' This is a missing-blocker omission per the DEPENDENCY-OVERLAP check: if T-007 were scheduled/implemented before T-001-T-006 complete, its own 'Test-registration procedure proof' Done-When item would be unsatisfiable (or, worse, could be marked passing on an incomplete registration set, since nothing in the task-state machine would have blocked out-of-order execution). T-004 is correctly omitted from this concern \u2014 tests/cli-hook-enforcement.ps1 was already registered pre-epic (INV-013), so its registration-existence does not depend on T-004's own completion."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 8 tasks (T-001 through T-008) author net-new test/validation infrastructure or extend an existing regression file with new assertions; none is scoped as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test resolution, or incident-remediation task per its title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "T-007's Blockers field is 'None' despite its own Done-When 'Test-registration procedure proof' item requiring T-001/T-002/T-003/T-005/T-006's own suite-registration artifacts (in tests/run-all.sh/.ps1 and the staged human-copy/.github/workflows/test.yml candidate) to already exist, and despite T-007's own Depends On prose admitting 'this task's Done When re-confirms the cumulative suite/CI registration state left by every task above.' Per the package's own precedent for classifying a dependency 'functional' (T-003's Depends On: T-002), this is a genuine functional dependency, not merely Global-Constraints append-order serialization; Blockers should include T-001, T-002, T-003, T-005, T-006 (matching T-007's own Depends On list) so the task-state machine cannot schedule T-007 before its true prerequisites complete."
+    }
+  ]
+}

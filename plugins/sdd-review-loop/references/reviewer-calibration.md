@@ -120,3 +120,63 @@ Reviewer prompts must remain deterministic and reproducible. Do not use learned
 memories, prior raw reviewer reports, or adaptive prompt evolution while running
 the gate. Capture recurring false positives or misses outside the gate through
 explicit prompt eval fixtures or workflow retrospectives.
+
+## Amendment Re-Review Context (impl and task stages)
+
+An implementation-policy or task-decomposition package can be legitimately
+re-reviewed after a human approved a post-implementation amendment to the
+documents an earlier attempt of this same stage already reviewed and pinned.
+Ordinarily a reviewer treats the reviewed inputs differing from what a prior
+attempt pinned -- or the presence of amendment history, later-phase evidence,
+or recovery narrative inside the package -- as grounds for a finding: an
+"amendment-supersession" finding, whose basis is the difference or the
+disclosure itself rather than any defect in the content. An amendment
+re-review inverts that: the amendment already happened, was human-approved,
+and is being disclosed honestly; disclosure is what makes it reviewable.
+
+### Recognizing a declared amendment re-review
+
+Treat the package as being in a declared amendment re-review context only
+when `specs/<feature>/investigation.md` contains a section with the exact
+heading `## Amendment Re-Review Context` meeting the full evidence bar
+defined in `spec-review-calibration.md`'s section of the same name: full
+amendment commit hashes, per-document SHA-256 as of each amendment commit, a
+verbatim dated quotation of the human's approval statement, and a commit or
+SHA-256 reference (never a bare path) for every later-phase artifact
+mentioned. The entry must cover the whole completion chain -- an amendment
+that grew across several commits lists every one. If any element is missing,
+abbreviated, paraphrased, or given as a bare path, the declaration does not
+apply and the default calibration stands with no benefit of the doubt.
+
+### What the declaration suppresses
+
+When, and only when, a conforming entry is present, do not emit a finding
+whose *sole* basis is that the reviewed documents differ from what a prior
+attempt of this stage pinned, or that amendment history, later-phase
+artifacts, or recovery narrative exist or are referenced in the package.
+This is the amendment-supersession class only.
+
+- Suppressed example: the design under review reflects an amendment commit
+  the entry cites in full, and the prior attempt's contract pinned the
+  pre-amendment bytes; the sole observation is "this is not what attempt N
+  reviewed" -- suppressed.
+- NOT suppressed example: the amended design's activation predicate
+  contradicts a requirement, an amended task's Done-When is unobservable, or
+  the amendment introduced an unmitigated security exposure. These stand on
+  their own defect and are reviewed and reported exactly as usual even when
+  the evidence bar is met.
+
+Every other check and severity class is judged exactly as it would be
+without this section. This declaration modulates one finding basis and
+nothing else. The bounded-even-if-fabricated analysis in
+`spec-review-calibration.md` applies unchanged: the bound rests on scope,
+not on detection, and the durable replacement is proposed as WFI-047.
+
+Operational notes, recorded so the next operator does not rediscover them:
+a mid-attempt edit to `investigation.md` (adding this very entry) can make a
+*prior* round's contract unverifiable against current disk bytes; the
+disclosed fixed-point procedure is to validate the prior contract against
+the bytes it reviewed, then restore the amended bytes and let the new
+round's manifests pin them. And the entry must be re-extended whenever the
+completion chain gains another commit, or the next gate will correctly
+refuse it as incomplete.

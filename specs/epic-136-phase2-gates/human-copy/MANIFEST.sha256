@@ -6,7 +6,7 @@ df5024e272dbed45e693726d7b9e77440f11489d5484bf768653509bf1f12fd6  plugins/sdd-qu
 afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03  plugins/sdd-lite/references/risk-upgrade-policy.md
 192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45  plugins/sdd-lite/scripts/check-risk-upgrade.sh
 d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
-c76fa6c294f7630857ac7c1d1aa57179c79823ad6401ba0d58e1f9619b0860a4  plugins/sdd-lite/skills/lite-spec/SKILL.md
+9ea024b44b4e155eca6fe67c8132b98eabc843760c2ddbbe51ee99a86b606172  plugins/sdd-lite/skills/lite-spec/SKILL.md
 ffc89ec2b6ae1bf933c7e4f4e07617b3068db865ffd2499b2d79770d9903e57d  plugins/sdd-ship/skills/ship/SKILL.md
 28772388036f1826d76c84ef4780a7f71ad463636c46a31c871195c0f6eabfcd  tests/guard-parity.tests.sh
 bd5d68b2d4ae179f985e77c1a680e8608e0a426495fb1db8ee4344c1b175dab5  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1

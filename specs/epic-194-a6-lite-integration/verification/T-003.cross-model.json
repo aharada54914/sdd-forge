@@ -1,0 +1,25 @@
+{
+  "schema": "cross-model-aggregate/v1",
+  "task_id": "T-003",
+  "feature": "epic-194-a6-lite-integration",
+  "panelists": [
+    {
+      "vendor": "google",
+      "model": "gemini-3-pro-preview",
+      "verdict": "NEEDS_WORK"
+    },
+    {
+      "vendor": "openai",
+      "model": "gpt-5",
+      "verdict": "NEEDS_WORK"
+    }
+  ],
+  "vendors_distinct": 2,
+  "non_anthropic_count": 2,
+  "all_pass": false,
+  "any_critical": true,
+  "evaluator_verdict": null,
+  "divergence": false,
+  "requires_human_decision": false,
+  "result": "FAIL"
+}

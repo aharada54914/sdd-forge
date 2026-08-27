@@ -1,0 +1,9 @@
+{
+  "schema":"cross-model-verdict/v1","task_id":"T-001","feature":"epic-194-a6-lite-integration","vendor":"google","model":"gemini-2.5-pro","verdict":"NEEDS_WORK",
+  "findings":[
+    {"severity":"Major","ref":"verification/T-001/security-review.md — Addendum 2026-08-25","note":"The shipped runner lacks a current independent security review. The recorded PASS covered a deleted draft with no digest, three substantive security-boundary changes landed afterward, and the Windows publisher path remains unexecuted. Review the current runner digest independently, including Windows publishing and reparse-point behavior."},
+    {"severity":"Major","ref":"verification/T-001.contract.json — checks regression and placeholder-scan","note":"Required verification remains incomplete: regression and placeholder-scan both record passes=false. The full regression timed out, and placeholder findings lack the human acceptance required by the scanner. Complete or formally resolve these checks and regenerate the contract."},
+    {"severity":"Major","ref":"verification/T-001.contract.json — spec_revision and comment","note":"The verification contract is bound to stale specification digest 2740928c... while its own comment identifies the current digest as 466465e0... after the five-target amendments. Run a fresh independent quality gate against the current specification and implementation."}
+  ],
+  "blind":true,"input_digest":"3b1c3940f01bc42c9b0dfee82b351e1c8a937d228406f21e1bf20797c9e8fbbd","consent":{"kind":"sudo","ref":"specs/epic-194-a6-lite-integration/verification/T-001.panelist-input.txt#consent"}
+}

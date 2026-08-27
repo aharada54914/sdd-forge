@@ -1,0 +1,142 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-194-a6-lite-integration",
+  "task_id": "T-004",
+  "run_id": "RUN-epic-194-a6-lite-integration-qg-T-004-seq0646",
+  "host_session_id": "SESS-qg-epic-194-a6-lite-integration-T-004-0646",
+  "sequence": 646,
+  "previous_record_sha256": "9bbb5f88f8318627adcdf6892c07cae627a1625388bbaf59e12569b97f8f5fa0",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "0da611c7f2cabf1a2898653ce4a88bdeb27df22800bea451d3a9686fafed311b",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-lite/skills/lite-gate/SKILL.md",
+      "sha256": "01622e8b6811add9e1e6c9889d96ba6cd26aef76e7b3b5fc35378da594441d85"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-194-a6-lite-integration/T-004.md",
+      "sha256": "8632f6841def07e635db7a13c23af9bae1102b16c13a90a6e5b474bcaec79cb7"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/design.md",
+      "sha256": "fd67385479a902fa593beb1a40bf88414859a3b155736d70cb204586f159916d"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/frontend-spec.md",
+      "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/PROPOSED/README.md",
+      "sha256": "9084fb735dc87957f0cfaac9a0c09517b6dc66bc65c67c2a35aba1bc5187f9d0"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/human-copy/PROPOSED/dot-github-workflows-test.yml.PROPOSED",
+      "sha256": "f6efce1c800630711dd5ce5fa119582b23047e5bfb4b760a16f38a1b03a20ceb"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/infra-spec.md",
+      "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/security-spec.md",
+      "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/tasks.md",
+      "sha256": "66ffa8ca01d135b000ad3af7be11006da1b4283c920aa49754f9e37edfc90bd3"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/traceability.json",
+      "sha256": "9f292087e4e2466c8e8ee3530a91af96698be1a4408c1f703e6ccf4d37208b84"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/traceability.md",
+      "sha256": "0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/ux-spec.md",
+      "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-004.green.log",
+      "sha256": "4d205616e655617fbaadbcbdfc0aafe091747b1716d3d52652eb952d53ec53b8"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-004.red.log",
+      "sha256": "a99adc303e7dbc6b93c46d7437f980f9482897ddd617ba013cd8a0f7fd380dd5"
+    },
+    {
+      "path": "tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.ps1",
+      "sha256": "b4c7e92b806245cf1ea75af8f3c764968334ff7155499be5ff699fe893e1875f"
+    },
+    {
+      "path": "tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.sh",
+      "sha256": "4f44ed3a16a559ef66d6dd83801a0e954a84190d961b0c1b868deb456e16dd61"
+    },
+    {
+      "path": "tests/lite-gate-full-upgrade-backstop.tests.ps1",
+      "sha256": "872684ac070b60148606b38296ec8d806c49afddaa7b4c1c47607de56d09ed25"
+    },
+    {
+      "path": "tests/lite-gate-full-upgrade-backstop.tests.sh",
+      "sha256": "528e60234e94c39944364486ca07a033e731b1e9337d829380789120f970808f"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent-active-enforcement.tests.ps1",
+      "sha256": "3b8a28cd21cae5d8a511b3dd005814264fec3ee4a7c75ce89c31521375fff062"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent-active-enforcement.tests.sh",
+      "sha256": "76d7ef352174f6bcf33b69da728a42f751165dfcb7048cd64b4d492853b6bb82"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent.tests.ps1",
+      "sha256": "765b8bf63f3bc278152b26e1e124245a3e032ed261281e00ed73d8f2bd0931b3"
+    },
+    {
+      "path": "tests/lite-gate-summary-absent.tests.sh",
+      "sha256": "4a3ec3af07e1ff9b5caf17c234e85e962bc501ecd4485845d376902dc34b80f4"
+    },
+    {
+      "path": "tests/lite-gate-summary-consumption.tests.ps1",
+      "sha256": "14c237d8939ec11e138aa2f74120940e76326b5cfd9201fb4c0bb09e65698aa9"
+    },
+    {
+      "path": "tests/lite-gate-summary-consumption.tests.sh",
+      "sha256": "b222d955a1e7db2bdd30377339dadc85e9793ad0d5a360e9dcc7c84592d4e6b6"
+    },
+    {
+      "path": "tests/lite-gate-summary-invalid.tests.ps1",
+      "sha256": "7dc9055137b46c27bf7e27c55782efaeeb51660f49fc4297a5f4c298efac9f99"
+    },
+    {
+      "path": "tests/lite-gate-summary-invalid.tests.sh",
+      "sha256": "d4ceefe7e16602919357842d9ff3fd41b09348df894659e39f8651dd75508c77"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "5fbe1ff398a33eb3968e53b04d22dd67f0ae8eaec0fb57af7318b112564b5fc6"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "007befd39504273bb764b6fa3a23daf5b60b9244e3b52a54e1d2d5816708ec1e"
+    }
+  ]
+}

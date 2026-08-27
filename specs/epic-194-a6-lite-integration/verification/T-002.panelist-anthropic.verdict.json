@@ -1,0 +1,66 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "anthropic",
+  "model": "claude-opus-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "ref": "verification/T-002.contract.json (checks[] id \"regression\") vs verification/qg/shared/regression.log (section \"=== 2026-08-21: full tests/run-all.sh, run to completion ===\")",
+      "note": "The contract records the required regression check as \"passes\": true, but the very file it names as evidence states verbatim \"passes is therefore recorded false. Full-repository regression does not pass on this branch.\" The contract's comment still narrates only the superseded, timed-out, scoped run and never mentions the 2026-08-21 completed run or its real failure. A required gate is recorded green against evidence that records it red."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/qg/shared/regression.log (\"3 failing suite(s)\" enumeration, line 5217 excerpt)",
+      "note": "repository-release-validation is an unwaived REAL FAILURE on this branch: check-workflow-state reports \"stage-provenance: spec top-level contract hashes are stale\" (acceptance-tests.md moved 685a415a -> 691db158 at commit 9997091c) and, masked behind it, the still-unresolved \"task plan hash is stale\". The log itself states neither stage contract was re-frozen and that re-freezing needs a human. T-002 is being certified against specification and task-plan documents whose provenance pins are broken."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json (\"spec_revision\": \"2740928c...\", \"created\": \"2026-08-19T04:53:00Z\")",
+      "note": "The contract pins a spec revision and was authored 2026-08-19, before the 2026-08-21 amendment (commit 9997091c) that rewrote AC-010 from a four-target to a five-target payload set in the acceptance-tests.md included in this bundle. The contract therefore certifies a spec revision that is not the one under review, and nothing in the bundle allows either hash to be recomputed."
+    },
+    {
+      "severity": "Major",
+      "ref": "acceptance-tests.md (AC-010 row vs AC-031 row)",
+      "note": "AC-010 now declares a five-target payload set (risk-upgrade-policy.md, check-risk-upgrade.sh, check-risk-upgrade.ps1, lite-spec/SKILL.md, and the staged CI workflow file), while AC-031 in the same table still specifies the runner contract over \"the declared four-target payload list\" and requires it to reject any staged directory whose payload file set does not exactly match \"the declared four-target list\". T-002's own Done-When names its HUMAN APPLY STEP as the step through which AC-010/AC-031 resolve, so the gate that finishes this task carries two mutually exclusive exact-set contracts."
+    },
+    {
+      "severity": "Major",
+      "ref": "bundle section list (no section for the staged human-copy check-risk-upgrade.sh/.ps1 or risk-upgrade-policy.md); reports/implementation/epic-194-a6-lite-integration/T-002.md (\"Outputs\" table; \"Security review: not yet independently recorded\")",
+      "note": "The task's three primary deliverables are absent from the bundle and carry no SHA-256 in the Outputs table, which lists only the eight test files, green.log, tasks.md and CHANGELOG.md. This is a risk:high, Security-Sensitive:true script that parses externally supplied JSON and decides full-required vs lite-eligible, and the implementation report itself records that its staged content has never had a dedicated security review. Its parsing, quoting and fail-closed logic cannot be read or hash-verified from this bundle, so no credit can be given for it beyond the behavioural assertions the four suites happen to make."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json (checks[] id \"placeholder-scan\") vs verification/qg/shared/placeholder-scan.log (CHANGELOG.md block, exit: 1)",
+      "note": "The required placeholder-scan check is recorded \"passes\": true while its own evidence records exit 1 with 5 findings on CHANGELOG.md, a file T-002 declares as one of its own Outputs and edited this session. The scanner's own message requires each finding to be fixed \"or explicitly accepted by a human in the quality-gate report\"; no such human acceptance appears anywhere in this bundle, so the pass rests on a scope narrowed to exclude a file the task changed."
+    },
+    {
+      "severity": "Major",
+      "ref": "design.md (API / Contract Plan, REQ-002 processing step 2b) and the fail-closed suite (TEST-013a..f)",
+      "note": "The fail-closed validation list covers only unreadable / not-valid-JSON / missing \"capabilities\" / \"capabilities\" not an array / entry missing \"id\" or \"eligible\". Neither the design nor TEST-013 covers a present-but-wrong-typed field: an entry whose \"eligible\" is the string \"false\" rather than the boolean, or whose \"upgrade_reasons\" is a string rather than an array. On an access-control-like gate whose purpose is to stop a Lite-ineligible Capability, a truthy string evaluated loosely in bash or PowerShell would make an ineligible entry contribute nothing and exit 0 -- the exact silent-degrade Blockers [B3]/[B4] were written to prevent. Untested in both runtimes."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/T-002.red.log",
+      "note": "The Done-When TDD bullet requires RED for each listed item, but the red log contains no capture for TEST-007 (item 4, byte-identical legacy path); only items 5, 13 and 14 appear. Under the \"point SUT at the live script\" mechanism this red log used, a TEST-007 red is structurally unobtainable (live vs live is trivially identical), but the log does not say so, leaving an unexplained hole in the RED evidence."
+    },
+    {
+      "severity": "Minor",
+      "ref": "merge-ordering suite, TEST-009c",
+      "note": "AC-009's no-DSL/no-Registry-call assertion is a grep for three literal name fragments. The red log shows TEST-009a/b/c passing identically against the live, unextended script, so the check has no discriminating power over the extension: any differently named helper call would satisfy it."
+    },
+    {
+      "severity": "Minor",
+      "ref": "verification/qg/shared/task-state-check.log",
+      "note": "Unlike the other shared logs, this one carries no run timestamp, cwd or branch line, and it reports \"WARNING: evidence bundle for task T-004 was generated with a dirty working tree\". The contract's claim that this check was re-run rather than re-typed cannot be corroborated from the log's own content."
+    }
+  ],
+  "blind": true,
+  "input_digest": "eca045e3c681a1f2c31676c1864626f2f6f26667c1a4a16bafcec3051693e188",
+  "consent": {
+    "kind": "sudo",
+    "ref": "T-002.panelist-input.txt header line \"# consent: sudo\""
+  }
+}

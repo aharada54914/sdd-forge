@@ -409,6 +409,14 @@
     {
       "feature": "sdd-domain-concept-contract",
       "profile": "full"
+    },
+    {
+      "feature": "epic-194-a6-lite-integration",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-196-a8-integration",
+      "profile": "full"
     }
   ]
 }

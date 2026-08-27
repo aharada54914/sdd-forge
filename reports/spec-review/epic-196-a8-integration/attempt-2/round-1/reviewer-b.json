@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-b-a2r1-seq774",
+  "host_session_id": "SESS-spec-b-epic-196-a8-integration-a2r1-seq774",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "2e3b141c051d7a198530635ad409f4616bd717d2fe3f6dfeff6632954e15562e"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "6bd0c353f774d4c736965fe39e33b8df62bb895c46fa5de1950b028a6bd40209"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-2/round-1/precheck-result.json", "sha256": "066f96d45f61b361c151b3257e3755547d0b4dd1c7cacab91e4cd29ef6765acf"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-2/round-1/integrated-summary.json", "sha256": "78edc06719bddf27a40e904e1ea15e0e66091f3e97cbc0c52d71889587cca432"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Field Definitions section (:550-604) pins concrete terms -- 'Cross-runtime handoff' (:552-557), 'Live-host hook-activation handshake proof' (:558-574), 'Semantic live-host matrix cell' (:575-581), 'Manual-required check' (:594-598) -- and AC-001-AC-030 give exact field lists, an exact five-cell enumeration, and an exact record schema (AC-026), so two implementers would build the same behavior. No additional ambiguity meeting the evidence bar was found beyond the assumption-staleness issue reported under CONTRADICTION/ASSUMPTIONS-RESOLVABLE."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md:720-724 (Assumptions) states 'Epic A1 (sdd-forge-wt-epic-189) remains unmerged and in active implementation/review through this epic's own Phase 1 ... AC-006/AC-015/AC-016's own SKIP status is the direct consequence,' which directly conflicts with investigation.md:157-162 (Amendment commits section), recording that commit 66d5bdde4cea01b2345f41eee2b4cfcbcf529301 already 'flags requirements.md's Epic A1 assumption as superseded (Epic A1 merged on 2026-08-08, its handshake script and five consumer entry points exist on main)'. The fix was applied only to design.md (outside spec-review's manifest); requirements.md itself still asserts the false premise. Downstream failure mode: a Phase 2/3 task author reading requirements.md's Assumptions section alone would conclude AC-006/AC-015/AC-016 are still correctly SKIP and Main Workflow step 7 is still-future work, when investigation.md (in the same reviewable package) establishes the un-skip precondition is already met. This is spec-review's own scope because it is a direct conflict between two documents inside the Phase-1 reviewable surface, not a design/implementation detail, and it governs a release-gate computation: AC-015 states 'a SKIP surviving validate-live-host-proof after Epic A1 merges is a non-zero-exit hard failure, never a passing state,' and AC-028 makes that aggregate check both this epic's Done gate and a release gate -- a workflow-boundary contradiction, hence Critical."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Edge Cases section (requirements.md:672-706) enumerates five material negative/boundary states tied to specific ACs: a runtime with unconfirmed headless contract (AC-025), Codex plugin_hooks-disabled correctly-detected non-firing (AC-013), Copilot subagent expected non-firing (AC-014), an unexpected live-host non-denial recorded as FAIL rather than discarded, and preflight-vs-verify 'not installed' divergence (AC-023/AC-024). This covers the failure modes REQ-001/REQ-002/REQ-003/REQ-005 imply."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The Epic A1 unmerged assumption (requirements.md:720-724) is not left resolved-and-true nor marked as a decision needed. investigation.md's own Amendment commits section (investigation.md:157-162) records the opposite is now true (Epic A1 merged 2026-08-08, handshake script and five consumer entry points exist on main), but requirements.md was never amended to match and carries no 'decision needed' marker in its place. A task author decomposing REQ-003/AC-006/AC-015/AC-016-driven work from requirements.md alone -- without independently cross-checking investigation.md's Amendment section against design.md, which is outside spec-review's own scope -- cannot tell whether the SKIP precondition still holds. This belongs to spec review because resolved-vs-unresolved Assumption status is exactly this check's scope; it is Major because it leaves a concrete decomposition ambiguity, with the associated safety/workflow-boundary consequence separately captured as Critical under CONTRADICTION."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The manual-required live-host proof boundary is testable end to end: AC-026 fixes the exact live-host-verification-record/v1 field set (nonce, raw hashes, session/event IDs, hook/config digest, two-party attestation); AC-027 fixes a structural classification-mismatch/replay guard (no automated<->manual substitution, no nonce reuse, no single-signature record); AC-028 fixes a single aggregate gate (validate-live-host-proof) with an enumerated non-zero-exit failure list (missing, SKIP-after-merge, FAIL, stale, config-digest-mismatch, duplicate-nonce). Roles and Permissions (requirements.md:605-631) names the Maintainer/Operator/Independent-reviewer boundary. This is concrete enough to test without a design reviewer inventing the mechanism."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Beyond the Assumptions-staleness defect already reported under CONTRADICTION, the package supplies enough concrete detail for handoff: exhaustive Field Definitions (:550-604), a Roles/Permissions table (:605-631), a Security Boundaries table B1/B2 (:708-716), Main Workflow steps 1-7 sequencing the Phase 2/3 build order (:634-670), and REQ-007's explicit rule that design.md's Classification Table is the single normative classification source -- a downstream reviewer is not left to invent product behavior."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (Glob for domain/context-map.md at repo root returned no matches), so this check's applicability precondition is unmet; recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

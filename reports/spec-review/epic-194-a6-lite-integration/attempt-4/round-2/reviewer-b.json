@@ -1,0 +1,25 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a4-r2-reviewer-b-seq778",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a4-r2-reviewer-b-778",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "eeda7a2304bd7f91889b83c23a67ff7bd11726fe225ae3e61f07600ce7cbfab7"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "d782157cd90594388008cd221c1fcdc4c619dab2e84ec3895ae5e8fb37d7367b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "27cfa45d43f36a3400367762dc194da324e484800cbeeb027a40a552fdd6ab1b"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-2/precheck-result.json", "sha256": "0321b60a5b49a0fee25df90922b9f7a12b5b8c52dc57b6df0bb850fa307060dc"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-4/round-2/integrated-summary.json", "sha256": "031b2e9a6c8e8997e3b33ceaa670fd886abeb8233693ed2f16a426c2faa2b429"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "FAIL", "severity": "Major", "finding": "requirements.md Roles and Permissions (Epic A2 Phase 2 implementer bullet) names four contracts/ paths in its opening sentence (capability-registry.schema.json, capability-registry.json, lite-check-catalog.json, lite-upgrade-reason-catalog.json) but then refers to 'the three paths that edit touches' and enumerates only two as already-protected plus one needing new registration -- contracts/capability-registry.json is never accounted for again, leaving a reader unable to determine whether it is bundled under the schema.json mention or silently dropped."},
+    {"id": "CONTRADICTION", "result": "FAIL", "severity": "Critical", "finding": "The same Roles and Permissions passage's literal enumeration of 'two...already R-10 protected' (capability-registry.schema.json, lite-upgrade-reason-catalog.json) omits contracts/capability-registry.json, contradicting Non-goals bullet 1's explicit, investigation.md-grounded claim (investigation.md lines ~1439-1448, Amendment Re-Review Context third entry) that all three named contracts/ paths, including capability-registry.json, are already R-10 protected under both protected_gate_suffixes and phase2_human_copy_targets."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "Edge Cases and acceptance-tests.md jointly cover the v1-absent/present-empty/zero-match three-state distinction, ineligible-with-empty-upgrade_reasons, baseline-duplicate no-op, unmapped-check-id including grammar/symlink/partial-pair negatives, schema-invalid Summary, active-enforcement vs disabled-legacy absent-Summary, and the compatibility fallback, each with a stated, testable outcome."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "FAIL", "severity": "Major", "finding": "The REQ-006 fixture-grounding Assumption's 'must be synthetic' bucket groups fixtures (a), (d), (e) under the rationale that the live Registry lite_policy schema's additionalProperties:false blocks required_lite_checks, but (d) and (e) (per REQ-006's own text and acceptance-tests.md TEST-016/TEST-018) exercise lite-gate's consumption of contracts/capability-summary.schema.json's own required_lite_checks field -- an A4-owned field already shipped as required (investigation.md INV-005) and unrelated to the Registry lite_policy boundary cited. The bullet omits the actual reason (d)/(e) can't be grounded: no capability-summary.yaml exists anywhere yet because Epic A5's Resolver has not shipped/run."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "Human-copy/protected-file staging (AC-010/017/021/031) and the pre-generation full-upgrade Block (exit 10, '--lite never overrides', redirect to sdd-bootstrap-interviewer) are concretely testable, with agent-author and human-maintainer roles clearly separated in Roles and Permissions."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "Field Definitions, the check-id identifier grammar, the Capability-derived trigger fragment shape, and cross-references to design.md's API/Contract Plan leave no missing product-behavior gap for an implementation-policy reviewer to invent; the defects found above are narrow textual corrections within Phase 1 text, not missing design content."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "SKIP", "severity": "Major", "finding": "No domain/ directory exists at the project root (verified via Glob per the review-context-boundary's sole permitted outside-manifest check), so this check does not apply and is recorded as skipped."}
+  ]
+}
