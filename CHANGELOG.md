@@ -365,6 +365,68 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   test.yml` に T-008 の 2 ステップ直後へ append し、`MANIFEST.sha256` を
   実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
   `.github/workflows/test.yml` は byte-unchanged。
+- **Capability Resolver metamorphic completeness suite (Issue #193,
+  epic-193-a5 T-010, FINAL)**: design.md Test Strategy item 9（M10）を
+  全項目実装した `resolve-project-context-metamorphic.tests.{sh,ps1}`
+  （共有ドライバは `tests/resolve-project-context-metamorphic-check.py`、
+  T-002/T-005/T-008 の既存ヘルパーを `_load_module` 経由で再利用）を
+  新設。**(a)** 2-affected-component `trigger` の TT/TF/FT/FF 全 4 通りで
+  union-match 規則どおりの `matched` を検証。**(b)** 同一 fixture の
+  `affected_components[]` を 2 通りの順序で与え、stdout/stderr/Resolver
+  Evidence/Facet Manifest/Context Projection の全 byte が順序に不変で
+  あることを固定順序スタブ経由で確認（REQ-005）。**(c)** 3 component 中
+  2 つが true になる fixture で Capability が `capability_evaluations[]`
+  に重複なく 1 回だけ記録されることを確認。**(d)** `applied: false` の
+  `conditional_facets[]` の `reason` が exact template と verbatim 一致
+  することを確認。**(e)** matched-capability-trigger-WARN /
+  unmatched-capability-trigger-WARN / matched-capability-conditional-
+  facet-WARN の 3 つの WARN 分岐 fixture が独立して Block することを、
+  Resolver Evidence 全体の厳密一致で確認（B2）。**(f)** ネスト配列
+  完全性を T-008 の `validate-resolver-evidence-check.py` 自身の
+  fixture/helper を再利用して検証 — `capability_evaluations[]`/
+  `trigger_evaluations[]`/`conditional_facet_evaluations[]`/
+  `evaluations[]` の 4 段全てに対応する既存 corrupted fixture（および
+  `clean`）を実行し、exit code と check-id が exact 一致することを
+  確認。**(g)** 依存 subprocess の起動順序スパイ — canonicalize-sdd-yaml
+  ×2 → resolve-component-paths → validate-capability-registry →
+  generate-registry-digest → evaluate-predicate ×2 の厳密な 7 呼び出し
+  順を確認し、各位置で強制非ゼロ終了させた 7 通りの sub-fixture が
+  その位置固有の正しい診断 id で Block し、より後段の subprocess を
+  一切呼ばないことを確認。
+  **仕様差異の開示**: design.md item 9(g) 本文が第 4 位置を "Registry
+  discovery" と呼ぶが、実装上その discovery 自体（`_discover_registry`）
+  は同梱 sibling module の in-process import であり subprocess ではない
+  ため、この位置で実際に観測可能な唯一の subprocess は
+  `validate-capability-registry` である。spy はこの実際の呼び出しを
+  対象とし（driver 自身の module docstring に詳細を記載）、
+  `generate-registry-digest` 内部から `canonicalize-sdd-yaml` へ及ぶ
+  grandchild 呼び出しは `SDD_SPY_SUPPRESS` 環境変数の伝播で親呼び出し列
+  から除外している。
+  さらに Done When が要求する feature-wide 完全性チェックを同スイート
+  末尾に実装 — REQ-006 fixture-matrix 項目 (a)-(h) の代表 fixture が
+  `tests/fixtures/capability-resolver/` 配下に存在すること、および
+  T-001〜T-010 の 9 スイート（item 10 の live-caller-contract は Global
+  Constraints の "Deferred, Not Scheduled" により対象外、AC-026 "nine of
+  ten"）が `tests/run-all.{sh,ps1}` に登録済みであることを確認
+  （AC-027）。
+  sh/ps1 とも **150 assertion, 150 passed / 0 failed**。acceptance-first:
+  4 mutation（scratch tree のみ、実ファイル無改変） — union-match を
+  AND-match へ反転（(a) が 2 件 FAIL）、matched かつ複数 true の
+  Capability の dedup を除去（(c) が 3 件 FAIL、schema self-validation
+  自体も Block）、`applied: false` の reason template を改変（(d) が
+  1 件 FAIL）、step 5/6（validate-capability-registry/
+  generate-registry-digest）の呼び出し順を入れ替え（(g) が 3 件 FAIL）
+  — いずれも対応する assertion が FAIL することを確認し、real/staged
+  ファイルは一切変更せず復元後 150/150 green を再確認済み。既存の
+  `resolve-project-context-block`（306/0）・`-match`（125/0）・`-cli`
+  （13/0）・`-discovery`（12/0）・`-lite`（18/0）・`validate-resolver-
+  evidence`（117/0）・`-parity`（70/0）は sh/ps1 とも無編集で回帰なし。
+  `tests/run-all.{sh,ps1}` に登録済み。CI ステップ候補は
+  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` に T-009 の 2 ステップ直後へ append（この feature の staged
+  candidate の最終エントリ）し、`MANIFEST.sha256` を実測 hash に更新
+  （`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
+  `.github/workflows/test.yml` は byte-unchanged。
 ### Added
 
 - **Facet Manifest schema と validator (Issue #192,
