@@ -381,11 +381,20 @@ document v2 §7/§18.4).
   ordering, above, is what makes this structurally true rather than a
   per-step promise this feature's own implementation could violate,
   adversarial review "B1 atomicity"). Resolver Evidence (REQ-004) is still
-  written on every Block, with **two** named exceptions: `disabled-legacy-
+  written on every Block, with **three** named exceptions: `disabled-legacy-
   invocation` (whose own Evidence record is minimal by construction,
-  recording only the fact of the out-of-contract invocation itself) and
-  the self-referential `output-schema-validation-failed` case immediately
-  above (which writes no live artifact of any kind, B3, revised) —
+  recording only the fact of the out-of-contract invocation itself), the
+  self-referential `output-schema-validation-failed` case immediately
+  above (which writes no live artifact of any kind, B3, revised), and the
+  `publication-journal-recovery` sub-case in which the invocation's own
+  transient staging area is found to resolve outside this feature's own
+  fixed publication write set (amended 2026-08-27, human-approved, ruling
+  option 4 — writing Evidence in that sub-case is structurally
+  impossible: the write would itself have to pass through the very
+  staging area just found to be uncontained, so this exception and the
+  fixed write set immediately below are the same constraint stated twice;
+  the Block is fail-closed, no live artifact is created or destroyed, and
+  the canonical diagnostic line is still emitted) —
   mirroring `check-component-
   coverage`'s own NEW-001 "always emit an evidence record, never a bare
   skip line" discipline (investigation.md INV-006). Diagnostic lines follow
@@ -821,7 +830,7 @@ document v2 §7/§18.4).
 | AC-009 | REQ-001 | On the Lite track (`workflow.spec_profile == lite`), across each of the three non-Blocking `required_lite_checks`-sourcing states the cross-epic addendum (Epic A6 adversarial verification finding B5) defines — **advisory-missing** (`capability_enforcement == advisory`, a matched Capability's key absent, contributing `[]`), **required-present-empty** (`capability_enforcement == required`, a matched Capability's key present with an empty array), and **zero-match** (no matched Capability, either enforcement state) — the written `capability-summary.yaml` validates successfully against `contracts/capability-summary.schema.json` (Epic A4), and this same invocation writes neither `facet-manifest.yaml` nor `project-context.resolved.json` (track-exclusive output set, B4) |
 | AC-010 | REQ-002 | Each of the **sixteen** REQ-002 diagnostic-id rows has its own independently-triggerable fixture — for `lite-check-source-undefined` specifically, the **required-missing** state only (`capability_enforcement == required` and a matched Capability's `lite_policy.required_lite_checks` key absent), per the cross-epic addendum narrowing that row's own trigger (REQ-002, above; AC-009 covers this diagnostic's three sibling non-Blocking states) — no other condition produces a Block (exit `1`) — a closed enumeration of Block causes only, distinct from the CLI usage-error exit path (exit `2`) AC-013 separately fixes (spec-review round-2 remedy, closing a CONTRADICTION finding) |
 | AC-011 | REQ-002 | On any Block, no `facet-manifest.yaml`, `capability-summary.yaml`, or `project-context.resolved.json` is written or left partially written (a fixture asserts none of the three paths exists, or is unchanged from its pre-invocation state, after a Blocked run) — including a Block reached only after this invocation had already staged one of the three in memory (REQ-001's own staged-generation/journaled-transactional-publication ordering, B1), and including `post-publication-generation-mismatch`, whose own journal-based rollback restores this same unchanged-from-pre-invocation state even though a rename briefly succeeded (B8) |
-| AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation` (whose own minimal Evidence record is written instead of the full form) and except `output-schema-validation-failed` when Resolver Evidence itself is the artifact that failed (which writes no live artifact of any kind, B3) |
+| AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation` (whose own minimal Evidence record is written instead of the full form), except `output-schema-validation-failed` when Resolver Evidence itself is the artifact that failed (which writes no live artifact of any kind, B3), and except the `publication-journal-recovery` sub-case in which the invocation's own transient staging area is found to resolve outside this feature's own fixed publication write set (amended 2026-08-27, human-approved, ruling option 4 — the Evidence write would itself have to pass through the uncontained staging area, so REQ-002's third exception and REQ-001's fixed write set are the same constraint; the Block remains fail-closed with its canonical diagnostic line emitted and no live artifact created or destroyed) |
 | AC-013 | REQ-002 | Exit code contract: `0` on success, `1` on any REQ-002 Block, `2` on a CLI usage error (AC-001) — fixed, tested per value |
 | AC-014 | REQ-002 | Every diagnostic line `resolve-project-context.{py,sh,ps1}` itself emits follows the `capability-resolver: <check-id>: <detail>` format, `<check-id>` drawn only from REQ-002's own sixteen-value enum, and `<detail>` is a canonical, Resolver-owned sentence never quoting a dependency subprocess's own raw stderr verbatim (M8) — this criterion is scoped to `resolve-project-context`'s own diagnostic lines only; `validate-resolver-evidence`'s own, independent check-id enum is AC-021's own concern (Minor "diagnostic namespace" correction) |
 | AC-015 | REQ-003 | `disabled-legacy` (absent `--config` target, or the AGENTS.md-marker/default fallback deriving it) produces `disabled-legacy-invocation` before any Registry/ownership/Context-Projection work is attempted (a fixture confirms no `resolve-component-paths`/Registry-discovery subprocess is ever invoked in this branch) |
