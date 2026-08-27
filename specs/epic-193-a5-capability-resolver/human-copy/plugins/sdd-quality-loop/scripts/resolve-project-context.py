@@ -963,9 +963,62 @@ def _rollback_clause(count, complete):
             f"{count} already-committed live {noun} {verb} rolled back to {pronoun} "
             f"PRE-transaction state via this transaction's own journal"
         )
+    # Kept VERBATIM from REQ-002's own `artifact-publication-failed` row
+    # ("safely completed by the next invocation's own crash-recovery scan
+    # instead"), even though `_rollback_transaction`'s own KNOWN LIMITATION
+    # note explains that the next scan will in fact Block for manual
+    # intervention on this path rather than converge automatically. Softening
+    # the operator-facing sentence here would put this file's own wording at
+    # odds with the frozen requirement text without fixing the underlying
+    # contract conflict, which is a human ruling (panel round 1, MAJOR 2).
     return (
         f"an in-process journal-based rollback of {count} already-committed live {noun} did not "
         f"itself complete; the next invocation's own crash-recovery scan is the durable backstop"
+    )
+
+
+def _normalized(path):
+    """Absolute + LEXICALLY normalized (`..` and `.` segments collapsed).
+
+    Deliberately NOT `Path.resolve()`: resolving would follow symlinks on
+    BOTH sides of the containment comparison below, so an attacker who
+    replaced an in-set path with a symlink pointing outside the set would see
+    the allowed-set entry resolve to the same outside location and the check
+    would pass. Lexical normalization is what actually defeats `..`
+    traversal and absolute-path escape, and the symlink case is closed
+    separately by the write primitives themselves: `os.replace` REPLACES a
+    symlink at the target rather than writing through it, and `unlink`
+    removes the link rather than its referent."""
+    return os.path.normpath(os.path.abspath(str(path)))
+
+
+def _allowed_publication_targets(repo_root, feature):
+    """The Resolver's ENTIRE live write set for one `--feature`, fixed by
+    name in requirements.md's own Security Boundaries bullet 1
+    (requirements.md:1144-1151): "never ... writes outside
+    `specs/<feature>/facet-manifest.yaml`/`capability-summary.yaml`,
+    `generated/project-context.resolved.json`, its own Resolver Evidence
+    path, and its own transient `specs/<feature>/.resolver-staging/` ...
+    area"; security-spec.md's B2 row enumerates the identical destination
+    set.
+
+    This is the single source of truth for BOTH directions. Step 14 asserts
+    its own constructed targets against it (a fail-closed assertion about
+    this file's own code), and the step-0.5 crash-recovery scan validates
+    every journal-recorded target against it (a genuine trust boundary --
+    see `_recover_journal`). The staging area itself is not listed: it is
+    never a live target, only the transaction's own bookkeeping, and
+    recovery never treats it as one."""
+    feature_dir = repo_root / "specs" / feature
+    script_dir = Path(__file__).resolve().parent
+    return frozenset(
+        _normalized(path)
+        for path in (
+            feature_dir / "facet-manifest.yaml",
+            feature_dir / "capability-summary.yaml",
+            feature_dir / "resolver-evidence.yaml",
+            script_dir / "generated" / "project-context.resolved.json",
+        )
     )
 
 
@@ -1168,11 +1221,65 @@ def _rollback_transaction(transaction):
     whose backups are not all sound is left exactly as found instead of
     half-reverted -- the same reason the crash-recovery scan below
     pre-validates. Only once every target is confirmed back at PRE is the
-    journal deleted; an incomplete rollback deliberately RETAINS the journal
-    so the next invocation's own crash-recovery scan is the durable backstop
-    (design.md; infra-spec.md "In-process variant")."""
+    journal deleted; an incomplete rollback RETAINS the journal (design.md;
+    infra-spec.md "In-process variant").
+
+    KNOWN LIMITATION of that retention, recorded rather than papered over
+    (cross-model panel round 1, MAJOR 2 -- both vendors raised it). REQ-002's
+    own `artifact-publication-failed` row says a rollback that "cannot itself
+    fully complete" is "safely completed by the next invocation's own
+    crash-recovery scan instead". That promise does NOT hold as written on
+    this path, and the reason is a second frozen mandate pulling the other
+    way: the caller is REQUIRED (REQ-002's Evidence-on-every-Block rule,
+    AC-012) to publish a Block Evidence record immediately afterwards, and
+    `resolver-evidence.yaml` is itself one of the retained journal's own
+    recorded targets. Writing it therefore leaves that target matching
+    NEITHER its journal-recorded PRE nor its POST hash -- which the recovery
+    algorithm defines as the unrecoverable third state. The next invocation
+    consequently Blocks `publication-journal-recovery` and waits for a human,
+    rather than converging automatically.
+
+    This is fail-closed in every direction that matters -- no live bytes are
+    destroyed (the PRE-image backups are retained on disk), no mixed
+    generation is left standing as publishable, and the operator is told
+    explicitly -- but it is MANUAL INTERVENTION, not the automatic
+    convergence the phrase "durable backstop" suggests. Making it converge
+    automatically would require AMENDING a retained journal in place
+    (re-recording that one target's hashes, or dropping its entry), and the
+    frozen contract defines exactly three journal operations -- write at
+    Journal, delete at Complete, delete after a converged recovery -- with no
+    amend. Adding a fourth is a contract change, not an implementation
+    choice, so it was raised for human ruling instead of being invented here.
+
+    RULED 2026-08-27 (repository owner, via a structured question relayed by
+    the coordinating session): this limitation was put to the owner with both
+    repair options -- (a) accept the current fail-closed behaviour as a known
+    limitation, or (b) authorize a fourth journal operation / a design.md
+    amendment -- and the owner selected (a),
+    「(a) 現行 fail-closed を既知制限として受容（推奨）」. So the behaviour
+    described above is SPECIFIED-WITH-A-KNOWN-LIMITATION, not an open defect:
+    manual operator intervention is by design in this doubly-degraded corner
+    (a publication failure AND a rollback that could not itself complete),
+    and no journal-amend operation is authorized. Do not "fix" this by
+    amending a retained journal in place; that option was considered and
+    declined.
+
+    `_rollback_clause`'s own diagnostic sentence below deliberately keeps
+    REQ-002's wording verbatim rather than silently diverging from the frozen
+    text this limitation is about."""
     count = transaction.committed
-    if not transaction.journalled or count == 0:
+    if count == 0:
+        # Nothing reached a live path, so there is nothing to roll back --
+        # and neither the journal (if Journal had already run) nor any
+        # pre-image backup captured during Prepare has any remaining
+        # purpose. Discarding the whole batch here is what the next
+        # invocation's scan would do anyway for an all-PRE journal (SAFE
+        # abandonment), done now so a Prepare/Journal-phase failure cannot
+        # leave an orphaned nonce directory of pre-images behind that no
+        # later scan would ever look at (panel round 1, MINOR: the scan only
+        # globs `*/TRANSACTION.json`, so a journal-less leftover is
+        # invisible to it forever).
+        _discard_batch(transaction.batch_dir)
         return 0, True
     committed_entries = transaction.entries[:count]
     try:
@@ -1216,6 +1323,15 @@ def _publish_bundle(repo_root, feature, targets):
     batch_dir = _staging_root(repo_root, feature) / os.urandom(16).hex()
     transaction = _PublicationTransaction(repo_root, batch_dir)
     try:
+        allowed = _allowed_publication_targets(repo_root, feature)
+        if any(_normalized(target) not in allowed for target, _payload in targets):
+            # A fail-closed assertion about THIS file's own target lists, not
+            # a trust boundary (these paths are constructed here, never read
+            # from anywhere): it keeps step 14 and the crash-recovery scan
+            # provably governed by one allowed set, so the two can never
+            # drift apart into a journal recovery is structurally unable to
+            # converge.
+            raise OSError("a publication target lies outside this feature's own fixed target set")
         basenames = [target.name for target, _payload in targets]
         if len(set(basenames)) != len(basenames):
             # A batch whose targets share a basename would collapse two
@@ -1262,7 +1378,7 @@ def _publish_and_complete(repo_root, feature, targets):
     _discard_batch(_publish_bundle(repo_root, feature, targets).batch_dir)
 
 
-def _recover_journal(repo_root, journal_path):
+def _recover_journal(repo_root, feature, journal_path):
     """Converge ONE stale journal to a terminal state, or raise
     `PublicationJournalUnrecoverable` (design.md's own four-outcome
     classification; infra-spec.md `#journal-recovery` restates it).
@@ -1272,6 +1388,38 @@ def _recover_journal(repo_root, journal_path):
     itself safely resumed by the next invocation."""
     entries = _read_journal(journal_path)
     batch_dir = journal_path.parent
+
+    # TRUST BOUNDARY (panel round 1, MAJOR 1). Everything above this point
+    # has only READ the journal; everything below it can WRITE or UNLINK the
+    # paths the journal names. The journal lives in an unprotected,
+    # repository-local staging area (infra-spec.md's own classification), so
+    # its content is attacker-reachable -- a malicious branch can simply
+    # commit one. Acting on a recorded path without checking it would let
+    # that journal steer a `write` (via a `pre/` backup the same attacker
+    # supplies) or an `unlink` (via `pre_hash: "ABSENT"`) at any path this
+    # process can reach, which is precisely the "never ... writes outside" a
+    # fixed, named path set boundary requirements.md:1144-1151 fixes.
+    #
+    # Validation happens for EVERY entry up front, before a single file is
+    # touched, so a journal that is partly in-set cannot get half-applied
+    # before the escaping entry is noticed. A duplicate live path is rejected
+    # for the same reason `_publish_bundle` rejects a duplicate basename: two
+    # entries for one target cannot both be converged coherently.
+    allowed = _allowed_publication_targets(repo_root, feature)
+    seen_paths = set()
+    for entry in entries:
+        normalized = _normalized(_journal_target_path(repo_root, entry["live_path"]))
+        if normalized not in allowed:
+            # No journal content is interpolated into the diagnostic (B5):
+            # the recorded path is attacker-controlled text and would carry
+            # an absolute local path into committed Resolver Evidence.
+            raise PublicationJournalUnrecoverable(
+                "a journal-listed target lies outside this feature's own fixed publication target set"
+            )
+        if normalized in seen_paths:
+            raise PublicationJournalUnrecoverable("a journal lists the same live target more than once")
+        seen_paths.add(normalized)
+
     states = []
     for entry in entries:
         try:
@@ -1332,7 +1480,7 @@ def _crash_recovery_scan(repo_root, feature):
     except OSError as exc:
         raise PublicationJournalUnrecoverable("the staging area itself is unreadable") from exc
     for journal_path in journals:
-        _recover_journal(repo_root, journal_path)
+        _recover_journal(repo_root, feature, journal_path)
 
 
 def _write_evidence(

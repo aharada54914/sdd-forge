@@ -1,0 +1,16 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-007",
+  "feature": "epic-193-a5-capability-resolver",
+  "vendor": "anthropic",
+  "model": "claude-fable-5",
+  "verdict": "PASS",
+  "findings": [
+    {"severity": "Minor", "ref": "tests/resolve-project-context-block-check.py (Counts.record_diagnostic_id call sites, e.g. run_case and each run_t007_* case) vs T-007.md 'Tests Added Or Updated'", "note": "The implementation report describes the sixteen-row matrix roster as 'the set of ids the fixtures ACTUALLY emitted during that same run', but record_diagnostic_id is called unconditionally with the EXPECTED id at each case's assertion site, before and regardless of whether the canonical-line assertion passes - so the completeness check actually measures 'case wired and executed', not 'id observed on stderr'. No false green is possible (a case whose canonical-line assertion fails still fails the suite, and the RED log's uncovered=['publication-journal-recovery'] shows the guarded-skip path works), but the report's description of the mechanism is slightly stronger than the code."},
+    {"severity": "Minor", "ref": "resolve-project-context.py _block/_write_evidence (Block-path Evidence via _publish_and_complete) interacting with _rollback_transaction's incomplete-rollback journal retention", "note": "In the doubly-degraded corner (in-process publication failure AND incomplete journal-based rollback, where the journal is deliberately retained as the 'durable backstop'), _block then publishes a fresh Block-Evidence record to resolver-evidence.yaml - a target listed in the retained journal - so the next invocation's crash-recovery scan finds that target matching neither its recorded PRE nor POST hash and Blocks publication-journal-recovery (manual intervention) rather than auto-converging as the 'backstop guarantees convergence' wording suggests. This stays fail-closed with pre-image backups retained (no data loss, no silent corruption), and the tension is inherent to the spec's own two mandates (Evidence-written-on-every-Block vs next-scan convergence); noting it because report decision #2 discloses the adjacent choice but not this exact interaction."},
+    {"severity": "Minor", "ref": "design.md Main Workflow 4 / Architecture diagram ('minimal Resolver Evidence written directly (no staging area ever exists in this branch)') vs API/Contract Plan step 14 ('Resolver Evidence alone... via that journaled transaction')", "note": "The implementation routes every Block-path Evidence write, including disabled-legacy-invocation, through the one-target journaled transaction, which transiently creates a specs/<feature>/.resolver-staging batch even on the 'no staging area exists in this branch' workflows. This follows step 14's explicit sentence (disclosed as report decision #1, all 256 pre-existing checks stayed green, staging removed at Complete), but the frozen design's two passages are in mild prose tension; a future design addendum could reconcile them. Not an implementation defect."}
+  ],
+  "blind": true,
+  "input_digest": "f5a17f3801981abda59842ca8fa2677beb9ea15260895388695600cec3045d13",
+  "consent": {"kind": "sudo", "ref": "SDD_SUDO token at the primary repo root, human-issued 2026-08-27, expires epoch 1787896044"}
+}

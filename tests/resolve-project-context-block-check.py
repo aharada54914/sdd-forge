@@ -406,6 +406,7 @@ ALL_CASE_NAMES = (
         "artifact-publication-failed",
         "post-publication-generation-mismatch",
         "snapshot-generation-mismatch-affected-components",
+        "publication-journal-target-escape",
     ]
 )
 
@@ -2263,6 +2264,9 @@ def sentinel_report(sentinels):
     return repr({str(path): read_or_missing(path)[:60] for path in sentinels})
 
 
+NO_ROLLBACK_CLAUSE = "no live rename had yet been committed, so no target needed rolling back"
+
+
 def journal_paths(feature_dir):
     return sorted((feature_dir / STAGING_DIRNAME).glob(f"*/{JOURNAL_FILENAME}"))
 
@@ -2727,6 +2731,7 @@ def run_t007_artifact_publication_failed_case(kind, counts):
             f"{case_name}: a fully-successful in-process rollback deletes the journal it converged",
             repr(staging_litter(feature_dir)),
         )
+        _t007_assert_prepare_phase_failure_leaves_no_debris(kind, counts, case_name)
         evidence_path = feature_dir / "resolver-evidence.yaml"
         evidence, parse_error = read_evidence(evidence_path)
         counts.check(
@@ -2745,6 +2750,64 @@ def run_t007_artifact_publication_failed_case(kind, counts):
             parse_error or repr(evidence),
         )
         check_evidence_schema(counts, evidence_path, case_name)
+
+
+def _t007_assert_prepare_phase_failure_leaves_no_debris(kind, counts, case_name):
+    """Panel round 1, MINOR: a failure during Prepare/Journal -- BEFORE any
+    live rename -- must not leave an orphaned nonce staging directory of
+    pre-image backups behind. The crash-recovery scan only globs
+    `*/TRANSACTION.json`, so a journal-less leftover would be invisible to
+    every later invocation, accumulating forever.
+
+    The injection makes the FIRST target (`facet-manifest.yaml`) a directory,
+    so Prepare's own live-bytes read raises before the journal is ever
+    written. This also exercises the one `artifact-publication-failed`
+    rollback clause the sibling scenario above cannot reach -- the
+    nothing-was-committed variant."""
+    label = f"{case_name}[prepare-phase]"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        manifest_path = feature_dir / "facet-manifest.yaml"
+        manifest_path.unlink()
+        manifest_path.mkdir()
+        (manifest_path / "keep.txt").write_bytes(b"directory-not-a-file\n")
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+        target_oid = git_commit_all(repo, "add comp-a")
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, target_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_detail = f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {NO_ROLLBACK_CLAUSE}"
+        expected_line = f"capability-resolver: artifact-publication-failed: {expected_detail}\n"
+        counts.check(
+            result.returncode == 1 and stdout == "" and stderr == expected_line,
+            f"{label}: a Prepare-phase failure Blocks artifact-publication-failed and records that no "
+            f"rename had been committed (AC-039's own no-rollback-required variant)",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{label}: a Prepare/Journal-phase failure leaves NO orphaned staging directory -- a "
+            f"journal-less nonce directory is invisible to every later crash-recovery scan",
+            repr(staging_litter(feature_dir)),
+        )
+        counts.check(
+            read_or_missing(scripts / "generated/project-context.resolved.json") == PRE_CONTEXT_PROJECTION
+            and read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY
+            and (manifest_path / "keep.txt").is_file(),
+            f"{label}: nothing reached a live path (TEST-038)",
+        )
 
 
 def run_t007_post_publication_mismatch_case(kind, counts):
@@ -2903,6 +2966,151 @@ def run_t007_affected_components_mismatch_case(kind, counts):
         check_evidence_schema(counts, evidence_path, case_name)
 
 
+def plant_journal(feature_dir, entries, pre_images):
+    """Write a TRANSACTION.json and its `pre/` backups directly, without
+    going through the resolver.
+
+    This is the ONE place in this suite that hand-builds a journal instead of
+    observing one the resolver produced, and it is deliberate: the threat this
+    fixture models is an ATTACKER-PLANTED journal (the staging area is
+    unprotected and repository-local, so a malicious branch can simply commit
+    one), which by definition is not a journal the resolver ever wrote. Every
+    other journal assertion in this file still reads a real, resolver-produced
+    journal."""
+    batch_dir = feature_dir / STAGING_DIRNAME / ("f" * 32)
+    (batch_dir / "pre").mkdir(parents=True, exist_ok=True)
+    for basename, payload in pre_images.items():
+        (batch_dir / "pre" / basename).write_bytes(payload)
+    document = {
+        "schema": "sdd-resolver-transaction/v1",
+        "nonce": batch_dir.name,
+        "status": "in-progress",
+        "targets": entries,
+    }
+    journal = batch_dir / JOURNAL_FILENAME
+    journal.write_text(
+        json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n",
+        encoding="utf-8",
+    )
+    return journal
+
+
+def run_t007_journal_target_escape_case(kind, counts):
+    """Panel round 1, MAJOR 1 (security containment). The step-0.5 scan acts
+    on paths it reads out of `TRANSACTION.json`, and that journal lives in an
+    UNPROTECTED, repository-local staging area
+    (`specs/<feature>/.resolver-staging/`, infra-spec.md's own classification)
+    -- so its content is attacker-reachable, e.g. by a branch that simply
+    commits one. requirements.md:1144-1151 fixes the Resolver's entire write
+    set by name: `specs/<feature>/facet-manifest.yaml`/`capability-summary.
+    yaml`, `generated/project-context.resolved.json`, its own Resolver
+    Evidence path, and its own `.resolver-staging/` area. Recovery must
+    therefore refuse to act on ANY journal entry naming a path outside that
+    set, before touching a single file.
+
+    Two scenarios, one per write primitive `_restore_to_pre` owns:
+
+    (a) a RELATIVE path with `..` traversal that escapes `specs/<feature>/`
+        while STAYING INSIDE the repository, with a real `pre_hash` -- so a
+        repository-containment check ALONE would not catch it, and the
+        primitive exercised is the arbitrary-content WRITE;
+    (b) an ABSOLUTE path outside the set with `pre_hash: "ABSENT"` -- the
+        primitive exercised is the UNLINK, i.e. arbitrary file deletion.
+
+    Both journals are shaped so the classification reaches the MIX branch
+    (the escaping entry sits at its recorded POST, a legitimate in-set entry
+    sits at its recorded PRE), which is the only branch that writes."""
+    case_name = "publication-journal-target-escape"
+    fixture_dir = FIXTURES / case_name
+    victim_payload = b"victim-content-must-survive\n"
+
+    for scenario in ("relative-traversal-write", "absolute-path-unlink"):
+        label = f"{case_name}[{scenario}]"
+        with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+            repo = Path(tmp).resolve()
+            subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+            scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+            victim = repo / "outside-target.txt"
+            victim.write_bytes(victim_payload)
+
+            (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+            base_oid = git_commit_all(repo, "baseline")
+
+            # The in-set entry that sits at its recorded PRE, forcing MIX.
+            in_set_entry = {
+                "live_path": "specs/example-feature/facet-manifest.yaml",
+                "pre_hash": hashlib.sha256(PRE_FACET_MANIFEST).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            }
+            if scenario == "relative-traversal-write":
+                escaping_entry = {
+                    # repo_root / this normalises to <repo>/outside-target.txt
+                    "live_path": "specs/example-feature/../../outside-target.txt",
+                    "pre_hash": hashlib.sha256(b"ATTACKER-RESTORED\n").hexdigest(),
+                    "post_hash": hashlib.sha256(victim_payload).hexdigest(),
+                }
+                pre_images = {"outside-target.txt": b"ATTACKER-RESTORED\n"}
+            else:
+                escaping_entry = {
+                    "live_path": str(victim),
+                    "pre_hash": "ABSENT",
+                    "post_hash": hashlib.sha256(victim_payload).hexdigest(),
+                }
+                pre_images = {}
+            journal = plant_journal(feature_dir, [escaping_entry, in_set_entry], pre_images)
+
+            result = subprocess.run(
+                t003_resolver_argv(kind, scripts, base_oid, base_oid),
+                cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            stdout = result.stdout.decode("utf-8", errors="replace")
+            stderr = result.stderr.decode("utf-8", errors="replace")
+            expected_line = f"capability-resolver: publication-journal-recovery: {JOURNAL_RECOVERY_DETAIL}\n"
+
+            counts.check(
+                result.returncode == 1 and stdout == "" and stderr == expected_line,
+                f"{label}: Blocks publication-journal-recovery with the canonical line only",
+                f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+            )
+            counts.check(
+                read_or_missing(victim) == victim_payload,
+                f"{label}: the out-of-set path the journal named is BYTE-UNTOUCHED -- recovery never "
+                f"writes or deletes outside the Resolver's own fixed publication target set "
+                f"(requirements.md Security Boundaries bullet 1)",
+                repr(read_or_missing(victim)),
+            )
+            counts.check(
+                read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST
+                and read_or_missing(scripts / "generated/project-context.resolved.json")
+                == PRE_CONTEXT_PROJECTION,
+                f"{label}: the in-set targets are untouched too -- the refusal happens BEFORE any "
+                f"recovery write, never half-way through one",
+            )
+            counts.check(
+                journal.is_file(),
+                f"{label}: the rejected journal is retained for manual operator intervention",
+            )
+            evidence_path = feature_dir / "resolver-evidence.yaml"
+            evidence, parse_error = read_evidence(evidence_path)
+            counts.check(
+                evidence == {
+                    "schema": "sdd-resolver-evidence/v1",
+                    "feature": "example-feature",
+                    "capability_evaluations": [],
+                    "diagnostics": [{
+                        "id": "publication-journal-recovery",
+                        "detail": JOURNAL_RECOVERY_DETAIL,
+                        "severity": "block",
+                    }],
+                },
+                f"{label}: exact Resolver Evidence, with no journal content interpolated into the "
+                f"detail (AC-012/AC-014, security-spec.md B5)",
+                parse_error or repr(evidence),
+            )
+            check_evidence_schema(counts, evidence_path, label)
+
+
 def run_block_matrix_completeness_check(counts):
     """TEST-010/AC-010 + AC-014, completed by T-007: the sixteen-row REQ-002
     Block matrix is now covered end to end.
@@ -2996,6 +3204,7 @@ def main():
         run_t007_artifact_publication_failed_case(args.launcher, counts)
         run_t007_post_publication_mismatch_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
+        run_t007_journal_target_escape_case(args.launcher, counts)
         run_draft7_validator_keyword_checks(counts)
         run_draft7_keyword_coverage_check(counts)
         run_sys_path_hygiene_check(counts)
