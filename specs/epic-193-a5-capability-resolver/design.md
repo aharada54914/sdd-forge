@@ -1387,15 +1387,8 @@ journal-listed target's CURRENT live bytes (or note `"ABSENT"`):
   unreadable, or a target's current live hash matches NEITHER its
   journal-recorded PRE nor POST value (an unrecoverable third state no
   automatic recovery can resolve) — this invocation does **not** proceed
-  to step 1; Block, `publication-journal-recovery`, exit 1, the recovery
-  algorithm itself leaving the journal's own targets exactly as found —
-  it performs no partial rollback here, in contrast to the MIX outcome
-  above, which deliberately does restore them — pending manual operator
-  intervention. The invocation's own REQ-002-mandated Block record is a
-  separate act governed by AC-012, whose third named exception (amended
-  2026-08-27, human-approved, ruling option 4) covers only the sub-case
-  in which the staging area this record would have to be written through
-  is itself found uncontained.
+  to step 1; Block, `publication-journal-recovery`, exit 1, leaving the
+  live state exactly as found, pending manual operator intervention.
 
 Recovery is itself idempotent and re-entrant — every comparison is
 current-vs-journaled, never assumes prior recovery progress — so a crash
