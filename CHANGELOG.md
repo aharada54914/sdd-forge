@@ -266,6 +266,59 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
   `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` は
   実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。
+- **`validate-resolver-evidence.{py,sh,ps1}` と provenance-binding スイート
+  (Issue #193, epic-193-a5 T-008)**: Resolver Evidence の
+  schema conformance・exact-set/cardinality・双方向整合・**provenance
+  binding** を検査する stdlib-only の validator を新規追加した（Epic A4 の
+  3 validator と同じ手書き draft-07 部分エンジンと
+  `resolver-evidence: <check-id>: <detail>` 診断行規約。check-id は
+  REQ-002 の Block 分類とは独立した**この script 自身の閉じた 12 値 enum**
+  — `schema-invalid`, `registry-digest-unbound`, `capability-set-mismatch`,
+  `capability-evaluation-id-duplicate`,
+  `affected-component-provenance-mismatch`,
+  `trigger-evaluation-set-mismatch`, `component-evaluation-id-duplicate`,
+  `matched-result-contradiction`, `conditional-facet-set-mismatch`,
+  `conditional-facet-evaluation-set-mismatch`,
+  `applied-result-contradiction`, `array-not-stable-sorted`)。
+  **B6 provenance binding**: `--registry`/`--affected-components` は
+  ground truth ではなく任意の override になった。Registry は既定で
+  ADR-0025 self-discovery され、self-resolved か override かに関わらず
+  whole-Registry digest を計算して `context_binding.registry_digest` との
+  一致を**あらゆる exact-set 検査より前に**要求する（不一致は
+  `registry-digest-unbound` を単独で出して打ち切る — 「別の・より小さい
+  Registry を指す」攻撃を塞ぐ）。affected-component 集合は Evidence 自身の
+  `context_binding.dependency_pointers[]` から導出し、co-located Facet
+  Manifest（`--manifest`、無指定なら `--evidence` の兄弟
+  `facet-manifest.yaml`）の同フィールドと集合同値であることを要求、
+  override は導出を*代替*できるが*矛盾*はできない。
+  `conditional-facet-set-mismatch` は **`declaration_index` キー**で、
+  facet 名キーではない（B7 — Epic A2 の Registry schema は 1 Capability 内で
+  同一 facet 名の複数宣言を禁じていないため、名前集合比較では「2 回宣言」と
+  「1 回宣言」を区別できない）。`--evidence`/`--manifest` を読む**前**に、
+  読もうとしている path を名指しする live な
+  `RESOLVER_PUBLICATION_IN_PROGRESS` journal (T-007 の `TRANSACTION.json`)
+  を検出して fail closed する（AC-054）。digest 計算は
+  `generate-registry-digest.py` 自身の `canonical_digest()` を呼ぶ
+  単一経路で、self-discovery と override が分岐しない。
+  `tests/validate-resolver-evidence.tests.{sh,ps1}`（共有ドライバは
+  `tests/validate-resolver-evidence-check.py`）に **21 fixture /
+  117 アサーション**を追加 — 12 check-id それぞれの独立発火 fixture、
+  clean fixture、TEST-050 の Registry binding ペア＋一致 control、
+  TEST-051 の Manifest 不一致と override 矛盾のペア＋2 control、
+  TEST-054 の live journal fixture＋journal 無し control。
+  sh/ps1 とも 117 passed / 0 failed（TDD RED は同一ドライバで
+  82 passed / 35 failed、両ランタイム一致）。binding-before-exact-set の
+  順序を外す・`conditional-facet-set-mismatch` を facet 名キーにする・
+  reader-side journal 検査を落とす、の 3 mutation で非空虚性を実証済み
+  （scratch tree で実施、無変異 control は green）。既存の
+  `resolve-project-context-block`（306/0）・`-match`（125/0）・`-cli`
+  （13/0）・`-discovery`（12/0）・`-lite`（18/0）・
+  `resolver-evidence-schema`（20/0）は sh/ps1 とも無編集で回帰なし。
+  `tests/run-all.{sh,ps1}` に登録済み。CI ステップ候補は
+  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` に T-006 の 3 スイート直後へ append し、`MANIFEST.sha256` を
+  実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。live の
+  `.github/workflows/test.yml` は byte-unchanged。
 ### Added
 
 - **Facet Manifest schema と validator (Issue #192,
