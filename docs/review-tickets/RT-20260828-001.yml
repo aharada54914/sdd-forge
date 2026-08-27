@@ -1,0 +1,58 @@
+ticket_id: RT-20260828-001
+status: open
+type: correctness
+severity: major
+target:
+  feature: epic-194-a6-lite-integration
+  task: T-002
+  files:
+    - plugins/sdd-lite/scripts/check-risk-upgrade.sh
+    - plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+    - specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh
+    - specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+    - specs/epic-194-a6-lite-integration/human-copy/MANIFEST.sha256
+summary: "upgrade_reasons の形状検証が eligible:false の分岐内にしかなく eligible:true が無検査。重大度はリポジトリオーナー裁定により Major"
+problem: |
+  cross-model パネルが重大度で割れた 1 件について、リポジトリオーナーが
+  2026-08-28 に **Major** と裁定した。パネルの内訳は OpenAI = Critical、
+  Google = Critical、Anthropic = Minor（「runtime 間で一貫し実質 fail-closed」）。
+  本チケットはその裁定と、裁定の対象となった事実を記録する。
+
+  裁定された事実（ソースで直接確認済み。ps1 の行番号は human-copy 版）:
+
+  (1) 検証の到達範囲。upgrade_reasons の形状検証は
+      `if ($entry.eligible -eq $false)` (:177) の内側にしか無い。したがって
+      `eligible: true` のエントリが不正な upgrade_reasons を持っていても
+      形状検査を一切受けず、exit 2 に到達しない。sh 双子も同じ構造。
+
+  (2) falsy-present 値の扱い。`Test-PythonFalsy` (:59) は present だが falsy な
+      値（`0` / `""` / `false`）を absent と同一視する。これはコメント自身が
+      sh の `entry.get("upgrade_reasons") or []` との双子整合を理由に
+      意図的挙動として宣言している。
+
+  なぜ Minor でなく Major か（裁定の含意）: 同時に配布される
+  risk-upgrade-policy.md が「fragment が不正なら
+  `risk-upgrade: capability-reasons fragment invalid` で exit 2、
+  never silently degraded to "no Capability-derived trigger"」と契約に明記して
+  いる。(1) はその契約に穴を開けるため「文書化されていない挙動」では済まない。
+  一方で観測された挙動は runtime 間で一貫しており、既知の入力で fail-open な
+  誤判定を生む再現経路は未提示なので Critical（= BLOCKED）ではない。
+
+  現況: この欠陥を含む payload は 2026-08-28 に HUMAN APPLY STEP により live へ
+  適用済み（5 ターゲット全て MANIFEST.sha256 と一致を確認）。したがって本件は
+  staging だけでなく live の enforcement chain に存在する。
+expected_fix:
+  - "upgrade_reasons の形状検証を eligible 分岐の外へ出し、eligible:true のエントリにも適用する（sh / ps1 双方）"
+  - "falsy-present 値（false / 0 / 空文字列）を absent 扱いにするか exit 2 にするかを requirements.md AC-027 の文言に照らして確定し、選んだ側を policy 文書に明記する。双子で挙動を一致させること"
+  - "回帰テストを追加: (a) eligible:true かつ不正な upgrade_reasons、(b) eligible:false かつ falsy-present 値の各型。現行テストは eligible:false かつ truthy スカラーのみを覆っている"
+  - "human-copy 側を修正して MANIFEST.sha256 を再発行し、HUMAN APPLY STEP を再実行する（live は既に適用済みのため、修正は再 apply でしか live に届かない）"
+  - "修正後は 3 タスクの panelist-input バンドルを再生成し、パネルを再実行する（現行 verdict は修正前バンドルに束縛されている）"
+references:
+  - "specs/epic-194-a6-lite-integration/verification/T-002.panelist-openai.verdict.json (Critical, input_digest ae927054)"
+  - "specs/epic-194-a6-lite-integration/verification/T-002.panelist-google.verdict.json (Critical, input_digest ae927054)"
+  - "specs/epic-194-a6-lite-integration/verification/T-002.panelist-anthropic.verdict.json (Minor, finding 7, input_digest ae927054)"
+  - "requirements.md REQ-002 / acceptance-tests.md AC-027"
+  - "plugins/sdd-lite/references/risk-upgrade-policy.md (Capability-derived trigger source 節の fail-closed 契約)"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 0
