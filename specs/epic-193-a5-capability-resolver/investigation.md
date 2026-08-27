@@ -1901,3 +1901,92 @@ leaves: never type a hash, always resolve it.
 - `design.md`: `b2376c59e549effd78259f81e4cc23c476306686905c35fe00e3c5156ff4d5e8`
 - `security-spec.md`: `a2b15f7eb67f4b357afda778a9569836941e5c58fa44b0ec69aa76fd33b02621`
 - `tasks.md`: `855bf0bf6f6abba76d0c5a087c191c8bb84d0cd528e383be8285b5c1ce1ce184`
+
+### Attempt-8 round-1 remediation, and a cross-model whole-package audit
+
+**Round 1.** Reviewer A 5 PASS / 1 FAIL (Critical) / 1 SKIP; reviewer B
+5 PASS / 1 FAIL (Critical) / 1 SKIP. The two Criticals are the same
+finding, reached independently. Attempt 7's two defects are confirmed
+closed by both: REQ-001 step (m)'s predicate is well-formed and selects
+correctly for a first resolve and a re-resolve and for both step-(m) ids,
+and the AC-038 claim is correctly scoped to AC-055(b).
+
+**The Critical, and ruling D(2)'s application to it.** REQ-003's
+advisory/required byte-identity guarantee was unsatisfiable on the Full
+track: its permitted-difference set was three fields inside Resolver
+Evidence, while its own amendment parenthetical says those digests hash
+"the canonical Project Context text and the canonical Context Projection
+text, which copies `workflow` verbatim" — and
+`generated/project-context.resolved.json` **is** that Projection, so its
+bytes must differ; `facet-manifest.yaml` fails identically via its own
+`context_binding`. The 2026-08-24 B(1) amendment had recognised this exact
+impossibility and propagated its carve-out to the Resolver Evidence
+instance alone. The remediation restates the exception as a
+set of **enforcement-derived fields excepted wherever they occur**, a
+scope both reviewers note is derivable from INV-004's own schema field
+lists rather than a new decision; the **Lite track is untouched**, since
+`capability-summary.yaml` carries no `context_binding`.
+
+**Then a cross-model whole-package audit, on the owner's suggestion.**
+The owner proposed delegating spec work to Codex. It was adapted from
+authorship — which is human-ruling-gated regardless — to an **exhaustive
+defect enumeration over all seven frozen documents at once**, because the
+actual bottleneck was discovery, not writing: the spec-stage reviewers may
+read only `requirements.md` and `acceptance-tests.md`, so eight attempts
+had each surfaced one or two defects and never the same family twice. The
+audit returned **ten findings, four Critical**, and **five of them are in
+files no spec-stage reviewer can read** — `security-spec.md`,
+`infra-spec.md`, `tasks.md`, `traceability.md`.
+
+Four were spot-verified against the live bytes before any edit, including
+one against text this session had written two commits earlier. All four
+held, and one was worse than reported:
+
+- `requirements.md` stated that the Resolver "reads the clock, the
+  network, and no provider API" — the exact inverse of the determinism
+  guarantee its own next clause quotes. It had survived eight attempts and
+  several PASS verdicts.
+- The ruling-D(2) sweep had applied the rollback-and-no-write scope rule
+  to the **recoverable** MIX branch, which raises no Block and proceeds
+  into a fresh resolve, inserting a Block-record clause there against
+  AC-047's own every-target-back-to-PRE requirement. That was this
+  session's own error, in `design.md` and `infra-spec.md`.
+- The diagnostic-row partitions summed to seventeen in `traceability.md`
+  (which also said "thirteen complete" then "remaining four") and to
+  nineteen in `tasks.md` — the two documents disagreeing with each other
+  as well. Counting each task's own id list gives 5 + 5 + 3 + 3 = 16; the
+  surplus was extra `snapshot-generation-mismatch` **fixtures** counted as
+  rows, which `tasks.md`'s own parenthetical already admitted.
+- AC-026 required "all ten" suites registered while `tasks.md` and
+  `traceability.md` both say nine and explicitly defer the tenth.
+
+**What the remediation did.** Commit
+`12fd1241c5cc625677118d80efbfc6ecc74dc294`, documents only, closes all ten
+across seven files. AC-026 and the infra CI sequence are narrowed to the
+nine scheduled suites rather than scheduling a tenth, because the
+alternative expands `tasks.md`'s declared scope and is not an
+orchestrator's to take. The security authorization table gains the
+Evidence-only direct-write path as an explicit allow, since it previously
+forbade the very route REQ-001/REQ-004/`design.md` mandate and the only
+route the unrecoverable-journal Block can take. The PRE/POST convergence
+absolutes in `security-spec.md` and `infra-spec.md`, the pre-publication
+ordering absolute, the "one exception" Block partition, and the "no
+assembly step branches on `capability_enforcement`" claim are each scoped
+to what they are actually true of. `traceability.md`'s `Status` column was
+deliberately left untouched.
+
+**Method note worth carrying forward.** The audit is a complement to the
+gate, not a substitute: it reads everything at once and enumerates in
+bulk, where the gate reads a narrow input set and adjudicates. Running it
+BEFORE a gate attempt is what converts serial discovery into one batch.
+
+### Per-document SHA-256 at remediation commit 12fd1241
+
+- `requirements.md`: `2a9e598969c3154b61e24556d1728020c40e25ed9f7b5a02b9e6507a557220f2`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `8aa438fbefcd03f527359e54932cf66537001ea2f193c6892233223d05c783a5`
+- `design.md`: `fd66ac5ce1842adb4c3c00afd017a3c166662e909485335d1a62548530204725`
+- `security-spec.md`: `4b63a57503d4e34725b7faaf2f1e87d8cec0df74fec04cabb675d01fcbe3e9aa`
+- `infra-spec.md`: `1c0b9ca6e91548d5c2b1101f103adc4926b84b3bfbf0b0ce3103048800bca811`
+- `traceability.md`: `55608d6547c6f999ea9f882a90e514255fcba3ee780c5e5ff01704e351765d17`
+- `tasks.md`: `79c8cd67d140ac860e638171f81d00ff569b44d1db54f60e06831b4431de01c0`
