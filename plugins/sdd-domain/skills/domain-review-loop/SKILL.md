@@ -22,7 +22,8 @@ value.
 ```
 
 Invoked internally by `domain-model` (T-004); not a user-facing command
-(`disable-model-invocation: true`, `user-invocable: false`).
+(`user-invocable: false`, `disable-model-invocation: false` -- a human cannot
+start it out of order, and the model must be able to reach it).
 
 ## Preconditions
 
