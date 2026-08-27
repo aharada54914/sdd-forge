@@ -1,0 +1,33 @@
+# T-011 dogfood: PowerShell-twin gate rows (RT-20260821-013 fix 2)
+# Captured 2026-08-21 by the fix-by-review-ticket session. Raw subprocess
+# stdout+stderr with exit codes; closes the dual-runtime evidence gap the
+# T-011 quality gate measured (the dogfood had zero ps1 evidence).
+
+COMMAND: pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-risk.ps1 specs/risk-adaptive-layer/tasks.md
+EXIT: 0
+Risk check passed for 12 task(s).
+
+COMMAND: pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-traceability.ps1 -TracePath specs/risk-adaptive-layer/traceability.json -RepoRoot .
+EXIT: 0
+Traceability check passed for risk-adaptive-layer: 11 link(s).
+
+COMMAND: pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-traceability.ps1 -TracePath specs/risk-adaptive-layer/traceability.json -RepoRoot . -RequireEvidence
+EXIT: 0
+Traceability check passed for risk-adaptive-layer: 11 link(s).
+
+COMMAND: pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-contract.ps1 specs/risk-adaptive-layer/verification/T-011.contract.json .
+EXIT: 0
+Verification contract passed for task T-011.
+
+COMMAND: pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-task-state.ps1 specs/risk-adaptive-layer/tasks.md
+EXIT: 0
+Verification contract passed for task T-010.
+WARNING: evidence bundle for task T-010 was generated with a dirty working tree
+Evidence bundle passed for task T-010.
+Task state check passed for 12 task(s).
+
+COMMAND: pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1 specs/risk-adaptive-layer/verification/T-011.evidence.json .
+EXIT: 0
+Verification contract passed for task T-011.
+WARNING: evidence bundle for task T-011 was generated with a dirty working tree
+Evidence bundle passed for task T-011.

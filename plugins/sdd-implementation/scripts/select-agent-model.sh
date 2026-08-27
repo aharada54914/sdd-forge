@@ -269,6 +269,19 @@ if minimum_tier and minimum_tier not in tiers:
 # REQ-002 policy-resolved value used for the xhigh eligibility gate and for
 # JSON/text reporting, since design.md requires that gate to run "computed
 # AFTER the bump, not before it".
+# RT-20260821-009: models that the registry designates as a same-tier
+# fallback (design.md:44, requirements.md:50-51) must never win an
+# equal-cost tie against their primary. Loaded best-effort so the legacy
+# --candidate path (which never required the registry) keeps working.
+fallback_names = set()
+try:
+    with open(registry_path, encoding="utf-8") as _handle:
+        for _model in json.load(_handle).get("models", []):
+            if _model.get("fallback_for"):
+                fallback_names.add(_model["name"])
+except Exception:
+    pass
+
 parsed = []
 available_names = []
 v2_active = False
@@ -424,7 +437,8 @@ if not eligible:
 winner = sorted(
     eligible,
     key=lambda item: (
-        matrix[risk][item[1]], tiers[item[1]], efforts[item[3]], item[2], item[0]
+        matrix[risk][item[1]], tiers[item[1]], efforts[item[3]], item[2],
+        item[0] in fallback_names, item[0]
     ),
 )[0]
 if json_output == "true":

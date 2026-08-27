@@ -7,7 +7,7 @@ standard in `acceptance-tests.template.md`.)
 | AC | Requirement | Test ID | Test Type | Test Target | Status |
 |---|---|---|---|---|---|
 | AC-001 | REQ-001 | TEST-001 | gate (unit) | `tests/gates.tests.sh` + `tests/scripts.tests.ps1` :: check-risk missing/invalid/valid | Planned |
-| AC-002 | REQ-002 | TEST-002 | gate (unit) | check-contract: required-set ⊉ tier-minimum ⇒ fail; ⊇ ⇒ pass (both runtimes) | Planned |
+| AC-002 | REQ-002 | TEST-002 | gate (unit) | check-contract: required-set ⊉ tier-minimum ⇒ fail; ⊇ ⇒ pass (both runtimes). Stack exception (T-012): `stack: shell\|docs\|spec` may waive only {lint, typecheck, build} with `waiver_reason`; tier minimum otherwise intact (TEST-012 in gates.tests.sh T-012.1–7) | Planned |
 | AC-003 | REQ-003 | TEST-003 | gate (unit) | check-contract: `required_workflow=tdd` test check missing/empty `red_evidence` ⇒ fail; Red→Green ⇒ pass | Planned |
 | AC-004 | REQ-004 | TEST-004 | gate (unit) | check-traceability: broken REQ→AC→TEST→evidence chain ⇒ fail; complete ⇒ pass | Planned |
 | AC-005 | REQ-005 | TEST-005 | gate (unit) | check-contract/check-evidence-bundle: high/critical missing `spec_revision` ⇒ fail; present ⇒ pass | Planned |

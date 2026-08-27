@@ -1,0 +1,20 @@
+T-001 Critical regression RED: ancestor symlink and canonical containment
+Date: 2026-08-08
+
+Command:
+pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1 -SecurityRegression ancestor-symlink -RunnerUnderTest specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1
+
+Exit: 1
+Results: 26 passed, 11 failed
+
+Critical-specific failures:
+- TEST-009a: the runner followed an ancestor link and returned success;
+- TEST-009b: the external canary was modified through that link;
+- TEST-009c: Assert-AnchoredPath / canonical containment was absent;
+- TEST-009d/e/g: no atomic parent-substitution seam, no explicit no-follow
+  rejection, and no proof that the moved repository target stayed unchanged.
+
+During implementation an initially path-based check-then-chdir draft also went
+RED when the corrected deterministic race fixture overwrote the external
+canary. The Green implementation replaced that approach with handle-relative
+open/publish operations.

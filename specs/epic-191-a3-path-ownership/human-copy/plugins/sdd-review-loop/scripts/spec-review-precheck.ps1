@@ -55,7 +55,7 @@ function Get-CanonicalDir([string]$Path) {
 }
 
 function Test-IsSha256([object]$Value) {
-  return ($Value -is [string]) -and ($Value -match '^[0-9a-fA-F]{64}$')
+  return ($Value -is [string]) -and ($Value -cmatch '^[0-9a-f]{64}$')
 }
 
 function Test-NonEmptyString([object]$Value) {
@@ -352,9 +352,44 @@ function Test-ValidateContract(
   $expectedAList.Add([pscustomobject]@{ path = $acceptance; sha256 = $acceptanceHash })
   $expectedAList.Add([pscustomobject]@{ path = $PrecheckPath; sha256 = $precheckFileHash })
   $expectedAList.Add([pscustomobject]@{ path = $calibration; sha256 = $calibrationHash })
+  # investigation.md is derived from the contract, exactly like $calibrationHash
+  # above -- never from the live working tree. Every other entry in this expected
+  # manifest already comes from an immutable source: requirements/acceptance from
+  # the contract's own top-level fields, precheck-result.json from a frozen round
+  # artifact, calibration from the manifest itself. investigation.md was the lone
+  # outlier, and it is the single worst file to read live: by design it is the
+  # document that accumulates the amendment record ACROSS stages, so it grows
+  # after a round is sealed as a matter of course. Reading it live compared
+  # today's bytes against the correctly-pinned ones, mismatched, and refused
+  # -Reset with 'previous terminal contract is invalid' -- permanently, since
+  # nothing can un-grow the file (reproduced on epic-195). A sealed contract is
+  # evidence about the past; validating it against the present is a category
+  # error. The live-vs-pinned question belongs to check-workflow-state.ps1, which
+  # asks it deliberately and carries the amendment-record growth tolerance for
+  # exactly this file.
+  #
+  # Same discipline as calibration: every reviewer that pinned the file must have
+  # pinned the SAME bytes (the unique set must collapse to one value), and that
+  # value must be a well-formed digest. A contract in which reviewer A and
+  # reviewer B disagree about what they read is not a valid contract. Absent from
+  # the manifest entirely means the reviewers declared they did not read it,
+  # which is legal, so nothing is expected. There is no cross-check against
+  # precheck-result.json here because the precheck schema records no
+  # investigation_sha256 field -- unlike calibration_sha256 -- so the 'if the
+  # precheck records it' clause has nothing to compare against.
   $investigationPath = Join-Path $specDir 'investigation.md'
-  if ((Test-Path -LiteralPath $investigationPath -PathType Leaf) -and -not (Test-IsSymlink $investigationPath)) {
-    $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = (Get-Sha256File $investigationPath) })
+  $investigationHashes = @()
+  foreach ($reviewer in $reviewers) {
+    foreach ($entry in @($reviewer.allowed_input_manifest)) {
+      if (Test-OrdinalEqual $entry.path $investigationPath) { $investigationHashes += [string]$entry.sha256 }
+    }
+  }
+  $uniqueInvestigationHashes = @($investigationHashes | Select-Object -Unique)
+  if ($uniqueInvestigationHashes.Count -gt 1) { return $false }
+  if ($uniqueInvestigationHashes.Count -eq 1) {
+    $investigationHash = $uniqueInvestigationHashes[0]
+    if (-not (Test-IsSha256 $investigationHash)) { return $false }
+    $expectedAList.Add([pscustomobject]@{ path = $investigationPath; sha256 = $investigationHash })
   }
   $expectedA = @($expectedAList | Sort-Object path)
   $expectedBList = [Collections.Generic.List[object]]::new()

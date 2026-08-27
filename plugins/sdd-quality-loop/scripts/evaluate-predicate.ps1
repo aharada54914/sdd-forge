@@ -1,16 +1,15 @@
-# Thin argument-forwarding wrapper for evaluate-predicate.py (Python master).
-# INV-014 (the sdd-hook-guard.sh pattern): all evaluation logic lives in the
-# Python master; this wrapper only locates it and forwards arguments as-is.
-$ErrorActionPreference = 'Stop'
-$scriptDir = $PSScriptRoot
-$pyScript = Join-Path $scriptDir 'evaluate-predicate.py'
+# Thin PowerShell dispatcher for evaluate-predicate (Python master; INV-014).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
+$ErrorActionPreference = "Stop"
 
-$pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $pythonCmd) { $pythonCmd = Get-Command python -ErrorAction SilentlyContinue }
-if (-not $pythonCmd) {
-  Write-Error "evaluate-predicate: python3 (or python) is required"
-  exit 1
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("evaluate-predicate: EVALUATE_PREDICATE_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    exit 3
 }
+. $lib
 
-& $pythonCmd.Source $pyScript @args
-exit $LASTEXITCODE
+Invoke-SddPyDispatch -Master (Join-Path $dir "evaluate-predicate.py") -DiagnosticPrefix "evaluate-predicate: EVALUATE_PREDICATE_RUNTIME_UNAVAILABLE" -Arguments $args

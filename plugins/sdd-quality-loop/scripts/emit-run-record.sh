@@ -125,8 +125,18 @@ if [ -d "reports/quality-gate" ]; then
   feature_gate_files="$(grep -rlE "^Feature:[[:space:]]*${feature_re}[[:space:]]*$" reports/quality-gate 2>/dev/null || true)"
   for tid in $task_ids; do
     n=0
+    # Canonical task identity is the template's `Task ID:` line (WFI-020).
+    # Anchored + escaped, mirroring check-quality-gate-cycle-limit.sh's
+    # corpus-measured predicate: of 220 committed reports, 219 carry
+    # `Task ID:`, 77 carry the legacy `Task:` line (WFI-003-era rule), and
+    # 16 only the H1 heading. The previous unanchored `Task: <tid>\b` grep
+    # matched only the legacy minority and under-counted gate runs
+    # (epic-136-phase4-mcp: gate_reports.total 1 against a manual tally of 5).
+    tid_re="$(printf '%s\n' "$tid" | sed 's/[][\\.^$*+?(){}|]/\\&/g')"
+    identity_re="^(Task ID|Task):[[:space:]]*${tid_re}[[:space:]]*\$"
+    identity_re="${identity_re}|^#[[:space:]]+Quality Gate Report:?[[:space:]]*${tid_re}([^0-9]|\$)"
     for gf in $feature_gate_files; do
-      grep -q "Task: ${tid}\b" "$gf" 2>/dev/null && n=$((n + 1))
+      grep -qE -e "$identity_re" "$gf" 2>/dev/null && n=$((n + 1))
     done
     gate_total=$((gate_total + n))
     [ "$n" -gt "$max_gate_runs" ] && max_gate_runs="$n"

@@ -80,9 +80,37 @@ Audit-Status: {{audit_status}}
 
 <!-- Quote specific BL-IDs, RT-IDs, or retrospective table rows that show the friction. -->
 
+## Why-Why Analysis
+
+| # | Why (question) | Because (answer) | Evidence |
+|---|---|---|---|
+| 1 | Why did {{observed_friction}} occur? | {{because_1}} | {{evidence_ref_1}} |
+| 2 | Why did {{because_1}} occur? | {{because_2}} | {{evidence_ref_2}} |
+| 3 | Why did {{because_2}} occur? | {{because_3}} | {{evidence_ref_3}} |
+
+<!-- なぜなぜ分析 (5 Whys). Start row 1 from the friction stated in             -->
+<!-- ## Problem Evidence and ask "why" repeatedly — at least 3 levels, 5 when    -->
+<!-- the chain supports it — until the answer names a process or mechanism       -->
+<!-- cause that the Proposed Change can act on.                                  -->
+<!-- Chain rule: each row's Because is exactly what the next row asks Why about. -->
+<!-- Stop rules: do NOT stop at a restated symptom, at "human error" /           -->
+<!-- "agent forgot" / "model was careless", or at a cause outside this           -->
+<!-- workflow's control. DO stop once a controllable process/mechanism cause     -->
+<!-- is reached; mechanically padding the chain to 5 rows adds noise, not depth. -->
+<!-- Evidence: cite a retrospective table row, RT-ID, BL-ID, report path, or     -->
+<!-- file:line per row where possible; mark uncorroborated rows "(hypothesis)".  -->
+<!-- The final row's Because must state the same mechanism as                    -->
+<!-- ## Root Cause Hypothesis.                                                    -->
+<!-- Language: Why/Because prose follows the same category language rules as     -->
+<!-- ## Root Cause Hypothesis (generic terms for plugin-improvement); the        -->
+<!-- Evidence column may cite raw metric names and paths, like Problem Evidence. -->
+
 ## Root Cause Hypothesis
 
 {{root_cause}}
+
+<!-- Must be the terminal cause of the ## Why-Why Analysis chain — a specific   -->
+<!-- mechanism, not a restatement of the symptom.                                -->
 
 ## Proposed Change
 

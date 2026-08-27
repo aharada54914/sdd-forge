@@ -1,0 +1,21 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-045",
+  "category": "app-dev-efficiency",
+  "cycle": 2,
+  "verdict": "NEEDS_REVISION",
+  "critical_count": 0,
+  "major_count": 6,
+  "minor_count": 1,
+  "failed_check_ids": [
+    "EFFECT-CONSISTENT-WITH-EVIDENCE",
+    "IMPACT-PROPORTIONATE",
+    "RISK-IDENTIFIED",
+    "ROLLBACK-VIABLE",
+    "BLAST-RADIUS-BOUNDED",
+    "REGRESSION-SURFACE",
+    "ALTERNATIVES-CONSIDERED"
+  ],
+  "summary": "No Critical. The mechanism is right; the scope and several acceptance numbers were wrong. The decisive finding reverses this WFI's own Cycle-1 conclusion: the retrospective's '8 sites' is reproducible and the WFI's '7' was the miscount. The eighth is tests/lib/loop-driver.sh:244-252, the same invariant satisfied by hand for a different library — invisible to a py-dispatch search. plugins/*/scripts/ carries three lib dependencies, not one, so a correct derivation finds 32 wrapper/library pairs rather than 28, and a py-dispatch-hardcoded implementation would pass the verification plan while covering a third of the class. The headline replay number is also unreachable: d478775c fixed one of the seven suites in the same commit that created the library, so six were missing at that tree and no tree exists at which 'seven at once' is measurable. Verified false positives against the current green tree include deliberate-omission fixtures, non-staging name arrays, and comment-derived dependency pairs.",
+  "generated_at": "2026-08-23T15:20:00Z"
+}

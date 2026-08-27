@@ -293,11 +293,14 @@ foreach ($f in @(
         'validate-facet-manifest.py', 'validate-facet-manifest.sh', 'validate-facet-manifest.ps1',
         'validate-capability-summary.py', 'validate-capability-summary.sh', 'validate-capability-summary.ps1',
         'validate-context-projection.py', 'validate-context-projection.sh', 'validate-context-projection.ps1',
-        'compare-facet-manifest-staleness.py', 'compare-facet-manifest-staleness.sh', 'compare-facet-manifest-staleness.ps1'
+        'compare-facet-manifest-staleness.py', 'compare-facet-manifest-staleness.sh', 'compare-facet-manifest-staleness.ps1',
+        'lib/py-dispatch.sh', 'lib/py-dispatch.ps1'
     )) {
     $src = Join-Path $Scripts $f
     if (Test-Path -LiteralPath $src) {
-        Copy-Item -LiteralPath $src -Destination (Join-Path $Installed "scripts/$f") -Force
+        $destination = Join-Path $Installed "scripts/$f"
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath $src -Destination $destination -Force
     }
 }
 foreach ($schema in @('facet-manifest.schema.json', 'capability-summary.schema.json', 'context-projection.schema.json')) {

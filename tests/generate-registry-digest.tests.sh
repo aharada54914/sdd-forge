@@ -20,8 +20,10 @@ mkdir -p "$SCRIPT_DIR" "$CONTRACT_DIR"
 
 for name in generate-registry-digest.py generate-registry-digest.sh \
   generate-registry-digest.ps1 generate-registry-digest.js \
-  registry_discovery.py canonicalize-sdd-yaml.py; do
+  registry_discovery.py canonicalize-sdd-yaml.py \
+  lib/py-dispatch.sh lib/py-dispatch.ps1; do
   if [[ -f "$SOURCE_DIR/$name" ]]; then
+    mkdir -p "$SCRIPT_DIR/$(dirname "$name")"
     cp "$SOURCE_DIR/$name" "$SCRIPT_DIR/$name"
   fi
 done

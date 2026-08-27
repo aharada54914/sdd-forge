@@ -188,3 +188,100 @@ jq '(.reviewers[0].allowed_input_manifest) += [{path:"/original-checkout/outside
 mv "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.tmp" "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.json"
 expect_denied_without_evidence "anchor-less absolute manifest path in foreign-checkout contract"
 echo "ok: task review precheck denies anchor-less absolute manifest paths"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# WFI-030: frozen_artifact_done_when is a detector, not a gate
+# ──────────────────────────────────────────────────────────────────────────────
+# The rule that a Done When item must not require editing a review-frozen
+# artifact was prose evaluated by a reviewer, with nothing deterministic behind
+# it. This records the candidates so the review gate can adjudicate each one.
+# It must not change the exit code: measured over this repository the trigger
+# fires on six items and only three are real, so failing on it would block half
+# the plans it fires on.
+write_pass_artifacts spec "${SPEC_REPORT_DIR}/attempt-1/round-1"
+write_pass_artifacts impl "${IMPL_REPORT_DIR}/attempt-1/round-1"
+cat > "${SPEC_DIR}/tasks.md" <<'EOF'
+# Tasks
+
+## T-001 Single line
+Risk: low
+Risk Rationale: Fixture coverage for the frozen-artifact Done When detector.
+Required Workflow: test-after
+### Blockers
+None
+### Done When
+- [ ] traceability.md rows for REQ-001 record this task's evidence paths.
+- [ ] The design.md Test Strategy section is cited as the source of the
+  fixture count.
+
+## T-002 Wrapped across a continuation line
+Risk: low
+Risk Rationale: Fixture coverage for the frozen-artifact Done When detector.
+Required Workflow: test-after
+### Blockers
+T-001
+### Done When
+- [ ] **Requirement traceability** — traceability.md rows for REQ-002 and
+  REQ-003 record this task's evidence paths.
+EOF
+
+rm -rf "${REPORT_DIR}/attempt-1/round-1"
+(
+  cd "${REPO_ROOT}"
+  bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "${FEATURE}" 1 1 >/dev/null
+) || { echo "precheck failed while emitting frozen_artifact_done_when" >&2; exit 1; }
+
+frozen="$(jq -c '[.frozen_artifact_done_when[] | {task, line}]' \
+  "${REPORT_DIR}/attempt-1/round-1/precheck-result.json")"
+if [[ "${frozen}" != '[{"task":"T-001","line":10},{"task":"T-002","line":21}]' ]]; then
+  echo "expected the single-line and the wrapped item, and only those; got ${frozen}" >&2
+  exit 1
+fi
+echo "ok: task review precheck records frozen-artifact Done When items"
+
+# The citation-only item on T-001 names design.md but carries no write verb, so
+# it must not be listed. Without this direction the detector could fire on every
+# item that merely mentions a frozen artifact and still look correct.
+if jq -e '[.frozen_artifact_done_when[].item] | any(test("cited as the source"))' \
+  "${REPORT_DIR}/attempt-1/round-1/precheck-result.json" >/dev/null; then
+  echo "citation-only Done When item was wrongly recorded" >&2
+  exit 1
+fi
+echo "ok: task review precheck leaves citation-only Done When items unrecorded"
+
+# The wrapped item's artifact name and write verb sit on different lines. A
+# line-at-a-time scan finds only the single-line case, which is what the first
+# implementation did over the live corpus (1 of 3 real items).
+if ! jq -e '[.frozen_artifact_done_when[] | select(.task == "T-002") | .item]
+            | any(test("REQ-003 record"))' \
+  "${REPORT_DIR}/attempt-1/round-1/precheck-result.json" >/dev/null; then
+  echo "continuation lines were not joined before matching" >&2
+  exit 1
+fi
+echo "ok: task review precheck joins Done When continuation lines"
+
+# Twin parity, driven from the suite that owns the fixture. A green PowerShell
+# adapter that never saw these inputs would prove nothing -- and a silently
+# divergent twin is how a detector ends up reporting different candidates on
+# Windows than on POSIX.
+if command -v pwsh >/dev/null 2>&1; then
+  sh_frozen="$(jq -S -c '.frozen_artifact_done_when' \
+    "${REPORT_DIR}/attempt-1/round-1/precheck-result.json")"
+  rm -rf "${REPORT_DIR}/attempt-1/round-1"
+  (
+    cd "${REPO_ROOT}"
+    pwsh -NoProfile -File plugins/sdd-review-loop/scripts/task-review-precheck.ps1 \
+      -Feature "${FEATURE}" -Attempt 1 -Round 1 >/dev/null
+  ) || { echo "PowerShell precheck failed while emitting frozen_artifact_done_when" >&2; exit 1; }
+  ps_frozen="$(jq -S -c '.frozen_artifact_done_when' \
+    "${REPORT_DIR}/attempt-1/round-1/precheck-result.json")"
+  if [[ "${sh_frozen}" != "${ps_frozen}" ]]; then
+    echo "twins disagree on frozen_artifact_done_when:" >&2
+    echo "  sh  = ${sh_frozen}" >&2
+    echo "  ps1 = ${ps_frozen}" >&2
+    exit 1
+  fi
+  echo "ok: task review precheck twins agree on frozen-artifact Done When items"
+else
+  echo "skip - pwsh is not on PATH; frozen-artifact Done When twin parity not exercised"
+fi

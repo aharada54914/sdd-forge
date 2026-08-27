@@ -828,6 +828,157 @@ done
 [[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
   fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
 
+# ── WFI-030: traceability delivery-status normalization ──────────────────────
+# The task-stage binding hashes traceability.md whole-file. Its per-requirement
+# delivery-status cell is the one field the workflow is designed to advance as
+# tasks complete, so a change confined to that cell -- and only over the closed
+# lifecycle vocabulary the state registry pins -- must be absorbed the way
+# tasks.md's Status: header already is. Every other byte stays bound.
+#
+# The fixture source carries no layer_sha256, so the task-stage traceability
+# block at check-workflow-state.sh:675 would be skipped entirely. These cases
+# build the full-profile task state the block requires, which is why they do
+# more setup than the fixtures above.
+wfi030_sha() { if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}'; else shasum -a 256 "$1" | awk '{print $1}'; fi; }
+
+# Rewrite every REQ row's delivery-status cell to $2, over the closed vocabulary
+# only. Mirrors the normalization under test, so the fixture can be put into the
+# authoring-time state the precheck really records.
+wfi030_set_status() {
+  LC_ALL=C sed -E -i.bak \
+    "s/^(\| REQ-.*\|)([[:space:]]*)(Planned|In Progress|Implementation Complete|Done|Blocked)([[:space:]]*\|[[:space:]]*)\$/\\1\\2$2\\4/" "$1"
+  rm -f "$1.bak"
+}
+
+# wfi030_fixture <name> [flagged-task-id] [adjudicate: yes|no]
+# With a flagged task id, the round's precheck gains a frozen_artifact_done_when
+# entry for it (WFI-030 item 7). "yes" rewrites reviewer-a's OBSERVABLE-DONE
+# finding to name that task; "no" rewrites it to a finding that does not.
+wfi030_fixture() {
+  local root round specs trace layer extra layers pairs
+  local flagged="${2:-}" adjudicate="${3:-yes}" frozen='[]'
+  if [[ -n "$flagged" ]]; then
+    frozen="$(jq -nc --arg t "$flagged" \
+      '[{task: $t, line: 10, item: "- [ ] traceability.md rows record this evidence path."}]')"
+  fi
+  root="$(make_full_fixture "$1")"
+  round="$(latest_task_round_dir "$root")"
+  specs="$root/specs/workflow-state-integrity"
+  trace="$specs/traceability.md"
+  # Authoring-time state: every delivery-status cell at the default. This is the
+  # state a real precheck captures, and the property the tolerance relies on --
+  # a matrix recorded with live statuses does not gain it.
+  wfi030_set_status "$trace" Planned
+  for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+    printf '# %s\n\nWFI-030 fixture layer spec.\n' "${layer%.md}" > "$specs/$layer"
+  done
+  layers="$({ for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+      printf '%s\t%s\n' "$layer" "$(wfi030_sha "$specs/$layer")"
+    done; } | jq -R -s -c 'split("\n")|map(select(length>0)|split("\t")|{(.[0]):.[1]})|add')"
+  # The precheck must be rewritten before the manifest is, because the manifest
+  # also binds the precheck file's own hash.
+  jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" --argjson l "$layers" \
+    --argjson frozen "$frozen" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l
+     | .frozen_artifact_done_when=$frozen' \
+    "$round/precheck-result.json" > "$round/precheck-result.json.new"
+  mv "$round/precheck-result.json.new" "$round/precheck-result.json"
+  if [[ -n "$flagged" ]]; then
+    # Rewriting a finding's text changes neither the check ids nor the pass/fail
+    # counts, so the integrated-summary cross-checks are unaffected and only the
+    # adjudication clause can react.
+    local adjudication="Every Done When item is inspectable."
+    [[ "$adjudicate" == yes ]] &&
+      adjudication="${adjudication} ${flagged}: satisfiable without editing the frozen matrix; the row already names the evidence path."
+    jq --arg text "$adjudication" \
+      '.checks |= map(if .id == "OBSERVABLE-DONE" then .finding = $text else . end)' \
+      "$round/reviewer-a.json" > "$round/reviewer-a.json.new"
+    mv "$round/reviewer-a.json.new" "$round/reviewer-a.json"
+  fi
+  pairs="$({
+    printf 'specs/workflow-state-integrity/traceability.md\t%s\n' "$(wfi030_sha "$trace")"
+    printf 'specs/workflow-state-integrity/design.md\t%s\n' "$(wfi030_sha "$specs/design.md")"
+    for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+      printf 'specs/workflow-state-integrity/%s\t%s\n' "$layer" "$(wfi030_sha "$specs/$layer")"
+    done
+    printf '%s/precheck-result.json\t%s\n' "${round#"$root"/}" "$(wfi030_sha "$round/precheck-result.json")"
+  })"
+  extra="$(printf '%s' "$pairs" | jq -R -s -c 'split("\n")|map(select(length>0)|split("\t")|{path:.[0],sha256:.[1]})')"
+  # Upsert, not append: check-workflow-state.sh:473 rejects a manifest with any
+  # duplicate path, and the source contract already lists traceability.md.
+  jq --arg t "$(wfi030_sha "$trace")" --arg d "$(wfi030_sha "$specs/design.md")" \
+    --argjson l "$layers" --argjson extra "$extra" \
+    '.traceability_sha256=$t | .design_sha256=$d | .layer_sha256=$l
+     | ($extra | map({key: .path, value: .sha256}) | from_entries) as $ov
+     | .reviewers |= map(
+         (.allowed_input_manifest // []) as $m
+         | .allowed_input_manifest = (
+             ($m | map(if $ov[.path] then .sha256 = $ov[.path] else . end))
+             + ($extra | map(. as $e | select(([$m[].path] | index($e.path)) == null)))))' \
+    "$round/task-review-contract.json" > "$round/task-review-contract.json.new"
+  mv "$round/task-review-contract.json.new" "$round/task-review-contract.json"
+  # Each reviewer's own recorded manifest must cover everything the contract
+  # claims it reviewed, so the same entries are upserted there.
+  local reviewer
+  for reviewer in reviewer-a reviewer-b; do
+    [[ -f "$round/$reviewer.json" ]] || continue
+    # reviewer-a records .manifest as a bare array; reviewer-b records
+    # .manifest.allowed_inputs inside an object. Handle both shapes.
+    jq --argjson extra "$extra" \
+      'def upsert($ov; $m):
+         (($m // []) | map(if $ov[.path] then .sha256 = $ov[.path] else . end))
+         + ($extra | map(. as $e | select(([($m // [])[].path] | index($e.path)) == null)));
+       ($extra | map({key: .path, value: .sha256}) | from_entries) as $ov
+       | if (.manifest | type) == "object"
+         then .manifest.allowed_inputs = upsert($ov; .manifest.allowed_inputs)
+         else .manifest = upsert($ov; .manifest) end' \
+      "$round/$reviewer.json" > "$round/$reviewer.json.new"
+    mv "$round/$reviewer.json.new" "$round/$reviewer.json"
+  done
+  printf '%s\n' "$root"
+}
+
+# Baseline: the task-stage traceability block is now reached (layer_sha256 is
+# populated) and the untouched matrix validates on both twins. Without this the
+# three cases below could pass vacuously by never entering the block.
+wfi030_base="$(wfi030_fixture wfi030-base)"
+expect_valid "$wfi030_base"
+
+# A delivery-status transition inside the closed vocabulary is absorbed. This is
+# the case the WFI exists to create; before the change it failed with
+# stage-provenance on both twins.
+wfi030_flip="$(wfi030_fixture wfi030-flip)"
+wfi030_set_status "$wfi030_flip/specs/workflow-state-integrity/traceability.md" Done
+expect_valid "$wfi030_flip"
+
+# A value outside the closed vocabulary is a body edit, not a lifecycle
+# transition, and stays bound. Without this case the tolerance would read as
+# "the last cell is unbound", which is not what was implemented.
+wfi030_outside="$(wfi030_fixture wfi030-outside)"
+LC_ALL=C sed -E -i.bak 's/^(\| REQ-.*\|)([[:space:]]*)Planned([[:space:]]*\|[[:space:]]*)$/\1\2Delivered\3/' \
+  "$wfi030_outside/specs/workflow-state-integrity/traceability.md"
+rm -f "$wfi030_outside/specs/workflow-state-integrity/traceability.md.bak"
+expect_rule "$wfi030_outside" stage-provenance
+
+# Every non-status byte stays bound: an edit to any other cell still fails. This
+# is the anti-Goodhart control -- coverage of the status column must not have
+# been bought by unbinding the row.
+# WFI-030 item 7: a Done When item the precheck flagged must be adjudicated by
+# task ID in reviewer-a's OBSERVABLE-DONE finding. The detector is deliberately
+# permissive -- three of the six items it fires on across this repository are
+# false positives -- so this does not judge the adjudication, only that one was
+# recorded. The review that started this WFI did reason about the frozen-artifact
+# rule; the reasoning was simply unverifiable.
+wfi030_adjudicated="$(wfi030_fixture wfi030-adjudicated T-001 yes)"
+expect_valid "$wfi030_adjudicated"
+
+wfi030_ignored="$(wfi030_fixture wfi030-ignored T-001 no)"
+expect_rule "$wfi030_ignored" stage-provenance
+
+wfi030_body="$(wfi030_fixture wfi030-body)"
+printf '\n<!-- WFI-030 body edit outside every delivery-status cell -->\n' \
+  >> "$wfi030_body/specs/workflow-state-integrity/traceability.md"
+expect_rule "$wfi030_body" stage-provenance
 # check-workflow-state's own gate runs BEFORE a review-loop precheck creates
 # the round it is trying to open (impl-review-precheck.sh calls this gate at
 # its STEP "canonical validation", and only writes precheck-result.json at
@@ -977,6 +1128,190 @@ set -e
 [[ $bad_opening_status -ne 0 && $bad_opening_ps_status -ne 0 ]] ||
   fail "malformed --opening value unexpectedly succeeded"
 [[ "$bad_opening_output" == *": cli-usage:"* ]] || fail "malformed --opening: wrong rule: $bad_opening_output"
+
+# plugins_pin_commit/Get-PluginsPinCommit resolve a plugins/ reference doc's
+# manifest-recorded hash against the commit that INTRODUCED the evidence
+# file (the review contract), not the one that last touched it. The fixtures
+# above run the checker binary at its real repo location, so
+# SCRIPT_ROOT/REPO_ROOT resolve to $ROOT and the pin is checked against
+# $ROOT's own git history. Proving the introducing-vs-last-touch distinction
+# needs a *self-contained* commit history the test controls byte-for-byte,
+# so these fixtures embed their own copy of both checker twins (mirroring
+# the reference-doc-forged-no-git technique above) inside a scratch git
+# repository the checker's own SCRIPT_ROOT/REPO_ROOT resolve to instead.
+make_git_fixture() {
+  local name="$1" target
+  target="$(make_full_fixture "$name")"
+  mkdir -p "$target/plugins/sdd-quality-loop/scripts" "$target/contracts"
+  cp "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+    "$target/plugins/sdd-quality-loop/scripts/"
+  cp "$ROOT/contracts/workflow-state-registry.schema.json" "$target/contracts/"
+  # make_full_fixture copies plugins/ reference docs from $ROOT's CURRENT
+  # working tree, but the copied reports/ evidence records each doc's
+  # sha256 from whenever that evidence was actually produced -- a moment
+  # that keeps receding as $ROOT's reference docs legitimately evolve (see
+  # reference-doc-evolved above). Fixtures that run the checker in place
+  # tolerate this for free: SCRIPT_ROOT resolves to $ROOT itself, so
+  # plugins_pin_commit/Get-PluginsPinCommit walk $ROOT's REAL git history
+  # and land on content that matches. A make_git_fixture fixture embeds its
+  # own copy of the checker and builds a SELF-CONTAINED git history instead
+  # (that is the whole point -- see the comment above this function), so it
+  # gets no such benefit: bundling a doc's already-drifted live content
+  # together with older evidence into the single "baseline" commit below
+  # would make that commit chronologically unfaithful for any doc this
+  # fixture is not deliberately evolving, and falsely reject it. Reseed each
+  # canonical plugins/ reference doc from $ROOT's OWN real historical
+  # content -- resolved via the SAME introducing-commit pin the production
+  # code uses, keyed off whichever copied evidence file actually recorded a
+  # non-matching hash for it -- whenever doing so provably reconstructs the
+  # recorded hash. This changes fixture SETUP fidelity only, never a
+  # fixture's asserted outcome: it makes "baseline" a drift-free starting
+  # point except where a fixture (like plugins-pin-amended-after-review)
+  # deliberately introduces drift afterward, which remains untouched.
+  local doc_rel evidence live_hash recorded root_evidence_rel intro historical
+  for doc_rel in \
+    plugins/sdd-review-loop/references/spec-review-calibration.md \
+    plugins/sdd-review-loop/references/reviewer-calibration.md \
+    plugins/sdd-quality-loop/references/risk-gate-matrix.md \
+    plugins/sdd-quality-loop/references/risk-classification-policy.md; do
+    live_hash="$(shasum -a 256 "$target/$doc_rel" | awk '{print $1}')"
+    while IFS= read -r evidence; do
+      recorded="$(jq -r --arg name "$(basename "$doc_rel")" '
+        [(.reviewers[]?.allowed_input_manifest[]?), (.manifest.allowed_inputs[]?)][] |
+        select(.path? and (.path | type == "string") and (.path | endswith($name))) | .sha256
+      ' "$evidence" 2>/dev/null | head -1)"
+      [[ -n "$recorded" && "$recorded" != "$live_hash" ]] || continue
+      root_evidence_rel="${evidence#"$target"/}"
+      intro="$(git -C "$ROOT" log --diff-filter=A -1 --format='%H' -- "$root_evidence_rel" 2>/dev/null)"
+      [[ -n "$intro" ]] || continue
+      historical="$(git -C "$ROOT" show "$intro:$doc_rel" 2>/dev/null | shasum -a 256 | awk '{print $1}')"
+      [[ "$historical" == "$recorded" ]] || continue
+      git -C "$ROOT" show "$intro:$doc_rel" > "$target/$doc_rel"
+      live_hash="$recorded"
+    done < <(find "$target/reports" -type f \
+      \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+  done
+  git -C "$target" init -q
+  git -C "$target" config user.email "workflow-state-tests@example.com"
+  git -C "$target" config user.name "workflow-state tests"
+  printf '%s\n' "$target"
+}
+
+PIN_CONTRACT_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+PIN_MATRIX_REL="plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+PIN_POLICY_REL="plugins/sdd-quality-loop/references/risk-classification-policy.md"
+
+# Regression fixture for the introducing-vs-last-touch fix: the contract is
+# amended (byte-only, e.g. a later provenance re-bind) AFTER a plugins/
+# reference doc it cites has already legitimately evolved past what the
+# contract recorded. Under the OLD "last touch of the contract" semantics
+# this pin lands on a commit where the reference doc's content has already
+# drifted, and the checker wrongly rejects it -- this is the exact epic-193
+# scenario in the task description. Under introducing-commit semantics the
+# pin lands where the reference doc still matches what was recorded, and the
+# checker accepts it. This fixture is the regression's own pin: mutating
+# plugins_pin_commit/Get-PluginsPinCommit back to `log -1` flips it from
+# PASS to FAIL.
+pin_amended="$(make_git_fixture plugins-pin-amended-after-review)"
+pin_amended_intro="$(git -C "$ROOT" log --diff-filter=A -1 --format='%H' -- "$PIN_CONTRACT_REL")"
+[[ -n "$pin_amended_intro" ]] ||
+  fail "plugins-pin-amended-after-review precondition not met: no introducing commit found in $ROOT for $PIN_CONTRACT_REL"
+for pin_rel in "$PIN_MATRIX_REL" "$PIN_POLICY_REL"; do
+  pin_recorded="$(jq -r --arg name "$(basename "$pin_rel")" \
+    '.reviewers[]?.allowed_input_manifest[]? | select(.path | endswith($name)) | .sha256' \
+    "$pin_amended/$PIN_CONTRACT_REL" | head -1)"
+  git -C "$ROOT" show "$pin_amended_intro:$pin_rel" > "$pin_amended/$pin_rel"
+  pin_current="$(shasum -a 256 "$pin_amended/$pin_rel" | awk '{print $1}')"
+  [[ "$pin_recorded" == "$pin_current" ]] ||
+    fail "plugins-pin-amended-after-review precondition not met: $pin_rel at the introducing commit does not match the recorded hash"
+done
+git -C "$pin_amended" add -A
+git -C "$pin_amended" commit -q -m "baseline"
+for pin_rel in "$PIN_MATRIX_REL" "$PIN_POLICY_REL"; do
+  pin_recorded="$(jq -r --arg name "$(basename "$pin_rel")" \
+    '.reviewers[]?.allowed_input_manifest[]? | select(.path | endswith($name)) | .sha256' \
+    "$pin_amended/$PIN_CONTRACT_REL" | head -1)"
+  cp "$ROOT/$pin_rel" "$pin_amended/$pin_rel"
+  pin_evolved="$(shasum -a 256 "$pin_amended/$pin_rel" | awk '{print $1}')"
+  [[ "$pin_evolved" != "$pin_recorded" ]] ||
+    fail "plugins-pin-amended-after-review precondition not met: $ROOT's current $pin_rel has not drifted from the recorded hash"
+done
+git -C "$pin_amended" add -A
+git -C "$pin_amended" commit -q -m "evolve plugins reference docs (unrelated legitimate edit)"
+printf '\n' >> "$pin_amended/$PIN_CONTRACT_REL"
+git -C "$pin_amended" add -A
+git -C "$pin_amended" commit -q -m "amend contract for an unrelated reason (e.g. a provenance re-bind)"
+pin_amended_diff_filter_a="$(git -C "$pin_amended" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL")"
+pin_amended_last_touch="$(git -C "$pin_amended" log -1 --format='%H' -- "$PIN_CONTRACT_REL")"
+[[ "$pin_amended_diff_filter_a" != "$pin_amended_last_touch" ]] ||
+  fail "plugins-pin-amended-after-review precondition not met: introducing and last-touch commits coincide, fixture proves nothing"
+pin_amended_sh_output="$(bash "$pin_amended/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$pin_amended/specs/workflow-state-registry.json" 2>&1)" ||
+  fail "plugins-pin-amended-after-review Shell fixture unexpectedly rejected: $pin_amended_sh_output"
+pin_amended_ps_output="$(pwsh -NoProfile -File "$pin_amended/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$pin_amended/specs/workflow-state-registry.json" 2>&1)" ||
+  fail "plugins-pin-amended-after-review PowerShell fixture unexpectedly rejected: $pin_amended_ps_output"
+
+# Indeterminate pin, case 1: the evidence file has never been committed at
+# all (e.g. verified locally before the commit that would record it, per the
+# task description's "gate's own verification procedure cannot detect this
+# class before it fires"). --diff-filter=A finds zero introducing commits;
+# the chosen behaviour is to fail closed rather than treat "no history" the
+# same as the genuinely-no-.git release-artifact case above.
+pin_uncommitted="$(make_git_fixture plugins-pin-uncommitted)"
+git -C "$pin_uncommitted" add -A
+git -C "$pin_uncommitted" reset -q -- "reports/task-review/workflow-state-integrity/attempt-4/round-2"
+git -C "$pin_uncommitted" commit -q -m "baseline (round-2 excluded)"
+[[ -z "$(git -C "$pin_uncommitted" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL")" ]] ||
+  fail "plugins-pin-uncommitted precondition not met: contract has a committed introducing commit"
+printf '\n<!-- fixture drift -->\n' >> "$pin_uncommitted/$PIN_MATRIX_REL"
+set +e
+pin_uncommitted_sh_output="$(bash "$pin_uncommitted/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$pin_uncommitted/specs/workflow-state-registry.json" 2>&1)"
+pin_uncommitted_sh_status=$?
+pin_uncommitted_ps_output="$(pwsh -NoProfile -File "$pin_uncommitted/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$pin_uncommitted/specs/workflow-state-registry.json" 2>&1)"
+pin_uncommitted_ps_status=$?
+set -e
+[[ $pin_uncommitted_sh_status -ne 0 ]] || fail "plugins-pin-uncommitted Shell fixture unexpectedly passed"
+[[ $pin_uncommitted_ps_status -ne 0 ]] || fail "plugins-pin-uncommitted PowerShell fixture unexpectedly passed"
+[[ "$pin_uncommitted_sh_output" == *": stage-provenance:"* ]] ||
+  fail "plugins-pin-uncommitted fixture returned: $pin_uncommitted_sh_output"
+[[ "$(printf '%s\n' "$pin_uncommitted_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_uncommitted_ps_output" | rule_id)" ]] ||
+  fail "plugins-pin-uncommitted fixture diverged: Shell=$pin_uncommitted_sh_output PowerShell=$pin_uncommitted_ps_output"
+
+# Indeterminate pin, case 2: the evidence file was added, deleted, and
+# re-added, so --diff-filter=A finds MORE than one introducing commit. The
+# chosen behaviour is the same fail-closed outcome as case 1 -- this is a
+# provenance check, and guessing which addition is authoritative (earliest?
+# latest?) would accept a convenient pin instead of a justified one.
+pin_multi_add="$(make_git_fixture plugins-pin-multi-add)"
+git -C "$pin_multi_add" add -A
+git -C "$pin_multi_add" commit -q -m "baseline"
+git -C "$pin_multi_add" rm -q "$PIN_CONTRACT_REL"
+git -C "$pin_multi_add" commit -q -m "delete contract"
+cp "$ROOT/$PIN_CONTRACT_REL" "$pin_multi_add/$PIN_CONTRACT_REL"
+git -C "$pin_multi_add" add -A
+git -C "$pin_multi_add" commit -q -m "re-add contract"
+pin_multi_add_count="$(git -C "$pin_multi_add" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL" | grep -c .)"
+[[ "$pin_multi_add_count" -eq 2 ]] ||
+  fail "plugins-pin-multi-add precondition not met: expected exactly 2 introducing commits, got $pin_multi_add_count"
+printf '\n<!-- fixture drift -->\n' >> "$pin_multi_add/$PIN_MATRIX_REL"
+set +e
+pin_multi_add_sh_output="$(bash "$pin_multi_add/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
+  --registry "$pin_multi_add/specs/workflow-state-registry.json" 2>&1)"
+pin_multi_add_sh_status=$?
+pin_multi_add_ps_output="$(pwsh -NoProfile -File "$pin_multi_add/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$pin_multi_add/specs/workflow-state-registry.json" 2>&1)"
+pin_multi_add_ps_status=$?
+set -e
+[[ $pin_multi_add_sh_status -ne 0 ]] || fail "plugins-pin-multi-add Shell fixture unexpectedly passed"
+[[ $pin_multi_add_ps_status -ne 0 ]] || fail "plugins-pin-multi-add PowerShell fixture unexpectedly passed"
+[[ "$pin_multi_add_sh_output" == *": stage-provenance:"* ]] ||
+  fail "plugins-pin-multi-add fixture returned: $pin_multi_add_sh_output"
+[[ "$(printf '%s\n' "$pin_multi_add_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_multi_add_ps_output" | rule_id)" ]] ||
+  fail "plugins-pin-multi-add fixture diverged: Shell=$pin_multi_add_sh_output PowerShell=$pin_multi_add_ps_output"
 
 # --- Downstream input-hash staleness tolerance under --opening ---
 #
@@ -1251,190 +1586,6 @@ set -e
 [[ "$(printf '%s\n' "$design_stale_standalone_output" | rule_id)" == \
    "$(printf '%s\n' "$design_stale_standalone_ps_output" | rule_id)" ]] ||
   fail "deadlock-design-stale standalone twins diverged: Shell=$design_stale_standalone_output PowerShell=$design_stale_standalone_ps_output"
-
-# plugins_pin_commit/Get-PluginsPinCommit resolve a plugins/ reference doc's
-# manifest-recorded hash against the commit that INTRODUCED the evidence
-# file (the review contract), not the one that last touched it. The fixtures
-# above run the checker binary at its real repo location, so
-# SCRIPT_ROOT/REPO_ROOT resolve to $ROOT and the pin is checked against
-# $ROOT's own git history. Proving the introducing-vs-last-touch distinction
-# needs a *self-contained* commit history the test controls byte-for-byte,
-# so these fixtures embed their own copy of both checker twins (mirroring
-# the reference-doc-forged-no-git technique above) inside a scratch git
-# repository the checker's own SCRIPT_ROOT/REPO_ROOT resolve to instead.
-make_git_fixture() {
-  local name="$1" target
-  target="$(make_full_fixture "$name")"
-  mkdir -p "$target/plugins/sdd-quality-loop/scripts" "$target/contracts"
-  cp "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
-    "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
-    "$target/plugins/sdd-quality-loop/scripts/"
-  cp "$ROOT/contracts/workflow-state-registry.schema.json" "$target/contracts/"
-  # make_full_fixture copies plugins/ reference docs from $ROOT's CURRENT
-  # working tree, but the copied reports/ evidence records each doc's
-  # sha256 from whenever that evidence was actually produced -- a moment
-  # that keeps receding as $ROOT's reference docs legitimately evolve (see
-  # reference-doc-evolved above). Fixtures that run the checker in place
-  # tolerate this for free: SCRIPT_ROOT resolves to $ROOT itself, so
-  # plugins_pin_commit/Get-PluginsPinCommit walk $ROOT's REAL git history
-  # and land on content that matches. A make_git_fixture fixture embeds its
-  # own copy of the checker and builds a SELF-CONTAINED git history instead
-  # (that is the whole point -- see the comment above this function), so it
-  # gets no such benefit: bundling a doc's already-drifted live content
-  # together with older evidence into the single "baseline" commit below
-  # would make that commit chronologically unfaithful for any doc this
-  # fixture is not deliberately evolving, and falsely reject it. Reseed each
-  # canonical plugins/ reference doc from $ROOT's OWN real historical
-  # content -- resolved via the SAME introducing-commit pin the production
-  # code uses, keyed off whichever copied evidence file actually recorded a
-  # non-matching hash for it -- whenever doing so provably reconstructs the
-  # recorded hash. This changes fixture SETUP fidelity only, never a
-  # fixture's asserted outcome: it makes "baseline" a drift-free starting
-  # point except where a fixture (like plugins-pin-amended-after-review)
-  # deliberately introduces drift afterward, which remains untouched.
-  local doc_rel evidence live_hash recorded root_evidence_rel intro historical
-  for doc_rel in \
-    plugins/sdd-review-loop/references/spec-review-calibration.md \
-    plugins/sdd-review-loop/references/reviewer-calibration.md \
-    plugins/sdd-quality-loop/references/risk-gate-matrix.md \
-    plugins/sdd-quality-loop/references/risk-classification-policy.md; do
-    live_hash="$(shasum -a 256 "$target/$doc_rel" | awk '{print $1}')"
-    while IFS= read -r evidence; do
-      recorded="$(jq -r --arg name "$(basename "$doc_rel")" '
-        [(.reviewers[]?.allowed_input_manifest[]?), (.manifest.allowed_inputs[]?)][] |
-        select(.path? and (.path | type == "string") and (.path | endswith($name))) | .sha256
-      ' "$evidence" 2>/dev/null | head -1)"
-      [[ -n "$recorded" && "$recorded" != "$live_hash" ]] || continue
-      root_evidence_rel="${evidence#"$target"/}"
-      intro="$(git -C "$ROOT" log --diff-filter=A -1 --format='%H' -- "$root_evidence_rel" 2>/dev/null)"
-      [[ -n "$intro" ]] || continue
-      historical="$(git -C "$ROOT" show "$intro:$doc_rel" 2>/dev/null | shasum -a 256 | awk '{print $1}')"
-      [[ "$historical" == "$recorded" ]] || continue
-      git -C "$ROOT" show "$intro:$doc_rel" > "$target/$doc_rel"
-      live_hash="$recorded"
-    done < <(find "$target/reports" -type f \
-      \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
-  done
-  git -C "$target" init -q
-  git -C "$target" config user.email "workflow-state-tests@example.com"
-  git -C "$target" config user.name "workflow-state tests"
-  printf '%s\n' "$target"
-}
-
-PIN_CONTRACT_REL="reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
-PIN_MATRIX_REL="plugins/sdd-quality-loop/references/risk-gate-matrix.md"
-PIN_POLICY_REL="plugins/sdd-quality-loop/references/risk-classification-policy.md"
-
-# Regression fixture for the introducing-vs-last-touch fix: the contract is
-# amended (byte-only, e.g. a later provenance re-bind) AFTER a plugins/
-# reference doc it cites has already legitimately evolved past what the
-# contract recorded. Under the OLD "last touch of the contract" semantics
-# this pin lands on a commit where the reference doc's content has already
-# drifted, and the checker wrongly rejects it -- this is the exact epic-193
-# scenario in the task description. Under introducing-commit semantics the
-# pin lands where the reference doc still matches what was recorded, and the
-# checker accepts it. This fixture is the regression's own pin: mutating
-# plugins_pin_commit/Get-PluginsPinCommit back to `log -1` flips it from
-# PASS to FAIL.
-pin_amended="$(make_git_fixture plugins-pin-amended-after-review)"
-pin_amended_intro="$(git -C "$ROOT" log --diff-filter=A -1 --format='%H' -- "$PIN_CONTRACT_REL")"
-[[ -n "$pin_amended_intro" ]] ||
-  fail "plugins-pin-amended-after-review precondition not met: no introducing commit found in $ROOT for $PIN_CONTRACT_REL"
-for pin_rel in "$PIN_MATRIX_REL" "$PIN_POLICY_REL"; do
-  pin_recorded="$(jq -r --arg name "$(basename "$pin_rel")" \
-    '.reviewers[]?.allowed_input_manifest[]? | select(.path | endswith($name)) | .sha256' \
-    "$pin_amended/$PIN_CONTRACT_REL" | head -1)"
-  git -C "$ROOT" show "$pin_amended_intro:$pin_rel" > "$pin_amended/$pin_rel"
-  pin_current="$(shasum -a 256 "$pin_amended/$pin_rel" | awk '{print $1}')"
-  [[ "$pin_recorded" == "$pin_current" ]] ||
-    fail "plugins-pin-amended-after-review precondition not met: $pin_rel at the introducing commit does not match the recorded hash"
-done
-git -C "$pin_amended" add -A
-git -C "$pin_amended" commit -q -m "baseline"
-for pin_rel in "$PIN_MATRIX_REL" "$PIN_POLICY_REL"; do
-  pin_recorded="$(jq -r --arg name "$(basename "$pin_rel")" \
-    '.reviewers[]?.allowed_input_manifest[]? | select(.path | endswith($name)) | .sha256' \
-    "$pin_amended/$PIN_CONTRACT_REL" | head -1)"
-  cp "$ROOT/$pin_rel" "$pin_amended/$pin_rel"
-  pin_evolved="$(shasum -a 256 "$pin_amended/$pin_rel" | awk '{print $1}')"
-  [[ "$pin_evolved" != "$pin_recorded" ]] ||
-    fail "plugins-pin-amended-after-review precondition not met: $ROOT's current $pin_rel has not drifted from the recorded hash"
-done
-git -C "$pin_amended" add -A
-git -C "$pin_amended" commit -q -m "evolve plugins reference docs (unrelated legitimate edit)"
-printf '\n' >> "$pin_amended/$PIN_CONTRACT_REL"
-git -C "$pin_amended" add -A
-git -C "$pin_amended" commit -q -m "amend contract for an unrelated reason (e.g. a provenance re-bind)"
-pin_amended_diff_filter_a="$(git -C "$pin_amended" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL")"
-pin_amended_last_touch="$(git -C "$pin_amended" log -1 --format='%H' -- "$PIN_CONTRACT_REL")"
-[[ "$pin_amended_diff_filter_a" != "$pin_amended_last_touch" ]] ||
-  fail "plugins-pin-amended-after-review precondition not met: introducing and last-touch commits coincide, fixture proves nothing"
-pin_amended_sh_output="$(bash "$pin_amended/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
-  --registry "$pin_amended/specs/workflow-state-registry.json" 2>&1)" ||
-  fail "plugins-pin-amended-after-review Shell fixture unexpectedly rejected: $pin_amended_sh_output"
-pin_amended_ps_output="$(pwsh -NoProfile -File "$pin_amended/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
-  --registry "$pin_amended/specs/workflow-state-registry.json" 2>&1)" ||
-  fail "plugins-pin-amended-after-review PowerShell fixture unexpectedly rejected: $pin_amended_ps_output"
-
-# Indeterminate pin, case 1: the evidence file has never been committed at
-# all (e.g. verified locally before the commit that would record it, per the
-# task description's "gate's own verification procedure cannot detect this
-# class before it fires"). --diff-filter=A finds zero introducing commits;
-# the chosen behaviour is to fail closed rather than treat "no history" the
-# same as the genuinely-no-.git release-artifact case above.
-pin_uncommitted="$(make_git_fixture plugins-pin-uncommitted)"
-git -C "$pin_uncommitted" add -A
-git -C "$pin_uncommitted" reset -q -- "reports/task-review/workflow-state-integrity/attempt-4/round-2"
-git -C "$pin_uncommitted" commit -q -m "baseline (round-2 excluded)"
-[[ -z "$(git -C "$pin_uncommitted" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL")" ]] ||
-  fail "plugins-pin-uncommitted precondition not met: contract has a committed introducing commit"
-printf '\n<!-- fixture drift -->\n' >> "$pin_uncommitted/$PIN_MATRIX_REL"
-set +e
-pin_uncommitted_sh_output="$(bash "$pin_uncommitted/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
-  --registry "$pin_uncommitted/specs/workflow-state-registry.json" 2>&1)"
-pin_uncommitted_sh_status=$?
-pin_uncommitted_ps_output="$(pwsh -NoProfile -File "$pin_uncommitted/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
-  --registry "$pin_uncommitted/specs/workflow-state-registry.json" 2>&1)"
-pin_uncommitted_ps_status=$?
-set -e
-[[ $pin_uncommitted_sh_status -ne 0 ]] || fail "plugins-pin-uncommitted Shell fixture unexpectedly passed"
-[[ $pin_uncommitted_ps_status -ne 0 ]] || fail "plugins-pin-uncommitted PowerShell fixture unexpectedly passed"
-[[ "$pin_uncommitted_sh_output" == *": stage-provenance:"* ]] ||
-  fail "plugins-pin-uncommitted fixture returned: $pin_uncommitted_sh_output"
-[[ "$(printf '%s\n' "$pin_uncommitted_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_uncommitted_ps_output" | rule_id)" ]] ||
-  fail "plugins-pin-uncommitted fixture diverged: Shell=$pin_uncommitted_sh_output PowerShell=$pin_uncommitted_ps_output"
-
-# Indeterminate pin, case 2: the evidence file was added, deleted, and
-# re-added, so --diff-filter=A finds MORE than one introducing commit. The
-# chosen behaviour is the same fail-closed outcome as case 1 -- this is a
-# provenance check, and guessing which addition is authoritative (earliest?
-# latest?) would accept a convenient pin instead of a justified one.
-pin_multi_add="$(make_git_fixture plugins-pin-multi-add)"
-git -C "$pin_multi_add" add -A
-git -C "$pin_multi_add" commit -q -m "baseline"
-git -C "$pin_multi_add" rm -q "$PIN_CONTRACT_REL"
-git -C "$pin_multi_add" commit -q -m "delete contract"
-cp "$ROOT/$PIN_CONTRACT_REL" "$pin_multi_add/$PIN_CONTRACT_REL"
-git -C "$pin_multi_add" add -A
-git -C "$pin_multi_add" commit -q -m "re-add contract"
-pin_multi_add_count="$(git -C "$pin_multi_add" log --diff-filter=A --format='%H' -- "$PIN_CONTRACT_REL" | grep -c .)"
-[[ "$pin_multi_add_count" -eq 2 ]] ||
-  fail "plugins-pin-multi-add precondition not met: expected exactly 2 introducing commits, got $pin_multi_add_count"
-printf '\n<!-- fixture drift -->\n' >> "$pin_multi_add/$PIN_MATRIX_REL"
-set +e
-pin_multi_add_sh_output="$(bash "$pin_multi_add/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" \
-  --registry "$pin_multi_add/specs/workflow-state-registry.json" 2>&1)"
-pin_multi_add_sh_status=$?
-pin_multi_add_ps_output="$(pwsh -NoProfile -File "$pin_multi_add/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
-  --registry "$pin_multi_add/specs/workflow-state-registry.json" 2>&1)"
-pin_multi_add_ps_status=$?
-set -e
-[[ $pin_multi_add_sh_status -ne 0 ]] || fail "plugins-pin-multi-add Shell fixture unexpectedly passed"
-[[ $pin_multi_add_ps_status -ne 0 ]] || fail "plugins-pin-multi-add PowerShell fixture unexpectedly passed"
-[[ "$pin_multi_add_sh_output" == *": stage-provenance:"* ]] ||
-  fail "plugins-pin-multi-add fixture returned: $pin_multi_add_sh_output"
-[[ "$(printf '%s\n' "$pin_multi_add_sh_output" | rule_id)" == "$(printf '%s\n' "$pin_multi_add_ps_output" | rule_id)" ]] ||
-  fail "plugins-pin-multi-add fixture diverged: Shell=$pin_multi_add_sh_output PowerShell=$pin_multi_add_ps_output"
 
 # --- Amendment-oscillation reconciliation for specs/<feature>/investigation.md ---
 #

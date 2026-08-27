@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-194-a6-impl-review-a3-r3-reviewer-a-seq797",
+  "host_session_id": "SESS-epic-194-a6-impl-review-a3-r3-reviewer-a-797",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-3/precheck-result.json",
+      "sha256": "5d8d71c1cfae9f114934c2e35c5a6f4a86a01a8e9ac073d9eee286420ee2bb09"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-2/integrated-summary.json",
+      "sha256": "4c8bfcafb757f096148098148cae9cef219dfad8e05b92b5c438cc5c204ace42"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "00d322ad45c8547750b5224cd190b232036e1ec21d3ec2f598b0e09e7ebfb02d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/design.md",
+      "sha256": "bf4720f55b75b19686901edd792b683ca7dd126bda7938b2b34194ec1b11ba78"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "fce6679687ed226ccfa8a32029e43e1b2e9c303dca6ffe2c92e8fed59aebb57d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/ux-spec.md",
+      "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/frontend-spec.md",
+      "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/infra-spec.md",
+      "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/security-spec.md",
+      "sha256": "7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. design.md ## Architecture gives a top-level component-boundary diagram (REQ-001..REQ-005 blocks), states integration with existing components (A2 Registry schema/validator, A4 Capability Summary, A5 Resolver, sdd-lite's check-risk-upgrade/lite-gate/lite-spec), and the Components table's Technology column names the technology per layer (JSON Schema, bash/PowerShell, Markdown skills, Python+sh/ps1 wrappers)."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No cycle found. Stated dependencies are one-directional: A6 (this feature) depends on A2's Registry schema/catalog, A4's Capability Summary schema, A5's Resolver contract, and existing sdd-lite scripts/skills (Cross-Layer Dependencies section). No component upstream of A6 is stated to depend back on A6."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. ## Data Plan enumerates every new/modified schema fragment (lite_policy's new required_lite_checks key, the new lite-check-catalog.json, the catalog_version-2 lite-upgrade-reason-catalog.json growth, the in-process Capability-derived trigger fragment), states existing-data impact (the two already-shipped A2 catalogs), and states migration/back-compat behavior (additive-only, default [], Test Strategy item 2 lite-policy-v1-compat verifies an absent-key v1 instance still validates and is treated as []; REQ-001's migration rule is cited as the operative statement of 'absent' at the consumer level). No literal 'Migration Strategy:' label is used, but the substance required by the check is present and unchanged from round 2's PASS on this same Data Plan content."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. ## API / Contract Plan lists every new/changed surface (validate-capability-registry check (j), check-risk-upgrade's extended CLI with request/response shape, lite-spec's Risk-Upgrade Gate extension, lite-gate's Step 2a/2b process extension, and the new Lite-check command-discovery contract), with method-equivalent (exit codes/CLI args), request schema (fragment JSON shape, Data Plan) and response schema (stdout/exit-code contract) for each, and states no existing endpoint is deprecated."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's own ## Security Boundaries names the fail-closed input boundaries, the no-new-write-surface boundary, and the protected-file/human-copy boundary. security-spec.md (normative refinement) extends this with a full Trust Boundaries section, a STRIDE table (B1-B6) naming mechanism at each boundary, a Data Classification table explicitly stating no PII/credential is handled by any entity, and an OWASP Mapping table. B5's STRIDE row and Security Tests row were extended in this round to name design.md's contract point 5's five properties individually (per-target atomic publish with in-step digest verification; explicit no-transaction/no-rollback acknowledgment; live-state reporting on any post-copy-phase failure, enumerating installed/failed/not-attempted and stating installed files are live and not rolled back; recovery by re-running with an already-correct target as a no-op; and the pre-copy-phase failure branch reporting that no live file was modified) rather than referring to the point collectively -- this closes round 2's Major finding. The human-copy runner script itself (apply-protected-files.ps1) is not in this reviewer's manifest, so the extended rows are judged on internal consistency with design.md's own point 5 text rather than against the runner's actual code; on that basis the extended text matches design.md point-5 language closely and does not claim any property design.md does not itself state."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: this feature has no UI/frontend surface. design.md has no ## Frontend Plan section (its Architecture/Components/API-Contract-Plan sections cover CLI/schema/skill artifacts only), and both ux-spec.md and frontend-spec.md state 'N/A -- no change: this feature has no UX surface' / 'introduces no browser/client UI and no new runtime service'. Design System Compliance likewise states 'Not applicable -- no UI surface.' The Feature Type header is a descriptive sentence rather than one of the literal enumerated tokens, but its content is functionally api/contract-only with no frontend, matching round 2's SKIP determination on the same design.md content."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. ## Test Strategy elaborates requirements.md REQ-006's 12-item inventory into 17 concrete, named fixtures, each mapped to specific AC-NNN criteria and to a named fixture artifact (e.g. lite-check-catalog-conformance, check-risk-upgrade-capability-merge, human-copy-runner-contract). Item 10 (registration-drift) names concrete verification commands (bash scripts/check-sdd-structure.sh ., bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh). Item 17, the subject of this round's amendment, now names all five of design.md Protected-File Statement contract point 5's properties individually rather than four of five, closing round 2's Major finding: diffing point 5's own text (design.md lines ~301-316) against item 17's extension (lines ~964-982) shows a 5-for-5 match -- per-target atomic publish with in-step digest verification; explicit no-transaction/no-rollback acknowledgment; live-state reporting on any post-copy-phase failure enumerating installed/failed/not-attempted and stating installed files are live and not rolled back; recovery by re-running with an already-correct target as a no-op; and the pre-copy-phase failure branch reporting that no live file was modified, plus the added note that this last property is 'the branch that tells them the repository is untouched.'"
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Every component named in Architecture/API-Contract-Plan (capability-registry.schema.json, lite-check-catalog.json, lite-upgrade-reason-catalog.json, validate-capability-registry, generate-gate-capabilities, check-risk-upgrade.{sh,ps1}, risk-upgrade-policy.md, lite-spec/SKILL.md, lite-gate/SKILL.md, evaluate-predicate, capability-summary.schema.json, Project Context, the feature-scoped human-copy runner) is defined with Responsibility/Technology/New-or-Existing/Protected status in the ## Components table."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No new ADR is referenced. ## ADR Change Log states every rule this design applies is already Accepted (ADR-0016, ADR-0017, ADR-0022) or already content-frozen (A2/A4 schemas), and explicitly discloses and reasons about the two decisions that are this design's own (the eleven-category-to-token mapping; the OQ-002 signal-source choice) as 'candidates for a possible future ADR' rather than silently omitting them, mirroring A5's own precedent for the same class of decision. This round's amendment (the human-copy runner's per-target atomicity/reporting behavior, design.md contract point 5) is a refinement of the existing ADR-0011 human-copy mechanism's own behavior, not a new mechanism or integration pattern, and is fully reasoned in the Protected-File Statement and investigation.md's fifth/sixth entries rather than left undisclosed."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP-equivalent: no design-system/ directory exists at the project root (verified: existence check only, the one permitted out-of-manifest check). design.md's ## Design System Compliance states 'Not applicable -- no UI surface,' consistent with the check's own N/A carve-out."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "SKIP-equivalent: no domain/ directory exists at the project root (verified: existence check only, the one permitted out-of-manifest check), so DOMAIN-CONFORMANCE does not apply."
+    }
+  ]
+}

@@ -32,6 +32,28 @@ $failures = @()
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
+# RT-20260821-008: the python twin containment-checks pathlib resolve() -
+# i.e. with every symlink followed. GetFullPath is lexical only, so an
+# evidence path routed through a symlink pointing outside the repository
+# passed containment here while python rejected it. Resolve links per
+# component (missing components fall back to the lexical join, which the
+# existing file-missing branch then reports).
+function Resolve-RealEvidencePath([string]$Base, [string]$Relative) {
+    $current = $Base
+    foreach ($part in ($Relative -split '[\\/]')) {
+        if ([string]::IsNullOrEmpty($part)) { continue }
+        $current = Join-Path $current $part
+        $item = Get-Item -LiteralPath $current -Force -ErrorAction SilentlyContinue
+        while ($item -and $item.LinkType) {
+            $linkTarget = $item.ResolveLinkTarget($true)
+            if ($null -eq $linkTarget) { break }
+            $current = $linkTarget.FullName
+            $item = Get-Item -LiteralPath $current -Force -ErrorAction SilentlyContinue
+        }
+    }
+    return [System.IO.Path]::GetFullPath($current)
+}
+
 # Validate structure
 $feature = ([string]($traceability.feature)).Trim()
 if ([string]::IsNullOrWhiteSpace($feature)) {
@@ -116,6 +138,13 @@ for ($i = 0; $i -lt $links.Count; $i++) {
 
             $sep = [System.IO.Path]::DirectorySeparatorChar
             if (-not ($joined.StartsWith($absRoot + $sep) -or $joined -eq $absRoot)) {
+                $failures += "$req evidence $evPath path escapes repo root"
+                continue
+            }
+
+            # Symlink-following containment (parity with python resolve())
+            $resolvedReal = Resolve-RealEvidencePath $absRoot $evPath
+            if (-not ($resolvedReal.StartsWith($absRoot + $sep) -or $resolvedReal -eq $absRoot)) {
                 $failures += "$req evidence $evPath path escapes repo root"
                 continue
             }

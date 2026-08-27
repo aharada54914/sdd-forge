@@ -59,6 +59,15 @@ path, hash mismatch, chat-only input, writable context, fallback, or reused
 implementation/review/evaluation identity. No same-session fallback is
 permitted.
 
+Never run `validate-review-context-set` against your own manifest after the
+caller's `--reserve` (`-Reserve`) step: the reserve append changes the ledger
+the manifest's `identity_ledger_sha256` pinned, and it marks this identity
+persisted, so a self-run is structurally guaranteed to fail without proving
+anything (WFI-037). The caller's quoted `REVIEW_CONTEXT_OK` line -- the record
+hash plus `sequence`, `previous_record_sha256`, `pre_append_tip_sequence`,
+and `identity_unique` -- is the required launch-identity evidence; verify it
+per `review-context-boundary.md` from that line and your manifest alone.
+
 `plugins/sdd-review-loop/references/review-context-boundary.md` states which
 manifest fields to re-verify and which the validator consumes before the
 reservation is appended. Read it before rejecting on a hash mismatch:
@@ -237,6 +246,29 @@ content-frozen except for normalized status/approval fields once their gate
 passes. Such an item must instead name a non-frozen addendum record (an
 implementation report, `specs/<feature>/verification/`, or user documentation).
 A Done When item scoped to edit a frozen artifact is a Major finding.
+
+"Normalized status/approval fields" above means something exact, and different
+per artifact. Do not reason from a normalization that is not implemented — the
+persisted-state validator normalizes, at the task stage:
+
+| Artifact | Fields the validator normalizes before hashing |
+|---|---|
+| `tasks.md` | the `Status:`, `Approval:` and `Task-Review-Status:` header lines |
+| `traceability.md` | each requirement row's final delivery-status cell, and only when it already holds one of `Planned`, `In Progress`, `Implementation Complete`, `Done`, `Blocked` |
+| `design.md` | none — every byte is bound |
+| the four layer specs | none — every byte is bound |
+
+Anything outside that table is a body edit, including a delivery-status cell set
+to a value outside the listed vocabulary.
+
+The round's `precheck-result.json` carries a `frozen_artifact_done_when` array
+listing every Done When item whose text names a frozen artifact together with a
+write verb. It is a detector, not a verdict: roughly half its entries are items
+that merely cite a frozen artifact as a source. Your `OBSERVABLE-DONE` finding
+must address **every** entry individually, naming its task ID and stating
+whether the item is satisfiable without editing the frozen artifact and why.
+An `OBSERVABLE-DONE` entry that leaves any flagged item unaddressed is itself a
+Major finding.
 
 ## TRACEABILITY-SYNC (Major, TYPE-D)
 

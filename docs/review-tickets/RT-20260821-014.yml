@@ -1,0 +1,49 @@
+ticket_id: RT-20260821-014
+status: open
+type: spec-drift
+severity: major
+target:
+  feature: "risk-adaptive-layer"
+  task: "T-012"
+  files:
+    - "specs/risk-adaptive-layer/requirements.md"
+    - "specs/risk-adaptive-layer/design.md"
+    - "specs/risk-adaptive-layer/acceptance-tests.md"
+    - "specs/risk-adaptive-layer/traceability.md"
+summary: >-
+  The stack waiver axis is implemented and authorized but absent from all four
+  approved spec artifacts, making AC-002 and design.md section 3 false about
+  the shipped behavior
+problem: |
+  QG evaluator (seq 0822, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260821T073000Z.md) accepted one Major. The mechanism
+  is real and correctly built on both runtimes; the block is documentary.
+
+  grep -c stack = 0 in requirements.md, design.md, acceptance-tests.md and
+  traceability.md/json. AC-002 still reads "required-set not-superset of
+  tier-minimum => fail"; requirements.md:37 still calls the tier minimum a
+  "non-downgradable superset"; design.md:101-103 still marks lint/typecheck/
+  build required at every tier. The delivered code lets a stack:docs/shell
+  contract waive those three below the tier minimum (measured, both runtimes
+  exit 0). No AC/TEST covers it, T-012 is absent from the REQ-002 row, and
+  REQ-005's spec-change record does not exist. The change is authorized
+  (tasks.md:390-416 Approval: Approved; risk-gate-matrix.md:56-78 documents
+  the rule accurately) - only the requirement/AC/traceability layer was never
+  amended.
+
+  A separate carried item, already ticketed as the case-insensitivity class:
+  check-contract.ps1:300,317 grant the compile waiver on stack case-variants
+  (stack:"Shell") the sh/python twin rejects - fail-open on Windows CI. See
+  RT-20260821-006/007.
+expected_fix:
+  - "Amend AC-002, requirements.md:37, and design.md section 3 to describe the stack waiver axis as shipped and documented in risk-gate-matrix.md, with an AC/TEST id and a REQ-002 traceability row for T-012 - via the repository's frozen-doc procedure given the WFI-030 traceability freeze"
+  - "Record the REQ-005 spec-change note (diff + reason + approver) that this change required"
+  - "Make the ps1 stack comparison case-sensitive (folded into RT-20260821-007's fix)"
+  - "Re-run the quality gate for T-012 once the spec layer matches the code"
+references:
+  - "reports/quality-gate/20260821T073000Z.md"
+  - "plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+  - "docs/review-tickets/RT-20260821-007.yml"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

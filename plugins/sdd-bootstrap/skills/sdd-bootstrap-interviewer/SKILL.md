@@ -1,7 +1,7 @@
 ---
 name: sdd-bootstrap-interviewer
 description: Interview-driven SDD bootstrap for project, feature, bugfix, or refactor work. Creates approved implementation-ready specifications and tasks from GitHub/GitLab issues or supplied requirements.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -20,10 +20,11 @@ Mode: project | feature | bugfix | refactor
 Source: <GitHub/GitLab issue URL or requirement text>
 ```
 
-Claude Code:
+Claude Code — internal skill, not directly invocable. Reached by following
+this file from its entry command:
 
-```txt
-/sdd-bootstrap:sdd-bootstrap-interviewer <project|feature|bugfix|refactor> <source>
+```
+/sdd-bootstrap:bootstrap
 ```
 
 ## Intake And Investigation

@@ -317,9 +317,11 @@ function Write-035Contract {
     param([string]$Dir, [string]$TaskId)
     New-Item -ItemType Directory -Force -Path (Join-Path $Dir "reports") | Out-Null
     Set-Content -LiteralPath (Join-Path $Dir "reports/test.log") -Value "fixture evidence" -Encoding utf8
+    Set-Content -LiteralPath (Join-Path $Dir "reports/test.red.log") -Value "fixture evidence" -Encoding utf8
+    Set-Content -LiteralPath (Join-Path $Dir "reports/test.green.log") -Value "fixture evidence" -Encoding utf8
     $checkIds = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
-    $checks = ($checkIds | ForEach-Object { '    { "id": "' + $_ + '", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }' }) -join ",`n"
-    $body = "{`n  `"task_id`": `"$TaskId`",`n  `"feature`": `"test-feature`",`n  `"risk`": `"high`",`n  `"created`": `"2026-08-11T00:00:00Z`",`n  `"checks`": [`n$checks`n  ]`n}"
+    $checks = ($checkIds | ForEach-Object { $rg = if ($_ -in @("unit-tests", "acceptance-tests")) { ', "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log"' } else { '' }; '    { "id": "' + $_ + '", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": ""' + $rg + ' }' }) -join ",`n"
+    $body = "{`n  `"task_id`": `"$TaskId`",`n  `"feature`": `"test-feature`",`n  `"risk`": `"high`",`n  `"required_workflow`": `"tdd`",`n  `"created`": `"2026-08-11T00:00:00Z`",`n  `"checks`": [`n$checks`n  ]`n}"
     Set-Content -LiteralPath (Join-Path $Dir "$TaskId.contract.json") -Value $body -Encoding utf8
 }
 

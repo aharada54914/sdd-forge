@@ -18,7 +18,32 @@
 #   - SDD_EVIDENCE_KEY / SDD_SUDO_KEY are never passed to the panelist
 #   - Input bundle must be pre-sanitized by prepare-panelist-input
 #
-# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args
+# CLI contract: the installed `gemini` CLI only runs non-interactively via
+# `-p/--prompt` ("Run in non-interactive (headless) mode with the given
+# prompt. Appended to input on stdin (if any)."). Bare `gemini --model
+# <m> < bundle` with no `-p` is NOT headless and can print
+# "No input provided via stdin..." or otherwise fail to produce a verdict.
+# This script therefore supplies the panelist instructions via `-p` and
+# pipes the sanitized bundle on stdin, per the CLI's own documented
+# contract (checked live against the installed gemini binary, not assumed).
+#
+# Exit codes: 0=success  1=CLI absent or panelist failure (CLI non-zero
+#             exit, timeout, or output that does not parse into a valid
+#             cross-model-verdict/v1 JSON object)  2=bad args. A run that
+#             fails for any reason writes NO verdict file (graceful degrade
+#             never means a false success).
+
+# Shared collection-layer helpers (timeout/arg validation, bounded runner).
+_script_dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+# Probe before sourcing: POSIX shells (dash among them) treat a failed `.`
+# special builtin as fatal, so an if-guard around the dot itself can never
+# run its else branch -- the readability test is what keeps this documented
+# diagnostic and exit code reachable on a partial or damaged installation.
+if [ ! -r "$_script_dir/lib/panelist-common.sh" ]; then
+    printf 'run-panelist-gemini: lib/panelist-common.sh unavailable beside this script\n' >&2
+    exit 2
+fi
+. "$_script_dir/lib/panelist-common.sh"
 
 task_id=""
 feature=""
@@ -42,33 +67,11 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-case "$_panelist_timeout" in
-    '' | *[!0-9]*)
-        printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: %s)\n' \
-            "$_panelist_timeout" >&2
-        exit 2
-        ;;
-esac
-if [ "$_panelist_timeout" -le 0 ]; then
-    printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be positive (got: %s)\n' \
-        "$_panelist_timeout" >&2
-    exit 2
-fi
+sdd_panelist_validate_timeout "run-panelist-gemini" "$_panelist_timeout"
 
 # ── Validate required arguments ──────────────────────────────────────────────
 
-if [ -z "$task_id" ]; then
-    printf 'run-panelist-gemini: --task is required\n' >&2; exit 2
-fi
-if [ -z "$feature" ]; then
-    printf 'run-panelist-gemini: --feature is required\n' >&2; exit 2
-fi
-if [ -z "$input_path" ]; then
-    printf 'run-panelist-gemini: --input is required\n' >&2; exit 2
-fi
-if [ ! -f "$input_path" ]; then
-    printf 'run-panelist-gemini: input file not found: %s\n' "$input_path" >&2; exit 1
-fi
+sdd_panelist_require_args "run-panelist-gemini" "$task_id" "$feature" "$input_path"
 
 # ── Check CLI availability ───────────────────────────────────────────────────
 
@@ -95,70 +98,9 @@ out_path="${out_dir}/${task_id}.panelist-google.verdict.json"
 # ── Key isolation ────────────────────────────────────────────────────────────
 unset SDD_EVIDENCE_KEY SDD_SUDO_KEY SDD_SUDO_KEY_FILE
 
-# See the GPT twin for the process-group and completion-marker rationale.
-_sdd_run_bounded() {
-    _bw_limit="$1"
-    shift
-    _bw_status="${_scratch}/bounded-status"
-    rm -f "$_bw_status"
-
-    python3 -c '
-import os
-import subprocess
-import sys
-
-status_path = sys.argv[1]
-os.setsid()
-return_code = subprocess.call(sys.argv[2:])
-tmp_path = status_path + ".tmp"
-with open(tmp_path, "w", encoding="ascii") as status_file:
-    status_file.write(str(return_code))
-os.rename(tmp_path, status_path)
-sys.exit(return_code if 0 <= return_code <= 255 else 1)
-' "$_bw_status" "$@" &
-    _bw_pid=$!
-    # date +%s truncates the current second; include that fractional interval
-    # so the configured whole-second budget is never shortened.
-    _bw_deadline=$(( $(date +%s) + _bw_limit + 1 ))
-
-    while kill -0 "$_bw_pid" 2>/dev/null; do
-        if [ -s "$_bw_status" ]; then
-            wait "$_bw_pid"
-            return $?
-        fi
-        if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
-            # Completion and expiry are not atomic, and the integer-second
-            # deadline can fire with sub-second slack depending on the
-            # start phase. Wait a full second so any child that finished
-            # within limit+1 real seconds has published its status before
-            # the expiry is treated as authoritative (Edge Case 6).
-            sleep 1
-            if [ -s "$_bw_status" ]; then
-                wait "$_bw_pid"
-                return $?
-            fi
-            if ! kill -0 "$_bw_pid" 2>/dev/null; then
-                wait "$_bw_pid"
-                return $?
-            fi
-
-            kill -TERM "-$_bw_pid" 2>/dev/null || true
-            _bw_grace_deadline=$(( $(date +%s) + 2 ))
-            while kill -0 "-$_bw_pid" 2>/dev/null && \
-                    [ "$(date +%s)" -lt "$_bw_grace_deadline" ]; do
-                sleep 1
-            done
-            if kill -0 "-$_bw_pid" 2>/dev/null; then
-                kill -KILL "-$_bw_pid" 2>/dev/null || true
-            fi
-            wait "$_bw_pid" 2>/dev/null || true
-            return 124
-        fi
-        sleep 1
-    done
-
-    wait "$_bw_pid"
-}
+# _sdd_run_bounded comes from lib/panelist-common.sh (process-group,
+# completion-marker, and stdin `<&0` rationale documented there). It reads
+# $_scratch, which is set above.
 
 # ── Build the panelist prompt ────────────────────────────────────────────────
 
@@ -206,20 +148,25 @@ Rules:
 PROMPT_EOF
 
 # ── Invoke gemini CLI in isolated scratch ────────────────────────────────────
+# The panelist instructions go through `-p/--prompt` (the CLI's documented
+# non-interactive entry point); the sanitized bundle is piped on stdin,
+# which the CLI appends after the -p prompt. No prompt/bundle concatenation
+# is needed here (unlike the codex twin, which has no dedicated instruction
+# flag and stays with a single combined stdin blob).
 
-_combined="${_scratch}/combined.txt"
+_stdin_bundle="${_scratch}/stdin-bundle.txt"
 {
-    cat "$_prompt_file"
-    printf '\n\n## Sanitized Input Bundle\n\n'
+    printf '## Sanitized Input Bundle\n\n'
     cat "$input_path"
-} > "$_combined"
+} > "$_stdin_bundle"
+_prompt_text="$(cat "$_prompt_file")"
 
-printf 'run-panelist-gemini: invoking gemini --model %s (task=%s feature=%s)\n' \
+printf 'run-panelist-gemini: invoking gemini --model %s -p <prompt> (task=%s feature=%s)\n' \
     "$model" "$task_id" "$feature" >&2
 
 _raw_output="${_scratch}/raw-output.txt"
-_sdd_run_bounded "$_panelist_timeout" gemini --model "$model" \
-    < "$_combined" > "$_raw_output" 2>&1
+_sdd_run_bounded "$_panelist_timeout" gemini --model "$model" -p "$_prompt_text" \
+    < "$_stdin_bundle" > "$_raw_output" 2>&1
 _rc=$?
 if [ "$_rc" -ne 0 ]; then
     if [ "$_rc" -eq 124 ]; then
@@ -242,17 +189,100 @@ raw_file, out_path, task_id, feature, model, expected_digest, consent_kind = sys
 with open(raw_file, encoding="utf-8", errors="replace") as f:
     raw = f.read()
 
-match = re.search(r'\{[\s\S]*\}', raw)
-if not match:
-    print("run-panelist-gemini: no JSON object found in gemini output", file=sys.stderr)
+TARGET_SCHEMA = "cross-model-verdict/v1"
+
+
+def strip_code_fences(text):
+    # Models wrap replies in ```json fences constantly, regardless of what
+    # the prompt asks for. The brace-balancer below does not depend on
+    # this (it only tracks '{'..matching '}'), but stripping fence lines
+    # first keeps diagnostics free of fence noise.
+    return re.sub(r'```[ \t]*[A-Za-z0-9_-]*[ \t]*\r?\n|```', '', text)
+
+
+def find_json_object_candidates(text):
+    """Return each top-level brace-balanced '{...}' substring of `text`,
+    in order of appearance. String literals (and their backslash escapes)
+    are tracked so a '}' inside a JSON string does not close a candidate
+    early. Nested objects are not yielded separately -- only the outermost
+    '{' of each candidate starts a new scan."""
+    candidates = []
+    n = len(text)
+    i = 0
+    while i < n:
+        if text[i] != '{':
+            i += 1
+            continue
+        start = i
+        depth = 0
+        in_string = False
+        escape = False
+        j = i
+        closed_at = -1
+        while j < n:
+            c = text[j]
+            if in_string:
+                if escape:
+                    escape = False
+                elif c == '\\':
+                    escape = True
+                elif c == '"':
+                    in_string = False
+            else:
+                if c == '"':
+                    in_string = True
+                elif c == '{':
+                    depth += 1
+                elif c == '}':
+                    depth -= 1
+                    if depth == 0:
+                        closed_at = j
+                        break
+            j += 1
+        if closed_at >= 0:
+            candidates.append(text[start:closed_at + 1])
+            i = closed_at + 1
+        else:
+            # Unterminated from this '{' (e.g. a truncated echo) -- advance
+            # past it and keep scanning for the next candidate.
+            i = start + 1
+    return candidates
+
+
+cleaned = strip_code_fences(raw)
+candidates = find_json_object_candidates(cleaned)
+
+verdict = None
+rejections = []
+for idx, candidate in enumerate(candidates, start=1):
+    try:
+        parsed = json.loads(candidate)
+    except json.JSONDecodeError as e:
+        rejections.append(f"candidate {idx}: parse error: {e}")
+        continue
+    if not isinstance(parsed, dict):
+        rejections.append(f"candidate {idx}: parsed but is not a JSON object")
+        continue
+    schema = parsed.get("schema")
+    if schema != TARGET_SCHEMA:
+        rejections.append(f"candidate {idx}: parsed but schema is {schema!r} (expected {TARGET_SCHEMA!r})")
+        continue
+    verdict = parsed  # keep scanning -- the LAST matching candidate wins
+
+if verdict is None:
+    if not candidates:
+        print("run-panelist-gemini: no JSON object found in gemini output", file=sys.stderr)
+    else:
+        print(
+            f"run-panelist-gemini: no {TARGET_SCHEMA} verdict found among "
+            f"{len(candidates)} candidate JSON object(s) in gemini output",
+            file=sys.stderr,
+        )
+        for reason in rejections:
+            print(f"  {reason}", file=sys.stderr)
     print(f"raw output: {raw[:500]}", file=sys.stderr)
     sys.exit(1)
 
-try:
-    verdict = json.loads(match.group(0))
-except json.JSONDecodeError as e:
-    print(f"run-panelist-gemini: invalid JSON from gemini: {e}", file=sys.stderr)
-    sys.exit(1)
 
 required_fields = ["schema","task_id","feature","vendor","model","verdict","findings","blind","input_digest","consent"]
 missing = [f for f in required_fields if f not in verdict]

@@ -1,24 +1,15 @@
-#!/usr/bin/env pwsh
-# Thin wrapper: dispatch to the single Python implementation
-# (validate-context-projection.py). No runtime-specific logic lives here.
-# Diagnostic determinism contract: the underlying python3 process writes
-# LF-only bytes directly (validate-context-projection.py reconfigures stdout
-# to newline="\n"); this wrapper streams that subprocess output through
-# unmodified -- it never re-emits it via Write-Output/Write-Host, which
-# would risk PowerShell's default CRLF `NewLine` leaking in.
+# Thin PowerShell dispatcher for validate-context-projection (Python master).
+# Dispatch logic (python3 -> python -> fail-closed exit 3, byte-exact
+# passthrough via [System.Diagnostics.Process]) lives in lib/py-dispatch.ps1,
+# shared by every python-master wrapper.
 $ErrorActionPreference = "Stop"
 
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$Target = Join-Path $ScriptDir "validate-context-projection.py"
-
-$python = Get-Command python3 -ErrorAction SilentlyContinue
-if (-not $python) {
-    $python = Get-Command python -ErrorAction SilentlyContinue
+$dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$lib = Join-Path $dir "lib/py-dispatch.ps1"
+if (-not (Test-Path -LiteralPath $lib)) {
+    [Console]::Error.WriteLine("validate-context-projection: VALIDATE_CONTEXT_PROJECTION_RUNTIME_UNAVAILABLE: lib/py-dispatch.ps1 unavailable beside this script")
+    exit 3
 }
-if (-not $python) {
-    [Console]::Error.Write("context-projection: python-not-found: no python3 or python on PATH`n")
-    exit 1
-}
+. $lib
 
-& $python.Path $Target @args
-exit $LASTEXITCODE
+Invoke-SddPyDispatch -Master (Join-Path $dir "validate-context-projection.py") -DiagnosticPrefix "validate-context-projection: VALIDATE_CONTEXT_PROJECTION_RUNTIME_UNAVAILABLE" -Arguments $args

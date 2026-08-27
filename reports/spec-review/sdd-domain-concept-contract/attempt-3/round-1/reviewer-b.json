@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-sdd-domain-concept-contract-spec-spec-reviewer-b-a3r1-seq0767",
+  "host_session_id": "SESS-spec-spec-reviewer-b-sdd-domain-concept-contract-a3r1-0767",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain-concept-contract/requirements.md",
+      "sha256": "2c5ef1adf119736594b839119f5f13e8c8715542470c9d095e9f41b7d34fa397"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/acceptance-tests.md",
+      "sha256": "a7acb13de336c1ec7ac67d1c6449f4621c76f024296bdc91a197ab2d5e3ef75f"
+    },
+    {
+      "path": "specs/sdd-domain-concept-contract/investigation.md",
+      "sha256": "759d685a50d51ab68a50d567b32adb008880051f098557a754d3e392b2cc4e29"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-1/precheck-result.json",
+      "sha256": "a4202b4523a7f4b70d2054783769d76c53c63bd1b33e8fac1af975290551ba3d"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain-concept-contract/attempt-3/round-1/integrated-summary.json",
+      "sha256": "d2dc1fd1d5f9d5680a02600862cfef7201b72150dbeba534cbb17926b06d8598"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-002/REQ-004 give concrete, regex-anchored, explicitly-ordered rules (type check before pattern/minLength/minItems per REQ-004(c): '型検査はpattern・minLength・minItemsの各検査に先行し'), the Field Definitions table pins every field's type/required-ness, and boundary examples (APIOrder, order-taking-2) resolve pattern edge cases. No term, actor, state, input, or output was found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked Goals/Non-goals/Edge-Cases/Roles-and-Permissions against REQ-001..007 and both acceptance-tests.md matrices (verified the claimed 73-fixture negative tally: 8 single-fixture ACs + 7+2+3+3+4+7+2+8+29=65 multi-fixture ACs = 73, and the 29-item AC-024 type-mismatch enumeration both sum correctly). Found no direct conflict between requirement text, acceptance criteria, constraints, or non-goals (e.g. REQ-004(i) same-context-only duplicate check is consistent with Edge Cases' '異なる context 間の同名 concept: 有効'; the meta.status non-enforcement stance in Roles and Permissions is consistent with the Non-goals disclaimer)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's Field Definitions table declares `concepts[].stakeholder_perspectives[]` as `{actor, concern}[]、両者 required・minLength 1 | No` (optional, but non-empty when present). REQ-005's own 'positive coverage rule' states: 'Goals が宣言する各能力について、「正しく使ったときに受理される」ことを示す正例 fixture を最低 1 つ持たなければならない。負例（違反が拒否されること）だけでは、能力が実際に表現できることの証明にならない.' Yet acceptance-tests.md's Positive-capability matrix row 'G1: concept の全 required フィールドと optional フィールドが表現できる | AC-003, AC-004' cites only AC-003 (Purchase/Fulfillment: 'Order=purchase 責務のみ / Fulfillment=delivery 責務のみ / 相互 distinguished_from / Fulfillment.must_not_own に purchase price') and AC-004 (Book/Bookshelf: 'Book.must_not_own に display position / Placement concept が並び責務'); neither fixture description mentions stakeholder_perspectives being populated, and AC-020 confirms AC-004's positive fixture explicitly lacks that array ('当該 optional 配列自体を持たない fixture（AC-004 の正例系）が exit 0 で通過することを示し'). Every AC that touches stakeholder_perspectives (AC-020 nested-required-missing, AC-023(6)(7) minLength, AC-024(20)-(23) type mismatch) is negative or absence-only — no fixture anywhere demonstrates the validator accepting a well-formed, populated stakeholder_perspectives entry. This is a missing observable acceptance criterion for a material boundary state (optional-and-present, vs. the already-covered optional-and-absent) implied by REQ-002/Field Definitions; a validator implementer's accept-path for this field is never exercised, and the row's claim of 'full required and optional field expressibility' overstates its own cited evidence. This belongs to spec review because it is a gap in the acceptance-test plan itself, not an implementation defect. Major per calibration's 'missing observable acceptance criterion' bucket — it leaves one field's happy path entirely unverified but does not block overall reviewability of the spec."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three stated Assumptions (hook-unavailable session deviation tied to INV-010, v1-instance-nonexistence tied to INV-009, and forward non-modification of schema/validator by later phases) are each traceable to investigation.md findings. All four investigation.md Open Questions (OQ-001..004) have concrete resolutions embedded directly in the normative REQ text — OQ-003 (essence required) is realized in REQ-002/Field Definitions ('Yes' required), OQ-004 (v2-only validator with explicit error) is realized in REQ-004(b) and Edge Cases' exact error string, OQ-002 (no CI registration) matches INV-007's existing convention, and OQ-001 (v1 schema disposal) is explicitly deferred to Phase 3 without blocking Phase 0. No unresolved assumption was found that lacks either investigation backing or an explicit decision-needed marker."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No approval/governance/irreversible-change boundary is in scope. Roles and Permissions explicitly states 'meta.status の Approved 書込に対する機械的強制は存在しない' and that this Phase 0 change does not alter that state (INV-008: contracts/domain-contract.* is not hook-guard-protected), and Non-goals explicitly excludes 'meta.status の Approved 書込に対する機械的強制機構... の新設' as out of scope with a rationale to file it as a separate feature if needed. All artifacts (schema file, validator scripts, tests, fixtures) are reversible via version control with no irreversible state change. This is a conscious, justified scope exclusion, not an oversight, so the skip condition applies."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the single coverage gap already captured under EDGE-CASE-COVERAGE, the spec gives implementation-policy review enough to proceed without inventing product behavior: REQ-004 exhaustively enumerates validator checks (a)-(i) with explicit ordering (type before pattern/minLength/minItems), REQ-002/Field Definitions pin every field's type/required-ness/pattern, and deferred implementation choices (e.g. the 10MB threshold mechanism, noted in acceptance-tests.md as 'design.md の決定事項とする') do not affect observable acceptance behavior (fail-closed on oversized input is fixed regardless of the chosen threshold mechanism)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition applies: investigation.md INV-009 records 'sdd-forge 自身に domain/ ディレクトリは存在せず（ルート直下確認）', so this repository has no domain/context-map.md with Domain-Model-Status: Approved and no domain/domain-contract.json to evaluate against."
+    }
+  ]
+}

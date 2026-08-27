@@ -1,21 +1,26 @@
 ---
 name: spec-review-loop
 description: Independently review Phase 1 requirements and acceptance tests before implementation-policy review. Persists a validated specification review verdict.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
 # Specification Review Loop
 
-Run this manually after Phase 1 artifacts exist and before `impl-review-loop`.
-It is the only workflow mechanism permitted to change
-`Spec-Review-Status: Pending` to `Spec-Review-Status: Passed`.
+Run this after Phase 1 artifacts exist and before `impl-review-loop`. It is the
+only workflow mechanism permitted to change `Spec-Review-Status: Pending` to
+`Spec-Review-Status: Passed`.
 
 ## Invocation
 
 ```text
-/sdd-review-loop:spec-review-loop <feature-slug> [--edit-summary="..."] [--reset]
+spec-review-loop <feature-slug> [--edit-summary="..."] [--reset]
 ```
+
+Invoked internally by `sdd-bootstrap-interviewer` after Phase 1; not a
+user-facing command (`disable-model-invocation: true`, `user-invocable: false`).
+Reached by entering at `/sdd-bootstrap:bootstrap` and following this file. The
+argument shape above is what the orchestrator supplies, not a slash command.
 
 ## Preconditions
 
