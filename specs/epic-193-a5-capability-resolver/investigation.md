@@ -1740,3 +1740,95 @@ written" is about torn writes rather than existence.
 - `acceptance-tests.md`: `fa49e8c7c09e0a9f674b49f73d63da71d13bdecadfd09c81970ba8cf343125fa`
 - `design.md`: `928e18b15c249e32c34cd1ca0c951c89daaea8e0f67be0656674755b9dcd3d27`
 - `security-spec.md`: `2ab16f8a455a4a2133c318663afaead9e7c3472daf9590665abf0b29109a44fe`
+
+### Attempt-7 round-2 remediation (ruling D(2)) — one scope rule, sixteen sites
+
+Attempt 7 round 2 returned reviewer A NEEDS_WORK (4/2/1) and reviewer B
+NEEDS_WORK (4/2/1). Merged: Critical 2, Major 2 — but the two Criticals
+are **the same finding, reached independently by both reviewers**, neither
+of whom saw the other's output. That is the strongest signal this lane
+produces, and it is what makes the diagnosis below reliable rather than a
+single reviewer's reading.
+
+**The Critical, found twice.** `AC-049`/`TEST-049` clause (b) required the
+`post-publication-generation-mismatch` fixture to assert that "every one
+of those renames is rolled back to its own PRE-transaction state before
+this invocation exits". `resolver-evidence.yaml` is by REQ-001 step (m)'s
+own write-set definition a member of every transaction target set, so
+"every one" included it — while Security Boundaries (widened 2026-08-27
+naming this exact diagnostic), AC-012 and TEST-012 all require Evidence
+fully written at exit. The sibling `AC-047`/`TEST-047` had received the
+per-target shape in the previous sweep and records verbatim that asserting
+the first half alone contradicts AC-012; `AC-049` asserted that first half
+alone.
+
+**The two Majors.** (A) Security Boundaries claimed a Block whose whole
+write set is Evidence "never creates that on-disk area at all", but
+REQ-004 and REQ-001 step (m) place the two step-(m) Blocks in that class,
+and both definitionally ran the journaled transaction that creates the
+area — `AC-039` and `AC-049` require fixtures that depend on it existing.
+Same site: the step list `(0)/(a)/(h)/(i)/(k)/(l)/(m)` was offered as
+coextensive with "Evidence is the only thing written" but omitted at least
+seven Evidence-only Blocks raised at steps (b)/(d)/(e) and inside the
+(f)–(g) sweep, including the ruling-C(1) and C(2) sites `AC-057` and
+`AC-058` govern. (B) `AC-038`/`TEST-038` asserted "no earlier-staged
+artifact ever reached a live path" while naming fixtures for which
+Evidence is both staged earlier (step (j)) and required to be written.
+
+**The root cause, stated once.** This package's wording says "every
+rename", "every target", "no artifact", "no earlier-staged artifact" in
+many places where it means the three publication artifacts.
+`resolver-evidence.yaml` is the one member of every transaction target set
+that must SURVIVE, because AC-012's always-emitted rule excepts two
+diagnostic ids and none of these. Every attempt-7 finding is an instance
+of that one confusion, and the rounds were finding instances one at a time.
+
+**What the remediation did.** Commit
+`f9cd92aea58e76308e96c0455cef3ab2f57a50b0`, documents only. REQ-001 step
+(m) now carries a single normative **rollback-and-no-write scope rule**
+governing every such statement in the package: the subject is
+`facet-manifest.yaml` / `capability-summary.yaml` /
+`generated/project-context.resolved.json`, never `resolver-evidence.yaml`,
+which instead carries that Block's own record written directly **after**
+any rollback of the publication artifacts completes — because rolling
+Evidence back would destroy the only record that the rolled-back
+publication was ever attempted, the audit obligation REQ-004 exists to
+guarantee. Every other site now points at that one rule rather than
+restating it, so a future amendment has one place to change.
+
+Sixteen sites, from a whitespace-normalised sweep of the rollback and
+staged-artifact language across all seven documents rather than from the
+reviewers' citations alone:
+
+- `requirements.md` — REQ-001 step (m) (the rule itself), REQ-002's
+  `post-publication-generation-mismatch` row, `AC-038`, `AC-039`,
+  `AC-049`, Field Definitions "Block", and the Edge Cases post-recheck
+  bullet.
+- `acceptance-tests.md` — `TEST-038`, `TEST-039`, `TEST-049`.
+- `design.md` — the Post-publication verification branch, the in-process
+  rollback branch, the MIX recovery branch, the `AC-039` and `AC-049`
+  acceptance mirrors, and the `AC-038` Design Decisions mirror.
+- `security-spec.md` — the `TEST-038`, `TEST-039` and `TEST-049` rows.
+- `infra-spec.md` — the MIX rollback branch.
+- `tasks.md` — T-005's transaction summary and its `AC-038`/`AC-039`/
+  `AC-049` Done-When bullets. Its `Status`, `Approval`, headings, Scope
+  table and risk tier are untouched; the body had to move because it
+  mirrors those AC rows verbatim, and leaving it would guarantee a
+  task-stage finding.
+
+Both of reviewer A's Major corrections are carried in the same commit: the
+on-disk-area invariant is restated as being about the Evidence write's own
+**route** rather than the area's existence, in `requirements.md` and its
+`design.md` mirror; and both REQ-001 step (m) and REQ-004 now state the
+Evidence-only condition as a **predicate** ("any Block at which no
+publication artifact is left standing") instead of a step list.
+
+### Per-document SHA-256 at remediation commit f9cd92ae
+
+- `requirements.md`: `76d37914b80a0b226ee72762adf4eb4d5f33bb103f0f495b4fbaee78cd1d0f76`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `297176439ce42500828e586fda0a04db3f50ecaca906f06f8b9b65ba0f8c3f1a`
+- `design.md`: `e0817d5e3ec1f5cda8b4c1dca4858d1081c35983ba674004cf1055b27cb99dab`
+- `security-spec.md`: `78200e63b635262b88edaaf80a61eb05d4fe7e794f4279e783f0fdfb381291de`
+- `infra-spec.md`: `c8d7237469ece9bbf48bc6beaa29ba90c2e52d322e1da9cd0072850a771664de`
+- `tasks.md`: `c087e895c7832ae65f48a52223769ad8ecd3817f450b4492af73b61b239b624c`
