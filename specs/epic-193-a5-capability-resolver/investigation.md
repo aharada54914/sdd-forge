@@ -1663,3 +1663,80 @@ every claim above is verified against these bytes.
   (unchanged by this commit)
 - `infra-spec.md`: `db1ea71d68a10ad8400004d2acc689c90c8463d5dd7a8cbba3cf4b8fe727ab5a`
   (unchanged by this commit)
+
+### Attempt-7 round-1 remediation (ruling D(2)) — the unscoped-negative class
+
+Attempt 7 round 1 returned reviewer A NEEDS_WORK (5/1/1, one Critical) and
+reviewer B NEEDS_WORK (5/1/1, one Critical). Merged: Critical 2, Major 0.
+Both reviewers independently confirmed that attempt 6's findings are
+closed — the write-mechanism fact consistent at every site either could
+find, the proceeds-past formulation consistent in Edge Cases and Security
+Boundaries, the enum closed at sixteen with the ordinal now
+arithmetically correct, and the 58/55 AC-to-TEST counts reconciling on
+exactly the three documented Global rows.
+
+The two new Criticals are a single class, and it is the **mirror image**
+of the one attempt 6 spent three rounds on. Attempt 6 fixed POSITIVE
+absolutes that had become false ("never a mixed generation"). These are
+NEGATIVE assertions that were always false for one target: clauses
+denying that anything is written, at Blocks where `resolver-evidence.yaml`
+is in fact written.
+
+- **A** — `requirements.md` Edge Cases said the unconvergeable-journal
+  Block leaves "the interrupted targets exactly as found", unscoped, while
+  `resolver-evidence.yaml` is by REQ-001 step (m)'s own write-set
+  definition always one of those targets. This sentence was written by the
+  orchestrator in the round-3 remediation recorded above — and the
+  `acceptance-tests.md` TEST-047 row amended in that same commit states
+  the obligation per target and explicitly records that asserting the
+  first half alone "would contradict AC-012". The first half alone is what
+  was then written into `requirements.md`.
+- **B** — `AC-040`/`TEST-040` and `AC-057`/`TEST-057` assert "no artifact
+  reaches a live path" / "no live artifact" for `snapshot-generation-
+  mismatch` Blocks that do write Evidence. `AC-057`/`TEST-057` were
+  additionally impossible on their own terms: they assert the value of
+  `capability_evaluations`, a field **of** Resolver Evidence, in the same
+  sentence that declares the file unwritten. `AC-057` is a row this
+  attempt added while completing ruling C's propagation; the defect came
+  with the text copied from `acceptance-tests.md`, faithfully.
+
+**Why the correct form needed no new decision.** `AC-011` has carried it
+since before any of these rulings: "no `facet-manifest.yaml`,
+`capability-summary.yaml`, or `project-context.resolved.json`". The
+sibling `AC-058`/`TEST-058` assert the identical empty-array shape and
+never carried the offending clause. So the remediation makes every sibling
+say what two of them already said, rather than introducing a rule.
+
+**What the remediation did.** Commit
+`8d16045773bb6d0c64048c0b3b5351248da67eca`, documents only, seven sites
+located by a whitespace-normalised sweep for the negative-claim class over
+the whole package rather than from the reviewers' citations alone — **two
+of the seven are in `security-spec.md`, which neither spec-stage reviewer
+can see**, because the layer specs are outside that stage's input set:
+
+1. `requirements.md` AC-040 and `acceptance-tests.md` TEST-040 — scoped to
+   the three publication artifacts, with `resolver-evidence.yaml` stated
+   as written.
+2. `requirements.md` AC-057 and `acceptance-tests.md` TEST-057 — same, and
+   the empty-`capability_evaluations` assertion now explicitly read *from*
+   the `resolver-evidence.yaml` the Block writes.
+3. `requirements.md` Edge Cases — every interrupted target **other than**
+   `resolver-evidence.yaml` left exactly as found; that one target
+   receives the Block record.
+4. `design.md`'s AC-057 acceptance mirror, and `security-spec.md`'s
+   TEST-040 and TEST-057 rows — the same scoping propagated.
+
+Deliberately unchanged, each verified individually: the B3
+self-referential `output-schema-validation-failed` case genuinely writes
+nothing to any live path (`requirements.md:404`/`:858`,
+`acceptance-tests.md:61`), and `design.md`'s "no live artifact this
+invocation was not already committed to writing survives partially
+written" is about torn writes rather than existence.
+
+### Per-document SHA-256 at remediation commit 8d160457
+
+- `requirements.md`: `758c6bb28b8de2a47c27ef8c92c97578f09b9517cf355b886b784916bc28d2ef`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `fa49e8c7c09e0a9f674b49f73d63da71d13bdecadfd09c81970ba8cf343125fa`
+- `design.md`: `928e18b15c249e32c34cd1ca0c951c89daaea8e0f67be0656674755b9dcd3d27`
+- `security-spec.md`: `2ab16f8a455a4a2133c318663afaead9e7c3472daf9590665abf0b29109a44fe`
