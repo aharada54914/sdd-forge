@@ -1420,11 +1420,15 @@ panel round, and a quality gate.
 
 **What ruling D(2) did.** Commit
 `c44d056de286acc5afc4753722f47a3f72e1bac7` reverts `fa1ad0e0` in full.
-`requirements.md`, `acceptance-tests.md` and `design.md` return
+Taking the revert component alone, all three documents return
 byte-for-byte to the bytes attempt 5 reviewed and PASSED — `1028bf2c…`,
 `a9fa4f89…` and `3af36f44…` respectively, `requirements.md` at its
 `Spec-Review-Status: Pending` reset state, exactly as attempt 5's own
-contract pinned it. No third exception exists anywhere in this package.
+contract pinned it. Only `design.md` still carries that hash at the
+commit itself, because the same commit also lands the C(1)/C(2) row
+propagation described below, which touches the other two; the
+authoritative post-commit digests are in the pin subsection further
+down. No third exception exists anywhere in this package.
 The behaviour change moves to Phase 2, where it belongs: T-007's Resolver
 writes minimal Resolver Evidence directly on that Block, and no frozen
 document needed amending to say so.
@@ -1469,3 +1473,94 @@ the 1:1 mapping that preamble declares holds in both directions again.
   (identical to its pre-`fa1ad0e0` bytes — the revert restored them exactly)
 - `traceability.md`: `dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193`
   (unchanged; it already carried TEST-057/TEST-058 from ruling C)
+
+### Round-2 remediation extension (attempt 6, ruling D(2))
+
+Attempt 6 round 2 split: reviewer A returned PASS (6/0/1); reviewer B
+returned NEEDS_WORK with one Critical and one Major. Every round-1
+finding was confirmed closed by both. B's two findings are against text
+this attempt did not author — the bytes attempt 5 reviewed and passed —
+and the orchestrator re-opened and confirmed every cited passage before
+accepting them.
+
+**CONTRADICTION (Critical).** `acceptance-tests.md` TEST-012 requires a
+full Resolver Evidence record on every TEST-010 Block fixture except two
+named ones, and `publication-journal-recovery` is not one of them; the
+same file's TEST-047 required that Block to leave "the live state exactly
+as found"; and `resolver-evidence.yaml` is itself a member of both
+track-exclusive publication target sets, so writing the record
+necessarily changes one of the interrupted transaction's own targets. One
+acceptance row therefore failed by construction whichever behaviour was
+built. This is the same collision the round-5 cross-model panel raised on
+T-007: the withdrawn D(1) amendment's AC-047 rescoping had been the part
+that addressed it, so reverting `fa1ad0e0` restored it. Reviewer A read
+the same clause as shorthand for AC-011's three publication artifacts —
+a resolving reading the text does not state. Two independent reviewers
+splitting on a clause a cross-model panel had already flagged is itself
+the evidence that the wording, not the reviewer, was the problem.
+
+**AMBIGUITY (Major).** The write mechanism for a sole-Evidence Block was
+specified twice, incompatibly: REQ-004 said Evidence travels via the
+journaled transaction and is "not exempt from that mechanism", and
+REQ-001 step (m) said "this same transactional mechanism" writes the
+sole-Evidence record while listing step (a) among its sites — yet Main
+Workflows 4 and `design.md`'s own step-1 Block branches specified that
+same step-(a) Block writes "directly (no staging area exists yet)". No
+acceptance criterion discriminated.
+
+**Both are decided by ruling D(2)'s own words** — 「例外を撤回し直接書く」,
+quoted verbatim above — which say the Block writes Evidence (not an
+exception) and writes it directly (not through the journal). No new human
+decision was taken for this remediation; it is that ruling applied to the
+places that state the same facts.
+
+**What the remediation did.** Commit
+`e6884a39e132915fb931b7670ea69c6b779825e2`, documents only, six sites
+located by grepping every sibling statement of both facts BEFORE writing
+any of them — two of the six appeared in neither reviewer's citations and
+would otherwise have been the next instance of this package's recurring
+propagation-drift defect:
+
+1. `requirements.md` REQ-001 step (m) — the one-member Block write set is
+   published directly (`temp file + fsync + rename`), no staging area, no
+   journal; the journal exists to roll a multi-target rename sequence back
+   as a unit, and on the (0) Block a second journal against the very
+   Feature whose journal was just declared unconvergeable would be
+   incoherent.
+2. `requirements.md` REQ-004 — the mechanism is scoped by write-set size:
+   alongside the rest of a track's output set Evidence is not exempt from
+   the journaled transaction; as the only artifact written it is direct.
+   The same edit records that REQ-004's "sole exception" and REQ-002's
+   "two named exceptions" are two different scopes (exceptions to writing
+   a record at all, versus to writing the full form), closing a Minor both
+   rounds raised.
+3. `requirements.md` Security Boundaries — that sentence governs *staged*
+   artifacts, and a sole-Evidence Block stages nothing, so it is outside
+   the sentence's subject rather than an exception to it.
+4. `design.md` recovery enumeration — the live-state obligation stated per
+   target: every interrupted target other than `resolver-evidence.yaml`
+   exactly as found, and `resolver-evidence.yaml` itself receiving this
+   invocation's own Block record.
+5. `design.md` Security Boundaries mirror — same staged-artifact
+   clarification as (3).
+6. `infra-spec.md` Unrecoverable branch — the same per-target obligation,
+   propagated to the layer spec.
+
+`acceptance-tests.md` TEST-047 now requires the fixture to assert both
+halves and states why either half alone is wrong. Checked and deliberately
+left unedited: `security-spec.md`'s TEST-047 row and `tasks.md`'s T-007
+fixture bullet both stop at "before any Registry/ownership/
+Context-Projection work begins" and make no live-state claim, so neither
+contradicts the amendment (`tasks.md` is additionally frozen under a
+passed task review); `requirements.md`'s own AC-047 row never carried the
+"exactly as found" clause. No AC or TEST id is added, renumbered or
+removed, the diagnostic-id enum stays closed at sixteen rows, and no
+exception is added to REQ-002.
+
+### Per-document SHA-256 at remediation commit e6884a39
+
+- `requirements.md`: `523484a8a1eb1097f2ee971c7da2df829857efe97ffedc4e624aa0703e251062`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `de57e5d1ec91229a1fbffe1807e7953a3600bac37a80914cdb2744ee13d50c22`
+- `design.md`: `a2d4068777a2928b5e13ba8ede43ca153f3d62d6249cde931985b9f9f09dac3d`
+- `infra-spec.md`: `db1ea71d68a10ad8400004d2acc689c90c8463d5dd7a8cbba3cf4b8fe727ab5a`
