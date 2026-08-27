@@ -253,6 +253,20 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   「既存 live bytes が復元不能なまま破壊される」ギャップを閉じる）。
   Block 経路の Resolver Evidence も同一 transaction の 1-target
   インスタンスとして publish する（design.md step 14）。
+  step 0.5 の scan が書き込み・削除する path は、すべて事前に
+  requirements.md:1144-1151 が名指しで固定した publication target set と
+  照合する（journal は unprotected な repository-local staging 領域に
+  あるため content は攻撃者到達可能）。set 外・traversal・重複 path は
+  ファイルに一切触れる前に fail-closed で Block する。
+  なお in-process rollback が **不完全**に終わった場合、retain された
+  journal が listing する `resolver-evidence.yaml` を Block Evidence が
+  上書きするため、次回 scan は自動収束ではなく
+  `publication-journal-recovery`（手動介入）で Block する — REQ-002 の
+  2 つの mandate が衝突する凍結仕様上の論点。**2026-08-27 にリポジトリ
+  オーナーが「(a) 現行 fail-closed を既知制限として受容（推奨）」を裁定
+  済み**（journal-amend 操作も design 改訂も承認せず）。この二重劣化
+  コーナーでの手動介入は仕様どおりの挙動であり、未解決の欠陥ではない
+  （実装レポートの Panel Round 1 Remediation, MAJOR 2 参照）。
   `tests/resolve-project-context-block.tests.{sh,ps1}` に 6 fixture を
   追加し、REQ-002 の 16 行 Block マトリクスを完成させた —
   `publication-journal-recovery`（2 renames の間で殺す
