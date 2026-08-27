@@ -178,6 +178,49 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   1件＋新規 multi-node fixture 1件を TDD RED→GREEN で追加し、2方向の
   mutation kill も確認済み)。詳細は両タスクの実装レポート「Second Pass —
   AC-056 Remediation」節を参照。
+- **Capability Resolver CLI/discovery/Lite-track 3 スイート (Issue #193,
+  epic-193-a5 T-006)**: T-002/T-003/T-004 が実装済みのコア評価エンジンを
+  一切変更せず、3つの追加観点から検証する新規スイートを3本追加し
+  `tests/run-all.{sh,ps1}` に登録。
+  `tests/resolve-project-context-cli.tests.{sh,ps1}`（TEST-001/AC-001）は
+  `--config`/`--target-rev`/`--feature` を1つずつ省略した各ケースが
+  usage error (exit 2) として拒否されること、および `--source-rev`
+  省略時に `resolve-component-paths` へ `HEAD` がそのまま渡ることを検証。
+  `tests/resolve-project-context-discovery.tests.{sh,ps1}`（TEST-002/
+  AC-002・TEST-028/AC-028）は、この機能のスクリプトが探索する
+  contracts/* 6種すべてが ADR-0025 の script-relative→git-root-fallback
+  手順で一貫して解決されること（packaged copy 優先・git-root
+  fallback・環境変数不参照の3ケース）と、installed-standalone-plugin
+  レイアウト（packaged copy のみ・到達可能な `.git` なし）を
+  py/sh/ps1 各ランタイム1件ずつ計3 fixture で検証。
+  `tests/resolve-project-context-lite.tests.{sh,ps1}`（TEST-009/AC-009）は
+  Epic A6 adversarial verification finding B5 で narrowing された
+  advisory-missing / zero-match の2状態それぞれで、書き出される
+  `capability-summary.yaml` が実の `validate-capability-summary` で
+  validate されること、および同一 invocation が `facet-manifest.yaml`/
+  `project-context.resolved.json` のいずれも書かないこと（track-exclusive
+  publication set, B4）を検証。
+  **この branch では public writes が T-007 の step 14（未着地）に一元化
+  されているため**、`resolve-project-context-lite` は
+  `resolve-project-context-match` と同じ disclosed oracle-reconstruction
+  手法（実サブプロセスを強制的に snapshot-generation-mismatch へ導き、
+  同一 staged `.py` を `importlib` 経由でロードして
+  `_assemble_capability_summary` を実行時に検証済みの
+  `capability_evaluations[]` で直接呼び出す）を採用。
+  `resolve-project-context-discovery` の installed-layout fixture 3件は、
+  Epic A2 の `validate-capability-registry.py` が `--repo-root` 省略時に
+  `git rev-parse`/`.git` 探索を必須とするため、「到達可能な `.git` が
+  一切ない」という AC-028 自身の前提と構造的に両立できず、この1依存のみ
+  disclosed stub に置き換えた（`plugins/**` 編集禁止スコープ外の
+  Epic A2 own 依存であり、実 git repository を使う T-003 側で別途
+  カバー済み）。sh/ps1 とも 3 スイート全 assertion が両ランタイム一致
+  （cli 11/11、discovery 10/10、lite 16/16。登録セルフチェック2件を
+  含めた総計はそれぞれ 13/13・12/12・18/18）。既存の
+  `resolve-project-context-block`（256/0）・`resolve-project-context-match`
+  （125/0）は無編集で回帰なし。CI ステップ候補は T-005 の staged
+  candidate に追記し、
+  `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` を
+  新しい hash に更新した。
 ### Added
 
 - **Facet Manifest schema と validator (Issue #192,
