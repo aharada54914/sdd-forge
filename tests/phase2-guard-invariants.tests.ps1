@@ -21,7 +21,13 @@ $required = @(
     'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS',
     'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_CD_CMDS',
     'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE',
-    'SUDO_SIGNATURE_HEX_LENGTH', 'PHASE2_HUMAN_COPY_TARGETS'
+    'SUDO_SIGNATURE_HEX_LENGTH', 'PHASE2_HUMAN_COPY_TARGETS',
+    # WFI-048 added the patch-applier vocabulary and the embedded-path boundary
+    # class. They are v1 exports: SCHEMA_VERSION stays 1 (asserted below), and
+    # the guard twins validate this exact set, so the list here and
+    # _INVARIANT_KEYS in the three twins must move together.
+    'SHELL_PATCH_APPLY_CMDS', 'SHELL_PATCH_APPLY_GIT_SUBCMDS',
+    'SHELL_PATCH_INSPECT_FLAGS', 'SHELL_PATH_BOUNDARY_CHARS'
 )
 $passCount = 0
 $failCount = 0
