@@ -1340,3 +1340,132 @@ extension excluded itself):
 - `acceptance-tests.md`: `a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99`
 - `tasks.md`: `65877d63b4a385b9e2ed6aaee2f5034cc98e1674fca346e51338d0bfa77cfadd`
 - `traceability.md`: `dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193`
+
+### Rulings D(1)/D(2) (human-approved 2026-08-27) — an amendment made, then withdrawn on a corrected premise
+
+This entry records BOTH halves deliberately, including the half that was
+undone. Ruling D(1) authorised an amendment that landed in the frozen
+documents for one commit; the attempt-6 round-1 spec re-review then
+refuted the premise D(1) had been decided on, and ruling D(2) withdrew
+it. A record that showed only the surviving outcome would leave commit
+`fa1ad0e0` and the attempt-6 round-1 NEEDS_WORK evidence unexplained.
+
+**What prompted D(1).** The round-5 cross-model panel on T-007 raised two
+Majors that demanded opposite fixes — write Resolver Evidence on the
+uncontained-staging Block, and do not write it — which is the signature
+of a frozen-specification collision rather than an implementation defect.
+The orchestrator escalated with four options; option 4 was to amend the
+frozen specification rather than accept the deviation as a recorded
+limitation.
+
+**The verbatim, dated human approval (D(1)).** In-session, 2026-08-27,
+the human answered the four-option escalation with the single character:
+
+> 4
+
+**What the D(1) amendment did.** Commit
+`fa1ad0e01d54be9c7e0a2d58e1064a8a9bfa9f6e` (documents only:
+`requirements.md`, `acceptance-tests.md`, `design.md`) gave REQ-002's
+Evidence-on-every-Block rule a THIRD named exception — the
+publication-journal-recovery sub-case in which this invocation's own
+transient staging area is found to resolve outside the feature's
+publication write set — mirrored it into the AC-012 rows of both
+documents, and rescoped AC-047's "leaving the live state exactly as
+found" wording in `acceptance-tests.md` and `design.md`.
+
+**Why D(1) was withdrawn.** The attempt-6 round-1 spec re-review
+(`reports/spec-review/epic-193-a5-capability-resolver/attempt-6/round-1/`,
+orchestrator run `spec-orch-epic-193-a5-capability-resolver-a6r1`,
+reviewer runs seq 0821/0822, ledger-reserved and validated) returned
+NEEDS_WORK from two independent blind reviewers: Critical 3, Major 5,
+Minor 0. Neither reviewer was told the amendment was sound, and neither
+saw the other's findings. The decisive finding was reviewer B's
+CONTRADICTION item (3): the amendment justified writing no Evidence by
+asserting the write was "structurally impossible: the write would itself
+have to pass through the very staging area just found to be uncontained",
+but `requirements.md`'s own Main Workflows 4 (the
+`disabled-legacy-invocation` Block) already specifies, verbatim,
+"minimal Resolver Evidence written directly (no staging area ever exists
+in this branch)". A non-staged Evidence write path was in this
+specification all along, so the third exception was never forced — it was
+a choice made on a misreading. All three cited passages were re-opened
+and confirmed by the orchestrator before the finding was accepted.
+
+The reviewers also found the amendment had left two sibling normative
+statements asserting the opposite (REQ-004's "sole exception" sentence
+and the Security Boundaries every-path guarantee), that its new predicate
+"fixed publication write set" was defined nowhere and its two
+cross-references disagreed, that its trigger had no row in a taxonomy the
+document declares closed at sixteen rows, and that the fixture obligation
+it asserted was owned by no test row. Those findings are dissolved by the
+withdrawal rather than patched; they are recorded here because they are
+the reason the withdrawal is the right outcome and not merely a reversal
+of course.
+
+**The verbatim, dated human approval (D(2)).** In-session, 2026-08-27,
+the orchestrator put the corrected premise back to the human with three
+options — withdraw the exception and write Evidence directly (B); keep
+the exception and make it well-formed (A); stop (C) — and the human
+selected:
+
+> B: 例外を撤回し直接書く（推奨）
+
+The option as presented read: drop the third exception; on that Block the
+Resolver writes Resolver Evidence directly, exactly as Main Workflows 4
+does; revert `fa1ad0e0` so the frozen prose returns to its two-exception
+form; REQ-004, Security Boundaries and the sixteen-row enum all stay
+intact; the cost is that T-007's implementation changes from writing
+nothing to writing directly, with a new fixture, a further cross-model
+panel round, and a quality gate.
+
+**What ruling D(2) did.** Commit
+`c44d056de286acc5afc4753722f47a3f72e1bac7` reverts `fa1ad0e0` in full.
+`requirements.md`, `acceptance-tests.md` and `design.md` return
+byte-for-byte to the bytes attempt 5 reviewed and PASSED — `1028bf2c…`,
+`a9fa4f89…` and `3af36f44…` respectively, `requirements.md` at its
+`Spec-Review-Status: Pending` reset state, exactly as attempt 5's own
+contract pinned it. No third exception exists anywhere in this package.
+The behaviour change moves to Phase 2, where it belongs: T-007's Resolver
+writes minimal Resolver Evidence directly on that Block, and no frozen
+document needed amending to say so.
+
+**Un-propagated-row correction carried by the same commit (completing
+rulings C(1)/C(2), NOT a new decision).** Both attempt-6 reviewers
+independently found that rulings C(1)/C(2) had authored AC-057 and AC-058
+into `acceptance-tests.md` and `traceability.md` and amended REQ-002's two
+rows to cite them, but had never added the matching rows to
+`requirements.md`'s own Acceptance Criteria table, which ended at AC-056;
+and that in `acceptance-tests.md` the two rows sat behind a blank line
+with no header, so as Markdown they were outside the table entirely.
+Commit `c44d056d` adds the two rows to `requirements.md` (its existing 56
+rows untouched), removes the stray blank line, and updates the
+`acceptance-tests.md` preamble inventory to AC-038 through AC-058 with
+the reason the two arrived late. The counts now reconcile — 58 criteria,
+55 test rows, the difference being exactly the three Global rows
+AC-035/036/037 the file already documents as its one exception class — so
+the 1:1 mapping that preamble declares holds in both directions again.
+
+### Amendment commits (full hashes) — rulings D(1)/D(2)
+
+1. `fa1ad0e01d54be9c7e0a2d58e1064a8a9bfa9f6e` — the D(1) amendment.
+   Superseded: its every change is reverted by (3) below. Retained in
+   history, and named here, because the attempt-6 round-1 review evidence
+   is bound to the bytes it produced.
+2. `c6f6242bd49cf8dadb507ed2d7759cc955588e37` — attempt-6 round-1 spec
+   re-review evidence (reviewer outputs, integrated verdict, contract,
+   report). No frozen document changed; `requirements.md`'s
+   `Spec-Review-Status` line was set to `Pending` by
+   `spec-review-precheck.sh --reset`, which owns that field.
+3. `c44d056de286acc5afc4753722f47a3f72e1bac7` — the D(2) withdrawal, plus
+   the C(1)/C(2) row propagation described above. Documents only.
+
+### Per-document SHA-256 at amendment commit c44d056d
+
+- `requirements.md`: `6567b5033ae1f56700e5756e81e15e530cde62ea054ab0b8fc40012a5da355fa`
+  (at `Spec-Review-Status: Pending`; the field is the orchestrator's, and
+  the hash moves with it when the attempt closes)
+- `acceptance-tests.md`: `820ee5f6a522c213bc42731376cfe073e7e741128fcbb9bf26906ab394c58492`
+- `design.md`: `3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69`
+  (identical to its pre-`fa1ad0e0` bytes — the revert restored them exactly)
+- `traceability.md`: `dc5f207354d1987c12055b28bf06427051b1ffa7fd0f25b7c4a09cc8ced81193`
+  (unchanged; it already carried TEST-057/TEST-058 from ruling C)
