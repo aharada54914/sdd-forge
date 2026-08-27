@@ -221,6 +221,51 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   candidate に追記し、
   `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` を
   新しい hash に更新した。
+- **Capability Resolver の crash-recovery scan と journaled publication
+  transaction (Issue #193, epic-193-a5 T-007)**: design.md の
+  「Resolver publication transactional bundle contract」を staged
+  `resolve-project-context.{py,sh,ps1}` に実装し、steps 0-13 の
+  staged-only 体制を終わらせて**この機能で唯一の live 書き込み経路**を
+  追加した。step 0.5 の crash-recovery scan は全 invocation で引数検証
+  直後・step 1 の前に走り、`--feature` 配下の
+  `specs/<feature>/.resolver-staging/*/TRANSACTION.json` を
+  fully-applied / fully-reverted のいずれかへ収束させるか、収束不能なら
+  `publication-journal-recovery` で Block する（live 状態は発見時のまま
+  維持し、部分 rollback は行わない）。step 14 は Prepare（全 staged
+  candidate の一括 re-hash と、live content を持つ target の byte-exact
+  PRE-image backup）→ Journal（**いかなる live rename よりも前**に
+  all-or-nothing で `TRANSACTION.json` を書く）→ Commit（journal 記録順に
+  atomic rename）→ Post-publication verification（3 回目の
+  `resolve-component-paths` 呼び出しと digest/`affected_components` の
+  再導出。不一致なら完了済み rename を journal 経由で全て巻き戻して
+  `post-publication-generation-mismatch` で Block）→ Complete（journal
+  削除・exit 0）。in-process の write/fsync/rename 失敗は
+  `artifact-publication-failed` で Block し、同一 commit sub-sequence の
+  完了済み rename は journal の `pre/<target-basename>` backup から
+  **復元**する — bare `unlink` は使わない（adversarial review B1 の
+  「既存 live bytes が復元不能なまま破壊される」ギャップを閉じる）。
+  Block 経路の Resolver Evidence も同一 transaction の 1-target
+  インスタンスとして publish する（design.md step 14）。
+  `tests/resolve-project-context-block.tests.{sh,ps1}` に 6 fixture を
+  追加し、REQ-002 の 16 行 Block マトリクスを完成させた —
+  `publication-journal-recovery`（2 renames の間で殺す
+  test-harness-only kill hook と、pre-image backup 破損の companion）、
+  `artifact-publication-failed`、`post-publication-generation-mismatch`、
+  AC-040 の 2 本目 `snapshot-generation-mismatch`（全 digest 同一で
+  `affected_components` 集合差のみ）、および AC-010 が要求する
+  完全クリーンな negative fixture `clean-full-track-publication`。
+  新しい TEST-010 完全性チェックは、走行中に実際に観測された
+  diagnostic id 集合を `contracts/resolver-evidence.schema.json` の
+  enum と突き合わせるので、fixture を失った行はここで落ちる。
+  sh/ps1 とも 306 passed / 0 failed（TDD RED は同一ドライバで
+  272 passed / 23 failed、両ランタイム一致）。rollback を bare `unlink`
+  に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
+  step 13 を digest 比較のみにする、の 4 mutation で非空虚性を実証済み。
+  既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
+  `-discovery`（12/0）・`-lite`（18/0）は無編集で回帰なし。
+  新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
+  `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` は
+  実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。
 ### Added
 
 - **Facet Manifest schema と validator (Issue #192,
