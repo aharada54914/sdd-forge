@@ -68,9 +68,42 @@ problem: |
   （requirements/acceptance と design）の間の解釈衝突なので人間裁定が要る。
   同型の前例: RT-20260826-001（risk-adaptive-layer、批准済み design 文言に
   合致するコードとその上位要件の約束の乖離）。
+
+  【追補・段階 0 は実質決着】「どちらの文書が権威か」ではなく
+  **「design.md が stale」** である。履歴を追った結果（sdd-forge-42 の示唆に
+  よる。引用は `git show 2499e813` の逐語）:
+
+  問題の検証は 2026-08-25 のコミット `2499e813`
+  「validate upgrade_reasons elements...」で、cross-model パネルの指摘への
+  修復として追加された。design.md の「no re-validation inside
+  check-risk-upgrade」はそれ以前の記述であり、この修復に追随していない。
+
+  修復コミットが記録した修正前の実測値:
+
+      ["evil,forged"]      -> full-required: evil,forged; triggers=evil,forged
+      ["x; triggers=NONE"] -> full-required: x; triggers=NONE; triggers=x; triggers=NONE
+      ["x\ntriggers=NONE"] -> 複数行レコード、単一行出力契約を破壊
+
+  同メッセージいわく「The exact attack the id grammar blocks, wide open one
+  field over」。`id` 側は同じ攻撃を bounded grammar で塞いでおり
+  （TEST-013m/n/p）、reason token 側だけが無防備だった。さらに二つ目の兄弟欠陥
+  として sh/ps1 の stringifier 差異（null / object / nested array で 3 形が
+  食い違う）も同時に閉じている。
+
+  したがって design.md の文面に合わせて検証を削除する選択肢は
+  **実証済みのインジェクションと双子非対称を再導入する**。段階 0 の裁定は
+  事実上「design.md 2b/2c を amendment で現状に追随させる」一択であり、
+  残る自由度は falsy-present 値の扱いのみ。ただし amendment は凍結文書への
+  変更なのでオーナー承認そのものは依然必要。
+
+  なお 42 が測定した削除時の劣化（検証を消し残り 2 行をそのまま残した場合）:
+  非配列 upgrade_reasons のうち `5` は TypeError で exit 2（fail-closed）だが、
+  `"risk"` は文字単位で ['r','i','s','k']、`{"a":1}` はキー単位で ['a'] を
+  トリガ列へ**無言で注入**する。削除は「仕様外の検証」を「無言の破損経路」に
+  交換することになる。
 expected_fix:
-  - "【段階 0・人間判断・他の全段階の前提】AC-027 の \"shape-invalid\" に非配列 upgrade_reasons が含まれるかを裁定する。含まれるなら design.md の 2b/2c を amendment レーンで改める。含まれないなら実装から追加検証を外し、パネルの Major を「仕様どおり」として却下記録にする。**どちらの結論でも凍結文書に触れるので、コードから先に直してはならない**"
-  - "段階 1（段階 0 が「含まれる」の場合のみ）: design.md 2b の不正条件列挙に upgrade_reasons の形状を追加し、2c の \"not re-validated here\" と Design Decisions \"no re-validation inside check-risk-upgrade\" を同時に改める。amendment は investigation.md の Amendment Re-Review Context へ追記し、spec→impl→task を無編集で連続再レビューする"
+  - "【段階 0・オーナー承認・他の全段階の前提】design.md 2b/2c を amendment レーンで現状に追随させることを承認する。**選択肢は実質これ一つ** — 文面どおりに検証を削除すると `2499e813` が実測付きで塞いだインジェクション（',' / ';' / 改行によるトリガ列偽造）と sh/ps1 の stringifier 非対称を再導入するため。承認が要るのは判断が割れるからではなく、凍結文書への変更だから"
+  - "段階 1: design.md 2b の不正条件列挙に upgrade_reasons の形状を追加し、2c の \"not re-validated here\" と Design Decisions \"no re-validation inside check-risk-upgrade\" を、`2499e813` が既に実装した検証を追認する文言へ改める。amendment は investigation.md の Amendment Re-Review Context へ追記し、spec→impl→task を無編集で連続再レビューする"
   - "段階 2: 形状検証を eligible 分岐の外へ出し eligible:true にも適用（sh :190 / ps1 :177 の両双子を同一コミットで。片方だけ human-copy に載せない）"
   - "段階 2: falsy-present 値（false / 0 / 空文字列）を absent 扱いにするか exit 2 にするかを段階 0 の裁定に沿って確定し、双子で一致させ、policy 文書に明記する"
   - "段階 2: 回帰テストを追加 — (a) eligible:true かつ不正な upgrade_reasons、(b) eligible:false かつ falsy-present 値の各型。**現行フィクスチャは eligible:true の経路に一つも入らない**。これが人間 apply まで生き延びた理由"
