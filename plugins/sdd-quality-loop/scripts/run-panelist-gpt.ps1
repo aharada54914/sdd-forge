@@ -189,14 +189,17 @@ Rules:
     $combinedFile = Join-Path $scratch "combined.txt"
     Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
 
-    # Codex ArgumentList: [--model <m>] (omitted entirely when unset, so the
-    # CLI selects the model the signed-in account supports), [--effort <e>]
-    # (only when supplied, AC-035), --no-project-doc -- omitting both
-    # preserves today's exact invocation order/shape (Breaking API: no).
-    $codexArgs = @()
+    # Codex ArgumentList: exec [--model <m>] (omitted entirely when unset, so
+    # the CLI selects the model the signed-in account supports), [--effort <e>]
+    # (only when supplied, AC-035), -c project_doc_max_bytes=0 -- mirrors the
+    # sh twin's post-repair invocation (the legacy --no-project-doc flag was
+    # removed in codex-cli >= 0.14x; commit 7d950c53 repaired the sh twin but
+    # this twin was left behind). Omitting both optional flags preserves the
+    # exact invocation order/shape (Breaking API: no).
+    $codexArgs = @("exec")
     if ($Model) { $codexArgs += @("--model", $Model) }
     if ($Effort) { $codexArgs += @("--effort", $Effort) }
-    $codexArgs += @("--no-project-doc")
+    $codexArgs += @("-c", "project_doc_max_bytes=0")
 
     if ($Effort) {
         [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd $($codexArgs -join ' ') (task=$TaskId feature=$Feature)")
