@@ -192,7 +192,13 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   手順で一貫して解決されること（packaged copy 優先・git-root
   fallback・環境変数不参照の3ケース）と、installed-standalone-plugin
   レイアウト（packaged copy のみ・到達可能な `.git` なし）を
-  py/sh/ps1 各ランタイム1件ずつ計3 fixture で検証。
+  py/sh/ps1 各ランタイム1件ずつ計3 fixture で検証
+  （**gate-cycle-1 是正、2026-08-27**: 初版は `py` ランタイムの
+  installed-layout ケースが実装から欠落しており実質2ランタイムしか
+  検証していなかった。`resolve-project-context-parity-check.py` の
+  `_run_kind` と同じ `kind == "py"` 直接起動パターンを追加し、
+  `main()` の `--launcher` に依存せず3ランタイム全てをループする形へ
+  是正済み）。
   `tests/resolve-project-context-lite.tests.{sh,ps1}`（TEST-009/AC-009）は
   Epic A6 adversarial verification finding B5 で narrowing された
   advisory-missing / zero-match の2状態それぞれで、書き出される
@@ -214,9 +220,10 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   disclosed stub に置き換えた（`plugins/**` 編集禁止スコープ外の
   Epic A2 own 依存であり、実 git repository を使う T-003 側で別途
   カバー済み）。sh/ps1 とも 3 スイート全 assertion が両ランタイム一致
-  （cli 11/11、discovery 10/10、lite 16/16。登録セルフチェック2件を
-  含めた総計はそれぞれ 13/13・12/12・18/18）。既存の
-  `resolve-project-context-block`（256/0）・`resolve-project-context-match`
+  （cli 11/11、discovery 22/22、lite 16/16。登録セルフチェック2件を
+  含めた総計はそれぞれ 13/13・24/24・18/18、gate-cycle-1 是正後の実測値）。
+  既存の `resolve-project-context-block`（306/0、本タスク側の編集は無く
+  他タスクの fixture 増加による再測定値）・`resolve-project-context-match`
   （125/0）は無編集で回帰なし。CI ステップ候補は T-005 の staged
   candidate に追記し、
   `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` を

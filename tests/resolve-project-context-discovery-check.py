@@ -149,6 +149,17 @@ def _resolve_kind_argv(kind, scripts, base_oid, target_oid):
     return block_check.t003_resolver_argv(kind, scripts, base_oid, target_oid)
 
 
+def _installed_layout_argv(kind, scripts, tail):
+    """`kind == "py"` invokes the staged Python master directly, mirroring
+    `resolve-project-context-parity-check.py`'s own already-established
+    `_run_kind` helper exactly (never reinvented) -- `block_check.
+    launcher_args` only ever spells `sh`/`ps1`, never the Python master
+    directly, so AC-028's own third runtime needs this one extra branch."""
+    if kind == "py":
+        return [sys.executable, str(scripts / "resolve-project-context.py")] + tail
+    return block_check.launcher_args(kind, scripts) + tail
+
+
 def run_packaged_copy_preferred_case(kind, counts):
     """AC-002: the packaged, script-relative copy is discovered and used
     for every one of the six contracts/* artifacts this feature's scripts
@@ -310,79 +321,100 @@ def run_no_environment_variable_consulted_case(kind, counts):
         )
 
 
-def run_installed_layout_case(kind, counts):
-    """AC-028: one fixture per runtime (this feature's own `.py`/`.sh`/
-    `.ps1` dispatchers) simulating an installed-standalone-plugin layout --
-    only the packaged `plugins/sdd-quality-loop/contracts/*` copy present,
-    no monorepo `contracts/`, no reachable `.git` (a plain tempdir outside
-    this repository's own working tree, sanity-checked below). Runs BOTH
-    a full-track and a lite-track resolve, jointly exercising all six
-    contracts/* artifacts this feature's scripts locate within this one
-    runtime's own invocation (a single invocation only ever selects one of
+def run_installed_layout_case(counts):
+    """AC-028: one fixture per runtime -- this feature's own `.py`/`.sh`/
+    `.ps1` dispatchers, all THREE, not just the two `launcher_args` itself
+    spells (gate-cycle-1 remediation, below) -- simulating an
+    installed-standalone-plugin layout: only the packaged `plugins/
+    sdd-quality-loop/contracts/*` copy present, no monorepo `contracts/`,
+    no reachable `.git` (a plain tempdir outside this repository's own
+    working tree, sanity-checked below). Runs BOTH a full-track and a
+    lite-track resolve per runtime, jointly exercising all six contracts/*
+    artifacts this feature's scripts locate within that one runtime's own
+    invocation (a single invocation only ever selects one of
     facet-manifest.schema.json/capability-summary.schema.json, per the
     track-exclusive publication set, B4 -- design.md Test Strategy item
     6's own "one artifact set per runtime" is the union of both tracks'
-    own discovery, never a ninth, per-artifact fixture)."""
-    case_name = f"installed-layout-{kind}"
+    own discovery, never a ninth, per-artifact fixture).
+
+    **gate-cycle-1 remediation (quality-gate NEEDS_WORK, Major):** this
+    function used to take a single `kind` argument, driven by `main()`'s
+    own `--launcher` choice (`sh` or `ps1` only) -- the `py` dispatcher
+    (direct `python3 resolve-project-context.py` invocation, never routed
+    through either shell wrapper) was never exercised anywhere in this
+    suite, even though `--launcher` never claimed to gate this function's
+    own runtime coverage and `resolve-project-context-parity-check.py`'s
+    own `_run_kind` helper (`:128`) already establishes the exact `kind ==
+    "py"` invocation shape this fix reuses (`_installed_layout_argv`,
+    above), unstubbed and structurally unblocked, in the same helper
+    family. This function now loops over all three kinds internally,
+    independent of `main()`'s own `--launcher` argument -- `python3` is
+    available to both the `.sh`-launched and `.ps1`-launched runs of this
+    shared driver, so BOTH this suite's own sh-invoked and ps1-invoked
+    runs demonstrably execute the `py` dispatcher case (an
+    `installed-layout-py-*` label appears in either run's own output)."""
     fixture_dir = FIXTURES / "installed-layout"
 
-    for track, config_name in (("full", "project-context-full.yaml"), ("lite", "project-context-lite.yaml")):
-        with tempfile.TemporaryDirectory(prefix=f"resolver-disco-installed-{kind}-{track}-") as tmp:
-            root = Path(tmp).resolve()
+    for kind in ("py", "sh", "ps1"):
+        case_name = f"installed-layout-{kind}"
+        for track, config_name in (("full", "project-context-full.yaml"), ("lite", "project-context-lite.yaml")):
+            with tempfile.TemporaryDirectory(prefix=f"resolver-disco-installed-{kind}-{track}-") as tmp:
+                root = Path(tmp).resolve()
 
-            git_check = subprocess.run(
-                ["git", "rev-parse", "--show-toplevel"], cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            )
-            counts.check(
-                git_check.returncode != 0,
-                f"{case_name}-{track}: fixture sanity -- no reachable git root from this tempdir (AC-028 "
-                f"'no reachable .git')",
-                repr(git_check.stdout + git_check.stderr),
-            )
+                git_check = subprocess.run(
+                    ["git", "rev-parse", "--show-toplevel"], cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                )
+                counts.check(
+                    git_check.returncode != 0,
+                    f"{case_name}-{track}: fixture sanity -- no reachable git root from this tempdir (AC-028 "
+                    f"'no reachable .git')",
+                    repr(git_check.stdout + git_check.stderr),
+                )
 
-            scripts = root / "plugins/sdd-quality-loop/scripts"
-            _install_common_scripts(scripts)
-            shutil.copy2(fixture_dir / "resolve-component-paths.py", scripts / "resolve-component-paths.py")
-            shutil.copy2(fixture_dir / "validate-capability-registry.py", scripts / "validate-capability-registry.py")
-            shutil.copy2(fixture_dir / "generate-registry-digest.py", scripts / "generate-registry-digest.py")
+                scripts = root / "plugins/sdd-quality-loop/scripts"
+                _install_common_scripts(scripts)
+                shutil.copy2(fixture_dir / "resolve-component-paths.py", scripts / "resolve-component-paths.py")
+                shutil.copy2(fixture_dir / "validate-capability-registry.py", scripts / "validate-capability-registry.py")
+                shutil.copy2(fixture_dir / "generate-registry-digest.py", scripts / "generate-registry-digest.py")
 
-            packaged = root / "plugins/sdd-quality-loop/contracts"
-            _plant_valid_contracts(packaged)
-            # `contracts/project-context.schema.json` (Epic A1) is looked up
-            # at a fixed `repo_root/contracts/` path unrelated to this
-            # feature's own ADR-0025 discovery contract (helper docstring,
-            # above) -- planting ONLY that one, unrelated file here, never
-            # any of the six artifacts AC-028 itself targets, so the
-            # "no monorepo contracts/ COPY OF THIS FEATURE'S OWN DISCOVERY
-            # TARGETS" sanity check below stays meaningful.
-            _plant_project_context_schema(root / "contracts")
-            monorepo_discovery_targets = set(BROKEN_ARTIFACTS) & {
-                path.name for path in (root / "contracts").glob("*")
-            }
-            counts.check(
-                not monorepo_discovery_targets,
-                f"{case_name}-{track}: fixture sanity -- no monorepo contracts/ copy of any of the six "
-                f"artifacts this feature's scripts locate (only the unrelated, always-git-root-only "
-                f"project-context.schema.json lives there, purely as a step-1 precondition)",
-                repr(monorepo_discovery_targets),
-            )
+                packaged = root / "plugins/sdd-quality-loop/contracts"
+                _plant_valid_contracts(packaged)
+                # `contracts/project-context.schema.json` (Epic A1) is looked up
+                # at a fixed `repo_root/contracts/` path unrelated to this
+                # feature's own ADR-0025 discovery contract (helper docstring,
+                # above) -- planting ONLY that one, unrelated file here, never
+                # any of the six artifacts AC-028 itself targets, so the
+                # "no monorepo contracts/ COPY OF THIS FEATURE'S OWN DISCOVERY
+                # TARGETS" sanity check below stays meaningful.
+                _plant_project_context_schema(root / "contracts")
+                monorepo_discovery_targets = set(BROKEN_ARTIFACTS) & {
+                    path.name for path in (root / "contracts").glob("*")
+                }
+                counts.check(
+                    not monorepo_discovery_targets,
+                    f"{case_name}-{track}: fixture sanity -- no monorepo contracts/ copy of any of the six "
+                    f"artifacts this feature's scripts locate (only the unrelated, always-git-root-only "
+                    f"project-context.schema.json lives there, purely as a step-1 precondition)",
+                    repr(monorepo_discovery_targets),
+                )
 
-            shutil.copy2(fixture_dir / config_name, root / config_name)
+                shutil.copy2(fixture_dir / config_name, root / config_name)
 
-            argv = block_check.launcher_args(kind, scripts) + [
-                "--config", config_name, "--target-rev", "HEAD", "--feature", "example-feature",
-            ]
-            result = subprocess.run(argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
-            stdout = result.stdout.decode("utf-8", errors="replace")
-            stderr = result.stderr.decode("utf-8", errors="replace")
-            counts.check(
-                result.returncode == 1 and stdout == "" and stderr == SNAPSHOT_MISMATCH_LINE,
-                f"{case_name}-{track}: reaches the forced step-13 snapshot-generation-mismatch Block in a "
-                f"genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+"
-                f"its-schema (step 5) and resolver-evidence/context-projection/{track}-track-schema (step 12) "
-                f"all resolved and validated correctly via the packaged copy alone (AC-028)",
-                f"got exit {result.returncode} stdout={stdout!r} stderr={stderr!r}",
-            )
+                tail = ["--config", config_name, "--target-rev", "HEAD", "--feature", "example-feature"]
+                argv = _installed_layout_argv(kind, scripts, tail)
+                result = subprocess.run(argv, cwd=root, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+                stdout = result.stdout.decode("utf-8", errors="replace")
+                stderr = result.stderr.decode("utf-8", errors="replace")
+                counts.check(
+                    result.returncode == 1 and stdout == "" and stderr == SNAPSHOT_MISMATCH_LINE,
+                    f"{case_name}-{track}: reaches the forced step-13 snapshot-generation-mismatch Block in a "
+                    f"genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+"
+                    f"its-schema (step 5 discovery) and resolver-evidence/context-projection/{track}-track-schema "
+                    f"(step 12 discovery+version-check) all resolved correctly via the packaged copy alone "
+                    f"(AC-028; this label claims discovery, never validate-capability-registry's own content "
+                    f"checks, which this fixture stubs unconditional-success -- Specification Differences)",
+                    f"got exit {result.returncode} stdout={stdout!r} stderr={stderr!r}",
+                )
 
 
 def main():
@@ -399,7 +431,7 @@ def main():
         run_packaged_copy_preferred_case(args.launcher, counts)
         run_git_root_fallback_case(args.launcher, counts)
         run_no_environment_variable_consulted_case(args.launcher, counts)
-        run_installed_layout_case(args.launcher, counts)
+        run_installed_layout_case(counts)
 
     sh_registered = "tests/resolve-project-context-discovery.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-discovery.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")

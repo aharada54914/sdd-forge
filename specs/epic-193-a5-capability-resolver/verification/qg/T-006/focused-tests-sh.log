@@ -1,0 +1,69 @@
+$ bash tests/resolve-project-context-cli.tests.sh
+# runner: bash
+PASS: missing-config: omitting --config is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-config: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-config: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: missing-target-rev: omitting --target-rev is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-target-rev: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-target-rev: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: missing-feature: omitting --feature is rejected as a usage error, exit 2 (AC-001)
+PASS: missing-feature: no stdout on a usage error (argparse writes only to stderr)
+PASS: missing-feature: a usage error never carries this feature's own `capability-resolver: <check-id>:` diagnostic-line format -- it is not a Block, and never reaches REQ-002's own enum (design.md step 0)
+PASS: source-rev-default: reaches step 5 (Registry deliberately absent -> contract-discovery-failed), proving steps 0-4 (including argument validation) all passed with --source-rev omitted (AC-001 sanity)
+PASS: source-rev-default: resolve-component-paths received --source-rev HEAD verbatim -- the CLI's own fixed default value, never a caller-resolved sha (AC-001)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 13 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-discovery.tests.sh
+# runner: bash
+PASS: packaged-copy-preferred: reaches the forced step-13 snapshot-generation-mismatch Block, proving every one of the six contracts/* artifacts this feature's scripts locate resolved via the PACKAGED, script-relative copy -- a deliberately-broken copy sits at the git-root fallback location for every one of them, so falling through to it would Block earlier with a different diagnostic (AC-002)
+PASS: git-root-fallback: fixture sanity -- no packaged contracts/ directory exists at all (git-root fallback is the ONLY location that can possibly resolve any of the six artifacts)
+PASS: git-root-fallback: reaches the forced step-13 snapshot-generation-mismatch Block with no packaged copy present anywhere -- every one of the six contracts/* artifacts resolved via the git-root fallback location alone (AC-002)
+PASS: no-environment-variable-consulted: reaches the identical forced step-13 Block as git-root-fallback with every plausible decoy environment variable set to a THIRD, deliberately-broken location -- these env vars have zero effect on discovery (AC-002)
+PASS: installed-layout-py-full: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-py-full: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-py-full: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/full-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-py-lite: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-py-lite: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-py-lite: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/lite-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-sh-full: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-sh-full: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-sh-full: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/full-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-sh-lite: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-sh-lite: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-sh-lite: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/lite-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-ps1-full: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-ps1-full: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-ps1-full: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/full-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: installed-layout-ps1-lite: fixture sanity -- no reachable git root from this tempdir (AC-028 'no reachable .git')
+PASS: installed-layout-ps1-lite: fixture sanity -- no monorepo contracts/ copy of any of the six artifacts this feature's scripts locate (only the unrelated, always-git-root-only project-context.schema.json lives there, purely as a step-1 precondition)
+PASS: installed-layout-ps1-lite: reaches the forced step-13 snapshot-generation-mismatch Block in a genuinely no-git, packaged-copy-only installed-standalone-plugin layout -- proving Registry+its-schema (step 5 discovery) and resolver-evidence/context-projection/lite-track-schema (step 12 discovery+version-check) all resolved correctly via the packaged copy alone (AC-028; this label claims discovery, never validate-capability-registry's own content checks, which this fixture stubs unconditional-success -- Specification Differences)
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 24 passed, 0 failed
+Exit: 0
+
+$ bash tests/resolve-project-context-lite.tests.sh
+# runner: bash
+PASS: advisory-missing: reaches the forced step-13 snapshot-generation-mismatch Block, proving step 10b's own Capability Summary assembly and step 12's own real capability-summary.schema.json self-validation already succeeded (steps 0-12 all passed)
+PASS: advisory-missing: Resolver Evidence schema agreement
+PASS: advisory-missing: Resolver Evidence publishes capability_evaluations[] (late-Block provenance, T-004)
+PASS: advisory-missing: the reconstructed capability-summary.yaml validates via the REAL validate-capability-summary (AC-009)
+PASS: advisory-missing: track_artifact is genuinely a Capability Summary shape (schema/track fields)
+PASS: advisory-missing: no facet-manifest.yaml/capability-summary.yaml/project-context.resolved.json ever reaches a live path on this Lite-track invocation (B4/AC-009)
+PASS: advisory-missing: fixture sanity -- cap-alpha's own trigger genuinely matches the sole affected component comp-a (characteristics.pii == true)
+PASS: advisory-missing: cap-alpha's own absent required_lite_checks key contributes [] under advisory enforcement, never Blocking (AC-009(a))
+PASS: zero-match: reaches the forced step-13 snapshot-generation-mismatch Block, proving step 10b's own Capability Summary assembly and step 12's own real capability-summary.schema.json self-validation already succeeded (steps 0-12 all passed)
+PASS: zero-match: Resolver Evidence schema agreement
+PASS: zero-match: Resolver Evidence publishes capability_evaluations[] (late-Block provenance, T-004)
+PASS: zero-match: the reconstructed capability-summary.yaml validates via the REAL validate-capability-summary (AC-009)
+PASS: zero-match: track_artifact is genuinely a Capability Summary shape (schema/track fields)
+PASS: zero-match: no facet-manifest.yaml/capability-summary.yaml/project-context.resolved.json ever reaches a live path on this Lite-track invocation (B4/AC-009)
+PASS: zero-match: fixture sanity -- zero matched Capabilities (zero affected components)
+PASS: zero-match: zero matched Capabilities is vacuously capabilities: []/required_lite_checks: []/full_upgrade_required: false, never Blocking lite-check-source-undefined even under required enforcement (AC-009(b))
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 18 passed, 0 failed
+Exit: 0
