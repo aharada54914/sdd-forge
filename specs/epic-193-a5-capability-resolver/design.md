@@ -1911,7 +1911,12 @@ independently invocable (AC-027):
    `generate-registry-digest` stub overwrites the discovered Registry in
    place as a side effect of step 6's own dependency invocation, and the
    step-6.5 recheck must Block `snapshot-generation-mismatch` with an
-   empty `capability_evaluations` array and no live artifact — and
+   empty `capability_evaluations` array in the `resolver-evidence.yaml`
+   that Block does write (AC-012), and no publication artifact
+   (`facet-manifest.yaml`, `capability-summary.yaml`,
+   `generated/project-context.resolved.json`) on any live path (scoped
+   2026-08-27, human-approved, ruling D(2), matching AC-057/TEST-057's own
+   amended wording) — and
    `affected-component-absent-from-context` (AC-058/TEST-058) — its
    `resolve-component-paths` stub returns a component id absent from the
    fixture's own Context Projection alongside one present-and-valid id,
