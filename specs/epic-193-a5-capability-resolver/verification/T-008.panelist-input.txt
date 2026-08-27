@@ -4,7 +4,7 @@
 # Rule: no absolute paths intended; tempdir paths inside captured test logs are a
 # known standing Minor, disclosed, not a finding to re-raise as blocking.
 # consent: sudo (SDD_SUDO token at the primary repo root, human-issued 2026-08-27, expires epoch 1787896044)
-# input_digest: c0b9f6e97460bbc24a9e3e847cedc7fe2ada08bda87cc23f848996120efb2f09
+# input_digest: adfde612d0362344e4785898de91825ec6fa3c11cfe44b95305ad581a94bb68e
 # ---- specs/epic-193-a5-capability-resolver/requirements.md ----
 # Requirements: epic-193-a5-capability-resolver
 
@@ -7604,97 +7604,120 @@ session start and again before this report). This task never wrote tasks.md.
 
 | Path | SHA-256 |
 |---|---|
-| `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py` | `847c05d668c9e022be1faad3319235b35e9cd139e683b62bda677c8cd6b6a0e6` |
+| `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py` | `11bbff0409344168c57095631c333c714cd9dbffb22da664989494e50dc5757e` |
 | `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh` | `acc9b90b7ac3e6b72438bcbb154098fdcf7a2dc07ff730550625125b6198a289` |
 | `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1` | `146abd05148d331ea7dfc922a5e6474a806b037fb67572fe311a1d603ff01cb2` |
-| `tests/validate-resolver-evidence-check.py` | `8439ef0975f636ade0401cae12f0d8314264de2fd5ffc9b8998b3b87ce118f16` |
+| `tests/validate-resolver-evidence-check.py` | `93534485d094c8664fa7dc73e9ca0b8b931645f6ca7aa88981aca207235a7eab` |
 | `tests/validate-resolver-evidence.tests.sh` | `2d0f934d17b07c12c36a5253b16874af6d18d77c49c881c8a242f3fe55df2be8` |
 | `tests/validate-resolver-evidence.tests.ps1` | `499b0131b73721ed64920a39d42094fbb56edf73b54776720b66220c3d91975e` |
-| `tests/run-all.sh` | `1a8ff632e5b1afe0f61630db81f78b93c0fbd681c1db86af777ebc38c21dd4a2` |
-| `tests/run-all.ps1` | `67e8376b391f256e1a629c69efe4f2e66aa03c3846a71d0345a8e21a992de2f7` |
-| `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml` | `984be0fba7365ad9be6d08a6c2c2218ddaaaf87f970bc6ce13d9713d51488410` |
-| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `58aba07e3e2d11763b41688be2c281f342623f6430117c4481d336c56c00149f` |
-| `CHANGELOG.md` | `8133e73d11b21dc870afd8023453d340d94397f56c3bcfa3a6632572435b927d` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/INDEX.json` | `9e910d8545f1f5d937f1a1a0ac8b95e505a918942633e17f4d17e17511cd2d58` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/case.json` | `ab71a43eb9a6ebbe05df10e17741d7db57a31d173a78f46fcaccce57648cd481` |
+| `tests/run-all.sh` | `4fbc78fb00d32cc67cb274c777e7a6a63ab9cd0c8a630fbd61a013486086bc3d` |
+| `tests/run-all.ps1` | `34b12af376a1d4b76cbacc9a9aacb749f9f31223dbc216a1c7a38a25f98724dc` |
+| `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml` | `eac6cce0856fe037445af618f20a7ea7172a3a1de339a9008298971a9c03eb1d` |
+| `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `66fb66779ab2acb3e32238dc444893eef5cda65710f53f5a8c984307cff80fee` |
+| `CHANGELOG.md` | `46482bffc1fead9bf7c3aba7c8e4c20fc28a2aae7a2308badb3e3513e117f54f` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/INDEX.json` | `860bea006547348fad2c12688f69bf84d9e7b26305ce4299e94751c99d5fa490` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/case.json` | `c1ca91513047f8af0dc64127749ab382153635b63c8d226d56b3e4edf7a646c0` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/manifest.json` | `80915b2c53c065b94a10be263d9fcae539250f33cf9ede21e46a7015d8832565` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/case.json` | `a65440df954080b20ff64638d3f158513afe7e81b0aac541400468edfbf4a8d8` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/case.json` | `5eeb86a5748c3bb5aab0a729aa599a155946810343b53aae56d1af936e870038` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/evidence.json` | `329d25bb7688e0cd05f9c8ab7190279624a7faefe3e54ff34a5755b74459c5d6` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/case.json` | `85906a117a2ef46248d2aab47de36ea0a3a21ab8f975e6eaf3cb417f32d3a6be` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/case.json` | `e694e5e897b2d7fd7b567838c04f261670ebe28fdba124bf4b7530e2eba44026` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/evidence.json` | `99e5e6334c2ac50a085cefd5977281d25643c4835e087306eaf55661d8c402b3` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/case.json` | `8e72747af92119c7153231271831a48dd375ac1016373a3cdc9b2d8dfd94ee2f` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/canonicalizer.py` | `94f1a0d9a320e5754ee3c0c65a8502eb40d125fd9c9230a580d71369c0f9d6fd` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/case.json` | `c6457d709eada3f40bbbc56d373a1289c498ec992bc265e8adfb456ed10f8da1` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/case.json` | `e0251aabc06704e59a93fa816ab15e846276f5fb3615180d7e88df3632c7caa4` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/evidence.json` | `7cdf9e9e27cbe654d61e045539b50f276a947bfb636ab67166dff398d64363f4` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/case.json` | `ffe90f5206c08ed7c8023c39ccf208508b91adb27e64f5195ee024a50384a230` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/case.json` | `936fd6181a839023a943efe75fd2599cecaf99367f7642012c3a7254eb22be2e` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/evidence.json` | `721089989d902f4179de3e03022f04476bcb88efeb7af4822b9a2adc38787d59` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/clean/case.json` | `7ac290691c07705984cc345eb8cb0da4627d97c866aecc7c8d211d34112f7c5a` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/clean/case.json` | `76bced9d0e2596070d039934204bfd09103d7bb612135c4d0ced3345e4576e9b` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/clean/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/clean/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/clean/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/case.json` | `40b1b709591ce8f9e1b3d4ca147dd9ad883af852eae2d088806e6ff71c0e911b` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/case.json` | `d5125bbd9b99e9dcf008abf828873d8a56e1ebb3146e3680a1a94f3163b94de1` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/evidence.json` | `3fad659b2fa8ab9b64653e06157ffd5a6107bb6549d5526601d7784bb0e975a6` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/case.json` | `1422dddd38814e8e129acc69e4b4ebeb4499c050e2623251a71437d55ae9ed56` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/case.json` | `db461865b4cddfca69226a58b0cf0234ab2c3d6826a9fc91de7f4db819494741` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/evidence.json` | `dee3abd2cf760956acf886fba8e0f0371eb32edffd5224fab4e894268d2c18ad` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/case.json` | `8b361bd37e76d65ce18b656b3cd08d772faeca01b78f5474e58cf0f64839ed1e` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/case.json` | `63eb6ff5388188b25cb4fe39a1b1dc4f68e61b3960d5e9e47fd1979d54bc9bfe` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/evidence.json` | `ff80772e36f15bd9023f8d24a7ea4fb6278a09d4dbcef6cc05256a067e113f4a` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/case.json` | `636942773ab334e3baf2a554fbe2999cd258ec2a11a545c7629ee075a8699e7f` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/case.json` | `4a1c5f84e24a36aa8830b9f0f6d8c079bdae5db243ad0313d2aa7b47e9ddcb1e` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/evidence.json` | `e35c53da014ce21b0a4b6ece374ca58873bbec96593c138269d1f842d5848edb` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/case.json` | `8b51772cd71570b9731317300974884f2b56768b3073ee83d1a577305bc9c984` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/case.json` | `32d715a64dc1222bba9b514b29a832e7525580803ac2ab232be614419d5ad906` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/case.json` | `e7c3f78cab3641e96b7f2d62e44fc10ba42c10e097471388a7b68c5515f27375` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/case.json` | `6ed5a42934b47a12f4d2a7e631e22dc1bdd8a2f035815506f4df1ad25ce971d6` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/case.json` | `1316b4a98d105d3801b7e96d1c50c67e131b6e18a81f5122cfb7fbed0c9dbec2` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/case.json` | `d75e7aae14f354ebab2babcc0efa7c4699a5b526ed412ca4d95fd57e01c2aa81` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/projection.json` | `999fd71d693b8edaeb82f6b8e7956b331fa621a257466c15a945531f5770d7f3` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/case.json` | `a68842504f5501057cef42512020f5398d125b47a65bf4d425834a352210a727` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/case.json` | `1b7ff81d0515c0848bff3cc0b8bd86a9ade7d8ae4ff6d5b1d1752d14de1b3b01` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/override-registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/case.json` | `9ac82284342ff6c6d5561ff5579d58ec878ba92d464acd864b65bfff86e6d037` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/case.json` | `d8315e1307ea30922d0086f5aa52921719a7f57e3b432f83e988cdd62800dd67` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/override-registry.json` | `0b885764007e226207f677f0e4df04839102a90bb89a8b34f3dc5f6701db2b07` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/case.json` | `04f353e8ced01e7c750faccde2dbae5e0d42b0b59520b9ee8d6f6d90409ebb40` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/case.json` | `97a7fd1ab6ba8fb38cc3f78fe0b267635a49f35f14bdac2fba211b3559043bd8` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/digest-registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/registry.json` | `0b885764007e226207f677f0e4df04839102a90bb89a8b34f3dc5f6701db2b07` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/case.json` | `45c915c65b9b1dd232f5c494ddc2bc702fbdf355a6699568be7f2c46f3e5ac3d` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/case.json` | `5ac02e4654e9c4a4514959b16dede50f2ac8f7da800684a6074b60b01ad2f978` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/case.json` | `3a7b0491503eaae3716c6c5b0c211281e01d7133bdae9678c2e0e88f32b7826e` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/case.json` | `47aa94cd86c987a6878ad244be18f6c36841dd72bd0e5ad965a42c918d767bea` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/journal.json` | `15db526aef805f24c1dd62552693dcd465da424674c6005a41b88ce87667dc93` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/case.json` | `1123895d2a356f1981a35bb9f14ca5c7e0f7b59aa8ecd3dc6ed72b023636403b` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/case.json` | `87d4b2d24bd9f6d3e2c65a7c274c996c17e575bb398537e028ad9cae477a73d7` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/journal.json` | `7cbc11aabae8820ccbbf7d541f8115172949c2d3e3199f3c62d7cff17adc0aa0` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/case.json` | `d2bf563e13e3a69dd2f1ee8c1dd733b335d4cb052c20f905fb154f7ad53a4f0d` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/evidence.json` | `3a12192a9a3b39fb241cf08331ee66244de5c93ff8cb41f4770c1620cd3565a4` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/case.json` | `9fd5fa7c702a3ea101d6a84cd68fe563aab65138123fae5fb1a11403c02a227e` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/case.json` | `f2a2918a78f5673e2bd8909ed16c032f509c36589a79bbb4628e15abf37b2872` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/evidence.json` | `95c223ab06edf9b5980e4b5eb54cba24aff66eb7653c62f72d89392a3d4718e5` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/override-registry.json` | `6f6bb3ad3cdac7d5f138423030873b3a16889933c2f0e9c5f88c55aeebee46e0` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/case.json` | `158e5de5cd6a143a2a86ec30168e70a6c6ba87d6872397fe6a3db0ce7fd38d3c` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/evidence.json` | `88d23ab737dd005ce756f471e1acb40ed80a1697f6476cad17b98b32ae3db986` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/manifest.json` | `f8f7a2efbab7089a35a291c8a7b719a719b3a3cb289a9c0cb895a2628e1b8b97` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/case.json` | `12b006663723c3259c939893ac5d17ca0334102797091de8df49874470240d6c` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/evidence.json` | `21c086de1b4a07693855a9dfbff2e42572bd164c6c34605ebab59ceb775aa2f5` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
-| `tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/case.json` | `65d9300963592888bc21b81655f60b20254bc377920aa025f301c806e89df640` |
+| `tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/case.json` | `2a9c41603d5631562f5b77789197a4282145f6b879509e2186d3330b4e26ec54` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/evidence.json` | `f2d5ba46657ec2f158a7e2406dab7e47a3daccf40a9b6c93d33673d34d8e32c2` |
 | `tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/registry.json` | `264d45765e632bb5757f93df789d3cb973a222af2b981d131fb94228464944a2` |
 | `specs/epic-193-a5-capability-resolver/verification/T-008/green-ps1.log` | `501ae0dd850f814655d05e06d5a74a30a3f290fc73d77dc7110c4e50e7edc8db` |
+| `specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-ps1.log` | `03397ce63b92ae9c81e2d356f0cf9011f7bf017143f9c55784c46fb40a34ab0b` |
+| `specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-sh.log` | `8188e258615f3a9e1038f3bb507bc5db449ef7483d6f4e8a411db07ec7c560b3` |
 | `specs/epic-193-a5-capability-resolver/verification/T-008/green-sh.log` | `34425e45a727916a4efb6bb31bd05914900c60e3d4670b35770c35f95d783a4b` |
+| `specs/epic-193-a5-capability-resolver/verification/T-008/mutation-proofs-round2.log` | `640a536a44110378d45fa3a7ec61edcd87dc407c86db848ab61988e63392c8f8` |
 | `specs/epic-193-a5-capability-resolver/verification/T-008/mutation-proofs.log` | `45a841cb05b9c5f8a95b1e0e3e6b1c88689e33f26c272535b8f9ca1bbebf018d` |
 | `specs/epic-193-a5-capability-resolver/verification/T-008/red-ps1.log` | `8d3dd9a87e5778bd0477a8cfbeba468825a25a94c6038d42219c49cbc5d27286` |
+| `specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-ps1.log` | `3b866313e2f18223e78c3577bb34f79a1b1f348123ef54e7342d24600514f3d3` |
+| `specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-sh.log` | `e4f73585e7098ba23e52eaa5c337c1864bd13bf940f05c4821ed01dab4c5e748` |
 | `specs/epic-193-a5-capability-resolver/verification/T-008/red-sh.log` | `5baf2af2371788d6c2ed4ba1ec1511ff7b21662886d526ca392bf980ff669e62` |
 
 ## Test Evidence
@@ -8046,6 +8069,123 @@ No sub-agent delegations were performed; all work was done in this agent.
   `human-copy/.github/workflows/test.yml` candidate remains pending, as for
   every prior task in this feature.
 
+## Panel Round 1 Remediation (2026-08-27)
+
+Blind cross-model panel returned NEEDS_WORK from the openai panelist (4 Major);
+the anthropic panelist returned PASS with 5 Minors. **All four Majors were
+verified against the code before any change was made. All four were real.**
+One carried an over-broad premise, corrected below. Each fix was driven
+TDD-style by a new fixture red first.
+
+### Verified-vs-refuted
+
+| # | Finding | Verdict | Evidence at verification time |
+|---|---|---|---|
+| 1 | canonicalizer-failure detail embeds raw dependency stderr | **VERIFIED** | `_load_via_canonicalizer` interpolated `result.stderr.decode(...)` straight into the emitted detail. New fixture proved leakage verbatim, fake secret path included. |
+| 2 | draft-07 subset does not implement `minimum` | **VERIFIED** | Schema uses `minimum` 1x (`declaration_index`); the engine implemented no numeric keyword at all. `minimum` was the only numeric keyword the schema uses. |
+| 3 | `resolve_registry` skips the `capability-registry/v1` version check | **VERIFIED, premise narrowed** | The **self-discovery** path *was* already covered by `registry_discovery.discover_artifact` -> `check_capability_registry`. The **`--registry` override** path had no version check whatsoever -- and the override is precisely the caller-substitutable attack surface B6 exists to close. Finding stands on the path that matters. |
+| 4 | reader-side check silently SKIPS malformed in-progress journals | **VERIFIED** | Two `continue` statements skipped non-dict entries and non-string `live_path`, and `.get("targets", [])` defaulted a missing key to empty -- strictly laxer than T-007's own writer-side `_read_journal`, which raises `PublicationJournalUnrecoverable` on all five such deviations. |
+
+Round-2 RED (all four new fixtures failing against the unremediated
+validator), both runtimes, 133 passed / 5 failed, exit 1 --
+`verification/T-008/red-round2-sh.log`, `red-round2-ps1.log`. The reds show
+each defect concretely: the canary string and fake secret path appearing
+verbatim in the validator's own output; `declaration_index: -1` escaping
+`schema-invalid` and being misreported as `conditional-facet-set-mismatch`;
+a `capability-registry/v0` override falling through to the digest binding; and
+the malformed journal yielding `exit 0` with empty output.
+
+### Fixes
+
+1. **B5 containment.** The canonicalizer-failure detail now names only which
+   attempts failed and their exit codes
+   (`--input-format json exited 3; --input-format yaml exited 3`), pointing the
+   operator at the canonicalizer's own stderr rather than copying it. `OSError`
+   and decode failures now report the exception **class name** only, never
+   `str(exc)` -- the same discipline `resolve-project-context.py`
+   `_rollback_clause` applies, and required for REQ-005 dual-runtime
+   byte-identity since OSError subclasses and their messages differ by
+   platform. The same leak in `load_document` was fixed in the same pass
+   (same defect class, not separately reported by the panel).
+2. **`minimum` implemented**, guarded so a `bool` cannot satisfy an integer
+   bound (`True == 1` in Python). `exclusiveMinimum`/`maximum`/
+   `exclusiveMaximum` implemented alongside it so a later schema revision
+   adding one cannot silently go unenforced the way `minimum` did.
+3. **Registry version check enforced uniformly** on both the self-resolved and
+   override paths, fired **before** the digest binding (a file that is not a
+   Registry of this schema version has no meaningful whole-Registry digest to
+   compare). New operational id `registry-version-mismatch`, outside the closed
+   twelve-value check enum like the other operational refusals.
+4. **Malformed live journals now refuse.** A live in-progress journal with a
+   missing/non-list/empty `targets[]`, or any entry that is not an object with
+   a non-empty string `live_path`, raises the same
+   `resolver-publication-in-progress` refusal: this validator cannot determine
+   whether such a journal names a path it is about to read, so it must not read.
+
+### Round-2 tallies
+
+| Runtime | Result | Exit | Log |
+|---|---|---|---|
+| `sh` | **138 passed, 0 failed** | 0 | `specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-sh.log` |
+| `pwsh` | **138 passed, 0 failed** | 0 | `.../verification/T-008/green-round2-ps1.log` |
+
+117 round-1 assertions + 21 new (four fixtures x five standard assertions, plus
+the B5 forbidden-string containment assertion). Original round-1 logs were not
+overwritten; round-2 logs are additional versioned files.
+
+Mutation proofs re-run against the remediated validator
+(`.../verification/T-008/mutation-proofs-round2.log`): control 138/0, all three
+mutations still DETECTED by their target fixtures (136/2, 135/3, 134/4),
+restored 138/0.
+
+### Regression baseline moved (not a regression)
+
+`resolve-project-context-block` now reports **321** (was 306) and
+`-discovery` **24** (was 12). Neither rise is caused by this task: a
+**concurrent T-007 panel remediation is in flight in this same worktree**
+(uncommitted `tests/resolve-project-context-block-check.py` +209 lines adding
+`run_t007_journal_target_escape_case`, plus a new
+`tests/fixtures/capability-resolver/resolve-project-context-block/publication-journal-target-escape/`
+fixture and edits to the staged `resolve-project-context.py` and
+`reports/.../T-007.md`), and further commits landed since round 1
+(`9490a07a`, `3964e383`, `dbeb526b`, incl. T-010 Done). Verified disjoint:
+neither `resolve-project-context-block-check.py` nor
+`resolve-project-context-discovery-check.py` contains any reference to
+`validate-resolver-evidence` (grep count 0 in both).
+
+| Suite (`sh`) | Round 1 | Round 2 | Note |
+|---|---|---|---|
+| `resolve-project-context-block` | 306/0 | **321/0** | +15 from concurrent T-007 remediation |
+| `resolve-project-context-match` | 125/0 | 125/0 | unchanged |
+| `resolve-project-context-cli` | 13/0 | 13/0 | unchanged |
+| `resolve-project-context-discovery` | 12/0 | **24/0** | +12 from landed commits |
+| `resolve-project-context-lite` | 18/0 | 18/0 | unchanged |
+| `resolver-evidence-schema` | 20/0 | 20/0 | unchanged |
+| `capability-registry-parity` | not run | exit 0 | |
+| `facet-manifest-parity` | not run | exit 0 | |
+
+The resolver **parity** (T-009) and **metamorphic** (T-010) suites named in the
+remediation request do not exist as resolver-specific suites in this tree; the
+two existing parity suites above were run in their place. No suite regressed.
+
+### Files changed in this remediation
+
+- `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py` (all four fixes)
+- `tests/validate-resolver-evidence-check.py` (canonicalizer-stub install,
+  `forbidden_strings` containment assertion, `OPERATIONAL_IDS` set, malformed-journal-safe planting)
+- `tests/fixtures/capability-resolver/validate-resolver-evidence/` -- four new
+  fixture directories (`canonicalizer-stderr-containment`,
+  `schema-invalid-negative-declaration-index`,
+  `registry-override-version-mismatch`, `reader-journal-malformed`);
+  every existing `case.json` gained the `forbidden_strings` key; `INDEX.json` extended to 25 cases
+- `specs/epic-193-a5-capability-resolver/verification/T-008/` -- five new logs
+  (`red-round2-{sh,ps1}.log`, `green-round2-{sh,ps1}.log`, `mutation-proofs-round2.log`)
+- this report (Outputs node refreshed to post-remediation hashes; this section appended)
+
+Not committed, per instruction. The `## Outputs` table above was regenerated
+against on-disk bytes after remediation, so its hashes are current rather than
+round-1 stale.
+
 # ---- specs/epic-193-a5-capability-resolver/verification/T-008/green-ps1.log ----
 # runner: pwsh
 PASS: clean: exit 0
@@ -8167,6 +8307,290 @@ PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 117 passed, 0 failed
 
+# ---- specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-ps1.log ----
+# runner: pwsh
+PASS: clean: exit 0
+PASS: clean: emits exactly [] and nothing else
+PASS: clean: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: clean: nothing on stderr
+PASS: clean: LF-only diagnostic bytes (no CR)
+PASS: schema-invalid: exit 1
+PASS: schema-invalid: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid: nothing on stderr
+PASS: schema-invalid: LF-only diagnostic bytes (no CR)
+PASS: registry-digest-unbound: exit 1
+PASS: registry-digest-unbound: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: registry-digest-unbound: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-digest-unbound: nothing on stderr
+PASS: registry-digest-unbound: LF-only diagnostic bytes (no CR)
+PASS: capability-set-mismatch: exit 1
+PASS: capability-set-mismatch: emits exactly ['capability-set-mismatch'] and nothing else
+PASS: capability-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-set-mismatch: nothing on stderr
+PASS: capability-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: capability-evaluation-id-duplicate: exit 1
+PASS: capability-evaluation-id-duplicate: emits exactly ['capability-evaluation-id-duplicate'] and nothing else
+PASS: capability-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-evaluation-id-duplicate: nothing on stderr
+PASS: capability-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: affected-component-provenance-mismatch: exit 1
+PASS: affected-component-provenance-mismatch: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: affected-component-provenance-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: affected-component-provenance-mismatch: nothing on stderr
+PASS: affected-component-provenance-mismatch: LF-only diagnostic bytes (no CR)
+PASS: trigger-evaluation-set-mismatch: exit 1
+PASS: trigger-evaluation-set-mismatch: emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: trigger-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: trigger-evaluation-set-mismatch: nothing on stderr
+PASS: trigger-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: component-evaluation-id-duplicate: exit 1
+PASS: component-evaluation-id-duplicate: emits exactly ['component-evaluation-id-duplicate'] and nothing else
+PASS: component-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: component-evaluation-id-duplicate: nothing on stderr
+PASS: component-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: matched-result-contradiction: exit 1
+PASS: matched-result-contradiction: emits exactly ['matched-result-contradiction', 'matched-result-contradiction'] and nothing else
+PASS: matched-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: matched-result-contradiction: nothing on stderr
+PASS: matched-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-set-mismatch: exit 1
+PASS: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: conditional-facet-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-set-mismatch: nothing on stderr
+PASS: conditional-facet-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-evaluation-set-mismatch: exit 1
+PASS: conditional-facet-evaluation-set-mismatch: emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: conditional-facet-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-evaluation-set-mismatch: nothing on stderr
+PASS: conditional-facet-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: applied-result-contradiction: exit 1
+PASS: applied-result-contradiction: emits exactly ['applied-result-contradiction', 'applied-result-contradiction'] and nothing else
+PASS: applied-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: applied-result-contradiction: nothing on stderr
+PASS: applied-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: array-not-stable-sorted: exit 1
+PASS: array-not-stable-sorted: emits exactly ['array-not-stable-sorted', 'array-not-stable-sorted'] and nothing else
+PASS: array-not-stable-sorted: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: array-not-stable-sorted: nothing on stderr
+PASS: array-not-stable-sorted: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-mismatch: exit 1
+PASS: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-override-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-mismatch: nothing on stderr
+PASS: provenance-registry-override-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-self-discovery-mismatch: exit 1
+PASS: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-self-discovery-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-self-discovery-mismatch: nothing on stderr
+PASS: provenance-registry-self-discovery-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-match: exit 0
+PASS: provenance-registry-override-match: emits exactly [] and nothing else
+PASS: provenance-registry-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-match: nothing on stderr
+PASS: provenance-registry-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-contradiction: exit 1
+PASS: provenance-affected-components-override-contradiction: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: provenance-affected-components-override-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-contradiction: nothing on stderr
+PASS: provenance-affected-components-override-contradiction: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-match: exit 0
+PASS: provenance-affected-components-override-match: emits exactly [] and nothing else
+PASS: provenance-affected-components-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-match: nothing on stderr
+PASS: provenance-affected-components-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-context-override-match: exit 0
+PASS: provenance-context-override-match: emits exactly [] and nothing else
+PASS: provenance-context-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-context-override-match: nothing on stderr
+PASS: provenance-context-override-match: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-live: exit 1
+PASS: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-live: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-live: nothing on stderr
+PASS: reader-journal-live: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-absent: exit 0
+PASS: reader-journal-absent: emits exactly [] and nothing else
+PASS: reader-journal-absent: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-absent: nothing on stderr
+PASS: reader-journal-absent: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: exit 1
+PASS: canonicalizer-stderr-containment: emits exactly ['canonicalizer-invocation-failed'] and nothing else
+PASS: canonicalizer-stderr-containment: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: canonicalizer-stderr-containment: nothing on stderr
+PASS: canonicalizer-stderr-containment: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: no dependency raw-stderr text reaches this validator's own diagnostic (B5 containment)
+PASS: schema-invalid-negative-declaration-index: exit 1
+PASS: schema-invalid-negative-declaration-index: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid-negative-declaration-index: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid-negative-declaration-index: nothing on stderr
+PASS: schema-invalid-negative-declaration-index: LF-only diagnostic bytes (no CR)
+PASS: registry-override-version-mismatch: exit 1
+PASS: registry-override-version-mismatch: emits exactly ['registry-version-mismatch'] and nothing else
+PASS: registry-override-version-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-override-version-mismatch: nothing on stderr
+PASS: registry-override-version-mismatch: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-malformed: exit 1
+PASS: reader-journal-malformed: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-malformed: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-malformed: nothing on stderr
+PASS: reader-journal-malformed: LF-only diagnostic bytes (no CR)
+PASS: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture
+PASS: TEST-021 namespace closure: no check-id outside the closed twelve-value enum (plus the reader-side refusal) was emitted
+PASS: TEST-021 enum cardinality: design.md's own enum is twelve-valued
+PASS: provenance-registry-override-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: provenance-registry-self-discovery-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: conditional-facet-set-mismatch: the fixture is name-blind by construction -- the Registry declares one facet name twice, the Evidence instance records that same name-set at a different cardinality, so only declaration_index keying can detect it (B7)
+PASS: TEST-054 pair: the live-journal fixture and its control are identical in Registry/Evidence/Manifest and differ only by the planted journal
+PASS: TEST-054 journal shape: the planted journal matches T-007's own TRANSACTION.json format and names the resolver-evidence.yaml path this validator is about to read
+PASS: validate-resolver-evidence.sh: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 138 passed, 0 failed
+
+# ---- specs/epic-193-a5-capability-resolver/verification/T-008/green-round2-sh.log ----
+# runner: bash
+PASS: clean: exit 0
+PASS: clean: emits exactly [] and nothing else
+PASS: clean: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: clean: nothing on stderr
+PASS: clean: LF-only diagnostic bytes (no CR)
+PASS: schema-invalid: exit 1
+PASS: schema-invalid: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid: nothing on stderr
+PASS: schema-invalid: LF-only diagnostic bytes (no CR)
+PASS: registry-digest-unbound: exit 1
+PASS: registry-digest-unbound: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: registry-digest-unbound: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-digest-unbound: nothing on stderr
+PASS: registry-digest-unbound: LF-only diagnostic bytes (no CR)
+PASS: capability-set-mismatch: exit 1
+PASS: capability-set-mismatch: emits exactly ['capability-set-mismatch'] and nothing else
+PASS: capability-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-set-mismatch: nothing on stderr
+PASS: capability-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: capability-evaluation-id-duplicate: exit 1
+PASS: capability-evaluation-id-duplicate: emits exactly ['capability-evaluation-id-duplicate'] and nothing else
+PASS: capability-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-evaluation-id-duplicate: nothing on stderr
+PASS: capability-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: affected-component-provenance-mismatch: exit 1
+PASS: affected-component-provenance-mismatch: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: affected-component-provenance-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: affected-component-provenance-mismatch: nothing on stderr
+PASS: affected-component-provenance-mismatch: LF-only diagnostic bytes (no CR)
+PASS: trigger-evaluation-set-mismatch: exit 1
+PASS: trigger-evaluation-set-mismatch: emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: trigger-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: trigger-evaluation-set-mismatch: nothing on stderr
+PASS: trigger-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: component-evaluation-id-duplicate: exit 1
+PASS: component-evaluation-id-duplicate: emits exactly ['component-evaluation-id-duplicate'] and nothing else
+PASS: component-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: component-evaluation-id-duplicate: nothing on stderr
+PASS: component-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: matched-result-contradiction: exit 1
+PASS: matched-result-contradiction: emits exactly ['matched-result-contradiction', 'matched-result-contradiction'] and nothing else
+PASS: matched-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: matched-result-contradiction: nothing on stderr
+PASS: matched-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-set-mismatch: exit 1
+PASS: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: conditional-facet-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-set-mismatch: nothing on stderr
+PASS: conditional-facet-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-evaluation-set-mismatch: exit 1
+PASS: conditional-facet-evaluation-set-mismatch: emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: conditional-facet-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-evaluation-set-mismatch: nothing on stderr
+PASS: conditional-facet-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: applied-result-contradiction: exit 1
+PASS: applied-result-contradiction: emits exactly ['applied-result-contradiction', 'applied-result-contradiction'] and nothing else
+PASS: applied-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: applied-result-contradiction: nothing on stderr
+PASS: applied-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: array-not-stable-sorted: exit 1
+PASS: array-not-stable-sorted: emits exactly ['array-not-stable-sorted', 'array-not-stable-sorted'] and nothing else
+PASS: array-not-stable-sorted: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: array-not-stable-sorted: nothing on stderr
+PASS: array-not-stable-sorted: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-mismatch: exit 1
+PASS: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-override-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-mismatch: nothing on stderr
+PASS: provenance-registry-override-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-self-discovery-mismatch: exit 1
+PASS: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-self-discovery-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-self-discovery-mismatch: nothing on stderr
+PASS: provenance-registry-self-discovery-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-match: exit 0
+PASS: provenance-registry-override-match: emits exactly [] and nothing else
+PASS: provenance-registry-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-match: nothing on stderr
+PASS: provenance-registry-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-contradiction: exit 1
+PASS: provenance-affected-components-override-contradiction: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: provenance-affected-components-override-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-contradiction: nothing on stderr
+PASS: provenance-affected-components-override-contradiction: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-match: exit 0
+PASS: provenance-affected-components-override-match: emits exactly [] and nothing else
+PASS: provenance-affected-components-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-match: nothing on stderr
+PASS: provenance-affected-components-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-context-override-match: exit 0
+PASS: provenance-context-override-match: emits exactly [] and nothing else
+PASS: provenance-context-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-context-override-match: nothing on stderr
+PASS: provenance-context-override-match: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-live: exit 1
+PASS: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-live: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-live: nothing on stderr
+PASS: reader-journal-live: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-absent: exit 0
+PASS: reader-journal-absent: emits exactly [] and nothing else
+PASS: reader-journal-absent: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-absent: nothing on stderr
+PASS: reader-journal-absent: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: exit 1
+PASS: canonicalizer-stderr-containment: emits exactly ['canonicalizer-invocation-failed'] and nothing else
+PASS: canonicalizer-stderr-containment: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: canonicalizer-stderr-containment: nothing on stderr
+PASS: canonicalizer-stderr-containment: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: no dependency raw-stderr text reaches this validator's own diagnostic (B5 containment)
+PASS: schema-invalid-negative-declaration-index: exit 1
+PASS: schema-invalid-negative-declaration-index: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid-negative-declaration-index: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid-negative-declaration-index: nothing on stderr
+PASS: schema-invalid-negative-declaration-index: LF-only diagnostic bytes (no CR)
+PASS: registry-override-version-mismatch: exit 1
+PASS: registry-override-version-mismatch: emits exactly ['registry-version-mismatch'] and nothing else
+PASS: registry-override-version-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-override-version-mismatch: nothing on stderr
+PASS: registry-override-version-mismatch: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-malformed: exit 1
+PASS: reader-journal-malformed: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-malformed: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-malformed: nothing on stderr
+PASS: reader-journal-malformed: LF-only diagnostic bytes (no CR)
+PASS: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture
+PASS: TEST-021 namespace closure: no check-id outside the closed twelve-value enum (plus the reader-side refusal) was emitted
+PASS: TEST-021 enum cardinality: design.md's own enum is twelve-valued
+PASS: provenance-registry-override-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: provenance-registry-self-discovery-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: conditional-facet-set-mismatch: the fixture is name-blind by construction -- the Registry declares one facet name twice, the Evidence instance records that same name-set at a different cardinality, so only declaration_index keying can detect it (B7)
+PASS: TEST-054 pair: the live-journal fixture and its control are identical in Registry/Evidence/Manifest and differ only by the planted journal
+PASS: TEST-054 journal shape: the planted journal matches T-007's own TRANSACTION.json format and names the resolver-evidence.yaml path this validator is about to read
+PASS: validate-resolver-evidence.sh: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 138 passed, 0 failed
+
 # ---- specs/epic-193-a5-capability-resolver/verification/T-008/green-sh.log ----
 # runner: bash
 PASS: clean: exit 0
@@ -8287,6 +8711,49 @@ PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementatio
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 117 passed, 0 failed
+
+# ---- specs/epic-193-a5-capability-resolver/verification/T-008/mutation-proofs-round2.log ----
+==============================================================================
+CONTROL (no mutation applied) -- the scratch tree must itself be green,
+otherwise a 'mutation failure' below could be an artifact of the copy.
+==============================================================================
+exit=0  RESULT: 138 passed, 0 failed
+
+==============================================================================
+MUTATION a-registry-binding-ordering: remove the registry-digest-unbound-BEFORE-exact-set ordering (the binding check still runs and still reports, but no longer suppresses the Registry-grounded exact-set checks)
+==============================================================================
+exit=1  RESULT: 136 passed, 2 failed
+FAIL: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else: got ['capability-set-mismatch', 'registry-digest-unbound']; stdout="resolver-evidence: capability-set-mismatch: /capability_evaluations: capability_evaluations[].capability_id is not exactly the provenance-bound Registry's own capabilities[].id set (missing: []; unexpected: ['beta-capability'])
+FAIL: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else: got ['capability-set-mismatch', 'registry-digest-unbound']; stdout="resolver-evidence: capability-set-mismatch: /capability_evaluations: capability_evaluations[].capability_id is not exactly the provenance-bound Registry's own capabilities[].id set (missing: []; unexpected: ['beta-capabil
+-- targeted-fixture check --
+   DETECTED: provenance-registry-override-mismatch
+   DETECTED: provenance-registry-self-discovery-mismatch
+
+==============================================================================
+MUTATION b-facet-name-keying: key conditional-facet-set-mismatch by facet NAME instead of declaration_index (the B7 regression this check exists to prevent)
+==============================================================================
+exit=1  RESULT: 135 passed, 3 failed
+FAIL: conditional-facet-set-mismatch: exit 1: got 0; stdout='' stderr=''
+FAIL: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else: got []; stdout=''
+FAIL: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture: never observed: ['conditional-facet-set-mismatch']
+-- targeted-fixture check --
+   DETECTED: conditional-facet-set-mismatch
+
+==============================================================================
+MUTATION c-drop-journal-check: drop the reader-side RESOLVER_PUBLICATION_IN_PROGRESS generation-consistency check entirely
+==============================================================================
+exit=1  RESULT: 134 passed, 4 failed
+FAIL: reader-journal-live: exit 1: got 0; stdout='' stderr=''
+FAIL: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else: got []; stdout=''
+FAIL: reader-journal-malformed: exit 1: got 0; stdout='' stderr=''
+FAIL: reader-journal-malformed: emits exactly ['resolver-publication-in-progress'] and nothing else: got []; stdout=''
+-- targeted-fixture check --
+   DETECTED: reader-journal-live
+
+==============================================================================
+RESTORED (pristine validator back in the scratch tree)
+==============================================================================
+exit=0  RESULT: 138 passed, 0 failed
 
 # ---- specs/epic-193-a5-capability-resolver/verification/T-008/mutation-proofs.log ----
 ==============================================================================
@@ -8449,6 +8916,290 @@ PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementatio
 FAIL: POSIX suite registered in tests/run-all.sh
 FAIL: PowerShell suite registered in tests/run-all.ps1
 RESULT: 82 passed, 35 failed
+
+# ---- specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-ps1.log ----
+# runner: pwsh
+PASS: clean: exit 0
+PASS: clean: emits exactly [] and nothing else
+PASS: clean: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: clean: nothing on stderr
+PASS: clean: LF-only diagnostic bytes (no CR)
+PASS: schema-invalid: exit 1
+PASS: schema-invalid: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid: nothing on stderr
+PASS: schema-invalid: LF-only diagnostic bytes (no CR)
+PASS: registry-digest-unbound: exit 1
+PASS: registry-digest-unbound: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: registry-digest-unbound: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-digest-unbound: nothing on stderr
+PASS: registry-digest-unbound: LF-only diagnostic bytes (no CR)
+PASS: capability-set-mismatch: exit 1
+PASS: capability-set-mismatch: emits exactly ['capability-set-mismatch'] and nothing else
+PASS: capability-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-set-mismatch: nothing on stderr
+PASS: capability-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: capability-evaluation-id-duplicate: exit 1
+PASS: capability-evaluation-id-duplicate: emits exactly ['capability-evaluation-id-duplicate'] and nothing else
+PASS: capability-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-evaluation-id-duplicate: nothing on stderr
+PASS: capability-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: affected-component-provenance-mismatch: exit 1
+PASS: affected-component-provenance-mismatch: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: affected-component-provenance-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: affected-component-provenance-mismatch: nothing on stderr
+PASS: affected-component-provenance-mismatch: LF-only diagnostic bytes (no CR)
+PASS: trigger-evaluation-set-mismatch: exit 1
+PASS: trigger-evaluation-set-mismatch: emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: trigger-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: trigger-evaluation-set-mismatch: nothing on stderr
+PASS: trigger-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: component-evaluation-id-duplicate: exit 1
+PASS: component-evaluation-id-duplicate: emits exactly ['component-evaluation-id-duplicate'] and nothing else
+PASS: component-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: component-evaluation-id-duplicate: nothing on stderr
+PASS: component-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: matched-result-contradiction: exit 1
+PASS: matched-result-contradiction: emits exactly ['matched-result-contradiction', 'matched-result-contradiction'] and nothing else
+PASS: matched-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: matched-result-contradiction: nothing on stderr
+PASS: matched-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-set-mismatch: exit 1
+PASS: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: conditional-facet-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-set-mismatch: nothing on stderr
+PASS: conditional-facet-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-evaluation-set-mismatch: exit 1
+PASS: conditional-facet-evaluation-set-mismatch: emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: conditional-facet-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-evaluation-set-mismatch: nothing on stderr
+PASS: conditional-facet-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: applied-result-contradiction: exit 1
+PASS: applied-result-contradiction: emits exactly ['applied-result-contradiction', 'applied-result-contradiction'] and nothing else
+PASS: applied-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: applied-result-contradiction: nothing on stderr
+PASS: applied-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: array-not-stable-sorted: exit 1
+PASS: array-not-stable-sorted: emits exactly ['array-not-stable-sorted', 'array-not-stable-sorted'] and nothing else
+PASS: array-not-stable-sorted: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: array-not-stable-sorted: nothing on stderr
+PASS: array-not-stable-sorted: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-mismatch: exit 1
+PASS: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-override-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-mismatch: nothing on stderr
+PASS: provenance-registry-override-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-self-discovery-mismatch: exit 1
+PASS: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-self-discovery-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-self-discovery-mismatch: nothing on stderr
+PASS: provenance-registry-self-discovery-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-match: exit 0
+PASS: provenance-registry-override-match: emits exactly [] and nothing else
+PASS: provenance-registry-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-match: nothing on stderr
+PASS: provenance-registry-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-contradiction: exit 1
+PASS: provenance-affected-components-override-contradiction: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: provenance-affected-components-override-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-contradiction: nothing on stderr
+PASS: provenance-affected-components-override-contradiction: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-match: exit 0
+PASS: provenance-affected-components-override-match: emits exactly [] and nothing else
+PASS: provenance-affected-components-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-match: nothing on stderr
+PASS: provenance-affected-components-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-context-override-match: exit 0
+PASS: provenance-context-override-match: emits exactly [] and nothing else
+PASS: provenance-context-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-context-override-match: nothing on stderr
+PASS: provenance-context-override-match: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-live: exit 1
+PASS: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-live: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-live: nothing on stderr
+PASS: reader-journal-live: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-absent: exit 0
+PASS: reader-journal-absent: emits exactly [] and nothing else
+PASS: reader-journal-absent: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-absent: nothing on stderr
+PASS: reader-journal-absent: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: exit 1
+PASS: canonicalizer-stderr-containment: emits exactly ['canonicalizer-invocation-failed'] and nothing else
+PASS: canonicalizer-stderr-containment: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: canonicalizer-stderr-containment: nothing on stderr
+PASS: canonicalizer-stderr-containment: LF-only diagnostic bytes (no CR)
+FAIL: canonicalizer-stderr-containment: no dependency raw-stderr text reaches this validator's own diagnostic (B5 containment): leaked=['CANARY_RAW_STDERR_LEAK_9f3b', '/Users/secret-operator/private/leak-target.yaml', 'line 42'] stdout='resolver-evidence: canonicalizer-invocation-failed: the canonicalizer rejected this target under every declared input format (--input-format json: canonicalize-sdd-yaml: CANARY_RAW_STDERR_LEAK_9f3b at /Users/secret-operator/private/leak-target.yaml line 42; --input-format yaml: canonicalize-sdd-yaml: CANARY_RAW_STDERR_LEAK_9f3b at /Users/secret-operator/private/leak-target.yaml line 42)\n'
+PASS: schema-invalid-negative-declaration-index: exit 1
+FAIL: schema-invalid-negative-declaration-index: emits exactly ['schema-invalid'] and nothing else: got ['conditional-facet-set-mismatch']; stdout="resolver-evidence: conditional-facet-set-mismatch: /capability_evaluations/0/conditional_facet_evaluations/0: no entry carries declaration_index 0, which the provenance-bound Registry declares for capability_id 'alpha-capability' (facet 'pii-handling-spec')\n"
+PASS: schema-invalid-negative-declaration-index: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid-negative-declaration-index: nothing on stderr
+PASS: schema-invalid-negative-declaration-index: LF-only diagnostic bytes (no CR)
+PASS: registry-override-version-mismatch: exit 1
+FAIL: registry-override-version-mismatch: emits exactly ['registry-version-mismatch'] and nothing else: got ['registry-digest-unbound']; stdout="resolver-evidence: registry-digest-unbound: /context_binding/registry_digest: the whole-Registry digest of the --registry override (sha256:053ebf0133e129a1d8d7fe0ad60cfddc268370eeaea779a7a913ec4ebcb79c47) does not equal this Evidence instance's own recorded registry_digest ('sha256:d4066e1b9e6a5a3007e6e20b50d9dc5ac9a075c5ff19a83939f74f42e72381e9'); no exact-set check can be meaningfully run against a Registry this instance is not provably about\n"
+PASS: registry-override-version-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-override-version-mismatch: nothing on stderr
+PASS: registry-override-version-mismatch: LF-only diagnostic bytes (no CR)
+FAIL: reader-journal-malformed: exit 1: got 0; stdout='' stderr=''
+FAIL: reader-journal-malformed: emits exactly ['resolver-publication-in-progress'] and nothing else: got []; stdout=''
+PASS: reader-journal-malformed: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-malformed: nothing on stderr
+PASS: reader-journal-malformed: LF-only diagnostic bytes (no CR)
+PASS: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture
+PASS: TEST-021 namespace closure: no check-id outside the closed twelve-value enum (plus the reader-side refusal) was emitted
+PASS: TEST-021 enum cardinality: design.md's own enum is twelve-valued
+PASS: provenance-registry-override-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: provenance-registry-self-discovery-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: conditional-facet-set-mismatch: the fixture is name-blind by construction -- the Registry declares one facet name twice, the Evidence instance records that same name-set at a different cardinality, so only declaration_index keying can detect it (B7)
+PASS: TEST-054 pair: the live-journal fixture and its control are identical in Registry/Evidence/Manifest and differ only by the planted journal
+PASS: TEST-054 journal shape: the planted journal matches T-007's own TRANSACTION.json format and names the resolver-evidence.yaml path this validator is about to read
+PASS: validate-resolver-evidence.sh: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 133 passed, 5 failed
+
+# ---- specs/epic-193-a5-capability-resolver/verification/T-008/red-round2-sh.log ----
+# runner: bash
+PASS: clean: exit 0
+PASS: clean: emits exactly [] and nothing else
+PASS: clean: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: clean: nothing on stderr
+PASS: clean: LF-only diagnostic bytes (no CR)
+PASS: schema-invalid: exit 1
+PASS: schema-invalid: emits exactly ['schema-invalid'] and nothing else
+PASS: schema-invalid: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid: nothing on stderr
+PASS: schema-invalid: LF-only diagnostic bytes (no CR)
+PASS: registry-digest-unbound: exit 1
+PASS: registry-digest-unbound: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: registry-digest-unbound: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-digest-unbound: nothing on stderr
+PASS: registry-digest-unbound: LF-only diagnostic bytes (no CR)
+PASS: capability-set-mismatch: exit 1
+PASS: capability-set-mismatch: emits exactly ['capability-set-mismatch'] and nothing else
+PASS: capability-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-set-mismatch: nothing on stderr
+PASS: capability-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: capability-evaluation-id-duplicate: exit 1
+PASS: capability-evaluation-id-duplicate: emits exactly ['capability-evaluation-id-duplicate'] and nothing else
+PASS: capability-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: capability-evaluation-id-duplicate: nothing on stderr
+PASS: capability-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: affected-component-provenance-mismatch: exit 1
+PASS: affected-component-provenance-mismatch: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: affected-component-provenance-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: affected-component-provenance-mismatch: nothing on stderr
+PASS: affected-component-provenance-mismatch: LF-only diagnostic bytes (no CR)
+PASS: trigger-evaluation-set-mismatch: exit 1
+PASS: trigger-evaluation-set-mismatch: emits exactly ['trigger-evaluation-set-mismatch'] and nothing else
+PASS: trigger-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: trigger-evaluation-set-mismatch: nothing on stderr
+PASS: trigger-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: component-evaluation-id-duplicate: exit 1
+PASS: component-evaluation-id-duplicate: emits exactly ['component-evaluation-id-duplicate'] and nothing else
+PASS: component-evaluation-id-duplicate: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: component-evaluation-id-duplicate: nothing on stderr
+PASS: component-evaluation-id-duplicate: LF-only diagnostic bytes (no CR)
+PASS: matched-result-contradiction: exit 1
+PASS: matched-result-contradiction: emits exactly ['matched-result-contradiction', 'matched-result-contradiction'] and nothing else
+PASS: matched-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: matched-result-contradiction: nothing on stderr
+PASS: matched-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-set-mismatch: exit 1
+PASS: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else
+PASS: conditional-facet-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-set-mismatch: nothing on stderr
+PASS: conditional-facet-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: conditional-facet-evaluation-set-mismatch: exit 1
+PASS: conditional-facet-evaluation-set-mismatch: emits exactly ['conditional-facet-evaluation-set-mismatch'] and nothing else
+PASS: conditional-facet-evaluation-set-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: conditional-facet-evaluation-set-mismatch: nothing on stderr
+PASS: conditional-facet-evaluation-set-mismatch: LF-only diagnostic bytes (no CR)
+PASS: applied-result-contradiction: exit 1
+PASS: applied-result-contradiction: emits exactly ['applied-result-contradiction', 'applied-result-contradiction'] and nothing else
+PASS: applied-result-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: applied-result-contradiction: nothing on stderr
+PASS: applied-result-contradiction: LF-only diagnostic bytes (no CR)
+PASS: array-not-stable-sorted: exit 1
+PASS: array-not-stable-sorted: emits exactly ['array-not-stable-sorted', 'array-not-stable-sorted'] and nothing else
+PASS: array-not-stable-sorted: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: array-not-stable-sorted: nothing on stderr
+PASS: array-not-stable-sorted: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-mismatch: exit 1
+PASS: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-override-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-mismatch: nothing on stderr
+PASS: provenance-registry-override-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-self-discovery-mismatch: exit 1
+PASS: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else
+PASS: provenance-registry-self-discovery-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-self-discovery-mismatch: nothing on stderr
+PASS: provenance-registry-self-discovery-mismatch: LF-only diagnostic bytes (no CR)
+PASS: provenance-registry-override-match: exit 0
+PASS: provenance-registry-override-match: emits exactly [] and nothing else
+PASS: provenance-registry-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-registry-override-match: nothing on stderr
+PASS: provenance-registry-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-contradiction: exit 1
+PASS: provenance-affected-components-override-contradiction: emits exactly ['affected-component-provenance-mismatch'] and nothing else
+PASS: provenance-affected-components-override-contradiction: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-contradiction: nothing on stderr
+PASS: provenance-affected-components-override-contradiction: LF-only diagnostic bytes (no CR)
+PASS: provenance-affected-components-override-match: exit 0
+PASS: provenance-affected-components-override-match: emits exactly [] and nothing else
+PASS: provenance-affected-components-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-affected-components-override-match: nothing on stderr
+PASS: provenance-affected-components-override-match: LF-only diagnostic bytes (no CR)
+PASS: provenance-context-override-match: exit 0
+PASS: provenance-context-override-match: emits exactly [] and nothing else
+PASS: provenance-context-override-match: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: provenance-context-override-match: nothing on stderr
+PASS: provenance-context-override-match: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-live: exit 1
+PASS: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else
+PASS: reader-journal-live: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-live: nothing on stderr
+PASS: reader-journal-live: LF-only diagnostic bytes (no CR)
+PASS: reader-journal-absent: exit 0
+PASS: reader-journal-absent: emits exactly [] and nothing else
+PASS: reader-journal-absent: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-absent: nothing on stderr
+PASS: reader-journal-absent: LF-only diagnostic bytes (no CR)
+PASS: canonicalizer-stderr-containment: exit 1
+PASS: canonicalizer-stderr-containment: emits exactly ['canonicalizer-invocation-failed'] and nothing else
+PASS: canonicalizer-stderr-containment: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: canonicalizer-stderr-containment: nothing on stderr
+PASS: canonicalizer-stderr-containment: LF-only diagnostic bytes (no CR)
+FAIL: canonicalizer-stderr-containment: no dependency raw-stderr text reaches this validator's own diagnostic (B5 containment): leaked=['CANARY_RAW_STDERR_LEAK_9f3b', '/Users/secret-operator/private/leak-target.yaml', 'line 42'] stdout='resolver-evidence: canonicalizer-invocation-failed: the canonicalizer rejected this target under every declared input format (--input-format json: canonicalize-sdd-yaml: CANARY_RAW_STDERR_LEAK_9f3b at /Users/secret-operator/private/leak-target.yaml line 42; --input-format yaml: canonicalize-sdd-yaml: CANARY_RAW_STDERR_LEAK_9f3b at /Users/secret-operator/private/leak-target.yaml line 42)\n'
+PASS: schema-invalid-negative-declaration-index: exit 1
+FAIL: schema-invalid-negative-declaration-index: emits exactly ['schema-invalid'] and nothing else: got ['conditional-facet-set-mismatch']; stdout="resolver-evidence: conditional-facet-set-mismatch: /capability_evaluations/0/conditional_facet_evaluations/0: no entry carries declaration_index 0, which the provenance-bound Registry declares for capability_id 'alpha-capability' (facet 'pii-handling-spec')\n"
+PASS: schema-invalid-negative-declaration-index: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: schema-invalid-negative-declaration-index: nothing on stderr
+PASS: schema-invalid-negative-declaration-index: LF-only diagnostic bytes (no CR)
+PASS: registry-override-version-mismatch: exit 1
+FAIL: registry-override-version-mismatch: emits exactly ['registry-version-mismatch'] and nothing else: got ['registry-digest-unbound']; stdout="resolver-evidence: registry-digest-unbound: /context_binding/registry_digest: the whole-Registry digest of the --registry override (sha256:053ebf0133e129a1d8d7fe0ad60cfddc268370eeaea779a7a913ec4ebcb79c47) does not equal this Evidence instance's own recorded registry_digest ('sha256:d4066e1b9e6a5a3007e6e20b50d9dc5ac9a075c5ff19a83939f74f42e72381e9'); no exact-set check can be meaningfully run against a Registry this instance is not provably about\n"
+PASS: registry-override-version-mismatch: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: registry-override-version-mismatch: nothing on stderr
+PASS: registry-override-version-mismatch: LF-only diagnostic bytes (no CR)
+FAIL: reader-journal-malformed: exit 1: got 0; stdout='' stderr=''
+FAIL: reader-journal-malformed: emits exactly ['resolver-publication-in-progress'] and nothing else: got []; stdout=''
+PASS: reader-journal-malformed: every diagnostic line follows the 'resolver-evidence: <check-id>: <detail>' convention
+PASS: reader-journal-malformed: nothing on stderr
+PASS: reader-journal-malformed: LF-only diagnostic bytes (no CR)
+PASS: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture
+PASS: TEST-021 namespace closure: no check-id outside the closed twelve-value enum (plus the reader-side refusal) was emitted
+PASS: TEST-021 enum cardinality: design.md's own enum is twelve-valued
+PASS: provenance-registry-override-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: provenance-registry-self-discovery-mismatch: the fixture's own Registry capability set diverges from the Evidence instance's own, so the sole-diagnostic expectation is a genuine binding-before-exact-set ordering assertion (AC-050)
+PASS: conditional-facet-set-mismatch: the fixture is name-blind by construction -- the Registry declares one facet name twice, the Evidence instance records that same name-set at a different cardinality, so only declaration_index keying can detect it (B7)
+PASS: TEST-054 pair: the live-journal fixture and its control are identical in Registry/Evidence/Manifest and differ only by the planted journal
+PASS: TEST-054 journal shape: the planted journal matches T-007's own TRANSACTION.json format and names the resolver-evidence.yaml path this validator is about to read
+PASS: validate-resolver-evidence.sh: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: validate-resolver-evidence.ps1: dispatches to the single .py implementation via a real process launch, and carries no check-id of its own
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 133 passed, 5 failed
 
 # ---- specs/epic-193-a5-capability-resolver/verification/T-008/red-sh.log ----
 # runner: bash
@@ -8678,6 +9429,9 @@ Diagnostic = namedtuple("Diagnostic", ["check_id", "pointer", "message"])
 
 SCHEMA_FILENAME = "resolver-evidence.schema.json"
 REGISTRY_FILENAME = "capability-registry.json"
+# Epic A2's own Registry version token, mirroring
+# `registry_discovery.check_capability_registry` rather than a second literal.
+REGISTRY_SCHEMA_VERSION = "capability-registry/v1"
 EXPECTED_SCHEMA_ID = (
     "https://github.com/aharada54914/sdd-forge/contracts/resolver-evidence.schema.json"
 )
@@ -8827,19 +9581,38 @@ def _load_via_canonicalizer(path):
             result = subprocess.run(_canonicalizer_argv(path, input_format),
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         except OSError as exc:
-            raise ValidatorError("canonicalizer-invocation-failed", str(exc))
+            # Deliberately the exception CLASS NAME only, never `str(exc)`:
+            # the OSError subclass raised for one injected condition differs by
+            # platform and its message carries a local path, which would break
+            # REQ-005 dual-runtime byte-identity as well as B5 (the identical
+            # discipline `resolve-project-context.py` `_rollback_clause`
+            # applies to its own OS-error details).
+            raise ValidatorError(
+                "canonicalizer-invocation-failed",
+                f"the canonicalize-sdd-yaml subprocess could not be launched "
+                f"({type(exc).__name__}) while reading this invocation's own target",
+            )
         if result.returncode != 0:
-            attempts.append(f"--input-format {input_format}: "
-                            f"{result.stderr.decode('utf-8', errors='replace').strip() or f'exit {result.returncode}'}")
+            # B5: record WHICH attempt failed and its exit code -- both
+            # Resolver-owned, platform-stable facts -- never the dependency's
+            # own stderr bytes. That stderr remains visible to a human
+            # operator on the terminal exactly as the subprocess itself wrote
+            # it; it simply never enters this validator's own emitted line.
+            attempts.append(f"--input-format {input_format} exited {result.returncode}")
             continue
         try:
             return json.loads(result.stdout.decode("utf-8"))
         except ValueError as exc:
-            raise ValidatorError("canonicalizer-invocation-failed",
-                                 f"non-JSON canonicalizer stdout: {exc}")
+            raise ValidatorError(
+                "canonicalizer-invocation-failed",
+                f"the canonicalize-sdd-yaml subprocess exited 0 under --input-format "
+                f"{input_format} but its stdout was not parseable canonical JSON "
+                f"({type(exc).__name__})",
+            )
     raise ValidatorError("canonicalizer-invocation-failed",
                          "the canonicalizer rejected this target under every declared input "
-                         "format (" + "; ".join(attempts) + ")")
+                         "format (" + "; ".join(attempts) + "); see the canonicalizer's own "
+                         "diagnostics on stderr for the reason")
 
 
 def load_document(path, diagnostic_id):
@@ -8851,9 +9624,15 @@ def load_document(path, diagnostic_id):
             return json.load(handle)
     # ValueError covers json.JSONDecodeError AND UnicodeDecodeError (both
     # ValueError subclasses) -- a non-UTF-8 input must surface this
-    # diagnostic, never an unhandled Python traceback.
+    # diagnostic, never an unhandled Python traceback. B5/REQ-005: the
+    # exception CLASS NAME only, never `str(exc)`, which carries a local path
+    # (OSError) or byte offsets that differ across runtimes.
     except (OSError, ValueError) as exc:
-        raise ValidatorError(diagnostic_id, str(exc))
+        raise ValidatorError(
+            diagnostic_id,
+            f"this invocation's own target could not be read or parsed "
+            f"({type(exc).__name__})",
+        )
 
 
 # --------------------------------------------------------------------------
@@ -8916,12 +9695,35 @@ def check_no_publication_in_progress(paths_being_read):
                 )
             if journal.get("status") != "in-progress":
                 continue
-            for target in journal.get("targets", []):
-                if not isinstance(target, dict):
-                    continue
-                live_path = target.get("live_path")
-                if not isinstance(live_path, str):
-                    continue
+            # A journal that IS live must be fully understood before this
+            # invocation may conclude it does not name a path about to be
+            # read. Mirrors T-007's own writer-side `_read_journal`, which
+            # raises `PublicationJournalUnrecoverable` on every one of these
+            # deviations. Previously each malformed entry was `continue`d --
+            # so a live journal with a missing/malformed `targets[]` was
+            # silently treated as naming nothing and the read proceeded, the
+            # exact opposite of fail-closed (panel round 1, Major 4).
+            entries = journal.get("targets")
+            if not isinstance(entries, list) or not entries:
+                raise ValidatorError(
+                    "resolver-publication-in-progress",
+                    "a live publication transaction journal carries no readable targets[] "
+                    "array, so this invocation cannot determine whether it names a path it "
+                    "is about to read; refusing to proceed on possibly-torn cross-file "
+                    "state (RESOLVER_PUBLICATION_IN_PROGRESS)",
+                )
+            for target in entries:
+                if not isinstance(target, dict) or not isinstance(target.get("live_path"), str) \
+                        or not target["live_path"]:
+                    raise ValidatorError(
+                        "resolver-publication-in-progress",
+                        "a live publication transaction journal carries a target entry that "
+                        "does not conform to this feature's own journal shape, so this "
+                        "invocation cannot determine whether it names a path it is about to "
+                        "read; refusing to proceed on possibly-torn cross-file state "
+                        "(RESOLVER_PUBLICATION_IN_PROGRESS)",
+                    )
+                live_path = target["live_path"]
                 if _normalize(_journal_target_path(journal_path, live_path)) in targets:
                     raise ValidatorError(
                         "resolver-publication-in-progress",
@@ -9075,6 +9877,24 @@ def _validate(instance, schema, root_schema, pointer, diags):
         elif "else" in schema:
             _validate(instance, schema["else"], root_schema, pointer, diags)
 
+    # Numeric keywords. Guarded on a real number (bool is excluded: in Python
+    # `True == 1`, so an unguarded comparison would silently accept a boolean
+    # where the schema demands an integer bound). `minimum` is the one numeric
+    # keyword contracts/resolver-evidence.schema.json actually uses
+    # (`declaration_index`, `minimum: 0`); `exclusiveMinimum`/`maximum`/
+    # `exclusiveMaximum` are implemented alongside it so a later schema
+    # revision that adds one cannot silently go unenforced the way `minimum`
+    # itself did (panel round 1, Major 2).
+    if isinstance(instance, (int, float)) and not isinstance(instance, bool):
+        if "minimum" in schema and instance < schema["minimum"]:
+            diags.append((pointer, f"{instance!r} < minimum {schema['minimum']!r}"))
+        if "exclusiveMinimum" in schema and instance <= schema["exclusiveMinimum"]:
+            diags.append((pointer, f"{instance!r} <= exclusiveMinimum {schema['exclusiveMinimum']!r}"))
+        if "maximum" in schema and instance > schema["maximum"]:
+            diags.append((pointer, f"{instance!r} > maximum {schema['maximum']!r}"))
+        if "exclusiveMaximum" in schema and instance >= schema["exclusiveMaximum"]:
+            diags.append((pointer, f"{instance!r} >= exclusiveMaximum {schema['exclusiveMaximum']!r}"))
+
     if isinstance(instance, str):
         if "pattern" in schema and not _compile_pattern(schema["pattern"]).search(instance):
             diags.append((pointer, f"does not match pattern {schema['pattern']!r}"))
@@ -9162,6 +9982,23 @@ def resolve_registry(override_path):
         label = "the ADR-0025-discovered Registry"
     if not isinstance(document, dict):
         raise ValidatorError("registry-unreadable", f"{label}'s top level is not an object")
+    # Per-artifact version check (design.md "Discovery contract":
+    # `capability-registry.json` -> `schema == "capability-registry/v1"`,
+    # "Epic A2's own check, reused unmodified"). The self-discovery path is
+    # already covered by `registry_discovery.discover_artifact`'s own
+    # `check_capability_registry`, but the `--registry` OVERRIDE path bypassed
+    # discovery entirely and therefore had NO version check at all -- the
+    # caller-substitutable surface B6 exists to close (panel round 1,
+    # Major 3). Applied uniformly here so both paths are checked by one rule,
+    # and fired BEFORE the digest binding: a file that is not a Registry of
+    # this schema version has no meaningful whole-Registry digest to compare.
+    if document.get("schema") != REGISTRY_SCHEMA_VERSION:
+        raise ValidatorError(
+            "registry-version-mismatch",
+            f"{label} declares schema {document.get('schema')!r}, not "
+            f"{REGISTRY_SCHEMA_VERSION!r}; refusing to treat it as ground truth for any "
+            f"exact-set or digest-binding check",
+        )
     return document, label
 
 
@@ -9848,12 +10685,18 @@ CHECK_ID_ENUM = (
     "array-not-stable-sorted",
 )
 
-# The reader-side generation-consistency refusal (AC-054) is deliberately NOT
-# a thirteenth member of that closed enum: it is an operational fail-closed
-# refusal to read at all, the same category as Epic A4's own
+# Operational fail-closed refusals are deliberately NOT members of that closed
+# enum: they are refusals to evaluate at all, the same category as Epic A4's own
 # `canonicalizer-invocation-failed`/`manifest-unreadable` lines, which those
-# three validators likewise emit outside their own check-id enums.
+# three validators likewise emit outside their own check-id enums. Enumerated
+# here so the namespace-closure assertion stays exact -- an id outside BOTH
+# sets still fails the run.
 JOURNAL_CHECK_ID = "resolver-publication-in-progress"
+OPERATIONAL_IDS = frozenset({
+    JOURNAL_CHECK_ID,
+    "canonicalizer-invocation-failed",
+    "registry-version-mismatch",
+})
 
 
 class Counts:
@@ -9985,11 +10828,20 @@ def build_repo(repo, case_dir):
     if journal_source.is_file():
         journal = load_json(journal_source)
         for target in journal.get("targets", []):
-            if target.get("live_path") == EVIDENCE_REL_PLACEHOLDER:
+            # A deliberately malformed fixture may carry non-dict entries
+            # (reader-journal-malformed); plant them verbatim.
+            if isinstance(target, dict) and target.get("live_path") == EVIDENCE_REL_PLACEHOLDER:
                 target["live_path"] = EVIDENCE_REL
         journal_path = repo / f"specs/{FEATURE}/.resolver-staging" / journal["nonce"] / "TRANSACTION.json"
         journal_path.parent.mkdir(parents=True, exist_ok=True)
         journal_path.write_bytes(canonical_bytes(journal))
+
+    # Installed LAST, and only when a fixture asks for it: the real
+    # canonicalizer is required above, by `generate-registry-digest --whole`,
+    # to bind this fixture's own digest placeholders before it is displaced.
+    stub = case_dir / "canonicalizer.py"
+    if stub.is_file():
+        shutil.copy2(stub, scripts / "canonicalize-sdd-yaml.py")
 
     return digest
 
@@ -10047,6 +10899,20 @@ def run_case(launcher, name, counts):
         counts.check("\r" not in stdout,
                      f"{name}: LF-only diagnostic bytes (no CR)", f"stdout={stdout!r}")
 
+        # security-spec.md B5: a dependency subprocess's own raw stderr, and any
+        # OS/environment-specific text it carries, must never reach this
+        # validator's own emitted diagnostic (it would also break REQ-005
+        # dual-runtime byte-identity). Checked against BOTH streams.
+        forbidden = meta.get("forbidden_strings", [])
+        if forbidden:
+            leaked = [token for token in forbidden if token in stdout or token in stderr]
+            counts.check(
+                not leaked,
+                f"{name}: no dependency raw-stderr text reaches this validator's own "
+                f"diagnostic (B5 containment)",
+                f"leaked={leaked!r} stdout={stdout!r}",
+            )
+
 
 def run_enum_completeness_check(counts):
     """Every one of design.md's own twelve check-ids was actually OBSERVED
@@ -10056,7 +10922,7 @@ def run_enum_completeness_check(counts):
     expected = set(CHECK_ID_ENUM)
     observed = set(counts.observed_check_ids)
     missing = sorted(expected - observed)
-    extra = sorted(observed - expected - {JOURNAL_CHECK_ID})
+    extra = sorted(observed - expected - OPERATIONAL_IDS)
     counts.check(not missing,
                  "TEST-021 matrix completeness: every one of the twelve check-ids "
                  "was observed firing on its own fixture",
@@ -10315,7 +11181,11 @@ exit $LASTEXITCODE
     "provenance-affected-components-override-match",
     "provenance-context-override-match",
     "reader-journal-live",
-    "reader-journal-absent"
+    "reader-journal-absent",
+    "canonicalizer-stderr-containment",
+    "schema-invalid-negative-declaration-index",
+    "registry-override-version-mismatch",
+    "reader-journal-malformed"
   ]
 }
 
@@ -10327,7 +11197,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "affected-component-provenance-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/affected-component-provenance-mismatch/evidence.json ----
@@ -10633,7 +11504,8 @@ exit $LASTEXITCODE
   "expect_check_ids": [
     "applied-result-contradiction",
     "applied-result-contradiction"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/applied-result-contradiction/evidence.json ----
@@ -10882,7 +11754,8 @@ exit $LASTEXITCODE
   "expect_check_ids": [
     "array-not-stable-sorted",
     "array-not-stable-sorted"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/array-not-stable-sorted/evidence.json ----
@@ -11133,6 +12006,331 @@ exit $LASTEXITCODE
   ]
 }
 
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/canonicalizer.py ----
+#!/usr/bin/env python3
+"""Fixture stub: always fails, emitting distinctive garbage on stderr.
+
+Stands in for canonicalize-sdd-yaml to prove validate-resolver-evidence never
+copies a dependency subprocess's own raw stderr into its own diagnostic line
+(security-spec.md B5 / REQ-005 dual-runtime byte-identity).
+"""
+import sys
+
+sys.stderr.write(
+    "canonicalize-sdd-yaml: CANARY_RAW_STDERR_LEAK_9f3b at /Users/secret-operator/private/leak-target.yaml line 42\n"
+)
+sys.exit(3)
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/case.json ----
+{
+  "description": "Major 1 (B5): the canonicalizer fails under both declared input formats while emitting distinctive garbage on stderr; this validator must report a canonical, Resolver-owned refusal naming WHICH attempts failed and must never copy that raw stderr into its own diagnostic line",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "canonicalizer-invocation-failed"
+  ],
+  "forbidden_strings": [
+    "CANARY_RAW_STDERR_LEAK_9f3b",
+    "/Users/secret-operator/private/leak-target.yaml",
+    "line 42"
+  ]
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/evidence.json ----
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "example-feature",
+  "state": "advisory",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "alpha-capability",
+      "matched": true,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": true,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 0,
+          "applied": true,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": true,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii",
+                  "outcome": "match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 1,
+          "applied": false,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "beta-capability",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/manifest.json ----
+{
+  "schema": "sdd-facet-manifest/v1",
+  "feature": "example-feature",
+  "affected_components": [
+    "svc-a",
+    "svc-b"
+  ],
+  "required_facets": [
+    "data-spec"
+  ],
+  "conditional_facets": [
+    {
+      "facet": "pii-handling-spec",
+      "applied": true,
+      "evidence": [
+        {
+          "operator": "equals",
+          "path": "/components/svc-a/characteristics/pii",
+          "outcome": "match"
+        }
+      ]
+    }
+  ],
+  "resolved_gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    "alpha-capability"
+  ],
+  "lite_eligibility": {
+    "eligible": false,
+    "upgrade_reasons": [
+      "durable_workflow"
+    ]
+  },
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  }
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/canonicalizer-stderr-containment/registry.json ----
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "script": "plugins/sdd-quality-loop/scripts/check-update-migration.sh",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "alpha-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii_export",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [
+        "alpha-replay-safety"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    },
+    {
+      "id": "beta-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "batch_job"
+          }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "beta-idempotency"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": true,
+        "upgrade_reasons": []
+      },
+      "minimum_enforcement": "advisory",
+      "delivery_strategy": {
+        "kind": "batch-job"
+      }
+    }
+  ]
+}
+
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/case.json ----
 {
   "description": "the same capability_id appears twice; the SET is still exactly the Registry's own, so only the nested-uniqueness check fires (B6)",
@@ -11141,7 +12339,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "capability-evaluation-id-duplicate"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/capability-evaluation-id-duplicate/evidence.json ----
@@ -11477,7 +12676,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "capability-set-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/capability-set-mismatch/evidence.json ----
@@ -11695,7 +12895,8 @@ exit $LASTEXITCODE
   "feature": "example-feature",
   "args": [],
   "expect_exit": 0,
-  "expect_check_ids": []
+  "expect_check_ids": [],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/clean/evidence.json ----
@@ -12000,7 +13201,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "component-evaluation-id-duplicate"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/component-evaluation-id-duplicate/evidence.json ----
@@ -12259,7 +13461,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "conditional-facet-evaluation-set-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-evaluation-set-mismatch/evidence.json ----
@@ -12497,7 +13700,8 @@ exit $LASTEXITCODE
   "expect_check_ids": [
     "conditional-facet-set-mismatch",
     "conditional-facet-set-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/conditional-facet-set-mismatch/evidence.json ----
@@ -12717,7 +13921,8 @@ exit $LASTEXITCODE
   "expect_check_ids": [
     "matched-result-contradiction",
     "matched-result-contradiction"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/matched-result-contradiction/evidence.json ----
@@ -12968,7 +14173,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "affected-component-provenance-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-contradiction/evidence.json ----
@@ -13274,7 +14480,8 @@ exit $LASTEXITCODE
     "svc-a,svc-b"
   ],
   "expect_exit": 0,
-  "expect_check_ids": []
+  "expect_check_ids": [],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-affected-components-override-match/evidence.json ----
@@ -13580,7 +14787,8 @@ exit $LASTEXITCODE
     "@CONTEXT@"
   ],
   "expect_exit": 0,
-  "expect_check_ids": []
+  "expect_check_ids": [],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-context-override-match/evidence.json ----
@@ -13914,7 +15122,8 @@ exit $LASTEXITCODE
     "@OVERRIDE_REGISTRY@"
   ],
   "expect_exit": 0,
-  "expect_check_ids": []
+  "expect_check_ids": [],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-match/evidence.json ----
@@ -14261,7 +15470,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "registry-digest-unbound"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-override-mismatch/evidence.json ----
@@ -14576,7 +15786,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "registry-digest-unbound"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/provenance-registry-self-discovery-mismatch/digest-registry.json ----
@@ -14889,7 +16100,8 @@ exit $LASTEXITCODE
   "feature": "example-feature",
   "args": [],
   "expect_exit": 0,
-  "expect_check_ids": []
+  "expect_check_ids": [],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-absent/evidence.json ----
@@ -15194,7 +16406,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "resolver-publication-in-progress"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-live/evidence.json ----
@@ -15505,6 +16718,322 @@ exit $LASTEXITCODE
   ]
 }
 
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/case.json ----
+{
+  "description": "Major 4: a LIVE in-progress journal carrying a correct schema token and status but a malformed targets[] entry. This validator cannot know whether that journal names the path it is about to read, so it must REFUSE rather than skip the entry and read on",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "resolver-publication-in-progress"
+  ],
+  "forbidden_strings": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/evidence.json ----
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "example-feature",
+  "state": "advisory",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "alpha-capability",
+      "matched": true,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": true,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 0,
+          "applied": true,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": true,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii",
+                  "outcome": "match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 1,
+          "applied": false,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "beta-capability",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/journal.json ----
+{
+  "schema": "sdd-resolver-transaction/v1",
+  "nonce": "fedcba9876543210",
+  "status": "in-progress",
+  "targets": [
+    "not-an-object"
+  ]
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/manifest.json ----
+{
+  "schema": "sdd-facet-manifest/v1",
+  "feature": "example-feature",
+  "affected_components": [
+    "svc-a",
+    "svc-b"
+  ],
+  "required_facets": [
+    "data-spec"
+  ],
+  "conditional_facets": [
+    {
+      "facet": "pii-handling-spec",
+      "applied": true,
+      "evidence": [
+        {
+          "operator": "equals",
+          "path": "/components/svc-a/characteristics/pii",
+          "outcome": "match"
+        }
+      ]
+    }
+  ],
+  "resolved_gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    "alpha-capability"
+  ],
+  "lite_eligibility": {
+    "eligible": false,
+    "upgrade_reasons": [
+      "durable_workflow"
+    ]
+  },
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  }
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/reader-journal-malformed/registry.json ----
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "script": "plugins/sdd-quality-loop/scripts/check-update-migration.sh",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "alpha-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii_export",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [
+        "alpha-replay-safety"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    },
+    {
+      "id": "beta-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "batch_job"
+          }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "beta-idempotency"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": true,
+        "upgrade_reasons": []
+      },
+      "minimum_enforcement": "advisory",
+      "delivery_strategy": {
+        "kind": "batch-job"
+      }
+    }
+  ]
+}
+
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/case.json ----
 {
   "description": "context_binding.registry_digest does not equal generate-registry-digest --whole over the ADR-0025-discovered Registry (B6)",
@@ -15513,7 +17042,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "registry-digest-unbound"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/registry-digest-unbound/evidence.json ----
@@ -15753,6 +17283,631 @@ exit $LASTEXITCODE
   ]
 }
 
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/case.json ----
+{
+  "description": "Major 3: a --registry override whose own schema token is not `capability-registry/v1`. The version check must fire fail-closed BEFORE the digest binding and before any exact-set check -- this override's capability set and digest BOTH also diverge, so a sole-diagnostic expectation proves the ordering",
+  "feature": "example-feature",
+  "args": [
+    "--registry",
+    "@OVERRIDE_REGISTRY@"
+  ],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "registry-version-mismatch"
+  ],
+  "forbidden_strings": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/evidence.json ----
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "example-feature",
+  "state": "advisory",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "alpha-capability",
+      "matched": true,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": true,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 0,
+          "applied": true,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": true,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii",
+                  "outcome": "match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 1,
+          "applied": false,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "beta-capability",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/override-registry.json ----
+{
+  "schema": "capability-registry/v0",
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "script": "plugins/sdd-quality-loop/scripts/check-update-migration.sh",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "alpha-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii_export",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [
+        "alpha-replay-safety"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    }
+  ]
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/registry-override-version-mismatch/registry.json ----
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "script": "plugins/sdd-quality-loop/scripts/check-update-migration.sh",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "alpha-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii_export",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [
+        "alpha-replay-safety"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    },
+    {
+      "id": "beta-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "batch_job"
+          }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "beta-idempotency"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": true,
+        "upgrade_reasons": []
+      },
+      "minimum_enforcement": "advisory",
+      "delivery_strategy": {
+        "kind": "batch-job"
+      }
+    }
+  ]
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/case.json ----
+{
+  "description": "Major 2: declaration_index -1 violates the schema's own `minimum: 0`; a subset engine that does not implement `minimum` would let it through and misreport it as a conditional-facet-set-mismatch instead",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "schema-invalid"
+  ],
+  "forbidden_strings": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/evidence.json ----
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "example-feature",
+  "state": "advisory",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "alpha-capability",
+      "matched": true,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": true,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": -1,
+          "applied": true,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": true,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii",
+                  "outcome": "match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 1,
+          "applied": false,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "beta-capability",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/manifest.json ----
+{
+  "schema": "sdd-facet-manifest/v1",
+  "feature": "example-feature",
+  "affected_components": [
+    "svc-a",
+    "svc-b"
+  ],
+  "required_facets": [
+    "data-spec"
+  ],
+  "conditional_facets": [
+    {
+      "facet": "pii-handling-spec",
+      "applied": true,
+      "evidence": [
+        {
+          "operator": "equals",
+          "path": "/components/svc-a/characteristics/pii",
+          "outcome": "match"
+        }
+      ]
+    }
+  ],
+  "resolved_gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    "alpha-capability"
+  ],
+  "lite_eligibility": {
+    "eligible": false,
+    "upgrade_reasons": [
+      "durable_workflow"
+    ]
+  },
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  }
+}
+
+# ---- tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid-negative-declaration-index/registry.json ----
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "script": "plugins/sdd-quality-loop/scripts/check-update-migration.sh",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "alpha-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii_export",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [
+        "alpha-replay-safety"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    },
+    {
+      "id": "beta-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "batch_job"
+          }
+        ]
+      },
+      "required_facets": [],
+      "conditional_facets": [],
+      "review_check_ids": [
+        "beta-idempotency"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": true,
+        "upgrade_reasons": []
+      },
+      "minimum_enforcement": "advisory",
+      "delivery_strategy": {
+        "kind": "batch-job"
+      }
+    }
+  ]
+}
+
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/case.json ----
 {
   "description": "a required top-level property is absent -- fails contracts/resolver-evidence.schema.json conformance",
@@ -15761,7 +17916,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "schema-invalid"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/schema-invalid/evidence.json ----
@@ -16008,7 +18164,8 @@ exit $LASTEXITCODE
   "expect_exit": 1,
   "expect_check_ids": [
     "trigger-evaluation-set-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }
 
 # ---- tests/fixtures/capability-resolver/validate-resolver-evidence/trigger-evaluation-set-mismatch/evidence.json ----
