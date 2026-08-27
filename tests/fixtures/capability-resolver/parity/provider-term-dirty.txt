@@ -1,0 +1,8 @@
+T-009 TEST-025 non-vacuity canary: a synthetic fixture deliberately
+containing provider-terms.json allowlist terms (reusing the identical
+provider-neutrality-scan mechanism facet-manifest-parity.tests.sh's own
+TEST-043 already established for Epic A4), so the "no hit" assertions
+against the real Resolver-owned scripts are not vacuously true.
+
+deploy_target = "aws-lambda-invoker"
+storage_backend = "s3"

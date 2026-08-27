@@ -734,6 +734,30 @@ jobs:
         shell: pwsh
         run: ./tests/validate-resolver-evidence.tests.ps1
 
+      # epic-193-a5-capability-resolver T-009 (REQ-005/REQ-006, TEST-022..
+      # 025): the dual-runtime parity and determinism suite -- two `.py`
+      # invocations of the identical input byte-identical (AC-022); `.py`/
+      # `.sh`/`.ps1` invocations of the identical input byte-identical,
+      # restricted to this feature's own emitted content, M8 (AC-023),
+      # including a Windows-style backslash-separated path argument;
+      # `capability_evaluations[]`/Facet-Manifest-array stable-sort
+      # discipline against an intentionally out-of-order Registry
+      # declaration (AC-024); a repository-wide grep self-check confirming
+      # no Resolver-owned script reads the clock, the network, or any
+      # provider API (AC-025). Ordered directly after T-008's own suite,
+      # the immediately preceding suite-registering task in the fixed
+      # CI-registration order (this task's own Depends On text).
+      - name: Test resolve-project-context parity (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/resolve-project-context-parity.tests.sh
+
+      - name: Test resolve-project-context parity (pwsh)
+        shell: pwsh
+        run: ./tests/resolve-project-context-parity.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

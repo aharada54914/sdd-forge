@@ -1,0 +1,8 @@
+T-009 TEST-025 false-positive control: this feature's own provider-neutral
+vocabulary, plus one near-miss substring that shares a letter-prefix with an
+allowlist term without ever forming a whole-word match on its own
+(`argonaut` extends past that allowlist term's own four letters, so no word
+boundary exists at the point where they would otherwise coincide) -- proves
+the whole-word scan does not over-match a mere shared substring.
+
+capability_evaluations, resolver-evidence, distribution_channels, argonaut

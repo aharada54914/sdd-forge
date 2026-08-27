@@ -1,0 +1,47 @@
+T-009 resolve-project-context-parity -- acceptance-first mutation-capture log
+
+Methodology: each mutation below is applied ONLY to a disposable SCRATCH copy of
+the repo tree at /private/tmp/.../scratchpad/t009-mutation-tree (see run_mutation.py,
+not committed), rebuilt fresh from the real repo's HEAD before each run. The real
+staged specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/
+scripts/resolve-project-context.{py,ps1} and the real live plugins/sdd-quality-loop/
+scripts/validate-resolver-evidence.py are never edited (confirmed via git status
+--porcelain and sha256 before/after this whole procedure, both showing no change).
+tests/resolve-project-context-parity-check.py --launcher sh is run against the
+scratch tree for every row below.
+
+==============================================================================
+mutation: control
+RESULT: 69 passed, 1 failed
+
+==============================================================================
+mutation: m1-repeated-invocation
+RESULT: 67 passed, 3 failed
+-- representative FAIL line(s) this mutation produced (non-vacuity proof) --
+FAIL: TEST-022 quick-block-canonicalizer-invocation-failed: two .py invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes, across two independent invocations (AC-022): {'invocation_1': {'exit': 1, 'stdout': b'', 'stderr': b'capabili
+FAIL: TEST-023 canonicalizer-invocation-failed: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023): {'py': {'exit': 1, 'stdout': b'', 'stderr': b'capability-resolver: canonicalizer-invocation-failed: canonic
+FAIL: self-registration: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it): error: Could not access 'HEAD'
+
+==============================================================================
+mutation: m2-ps1-extra-byte
+RESULT: 65 passed, 5 failed
+-- representative FAIL line(s) this mutation produced (non-vacuity proof) --
+FAIL: TEST-023 disabled-legacy-invocation: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023): {'py': {'exit': 1, 'stdout': b'', 'stderr': b'capability-resolver: disabled-legacy-invocation: sdd/project-conte
+FAIL: TEST-023 canonicalizer-invocation-failed: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023): {'py': {'exit': 1, 'stdout': b'', 'stderr': b'capability-resolver: canonicalizer-invocation-failed: canonic
+FAIL: TEST-023 windows-style-path: .py/.sh/.ps1 invocations of the identical input produce byte-identical exit/stdout/stderr and identical track-exclusive artifact bytes (AC-023): {'py': {'exit': 1, 'stdout': b'', 'stderr': b'capability-resolver: disabled-legacy-invocation: sdd\project-context.yaml
+
+==============================================================================
+mutation: m3-unsorted-capability-evaluations
+RESULT: 63 passed, 7 failed
+-- representative FAIL line(s) this mutation produced (non-vacuity proof) --
+FAIL: TEST-024 registry-reordering (py): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024): ['cap-gamma', 'cap-beta', 'cap-alpha']
+FAIL: TEST-024 registry-reordering (py) non-vacuity: the exact expected three-capability set is present -- the sort assertion above is not vacuously true over an empty/partial list: ['cap-gamma', 'cap-beta', 'cap-alpha']
+FAIL: TEST-024 registry-reordering (sh): capability_evaluations[] is stable-sorted by capability_id even though the source Registry declares ['cap-gamma', 'cap-beta', 'cap-alpha'] (AC-024): ['cap-gamma', 'cap-beta', 'cap-alpha']
+
+==============================================================================
+mutation: m4-time-time-call
+RESULT: 68 passed, 2 failed
+-- representative FAIL line(s) this mutation produced (non-vacuity proof) --
+FAIL: TEST-025: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py contains no datetime.now()/time.time()/network-primitive call (AC-025): ['time.time()']
+FAIL: self-registration: the live .github/workflows/test.yml is byte-unchanged relative to its committed state (this task never writes to it): error: Could not access 'HEAD'
+

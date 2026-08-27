@@ -110,6 +110,7 @@ tests=(
   tests/resolve-project-context-discovery.tests.sh
   tests/resolve-project-context-lite.tests.sh
   tests/validate-resolver-evidence.tests.sh
+  tests/resolve-project-context-parity.tests.sh
   tests/capability-registry-schema.tests.sh
   tests/evaluate-predicate.tests.sh
   tests/registry-discovery.tests.sh
