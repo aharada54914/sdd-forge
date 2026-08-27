@@ -359,6 +359,44 @@
 
 ### Added
 
+- **Epic 194 T-001 human-copy runner, promoted to its canonical path (#194)**:
+  the feature-scoped `apply-protected-files.ps1` runner and its twin
+  `.sh`/`.ps1` contract checks (exact four-target payload, ordinal
+  control/digest handling, recursive payload enumeration, anchored no-follow
+  publication, hash and post-copy verification) now live at their real
+  `specs/epic-194-a6-lite-integration/human-copy/` destination -- the R-10
+  guard's `human-copy/` staging exemption was re-confirmed live, so the
+  earlier non-protected `drafts/`/`PROPOSED/*.PROPOSED` holding pens are
+  retired. T-002's (`check-risk-upgrade.sh`/`.ps1`, `risk-upgrade-policy.md`)
+  and T-003's (`lite-spec/SKILL.md`) already-tested payload, and a staged
+  `.github/workflows/test.yml` CI-registration candidate for all four of this
+  epic's tasks, are staged alongside it pending a human apply step (see
+  `specs/epic-194-a6-lite-integration/human-copy/README.md`).
+
+- **Epic 194 T-002 `check-risk-upgrade` Capability-derived trigger merge,
+  staged (#194)**: `check-risk-upgrade.sh`/`.ps1` gain an optional
+  `--capability-reasons <fragment-path>` / `-CapabilityReasons
+  <fragment-path>` second argument -- omitted, the script stays
+  byte-identical to today; supplied-and-valid, every matched
+  `eligible:false` Capability's own `upgrade_reasons` tokens (or, if empty,
+  a synthetic `ineligible:<id>` token) merge into `triggers=`, keyword-derived
+  tokens first; supplied-but-unreadable/malformed/shape-invalid, the script
+  fails closed (`exit 2`, no trigger output), distinct from the omitted-argument
+  case. `risk-upgrade-policy.md` documents the extended two-source contract.
+  Staged at its canonical `specs/epic-194-a6-lite-integration/human-copy/`
+  path pending the human apply step (T-001's runner); not yet applied to the
+  live `plugins/sdd-lite/**` path.
+
+- **Epic 194 T-003 `lite-spec`'s Risk-Upgrade Gate, Capability-derived Block,
+  staged (#194)**: `lite-spec/SKILL.md`'s Risk-Upgrade Gate section gains a
+  pre-generation step that assembles every Registry Capability matched
+  against a Project-Context-declared component into T-002's own
+  trigger-fragment shape and passes it to the extended `check-risk-upgrade`,
+  Blocking (`exit 10`, `full-required: ...`, non-overridable by `--lite`)
+  before any `specs/<feature>/` file is created -- the existing `ship`-time
+  recheck remains an unmodified, independent second stage. Staged at its
+  canonical `specs/epic-194-a6-lite-integration/human-copy/` path pending
+  the human apply step; not yet applied to the live path.
 - **WFI 起草へのなぜなぜ分析（5 Whys）の組込み**: WFI テンプレートと
   workflow-retrospective の起草手順に `## Why-Why Analysis` セクション
   （friction → 根本原因の因果チェーン、各段の証拠引用、症状の言い換え・
@@ -881,6 +919,30 @@
   no-wildcard ルールにより CI で一度も実行されない — REQ-005 が塞ぐために
   存在する当のギャップを再生産することになる。v1.12.0 の記述自体は
   リリース済みの履歴として書き換えない。
+
+### 追加
+
+- **`lite-gate` の Capability Summary 消費と Registry-sourced チェック実行 (Issue #194, epic-194-a6-lite-integration T-004)**:
+  `plugins/sdd-lite/skills/lite-gate/SKILL.md` の Process に Step 2a
+  (`full_upgrade_required` バックストップ)と Step 2b(コマンド発見契約
+  経由の Registry-sourced チェック実行)を、既存 Step 2 と Step 3 の間に
+  挿入(直接編集、`guard-invariants.json` で編集直前に非保護を再確認)。
+  Project Context が無い場合(disabled-legacy)は空リストで継続、
+  アクティブな `capability_enforcement` 下で Summary が無ければ
+  `VERDICT: FAIL`(disabled-legacy とは明確に区別)。Summary は A4/A5
+  所有のバリデータで検証(再実装しない)、`full_upgrade_required: true`
+  は Step 2b 実行前にブロック。未マップな Registry-sourced check-id は
+  `N/A` ではなく常に `VERDICT: FAIL`。新規コマンド発見契約は
+  check-id 文法・シンボリックリンク脱出・パストラバーサル・
+  単一ランタイムメンバーのみのペアをすべて fail-closed で拒否する
+  (安全性強化 NEW-01)。`lite-gate/SKILL.md` は agent 向けプローズの
+  ため、`tests/fixtures/epic-194-lite-gate/simulate-lite-gate-step2.{sh,ps1}`
+  という文書化されたアルゴリズムの参照シミュレータを新規追加し、5つの
+  新規スイート(`tests/lite-gate-summary-consumption`,
+  `-summary-absent`, `-summary-invalid`, `-full-upgrade-backstop`,
+  `-summary-absent-active-enforcement`、各 `.sh`/`.ps1`)がこれを検証する
+  (両ランタイム合計58アサーション)。`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイート群を直接登録(第4/最終位置)。
 
 ## v1.14.0 (2026-08-05)
 

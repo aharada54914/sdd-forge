@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-194-a6-spec-review-a2-r1-reviewer-b-seq766",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a2-r1-reviewer-b-766",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md",
+      "sha256": "2e71e3bde791159a2ca5a9f9bbe4589c183789b994af4b6ebd551fd890d6080b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md",
+      "sha256": "691db158e25045959809f32d67e1132974163cb72ef6729806427b3c193180f5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md",
+      "sha256": "45b5212b48d933676195eed057a4b693c144830befcee7a377cc0f3dc4f9d9f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-1/precheck-result.json",
+      "sha256": "e1ea33835ba63219498a70175d6f44290ed4d8d8568589788aa51827c62ffbe8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/spec-review/epic-194-a6-lite-integration/attempt-2/round-1/integrated-summary.json",
+      "sha256": "9374b0a83e3470cf15674d31c424322d10630aacdfd507e8264e87d92dde85f9"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-002 (:338-352) and AC-007/AC-008/AC-009 (:764-766) describe check-risk-upgrade's new input uniformly as 'a second, optional argument' (also :969, :1082, :1111 in Main Workflows/Security Boundaries), implying a purely positional CLI contract; but AC-027 (:784) and the REQ-006(i) fixture (:628) name a specific named flag, '--capability-reasons'/'-CapabilityReasons' (PowerShell-parameter style). An implementer reading only the REQ-002 body/Field Definitions would build a positional second argument (e.g. `check-risk-upgrade.sh <source> <fragment>`), while an implementer building fixtures from AC-027 would build a flag-based interface (e.g. `check-risk-upgrade.sh <source> --capability-reasons <fragment>`) - two directly incompatible CLI signatures for the same script, propagated to both of REQ-002's own call sites (lite-spec intake, ship-time recheck). This is a requirements-level I/O-contract ambiguity, not an implementation-architecture detail, so it belongs to spec review before design/task decomposition commits to one shape. Severity is Major (downstream interface mismatch), not Critical, since it does not conflict on goals or safety."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md TEST-010/AC-010 (:35) declares the human-copy payload set to be exactly FIVE targets - risk-upgrade-policy.md, check-risk-upgrade.sh, check-risk-upgrade.ps1, lite-spec/SKILL.md, AND '.github/workflows/test.yml' - citing 'tasks.md's own Protected Files item 3' and 'T-001 cross-model verdicts 2026-08-21' as already-established authority. But this feature is explicitly Phase-1-only with no tasks.md ('no tasks.md/traceability.md exists yet', requirements.md Overview :40-45), so that citation cannot be this feature's own artifact. Directly contradicting AC-010, the same document's own TEST-031/AC-031 row (acceptance-tests.md :54) states the runner's exact-set contract is 'a three-way equality among the declared four-target payload list' and requires rejecting 'a staged directory whose payload file set doesn't exactly match the declared four-target list' - never mentioning .github/workflows/test.yml. requirements.md's own AC-010 (:767) and AC-031 (:788) independently corroborate only four targets (REQ-002's three protected scripts + REQ-005's lite-spec/SKILL.md), with no REQ, Dependency, or Investigation entry anywhere establishing why this feature would touch a CI workflow file at all. This is a direct, citable conflict between acceptance criteria in the same reviewed document set about the exact scope of an approval-gated protected-file batch - a workflow-boundary contradiction (human-copy governance, ADR-0011), making AC-010 and AC-031 impossible to satisfy simultaneously as written. Critical because it is a workflow-boundary contradiction that makes the runner-conformance acceptance criteria unreviewable/unimplementable as a coherent pair."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md REQ-006 (:587-651) fixes a twelve-item fixture inventory (a)-(l) spanning eligible/ineligible Capability resolution, v1-Registry compatibility, Capability-Summary consumption, unmapped required-check-id (plus NEW-01's grammar/symlink/partial-pair negative fixtures), unknown-catalog-token rejection, disabled-legacy absent-Summary, active-enforcement absent-Summary, full_upgrade_required backstop, supplied-invalid capability-reasons fragment, ineligible-with-no-reasons, and required-enforcement field-absence. acceptance-tests.md's AC-011/AC-030 (:36,:53), AC-016 (:41), AC-026-AC-029 (:49-52) map each of these onto testable, observable outcomes with explicit boundary distinctions (e.g. disabled-legacy vs. active-enforcement-absent vs. zero-matched-Capability-present, :768/:36/:53). This is materially thorough negative/boundary/failure-path coverage for the REQs in scope."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Assumptions section (:1129-1152) lists four assumptions (A2/A3/A4 schema stability, A5's Pending-status text as best-available contract, lite-gate/SKILL.md's live protection status, no Capability Pack existing yet), each paired with an explicit re-verification trigger rather than left as an unresolved unknown. requirements.md Open Questions (:1153-1182) shows OQ-001/OQ-002/OQ-003 each explicitly CLOSED/RESOLVED by a cited orchestrator ruling, with the ruling text itself stated normatively in the relevant REQ bodies (REQ-003/REQ-004/REQ-005) rather than deferred. No assumption in this package is left ambiguous about whether it is resolved or still pending a decision."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "The human-copy flow (ADR-0011) is this spec's governance/irreversible-change boundary: protected files (risk-upgrade-policy.md, check-risk-upgrade.{sh,ps1}, lite-spec/SKILL.md) cannot be edited directly and must pass through a staged, hash-verified, human-applied runner (requirements.md REQ-002/REQ-005, AC-010/AC-031). This boundary's own testability is broken by the same AC-010-vs-AC-031 four/five-target contradiction cited under CONTRADICTION (acceptance-tests.md :35 vs :54; requirements.md :767/:788): a runner-conformance test cannot simultaneously satisfy AC-010's five-target exact-set requirement and AC-031's four-target exact-set requirement, so the approval-gated payload boundary this feature depends on to keep protected-file edits out of direct-agent reach has no single, consistent, testable definition as currently specified. Critical per calibration's 'impossible acceptance criteria... that makes the specification unreviewable' guidance, applied here to a governance/approval boundary specifically."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "A design/implementation-policy reviewer handed this package would have to invent product behavior to resolve the AC-010/AC-031 four-vs-five-target conflict (acceptance-tests.md :35 vs :54): whether '.github/workflows/test.yml' is genuinely in this feature's protected-file scope, and if so, under what requirement (no REQ-001..REQ-006 item, Dependencies entry, or investigation.md finding names this file or explains a CI-workflow edit belonging to this feature's lite-integration scope). Additionally, the CLI second-argument-vs-named-flag ambiguity (AMBIGUITY finding above) would force the same reviewer to pick a concrete I/O contract shape the requirements themselves do not commit to. Both gaps require the downstream reviewer to author missing product decisions rather than merely translate an already-decided spec into a design."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Verified directly: this worktree (/Users/jrmag/Projects/active/sdd-forge-wt-epic-194) has no domain/ directory (Glob for 'domain' and 'domain/*' at repository root returned no matches, and a repository-wide search for 'domain-contract.json' also returned no matches). Per the check's skip condition, DOMAIN-CONFORMANCE is recorded as skipped."
+    }
+  ]
+}

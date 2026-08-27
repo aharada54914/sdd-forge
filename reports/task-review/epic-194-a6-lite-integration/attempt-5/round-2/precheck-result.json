@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 5,
+  "round": 2,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "a867bad8ab99efd0f3731b2acd740ddab37e5eaf118dc5454ff803561faa60a8",
+  "requirements_sha256": "00d322ad45c8547750b5224cd190b232036e1ec21d3ec2f598b0e09e7ebfb02d",
+  "acceptance_sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b",
+  "design_sha256": "bf4720f55b75b19686901edd792b683ca7dd126bda7938b2b34194ec1b11ba78",
+  "traceability_sha256": "05ea256df88b1c4a94bb099efc349577db76ab5cfaf378453b5809768fe9770f",
+  "layer_sha256": {"ux-spec.md":"37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7","frontend-spec.md":"f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee","infra-spec.md":"74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c","security-spec.md":"7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"},
+  "input_sha256": "bea43c968c73e108613ce1cf869360995e40a6ed2ada9c3220b0288b2c896334",
+  "generated_at": "2026-08-25T13:59:16Z"
+}

@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-194-a6-impl-review-a3-r3-reviewer-b-seq798",
+  "host_session_id": "SESS-epic-194-a6-impl-review-a3-r3-reviewer-b-798",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-3/precheck-result.json", "sha256": "5d8d71c1cfae9f114934c2e35c5a6f4a86a01a8e9ac073d9eee286420ee2bb09"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/impl-review/epic-194-a6-lite-integration/attempt-3/round-3/integrated-summary.json", "sha256": "fe455407863d70f3428e8766df9f75c6e06a3cc358b70c53239c9673e9cd7fc3"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md", "sha256": "00d322ad45c8547750b5224cd190b232036e1ec21d3ec2f598b0e09e7ebfb02d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/design.md", "sha256": "bf4720f55b75b19686901edd792b683ca7dd126bda7938b2b34194ec1b11ba78"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/investigation.md", "sha256": "fce6679687ed226ccfa8a32029e43e1b2e9c303dca6ffe2c92e8fed59aebb57d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/ux-spec.md", "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/frontend-spec.md", "sha256": "f06b45a468321a4a9f9f041d989f6a101a9e19cf9759bd9284f857fedb5377ee"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/infra-spec.md", "sha256": "74b376abb4372976f0f9a78a7a755895ebe1742798dcdaf4d80d6824c570689c"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/security-spec.md", "sha256": "7b26d1e11fc86ad44e8bae06f99daeefd654ee3c1f6d6c7a977eaa0be72b35e5"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline decision in design.md's Design Decisions section carries an explicit rationale (e.g. 'chosen because', 'Selected because'): field-name choice (grounded in A5 design.md:947 + union-match precedent), lite-check-catalog seed of three tokens (grounded in ADR-0022 item 3 / A4 AC-013, correcting an earlier single-token seed that self-contradicted its own Test Strategy fixture), merge-ordering (keyword-before-capability, minimizes behavior-visible surface), no-re-validation-inside-check-risk-upgrade (avoids a competing validation surface), Step 2b's no-op/unmapped rules (unmapped reversed to FAIL with stated reasoning), and OQ-002 candidate (a) selection (stated accepted cost vs. candidate (b)). No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' section (lines 1238-1245) contains no active open question: OQ-001/OQ-002/OQ-003 are all recorded as CLOSED/RESOLVED by the 2026-07-22 orchestrator ruling, with the resolved behavior stated normatively in Architecture/API Contract Plan/Design Decisions rather than left parameterized. No entry needs an owner/Blocks-Implementation/Resolution-Path field because no entry is still open. No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Assumptions' section (3 entries) is grounded: entry 1 cites investigation.md INV-003 (re-verified against the live capability-registry.schema.json 2026-08-25) and the Amendment Re-Review Context's third entry for the INV-013 correction; entry 2 cites A5's current (Pending) design.md text as the grounding, explicitly flagged as 'best available, not a guarantee'; entry 3 is re-verified against the live guard-invariants.json at implementation-start time (Protected-File Statement). investigation.md is present (not absent), so the >1-non-trivial-assumption-with-no-grounding trigger does not apply. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (lines 1196-1209) addressing the two standard project constraints (500-line file limit, type-safety/error-handling) with reasoned N/A-in-source-code-sense statements consistent with this being a Phase-1, design-only package. requirements.md contains no '## Constraints' section and no explicit 'must not'/'shall not'/'within N ms'/'maximum N'/'compliant with'/'compatible with' constraint language (grep found none), so there is no unaddressed requirements.md constraint for the fallback scan to surface. No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (grep for response-time/throughput/concurrency/latency/SLA/numeric-threshold language returned nothing)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 1167-1194) names the deployment target (CI's existing generate-gate-capabilities.py --check drift cycle, unmodified logic), states this feature adds no new CI job, and the 2026-08-25-ruling paragraph explicitly resolves an apparent tension between 'this design does not edit .github/workflows/test.yml' (true of live agent commits, since that path is R-10 protected) and 'the staged human-copy batch includes a copy of that file as its fifth declared target' (true of the declared deliverable, applied only by a human via the anchored runner). No feature-flag strategy is needed (Global Constraints: no new heavy machinery, additive-only). Schema-change 'migration' execution order is covered by the Protected-File Statement's staged-then-human-applied sequencing (human-copy precedes any live effect; nothing is auto-deployed). No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan declares additive-only schema/catalog growth (a new optional Registry key defaulting to [], two catalog_version bumps) -- no destructive or breaking schema change. A migration/rollback strategy is stated in infra-spec.md's '## Rollback' section: unprotected/data-file changes revert via git revert; protected-path changes (including the now-correctly-classified lite-upgrade-reason-catalog.json bump) revert only by a human re-running the feature-scoped anchored runner against corrected staged bytes, with post-copy re-verification as the correctness check (security-spec.md B5). No table/row-volume concern applies -- these are JSON contract files, not database tables. No issues found."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section states 'None. Every artifact this design reads or extends is already internal to this repository.' Consistent with the rest of the document: every referenced dependency (A2's Registry/validator, A4's Capability Summary schema, A5's Resolver output, A1's Project Context, the existing sdd-lite scripts/skills) is an internal, already-cited repository artifact, not a third-party or cross-service call. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every design element traces to a REQ-/AC- ID (Architecture, Components, API/Contract Plan sections are annotated throughout), and the Components table and Global Constraints section explicitly reject introducing a new plugin or new verification machinery beyond what ADR-0022/A2/A4/A5 already authorize. Design System Compliance states 'Not applicable -- no UI surface,' consistent with ux-spec.md/frontend-spec.md's N/A status for this feature. No out-of-scope component or endpoint found; no goal from requirements.md's Goals/User Stories left uncovered (REQ-001 through REQ-005 are each addressed in Architecture, Data Plan, and API/Contract Plan). No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both parts of round 2's single Major finding are verified closed. Part 1: design.md Test Strategy item 17 (lines 955-982) now names all five of contract point 5's properties, diffed directly against point 5's own text (Protected-File Statement, lines 301-329): (i) per-target atomic publish with in-step digest verification before the next target is attempted, (ii) the batch is not transactional and has no rollback, (iii) live-state reporting on any failure after the copy phase begins (installed/failed/not-attempted enumeration, stating installed files are live and not rolled back), (iv) recovery by re-running the runner, an already-correct target being a no-op, and (v) the pre-copy branch -- a failure before the copy phase begins reports that no live file was modified. All five are present in the current item 17 text; none is a mere collective reference. Part 2: security-spec.md's B5 STRIDE row (line 74) and Security Tests row for item 17 (line 188) are each independently extended to name the same five properties individually, and both restatements are accurate to design.md's point 5 (do not claim cross-target atomicity, correctly state 'not transactional... no rollback', and correctly attribute the control to B5's own partial-failure abuse case -- 'a cp that silently fails partway'). git log confirms security-spec.md's prior amendment (ac7a2e64) and design.md's point-5-adding commit (cf631ea7) both predate this round's commit (2a82d93c), and that ac7a2e64 predates cf631ea7 -- consistent with investigation.md's stated correction of the prior round's commit-hash citation (23fe659f -> ac7a2e649427aeb042fac872e03debbe5472cbe4), which does not change the underlying finding. The human-copy runner script itself is not in this reviewer's manifest and was not executed; this PASS is a design-content-review judgment on internal consistency between design.md, security-spec.md and investigation.md, which is the evidence class item 17 and AC-031 themselves declare as sufficient (design-content review plus a future implementation-phase fixture) -- consistent with this being a Phase-1, design-only package that authors no runner code."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists in this worktree, so the domain-model-approved precondition for this check is absent."
+    }
+  ]
+}

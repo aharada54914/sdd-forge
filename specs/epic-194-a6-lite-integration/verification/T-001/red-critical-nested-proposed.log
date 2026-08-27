@@ -1,0 +1,15 @@
+T-001 Critical regression RED: recursive PROPOSED exact-set semantics
+Date: 2026-08-08
+
+Command:
+pwsh -NoProfile -File tests/human-copy-runner-contract.tests.ps1 -SecurityRegression nested-proposed -RunnerUnderTest specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1
+
+Exit: 1
+Results: 27 passed, 5 failed
+
+Critical-specific failure:
+- TEST-010b: PROPOSED/nested/payload.PROPOSED received only a generic
+  undeclared-path error; the runner did not implement the required explicit
+  recursive PROPOSED/ policy. TEST-010a/c still confirmed safe rejection and
+  no live-target mutation. The other four failures were the old runner's
+  missing real-CLI post-copy seam.

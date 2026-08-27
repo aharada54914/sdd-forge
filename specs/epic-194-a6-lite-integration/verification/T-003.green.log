@@ -1,0 +1,77 @@
+### recaptured 2026-08-25T11:58:26Z against HEAD 4905c13143ca29e103d6b35130754f68cb83dc14 (cross-model remediation; the previous capture predated the 2026-08-21 SourceMode fix and this round of assertions) ###
+### lite-spec-capability-block.tests.sh (against canonical staged human-copy candidate, pending human-apply) ###
+=== TEST-019-static: proposed SKILL.md names every required element ===
+ok: TEST-019-static-a: names evaluate-predicate as the signal source
+ok: TEST-019-static-b: names the Project-Context-declared component match
+ok: TEST-019-static-c: names the trigger-fragment eligible/upgrade_reasons shape
+ok: TEST-019-static-d: the checker call site gains the new second argument
+ok: TEST-019-static-e: the .ps1 call site gains its own new parameter
+ok: TEST-019-static-f: disabled-legacy (no Project Context) skip clause present
+ok: TEST-019-static-g: non-overridable -- the '--lite never overrides' clause is present verbatim (AC-019)
+ok: TEST-019-static-g2: that non-override applies to the Capability-derived signal too, not only the keyword scan
+ok: TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented
+ok: TEST-019-static-i: ship-time recheck stays layered, not replaced
+ok: TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching
+ok: TEST-019-static-p: the gate states it runs before any specs/<feature>/ file is created (AC-019)
+ok: TEST-019-static-q: the Risk-Upgrade Gate section (line 31) precedes the specs/<feature>/ generation step (line 103)
+ok: TEST-019-static-k: names evaluate-predicate absence/non-zero exit as a producer failure mode
+ok: TEST-019-static-l: names an unreadable/unparseable Registry as a producer failure mode
+ok: TEST-019-static-m: names a temp-fragment write failure as a producer failure mode
+ok: TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs
+ok: TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted
+=== TEST-019-functional: assembled Capability-derived fragment Blocks ===
+ok: TEST-019-fixture-catalog: the tasks.md-declared fixture tree exists and is read by both twins
+ok: TEST-019-functional-registry-shape: the Registry fixture nests eligibility under lite_policy and exposes no flattened eligible/upgrade_reasons (design.md Data Plan; parity with the .ps1 twin's fixture)
+ok: TEST-019-functional-baseline: the keyword-match reference fixture Blocks (exit 10, 'full-required: ...') -- the comparison target AC-019 names actually exists
+ok: TEST-019-functional-a: Blocks with the IDENTICAL exit code the keyword-match fixture just produced (10)
+ok: TEST-019-functional-b: message shape is the IDENTICAL 'full-required: ...' shape the keyword-match fixture just produced
+ok: TEST-019-functional-c: the matched Capability's own upgrade_reasons token is present in the Block message
+=== TEST-019-defense-in-depth: ship-time recheck independently Blocks a component intake's Capability-derived evaluation did not flag ===
+ok: TEST-019-defense-in-depth-a: proposed SKILL.md documents the intake-time --capability-reasons contract this fixture drives
+ok: TEST-019-defense-in-depth-b: intake-time evaluation does not flag the eligible:true component (exit 0, lite-eligible)
+ok: TEST-019-defense-in-depth-c: ship-time recheck independently Blocks (exit 10) even though intake's Capability-derived evaluation did not flag this component
+ok: TEST-019-defense-in-depth-d: ship/SKILL.md still independently invokes check-risk-upgrade at ship time
+=== TEST-021 (AC-021): single-file, human-copy-only lock ===
+ok: TEST-021a: REQ-005 stages exactly one file under sdd-lite/skills/, and it is plugins/sdd-lite/skills/lite-spec/SKILL.md
+ok: TEST-021b: exactly one MANIFEST.sha256 entry names plugins/sdd-lite/skills/lite-spec/SKILL.md, and its digest matches the staged bytes
+ok: TEST-021c: the only application path staged is the shared apply-protected-files.ps1 -- no REQ-005-specific applier was introduced
+
+Results: 31 passed, 0 failed
+### lite-spec-capability-block.tests.ps1 (against canonical staged human-copy candidate, pending human-apply) ###
+=== TEST-019-static: proposed SKILL.md names every required element ===
+ok: TEST-019-static-a: names evaluate-predicate as the signal source
+ok: TEST-019-static-b: names the Project-Context-declared component match
+ok: TEST-019-static-c: names the trigger-fragment eligible/upgrade_reasons shape
+ok: TEST-019-static-d: the checker call site gains the new second argument
+ok: TEST-019-static-e: the .ps1 call site gains its own new parameter
+ok: TEST-019-static-f: disabled-legacy (no Project Context) skip clause present
+ok: TEST-019-static-g: non-overridable -- the "--lite never overrides" clause is present verbatim (AC-019)
+ok: TEST-019-static-g2: that non-override applies to the Capability-derived signal too, not only the keyword scan
+ok: TEST-019-static-h: the dedicated fragment-invalid exit-2 diagnostic is documented
+ok: TEST-019-static-i: ship-time recheck stays layered, not replaced
+ok: TEST-019-static-j: Boundaries still disclaim reimplementing Predicate-DSL/Registry-matching
+ok: TEST-019-static-p: the gate states it runs before any specs/<feature>/ file is created (AC-019)
+ok: TEST-019-static-q: the Risk-Upgrade Gate section (line 31) precedes the specs/<feature>/ generation step (line 103)
+ok: TEST-019-static-k: names evaluate-predicate absence/non-zero exit as a producer failure mode
+ok: TEST-019-static-l: names an unreadable/unparseable Registry as a producer failure mode
+ok: TEST-019-static-m: names a temp-fragment write failure as a producer failure mode
+ok: TEST-019-static-n: the required outcome is an immediate Block, before the checker ever runs
+ok: TEST-019-static-o: an attempted-and-failed signal is never treated as one never attempted
+ok: TEST-019-fixture-catalog: the tasks.md-declared fixture tree exists and is read by both twins
+=== TEST-019-functional: assembled Capability-derived fragment Blocks ===
+ok: TEST-019-functional-registry-shape: the Registry fixture nests eligibility under lite_policy and exposes no flattened eligible/upgrade_reasons (design.md Data Plan; parity with the sh twin's registry.json)
+ok: TEST-019-functional-baseline: the keyword-match reference fixture Blocks (exit 10, 'full-required: ...') -- the comparison target AC-019 names actually exists
+ok: TEST-019-functional-a: Blocks with the IDENTICAL exit code the keyword-match fixture just produced (10)
+ok: TEST-019-functional-b: message shape is the IDENTICAL 'full-required: ...' shape the keyword-match fixture just produced
+ok: TEST-019-functional-c: matched Capability upgrade_reasons token present in the Block message
+=== TEST-019-defense-in-depth: ship-time recheck independently Blocks a component intake did not flag ===
+ok: TEST-019-defense-in-depth-a: proposed SKILL.md documents the intake-time --capability-reasons contract this fixture drives
+ok: TEST-019-defense-in-depth-b: intake-time evaluation does not flag the eligible:true component (exit 0, lite-eligible)
+ok: TEST-019-defense-in-depth-c: ship-time recheck independently Blocks (exit 10) even though intake did not flag this component
+ok: TEST-019-defense-in-depth-d: ship/SKILL.md still independently invokes check-risk-upgrade at ship time
+=== TEST-021 (AC-021): single-file, human-copy-only lock ===
+ok: TEST-021a: REQ-005 stages exactly one file under sdd-lite/skills/, and it is plugins/sdd-lite/skills/lite-spec/SKILL.md
+ok: TEST-021b: exactly one MANIFEST.sha256 entry names plugins/sdd-lite/skills/lite-spec/SKILL.md, and its digest matches the staged bytes
+ok: TEST-021c: the only application path staged is the shared apply-protected-files.ps1 -- no REQ-005-specific applier was introduced
+
+Results: 31 passed, 0 failed

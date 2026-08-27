@@ -1,0 +1,55 @@
+Version-string mutation self-check (tasks.md T-001 Done-When: 'a grep
+self-check confirms no version string was mutated outside
+scripts/bump-version.sh').
+
+Run at: 2026-08-21T01:20:02Z
+Merge-base with origin/main: 5d63a74b8bee23f47d55587dbb7dbdfc3fd976b8
+HEAD: b057bb2c91c2f40e863d05baaa0e7deb5b8e42e4
+Current pinned release version (tests/validate-repository.ps1's own
+sdd-ship version constant, the same source bump-version.sh itself reads):
+  1.15.0
+
+=== 1. Was scripts/bump-version.sh itself touched by this feature? ===
+$ git diff --name-only "$MB"...HEAD -- scripts/bump-version.sh
+(no output above = not touched -- confirmed: this feature never executed or edited the sanctioned mutator)
+
+=== 2. Were any of the known release-surface files touched? ===
+$ git diff --name-only "$MB"...HEAD -- "**/plugin.json" "**/marketplace.json" README.md tests/validate-repository.ps1 tests/repository-release-validation.tests.sh
+(no output above = none touched)
+
+=== 3. Did CHANGELOG.md gain or lose a version heading ('## vX.Y.Z')? ===
+$ git diff "$MB"...HEAD -- CHANGELOG.md | grep -E "^[+-]## "
+(no output above = no version heading added or removed; only a new
+'## Unreleased' -> Added -> Epic 194 entry, already the Done-When's own
+separate CHANGELOG obligation, not a version bump)
+
+=== 4. Does any semver-shaped token (N.N.N) appear on an added/removed
+    line anywhere in the feature's own diff? (broad sweep, not limited
+    to release-surface files, to catch a version string mutated
+    somewhere unexpected) ===
+$ git diff "$MB"...HEAD | grep -cE '^[+-][^+-].*[^0-9][0-9]+\.[0-9]+\.[0-9]+([^0-9]|$)'
+62 matching lines
+
+Of those, every hit is one of: (a) prose referencing the already-released
+'## v1.11.0 (2026-07-21)' CHANGELOG block as historical context (not a
+mutation of it); (b) third-party GitHub Actions pinned-tag comments
+(actions/checkout, actions/setup-node, actions/upload-artifact) inside
+the newly-staged .github/workflows/test.yml, which is new content this
+feature adds, not a mutation of an existing version string; (c)
+'python'/'git version' environment-metadata fields inside review-context
+report JSON captured this session, unrelated to release versioning.
+None touch a plugin.json/marketplace.json version field, the README
+release line, or a CHANGELOG version heading. Spot-checked below:
++> relocated from the released `## v1.11.0 (2026-07-21)` block (where merge
++`git blame` over the post-fix v1.11.0 block resolves to 18 commits, every
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
++        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
++      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+...
+
+=== Conclusion ===
+No version string was mutated by this feature outside
+scripts/bump-version.sh (which this feature does not touch or execute
+at all). Consistent with tasks.md's own Assumptions bullet: 'this
+feature introduces no version-mutation path. No task hand-edits a
+version string or executes that script.'

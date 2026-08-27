@@ -1,0 +1,11 @@
+{
+  "schema":"cross-model-verdict/v1","task_id":"T-003","feature":"epic-194-a6-lite-integration","vendor":"google","model":"gemini-3-pro-preview","verdict":"NEEDS_WORK",
+  "findings":[
+    {"severity":"Major","ref":"verification/T-003.contract.json: spec_revision","note":"The contract explicitly states its pinned spec_revision is stale and deliberately leaves the stale value in place. Consequently, the verification contract does not certify the specification revision contained in this review bundle."},
+    {"severity":"Major","ref":"verification/T-003.contract.json: checks[regression] and verification/qg/shared/regression.log","note":"Regression is required but recorded passes:false, and the evidence states full-repository regression does not pass. A required verification gate remains unsatisfied."},
+    {"severity":"Major","ref":"verification/T-003.contract.json: checks[placeholder-scan] and verification/qg/shared/placeholder-scan.log","note":"Placeholder scanning is required but recorded passes:false. The cited scan exits 1 on CHANGELOG.md, and the bundle states that no quality-gate report contains the human acceptance required by the scanner's exemption contract."},
+    {"severity":"Major","ref":"traceability.md: T-003 planned verification evidence","note":"Traceability names T-003/green-sh.log and T-003/red-sh.log, while the supplied implementation and evidence use T-003.green.log and T-003.red.log. The implementation report confirms this drift remains unresolved pending a stage re-pin, leaving the task's evidence mapping broken."},
+    {"severity":"Minor","ref":"human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: Handoff","note":"The final Handoff paragraph is duplicated verbatim in the staged protected-file payload."}
+  ],
+  "blind":true,"input_digest":"cf51b33eee9461f8fcae91e7e300113169f348e5cee6b6683a27c6b40bd908d5","consent":{"kind":"sudo","ref":"T-003.panelist-input.txt header"}
+}
