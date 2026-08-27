@@ -1,0 +1,297 @@
+# runner: pwsh
+PASS: disabled-legacy-invocation: exit 1
+PASS: disabled-legacy-invocation: canonical diagnostic only
+PASS: disabled-legacy-invocation: exact Resolver Evidence
+PASS: disabled-legacy-invocation: Resolver Evidence schema agreement
+PASS: disabled-legacy-invocation: no partial live artifact
+PASS: disabled-legacy-invocation: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-lite: exit 1
+PASS: workflow-combination-invalid-lite: canonical diagnostic only
+PASS: workflow-combination-invalid-lite: exact Resolver Evidence
+PASS: workflow-combination-invalid-lite: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-lite: no partial live artifact
+PASS: workflow-combination-invalid-lite: no step-4-or-later subprocess
+PASS: workflow-combination-invalid-full: exit 1
+PASS: workflow-combination-invalid-full: canonical diagnostic only
+PASS: workflow-combination-invalid-full: exact Resolver Evidence
+PASS: workflow-combination-invalid-full: Resolver Evidence schema agreement
+PASS: workflow-combination-invalid-full: no partial live artifact
+PASS: workflow-combination-invalid-full: no step-4-or-later subprocess
+PASS: project-context-validation-failed: exit 1
+PASS: project-context-validation-failed: canonical diagnostic only
+PASS: project-context-validation-failed: exact Resolver Evidence
+PASS: project-context-validation-failed: Resolver Evidence schema agreement
+PASS: project-context-validation-failed: no partial live artifact
+PASS: project-context-validation-failed: no step-4-or-later subprocess
+PASS: canonicalizer-invocation-failed: exit 1
+PASS: canonicalizer-invocation-failed: canonical diagnostic only
+PASS: canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: canonicalizer-invocation-failed: no partial live artifact
+PASS: canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: dependency-output-malformed: exit 1
+PASS: dependency-output-malformed: canonical diagnostic only
+PASS: dependency-output-malformed: exact Resolver Evidence
+PASS: dependency-output-malformed: Resolver Evidence schema agreement
+PASS: dependency-output-malformed: no partial live artifact
+PASS: dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-two-components: exit 0
+PASS: projection-two-components: no diagnostic on either stream
+PASS: projection-two-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-two-components: Context Projection field set is REQ-003's exact five
+PASS: projection-two-components: Context Projection schema const
+PASS: projection-two-components: source_sha256 binds the canonical Project Context
+PASS: projection-two-components: workflow copied verbatim
+PASS: projection-two-components: components re-keyed by id with id stripped
+PASS: projection-two-components: shared_paths carried as-is
+PASS: projection-two-components: exact Context Projection document
+FAIL: projection-two-components: the Full-track clean resolve published its whole track-exclusive output set through step 14's own transaction
+PASS: projection-two-components: no capability-summary.yaml on a Full-track resolve (B4)
+PASS: projection-two-components: Complete left no journal or staging litter
+PASS: projection-omits-components: exit 0
+PASS: projection-omits-components: no diagnostic on either stream
+PASS: projection-omits-components: step 3 second canonicalizer pass ran in JSON mode
+PASS: projection-omits-components: Context Projection field set is REQ-003's exact five
+PASS: projection-omits-components: Context Projection schema const
+PASS: projection-omits-components: source_sha256 binds the canonical Project Context
+PASS: projection-omits-components: workflow copied verbatim
+PASS: projection-omits-components: components re-keyed by id with id stripped
+PASS: projection-omits-components: shared_paths carried as-is
+PASS: projection-omits-components: exact Context Projection document
+PASS: projection-canonicalizer-invocation-failed: exit 1
+PASS: projection-canonicalizer-invocation-failed: canonical diagnostic only
+PASS: projection-canonicalizer-invocation-failed: exact Resolver Evidence
+PASS: projection-canonicalizer-invocation-failed: Resolver Evidence schema agreement
+PASS: projection-canonicalizer-invocation-failed: no partial live artifact
+PASS: projection-canonicalizer-invocation-failed: no step-4-or-later subprocess
+PASS: projection-dependency-output-malformed: exit 1
+PASS: projection-dependency-output-malformed: canonical diagnostic only
+PASS: projection-dependency-output-malformed: exact Resolver Evidence
+PASS: projection-dependency-output-malformed: Resolver Evidence schema agreement
+PASS: projection-dependency-output-malformed: no partial live artifact
+PASS: projection-dependency-output-malformed: no step-4-or-later subprocess
+PASS: projection-output-not-object: exit 1
+PASS: projection-output-not-object: canonical diagnostic only
+PASS: projection-output-not-object: exact Resolver Evidence
+PASS: projection-output-not-object: Resolver Evidence schema agreement
+PASS: projection-output-not-object: no partial live artifact
+PASS: projection-output-not-object: no step-4-or-later subprocess
+PASS: projection-components-not-object: exit 1
+PASS: projection-components-not-object: canonical diagnostic only
+PASS: projection-components-not-object: exact Resolver Evidence
+PASS: projection-components-not-object: Resolver Evidence schema agreement
+PASS: projection-components-not-object: no partial live artifact
+PASS: projection-components-not-object: no step-4-or-later subprocess
+PASS: affected-component-resolution-failed: exit 1
+PASS: affected-component-resolution-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-resolution-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: affected-component-resolution-failed: exact Resolver Evidence
+PASS: affected-component-resolution-failed: Resolver Evidence schema agreement
+PASS: affected-component-resolution-failed: no partial live artifact
+PASS: resolve-component-paths-launch-failed: exit 1
+PASS: resolve-component-paths-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-launch-failed: exact Resolver Evidence
+PASS: resolve-component-paths-launch-failed: Resolver Evidence schema agreement
+PASS: resolve-component-paths-launch-failed: no partial live artifact
+PASS: contract-discovery-failed: exit 1
+PASS: contract-discovery-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed: exact Resolver Evidence
+PASS: contract-discovery-failed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed: no partial live artifact
+PASS: registry-discovery-unimportable: exit 1
+PASS: registry-discovery-unimportable: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-unimportable: exact Resolver Evidence
+PASS: registry-discovery-unimportable: Resolver Evidence schema agreement
+PASS: registry-discovery-unimportable: no partial live artifact
+PASS: registry-validation-failed: exit 1
+PASS: registry-validation-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-validation-failed: exact Resolver Evidence
+PASS: registry-validation-failed: Resolver Evidence schema agreement
+PASS: registry-validation-failed: no partial live artifact
+PASS: validate-capability-registry-launch-failed: exit 1
+PASS: validate-capability-registry-launch-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: validate-capability-registry-launch-failed: exact Resolver Evidence
+PASS: validate-capability-registry-launch-failed: Resolver Evidence schema agreement
+PASS: validate-capability-registry-launch-failed: no partial live artifact
+PASS: dependency-subprocess-failed: exit 1
+PASS: dependency-subprocess-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: dependency-subprocess-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: dependency-subprocess-failed: exact Resolver Evidence
+PASS: dependency-subprocess-failed: Resolver Evidence schema agreement
+PASS: dependency-subprocess-failed: no partial live artifact
+PASS: affected-component-duplicate-ids: exit 1
+PASS: affected-component-duplicate-ids: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-duplicate-ids: exact Resolver Evidence
+PASS: affected-component-duplicate-ids: Resolver Evidence schema agreement
+PASS: affected-component-duplicate-ids: no partial live artifact
+PASS: resolve-component-paths-binding-not-object: exit 1
+PASS: resolve-component-paths-binding-not-object: canonical diagnostic line present and last on stderr (B5)
+PASS: resolve-component-paths-binding-not-object: exact Resolver Evidence
+PASS: resolve-component-paths-binding-not-object: Resolver Evidence schema agreement
+PASS: resolve-component-paths-binding-not-object: no partial live artifact
+PASS: evaluate-predicate-output-malformed: exit 1
+PASS: evaluate-predicate-output-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed: no partial live artifact
+PASS: evaluate-predicate-output-malformed-nested: exit 1
+PASS: evaluate-predicate-output-malformed-nested: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-nested: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-nested: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-nested: no partial live artifact
+PASS: evaluate-predicate-output-malformed-unhashable: exit 1
+PASS: evaluate-predicate-output-malformed-unhashable: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-output-malformed-unhashable: exact Resolver Evidence
+PASS: evaluate-predicate-output-malformed-unhashable: Resolver Evidence schema agreement
+PASS: evaluate-predicate-output-malformed-unhashable: no partial live artifact
+PASS: evaluate-predicate-schema-error: exit 1
+PASS: evaluate-predicate-schema-error: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-schema-error: exact Resolver Evidence
+PASS: evaluate-predicate-schema-error: Resolver Evidence schema agreement
+PASS: evaluate-predicate-schema-error: no partial live artifact
+PASS: evaluate-predicate-failure-after-warn: exit 1
+PASS: evaluate-predicate-failure-after-warn: canonical diagnostic line present and last on stderr (B5)
+PASS: evaluate-predicate-failure-after-warn: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: evaluate-predicate-failure-after-warn: exact Resolver Evidence
+PASS: evaluate-predicate-failure-after-warn: Resolver Evidence schema agreement
+PASS: evaluate-predicate-failure-after-warn: no partial live artifact
+PASS: dsl-warn-unmatched-trigger: exit 1
+PASS: dsl-warn-unmatched-trigger: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unmatched-trigger: exact Resolver Evidence
+PASS: dsl-warn-unmatched-trigger: Resolver Evidence schema agreement
+PASS: dsl-warn-unmatched-trigger: no partial live artifact
+PASS: dsl-warn-matched-nondetermining: exit 1
+PASS: dsl-warn-matched-nondetermining: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-matched-nondetermining: exact Resolver Evidence
+PASS: dsl-warn-matched-nondetermining: Resolver Evidence schema agreement
+PASS: dsl-warn-matched-nondetermining: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: exit 1
+PASS: dsl-warn-unsorted-affected-components: canonical diagnostic line present and last on stderr (B5)
+PASS: dsl-warn-unsorted-affected-components: exact Resolver Evidence
+PASS: dsl-warn-unsorted-affected-components: Resolver Evidence schema agreement
+PASS: dsl-warn-unsorted-affected-components: no partial live artifact
+PASS: dsl-warn-unsorted-affected-components: resolve-component-paths invoked with --include-untracked forwarded verbatim, in its own CLI-contract position (immediately before --json, design.md API/Contract Plan step 4 order), when this invocation's own resolver CLI call supplies it -- the SUPPLIED half of AC-004's pass-through claim, now covered by T-003's own suite (previously only T-005's resolve-project-context-match-check.py)
+PASS: registry-swapped-during-validation: exit 1
+PASS: registry-swapped-during-validation: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-swapped-during-validation: exact Resolver Evidence
+PASS: registry-swapped-during-validation: Resolver Evidence schema agreement
+PASS: registry-swapped-during-validation: no partial live artifact
+PASS: affected-component-absent-from-context: exit 1
+PASS: affected-component-absent-from-context: canonical diagnostic line present and last on stderr (B5)
+PASS: affected-component-absent-from-context: exact Resolver Evidence
+PASS: affected-component-absent-from-context: Resolver Evidence schema agreement
+PASS: affected-component-absent-from-context: no partial live artifact
+PASS: registry-discovery-syntax-error: exit 1
+PASS: registry-discovery-syntax-error: canonical diagnostic line present and last on stderr (B5)
+PASS: registry-discovery-syntax-error: exact Resolver Evidence
+PASS: registry-discovery-syntax-error: Resolver Evidence schema agreement
+PASS: registry-discovery-syntax-error: no partial live artifact
+PASS: lite-check-source-undefined: exit 1
+PASS: lite-check-source-undefined: canonical diagnostic line present and last on stderr (B5)
+PASS: lite-check-source-undefined: exact Resolver Evidence
+PASS: lite-check-source-undefined: Resolver Evidence schema agreement
+PASS: lite-check-source-undefined: no partial live artifact
+PASS: output-schema-validation-failed-evidence: exit 1
+PASS: output-schema-validation-failed-evidence: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-evidence: no Resolver Evidence written (B3)
+PASS: output-schema-validation-failed-evidence: no partial live artifact
+PASS: output-schema-validation-failed-artifact: exit 1
+PASS: output-schema-validation-failed-artifact: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-artifact: exact Resolver Evidence
+PASS: output-schema-validation-failed-artifact: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-artifact: no partial live artifact
+PASS: output-schema-validation-failed-facet-manifest: exit 1
+PASS: output-schema-validation-failed-facet-manifest: canonical diagnostic line present and last on stderr (B5)
+PASS: output-schema-validation-failed-facet-manifest: exact Resolver Evidence
+PASS: output-schema-validation-failed-facet-manifest: Resolver Evidence schema agreement
+PASS: output-schema-validation-failed-facet-manifest: no partial live artifact
+PASS: snapshot-generation-mismatch: exit 1
+PASS: snapshot-generation-mismatch: canonical diagnostic line present and last on stderr (B5)
+PASS: snapshot-generation-mismatch: exact Resolver Evidence
+PASS: snapshot-generation-mismatch: Resolver Evidence schema agreement
+PASS: snapshot-generation-mismatch: no partial live artifact
+PASS: contract-discovery-failed-governing-schema: exit 1
+PASS: contract-discovery-failed-governing-schema: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-wrong-version: exit 1
+PASS: contract-discovery-failed-governing-schema-wrong-version: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-wrong-version: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-wrong-version: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-wrong-version: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exit 1
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-invalid-utf8: no partial live artifact
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exit 1
+PASS: contract-discovery-failed-governing-schema-malformed-ref: canonical diagnostic line present and last on stderr (B5)
+PASS: contract-discovery-failed-governing-schema-malformed-ref: exact Resolver Evidence
+PASS: contract-discovery-failed-governing-schema-malformed-ref: Resolver Evidence schema agreement
+PASS: contract-discovery-failed-governing-schema-malformed-ref: no partial live artifact
+PASS: recheck-dependency-failed: exit 1
+PASS: recheck-dependency-failed: canonical diagnostic line present and last on stderr (B5)
+PASS: recheck-dependency-failed: dependency stderr re-emitted verbatim before the canonical line (B5, REQ-005)
+PASS: recheck-dependency-failed: exact Resolver Evidence
+PASS: recheck-dependency-failed: Resolver Evidence schema agreement
+PASS: recheck-dependency-failed: no partial live artifact
+PASS: clean-full-track-publication: exit 0 with no diagnostic of any kind (AC-010's own negative fixture)
+FAIL: clean-full-track-publication: exact published Facet Manifest at its live path: Expecting value: line 1 column 1 (char 0)
+FAIL: clean-full-track-publication: exact published Context Projection bytes at its live path (Full track only): b'projection-preimage\n'
+FAIL: clean-full-track-publication: exact published Resolver Evidence, diagnostics[] empty (AC-010 negative): [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t007-kp9bem47/specs/example-feature/resolver-evidence.yaml'
+FAIL: clean-full-track-publication: Resolver Evidence schema agreement: evidence absent
+PASS: clean-full-track-publication: no capability-summary.yaml on a Full-track resolve (B4 track-exclusive set)
+PASS: clean-full-track-publication: Complete deletes the journal and leaves no staging litter
+FAIL: publication-journal-recovery-crash: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit): exit=0 stderr=''
+FAIL: publication-journal-recovery-crash: the crash left exactly one in-progress transaction journal standing: []
+FAIL: publication-journal-recovery-crash: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing: manifest=b'facet-preimage\n' projection=b'projection-preimage\n'
+FAIL: publication-journal-recovery-crash: crash-recovery assertions require a standing journal: no TRANSACTION.json produced by the crashed invocation
+FAIL: publication-journal-recovery: the kill hook genuinely killed the first invocation mid-commit (never an ordinary Block exit): exit=0 stderr=''
+FAIL: publication-journal-recovery: the crash left exactly one in-progress transaction journal standing: []
+FAIL: publication-journal-recovery: the crash left an observable MIXED generation (target 1 advanced, target 2 did not) -- the exact partial-publish state the scan must never leave standing: manifest=b'facet-preimage\n' projection=b'projection-preimage\n'
+FAIL: publication-journal-recovery: crash-recovery assertions require a standing journal: no TRANSACTION.json produced by the crashed invocation
+FAIL: artifact-publication-failed: exit 1: got 0 stderr=''
+FAIL: artifact-publication-failed: canonical diagnostic whose own detail records the journal-based rollback attempt (AC-039): stdout='' stderr=''
+PASS: artifact-publication-failed: the already-completed sibling rename was rolled back to its own PRE-transaction live bytes via the journal -- never a bare `unlink` (AC-039, B1's own destroyed-bytes gap)
+PASS: artifact-publication-failed: no live artifact this invocation had not already committed to survives partially written (AC-011/TEST-038)
+PASS: artifact-publication-failed: a fully-successful in-process rollback deletes the journal it converged
+FAIL: artifact-publication-failed: exact Resolver Evidence (AC-012): [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t007-qv_5jngr/specs/example-feature/resolver-evidence.yaml'
+FAIL: artifact-publication-failed: Resolver Evidence schema agreement: evidence absent
+FAIL: post-publication-generation-mismatch: exit 1: got 0 stderr=''
+FAIL: post-publication-generation-mismatch: canonical diagnostic only (AC-014): stdout='' stderr=''
+FAIL: post-publication-generation-mismatch: the Block fires only AFTER every rename in the transaction has already, briefly, succeeded -- all three targets observed live from inside the verification window (AC-049(a)): [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t007-7t84r4us/plugins/sdd-quality-loop/scripts/post-publication-live-capture.json'
+PASS: post-publication-generation-mismatch: every one of those just-completed renames is rolled back to its own PRE-transaction state via the journal before this invocation exits -- restored bytes, never a bare `unlink` (AC-049(b)(c), AC-011)
+PASS: post-publication-generation-mismatch: the journal is deleted once every target is confirmed back at PRE
+FAIL: post-publication-generation-mismatch: exact Resolver Evidence (AC-012): [Errno 2] No such file or directory: '/private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/resolver-t007-7t84r4us/specs/example-feature/resolver-evidence.yaml'
+FAIL: post-publication-generation-mismatch: Resolver Evidence schema agreement: evidence absent
+PASS: snapshot-generation-mismatch-affected-components: exit 1
+PASS: snapshot-generation-mismatch-affected-components: Blocks on the affected_components set difference ALONE, with every digest including ownership_digest byte-identical (AC-040's own second fixture)
+PASS: snapshot-generation-mismatch-affected-components: no partial live artifact (TEST-038)
+PASS: snapshot-generation-mismatch-affected-components: a step-13 Block never opens a publication transaction at all
+PASS: snapshot-generation-mismatch-affected-components: exact Resolver Evidence (AC-012)
+PASS: snapshot-generation-mismatch-affected-components: Resolver Evidence schema agreement
+PASS: draft7-validator-keywords: a matched:false entry with no conditional_facet_evaluations conforms (sanity)
+PASS: draft7-validator-keywords: `not` -- a matched:false entry carrying conditional_facet_evaluations is rejected (resolver-evidence.schema.json capabilityEvaluation.then.not.required)
+PASS: draft7-validator-keywords: `minimum` -- a negative declaration_index is rejected (resolver-evidence.schema.json conditional_facet_evaluations[].declaration_index minimum:0)
+PASS: draft7-validator-keywords: declaration_index: 0 conforms (sanity, minimum is inclusive)
+PASS: draft7-validator-keywords: `pattern` -- a feature value carrying a trailing newline is rejected, never accepted via Python re's own $-before-trailing-newline exception to ECMA-262 semantics (resolver-evidence.schema.json feature pattern)
+PASS: draft7-validator-keywords: feature: 'example-feature' (no trailing newline) conforms (sanity)
+PASS: draft7-keyword-coverage: resolver-evidence.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: context-projection.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: facet-manifest.schema.json uses only keywords _draft7_validate implements
+PASS: draft7-keyword-coverage: capability-summary.schema.json uses only keywords _draft7_validate implements
+PASS: sys-path-hygiene: _discover_registry restores sys.path on a clean return
+PASS: sys-path-hygiene: _discover_registry restores sys.path on the ContractDiscoveryFailed path
+PASS: sys-path-hygiene: a caller's pre-existing identical sys.path entry survives the call
+PASS: TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows
+PASS: TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum
+FAIL: TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable fixture in this suite (AC-010, complete): uncovered=['publication-journal-recovery']
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 272 passed, 23 failed

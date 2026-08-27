@@ -15,10 +15,19 @@ never both -- B4), Resolver Evidence assembly (context_binding/resolver
 provenance canonicalization, B9), output schema self-validation against
 every staged artifact's own governing schema (B3), and the pre-publication
 snapshot recheck (B8 TOCTOU) (steps 10-13). Every step 0-13 result is staged
-in memory only -- a clean resolve (exit 0) writes nothing to any live path;
-T-007 layers the crash-recovery scan and the journaled publication
-transaction (step 14) onto this same script, the sole component with any
-live-filesystem write of its own.
+in memory only. T-007 completes the pipeline with the two halves of
+design.md's own "Resolver publication transactional bundle contract": the
+mandatory crash-recovery scan (step 0.5 -- run by every invocation,
+immediately after argument validation, scoped to this invocation's own
+`--feature`), and the journaled publication transaction (step 14 --
+Prepare/Journal/Commit/Post-publication verification/Complete) that is this
+feature's SOLE live-filesystem write of any kind. Every live write this
+script performs, on a clean resolve and on a Block alike, goes through that
+one transaction (design.md step 14: a successful Full-track run publishes
+three targets, a successful Lite-track run two, and any Block publishes
+"Resolver Evidence alone" -- all via the identical journaled mechanism,
+never a bare per-file `rename()` with no cross-file atomicity and no
+crash-safe rollback).
 """
 
 import argparse
@@ -27,6 +36,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -869,6 +879,462 @@ def _project_context_valid(document, repo_root):
     return not _schema_errors(document, schema)
 
 
+# ---------------------------------------------------------------------------
+# T-007 (step 0.5 + step 14): the Resolver publication transactional bundle
+# contract (design.md, "Resolver publication transactional bundle contract",
+# applying Epic A1's own already-fixed multi-target contract -- Epic A1
+# `design.md:987-1016` -- isomorphically, reusing its protocol shape and its
+# journal field names rather than inventing a second one).
+#
+# Everything below is reachable from exactly two places: `main()`'s own step
+# 0.5 (`_crash_recovery_scan`) and its own step 14 (`_publish_bundle`), plus
+# `_write_evidence`, whose single-target publication is itself a degenerate
+# instance of the SAME transaction (design.md: a Block publishes "exactly one
+# target -- `resolver-evidence.yaml` alone").
+# ---------------------------------------------------------------------------
+
+TRANSACTION_SCHEMA = "sdd-resolver-transaction/v1"
+STAGING_DIRNAME = ".resolver-staging"
+JOURNAL_FILENAME = "TRANSACTION.json"
+PRE_IMAGE_DIRNAME = "pre"
+ABSENT = "ABSENT"
+_HASH_RE = re.compile(r"[0-9a-f]{64}")
+
+ARTIFACT_PUBLICATION_FAILED_PREFIX = (
+    "a staged artifact could not be written, fsynced, or renamed to its live path during this "
+    "invocation's own publication transaction"
+)
+POST_PUBLICATION_MISMATCH_PREFIX = (
+    "a post-publication verification of the Project Context, Registry, or ownership-source snapshot "
+    "detected drift after every rename in this invocation's own publication transaction had already "
+    "succeeded"
+)
+JOURNAL_RECOVERY_DETAIL = (
+    "a stale publication transaction journal for this feature could not be safely converged to a "
+    "fully-applied or fully-reverted state"
+)
+
+
+class ArtifactPublicationFailed(Exception):
+    """A `write`/`fsync`/`rename` failure caught IN-PROCESS during this
+    invocation's own publication transaction's Prepare/Journal/Commit phases
+    (REQ-002's `artifact-publication-failed` row). Carries the already-
+    resolved rollback clause -- AC-039 requires the rollback attempt, and any
+    failure encountered in it, to be recorded in this diagnostic's own
+    `detail`, "never silently swallowed"."""
+
+    def __init__(self, rollback_clause):
+        super().__init__(rollback_clause)
+        self.rollback_clause = rollback_clause
+
+
+class PublicationJournalUnrecoverable(Exception):
+    """The step-0.5 crash-recovery scan found a stale journal it cannot
+    safely converge to either terminal state (REQ-002's `publication-journal-
+    recovery` row): a referenced `pre/<target-basename>` backup is missing,
+    unreadable, or no longer matches its own journal-recorded hash; a
+    target's current live hash matches NEITHER its journal-recorded PRE nor
+    POST value; or the journal document itself is unreadable or mis-shaped.
+
+    A mis-shaped-but-parseable journal is deliberately rejected here rather
+    than silently treated as "no journal at all" (Epic A1's own carry-forward
+    obligation 2 on the isomorphic mechanism): silently ignoring it would let
+    an unrecovered partial publish stand forever."""
+
+
+def _rollback_clause(count, complete):
+    """AC-039's own "the rollback attempt is itself recorded in this
+    diagnostic's own `detail`" text, as a canonical, Resolver-owned sentence
+    built only from fixed fields plus a count -- never an OS/errno string or
+    a local path (security-spec.md B5, AC-014). Deliberately carries NO
+    exception class name either, unlike this file's own governing-schema
+    read failures: the OSError subclasses a failed `mkdir`/`rename` raises
+    differ BY PLATFORM (`NotADirectoryError` vs `FileExistsError` vs
+    `PermissionError` for the identical injected condition), so naming the
+    class would break REQ-005's own dual-runtime byte-identity guarantee for
+    `<detail>`."""
+    if count == 0:
+        return "no live rename had yet been committed, so no target needed rolling back"
+    noun = "rename" if count == 1 else "renames"
+    verb = "was" if count == 1 else "were"
+    pronoun = "its own" if count == 1 else "their own"
+    if complete:
+        return (
+            f"{count} already-committed live {noun} {verb} rolled back to {pronoun} "
+            f"PRE-transaction state via this transaction's own journal"
+        )
+    return (
+        f"an in-process journal-based rollback of {count} already-committed live {noun} did not "
+        f"itself complete; the next invocation's own crash-recovery scan is the durable backstop"
+    )
+
+
+def _staging_root(repo_root, feature):
+    """`specs/<feature>/.resolver-staging` -- an unprotected staging area,
+    this feature's own equivalent of Epic A1's own `sdd/.staging/`
+    convention (design.md; infra-spec.md's own Journal Recovery table row
+    classifies it "NOT git-tracked ... transient"). Scoped to ONE feature by
+    construction: a stale journal under a different Feature's own staging
+    directory is that Feature's own concern and is never inspected here."""
+    return repo_root / "specs" / feature / STAGING_DIRNAME
+
+
+def _live_bytes(path):
+    """The target's own current live bytes, or `None` when nothing is there.
+
+    A dangling symlink is treated as PRESENT (and therefore read, which
+    raises) rather than as "genuinely does not exist": `Path.exists()` alone
+    reports False for it, and mistaking a present-but-unreadable target for
+    an absent one is exactly the misrepresentation that lets recovery delete
+    a journal and its backups while a real target still stands (Epic A1's
+    own seq0360 finding on the isomorphic mechanism). Every other read
+    failure propagates as `OSError`, never as a silent `ABSENT`."""
+    if not (path.is_symlink() or path.exists()):
+        return None
+    return path.read_bytes()
+
+
+def _digest(payload):
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _live_digest(path):
+    payload = _live_bytes(path)
+    return ABSENT if payload is None else _digest(payload)
+
+
+def _atomic_write_bytes(target, payload):
+    """The single-file primitive every write in this file uses, unchanged in
+    itself from the revision step 14 already used (design.md: "temp file +
+    `fsync` + `rename`, the same single-file primitive an earlier revision of
+    step 14 already used ... only the surrounding journal/verify/recovery
+    discipline is new") -- plus the temp-then-REHASH round trip design.md's
+    own Journal step names, so a torn temp file can never be renamed into
+    place."""
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, temp_name = tempfile.mkstemp(prefix=".resolver-publish-", dir=str(target.parent))
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        with open(temp_name, "rb") as handle:
+            if handle.read() != payload:
+                raise OSError("temp-file round-trip verification failed before rename")
+        os.replace(temp_name, target)
+    finally:
+        if os.path.exists(temp_name):
+            os.unlink(temp_name)
+
+
+def _canonical_payload(document):
+    """Every artifact this transaction publishes is serialized identically:
+    canonical, key-sorted, separator-fixed JSON plus one trailing newline --
+    the SAME form `_write_evidence` already used for Resolver Evidence,
+    reused for the Facet Manifest/Capability Summary rather than a second
+    serialization rule (REQ-005 determinism)."""
+    return (json.dumps(document, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+
+
+def _discard_batch(batch_dir):
+    """Complete (design.md step 5): delete the journal -- an ordinary
+    `unlink`; a delete failure here just leaves a stale-but-fully-applied
+    journal, trivially resolved by the crash-recovery scan -- then take the
+    batch's own `pre/` backups and the (now empty) staging root with it, so a
+    completed transaction leaves no litter for the next scan to walk."""
+    journal = batch_dir / JOURNAL_FILENAME
+    try:
+        if journal.exists():
+            journal.unlink()
+    except OSError:
+        return
+    shutil.rmtree(batch_dir, ignore_errors=True)
+    try:
+        batch_dir.parent.rmdir()
+    except OSError:
+        pass
+
+
+def _write_journal(batch_dir, nonce, entries):
+    """Journal (design.md step 2): written before ANY live rename, listing
+    every target in COMMIT ORDER with its live path, its PRE-transaction hash
+    (or `"ABSENT"`), and its POST-transaction (staged-candidate) hash, plus
+    this batch's own nonce and `status: "in-progress"`. Field names mirror
+    Epic A1's own already-shipped journal (`live_path`/`pre_hash`/
+    `post_hash`) rather than inventing a parallel vocabulary for the
+    isomorphic mechanism. `sort_keys` orders each target object's own keys
+    and never the `targets` ARRAY, so commit order survives serialization."""
+    document = {
+        "schema": TRANSACTION_SCHEMA,
+        "nonce": nonce,
+        "status": "in-progress",
+        "targets": [
+            {"live_path": entry["live_path"], "pre_hash": entry["pre_hash"], "post_hash": entry["post_hash"]}
+            for entry in entries
+        ],
+    }
+    _atomic_write_bytes(batch_dir / JOURNAL_FILENAME, _canonical_payload(document))
+
+
+def _hash_or_absent(value):
+    return value == ABSENT or bool(_HASH_RE.fullmatch(value))
+
+
+def _read_journal(journal_path):
+    """Strict shape validation; every deviation is unrecoverable, never a
+    silent "no journal" (see `PublicationJournalUnrecoverable`)."""
+    try:
+        document = json.loads(journal_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PublicationJournalUnrecoverable("journal unreadable or unparseable") from exc
+    if (
+        not isinstance(document, dict)
+        or document.get("schema") != TRANSACTION_SCHEMA
+        or document.get("status") != "in-progress"
+        or not isinstance(document.get("nonce"), str)
+        or not isinstance(document.get("targets"), list)
+        or not document["targets"]
+    ):
+        raise PublicationJournalUnrecoverable("journal does not conform to its own transaction shape")
+    entries = []
+    for target in document["targets"]:
+        if not isinstance(target, dict) or set(target) != {"live_path", "pre_hash", "post_hash"}:
+            raise PublicationJournalUnrecoverable("journal target entry does not conform to its own shape")
+        if not all(isinstance(value, str) for value in target.values()):
+            raise PublicationJournalUnrecoverable("journal target entry carries a non-string field")
+        if not target["live_path"] or not _hash_or_absent(target["pre_hash"]) or not _hash_or_absent(target["post_hash"]):
+            raise PublicationJournalUnrecoverable("journal target entry carries an invalid path or hash")
+        entries.append(target)
+    return entries
+
+
+def _journal_target_path(repo_root, live_path):
+    """Journals record repo-relative paths whenever the target lives inside
+    the repository (the ordinary case, `_repo_relative`'s own rule), so a
+    journal survives the tree being moved; an installed-standalone
+    deployment whose script directory sits outside the repository records an
+    absolute path instead, and is resolved as-is here."""
+    candidate = Path(live_path)
+    return candidate if candidate.is_absolute() else repo_root / candidate
+
+
+def _read_pre_image(batch_dir, entry):
+    """The journal's own `pre/<target-basename>` backup for one entry,
+    verified against that entry's own journal-recorded PRE hash before it is
+    ever written anywhere. A missing, unreadable, or no-longer-matching
+    backup raises `OSError` -- the caller turns that into the unrecoverable
+    state design.md names, never a silently-wrong restore."""
+    basename = Path(entry["live_path"]).name
+    payload = (batch_dir / PRE_IMAGE_DIRNAME / basename).read_bytes()
+    if _digest(payload) != entry["pre_hash"]:
+        raise OSError("pre-image backup no longer matches its own journal-recorded hash")
+    return payload
+
+
+def _restore_to_pre(repo_root, batch_dir, entry):
+    """Put one target back at its own PRE-transaction state, via the SAME
+    atomic-rename primitive the commit itself used -- restoring the journal's
+    own byte-exact backup, or deleting the live file when its own PRE state
+    was `"ABSENT"`. NEVER a bare `unlink` of a target that had pre-existing
+    live bytes (adversarial review B1's own "existing bytes destroyed with no
+    restore path" gap)."""
+    target = _journal_target_path(repo_root, entry["live_path"])
+    if entry["pre_hash"] == ABSENT:
+        if target.is_symlink() or target.exists():
+            target.unlink()
+        return
+    _atomic_write_bytes(target, _read_pre_image(batch_dir, entry))
+
+
+class _PublicationTransaction:
+    """An open transaction: every rename already committed, journal still
+    standing, awaiting either post-publication verification + Complete or an
+    in-process rollback."""
+
+    def __init__(self, repo_root, batch_dir):
+        self.repo_root = repo_root
+        self.batch_dir = batch_dir
+        self.entries = []
+        self.journalled = False
+        self.committed = 0
+
+
+def _rollback_transaction(transaction):
+    """The in-process half of the journal-based rollback (design.md step 4's
+    own mechanism, reused verbatim by the Prepare/Journal/Commit failure
+    path). Returns `(count, complete)`.
+
+    Every needed backup is validated BEFORE the first restore, so a batch
+    whose backups are not all sound is left exactly as found instead of
+    half-reverted -- the same reason the crash-recovery scan below
+    pre-validates. Only once every target is confirmed back at PRE is the
+    journal deleted; an incomplete rollback deliberately RETAINS the journal
+    so the next invocation's own crash-recovery scan is the durable backstop
+    (design.md; infra-spec.md "In-process variant")."""
+    count = transaction.committed
+    if not transaction.journalled or count == 0:
+        return 0, True
+    committed_entries = transaction.entries[:count]
+    try:
+        for entry in committed_entries:
+            if entry["pre_hash"] != ABSENT:
+                _read_pre_image(transaction.batch_dir, entry)
+    except OSError:
+        return count, False
+    for entry in reversed(committed_entries):
+        try:
+            _restore_to_pre(transaction.repo_root, transaction.batch_dir, entry)
+        except OSError:
+            return count, False
+    for entry in committed_entries:
+        try:
+            if _live_digest(_journal_target_path(transaction.repo_root, entry["live_path"])) != entry["pre_hash"]:
+                return count, False
+        except OSError:
+            return count, False
+    _discard_batch(transaction.batch_dir)
+    return count, True
+
+
+def _publish_bundle(repo_root, feature, targets):
+    """Prepare + Journal + Commit (design.md steps 1-3). `targets` is a
+    sequence of `(live_path, payload)` pairs IN COMMIT ORDER. Returns the
+    open transaction with every rename committed; the caller either runs
+    post-publication verification and then `_discard_batch` (Complete), or
+    rolls back.
+
+    Prepare's own "re-hash every staged candidate TOGETHER, as one step" is
+    structural here rather than a discipline that could slip: every staged
+    candidate is already an in-memory `bytes` payload by this point (steps
+    3/10/11 stage in memory only), so the intra-batch TOCTOU window the
+    contract closes -- between validating the first staged target and
+    reaching the last -- does not exist to be closed. The PRE-image capture
+    below is the half that genuinely touches the filesystem, and it reads
+    each target's live bytes exactly ONCE, hashing that same buffer, so the
+    journal's recorded PRE hash always describes the bytes actually backed
+    up."""
+    batch_dir = _staging_root(repo_root, feature) / os.urandom(16).hex()
+    transaction = _PublicationTransaction(repo_root, batch_dir)
+    try:
+        basenames = [target.name for target, _payload in targets]
+        if len(set(basenames)) != len(basenames):
+            # A batch whose targets share a basename would collapse two
+            # distinct `pre/<target-basename>` backups into one slot,
+            # permanently defeating recovery for one of them (Epic A1's own
+            # already-fixed defect on the isomorphic mechanism). No track's
+            # own output set can produce this, so it is a fail-closed
+            # assertion about this file's own target lists, not a live path.
+            raise OSError("two targets in one publication batch share a basename")
+        (batch_dir / PRE_IMAGE_DIRNAME).mkdir(parents=True, exist_ok=True)
+        for target, payload in targets:
+            pre_bytes = _live_bytes(target)
+            pre_hash = ABSENT if pre_bytes is None else _digest(pre_bytes)
+            if pre_bytes is not None:
+                backup = batch_dir / PRE_IMAGE_DIRNAME / target.name
+                _atomic_write_bytes(backup, pre_bytes)
+                if _digest(backup.read_bytes()) != pre_hash:
+                    raise OSError("pre-image backup is not byte-exact")
+            transaction.entries.append({
+                "live_path": _repo_relative(target, repo_root),
+                "pre_hash": pre_hash,
+                "post_hash": _digest(payload),
+                "target": target,
+                "payload": payload,
+            })
+        _write_journal(batch_dir, batch_dir.name, transaction.entries)
+        transaction.journalled = True
+        for entry in transaction.entries:
+            _atomic_write_bytes(entry["target"], entry["payload"])
+            transaction.committed += 1
+    except OSError as exc:
+        rolled_back, complete = _rollback_transaction(transaction)
+        raise ArtifactPublicationFailed(_rollback_clause(rolled_back, complete)) from exc
+    return transaction
+
+
+def _publish_and_complete(repo_root, feature, targets):
+    """The whole transaction for a batch that needs no post-publication
+    verification of its own: the Block path's single `resolver-evidence.yaml`
+    target (design.md step 14's "Resolver Evidence alone" case, whose own
+    Block has already been decided and whose recheck snapshot does not
+    exist). The success path calls `_publish_bundle` directly, because it
+    must hold the journal open across step 4's own verification."""
+    _discard_batch(_publish_bundle(repo_root, feature, targets).batch_dir)
+
+
+def _recover_journal(repo_root, journal_path):
+    """Converge ONE stale journal to a terminal state, or raise
+    `PublicationJournalUnrecoverable` (design.md's own four-outcome
+    classification; infra-spec.md `#journal-recovery` restates it).
+
+    Idempotent and re-entrant: every comparison is current-vs-journaled and
+    never assumes prior recovery progress, so a crash DURING recovery is
+    itself safely resumed by the next invocation."""
+    entries = _read_journal(journal_path)
+    batch_dir = journal_path.parent
+    states = []
+    for entry in entries:
+        try:
+            current = _live_digest(_journal_target_path(repo_root, entry["live_path"]))
+        except OSError as exc:
+            raise PublicationJournalUnrecoverable("a journal-listed target is unreadable") from exc
+        if current == entry["post_hash"]:
+            states.append("post")
+        elif current == entry["pre_hash"]:
+            states.append("pre")
+        else:
+            # The unrecoverable third state: neither generation, so no
+            # automatic recovery can know what the operator intended.
+            raise PublicationJournalUnrecoverable(
+                "a journal-listed target matches neither its PRE nor its POST hash"
+            )
+    if all(state == "post" for state in states) or all(state == "pre" for state in states):
+        # SAFE completion / SAFE abandonment: the transaction had in fact
+        # fully committed (crash between the last rename and the journal
+        # delete), or never began committing / had already fully rolled back.
+        _discard_batch(batch_dir)
+        return
+    # MIX -- the exact partial-publish state this design must never leave
+    # standing. Validate every backup this rollback will need BEFORE
+    # touching any live path, so an unrecoverable batch is left exactly as
+    # found rather than half-reverted.
+    try:
+        for entry, state in zip(entries, states):
+            if state == "post" and entry["pre_hash"] != ABSENT:
+                _read_pre_image(batch_dir, entry)
+    except OSError as exc:
+        raise PublicationJournalUnrecoverable(
+            "a journal-recorded pre-image backup is missing, unreadable, or corrupted"
+        ) from exc
+    for entry, state in reversed(list(zip(entries, states))):
+        if state != "post":
+            continue
+        try:
+            _restore_to_pre(repo_root, batch_dir, entry)
+        except OSError as exc:
+            raise PublicationJournalUnrecoverable("a journal-based rollback write failed") from exc
+    for entry in entries:
+        try:
+            if _live_digest(_journal_target_path(repo_root, entry["live_path"])) != entry["pre_hash"]:
+                raise PublicationJournalUnrecoverable("a target could not be confirmed back at its PRE state")
+        except OSError as exc:
+            raise PublicationJournalUnrecoverable("a target could not be confirmed back at its PRE state") from exc
+    _discard_batch(batch_dir)
+
+
+def _crash_recovery_scan(repo_root, feature):
+    """Step 0.5 (mandatory, every invocation): scan
+    `specs/<feature>/.resolver-staging/*/TRANSACTION.json`, scoped to THIS
+    invocation's own `--feature` value, and converge every journal found.
+    Absent -> return, no diagnostic, proceed directly to step 1."""
+    try:
+        journals = sorted(_staging_root(repo_root, feature).glob(f"*/{JOURNAL_FILENAME}"))
+    except OSError as exc:
+        raise PublicationJournalUnrecoverable("the staging area itself is unreadable") from exc
+    for journal_path in journals:
+        _recover_journal(repo_root, journal_path)
+
+
 def _write_evidence(
     repo_root, feature, diagnostic_id, detail, state_marker,
     capability_evaluations=None, warn_diagnostics=None,
@@ -923,19 +1389,14 @@ def _write_evidence(
         evidence["context_binding"] = context_binding
     if resolver_block is not None:
         evidence["resolver"] = resolver_block
-    target = repo_root / "specs" / feature / "resolver-evidence.yaml"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    payload = (json.dumps(evidence, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
-    fd, temp_name = tempfile.mkstemp(prefix=".resolver-evidence-", dir=str(target.parent))
-    try:
-        with os.fdopen(fd, "wb") as handle:
-            handle.write(payload)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temp_name, target)
-    finally:
-        if os.path.exists(temp_name):
-            os.unlink(temp_name)
+    # T-007: a Block's own Resolver Evidence record is published through the
+    # IDENTICAL journaled transaction step 14 uses for a successful run --
+    # design.md step 14 spans "exactly one target (`resolver-evidence.yaml`
+    # alone) on a Block", never a second, bare-rename write path of its own.
+    _publish_and_complete(
+        repo_root, feature,
+        [(repo_root / "specs" / feature / "resolver-evidence.yaml", _canonical_payload(evidence))],
+    )
 
 
 def _block(
@@ -943,11 +1404,30 @@ def _block(
     capability_evaluations=None, warn_diagnostics=None,
     context_binding=None, resolver_block=None,
 ):
-    _write_evidence(
-        repo_root, feature, diagnostic_id, detail, state_marker,
-        capability_evaluations, warn_diagnostics,
-        context_binding, resolver_block,
-    )
+    try:
+        _write_evidence(
+            repo_root, feature, diagnostic_id, detail, state_marker,
+            capability_evaluations, warn_diagnostics,
+            context_binding, resolver_block,
+        )
+    except ArtifactPublicationFailed as exc:
+        # Fail-closed terminal, defense-in-depth: this invocation had already
+        # decided to Block, and the one-target transaction that publishes
+        # that Block's own record has itself failed. Writing the record is
+        # then impossible by definition, so re-entering `_block` for the
+        # `artifact-publication-failed` row would recurse forever; instead
+        # the canonical line is emitted with no live write at all, exactly as
+        # `_block_no_write` (step 12's own Evidence-itself-fails case) already
+        # does for the other condition under which no record can be written.
+        # No fixture reaches this branch -- every REQ-002 row that CAN be
+        # reached still writes Evidence (AC-012) -- and it is deliberately
+        # kept rather than left to surface as an uncaught traceback, matching
+        # this file's own existing treatment of `_resolved_gates`'s
+        # unreachable dangling-`gate_id` branch.
+        return _block_no_write(
+            "artifact-publication-failed",
+            f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {exc.rollback_clause}",
+        )
     sys.stderr.write(f"capability-resolver: {diagnostic_id}: {detail}\n")
     return EXIT_BLOCK
 
@@ -1543,6 +2023,43 @@ def _pre_publication_recheck(script_dir, args, absolute_config, source_sha256, a
         raise SnapshotGenerationMismatch("snapshot recheck detected drift")
 
 
+# Step 14's own post-publication verification reuses `_pre_publication_
+# recheck` verbatim (identical sources, identical comparison), so it can
+# raise the identical dependency exceptions. Each maps to the SAME REQ-002
+# diagnostic id its own originating step already uses, with a `<detail>`
+# naming the post-publication window rather than the pre-publication one --
+# the identical id-reuse discipline step 13's own handlers already apply
+# (ids are reused across steps throughout this file; `canonicalizer-
+# invocation-failed` alone already covers steps 2/3/6/13).
+_POST_PUBLICATION_DEPENDENCY_BLOCKS = {
+    CanonicalizerFailed: (
+        "canonicalizer-invocation-failed",
+        "canonicalize-sdd-yaml failed while re-canonicalizing the project context during the "
+        "post-publication verification",
+    ),
+    CanonicalizerOutputMalformed: (
+        "dependency-output-malformed",
+        "canonicalize-sdd-yaml returned malformed JSON while re-canonicalizing the project context "
+        "during the post-publication verification",
+    ),
+    AffectedComponentResolutionFailed: (
+        "affected-component-resolution-failed",
+        "resolve-component-paths failed re-resolving affected components during the post-publication "
+        "verification; see resolve-component-paths diagnostics",
+    ),
+    DependencySubprocessFailed: (
+        "dependency-subprocess-failed",
+        "a dependency subprocess failed while re-deriving affected components or registry_digest "
+        "during the post-publication verification",
+    ),
+    DependencyOutputMalformed: (
+        "dependency-output-malformed",
+        "a dependency subprocess returned malformed output while re-deriving affected components or "
+        "registry_digest during the post-publication verification",
+    ),
+}
+
+
 def _block_no_write(diagnostic_id, detail):
     """Step 12's own sole exception (B3): Resolver Evidence itself failed
     its own schema self-validation, so this invocation writes NOTHING to
@@ -1556,6 +2073,23 @@ def main(argv=None):
     config_path = Path(args.config)
     absolute_config = config_path if config_path.is_absolute() else Path.cwd() / config_path
     repo_root = _find_repo_root(absolute_config)
+
+    # Step 0.5 (mandatory crash-recovery scan, design.md/infra-spec.md
+    # `#journal-recovery`): runs on EVERY invocation, immediately after step
+    # 0's own argument validation succeeds and before step 1 begins -- so a
+    # stale journal is converged, or Blocked on, before any Registry/
+    # ownership/Context-Projection work has happened at all.
+    try:
+        _crash_recovery_scan(repo_root, args.feature)
+    except PublicationJournalUnrecoverable:
+        # The live state is left exactly as found, pending manual operator
+        # intervention -- the scan itself has already refused to half-revert
+        # anything (`_recover_journal` validates every backup before its
+        # first restore). `state_marker` is None because the Project Context
+        # has not been read yet, and never will be on this path.
+        return _block(
+            repo_root, args.feature, "publication-journal-recovery", JOURNAL_RECOVERY_DETAIL, None,
+        )
 
     if not absolute_config.is_file():
         return _block(repo_root, args.feature, "disabled-legacy-invocation", args.config, "disabled-legacy")
@@ -1614,10 +2148,14 @@ def main(argv=None):
         projection_input.unlink(missing_ok=True)
 
     # T-002's own steps 0-3 staged values, retained in memory for T-004's
-    # own step 11 (context_binding.projection_sha256, below); the raw
-    # canonicalized bytes themselves are not needed past this point.
+    # own step 11 (context_binding.projection_sha256, below). T-007:
+    # `canonical_projection` itself is retained too -- it IS the staged
+    # Context Projection candidate step 14 publishes to `generated/
+    # project-context.resolved.json` on the Full track (design.md step 3,
+    # "Staged, not written to a live path yet"), so the bytes whose digest
+    # this line takes are the exact bytes that later reach that live path.
     projection_sha256 = "sha256:" + hashlib.sha256(canonical_projection).hexdigest()
-    del canonical_context, canonical_projection
+    del canonical_context
 
     script_dir = Path(__file__).resolve().parent
     repo_relative_config = _repo_relative(absolute_config, repo_root)
@@ -1880,11 +2418,86 @@ def main(argv=None):
             context_binding=context_binding, resolver_block=resolver_block,
         )
 
-    # T-004 owns staging only through step 13 -- step 14's own journaled
-    # publication transaction (T-007's own scope) is the sole component
-    # with any live-filesystem write of its own. A clean resolve here
-    # writes nothing to any live path.
-    del track_artifact, evidence
+    # Step 14: publication, as a single journaled multi-target transaction
+    # (design.md "Resolver publication transactional bundle contract"). The
+    # target list IS this invocation's own track-exclusive output set
+    # (design.md's own diagram): Facet Manifest + Context Projection +
+    # Resolver Evidence on the Full track, Capability Summary + Resolver
+    # Evidence on the Lite track -- never both track artifacts (B4), and
+    # never `project-context.resolved.json` on a Lite resolve. Resolver
+    # Evidence is a member of BOTH sets and is committed LAST, so the record
+    # of a publication is never durable before the artifacts it describes.
+    if workflow["spec_profile"] == "full":
+        targets = [
+            (repo_root / "specs" / args.feature / "facet-manifest.yaml", _canonical_payload(track_artifact)),
+            (script_dir / "generated" / "project-context.resolved.json", canonical_projection),
+        ]
+    else:
+        targets = [
+            (repo_root / "specs" / args.feature / "capability-summary.yaml", _canonical_payload(track_artifact)),
+        ]
+    targets.append(
+        (repo_root / "specs" / args.feature / "resolver-evidence.yaml", _canonical_payload(evidence))
+    )
+
+    try:
+        transaction = _publish_bundle(repo_root, args.feature, targets)
+    except ArtifactPublicationFailed as exc:
+        return _block(
+            repo_root, args.feature, "artifact-publication-failed",
+            f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {exc.rollback_clause}", state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+
+    # Step 14's own Post-publication verification (B8, design.md step 4):
+    # every rename above has now succeeded and the journal is still present,
+    # not yet deleted. This re-reads the SAME three sources step 13 rechecked
+    # -- including a THIRD `resolve-component-paths` invocation for a fresh
+    # `ownership_digest` and a fresh `affected_components` set -- and compares
+    # against step 13's own (passing) recheck snapshot, which is by
+    # construction this invocation's own step-2/4/5-6 snapshot.
+    try:
+        _pre_publication_recheck(
+            script_dir, args, absolute_config, source_sha256, affected_components, ownership_digest, registry_digest,
+        )
+    except SnapshotGenerationMismatch:
+        rolled_back, complete = _rollback_transaction(transaction)
+        return _block(
+            repo_root, args.feature, "post-publication-generation-mismatch",
+            f"{POST_PUBLICATION_MISMATCH_PREFIX}; {_rollback_clause(rolled_back, complete)}",
+            state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+    except tuple(_POST_PUBLICATION_DEPENDENCY_BLOCKS) as exc:
+        # A verification dependency that cannot even RUN is not a "mismatch"
+        # -- re-labelling it `post-publication-generation-mismatch` would
+        # assert drift that was never observed, the exact defect the
+        # cross-model panel rejected for step 13 (see
+        # `_pre_publication_recheck`'s own docstring). It is still a
+        # verification this invocation could not complete, and every rename
+        # is already live, so the rollback runs identically and the Block
+        # carries the SAME REQ-002 id the corresponding step-13 handler
+        # already uses -- never a seventeenth diagnostic-id value, which the
+        # enum is closed against.
+        _rollback_transaction(transaction)
+        # Resolved by `isinstance`, never by an exact `type(exc)` key lookup:
+        # a future subclass of any of these five would be CAUGHT by the
+        # `except` above and then `KeyError` out of the mapping as a raw
+        # traceback -- the exact no-canonical-diagnostic failure shape
+        # REQ-002 forbids.
+        diagnostic_id, detail = next(
+            mapped for exception_class, mapped in _POST_PUBLICATION_DEPENDENCY_BLOCKS.items()
+            if isinstance(exc, exception_class)
+        )
+        return _block(
+            repo_root, args.feature, diagnostic_id, detail, state, capability_evaluations,
+            context_binding=context_binding, resolver_block=resolver_block,
+        )
+
+    # Complete (design.md step 5): every rename succeeded AND the
+    # post-publication verification passed -- delete the journal. This is
+    # this invocation's own success path, exit 0.
+    _discard_batch(transaction.batch_dir)
     return 0
 
 

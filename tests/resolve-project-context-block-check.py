@@ -112,6 +112,23 @@ Four sections:
    `affected_components` in descending order, asserting the fan-out itself
    sorts ascending rather than trusting the upstream order every other
    fixture here happens to already receive pre-sorted).
+7. T-007's own step-0.5 crash-recovery scan and step-14 journaled publication
+   transaction (design.md "Resolver publication transactional bundle
+   contract"), completing REQ-002's sixteen-row matrix with its own four
+   remaining diagnostic-id rows -- `publication-journal-recovery` (plus its
+   crash-convergence sibling), `artifact-publication-failed`,
+   `post-publication-generation-mismatch` -- plus AC-040's own SECOND
+   `snapshot-generation-mismatch` fixture (the `affected_components`-set-
+   difference-alone variant) and AC-010's own fully-clean negative fixture,
+   `clean-full-track-publication`, which is also this suite's only
+   observation of a COMPLETED multi-target transaction. See the "--- T-007"
+   section below for the per-case rationale, and that section's own kill-hook
+   fixture (`tests/fixtures/capability-resolver/resolve-project-context-
+   block/publication-journal-recovery-crash/registry_discovery.py`) for why
+   the test-harness-only kill hook lives in a fixture-supplied sibling-module
+   overlay rather than in the resolver itself (tasks.md's own Breaking API
+   line forbids a new CLI flag; security-spec.md's own Secrets Management
+   section forbids reading an environment variable).
 """
 
 import argparse
@@ -379,6 +396,16 @@ ALL_CASE_NAMES = (
         "registry-swapped-during-validation",
         "affected-component-absent-from-context",
         "registry-discovery-syntax-error",
+        # T-007 (step 0.5 crash-recovery scan + step 14 journaled
+        # publication transaction): REQ-002's own four remaining
+        # diagnostic-id rows, plus AC-010's own fully-clean negative
+        # fixture.
+        "clean-full-track-publication",
+        "publication-journal-recovery-crash",
+        "publication-journal-recovery",
+        "artifact-publication-failed",
+        "post-publication-generation-mismatch",
+        "snapshot-generation-mismatch-affected-components",
     ]
 )
 
@@ -927,6 +954,7 @@ def run_t003_case(kind, case_name, counts):
             )
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
+        counts.record_diagnostic_id(expected_id)
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
         # Confirmation-panel Major (2026-08-24, both vendors): REQ-005/
         # design.md step 4/security-spec.md B5 all require a dependency
@@ -1366,6 +1394,7 @@ def run_t004_case(kind, case_name, counts):
         stderr = result.stderr.decode("utf-8", errors="replace")
 
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
+        counts.record_diagnostic_id(expected_id)
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
         # Confirmation-panel Major (2026-08-24, both vendors) -- same fix
         # as `run_t003_case` above, since this stage's own step-13 recheck
@@ -1416,6 +1445,20 @@ class Counts:
     def __init__(self):
         self.passed = 0
         self.failed = 0
+        # TEST-010/AC-010 (T-007): the set of REQ-002 diagnostic ids this
+        # run actually OBSERVED a fixture Block with. Recorded at each
+        # case's own canonical-line assertion site -- never hand-
+        # transcribed into a second, parallel roster that could silently
+        # drift from the branch that produces it -- and compared against
+        # `contracts/resolver-evidence.schema.json`'s own sixteen-value
+        # enum by `run_block_matrix_completeness_check` at the end of the
+        # run. A REQ-002 row whose fixture is deleted, renamed, or
+        # accidentally unwired therefore fails the matrix check even
+        # though every surviving case still passes.
+        self.observed_diagnostic_ids = set()
+
+    def record_diagnostic_id(self, diagnostic_id):
+        self.observed_diagnostic_ids.add(diagnostic_id)
 
     def check(self, condition, label, detail=""):
         if condition:
@@ -1550,6 +1593,7 @@ def run_case(kind, case, counts):
         stderr = result.stderr.decode("utf-8", errors="replace")
         stdout = result.stdout.decode("utf-8", errors="replace")
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
+        counts.record_diagnostic_id(expected_id)
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
         counts.check(stdout == "" and stderr == expected_line and "UPSTREAM_SECRET" not in stderr,
                      f"{case_name}: canonical diagnostic only", f"stdout={stdout!r} stderr={stderr!r}")
@@ -1645,10 +1689,37 @@ def run_projection_success_case(kind, source_name, counts):
         counts.check(captured == expected, f"{case_name}: exact Context Projection document", repr(captured))
 
         if source_name == "two-components":
-            counts.check(not (feature_dir / "resolver-evidence.yaml").exists(),
-                         f"{case_name}: no Resolver Evidence on the success path")
-            unchanged = all(path.read_bytes() == value for path, value in sentinels.items())
-            counts.check(unchanged, f"{case_name}: no partial live artifact")
+            # T-007 note (these two assertions previously read "no Resolver
+            # Evidence on the success path" / "no partial live artifact",
+            # encoding T-004's own staged-only regime -- "a clean resolve
+            # (exit 0) writes nothing to any live path"). Step 14's own
+            # journaled publication transaction is exactly the landing of
+            # that deferral, so this Full-track clean resolve now PUBLISHES
+            # its track-exclusive output set. The assertions are widened to
+            # the new contract rather than deleted: Resolver Evidence and the
+            # two Full-track artifacts must now be live, `capability-summary.
+            # yaml` must still be untouched (B4 track-exclusivity), and no
+            # journal or staging litter may survive Complete. The exact
+            # published CONTENT is asserted by
+            # `run_t007_clean_publication_case`, whose own fixture exists for
+            # that purpose; this case's own subject remains step 3.
+            counts.check(
+                (feature_dir / "resolver-evidence.yaml").is_file()
+                and read_or_missing(feature_dir / "facet-manifest.yaml") not in (MISSING, PRE_FACET_MANIFEST)
+                and read_or_missing(scripts / "generated/project-context.resolved.json")
+                not in (MISSING, PRE_CONTEXT_PROJECTION),
+                f"{case_name}: the Full-track clean resolve published its whole track-exclusive output "
+                f"set through step 14's own transaction",
+            )
+            counts.check(
+                read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY,
+                f"{case_name}: no capability-summary.yaml on a Full-track resolve (B4)",
+            )
+            counts.check(
+                not journal_paths(feature_dir) and not staging_litter(feature_dir),
+                f"{case_name}: Complete left no journal or staging litter",
+                repr(staging_litter(feature_dir)),
+            )
             # T-003 note: this fixture now legitimately drives steps 4-9 (a
             # real, empty-capabilities Registry resolve) to reach this same
             # `exit 0`, so the PATH-based spy this suite installs is no
@@ -1677,6 +1748,7 @@ def run_projection_block_case(kind, case, counts):
         stdout = result.stdout.decode("utf-8", errors="replace")
         stderr = result.stderr.decode("utf-8", errors="replace")
         expected_line = f"capability-resolver: {expected_id}: {expected_detail}\n"
+        counts.record_diagnostic_id(expected_id)
         counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode}")
         counts.check(stdout == "" and stderr == expected_line and "UPSTREAM_SECRET" not in stderr,
                      f"{case_name}: canonical diagnostic only", f"stdout={stdout!r} stderr={stderr!r}")
@@ -2089,6 +2161,782 @@ def run_sys_path_hygiene_check(counts):
         )
 
 
+# --- T-007 (step 0.5 crash-recovery scan + step 14 journaled publication) ---
+#
+# design.md "Resolver publication transactional bundle contract" is the
+# authority for every string and every state transition asserted below.
+# Five new invocation groups, covering REQ-002's own four remaining
+# diagnostic-id rows plus AC-010's own "one fully-clean fixture proving a
+# negative":
+#
+#   clean-full-track-publication              -- the happy path (exit 0),
+#     AC-010's negative fixture AND the only place this suite observes a
+#     completed multi-target transaction (Prepare/Journal/Commit/Post-
+#     publication verification/Complete, journal deleted, no litter).
+#   publication-journal-recovery-crash        -- TEST-047's own main half
+#     (crash between two renames; the NEXT invocation's scan converges
+#     every target back to PRE, then proceeds past step 0 into its own,
+#     separate resolve).
+#   publication-journal-recovery              -- TEST-047's own companion
+#     (the journal's recorded pre-image backup is corrupted, an
+#     unrecoverable state: Block before any Registry/ownership/Context-
+#     Projection work, live state left exactly as found).
+#   artifact-publication-failed               -- TEST-039 (an in-process
+#     rename failure on target 2 with target 1 already committed; target 1
+#     is RESTORED from the journal's own pre/ backup, never `unlink`ed).
+#   post-publication-generation-mismatch      -- TEST-049 (every rename
+#     briefly succeeds -- observed from inside the verification window by
+#     the fixture's own stub -- then all of them roll back).
+#   snapshot-generation-mismatch-affected-components
+#                                             -- TEST-040's own SECOND
+#     fixture (every digest identical, only the re-derived
+#     `affected_components` set differs).
+
+STAGING_DIRNAME = ".resolver-staging"
+JOURNAL_FILENAME = "TRANSACTION.json"
+
+# PRE-transaction sentinel bytes `plant_sentinels` seeds, named here so the
+# rollback assertions below read as "restored to PRE", not as an opaque
+# byte literal repeated five times.
+PRE_FACET_MANIFEST = b"facet-preimage\n"
+PRE_CAPABILITY_SUMMARY = b"summary-preimage\n"
+PRE_CONTEXT_PROJECTION = b"projection-preimage\n"
+
+ARTIFACT_PUBLICATION_FAILED_PREFIX = (
+    "a staged artifact could not be written, fsynced, or renamed to its live path during this "
+    "invocation's own publication transaction"
+)
+POST_PUBLICATION_MISMATCH_PREFIX = (
+    "a post-publication verification of the Project Context, Registry, or ownership-source snapshot "
+    "detected drift after every rename in this invocation's own publication transaction had already "
+    "succeeded"
+)
+JOURNAL_RECOVERY_DETAIL = (
+    "a stale publication transaction journal for this feature could not be safely converged to a "
+    "fully-applied or fully-reverted state"
+)
+AFFECTED_COMPONENT_RESOLUTION_FAILED_DETAIL = (
+    "resolve-component-paths exited 3 resolving project-context.yaml; "
+    "see resolve-component-paths diagnostics"
+)
+
+
+def rolled_back_clause(count):
+    """Independent mirror of the resolver's own rollback clause (AC-039:
+    "the rollback attempt is itself recorded in this diagnostic's own
+    `detail`"). Hand-written here from the contract's wording rather than
+    imported from the module under test, matching this driver's own
+    `expected_warn_diagnostic` discipline."""
+    noun = "rename" if count == 1 else "renames"
+    verb = "was" if count == 1 else "were"
+    pronoun = "its own" if count == 1 else "their own"
+    return (
+        f"{count} already-committed live {noun} {verb} rolled back to {pronoun} "
+        f"PRE-transaction state via this transaction's own journal"
+    )
+
+
+# Every T-007 rollback assertion below compares a live path against its own
+# PRE bytes, and the single most important MUTANT it must kill -- a rollback
+# reverted to a bare `unlink` -- leaves exactly those paths MISSING. A bare
+# `Path.read_bytes()` would then raise `FileNotFoundError` and take the whole
+# driver down before it printed a RESULT line, converting the strongest
+# available FAIL signal into an unreadable traceback (the identical defect
+# `run_full_pipeline_match_case`'s own `.get(..., [])` note in the T-005
+# driver already records). Reads go through this sentinel instead, so
+# "missing" is a reportable value, never a crash.
+MISSING = b"<MISSING>"
+
+
+def read_or_missing(path):
+    try:
+        return path.read_bytes()
+    except OSError:
+        return MISSING
+
+
+def sentinels_unchanged(sentinels):
+    return all(read_or_missing(path) == value for path, value in sentinels.items())
+
+
+def sentinel_report(sentinels):
+    return repr({str(path): read_or_missing(path)[:60] for path in sentinels})
+
+
+def journal_paths(feature_dir):
+    return sorted((feature_dir / STAGING_DIRNAME).glob(f"*/{JOURNAL_FILENAME}"))
+
+
+def staging_litter(feature_dir):
+    staging_root = feature_dir / STAGING_DIRNAME
+    if not staging_root.exists():
+        return []
+    return sorted(str(path.relative_to(staging_root)) for path in staging_root.rglob("*"))
+
+
+def sha256_prefixed(payload):
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def t007_install_fixture(repo, fixture_dir, case_name):
+    """Shared T-007 fixture-repo assembly: every real Epic A2/A3 dependency,
+    the EMPTY Registry (so `capability_evaluations` stays `[]` and no
+    `evaluate-predicate` call is ever made -- this task's own scope is the
+    commit phase, never the evaluation phase), plus whichever single stub
+    this case overlays."""
+    scripts = install_scripts(repo)
+    feature_dir, sentinels = plant_sentinels(repo, scripts)
+    shutil.copy2(fixture_dir / "project-context.yaml", repo / "project-context.yaml")
+
+    stub_name = None
+    if (fixture_dir / "resolve-component-paths.py").is_file():
+        stub_name = "resolve-component-paths.py"
+    elif (fixture_dir / "registry_discovery.py").is_file():
+        stub_name = "registry_discovery.py"
+    install_t003_dependencies(
+        repo, scripts, fixture_dir, stub_name=stub_name,
+        registry_capabilities_path=EMPTY_REGISTRY_PATH,
+    )
+    if stub_name == "registry_discovery.py":
+        # The kill hook delegates every real discovery entry point to this
+        # untouched copy (that fixture's own module docstring) -- the
+        # identical "real dependency under a delegate name, stub in its
+        # place" technique `copy_projection_inputs` already uses for
+        # `canonicalize-sdd-yaml`.
+        shutil.copy2(
+            ROOT / "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+            scripts / "registry_discovery_real.py",
+        )
+    return scripts, feature_dir, sentinels
+
+
+def t007_expected_context_binding(repo, scripts, base_oid, target_oid, projection_components,
+                                  pinned_affected_components=None, pinned_ownership_digest=None):
+    """This driver's own already-established oracle chain (`run_t004_case`'s
+    identical block), factored out because five T-007 cases need it."""
+    canonical_context = subprocess.run(
+        [sys.executable, str(REAL_CANONICALIZER), str(repo / "project-context.yaml"), "--input-format", "yaml"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+    ).stdout
+    source_sha256 = sha256_prefixed(canonical_context)
+    if pinned_affected_components is None:
+        affected_components, ownership_digest = real_resolve_component_paths_context_binding(
+            repo, "project-context.yaml", base_oid, target_oid,
+        )
+    else:
+        affected_components, ownership_digest = pinned_affected_components, pinned_ownership_digest
+    projection_document = {
+        "schema": PROJECTION_SCHEMA,
+        "source_sha256": source_sha256,
+        "workflow": {
+            "spec_profile": "full", "artifact_layout": "facet-native", "capability_enforcement": "advisory",
+        },
+        "components": projection_components,
+        "shared_paths": [],
+    }
+    canonical_projection = _canonicalize_json_document(projection_document)
+    context_binding = {
+        "full_context_revision": source_sha256,
+        "dependency_pointers": expected_dependency_pointers(affected_components),
+        "projection_sha256": sha256_prefixed(canonical_projection),
+        "registry_digest": real_registry_digest(EMPTY_REGISTRY_PATH),
+        "ownership_digest": ownership_digest,
+    }
+    return context_binding, canonical_projection, sorted(affected_components)
+
+
+def t007_expected_facet_manifest(affected_components, context_binding):
+    """The Full-track staged artifact this transaction publishes, for the
+    EMPTY Registry every T-007 fixture uses: no Capability matches, so every
+    Registry-derived array is empty and `capability_minimum_enforcement` is
+    absent entirely (never a false-ish placeholder). Hand-derived from
+    design.md's own Facet Manifest field list, never read back off the
+    module under test."""
+    return {
+        "schema": "sdd-facet-manifest/v1",
+        "feature": "example-feature",
+        "affected_components": sorted(set(affected_components)),
+        "required_facets": [],
+        "conditional_facets": [],
+        "resolved_gates": [],
+        "capabilities": [],
+        "lite_eligibility": {"eligible": True, "upgrade_reasons": []},
+        "context_binding": context_binding,
+        "resolver": EXPECTED_RESOLVER_BLOCK,
+    }
+
+
+def t007_component_properties(component_id):
+    return {"paths": {"include": [f"{component_id}/**"]}}
+
+
+def run_t007_clean_publication_case(kind, counts):
+    """AC-010's own "one fully-clean fixture proving a negative (no
+    diagnostic fires)", and this suite's only observation of a COMPLETED
+    multi-target publication transaction: three live targets published
+    (Full track: Facet Manifest + Context Projection + Resolver Evidence),
+    Capability Summary untouched (B4 track-exclusivity), journal deleted,
+    no staging litter left behind."""
+    case_name = "clean-full-track-publication"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+        target_oid = git_commit_all(repo, "add comp-a")
+
+        context_binding, canonical_projection, affected_components = t007_expected_context_binding(
+            repo, scripts, base_oid, target_oid, {"comp-a": t007_component_properties("comp-a")},
+        )
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, target_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.check(
+            result.returncode == 0 and stdout == "" and stderr == "",
+            f"{case_name}: exit 0 with no diagnostic of any kind (AC-010's own negative fixture)",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        manifest_path = feature_dir / "facet-manifest.yaml"
+        manifest, manifest_error = read_evidence(manifest_path)
+        counts.check(
+            manifest == t007_expected_facet_manifest(affected_components, context_binding),
+            f"{case_name}: exact published Facet Manifest at its live path",
+            manifest_error or repr(manifest),
+        )
+
+        projection_path = scripts / "generated/project-context.resolved.json"
+        published_projection = projection_path.read_bytes() if projection_path.is_file() else b""
+        counts.check(
+            published_projection == canonical_projection,
+            f"{case_name}: exact published Context Projection bytes at its live path (Full track only)",
+            repr(published_projection[:200]),
+        )
+
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = read_evidence(evidence_path)
+        counts.check(
+            evidence == {
+                "schema": "sdd-resolver-evidence/v1",
+                "feature": "example-feature",
+                "state": "advisory",
+                "context_binding": context_binding,
+                "resolver": EXPECTED_RESOLVER_BLOCK,
+                "capability_evaluations": [],
+                "diagnostics": [],
+            },
+            f"{case_name}: exact published Resolver Evidence, diagnostics[] empty (AC-010 negative)",
+            parse_error or repr(evidence),
+        )
+        check_evidence_schema(counts, evidence_path, case_name)
+
+        counts.check(
+            read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY,
+            f"{case_name}: no capability-summary.yaml on a Full-track resolve (B4 track-exclusive set)",
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: Complete deletes the journal and leaves no staging litter",
+            repr(staging_litter(feature_dir)),
+        )
+        return sentinels
+
+
+def run_t007_journal_recovery_cases(kind, counts):
+    """TEST-047 (AC-047), both halves, sharing one crashed first
+    invocation shape. The kill hook is the fixture-supplied
+    `registry_discovery.py` overlay (that file's own docstring explains why
+    the hook cannot live in the resolver: no new CLI flag, no environment
+    variable)."""
+    for case_name in ("publication-journal-recovery-crash", "publication-journal-recovery"):
+        fixture_dir = FIXTURES / case_name
+        with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+            repo = Path(tmp).resolve()
+            subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+            scripts, feature_dir, sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+            (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+            base_oid = git_commit_all(repo, "baseline")
+            (repo / "comp-a").mkdir()
+            (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+            target_oid = git_commit_all(repo, "add comp-a")
+
+            # --- Invocation 1: crash between rename 1 and rename 2 -------
+            crashed = subprocess.run(
+                t003_resolver_argv(kind, scripts, base_oid, target_oid),
+                cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            counts.check(
+                crashed.returncode != 0 and crashed.returncode != 1,
+                f"{case_name}: the kill hook genuinely killed the first invocation mid-commit "
+                f"(never an ordinary Block exit)",
+                f"exit={crashed.returncode} stderr={crashed.stderr.decode('utf-8', errors='replace')!r}",
+            )
+            journals = journal_paths(feature_dir)
+            counts.check(
+                len(journals) == 1,
+                f"{case_name}: the crash left exactly one in-progress transaction journal standing",
+                repr([str(path) for path in journals]),
+            )
+            manifest_path = feature_dir / "facet-manifest.yaml"
+            projection_path = scripts / "generated/project-context.resolved.json"
+            evidence_path = feature_dir / "resolver-evidence.yaml"
+            crashed_manifest_bytes = read_or_missing(manifest_path)
+            counts.check(
+                crashed_manifest_bytes not in (MISSING, PRE_FACET_MANIFEST)
+                and read_or_missing(projection_path) == PRE_CONTEXT_PROJECTION
+                and not evidence_path.exists(),
+                f"{case_name}: the crash left an observable MIXED generation (target 1 advanced, "
+                f"target 2 did not) -- the exact partial-publish state the scan must never leave standing",
+                f"manifest={crashed_manifest_bytes[:80]!r} "
+                f"projection={read_or_missing(projection_path)[:80]!r}",
+            )
+
+            # The kill hook has done its job; every following invocation
+            # runs against the untouched real module.
+            shutil.copy2(
+                ROOT / "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+                scripts / "registry_discovery.py",
+            )
+
+            if not journals:
+                # Nothing downstream can be asserted without a journal to
+                # recover from; keep the RED signal readable rather than
+                # crashing the whole driver before it prints a RESULT line.
+                counts.check(
+                    False,
+                    f"{case_name}: crash-recovery assertions require a standing journal",
+                    "no TRANSACTION.json produced by the crashed invocation",
+                )
+                continue
+            if case_name == "publication-journal-recovery-crash":
+                _t007_assert_recovery_converges(
+                    kind, counts, case_name, repo, scripts, feature_dir, sentinels, base_oid, target_oid,
+                )
+            else:
+                _t007_assert_recovery_blocks(
+                    kind, counts, case_name, repo, scripts, feature_dir, journals[0],
+                    crashed_manifest_bytes, base_oid, target_oid,
+                )
+
+
+def _t007_assert_recovery_converges(kind, counts, case_name, repo, scripts, feature_dir, sentinels,
+                                    base_oid, target_oid):
+    """AC-047 first half: the next invocation's own scan converges every
+    target back to its own PRE-transaction bytes BEFORE proceeding with its
+    own, separate resolve.
+
+    "Converged to PRE" and "then proceeded" are only jointly observable if
+    that next invocation does not itself publish over the restored bytes,
+    so this second invocation is deliberately steered into a step-4 Block
+    (this suite's own already-existing `affected-component-resolution-
+    failed` stub, reused verbatim): reaching step 4 at all PROVES the scan
+    completed and handed control on, while the Block leaves the restored
+    PRE bytes standing to be asserted byte-for-byte."""
+    shutil.copy2(
+        FIXTURES / "affected-component-resolution-failed" / "resolve-component-paths.py",
+        scripts / "resolve-component-paths.py",
+    )
+    result = subprocess.run(
+        t003_resolver_argv(kind, scripts, base_oid, target_oid),
+        cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+    )
+    stderr = result.stderr.decode("utf-8", errors="replace")
+    expected_line = (
+        f"capability-resolver: affected-component-resolution-failed: "
+        f"{AFFECTED_COMPONENT_RESOLUTION_FAILED_DETAIL}\n"
+    )
+    counts.check(
+        result.returncode == 1 and stderr.endswith(expected_line),
+        f"{case_name}: the recovering invocation proceeded past step 0 into its own separate resolve "
+        f"(reaching step 4), rather than Blocking on the stale journal",
+        f"exit={result.returncode} stderr={stderr!r}",
+    )
+    counts.check(
+        read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+        f"{case_name}: the already-committed target was RESTORED to its own PRE-transaction bytes from "
+        f"the journal's own pre/ backup -- never `unlink`ed (B1's own destroyed-bytes gap)",
+        repr(read_or_missing(feature_dir / "facet-manifest.yaml")[:120]),
+    )
+    counts.check(
+        read_or_missing(scripts / "generated/project-context.resolved.json") == PRE_CONTEXT_PROJECTION
+        and read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY,
+        f"{case_name}: every not-yet-renamed target is still at its own PRE bytes (no mixed generation)",
+    )
+    counts.check(
+        not journal_paths(feature_dir) and not staging_litter(feature_dir),
+        f"{case_name}: the converged journal and its pre/ backups are deleted once recovery completes",
+        repr(staging_litter(feature_dir)),
+    )
+    evidence_path = feature_dir / "resolver-evidence.yaml"
+    evidence, parse_error = read_evidence(evidence_path)
+    counts.check(
+        isinstance(evidence, dict)
+        and evidence.get("diagnostics") == [{
+            "id": "affected-component-resolution-failed",
+            "detail": AFFECTED_COMPONENT_RESOLUTION_FAILED_DETAIL,
+            "severity": "block",
+        }],
+        f"{case_name}: the recovering invocation's own separate Block is what Resolver Evidence records",
+        parse_error or repr(evidence),
+    )
+
+
+def _t007_assert_recovery_blocks(kind, counts, case_name, repo, scripts, feature_dir, journal_path,
+                                 crashed_manifest_bytes, base_oid, target_oid):
+    """AC-047 second half: the journal's own recorded pre-image backup is
+    corrupted (an unrecoverable third state), so the next invocation Blocks
+    `publication-journal-recovery` BEFORE any Registry/ownership/Context-
+    Projection work begins, leaving the live state exactly as found.
+
+    "Before any Registry/ownership work" is proved two ways at once: the
+    step-4-or-later dependency spy never fires (its shims are the only
+    `resolve-component-paths`/`validate-capability-registry` reachable once
+    the co-located siblings are removed), and the Resolver Evidence record
+    carries NO `state` key at all -- `state` is derived from the Project
+    Context at step 2/3, so its absence is direct evidence that no
+    Context-Projection work happened either."""
+    backup = journal_path.parent / "pre" / "facet-manifest.yaml"
+    counts.check(
+        backup.is_file(),
+        f"{case_name}: Prepare captured a byte-exact pre-image backup for the target that had live content",
+    )
+    backup.write_bytes(b"corrupted-preimage\n")
+
+    (scripts / "resolve-component-paths.py").unlink()
+    (scripts / "validate-capability-registry.py").unlink()
+    spy, env = install_spy(repo)
+
+    result = subprocess.run(
+        t003_resolver_argv(kind, scripts, base_oid, target_oid),
+        cwd=repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+    )
+    stdout = result.stdout.decode("utf-8", errors="replace")
+    stderr = result.stderr.decode("utf-8", errors="replace")
+    expected_line = f"capability-resolver: publication-journal-recovery: {JOURNAL_RECOVERY_DETAIL}\n"
+    counts.record_diagnostic_id("publication-journal-recovery")
+    counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+    counts.check(
+        stdout == "" and stderr == expected_line,
+        f"{case_name}: canonical diagnostic only (AC-014)",
+        f"stdout={stdout!r} stderr={stderr!r}",
+    )
+    counts.check(not spy.exists(), f"{case_name}: no Registry/ownership work began (step-4-or-later spy never fired)")
+    counts.check(
+        journal_path.is_file() and read_or_missing(backup) == b"corrupted-preimage\n",
+        f"{case_name}: the unrecoverable journal and its backups are RETAINED for manual operator intervention",
+    )
+    counts.check(
+        read_or_missing(feature_dir / "facet-manifest.yaml") == crashed_manifest_bytes
+        and read_or_missing(scripts / "generated/project-context.resolved.json") == PRE_CONTEXT_PROJECTION
+        and read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY,
+        f"{case_name}: the live state is left exactly as found -- no partial recovery attempted",
+    )
+    evidence_path = feature_dir / "resolver-evidence.yaml"
+    evidence, parse_error = read_evidence(evidence_path)
+    counts.check(
+        evidence == {
+            "schema": "sdd-resolver-evidence/v1",
+            "feature": "example-feature",
+            "capability_evaluations": [],
+            "diagnostics": [{
+                "id": "publication-journal-recovery",
+                "detail": JOURNAL_RECOVERY_DETAIL,
+                "severity": "block",
+            }],
+        },
+        f"{case_name}: exact Resolver Evidence -- and no `state` key, since the scan Blocks before the "
+        f"Project Context is ever read (AC-012)",
+        parse_error or repr(evidence),
+    )
+    check_evidence_schema(counts, evidence_path, case_name)
+
+
+def run_t007_artifact_publication_failed_case(kind, counts):
+    """TEST-039 (AC-039). The injected failure is structural rather than
+    permission-based: this fixture replaces the Context Projection target's
+    own parent DIRECTORY with a regular FILE, so the Commit phase's own
+    `mkdir(parents=True, exist_ok=True)` for target 2 fails deterministically
+    on every OS and for every privilege level (a `chmod 0555` injection
+    would silently do nothing when the suite runs as root, turning a real
+    assertion into a flaky one). Prepare still succeeds: with its parent a
+    file, the target path simply does not exist, so its journal-recorded
+    PRE is `ABSENT` -- exactly the shape needed for target 1 to be the
+    already-committed rename AC-039 requires be restored from the pre/
+    backup."""
+    case_name = "artifact-publication-failed"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        generated_dir = scripts / "generated"
+        shutil.rmtree(generated_dir)
+        generated_dir.write_bytes(b"generated-is-a-file\n")
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+        (repo / "comp-a").mkdir()
+        (repo / "comp-a/file.txt").write_text("x\n", encoding="utf-8")
+        target_oid = git_commit_all(repo, "add comp-a")
+
+        context_binding, _canonical_projection, _affected = t007_expected_context_binding(
+            repo, scripts, base_oid, target_oid, {"comp-a": t007_component_properties("comp-a")},
+        )
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, target_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_detail = f"{ARTIFACT_PUBLICATION_FAILED_PREFIX}; {rolled_back_clause(1)}"
+        expected_line = f"capability-resolver: artifact-publication-failed: {expected_detail}\n"
+        counts.record_diagnostic_id("artifact-publication-failed")
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: canonical diagnostic whose own detail records the journal-based rollback attempt "
+            f"(AC-039)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{case_name}: the already-completed sibling rename was rolled back to its own PRE-transaction "
+            f"live bytes via the journal -- never a bare `unlink` (AC-039, B1's own destroyed-bytes gap)",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")[:120]),
+        )
+        counts.check(
+            generated_dir.is_file() and read_or_missing(generated_dir) == b"generated-is-a-file\n"
+            and read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY,
+            f"{case_name}: no live artifact this invocation had not already committed to survives partially "
+            f"written (AC-011/TEST-038)",
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: a fully-successful in-process rollback deletes the journal it converged",
+            repr(staging_litter(feature_dir)),
+        )
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = read_evidence(evidence_path)
+        counts.check(
+            evidence == {
+                "schema": "sdd-resolver-evidence/v1",
+                "feature": "example-feature",
+                "state": "advisory",
+                "context_binding": context_binding,
+                "resolver": EXPECTED_RESOLVER_BLOCK,
+                "capability_evaluations": [],
+                "diagnostics": [{
+                    "id": "artifact-publication-failed", "detail": expected_detail, "severity": "block",
+                }],
+            },
+            f"{case_name}: exact Resolver Evidence (AC-012)",
+            parse_error or repr(evidence),
+        )
+        check_evidence_schema(counts, evidence_path, case_name)
+
+
+def run_t007_post_publication_mismatch_case(kind, counts):
+    """TEST-049 (AC-049). (a) is asserted from INSIDE the post-publication
+    verification window, via the capture this fixture's own stub writes on
+    its third call -- the one vantage point from which the briefly-live
+    state is observable at all, since the rollback has already undone it by
+    the time this invocation exits."""
+    case_name = "post-publication-generation-mismatch"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        context_binding, canonical_projection, _affected = t007_expected_context_binding(
+            repo, scripts, base_oid, base_oid, {"comp-a": t007_component_properties("comp-a")},
+            pinned_affected_components=["comp-a"], pinned_ownership_digest="sha256:" + ("0" * 64),
+        )
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_detail = f"{POST_PUBLICATION_MISMATCH_PREFIX}; {rolled_back_clause(3)}"
+        expected_line = f"capability-resolver: post-publication-generation-mismatch: {expected_detail}\n"
+        counts.record_diagnostic_id("post-publication-generation-mismatch")
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: canonical diagnostic only (AC-014)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+
+        capture, capture_error = read_evidence(scripts / "post-publication-live-capture.json")
+        counts.check(
+            isinstance(capture, dict)
+            and capture.get("plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json")
+            == sha256_prefixed(canonical_projection)
+            and capture.get("specs/example-feature/facet-manifest.yaml")
+            not in (None, "ABSENT", sha256_prefixed(PRE_FACET_MANIFEST))
+            and capture.get("specs/example-feature/resolver-evidence.yaml") not in (None, "ABSENT"),
+            f"{case_name}: the Block fires only AFTER every rename in the transaction has already, briefly, "
+            f"succeeded -- all three targets observed live from inside the verification window (AC-049(a))",
+            capture_error or repr(capture),
+        )
+
+        counts.check(
+            sentinels_unchanged(sentinels),
+            f"{case_name}: every one of those just-completed renames is rolled back to its own "
+            f"PRE-transaction state via the journal before this invocation exits -- restored bytes, never "
+            f"a bare `unlink` (AC-049(b)(c), AC-011)",
+            sentinel_report(sentinels),
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: the journal is deleted once every target is confirmed back at PRE",
+            repr(staging_litter(feature_dir)),
+        )
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = read_evidence(evidence_path)
+        counts.check(
+            evidence == {
+                "schema": "sdd-resolver-evidence/v1",
+                "feature": "example-feature",
+                "state": "advisory",
+                "context_binding": context_binding,
+                "resolver": EXPECTED_RESOLVER_BLOCK,
+                "capability_evaluations": [],
+                "diagnostics": [{
+                    "id": "post-publication-generation-mismatch", "detail": expected_detail,
+                    "severity": "block",
+                }],
+            },
+            f"{case_name}: exact Resolver Evidence (AC-012)",
+            parse_error or repr(evidence),
+        )
+        check_evidence_schema(counts, evidence_path, case_name)
+
+
+def run_t007_affected_components_mismatch_case(kind, counts):
+    """TEST-040's own SECOND fixture (AC-040 share, B8 revised): every
+    digest -- including `ownership_digest` -- stays byte-identical between
+    the step-4 snapshot and the step-13 recheck, and the Block fires on the
+    re-derived `affected_components` SET DIFFERENCE alone."""
+    case_name = "snapshot-generation-mismatch-affected-components"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        context_binding, _canonical_projection, _affected = t007_expected_context_binding(
+            repo, scripts, base_oid, base_oid,
+            {
+                "comp-a": t007_component_properties("comp-a"),
+                "comp-b": t007_component_properties("comp-b"),
+            },
+            pinned_affected_components=["comp-a"], pinned_ownership_digest="sha256:" + ("0" * 64),
+        )
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        expected_detail = (
+            "a pre-publication recheck of the Project Context, Registry, or "
+            "ownership-source snapshot detected drift since this invocation's own snapshot"
+        )
+        expected_line = f"capability-resolver: snapshot-generation-mismatch: {expected_detail}\n"
+        counts.record_diagnostic_id("snapshot-generation-mismatch")
+        counts.check(result.returncode == 1, f"{case_name}: exit 1", f"got {result.returncode} stderr={stderr!r}")
+        counts.check(
+            stdout == "" and stderr == expected_line,
+            f"{case_name}: Blocks on the affected_components set difference ALONE, with every digest "
+            f"including ownership_digest byte-identical (AC-040's own second fixture)",
+            f"stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            sentinels_unchanged(sentinels),
+            f"{case_name}: no partial live artifact (TEST-038)",
+            sentinel_report(sentinels),
+        )
+        counts.check(
+            not journal_paths(feature_dir) and not staging_litter(feature_dir),
+            f"{case_name}: a step-13 Block never opens a publication transaction at all",
+            repr(staging_litter(feature_dir)),
+        )
+        evidence_path = feature_dir / "resolver-evidence.yaml"
+        evidence, parse_error = read_evidence(evidence_path)
+        counts.check(
+            evidence == {
+                "schema": "sdd-resolver-evidence/v1",
+                "feature": "example-feature",
+                "state": "advisory",
+                "context_binding": context_binding,
+                "resolver": EXPECTED_RESOLVER_BLOCK,
+                "capability_evaluations": [],
+                "diagnostics": [{
+                    "id": "snapshot-generation-mismatch", "detail": expected_detail, "severity": "block",
+                }],
+            },
+            f"{case_name}: exact Resolver Evidence (AC-012)",
+            parse_error or repr(evidence),
+        )
+        check_evidence_schema(counts, evidence_path, case_name)
+
+
+def run_block_matrix_completeness_check(counts):
+    """TEST-010/AC-010 + AC-014, completed by T-007: the sixteen-row REQ-002
+    Block matrix is now covered end to end.
+
+    The roster this compares against is not a hand-maintained list -- it is
+    the set of ids the fixtures above ACTUALLY produced a canonical
+    diagnostic line for during this same run (`Counts.record_diagnostic_id`,
+    called at each case's own assertion site). The authority on the other
+    side is `contracts/resolver-evidence.schema.json`'s own
+    `diagnostics[].id` enum, read from disk. A REQ-002 row with no fixture,
+    a fixture wired into no run list, and an id that is not a member of the
+    closed enum are each caught here."""
+    with SCHEMA.open("r", encoding="utf-8") as handle:
+        schema = json.load(handle)
+    enum_ids = schema["definitions"]["diagnostic"]["properties"]["id"]["enum"]
+    counts.check(
+        len(enum_ids) == 16 and len(set(enum_ids)) == 16,
+        "TEST-010: the governing schema's own diagnostic-id enum is closed at sixteen distinct rows",
+        repr(enum_ids),
+    )
+    observed = counts.observed_diagnostic_ids
+    counts.check(
+        observed <= set(enum_ids),
+        "TEST-014: every diagnostic id this suite's fixtures emitted is drawn from the closed enum",
+        repr(sorted(observed - set(enum_ids))),
+    )
+    counts.check(
+        set(enum_ids) <= observed,
+        "TEST-010: every one of the sixteen REQ-002 diagnostic-id rows has an independently-triggerable "
+        "fixture in this suite (AC-010, complete)",
+        f"uncovered={sorted(set(enum_ids) - observed)}",
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
@@ -2143,9 +2991,17 @@ def main():
             "recheck-dependency-failed",
         ):
             run_t004_case(args.launcher, case_name, counts)
+        run_t007_clean_publication_case(args.launcher, counts)
+        run_t007_journal_recovery_cases(args.launcher, counts)
+        run_t007_artifact_publication_failed_case(args.launcher, counts)
+        run_t007_post_publication_mismatch_case(args.launcher, counts)
+        run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_draft7_validator_keyword_checks(counts)
         run_draft7_keyword_coverage_check(counts)
         run_sys_path_hygiene_check(counts)
+        # Must run LAST: it consumes the diagnostic ids every case above
+        # recorded while it ran.
+        run_block_matrix_completeness_check(counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
