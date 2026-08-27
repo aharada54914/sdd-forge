@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 7,
+  "round": 2,
+  "requirements_sha256": "758c6bb28b8de2a47c27ef8c92c97578f09b9517cf355b886b784916bc28d2ef",
+  "acceptance_sha256": "fa49e8c7c09e0a9f674b49f73d63da71d13bdecadfd09c81970ba8cf343125fa",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a7r2-seq0829",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a7r2-0829",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "758c6bb28b8de2a47c27ef8c92c97578f09b9517cf355b886b784916bc28d2ef"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "fa49e8c7c09e0a9f674b49f73d63da71d13bdecadfd09c81970ba8cf343125fa"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "91db896b2a2ae0c1f3bf0ab00b6a840516f51ebc8cbf14d5d2951079d047de40"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-7/round-2/precheck-result.json",
+          "sha256": "a83033e153560d466fe23d731ef619494fb9a4a6ca2d33da5eb09fdb776b6f9c"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a7r2-seq0830",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a7r2-0830",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+          "sha256": "758c6bb28b8de2a47c27ef8c92c97578f09b9517cf355b886b784916bc28d2ef"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+          "sha256": "fa49e8c7c09e0a9f674b49f73d63da71d13bdecadfd09c81970ba8cf343125fa"
+        },
+        {
+          "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+          "sha256": "91db896b2a2ae0c1f3bf0ab00b6a840516f51ebc8cbf14d5d2951079d047de40"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"
+        },
+        {
+          "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-7/round-2/precheck-result.json",
+          "sha256": "a83033e153560d466fe23d731ef619494fb9a4a6ca2d33da5eb09fdb776b6f9c"
+        },
+        {
+          "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-7/round-2/integrated-summary.json",
+          "sha256": "782a70e81201f564d57e1a0ebede0640c3dd58ddc57e6b80fd10ca2555d7640c"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-epic-193-a5-capability-resolver-a7r2",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}
