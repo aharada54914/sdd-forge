@@ -104,6 +104,9 @@ Diagnostic = namedtuple("Diagnostic", ["check_id", "pointer", "message"])
 
 SCHEMA_FILENAME = "resolver-evidence.schema.json"
 REGISTRY_FILENAME = "capability-registry.json"
+# Epic A2's own Registry version token, mirroring
+# `registry_discovery.check_capability_registry` rather than a second literal.
+REGISTRY_SCHEMA_VERSION = "capability-registry/v1"
 EXPECTED_SCHEMA_ID = (
     "https://github.com/aharada54914/sdd-forge/contracts/resolver-evidence.schema.json"
 )
@@ -253,19 +256,38 @@ def _load_via_canonicalizer(path):
             result = subprocess.run(_canonicalizer_argv(path, input_format),
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         except OSError as exc:
-            raise ValidatorError("canonicalizer-invocation-failed", str(exc))
+            # Deliberately the exception CLASS NAME only, never `str(exc)`:
+            # the OSError subclass raised for one injected condition differs by
+            # platform and its message carries a local path, which would break
+            # REQ-005 dual-runtime byte-identity as well as B5 (the identical
+            # discipline `resolve-project-context.py` `_rollback_clause`
+            # applies to its own OS-error details).
+            raise ValidatorError(
+                "canonicalizer-invocation-failed",
+                f"the canonicalize-sdd-yaml subprocess could not be launched "
+                f"({type(exc).__name__}) while reading this invocation's own target",
+            )
         if result.returncode != 0:
-            attempts.append(f"--input-format {input_format}: "
-                            f"{result.stderr.decode('utf-8', errors='replace').strip() or f'exit {result.returncode}'}")
+            # B5: record WHICH attempt failed and its exit code -- both
+            # Resolver-owned, platform-stable facts -- never the dependency's
+            # own stderr bytes. That stderr remains visible to a human
+            # operator on the terminal exactly as the subprocess itself wrote
+            # it; it simply never enters this validator's own emitted line.
+            attempts.append(f"--input-format {input_format} exited {result.returncode}")
             continue
         try:
             return json.loads(result.stdout.decode("utf-8"))
         except ValueError as exc:
-            raise ValidatorError("canonicalizer-invocation-failed",
-                                 f"non-JSON canonicalizer stdout: {exc}")
+            raise ValidatorError(
+                "canonicalizer-invocation-failed",
+                f"the canonicalize-sdd-yaml subprocess exited 0 under --input-format "
+                f"{input_format} but its stdout was not parseable canonical JSON "
+                f"({type(exc).__name__})",
+            )
     raise ValidatorError("canonicalizer-invocation-failed",
                          "the canonicalizer rejected this target under every declared input "
-                         "format (" + "; ".join(attempts) + ")")
+                         "format (" + "; ".join(attempts) + "); see the canonicalizer's own "
+                         "diagnostics on stderr for the reason")
 
 
 def load_document(path, diagnostic_id):
@@ -277,9 +299,15 @@ def load_document(path, diagnostic_id):
             return json.load(handle)
     # ValueError covers json.JSONDecodeError AND UnicodeDecodeError (both
     # ValueError subclasses) -- a non-UTF-8 input must surface this
-    # diagnostic, never an unhandled Python traceback.
+    # diagnostic, never an unhandled Python traceback. B5/REQ-005: the
+    # exception CLASS NAME only, never `str(exc)`, which carries a local path
+    # (OSError) or byte offsets that differ across runtimes.
     except (OSError, ValueError) as exc:
-        raise ValidatorError(diagnostic_id, str(exc))
+        raise ValidatorError(
+            diagnostic_id,
+            f"this invocation's own target could not be read or parsed "
+            f"({type(exc).__name__})",
+        )
 
 
 # --------------------------------------------------------------------------
@@ -342,12 +370,35 @@ def check_no_publication_in_progress(paths_being_read):
                 )
             if journal.get("status") != "in-progress":
                 continue
-            for target in journal.get("targets", []):
-                if not isinstance(target, dict):
-                    continue
-                live_path = target.get("live_path")
-                if not isinstance(live_path, str):
-                    continue
+            # A journal that IS live must be fully understood before this
+            # invocation may conclude it does not name a path about to be
+            # read. Mirrors T-007's own writer-side `_read_journal`, which
+            # raises `PublicationJournalUnrecoverable` on every one of these
+            # deviations. Previously each malformed entry was `continue`d --
+            # so a live journal with a missing/malformed `targets[]` was
+            # silently treated as naming nothing and the read proceeded, the
+            # exact opposite of fail-closed (panel round 1, Major 4).
+            entries = journal.get("targets")
+            if not isinstance(entries, list) or not entries:
+                raise ValidatorError(
+                    "resolver-publication-in-progress",
+                    "a live publication transaction journal carries no readable targets[] "
+                    "array, so this invocation cannot determine whether it names a path it "
+                    "is about to read; refusing to proceed on possibly-torn cross-file "
+                    "state (RESOLVER_PUBLICATION_IN_PROGRESS)",
+                )
+            for target in entries:
+                if not isinstance(target, dict) or not isinstance(target.get("live_path"), str) \
+                        or not target["live_path"]:
+                    raise ValidatorError(
+                        "resolver-publication-in-progress",
+                        "a live publication transaction journal carries a target entry that "
+                        "does not conform to this feature's own journal shape, so this "
+                        "invocation cannot determine whether it names a path it is about to "
+                        "read; refusing to proceed on possibly-torn cross-file state "
+                        "(RESOLVER_PUBLICATION_IN_PROGRESS)",
+                    )
+                live_path = target["live_path"]
                 if _normalize(_journal_target_path(journal_path, live_path)) in targets:
                     raise ValidatorError(
                         "resolver-publication-in-progress",
@@ -501,6 +552,24 @@ def _validate(instance, schema, root_schema, pointer, diags):
         elif "else" in schema:
             _validate(instance, schema["else"], root_schema, pointer, diags)
 
+    # Numeric keywords. Guarded on a real number (bool is excluded: in Python
+    # `True == 1`, so an unguarded comparison would silently accept a boolean
+    # where the schema demands an integer bound). `minimum` is the one numeric
+    # keyword contracts/resolver-evidence.schema.json actually uses
+    # (`declaration_index`, `minimum: 0`); `exclusiveMinimum`/`maximum`/
+    # `exclusiveMaximum` are implemented alongside it so a later schema
+    # revision that adds one cannot silently go unenforced the way `minimum`
+    # itself did (panel round 1, Major 2).
+    if isinstance(instance, (int, float)) and not isinstance(instance, bool):
+        if "minimum" in schema and instance < schema["minimum"]:
+            diags.append((pointer, f"{instance!r} < minimum {schema['minimum']!r}"))
+        if "exclusiveMinimum" in schema and instance <= schema["exclusiveMinimum"]:
+            diags.append((pointer, f"{instance!r} <= exclusiveMinimum {schema['exclusiveMinimum']!r}"))
+        if "maximum" in schema and instance > schema["maximum"]:
+            diags.append((pointer, f"{instance!r} > maximum {schema['maximum']!r}"))
+        if "exclusiveMaximum" in schema and instance >= schema["exclusiveMaximum"]:
+            diags.append((pointer, f"{instance!r} >= exclusiveMaximum {schema['exclusiveMaximum']!r}"))
+
     if isinstance(instance, str):
         if "pattern" in schema and not _compile_pattern(schema["pattern"]).search(instance):
             diags.append((pointer, f"does not match pattern {schema['pattern']!r}"))
@@ -588,6 +657,23 @@ def resolve_registry(override_path):
         label = "the ADR-0025-discovered Registry"
     if not isinstance(document, dict):
         raise ValidatorError("registry-unreadable", f"{label}'s top level is not an object")
+    # Per-artifact version check (design.md "Discovery contract":
+    # `capability-registry.json` -> `schema == "capability-registry/v1"`,
+    # "Epic A2's own check, reused unmodified"). The self-discovery path is
+    # already covered by `registry_discovery.discover_artifact`'s own
+    # `check_capability_registry`, but the `--registry` OVERRIDE path bypassed
+    # discovery entirely and therefore had NO version check at all -- the
+    # caller-substitutable surface B6 exists to close (panel round 1,
+    # Major 3). Applied uniformly here so both paths are checked by one rule,
+    # and fired BEFORE the digest binding: a file that is not a Registry of
+    # this schema version has no meaningful whole-Registry digest to compare.
+    if document.get("schema") != REGISTRY_SCHEMA_VERSION:
+        raise ValidatorError(
+            "registry-version-mismatch",
+            f"{label} declares schema {document.get('schema')!r}, not "
+            f"{REGISTRY_SCHEMA_VERSION!r}; refusing to treat it as ground truth for any "
+            f"exact-set or digest-binding check",
+        )
     return document, label
 
 

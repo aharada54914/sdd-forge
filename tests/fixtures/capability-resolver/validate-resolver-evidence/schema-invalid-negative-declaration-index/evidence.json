@@ -1,0 +1,139 @@
+{
+  "schema": "sdd-resolver-evidence/v1",
+  "feature": "example-feature",
+  "state": "advisory",
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "capability_evaluations": [
+    {
+      "capability_id": "alpha-capability",
+      "matched": true,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": true,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ],
+      "conditional_facet_evaluations": [
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": -1,
+          "applied": true,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": true,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii",
+                  "outcome": "match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "facet": "pii-handling-spec",
+          "declaration_index": 1,
+          "applied": false,
+          "evaluations": [
+            {
+              "component_id": "svc-a",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-a/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            },
+            {
+              "component_id": "svc-b",
+              "result": false,
+              "evidence": [
+                {
+                  "operator": "equals",
+                  "path": "/components/svc-b/characteristics/pii_export",
+                  "outcome": "no-match"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "beta-capability",
+      "matched": false,
+      "trigger_evaluations": [
+        {
+          "component_id": "svc-a",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-a/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        },
+        {
+          "component_id": "svc-b",
+          "result": false,
+          "evidence": [
+            {
+              "operator": "contains",
+              "path": "/components/svc-b/artifact_kinds",
+              "outcome": "no-match"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "diagnostics": []
+}

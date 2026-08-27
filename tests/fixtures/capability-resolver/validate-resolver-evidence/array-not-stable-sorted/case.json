@@ -6,5 +6,6 @@
   "expect_check_ids": [
     "array-not-stable-sorted",
     "array-not-stable-sorted"
-  ]
+  ],
+  "forbidden_strings": []
 }

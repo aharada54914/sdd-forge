@@ -20,6 +20,10 @@
     "provenance-affected-components-override-match",
     "provenance-context-override-match",
     "reader-journal-live",
-    "reader-journal-absent"
+    "reader-journal-absent",
+    "canonicalizer-stderr-containment",
+    "schema-invalid-negative-declaration-index",
+    "registry-override-version-mismatch",
+    "reader-journal-malformed"
   ]
 }

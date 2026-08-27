@@ -6,5 +6,6 @@
     "@CONTEXT@"
   ],
   "expect_exit": 0,
-  "expect_check_ids": []
+  "expect_check_ids": [],
+  "forbidden_strings": []
 }

@@ -84,12 +84,18 @@ CHECK_ID_ENUM = (
     "array-not-stable-sorted",
 )
 
-# The reader-side generation-consistency refusal (AC-054) is deliberately NOT
-# a thirteenth member of that closed enum: it is an operational fail-closed
-# refusal to read at all, the same category as Epic A4's own
+# Operational fail-closed refusals are deliberately NOT members of that closed
+# enum: they are refusals to evaluate at all, the same category as Epic A4's own
 # `canonicalizer-invocation-failed`/`manifest-unreadable` lines, which those
-# three validators likewise emit outside their own check-id enums.
+# three validators likewise emit outside their own check-id enums. Enumerated
+# here so the namespace-closure assertion stays exact -- an id outside BOTH
+# sets still fails the run.
 JOURNAL_CHECK_ID = "resolver-publication-in-progress"
+OPERATIONAL_IDS = frozenset({
+    JOURNAL_CHECK_ID,
+    "canonicalizer-invocation-failed",
+    "registry-version-mismatch",
+})
 
 
 class Counts:
@@ -221,11 +227,20 @@ def build_repo(repo, case_dir):
     if journal_source.is_file():
         journal = load_json(journal_source)
         for target in journal.get("targets", []):
-            if target.get("live_path") == EVIDENCE_REL_PLACEHOLDER:
+            # A deliberately malformed fixture may carry non-dict entries
+            # (reader-journal-malformed); plant them verbatim.
+            if isinstance(target, dict) and target.get("live_path") == EVIDENCE_REL_PLACEHOLDER:
                 target["live_path"] = EVIDENCE_REL
         journal_path = repo / f"specs/{FEATURE}/.resolver-staging" / journal["nonce"] / "TRANSACTION.json"
         journal_path.parent.mkdir(parents=True, exist_ok=True)
         journal_path.write_bytes(canonical_bytes(journal))
+
+    # Installed LAST, and only when a fixture asks for it: the real
+    # canonicalizer is required above, by `generate-registry-digest --whole`,
+    # to bind this fixture's own digest placeholders before it is displaced.
+    stub = case_dir / "canonicalizer.py"
+    if stub.is_file():
+        shutil.copy2(stub, scripts / "canonicalize-sdd-yaml.py")
 
     return digest
 
@@ -283,6 +298,20 @@ def run_case(launcher, name, counts):
         counts.check("\r" not in stdout,
                      f"{name}: LF-only diagnostic bytes (no CR)", f"stdout={stdout!r}")
 
+        # security-spec.md B5: a dependency subprocess's own raw stderr, and any
+        # OS/environment-specific text it carries, must never reach this
+        # validator's own emitted diagnostic (it would also break REQ-005
+        # dual-runtime byte-identity). Checked against BOTH streams.
+        forbidden = meta.get("forbidden_strings", [])
+        if forbidden:
+            leaked = [token for token in forbidden if token in stdout or token in stderr]
+            counts.check(
+                not leaked,
+                f"{name}: no dependency raw-stderr text reaches this validator's own "
+                f"diagnostic (B5 containment)",
+                f"leaked={leaked!r} stdout={stdout!r}",
+            )
+
 
 def run_enum_completeness_check(counts):
     """Every one of design.md's own twelve check-ids was actually OBSERVED
@@ -292,7 +321,7 @@ def run_enum_completeness_check(counts):
     expected = set(CHECK_ID_ENUM)
     observed = set(counts.observed_check_ids)
     missing = sorted(expected - observed)
-    extra = sorted(observed - expected - {JOURNAL_CHECK_ID})
+    extra = sorted(observed - expected - OPERATIONAL_IDS)
     counts.check(not missing,
                  "TEST-021 matrix completeness: every one of the twelve check-ids "
                  "was observed firing on its own fixture",

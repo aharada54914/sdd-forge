@@ -6,5 +6,6 @@
   "expect_check_ids": [
     "matched-result-contradiction",
     "matched-result-contradiction"
-  ]
+  ],
+  "forbidden_strings": []
 }

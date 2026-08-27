@@ -5,5 +5,6 @@
   "expect_exit": 1,
   "expect_check_ids": [
     "resolver-publication-in-progress"
-  ]
+  ],
+  "forbidden_strings": []
 }

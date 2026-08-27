@@ -6,5 +6,6 @@
   "expect_check_ids": [
     "conditional-facet-set-mismatch",
     "conditional-facet-set-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }

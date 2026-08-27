@@ -5,5 +5,6 @@
   "expect_exit": 1,
   "expect_check_ids": [
     "registry-digest-unbound"
-  ]
+  ],
+  "forbidden_strings": []
 }

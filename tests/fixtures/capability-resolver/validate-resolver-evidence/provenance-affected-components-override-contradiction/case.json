@@ -8,5 +8,6 @@
   "expect_exit": 1,
   "expect_check_ids": [
     "affected-component-provenance-mismatch"
-  ]
+  ],
+  "forbidden_strings": []
 }

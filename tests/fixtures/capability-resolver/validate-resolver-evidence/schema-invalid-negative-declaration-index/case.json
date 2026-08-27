@@ -1,0 +1,10 @@
+{
+  "description": "Major 2: declaration_index -1 violates the schema's own `minimum: 0`; a subset engine that does not implement `minimum` would let it through and misreport it as a conditional-facet-set-mismatch instead",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "schema-invalid"
+  ],
+  "forbidden_strings": []
+}
