@@ -1,0 +1,7 @@
+{
+  "description": "TEST-054 control: byte-identical to reader-journal-live except that no journal is planted -- exit 0, proving the fail-closed verdict above is caused by the live journal and not by the Evidence content",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 0,
+  "expect_check_ids": []
+}

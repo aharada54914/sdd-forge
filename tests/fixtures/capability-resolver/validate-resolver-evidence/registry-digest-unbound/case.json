@@ -1,0 +1,9 @@
+{
+  "description": "context_binding.registry_digest does not equal generate-registry-digest --whole over the ADR-0025-discovered Registry (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "registry-digest-unbound"
+  ]
+}

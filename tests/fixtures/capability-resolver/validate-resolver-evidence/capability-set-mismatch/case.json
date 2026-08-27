@@ -1,0 +1,9 @@
+{
+  "description": "capability_evaluations[] omits a Registry Capability -- the exact-set rule a schema-only check cannot express (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "capability-set-mismatch"
+  ]
+}

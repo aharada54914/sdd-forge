@@ -1,0 +1,9 @@
+{
+  "description": "the same component_id appears twice in one trigger_evaluations[] array; the SET is still exactly the affected-component set, so only the nested-uniqueness check fires (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "component-evaluation-id-duplicate"
+  ]
+}

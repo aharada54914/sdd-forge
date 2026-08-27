@@ -68,6 +68,7 @@ $tests = @(
     'tests/resolve-project-context-cli.tests.ps1',
     'tests/resolve-project-context-discovery.tests.ps1',
     'tests/resolve-project-context-lite.tests.ps1',
+    'tests/validate-resolver-evidence.tests.ps1',
     'tests/capability-registry-schema.tests.ps1',
     'tests/evaluate-predicate.tests.ps1',
     'tests/registry-discovery.tests.ps1',

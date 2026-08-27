@@ -1,0 +1,7 @@
+{
+  "description": "schema-conformant, exact-set-complete, provenance-bound Evidence with a matching co-located Facet Manifest -- exit 0, no diagnostic",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 0,
+  "expect_check_ids": []
+}

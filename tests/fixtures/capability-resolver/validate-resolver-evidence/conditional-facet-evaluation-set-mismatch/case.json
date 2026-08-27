@@ -1,0 +1,9 @@
+{
+  "description": "one conditional_facet_evaluations[] entry's evaluations[].component_id set is not exactly the provenance-bound affected-component set (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "conditional-facet-evaluation-set-mismatch"
+  ]
+}

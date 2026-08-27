@@ -1,0 +1,9 @@
+{
+  "description": "TEST-054: a live TRANSACTION.json naming the resolver-evidence.yaml path this invocation is about to read -- fails closed, never a silent read of possibly-torn cross-file state (B1)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "resolver-publication-in-progress"
+  ]
+}

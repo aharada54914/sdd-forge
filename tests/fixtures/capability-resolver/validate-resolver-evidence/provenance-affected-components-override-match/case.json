@@ -1,0 +1,10 @@
+{
+  "description": "TEST-051 control: an --affected-components override set-identical to the dependency_pointers[] derivation is accepted",
+  "feature": "example-feature",
+  "args": [
+    "--affected-components",
+    "svc-a,svc-b"
+  ],
+  "expect_exit": 0,
+  "expect_check_ids": []
+}

@@ -1,0 +1,39 @@
+==============================================================================
+CONTROL (no mutation applied) -- the scratch tree must itself be green,
+otherwise a 'mutation failure' below could be an artifact of the copy.
+==============================================================================
+exit=0  RESULT: 117 passed, 0 failed
+
+==============================================================================
+MUTATION a-registry-binding-ordering: remove the registry-digest-unbound-BEFORE-exact-set ordering (the binding check still runs and still reports, but no longer suppresses the Registry-grounded exact-set checks)
+==============================================================================
+exit=1  RESULT: 115 passed, 2 failed
+FAIL: provenance-registry-override-mismatch: emits exactly ['registry-digest-unbound'] and nothing else: got ['capability-set-mismatch', 'registry-digest-unbound']; stdout="resolver-evidence: capability-set-mismatch: /capability_evaluations: capability_evaluations[].capability_id is not exactly the provenance-bound Registry's own capabilities[].id set (missing: []; unexpected: ['beta-capability'])
+FAIL: provenance-registry-self-discovery-mismatch: emits exactly ['registry-digest-unbound'] and nothing else: got ['capability-set-mismatch', 'registry-digest-unbound']; stdout="resolver-evidence: capability-set-mismatch: /capability_evaluations: capability_evaluations[].capability_id is not exactly the provenance-bound Registry's own capabilities[].id set (missing: []; unexpected: ['beta-capabil
+-- targeted-fixture check --
+   DETECTED: provenance-registry-override-mismatch
+   DETECTED: provenance-registry-self-discovery-mismatch
+
+==============================================================================
+MUTATION b-facet-name-keying: key conditional-facet-set-mismatch by facet NAME instead of declaration_index (the B7 regression this check exists to prevent)
+==============================================================================
+exit=1  RESULT: 114 passed, 3 failed
+FAIL: conditional-facet-set-mismatch: exit 1: got 0; stdout='' stderr=''
+FAIL: conditional-facet-set-mismatch: emits exactly ['conditional-facet-set-mismatch', 'conditional-facet-set-mismatch'] and nothing else: got []; stdout=''
+FAIL: TEST-021 matrix completeness: every one of the twelve check-ids was observed firing on its own fixture: never observed: ['conditional-facet-set-mismatch']
+-- targeted-fixture check --
+   DETECTED: conditional-facet-set-mismatch
+
+==============================================================================
+MUTATION c-drop-journal-check: drop the reader-side RESOLVER_PUBLICATION_IN_PROGRESS generation-consistency check entirely
+==============================================================================
+exit=1  RESULT: 115 passed, 2 failed
+FAIL: reader-journal-live: exit 1: got 0; stdout='' stderr=''
+FAIL: reader-journal-live: emits exactly ['resolver-publication-in-progress'] and nothing else: got []; stdout=''
+-- targeted-fixture check --
+   DETECTED: reader-journal-live
+
+==============================================================================
+RESTORED (pristine validator back in the scratch tree)
+==============================================================================
+exit=0  RESULT: 117 passed, 0 failed

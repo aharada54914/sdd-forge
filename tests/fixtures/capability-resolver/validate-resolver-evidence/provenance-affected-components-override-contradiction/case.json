@@ -1,0 +1,12 @@
+{
+  "description": "TEST-051 half 2: an explicit --affected-components override that contradicts BOTH sibling artifacts' own dependency_pointers[] fires the IDENTICAL check-id -- an override can substitute for the derivation, never contradict it (B6)",
+  "feature": "example-feature",
+  "args": [
+    "--affected-components",
+    "svc-a"
+  ],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "affected-component-provenance-mismatch"
+  ]
+}

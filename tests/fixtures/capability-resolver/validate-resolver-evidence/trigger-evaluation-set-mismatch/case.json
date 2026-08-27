@@ -1,0 +1,9 @@
+{
+  "description": "one capability_evaluations[] entry's trigger_evaluations[].component_id set is not exactly the provenance-bound affected-component set (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "trigger-evaluation-set-mismatch"
+  ]
+}

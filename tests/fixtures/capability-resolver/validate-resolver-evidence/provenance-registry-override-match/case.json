@@ -1,0 +1,10 @@
+{
+  "description": "TEST-050 control: a --registry override naming a byte-identical copy of the discovered Registry binds cleanly -- an override is accepted when it MATCHES, so the two fixtures above fail for the mismatch and not merely for carrying a --registry flag",
+  "feature": "example-feature",
+  "args": [
+    "--registry",
+    "@OVERRIDE_REGISTRY@"
+  ],
+  "expect_exit": 0,
+  "expect_check_ids": []
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "capability-registry/v1",
+  "gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "script": "plugins/sdd-quality-loop/scripts/check-update-migration.sh",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "alpha-capability",
+      "trigger": {
+        "any": [
+          {
+            "scope": "affected_component",
+            "field": "artifact_kinds",
+            "operator": "contains",
+            "value": "durable_workflow"
+          }
+        ]
+      },
+      "required_facets": [
+        "data-spec"
+      ],
+      "conditional_facets": [
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii",
+            "operator": "equals",
+            "value": true
+          }
+        },
+        {
+          "facet": "pii-handling-spec",
+          "when": {
+            "scope": "affected_component",
+            "field": "characteristics.pii_export",
+            "operator": "equals",
+            "value": true
+          }
+        }
+      ],
+      "review_check_ids": [
+        "alpha-replay-safety"
+      ],
+      "gate_ids": [
+        "check-update-migration"
+      ],
+      "lite_policy": {
+        "eligible": false,
+        "upgrade_reasons": [
+          "durable_workflow"
+        ]
+      },
+      "minimum_enforcement": "required",
+      "delivery_strategy": {
+        "kind": "durable-workflow"
+      }
+    }
+  ]
+}

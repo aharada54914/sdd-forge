@@ -1,0 +1,10 @@
+{
+  "description": "BOTH directions in one fixture: applied:false with a true evaluation result, and applied:true with no true evaluation result (B6, bidirectional, facet-level)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "applied-result-contradiction",
+    "applied-result-contradiction"
+  ]
+}

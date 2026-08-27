@@ -1,0 +1,12 @@
+{
+  "schema": "sdd-resolver-transaction/v1",
+  "nonce": "0123456789abcdef",
+  "status": "in-progress",
+  "targets": [
+    {
+      "live_path": "@EVIDENCE_REL@",
+      "pre_hash": "ABSENT",
+      "post_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  ]
+}

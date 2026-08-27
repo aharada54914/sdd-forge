@@ -1,0 +1,55 @@
+{
+  "schema": "sdd-facet-manifest/v1",
+  "feature": "example-feature",
+  "affected_components": [
+    "svc-a",
+    "svc-b"
+  ],
+  "required_facets": [
+    "data-spec"
+  ],
+  "conditional_facets": [
+    {
+      "facet": "pii-handling-spec",
+      "applied": true,
+      "evidence": [
+        {
+          "operator": "equals",
+          "path": "/components/svc-a/characteristics/pii",
+          "outcome": "match"
+        }
+      ]
+    }
+  ],
+  "resolved_gates": [
+    {
+      "id": "check-update-migration",
+      "stage": "implementation",
+      "blocking": true
+    }
+  ],
+  "capabilities": [
+    "alpha-capability"
+  ],
+  "lite_eligibility": {
+    "eligible": false,
+    "upgrade_reasons": [
+      "durable_workflow"
+    ]
+  },
+  "context_binding": {
+    "full_context_revision": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dependency_pointers": [
+      "/components/svc-a",
+      "/components/svc-b",
+      "/workflow"
+    ],
+    "projection_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "registry_digest": "@REGISTRY_DIGEST@",
+    "ownership_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "resolver": {
+    "version": "1.0.0",
+    "rule_set_revision": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "description": "TEST-050: a --registry override whose own generate-registry-digest --whole value does not equal context_binding.registry_digest, AND whose capabilities[] set would independently fire capability-set-mismatch -- registry-digest-unbound is the ONLY diagnostic, proving the binding check runs BEFORE any exact-set check (B6)",
+  "feature": "example-feature",
+  "args": [
+    "--registry",
+    "@OVERRIDE_REGISTRY@"
+  ],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "registry-digest-unbound"
+  ]
+}

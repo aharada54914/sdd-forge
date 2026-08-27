@@ -1,0 +1,9 @@
+{
+  "description": "a required top-level property is absent -- fails contracts/resolver-evidence.schema.json conformance",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "schema-invalid"
+  ]
+}

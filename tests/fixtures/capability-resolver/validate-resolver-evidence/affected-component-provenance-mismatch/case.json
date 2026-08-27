@@ -1,0 +1,9 @@
+{
+  "description": "TEST-051 half 1: a co-located Facet Manifest's own dependency_pointers[] names a different affected-component set than the Evidence instance's own -- fires with NO --affected-components and NO --manifest flag at all (sibling auto-discovery, B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "affected-component-provenance-mismatch"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "description": "BOTH directions in one fixture: matched:true with no true trigger result, and matched:false with a true trigger result (B6, bidirectional)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "matched-result-contradiction",
+    "matched-result-contradiction"
+  ]
+}

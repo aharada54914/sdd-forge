@@ -1,0 +1,10 @@
+{
+  "description": "TEST-051 control: the --context-derived equivalent of --affected-components (design.md CLI contract) is accepted when it is set-identical to the dependency_pointers[] derivation",
+  "feature": "example-feature",
+  "args": [
+    "--context",
+    "@CONTEXT@"
+  ],
+  "expect_exit": 0,
+  "expect_check_ids": []
+}

@@ -1,0 +1,9 @@
+{
+  "description": "TEST-050 companion: NO --registry flag at all. The ADR-0025-discovered Registry's own digest does not equal context_binding.registry_digest, and its capabilities[] set would independently fire capability-set-mismatch -- the default self-discovery path performs the IDENTICAL binding-before-exact-set check (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "registry-digest-unbound"
+  ]
+}

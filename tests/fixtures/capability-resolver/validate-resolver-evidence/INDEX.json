@@ -1,0 +1,25 @@
+{
+  "cases": [
+    "clean",
+    "schema-invalid",
+    "registry-digest-unbound",
+    "capability-set-mismatch",
+    "capability-evaluation-id-duplicate",
+    "affected-component-provenance-mismatch",
+    "trigger-evaluation-set-mismatch",
+    "component-evaluation-id-duplicate",
+    "matched-result-contradiction",
+    "conditional-facet-set-mismatch",
+    "conditional-facet-evaluation-set-mismatch",
+    "applied-result-contradiction",
+    "array-not-stable-sorted",
+    "provenance-registry-override-mismatch",
+    "provenance-registry-self-discovery-mismatch",
+    "provenance-registry-override-match",
+    "provenance-affected-components-override-contradiction",
+    "provenance-affected-components-override-match",
+    "provenance-context-override-match",
+    "reader-journal-live",
+    "reader-journal-absent"
+  ]
+}

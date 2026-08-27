@@ -710,6 +710,30 @@ jobs:
         shell: pwsh
         run: ./tests/resolve-project-context-lite.tests.ps1
 
+      # epic-193-a5-capability-resolver T-008 (REQ-004/REQ-005/REQ-006,
+      # TEST-021/050/051/054): validate-resolver-evidence -- the closed
+      # twelve-value check-id matrix (one independently-triggerable fixture
+      # per check-id plus a clean fixture), the B6 provenance-binding locks
+      # (a --registry override and the default ADR-0025 self-discovery path
+      # both bind context_binding.registry_digest BEFORE any exact-set check;
+      # the affected-component set is derived from dependency_pointers[] and
+      # cross-checked against a co-located Facet Manifest), and the B1
+      # reader-side fail-closed lock (a live TRANSACTION.json naming the
+      # resolver-evidence.yaml path about to be read). Ordered directly after
+      # T-006's own three suites, the immediately preceding suite-registering
+      # task in the fixed CI-registration order (T-007 registers no new
+      # suite).
+      - name: Test validate-resolver-evidence (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/validate-resolver-evidence.tests.sh
+
+      - name: Test validate-resolver-evidence (pwsh)
+        shell: pwsh
+        run: ./tests/validate-resolver-evidence.tests.ps1
+
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with

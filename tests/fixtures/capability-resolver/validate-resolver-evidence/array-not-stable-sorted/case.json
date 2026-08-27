@@ -1,0 +1,10 @@
+{
+  "description": "capability_evaluations[] is not sorted by capability_id AND diagnostics[] is not sorted by (id, detail) -- REQ-005/AC-024 stable-sort mandate",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "array-not-stable-sorted",
+    "array-not-stable-sorted"
+  ]
+}

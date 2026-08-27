@@ -1,0 +1,10 @@
+{
+  "description": "B7 predicate-instance keying: the Registry declares one facet NAME twice for this Capability and the Evidence instance collapses both declarations into a single entry -- invisible to a facet-name-keyed set comparison, detected by declaration_index keying",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "conditional-facet-set-mismatch",
+    "conditional-facet-set-mismatch"
+  ]
+}

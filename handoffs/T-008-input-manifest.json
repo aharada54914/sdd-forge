@@ -1,0 +1,90 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-008",
+  "run_id": "RUN-epic-193-a5-T-008-impl-1",
+  "session_id": "SESS-epic-193-a5-T-008-impl-1",
+  "agent_instance_id": "AGENT-epic-193-a5-T-008-impl-1",
+  "model_tier": "strong",
+  "provider": "anthropic",
+  "model": "opus",
+  "estimated_cost_per_attempt_usd": "2.00",
+  "cost_estimate_source": "select-agent-model.sh --risk high (orchestrator-supplied candidate table)",
+  "cost_estimate_timestamp": "2026-08-27T03:38:58Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/epic-193-a5-capability-resolver/requirements.md",
+      "sha256": "be2bc48a59bf8d9893be2b60b390a1fb05886e0ec295b4a3fa257fe908fc12ab"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/design.md",
+      "sha256": "3af36f445dd311a854d0dfa8f29c16ec7bc9f6e1b4e30f47a7cd4bf817065b69"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md",
+      "sha256": "a9fa4f898c70b7f4ecdf0d08c843555b7c89336b08712cfd6f5530a951916a99"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/investigation.md",
+      "sha256": "108552395eb66a2dbf90babe49c2b16b325a30c236e96d033dbaadd67dc762e6"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/tasks.md",
+      "sha256": "c6694c9b3641612c3ae7e26cdb927c8b15b7d9a80cfefb4ee789a973036e2ab3"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/security-spec.md",
+      "sha256": "edf17897c3c4beb94f151efc61df2914c8df6aea9d8d93db09ada177c8945830"
+    },
+    {
+      "path": "specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py",
+      "sha256": "535ac3e381c241e467ab378085be7d7e1c83e489a2bd3cd9a48b2fda6af15c02"
+    },
+    {
+      "path": "contracts/resolver-evidence.schema.json",
+      "sha256": "0f37f39a8b45beff2cb53230568adeaa26ca4cc18683816f9331c0dbb38e92f3"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-facet-manifest.py",
+      "sha256": "1f97616e3081971a929d75e7c154ace33e5bc4abb1240cad89148a7189afe38d"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-capability-summary.py",
+      "sha256": "7ef1abd13e6c15b8b6b3ec85757e1b3ba72663f2283a54c7a6fd2997e964604f"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/validate-context-projection.py",
+      "sha256": "7a0fc4c486e1341ce635f14d480779e25a60cdd3d078a877f9ee47c0fe0f2169"
+    },
+    {
+      "path": "tests/resolve-project-context-match-check.py",
+      "sha256": "89f46e03750a7b4199cd95330ecd186dee94f30cf772ac883801d50c191baebd"
+    },
+    {
+      "path": "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md",
+      "sha256": "739173bcd97aaa185206b85ce0fc88cbee96e51447d0097a082fedead40b30e6"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "51f3f742caf3d4b4e5fc44934d802047750ba5de0a7a7ce538af6631b8f91e68"
+    }
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py",
+    "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.sh",
+    "plugins/sdd-quality-loop/scripts/validate-resolver-evidence.ps1",
+    "tests/validate-resolver-evidence.tests.sh",
+    "tests/validate-resolver-evidence.tests.ps1",
+    "tests/validate-resolver-evidence-check.py",
+    "tests/fixtures/capability-resolver",
+    "tests/run-all.sh",
+    "tests/run-all.ps1",
+    "specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/test.yml",
+    "specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256",
+    "specs/epic-193-a5-capability-resolver/verification/T-008",
+    "CHANGELOG.md",
+    "reports/implementation/epic-193-a5-capability-resolver/T-008.md"
+  ]
+}

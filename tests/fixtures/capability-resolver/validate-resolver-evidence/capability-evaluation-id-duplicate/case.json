@@ -1,0 +1,9 @@
+{
+  "description": "the same capability_id appears twice; the SET is still exactly the Registry's own, so only the nested-uniqueness check fires (B6)",
+  "feature": "example-feature",
+  "args": [],
+  "expect_exit": 1,
+  "expect_check_ids": [
+    "capability-evaluation-id-duplicate"
+  ]
+}
