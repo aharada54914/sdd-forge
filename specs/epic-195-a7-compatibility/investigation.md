@@ -690,3 +690,50 @@ design — confirmed by the attempt-6 precheck computing
   was reached. A defect whose sole remedy is in this file therefore cannot be
   cleared inside its own attempt, and each correction costs a reset plus two
   fresh reviewer runs.
+
+### Round-9 extension (2026-08-27): the Round-8 extension's missing authorization statement, supplied
+
+- **What was missing.** Spec-review attempt 7 round 1 reviewer B (ledger
+  sequence 798) found that the Round-8 extension above carries no
+  authorization statement at all — element 3 of the evidence bar — while
+  every other sub-entry in this section has one, including Round-7, which
+  states explicitly why none was needed. Reviewer A (ledger sequence 797)
+  ran its own enumeration looking specifically for a fifth class and found
+  none; B found this one. B is right, and the omission is exactly the gap
+  whose precedent in this section rates it Critical.
+- **The statement, supplied here by supersession.** Authorization for the
+  Round-8 extension: none newly required. That extension corrected citation
+  form only — three truncated back-references given in full — changed zero
+  document bytes, and authorized nothing further. It stands under the same
+  rulings already quoted verbatim in this section: 2026-08-25
+  「④ SKIP 枠組みを捨て、ポインタのみ残す（推奨）」 and 2026-08-25
+  「① requirements.md に追跡を追加する（推奨）」. This is the identical
+  posture the Round-7 extension recorded for itself; Round-8 omitted the
+  sentence, and this sub-entry supplies it, superseding the omission per
+  this section's supersede-by-appending convention.
+- **The standing adjudication, quoted verbatim.** On 2026-08-25 the human
+  was asked, through the session's structured question mechanism:
+  「epic-195 の amendment record が 5 ラウンド連続で失敗し、修正のたびに
+  新しいクラスを生んでいます（仕様本体は毎回 PASS）。どうしますか?」 and
+  selected the answer: 「① 引用形式の欠陥は spec 段を止めないと裁定」.
+  Under that ruling, a finding whose remedy is citation form alone — the
+  truncated back-references reviewer B holds unresolved, and this
+  authorization omission — is recorded here, cured by supersession, and
+  does not block the specification verdict. The specification itself has
+  now passed both reviewer slots in five consecutive rounds; every finding
+  in those rounds was against this record.
+- **Why in-place cure is structurally impossible, recorded so the standing
+  disagreement is adjudicated rather than reargued.** Reviewer B's position
+  — that leaving a truncated citation in place while supplying the full
+  value below is the artifact adjudicating its own compliance — asks for an
+  edit this document cannot legally receive: this section is append-only,
+  and the provenance tolerance that keeps three sealed review stages valid
+  requires the pinned generation to remain an exact byte prefix of the live
+  file. Rewriting an earlier line breaks every sealed pin at once.
+  Supersession by appending is therefore not a convenience but the only
+  lawful remedy, and the 2026-08-25 ruling above settles which way that
+  trade-off is decided for the spec verdict.
+- Authorization for this Round-9 extension itself: none newly required. It
+  changes zero document bytes outside this section, supplies a missing
+  statement about an already-authorized correction, and quotes a ruling the
+  human already issued in the words the human selected.
