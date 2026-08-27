@@ -1832,3 +1832,72 @@ publication artifact is left standing") instead of a step list.
 - `security-spec.md`: `78200e63b635262b88edaaf80a61eb05d4fe7e794f4279e783f0fdfb381291de`
 - `infra-spec.md`: `c8d7237469ece9bbf48bc6beaa29ba90c2e52d322e1da9cd0072850a771664de`
 - `tasks.md`: `c087e895c7832ae65f48a52223769ad8ecd3817f450b4492af73b61b239b624c`
+
+### Attempt-7 round-3 remediation (ruling D(2)) — repairing the repair
+
+Attempt 7 closed **BLOCKED** at its terminal round: reviewer A returned
+5 PASS / 1 FAIL (Major) / 1 SKIP — the first round in six with no Critical
+from A — and reviewer B returned 4 PASS / 2 FAIL (1 Critical, 1 Major) /
+1 SKIP. Attempt 8 follows.
+
+**What is now closed, confirmed independently by both reviewers against
+the current bytes.** The rollback-and-no-write scope rule is itself
+correct and unambiguous; all sixteen sites pointing at it are consistent
+with it; no site any longer asserts `resolver-evidence.yaml` is rolled
+back or unwritten at a Block AC-012 does not except; the enum is still
+closed at sixteen with no id added or renumbered; REQ-002 gained no third
+exception; and the 58/55 AC-to-TEST counts reconcile on exactly the three
+documented Global rows. The defect class that consumed attempts 6 and 7 is
+gone.
+
+**What failed is text the round-3 edit itself wrote**, and both findings
+came with the minimal fix named by the reviewer who found it.
+
+- **Critical (B).** The predicate substituted for the step list was
+  self-contradictory: "every Block in REQ-002's taxonomy **other than**
+  those whose own rollback restores previously-published bytes, and
+  **including** … those reached at (m)" excluded and included the identical
+  two ids, because the only Blocks step (m) raises are exactly the two
+  whose rollback restores such bytes. REQ-004 already stated the same
+  predicate without that carve-out, and three further sites resolved it the
+  same way. Separately, "left standing" was undefined against artifacts a
+  PRIOR successful resolve published — read literally, the predicate
+  selected no Block at all, contradicting AC-047.
+- **Major (A and B, independently).** `AC-038`/`TEST-038`'s new
+  parenthetical asserted `resolver-evidence.yaml` "is written on each of
+  these three fixtures", but `output-schema-validation-failed` has two
+  sub-cases and `AC-055(a)` — Evidence itself fails its own
+  self-validation — is one of AC-012's two exceptions and writes nothing
+  at all.
+
+**What the remediation did.** Commit
+`8bc863904da9810a4687ee23e93fe8949472b141`, documents only. The rollback
+carve-out is deleted, and "left standing" is defined as **"this
+invocation's own publication transaction leaves no publication artifact
+standing"** — bytes a prior resolve published and this invocation never
+touched explicitly do not count, and the two step-(m) ids are explicitly
+inside the class, since their own rollback is what leaves nothing
+standing. The AC-038 claim is scoped to `AC-055(b)` in all five places it
+appears: `requirements.md` AC-038, `acceptance-tests.md` TEST-038,
+`design.md`'s Design Decisions mirror, `security-spec.md`'s TEST-038 row,
+and `tasks.md`'s T-005 Done-When bullet — the last three located by sweep
+rather than by either reviewer, since layer specs and `tasks.md` are
+outside the spec stage's input set.
+
+**Recorded against the orchestrator.** A wrong commit hash (`d0f2f0a` for
+`d44aa7cf`) was typed into round 3's precheck edit summary instead of being
+resolved — the second instance of that mistake this session. The precheck
+forbids replay, so rather than editing a gate artifact the error and the
+correct value were disclosed to both reviewers at launch, with an explicit
+invitation to treat it as a finding of their own. Neither did; B recorded
+it as a non-blocking observation with its reasoning. The standing rule this
+leaves: never type a hash, always resolve it.
+
+### Per-document SHA-256 at remediation commit 8bc86390
+
+- `requirements.md`: `314a73844e65795405ad7db923df3a4e5540f4407c180e540eba6ace6babd0eb`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `5319edb32874194dbbec583cb63b6a8ed23435f179230299be8341fc0a3043bb`
+- `design.md`: `b2376c59e549effd78259f81e4cc23c476306686905c35fe00e3c5156ff4d5e8`
+- `security-spec.md`: `a2b15f7eb67f4b357afda778a9569836941e5c58fa44b0ec69aa76fd33b02621`
+- `tasks.md`: `855bf0bf6f6abba76d0c5a087c191c8bb84d0cd528e383be8285b5c1ce1ce184`
