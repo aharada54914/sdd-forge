@@ -21,6 +21,10 @@ clone_fixture() {
     mkdir -p "$destination"
     git -C "$source_root" archive --format=tar HEAD -- ':(exclude)specs' ':(exclude)reports' | tar -xf - -C "$destination"
     git -C "$destination" init -q
+    # Parity with the ps1 twin: enable long paths repo-locally so the deeply
+    # nested epic-193 fixtures survive `git add -A` under Windows MAX_PATH.
+    # POSIX git accepts and ignores the setting (documentary here).
+    git -C "$destination" config core.longpaths true
     # Commits in this repository can spawn detached background maintenance
     # (auto gc) that races teardown's rm -rf ("Directory not empty"). Disable
     # it repo-locally so no git process outlives any scenario.

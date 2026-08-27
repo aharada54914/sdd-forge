@@ -21,6 +21,12 @@ function New-TrackedFixture {
         if ($LASTEXITCODE -ne 0) { throw "Unable to archive tracked fixture files." }
         Expand-Archive -LiteralPath $archivePath -DestinationPath $Destination -Force
         & git -C $Destination init -q
+        # Windows MAX_PATH: the epic-193 capability-resolver fixtures nest
+        # deeply enough (~150 chars repo-relative) that, prefixed with this
+        # fixture's temp directory, `git add -A` fails with "Filename too
+        # long" unless long paths are enabled repo-locally. Harmless on the
+        # other platforms (POSIX ignores it).
+        & git -C $Destination config core.longpaths true
         # Commits in this repository can spawn detached background maintenance
         # (auto gc) that races teardown's Remove-Item ("Directory not empty").
         # Disable it repo-locally so no git process outlives any scenario.
