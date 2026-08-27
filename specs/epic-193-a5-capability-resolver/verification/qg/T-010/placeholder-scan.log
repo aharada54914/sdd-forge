@@ -1,0 +1,3 @@
+$ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/resolve-project-context-metamorphic-check.py tests/resolve-project-context-metamorphic.tests.sh tests/resolve-project-context-metamorphic.tests.ps1
+Placeholder scan passed.
+Exit: 0
