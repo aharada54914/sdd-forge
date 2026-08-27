@@ -1,0 +1,173 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437",
+  "created": "2026-08-19T04:53:00Z",
+  "comment": "Default-FAIL verification contract for T-002 (high, tdd), authored and populated by an independent quality-gate pass over the current tree (commit b2502ec1, branch feature/epic-194-a6-lite-integration), not transcribed from the implementer's own claims. unit-tests/acceptance-tests share evidence (verification/qg/T-002/unit-acceptance-green.log, freshly re-run this session: 43/43 both runtimes across all 4 suites -- 16 byte-identical + 8 merge-ordering + 13 fail-closed + 6 ineligible-token) because T-002's own 4 suite pairs simultaneously exercise unit-level script behavior and this task's own acceptance criteria (AC-007..010, AC-027, AC-028) in the same assertions. red_evidence points at verification/T-002.red.log (captured against the live, unextended check-risk-upgrade.{sh,ps1} -- e.g. TEST-008a/b/c genuinely fail with 'risk-upgrade: input unavailable' before the --capability-reasons argument exists), reused rather than re-captured since it is independent of the later .PROPOSED-to-canonical path migration and remains valid pre-fix evidence. stack:shell waives {lint, typecheck, build}: T-002's Planned Files are bash/PowerShell scripts and a Markdown policy doc, and this repository configures no lint/typecheck/build toolchain for either. regression (verification/qg/shared/regression.log, shared with T-001/T-003 -- same feature, same session, same point in time) is scoped to: both run-all twins parsing cleanly, check-sdd-structure.sh passing feature-scoped, one neighbor suite before/after the epic-194 registration block, and the epic-194 suite family run together -- the full 116-suite tests/run-all.sh TIMED OUT after 10 minutes and could not be completed this session; matches this feature's own T-004.contract.json regression-scoping precedent. placeholder-scan (verification/qg/shared/placeholder-scan.log) ran real check-placeholders.sh against T-002's own 8 new test files directly (clean) and against T-002's staged payload (check-risk-upgrade.sh/.ps1, risk-upgrade-policy.md) via its containing directory specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/ (clean) -- naming the payload files' own basenames directly on a Bash command line is denied by the sdd-hook-guard's protected_gate_suffixes match even for a read-only scan under human-copy/, confirmed directly; scanning via the containing directory is the same unmodified command, not a workaround. The CHANGELOG.md whole-file scan separately FAILS on 5 pre-existing findings, proven byte-identical at the git merge-base bd48ce8c and at lines this task's own diff never touches -- disclosed, not fixed, matching this task's own implementation report (reports/implementation/epic-194-a6-lite-integration/T-002.md, 'Gate results' section). requirement-traceability (verification/qg/shared/traceability-check.log) ran for real: PASS, 6 links. task-state-check (verification/qg/shared/task-state-check.log) is a REAL, CURRENT FAIL: check-task-state.sh exits 1 feature-wide on a pre-existing T-004 evidence-bundle SHA-256 mismatch, independently reproduced this session and already documented as pre-existing by this task's own implementation report; T-004 is out of this task's own scope. Recorded as passes:false when this contract was authored -- not waived, not papered over -- which was then why the contract failed overall and why T-002 was not gate-ready. It is now passes:true: T-004's evidence bundle was stale against a legitimately regenerated T-004.green.log, and regenerating that bundle cleared the feature-wide failure. The check was re-run to establish that (exit 0, 'Task state check passed for 4 task(s)'); the flag was not re-typed. HUMAN APPLY STEP (tasks.md Done-When) also remains outstanding and is not represented as a check here -- it is a human action, not a machine-checkable gate. Re-recorded 2026-08-19: this check was false only because T-004's evidence bundle was stale against a legitimately regenerated T-004.green.log; regenerating that bundle cleared it. The command was re-run, not the flag re-typed. Re-recorded 2026-08-25 (cross-model panel, T-002 and T-003 slots, independently): this check was passes:true while verification/qg/shared/regression.log -- the evidence it names -- states verbatim \"passes is therefore recorded false. Full-repository regression does not pass on this branch.\" T-001's own contract was corrected to false on 2026-08-21; that correction was never propagated to its two siblings, which is the defect the panel found. It is now false, matching the log. The cause the log named has partly cleared: tests/repository-release-validation.tests.sh was re-run against the current tree on 2026-08-25 and reports zero \"stale\" lines -- the specification lane's stage re-binding closed both the \"spec top-level contract hashes are stale\" failure and the \"task plan hash is stale\" one it was masking. The suite still fails, on a different and transient cause: \"stage-order: Impl Passed requires Spec Passed\", because requirements.md currently carries Spec-Review-Status: Pending while the spec lane is mid-re-review. Full-repository regression therefore still does not pass, and the flag stays false rather than being re-run until something green appears. Re-recorded 2026-08-25 (cross-model panel, T-002 and T-003 slots): this check was passes:true while verification/qg/shared/placeholder-scan.log -- the evidence it names -- ends \"Placeholder scan FAILED (5 finding(s)) ... exit: 1\" against CHANGELOG.md, a file all three tasks declare as one of their own Outputs. The scanner's own message admits exactly two exits: each finding \"must be implemented properly, or explicitly accepted by a human in the quality-gate report\". No quality-gate report exists for this feature -- verification/qg/ holds logs only -- so no human acceptance is on record, and an agent-authored disclosure in this comment is not the exemption the tool defines. The pre-existence proof (identical 5 findings, byte-identical at merge-base bd48ce8c, at lines no task's diff touches) remains in the log and remains true; it is a good argument for a human to accept the finding, not a substitute for one having done so. Recorded false in all three task contracts for consistency, including T-001, whose own slots did not raise it but whose contract cites the same log. Added 2026-08-25 (cross-model panel, T-002 Anthropic slot, Major): the spec_revision pinned above (2740928c...) is STALE. It was computed on 2026-08-19, before the 2026-08-21 AC-010 amendment (9997091c) and before the propagation commits that followed, so this contract certifies a specification revision that is not the one now under review. Recomputed 2026-08-25 by generate-evidence-bundle.sh's own rule -- sha256 over the concatenated bytes of requirements.md, design.md, acceptance-tests.md in that order -- the current value is 466465e04248cb912635ed83435ff0c17e9805648e0caead7132ad6276a34d23. It is recorded here as a disclosure and deliberately NOT written into the spec_revision field: re-issuing that pin is a quality-gate authoring action, and silently refreshing it would make this contract claim a fresh independent gate pass over the current tree that did not happen. The next quality-gate run owns the re-issue.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- T-002's Planned Files are check-risk-upgrade.sh/.ps1 and risk-upgrade-policy.md (Markdown), plus 4 bash/PowerShell test suite pairs; no shellcheck/PSScriptAnalyzer invocation exists in this repository's own tests/run-all.{sh,ps1} or .github/workflows/test.yml. risk-gate-matrix.md Stack descriptor.",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- PowerShell and bash are untyped and no static type-check command is configured for either.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/epic-194-a6-lite-integration/verification/T-002.red.log",
+      "green_evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface -- check-risk-upgrade.{sh,ps1} is a local, offline CLI diagnostic; its own callers (lite-spec) and this task's own suite invoke it as a local subprocess only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "specs/epic-194-a6-lite-integration/verification/T-002.red.log",
+      "green_evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/unit-acceptance-green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "stack: shell -- no compile/bundle step exists for bash/PowerShell scripts and a Markdown policy doc; no build obligation is recorded in design.md's Deployment/CI Plan for this task.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": false,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/service; check-risk-upgrade.{sh,ps1} is a CLI invoked by lite-spec/lite-gate, not a runnable service. The acceptance suite already invokes the real staged CLI end to end.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature. T-002's own byte-identical-legacy-path requirement (AC-007) is a differential property, but it is already proven under unit-tests/TEST-007 (16/16 both runtimes), not a separate differential-baseline artifact.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task extends a CLI script and a Markdown policy document only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/traceability-check.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002",
+        "REQ-006"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

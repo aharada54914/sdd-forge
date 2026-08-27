@@ -1,0 +1,3 @@
+{
+  "expected_error": "ERR_NONCE_ISSUED_AFTER_SESSION"
+}

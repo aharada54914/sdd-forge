@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-196-a8-integration-spec-reviewer-a-a2r2-seq775",
+  "host_session_id": "SESS-spec-a-epic-196-a8-integration-a2r2-seq775",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-196-a8-integration/requirements.md", "sha256": "eb1e4c0fb2b0c2304ebedc1d8d27b1fbec3354f5cde5be4c15436ed599f99476"},
+    {"path": "specs/epic-196-a8-integration/acceptance-tests.md", "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"},
+    {"path": "specs/epic-196-a8-integration/investigation.md", "sha256": "742c27bbace6767d82863defb5c40606ba9c16d7914b993d5f4ef01841a22184"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-196-a8-integration/attempt-2/round-2/precheck-result.json", "sha256": "73c735c582ca38cba6397414c9892f8d7b85e20466740d025aa3128391618077"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-007 each specify concrete, citable, machine-checkable fixture contracts (e.g. REQ-001's nonce-bearing artifact handoff, REQ-005's drift-check field definitions) with citations to investigation.md findings. The round-1 Critical contradiction (Assumptions section stating Epic A1 'remains unmerged' while AC-015/AC-016 and investigation.md's Amendment Re-Review Context already treated Epic A1 as merged) is resolved by commit 4aafb7f6: the amended Assumptions section (requirements.md:719-734) explicitly marks the Epic A1 assumption 'superseded,' preserves the original text for context, and states the corrected fact (merged 2026-08-08, handshake script and five consumer entry points exist on main, AC-015/AC-016's un-skip trigger crossed) consistent with AC-015's own designed-red hard-failure text (requirements.md:386-390) and with design.md's mirrored treatment (66d5bdde) per investigation.md:157-166. No remaining contradiction was found between this assumption and any other requirement, AC, workflow step, or edge case."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of REQ-001 through REQ-007 maps onto a distinct AC range (REQ-001->AC-001-006, REQ-002->AC-007-011, REQ-003->AC-012-017,028, REQ-004->AC-018-021, REQ-005->AC-022-024, REQ-006->AC-025-027, REQ-007->AC-029-030), and acceptance-tests.md's Requirement column reproduces this mapping one-to-one per REQ-007's own traceability rule (requirements.md:192-211). No goal lacks a matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete, externally observable artifacts and oracles rather than vague intent, e.g. AC-001's 'machine-checkable consumer_observable oracle (not a free-text description)' (requirements.md:264-267), AC-023's distinct exit-code/diagnostic states (requirements.md:464-477), and AC-026's exhaustive field list for the manual-session record schema (requirements.md:488-515)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md:213-240) explicitly excludes re-implementing per-Epic 3-environment work, building new CI jobs, specifying `--target FilesOnly`, re-specifying Epic A1/A5's own canonicalizer or caller-contract logic, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, or docs/** in this task, with AC-029 providing a self-check mechanism for this boundary."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Security Boundaries table (requirements.md:710-713) states auth/data-classification constraints for the live-host session and drift-check trust boundaries; Roles and Permissions (requirements.md:605-631) and investigation.md's Safety constraints section (investigation.md:78-107) state approval, attestation, and no-fabrication constraints in concrete, enforceable terms."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:772-798) names Critical/High/Medium risks each tied to a concrete validation surface: the Critical live-host manual-dependency risk to REQ-006's classification discipline and AC-028's aggregate gate, the High regression risk to AC-017's independence assertion, and the Medium 4-file-scope risk to the existing check-sdd-structure.sh expectation."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in the target project (glob `domain/*` returned no matches at the repository root), so the Approved domain-model precondition for this check is absent; recorded as skipped per the check's own skip condition."
+    }
+  ]
+}

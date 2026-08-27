@@ -1,0 +1,141 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-196-a8-integration-task-task-reviewer-b-seq0642",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-196-a8-integration-0642",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-1/integrated-summary.json",
+        "sha256": "0f3a1858d31d68bc8afc3d17eea04a0961760687a759b81da857136c0e6667f7"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/reports/task-review/epic-196-a8-integration/attempt-1/round-1/precheck-result.json",
+        "sha256": "1f640d55d6f74155f5f17e72a29e6be5b1ab3646acf90c96d32a40653051e0e1"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/acceptance-tests.md",
+        "sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/design.md",
+        "sha256": "99bd350d0ea6060b48b96b861952561c501afad78f144e76fb964652f2678be8"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/frontend-spec.md",
+        "sha256": "0ab3dae59b6ae6a0fed528dbb2f598652b2d7153b4cfb2e351629b63916d84c7"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/infra-spec.md",
+        "sha256": "ab6a0d761be5e37af9915dfdaf39c7921f1a3e3cb2f1b623c56a6b5da9cde6fb"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/requirements.md",
+        "sha256": "6ad8bfa7767a1c1c07ef25d43be0d0d69f9e494e7b180289a3df3678ad4f90b5"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/security-spec.md",
+        "sha256": "871a9ab08f9ec914048ced5d18864c1637f2a3f4f620fd75b04f3207fec3598f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/tasks.md",
+        "sha256": "86bd95b77c171220956638af86fb633a45c2b4dbec4975c9c1223c79df72818f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/traceability.md",
+        "sha256": "3b744edc8bb8e469f5edd3cf1f031d5c2dcd3e3a6231931fecefe782ed4eb5f6"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-196/specs/epic-196-a8-integration/ux-spec.md",
+        "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risk tiers align with each task's actual scope under the risk-classification-policy.md sentinel-surface proximity rule. T-002 (Risk: high, Security-Sensitive: true) implements Security Boundary B2, an installed-cache drift read-only comparison, matching the policy's high-tier silent-defect-material-harm definition. T-004 (Risk: high) extends the hook-guard deny-allow regression asset, an access-control-adjacent surface. T-005 (Risk: high) implements Security Boundary B1, Ed25519 signing per ADR-0028 and nonce-replay protection per security-spec.md B1 and B4, a genuine authentication and signing surface, correctly high rather than critical per its own Risk Rationale, since no financial-settlement, physical-safety, or irreversible-destructive surface is touched. T-001, T-003, T-006, and T-007 (Risk: medium) touch no authentication, authorization, payment, PII storage, data-migration, or externally-visible API-contract surface of their own; every task states Data Migration none and Breaking API no, and security-spec.md's Data Classification table records no PII or credential throughout. No proximity-rule violation found in either direction."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No Risk critical task exists in this feature. All three Risk high tasks, T-002, T-004, and T-005, carry in their own Done When sections TDD Red then Green evidence, plus in the same bullet an independent quality-gate verdict records PASS, consistent with the Lifecycle section's own statement that only quality-gate may set Done, a role structurally distinct from the implementing agent, and matching this repository's own dominant convention for this Done-When phrasing across its merged tasks.md corpus. Each of the three also carries a dedicated Requirement-traceability evidence high tier Done-When item citing risk-gate-matrix.md's high row. All required Done-When evidence items for high-tier tasks are present."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-005, titled Author the REQ-003 live-host proof infrastructure and aggregate validator, is oversized. Its Done When list has 12 distinct verifiable items: schema and discriminator correctness, nonce ledger and signing verification, classification-mismatch and replay guard, Codex and Copilot semantic-cell classification, five-cell live-host proof handling, consumer-entry-point inventory shape, aggregate gate, draft SKIP records committed unsigned, a HUMAN APPLY STEP for Trusted-Signer Registry and two-party signing, suite and CI registration, TDD evidence, and requirement-traceability evidence, exceeding the more-than-eight oversizing indicator. Its Scope and Planned Files also span far more than three distinct implementation areas bundled into one task: schema and discriminator validation, Nonce Issuance Ledger replay protection, Expected-Digest Manifest comparison, Ed25519 signing verification under the ADR-0028 Signing Contract, the three-state SKIP Representation, aggregate-gate computation, and draft-record authoring plus Trusted-Signer Registry seeding with its own distinct human apply step. This corresponds to design.md Test Strategy items 5, 8, and 10 plus the full live-host-verification-record schema, Nonce Ledger, Expected-Digest Manifest, and Signing Contract Data Plan sections, combined into a single task. The task's own title signals two combined sequential phases, infrastructure and aggregate validator."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The tasks that author production validator or checker logic, as opposed to pure test or fixture-authoring, each have explicit edge-case or error-path coverage anchored in acceptance-tests.md. T-002's drift checker is covered by AC-022, requiring at least one independent negative-lifecycle case distinct from the always-freshly-installed happy path, and AC-023, requiring distinct not-installed, synced, and drifted states with mode-dependent FAIL semantics; both are labeled negative self-check or negative-lifecycle case in acceptance-tests.md. T-005's aggregate validator is covered by AC-026 and AC-027, exercising eighteen named error codes and an explicit classification-mismatch and replay guard labeled negative self-check, and requirements.md's Edge Cases section requires a live-host FAIL observation to be recorded as a FAIL and never silently discarded or re-run until it passes. T-007's three static checks specify mutated-copy negative fixtures for TEST-025, TEST-029, and TEST-030 in their own Scope section, each correctly rejected. No functional or validator-producing task in this feature has happy-path-only acceptance criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every row in acceptance-tests.md cites a specific AC and TEST id pair, satisfying the acceptance-test minimum for the document as a whole. Rows labeled integration genuinely span two or more system components: AC-002 and AC-003 each involve two distinct CLI runtimes producing and consuming a handoff artifact, AC-022 compares an installed cache against repository source, and AC-007 drives the install and uninstall scripts plus a drift-check sub-step. Rows labeled static or doc-review, including AC-001, AC-005, AC-011, AC-021, AC-024 through AC-026, and AC-029 through AC-030, are single-document or single-script-boundary checks, consistent with that label rather than mislabeled as multi-component integration. No test task's declared type contradicts its actual scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Risk high tasks carry an explicit Rollback field addressing safe reversion. T-002 states that reverting the task's commits is safe because nothing protected is written directly and the script never writes to the install root or the repository. T-004 states that reverting restores the file's pre-existing 101 lines exactly. T-005 states that reverting is safe because nothing protected is written directly and the five draft SKIP records remain unsigned and non-authoritative until a human completes the apply step, so a revert changes no signed security claim. Each reasons concretely, tied to the task's own protected-file or signing-state posture, about why a plain commit revert is safe."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only files claimed by more than one task are tests/run-all.sh, tests/run-all.ps1, the staged human-copy test.yml candidate, and human-copy/MANIFEST.sha256, touched by six tasks, T-001, T-002, T-003, T-005, T-006, and T-007, each appending only its own suite's registration line or CI steps per the Deliverables table in traceability.md, and the a8-skip-allowlist.json manifest, which T-001 creates with only the AC-006 entry while T-005 later appends only the AC-015 and AC-016 entries, explicitly called out in tasks.md's own Protected Files section as the one shared, ordinary file. Both patterns are documented and additive only: each task edits distinct lines or entries for a distinct purpose, never the same content for the same purpose. No two tasks claim the same file for the same purpose without this documented coordination. The structural Blockers-field gap that leaves this documented ordering mechanically unenforced is reported once, under DEPENDENCY-OVERLAP, rather than duplicated here."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Every task's structured Blockers section reads None, including tasks whose own Depends On field, in the same document, names a genuine functional dependency. T-003's header states Depends On T-001 serialized only, and T-002 functional, because this driver invokes the drift check in verify mode as its own post-install sub-step on every cell, and the script must exist first. Yet T-003's own Blockers section is None. T-005's header states Depends On T-001 functional, because it appends the AC-015 and AC-016 entries to the a8-skip-allowlist.json file that T-001 creates with the AC-006 entry. Yet T-005's own Blockers section is likewise None. The same pattern repeats for T-002, T-006, and T-007, whose own headers cite earlier tasks as functional or serialized dependencies while every one of their Blockers sections also reads None. Task orchestration and Done-state gating in this framework key off the structured Blockers field, per the Lifecycle section's own statement that a task may enter Blocked from any active state and that implement-task may set In Progress, Blocked, or Implementation Complete. Because of this, nothing structurally prevents T-003 from being scheduled or attempted before T-002's own drift-check script exists, which T-003's Scope section says it invokes as its own post-install sub-step on every cell, or T-005 before T-001's own allowlist file exists to append to, a genuine integration-failure risk the check's own missing-blockers criterion names directly. This is the same class of gap this review's own briefing named for the sibling epic-195 task-review round, where a task's Planned Files depended on another task's output without listing that task in Depends On or Blockers. Here Depends On correctly names the dependency in prose, but the machine-actionable Blockers field is left empty across every dependent task."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All seven tasks, T-001 through T-007, author net-new verification and test infrastructure such as fixtures, drivers, validator scripts, and static checks; none is scoped as a bugfix, regression fix, debugging, flaky-test resolution, or incident remediation by title, Goal, Scope, or Done When text."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-005",
+      "finding": "T-005, titled Author the REQ-003 live-host proof infrastructure and aggregate validator, is oversized. Its Done When list has 12 distinct verifiable items: schema and discriminator correctness, nonce ledger and signing verification, classification-mismatch and replay guard, Codex and Copilot semantic-cell classification, five-cell live-host proof handling, consumer-entry-point inventory shape, aggregate gate, draft SKIP records committed unsigned, a HUMAN APPLY STEP for Trusted-Signer Registry and two-party signing, suite and CI registration, TDD evidence, and requirement-traceability evidence, exceeding the more-than-eight oversizing indicator. Its Scope and Planned Files also span far more than three distinct implementation areas bundled into one task: schema and discriminator validation, Nonce Issuance Ledger replay protection, Expected-Digest Manifest comparison, Ed25519 signing verification under the ADR-0028 Signing Contract, the three-state SKIP Representation, aggregate-gate computation, and draft-record authoring plus Trusted-Signer Registry seeding with its own distinct human apply step. This corresponds to design.md Test Strategy items 5, 8, and 10 plus the full live-host-verification-record schema, Nonce Ledger, Expected-Digest Manifest, and Signing Contract Data Plan sections, combined into a single task. The task's own title signals two combined sequential phases, infrastructure and aggregate validator."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "Every task's structured Blockers section reads None, including tasks whose own Depends On field, in the same document, names a genuine functional dependency. T-003's header states Depends On T-001 serialized only, and T-002 functional, because this driver invokes the drift check in verify mode as its own post-install sub-step on every cell, and the script must exist first. Yet T-003's own Blockers section is None. T-005's header states Depends On T-001 functional, because it appends the AC-015 and AC-016 entries to the a8-skip-allowlist.json file that T-001 creates with the AC-006 entry. Yet T-005's own Blockers section is likewise None. The same pattern repeats for T-002, T-006, and T-007, whose own headers cite earlier tasks as functional or serialized dependencies while every one of their Blockers sections also reads None. Task orchestration and Done-state gating in this framework key off the structured Blockers field, per the Lifecycle section's own statement that a task may enter Blocked from any active state and that implement-task may set In Progress, Blocked, or Implementation Complete. Because of this, nothing structurally prevents T-003 from being scheduled or attempted before T-002's own drift-check script exists, which T-003's Scope section says it invokes as its own post-install sub-step on every cell, or T-005 before T-001's own allowlist file exists to append to, a genuine integration-failure risk the check's own missing-blockers criterion names directly. This is the same class of gap this review's own briefing named for the sibling epic-195 task-review round, where a task's Planned Files depended on another task's output without listing that task in Depends On or Blockers. Here Depends On correctly names the dependency in prose, but the machine-actionable Blockers field is left empty across every dependent task."
+    }
+  ]
+}

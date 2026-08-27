@@ -1,0 +1,86 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-194-a6-lite-integration",
+  "attempt": 3,
+  "round": 1,
+  "run_id": "RUN-epic-194-a6-lite-integration-task-task-reviewer-b-seq0650",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-194-a6-lite-integration-0650",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/requirements.md", "sha256": "352326ec12583bbab674315eb4ceaaa26ce3b1e2de3539db626aefa3ec208f16"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "685a415aea35c8026c405869f80c673cc88b409b2cdf88a8cfb26c3b7254f2d0"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/design.md", "sha256": "fd67385479a902fa593beb1a40bf88414859a3b155736d70cb204586f159916d"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/tasks.md", "sha256": "6195493dc4f17582456ac5e48ca0490e2bdc1288989002a4d57c765032e23a51"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/traceability.md", "sha256": "0bdaa87dce92b4075d98874660f82226ab67fc8ad0a82b826c15200eaa30321e"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/ux-spec.md", "sha256": "37f6ffe9559b999ddcd9b792191546b85b4afe28d2ce687feff0b691984d31e7"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/frontend-spec.md", "sha256": "72ae1eee6c95968944772c010ada27f38ca385a1a1a948ae2cd81e26e4eb3499"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/infra-spec.md", "sha256": "04439c38c57b9de12ec67b2fa3c9def759dabc389ad86aeec33a3dc65bc6d061"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/specs/epic-194-a6-lite-integration/security-spec.md", "sha256": "98f69885bb541e399a7b6297cf8eae2cedd58988b35c078d133075a4fe198196"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/task-review/epic-194-a6-lite-integration/attempt-3/round-1/precheck-result.json", "sha256": "ea9790d653017710cf24af0b48f170c759fbf2e7dde5c878b3b4ec2be0caa439"},
+      {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-194/reports/task-review/epic-194-a6-lite-integration/attempt-3/round-1/integrated-summary.json", "sha256": "4487cb33506ad300c3dc343a5f60df4c7eb330fa8d9a507592f1b34ce19370a9"}
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four tasks declare Risk: high with rationale citing sentinel access-control-like/gate surfaces per risk-classification-policy.md (\"anything where a silent defect causes material harm\" / \"access control\"): T-001 (tasks.md:202-220) applies content to protected-file destinations after human review; T-002 (tasks.md:427-444) is the decision point for full-workflow vs Lite-track (full-required/exit 10 vs lite-eligible/exit 0); T-003 (tasks.md:666-681) is the pre-generation Block gate itself; T-004 (tasks.md:900-918) is the post-implementation Gate that turns full_upgrade_required/an unmapped check-id into a blocking VERDICT: FAIL, and also owns NEW-01 path-safety hardening. None is over-classified (none has a Scope limited to UI copy/CSS/docs/test-only changes) and none touches auth/payments/PII storage/migration while under-classified at low/medium. Each Risk Rationale also explicitly reasons why the task does NOT reach critical (no financial-settlement/physical-safety/irreversible-destructive surface), consistent with risk-classification-policy.md's tier definitions."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All four Risk: high tasks' Done When sections include both a TDD Red→Green evidence item and an independent-review-verdict item with a named second reviewer distinct from the implementing agent (T-001 tasks.md:370-380; T-002 tasks.md:617-621; T-003 tasks.md:823-827; T-004 tasks.md:1102-1109), satisfying risk-gate-matrix.md's high-tier row (red→green evidence, independent-review verdict). No task is Risk: critical, so the second-approver/signed-evidence-bundle sub-requirement does not apply. Advisory (non-blocking): T-004's frozen \"TDD evidence\" bullet (tasks.md:1102-1109) still literally reads \"An independent quality-gate verdict has not yet been recorded... This bullet is not fully satisfied until that verdict lands,\" which is textually stale against Status: Done — independently verified via `git show 267c8ed3` and `reports/quality-gate/20260809T100000Z-epic-194-a6-lite-integration-T-004.md` (VERDICT: PASS, Run ID RUN-epic-194-a6-lite-integration-qg-T-004-seq0648, cycle 3 of 3, a distinct evaluator identity from the implementing agent) that the Status flip was actually based on. This is a consequence of this repository's own frozen-task-body convention (only Status/Approval lines change between re-reviews; the substantive Done-When narrative is hash-bound) rather than genuinely missing evidence — the required evidence *types* are present and the actual independent verdict is real and externally verifiable, so this does not meet the bar for a Critical HIGH-CRITICAL-EVIDENCE finding."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When item counts: T-001=6, T-002=7, T-003=7, T-004=7 (tasks.md:347-380, 582-621, 789-827, 1054-1109) — all ≤ 8. No task title implies multiple sequential phases (each is \"Author/Extend <one component>\"). Each Scope's Commit-A/Commit-B split follows the repository's own established \"Two-commit landing plan\" convention (tasks.md:86-96, citing specs/epic-159-pillar-c and specs/epic-191-a3-path-ownership precedent), not ad hoc phase-stacking. No fragmentation: no 3+ tasks scoped to a single function/file edit, and no \"rename X to Y\"-only task exists among T-001..T-004."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task's mapped ACs include at least one explicit error-path/edge-case scenario in acceptance-tests.md: T-001 → AC-031 (exact-set/hash-mismatch/post-copy-corruption rejection, acceptance-tests.md:54); T-002 → AC-027 (supplied-invalid-fragment exit 2, acceptance-tests.md:50) and AC-028 (ineligible-no-reasons synthetic trigger, acceptance-tests.md:51); T-003 → AC-019's own companion ship-time-recheck defense-in-depth fixture (acceptance-tests.md:44, tasks.md:806-810); T-004 → AC-012 (schema-invalid Summary FAIL, acceptance-tests.md:37), AC-016 (unmapped/grammar-failing/symlink-escaping check-id FAIL, acceptance-tests.md:41), AC-026 (full_upgrade_required backstop, acceptance-tests.md:49), and AC-030 (active-enforcement absent-Summary FAIL, acceptance-tests.md:53)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No task in tasks.md declares an explicit unit/integration/end-to-end/acceptance test-type label for any suite (tests/human-copy-runner-contract.tests.{sh,ps1}, tests/check-risk-upgrade-*.tests.{sh,ps1}, tests/lite-spec-capability-block.tests.{sh,ps1}, tests/lite-gate-*.tests.{sh,ps1}); acceptance-tests.md's own \"Test Type\" column uses feature-specific descriptive labels (e.g. \"byte-identical no-second-argument lock,\" \"schema-validation-before-trust lock\") rather than this check's four-way taxonomy. The scoped surface this check evaluates (a task declaring one of unit/integration/e2e/acceptance) does not exist in this artifact set, matching reviewer-calibration.md's Cannot-Verify Handling SKIP condition."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Risk: high tasks carry a substantive Rollback: field: T-001 (tasks.md:283-288, revert two commits, states the runner is never itself applied to a protected destination and a revert PR must state whether an already-human-applied change should also be hand-reverted); T-002 (tasks.md:519-523, same pattern for check-risk-upgrade.{sh,ps1}/risk-upgrade-policy.md); T-003 (tasks.md:736-738, same pattern for lite-spec/SKILL.md); T-004 (tasks.md:991-993, revert commits directly since this is a direct, unprotected-file edit with no human-copy staging)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only files multiple tasks share are tests/run-all.{sh,ps1}, the staged .github/workflows/test.yml candidate, human-copy/MANIFEST.sha256, and CHANGELOG.md (each task creates its OWN new ## Unreleased block, tasks.md:93-96, never appending to another task's entry). All shared-array-append files are explicitly coordinated: Global Constraints (tasks.md:97-110) fixes a \"Serialized registration order: T-001 → T-002 → T-003 → T-004\" and each downstream task's own Blockers field enforces that exact ordering (T-002 Blockers: T-001; T-003 Blockers: T-001, T-002; T-004 Blockers: T-003) — matching this check's own \"legitimate multi-task scope sharing... provided the Blockers field enforces the ordering\" exception. No uncoordinated overlap exists on any protected-file target (check-risk-upgrade.{sh,ps1}/risk-upgrade-policy.md only T-002; lite-spec/SKILL.md only T-003; lite-gate/SKILL.md only T-004) or fixture directory (each task uses its own tests/fixtures/epic-194-* subtree)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers edge is explicitly justified in tasks.md and distinguishes functional from serialization-only dependency: T-002 Blockers: T-001 (functional — its own HUMAN APPLY STEP Done-When item uses T-001's runner, tasks.md:455-464); T-003 Blockers: T-001 (functional, same reason) and T-002 (explicitly stated as non-functional, serialization-only for the shared tests/run-all.{sh,ps1}/test.yml-candidate/MANIFEST.sha256 append order, tasks.md:692-699); T-004 Blockers: T-003 (explicitly stated as non-functional, serialization-only for the shared run-all/test.yml registration surface, tasks.md:930-937). No blocker lacks any logical basis (all either gate a real functional dependency or a genuine shared-mutable-array-append race that Global Constraints' serialized-order rule exists to prevent), and no task with an actual output dependency (e.g. T-002's reliance on T-001's runner) omits the corresponding Blockers entry."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All four tasks (T-001..T-004) are new-capability/extension tasks (\"Author...\", \"Extend...\") per their own Goal sections; none is scoped as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test-resolution, or incident-remediation task."
+    }
+  ],
+  "findings": []
+}

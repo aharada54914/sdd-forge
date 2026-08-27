@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "epic-196-a8-integration",
+  "run_id": "task-orch-epic196a8integration-a3r2",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 3,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44",
+  "acceptance_sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1",
+  "design_sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c",
+  "tasks_sha256": "219a7a23735ca1667dd13bd42e1781365968442986f3392741f2683b79cc74e3",
+  "traceability_sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61",
+  "layer_sha256": {
+    "ux-spec.md": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286",
+    "frontend-spec.md": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76",
+    "infra-spec.md": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e",
+    "security-spec.md": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-196-a8-integration-task-reviewer-a-a3r2-seq797",
+      "host_session_id": "SESS-task-a-epic-196-a8-integration-a3r2-seq797",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/tasks.md",
+          "sha256": "219a7a23735ca1667dd13bd42e1781365968442986f3392741f2683b79cc74e3"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/traceability.md",
+          "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/epic-196-a8-integration/attempt-3/round-2/precheck-result.json",
+          "sha256": "985f6a7f24a8816fa81fe0f84a68f3580da42814c6569850dc6d482009adce21"
+        },
+        {
+          "path": "reports/task-review/epic-196-a8-integration/attempt-3/round-2/dependency-graph.json",
+          "sha256": "72a482751520b72bd142aae7883c1ee911bcf0a501b8f0c94e5a5386bdaeede7"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-task-reviewer-b-a3r2-seq798",
+      "host_session_id": "SESS-task-b-epic-196-a8-integration-a3r2-seq798",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-196-a8-integration/requirements.md",
+          "sha256": "f841443d88b4f58fdbb9e32ee050edf8395f3767ebbc08cc2d9d6be76cb3ac44"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/acceptance-tests.md",
+          "sha256": "4d089666d69b5f565c4cd6fd091404e31b15eda063463850a862a816d42797c1"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/design.md",
+          "sha256": "14862a80a6f44b49dbf7e1393af66c82c0434bf1109b248e7ff9b4b695fcd18c"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/tasks.md",
+          "sha256": "219a7a23735ca1667dd13bd42e1781365968442986f3392741f2683b79cc74e3"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/traceability.md",
+          "sha256": "b3ca32a2ce5d22208918f58f17a4f1736492023d78ec91dc40f6633e9d039f61"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/ux-spec.md",
+          "sha256": "c4dfe23795970cdcd3e6afe1bb8bd4cd512b14d638040598722c8b13d416e286"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/frontend-spec.md",
+          "sha256": "c992f19d99797c4189fe013380ba28d86c8b18dd691ddf642c09fbaa7aadfa76"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/infra-spec.md",
+          "sha256": "59f2f26bbead2b5b5effa89642b58867f168db602b9c0738a65350a1fa02ae9e"
+        },
+        {
+          "path": "specs/epic-196-a8-integration/security-spec.md",
+          "sha256": "45adc9bd1ffcfc1519444ce61a798b7d0f270851e393729b867c853d2aafcbe7"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"
+        },
+        {
+          "path": "reports/task-review/epic-196-a8-integration/attempt-3/round-2/precheck-result.json",
+          "sha256": "985f6a7f24a8816fa81fe0f84a68f3580da42814c6569850dc6d482009adce21"
+        },
+        {
+          "path": "reports/task-review/epic-196-a8-integration/attempt-3/round-2/integrated-summary.json",
+          "sha256": "851a18b300d7b04f21d30aab6617af968626e550a2c777d2d676c4cb3a97ca76"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "57d70a7d615f60862ac3a7259b28f8452a0a32b50b58fe7aa3d7cbe336a6c725"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Round 2 of attempt 3, after the human remediation of round 1's four reviewer-B Majors. Round 1 closed with task-reviewer-a PASS 14/14 and task-reviewer-b NEEDS_WORK on TASK-SIZE, EDGE-CASE-COVERAGE, SCOPE-DISJOINT and DEPENDENCY-OVERLAP. The remediation landed in three commits: e28e12d8 recorded the chain predecessors T-002/T-005/T-006 had omitted, replacing each task's `### Blockers` value of None with T-001, T-003 and T-005 respectively (closing SCOPE-DISJOINT and DEPENDENCY-OVERLAP); 8d760af0 implemented the two 2026-08-25 human rulings, adding a Status:-based detection bullet for AC-006's clause (a) to design.md's SKIP Allowlist Activation Gate and to T-001's Scope/Done When, requiring T-005's validator to apply the two-clause predicate only for case_id AC-006, and recording an explicit Size Rationale for T-005 (closing EDGE-CASE-COVERAGE and TASK-SIZE); d9f1c42f restructured investigation.md's amendment record into a pure tail append so the workflow-state growth tolerance fires. tasks.md moved 0bd5df1d... -> 219a7a23..., design.md 4a2068c5... -> 14862a80..., security-spec.md 2918b235... -> 45adc9bd.... requirements.md, acceptance-tests.md, traceability.md, ux-spec.md, frontend-spec.md and infra-spec.md are byte-unchanged from round 1. This round's precheck was run with --provenance-rereview for one narrow mechanical reason: the previous persisted task-stage PASS contract (attempt-2/round-3) pins security-spec.md at 2918b235..., which the remediation moved, so check-workflow-state.sh failed fatally and refused an unflagged round-2 precheck; that stale pin is the sole cause (every other entry in that contract's manifest still matches the live tree, verified entry by entry). The flag's only other effect is requiring a prior persisted task-stage PASS, which attempt-2 round-3 supplies. Both reviewers were told explicitly that the TYPE-H provenance-rereview convergence rule does NOT apply to this round and were instructed to judge the current text on its merits under normal calibration; both confirmed they did not invoke it. Reviewer B received only integrated-summary.json (reviewer A's check IDs and counts, no narrative). Note for the record: attempt-3 round-1 persisted reviewer-a.json, reviewer-b.json, precheck-result.json, dependency-graph.json and integrated-summary.json but no integrated-verdict.json and no task-review-contract.json, so prior_round_contract_sha256 is left empty rather than fabricated.",
+  "timestamp": "2026-08-25T03:05:00Z"
+}

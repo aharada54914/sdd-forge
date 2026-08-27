@@ -1,0 +1,82 @@
+{
+  "schema": "epic-194-lite-spec-fixtures/v1",
+  "_purpose": [
+    "Fixture catalog for tests/lite-spec-capability-block.tests.{sh,ps1}",
+    "(epic-194-a6-lite-integration T-003, design.md Test Strategy item 6).",
+    "tasks.md T-003 Planned Files declares this tree: 'a Project Context",
+    "declaring components, a Registry with a matched ineligible Capability,",
+    "the assembled trigger-fragment fixture this signal source produces, and",
+    "a companion fixture confirming the existing ship-time recheck still",
+    "independently Blocks when the intake-time evaluation did not itself flag",
+    "the component'. It was declared but never created; both twins built",
+    "their fixtures inline via mktemp/heredoc instead, which is also why two",
+    "cross-model slots reported that the inputs behind the assertions could",
+    "not be read (T-003 Anthropic slot, Minor). Reading both twins from ONE",
+    "file is also what keeps them from silently modelling the Registry",
+    "differently -- the divergence a previous round had to fix by hand."
+  ],
+  "project_context": {
+    "components": ["payment-service"]
+  },
+  "registry": {
+    "_shape_note": [
+      "design.md Data Plan nests eligibility under lite_policy. The .ps1 twin",
+      "previously FLATTENED eligible/upgrade_reasons onto the capability",
+      "object, so the PowerShell half never exercised the designed shape.",
+      "TEST-019-functional-registry-shape asserts the nesting on both sides."
+    ],
+    "capabilities": [
+      {
+        "id": "payment-processing-svc",
+        "component": "payment-service",
+        "lite_policy": {
+          "eligible": false,
+          "upgrade_reasons": ["financial_settlement"]
+        }
+      }
+    ]
+  },
+  "sources": {
+    "clean": "a clean internal requirement body with no keyword trigger at all.",
+    "keyword_match": "this task rotates an API secret used by the settlement worker.",
+    "defense_in_depth_ship": "the payment-service task rotates a secret used by the settlement worker."
+  },
+  "defense_in_depth": {
+    "_note": [
+      "Component 'payment-service' whose matched Capability is eligible:true,",
+      "so the documented assembly rule ('Assemble every matched Capability",
+      "whose own lite_policy.eligible is false') excludes it from the",
+      "fragment entirely -- the intake-time evaluation does not flag it, and",
+      "the ship-time recheck must still Block it independently."
+    ],
+    "fragment": {
+      "capabilities": [
+        { "id": "payment-processing-svc", "eligible": true, "upgrade_reasons": [] }
+      ]
+    }
+  },
+  "expected": {
+    "block_exit_code": 10,
+    "block_message_prefix": "full-required",
+    "lite_eligible_exit_code": 0,
+    "matched_ineligible_count": 1,
+    "trigger_token": "financial_settlement"
+  },
+  "ac_021": {
+    "_note": [
+      "AC-021 (acceptance-tests.md): 'the designed REQ-005 edit touches only",
+      "lite-spec/SKILL.md, staged under the same human-copy/ directory",
+      "TEST-010 verifies, with no separate, REQ-005-specific application path",
+      "introduced'. TEST-021 asserts all three clauses."
+    ],
+    "sole_staged_target": "plugins/sdd-lite/skills/lite-spec/SKILL.md",
+    "human_copy_prefix": "specs/epic-194-a6-lite-integration/human-copy",
+    "shared_application_runner": "apply-protected-files.ps1",
+    "forbidden_req005_application_paths": [
+      "apply-lite-spec.ps1",
+      "apply-lite-spec.sh",
+      "apply-req005.ps1",
+      "apply-skill.ps1"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cli-hook-enforcement.ps1
+Exit: 1
+Phase: RED
+Reason: Each new TEST-012 subcase deliberately used a benign/permissive Edit while requiring the self-approval denial contract. The three failures are expected feature failures, not syntax or harness errors.
+
+ok: CLI present on PATH: claude
+ok: CLI present on PATH: codex
+ok: CLI present on PATH: copilot
+ok: claude-code (node --emit exit): self-approval DENIED (exit 2)
+ok: claude-code (node --emit exit): benign edit ALLOWED (exit 0)
+ok: codex/copilot (pwsh .ps1 -Emit exit): self-approval DENIED (exit 2)
+ok: copilot (.ps1 -Emit copilot): self-approval => deny
+ok: copilot (.ps1 -Emit copilot): benign => allow
+ok: codex (sh .sh --emit exit): self-approval DENIED (exit 2)
+ok: copilot (sh .sh --emit copilot): self-approval => deny
+ok: drift: claude-hooks.json invokes node sdd-hook-guard.js --emit exit
+ok: drift: hooks.json invokes sdd-hook-guard.sh --emit exit
+ok: drift: copilot-hooks.json invokes sdd-hook-guard.sh --emit copilot
+ok: TEST-017 regression continuity: all 13 pre-existing checks passed before synthetic additions; no live-host proof state consumed
+FAIL: TEST-012 synthetic config/guard-contract regression (not a live-host observation): Codex plugin_hooks=enabled config plus direct guard self-approval denial expected matching config state and exit 2, got state=True exit=0
+FAIL: TEST-012 synthetic config/guard-contract regression (not a live-host observation): Codex plugin_hooks=disabled config plus direct guard self-approval denial expected matching config state and exit 2, got state=True exit=0
+FAIL: TEST-012 synthetic config/guard-contract regression (not a live-host observation): Copilot subagent indicator plus direct guard self-approval denial expected deny, got: {"permissionDecision":"allow"}
+
+CLI hook enforcement: 14 passed, 3 failed.
