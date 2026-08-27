@@ -773,3 +773,30 @@ design — confirmed by the attempt-6 precheck computing
   by the attempt-4 round-2 reviewer invocation manifests, per this
   section's convention that an extension cannot cite its own commit
   from inside itself.
+
+### Round-11 extension (2026-08-27): the two layer specs catch up to AC-009's sanctioned assert_terminal exception
+
+- **What was found.** Impl-review attempt 4 round 2, first run (reviewer
+  A, ledger sequence 939, BLOCKED before reviewer B launched; that run
+  was interrupted by a caller-side timeout and is superseded — its
+  reservation for sequence 940 was never consumed by a completed
+  reviewer B). A found that frontend-spec.md's Technology Stack row
+  stated `assert_terminal`/`assert_artifacts_schema` are themselves
+  unmodified, and infra-spec.md's Rollback stated existing functions are
+  themselves unmodified, while design.md and security-spec.md
+  consistently state the one sanctioned
+  `_loop_trace_emit done-transition:assert-terminal` producer call
+  inside `assert_terminal` (AC-009). An implementer could not satisfy
+  both instructions. The eleventh measured instance of the
+  amendment-propagation class; the reviewer's own remedy — amend both
+  layer statements to carry the sanctioned exception — is what was
+  applied.
+- Human approval (verbatim, dated): 2026-08-27, in answer to the
+  question presenting exactly these two layer-spec corrections:
+  「① 承認、適用して続行せよ（推奨）」.
+- **What changed.** frontend-spec.md's Technology Stack row and
+  infra-spec.md's Rollback sentence each gained the sanctioned-exception
+  clause citing AC-009 and design.md's Data Plan; no other document
+  byte moved. Post-amendment digests are pinned externally by the
+  attempt-4 re-run reviewer invocation manifests, per this section's
+  convention.

@@ -199,7 +199,8 @@ a review-time cost, not an infrastructure spend.
   extension point this design fixes is additive-only: a new optional
   field on the existing `quality-gate` loop-inventory entry (never a new
   `id`, AC-008), new functions in the shared driver (existing functions
-  themselves unmodified, AC-009), new `TEST-018`/`TEST-019` cases in
+  themselves unmodified apart from `assert_terminal`'s one sanctioned
+  producer call, AC-009; design.md Data Plan), new `TEST-018`/`TEST-019` cases in
   existing suite files (never a new suite file), and a new,
   independently-gated `capability` object in `emit-run-record.sh`'s
   output (no-flag output byte-identical, AC-011). A rollback of any of
