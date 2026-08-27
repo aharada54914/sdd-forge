@@ -192,6 +192,59 @@ confirm ownership first.
 
 ---
 
+## PR #247 was NOT merged — CI is red for a real, pre-existing reason
+
+The brief authorised merging #247 once CI was green, treating the Windows
+TEST-004(c) cross-model flake as the one acceptable red to rerun. That remedy
+does not apply here, and the PR was left unmerged.
+
+**What is red.** One job: `loops-routing (windows-latest)`. Inside it,
+`tests/loop-inventory.tests.sh` fails three assertions — TEST-009.1
+(`assert_artifacts_schema changed`), TEST-009.2 (`assert_terminal changed`) and
+TEST-009.12 (`assert_event_trace calls the trace appender`) — 68 passed, 3 failed.
+The same suite passes on macOS and Ubuntu.
+
+**It is not the known flake.** main's current red is the genuine TEST-004(c)
+gemini near-boundary flake (`stub_launch_ms=611 budget_ms=2000`) in
+`test (windows-latest)`. That is a different job, a different suite and a
+different symptom. `loops-routing (windows-latest)` is green on main.
+
+**It is not deterministic-flaky either, and it predates this session.** The
+identical three TEST-009 failures are present at `15de19cc`, the branch HEAD
+before this session touched anything, and again at `f203eac2` after. Two
+different commits, same three assertions, same job. Rerunning would prove
+nothing.
+
+**This session's work reduced the branch's red, it did not cause it.** At
+`15de19cc` four jobs failed (`test` on all three platforms plus
+`loops-routing (windows)`); after merging main, only `loops-routing (windows)`
+remains.
+
+**Where the fault is likely to be.** TEST-009 pins hard-coded SHA-256 values of
+function bodies extracted from `tests/lib/loop-driver.sh` by an `awk` filter
+(`tests/loop-inventory.tests.sh:130-137`, expectations at :407-419). Recomputing
+`assert_terminal`'s body hash locally on macOS reproduces the expected value
+`f325a4df…` exactly, so the committed file content is correct and the divergence
+is in how the body is extracted or hashed under Windows. `.gitattributes` already
+forces `eol=lf` for `*.sh`, so a plain CRLF checkout is not the obvious
+explanation; the Git Bash `awk` output path is the next place to look.
+
+Two further details worth a human's eye:
+
+- This lands in exactly the area epic-195's T-005 governs — its Done When cites
+  "the `assert_terminal` function-body hash TEST-009 records". A red TEST-009 on
+  one platform is therefore evidence about T-005, not incidental CI noise.
+- `tests/lib/loop-driver.sh` was last touched by
+  `78a15e58 Merge origin/main into feature/epic-195-a7-compatibility (-X theirs)`.
+  A merge resolved with `-X theirs` silently prefers one side on every conflicting
+  hunk; if the recorded hashes and the driver body were reconciled by that merge
+  rather than by a decision, that is worth re-checking.
+
+The review gates for this feature are green and sealed regardless — the two are
+independent. What is blocked is only the merge.
+
+---
+
 ## Remaining human actions
 
 1. **epic-194 HUMAN APPLY STEP** — apply the staged protected-file payloads via
