@@ -2834,7 +2834,12 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   ever writes. A mixed generation across the batch likewise never stands
   **unattended**: the mandatory crash-recovery scan either converges it
   away before this invocation's own work begins, or — when the journal is
-  unconvergeable — leaves it exactly as found and fails this invocation
+  unconvergeable — leaves **every interrupted target other than
+  `resolver-evidence.yaml`** exactly as found, that one target receiving
+  the Block's own record per AC-012 and AC-047 (scoped 2026-08-27: the
+  unqualified "leaves it exactly as found" contradicted the same bullet's
+  own "Resolver Evidence … fully written" clause two sentences earlier),
+  and fails this invocation
   closed with `publication-journal-recovery` for manual operator
   intervention, which is the one state no automatic repair may touch
   (AC-047; scoped 2026-08-27, human-approved, ruling D(2), replacing an

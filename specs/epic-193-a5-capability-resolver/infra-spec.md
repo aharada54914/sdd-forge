@@ -275,8 +275,11 @@ shape isomorphically):
   journaled transaction; an in-process failure or a hard crash converges,
   via the journal's own PRE-image backups, to a fully-restored-PRE or
   fully-applied-POST terminal state **whenever the journal is
-  convergeable**, and when it is not the state is left exactly as found
-  for a human operator behind a fail-closed
+  convergeable**, and when it is not, **every interrupted target other than
+  `resolver-evidence.yaml`** is left exactly as found
+  for a human operator — that one target still receiving this
+  invocation's own Block record (AC-012, AC-047; scoped 2026-08-27,
+  ruling D(2)) — behind a fail-closed
   `publication-journal-recovery` Block (scoped 2026-08-27,
   human-approved, ruling D(2)) — never a bare `unlink`-based
   best-effort with no restore path (design.md "Resolver publication

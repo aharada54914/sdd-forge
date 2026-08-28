@@ -94,7 +94,7 @@ tasks-round-1-proposed-changes.md`.
 | AC-023 | TEST-023 | T-009 |
 | AC-024 | TEST-024 | T-009 |
 | AC-025 | TEST-025 | T-009 |
-| AC-026 | TEST-026 | T-001..T-010 (share — each task registers its own suite; confirmed feature-wide at T-010; scoped to nine of ten suites, tenth deferred per tasks.md Global Constraints) |
+| AC-026 | TEST-026 | T-001..T-010 (share — **seven** of the ten tasks perform a registration; T-003, T-004 and T-007 only append fixtures to the already-registered shared `resolve-project-context-block` suite, per tasks.md Global Constraints' own test-suite serialization contract, and register nothing of their own (corrected 2026-08-27, human-approved, ruling D(2), from "each task registers its own suite", which would have directed three task authors into duplicate or unauthorized registration work); confirmed feature-wide at T-010; scoped to nine of ten suites, tenth deferred per tasks.md Global Constraints) |
 | AC-027 | TEST-027 | T-005 (own `match`-suite setup check), T-010 (feature-wide confirmation once every suite exists) |
 | AC-028 | TEST-028 | T-006 |
 | AC-029 | TEST-029 | No task — satisfied by acceptance-tests.md's own Spec-Authoring-Time Manual Review Record |

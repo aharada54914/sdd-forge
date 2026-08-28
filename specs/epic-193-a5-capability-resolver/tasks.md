@@ -1726,7 +1726,10 @@ transaction), REQ-002 (share — the three transactional diagnostic-id rows, plu
 only `snapshot-generation-mismatch` companion fixture), REQ-004 (share —
 Resolver Evidence is committed via this same transaction), REQ-005
 (share — determinism preserved across a crash/rollback), REQ-006 (share —
-fixture-matrix item e's four remaining rows), REQ-008 (share —
+fixture-matrix item e's remaining three rows plus one additional
+shared-row fixture — corrected 2026-08-27, ruling D(2), from "four
+remaining rows", which counted that fixture as a seventeenth row),
+REQ-008 (share —
 CHANGELOG)
 
 Depends On: T-004 (extends the same `resolve-project-context.{py,sh,
@@ -1866,7 +1869,15 @@ Commit B (documentation):
   proceeding with a separate resolve; a companion fixture corrupting the
   journal's own recorded pre-image backup confirms the next invocation
   Blocks `publication-journal-recovery` before any Registry/ownership/
-  Context-Projection work begins (AC-047).
+  Context-Projection work begins, **asserting both halves of that Block's
+  live-state obligation** (mirrored 2026-08-27, human-approved, ruling
+  D(2), from AC-047/TEST-047's amended rows): every interrupted target
+  other than `resolver-evidence.yaml` byte-identical to its
+  pre-invocation state, with no partial rollback or repair attempted once
+  the journal is declared unconvergeable, **and** `resolver-evidence.yaml`
+  itself carrying this invocation's own schema-valid Block record — the
+  first half alone would contradict AC-012, the second alone would lose
+  the no-partial-rollback guarantee (AC-047).
 - [ ] **In-process publication failure** — TEST-039 passes: an injected
   write/rename failure on a staged output path after every earlier step
   succeeded Blocks `artifact-publication-failed`; a second,
