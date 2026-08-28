@@ -8,19 +8,24 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "verification/T-003.contract.json checks regression and placeholder-scan",
-      "note": "Two required checks are marked passes:true, but both declared evidence files are explicitly absent from the bundle: verification/qg/shared/regression-20260828.log and verification/qg/shared/placeholder-scan-20260828.log. The default-fail verification contract therefore lacks the evidence needed to substantiate completion."
+      "ref": "human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md:Risk-Upgrade Gate",
+      "note": "The implementation declares the ship-time recheck mandatory but leaves it unmodified and supplies no Capability-derived fragment there. Consequently it cannot catch a Lite-ineligible Capability introduced or made relevant after intake, despite REQ-005/OQ-002 explicitly assigning that defense-in-depth purpose to the second stage."
     },
     {
       "severity": "Major",
-      "ref": "tests/lite-spec-capability-block.tests.sh functional fixture / tests/lite-spec-capability-block.tests.ps1 functional fixture",
-      "note": "The core REQ-005 signal-source behavior is not exercised. Both suites replace A2 evaluate-predicate and Registry trigger evaluation with a synthetic component-name equality loop, despite the repository bundle documenting that evaluate-predicate exists. Static substring checks only prove that the staged skill mentions the required procedure; they do not verify predicate invocation, per-Capability-by-component fan-out, failure propagation, or union matching. Consequently the green evidence cannot establish that the principal implementation contract works."
+      "ref": "tests/lite-spec-capability-block.tests.sh:TEST-019-defense-in-depth",
+      "note": "The defense-in-depth fixture proves only that the legacy keyword scanner later detects an unrelated `secret` keyword. It does not exercise ship-time Capability matching or a capability-reasons fragment, so it cannot verify the required later detection of an ineligible Capability missed at intake."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/lite-spec-capability-block.tests.sh:functional fixture assembly",
+      "note": "The functional test replaces the specified A2 `evaluate-predicate` fan-out with component-name equality even though the bundled repository history states that evaluator has landed. Static substring checks plus this surrogate do not verify the actual Capability \u00d7 component invocation, result interpretation, or failure propagation described by REQ-005."
     }
   ],
   "blind": true,
-  "input_digest": "753117c9c72edc9fdf39d3d2143e5d4e0f2e7cd5e1e7589f20539bf90eb4b11f",
+  "input_digest": "27f1eaa3207d5c3087e415615f457c361f40658a07e08828eebc086de0bcadb9",
   "consent": {
     "kind": "sudo",
-    "ref": "SDD_SUDO"
+    "ref": "tasks.md T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
   }
 }

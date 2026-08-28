@@ -8,22 +8,22 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "verification/T-002.contract.json checks: regression, placeholder-scan",
-      "note": "Two required checks are marked passes:true, but both declared evidence files are explicitly absent from the bundle. The contract therefore lacks verifiable evidence for required regression and placeholder-scan gates."
+      "ref": "verification/T-002.contract.json checks: unit-tests and acceptance-tests",
+      "note": "The required checks claim REQ-002/REQ-006 pass, but their pinned evidence and green_evidence files cover only TEST-013 fragment validation. They do not contain the current TEST-007, TEST-008/009, or TEST-014 PowerShell evidence, so the contract does not substantiate the full cross-runtime acceptance scope it certifies."
     },
     {
       "severity": "Major",
-      "ref": "verification/qg/T-002/unit-acceptance-green.log and verification/T-002.green.log",
-      "note": "The supplied green logs stop at TEST-013af and predate the amended TEST-013ag\u2013aj cases, while the contract claims current evidence including those cases. The new eligible:true fail-closed and falsy-value behaviors are present in test source but not demonstrated by the bundled execution evidence."
+      "ref": "verification/T-002.contract.json regression; verification/T-002/regression-20260828-excerpt.log authoritative tail",
+      "note": "The contract records the required regression check as passing, while its cited evidence explicitly reports two failing suites and a nonzero full-run result. Labeling those failures designed-red does not make the required regression execution pass; the contract and evidence disagree."
     },
     {
-      "severity": "Minor",
-      "ref": "tests/check-ri[REDACTED].tests.ps1 TEST-013r",
-      "note": "The PowerShell test accepts any nonzero, non-10 exit for a forbidden bare second positional argument and records exit 1, whereas the documented checker contract uses exit 2 for invalid invocation/input and the Bash twin asserts exactly exit 2. This weak assertion permits cross-runtime exit-contract divergence."
+      "severity": "Major",
+      "ref": "tests/check-risk-upgrade-byte-identical.tests.sh assert_identical; tests/check-risk-upgrade-byte-identical.tests.ps1 Assert-Identical",
+      "note": "AC-007 requires byte-identical stdout, but both twins compare normalized strings: Bash command substitution strips trailing newlines, and PowerShell joins output records without preserving original line terminators or the final newline. Changes limited to stdout newline bytes could therefore pass, so the byte-identity requirement is not fully tested."
     }
   ],
   "blind": true,
-  "input_digest": "aac5658a7cbcea1545bbcb9d657682f078dcd376d6285820ca0cfeb467373556",
+  "input_digest": "d6481a72c5c79e66ce48ddc9516af86a13704d977af49f42df64ac555e76feb4",
   "consent": {
     "kind": "sudo",
     "ref": "tasks.md T-002 Approval: Approved (sudo 2026-07-22T15:39:07Z)"

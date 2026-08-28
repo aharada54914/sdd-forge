@@ -3,22 +3,22 @@
   "task_id": "T-001",
   "feature": "epic-194-a6-lite-integration",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "verification/T-001.contract.json checks regression and placeholder-scan",
-      "note": "Two required checks are marked passes:true, but both declared evidence files are explicitly absent from the bundle. The default-fail contract therefore lacks reproducible evidence for required regression and placeholder-scan gates."
+      "severity": "Minor",
+      "ref": "specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1: Write-PublishStateReport / Test-PostCopyHashes",
+      "note": "After Copy-Payload succeeds for all targets, a batch-wide post-copy hash failure leaves FailedTarget null and PublishedTargets containing every target. The failure report therefore labels the corrupted target INSTALLED and claims its digest was verified, without a FAILED entry, contradicting design.md Protected-File Statement point 5's requirement to truthfully enumerate installed, failed, and not-attempted targets on every post-copy-phase failure. The preceding exception names the mismatch and execution remains fail-closed, limiting severity."
     },
     {
       "severity": "Minor",
-      "ref": "human-copy/apply-protected-files.ps1: Write-PublishStateReport / Test-PostCopyHashes",
-      "note": "After Copy-Payload succeeds and the batch-wide post-copy verification detects corruption, FailedTarget remains null while every target remains in PublishedTargets. The report consequently labels the corrupted target INSTALLED and digest-verified, contradicting the required truthful live-state reporting; the supplied security review confirms this path is untested."
+      "ref": "tests/human-copy-runner-contract.tests.ps1: TEST-006d-f and TEST-012",
+      "note": "The suite exercises post-copy corruption but asserts only nonzero exit and the mismatch diagnostic; it does not verify the accompanying live-state enumeration. TEST-012 covers only a failure inside Copy-Payload where FailedTarget is populated, so it cannot detect the contradictory post-copy-failure report."
     }
   ],
   "blind": true,
-  "input_digest": "c1e97647dd63e1ae2d0d8954c7fae57932b06665ae51f823138a381bd4a4ece9",
+  "input_digest": "46c0cb724c0f056650753f0a01005191e1f63729b6d6aa609faa84bcf96cb67c",
   "consent": {
     "kind": "sudo",
     "ref": "T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
