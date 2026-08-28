@@ -1,6 +1,47 @@
 # Changelog
 
-## Unreleased
+## v1.17.0 (2026-08-27)
+
+### Security
+
+- **ガードが `git apply` / `patch` / `git am` を素通ししていた問題（WFI-048）**:
+  R-10 の保護は「動詞＋コマンドライン上の対象」を前提にしており、対象を
+  **参照先ファイルの中**に書くコマンドを一切見ていなかった。staged patch を
+  適用すれば、`Edit` が拒否した保護ファイルの書き換えがそのまま通る。実際に
+  `2b8e528a` はこの経路で main に到達している。`docs/ci-staging/README.md` の
+  「人間が検証してから適用する」という規約は、ガードだけが強制していた。
+  - patch applier に対しては **patch を実際に読み**、`---` / `+++` ヘッダが
+    宣言する全対象を `_is_protected_gate_file` に通す。読めない・unified diff
+    として解釈できない patch は fail closed。`git am` は書き込み動詞の語彙に
+    無いため、独立したゲートとして評価する。
+  - 検査系フラグ（`--check` / `--stat` / `--numstat` / `--summary` /
+    `--dry-run`）は免除。何も変更しないうえ、README が人間に指示している検証
+    手順そのもの。セグメント単位判定なので迂回には使えない。
+  - **トークンに埋没したパス**（`open('<path>','a')` のように後方一致が届かない
+    形）も検出する。従来の末尾一致テストが先に走るため、判定が緩む方向には
+    決して動かない。境界文字クラスは真陽性ではなく**偽陽性コーパス**に対して
+    決めており、バックティックは
+    `tests/guard-staging-exemption.tests.sh` の散文ケースを誤検知したため除外。
+  - `python3 <script>` のようにスクリプトが実行時に対象を決める形は**原理的に
+    閉じない**ため、覆ったとは扱わず開いたまま記録している。パリティスイートが
+    ALLOW を表明しているので、動詞一括禁止に踏み込んだ実装はそこで落ちる。
+  - 実測: 復元可能な 14 形状が 14/14 ALLOW → **0/14**、誤 DENY 0、
+    py/js/ps1 の三双子で判定不一致 0。既存ガードスイート 12 本の
+    コマンドペイロード 64 個中 63 個で判定の反転 0。
+
+### Changed
+
+- **委譲先スキルが誰からも呼べなかった問題（WFI-054）**: 20 の委譲先スキルが
+  `user-invocable: false` と `disable-model-invocation: true` を**両方**持って
+  いた。前者が人間を、後者がモデルを拒むため、`ship` と `bootstrap` は
+  `quality-gate`・`implement-tasks`・`cross-model-verify`・3 つのレビュー
+  ループを含む下位段のどれにも到達できなかった。委譲先は
+  `disable-model-invocation: false` を明示する形に統一し、
+  `tests/validate-repository.ps1` は**明示されていないこと**と
+  **`true` と `user-invocable: false` の同時指定**の両方を hard failure と
+  するようになった。人間の入口 6 本（`bootstrap` / `ship` / `diagnose` /
+  `domain-model` / `fix-by-review-ticket` / `sdd-sudo`）は `true` のままで、
+  モデルがワークフローを自発的に開始することは引き続きできない。
 
 ### Fixed
 
