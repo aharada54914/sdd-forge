@@ -129,11 +129,25 @@ validate_capability_applicability() {
 
 function_body_sha256() {
   local file="$1" function_name="$2"
+  # Portable hashing (2026-08-28): the windows-latest runner's git-bash has no
+  # shasum, which made this helper emit empty output there — TEST-009.1/.2
+  # failed against the pins while the negative self-check passed vacuously
+  # (any garbage != pin). Fall back per the design-sync-standing-consent
+  # precedent, and emit a visible marker when no tool exists so the mismatch
+  # diagnoses itself instead of looking like a real hash drift.
   awk -v signature="^${function_name}\\(\\)" '
     $0 ~ signature { capture=1 }
     capture { print }
     capture && /^}/ { exit }
-  ' "$file" | shasum -a 256 | awk '{print $1}'
+  ' "$file" | {
+    if command -v shasum >/dev/null 2>&1; then
+      shasum -a 256 | awk '{print $1}'
+    elif command -v sha256sum >/dev/null 2>&1; then
+      sha256sum | awk '{print $1}'
+    else
+      echo "NO-SHA256-TOOL-ON-THIS-RUNNER"
+    fi
+  }
 }
 
 # ---------------------------------------------------------------------------
