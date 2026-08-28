@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a10r1-seq0847",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a10r1-0847",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "3dacf91534bf70db4595d460c1c8b5c0304c9e50daa9169b190bda3af921af19"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b3f0083ca69b5cd5df5a6c8863f095a61c4012bf713dbc7cc0c5c859c0e333c0"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-10/round-1/precheck-result.json", "sha256": "81ba2ce9af4524d4f8093193d73dc68b6557a2a72915ea353f0cd98e333e354e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope Goal (REQ-001 through REQ-008) resolves to concretely observable/measurable acceptance criteria: fixture-driven test matrices (AC-001-AC-058) and grep-based repository self-checks (AC-025, AC-034, and the newly re-worded AC-059). AC-059's own text (requirements.md AC table row and acceptance-tests.md TEST-059 row, both re-worded 2026-08-28 under ruling E's repair) still resolves to a concrete, deterministic grep self-check (no write of any kind by resolve-project-context.* or validate-resolver-evidence.* to *.approval.json/sdd/.approved-context//guard-invariants.json) -- the added 'discharged in two parts' sequencing language explains when the check attains full glob coverage but does not weaken what the check itself measures."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal (REQ-001..REQ-008) has at least one traced AC in the Acceptance Criteria table (e.g. REQ-001 to AC-001-009/043/052/059, REQ-002 to AC-010-014/038-041/047-049/055/057/058, REQ-003 to AC-015-016, REQ-004 to AC-017-021/044/050/051/054/056, REQ-005 to AC-022-025, REQ-006 to AC-026-028, REQ-007 to AC-029-032/042/046/053, REQ-008 to AC-033-034). AC-059 (new under ruling E, re-worded under ruling E's own repair) correctly traces to REQ-001 and matches, word-for-word in substance, between requirements.md's AC-059 row and acceptance-tests.md's TEST-059 row."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts/behavior throughout (byte-identity fixtures, schema-validation fixtures, exit-code fixtures, repository-wide grep self-checks). AC-059's repaired text keeps this property: 'a repository-wide grep-based self-check confirms no Resolver-owned script under plugins/sdd-quality-loop/scripts/resolve-project-context.* or validate-resolver-evidence.* performs any write ... to a *.approval.json sidecar, to any path under sdd/.approved-context/, or to guard-invariants.json' is directly executable and observable."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md lines 838-890) explicitly excludes implementation, editing frozen sibling-epic contracts, adding a Registry field, re-specifying check-component-coverage, implementing compare-facet-manifest-staleness's caller, computing the full effective-enforcement formula, editing SKILL.md, authoring a new ADR, and running downstream review loops from this package's own scope. AC-059's repaired text references tasks.md's own T-007/T-008 task-ownership sequencing to explain how the criterion is discharged; this is a later-phase-artifact reference inside a Pending-status Phase 1 document, but it is suppressed under the calibration's Amendment Re-Review Context lane: investigation.md's '## Amendment Re-Review Context' section (through its '### Ruling E' and '### Ruling E's own repair' subsections) supplies full, unabbreviated commit hashes (4854a1bc, 94704f9c), per-document SHA-256 fingerprints for requirements.md/acceptance-tests.md/design.md/security-spec.md/tasks.md/traceability.md at each remediation commit, and a verbatim dated human ruling, meeting the full evidence bar. No independent (non-phase-sequencing) defect was found in this reference: the AC-059 wording is internally consistent between requirements.md and acceptance-tests.md and does not contradict any other AC or REQ in the reviewed documents."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated explicitly and in detail: Security Boundaries (write-scope, no clock/network/provider-API, fail-closed disabled-legacy, staging-area-only intermediate writes, mandatory crash-recovery scan, single-writer assumption, no verbatim dependency stderr), Roles and Permissions (human-copy vs. agent-writable-only-via-Resolver split), and Assumptions (sibling-epic contract stability, protected-suffix reservation liveness, SKILL.md protection status re-verification). The previously-open write-scope gap this same package's Security Boundaries bullet 2 stated but left unlocked is now closed by AC-059/TEST-059, matching security-spec.md's B6 boundary."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every named Risk (requirements.md Risks section) carries an explicit validation surface: the Lite-track required-enforcement Block risk is covered by AC-009/AC-010's fixture matrix and named as an owned cross-epic prerequisite; the multi-component-matching/facet-aggregation orchestration-decision risk is explicitly stated to be evaluable at spec-review time (design.md Design Decisions citation) rather than surfacing silently at implementation; the A2/A4 addendum-needed risk names its own final-report target; the protected-suffix-reservation risk is covered by the Assumptions section's explicit re-verification procedure; the anchor-fingerprint risk is covered by the deferred-but-specified AC-053 fixture plus the recorded sha256/ordinal pin."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory (no domain/context-map.md, no domain/domain-contract.json) exists in the target project, so the Approved-domain-model precondition for this check is absent; per calibration this check is skipped rather than failed."
+    }
+  ]
+}

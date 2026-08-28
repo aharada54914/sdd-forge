@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a10r1-seq0848",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a10r1-0848",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "3dacf91534bf70db4595d460c1c8b5c0304c9e50daa9169b190bda3af921af19"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b3f0083ca69b5cd5df5a6c8863f095a61c4012bf713dbc7cc0c5c859c0e333c0"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-10/round-1/precheck-result.json", "sha256": "81ba2ce9af4524d4f8093193d73dc68b6557a2a72915ea353f0cd98e333e354e"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-10/round-1/integrated-summary.json", "sha256": "fc608730aa4ea448f5fa73f2ab33f01b0c88445b7f930b6ae5d3350f5b3bcf47"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md AC-059 (line 977) and acceptance-tests.md AC-059/TEST-059 (line 120) state the ruling-E split-discharge for the approval-surface write-scope grep identically and unambiguously: T-007 authors and registers a repository-wide grep self-check over both `resolve-project-context.*` and `validate-resolver-evidence.*` globs; it passes over the scripts existing at T-007's own gate; because the check is a registered per-commit CI gate rather than a one-shot verification, it necessarily also scans `validate-resolver-evidence.*` once T-008 lands those files, with no separate task obligation. The one citation imprecision noted (AC-059's prose cites AC-032 alongside AC-033/AC-034 as sharing 'the same binding ... over every task's commits', though AC-032's own row is registration-commit-bound rather than per-task-landing) does not change what T-007's own obligation is or leave a downstream implementer/task-reviewer unable to decide what to build or verify, so it does not meet the calibration's Finding Evidence Gate item 2 (concrete downstream failure mode) and is not reported as a blocking finding."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The AC-059 repair text is consistent across requirements.md and acceptance-tests.md (both cite ruling E, the 2026-08-28 DEPENDENCY-OVERLAP correction, and the identical two-part discharge). AC row/TEST row counts (59 AC rows including three Global exceptions, 56 TEST rows) are internally consistent with investigation.md's own recorded post-ruling-E counts, and no stale pre-amendment count (58/55) remains in requirements.md or acceptance-tests.md. investigation.md's `## Amendment Re-Review Context` entry meets the calibration's full evidence bar (full commit hashes, per-document SHA-256s at each amendment commit, a verbatim dated human-approval quotation for ruling E), so the Non-goals bullet's Phase-1-only framing and AC-059's references to `tasks.md`'s T-007/T-008 sequencing are governed by the phase-sequencing suppression rather than treated as a standalone contradiction, per the calibration's suppression rule."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-002's sixteen-row Block taxonomy and acceptance-tests.md's TEST-010/038/039/040/047/048/049/055/057/058 rows cover negative paths (crash-recovery, TOCTOU, publication failure, schema-validation failure of Evidence itself vs. a sibling artifact, absent-component fail-closed) and boundary/empty states (zero-affected-component in Edge Cases and AC-018/TEST-018's M9 fixture). The approval-surface boundary that was previously untested (Security Boundaries bullet 2 / security-spec.md B6) is now covered by AC-059/TEST-059's deny-list grep, closing the asymmetry ruling E identified against the sibling AC-025/TEST-025 allow-adjacent check."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (three items: sibling-epic contract stability, the protected-suffix reservation's live status, and SKILL.md's unprotected status) each explicitly states it is a live-repository snapshot to be re-verified at the future implementation task's own start time, mirroring an established precedent (Epic A3's identical disclaimer, cited by file:line). None is left as a silent, undecided ambiguity — each is either resolved by investigation.md (INV-002, INV-003, INV-017) or explicitly marked for re-verification before the dependent implementation step."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The approval/governance boundary this feature implies — the Resolver must never write to a `*.approval.json` sidecar, `sdd/.approved-context/`, or `guard-invariants.json` (requirements.md Security Boundaries bullet 2, security-spec.md B6) — is now testable: AC-059/TEST-059 (requirements.md line 977, acceptance-tests.md line 120) fixes a repository-wide, CI-gated, deny-list grep self-check against exactly those three write targets, closing the gap ruling E identified (the boundary previously had zero locking AC/TEST rows, `git log -S` dating the gap to the package's original 2026-07-22 revision). The `disabled-legacy-invocation` CLI-misuse guard (REQ-002/REQ-003, AC-015/TEST-015) is likewise independently testable via a subprocess-invocation spy fixture."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The package fixes CLI shape, processing order (steps 0/(a)-(m)), a closed sixteen-row Block-diagnostic enumeration, byte-identity scope, and Resolver Evidence's full field/cardinality/keying rules, leaving no product-behavior decision for a design reviewer to invent. The one item requiring cross-document verification for this round — AC-059's task-sequencing repair — is textually identical and internally consistent between requirements.md and acceptance-tests.md, and investigation.md's `### Ruling E's own repair` section documents the corrected reasoning (T-007's per-commit CI-gate registration naturally covers T-008's later-authored `validate-resolver-evidence.*` files) with no gap visible from the artifacts in this review's own allowed-input set."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No `domain/` directory exists in this repository (confirmed via glob for `domain/context-map.md` and `domain/domain-contract.json`, both zero matches), so the domain-model precondition for this check is absent and the check is recorded as skipped per its own skip condition."
+    }
+  ]
+}
