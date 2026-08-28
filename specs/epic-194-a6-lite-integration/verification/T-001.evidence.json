@@ -6,7 +6,7 @@
   "spec_revision": "3500fe3b5230354a743fe45f52c117716eaeddcbbc35bddf61ba48231a22f0a3",
   "quality_report": "reports/quality-gate/epic-194-a6-lite-integration/T-001.md",
   "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-001.contract.json",
-  "git_commit": "eedd86faa007deb86c43c9ddd1e83ca9ed772514",
+  "git_commit": "81d18d62f01bf04a77a3d925bba1dc09919aedc8",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -189,7 +189,7 @@
     },
     {
       "path": "reports/quality-gate/epic-194-a6-lite-integration/T-001.md",
-      "sha256": "fdde5c133399480f3c016bb869065ee798b9ab4feaeda0842ed81ce310c74a64"
+      "sha256": "02f6b085a7c0f038082eabf960d17f2ffa72dfd087c7fc9bae36ad9ff73959ab"
     },
     {
       "path": "specs/epic-194-a6-lite-integration/verification/T-001/placeholder-scan-20260828.log",
