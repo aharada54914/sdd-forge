@@ -20,14 +20,29 @@ design.md's own "Resolver publication transactional bundle contract": the
 mandatory crash-recovery scan (step 0.5 -- run by every invocation,
 immediately after argument validation, scoped to this invocation's own
 `--feature`), and the journaled publication transaction (step 14 --
-Prepare/Journal/Commit/Post-publication verification/Complete) that is this
-feature's SOLE live-filesystem write of any kind. Every live write this
-script performs, on a clean resolve and on a Block alike, goes through that
-one transaction (design.md step 14: a successful Full-track run publishes
-three targets, a successful Lite-track run two, and any Block publishes
-"Resolver Evidence alone" -- all via the identical journaled mechanism,
-never a bare per-file `rename()` with no cross-file atomicity and no
-crash-safe rollback).
+Prepare/Journal/Commit/Post-publication verification/Complete).
+
+This script has exactly TWO live-filesystem write routes, and design.md
+requires both to be exactly what they are:
+
+  1. The journaled transaction (step 14). Every MULTI-target publication
+     goes through it -- a successful Full-track run publishes three targets,
+     a successful Lite-track run two -- so that the set lands atomically or
+     not at all, never a bare per-file `rename()` with no cross-file
+     atomicity and no crash-safe rollback.
+
+  2. A direct `temp file + fsync + rename` for the Block case, where
+     Resolver Evidence is the WHOLE write set. design.md:1419 and :2846
+     both require this write to be direct, with no staging area and no
+     journal: a one-file write needs no cross-file atomicity, and opening a
+     second journal against the very Feature whose existing journal this
+     invocation has just declared unconvergeable would be incoherent.
+
+An earlier revision of this docstring said step 14 was the sole write route
+and that a Block published "via the identical journaled mechanism". That was
+never what design.md required, and it is not what this script does; it is
+corrected here rather than left to mislead a reader of a Security-Sensitive
+file whose Standing Note tells reviewers to trust these descriptions.
 """
 
 import argparse

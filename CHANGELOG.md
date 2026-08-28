@@ -275,15 +275,33 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   AC-040 の 2 本目 `snapshot-generation-mismatch`（全 digest 同一で
   `affected_components` 集合差のみ）、および AC-010 が要求する
   完全クリーンな negative fixture `clean-full-track-publication`。
-  新しい TEST-010 完全性チェックは、走行中に実際に観測された
-  diagnostic id 集合を `contracts/resolver-evidence.schema.json` の
-  enum と突き合わせるので、fixture を失った行はここで落ちる。
-  sh/ps1 とも 306 passed / 0 failed（TDD RED は同一ドライバで
-  272 passed / 23 failed、両ランタイム一致）。rollback を bare `unlink`
+  さらにパネル round 2-5 の指摘対応で containment 回帰 fixture を 4 本
+  追加した（`publication-journal-target-escape`,
+  `publication-staging-parent-symlink`,
+  `publication-target-parent-symlink`,
+  `publication-journal-roundtrip-unresolved-repo`）— いずれも既存行の
+  シナリオ追加であり新しい diagnostic-id 行は導入しないので、
+  マトリクスは 16 行のまま。fixture 総数は 10 本。
+  新しい TEST-010 完全性チェックは**カバレッジ検査**であって
+  emitted-output 検査ではない — 突き合わせるのは各 fixture が同一走行中に
+  `expected_id` として登録した集合と `contracts/resolver-evidence.schema.json`
+  の enum であり、resolver が実際にその id を出したかは各ケース自身の
+  canonical-line assertion が個別に主張する。fixture を失った行、
+  実行リストに繋がっていない fixture、閉じた enum に無い id が
+  それぞれここで落ちる。
+  また AC-059（ruling E, 2026-08-28）の TEST-059 を同スイートに追加した —
+  Resolver（`resolve-project-context.{py,sh,ps1}` の 3 本のみ）が
+  `*.approval.json` / `sdd/.approved-context/` / `guard-invariants.json` の
+  いずれの名前も持たないことを走査する deny-list 型 grep 自己検査で、
+  TEST-025 と同じ registration-time の機構なので新規スイートは増えない。
+  sh/ps1 とも 355 passed / 0 failed（TDD RED は同一ドライバで
+  341 passed / 4 failed、両ランタイム一致）。rollback を bare `unlink`
   に戻す・journal 書き込みを飛ばす・post-publication recheck を飛ばす・
-  step 13 を digest 比較のみにする、の 4 mutation で非空虚性を実証済み。
+  step 13 を digest 比較のみにする、および Resolver に承認面パスの
+  言及を 1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、の
+  5 mutation で非空虚性を実証済み。
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
-  `-discovery`（12/0）・`-lite`（18/0）は無編集で回帰なし。
+  `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
   `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` は
   実測 hash に更新（`shasum -a 256 -c` が 4/4 OK, exit 0）。

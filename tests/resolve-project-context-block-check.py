@@ -136,6 +136,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -3579,6 +3580,104 @@ def run_block_matrix_completeness_check(counts):
     )
 
 
+# =============================================================================
+# TEST-059: approval-surface write-scope lock (AC-059, ruling E).
+# =============================================================================
+#
+# A registration-time, CI-gated grep self-check of TEST-025's kind -- not a
+# new suite file, exactly as AC-059 and traceability.md both require. It is
+# the deny-list counterpart to TEST-025's own repository-wide grep, and it
+# locks requirements.md's Security Boundaries bullet 2 and security-spec.md's
+# B6 boundary, neither of which previously carried a write-scope criterion.
+#
+# Scanned set: the Resolver ALONE -- `resolve-project-context.{py,sh,ps1}`.
+# requirements.md's Field Definitions define "Resolver" as exactly this script
+# family and say the term "never refers to a different script anywhere in this
+# package", so `validate-resolver-evidence.*` is deliberately NOT scanned here
+# (it is not the Resolver, and T-008 authors it after T-007, which would make
+# this criterion unverifiable by its own owner at its own gate).
+#
+# Mechanism: absence of the surface's own path vocabulary in the source is a
+# conservative superset of absence of a write to it -- a script that never
+# names `*.approval.json`, `sdd/.approved-context/`, or `guard-invariants.json`
+# cannot write to any of them. This is the identical inference TEST-025 makes
+# from the absence of its forbidden API terms, and it errs toward flagging
+# (a read-only mention would also trip it), never toward missing a write.
+
+APPROVAL_SURFACE_PATTERNS = {
+    "approval sidecar (*.approval.json)": re.compile(r"\bapproval\.json\b"),
+    "approved-context anchor (sdd/.approved-context/)": re.compile(r"\.approved-context\b"),
+    "guard invariants file (guard-invariants.json)": re.compile(r"\bguard-invariants\.json\b"),
+}
+
+# Canaries are inline literals rather than fixture files on purpose: this
+# scan's subject is source TEXT, so a literal exercises the scanner exactly
+# as a file would, and adding two fixture files to prove a grep is awake
+# would enlarge this task's declared output set for no verification gain.
+_APPROVAL_SURFACE_DIRTY_CANARY = """
+    sidecar = target.with_suffix(".approval.json")
+    anchor = repo_root / "sdd" / ".approved-context" / feature
+    invariants = repo_root / "guard-invariants.json"
+"""
+
+# Every line below is a near miss the scan must NOT flag: the bare English
+# words, the plural/possessive forms, and a different sidecar suffix. A scan
+# that fired on these would be over-broad and would block honest prose in the
+# Resolver's own docstrings.
+_APPROVAL_SURFACE_CLEAN_CANARY = """
+    # The Resolver requires human approval before any approved context is
+    # published, and the guard invariants are checked by a separate gate.
+    sidecar = target.with_suffix(".approvals.json")
+    anchor = repo_root / "sdd" / "approved-contexts" / feature
+    invariants = repo_root / "guard-invariants.yaml"
+"""
+
+
+def _scan_approval_surface(text):
+    return [label for label, pattern in APPROVAL_SURFACE_PATTERNS.items() if pattern.search(text)]
+
+
+def run_test_059(counts):
+    targets = [STAGED / f"resolve-project-context.{suffix}" for suffix in ("py", "sh", "ps1")]
+    scanned_any = False
+    for target in targets:
+        exists = target.is_file()
+        counts.check(exists, f"TEST-059: scan target exists: {target.relative_to(ROOT)}")
+        if not exists:
+            continue
+        scanned_any = True
+        hits = _scan_approval_surface(target.read_text(encoding="utf-8", errors="replace"))
+        counts.check(
+            not hits,
+            f"TEST-059: {target.relative_to(ROOT)} never names an approval-surface path, so it writes to "
+            f"none of them (AC-059)",
+            repr(hits),
+        )
+    counts.check(
+        scanned_any,
+        "TEST-059 non-vacuity: at least one scan target was actually found and scanned",
+    )
+    counts.check(
+        len(targets) == 3 and scanned_any,
+        "TEST-059 completeness: the scanned set is the whole Resolver family (py, sh, ps1) and nothing else",
+    )
+
+    dirty_hits = _scan_approval_surface(_APPROVAL_SURFACE_DIRTY_CANARY)
+    counts.check(
+        set(dirty_hits) == set(APPROVAL_SURFACE_PATTERNS),
+        f"TEST-059 non-vacuity canary: the dirty canary is flagged for every one of this scan's own "
+        f"{len(APPROVAL_SURFACE_PATTERNS)} categories",
+        repr(dirty_hits),
+    )
+    clean_hits = _scan_approval_surface(_APPROVAL_SURFACE_CLEAN_CANARY)
+    counts.check(
+        not clean_hits,
+        "TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) "
+        "is not flagged",
+        repr(clean_hits),
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--launcher", choices=("sh", "ps1"), required=True)
@@ -3648,6 +3747,8 @@ def main():
         # Must run LAST: it consumes the diagnostic ids every case above
         # recorded while it ran.
         run_block_matrix_completeness_check(counts)
+
+    run_test_059(counts)
 
     sh_registered = "tests/resolve-project-context-block.tests.sh" in (ROOT / "tests/run-all.sh").read_text(encoding="utf-8")
     ps_registered = "tests/resolve-project-context-block.tests.ps1" in (ROOT / "tests/run-all.ps1").read_text(encoding="utf-8")
