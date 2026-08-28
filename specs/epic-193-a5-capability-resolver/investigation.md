@@ -2261,3 +2261,130 @@ so rounds 2 and 3 remain available as the buffer the audit would otherwise
 have provided, and the audit can be re-run before any terminal round if
 attempt 9 raises findings. The rule this package has been operating under —
 run the cross-model audit *before* a terminal round — is unchanged.
+
+### The round-3 bridge file was built on the wrong schema, and what that cost
+
+Recorded because it changed which reviewer output is the round's evidence.
+
+`integrated-summary.json` and `integrated-verdict.json` were generated from
+the review-loop SKILL document's schemas rather than from
+`spec-review-precheck.sh`'s, and the script is the authority. It rejected the
+sealed round with `previous terminal contract is invalid`. Three divergences,
+each enforced by exact-key equality: the summary requires
+`reviewer_a_checks`, an array of `{id, result, severity}`, where a list of
+bare check ids had been written; the verdict requires schema
+`spec-review-integrated-verdict/v1` with a `finding_counts` object and the
+four reviewer run/session ids inline; and the contract is validated against
+the **live** summary hash rather than a pinned one.
+
+That last point is why this could not be closed as paperwork. Correcting the
+summary changes its digest, and re-pinning that digest into the sealed
+contract and into `reviewer-b.json` would have made the evidence assert that
+reviewer B had read bytes it never read. The summary is B's only bridge to A,
+and the difference is not cosmetic: the canonical file states that
+`SCOPE-BOUNDARY` FAILed at Major, and the file B actually received did not.
+
+So the round was reconstructed rather than relabelled. `requirements.md` and
+`investigation.md` were restored to their exact round-3 bytes — verified
+against the digests already recorded in B's own manifest,
+`515466ed…` and `dd82e666…` — the canonical summary was written, and
+reviewer B was re-invoked against it under a fresh reserved identity, seq
+839. Reviewer A never reads the summary, so its seq-837 output stands
+untouched.
+
+B reached a different verdict on the second invocation: `NEEDS_WORK` with one
+`APPROVAL-BOUNDARY` Major, where seq 838 had returned a finding-free `PASS`
+on byte-identical specification inputs. Two independent instances of the same
+role, same bytes, opposite verdicts — the fresh-instance calibration variance
+the framework acknowledges elsewhere with its TYPE-H convergence rule, which
+the spec stage does not have. The finding was verified independently before
+being acted on, and it is real.
+
+Round 3 therefore closes **BLOCKED** on Critical 0, Major 2: reviewer A's
+`SCOPE-BOUNDARY` (repaired in `68ee28ae`) and reviewer B's
+`APPROVAL-BOUNDARY` (repaired under ruling E, below).
+
+### Ruling E — the approval surface the specification only ever asserted
+
+`requirements.md`'s Security Boundaries bullet 2 states that the Resolver
+"never writes to any `*.approval.json` sidecar, any `sdd/.approved-context/`
+anchor, or `guard-invariants.json` itself", and `security-spec.md` carries
+the same statement as boundary **B6**. Nothing checked it.
+`acceptance-tests.md` contained zero occurrences of any of the three
+strings, and no acceptance criterion constrained the Resolver's write set in
+either direction — neither as a deny-list nor as an allow-list.
+
+What makes this a defect rather than a scope choice is the asymmetry with
+its own neighbour: the adjacent Security Boundaries bullet — no clock, no
+network, no Provider API — **is** locked, by AC-025/TEST-025, running a
+repository-wide grep over exactly the same script set. One boundary got a
+lock and the one beside it did not.
+
+`git log -S` dates the bullet to `10f32fe2`, this package's original
+2026-07-22 revision. So this is not amendment-propagation drift like rulings
+C(1)/C(2) and D(2), and no existing ruling covered closing it — which is why
+it was escalated rather than repaired under a standing authorisation.
+
+**Question put to the owner, verbatim:**
+
+> requirements.md の Security Boundaries は「Resolver は *.approval.json /
+> sdd/.approved-context/ / guard-invariants.json に一切書かない」と宣言して
+> いますが、これを固定する AC/TEST が 1 行も存在しません（隣の
+> no-clock/no-network/no-provider-API は AC-025/TEST-025 でリポジトリ全体
+> grep により固定済み）。初版からの欠落で、既存 ruling では閉じられません。
+> どう処理しますか。
+
+**Ruling, verbatim (2026-08-28):**
+
+> B: T-007 に新 AC-059 を割当（推奨）
+
+AC-059/TEST-059 are therefore added and assigned to **T-007**. T-007 is the
+correct owner on two independent grounds: it authors the only code path in
+this feature that ever writes a live artifact, and it is still
+`Implementation Complete` rather than `Done`, so the criterion lands *before*
+its own quality gate rather than as a verification backfill onto a completed
+task — which is what assigning it to AC-025's own owner, T-009, would have
+required.
+
+TEST-059 is deliberately constructed as AC-025's twin: a registration-time
+and CI-gated grep self-check, **not** a `tests/*.tests.sh` file. The
+ten-suite Test Strategy and the nine suites `tasks.md` schedules are both
+unchanged, and T-007 registers nothing new — so the suite topology that three
+earlier rounds fought over does not move.
+
+Propagated to every site that states the fact, after a whitespace-normalised
+sweep: `requirements.md`'s AC table; `acceptance-tests.md`'s TEST table and
+its preamble inventory; `traceability.md`'s Acceptance Mapping, T-007 task
+row, Security layer coverage and REQ-001 test list; `security-spec.md`'s B6
+boundary row, B6 STRIDE row and fixture inventory; `tasks.md`'s T-007 Must
+Read and Done When; and `design.md`'s Security Boundaries list.
+
+Two scope notes, both deliberate. `design.md` was **not** in the blast radius
+described when escalating, and was amended anyway: omitting it would have
+recreated the very asymmetry being fixed, one bullet further down, in the
+document impl-review reads. `infra-spec.md` was **not** amended, and that is
+the consistent choice rather than an omission — its CI inventory lists suite
+files, AC-025/TEST-025 do not appear there either, and a grep self-check is
+not a suite.
+
+Counts after this amendment: **59 AC rows, 56 TEST rows, 59 traceability
+mapping rows**, superseding the 58/55 figures recorded in the earlier
+sections above. The difference of three remains exactly the documented
+AC-035/036/037 Global exception, so the 1:1 mapping the acceptance-tests
+preamble declares still holds in both directions.
+
+Commit `4854a1bc`, six documents.
+
+### Per-document SHA-256 at remediation commit 4854a1bc
+
+- `requirements.md`: `7c5ac0f92ce4286b72f240330aaf5fcc62d52f641062a444921239b9e151e040`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `0e3b90f923913cb058b4e28961040f1648a749c739b27145fea7854e5061b429`
+- `design.md`: `cd542e9475c3f4c756784ee5e3e72a6727695ccb98ba11d6bd8586b286de2ae8`
+  (at `Impl-Review-Status: Passed`)
+- `security-spec.md`: `bb6a4836ab236ee4b6bf144ae3625d176edd1b3ed3bb4c80a6e865dc5a888298`
+- `tasks.md`: `b4923f05d960102fb2dafa6e77a510dfbe96fd4ee81b01435c31dc3f3c048a20`
+  (at `Task-Review-Status: Passed`)
+- `traceability.md`: `0463f93ef01be1ceb04b27f1ccba6040e8638fa8da3c0db874cd49835006b528`
+- `infra-spec.md` and `frontend-spec.md` are unchanged by this commit and
+  keep the digests recorded for `4c80eb35` and `071c42fa` above.
