@@ -1,20 +1,33 @@
 # check-risk-upgrade-byte-identical.tests.ps1 (epic-194-a6-lite-integration,
 # T-002, design.md Test Strategy item 4, TEST-007/AC-007). PowerShell twin of
 # check-risk-upgrade-byte-identical.tests.sh -- see that file's header for
-# the canonical staged human-copy SUT-path note.
+# the BASELINE PINNING note (2026-08-28, quality-gate cycle 2): after the
+# human apply (80694f62) the live and staged paths named the same blob, so
+# the comparison target is now the FROZEN pre-extension baseline fixture,
+# blob 6a7366ba (the live ps1 at 80694f62^), sha256
+# d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38.
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $Live = Join-Path $RepoRoot 'plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
-$Sut = Join-Path $RepoRoot 'specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.ps1'
+$Baseline = Join-Path $RepoRoot 'tests/fixtures/epic-194-risk-upgrade-baseline/check-risk-upgrade-baseline.ps1'
 $PowerShell = (Get-Process -Id $PID).Path
 
 $Script:Pass = 0
 $Script:Fail = 0
 function Ok([string]$m) { Write-Host "ok: $m"; $Script:Pass++ }
 function Bad([string]$m) { Write-Host "FAIL: $m"; $Script:Fail++ }
+
+# Fail closed with a visible FAIL (not an opaque throw) if the frozen
+# baseline fixture is missing; the tally and exit 1 still reach run-all.
+if (-not (Test-Path -LiteralPath $Baseline -PathType Leaf)) {
+    Bad "TEST-007-baseline-present: frozen baseline fixture missing at $Baseline"
+    Write-Host ''
+    Write-Host "Results: $Script:Pass passed, $Script:Fail failed"
+    exit 1
+}
 
 $Work = Join-Path ([IO.Path]::GetTempPath()) ('sdd-a6-t002-bi-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $Work -Force | Out-Null
@@ -27,9 +40,9 @@ function Invoke-Script([string]$ScriptPath, [string]$InputPath) {
 
 function Assert-Identical([string]$Label, [string]$Fixture) {
     $liveResult = Invoke-Script $Live $Fixture
-    $sutResult = Invoke-Script $Sut $Fixture
-    if ($liveResult.ExitCode -eq $sutResult.ExitCode) { Ok "$Label`: exit code identical ($($liveResult.ExitCode))" } else { Bad "$Label`: exit code differs (live=$($liveResult.ExitCode), sut=$($sutResult.ExitCode))" }
-    if ($liveResult.Output -eq $sutResult.Output) { Ok "$Label`: stdout byte-identical" } else { Bad "$Label`: stdout differs. live=[$($liveResult.Output)] sut=[$($sutResult.Output)]" }
+    $baseResult = Invoke-Script $Baseline $Fixture
+    if ($liveResult.ExitCode -eq $baseResult.ExitCode) { Ok "$Label`: exit code identical ($($liveResult.ExitCode))" } else { Bad "$Label`: exit code differs (live=$($liveResult.ExitCode), baseline=$($baseResult.ExitCode))" }
+    if ($liveResult.Output -eq $baseResult.Output) { Ok "$Label`: stdout byte-identical" } else { Bad "$Label`: stdout differs. live=[$($liveResult.Output)] baseline=[$($baseResult.Output)]" }
 }
 
 try {

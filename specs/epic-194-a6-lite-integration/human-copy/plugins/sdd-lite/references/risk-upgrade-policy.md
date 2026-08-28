@@ -18,11 +18,17 @@ integration T-002, REQ-002).
   input prints `risk-upgrade: input unavailable` and exits 2.
 - When the second argument is supplied and the named fragment is
   unreadable, not valid JSON, missing its `capabilities` key, has a
-  non-array `capabilities` value, or has any entry missing `id` or
-  `eligible`, the script prints `risk-upgrade: capability-reasons fragment
-  invalid` and exits 2 -- distinct from the primary-source-unavailable
-  diagnostic above, and never silently degraded to "no Capability-derived
-  trigger."
+  non-array `capabilities` value, has any entry missing `id` or
+  `eligible`, has any entry whose `upgrade_reasons` is present, truthy
+  and not an array, or has any `upgrade_reasons` element that is not a
+  non-empty string matching `[a-z0-9][a-z0-9_-]*`, the script prints
+  `risk-upgrade: capability-reasons fragment invalid` and exits 2 --
+  distinct from the primary-source-unavailable diagnostic above, and
+  never silently degraded to "no Capability-derived trigger." The two
+  `upgrade_reasons` conditions apply to EVERY entry regardless of its
+  `eligible` value (design.md Processing step 2b as amended 2026-08-28,
+  RT-20260828-001); a present-but-falsy `upgrade_reasons` value (`false`,
+  `0`, `""`, `[]`, `null`) is treated as absent on both runtimes.
 
 Only ASCII `A` through `Z` are normalized to lowercase. CRLF and CR normalize
 to LF; each run of ASCII space, tab, or LF normalizes to one ASCII space.
@@ -70,11 +76,14 @@ Every entry with `eligible: false` contributes, in fragment array order:
 its own `upgrade_reasons` tokens if the array is non-empty, or else a
 single synthetic token `ineligible:<id>` -- an entry with `eligible: false`
 and no named reason still produces a non-empty trigger, never silently
-nothing. An entry with `eligible: true` contributes nothing. Each token
+nothing. An entry with `eligible: true` contributes nothing -- but its
+`upgrade_reasons`, like every entry's, is still shape/grammar-validated
+before eligibility is consulted (amended step 2b, above). Each token
 inside `upgrade_reasons` is already validated upstream (by whatever
-produced the fragment) against the lite-upgrade-reason-catalog; this script
-does not re-validate the token values themselves, only the fragment's own
-shape and readability.
+produced the fragment) against the lite-upgrade-reason-catalog; what this
+script does not re-validate is catalog MEMBERSHIP alone -- the fragment's
+shape, its readability, and each element's reason-token grammar are
+validated eagerly here.
 
 ## Merge order
 

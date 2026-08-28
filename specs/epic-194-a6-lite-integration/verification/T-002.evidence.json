@@ -1,0 +1,215 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "3500fe3b5230354a743fe45f52c117716eaeddcbbc35bddf61ba48231a22f0a3",
+  "quality_report": "reports/quality-gate/epic-194-a6-lite-integration/T-002.md",
+  "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-002.contract.json",
+  "git_commit": "8d0d028162b5bc075d49f6a39c999554fbffd376",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/fragment-fail-closed-green-20260828.log",
+      "evidence_sha256": "4735cb4d8a49db1d67f23807fc4a3f2dada3fd9cf4606c55b844b0df05aa4835"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/T-002/fragment-fail-closed-green-20260828.log",
+      "evidence_sha256": "4735cb4d8a49db1d67f23807fc4a3f2dada3fd9cf4606c55b844b0df05aa4835"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/T-002/regression-20260828-excerpt.log",
+      "evidence_sha256": "7e5d4b007517fd3156378354427eafeff7977e2c1f7c55fc894ce9d83b6818aa"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/T-002/placeholder-scan-20260828.log",
+      "evidence_sha256": "1a8805681a5cb0041906dbd0dadbb4f26aea414b6999bbafa5c4d79ac4bbf94d"
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
+      "evidence_sha256": "7b45893c1e448eed785b65e50efdf8ef44c9c0c40daef7902f1e8f89ed41f8bd"
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": null,
+      "evidence_sha256": null
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "command": null,
+      "exit_code": null,
+      "started_at": null,
+      "finished_at": null,
+      "evidence": "specs/epic-194-a6-lite-integration/verification/qg/shared/traceability-check.log",
+      "evidence_sha256": "763c6b926d3cce20edf4cb261c9c5524650ff35884452d019ae367dbd958e6a9"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-002.contract.json",
+      "sha256": "45bdda02f1d04903d3b9100d0f4e8a9b94ace1dcec9d76313f94dc45d5c7bc82"
+    },
+    {
+      "path": "reports/quality-gate/epic-194-a6-lite-integration/T-002.md",
+      "sha256": "c7ee4b66c105e363826d63d754d2f3cfb1972ce60377b6d2ed9884446147da26"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-002/placeholder-scan-20260828.log",
+      "sha256": "1a8805681a5cb0041906dbd0dadbb4f26aea414b6999bbafa5c4d79ac4bbf94d"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-002/regression-20260828-excerpt.log",
+      "sha256": "7e5d4b007517fd3156378354427eafeff7977e2c1f7c55fc894ce9d83b6818aa"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-002/fragment-fail-closed-green-20260828.log",
+      "sha256": "4735cb4d8a49db1d67f23807fc4a3f2dada3fd9cf4606c55b844b0df05aa4835"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/task-state-check.log",
+      "sha256": "7b45893c1e448eed785b65e50efdf8ef44c9c0c40daef7902f1e8f89ed41f8bd"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/shared/traceability-check.log",
+      "sha256": "763c6b926d3cce20edf4cb261c9c5524650ff35884452d019ae367dbd958e6a9"
+    }
+  ]
+}
