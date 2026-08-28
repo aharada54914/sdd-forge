@@ -21,7 +21,7 @@ flowchart LR
   Scripts -->|"stage in memory (steps 3/10/11) -> schema-validate (step 12) -> transactional commit (step 14)"| STAGING["specs/<feature>/.resolver-staging/<batch-nonce>/ (transient journal + PRE-image, NOT git-tracked)"]
   STAGING -->|"Commit phase: temp+fsync+rename per target, journal order"| LIVE["specs/<feature>/{facet-manifest.yaml,capability-summary.yaml,resolver-evidence.yaml} + generated/project-context.resolved.json"]
   CI["GitHub Actions (test.yml)"] --> RunAll["tests/run-all.sh/.ps1 (unprotected, direct-registered)"]
-  RunAll --> Suites["10 tests/*.tests.sh/.ps1 pairs + tests/fixtures/capability-resolver/"]
+  RunAll --> Suites["9 scheduled tests/*.tests.sh/.ps1 pairs (10th deferred) + tests/fixtures/capability-resolver/"]
   CI -->|"vendored-copy --check (reused Epic A2/A4 mode, +1 filename)"| DRIFT["contracts/resolver-evidence.schema.json sha256 == vendored copy sha256"]
 ```
 
@@ -51,7 +51,7 @@ sequenceDiagram
   D->>CI: Push / PR (schema file, scripts, fixtures, or vendored-copy change)
   CI->>CI: resolve-project-context-cli.tests.sh/.ps1 (AC-001 required-flag matrix)
   CI->>CI: resolve-project-context-discovery.tests.sh/.ps1 (AC-002, AC-028 installed-layout discovery, 3 fixtures)
-  CI->>CI: resolve-project-context-block.tests.sh/.ps1 (AC-010..AC-014, AC-038..AC-041, AC-047..AC-049, AC-055: 16-value diagnostic-id matrix + transactional/TOCTOU/recovery fixtures)
+  CI->>CI: resolve-project-context-block.tests.sh/.ps1 (AC-010..AC-014, AC-038..AC-041, AC-047..AC-049, AC-055, AC-057, AC-058: 16-value diagnostic-id matrix + transactional/TOCTOU/recovery fixtures + the two rulings-C sub-trigger fixtures — AC-057/AC-058 added here 2026-08-27, human-approved, ruling D(2), completing that ruling's propagation into this CI inventory)
   CI->>CI: resolve-project-context-match.tests.sh/.ps1 (AC-006..AC-008, AC-016, AC-043, AC-052, AC-056: match/aggregation/facet-name fixtures)
   CI->>CI: resolve-project-context-lite.tests.sh/.ps1 (AC-009 track-exclusive Lite path)
   CI->>CI: resolve-project-context-parity.tests.sh/.ps1 (AC-022, AC-023 dual-runtime + determinism)
