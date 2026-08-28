@@ -1990,3 +1990,77 @@ BEFORE a gate attempt is what converts serial discovery into one batch.
 - `infra-spec.md`: `1c0b9ca6e91548d5c2b1101f103adc4926b84b3bfbf0b0ce3103048800bca811`
 - `traceability.md`: `55608d6547c6f999ea9f882a90e514255fcba3ee780c5e5ff01704e351765d17`
 - `tasks.md`: `79c8cd67d140ac860e638171f81d00ff569b44d1db54f60e06831b4431de01c0`
+
+### Attempt-8 round-2 remediation — the ten-versus-nine family, swept
+
+**Round 2.** Reviewer A 5 PASS / 1 FAIL (Critical) / 1 SKIP; reviewer B
+4 PASS / 2 FAIL (1 Critical, 1 Major) / 1 SKIP. Merged: Critical 2,
+Major 1. The two Criticals are the same finding, reached independently.
+A second Codex audit ran concurrently against the same bytes, told
+explicitly that the dominant risk was now one-site fixes rather than
+surviving defects; it returned five findings, **four of them drift from
+the previous remediation's own repairs**.
+
+**The Critical was a one-site fix of mine.** The first audit's AC-026
+narrowing — from "all ten suites registered" to the nine `tasks.md`
+schedules — landed in `TEST-026` alone. Its siblings still said ten: the
+`acceptance-tests.md` preamble, REQ-006's at-minimum list, AC-027's
+fixture matrix, `design.md`'s Infrastructure row, `infra-spec.md`'s CI
+sequence, observability signal and rollback trigger, and
+`frontend-spec.md`'s Testing section.
+
+**The consequence neither audit saw, which reviewer A found.** `AC-042`,
+`AC-046` and `AC-053` name the deferred suite as their **sole** Test
+Target, so deferring it strands the whole of REQ-007's automated surface
+— including the anchor-fingerprint drift check that is the only guard on
+OQ-003's resolved insertion point, and which the Risks section cites as
+its own mitigation.
+
+**Reviewer B's Major.** `AC-009` demanded the Lite result "across each of
+the three non-Blocking states" while its own `TEST-009` supplies fixtures
+for two and states the third is unreachable under Epic A2's frozen
+`lite_policy` schema — and forbids the only construction that could
+produce it.
+
+**What the remediation did.** Commit
+`23be163094b5578e341b3c13430769a1e2bd9ba8`, documents only, eight files.
+The package's position is now stated identically everywhere: **ten suites
+specified at contract level, nine scheduled/authored/registered by this
+package, the tenth deferred.** `AC-027` is scoped to the nine;
+`AC-042`/`AC-046`/`AC-053` and their TEST- mirrors each carry an explicit
+deferral note; the Risks anchor-drift mitigation is restated honestly, as
+the recorded sha256/ordinal pair this package ships plus a specified
+obligation rather than a running guard. `AC-009` receives the same
+untestable-branch scoping `AC-016` and `AC-026` already use, with the
+discharge assigned to the Epic A2 revision Dependencies already owns. The
+second audit's four drift findings are closed — the "identical code path"
+assertion whose range "3 and 7-11" still contained the step-10b exception
+just carved out of it; "the sole Edge Case" still naming one
+transaction-phase Block after the definition was widened to two; the
+5+5+3+3 partition not propagated to T-007's other ownership cells; and
+T-008's Governance Done When forbidding "no path under `plugins/**`"
+while T-008's own Scope creates the `validate-resolver-evidence` family,
+now narrowed in every task and in `traceability.md` to "no EXISTING
+plugin file" with `AC-032`'s registration-commit scope stated.
+
+**Method note, and it is the reusable part.** After editing, a
+whitespace-normalised sweep found **five more variants** that the
+same-string replacements had missed, because the line wrapping differed.
+That post-edit sweep is now part of the loop rather than an afterthought.
+The pattern this stretch established: run the cross-model audit BEFORE a
+gate attempt, apply its findings, then sweep with normalisation, then
+gate. Serial discovery through the gate alone cost six rounds; the audit
+plus sweep closes in one.
+
+### Per-document SHA-256 at remediation commit 23be1630
+
+- `requirements.md`: `5ca5d758e6709e171e709507e2fa97b6adee406c725a562967d9926580f54dff`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `fce2aa09b2999174dba37536c08d41b450183cb9b11acc52459f423fd8658618`
+- `design.md`: `98feecb166dc1a27a241e62c9c38117420f4a51dd82ce79f9fef879c2b0fc458`
+- `security-spec.md`: `4b63a57503d4e34725b7faaf2f1e87d8cec0df74fec04cabb675d01fcbe3e9aa`
+  (unchanged by this commit)
+- `infra-spec.md`: `0fc91789cdacb7da30b83147e3de58a59cfaa3508a2ce86e01b5ca009490aa35`
+- `frontend-spec.md`: `d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126`
+- `traceability.md`: `2c322b219eadfcd6ff536cc2b754bfb0ef7c479a0c378f0024ce77107f38d5fc`
+- `tasks.md`: `134af5107aa3dd27edb601e377e1aae14d9603c6733efde7a682df1d94573f2b`
