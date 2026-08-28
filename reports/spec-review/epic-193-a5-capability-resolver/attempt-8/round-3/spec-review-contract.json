@@ -36,8 +36,8 @@
     },
     {
       "role": "spec-reviewer-b",
-      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a8r3-seq0838",
-      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a8r3-0838",
+      "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a8r3-seq0839",
+      "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a8r3-0839",
       "allowed_input_manifest": [
         {
           "path": "specs/epic-193-a5-capability-resolver/requirements.md",
@@ -61,7 +61,7 @@
         },
         {
           "path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-8/round-3/integrated-summary.json",
-          "sha256": "5ac6148a201975ef18420b0903a42773ca5f80a6ca0f192c8a245a2ae23b7506"
+          "sha256": "3ac64b42d9c86ff7d0a73470cf098085be780c24a1f06cb71bfca1742040ee06"
         }
       ]
     }

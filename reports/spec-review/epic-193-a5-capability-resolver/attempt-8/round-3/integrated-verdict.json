@@ -1,14 +1,18 @@
 {
-  "schema": "integrated-verdict/v1",
-  "stage": "spec",
-  "feature": "epic-193-a5-capability-resolver",
-  "run_id": "spec-orch-epic-193-a5-capability-resolver-a8r3",
-  "verdict": "BLOCKED",
-  "round": 3,
   "attempt": 8,
-  "findings_critical": 0,
-  "findings_major": 1,
-  "findings_minor": 0,
-  "reviewer_a_verdict": "NEEDS_WORK",
-  "reviewer_b_verdict": "PASS"
+  "feature": "epic-193-a5-capability-resolver",
+  "finding_counts": {
+    "critical": 0,
+    "major": 2,
+    "minor": 0
+  },
+  "reviewer_a_host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-a-a8r3-0837",
+  "reviewer_a_run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-a-a8r3-seq0837",
+  "reviewer_b_host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a8r3-0839",
+  "reviewer_b_run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a8r3-seq0839",
+  "round": 3,
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "verdict": "BLOCKED",
+  "warningCount": 0
 }
