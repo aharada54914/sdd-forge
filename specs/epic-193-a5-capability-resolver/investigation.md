@@ -2115,3 +2115,42 @@ sixteen-row enum intact, per-row pipe counts correct).
 - `infra-spec.md`: `6840368c053d94bc4704ae3acb0f521cac647998e90238ba02adf2e03a65d51e`
 - `traceability.md`: `420b4b924417688087f65965c35f862a18a0893b93dccbe3edda282e1e648cf2`
 - `tasks.md`: `42e91e393365c9ae2692a5dc61a625b64b2cca4a34ecc79c5370a3c9178bb29e`
+
+### Fourth cross-model audit — the security trust-boundary block
+
+Three findings, all Critical, all sibling drift, and all clustered in one
+place the previous passes had edited *around* without sweeping:
+`security-spec.md`'s B2/B3 trust-boundary statements. Across four audits
+the trend is **10 → 5 → 4 → 3**.
+
+- **B2** said "every commit is one journaled, multi-target transaction",
+  which requires the Evidence-only Block to journal — precisely what the
+  unrecoverable-journal branch cannot do, since its premise is that the
+  existing journal is unconvergeable. Scoped to commits that publish a
+  track's output set, with the direct single-file route named.
+- **B3**, and T-007's Goal, said rollback covers "every/any
+  already-completed rename", which includes `resolver-evidence.yaml` —
+  the one target that must survive. Scoped to publication-artifact
+  renames in both, and in the `requirements.md` REQ-002
+  `artifact-publication-failed` row that the post-edit normalised sweep
+  then found still carrying the same unqualified wording.
+- The **recovery trust boundary** listed three convergence outcomes as if
+  exhaustive, leaving no room for the fourth, deliberately non-converging
+  fail-closed outcome the package defines. Qualified with "when safely
+  convergeable", and the fourth outcome stated.
+
+This is the third consecutive pass in which the audit and the sweep each
+caught something the other missed, which is now the strongest practical
+argument for running both rather than either.
+
+Commit `0647dad2`, documents only, three files.
+
+### Per-document SHA-256 at remediation commit 0647dad2
+
+- `requirements.md`: `515466ed5a61906dd640ccc4447c8b5ad3ef141bc439db45093d8f31c840aed7`
+  (at `Spec-Review-Status: Pending`)
+- `security-spec.md`: `3e3aecf7300eef9b0b81b7cba57b012a41653eb08138895d3a9171708a487d96`
+- `tasks.md`: `c2026040f0b4207c7dfac96924ef9410508f1dad6efa969fe7b028ee4427e85c`
+- `acceptance-tests.md`, `design.md`, `infra-spec.md`, `frontend-spec.md`
+  and `traceability.md` are unchanged by this commit and keep the digests
+  recorded for `071c42fa` and `23be1630` above.
