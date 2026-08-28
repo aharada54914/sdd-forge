@@ -1825,7 +1825,10 @@ bare `unlink`.
 - `specs/epic-193-a5-capability-resolver/acceptance-tests.md` (AC-010
   [remaining three rows plus one additional shared-row fixture], AC-011 [share], AC-012 [share], AC-014 [share],
   AC-038 [share], AC-039, AC-040 [second fixture, share], AC-047,
-  AC-049)
+  AC-049, AC-059 [approval-surface write-scope grep self-check, NEW
+  2026-08-28, human-approved, ruling E — a registration-time and
+  CI-gated grep of AC-025's kind, not a suite file, so this task still
+  registers nothing of its own])
 - `specs/epic-193-a5-capability-resolver/infra-spec.md`
   (`#journal-recovery`, `#rollback`)
 - Epic A1's own already-fixed multi-target transactional bundle contract
@@ -1904,6 +1907,17 @@ Commit B (documentation):
   halves required of the one fixture (AC-012; scoped 2026-08-27,
   human-approved, ruling D(2)); the rollback is journal-based,
   never a bare `unlink` (AC-049).
+- A repository-wide grep-based self-check, run at registration time and
+  gated in CI — the identical mechanism and cadence as AC-025's own, and
+  therefore **not** a new suite file and not a new registration — confirms
+  that no Resolver-owned script under `plugins/sdd-quality-loop/scripts/
+  resolve-project-context.*` or `validate-resolver-evidence.*` performs
+  any write of any kind to a `*.approval.json` sidecar, to any path under
+  `sdd/.approved-context/`, or to `guard-invariants.json` (AC-059, NEW
+  2026-08-28, human-approved, ruling E). This task owns the criterion
+  because it authors the only live-artifact write path in the feature; the
+  check is a negative assertion over that path's own source, so it adds a
+  test obligation rather than an implementation one.
 - [ ] **`affected_components`-only `snapshot-generation-mismatch`
   fixture** — TEST-040's own
   companion fixture passes: every digest, including `ownership_digest`,

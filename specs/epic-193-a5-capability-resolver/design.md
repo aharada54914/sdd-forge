@@ -2761,6 +2761,25 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   of scope** for this check: its purity is ADR-0020 item 6's own
   already-fixed guarantee, owned by Epic A2, and this feature neither
   re-verifies nor re-states it (requirements.md AC-025's own carve-out).
+- **The approval-surface non-participation guarantee is checkable too,
+  by the same means (AC-059, NEW 2026-08-28, human-approved, ruling E).**
+  `requirements.md`'s Security Boundaries bullet 2, and the `B6`
+  boundary in `security-spec.md`, both state that the Resolver never
+  writes to any `*.approval.json` sidecar, any `sdd/.approved-context/`
+  anchor, or `guard-invariants.json` itself. Until AC-059 that guarantee
+  was asserted and never locked: `B6`'s Acceptance Criteria column named
+  only AC-015 and AC-032, which lock premature subprocess invocation and
+  the `git diff` path scope respectively, and neither constrains a write
+  set in either direction. AC-059 is the deny-list counterpart to
+  AC-025's grep, over the identical script set and at the identical
+  cadence (registration-time and CI-gated), so it introduces no suite
+  file and leaves this document's own ten-item Test Strategy — and the
+  nine items `tasks.md` schedules — unchanged. The gap dates from this
+  package's original 2026-07-22 revision rather than from any later
+  amendment; it was found by spec review at attempt 8 round 3
+  (`APPROVAL-BOUNDARY`), which is also why it is stated here rather than
+  only in the requirements: an implementation reviewer reading this list
+  would otherwise see one boundary locked and its neighbour not.
 - **Ruling C(2)'s absent-component fail-closed rule is itself a security
   boundary (AC-058).** A dependency-returned `affected_components[]`
   entry naming a component id absent from this invocation's own Context

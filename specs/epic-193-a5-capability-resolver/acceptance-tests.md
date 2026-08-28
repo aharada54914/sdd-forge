@@ -31,7 +31,7 @@ this revision's own B1/B6/B7/B8 fixes add new *fixtures* to existing
 suites 2/3/8/10 rather than new suite files, keeping the suite count at
 ten; `Spec-Review-Status`/`Impl-Review-Status` must both reach `Passed`
 first, per `AGENTS.md`'s Required Workflow). `Status` below is `Planned`
-for every row unless noted otherwise. **AC-038 through AC-058 are new
+for every row unless noted otherwise. **AC-038 through AC-059 are new
 rows this revision adds** (AC-038 through AC-046 from an earlier
 revision; AC-047 through AC-054, NEW this revision, closing B1/B6/B7/B8/
 M6; AC-055 and AC-056, NEW this spec-review round-1 remedy, closing an
@@ -42,7 +42,17 @@ AC-057 and AC-058, NEW under rulings C(1)/C(2), human-approved
 never to `requirements.md`'s own Acceptance Criteria table, which its own
 REQ-002 rows nevertheless cite; the missing rows are added there
 2026-08-27, completing the same ruling's propagation, so the 1:1 mapping
-this preamble declares holds again in both directions),
+this preamble declares holds again in both directions; and AC-059, NEW
+2026-08-28 under ruling E, closing an attempt-8 round-3
+`APPROVAL-BOUNDARY` finding — `requirements.md`'s Security Boundaries
+bullet 2 and `security-spec.md`'s **B6** boundary both state that the
+Resolver never writes to a `*.approval.json` sidecar, an
+`sdd/.approved-context/` anchor, or `guard-invariants.json`, and until
+that row no acceptance criterion in this package locked the Resolver's
+write set in either direction; the gap dates from the original
+2026-07-22 revision, not from any amendment, and its TEST-059 is a
+grep self-check of exactly TEST-025's kind, so the suite count stated
+above is unaffected),
 appended after AC-034's own row rather than renumbered into their
 own REQ's own row block, specifically to leave AC-035/036/037 (Global,
 requirements.md — never their own table rows in this file, see below)
@@ -107,6 +117,7 @@ earlier REQ it actually belongs to.
 | AC-056 | REQ-004 | TEST-056 | `diagnostics[]` warn/block cardinality lock | `tests/resolve-project-context-match.tests.sh`/`.ps1`: reusing one of REQ-006 item (d)'s own any-branch-WARN fixtures (spec-review round-1 remedy, closing an AMBIGUITY finding on this array's own severity cardinality), asserts `diagnostics[]` carries exactly one `severity: "warn"` entry per individual `outcome: "warn"` DSL-evaluation node the fixture's own input produces (each with a distinct `detail` naming that node's own `capability_id`/`component_id`/`declaration_index` location) plus exactly one additional `severity: "block"` entry sharing the identical `dsl-warn-on-matched-capability` id (whose own `detail` is the fixed summary sentence, distinct from every `severity: "warn"` entry's own `detail`); a companion multi-node fixture (two or more `outcome: "warn"` nodes in one invocation) confirms the entry count scales 1:1 with node count plus exactly one summary entry, never fewer, never a second summary entry, and that no `(id, detail)` pair repeats (AC-024). Exception (amended 2026-08-24, human-approved, mirroring REQ-004's amended sentence): `severity: "warn"` entries already collected before an evaluation abort — a REQ-002 Block raised from within this invocation's own single steps (f)–(g) evaluation sweep before step (h), the identical sweep that produced the warns ("jointly caused") — lawfully appear alongside that abort's own **different-id** `severity: "block"` summary entry with no same-id summary entry; an abort-exception fixture (`tests/resolve-project-context-block.tests.sh`/`.ps1`, `evaluate-predicate-failure-after-warn`: one `cap-warn-first` warn node collected in (f), then the next trigger evaluation's own dependency failure aborts the same sweep with `dependency-subprocess-failed`) asserts the forwarded warn entry appears alongside that different-id `severity: "block"` summary entry, with no same-id summary entry and no `(id, detail)` repeat | Planned |
 | AC-057 | REQ-002 | TEST-057 | step-(e)-recheck site lock (ruling C(1), human-approved 2026-08-26) | `tests/resolve-project-context-block.tests.sh`/`.ps1`: a dedicated fixture (`registry-swapped-during-validation`) whose `generate-registry-digest` stub overwrites the discovered Registry file in place as a side effect of step (e)'s own digest invocation, isolating REQ-002's amended second `snapshot-generation-mismatch` trigger site (detection-only, mid-pipeline, Registry bytes alone, immediately after step (e)'s two dependency invocations) from the row's pre-existing pre-publication-recheck trigger (AC-040/AC-048's own steps (l)/(m) window): asserts exit 1, the canonical detail sentence naming the discovery-read-to-recheck window, an empty `capability_evaluations` array — read from the `resolver-evidence.yaml` this Block **does** write, per AC-012/TEST-012 — and no **publication artifact** (`facet-manifest.yaml`, `capability-summary.yaml`, `generated/project-context.resolved.json`) on any live path (scoped 2026-08-27, human-approved, ruling D(2): this row's unscoped "no live artifact" clause both contradicted TEST-012 and was self-defeating, since `capability_evaluations` is a field of the very artifact it declared unwritten; sibling TEST-058 never carried the clause) | Planned |
 | AC-058 | REQ-002 | TEST-058 | absent-component fail-closed lock (ruling C(2), human-approved 2026-08-26) | `tests/resolve-project-context-block.tests.sh`/`.ps1`: a dedicated fixture (`affected-component-absent-from-context`) whose `resolve-component-paths` stub returns an `affected_components[]` entry naming a component id absent from the fixture's own Context Projection alongside one present-and-valid id, isolating REQ-002's amended `dependency-output-malformed` sub-trigger from the row's pre-existing malformed-stdout triggers: asserts the Block fires BEFORE any predicate evaluation of any entry (exit 1, the canonical absent-component detail sentence, an empty `capability_evaluations` array), never a defaulted-empty-properties evaluation of the absent id | Planned |
+| AC-059 | REQ-001 | TEST-059 | approval-surface write-scope lock (NEW 2026-08-28, human-approved, ruling E) | repository-wide grep-based self-check (registration-time and CI-gated, the identical mechanism and cadence as TEST-025 and therefore **not** a new suite file): no Resolver-owned script under `plugins/sdd-quality-loop/scripts/resolve-project-context.*` or `validate-resolver-evidence.*` performs any write of any kind to a `*.approval.json` sidecar, to any path under `sdd/.approved-context/`, or to `guard-invariants.json` — the deny-list counterpart to TEST-025's own grep, locking `requirements.md`'s Security Boundaries bullet 2 and the `security-spec.md` **B6** boundary that previously carried no write-scope criterion | Planned |
 
 ## Spec-Authoring-Time Manual Review Record
 
