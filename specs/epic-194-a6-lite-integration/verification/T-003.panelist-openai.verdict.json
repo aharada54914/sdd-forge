@@ -8,29 +8,19 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "verification/T-003.contract.json: checks.regression",
-      "note": "The required regression check is explicitly passes:false; the cited regression log confirms full-repository regression does not pass. A high-risk implementation cannot receive a passing verification verdict while a required check remains red and unwaived."
+      "ref": "verification/T-003.contract.json checks regression and placeholder-scan",
+      "note": "Two required checks are marked passes:true, but both declared evidence files are explicitly absent from the bundle: verification/qg/shared/regression-20260828.log and verification/qg/shared/placeholder-scan-20260828.log. The default-fail verification contract therefore lacks the evidence needed to substantiate completion."
     },
     {
       "severity": "Major",
-      "ref": "verification/T-003.contract.json: checks.placeholder-scan",
-      "note": "The required placeholder scan is explicitly passes:false. Its evidence reports five findings in CHANGELOG.md and states that human acceptance in a quality-gate report is required, but the bundle provides no such acceptance."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/T-003.contract.json: spec_revision",
-      "note": "The verification contract admits its spec_revision is stale and deliberately retains the old digest. Consequently, its passing unit and acceptance evidence is not independently bound to the amended specification currently under review."
-    },
-    {
-      "severity": "Major",
-      "ref": "tasks.md:T-003 Done When / verification/T-003.contract.json comment",
-      "note": "The mandatory HUMAN APPLY STEP remains outstanding, so the staged lite-spec/SKILL.md has not been installed and post-copy verified at the protected live path. The implementation therefore has not completed its required operational delivery path."
+      "ref": "tests/lite-spec-capability-block.tests.sh functional fixture / tests/lite-spec-capability-block.tests.ps1 functional fixture",
+      "note": "The core REQ-005 signal-source behavior is not exercised. Both suites replace A2 evaluate-predicate and Registry trigger evaluation with a synthetic component-name equality loop, despite the repository bundle documenting that evaluate-predicate exists. Static substring checks only prove that the staged skill mentions the required procedure; they do not verify predicate invocation, per-Capability-by-component fan-out, failure propagation, or union matching. Consequently the green evidence cannot establish that the principal implementation contract works."
     }
   ],
   "blind": true,
-  "input_digest": "4d7689713c559a39f81707c4a3e96c7bf4d8a3f664dfaba03f42fdad7265bdeb",
+  "input_digest": "753117c9c72edc9fdf39d3d2143e5d4e0f2e7cd5e1e7589f20539bf90eb4b11f",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md:T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+    "ref": "SDD_SUDO"
   }
 }

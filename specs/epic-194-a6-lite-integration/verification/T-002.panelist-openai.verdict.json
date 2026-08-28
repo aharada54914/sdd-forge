@@ -3,32 +3,27 @@
   "task_id": "T-002",
   "feature": "epic-194-a6-lite-integration",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5",
   "verdict": "NEEDS_WORK",
   "findings": [
     {
       "severity": "Major",
       "ref": "verification/T-002.contract.json checks: regression, placeholder-scan",
-      "note": "The Default-FAIL verification contract records two required checks as passes:false. Regression evidence explicitly says the repository regression does not pass, and placeholder evidence exits 1 without the human acceptance required by that scanner. T-002 therefore lacks a passing verification contract."
+      "note": "Two required checks are marked passes:true, but both declared evidence files are explicitly absent from the bundle. The contract therefore lacks verifiable evidence for required regression and placeholder-scan gates."
     },
     {
       "severity": "Major",
-      "ref": "verification/T-002.contract.json spec_revision",
-      "note": "The contract explicitly states its spec_revision is stale and deliberately was not reissued after the approved specification amendments. It therefore does not bind an independent quality-gate pass to the implementation and requirements currently under review."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/qg/T-002/unit-acceptance-green.log; verification/T-002.green.log; tests/check-ri[REDACTED].tests.{sh,ps1} TEST-013ag-aj",
-      "note": "The supplied green evidence ends at TEST-013af, while the current suites and amended AC-027 require TEST-013ag/ah for malformed upgrade_reasons on eligible:true entries and TEST-013ai/aj for falsy-value behavior. The newest mandatory behavior has no current execution evidence in the bundle."
+      "ref": "verification/qg/T-002/unit-acceptance-green.log and verification/T-002.green.log",
+      "note": "The supplied green logs stop at TEST-013af and predate the amended TEST-013ag\u2013aj cases, while the contract claims current evidence including those cases. The new eligible:true fail-closed and falsy-value behaviors are present in test source but not demonstrated by the bundled execution evidence."
     },
     {
       "severity": "Minor",
-      "ref": "tests/check-ri[REDACTED].tests.ps1 TEST-013r; design.md API / Contract Plan REQ-002",
-      "note": "The PowerShell negative test accepts any exit other than 0 or 10 for an unsupported bare second positional argument and records exit 1, while the documented usage-error convention is exit 2 and the Bash twin returns 2. The assertion does not enforce cross-runtime exit-code parity for this invalid invocation."
+      "ref": "tests/check-ri[REDACTED].tests.ps1 TEST-013r",
+      "note": "The PowerShell test accepts any nonzero, non-10 exit for a forbidden bare second positional argument and records exit 1, whereas the documented checker contract uses exit 2 for invalid invocation/input and the Bash twin asserts exactly exit 2. This weak assertion permits cross-runtime exit-contract divergence."
     }
   ],
   "blind": true,
-  "input_digest": "a250ff12bc55cd4d760aacc717a9aba77134a92be5f5ad18b43f4a71d5e80319",
+  "input_digest": "aac5658a7cbcea1545bbcb9d657682f078dcd376d6285820ca0cfeb467373556",
   "consent": {
     "kind": "sudo",
     "ref": "tasks.md T-002 Approval: Approved (sudo 2026-07-22T15:39:07Z)"

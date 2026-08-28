@@ -8,29 +8,19 @@
   "findings": [
     {
       "severity": "Major",
-      "ref": "verification/T-001.contract.json checks",
-      "note": "The default-fail verification contract is not passing: required regression and placeholder-scan checks are explicitly false, and the contract also states its spec_revision predates the amended specification. T-001 therefore lacks valid quality-gate evidence for the current implementation."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/T-001/security-review.md addendum",
-      "note": "The independent security PASS covered a deleted predecessor artifact with no recorded digest. The document explicitly says the shipped runner has substantive post-review changes and still requires a fresh independent security review, so T-001's security-review Done-When condition is unmet."
-    },
-    {
-      "severity": "Major",
-      "ref": "verification/T-001/security-review.md Nonblocking limitations; human-copy/apply-protected-files.ps1 CopyOneWindows",
-      "note": "The Windows handle-relative publishing, rename, and reparse-point path has never been executed; both reported green entrypoints exercised the PowerShell suite on macOS and therefore the Unix publisher. This leaves a material cross-platform gap for a high-risk runner intended to modify protected files on Windows."
+      "ref": "verification/T-001.contract.json checks regression and placeholder-scan",
+      "note": "Two required checks are marked passes:true, but both declared evidence files are explicitly absent from the bundle. The default-fail contract therefore lacks reproducible evidence for required regression and placeholder-scan gates."
     },
     {
       "severity": "Minor",
-      "ref": "human-copy/apply-protected-files.ps1 Write-PublishStateReport",
-      "note": "A failure in the batch-wide Test-PostCopyHashes phase occurs after Copy-Payload has completed, leaving FailedTarget null. The live-state report then enumerates installed files but no FAILED target, despite the design requiring post-copy-phase failures to identify the failed target; current TEST-012 covers only a mid-copy failure."
+      "ref": "human-copy/apply-protected-files.ps1: Write-PublishStateReport / Test-PostCopyHashes",
+      "note": "After Copy-Payload succeeds and the batch-wide post-copy verification detects corruption, FailedTarget remains null while every target remains in PublishedTargets. The report consequently labels the corrupted target INSTALLED and digest-verified, contradicting the required truthful live-state reporting; the supplied security review confirms this path is untested."
     }
   ],
   "blind": true,
-  "input_digest": "459eaf8bfcfc4a423aa446010319ce618a3b5c8f01af16cc5df0411006000ff1",
+  "input_digest": "c1e97647dd63e1ae2d0d8954c7fae57932b06665ae51f823138a381bd4a4ece9",
   "consent": {
     "kind": "sudo",
-    "ref": "tasks.md T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
+    "ref": "T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
   }
 }
