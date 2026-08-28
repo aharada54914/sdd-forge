@@ -151,7 +151,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
 Approval: Approved (sudo 2026-07-22T15:08:56Z)
 
-Status: Implementation Complete
+Status: Done
 
 Blocker (recorded 2026-07-22T15:08:56Z, a6-impl2): the R-10 enforcement-chain
 guard (`plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`,
@@ -412,7 +412,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
 Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -634,7 +634,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
 Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
