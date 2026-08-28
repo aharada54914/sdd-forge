@@ -2780,19 +2780,30 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   (`APPROVAL-BOUNDARY`), which is also why it is stated here rather than
   only in the requirements: an implementation reviewer reading this list
   would otherwise see one boundary locked and its neighbour not.
-  **Sequencing (corrected 2026-08-28, same ruling, closing an attempt-11
-  `DEPENDENCY-OVERLAP` finding).** The check's glob names both Resolver-
-  owned script families, but its owning task, T-007, authors only
-  `resolve-project-context.*`; `validate-resolver-evidence.*` is
-  authored by T-008, which `tasks.md` sequences *after* T-007. The
-  criterion is therefore discharged in two parts: T-007 authors and
-  registers the check and it passes over the scripts that exist at its
-  own gate, and the registered check — a per-commit CI gate, not a
-  one-shot verification — covers the second family when T-008's commit
-  lands, exactly as AC-032/AC-033/AC-034 bind every task's commits
-  without per-task re-verification. This is the single respect in which
-  AC-059 departs from AC-025, whose owner T-009 sits downstream of every
-  script it scans and can verify the whole glob at one gate.
+  **Scanned set corrected 2026-08-28, same ruling — closing an
+  attempt-11 `DEPENDENCY-OVERLAP` finding and an attempt-6
+  `VERIFICATION-PATH-CONCRETE` finding.** As first written the check also
+  scanned `validate-resolver-evidence.*`, and that was wrong twice over.
+  It contradicted `requirements.md`'s own Field Definitions, where
+  **Resolver** is `resolve-project-context.{py,sh,ps1}` and "never refers
+  to a different script anywhere in this package" — the validator is not
+  the Resolver, and the boundary this check locks has the Resolver alone
+  as its subject. It was also unverifiable by the owning task: T-008
+  authors the validator *after* T-007, and the bridge first proposed —
+  treating the registered check as a per-commit CI gate that would cover
+  the validator when T-008's commit landed — is contradicted by this
+  document's own Deployment / CI Plan, which states that this Phase 1
+  package performs no CI wiring and that GitHub-Actions gating waits on a
+  separately staged, human-applied `test.yml` patch. The scanned set is
+  therefore the Resolver alone, which T-007 itself authors, giving this
+  check the property that makes AC-025 sound: its owner verifies the
+  whole scanned set by direct execution at its own gate, depending on no
+  later task and no later human action. AC-025 legitimately scans both
+  families because REQ-005's determinism guarantee names both. The
+  validator's own write scope stays governed by Epic A1's
+  `guard-invariants.json` suffix enforcement at write time and by the
+  boundary prose above, and is left to a future criterion rather than
+  asserted here in a form no task could discharge.
 - **Ruling C(2)'s absent-component fail-closed rule is itself a security
   boundary (AC-058).** A dependency-returned `affected_components[]`
   entry naming a component id absent from this invocation's own Context

@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a6r1-seq0850",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a6r1-0850",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "052e05edb07782249cb9972942d92978f6a59fd7f378bf110932c4afb6b37d01"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "8d165d055102dcf6767e5441870a05e9384b81d513b20c4892b06e8b1334c92a"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "c42b74f0662a10463f1c0eeb3e946878f36e937f4642c2e9537051eee542a38f"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "b3f0083ca69b5cd5df5a6c8863f095a61c4012bf713dbc7cc0c5c859c0e333c0"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "2fb6b21580b0ee6217e2159204742da970401f4316b3b10d9e8c7eed91eb919b"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-6/round-1/precheck-result.json", "sha256": "a1993837b3b50cc64c43cc9f476a1a783e315876d035530d83620ecfadcf7824"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-6/round-1/integrated-summary.json", "sha256": "14a09eee55aefeacca81af3fe76207ae62f0ecb1506c9be65e70297a7316fd4b"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "TYPE-H convergence: design.md's inline decisions (e.g. journaled publication transaction reusing Epic A1's transactional bundle pattern, Data Plan; union-match aggregation, Design Decisions) carry stated rationales unchanged from the content bound by the prior persisted impl-review PASS (investigation.md 'Per-document SHA-256 at remediation commit 94704f9c', design.md digest c42b74f0... recorded at Impl-Review-Status: Passed). No new unjustified decision text was introduced by the 2026-08-28 AC-059 sequencing correction, which itself states its rationale (T-007 is not downstream of its own glob, unlike T-009/AC-025) at design.md:2783-2795."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "TYPE-H convergence: design.md's '## Open Questions' (lines 2985-3000) restates OQ-001/OQ-002 from investigation.md and records OQ-003 as resolved with a concrete file:line anchor and a named future-task action (direct-edit-vs.-human-copy, gated on SKILL.md's protection status). The section does not use the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels this check's template names, but this omission is unchanged from the content bound by the prior persisted impl-review PASS (investigation.md commit 94704f9c digest record) and was not a finding in any of attempts 1-5; carried forward as advisory only, not a new FAIL."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is present (INV-001..INV-020) and design.md's '## Assumptions' (lines 2974-2983) restates requirements.md's own Assumptions, each grounded (Epic A1-A4 content-freeze status per investigation.md INV-002; protected-suffix reservation per issue #187 sequencing/INV-003; SKILL.md's live-repository protection status per investigation.md INV-017). Unchanged from prior persisted PASS content."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md carries a '## Constraint Compliance' section (lines 2937-2972) addressing AGENTS.md contract/ADR rules, this task's own scope boundary, Security constraints (explicitly cross-referencing '## Security Boundaries' and '## Global Constraints', noted as closing a prior NO-REQ-CONTRADICTION finding), and Compatibility constraints (Epic A1-A4 content-freeze). The 2026-08-28 AC-059 correction does not touch this section and introduces no new unaddressed requirements.md constraint; evaluated independently per TYPE-D and found sound."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md (no numeric latency/throughput/concurrency/SLA thresholds; grep for 'latency|throughput|concurrency|response time|ms|SLA|performance' returns no matches). This feature's REQ-005 determinism/byte-identity guarantees are a correctness property, not a performance target."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## Deployment / CI Plan' (lines 2902-2935) names the deployment target (repository-local, no new runtime topology), the CI pipeline changes required (vendoring `resolver-evidence.schema.json` with a `--check` drift entry; registering nine new suites in `tests/run-all.sh`/`.ps1`, AC-026; a staged `.github/workflows/test.yml` human-copy candidate), and states no schema-change migration is needed (Data Plan: 'Existing Data Affected: none'). Unchanged from prior persisted PASS content. Note: the same section's own admission that this package 'does not itself perform any CI wiring' and that `test.yml` registration is a separately human-applied staging artifact is exactly the mechanism this review found insufficiently accounted for in the AC-059 sequencing correction — see VERIFICATION-PATH-CONCRETE below, where that gap is recorded as a Major finding rather than here, to avoid double-counting against the same evidence."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Data Plan states 'Existing Data Affected: none written; two existing artifacts read only' (line 701) — no schema changes to existing data. This feature's own new schema (`resolver-evidence.schema.json`) is a new contract, not a migration of an existing one. PASS per the check's own 'No data changes' exemption."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## External Integrations' (lines 2896-2900) states 'None — every input and output this feature touches is repository-local', and this claim is consistent with the rest of the design (all named dependencies — `resolve-component-paths`, `evaluate-predicate`, `canonicalize-sdd-yaml`, `generate-registry-digest` — are same-repository CLI subprocess calls, each already covered by REQ-002's diagnostic taxonomy for failure behaviour). Unchanged from prior persisted PASS content."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's REQ-001..REQ-008 sections map 1:1 to requirements.md's own Goals (REQ-001..REQ-008), and no component/endpoint/data model appears in design.md without a requirements.md anchor (the new `resolver-evidence.schema.json` traces to REQ-004; the CLI contract traces to REQ-001). No `design-system/` contract applies to this feature. Unchanged from prior persisted PASS content."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Reviewed on its merits per the orchestrator's instruction (not converged): the 2026-08-28 sequencing correction to AC-059/B6 (design.md:2783-2795, security-spec.md B6 row, acceptance-tests.md AC-059/TEST-059) is a security-boundary check (a 'high-risk design claim'; approval-surface write-scope) whose repair rests on a verification-path claim that design.md's own text does not support. The correction states T-007 registers TEST-059's grep and 'the registered check — a per-commit CI gate rather than a one-shot verification — covers the second family [`validate-resolver-evidence.*`] when T-008's commit lands,' analogized to how 'AC-032/AC-033/AC-034 bind every task's commits without per-task re-verification.' But design.md's own '## Deployment / CI Plan' (lines 2909-2917) states the opposite about CI-gating mechanics for this package: 'resolve-project-context.{py,sh,ps1}'s own CI registration (once implemented) is staged under specs/.../human-copy/ ... this Phase 1 package does not itself perform any CI wiring, only records the future task's own staging discipline,' and Test Strategy (lines 2172-2178) confirms every new suite is registered directly in the *unprotected* `tests/run-all.sh`/`.ps1`, while actual GitHub-Actions CI-gating requires a *separately staged, human-applied* `.github/workflows/test.yml` patch (matching AC-026/TEST-026's own explicit caveat: 'Status resolves through a human cp action for the test.yml portion'). Registering TEST-059's grep in run-all.sh at T-007's gate therefore makes it *invocable*, not automatically *per-commit CI-gated*, until that separate human action occurs — and nothing in the corrected text, in design.md's Deployment/CI Plan, or in the cited AC-032/033/034 analogy (which are themselves 'run once per task landing' procedural checks, not GitHub-Actions push-triggered gates) establishes that the human test.yml patch will have been applied, or that T-008's own Done-When requires a full `tests/run-all.sh` execution, by the time T-008 authors `validate-resolver-evidence.*`. This differs materially from AC-025's own case: AC-025's owner T-009 is downstream of every scanned script (investigation.md 'Ruling E's own repair'), so T-009 can verify the whole glob by direct execution at its own gate without depending on any future CI trigger; AC-059's repair, by contrast, is structurally dependent on a later, unscheduled event (T-008's commit reaching an already-CI-wired pipeline) to close the very gap the correction exists to close. Until design.md or the task package states that (a) the `test.yml` human-copy patch precedes T-008's landing, or (b) T-008's own Done-When independently runs the full suite including TEST-059's grep, the 'per-commit CI gate' verification path named for this security boundary is not concrete."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no `domain/` directory exists in this repository (`ls domain` returns no such directory), so the Domain-Model-Status/domain-contract.json precondition for this check is absent."
+    }
+  ]
+}

@@ -1951,24 +1951,20 @@ Commit B (documentation):
   authorization table). **This task also authors and registers the
   approval-surface write-scope self-check (AC-059, NEW 2026-08-28,
   human-approved, ruling E)**: a repository-wide grep, of exactly
-  AC-025/AC-034's kind and cadence — registration-time and then CI-gated
-  on every commit, never a `tests/*.tests.sh` suite file — asserting that
-  no Resolver-owned script writes, in any form, to a `*.approval.json`
-  sidecar, to any path under `sdd/.approved-context/`, or to
-  `guard-invariants.json`. This task's own Done-When obligation is that
-  the check is authored, registered, and **passes over the scripts that
-  exist at this task's gate** — its own
-  `plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}`.
-  The check's glob also names `validate-resolver-evidence.*`, which
-  **T-008 authors after this task**; no obligation is therefore placed on
-  this task to scan files that do not yet exist, and none is placed on
-  T-008 either, because the registered check is a per-commit CI gate and
-  so runs against T-008's own commit when those files land — the same way
-  AC-032/AC-033/AC-034 above bind every task's commits without being
-  re-verified task by task. This is the one respect in which AC-059
-  differs from its model AC-025, whose owner T-009 is sequenced downstream
-  of every script it scans and can therefore verify the whole glob at its
-  own gate.
+  AC-025/AC-034's kind and cadence — registration-time and CI-gated,
+  never a `tests/*.tests.sh` suite file — asserting that **the Resolver**,
+  this task's own
+  `plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}`,
+  writes in no form to a `*.approval.json` sidecar, to any path under
+  `sdd/.approved-context/`, or to `guard-invariants.json`. The scanned
+  set is exactly the files this task authors, so this task verifies it in
+  full by direct execution at its own gate (scanned set corrected
+  2026-08-28 under the same ruling: the row first also named
+  `validate-resolver-evidence.*`, which `requirements.md`'s Field
+  Definitions exclude from the term *Resolver* and which T-008 authors
+  after this task, making it unverifiable here; the validator's own write
+  scope stays governed by Epic A1's `guard-invariants.json` suffix
+  enforcement).
 - [ ] **TDD evidence** — RED (each transactional fixture against a
   deliberately broken commit/recovery path) and GREEN (the full suite).
   An independent quality-gate verdict records PASS.
