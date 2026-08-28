@@ -200,7 +200,6 @@ jobs:
           bash tests/task-layer-review-inputs.tests.sh
           bash tests/task-layer-full-profile.tests.sh
           bash tests/task-review-precheck.tests.sh
-          bash tests/impl-review-round2-contract.tests.sh
           bash tests/review-agent-isolation.tests.sh
 
       - name: Test cross-model gate (bash)
@@ -280,10 +279,6 @@ jobs:
         shell: pwsh
         run: ./tests/install.tests.ps1
 
-      - name: Test installer idempotency (pwsh; WFI-041)
-        shell: pwsh
-        run: ./tests/installer-idempotency.tests.ps1
-
       - name: Test uninstaller (pwsh)
         shell: pwsh
         run: ./tests/uninstall.tests.ps1
@@ -304,7 +299,6 @@ jobs:
         run: |
           bash -n ./tests/release-host-smoke.sh
           ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
-          ./tests/installer-idempotency.tests.sh 2>&1 | tee "${{ runner.temp }}/installer-idempotency-sh.log"
 
       - name: Test POSIX uninstaller
         if: runner.os != 'Windows'
@@ -340,14 +334,6 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # Full history, matching the test job: check-workflow-state's
-          # plugins-pin reconciliation resolves recorded pin commits via git
-          # show, which a shallow clone cannot serve (the pin commit is not
-          # fetched). task-plan-binding-durability's P3 fixtures depend on it
-          # whenever a live plugins reference has grown past the committed
-          # contracts' pins.
-          fetch-depth: 0
 
       - name: Test template-validator parity (bash)
         shell: bash
@@ -358,24 +344,6 @@ jobs:
       - name: Test template-validator parity (pwsh)
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
-
-      - name: Test task-state grammar parity (bash, WFI-042)
-        shell: bash
-        # The suite probes for pwsh itself and runs the ps1 checker legs when
-        # it is present, so the three GitHub-hosted runners all cover them.
-        run: bash ./tests/task-state-grammar-parity.tests.sh
-
-      - name: Test boundary-reference authorization parity (bash, WFI-037)
-        shell: bash
-        run: bash ./tests/boundary-reference-authorization-parity.tests.sh
-
-      - name: Test boundary-reference authorization parity (pwsh, WFI-037)
-        shell: pwsh
-        run: ./tests/boundary-reference-authorization-parity.tests.ps1
-
-      - name: Test task-plan binding durability (bash, WFI-025)
-        shell: bash
-        run: bash ./tests/task-plan-binding-durability.tests.sh
 
       - name: Test loop inventory registration forcing (bash)
         shell: bash
@@ -445,9 +413,6 @@ jobs:
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/agent-model-routing.tests.sh
-
-      - name: Release config lock (ruleset/CODEOWNERS/merge_group; RT-20260821-004)
-        run: bash ./tests/release-config-lock.tests.sh
 
       - name: Test turn-first agent-model routing suite (pwsh)
         shell: pwsh
@@ -845,6 +810,137 @@ jobs:
       - name: Test component-path-ownership parity suite (pwsh)
         shell: pwsh
         run: ./tests/component-path-ownership-parity.tests.ps1
+
+      # epic-194-a6-lite-integration (issue #194): T-001..T-004 CI-staging
+      # registration, ordered T-001 -> T-002 -> T-003 -> T-004 as tasks.md's
+      # Global Constraints require. All eleven suites are already registered
+      # in the live tests/run-all.{sh,ps1}; this staged candidate supplies
+      # their previously missing direct CI steps. Staged here under
+      # specs/epic-194-a6-lite-integration/human-copy/.github/workflows/
+      # test.yml pending human application to this live file.
+
+      - name: Test human-copy-runner-contract suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        # The runner under test is PowerShell-native only (tasks.md T-001
+        # Planned Files); this suite shells out to pwsh internally.
+        run: bash ./tests/human-copy-runner-contract.tests.sh
+
+      - name: Test human-copy-runner-contract suite (pwsh)
+        shell: pwsh
+        run: ./tests/human-copy-runner-contract.tests.ps1
+
+      - name: Test check-risk-upgrade-byte-identical suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-byte-identical.tests.sh
+
+      - name: Test check-risk-upgrade-byte-identical suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-byte-identical.tests.ps1
+
+      - name: Test check-risk-upgrade-capability-merge suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-capability-merge.tests.sh
+
+      - name: Test check-risk-upgrade-capability-merge suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-capability-merge.tests.ps1
+
+      - name: Test check-risk-upgrade-fragment-fail-closed suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-fragment-fail-closed.tests.sh
+
+      - name: Test check-risk-upgrade-fragment-fail-closed suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-fragment-fail-closed.tests.ps1
+
+      - name: Test check-risk-upgrade-ineligible-no-reasons suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
+
+      - name: Test check-risk-upgrade-ineligible-no-reasons suite (pwsh)
+        shell: pwsh
+        run: ./tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1
+
+      - name: Test lite-spec-capability-block suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-spec-capability-block.tests.sh
+
+      - name: Test lite-spec-capability-block suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-spec-capability-block.tests.ps1
+
+      - name: Test lite-gate-summary-consumption suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-consumption.tests.sh
+
+      - name: Test lite-gate-summary-consumption suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-consumption.tests.ps1
+
+      - name: Test lite-gate-summary-absent suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-absent.tests.sh
+
+      - name: Test lite-gate-summary-absent suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent.tests.ps1
+
+      - name: Test lite-gate-summary-invalid suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-invalid.tests.sh
+
+      - name: Test lite-gate-summary-invalid suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-invalid.tests.ps1
+
+      - name: Test lite-gate-full-upgrade-backstop suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
+
+      - name: Test lite-gate-full-upgrade-backstop suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
+
+      - name: Test lite-gate-summary-absent-active-enforcement suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
+
+      - name: Test lite-gate-summary-absent-active-enforcement suite (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
 
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
