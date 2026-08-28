@@ -1,6 +1,6 @@
 # Requirements: epic-194-a6-lite-integration
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/194,
 https://github.com/aharada54914/sdd-forge/issues/187
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (AI-DLC
@@ -662,7 +662,15 @@ task's own explicit instruction.
   (REQ-004, Blocker [B2]); (i) a **supplied-but-invalid capability-reasons
   fragment** fixture — `check-risk-upgrade` given a `--capability-reasons`
   path to an unreadable/malformed/shape-invalid file exits `2`, never
-  degrading to `lite-eligible` (REQ-002, Blocker [B3]); (j) an
+  degrading to `lite-eligible` (REQ-002, Blocker [B3]) — including, per
+  the 2026-08-28 amendment's unconditional step-2b validation, a
+  shape-invalid `upgrade_reasons` on an `eligible: true` entry (present,
+  truthy and not an array; or a malformed element inside a real array),
+  which MUST assert exit `2` — never the absence of forged tokens in the
+  output record, an assertion that is vacuous for this case because an
+  `eligible: true` entry emits nothing even while defective — with a
+  companion pinning that a present-but-falsy `upgrade_reasons` (`false`,
+  `0`, `""`, `[]`, `null`) is treated as absent on both runtimes; (j) an
   **ineligible-with-no-reasons** fixture — a fragment entry with
   `eligible: false` and an empty/absent `upgrade_reasons` still produces a
   non-empty `triggers=` entry (`ineligible:<id>`) and exit `10` (REQ-002,

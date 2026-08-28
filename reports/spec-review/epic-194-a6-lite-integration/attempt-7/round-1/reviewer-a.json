@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-194-a6-spec-review-a7-r1-reviewer-a-seq901",
+  "host_session_id": "SESS-epic-194-a6-spec-review-a7-r1-reviewer-a-901",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-194-a6-lite-integration/requirements.md", "sha256": "3aa27aa7ca30e1395d26bf094792da8abe642dbd0f72b5443c5211ea42e9c068"},
+    {"path": "specs/epic-194-a6-lite-integration/acceptance-tests.md", "sha256": "8748f5cae5fddc9ccef34c4ab81e7bbb33d644e0c79aaf47c93e712429cf115b"},
+    {"path": "specs/epic-194-a6-lite-integration/investigation.md", "sha256": "6273610f346670a6af8490a105ac1e46eac1c9411c658fa8ea56f3d51d5f0d16"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-194-a6-lite-integration/attempt-7/round-1/precheck-result.json", "sha256": "7c718dd6f374b9ccb06509f326dba17d9213001ecee01848780ddb9cc8520ff1"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The amendment's own new content (requirements.md REQ-002 input-state-2 parenthetical, lines ~380-391) adds two concrete, testable conditions -- 'upgrade_reasons that is present, truthy and not an array' and 'an upgrade_reasons element that is not a non-empty string matching [a-z0-9][a-z0-9_-]*' -- each pinned to exit code 2. Observable and measurable. Remaining requirements are byte-identical to attempt-6-PASS-bound content (TYPE-H convergence, no new finding)."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-002's amended input-state-2 clause still traces to AC-027/TEST-027 ('supplied-invalid-fragment fail-closed lock'), whose existing 'shape-invalid (Field Definitions)' language already covers the newly-enumerated conditions without requiring a new AC row. No goal introduced by the amendment lacks a matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-027 states an externally observable outcome (process exit code 2, no trigger output) for the amendment's newly-enumerated invalid-shape conditions. No vagueness introduced."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section is unchanged by the seventh amendment entry (only REQ-002's parenthetical and design.md were touched, per investigation.md:2094-2118); byte-identical to attempt-6-PASS-bound content (TYPE-H convergence, no new finding)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "investigation.md's 'Amendment Re-Review Context, seventh entry' (lines 2060-2136), which requirements.md's REQ-002 input-state-2 parenthetical cites by name as its sole ratifying authority ('ratified by the 2026-08-28 amendment, investigation.md Amendment Re-Review Context, seventh entry', requirements.md line ~390), fails the calibration's evidence bar on at least three independent grounds: (1) its sole amendment-commit citation, 'remediation commit 2499e813' (lines 2071, 2090), is an 8-character abbreviated hash, not a full hash -- contrast entries 1-6 in the same section, which cite full 40-character hashes (e.g. investigation.md line 707: 9997091c71244e8cf3f9e46732f7ba164aa49843); (2) the entry gives no SHA-256 fingerprint for any amended document (requirements.md, design.md, or investigation.md itself) as of any commit named in the entry, unlike every prior entry in this same section; (3) design.md (a later-phase-artifact class the calibration explicitly names) and docs/review-tickets/RT-20260828-001.yml are each referenced with no commit reference or SHA-256, only a bare path/name ('This entry's own commit' names no hash at all; the RT ticket is cited by path only). Per spec-review-calibration.md's 'Amendment Re-Review Context' section, 'If ... any of the four elements is missing, abbreviated where a full hash is required, given only as a bare path with no commit or sha256 ... the declaration does not apply: judge phase-sequencing exactly as the default Phase-1 calibration above requires, with no benefit of the doubt' -- and the calibration's own worked 'NOT suppressed' example is materially identical to this case ('gives an abbreviated commit hash. The declaration does not apply'). Downstream failure mode: without a full-hash commit citation and without SHA-256 pins, a downstream implementer, task author, or verifier cannot unambiguously identify which exact commit/byte-state of check-risk-upgrade.{sh,ps1} and design.md this ratification refers to (an 8-character prefix is not collision-safe across a long-lived repository history), so requirements.md's own text -- which now asserts, as settled fact, that a specific implementation-phase remediation 'had already implemented' the described behavior -- is citing later-phase, already-implemented work inside a still-Spec-Review-Status:-Pending Phase 1 package without the evidentiary trail the calibration requires to distinguish this from an unauthorized workflow-boundary crossing. This belongs to spec review specifically because the evidence-bar/phase-sequencing rule is a spec-review-gate-owned calibration concern (spec-review-calibration.md), not an implementation-review or quality-gate matter -- it governs what this gate may accept as suppressing its own default phase-sequencing finding. Severity is Critical per the calibration's own Severity Calibration ('unsafe or unauthorized workflow boundary ... that makes the specification unreviewable') and per this review's own instruction to classify missing approval boundaries as Critical."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims (A5 not yet Passed; narrow lite-check-catalog seed; ADR-0022 prose-to-token mapping) each have a stated validation surface (Risks section, cross-referenced Dependencies/Assumptions) unchanged by the amendment (TYPE-H convergence, no new finding)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory with an Approved domain-context-map and schema-valid domain-contract.json is among this review's allowed inputs or evidenced in requirements.md; check is skipped per its explicit skip condition."
+    }
+  ]
+}

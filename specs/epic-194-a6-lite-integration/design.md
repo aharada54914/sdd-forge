@@ -950,6 +950,16 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     a `--capability-reasons` path to an unreadable/malformed/shape-invalid
     file exits `2` with no trigger output, distinct from item 4's own
     omitted-argument byte-identical fixture (requirements.md AC-027).
+    Per amended step 2b (2026-08-28), the shape-invalid set includes a
+    malformed `upgrade_reasons` on an `eligible: true` entry — present,
+    truthy and not an array, or a malformed element inside a real array —
+    whose fixture MUST assert exit `2`, never the absence of forged
+    output tokens (vacuous for this case: an `eligible: true` entry
+    emits nothing even while defective); companion fixtures pin
+    present-but-falsy `upgrade_reasons` (`false`/`0`/`""`/`[]`/`null`)
+    as treated-absent on both runtimes (`eligible: false` → the
+    synthetic `ineligible:<id>` token and exit `10`; `eligible: true` →
+    contributes nothing, exit `0` on a clean source).
 14. `check-risk-upgrade-ineligible-no-reasons` (REQ-002, Blocker [B4]) —
     a fragment entry `{"id": "x", "eligible": false, "upgrade_reasons":
     []}` produces `triggers=ineligible:x` and exit `10` (requirements.md

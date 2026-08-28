@@ -2066,9 +2066,37 @@ Owner approval, verbatim (2026-08-28): 「design.md 2b/2c を amendment
 レーンで追認する」. Adjudication trail: docs/review-tickets/
 RT-20260828-001.yml (severity Major, owner-ruled 2026-08-28).
 
+Evidence pins (full hashes; added in spec re-review attempt 7 round 2 to
+meet the calibration's evidence bar after round 1's CONSTRAINTS-EXPLICIT
+finding):
+
+- Remediation commit this entry ratifies:
+  `2499e81324fb122448b6cab0dd5da9bdf1ca0153` (2026-08-25).
+- Amendment commit (the five-site edit this entry records):
+  `dd3a81298ffd84193ee50e4495fda23ac26a3ea3` (2026-08-28), at which
+  design.md is sha256
+  `0e0708eb8435f4de6fde990b226d72e88a90c43f3d0534529cc446c6a884c74f`
+  and requirements.md is sha256
+  `69686e9295d6fe769a0c7477953a9c7fd3b75f2d04d195fc7950ada6e1284784`
+  (the re-review binds
+  `3aa27aa7ca30e1395d26bf094792da8abe642dbd0f72b5443c5211ea42e9c068`,
+  differing only by the Spec-Review-Status line the round's precheck
+  --reset flipped from Passed to Pending).
+- Adjudication ticket: docs/review-tickets/RT-20260828-001.yml, last
+  amended at commit `71f95692aa8776ba6db69ddc015b891c128979f1`, sha256
+  `7d0fe2402810b8cc874dd0e5853d92b036dffa22d21117dc8b1d0f2bcb55cf3b`
+  (earlier ticket commits:
+  `ed77ceaf2a2532eef6727f457d9cf96d5c8890e0`,
+  `5ec7d47ee76f5001022c8f359ddc1fc232a43914`).
+- RT-20260828-001 stage-2 placement fix (landed AFTER this entry was
+  first written; see the closing section below):
+  `cf7c9b975c25f22532e16fe2c4dc7c042bbed8c6`; second HUMAN APPLY
+  publishing it live: `80694f623b3f50210897a3e9998e156545aa2196`.
+
 #### What was stale, and how it was found
 
-The 2026-08-25 remediation commit `2499e813` added, to both
+The 2026-08-25 remediation commit
+`2499e81324fb122448b6cab0dd5da9bdf1ca0153` added, to both
 `check-risk-upgrade` twins, validation of `upgrade_reasons` — a
 present-and-truthy value must be an array, and every element must be a
 non-empty string matching `[a-z0-9][a-z0-9_-]*` — closing a measured
@@ -2087,7 +2115,8 @@ Google as Critical, Anthropic as Minor); the owner adjudicated it Major;
 a peer session (sdd-forge-42) then observed that the implementation's
 branch comment quotes design.md's own `entry['eligible'] == false`
 verbatim, which reframed a "code defect" as a specification-staleness
-defect, and the `git log` pull over `2499e813` settled the direction:
+defect, and the `git log` pull over
+`2499e81324fb122448b6cab0dd5da9bdf1ca0153` settled the direction:
 deleting the checks to match the design text would reintroduce a proven
 injection.
 
@@ -2133,3 +2162,23 @@ was applied live on 2026-08-28, so a fix reaches the live tree no other
 way). The regression fixture for that change must assert exit 2 — never
 "no forged tokens appear in the record", which passes today against the
 live defect.
+
+#### Closing update (spec re-review attempt 7 round 2): stage 2 has landed
+
+The paragraph above described the placement delta as it stood when this
+entry was first written. It has since been closed, in order: the fix
+committed as `cf7c9b975c25f22532e16fe2c4dc7c042bbed8c6` (validation moved
+ahead of the eligibility test in both twins, predicates verbatim;
+MANIFEST.sha256 reissued; TDD RED run showing TEST-013ag/ah failing with
+exactly the silent-accept signature against the pre-fix twins, then all
+four suites green on both runtimes at identical tallies), and the second
+HUMAN APPLY publishing it live as
+`80694f623b3f50210897a3e9998e156545aa2196` (runner exit 0, post-copy
+re-verification, four agreeing hash readings). The fixtures now exist as
+TEST-013ag/ah (exit-2 assertions) and TEST-013ai/aj (falsy-absent pins)
+in `tests/check-risk-upgrade-fragment-fail-closed.tests.{sh,ps1}`, and
+round 2 of this re-review also extended the specification's own fixture
+inventory to name them — requirements.md REQ-006 item (i),
+acceptance-tests.md's AC-027 row, and design.md Test Strategy item 13 —
+so a future suite author reads the exit-2 obligation from the
+specification itself, not only from the amendment record.
