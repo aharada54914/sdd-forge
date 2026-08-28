@@ -1,1 +1,36 @@
-{"schema":"cross-model-verdict/v1","task_id":"T-002","feature":"epic-194-a6-lite-integration","vendor":"openai","model":"gpt-5.6-sol","verdict":"NEEDS_WORK","findings":[{"severity":"Critical","title":"Shape-invalid upgrade_reasons values can bypass the required hard-error path","description":"The fragment contract requires upgrade_reasons to be an optional array of tokens and AC-027 requires every supplied shape-invalid fragment to exit 2 without trigger reporting. Both implementations deliberately apply falsiness before checking the array type: Python uses entry.get(\"upgrade_reasons\") or [], while PowerShell uses Test-PythonFalsy. Consequently false, 0, \"\", and null are accepted as an absent/empty array. Moreover, upgrade_reasons is validated only for eligible:false entries, so an eligible:true entry with any malformed upgrade_reasons value is accepted and can yield lite-eligible/exit 0. This violates the fail-closed security boundary and the documented exact fragment shape. The tests cover a truthy scalar but omit these falsy scalars and malformed fields on eligible:true entries.","requirement_ids":["REQ-002","AC-027"]},{"severity":"Major","title":"Required verification checks are explicitly failing","description":"T-002.contract.json records the required regression and placeholder-scan checks with passes:false. Its own comment says full-repository regression still fails and the placeholder scan exits 1 without the required human acceptance in a quality-gate report. A PASS cannot be supported while mandatory checks remain red.","requirement_ids":["REQ-002","REQ-006"]},{"severity":"Major","title":"Verification contract is bound to a stale specification revision","description":"The contract pins spec_revision 2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437, while its own disclosure states the current specification digest is 466465e04248cb912635ed83435ff0c17e9805648e0caead7132ad6276a34d23 and that no independent gate has re-issued the contract. Thus the evidence does not verify the specification revision contained in this bundle.","requirement_ids":["REQ-002"]},{"severity":"Major","title":"Required protected-file publication and independent security verification remain incomplete","description":"The task's Done When requires a human to apply the staged protected-file payload through the anchored runner and verify installed hashes. The implementation report explicitly says this step remains pending and that no dedicated independent security review of T-002's staged security-sensitive scripts has been recorded. The live protected implementation therefore has not been demonstrated to contain the reviewed payload.","requirement_ids":["REQ-002","AC-010","AC-031"]}],"blind":true,"input_digest":"ae9270542559dbf1d82538ebaccd37fb4dbba589ced28461234002d63f81405a","consent":{"kind":"sudo","ref":"T-002.panelist-input.txt header"}}
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-002",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5.6-sol",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json checks: regression, placeholder-scan",
+      "note": "The Default-FAIL verification contract records two required checks as passes:false. Regression evidence explicitly says the repository regression does not pass, and placeholder evidence exits 1 without the human acceptance required by that scanner. T-002 therefore lacks a passing verification contract."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-002.contract.json spec_revision",
+      "note": "The contract explicitly states its spec_revision is stale and deliberately was not reissued after the approved specification amendments. It therefore does not bind an independent quality-gate pass to the implementation and requirements currently under review."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/qg/T-002/unit-acceptance-green.log; verification/T-002.green.log; tests/check-ri[REDACTED].tests.{sh,ps1} TEST-013ag-aj",
+      "note": "The supplied green evidence ends at TEST-013af, while the current suites and amended AC-027 require TEST-013ag/ah for malformed upgrade_reasons on eligible:true entries and TEST-013ai/aj for falsy-value behavior. The newest mandatory behavior has no current execution evidence in the bundle."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/check-ri[REDACTED].tests.ps1 TEST-013r; design.md API / Contract Plan REQ-002",
+      "note": "The PowerShell negative test accepts any exit other than 0 or 10 for an unsupported bare second positional argument and records exit 1, while the documented usage-error convention is exit 2 and the Bash twin returns 2. The assertion does not enforce cross-runtime exit-code parity for this invalid invocation."
+    }
+  ],
+  "blind": true,
+  "input_digest": "a250ff12bc55cd4d760aacc717a9aba77134a92be5f5ad18b43f4a71d5e80319",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-002 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+  }
+}

@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-003
 # feature: epic-194-a6-lite-integration
-# input_digest: b887b6c4ea585e71dc4bcbdc9bb8b6f6b383a7406fefceec6793c8a20c0a802b
+# input_digest: 4d7689713c559a39f81707c4a3e96c7bf4d8a3f664dfaba03f42fdad7265bdeb
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -389,8 +389,15 @@ task's own explicit instruction.
   2. **Second argument supplied**: the file at that path is now read and
      validated eagerly. If it is unreadable, not valid UTF-8 JSON, or does
      not conform to the fragment shape (Field Definitions below — a
-     missing `capabilities` key, a non-array value, or any array entry
-     missing `id`/`eligible`) — the script exits `2`
+     missing `capabilities` key, a non-array value, any array entry
+     missing `id`/`eligible`, an entry's `upgrade_reasons` that is
+     present, truthy and not an array, or an `upgrade_reasons` element
+     that is not a non-empty string matching the reason-token grammar
+     `[a-z0-9][a-z0-9_-]*` — the two `upgrade_reasons` conditions align
+     this summary with the Field Definitions shape it cites, which has
+     always declared `upgrade_reasons` as an array of tokens; ratified by
+     the 2026-08-28 amendment, investigation.md Amendment Re-Review
+     Context, seventh entry) — the script exits `2`
      ("`risk-upgrade: capability-reasons fragment invalid`"), the same
      usage-error exit code `check-risk-upgrade` already uses for a
      missing/unreadable primary source file (investigation.md INV-009),
@@ -664,7 +671,15 @@ task's own explicit instruction.
   (REQ-004, Blocker [B2]); (i) a **supplied-but-invalid capability-reasons
   fragment** fixture — `check-risk-upgrade` given a `--capability-reasons`
   path to an unreadable/malformed/shape-invalid file exits `2`, never
-  degrading to `lite-eligible` (REQ-002, Blocker [B3]); (j) an
+  degrading to `lite-eligible` (REQ-002, Blocker [B3]) — including, per
+  the 2026-08-28 amendment's unconditional step-2b validation, a
+  shape-invalid `upgrade_reasons` on an `eligible: true` entry (present,
+  truthy and not an array; or a malformed element inside a real array),
+  which MUST assert exit `2` — never the absence of forged tokens in the
+  output record, an assertion that is vacuous for this case because an
+  `eligible: true` entry emits nothing even while defective — with a
+  companion pinning that a present-but-falsy `upgrade_reasons` (`false`,
+  `0`, `""`, `[]`, `null`) is treated as absent on both runtimes; (j) an
   **ineligible-with-no-reasons** fixture — a fragment entry with
   `eligible: false` and an empty/absent `upgrade_reasons` still produces a
   non-empty `triggers=` entry (`ineligible:<id>`) and exit `10` (REQ-002,
@@ -1965,11 +1980,13 @@ ADR by this package itself.
   produce a non-empty trigger, never silently contribute nothing); an
   entry with `eligible: true` contributes nothing. Each `<token>` inside
   `upgrade_reasons` is already validated upstream against `lite-upgrade-
-  reason-catalog.json` by whatever produced this fragment, not
-  re-validated here (Design Decisions, below, "no re-validation inside
-  check-risk-upgrade" — unchanged in principle, now scoped to the
-  *values*, never to the fragment's own shape/readability, which REQ-002
-  now validates eagerly, Blocker [B3]).
+  reason-catalog.json` by whatever produced this fragment; its catalog
+  membership is not re-validated here (Design Decisions, below, "no
+  re-validation inside check-risk-upgrade" — unchanged in principle, now
+  scoped by the 2026-08-28 amendment to catalog *membership* alone,
+  never to the fragment's own shape/readability nor to each element's
+  reason-token grammar, both of which REQ-002 validates eagerly per
+  Processing step 2b, Blocker [B3]).
 
 ## API / Contract Plan
 
@@ -2001,19 +2018,39 @@ unmodified, requirements.md AC-007/AC-009):
 2. if --capability-reasons/-CapabilityReasons is supplied:
      a. attempt to read <fragment-path> as UTF-8 JSON
      b. if unreadable/not-valid-JSON/missing "capabilities" key/
-        "capabilities" not an array/any entry missing "id" or "eligible":
+        "capabilities" not an array/any entry missing "id" or "eligible"/
+        any entry whose "upgrade_reasons" is present, truthy and not an
+        array/any "upgrade_reasons" element that is not a non-empty
+        string matching [a-z0-9][a-z0-9_-]*:
           print "risk-upgrade: capability-reasons fragment invalid";
           exit 2   (Blocker [B3] — a hard error, never a silent degrade;
           this is the ONE new exit-2 condition this REQ adds, distinct
-          from the primary source file's own existing exit-2 condition)
+          from the primary source file's own existing exit-2 condition.
+          The two upgrade_reasons conditions were ratified by the
+          2026-08-28 amendment (RT-20260828-001): they state what the
+          2026-08-25 remediation commit 2499e813 already implemented
+          against a measured trigger-forgery — a ',', ';' or newline
+          inside a reason token forges or breaks the single-line output
+          record whose id field the bounded id grammar already defends
+          (TEST-013m/n/p) — and they apply to EVERY entry regardless of
+          its "eligible" value, because 2b runs before eligibility is
+          consulted. A present-but-falsy "upgrade_reasons" value —
+          false, 0, "", [], null — is treated as absent, matching both
+          live runtimes; only a present, truthy non-array value, or a
+          malformed element inside a real array, is shape-invalid)
      c. else: capability_triggers[] = for each entry in
         fragment["capabilities"] where entry["eligible"] == false, in
         array order: entry["upgrade_reasons"] if non-empty, else
         [ "ineligible:" + entry["id"] ]   (Blocker [B4] — flattened,
-        in order, into one capability_triggers[] list; each
-        upgrade_reasons token is already catalog-validated upstream, not
-        re-validated here, Design Decisions "no re-validation inside
-        check-risk-upgrade")
+        in order, into one capability_triggers[] list; every
+        upgrade_reasons element reaching this step has already passed
+        2b's grammar condition. What is NOT re-checked here is catalog
+        membership alone — each token's presence in
+        lite-upgrade-reason-catalog.json is validated upstream by
+        whatever produced the fragment, Design Decisions "no
+        re-validation inside check-risk-upgrade", scoped by the
+        2026-08-28 amendment to catalog membership, never to the
+        fragment's shape or the elements' grammar)
    else: capability_triggers[] = []   (second argument omitted entirely —
         the ONLY condition AC-007's byte-identical guarantee covers)
 3. all_triggers[] = keyword_triggers[] ++ capability_triggers[]
@@ -2303,6 +2340,16 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     a `--capability-reasons` path to an unreadable/malformed/shape-invalid
     file exits `2` with no trigger output, distinct from item 4's own
     omitted-argument byte-identical fixture (requirements.md AC-027).
+    Per amended step 2b (2026-08-28), the shape-invalid set includes a
+    malformed `upgrade_reasons` on an `eligible: true` entry — present,
+    truthy and not an array, or a malformed element inside a real array —
+    whose fixture MUST assert exit `2`, never the absence of forged
+    output tokens (vacuous for this case: an `eligible: true` entry
+    emits nothing even while defective); companion fixtures pin
+    present-but-falsy `upgrade_reasons` (`false`/`0`/`""`/`[]`/`null`)
+    as treated-absent on both runtimes (`eligible: false` → the
+    synthetic `ineligible:<id>` token and exit `10`; `eligible: true` →
+    contributes nothing, exit `0` on a clean source).
 14. `check-ri[REDACTED]` (REQ-002, Blocker [B4]) —
     a fragment entry `{"id": "x", "eligible": false, "upgrade_reasons":
     []}` produces `triggers=ineligible:x` and exit `10` (requirements.md
@@ -2411,8 +2458,12 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
 - **No re-validation inside `check-risk-upgrade`** — the script's own new
   second argument is treated as already-catalog-validated data (Data
   Plan), never re-checked against `lite-upgrade-reason-catalog.json`
-  itself; this keeps the script's own logic exactly what it is today (a
-  keyword scanner plus, now, a trivial merge step) and avoids a second,
+  itself; "no re-validation" is scoped (2026-08-28 amendment,
+  RT-20260828-001) to catalog membership alone — the fragment's shape
+  and each element's reason-token grammar ARE validated eagerly, per
+  Processing step 2b — so the script's own logic is a keyword scanner
+  plus an eager fragment shape/grammar gate plus a trivial merge step,
+  and it still avoids a second,
   competing validation surface for the identical catalog A2's own
   `validate-capability-registry` already fail-closes on at Registry-
   authoring time (requirements.md Non-goals — "does not duplicate...
@@ -2693,7 +2744,7 @@ Required Workflow). `Status` below is `Planned` for every row.
 | AC-022 | REQ-006 | TEST-022 | fixture-to-AC coverage lock | design-content review (no automated test, Spec-Authoring-Time Manual Review Record, below): confirms `design.md`'s Test Strategy items 1-17 collectively exercise every one of AC-002, AC-007, AC-008, AC-011, AC-015, AC-016, AC-026, AC-027, and AC-028, with no listed fixture that exercises no AC | Planned |
 
 | AC-026 | REQ-003/REQ-004 | TEST-026 | `full_upgrade_required` backstop lock | design.md Test Strategy item 12 (`lite-gate-full-upgrade-backstop`): a schema-valid `capability-summary.yaml` with `full_upgrade_required: true` causes `lite-gate`'s Step 2a to `VERDICT: FAIL` before Step 2b runs; `false` continues normally | Planned |
-| AC-027 | REQ-002 | TEST-027 | supplied-invalid-fragment fail-closed lock | design.md Test Strategy item 13 (`check-ri[REDACTED]`): a `--capability-reasons` path to an unreadable/malformed/shape-invalid file exits `2` with no trigger output, distinct from TEST-007's own omitted-argument fixture | Planned |
+| AC-027 | REQ-002 | TEST-027 | supplied-invalid-fragment fail-closed lock | design.md Test Strategy item 13 (`check-ri[REDACTED]`): a `--capability-reasons` path to an unreadable/malformed/shape-invalid file exits `2` with no trigger output, distinct from TEST-007's own omitted-argument fixture. Per the 2026-08-28 amendment's unconditional step-2b validation, the shape-invalid set includes a malformed `upgrade_reasons` on an `eligible: true` entry (present-truthy-non-array, or a malformed element), whose fixture MUST assert exit `2` — never the absence of forged output tokens, vacuous for this case because an `eligible: true` entry emits nothing even while defective — plus a companion pinning present-but-falsy `upgrade_reasons` (`false`/`0`/`""`/`[]`/`null`) as treated-absent on both runtimes | Planned |
 | AC-028 | REQ-002 | TEST-028 | ineligible-no-reasons synthetic-trigger lock | design.md Test Strategy item 14 (`check-ri[REDACTED]`): a fragment entry `{"id": "x", "eligible": false, "upgrade_reasons": []}` produces `triggers=ineligible:x` and exit `10` | Planned |
 | AC-029 | REQ-001 | TEST-029 | required-enforcement field-presence contract lock | design-content review (no automated test in this package — REQ-001 is out of this feature's own build scope for A5's Resolver, Non-goals; Spec-Authoring-Time Manual Review Record, below): confirms `requirements.md`'s Field Definitions/Edge Cases state the per-matched-Capability, `required`-enforcement-only field-presence contract and name A5's own `lite-check-source-undefined` diagnostic as its enforcement owner — this lock is checked against this package's own text only; it becomes a mutually consistent, enforceable cross-epic contract once A5's own addendum (orchestrator ruling 2026-07-22, B5) narrowing that diagnostic's trigger condition and its REQ-003/AC-016 byte-identity guarantee to this exact case is itself normalized in A5's own package — a dependency this row records in the A6→A5 direction, not the reverse | Planned |
 | AC-030 | REQ-003 | TEST-030 | active-enforcement absent-Summary FAIL lock, paired with present-empty-Summary pass-through lock (spec-review round 1, EDGE-CASE-COVERAGE) | design.md Test Strategy item 15 (`lite-gate-summary-absent-active-enforcement`): `workflow.capability_enforcement: required` or `advisory` with no `capability-summary.yaml` at all is `VERDICT: FAIL`, distinct from TEST-011's own `disabled-legacy` fixture. A companion fixture confirms the other half of AC-030's own claim: `workflow.capability_enforcement: required` or `advisory` with a *present*, schema-valid, empty-array (`required_lite_checks`-contributing) `capability-summary.yaml` — the zero-matched-Capability resolve case — is never `VERDICT: FAIL` on that basis; `lite-gate`'s designed extension runs exactly its five baseline checks, the same observable output as TEST-011's `disabled-legacy` fixture, distinct only in that a Project Context is active and the Summary is present-but-empty rather than absent | Planned |
@@ -3883,14 +3934,24 @@ Commit B (documentation):
   self-check confirms no version string was mutated outside
   `scripts/bump-version.sh` (none of this task's changes touch any
   version string).
-- [~] **TDD evidence** — RED (`verification/T-004.red.log`, 30 genuine
+- [x] **TDD evidence** — RED (`verification/T-004.red.log`, 30 genuine
   failures against a deliberately disabled Step 2a/2b) and GREEN
-  (`verification/T-004.green.log`, 60/60 passing) both captured. An
-  independent quality-gate verdict has **not yet** been recorded — QG
-  delegation is held per main's own instruction pending Epic A2's
-  evaluator-identity-ledger pattern for the non-reserve-mode validator
-  gap; launch materials are prepared, not yet sent. This bullet is not
-  fully satisfied until that verdict lands.
+  (`verification/T-004.green.log`, 60/60 passing) both captured. The
+  independent quality-gate verdict this bullet was waiting on HAS since
+  landed: evaluator run seq0329
+  (`RUN-epic-194-a6-lite-integration-qg-T-004-seq0329`, an independent
+  isolated evaluator, distinct session/context from implementer a6-impl2)
+  recorded `VERDICT: PASS` (0 Critical, 0 Major, 2 Minor non-blocking) —
+  full report
+  `reports/quality-gate/epic-194-a6-lite-integration/T-004.md` (sha256
+  `135fbfc755a4a92dab4e675d85450dcd9b66acd88b14461389643c61e259e203`),
+  recorded at the time in this task's own Quality-Gate Addendum
+  (2026-07-22T16:30:38Z, above). This line's original wording predated
+  that verdict and was never brought forward because Done-When text is
+  frozen; ratified to match the recorded fact on 2026-08-28 under the
+  owner's explicit approval, verbatim 「T-004 の bullet 追認を承認する」
+  (task re-review attempt 6 round 1, HIGH-CRITICAL-EVIDENCE finding,
+  reports/task-review/epic-194-a6-lite-integration/attempt-6/round-1/).
 
 ### Out of Scope
 
@@ -6138,6 +6199,132 @@ invoked out-of-process, exit `0`, and every one of the five installed
 files verified byte-identical to its staged source afterwards, including
 the CI workflow, "which now gets the same integrity envelope as the
 rest."
+
+### Amendment record extension, seventh entry (appended 2026-08-28): design.md 2b/2c ratify the upgrade_reasons validation that 2499e813 already implemented
+
+Appended below the sixth entry, on the same terms: nothing above this
+heading is edited.
+
+Owner approval, verbatim (2026-08-28): 「design.md 2b/2c を amendment
+レーンで追認する」. Adjudication trail: docs/review-tickets/
+RT-20260828-001.yml (severity Major, owner-ruled 2026-08-28).
+
+Evidence pins (full hashes; added in spec re-review attempt 7 round 2 to
+meet the calibration's evidence bar after round 1's CONSTRAINTS-EXPLICIT
+finding):
+
+- Remediation commit this entry ratifies:
+  `2499e81324fb122448b6cab0dd5da9bdf1ca0153` (2026-08-25).
+- Amendment commit (the five-site edit this entry records):
+  `dd3a81298ffd84193ee50e4495fda23ac26a3ea3` (2026-08-28), at which
+  design.md is sha256
+  `0e0708eb8435f4de6fde990b226d72e88a90c43f3d0534529cc446c6a884c74f`
+  and requirements.md is sha256
+  `69686e9295d6fe769a0c7477953a9c7fd3b75f2d04d195fc7950ada6e1284784`
+  (the re-review binds
+  `3aa27aa7ca30e1395d26bf094792da8abe642dbd0f72b5443c5211ea42e9c068`,
+  differing only by the Spec-Review-Status line the round's precheck
+  --reset flipped from Passed to Pending).
+- Adjudication ticket: docs/review-tickets/RT-20260828-001.yml, last
+  amended at commit `71f95692aa8776ba6db69ddc015b891c128979f1`, sha256
+  `7d0fe2402810b8cc874dd0e5853d92b036dffa22d21117dc8b1d0f2bcb55cf3b`
+  (earlier ticket commits:
+  `ed77ceaf2a2532eef6727f457d9cf96d5c8890e0`,
+  `5ec7d47ee76f5001022c8f359ddc1fc232a43914`).
+- RT-20260828-001 stage-2 placement fix (landed AFTER this entry was
+  first written; see the closing section below):
+  `cf7c9b975c25f22532e16fe2c4dc7c042bbed8c6`; second HUMAN APPLY
+  publishing it live: `80694f623b3f50210897a3e9998e156545aa2196`.
+
+#### What was stale, and how it was found
+
+The 2026-08-25 remediation commit
+`2499e81324fb122448b6cab0dd5da9bdf1ca0153` added, to both
+`check-risk-upgrade` twins, validation of `upgrade_reasons` — a
+present-and-truthy value must be an array, and every element must be a
+non-empty string matching `[a-z0-9][a-z0-9_-]*` — closing a measured
+trigger-forgery (`["evil,forged"]` → a forged second trigger entry;
+`["x; triggers=NONE"]` / `["x\ntriggers=NONE"]` → a broken single-line
+record; the exact attack the id grammar already blocks, TEST-013m/n/p)
+and a silent sh/ps1 stringifier divergence on null/object/nested-array
+shapes. design.md's Processing step 2b enumerated its invalid conditions
+exhaustively WITHOUT these two, and step 2c said upgrade_reasons tokens
+are "not re-validated here" flatly. The design text predated the
+remediation and never caught up.
+
+The staleness surfaced through the 2026-08-27/28 cross-model panel: all
+three vendors flagged the `eligible: true` validation gap (OpenAI and
+Google as Critical, Anthropic as Minor); the owner adjudicated it Major;
+a peer session (sdd-forge-42) then observed that the implementation's
+branch comment quotes design.md's own `entry['eligible'] == false`
+verbatim, which reframed a "code defect" as a specification-staleness
+defect, and the `git log` pull over
+`2499e81324fb122448b6cab0dd5da9bdf1ca0153` settled the direction:
+deleting the checks to match the design text would reintroduce a proven
+injection.
+
+#### What the amendment changes (five sites: design.md four, requirements.md one)
+
+1. Step 2b's invalid-condition enumeration gains the two ratified
+   conditions, applying to EVERY entry regardless of `eligible`, because
+   2b runs before eligibility is consulted. A present-but-falsy
+   `upgrade_reasons` (false, 0, "", [], null) is treated as absent —
+   ratifying the live twins' measured behavior — and only a present,
+   truthy non-array value, or a malformed element inside a real array,
+   is shape-invalid.
+2. Step 2c's parenthetical rescopes "not re-validated here" to catalog
+   membership alone.
+3. The Data Plan paragraph (the `eligible: true` / `eligible: false`
+   contribution rules) rescopes its own copy of the same sentence
+   identically — the sibling that a 2b/2c-only sweep would have missed
+   (the propagation-defect class this package has hit nine times).
+4. The Design Decisions bullet "No re-validation inside
+   check-risk-upgrade" now states the scoping and corrects the script's
+   self-description from "a keyword scanner plus a trivial merge step"
+   to include the eager shape/grammar gate.
+5. requirements.md's REQ-002 input-state 2 parenthetical — the same
+   invalid-condition enumeration, found by the pre-edit sibling sweep —
+   gains the identical two conditions. This is an alignment, not a new
+   claim: the Field Definitions shape that parenthetical cites has
+   always declared `upgrade_reasons` as an array of tokens; only the
+   summary enumeration was narrower than its referent.
+
+#### What the amendment deliberately does NOT do
+
+It does not ratify the validation's current PLACEMENT. Both twins today
+run the ratified checks inside the `eligible == false` branch, so a
+shape-invalid `upgrade_reasons` on an `eligible: true` entry is silently
+accepted (exit 0, lite-eligible) where amended 2b requires exit 2. That
+is a conformance fail-open, not an exposure — both token-emitting sites
+sit inside the false branch, so nothing malformed can reach the output
+record — but it is a spec-vs-implementation delta this amendment
+KNOWINGLY creates, recorded in RT-20260828-001 stage 2: move the checks
+ahead of the eligibility test in both twins, through human-copy staging,
+a reissued MANIFEST.sha256, and a second HUMAN APPLY STEP (the payload
+was applied live on 2026-08-28, so a fix reaches the live tree no other
+way). The regression fixture for that change must assert exit 2 — never
+"no forged tokens appear in the record", which passes today against the
+live defect.
+
+#### Closing update (spec re-review attempt 7 round 2): stage 2 has landed
+
+The paragraph above described the placement delta as it stood when this
+entry was first written. It has since been closed, in order: the fix
+committed as `cf7c9b975c25f22532e16fe2c4dc7c042bbed8c6` (validation moved
+ahead of the eligibility test in both twins, predicates verbatim;
+MANIFEST.sha256 reissued; TDD RED run showing TEST-013ag/ah failing with
+exactly the silent-accept signature against the pre-fix twins, then all
+four suites green on both runtimes at identical tallies), and the second
+HUMAN APPLY publishing it live as
+`80694f623b3f50210897a3e9998e156545aa2196` (runner exit 0, post-copy
+re-verification, four agreeing hash readings). The fixtures now exist as
+TEST-013ag/ah (exit-2 assertions) and TEST-013ai/aj (falsy-absent pins)
+in `tests/check-ri[REDACTED].tests.{sh,ps1}`, and
+round 2 of this re-review also extended the specification's own fixture
+inventory to name them — requirements.md REQ-006 item (i),
+acceptance-tests.md's AC-027 row, and design.md Test Strategy item 13 —
+so a future suite author reads the exit-2 obligation from the
+specification itself, not only from the amendment record.
 # ---- specs/epic-194-a6-lite-integration/ux-spec.md ----
 # UX Specification: epic-194-a6-lite-integration
 
@@ -8046,11 +8233,11 @@ does it: `traceability.json` already carries the CORRECT paths
 (`T-003.green.log`, `T-003.red.log`; zero occurrences of the phantom
 `green-sh.log`/`red-sh.log`), so only the `.md` drifted and the two will agree
 once B lands.
-# ---- specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md (declared output) ----
+# ---- specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
 ---
 name: lite-spec
 description: Lightweight SDD specification for internal/departmental apps. Creates requirements, design, and tasks (single-approval, no traceability/ADR/evidence-bundle). Use for low-stakes internal app work; graduate to sdd-bootstrap-interviewer for higher rigor.
-disable-model-invocation: true
+disable-model-invocation: false
 user-invocable: false
 ---
 
@@ -8076,6 +8263,114 @@ Claude Code:
 ## Preconditions
 
 リポジトリ root に `AGENTS.md` が存在し、`scripts/check-sdd-structure.sh`（または `.ps1`）が `missing:` を出さないこと。未整備なら `/sdd-bootstrap:sdd-adopt` を案内して停止する。lite でも SDD 構造（AGENTS.md + 必須ディレクトリ）は前提（implement-task の前提条件）。
+
+## Track Detection
+
+本スキルは lite トラックを前提に呼ばれるが、その前提自体が Capability Mode
+の解決結果に従う。よってここが本スキルの Capability Mode 関連エントリポイント
+であり、Project Context の内容を信頼する前に、まず hook-activation
+ハンドシェイクを実行する:
+
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — 新しい単回使用 nonce と
+   カナリア対象 `sdd/.hook-canary-sentinel` を返す。前回の実行で残ったセンチネル
+   があれば、まず1回だけクリーンアップを試み結果を記録する。新しいチャレンジは
+   いずれにせよ発行される。
+2. エージェント自身のセッションが、チャレンジに含まれるランタイム別テンプレート
+   を用いてそのカナリア対象への**実際の**ツール呼び出しを試み、生の結果をその
+   まま記録する。ツール自身がプローブ書き込みを行うことはない。
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`。
+4. `HOOK_ACTIVE` ならトラック解決へ進む。それ以外の結果が止めるのは
+   **Capability Mode のみ**であり、どのプロジェクトが止まるかはこの手順単独
+   ではなく下のゲート表が決める: Project Context が物理的に存在し、かつ妥当
+   である場合に**限り** `CAPABILITY_RUNTIME_UNAVAILABLE` で停止する
+   (ゲート G2)。物理的に存在しない場合、そのプロジェクトは Capability Mode
+   に入ったことがないため、`DISABLED_LEGACY` として互換フォールバックを続行
+   する (ゲート G3/G4)。妥当な Context を持つプロジェクトから、レガシー動作へ
+   黙ってフォールバックしてはならない。
+
+<!-- /sdd:handshake-wiring -->
+
+**存在・妥当性プローブを実行する時点**: ハンドシェイク自身は Project Context
+を読まないため、手順 4 の時点ではどのゲート行に当たるかはまだ確定していない。
+G1/G2 と G3/G4 を分ける物理的存在・妥当性プローブは、下の「トラック解決」の
+**最初の**手順であり、そこで実行する — ハンドシェイクの後、トラックを選ぶ前
+である。本節がトラック解決より前に置かれているのはハンドシェイクの意味に関する
+規範だからであって、プローブを前倒しせよという指示ではない。
+
+### `HOOK_ACTIVE` でない場合に何が止まり、何が止まらないか
+
+上の手順 4 が止めるのは **Capability Mode** であって、本スキルの呼び出し
+すべてではない。どちらになるかは、そのプロジェクトが Capability Mode に
+入っていたかどうかで決まる。次の表は**両方向とも**規範である:
+
+<!-- sdd:capability-gate-scope v1 -->
+
+| Gate | Project Context | Handshake | Resolution |
+|---|---|---|---|
+| G1 | physically present and valid | `HOOK_ACTIVE` | `CAPABILITY_MODE` |
+| G2 | physically present and valid | not `HOOK_ACTIVE` | `CAPABILITY_RUNTIME_UNAVAILABLE` |
+| G3 | physically absent | `HOOK_ACTIVE` | `DISABLED_LEGACY` |
+| G4 | physically absent | not `HOOK_ACTIVE` | `DISABLED_LEGACY` |
+
+<!-- /sdd:capability-gate-scope -->
+
+- **G2 — 停止する。** 有効な Project Context を持つプロジェクトは Capability
+  Mode に入っている。nonce 一致した本物の拒否を観測できなかったハンドシェイク
+  は `CAPABILITY_RUNTIME_UNAVAILABLE` で停止しなければならず、下の互換フォール
+  バック経路へ降格してはならない。その降格こそ ADR-0023 が塞ぐ silent
+  downgrade である（`design.md:1112` — 呼び出し側スキルは **Capability Mode**
+  を停止するのであって、黙ってレガシーへフォールバックしてはならない）。
+- **G4 — 続行する。** Project Context を持たないプロジェクトは Capability Mode
+  に一度も入っていない。ADR-0016 の `disabled-legacy` — 「Project Context を
+  持たないプロジェクトにとって正常かつ想定内の状態であり、エラーではない」
+  (`requirements.md:1821-1827`) — であり、`CAPABILITY_RUNTIME_UNAVAILABLE` とは
+  「決して同一視されない」(`design.md:1734`)。ハンドシェイクが門番をするのは
+  `HOOK_ACTIVE` で条件付けられた振る舞いだけである
+  (`requirements.md:1078`) ため、`HOOK_ACTIVE` 以外の結果はこの種の
+  プロジェクトを止めない。下の互換フォールバック経路をそのまま続行する。
+
+禁止されている遷移は Capability Mode → レガシーであって、レガシー → レガシー
+は降格ではない。G2 がそうだからという理由で G4 を
+`CAPABILITY_RUNTIME_UNAVAILABLE` として報告してはならない。
+
+### トラック解決
+
+次にトラックを解決する。**物理的存在の確認が先、承認検証が後**である。
+`sdd/project-context.yaml` が存在するのに `validate-approval-sidecar` に
+失敗する状態は、ファイルが存在しない状態とは**別物**として扱う。両者を同一
+視することが ADR-0023 の塞ぐ fail-open である。
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+- `COMPATIBILITY_FALLBACK`（C1 のみ）— 従来の優先順位（`--lite` → lite、
+  `AGENTS.md` の `spec_profile: lite` → lite、既定 → full）をそのまま適用する。
+  解決トラックが lite なら以下の Process を実行し、full なら本スキルを実行せず
+  `/sdd-bootstrap:sdd-bootstrap-interviewer` へ切り替える。
+- `PROJECT_CONTEXT_INVALID`（C2）— その名前を報告して停止する。`specs/<feature>/`
+  配下に何も生成せず、C1 のフォールバックへ落とさず、暗黙の `full`/`lite` 選択へも
+  進まない。
+- `PROMOTE_FULL` / `NO_OP_FULL` — 解決トラックは `full`。本スキルは実行せず、
+  `/sdd-bootstrap:sdd-bootstrap-interviewer` に切り替える。
+- `NO_OP_LITE` — 解決トラックは `lite`。以下の Risk-Upgrade Gate と Process を
+  実行する。
+- `ERROR_STOP` — 明示的なエラーで停止する。`--lite` が `full` プロファイルを
+  格下げすることは決してない。
+
+この表の正本は `PLUGIN-CONTRACTS.md` の Track Detection セクションである。
 
 ## Risk-Upgrade Gate
 
@@ -8156,8 +8451,9 @@ ship time, unmodified by this extension) -- both stages are mandatory.
 4. UI アプリで人間が希望する場合のみ、`design-sync-loop` スキル
    （sdd-bootstrap プラグインの内部スキル）を実行する。モックアップは
    `specs/<feature>/mockups/` に、`Design-Source` / `Mockup-Status` は
-   `design.md` に記録される。任意・非ブロッキングで、ツールがない環境では
-   手動手順にフォールバックする。希望しない場合はこのステップを飛ばす。
+   `specs/<feature>/design.md` に記録される。任意・非ブロッキングで、ツール
+   がない環境では手動手順にフォールバックする。希望しない場合はこのステップ
+   を飛ばす。
 5. 各タスクは `Approval: Draft` / `Status: Planned` で生成する。`Risk:` 行は付けない（lite は階層強制を使わない）。
 6. 不明な製品判断は `Open Questions` に残す。勝手に埋めない。
 
@@ -9090,7 +9386,48 @@ Results: 31 passed, 0 failed
 # ---- CHANGELOG.md (declared output — CURRENT worktree content; implementation report's declared hash for this path is STALE, the file has changed since the report was written) ----
 # Changelog
 
-## Unreleased
+## v1.17.0 (2026-08-27)
+
+### Security
+
+- **ガードが `git apply` / `patch` / `git am` を素通ししていた問題（WFI-048）**:
+  R-10 の保護は「動詞＋コマンドライン上の対象」を前提にしており、対象を
+  **参照先ファイルの中**に書くコマンドを一切見ていなかった。staged patch を
+  適用すれば、`Edit` が拒否した保護ファイルの書き換えがそのまま通る。実際に
+  `2b8e528a` はこの経路で main に到達している。`docs/ci-staging/README.md` の
+  「人間が検証してから適用する」という規約は、ガードだけが強制していた。
+  - patch applier に対しては **patch を実際に読み**、`---` / `+++` ヘッダが
+    宣言する全対象を `_is_protected_gate_file` に通す。読めない・unified diff
+    として解釈できない patch は fail closed。`git am` は書き込み動詞の語彙に
+    無いため、独立したゲートとして評価する。
+  - 検査系フラグ（`--check` / `--stat` / `--numstat` / `--summary` /
+    `--dry-run`）は免除。何も変更しないうえ、README が人間に指示している検証
+    手順そのもの。セグメント単位判定なので迂回には使えない。
+  - **トークンに埋没したパス**（`open('<path>','a')` のように後方一致が届かない
+    形）も検出する。従来の末尾一致テストが先に走るため、判定が緩む方向には
+    決して動かない。境界文字クラスは真陽性ではなく**偽陽性コーパス**に対して
+    決めており、バックティックは
+    `tests/guard-staging-exemption.tests.sh` の散文ケースを誤検知したため除外。
+  - `python3 <script>` のようにスクリプトが実行時に対象を決める形は**原理的に
+    閉じない**ため、覆ったとは扱わず開いたまま記録している。パリティスイートが
+    ALLOW を表明しているので、動詞一括禁止に踏み込んだ実装はそこで落ちる。
+  - 実測: 復元可能な 14 形状が 14/14 ALLOW → **0/14**、誤 DENY 0、
+    py/js/ps1 の三双子で判定不一致 0。既存ガードスイート 12 本の
+    コマンドペイロード 64 個中 63 個で判定の反転 0。
+
+### Changed
+
+- **委譲先スキルが誰からも呼べなかった問題（WFI-054）**: 20 の委譲先スキルが
+  `user-invocable: false` と `disable-model-invocation: true` を**両方**持って
+  いた。前者が人間を、後者がモデルを拒むため、`ship` と `bootstrap` は
+  `quality-gate`・`implement-tasks`・`cross-model-verify`・3 つのレビュー
+  ループを含む下位段のどれにも到達できなかった。委譲先は
+  `disable-model-invocation: false` を明示する形に統一し、
+  `tests/validate-repository.ps1` は**明示されていないこと**と
+  **`true` と `user-invocable: false` の同時指定**の両方を hard failure と
+  するようになった。人間の入口 6 本（`bootstrap` / `ship` / `diagnose` /
+  `domain-model` / `fix-by-review-ticket` / `sdd-sudo`）は `true` のままで、
+  モデルがワークフローを自発的に開始することは引き続きできない。
 
 ### Fixed
 

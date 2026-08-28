@@ -1,1 +1,36 @@
-{"schema":"cross-model-verdict/v1","task_id":"T-001","feature":"epic-194-a6-lite-integration","vendor":"openai","model":"gpt-5.6-sol","verdict":"NEEDS_WORK","findings":[{"severity":"Major","title":"Required regression verification is incomplete","detail":"The verification contract marks the required regression check passes:false and states the full tests/run-all.sh execution timed out. Scoped substitute runs do not verify the required full regression surface, so task completion cannot be established."},{"severity":"Major","title":"Required placeholder scan fails without the mandated acceptance","detail":"The verification contract marks placeholder-scan passes:false. Its evidence reports five findings, and the bundle explicitly states that no quality-gate report records the human acceptance required by the scanner for those findings. Pre-existing findings remain unresolved verification failures absent that acceptance."},{"severity":"Major","title":"Verification contract is bound to a stale specification revision","detail":"The contract's spec_revision is 2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437, while its own disclosure says the current requirements/design/acceptance-tests digest is 466465e04248cb912635ed83435ff0c17e9805648e0caead7132ad6276a34d23 after later amendments. No fresh independent gate over the current specification is evidenced, creating unverified spec drift."}],"blind":true,"input_digest":"862d1d4d94d283807569b90c18a7b864637b508966268563236602166283b029","consent":{"kind":"sudo","ref":"specs/epic-194-a6-lite-integration/verification/T-001.panelist-input.txt:6"}}
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5.6-sol",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "verification/T-001.contract.json checks",
+      "note": "The default-fail verification contract is not passing: required regression and placeholder-scan checks are explicitly false, and the contract also states its spec_revision predates the amended specification. T-001 therefore lacks valid quality-gate evidence for the current implementation."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-001/security-review.md addendum",
+      "note": "The independent security PASS covered a deleted predecessor artifact with no recorded digest. The document explicitly says the shipped runner has substantive post-review changes and still requires a fresh independent security review, so T-001's security-review Done-When condition is unmet."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-001/security-review.md Nonblocking limitations; human-copy/apply-protected-files.ps1 CopyOneWindows",
+      "note": "The Windows handle-relative publishing, rename, and reparse-point path has never been executed; both reported green entrypoints exercised the PowerShell suite on macOS and therefore the Unix publisher. This leaves a material cross-platform gap for a high-risk runner intended to modify protected files on Windows."
+    },
+    {
+      "severity": "Minor",
+      "ref": "human-copy/apply-protected-files.ps1 Write-PublishStateReport",
+      "note": "A failure in the batch-wide Test-PostCopyHashes phase occurs after Copy-Payload has completed, leaving FailedTarget null. The live-state report then enumerates installed files but no FAILED target, despite the design requiring post-copy-phase failures to identify the failed target; current TEST-012 covers only a mid-copy failure."
+    }
+  ],
+  "blind": true,
+  "input_digest": "459eaf8bfcfc4a423aa446010319ce618a3b5c8f01af16cc5df0411006000ff1",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md T-001 Approval: Approved (sudo 2026-07-22T15:08:56Z)"
+  }
+}

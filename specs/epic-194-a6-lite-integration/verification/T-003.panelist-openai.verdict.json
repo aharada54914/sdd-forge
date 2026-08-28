@@ -1,1 +1,36 @@
-{"schema":"cross-model-verdict/v1","task_id":"T-003","feature":"epic-194-a6-lite-integration","vendor":"openai","model":"gpt-5.6-sol","verdict":"NEEDS_WORK","findings":[{"severity":"Critical","title":"Default-FAIL verification contract is not satisfied","description":"The contract explicitly records required `regression` and `placeholder-scan` checks as `passes: false`. It also states that `spec_revision` is stale and deliberately leaves the obsolete digest in the authoritative field. The implementation therefore lacks a valid verification contract bound to the reviewed specification.","evidence":"specs/epic-194-a6-lite-integration/verification/T-003.contract.json"},{"severity":"Major","title":"The required evaluate-predicate fan-out is not exercised","description":"REQ-005 requires one real A2 `evaluate-predicate` invocation per Registry Capability × Project-Context component. The tests instead perform a bespoke component-name equality simulation over one capability and one component, then test only the downstream fragment consumer. Static substring checks cannot verify command invocation, Cartesian fan-out, trigger evaluation, or result interpretation, leaving the task's central enforcement path untested.","evidence":"tests/lite-spec-capability-block.tests.sh and tests/lite-spec-capability-block.tests.ps1"},{"severity":"Major","title":"The positive fixture uses a non-catalog upgrade reason","description":"The fixture supplies `financial_settlement`, but the specified twelve-token upgrade-reason catalog contains `payments` and does not contain `financial_settlement`. Because the skill contract says fragment reasons are already catalog-validated, this fixture cannot represent a valid upstream Capability-derived signal and does not establish the claimed compliant success path.","evidence":"tests/fixtures/epic-194-lite-spec/scenarios.json; requirements.md REQ-001/REQ-005"}],"blind":true,"input_digest":"b887b6c4ea585e71dc4bcbdc9bb8b6f6b383a7406fefceec6793c8a20c0a802b","consent":{"kind":"sudo","ref":"T-003.panelist-input.txt header"}}
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-003",
+  "feature": "epic-194-a6-lite-integration",
+  "vendor": "openai",
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "verification/T-003.contract.json: checks.regression",
+      "note": "The required regression check is explicitly passes:false; the cited regression log confirms full-repository regression does not pass. A high-risk implementation cannot receive a passing verification verdict while a required check remains red and unwaived."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-003.contract.json: checks.placeholder-scan",
+      "note": "The required placeholder scan is explicitly passes:false. Its evidence reports five findings in CHANGELOG.md and states that human acceptance in a quality-gate report is required, but the bundle provides no such acceptance."
+    },
+    {
+      "severity": "Major",
+      "ref": "verification/T-003.contract.json: spec_revision",
+      "note": "The verification contract admits its spec_revision is stale and deliberately retains the old digest. Consequently, its passing unit and acceptance evidence is not independently bound to the amended specification currently under review."
+    },
+    {
+      "severity": "Major",
+      "ref": "tasks.md:T-003 Done When / verification/T-003.contract.json comment",
+      "note": "The mandatory HUMAN APPLY STEP remains outstanding, so the staged lite-spec/SKILL.md has not been installed and post-copy verified at the protected live path. The implementation therefore has not completed its required operational delivery path."
+    }
+  ],
+  "blind": true,
+  "input_digest": "4d7689713c559a39f81707c4a3e96c7bf4d8a3f664dfaba03f42fdad7265bdeb",
+  "consent": {
+    "kind": "sudo",
+    "ref": "tasks.md:T-003 Approval: Approved (sudo 2026-07-22T15:39:07Z)"
+  }
+}
