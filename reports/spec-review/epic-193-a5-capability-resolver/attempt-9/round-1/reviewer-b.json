@@ -1,0 +1,60 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-a9r1-seq0841",
+  "host_session_id": "SESS-spec-epic-193-a5-capability-resolver-spec-reviewer-b-a9r1-0841",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "7c5ac0f92ce4286b72f240330aaf5fcc62d52f641062a444921239b9e151e040"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "0e3b90f923913cb058b4e28961040f1648a749c739b27145fea7854e5061b429"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "9b08e1151014d24be2ec7c480f25e3f6d92ba6bc22973fbdc5909a1795f2afc3"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "537f776558cf4b4a99ee455a974857a67e249242dce5806e23d37d6802f2a385"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-9/round-1/precheck-result.json", "sha256": "4ff09cc39bc3ea484450ab0a4e8074e596eb254735cb753ef23003a6f14f3b65"},
+    {"path": "reports/spec-review/epic-193-a5-capability-resolver/attempt-9/round-1/integrated-summary.json", "sha256": "415d41f5a240f5b88e4b5e385b3cdfc4222e23aacd7f250a82151a089e892e5f"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every diagnostic-id row in REQ-002's sixteen-row table, the REQ-003 byte-identity carve-out, the AC-042/AC-059 repaired rows, and the Field Definitions (Resolver, Affected component, Matched Capability, Block) each fix concrete trigger conditions, exact field/array shapes, and closed enumerations, leaving no term two implementers would reasonably diverge on within this gate's scope."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked the two repaired sites (AC-042 row, requirements.md:960; AC-059/TEST-059, requirements.md:977 and acceptance-tests.md:120) against their sibling statements (REQ-006 deferral text, REQ-001 Security Boundaries bullet) and found no remaining conflict; the REQ-003/AC-016 byte-identity widening and the REQ-002 rollback-and-no-write scope rule are internally consistent across every restatement I read."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-010/038-040/047-049/055/057/058 cover Block-taxonomy fixtures, staged-generation rollback, crash recovery, TOCTOU/post-publication races, and the two ruling-C amended sub-triggers; TEST-018 and Edge Cases cover the zero-affected-component case; TEST-027/056 cover every any-branch WARN case with no remaining accepted-WARN state."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three Assumptions each state an explicit fallback/re-verification procedure if the assumed upstream state is not yet live at implementation time; Open Questions OQ-001/OQ-002 are explicitly deferred to a named future epic's own contract rather than left as unresolved spec-time ambiguity, and OQ-003 is resolved in this revision (INV-020)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-059/TEST-059 (requirements.md:977, acceptance-tests.md:120) now lock the Security Boundaries bullet stating the Resolver never writes to a *.approval.json sidecar, sdd/.approved-context/ anchor, or guard-invariants.json, via a repository-wide grep-based self-check identical in mechanism/cadence to the already-established AC-025/TEST-025 lock -- closing the gap that left this boundary asserted but untested."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "REQ-001 through REQ-008 fix CLI shape, a closed sixteen-row Block taxonomy, output schemas, determinism guarantees, test-suite scope, and a caller-integration contract with file:line-cited anchors; a design reviewer has a fully-specified contract to review against with no invented product behavior required."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this repository (confirmed via glob for domain/context-map.md and domain/domain-contract.json, both absent), so this check is out of scope per its skip condition."
+    }
+  ]
+}
