@@ -2064,3 +2064,54 @@ plus sweep closes in one.
 - `frontend-spec.md`: `d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126`
 - `traceability.md`: `2c322b219eadfcd6ff536cc2b754bfb0ef7c479a0c378f0024ce77107f38d5fc`
 - `tasks.md`: `134af5107aa3dd27edb601e377e1aae14d9603c6733efde7a682df1d94573f2b`
+
+### Third cross-model audit, run before the terminal round
+
+The third audit was run deliberately **before** attempt 8 round 3 rather
+than after it, so the terminal round would not be spent discovering what
+an audit can enumerate in one pass. Four findings — one Critical, two
+Major, one Minor. Across the three audits the trend is **10 → 5 → 4**
+with severity falling, and every finding in this pass was sibling drift.
+
+- **Critical.** The v1 remediation scoped the unrecoverable-journal
+  branch's per-target obligation at `design.md`'s recovery enumeration
+  and `infra-spec.md`'s MIX branch, but the Security-Boundaries-style
+  sentences written in that *same* commit still said the whole state is
+  left "exactly as found" while their own adjacent clause requires
+  Evidence fully written. Closed at `design.md`'s proceeds-past bullet,
+  `security-spec.md`'s crash bullet and `infra-spec.md`'s
+  runtime-rollback bullet — and at the `requirements.md` mirror of the
+  first, which **the audit did not name and the post-edit normalised
+  sweep did**.
+- **Major.** AC-047's two mandatory assertions existed only in TEST-047.
+  Mirrored into `requirements.md` AC-047, `security-spec.md`'s TEST-047
+  row and T-007's Done-When bullet, each stating both halves and why
+  either alone is wrong.
+- **Major.** `traceability.md` told every task author to register its own
+  suite, while `tasks.md`'s serialization contract says only seven of ten
+  do — T-003, T-004 and T-007 append fixtures to T-002's already-
+  registered shared suite. Following traceability would have produced
+  duplicate or unauthorized registration work.
+- **Minor.** One stale "item e's four remaining rows" cell counting the
+  extra `snapshot-generation-mismatch` fixture as a seventeenth row.
+
+**What this pass demonstrates about the method.** The audit and the
+post-edit normalised sweep catch **different** things and both are
+needed: the audit found three sites the sweep's patterns would not have
+flagged, and the sweep found a fourth site of the audit's own Critical
+that the audit missed. Commit
+`071c42fab76e0f9372a426c83e00206588682a19`, documents only, six files;
+table integrity re-verified afterwards (58 AC rows, 55 TEST rows, the
+sixteen-row enum intact, per-row pipe counts correct).
+
+### Per-document SHA-256 at remediation commit 071c42fa
+
+- `requirements.md`: `8ea947c7dca8946b8ed6c5cfb54d1bbe4ecac30d697cea945e1d5ac112d309e9`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`: `fce2aa09b2999174dba37536c08d41b450183cb9b11acc52459f423fd8658618`
+  (unchanged by this commit)
+- `design.md`: `72dcf613c007e6e8815c495e5ae3e9c8deeca7dde6161dd6ec61b7da96335f55`
+- `security-spec.md`: `20966ebf1bcfbf615807e284dade1a5a79de9923f7c8d0af7fc9d0b48601281b`
+- `infra-spec.md`: `6840368c053d94bc4704ae3acb0f521cac647998e90238ba02adf2e03a65d51e`
+- `traceability.md`: `420b4b924417688087f65965c35f862a18a0893b93dccbe3edda282e1e648cf2`
+- `tasks.md`: `42e91e393365c9ae2692a5dc61a625b64b2cca4a34ecc79c5370a3c9178bb29e`
