@@ -182,19 +182,33 @@ if capability_reasons_supplied:
                 # nothing to all_triggers[] (AC-027's forbidden silent
                 # degrade; cross-model panelist finding, T-002 remediation).
                 raise ValueError("eligible is not a boolean")
+            # Amended design.md 2b (2026-08-28, RT-20260828-001):
+            # upgrade_reasons shape/grammar is validated for EVERY entry,
+            # in this loop, BEFORE eligibility is consulted -- 2b runs
+            # before 2c. Under the pre-amendment placement (inside the
+            # eligible == false branch below) an eligible:true entry
+            # carrying a malformed value was silently accepted (exit 0,
+            # lite-eligible), the conformance fail-open all three
+            # cross-model panelists flagged. A present-but-falsy value
+            # (false, 0, "", [], null) is treated as absent -- `or []`
+            # here, Test-PythonFalsy in the ps1 twin -- ratified live
+            # behavior, TEST-013ai/aj.
+            reasons = entry.get("upgrade_reasons") or []
+            if not isinstance(reasons, list):
+                raise ValueError("upgrade_reasons is not an array")
+            for token in reasons:
+                if not isinstance(token, str) or not upgrade_reason_pattern.fullmatch(token):
+                    raise ValueError("upgrade_reasons element is not a valid reason token")
         for entry in capabilities:
             # design.md API/Contract Plan: "entry['eligible'] == false" --
             # entry["eligible"] is already validated as a real bool above,
             # so == and `is` are equivalent here; `==` is used to match the
-            # design's own stated comparison operator literally.
+            # design's own stated comparison operator literally. This loop
+            # only EMITS: shape/grammar was validated for every entry in
+            # the loop above (amended 2b).
             if entry["eligible"] == False:
                 reasons = entry.get("upgrade_reasons") or []
-                if not isinstance(reasons, list):
-                    raise ValueError("upgrade_reasons is not an array")
-                for token in reasons:
-                    if not isinstance(token, str) or not upgrade_reason_pattern.fullmatch(token):
-                        raise ValueError("upgrade_reasons element is not a valid reason token")
-                # No str() anywhere below: every token is now a validated
+                # No str() anywhere below: every token is a validated
                 # str and entry["id"] was validated as a str above, so the
                 # coercions those two lines used to carry were the mechanism
                 # of the defect, not a safeguard. Their absence is the

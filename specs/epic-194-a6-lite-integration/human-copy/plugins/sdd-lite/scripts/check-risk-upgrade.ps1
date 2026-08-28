@@ -169,44 +169,58 @@ if ($PSBoundParameters.ContainsKey('CapabilityReasons')) {
                 # cross-model panelist finding, T-002 remediation).
                 Write-FragmentInvalid
             }
+            # Amended design.md 2b (2026-08-28, RT-20260828-001): ps1 twin
+            # of sh's unconditional shape/grammar validation -- EVERY
+            # entry, in this loop, BEFORE eligibility is consulted (2b
+            # runs before 2c). Under the pre-amendment placement (inside
+            # the eligible -eq $false branch below) an eligible:true entry
+            # carrying a malformed value was silently accepted (exit 0,
+            # lite-eligible), the conformance fail-open all three
+            # cross-model panelists flagged. A present-but-falsy value is
+            # absent (Test-PythonFalsy), matching sh's `or []` --
+            # ratified live behavior, TEST-013ai/aj.
+            if ($null -ne $entry.PSObject.Properties['upgrade_reasons'] -and $null -ne $entry.upgrade_reasons -and -not (Test-PythonFalsy $entry.upgrade_reasons)) {
+                if ($entry.upgrade_reasons -isnot [array]) {
+                    # ps1 twin of sh's `if not isinstance(reasons, list):
+                    # raise ValueError(...)` -- a scalar upgrade_reasons
+                    # value must Block (exit 2), not be silently wrapped
+                    # into a one-element array and emitted as a trigger
+                    # token (cross-model panelist finding, T-002
+                    # remediation).
+                    Write-FragmentInvalid
+                }
+                # Validate the elements of the RAW array, before @()
+                # touches it. @() flattens one level, so a nested array
+                # ([["x"]]) would otherwise arrive here as the bare
+                # string "x" and pass -- which is precisely how the two
+                # runtimes came to disagree on that input before this
+                # fix (measured: sh emitted "['x']", ps1 emitted "x").
+                # Iterating the raw array keeps the nested element an
+                # [object[]], which is -isnot [string], so both runtimes
+                # now Block it identically.
+                #
+                # ps1 twin of sh's upgrade_reason_pattern -- see that
+                # script for the full reasoning (same output grammar as
+                # the id field, bounded allowlist rather than a
+                # delimiter blacklist, shape not catalog vocabulary).
+                # \A/\z (not ^/$) for the same trailing-newline reason
+                # as the id pattern above.
+                foreach ($token in $entry.upgrade_reasons) {
+                    if ($token -isnot [string] -or -not ($token -cmatch '\A[a-z0-9][a-z0-9_-]*\z')) {
+                        Write-FragmentInvalid
+                    }
+                }
+            }
         }
         foreach ($entry in $capabilities) {
             # design.md API/Contract Plan: "entry['eligible'] == false" --
             # entry.eligible is already validated as a real [bool] above,
-            # so -eq performs no coercion here.
+            # so -eq performs no coercion here. This loop only EMITS:
+            # shape/grammar was validated for every entry in the loop
+            # above (amended 2b).
             if ($entry.eligible -eq $false) {
                 $reasons = @()
                 if ($null -ne $entry.PSObject.Properties['upgrade_reasons'] -and $null -ne $entry.upgrade_reasons -and -not (Test-PythonFalsy $entry.upgrade_reasons)) {
-                    if ($entry.upgrade_reasons -isnot [array]) {
-                        # ps1 twin of sh's `if not isinstance(reasons, list):
-                        # raise ValueError(...)` -- a scalar upgrade_reasons
-                        # value must Block (exit 2), not be silently wrapped
-                        # into a one-element array and emitted as a trigger
-                        # token (cross-model panelist finding, T-002
-                        # remediation).
-                        Write-FragmentInvalid
-                    }
-                    # Validate the elements of the RAW array, before @()
-                    # touches it. @() flattens one level, so a nested array
-                    # ([["x"]]) would otherwise arrive here as the bare
-                    # string "x" and pass -- which is precisely how the two
-                    # runtimes came to disagree on that input before this
-                    # fix (measured: sh emitted "['x']", ps1 emitted "x").
-                    # Iterating the raw array keeps the nested element an
-                    # [object[]], which is -isnot [string], so both runtimes
-                    # now Block it identically.
-                    #
-                    # ps1 twin of sh's upgrade_reason_pattern -- see that
-                    # script for the full reasoning (same output grammar as
-                    # the id field, bounded allowlist rather than a
-                    # delimiter blacklist, shape not catalog vocabulary).
-                    # \A/\z (not ^/$) for the same trailing-newline reason
-                    # as the id pattern above.
-                    foreach ($token in $entry.upgrade_reasons) {
-                        if ($token -isnot [string] -or -not ($token -cmatch '\A[a-z0-9][a-z0-9_-]*\z')) {
-                            Write-FragmentInvalid
-                        }
-                    }
                     $reasons = @($entry.upgrade_reasons)
                 }
                 # No [string] cast anywhere below: every token is a validated
