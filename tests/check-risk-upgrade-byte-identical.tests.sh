@@ -39,24 +39,41 @@ if [ ! -f "$BASELINE" ]; then
   exit 1
 fi
 
+# Runtime pin of the frozen baseline bytes (2026-08-28 hardening): a silently
+# rewritten fixture would re-tautologize AC-007 without any test going red, so
+# the pinned sha256 is asserted here, not only documented in the header.
+BASELINE_EXPECTED_SHA="192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45"
+BASELINE_ACTUAL_SHA="$(shasum -a 256 "$BASELINE" | cut -d' ' -f1)"
+if [ "$BASELINE_ACTUAL_SHA" = "$BASELINE_EXPECTED_SHA" ]; then
+  ok "TEST-007-baseline-hash: frozen baseline sha256 matches the pinned value"
+else
+  fail "TEST-007-baseline-hash: frozen baseline sha256 drifted (expected ${BASELINE_EXPECTED_SHA}, got ${BASELINE_ACTUAL_SHA})"
+  echo ""
+  echo "Results: ${PASS} passed, ${FAIL} failed"
+  exit 1
+fi
+
 WORK="$(mktemp -d)"
 WORK="$(cd "$WORK" && pwd -P)"
 trap 'rm -rf "$WORK"' EXIT
 
+# Strict byte comparison (2026-08-28 hardening): outputs are captured to
+# files and compared with cmp, so trailing-newline differences that command
+# substitution would normalize away are detected too.
 assert_identical() {
   local label="$1" fixture="$2"
-  local live_out live_exit base_out base_exit
-  live_out="$(bash "$LIVE" "$fixture" 2>&1)" && live_exit=0 || live_exit=$?
-  base_out="$(bash "$BASELINE" "$fixture" 2>&1)" && base_exit=0 || base_exit=$?
+  local live_exit base_exit
+  bash "$LIVE" "$fixture" > "${WORK}/live.out" 2>&1 && live_exit=0 || live_exit=$?
+  bash "$BASELINE" "$fixture" > "${WORK}/base.out" 2>&1 && base_exit=0 || base_exit=$?
   if [ "$live_exit" -eq "$base_exit" ]; then
     ok "${label}: exit code identical (${live_exit})"
   else
     fail "${label}: exit code differs (live=${live_exit}, baseline=${base_exit})"
   fi
-  if [ "$live_out" = "$base_out" ]; then
-    ok "${label}: stdout byte-identical"
+  if cmp -s "${WORK}/live.out" "${WORK}/base.out"; then
+    ok "${label}: output byte-identical"
   else
-    fail "${label}: stdout differs. live=[${live_out}] baseline=[${base_out}]"
+    fail "${label}: output differs. live=[$(cat "${WORK}/live.out")] baseline=[$(cat "${WORK}/base.out")]"
   fi
 }
 
