@@ -3,30 +3,41 @@
 # T-002, design.md Test Strategy item 4, TEST-007/AC-007).
 #
 # Proves the extended script, invoked with NO second argument, is
-# byte-identical (stdout + exit code) to today's live, unextended script,
+# byte-identical (stdout + exit code) to the FROZEN pre-extension baseline,
 # across the existing six-row keyword-scan fixture set reused as a
 # regression baseline, plus a clean (no-match) fixture.
 #
-# NOTE: the extended script under test lives at its canonical staged
-# human-copy path below, not yet at the live plugins/sdd-lite/scripts/ path
-# -- the R-10 guard's human-copy/ staging exemption is confirmed live
-# (specs/epic-194-a6-lite-integration/README.md), so this is the
-# canonical `specs/<feature>/human-copy/<repo-relative-path>` candidate T-001
-# migrated out of the earlier non-suffix-matching `.PROPOSED` workaround.
-# Once a human applies T-001's runner against this task's real staged
-# payload, SUT below becomes the live path; this suite's assertions do not
-# change, since they already require byte-for-byte parity with the live
-# script.
+# BASELINE PINNING (2026-08-28, quality-gate cycle 2). Until the human apply
+# (80694f62) this suite compared the live unextended script against the
+# staged extended candidate. Once the apply published the candidate, both
+# paths named the same blob (43513b8a) and every assertion became a
+# comparison of a program with itself -- the seq-0912 evaluator recorded
+# this as AC-007's only Major. Per the owner's remedy selection (option a),
+# the pre-extension bytes are now pinned as a frozen fixture: blob 3bec203b
+# (the live script at 80694f62^), sha256
+# 192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45,
+# stored at tests/fixtures/epic-194-risk-upgrade-baseline/. The comparison
+# below is live-vs-frozen-baseline, which discriminates again: any change
+# to the legacy single-argument behaviour of the live script goes red.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 LIVE="${REPO_ROOT}/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
-SUT="${REPO_ROOT}/specs/epic-194-a6-lite-integration/human-copy/plugins/sdd-lite/scripts/check-risk-upgrade.sh"
+BASELINE="${REPO_ROOT}/tests/fixtures/epic-194-risk-upgrade-baseline/check-risk-upgrade-baseline.sh"
 PASS=0
 FAIL=0
 
 ok()   { echo "ok: $*";   PASS=$((PASS+1)); }
 fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
+
+# Fail closed with a visible FAIL (not an opaque set -e abort) if the frozen
+# baseline fixture is missing; the tally and exit 1 still reach run-all.
+if [ ! -f "$BASELINE" ]; then
+  fail "TEST-007-baseline-present: frozen baseline fixture missing at ${BASELINE}"
+  echo ""
+  echo "Results: ${PASS} passed, ${FAIL} failed"
+  exit 1
+fi
 
 WORK="$(mktemp -d)"
 WORK="$(cd "$WORK" && pwd -P)"
@@ -34,18 +45,18 @@ trap 'rm -rf "$WORK"' EXIT
 
 assert_identical() {
   local label="$1" fixture="$2"
-  local live_out live_exit sut_out sut_exit
+  local live_out live_exit base_out base_exit
   live_out="$(bash "$LIVE" "$fixture" 2>&1)" && live_exit=0 || live_exit=$?
-  sut_out="$(bash "$SUT" "$fixture" 2>&1)" && sut_exit=0 || sut_exit=$?
-  if [ "$live_exit" -eq "$sut_exit" ]; then
+  base_out="$(bash "$BASELINE" "$fixture" 2>&1)" && base_exit=0 || base_exit=$?
+  if [ "$live_exit" -eq "$base_exit" ]; then
     ok "${label}: exit code identical (${live_exit})"
   else
-    fail "${label}: exit code differs (live=${live_exit}, sut=${sut_exit})"
+    fail "${label}: exit code differs (live=${live_exit}, baseline=${base_exit})"
   fi
-  if [ "$live_out" = "$sut_out" ]; then
+  if [ "$live_out" = "$base_out" ]; then
     ok "${label}: stdout byte-identical"
   else
-    fail "${label}: stdout differs. live=[${live_out}] sut=[${sut_out}]"
+    fail "${label}: stdout differs. live=[${live_out}] baseline=[${base_out}]"
   fi
 }
 
