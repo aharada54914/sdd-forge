@@ -1,0 +1,97 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-193-a5-capability-resolver",
+  "attempt": 11,
+  "round": 1,
+  "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-b-a11r1-seq0846",
+  "host_session_id": "SESS-task-epic-193-a5-capability-resolver-task-reviewer-b-a11r1-0846",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "de95f1d0784e1fe19d68cadb401b08f9541a9d6b41ee9753c8323986f4546e11"},
+      {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "0e3b90f923913cb058b4e28961040f1648a749c739b27145fea7854e5061b429"},
+      {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "cd542e9475c3f4c756784ee5e3e72a6727695ccb98ba11d6bd8586b286de2ae8"},
+      {"path": "specs/epic-193-a5-capability-resolver/tasks.md", "sha256": "b4923f05d960102fb2dafa6e77a510dfbe96fd4ee81b01435c31dc3f3c048a20"},
+      {"path": "specs/epic-193-a5-capability-resolver/traceability.md", "sha256": "0463f93ef01be1ceb04b27f1ccba6040e8638fa8da3c0db874cd49835006b528"},
+      {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+      {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+      {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+      {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "bb6a4836ab236ee4b6bf144ae3625d176edd1b3ed3bb4c80a6e865dc5a888298"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-11/round-1/precheck-result.json", "sha256": "7fb857fdf8366c17dc16c0722873e79207d3b6703679a375cfdcb71180b390a6"},
+      {"path": "reports/task-review/epic-193-a5-capability-resolver/attempt-11/round-1/integrated-summary.json", "sha256": "ef97fe5c0257e5fec524cd5315c32a83f64be572c916003b580625f9e181e6ac"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002/T-003/T-004/T-007/T-008 are Risk: high with rationale citing irreversible-filesystem/security-sensitive surfaces; T-001/T-005/T-006/T-009/T-010 are Risk: medium with no sentinel-surface touch. T-007's new AC-059 Done-When bullet (tasks.md:1910-1920) adds an approval-surface/authorization-boundary deny-list assertion but does not change T-007's own write surface or elevate it past its already-correct 'high' classification; it reinforces the existing rationale rather than contradicting it. For all task content unchanged by the AC-059 propagation (T-001..T-006, T-008..T-010, and T-007's pre-existing body), this check converges to the persisted PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/ (post-implementation provenance re-review, TYPE-H convergence rule)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All five Risk: high tasks (T-002 tasks.md:718, T-003 tasks.md:1004, T-004 tasks.md:1264, T-007 tasks.md:1963-1965, T-008 tasks.md:2165-2167) carry an explicit RED/GREEN TDD-evidence Done-When bullet plus 'An independent quality-gate verdict records PASS.' No task in the package is Risk: critical, so the second-approver/signed-bundle requirement does not apply. T-007's new AC-059 bullet (tasks.md:1910-1920) is additive and does not remove or weaken T-007's own pre-existing TDD-evidence/independent-review bullet. This is a TYPE-D check and was independently re-verified against current tasks.md bytes rather than relying on convergence."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-007's ### Done When section (tasks.md:1869-1965) now contains 9 distinct top-level verifiable items: (1) Crash-recovery scan, (2) In-process publication failure, (3) Post-publication verification/race, (4) the new AC-059 approval-surface grep self-check (tasks.md:1910-1920, unmarked with the '- [ ]' checkbox every sibling item uses), (5) affected_components-only snapshot-generation-mismatch fixture, (6) Full sixteen-row Block matrix complete, (7) Staged-generation/journaled-transactional-publication lock, (8) Governance, (9) TDD evidence. This exceeds the 8-item oversized-task indicator. Before the AC-059 addition the list stood at exactly 8 items (at the check's own ceiling); the new AC-059 bullet is the item that pushes it past the threshold. T-007 is already this package's most structurally complex task (Risk: high, the sole live-filesystem-write path, four prior Global-Constraints remedy passes cited in its own package history) and a single quality-gate pass must now independently verify 9 heterogeneous criteria -- crash recovery, in-process failure, post-publication race, an approval-surface deny-list grep, a snapshot fixture, full 16-row-matrix completion, a staging/publication lock, governance, and TDD evidence -- in one session, increasing the risk that one criterion is missed under the gate's own single-pass review. This finding concerns only the AC-059 addition and is reviewed on its own merits per the invocation's explicit carve-out from the TYPE-H convergence rule; it is not a re-litigation of T-007's pre-existing (converged) content."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-059/TEST-059 (acceptance-tests.md:120) is itself a negative/deny-list security edge-case criterion (no Resolver-owned script writes to an approval sidecar, approved-context anchor, or guard-invariants.json), not a happy-path-only functional AC needing a separate error-path task. It closes a previously-identified attempt-8 round-3 APPROVAL-BOUNDARY finding (acceptance-tests.md:46). All other functional tasks' edge-case coverage (the sixteen-row REQ-002 Block matrix distributed across T-002/T-003/T-004/T-007, acceptance-tests.md AC-057/AC-058) is unchanged content and converges to the persisted PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TEST-059 (acceptance-tests.md:120, security-spec.md:205) is explicitly built as AC-025/TEST-025's twin: a registration-time, CI-gated, repository-wide grep self-check referencing a specific criterion, AC-059 -- satisfying the acceptance-type requirement ('must reference a specific AC-NNN'). This mirrors the already-established TEST-025 convention (tasks.md:2307-2310, T-009) that this same package's prior attempts already accepted without a TEST-TYPE-MATCH finding, and it introduces no new suite file per the preamble (acceptance-tests.md:53-55) and design.md:2774-2777. All other test tasks' type/scope alignment is unchanged content and converges to the persisted PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-007 carries a Rollback: field (tasks.md:1778-1781, 'revert this task's two commits ... states explicitly whether a human should also hand-revert'). The AC-059 addition is a read-only repository-wide grep assertion with no new write surface, so it introduces no new rollback obligation beyond T-007's existing plan. All other high/critical tasks' Rollback fields (T-002, T-003, T-004, T-008) are unchanged content and converge to the persisted PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The AC-059 grep self-check's target-scope text (tasks.md:1912-1916) reads (never writes) `validate-resolver-evidence.*`, which remains T-008's own exclusive Planned Files write scope (tasks.md:2038-2045); T-007's own Planned Files list (tasks.md:1749-1770) is unchanged by the AC-059 addition and adds no new file, matching the confirmed claim that T-007's Scope file list is unaffected. This mirrors the identical precedent already accepted for AC-025 (T-009 greps T-002/.../T-008's scripts, tasks.md:305-306, without claiming write scope over them). All other cross-task file-scope relationships are unchanged content and converge to the persisted PASS evidence at reports/task-review/epic-193-a5-capability-resolver/attempt-10/round-1/."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-007's new AC-059 Done-When bullet (tasks.md:1910-1920) requires the grep self-check to scan `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.*`, but those files are authored by T-008, whose own Blockers field is 'T-001, T-006, T-007' (tasks.md:2182) -- i.e., T-008 is sequenced strictly AFTER T-007 and does not exist at T-007's own quality-gate/Done-When verification time. Unlike its stated model AC-025 (owned by T-009, whose own Blockers list 'T-002, T-003, T-004, T-005, T-006, T-007, T-008' (tasks.md region 2185-2340) place it downstream of every scanned script), AC-059's owner T-007 is not downstream of one of its own two named target globs. I confirmed by full read that T-008's own Requirements/Must Read/Done When (tasks.md:1986-2183) make zero mention of AC-059/TEST-059, so no task-level checkpoint anywhere in the package re-verifies the approval-surface write-scope lock against `validate-resolver-evidence.*` after those files actually exist. The package's own text ('registration-time and CI-gated,' tasks.md:1910-1912; acceptance-tests.md:120) does not establish that this is a perpetual, glob-based CI gate that automatically re-scans files added by later tasks, as opposed to a point-in-time verification at the owning task's own Done-When gate (the pattern every per-task 'Governance' bullet in this package uses instead, e.g., AC-032/AC-034, which ARE explicitly restated in every task including T-008's own). This ambiguity, combined with the complete absence of any AC-059 anchor in T-008, is a concrete integration-verification gap: a `validate-resolver-evidence.*` write violating the approval-surface boundary could land via T-008 with no Done-When item in the package ever catching it. This finding concerns only the AC-059 addition, reviewed on its own merits per the invocation's explicit carve-out from the TYPE-H convergence rule."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All ten tasks (T-001 through T-010) are net-new feature-authoring tasks (schema/CLI-stage/test-suite/validator authoring) per their own titles and Goal sections; none is scoped as a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "T-007's Done When section grew from 8 to 9 distinct top-level verifiable items when the AC-059 approval-surface grep self-check bullet (tasks.md:1910-1920) was added, exceeding the oversized-task indicator threshold on this package's own most structurally complex, Risk: high task."
+    },
+    {
+      "check_id": "DEPENDENCY-OVERLAP",
+      "severity": "Major",
+      "task_id": "T-007",
+      "finding": "AC-059's Done-When bullet on T-007 requires scanning `validate-resolver-evidence.*`, authored by T-008, which is sequenced AFTER T-007 (T-008 Blockers: T-001, T-006, T-007) and carries no AC-059 reference of its own -- leaving no task-level checkpoint that verifies the approval-surface write-scope lock against T-008's own files once they exist."
+    }
+  ]
+}

@@ -1907,17 +1907,6 @@ Commit B (documentation):
   halves required of the one fixture (AC-012; scoped 2026-08-27,
   human-approved, ruling D(2)); the rollback is journal-based,
   never a bare `unlink` (AC-049).
-- A repository-wide grep-based self-check, run at registration time and
-  gated in CI — the identical mechanism and cadence as AC-025's own, and
-  therefore **not** a new suite file and not a new registration — confirms
-  that no Resolver-owned script under `plugins/sdd-quality-loop/scripts/
-  resolve-project-context.*` or `validate-resolver-evidence.*` performs
-  any write of any kind to a `*.approval.json` sidecar, to any path under
-  `sdd/.approved-context/`, or to `guard-invariants.json` (AC-059, NEW
-  2026-08-28, human-approved, ruling E). This task owns the criterion
-  because it authors the only live-artifact write path in the feature; the
-  check is a negative assertion over that path's own source, so it adds a
-  test obligation rather than an implementation one.
 - [ ] **`affected_components`-only `snapshot-generation-mismatch`
   fixture** — TEST-040's own
   companion fixture passes: every digest, including `ownership_digest`,
@@ -1959,7 +1948,27 @@ Commit B (documentation):
   form was unsatisfiable for T-008, whose Scope creates
   `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,ps1}`
   as a direct, per-PR-reviewed agent write, per security-spec.md's own
-  authorization table).
+  authorization table). **This task also authors and registers the
+  approval-surface write-scope self-check (AC-059, NEW 2026-08-28,
+  human-approved, ruling E)**: a repository-wide grep, of exactly
+  AC-025/AC-034's kind and cadence — registration-time and then CI-gated
+  on every commit, never a `tests/*.tests.sh` suite file — asserting that
+  no Resolver-owned script writes, in any form, to a `*.approval.json`
+  sidecar, to any path under `sdd/.approved-context/`, or to
+  `guard-invariants.json`. This task's own Done-When obligation is that
+  the check is authored, registered, and **passes over the scripts that
+  exist at this task's gate** — its own
+  `plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}`.
+  The check's glob also names `validate-resolver-evidence.*`, which
+  **T-008 authors after this task**; no obligation is therefore placed on
+  this task to scan files that do not yet exist, and none is placed on
+  T-008 either, because the registered check is a per-commit CI gate and
+  so runs against T-008's own commit when those files land — the same way
+  AC-032/AC-033/AC-034 above bind every task's commits without being
+  re-verified task by task. This is the one respect in which AC-059
+  differs from its model AC-025, whose owner T-009 is sequenced downstream
+  of every script it scans and can therefore verify the whole glob at its
+  own gate.
 - [ ] **TDD evidence** — RED (each transactional fixture against a
   deliberately broken commit/recovery path) and GREEN (the full suite).
   An independent quality-gate verdict records PASS.

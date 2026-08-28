@@ -2780,6 +2780,19 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   (`APPROVAL-BOUNDARY`), which is also why it is stated here rather than
   only in the requirements: an implementation reviewer reading this list
   would otherwise see one boundary locked and its neighbour not.
+  **Sequencing (corrected 2026-08-28, same ruling, closing an attempt-11
+  `DEPENDENCY-OVERLAP` finding).** The check's glob names both Resolver-
+  owned script families, but its owning task, T-007, authors only
+  `resolve-project-context.*`; `validate-resolver-evidence.*` is
+  authored by T-008, which `tasks.md` sequences *after* T-007. The
+  criterion is therefore discharged in two parts: T-007 authors and
+  registers the check and it passes over the scripts that exist at its
+  own gate, and the registered check — a per-commit CI gate, not a
+  one-shot verification — covers the second family when T-008's commit
+  lands, exactly as AC-032/AC-033/AC-034 bind every task's commits
+  without per-task re-verification. This is the single respect in which
+  AC-059 departs from AC-025, whose owner T-009 sits downstream of every
+  script it scans and can verify the whole glob at one gate.
 - **Ruling C(2)'s absent-component fail-closed rule is itself a security
   boundary (AC-058).** A dependency-returned `affected_components[]`
   entry naming a component id absent from this invocation's own Context
