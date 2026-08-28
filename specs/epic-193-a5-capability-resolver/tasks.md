@@ -1803,7 +1803,10 @@ scoped 2026-08-27, human-approved, ruling D(2)) — and Blocks
 `post-publication-generation-mismatch`), Complete (delete the journal,
 exit 0). An in-process write/fsync/rename failure during Prepare/Journal/
 Commit Blocks `artifact-publication-failed`, with journal-based rollback
-of any already-completed rename in the same commit sub-sequence — never a
+of any already-completed **publication-artifact** rename in the same
+commit sub-sequence — never `resolver-evidence.yaml`, which is not rolled
+back and instead retains this Block's own record (AC-012; scoped
+2026-08-27, ruling D(2)) — and never a
 bare `unlink`.
 
 ### Must Read
