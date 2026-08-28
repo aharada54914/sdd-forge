@@ -4,46 +4,51 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json comment field",
-      "note": "The contract describes the green evidence for the two required test checks (unit-tests, acceptance-tests) as 355/0 in both runtimes, twice. Every green capture the bundle actually carries for the shipped bytes shows 356/0: green-panel9-sh.log and green-panel9-ps1.log both end RESULT: 356 passed, 0 failed and both already contain the round-10 TEST-059 live-family assertion, and mutation-proofs-round7.log, whose trailer records restored sha256 a3d765814dfff390ac93577cb22fb33efcde50da27dc628e23aa41c27a094d85 (the shipped resolver hash in the Outputs table and in investigation.md), reports 356 passed 0 failed for its two behaviour-preserving mutants. investigation.md and the round-11 section of the implementation report both say 356. The contract also cites verification/T-007/mutation-proofs-test059.log as the non-vacuity proof for TEST-059; no such path exists among the declared outputs, the file is mutation-proofs-round7.log, and mutation-proofs-test059.log occurs exactly once in the whole bundle, in this comment. Compounding both, the declared green_evidence paths themselves (verification/qg/T-007/focused-tests-sh.log and -ps1.log) are not in the bundle, so the only description available of what they contain is this comment, and that description contradicts the shipped state. A gate consumer following the contract reaches a nonexistent proof file and a tally that does not match the code under review; on a high-risk Security-Sensitive task the record that two required checks passed at the shipped bytes cannot be confirmed from the artifact that declares it. This is the same amendment-propagation class the report names eleven times: round 11 carried 356 into the report and investigation.md and left the contract at 355."
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md (Files Changed, Tests Added Or Updated)",
+      "note": "The report says six new fixture directories, six new fixtures, six new names in ALL_CASE_NAMES and six new call sites in main(). The shipped driver carried in the bundle declares ten T-007 case names and ten T-007 call sites, and the report own Outputs table lists ten fixture directories. CHANGELOG.md states the correct total (fixture total 10). Same understatement class the report itself keeps documenting; the load-bearing artifacts are right, the prose is not."
     },
     {
       "severity": "Minor",
-      "ref": "CHANGELOG.md, T-007 Unreleased entry",
-      "note": "Same stale tally in a declared output with a recorded SHA: the entry says sh/ps1 both 355 passed / 0 failed. It also says non-vacuity was proved by five mutations and enumerates bare-unlink rollback, skipped journal write, skipped post-publication recheck, digest-only step 13, and the TEST-059 injection, omitting the round-8 mutant that returns resolver-evidence.yaml to the rollback set, which is the one mutant tied to the Critical this task most recently closed and which the post-publication case does kill."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md (Test Evidence, Regression Tests Run)",
+      "note": "Headline Test Result reads 306 passed / 0 failed with RED 272/23, and the regression table reads discovery 12/0. The shipped state is 361/0 and 341/4 (focused-tests and red-panel6 captures) with discovery 24/0 in regression.log. The Snapshot Notice pre-declares this and the contract plus the qg captures supersede it, so no false claim is made, but the report headline is six panel rounds out of date."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Files Changed",
-      "note": "States six new fixture directories (listed under Outputs). The Outputs table enumerates ten fixture directories, and the CHANGELOG entry independently says fixture total is ten. The Tests Added Or Updated section likewise lists only six. The four containment-regression fixtures added in panel rounds 1 to 5 (journal-target-escape, staging-parent-symlink, target-parent-symlink, journal-roundtrip-unresolved-repo) never reached this line."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json (comment)",
+      "note": "The comment says TEST-059 contributes ten assertions. Both focused-tests captures emit eleven TEST-059 lines; the round-10 addition (live Resolver family wholly applied or wholly unapplied) is the eleventh. Numeric drift of exactly the kind this comment was rewritten to stop."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md, Test Evidence and Regression Tests Run",
-      "note": "Test Result reads PASS (306 passed / 0 failed, both runtimes), the GREEN capture subsection reads 306 passed 0 failed, and the Regression Tests Run table reads block 306 and discovery 12. These are the pre-panel numbers, superseded only by prose many hundreds of lines later. The Snapshot Notice partly covers this, but the headline result of a report whose later sections say 356 is a reader trap rather than a snapshot."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json (unit-tests.red_evidence, acceptance-tests.red_evidence)",
+      "note": "The declared RED is red-panel6 (341/4), whose four failing assertions are only the round-5/6 Evidence-direct-write fix. The task-level RED (red-sh.log and red-ps1.log, 272/23) is carried in Outputs but not declared, and the sixteen assertions added after round 6 (TEST-059 eleven, leaf-symlink five) rest on mutation-proofs.log mutants A and E rather than on any RED. Substitution is sound for test-only additions and is explained in the comment, but the declaration understates the TDD evidence that actually exists."
     },
     {
       "severity": "Minor",
-      "ref": "tests/resolve-project-context-block-check.py, TEST-059 header comment",
-      "note": "The comment block introducing TEST-059 states: Scanned PATHS: the staged human-copy candidates, not the live plugins/sdd-quality-loop/scripts/ paths AC-059 prose names. The code below it no longer behaves that way: run_test_059 builds present_live from the three live twins and appends them to the scanned set, and its own inline comment (round 10) says so explicitly. The two comments contradict each other about the same function, forty lines apart."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/green-panel9-sh.log, green-panel9-ps1.log, mutation-proofs.log",
+      "note": "The green-panel9 captures carry the round-12 tally (361/0) under a round-9 name. The report identifies round-numbered capture names as a guaranteed staleness hazard and renamed the mutation log for exactly that reason, then left the green captures. Inside mutation-proofs.log the uncovered-mutant parentheticals still quote 355/0 and 356/0 as the signal while the control run is 361/0."
     },
     {
       "severity": "Minor",
-      "ref": "resolve-project-context.py, _target_escapes_via_symlink and _live_bytes (ruling (b) narrowing)",
-      "note": "The ruling-(b) rationale, recorded identically in the docstring, investigation.md and the report, justifies stopping resolution at the parent purely on write semantics: os.replace replaces the entry at the leaf and mkstemp targets the parent. Correct for writes. But _live_bytes does follow a leaf symlink when it captures the PRE image, so a symlink planted at a leaf publication target causes out-of-tree bytes to be copied into the repository-local pre/ backup and, on rollback, materialised as a regular file at the leaf name inside the tree. The docstring asserts reading cannot escape either, which is true of the destination but not of the source. Low impact given the attacker already needs repository write access and the single-writer disposition of round 2, but the read direction is asserted rather than analysed in the record the owner ruled on."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log (mutants C and D)",
+      "note": "Two shipped behaviours stay green under mutation and are disclosed as uncovered: deferral of the journal delete to the far side of the Block Evidence write, and the journal nonce to batch-directory binding. The first is the remedy for a round-9 Critical and ships with no regression test; the required fixtures (a kill hook between rollback and Evidence write, a cross-batch journal graft) are named. Neither is governed by an acceptance criterion and neither can regress without the mutation log being re-run, so this is honest disclosure rather than a coverage gap, but a Critical remedy protected only by a log entry is fragile."
     },
     {
       "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs-round7.log, mutants C and D",
-      "note": "The two disclosed-uncovered changes are described accurately: mutant C restores the pre-round-9 journal-delete ordering and mutant D removes the nonce/batch-directory binding, and both runs stay at 356 passed 0 failed, which the log itself labels UNCOVERED with the reason and the fixture that would be needed. The disclosure is honest and is the right way to record this. It remains the case that a crash-window ordering fix and a security hardening on a Security-Sensitive write path ship with no fixture, on a task whose own risk rationale is irreversible filesystem damage."
+      "ref": "specs/epic-193-a5-capability-resolver/requirements.md:395 vs staged resolve-project-context.py (EvidenceTargetUncontained)",
+      "note": "The implementation has a third no-write condition while the frozen requirement still reads that the always-emitted rule excepts exactly two diagnostic ids. The repository owner ruled acceptance on 2026-08-28 and no frozen document was amended, so the ruling exists only in investigation.md and in the exception docstring. Settled by human decision and I am not re-litigating it; recording that a reader of requirements.md alone is still told a count that has a sanctioned exception."
+    },
+    {
+      "severity": "Minor",
+      "ref": "staged resolve-project-context.py, _restore_to_pre and the leaf-symlink case",
+      "note": "When a publication target is a symlink at its leaf, the commit replaces the directory entry and the rollback writes the PRE bytes back to that entry, so the pre-transaction state is restored byte-wise but the entry is left a regular file rather than the symlink it was. The suite observes this (the assertion detail reports is_symlink false) so it is not hidden, but the residual is not stated anywhere in the contract or report."
     }
   ],
   "blind": true,
-  "input_digest": "539c19af5bf30ab437476b2706e710c638108bf94d9317561a675f2d92411238",
+  "input_digest": "e220b898251939fa393f7327d53b277057a31411752bb443df41e572d3f12c71",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"
