@@ -614,7 +614,25 @@ $misCasedControlPath = Join-Path $hc8a $misCasedControl
 Set-Content -LiteralPath $misCasedControlPath -Value $validManifest8a -NoNewline
 $result8a = Invoke-RunnerProcess $root8a
 if ($result8a.ExitCode -ne 0) { Ok 'TEST-008b: real CLI rejects a mis-cased control name as undeclared payload' } else { Bad 'TEST-008b: real CLI incorrectly ignored a mis-cased control filename' }
-if ($result8a.Output.Contains('staged payload contains an undeclared path')) { Ok 'TEST-008c: mis-cased control rejection identifies the exact-set violation' } else { Bad "TEST-008c: mis-cased control rejection lacks the expected exact-set diagnostic. Output: $($result8a.Output)" }
+# The rejection DIAGNOSTIC is filesystem-dependent while the rejection itself
+# (TEST-008b, nonzero exit) is not. On a case-INSENSITIVE filesystem the
+# canonical MANIFEST.sha256 open finds the mis-cased file, so the runner
+# proceeds to the exact-set comparison and reports the mis-cased name as
+# undeclared payload. On a case-SENSITIVE filesystem (first Linux CI
+# execution of this suite) the canonical manifest is genuinely absent, so the
+# runner fails closed EARLIER, at manifest resolution. Probe the fixture
+# tree's actual capability rather than guessing from the OS name, and assert
+# the exact diagnostic for the lane -- one assertion either way, tally
+# unchanged (the ps1-twin platform-substitution discipline).
+$caseProbe8 = Join-Path $hc8a 'case-probe.tmp'
+Set-Content -LiteralPath $caseProbe8 -Value 'probe' -NoNewline
+$fsCaseInsensitive8 = Test-Path -LiteralPath (Join-Path $hc8a 'CASE-PROBE.TMP') -PathType Leaf
+Remove-Item -LiteralPath $caseProbe8 -Force
+if ($fsCaseInsensitive8) {
+    if ($result8a.Output.Contains('staged payload contains an undeclared path')) { Ok 'TEST-008c: mis-cased control rejection identifies the exact-set violation (case-insensitive lane)' } else { Bad "TEST-008c: mis-cased control rejection lacks the expected exact-set diagnostic. Output: $($result8a.Output)" }
+} else {
+    if ($result8a.Output.Contains('MANIFEST.sha256 path component does not exist')) { Ok 'TEST-008c: mis-cased control rejection fails closed at manifest resolution (case-sensitive lane)' } else { Bad "TEST-008c: mis-cased control rejection lacks the expected missing-manifest diagnostic. Output: $($result8a.Output)" }
+}
 if (Test-AllLiveFilesOriginal $root8a) { Ok 'TEST-008d: mis-cased control rejection occurs before every live copy' } else { Bad 'TEST-008d: a live target changed before mis-cased control rejection' }
 
 $root8b = New-TempRoot
@@ -688,8 +706,15 @@ if (fixtureDestination && segment == "plugins" && !String.IsNullOrEmpty(Environm
     File.WriteAllText(Environment.GetEnvironmentVariable("SDD_A6_PARENT_SUBSTITUTION_MARKER"), "executed");
 }
 '@ }
-if ($runnerText9.Contains($nativeSeam9)) {
-    $runnerText9 = $runnerText9.Replace($nativeSeam9, $substitution9)
+# Anchor the seam to its own full line (marker + newline). A bare substring
+# replace also rewrote a prose MENTION of the marker inside a documentation
+# comment, splicing the injected block between methods where its leading
+# 'if' is CS1519 -- the exact failure the first Windows CI execution of this
+# suite produced. The runner's comment no longer carries the literal, and
+# this anchor keeps the suite honest if another mention ever appears.
+$nativeSeamLine9 = $nativeSeam9 + "`n"
+if ($runnerText9.Contains($nativeSeamLine9)) {
+    $runnerText9 = $runnerText9.Replace($nativeSeamLine9, $substitution9 + "`n")
 } else {
     Bad 'TEST-009d: runner has no deterministic parent-substitution test seam'
 }
