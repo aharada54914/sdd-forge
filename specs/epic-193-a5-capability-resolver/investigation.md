@@ -2473,3 +2473,81 @@ the spec stage is re-staled along with impl and task. The three gates are
 therefore re-run in order — spec, then impl, then task — with **no document
 edit between them**, which is the only sequence in which this package's
 prechecks converge.
+
+### AC-059's real error was one level up: the validator is not the Resolver
+
+The sequencing repair above cleared spec attempt 10 with zero findings from
+both reviewers, then met a Major at impl attempt 6 from `impl-reviewer-b`
+(`VERIFICATION-PATH-CONCRETE`). The repair had leaned on the registered
+check being a **per-commit CI gate** that would cover
+`validate-resolver-evidence.*` once T-008's commit landed. `design.md`'s own
+Deployment / CI Plan says the opposite: this Phase 1 package performs no CI
+wiring, suites register in the unprotected `tests/run-all.*`, and actual
+GitHub-Actions gating waits on a separately staged, **human-applied**
+`.github/workflows/test.yml` patch — the same caveat AC-026/TEST-026 already
+carries. The bridge the repair depended on does not exist.
+
+That was the fourth consecutive round in which a repair carried its own
+defect, which is the signal that the repairs were treating a symptom.
+Stepping back one level found the actual error, and it is simpler than
+either round of repair.
+
+`requirements.md`'s own Field Definitions state:
+
+> **Resolver**: this feature's own name for `resolve-project-context.{py,
+> sh,ps1}` … This term never refers to a different script anywhere in this
+> package.
+
+The Security Boundaries bullet AC-059 exists to lock has **the Resolver** as
+its only subject. `validate-resolver-evidence.*` is not the Resolver. So it
+never belonged in AC-059's scanned set: the original drafting widened the
+criterion past the boundary it locks — mirroring AC-025's *glob* without
+noticing that AC-025's subject is different — and that widening is what
+produced the T-008 ordering problem, and then the CI-timing problem
+downstream of it. Two rounds of reviewers each found a true consequence of
+one upstream mistake.
+
+The scanned set is now the Resolver alone, which T-007 itself authors. That
+restores the property that makes AC-025 sound and that both failed repairs
+were groping toward: **the owning task verifies the whole scanned set by
+direct execution at its own gate**, depending on no later task and no later
+human action. AC-025 legitimately scans both script families because
+REQ-005's determinism guarantee names both; AC-059's subject is narrower.
+
+The validator's own write scope is not left unguarded — it remains governed
+by Epic A1's `guard-invariants.json` suffix enforcement at write time and by
+the unchanged Security Boundaries prose. What changed is that this package
+no longer *asserts* a criterion over it that no task here could discharge.
+The gap is stated as left to a future criterion rather than papered over,
+which is the honest form of the same position.
+
+Two lessons worth keeping. First, mirroring an existing criterion copies its
+*mechanism* but not its *subject* or its *ownership topology*; AC-025's
+soundness rests on all three agreeing, and only the first was copied.
+Second, when three successive repairs each draw a new finding, the defect is
+upstream of all of them — the right move is to re-read the definitions the
+criterion depends on, not to add another bridging clause.
+
+Commit `bf618824`, six documents.
+
+### Per-document SHA-256 at remediation commit bf618824
+
+- `requirements.md`: `35dc2737b968a9e11ea6e9b054eb987fa1f146e89dd5005582d0a1331f601b11`
+  (at `Spec-Review-Status: Passed`)
+- `acceptance-tests.md`: `bd15dcada852b89c9ce236e0dbb60e7928230d7dfb69c8789e498e89d8418f04`
+- `design.md`: `f5baa3b7ed12eb5b5ebf74c1e95aead84a9c1642f6beca54e38dddb4cb02713c`
+  (at `Impl-Review-Status: Passed`)
+- `security-spec.md`: `e68cf5bd8646ad5c86231d6b456ba1f5a3b0a0745f804e3a020da4801c68a831`
+- `tasks.md`: `ed3f391a9fe37ec4a1383ac8036a0b4ca22cc16e4520bff0861e154e69f8dacd`
+  (at `Task-Review-Status: Passed`)
+- `traceability.md`: `0509e3c8c8534f6e637c62f28509b75f07e39cbc9d8ee228540ba3ca19edef1a`
+- `infra-spec.md` and `frontend-spec.md` are unchanged by this commit and
+  keep the digests recorded for `4c80eb35` and `071c42fa` above.
+
+One advisory is carried forward rather than fixed, because correcting it
+would re-stale all three gates for a citation nit and two independent
+reviewers each judged it below the finding bar: the AC-059 prose formerly
+cited AC-032 alongside AC-033/AC-034 as sharing a per-commit binding, where
+AC-032 is registration-commit-bound and AC-033 is per-task-verified. The
+sentence carrying that citation is removed by this commit, so the advisory
+is closed as a side effect rather than left open.
