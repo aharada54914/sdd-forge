@@ -2154,3 +2154,110 @@ Commit `0647dad2`, documents only, three files.
 - `acceptance-tests.md`, `design.md`, `infra-spec.md`, `frontend-spec.md`
   and `traceability.md` are unchanged by this commit and keep the digests
   recorded for `071c42fa` and `23be1630` above.
+
+### Fifth cross-model audit — the two inventories the gate cannot read
+
+Two findings, both Major, **zero Critical**. Across five audits the trend
+is **10 → 5 → 4 → 3 → 2**, with severity falling alongside the count.
+The structurally interesting fact is *where* they were: neither finding was
+in `requirements.md` or `acceptance-tests.md`. Both were in inventories the
+spec gate's own reviewers are not permitted to read, which is the reason
+eight attempts of that gate could never have surfaced them.
+
+- `TEST-057` and `TEST-058`, the two ruling-C fixtures, existed as criteria,
+  as test rows, as T-003's task assignment, and in `security-spec.md`'s
+  fixture inventory — but were absent from `traceability.md`'s Acceptance
+  Mapping, from its T-003 row, and from `infra-spec.md`'s block-suite CI
+  inventory. A verifier following those inventories could have declared
+  T-003 and the block suite complete without ever executing either
+  fail-closed fixture. The mapping table now runs to 58 rows, matching
+  `requirements.md`.
+- The suite-topology node still drew RunAll to ten pairs, and
+  `traceability.md`'s rationale still framed AC-026 as "satisfied for nine
+  of ten only" — a shortfall against wording the criterion no longer
+  carries, which reads to a reviewer as incomplete delivery rather than as
+  deliberate scope.
+
+This is the same ruling-C propagation gap that produced the AC-057/AC-058
+work in `requirements.md` and `acceptance-tests.md`; these were its last two
+unreached inventories.
+
+Commit `4c80eb35`, documents only, two files.
+
+### Per-document SHA-256 at remediation commit 4c80eb35
+
+- `infra-spec.md`: `31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f`
+- `traceability.md`: `7892be74cff2a3289fbb6bb1ad360693ae79b7d2c38dbf07ebf9aaa550192a3d`
+- `requirements.md`, `acceptance-tests.md`, `design.md`, `security-spec.md`,
+  `tasks.md` and `frontend-spec.md` are unchanged by this commit and keep
+  the digests recorded for `0647dad2`, `071c42fa` and `23be1630` above.
+
+### Attempt-8 round-3 — BLOCKED on one clause, and what that clause was
+
+Round 3 is terminal, and it closed **BLOCKED**: Critical 0, Major 1,
+Minor 0. `spec-reviewer-b` returned a clean **PASS** — six PASS, one SKIP,
+zero findings — the first time in this attempt series that either reviewer
+has produced a finding-free verdict. The whole of the BLOCKED verdict rests
+on `spec-reviewer-a`'s single `SCOPE-BOUNDARY` Major, and that finding is
+against text this session's own remediation wrote.
+
+`AC-042`'s row asserted two incompatible things about itself. It stated, in
+bold, that the criterion is discharged by the deferred, unscheduled
+`resolve-project-context-caller-contract` pair and "is not closed by this
+package's own tasks" — and then closed with "AC-015 and AC-042's own
+spy-harness half remain closable here". AC-042's *entire* content is that
+spy harness, and the same row defines it as "distinct from, and in addition
+to" AC-015's narrower check. So the row named a half that does not exist:
+there is no part of AC-042 that AC-015 covers, and no part other than the
+deferred one. Under the trailing clause's reading, AC-042 must be closed by
+a scheduled task while the frozen `tasks.md` schedules nine suites and
+defers this pair — the criterion becomes unsatisfiable by the frozen task
+package. That is the identical failure shape as round 2's Critical, where
+AC-026 demanded ten registrations against nine scheduled.
+
+The repair kept the true half of the distinction — AC-015 is a separate,
+non-deferred row that this deferral does not touch — and dropped the claim
+that AC-042 has a closable part.
+
+Every other site was swept, whitespace-normalised, before the edit, and this
+repair is genuinely single-site: `traceability.md`'s Acceptance Mapping says
+"No task — deferred", `infra-spec.md`'s CI diagram says "DEFERRED — not
+scheduled", and `tasks.md`'s deferral paragraph and `requirements.md`'s
+REQ-006 sentence both state full deferral. Only the AC-042 row disagreed
+with them.
+
+Commit `68ee28ae`, one document, one table row.
+
+### Per-document SHA-256 at remediation commit 68ee28ae
+
+- `requirements.md`: `4f2ddc73f7199496059c28014ba2a6fd31f0571376af876808fd0d23203e4481`
+  (at `Spec-Review-Status: Pending`)
+- `acceptance-tests.md`, `design.md`, `security-spec.md`, `tasks.md`,
+  `infra-spec.md`, `frontend-spec.md` and `traceability.md` are unchanged by
+  this commit and keep the digests recorded for `4c80eb35`, `0647dad2`,
+  `071c42fa` and `23be1630` above.
+
+### Sixth cross-model audit — truncated by a provider usage limit
+
+Recorded because an incomplete verification must not be reported, or later
+read, as a completed one. The sixth audit was launched against the
+post-`68ee28ae` bytes and terminated part-way through when the provider
+returned a usage-limit error; it produced no findings section and no
+"checked and found clean" section, so **it supplies no assurance either
+way** and no finding of its own is carried forward from it.
+
+It did surface one lead before stopping: a set difference showing
+`TEST-035` present in `acceptance-tests.md` but absent from
+`traceability.md`. That was verified by hand and is not a defect. The only
+occurrence of the string in `acceptance-tests.md` is at line 8, inside the
+sentence that *declares* the exception — "AC-035, AC-036, and AC-037 have no
+TEST-035/036/037 rows" — so `traceability.md`'s not carrying the row is the
+correct state, and the id-count asymmetry (56 unique strings against 55) is
+an artefact of counting a negation as a mention.
+
+Attempt 9 proceeds without a completed sixth audit. That is a deliberate
+choice rather than an oversight: round 1 of a new attempt is not terminal,
+so rounds 2 and 3 remain available as the buffer the audit would otherwise
+have provided, and the audit can be re-run before any terminal round if
+attempt 9 raises findings. The rule this package has been operating under —
+run the cross-model audit *before* a terminal round — is unchanged.
