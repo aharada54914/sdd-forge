@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-impl-impl-reviewer-b-a5r1-seq0844",
+  "host_session_id": "SESS-impl-epic-193-a5-capability-resolver-impl-reviewer-b-a5r1-0844",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "de95f1d0784e1fe19d68cadb401b08f9541a9d6b41ee9753c8323986f4546e11"},
+    {"path": "specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "0e3b90f923913cb058b4e28961040f1648a749c739b27145fea7854e5061b429"},
+    {"path": "specs/epic-193-a5-capability-resolver/design.md", "sha256": "cd542e9475c3f4c756784ee5e3e72a6727695ccb98ba11d6bd8586b286de2ae8"},
+    {"path": "specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "9b08e1151014d24be2ec7c480f25e3f6d92ba6bc22973fbdc5909a1795f2afc3"},
+    {"path": "specs/epic-193-a5-capability-resolver/ux-spec.md", "sha256": "160c4c136727b1a15148234691cf799e299bf805b6c30d939fdb00a087419677"},
+    {"path": "specs/epic-193-a5-capability-resolver/frontend-spec.md", "sha256": "d67d607494c728730691a8cec54cad9da73e3b59dcae5c423a13159ea51c0126"},
+    {"path": "specs/epic-193-a5-capability-resolver/infra-spec.md", "sha256": "31a49759a3a83adc7f82b08f34e6d7ae3db9e91ef1de65258a9a9b55c8b81e9f"},
+    {"path": "specs/epic-193-a5-capability-resolver/security-spec.md", "sha256": "bb6a4836ab236ee4b6bf144ae3625d176edd1b3ed3bb4c80a6e865dc5a888298"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "a73f2b8640046b6563fb4c7e52bc7d2832248552008939bcdcd7ab37032476d2"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-5/round-1/precheck-result.json", "sha256": "ab296aea21dbaffaad1ff20b9a31cc6dc05b4f9261dc5cbfda3afd9c9bb37632"},
+    {"path": "reports/impl-review/epic-193-a5-capability-resolver/attempt-5/round-1/integrated-summary.json", "sha256": "6d71893bffc42687c813226604c58a7ebd43dc94475acf191eccdeaf67dbd224"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence: design.md is byte-identical (per investigation.md Ruling E's own explicit scope note, which lists only the Security Boundaries list as amended in design.md) to the content bound by design.md's own `Impl-Review-Status: Passed` header from prior attempts, so no NEW finding is raised on that unchanged content. The one genuinely new decision -- design.md:2764-2782's addition of AC-059/TEST-059 as 'the deny-list counterpart to AC-025's grep, over the identical script set and at the identical cadence (registration-time and CI-gated)' -- is reviewed on its merits and is justified: it explains both why the check is needed (design.md:2769-2772, 'Until AC-059 that guarantee was asserted and never locked') and why this mechanism was chosen (mirrors the already-accepted AC-025 grep rather than inventing a new verification form). No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence: design.md's `## Open Questions` section (lines 2972-2987) is untouched by the Ruling E amendment (not among the six documents/sections investigation.md's Ruling E lists as amended) and is content bound by the prior persisted `Impl-Review-Status: Passed`. Advisory only, not a new finding: OQ-001/OQ-002 are stated in prose rather than with explicit `Owner:`/`Blocks Implementation:`/`Resolution Path:` labels, though both name an owner in substance (OQ-002's owner is 'a future epic (plausibly A6/A8)', requirements.md Dependencies) and OQ-003 is recorded as resolved with a concrete anchor and drift-check citation. No new finding raised per the convergence rule."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-020) and design.md's `## Assumptions` section (lines 2961-2970, unchanged by Ruling E) grounds each assumption in a named upstream Epic's `Spec-Review-Status: Passed` contract and cites investigation.md INV-003/INV-017 directly. TYPE-H convergence applies to this unchanged section (content bound by the prior persisted `Impl-Review-Status: Passed`). No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "TYPE-D, independently re-verified (not covered by convergence). design.md carries a `## Constraint Compliance` section (line 2924) that addresses: AGENTS.md contract/ADR rules; the hard scope boundary excluding `plugins/**`/`scripts/**`/`.github/**`/`tests/**`/`contracts/**`/`docs/**` from this package's own commits (AC-032); Security constraints, cross-referencing this design's own `## Security Boundaries` (lines 2742-2882, now including the AC-059 addition covering requirements.md Security Boundaries bullet 2) and `## Global Constraints` (lines 2713-2740); and Compatibility constraints (Epic A1-A4 contracts treated as fixed and unmodified). Requirements.md's Security Boundaries bullets 1 and 2 (lines 1295-1308) are each addressed by name or by direct cross-reference. No unaddressed constraint found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md (no numeric latency/throughput/response-time/SLA thresholds; grep for performance/latency/throughput/response-time/SLA/'within N ms' keywords returns no matches)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-H convergence: design.md's `## Deployment / CI Plan` section (lines 2889-2922) is unchanged by Ruling E and is content bound by the prior persisted `Impl-Review-Status: Passed`. It states deployment target (vendored contract copy into `plugins/sdd-quality-loop/contracts/`), CI pipeline changes (new test-suite registration in the existing `test.yml`, no new job/topology), and the human-copy staging discipline for the future CLI's own registration. No schema/DB migration ordering applies (see MIGRATION-PLANNED). No new finding raised on this unchanged section."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "TYPE-D, independently re-verified. design.md's `## Data Plan` (lines 464 onward) declares no relational-database column/table changes; its Data Entities are a new/reused JSON-Schema contract file (`contracts/resolver-evidence.schema.json`) and per-feature YAML/JSON output artifacts (`facet-manifest.yaml`, `capability-summary.yaml`, `generated/project-context.resolved.json`), governed by a journaled publication-transaction contract (rollback via journal, restated at design.md 'Resolver publication transactional bundle contract' and Security Boundaries), not by a table/column migration. MIGRATION-PLANNED's trigger condition (schema changes involving column or table changes) is not met, so its migration-file-naming/rollback/data-volume sub-requirements do not apply; the design's own journal-based rollback for its artifact-publication mechanism independently satisfies an equivalent rollback-strategy expectation regardless."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's `## External Integrations` section (lines 2883-2887, unchanged by Ruling E) states 'None -- every input and output this feature touches is repository-local', consistent with the Dependencies section's enumeration of Epic A1-A4 CLIs as repository-local subprocess calls, each already itemized with contract/version binding and failure behaviour (REQ-002's Block taxonomy) elsewhere in this package. No unidentified external system referenced."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one new design element this round adds -- the AC-059/TEST-059 approval-surface write-scope grep self-check (design.md:2764-2782) -- is grounded in an existing requirement (REQ-001) and an existing Security Boundaries bullet (requirements.md bullet 2, line 1303) it merely locks with a test; it introduces no new component, data model, or endpoint, and is mirrored consistently in requirements.md's AC-059 row (line 977), acceptance-tests.md's AC-059/TEST-059 row (line 120), and security-spec.md's B6 row/STRIDE row/fixture inventory (lines 72, 84, 205). No scope creep found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The new content is itself a high-risk security-boundary claim (approval-surface non-participation guarantee) and names a concrete validation path on its own merits: TEST-059, 'a repository-wide grep-based self-check (registration-time and CI-gated, the identical mechanism and cadence as TEST-025 ... no new suite file)' (design.md:2773-2776; acceptance-tests.md AC-059/TEST-059; security-spec.md TEST-059 row). This is the same concrete mechanism already accepted for the adjacent no-clock/no-network/no-Provider-API guarantee (AC-025/TEST-025). The feature's other high-risk surfaces (crash/TOCTOU/publication-atomicity, absent-component fail-closed) each already name a fixture-level validation path (AC-039/AC-040/AC-047/AC-049, AC-057/AC-058) unaffected by this round's amendment."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists in this repository (verified via `ls domain` at repository root), so this check's applicability precondition is absent."
+    }
+  ]
+}
