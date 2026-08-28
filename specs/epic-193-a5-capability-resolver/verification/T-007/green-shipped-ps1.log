@@ -307,6 +307,14 @@ PASS: publication-journal-target-escape[absolute-path-unlink]: the in-set target
 PASS: publication-journal-target-escape[absolute-path-unlink]: the rejected journal is retained for manual operator intervention
 PASS: publication-journal-target-escape[absolute-path-unlink]: exact Resolver Evidence, with no journal content interpolated into the detail (AC-012/AC-014, security-spec.md B5)
 PASS: publication-journal-target-escape[absolute-path-unlink]: Resolver Evidence schema agreement
+PASS: publication-journal-target-escape[in-set-non-bundle]: an in-set but non-bundle target set Blocks publication-journal-recovery with the canonical line only -- the shape is refused even though every individual path is allowed
+PASS: publication-journal-target-escape[in-set-non-bundle]: the live artifact the fabricated journal marked ABSENT-at-PRE is STILL THERE -- this is the assertion the defect fails, because a MIX rollback would unlink it
+PASS: publication-journal-target-escape[in-set-non-bundle]: the other in-set targets are untouched too -- the refusal happens BEFORE any recovery write
+PASS: publication-journal-target-escape[in-set-non-bundle]: the rejected journal is retained for manual operator intervention
+PASS: post-publication-crash-before-evidence: the first invocation dies in the window rather than exiting normally (the kill hook fired)
+PASS: post-publication-crash-before-evidence: the journal is STILL STANDING after a crash between the rollback and the Block Evidence write -- this is the assertion the pre-round-9 ordering fails, because it deleted the journal before that write
+PASS: post-publication-crash-before-evidence: the next invocation consumes that journal -- the crash left a state the recovery scan could converge, not a permanent one
+PASS: post-publication-crash-before-evidence: and the publication artifacts are at their PRE bytes throughout -- the rolled-back publication stayed rolled back across the crash and the recovery
 PASS: publication-target-parent-symlink: a symlinked `generated/` parent Blocks artifact-publication-failed before any live write, rather than following the symlink (MAJOR 2)
 PASS: publication-target-parent-symlink: the file OUTSIDE the publication set (reached only through the symlinked parent) is byte-untouched -- the projection never escaped the fixed set (requirements.md:1144-1151)
 PASS: publication-target-parent-symlink: the Full-track track artifact never reached its live path -- the refusal precedes the whole publication transaction (TEST-038)
@@ -360,4 +368,4 @@ PASS: TEST-059 non-vacuity canary: the dirty canary is flagged for every one of 
 PASS: TEST-059 false-positive control: the clean canary (English prose plus plural/near-miss path spellings) is not flagged
 PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
-RESULT: 361 passed, 0 failed
+RESULT: 369 passed, 0 failed

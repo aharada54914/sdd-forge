@@ -312,8 +312,15 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   捨てる条件を `complete and wrote` にした — 従来は rollback の完了だけを
   見ており、Evidence 書き込みが失敗しても journal を消していた。
   `_block` は薄いラッパのままなので 40 箇所の呼び出しは無変更。
-  **未カバーと判明した 3 件も同じログに明記してある**（訂正 2026-08-29:
-  この行は「2 件」と書いていたが、3 件目が round 13 で加わっている） —
+  さらに round 15 で、journal のターゲット集合が Full / Lite バンドルで
+  あることを要求する `_legitimate_journal_bundles` を追加した — 各エントリが
+  許可集合内かつ重複なしでも、集合の**形**が偽造されていれば MIX rollback が
+  実在の成果物を unlink できたため（攻撃 journal を植える fixture で実証、
+  検査を外す mutation が 4 アサーションで死ぬ）。
+  **未カバーは 2 件**（訂正 2026-08-29: この行は「2 件」→「3 件」と
+  書き換えてきたが、round 15 で 3 件目に fixture を書いたので 2 件に戻る。
+  既存の kill hook で到達可能だという指摘が正しく、「到達不能」という
+  こちらの申告が誤りだった） —
   journal 削除を Evidence 書き込みの前に戻す変更（非クラッシュ経路では
   最終状態がバイト同一なので、rollback と Evidence 書き込みの間に
   kill hook を持たない限り観測できない）、journal の nonce をバッチ名から

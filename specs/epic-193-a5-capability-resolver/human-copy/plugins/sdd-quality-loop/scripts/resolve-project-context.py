@@ -1147,6 +1147,36 @@ def _allowed_publication_targets(repo_root, feature):
     )
 
 
+def _legitimate_journal_bundles(repo_root, feature):
+    """The only two target SETS a journal this Resolver wrote can name.
+
+    `_allowed_publication_targets` fixes which paths may appear;
+    this fixes which COMBINATIONS may, and the difference is a real trust
+    boundary rather than a tidiness rule. A journal naming an arbitrary
+    in-set subset passes every per-path check while still describing a
+    transaction that never happened, which is enough to steer the MIX
+    rollback into unlinking a live artifact (openai panel slot, round 14).
+
+    Derived from `main()`'s own `targets` construction so the two cannot
+    drift: the Full track publishes `facet-manifest.yaml` and
+    `generated/project-context.resolved.json`, the Lite track publishes
+    `capability-summary.yaml`, and BOTH append `resolver-evidence.yaml`
+    last."""
+    feature_dir = repo_root / "specs" / feature
+    script_dir = Path(__file__).resolve().parent
+    evidence = _normalized(feature_dir / "resolver-evidence.yaml")
+    full = frozenset((
+        _normalized(feature_dir / "facet-manifest.yaml"),
+        _normalized(script_dir / "generated" / "project-context.resolved.json"),
+        evidence,
+    ))
+    lite = frozenset((
+        _normalized(feature_dir / "capability-summary.yaml"),
+        evidence,
+    ))
+    return frozenset((full, lite))
+
+
 def _allowed_publication_targets_real(repo_root, feature):
     """The same fixed target set as `_allowed_publication_targets`, but each
     entry's OWN symlinks fully resolved -- the trusted bases (`repo_root`,
@@ -1819,6 +1849,32 @@ def _recover_journal(repo_root, feature, journal_path):
         if normalized in seen_paths:
             raise PublicationJournalUnrecoverable("a journal lists the same live target more than once")
         seen_paths.add(normalized)
+
+    # BUNDLE SHAPE (openai panel slot, round 14 Major). Every entry being
+    # in-set and unique is not enough: the SET must also be a bundle this
+    # Resolver could actually have written -- a Full track's three targets or
+    # a Lite track's two. Without this, an attacker-committed journal could
+    # name an arbitrary in-set SUBSET and, by supplying `pre_hash: "ABSENT"`
+    # for a target that currently exists, classify a legitimate live artifact
+    # as committed and have the MIX rollback UNLINK it. Every entry passes the
+    # per-path checks above in that scenario, because the paths really are in
+    # the fixed set; what is fabricated is the transaction's shape.
+    #
+    # This does not reopen round 1's MAJOR 1, which was ruled out of scope:
+    # that was about attacker CONTENT reaching an in-set target through a
+    # `pre/` backup. This is a destructive UNLINK of a pre-existing live
+    # artifact, and requirements.md's own rollback contract says a rollback
+    # restores every target to its PRE-transaction state -- deleting a file
+    # that was never part of any transaction is not that.
+    # `frozenset(...)`, not `seen_paths` directly: membership hashes its
+    # operand, and a bare `set` is unhashable, so the un-wrapped form would
+    # raise TypeError on the first legitimate journal instead of validating
+    # it. Caught here rather than in review because no fixture reached this
+    # line at the moment it was written.
+    if frozenset(seen_paths) not in _legitimate_journal_bundles(repo_root, feature):
+        raise PublicationJournalUnrecoverable(
+            "a journal's target set is not a Full-track or Lite-track publication bundle"
+        )
 
     states = []
     for entry in entries:

@@ -2310,6 +2310,20 @@ def t007_install_fixture(repo, fixture_dir, case_name):
         repo, scripts, fixture_dir, stub_name=stub_name,
         registry_capabilities_path=EMPTY_REGISTRY_PATH,
     )
+    # A fixture may need BOTH overlays: a `resolve-component-paths.py` stub to
+    # drive the run down a particular branch, AND the `registry_discovery.py`
+    # kill hook to crash it at a chosen point inside that branch. The two are
+    # not interchangeable -- the first is a subprocess, the second is imported
+    # into the resolver's own process -- so the crash-between-rollback-and-
+    # Evidence case cannot be built from either alone. Fixtures carrying only
+    # one file are unaffected.
+    if stub_name == "resolve-component-paths.py" and (fixture_dir / "registry_discovery.py").is_file():
+        shutil.copy2(fixture_dir / "registry_discovery.py", scripts / "registry_discovery.py")
+        shutil.copy2(
+            ROOT / "plugins/sdd-quality-loop/scripts/registry_discovery.py",
+            scripts / "registry_discovery_real.py",
+        )
+
     if stub_name == "registry_discovery.py":
         # The kill hook delegates every real discovery entry point to this
         # untouched copy (that fixture's own module docstring) -- the
@@ -2913,6 +2927,169 @@ def run_t007_post_publication_mismatch_case(kind, counts):
             parse_error or repr(evidence),
         )
         check_evidence_schema(counts, evidence_path, case_name)
+
+
+def run_t007_crash_before_evidence_case(kind, counts):
+    """The fixture round 9 said could not be written, written.
+
+    Round 9 deferred the journal's deletion past the Block Evidence write so
+    that a crash in that window would leave the journal for the next
+    invocation's recovery scan, and disclosed the change as uncovered:
+    "no fixture can observe the crash window without a new test-harness kill
+    hook between the rollback and the Evidence write". The Anthropic panel
+    slot answered on round 14 that the hook already exists and its kill point
+    is one integer. That was correct, and this is the fixture.
+
+    The kill lands before the SECOND rename to `resolver-evidence.yaml` --
+    the first being the commit's own Evidence write, the second the Block
+    record. At that instant the rollback has completed and the Block record
+    has not been written, which is exactly the window.
+
+    The assertion that kills the mutant is not in this invocation but the
+    NEXT one: the shipped ordering leaves the journal standing, so a second
+    run finds it and Blocks `publication-journal-recovery` for a human. Under
+    the pre-round-9 ordering the journal is already gone, the second run finds
+    nothing to recover, and a publication that was rolled back leaves no trace
+    at all."""
+    case_name = "post-publication-crash-before-evidence"
+    fixture_dir = FIXTURES / case_name
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        killed = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        counts.check(
+            killed.returncode not in (0, 1),
+            f"{case_name}: the first invocation dies in the window rather than exiting normally "
+            f"(the kill hook fired)",
+            f"rc={killed.returncode} stderr={killed.stderr.decode('utf-8', errors='replace')[:200]!r}",
+        )
+        counts.check(
+            bool(journal_paths(feature_dir)),
+            f"{case_name}: the journal is STILL STANDING after a crash between the rollback and the "
+            f"Block Evidence write -- this is the assertion the pre-round-9 ordering fails, because it "
+            f"deleted the journal before that write",
+            repr([str(p) for p in journal_paths(feature_dir)]),
+        )
+
+        subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        # The next invocation's step-0.5 scan CONVERGES this journal rather
+        # than Blocking on it, and that is the correct outcome: the crashed
+        # run had already rolled its publication artifacts back, so the
+        # journal describes a state the scan can finish. What matters is that
+        # the journal was there to be found at all. (This assertion originally
+        # expected a publication-journal-recovery Block; the run said
+        # otherwise, and the run was right -- recorded here rather than
+        # quietly reshaped, because the difference is the whole point of
+        # keeping the journal.)
+        counts.check(
+            not journal_paths(feature_dir),
+            f"{case_name}: the next invocation consumes that journal -- the crash left a state the "
+            f"recovery scan could converge, not a permanent one",
+            repr([str(p) for p in journal_paths(feature_dir)]),
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST
+            and read_or_missing(scripts / "generated/project-context.resolved.json")
+            == PRE_CONTEXT_PROJECTION,
+            f"{case_name}: and the publication artifacts are at their PRE bytes throughout -- the "
+            f"rolled-back publication stayed rolled back across the crash and the recovery",
+        )
+
+
+def run_t007_journal_bundle_shape_case(kind, counts):
+    """Panel round 14 Major (openai slot): every journal entry can be in-set
+    and unique while the SET describes a transaction that never happened.
+
+    Round 1's escape fixtures plant journals naming paths OUTSIDE the fixed
+    publication set. This one plants a journal whose every path is genuinely
+    INSIDE it -- so the per-path allowlist, the symlink-resolved check and the
+    duplicate check all pass -- and fabricates only the transaction's SHAPE:
+    `facet-manifest.yaml` recorded with `pre_hash: "ABSENT"` and a
+    `post_hash` equal to the file's real live bytes (classifies POST), plus
+    `capability-summary.yaml` recorded at its real live bytes as PRE
+    (classifies PRE). Mixed states reach the MIX branch, which is the only
+    branch that writes, and restoring the first entry to `ABSENT` means
+    UNLINKING a live artifact that was never part of any transaction.
+
+    {facet-manifest, capability-summary} is not a bundle this Resolver can
+    produce: a Full track publishes facet-manifest + the Context Projection,
+    a Lite track publishes capability-summary, and BOTH always append
+    resolver-evidence. The load-bearing assertion below is that
+    `facet-manifest.yaml` still holds its PRE bytes -- that is precisely the
+    file the defect deletes."""
+    case_name = "publication-journal-target-escape"
+    fixture_dir = FIXTURES / case_name
+    label = f"{case_name}[in-set-non-bundle]"
+    with tempfile.TemporaryDirectory(prefix="resolver-t007-") as tmp:
+        repo = Path(tmp).resolve()
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        scripts, feature_dir, _sentinels = t007_install_fixture(repo, fixture_dir, case_name)
+
+        (repo / "README.md").write_text("baseline\n", encoding="utf-8")
+        base_oid = git_commit_all(repo, "baseline")
+
+        entries = [
+            {
+                # Classifies POST: the live file matches this post_hash. With
+                # pre_hash ABSENT, a MIX rollback unlinks it.
+                "live_path": "specs/example-feature/facet-manifest.yaml",
+                "pre_hash": "ABSENT",
+                "post_hash": hashlib.sha256(PRE_FACET_MANIFEST).hexdigest(),
+            },
+            {
+                # Classifies PRE, which is what forces MIX rather than
+                # all-POST.
+                "live_path": "specs/example-feature/capability-summary.yaml",
+                "pre_hash": hashlib.sha256(PRE_CAPABILITY_SUMMARY).hexdigest(),
+                "post_hash": hashlib.sha256(b"never-published\n").hexdigest(),
+            },
+        ]
+        journal = plant_journal(feature_dir, entries, {})
+
+        result = subprocess.run(
+            t003_resolver_argv(kind, scripts, base_oid, base_oid),
+            cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace")
+        stderr = result.stderr.decode("utf-8", errors="replace")
+        counts.record_diagnostic_id("publication-journal-recovery")
+
+        counts.check(
+            result.returncode == 1
+            and stdout == ""
+            and stderr == f"capability-resolver: publication-journal-recovery: {JOURNAL_RECOVERY_DETAIL}\n",
+            f"{label}: an in-set but non-bundle target set Blocks publication-journal-recovery with the "
+            f"canonical line only -- the shape is refused even though every individual path is allowed",
+            f"exit={result.returncode} stdout={stdout!r} stderr={stderr!r}",
+        )
+        counts.check(
+            read_or_missing(feature_dir / "facet-manifest.yaml") == PRE_FACET_MANIFEST,
+            f"{label}: the live artifact the fabricated journal marked ABSENT-at-PRE is STILL THERE -- "
+            f"this is the assertion the defect fails, because a MIX rollback would unlink it",
+            repr(read_or_missing(feature_dir / "facet-manifest.yaml")),
+        )
+        counts.check(
+            read_or_missing(feature_dir / "capability-summary.yaml") == PRE_CAPABILITY_SUMMARY
+            and read_or_missing(scripts / "generated/project-context.resolved.json")
+            == PRE_CONTEXT_PROJECTION,
+            f"{label}: the other in-set targets are untouched too -- the refusal happens BEFORE any "
+            f"recovery write",
+        )
+        counts.check(
+            journal.is_file(),
+            f"{label}: the rejected journal is retained for manual operator intervention",
+        )
 
 
 def run_t007_leaf_symlink_target_case(kind, counts):
@@ -3872,6 +4049,8 @@ def main():
         run_t007_leaf_symlink_target_case(args.launcher, counts)
         run_t007_affected_components_mismatch_case(args.launcher, counts)
         run_t007_journal_target_escape_case(args.launcher, counts)
+        run_t007_journal_bundle_shape_case(args.launcher, counts)
+        run_t007_crash_before_evidence_case(args.launcher, counts)
         run_t007_parent_symlink_case(args.launcher, counts)
         run_t007_staging_symlink_case(args.launcher, counts)
         run_t007_unresolved_repo_roundtrip_case(args.launcher, counts)

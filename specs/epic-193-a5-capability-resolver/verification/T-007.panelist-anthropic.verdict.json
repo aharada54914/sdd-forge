@@ -4,41 +4,36 @@
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "anthropic",
   "model": "claude-opus-5",
-  "verdict": "NEEDS_WORK",
+  "verdict": "PASS",
   "findings": [
     {
-      "severity": "Major",
-      "ref": "CHANGELOG.md (declared output) -- T-007 Unreleased entry, paragraph beginning with the phrase for two items found uncovered",
-      "note": "The shipped CHANGELOG entry declares that TWO changes were found uncovered by any fixture, and names only the journal-delete-ordering change (mutant C) and the nonce/batch-binding change (mutant D). The shipped state has THREE: mutation-proofs.log labels C, D and F UNCOVERED, the T-007 contract comment says C, D and F, and the implementation report round-13 entry says that is now the third such hardening on this path. The CHANGELOG also carries no mention at all of the round-13 change it is describing bytes for (the split of the Block writer into a reporting form returning exit code plus a wrote-evidence flag, and the two-condition journal-discard guard on both post-publication branches), even though that is a behaviour change on this task's only live-write path. This is an under-disclosure of a self-declared regression-net gap on a Security-Sensitive publication surface, inside the artifact the Done When Governance bullet makes a deliverable, and it is the same amendment-propagation class the report itself records having hit twelve times in this package."
-    },
-    {
-      "severity": "Major",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md -- Test Evidence / GREEN capture; verification/T-007/mutation-proofs.log",
-      "note": "No clean full-suite green run at the shipped bytes is verifiable from this bundle. (1) The report's canonical Test Result field declares PASS 306 passed / 0 failed and its GREEN capture section names green-sh.log and green-ps1.log, both of which do carry RESULT 306 passed, 0 failed in this bundle. The shipped tally is 361/0 (green-shipped-sh.log, green-shipped-ps1.log, and the two focused-tests logs the contract declares as green evidence), and the contract states the tally is 361/0. The report's own round-9 entry says the captures are now uniformly green-shipped, yet the Test Evidence section was never repointed, so the report's headline verification claim is wrong for the code being shipped by 55 assertions. Round 12 of this same package treated a one-assertion version of this exact discrepancy in the contract as a Major. (2) mutation-proofs.log states the UNCOVERED verdicts for mutants C, D and F relative to the clean control run at the top of this log, but the log contains no control run: it opens directly at MUTANT A with RESULT 360 passed, 1 failed. The three UNCOVERED determinations, which are the central residual-risk disclosure of this task, therefore cannot be confirmed from the artifact that asserts them, and the only full-suite runs in that log that reach 361/0 are runs against MUTATED code, not against the shipped resolver whose sha256 the log restores at the end (379c3ed0...)."
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md - Regression Tests Run, GREEN capture, Mutation proofs",
+      "note": "Round-1 tallies still stand in three sections while the shipped state is 361/0. The Regression Tests Run table records the block suite at 306 passed / 0 failed, the Mutation proofs table records a control of 46 passed / 0 failed with four mutants (a)-(d), and the closing line of that section says the real tree was re-run at 306/0. The declared mutation log carries a clean control of 361 and six mutants A-F, and both declared green captures are 361/0. Round 13 repointed only the Test Result field. The Snapshot Notice does cover the convention and every later round appends a fresh table, so no evidence is misrepresented - but this is the same propagation class the report itself has now logged thirteen times, landing on the two sections a reviewer scans for tallies."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md -- Regression Tests Run table",
-      "note": "Stale relative to the quality-gate regression capture. The table records the block suite at 306/306 and the discovery suite at 12/12; the carried regression log shows 24 for discovery and the block suite at 361. The table also omits four suites the contract and the regression log show were run at the shipped state (validate-resolver-evidence 138, parity 70, metamorphic 150, component-path-resolver 73). The gate evidence itself is complete and green, so this is presentation only."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log - mutants C, D, F",
+      "note": "Verified honest: the clean control is present at the top of the log, all three mutants report exactly the control tally, and the log restores to the sha256 that the Outputs table and the human-copy manifest both declare for the staged resolver. None of the three guards implements a frozen acceptance criterion, so no AC is left untested. The reservation is that the stated reason for C understates feasibility. C needs a kill hook between the rollback and the Block Evidence write, and this suite already ships a sys.addaudithook observer of the os.rename audit event whose kill point is a single integer constant; the shipped and mutated end states are observably different across a second invocation (journal standing, so the scan Blocks publication-journal-recovery, versus journal gone, so the scan proceeds while Evidence still holds the success-form record). Two of the three uncovered guards were remediations of a Critical and a Major on the one code path in this feature that writes a live artifact, and the report itself states that this area now rests on review rather than on regression tests."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md -- Round 7 remediation paragraph",
-      "note": "Still cites green-panel8-sh.log and green-panel8-ps1.log as two of the three new declared rows. Neither file appears in the report's own Outputs table nor anywhere in this bundle; round 9 renamed those captures to green-shipped. Same cited-file-does-not-exist class the round-12 entry records finding on the contract."
+      "ref": "staged resolve-project-context.py, module docstring first line",
+      "note": "The summary line still reads 'Capability Resolver, implementation stages T-002+T-003+T-004 (steps 0-13)' while the body of the same docstring goes on to describe T-007 completing the pipeline with step 0.5 and step 14. In a Security-Sensitive file whose own Standing Note tells reviewers to trust these descriptions, the opening sentence and the body disagree about what the file implements."
     },
     {
       "severity": "Minor",
-      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md -- Mutation proofs table",
-      "note": "The four-mutant table (bare-unlink-rollback, no-journal-before-rename, no-post-publication-recheck, digest-only-step13, control 46 passed / 0 failed) describes a run whose log is not a declared output and is not carried in this bundle; the only mutation artifact carried is the six-mutant A-F set, which does not include the bare-unlink mutant. Quality Gate Focus item 3 names mutation (a) as the non-vacuity proof for this task's load-bearing rollback assertions, so that specific proof is unverifiable here. Substance is unaffected: the assertions compare against PRE byte literals and a missing target is reported as a MISSING sentinel, so the unlink-versus-restore discrimination is directly inspectable in the driver."
+      "ref": "specs/epic-193-a5-capability-resolver/verification/T-007.contract.json versus tasks.md T-007 block",
+      "note": "The contract declares cross_model as 'required'; the frozen task block declares 'Cross-Model: not enabled'. The contract comment justifies the difference from the ship-stage rule that makes a panel mandatory for a Security-Sensitive task, and it errs toward more verification rather than less, so nothing is weakened. Recorded because the two authoritative records disagree on one field and only the contract explains why."
     },
     {
       "severity": "Minor",
-      "ref": "specs/epic-193-a5-capability-resolver/investigation.md -- Per-document SHA-256 after these rulings and the fixture they required",
-      "note": "Records the staged resolver at 46d3143e..., which is the round-12 value; the shipped file declared in the report Outputs table and restored by mutation-proofs.log is 379c3ed0.... The heading is arguably historical, but the section reads as the post-ruling shipped state and carries no round-13 marker."
+      "ref": "reports/implementation/epic-193-a5-capability-resolver/T-007.md - Specification Differences",
+      "note": "Planned Files in the task block names the block suite launcher pair as edited to append the transactional fixtures; the Outputs table and Files Changed carry only the shared Python driver and the fixture directories. The launcher-delegates-to-driver architecture makes that correct and the Outputs table matches the bundle one-for-one, but the section that reads 'None' does not record the deviation from the task's own Planned Files."
     }
   ],
   "blind": true,
-  "input_digest": "7857dbd797616fb6fbc39c4a140d61c609ecb6809cf40eb208cb876cf1540044",
+  "input_digest": "9da3a9b3eb71118492af10a116e2c32c848ebce6ea6251c2868336739f7e3d43",
   "consent": {
     "kind": "sudo",
     "ref": "sudo flag file at repository root, human-issued 2026-08-28T09:59:58Z"

@@ -3,11 +3,17 @@
   "task_id": "T-007",
   "feature": "epic-193-a5-capability-resolver",
   "vendor": "openai",
-  "model": "gpt-5.6-sol",
-  "verdict": "PASS",
-  "findings": [],
+  "model": "gpt-5",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py:1422",
+      "note": "Recovery accepts any nonempty, unique subset of allowed target paths instead of validating that the journal exactly represents a legitimate Full or Lite publication bundle. Because the same unprotected journal supplies PRE/POST hashes, a fabricated mixed-state journal can classify an existing artifact as POST with PRE=ABSENT and cause recovery to delete it, violating the required all-target transaction boundary and preservation of pre-existing bytes."
+    }
+  ],
   "blind": true,
-  "input_digest": "7857dbd797616fb6fbc39c4a140d61c609ecb6809cf40eb208cb876cf1540044",
+  "input_digest": "9da3a9b3eb71118492af10a116e2c32c848ebce6ea6251c2868336739f7e3d43",
   "consent": {
     "kind": "sudo",
     "ref": "sudo 2026-08-08T16:04:17Z"

@@ -1,7 +1,7 @@
 # Panelist Input Bundle
 # task_id: T-007
 # feature: epic-193-a5-capability-resolver
-# input_digest: 7857dbd797616fb6fbc39c4a140d61c609ecb6809cf40eb208cb876cf1540044
+# input_digest: 9da3a9b3eb71118492af10a116e2c32c848ebce6ea6251c2868336739f7e3d43
 # consent: sudo
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
@@ -16376,6 +16376,12 @@ PASS: POSIX suite registered in tests/run-all.sh
 PASS: PowerShell suite registered in tests/run-all.ps1
 RESULT: 361 passed, 0 failed
 # ---- specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log ----
+--- CLEAN CONTROL: no mutant, shipped bytes ---
+(Every UNCOVERED verdict below is stated RELATIVE to this run. Without it
+ on the page those verdicts are unverifiable, which is exactly what the
+ anthropic panel slot found on round 13: the notes cited a control run
+ that this log did not contain.)
+RESULT: 361 passed, 0 failed
 mutant injected
 --- MUTANT A: approval-surface mention injected (expect TEST-059 FAIL) ---
 FAIL: TEST-059: specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py never names an approval-surface path, so it writes to none of them (AC-059): ['approval sidecar (*.approval.json)', 'approved-context anchor (sdd/.approved-context/)', 'guard invariants file (guard-invariants.json)']
@@ -16405,7 +16411,7 @@ mutant E injected: journal records the symlink referent, not the lexical entry
 --- MUTANT E: journal path resolves the leaf again (expect leaf-symlinked FAIL) ---
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: the leaf symlink does NOT make the publish refuse -- the run reaches the same post-publication Block, with the same rollback clause, as the non-symlinked fixture (ruling (b)): rc=1 stderr="capability-resolver: post-publication-generation-mismatch: a post-publication verification of the Project Context, Registry, or ownership-source snapshot detected drift after every rename in this invocation's own publication transaction had already succeeded; an in-process journal-based rollback of 2 already-committed live renames did not itself complete; the next invocation's own crash-recovery scan is the durable backstop\n"
 FAIL: post-publication-generation-mismatch[leaf-symlinked]: after rollback the LEXICAL entry holds its PRE bytes -- the commit replaced the symlink entry, so the rollback must restore THAT entry and not the referent the old whole-path resolution would have recorded in the journal: is_symlink=False bytes=b'{"affected_components":["comp-a"],"capabilities":[],"conditi'
-FAIL: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives: ['90faf779235dc6d9c5b5c1a4465f38ea', '90faf779235dc6d9c5b5c1a4465f38ea/TRANSACTION.json', '90faf779235dc6d9c5b5c1a4465f38ea/pre', '90faf779235dc6d9c5b5c1a4465f38ea/pre/facet-manifest.yaml', '90faf779235dc6d9c5b5c1a4465f38ea/pre/project-context.resolved.json']
+FAIL: post-publication-generation-mismatch[leaf-symlinked]: the journal is deleted once the Block record is durable, and no staging litter survives: ['a9ab1e8aee90cb55b7741a5745e22a16', 'a9ab1e8aee90cb55b7741a5745e22a16/TRANSACTION.json', 'a9ab1e8aee90cb55b7741a5745e22a16/pre', 'a9ab1e8aee90cb55b7741a5745e22a16/pre/facet-manifest.yaml', 'a9ab1e8aee90cb55b7741a5745e22a16/pre/project-context.resolved.json']
 RESULT: 358 passed, 3 failed
 mutant F injected: journal discarded even when the Evidence write failed
 --- MUTANT F: discard guarded on rollback only, not on Evidence durability ---
@@ -22040,7 +22046,7 @@ Cross-cutting checks extended per the Done When bullets:
 
 | Path | SHA-256 |
 |---|---|
-| `CHANGELOG.md` | `f5984a6c5a7d86afdab8f45a820eccd38ab8783567eac96d2f5aea10f5028f44` |
+| `CHANGELOG.md` | `3a7432d77e055cdeb6f70862c57cd277d9f9d4083f91789a747d9a5e66db437d` |
 | `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256` | `dd97e5bbcb390491b16c5cfe5a3680717ec5f37d2a319a00f1de241594c04152` |
 | `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-loop/scripts/resolve-project-context.py` | `379c3ed0cb7b1d7da5076726b80829cfb4e8828d664c59543afa0d1c23b6562c` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-panel1-ps1.log` | `485d358400f22d1cadbab25bb16732572339cd0a6c652edb3dc1b0f2b307abd4` |
@@ -22059,7 +22065,7 @@ Cross-cutting checks extended per the Done When bullets:
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-sh.log` | `5c6477860a5c7cc09ac6d9ece1a905ee77614456d38f7bab4fd6231a02bcf9d7` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-ps1.log` | `3d1a1ca832f5abe132ad595bacf54c3dfd9b548e77f72982f292a0fcfb9050b4` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/green-shipped-sh.log` | `758c7403b64041d53258cc3612e446c5a9c660ff52291c8e87c7d1166a3a7b40` |
-| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `ffb8074b0fb3803f50e7e414e1dedf069b0c3994c98c32266cef8645fbd52d2a` |
+| `specs/epic-193-a5-capability-resolver/verification/T-007/mutation-proofs.log` | `6a4825a41b344a6195cbb50903aec50345fb9d634b84d75546dd8b74094edca8` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel1-sh.log` | `b8b7cbbd3ff56eaf540d60c125920e533e3b83b7a86aa1f3b9311a1658edc083` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-ps1.log` | `4cbcc71951a57ae637138ac4b52dbc0bab83cfafb44b314d71b7580a823538b5` |
 | `specs/epic-193-a5-capability-resolver/verification/T-007/red-panel2-sh.log` | `cb847ba1e34ba5487dccbaf6c7ba96e132085dac19a82cf52a4596cd5756a320` |
@@ -22368,7 +22374,17 @@ RED/GREEN captures but none of its panelist verdicts, contract, or
 
 - **Test Command**: `sh tests/resolve-project-context-block.tests.sh` and
   `pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1`
-- **Test Result**: PASS (306 passed / 0 failed, both runtimes, exit 0)
+- **Test Result**: PASS (361 passed / 0 failed, both runtimes, exit 0) —
+  `verification/T-007/green-shipped-sh.log` and `green-shipped-ps1.log`,
+  which are the captures taken at the bytes this report declares under
+  Outputs. **Corrected 2026-08-29 (round 13).** This field read
+  `306 passed / 0 failed` and pointed at `green-sh.log` / `green-ps1.log`,
+  the round-1 captures: true when written, and stale from panel round 2
+  onward. Round 9 of this report renamed the captures to `green-shipped-*`
+  and said so, and then did not repoint this field — the thirteenth
+  appearance of the amendment-propagation class in this package, on the one
+  field a reader checks first. The original round-1 captures are retained
+  under their own names as the historical record of that run.
 - **Test Evidence Path**: `specs/epic-193-a5-capability-resolver/verification/T-007`
 
 ### RED capture
@@ -24030,11 +24046,23 @@ gate cycle-1 実測更新; 初回記載の 59 は登録時点の値）。union-m
   1 つ注入する（TEST-059 が 3 カテゴリ全てで発火）、Evidence を rollback
   集合へ戻す、journal パスを末端解決へ戻す（末端 symlink fixture が
   3 アサーションで撃墜）、の mutation で非空虚性を実証済み。
-  **未カバーと判明した 2 件も同じログに明記してある** — journal 削除を
-  Evidence 書き込みの前に戻す変更（非クラッシュ経路では最終状態が
-  バイト同一なので、rollback と Evidence 書き込みの間に kill hook を
-  持たない限り観測できない）と、journal の nonce をバッチ名から
-  切り離す変更（バッチをまたいで journal を移植する fixture が無い）。
+  さらに `_block` の本体を `_block_reporting(...) -> (exit_code,
+  wrote_evidence)` へ切り出し、post-publication の 2 経路が journal を
+  捨てる条件を `complete and wrote` にした — 従来は rollback の完了だけを
+  見ており、Evidence 書き込みが失敗しても journal を消していた。
+  `_block` は薄いラッパのままなので 40 箇所の呼び出しは無変更。
+  **未カバーと判明した 3 件も同じログに明記してある**（訂正 2026-08-29:
+  この行は「2 件」と書いていたが、3 件目が round 13 で加わっている） —
+  journal 削除を Evidence 書き込みの前に戻す変更（非クラッシュ経路では
+  最終状態がバイト同一なので、rollback と Evidence 書き込みの間に
+  kill hook を持たない限り観測できない）、journal の nonce をバッチ名から
+  切り離す変更（バッチをまたいで journal を移植する fixture が無い）、
+  そして上記の `complete and wrote` を `complete` だけに戻す変更
+  （rollback 成功の**後**に Evidence 書き込みだけが失敗する組合せが必要で、
+  feature ディレクトリを不正にすれば publication targets も不正になり
+  commit 前に publish が拒否されるため、fixture では作れない）。
+  **3 件とも rollback / Evidence / journal 経路に集中しており、この領域の
+  正しさはテストでなくレビューに依存している。**
   既存の `resolve-project-context-match`（125/0）・`-cli`（13/0）・
   `-discovery`（24/0）・`-lite`（18/0）は無編集で回帰なし。
   新規スイート登録も `tests/run-all.{sh,ps1}` 変更もなし。
